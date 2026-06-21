@@ -20,6 +20,7 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 
 ## Documentation
 
+- [Omnigent Constitution](docs/omnigent-constitution.md)
 - [Architecture](docs/architecture.md)
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)

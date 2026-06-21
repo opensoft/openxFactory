@@ -34,6 +34,7 @@ OpenSpec change approved by Hermes
 
 ## Non-Negotiable Gates
 
+- No Omnigent/Polly engineering job starts without loading the Omnigent Constitution.
 - No Spec Kit feature starts without Hermes-approved OpenSpec scope.
 - No Spec Kit feature starts until it has passed the feature decomposition standard.
 - No feature PR may exceed 10,000 changed lines without explicit Hermes exception approval.
