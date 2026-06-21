@@ -23,8 +23,8 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Architecture](docs/architecture.md)
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
+- [Deployment and Worker Model](docs/deployment-worker-model.md)
 
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, or generated agent workspaces.
-
