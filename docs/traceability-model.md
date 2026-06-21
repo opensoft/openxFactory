@@ -11,6 +11,7 @@ epic
       -> OpenSpec change
       -> Spec Kit feature artifacts
       -> implementation tasks
+      -> bug mapping index
       -> branch
       -> local deterministic check report
       -> local branch review report
@@ -39,6 +40,7 @@ Factory coordination artifacts should live separately:
   phases.yaml
   features.yaml
   dependency-dag.yaml
+  bug-mapping-index.yaml
   traceability.json
   admissions/
   reviews/
@@ -174,6 +176,26 @@ acceptance_criteria_evidence:
     test_evidence: []
     status: not_covered
     notes: "Cross-tenant denial missing."
+```
+
+## Bug-to-Feature Traceability
+
+The traceability model must support user-reported bug routing.
+
+Users usually report bugs by perceived feature, not by epic, PR, service, package, or file path. Hermes should maintain a bug mapping index so a report like "invoice retrieval is showing another company's invoice" maps cleanly to the owning feature, acceptance criterion, PR, tests, and merge council history.
+
+Minimum bug mapping fields:
+
+```yaml
+bug_mapping:
+  feature_id:
+  user_reported_names:
+  visible_surfaces:
+  primary_failure_modes:
+  owned_paths:
+  acceptance_criteria:
+  prs:
+  merge_council_reports:
 ```
 
 ## Merge Council Artifact Location

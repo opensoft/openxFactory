@@ -6,8 +6,8 @@ This is the required factory workflow from approved epic through final merge.
 
 1. Epic spec exists after constitution.
 2. Hermes instructs Polly to do pre-Spec-Kit decomposition.
-3. Polly decomposes epic into phases and small orthogonal features.
-4. Polly creates traceability artifacts and a feature dependency DAG.
+3. Polly decomposes epic into phases and small, user-perceivable, orthogonal, encapsulated features.
+4. Polly creates traceability artifacts, feature dependency DAG, bug mapping index, and PR size estimates.
 5. Only approved features proceed to `/speckit.specify`.
 6. Sonnet implements small tasks and features by default.
 7. Polly runs local deterministic checks.
@@ -35,6 +35,8 @@ OpenSpec change approved by Hermes
 ## Non-Negotiable Gates
 
 - No Spec Kit feature starts without Hermes-approved OpenSpec scope.
+- No Spec Kit feature starts until it has passed the feature decomposition standard.
+- No feature PR may exceed 10,000 changed lines without explicit Hermes exception approval.
 - No implementation branch opens a PR without local deterministic checks.
 - No PR opens without local pre-PR branch review.
 - No merge proceeds without Hermes merge council approval and a recorded merge readiness report.
