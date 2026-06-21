@@ -15,7 +15,7 @@ This is the required factory workflow from approved epic through final merge.
 9. Hermes approves whether the branch is allowed to open a PR.
 10. Polly opens a PR only after local admission passes.
 11. GitHub Actions and PR review systems run.
-12. Hermes convenes merge council.
+12. Hermes convenes merge council and records a merge readiness report.
 13. GitHub branch protection and merge queue enforce final merge rules.
 
 ## Handoff Rule
@@ -37,7 +37,7 @@ OpenSpec change approved by Hermes
 - No Spec Kit feature starts without Hermes-approved OpenSpec scope.
 - No implementation branch opens a PR without local deterministic checks.
 - No PR opens without local pre-PR branch review.
-- No merge proceeds without Hermes merge council approval.
+- No merge proceeds without Hermes merge council approval and a recorded merge readiness report.
 - No final merge bypasses GitHub branch protection.
 
 ## Model Assignment
@@ -59,8 +59,9 @@ local-checks-passed
 branch-review-passed
 approved-for-pr
 pr-opened
+merge-council-running
+merge-council-blocked
 merge-council-approved
 merged
 archived
 ```
-

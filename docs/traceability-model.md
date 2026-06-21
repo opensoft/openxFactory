@@ -42,6 +42,7 @@ Factory coordination artifacts should live separately:
   traceability.json
   admissions/
   reviews/
+  merge-council/
 ```
 
 ## Feature Handoff Shape
@@ -78,7 +79,118 @@ local_checks:
 branch_review:
 pr:
 merge_council_decision:
+merge_council_report:
 merge_commit:
 archive_ref:
 ```
 
+## Traceability Report
+
+Every feature should have a traceability report that connects approved intent to implementation and merge evidence.
+
+```markdown
+# Feature Traceability Report
+
+Feature: FEAT-014 Invoice Retrieval
+OpenSpec Change: add-invoice-retrieval
+Spec Kit Feature: 014-invoice-retrieval
+Branch: feat/014-invoice-retrieval
+PR: #238
+
+## Source Intent
+
+- Epic: EPIC-003 Billing Operations
+- Phase: PHASE-002 Invoice Workflows
+- OpenSpec change: openspec/changes/add-invoice-retrieval
+- Hermes approval: HA-2026-06-21-014
+
+## Spec Kit Artifacts
+
+- spec.md
+- plan.md
+- tasks.md
+- analysis report
+
+## Acceptance Criteria Evidence
+
+| AC | Spec Source | Implementation Evidence | Test Evidence | Status |
+|---|---|---|---|---|
+| FEAT-014.AC-01 | spec.md | invoice-service.ts | invoice-route.test.ts | Covered |
+| FEAT-014.AC-02 | spec.md | invoice-route.ts | invoice-service.test.ts | Covered |
+| FEAT-014.AC-03 | spec.md | Missing | Missing | Not Covered |
+
+## Review Evidence
+
+- Local deterministic checks: .factory/admissions/FEAT-014/checks.md
+- Local branch review: .factory/reviews/FEAT-014/branch-review.md
+- Merge council report: .factory/merge-council/FEAT-014/report.md
+
+## Final State
+
+Decision: NOT_READY
+Next Action: return to Polly for targeted fixes
+```
+
+## Acceptance Criteria Evidence Rules
+
+Acceptance criteria should be tracked individually. A feature is not traceable if it only has a general statement such as "tests added" or "implemented in service."
+
+Each acceptance criterion should include:
+
+- criterion ID
+- source artifact
+- implementation evidence
+- test evidence
+- reviewer evidence, when applicable
+- status
+- notes
+
+Allowed statuses:
+
+```text
+covered
+partially_covered
+not_covered
+not_applicable
+deferred
+```
+
+Machine-readable example:
+
+```yaml
+acceptance_criteria_evidence:
+  - id: FEAT-014.AC-01
+    source: specs/invoices/spec.md
+    implementation_evidence:
+      - apps/api/invoices/invoice-service.ts
+    test_evidence:
+      - apps/api/invoices/invoice-route.test.ts
+    status: covered
+    notes: null
+
+  - id: FEAT-014.AC-03
+    source: specs/invoices/spec.md
+    implementation_evidence: []
+    test_evidence: []
+    status: not_covered
+    notes: "Cross-tenant denial missing."
+```
+
+## Merge Council Artifact Location
+
+Merge council reports should be stored under:
+
+```text
+.factory/merge-council/<feature-id>/
+  report.md
+  result.yaml
+  reviewer-results/
+    spec-traceability.yaml
+    security.yaml
+    tests.yaml
+    architecture.yaml
+    maintainability.yaml
+    integration.yaml
+```
+
+The Markdown report is for human review. The YAML result is for dashboards, GitHub checks, and Hermes memory.
