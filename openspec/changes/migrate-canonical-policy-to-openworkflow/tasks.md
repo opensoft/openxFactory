@@ -23,11 +23,11 @@
 
 ## 4. FEAT-MIG-003 PR Admission, Merge Council, And Merge Master
 
-- [ ] 4.1 Inventory PR admission, merge council, merge master, and merge risk sources.
-- [ ] 4.2 Create `openWorkflow/docs/pr-admission.md`.
-- [ ] 4.3 Create `openWorkflow/docs/merge-master.md`.
-- [ ] 4.4 Update `openWorkflow/docs/merge-council.md` if canonical gaps remain.
-- [ ] 4.5 Add install repo link/update evidence.
+- [x] 4.1 Inventory PR admission, merge council, merge master, and merge risk sources.
+- [x] 4.2 Create `openWorkflow/docs/pr-admission.md`.
+- [x] 4.3 Create `openWorkflow/docs/merge-master.md`.
+- [x] 4.4 Update `openWorkflow/docs/merge-council.md` if canonical gaps remain.
+- [x] 4.5 Add install repo link/update evidence.
 
 ## 5. FEAT-MIG-004 Feature Decomposition And Traceability
 
