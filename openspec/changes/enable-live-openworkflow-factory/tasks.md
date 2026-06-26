@@ -6,11 +6,11 @@
 
 ## 2. Contract Pinning And Compatibility
 
-- [ ] 2.1 Add or update Omnigent contract compatibility reference.
-- [ ] 2.2 Add or update Hermes contract compatibility reference.
-- [ ] 2.3 Add install validation for referenced `openWorkflow` commit and required contracts.
-- [ ] 2.4 Confirm local compatibility copies are not deleted.
-- [ ] 2.5 Record install repo PR evidence and update submodule pins where applicable.
+- [x] 2.1 Add or update Omnigent contract compatibility reference.
+- [x] 2.2 Add or update Hermes contract compatibility reference.
+- [x] 2.3 Add install validation for referenced `openWorkflow` commit and required contracts.
+- [x] 2.4 Confirm local compatibility copies are not deleted.
+- [x] 2.5 Record install repo PR evidence and update submodule pins where applicable.
 
 ## 3. Hermes Runtime Control Plane
 
