@@ -52,9 +52,13 @@ none
 Archived changes:
 
 - [restructure-factory-repo-boundaries](openspec/changes/archive/2026-06-26-restructure-factory-repo-boundaries/proposal.md)
+- [migrate-canonical-policy-to-openworkflow](openspec/changes/archive/2026-06-26-migrate-canonical-policy-to-openworkflow/proposal.md)
 
 Canonical specs:
 
+- [canonical-contract-migration](openspec/specs/canonical-contract-migration/spec.md)
+- [canonical-policy-migration](openspec/specs/canonical-policy-migration/spec.md)
+- [reference-proof-placement](openspec/specs/reference-proof-placement/spec.md)
 - [repo-boundary-governance](openspec/specs/repo-boundary-governance/spec.md)
 - [shared-contract-ownership](openspec/specs/shared-contract-ownership/spec.md)
 

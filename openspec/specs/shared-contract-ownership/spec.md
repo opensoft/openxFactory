@@ -4,12 +4,12 @@
 Defines how `openWorkflow` owns shared factory contracts, how install repos pin
 contract compatibility, how submodules are sequenced, and how evidence is
 preserved from proposal through merge readiness.
-
 ## Requirements
 ### Requirement: Canonical contract home
 `openWorkflow` SHALL define the canonical home for shared factory contracts
 used between Hermes, Omnigent/Polly, Spec Kit, OpenSpec, GitHub, and merge
-council workflows.
+council workflows. Migrated contracts SHALL preserve source provenance and
+consumer compatibility expectations.
 
 #### Scenario: Shared schema is introduced
 - **WHEN** a schema or contract governs behavior between two or more factory subsystems
@@ -18,6 +18,10 @@ council workflows.
 #### Scenario: Subsystem adapter needs a contract
 - **WHEN** an install repo needs a runtime adapter, generated client, smoke fixture, or pinned schema copy
 - **THEN** the install repo MAY keep an implementation copy but MUST identify the corresponding `openWorkflow` contract version
+
+#### Scenario: Existing schema is migrated
+- **WHEN** a shared schema is copied from an install repo into `openWorkflow/contracts/`
+- **THEN** the canonical copy MUST identify the source path, intended consumers, compatibility reference, and adapter ownership rule
 
 ### Requirement: Contract version pinning
 Install repositories SHALL pin compatible contract versions or commits from
@@ -45,7 +49,8 @@ adding install repositories as submodules.
 
 ### Requirement: Evidence preservation
 Each repo-boundary feature SHALL preserve traceability evidence from proposal
-through merge readiness.
+through merge readiness. Content migration features SHALL also preserve source
+inventory and post-merge install repo link/update evidence where applicable.
 
 #### Scenario: Feature proceeds to PR admission
 - **WHEN** a repo-boundary feature is ready for PR
@@ -54,3 +59,7 @@ through merge readiness.
 #### Scenario: Feature proceeds to merge
 - **WHEN** a repo-boundary feature is considered for merge
 - **THEN** merge council MUST have a merge readiness report that references the relevant OpenSpec change, feature slice, and evidence artifacts
+
+#### Scenario: Content migration feature proceeds to merge
+- **WHEN** a dogfood content migration feature is considered for merge
+- **THEN** merge readiness MUST include source provenance, copy-first compliance, and evidence that source repos were not destructively changed in the same PR
