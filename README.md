@@ -35,6 +35,7 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Repository Boundary Audit](docs/repo-boundary-audit.md)
 - [Repo Boundary Change Pilot Plan](docs/repo-boundary-pilot-plan.md)
 - [Dogfood Content Migration Plan](docs/dogfood-content-migration-plan.md)
+- [Content Cleanup Decision](docs/content-cleanup-decision.md)
 
 ## Reference Examples
 

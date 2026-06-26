@@ -61,10 +61,10 @@
 
 ## 9. FEAT-MIG-008 Removal Or Cleanup Decision
 
-- [ ] 9.1 Decide whether legacy policy copies should be removed, archived, or kept.
-- [ ] 9.2 If removals are approved, isolate them in dedicated PRs.
-- [ ] 9.3 Confirm no runtime files, scripts, manifests, or generated adapters are removed by policy cleanup.
-- [ ] 9.4 Document rollback path.
+- [x] 9.1 Decide whether legacy policy copies should be removed, archived, or kept.
+- [x] 9.2 If removals are approved, isolate them in dedicated PRs.
+- [x] 9.3 Confirm no runtime files, scripts, manifests, or generated adapters are removed by policy cleanup.
+- [x] 9.4 Document rollback path.
 
 ## 10. Final Validation And Archive
 
