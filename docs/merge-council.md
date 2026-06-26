@@ -2,6 +2,12 @@
 
 Hermes manages the merge council. GitHub remains the hard enforcement layer.
 
+Related canonical policy:
+
+- [PR Admission](pr-admission.md) defines the pre-PR gate.
+- [Merge Master](merge-master.md) defines post-council risk classification and
+  GitHub review action policy.
+
 The merge council is the formal decision process that evaluates whether a pull request is ready to merge after Polly has implemented the feature, opened the PR, and GitHub checks have run.
 
 The merge council does not replace GitHub branch protection, required reviews, status checks, CODEOWNERS, or merge queue. It produces a required readiness decision and records the reasoning behind that decision.
@@ -448,4 +454,3 @@ fix_request:
 ```
 
 Polly then fixes the PR branch, reruns relevant checks, and returns an updated packet to Hermes.
-
