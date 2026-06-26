@@ -14,10 +14,10 @@
 
 ## 3. FEAT-RB-002 Contract Home Placeholder
 
-- [ ] 3.1 Create `contracts/README.md` in `openWorkflow`.
-- [ ] 3.2 List planned shared contracts and schema names.
-- [ ] 3.3 Document contract source-of-truth, version pinning, adapter, and generated-copy rules.
-- [ ] 3.4 Validate that no install repo files are changed in this feature.
+- [x] 3.1 Create `contracts/README.md` in `openWorkflow`.
+- [x] 3.2 List planned shared contracts and schema names.
+- [x] 3.3 Document contract source-of-truth, version pinning, adapter, and generated-copy rules.
+- [x] 3.4 Validate that no install repo files are changed in this feature.
 
 ## 4. FEAT-RB-003 Omnigent-Install Scope Link
 
