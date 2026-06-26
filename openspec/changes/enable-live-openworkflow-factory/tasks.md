@@ -21,11 +21,11 @@
 
 ## 4. Omnigent Worker Event Bridge
 
-- [ ] 4.1 Verify worker-side Hermes event client uses canonical event contract.
-- [ ] 4.2 Verify marker fallback remains compatible.
-- [ ] 4.3 Add idempotency check for duplicate bridge keys.
-- [ ] 4.4 Add no-op behavior check when Hermes API environment is absent.
-- [ ] 4.5 Record worker bridge evidence.
+- [x] 4.1 Verify worker-side Hermes event client uses canonical event contract.
+- [x] 4.2 Verify marker fallback remains compatible.
+- [x] 4.3 Add idempotency check for duplicate bridge keys.
+- [x] 4.4 Add no-op behavior check when Hermes API environment is absent.
+- [x] 4.5 Record worker bridge evidence.
 
 ## 5. Spec Kit Stage Control And Clarification Routing
 
