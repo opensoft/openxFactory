@@ -52,5 +52,5 @@
 
 - [x] 8.1 Validate the OpenSpec change with `openspec validate restructure-factory-repo-boundaries --strict`.
 - [x] 8.2 Confirm no secrets, credential profiles, generated databases, or runtime state are tracked.
-- [ ] 8.3 Confirm each implemented feature has acceptance evidence.
+- [x] 8.3 Confirm each implemented feature has acceptance evidence.
 - [ ] 8.4 Archive the OpenSpec change only after all approved feature slices are complete.
