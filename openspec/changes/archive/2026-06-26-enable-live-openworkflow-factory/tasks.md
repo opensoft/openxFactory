@@ -60,8 +60,8 @@
 
 ## 9. Final Validation And Archive
 
-- [ ] 9.1 Run OpenSpec strict validation.
-- [ ] 9.2 Run contract and example syntax checks.
-- [ ] 9.3 Run applicable install repo smoke tests.
-- [ ] 9.4 Confirm all feature slices have evidence and merge readiness reports.
-- [ ] 9.5 Archive the OpenSpec change after approved slices complete.
+- [x] 9.1 Run OpenSpec strict validation.
+- [x] 9.2 Run contract and example syntax checks.
+- [x] 9.3 Run applicable install repo smoke tests.
+- [x] 9.4 Confirm all feature slices have evidence and merge readiness reports.
+- [x] 9.5 Archive the OpenSpec change after approved slices complete.
