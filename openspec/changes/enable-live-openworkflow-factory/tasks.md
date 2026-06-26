@@ -44,11 +44,11 @@
 
 ## 7. PR Admission, Merge Council, And Merge Master
 
-- [ ] 7.1 Verify PR admission blocks missing checks, review, traceability, and over-budget changes.
-- [ ] 7.2 Verify GitHub PR opens only after Hermes admission approval.
-- [ ] 7.3 Verify Merge Council produces readiness report from GitHub evidence.
+- [x] 7.1 Verify PR admission blocks missing checks, review, traceability, and over-budget changes.
+- [x] 7.2 Verify GitHub PR opens only after Hermes admission approval.
+- [x] 7.3 Verify Merge Council produces readiness report from GitHub evidence.
 - [ ] 7.4 Verify Merge Master dry-run classifies low/medium/high risk and routes human review.
-- [ ] 7.5 Record PR/merge evidence.
+- [x] 7.5 Record PR/merge evidence.
 
 ## 8. CloudPC Worker, Auth, Memory, And Operations
 
