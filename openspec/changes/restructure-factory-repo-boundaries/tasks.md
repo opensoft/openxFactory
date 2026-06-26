@@ -21,10 +21,10 @@
 
 ## 4. FEAT-RB-003 Omnigent-Install Scope Link
 
-- [ ] 4.1 Update `Omnigent-Install` README to state its install, worker runtime, operations, and DR scope.
-- [ ] 4.2 Link `Omnigent-Install` to canonical `openWorkflow` boundary and workflow policy.
-- [ ] 4.3 Mark duplicate policy material as implementation notes or legacy copies where appropriate.
-- [ ] 4.4 Run existing `Omnigent-Install` smoke checks.
+- [x] 4.1 Update `Omnigent-Install` README to state its install, worker runtime, operations, and DR scope.
+- [x] 4.2 Link `Omnigent-Install` to canonical `openWorkflow` boundary and workflow policy.
+- [x] 4.3 Mark duplicate policy material as implementation notes or legacy copies where appropriate.
+- [x] 4.4 Run existing `Omnigent-Install` smoke checks.
 
 ## 5. FEAT-RB-004 Hermes-Install Scope Link
 
