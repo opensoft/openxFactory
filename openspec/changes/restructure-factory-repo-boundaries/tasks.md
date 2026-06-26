@@ -28,10 +28,10 @@
 
 ## 5. FEAT-RB-004 Hermes-Install Scope Link
 
-- [ ] 5.1 Update `Hermes-Install` README to state its Hermes install, operations, backup, restore, upgrade, and DR scope.
-- [ ] 5.2 Link `Hermes-Install` to canonical `openWorkflow` boundary and workflow policy.
-- [ ] 5.3 Document the unresolved `Hermes-Install` remote ownership decision.
-- [ ] 5.4 Verify no deployment scripts or manifests change in this feature.
+- [x] 5.1 Update `Hermes-Install` README to state its Hermes install, operations, backup, restore, upgrade, and DR scope.
+- [x] 5.2 Link `Hermes-Install` to canonical `openWorkflow` boundary and workflow policy.
+- [x] 5.3 Document the unresolved `Hermes-Install` remote ownership decision.
+- [x] 5.4 Verify no deployment scripts or manifests change in this feature.
 
 ## 6. FEAT-RB-005 Submodule Decision Record
 
