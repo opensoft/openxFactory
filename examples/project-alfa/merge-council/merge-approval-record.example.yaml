@@ -1,0 +1,12 @@
+artifact_id: ART-ALFA-FEAT-014-MERGE-APPROVAL
+artifact_type: hermes_merge_approval
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-001
+repository: opensoft/project-alfa
+pr_number: 238
+approval_request_id: APR-ALFA-FEAT-014-MERGE-001
+decision: approved_for_merge_queue
+github_final_enforcement:
+  branch_protection_required: true
+  merge_queue_required: true
+  direct_merge_allowed: false

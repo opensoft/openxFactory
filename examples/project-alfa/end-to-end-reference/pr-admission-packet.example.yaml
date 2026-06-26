@@ -1,0 +1,90 @@
+artifact_id: ART-ALFA-FEAT-001-PR-ADMISSION
+artifact_type: pr_admission_packet
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-PR_ADMISSION
+branch: pilot/FEAT-001-repo-diagnostics-command
+base_branch: main
+repository: opensoft/project-alfa
+candidate_pr:
+  title: "FEAT-001: Repo Diagnostics Command"
+  draft: true
+  opened: false
+  may_open_after_approval: true
+inputs:
+  decomposition_packet: examples/project-alfa-next-non-doc/decomposition-packet.example.yaml
+  speckit_artifacts: examples/project-alfa-next-non-doc/speckit-artifacts.example.yaml
+  branch_commit_record: examples/project-alfa-next-non-doc/branch-record.example.yaml
+  deterministic_checks: examples/project-alfa-next-non-doc/deterministic-check-results.example.yaml
+  branch_review: examples/project-alfa-next-non-doc/branch-review-findings.example.yaml
+changed_files:
+  - scripts/alfa-diagnostics.sh
+  - tests/alfa-diagnostics-smoke.sh
+  - specs/001-repo-diagnostics-command/analysis.md
+  - specs/001-repo-diagnostics-command/clarify.md
+  - specs/001-repo-diagnostics-command/implementation-report.md
+  - specs/001-repo-diagnostics-command/spec.md
+  - specs/001-repo-diagnostics-command/plan.md
+  - specs/001-repo-diagnostics-command/tasks.md
+line_budget:
+  max_changed_lines_per_pr: 10000
+  estimated_changed_lines: 269
+  status: within_budget
+local_checks:
+  - command: ./scripts/alfa-diagnostics.sh
+    result: pass
+    evidence: examples/project-alfa-next-non-doc/deterministic-check-results.example.yaml
+  - command: ./scripts/alfa-diagnostics.sh json
+    result: pass
+    evidence: examples/project-alfa-next-non-doc/deterministic-check-results.example.yaml
+  - command: ./tests/alfa-diagnostics-smoke.sh
+    result: pass
+    evidence: examples/project-alfa-next-non-doc/deterministic-check-results.example.yaml
+acceptance_criteria:
+  - id: FEAT-001.AC-01
+    covered: true
+    evidence: scripts/alfa-diagnostics.sh
+    notes: Command prints human-readable repository diagnostics.
+  - id: FEAT-001.AC-02
+    covered: true
+    evidence: scripts/alfa-diagnostics.sh json
+    notes: Command prints machine-readable JSON diagnostics.
+  - id: FEAT-001.AC-03
+    covered: true
+    evidence: tests/alfa-diagnostics-smoke.sh
+    notes: Smoke test verifies both output modes.
+branch_review:
+  result: pass
+  blocking_findings: []
+  warning_count: 1
+security_notes:
+  decision: pass
+  notes: No credential paths, auth profile contents, or secret values are emitted by the diagnostics command.
+architecture_notes:
+  decision: pass
+  notes: Feature is isolated to repo diagnostics script, smoke test, and Spec Kit artifacts.
+pr_admission:
+  decision: ready_for_hermes_approval
+  pr_opened_before_approval: false
+  approval_request_id: APR-ALFA-FEAT-001-PR-ADMISSION
+traceability:
+  edges:
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-BRANCH
+      relation: supports
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-001-PR-ADMISSION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-CHECKS
+      relation: supports
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-001-PR-ADMISSION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-BRANCH-REVIEW
+      relation: supports
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-001-PR-ADMISSION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-PR-ADMISSION
+      relation: awaits
+      to_type: approval_request
+      to_id: APR-ALFA-FEAT-001-PR-ADMISSION

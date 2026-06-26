@@ -1,0 +1,36 @@
+artifact_id: ART-ALFA-FEAT-001-SPECKIT-ARTIFACTS
+artifact_type: speckit_artifact_manifest
+feature_id: FEAT-001
+feature_dir: specs/001-repo-diagnostics-command
+stages:
+  specify:
+    artifact: specs/001-repo-diagnostics-command/spec.md
+    hermes_approval_before_apply: true
+  clarify:
+    artifact: specs/001-repo-diagnostics-command/clarify.md
+    routes_questions: true
+    hermes_approval_before_apply: true
+  plan:
+    artifact: specs/001-repo-diagnostics-command/plan.md
+    hermes_approval_before_apply: true
+  tasks:
+    artifact: specs/001-repo-diagnostics-command/tasks.md
+    hermes_approval_before_apply: true
+  analyze:
+    artifact: specs/001-repo-diagnostics-command/analysis.md
+    hermes_approval_before_apply: true
+  implement:
+    artifact: specs/001-repo-diagnostics-command/implementation-report.md
+    hermes_approval_before_apply: true
+traceability:
+  edges:
+    - from_type: feature
+      from_id: FEAT-001
+      relation: specified_by
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-001-SPECKIT-ARTIFACTS
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-SPECKIT-ARTIFACTS
+      relation: decomposes_to
+      to_type: tasks
+      to_id: FEAT-001-TASKS

@@ -1,0 +1,16 @@
+artifact_id: ART-ALFA-FEAT-001-MERGE-MASTER-RISK
+artifact_type: merge_master_risk_classification
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+risk: medium
+decision: block_merge_approval
+reasons:
+  - GitHub reports REVIEW_REQUIRED.
+  - Merge council has one blocking lane.
+  - PR is draft and must remain draft until review is satisfied.
+human_review_required: true
+route_to_groups:
+  - opensoft/hermes-governance
+  - opensoft/omnigent-engineering

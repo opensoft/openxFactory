@@ -1,0 +1,18 @@
+artifact_id: ART-ALFA-FEAT-014-PR-REVIEWS
+artifact_type: github_pr_review_results
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-001
+repository: opensoft/project-alfa
+pr_number: 238
+overall_result: pass
+reviews:
+  - reviewer: LA
+    decision: approved
+    blocking: false
+  - reviewer: LS
+    decision: approved
+    blocking: false
+  - reviewer: LQ
+    decision: approved
+    blocking: false
+unresolved_threads: []

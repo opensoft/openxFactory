@@ -1,0 +1,18 @@
+epic:
+  id: EPIC-ALFA-BILLING-001
+  title: Billing Self-Service
+  project: alfa
+  source_type: openspec_change
+  source_path: openspec/changes/billing-self-service/spec.md
+  user_outcome: Customers can find invoices, inspect invoice detail, and download invoice PDFs without support help.
+  constraints:
+    max_changed_lines_per_pr: 10000
+    features_must_be_user_perceivable: true
+    features_must_be_bug_report_mappable: true
+    features_must_be_orthogonal: true
+    features_must_be_encapsulated: true
+  acceptance_themes:
+    - invoice list is scoped to the customer's organization
+    - invoice detail denies cross-tenant access
+    - invoice PDF retrieval is auditable and permission checked
+    - empty, loading, and error states are visible to the user

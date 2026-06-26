@@ -1,0 +1,16 @@
+artifact_id: ART-ALFA-FEAT-001-HUMAN-REVIEW-ROUTE
+artifact_type: human_review_route
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+risk: medium
+reason: GitHub review is required before merge readiness can pass.
+github_team_requests:
+  - opensoft/omnigent-engineering
+  - opensoft/hermes-governance
+requested_reviewers:
+  - LI
+  - LQ
+  - MM
+status: pending_human_review

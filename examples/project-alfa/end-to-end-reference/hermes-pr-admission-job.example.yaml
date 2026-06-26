@@ -1,0 +1,76 @@
+job:
+  id: JOB-FEAT_001-PR_ADMISSION
+  schema_version: 1
+  issued_by: Hermes
+  job_type: pr_admission
+  project: project-alfa
+  profile: project-alfa-feat-001-pr-admission
+  repository:
+    org: opensoft
+    name: project-alfa
+    default_branch: main
+    worktree_ref: pilot/FEAT-001-repo-diagnostics-command
+  epic_id: EPIC-ALFA-OPS-001
+  phase_id: PHASE-ALFA-OPS-001
+  feature_id: FEAT-001
+  feature_title: Repo Diagnostics Command
+  orchestrator: omnigent-polly
+  routing_policy: agents/project-alfa/project-roster.yaml
+  owner: LI
+  auth_profile: cloudpc-worker-subscription
+  auth_mode: mixed
+  worker_selector:
+    pool: model-reviewer-pool
+    role: reviewer
+    min_capabilities:
+      - branch-review
+      - pr-admission
+      - multi-model-review
+      - acceptance-coverage
+      - security-review
+      - traceability
+  allowed_phase:
+    phase: pr_admission
+    may_edit_code: false
+    may_run_local_checks: true
+    may_run_branch_review: true
+    may_generate_pr_packet: true
+    may_open_pr_before_approval: false
+    may_merge: false
+  approval_policy:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: true
+    human_escalation_required_for:
+      - blocking_review_finding
+      - changed_lines_over_10000
+      - missing_acceptance_coverage
+      - security_block
+      - merge
+  required_outputs:
+    - deterministic_check_results
+    - branch_review_findings
+    - pr_admission_packet
+    - readiness_report
+    - approval_request
+    - traceability_edges
+  traceability:
+    root: EPIC-ALFA-OPS-001
+    edges:
+      - from_type: feature
+        from_id: FEAT-001
+        relation: implemented_on
+        to_type: branch
+        to_id: pilot/FEAT-001-repo-diagnostics-command
+      - from_type: branch
+        from_id: pilot/FEAT-001-repo-diagnostics-command
+        relation: evaluated_by
+        to_type: job
+        to_id: JOB-FEAT_001-PR_ADMISSION
+  stop_conditions:
+    - deterministic_check_failed
+    - branch_review_blocking
+    - acceptance_coverage_missing
+    - changed_lines_over_10000
+    - pr_open_attempted_before_approval
+    - traceability_missing
+    - merge_attempted

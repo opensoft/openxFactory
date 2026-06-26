@@ -1,0 +1,78 @@
+artifact_id: ART-ALFA-FEAT-014-PR-ADMISSION
+artifact_type: pr_admission_packet
+feature_id: FEAT-014
+job_id: JOB-ALFA-PR-ADMISSION-001
+branch: work/FEAT-014-invoice-retrieval
+base_branch: main
+repository: opensoft/project-alfa
+candidate_pr:
+  title: "FEAT-014: Invoice Retrieval"
+  draft: true
+  opened: false
+  may_open_after_approval: true
+inputs:
+  branch_commit_record: examples/project-alfa-pr-admission/branch-commit-record.example.yaml
+  spec: examples/project-alfa-speckit/artifacts/FEAT-014/spec.md
+  plan: examples/project-alfa-speckit/artifacts/FEAT-014/plan.md
+  tasks: examples/project-alfa-speckit/artifacts/FEAT-014/tasks.md
+  implementation_packet: examples/project-alfa-implementation/implementation-worker-packet.example.yaml
+  test_evidence: examples/project-alfa-implementation/test-evidence.example.yaml
+  branch_review: examples/project-alfa-pr-admission/branch-review-findings.example.yaml
+changed_files:
+  - src/invoices/invoice-route.ts
+  - src/invoices/invoice-service.ts
+  - tests/invoices/invoice-route.test.ts
+  - tests/invoices/invoice-cross-tenant-denial.test.ts
+line_budget:
+  max_changed_lines_per_pr: 10000
+  estimated_changed_lines: 740
+  status: within_budget
+local_checks:
+  - command: python3 scripts/validate_feature_decomposition.py
+    result: pass
+  - command: python3 scripts/validate_speckit_control.py
+    result: pass
+  - command: python3 scripts/validate_implementation_workers.py
+    result: pass
+  - command: ./scripts/smoke-no-committed-secrets.sh
+    result: pass
+acceptance_criteria:
+  - id: FEAT-014.AC-01
+    covered: true
+    evidence: invoice-route.test.ts
+  - id: FEAT-014.AC-02
+    covered: true
+    evidence: invoice-service.ts
+  - id: FEAT-014.AC-03
+    covered: true
+    evidence: invoice-cross-tenant-denial.test.ts
+branch_review:
+  result: pass
+  blocking_findings: []
+  warning_count: 1
+pr_admission:
+  decision: ready_for_hermes_approval
+  pr_opened_before_approval: false
+  approval_request_id: APR-ALFA-FEAT-014-PR-ADMISSION-001
+traceability:
+  edges:
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-014-BRANCH-COMMIT
+      relation: supports
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-014-PR-ADMISSION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-014-IMPLEMENTATION-PACKET
+      relation: evaluated_by
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-014-BRANCH-REVIEW
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-014-BRANCH-REVIEW
+      relation: supports
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-014-PR-ADMISSION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-014-PR-ADMISSION
+      relation: awaits
+      to_type: approval_request
+      to_id: APR-ALFA-FEAT-014-PR-ADMISSION-001

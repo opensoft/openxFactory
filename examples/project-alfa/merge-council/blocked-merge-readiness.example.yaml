@@ -1,0 +1,22 @@
+artifact_id: ART-ALFA-FEAT-014-MERGE-BLOCKED-EXAMPLE
+artifact_type: merge_council_results
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-BLOCKED
+repository: opensoft/project-alfa
+pr_number: 238
+decision: not_ready
+council:
+  - reviewer: Security
+    decision: block
+    blocking: true
+    evidence: missing tenant isolation evidence
+required_fixes:
+  - id: FIX-014-SEC-001
+    source: Security
+    blocking: true
+    maps_to: FEAT-014.AC-03
+    summary: Add or link cross-tenant denial evidence before merge approval.
+merge_policy:
+  hermes_may_approve_merge: false
+  github_branch_protection_final_gate: true
+  github_merge_queue_required: true

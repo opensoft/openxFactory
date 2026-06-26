@@ -47,10 +47,10 @@
 
 ## 7. FEAT-MIG-006 Reference Pilot And Example Placement
 
-- [ ] 7.1 Inventory Project Alfa, live pilot, merge master, and pilot-flow examples.
-- [ ] 7.2 Add placement decision for `openWorkflow/examples`, `factory-lab`, or temporary status quo.
-- [ ] 7.3 Copy only approved canonical reference examples.
-- [ ] 7.4 Exclude generated state, credentials, databases, logs, and local workspaces.
+- [x] 7.1 Inventory Project Alfa, live pilot, merge master, and pilot-flow examples.
+- [x] 7.2 Add placement decision for `openWorkflow/examples`, `factory-lab`, or temporary status quo.
+- [x] 7.3 Copy only approved canonical reference examples.
+- [x] 7.4 Exclude generated state, credentials, databases, logs, and local workspaces.
 
 ## 8. FEAT-MIG-007 Mark Install Repo Policy Copies
 

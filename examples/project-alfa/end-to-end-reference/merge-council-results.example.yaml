@@ -1,0 +1,44 @@
+artifact_id: ART-ALFA-FEAT-001-MERGE-COUNCIL
+artifact_type: merge_council_results
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+decision: not_ready
+council:
+  - reviewer: Spec Traceability
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-001-PR-ADMISSION
+  - reviewer: Security
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-001-SECURITY-SCAN
+  - reviewer: Tests
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-001-GITHUB-ACTIONS
+  - reviewer: Architecture
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-001-BRANCH-REVIEW
+  - reviewer: Maintainability
+    decision: warn
+    blocking: false
+    evidence: ART-ALFA-FEAT-001-BRANCH-REVIEW
+  - reviewer: GitHub Review
+    decision: block
+    blocking: true
+    evidence: ART-ALFA-FEAT-001-PR-REVIEWS
+required_fixes:
+  - id: FIX-FEAT-001-REVIEW-001
+    source: GitHub Review
+    blocking: true
+    maps_to: FEAT-001
+    summary: Obtain required GitHub PR review approval before merge readiness can pass.
+merge_policy:
+  hermes_may_approve_merge: false
+  github_branch_protection_final_gate: true
+  github_merge_queue_required: false
+  direct_merge_allowed: false
+  pr_must_remain_draft: true

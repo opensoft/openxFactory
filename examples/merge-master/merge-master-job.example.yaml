@@ -1,0 +1,59 @@
+job:
+  id: JOB-MERGE-MASTER-FEAT-001
+  schema_version: 1
+  issued_by: Hermes
+  job_type: merge_master
+  project: project-alfa
+  repository:
+    org: opensoft
+    name: project-alfa
+    default_branch: main
+    worktree_ref: pilot/FEAT-001-repo-diagnostics-command
+  epic_id: EPIC-ALFA-OPS-001
+  feature_id: FEAT-001
+  orchestrator: hermes-merge-master
+  routing_policy: policies/merge-risk-policy.yaml
+  owner: MM
+  auth_profile: github-merge-master-app
+  auth_mode: api
+  worker_selector:
+    pool: hermes-control-plane
+    role: governance
+    min_capabilities:
+      - hermes-store-read
+      - github-pr-read
+      - github-review-write
+      - risk-policy-evaluation
+  allowed_phase:
+    phase: merge_master_decision
+    may_edit_code: false
+    may_open_pr: false
+    may_merge: false
+    may_submit_pr_review: true
+    may_request_reviewers: true
+  approval_policy:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: true
+    human_escalation_required_for:
+      - medium_risk
+      - high_risk
+      - branch_protection_exception
+      - missing_evidence
+  required_outputs:
+    - merge_master_decision
+    - github_action_record
+  traceability:
+    root: EPIC-ALFA-OPS-001
+    edges:
+      - from_type: feature
+        from_id: FEAT-001
+        relation: governed_by
+        to_type: job
+        to_id: JOB-MERGE-MASTER-FEAT-001
+  stop_conditions:
+    - missing_merge_council
+    - missing_pr_admission
+    - blocking_council_lane
+    - github_checks_failing
+    - unclassified_risk
+    - medium_or_high_risk_without_human_review

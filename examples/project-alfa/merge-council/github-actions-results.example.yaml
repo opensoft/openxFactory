@@ -1,0 +1,22 @@
+artifact_id: ART-ALFA-FEAT-014-GITHUB-ACTIONS
+artifact_type: github_actions_results
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-001
+repository: opensoft/project-alfa
+pr_number: 238
+commit_sha: local-smoke-feat-014
+overall_result: pass
+checks:
+  - name: ci
+    result: pass
+  - name: unit-tests
+    result: pass
+  - name: integration-tests
+    result: pass
+  - name: lint
+    result: pass
+branch_protection:
+  required_checks_passed: true
+  required_reviews_satisfied: true
+  merge_queue_required: true
+  final_enforcement_layer: GitHub

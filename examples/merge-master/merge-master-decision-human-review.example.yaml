@@ -1,0 +1,16 @@
+schema_version: 1
+decision_id: MMD-FEAT-099-001
+job_id: JOB-FEAT-099
+repository: opensoft/example
+pr_number: 99
+feature_id: FEAT-099
+risk: high
+decision: request_human_review
+github_action: request_reviewers
+required_reviewers:
+  - security_owner
+  - project_owner
+rationale:
+  - touches authorization logic
+  - requires tenant isolation review
+  - Merge Master may not approve high-risk changes

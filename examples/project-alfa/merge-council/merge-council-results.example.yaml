@@ -1,0 +1,33 @@
+artifact_id: ART-ALFA-FEAT-014-MERGE-COUNCIL
+artifact_type: merge_council_results
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-001
+repository: opensoft/project-alfa
+pr_number: 238
+decision: ready_for_merge_queue
+council:
+  - reviewer: Spec Traceability
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-014-PR-ADMISSION
+  - reviewer: Security
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-014-SECURITY-SCAN
+  - reviewer: Tests
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-014-GITHUB-ACTIONS
+  - reviewer: Architecture
+    decision: pass
+    blocking: false
+    evidence: ART-ALFA-FEAT-014-PR-REVIEWS
+  - reviewer: Maintainability
+    decision: warn
+    blocking: false
+    evidence: ART-ALFA-FEAT-014-PR-REVIEWS
+required_fixes: []
+merge_policy:
+  hermes_may_approve_merge: true
+  github_branch_protection_final_gate: true
+  github_merge_queue_required: true

@@ -1,0 +1,15 @@
+artifact_id: ART-ALFA-FEAT-001-PR-REVIEWS
+artifact_type: github_pr_review_results
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+overall_result: blocked
+review_decision: REVIEW_REQUIRED
+reviews: []
+unresolved_threads: []
+required_review_missing: true
+blocking_findings:
+  - id: BLOCK-FEAT-001-REVIEW-001
+    source: GitHub
+    summary: GitHub reports REVIEW_REQUIRED before merge readiness can pass.

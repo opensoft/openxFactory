@@ -1,0 +1,39 @@
+artifact_id: ART-ALFA-FEAT-001-DECOMPOSITION
+artifact_type: feature_decomposition_packet
+epic_id: EPIC-ALFA-OPS-001
+phase:
+  id: PHASE-ALFA-OPS-001
+  name: Repository operations diagnostics
+feature:
+  id: FEAT-001
+  slug: repo-diagnostics-command
+  user_visible_name: Repository diagnostics command
+  bug_trace_concept: Maintainer reports diagnostics command output is missing or inaccurate.
+  kind: non_doc_internal_tool
+  branch: pilot/FEAT-001-repo-diagnostics-command
+  max_changed_lines: 10000
+  proposed_outputs:
+    - scripts/alfa-diagnostics.sh
+    - tests/alfa-diagnostics-smoke.sh
+    - specs/001-repo-diagnostics-command/spec.md
+    - specs/001-repo-diagnostics-command/plan.md
+    - specs/001-repo-diagnostics-command/tasks.md
+dependency_dag:
+  nodes:
+    - FEAT-001
+  edges: []
+traceability:
+  edges:
+    - from_type: epic
+      from_id: EPIC-ALFA-OPS-001
+      relation: decomposes_to
+      to_type: phase
+      to_id: PHASE-ALFA-OPS-001
+    - from_type: phase
+      from_id: PHASE-ALFA-OPS-001
+      relation: decomposes_to
+      to_type: feature
+      to_id: FEAT-001
+approval:
+  required_before_speckit: true
+  approval_request_id: APR-ALFA-FEAT-001-DECOMPOSITION

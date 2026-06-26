@@ -1,0 +1,83 @@
+job:
+  id: JOB-FEAT_001-REPO_DIAGNOSTICS_COMMAND
+  schema_version: 1
+  issued_by: Hermes
+  job_type: feature_decomposition
+  project: project-alfa
+  profile: project-alfa-feat-001-diagnostics
+  repository:
+    org: opensoft
+    name: project-alfa
+    default_branch: main
+    worktree_ref: pilot/FEAT-001-repo-diagnostics-command
+  epic_id: EPIC-ALFA-OPS-001
+  phase_id: PHASE-ALFA-OPS-001
+  feature_id: FEAT-001
+  feature_title: Repo Diagnostics Command
+  orchestrator: omnigent-polly
+  routing_policy: agents/project-alfa/project-roster.yaml
+  owner: LE
+  auth_profile: cloudpc-worker-subscription
+  auth_mode: subscription
+  worker_selector:
+    pool: cloudpc-control-pool
+    role: control
+    min_capabilities:
+      - omnigent-control
+      - job-dispatch
+      - traceability
+      - speckit
+      - git
+      - gh
+      - claude-cli
+      - codex-cli
+      - agentmemory
+  allowed_phase:
+    phase: pilot_feature_decomposition
+    may_edit_code: false
+    may_open_pr: false
+    may_merge: false
+  approval_policy:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: true
+    human_escalation_required_for:
+      - live_repo_mutation
+      - open_pr
+      - merge
+      - branch_protection_exception
+  required_outputs:
+    - decomposition_packet
+    - speckit_artifacts
+    - implementation_packet
+    - deterministic_check_results
+    - branch_review
+    - pr_admission_packet
+    - merge_readiness_report
+  traceability:
+    root: EPIC-ALFA-OPS-001
+    edges:
+      - from_type: epic
+        from_id: EPIC-ALFA-OPS-001
+        relation: decomposes_to
+        to_type: phase
+        to_id: PHASE-ALFA-OPS-001
+      - from_type: phase
+        from_id: PHASE-ALFA-OPS-001
+        relation: decomposes_to
+        to_type: feature
+        to_id: FEAT-001
+      - from_type: feature
+        from_id: FEAT-001
+        relation: executes_as
+        to_type: job
+        to_id: JOB-FEAT_001-REPO_DIAGNOSTICS_COMMAND
+  budget:
+    max_changed_lines: 10000
+    feature_size: small
+  stop_conditions:
+    - missing_speckit_preseed
+    - missing_hermes_approval
+    - attempted_pr_before_admission
+    - attempted_direct_merge
+    - line_budget_exceeded
+    - secret_detected

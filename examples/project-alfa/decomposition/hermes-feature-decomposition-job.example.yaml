@@ -1,0 +1,74 @@
+job:
+  id: JOB-ALFA-DECOMPOSE-001
+  schema_version: 1
+  issued_by: Hermes
+  job_type: feature_decomposition
+  project: alfa
+  profile: first-test
+  epic_id: EPIC-ALFA-BILLING-001
+  feature_id: EPIC-ALFA-BILLING-001
+  feature_title: Billing Self-Service Decomposition
+
+  repository:
+    org: opensoft
+    name: project-alfa
+    default_branch: main
+    worktree_ref: main
+
+  orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+  routing_policy: agents/project-alfa-test/project-roster.yaml
+  owner: E1
+
+  auth_profile: brett-dev
+  auth_mode: subscription
+
+  worker_selector:
+    pool: local-phase1
+    role: omnigent-worker
+    min_capabilities:
+      - docker
+      - omnigent
+
+  allowed_phase:
+    may_run_feature_decomposition: true
+    may_run_speckit_specify: false
+    may_run_speckit_clarify: false
+    may_run_speckit_plan: false
+    may_run_speckit_tasks: false
+    may_run_speckit_analyze: false
+    may_run_speckit_implement: false
+    may_edit_code: false
+    may_open_pr: false
+
+  approval_policy:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: true
+    human_escalation_required_for:
+      - feature_over_10000_changed_lines
+      - non_user_perceivable_feature
+      - missing_bug_report_mapping
+      - cross_phase_dependency_cycle
+      - conflicting_authority_answers
+
+  required_outputs:
+    - examples/project-alfa-decomposition/decomposition-packet.example.yaml
+
+  traceability:
+    root: EPIC-ALFA-BILLING-001
+    edges:
+      - from_type: epic
+        from_id: EPIC-ALFA-BILLING-001
+        relation: executes_as
+        to_type: job
+        to_id: JOB-ALFA-DECOMPOSE-001
+
+  budget:
+    max_child_agents: 4
+    max_runtime_minutes: 30
+    max_changed_lines_per_feature_pr: 10000
+
+  stop_conditions:
+    - stop_after_decomposition_packet
+    - stop_before_speckit_specify
+    - stop_before_code_edits
+    - stop_before_pr
