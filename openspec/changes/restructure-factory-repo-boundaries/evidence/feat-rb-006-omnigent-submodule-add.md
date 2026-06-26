@@ -53,7 +53,7 @@ The pinned commit is the merged FEAT-RB-003 Omnigent scope-link commit.
 | FEAT-RB-001 through FEAT-RB-005 merged | Yes | PR history | All prior slices merged |
 | install repo scope docs updated and approved | Yes | Omnigent and Hermes merged PRs | Hermes submodule still deferred |
 | only approved first install repo submodule added | Yes | `.gitmodules` | Omnigent only |
-| fresh clone and submodule init validates | Pending | validation step | Must pass before merge readiness |
+| fresh clone and submodule init validates | Yes | fresh clone check | Checked out `e254c22` |
 | merge council readiness evidence recorded | Pending | PR readiness report | To be added before merge |
 
 ## Local Checks
@@ -75,9 +75,16 @@ git -C /tmp/openworkflow-submodule-smoke submodule status
 test -f /tmp/openworkflow-submodule-smoke/installs/omnigent-install/README.md
 ```
 
+Result:
+
+```text
+Submodule path 'installs/omnigent-install': checked out 'e254c22ce14e585e909b05c44aed21fd07beba84'
+e254c22
+```
+
 ## Branch Review
 
-Review result: PASS PENDING FRESH CLONE CHECK
+Review result: PASS
 
 Review notes:
 
@@ -88,9 +95,8 @@ Review notes:
 
 ## PR Admission
 
-Decision: ADMIT AFTER FRESH CLONE CHECK
+Decision: ADMIT
 
 Conditions:
 
-- Fresh clone with submodule initialization must pass.
 - Merge council must review before merge.
