@@ -15,11 +15,11 @@
 
 ## 3. FEAT-MIG-002 Spec Kit Stage Ownership And Clarification Routing
 
-- [ ] 3.1 Inventory clarification and Spec Kit stage source docs.
-- [ ] 3.2 Create `openWorkflow/docs/spec-kit-stage-ownership.md`.
-- [ ] 3.3 Define `/speckit.specify`, `/speckit.clarify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.analyze`, and `/speckit.implement` ownership.
-- [ ] 3.4 Define clarification routing from LE to PO, PM, PA, LS, LQ, LI, and LC.
-- [ ] 3.5 Add install repo link/update evidence.
+- [x] 3.1 Inventory clarification and Spec Kit stage source docs.
+- [x] 3.2 Create `openWorkflow/docs/spec-kit-stage-ownership.md`.
+- [x] 3.3 Define `/speckit.specify`, `/speckit.clarify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.analyze`, and `/speckit.implement` ownership.
+- [x] 3.4 Define clarification routing from LE to PO, PM, PA, LS, LQ, LI, and LC.
+- [x] 3.5 Add install repo link/update evidence.
 
 ## 4. FEAT-MIG-003 PR Admission, Merge Council, And Merge Master
 
