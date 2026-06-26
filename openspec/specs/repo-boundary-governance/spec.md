@@ -1,7 +1,10 @@
 # repo-boundary-governance Specification
 
 ## Purpose
-TBD - created by archiving change restructure-factory-repo-boundaries. Update Purpose after archive.
+Defines how `openWorkflow`, `Hermes-Install`, and `Omnigent-Install` assign
+canonical workflow policy ownership, install repository scope, copy-first
+migration rules, and guarded repo-boundary execution.
+
 ## Requirements
 ### Requirement: Canonical workflow authority
 `openWorkflow` SHALL be the canonical repository for factory-level workflow
@@ -64,4 +67,3 @@ factory workflow policy once their scope clarification feature is approved.
 #### Scenario: Hermes-Install scope is clarified
 - **WHEN** the Hermes install scope feature is implemented
 - **THEN** its README MUST state that `openWorkflow` owns factory workflow policy and that `Hermes-Install` owns Hermes install and DR
-

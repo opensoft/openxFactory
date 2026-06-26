@@ -1,7 +1,10 @@
 # shared-contract-ownership Specification
 
 ## Purpose
-TBD - created by archiving change restructure-factory-repo-boundaries. Update Purpose after archive.
+Defines how `openWorkflow` owns shared factory contracts, how install repos pin
+contract compatibility, how submodules are sequenced, and how evidence is
+preserved from proposal through merge readiness.
+
 ## Requirements
 ### Requirement: Canonical contract home
 `openWorkflow` SHALL define the canonical home for shared factory contracts
@@ -51,4 +54,3 @@ through merge readiness.
 #### Scenario: Feature proceeds to merge
 - **WHEN** a repo-boundary feature is considered for merge
 - **THEN** merge council MUST have a merge readiness report that references the relevant OpenSpec change, feature slice, and evidence artifacts
-

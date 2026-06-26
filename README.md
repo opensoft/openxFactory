@@ -30,10 +30,24 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Workflow Gap Solutions](docs/workflow-gap-solutions.md)
 - [Repository Boundary Audit](docs/repo-boundary-audit.md)
 - [Repo Boundary Change Pilot Plan](docs/repo-boundary-pilot-plan.md)
+- [Dogfood Content Migration Plan](docs/dogfood-content-migration-plan.md)
 
-## Active OpenSpec Changes
+## OpenSpec Records
 
-- [restructure-factory-repo-boundaries](openspec/changes/restructure-factory-repo-boundaries/proposal.md)
+Active changes:
+
+```text
+none
+```
+
+Archived changes:
+
+- [restructure-factory-repo-boundaries](openspec/changes/archive/2026-06-26-restructure-factory-repo-boundaries/proposal.md)
+
+Canonical specs:
+
+- [repo-boundary-governance](openspec/specs/repo-boundary-governance/spec.md)
+- [shared-contract-ownership](openspec/specs/shared-contract-ownership/spec.md)
 
 ## Install Repo Pins
 
