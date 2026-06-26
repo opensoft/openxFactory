@@ -1,16 +1,16 @@
 ## 1. Proposal And Approval
 
-- [ ] 1.1 Review `proposal.md`, `design.md`, and specs with Hermes governance.
-- [ ] 1.2 Record Hermes approval to proceed with decomposition.
-- [ ] 1.3 Confirm the first implementation feature is doc-only and `openWorkflow` only.
+- [x] 1.1 Review `proposal.md`, `design.md`, and specs with Hermes governance.
+- [x] 1.2 Record Hermes approval to proceed with decomposition.
+- [x] 1.3 Confirm the first implementation feature is doc-only and `openWorkflow` only.
 
 ## 2. FEAT-RB-001 Canonical Boundary Policy
 
-- [ ] 2.1 Verify `docs/repo-boundary-audit.md` states canonical ownership for `openWorkflow`, `Hermes-Install`, and `Omnigent-Install`.
-- [ ] 2.2 Verify `docs/repo-boundary-pilot-plan.md` states the doc-only guardrails and stop conditions.
-- [ ] 2.3 Add or update README links so the boundary policy and pilot plan are discoverable.
-- [ ] 2.4 Run local doc and OpenSpec validation for the feature.
-- [ ] 2.5 Record branch review and PR admission evidence for the feature.
+- [x] 2.1 Verify `docs/repo-boundary-audit.md` states canonical ownership for `openWorkflow`, `Hermes-Install`, and `Omnigent-Install`.
+- [x] 2.2 Verify `docs/repo-boundary-pilot-plan.md` states the doc-only guardrails and stop conditions.
+- [x] 2.3 Add or update README links so the boundary policy and pilot plan are discoverable.
+- [x] 2.4 Run local doc and OpenSpec validation for the feature.
+- [x] 2.5 Record branch review and PR admission evidence for the feature.
 
 ## 3. FEAT-RB-002 Contract Home Placeholder
 
@@ -50,7 +50,7 @@
 
 ## 8. Final Validation
 
-- [ ] 8.1 Validate the OpenSpec change with `openspec validate restructure-factory-repo-boundaries --strict`.
-- [ ] 8.2 Confirm no secrets, credential profiles, generated databases, or runtime state are tracked.
+- [x] 8.1 Validate the OpenSpec change with `openspec validate restructure-factory-repo-boundaries --strict`.
+- [x] 8.2 Confirm no secrets, credential profiles, generated databases, or runtime state are tracked.
 - [ ] 8.3 Confirm each implemented feature has acceptance evidence.
 - [ ] 8.4 Archive the OpenSpec change only after all approved feature slices are complete.
