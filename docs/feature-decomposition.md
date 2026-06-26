@@ -4,6 +4,20 @@ Hermes requires Polly to decompose every approved epic into small, user-perceiva
 
 The goal is not just parallel implementation. The goal is to produce feature slices that match how users experience the product, how support will receive bugs, and how engineering will trace a defect back to the exact scope that introduced it.
 
+## Source Provenance
+
+Reviewed sources:
+
+- `/home/brett/projects/Agents/Omnigent-Install/docs/runbooks/phase3-feature-decomposition.md`
+- `/home/brett/projects/Agents/Omnigent-Install/examples/project-alfa-decomposition/decomposition-packet.example.yaml`
+- `/home/brett/projects/Agents/Omnigent-Install/docs/omnigent-implementation-plan.md`
+- `/home/brett/projects/Agents/Omnigent-Install/docs/project-master-plan.md`
+- `docs/omnigent-constitution.md`
+- `docs/traceability-model.md`
+
+The install repo source docs remain in place until a later migration feature
+marks them as canonical links, legacy copies, or implementation runbooks.
+
 ## Core Rule
 
 Each feature must be:
@@ -333,6 +347,52 @@ features:
     split_required: false
 ```
 
+## Decomposition Packet Requirements
+
+Polly must produce a decomposition packet before any feature enters Spec Kit.
+The packet is a Hermes-reviewed artifact, not an implementation branch.
+
+Minimum packet fields:
+
+```yaml
+decomposition_packet:
+  id:
+  schema_version:
+  project:
+  epic_id:
+  source_type:
+  source_path:
+  produced_by: Polly
+  approval_state: pending
+  constitution:
+    max_changed_lines_per_pr: 10000
+    orthogonal_features_required: true
+    encapsulated_features_required: true
+    user_perceivable_feature_required: true
+    bug_report_mapping_required: true
+    no_speckit_before_hermes_approval: true
+  phases: []
+  features: []
+  dependency_dag:
+    nodes: []
+    edges: []
+  traceability:
+    edges: []
+```
+
+Validation rules:
+
+- every feature has a changed-line budget at or below 10,000;
+- every feature is user-perceivable or explicitly marked as a foundation,
+  migration, integration, or hardening feature;
+- every feature has bug-report mapping;
+- every feature has an encapsulation boundary;
+- phases contain the full feature set exactly once;
+- the dependency graph is acyclic;
+- each approved feature enters Spec Kit at `/speckit.specify`;
+- the job forbids Spec Kit, code edits, PR creation, and source mutation before
+  Hermes approves the decomposition packet.
+
 ## Hermes-to-Polly Decomposition Prompt
 
 Hermes should send Polly a standard decomposition job that includes this feature standard.
@@ -418,4 +478,3 @@ Hermes should approve decomposition only when the output includes:
 - merge sequencing plan
 
 Approval means Polly may proceed to `/speckit.specify` only for features explicitly marked ready.
-

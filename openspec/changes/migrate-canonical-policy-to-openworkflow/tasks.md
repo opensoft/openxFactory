@@ -31,11 +31,11 @@
 
 ## 5. FEAT-MIG-004 Feature Decomposition And Traceability
 
-- [ ] 5.1 Inventory decomposition and traceability source docs/examples.
-- [ ] 5.2 Update `openWorkflow/docs/feature-decomposition.md`.
-- [ ] 5.3 Update `openWorkflow/docs/traceability-model.md`.
-- [ ] 5.4 Preserve bug-to-feature mapping and PR size constraints.
-- [ ] 5.5 Add source provenance and validation evidence.
+- [x] 5.1 Inventory decomposition and traceability source docs/examples.
+- [x] 5.2 Update `openWorkflow/docs/feature-decomposition.md`.
+- [x] 5.3 Update `openWorkflow/docs/traceability-model.md`.
+- [x] 5.4 Preserve bug-to-feature mapping and PR size constraints.
+- [x] 5.5 Add source provenance and validation evidence.
 
 ## 6. FEAT-MIG-005 Shared Contract Migration
 
