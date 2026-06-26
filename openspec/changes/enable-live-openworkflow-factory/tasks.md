@@ -29,11 +29,11 @@
 
 ## 5. Spec Kit Stage Control And Clarification Routing
 
-- [ ] 5.1 Verify all Spec Kit stage owners match canonical policy.
-- [ ] 5.2 Verify clarification questions route to mapped authority roles.
-- [ ] 5.3 Verify answer packets require Hermes approval before application.
-- [ ] 5.4 Run Project Alfa reduced-agent clarify smoke.
-- [ ] 5.5 Record Spec Kit control evidence.
+- [x] 5.1 Verify all Spec Kit stage owners match canonical policy.
+- [x] 5.2 Verify clarification questions route to mapped authority roles.
+- [x] 5.3 Verify answer packets require Hermes approval before application.
+- [x] 5.4 Run Project Alfa reduced-agent clarify smoke.
+- [x] 5.5 Record Spec Kit control evidence.
 
 ## 6. Project Alfa Live Pilot
 
