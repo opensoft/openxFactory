@@ -4,6 +4,15 @@ This project defines a domain-neutral xFactory workflow rail.
 
 `openWorkflow` is not the engineering factory, the medical factory, or any other domain factory. It defines the contract, gate, traceability, routing, state, and audit model that domain factory repos use.
 
+The same contract also generalizes into the `xFactory` pattern: a
+domain-neutral workflow layer that can support code, medical, accounting,
+marketing, and other domain factories through Hermes and Omnigent overlays. See
+[xFactory Domain Factory Model](xfactory-domain-factory-model.md).
+
+The first product domain stack repositories are expected to be
+`opensoft/MedxFactory`, `opensoft/LedgerxFactory`, `opensoft/AdxFactory`, and
+`opensoft/opencodexFactory`.
+
 ## Roles
 
 ### Hermes
@@ -135,7 +144,6 @@ Domain Omnigent layer
 External enforcement system
   owns final enforcement where applicable
 ```
-
 ## Domain Examples
 
 ```text

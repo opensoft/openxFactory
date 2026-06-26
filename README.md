@@ -49,6 +49,7 @@ MedxFactory
 Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
+- [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
 - [Roles and Authority](docs/roles-and-authority.md)
