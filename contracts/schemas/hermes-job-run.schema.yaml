@@ -1,0 +1,91 @@
+schema_version: 1
+name: hermes_job_run
+type: object
+required:
+  - run
+properties:
+  run:
+    type: object
+    required:
+      - id
+      - job_id
+      - project
+      - feature_id
+      - status
+      - worker
+      - auth
+      - started_at
+      - current_stage
+      - events
+      - artifacts
+      - approvals
+      - traceability
+    properties:
+      id:
+        type: string
+      job_id:
+        type: string
+      project:
+        type: string
+      feature_id:
+        type: string
+      status:
+        type: string
+        enum:
+          - queued
+          - running
+          - waiting_for_approval
+          - approved
+          - blocked
+          - failed
+          - complete
+          - cancelled
+      current_stage:
+        type: string
+      started_at:
+        type: string
+      completed_at:
+        type: string
+      worker:
+        type: object
+        required:
+          - worker_id
+          - worker_pool
+          - host_class
+        properties:
+          worker_id:
+            type: string
+          worker_pool:
+            type: string
+          host_class:
+            type: string
+          container_id:
+            type: string
+      auth:
+        type: object
+        required:
+          - auth_profile_id
+          - auth_mode
+        properties:
+          auth_profile_id:
+            type: string
+          auth_mode:
+            type: string
+          provider_keys_used:
+            type: boolean
+      events:
+        type: array
+        items:
+          type: object
+      artifacts:
+        type: array
+        items:
+          type: object
+      approvals:
+        type: array
+        items:
+          type: object
+      traceability:
+        type: object
+      summary:
+        type: object

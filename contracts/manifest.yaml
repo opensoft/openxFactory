@@ -1,0 +1,112 @@
+schema_version: 1
+source_compatibility_ref:
+  repo: opensoft/Omnigent-Install
+  local_source_path: /home/brett/projects/Agents/Omnigent-Install
+  source_commit: e254c22ce14e585e909b05c44aed21fd07beba84
+adapter_ownership_rule: >-
+  openWorkflow owns canonical contract meaning, versioning, and compatibility
+  expectations. Install repositories may keep pinned copies, generated
+  adapters, smoke fixtures, runtime validation configs, and operational
+  implementation notes, but those files must identify the compatible
+  openWorkflow contract version before they are treated as current.
+contracts:
+  - id: clarification-answer-packet
+    path: contracts/schemas/clarification-answer-packet.schema.yaml
+    source_path: Omnigent-Install/schemas/clarification-answer-packet.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - Hermes approval controller
+      - Omnigent clarification router
+      - lead engineer
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: clarification-answer
+    path: contracts/schemas/clarification-answer.schema.yaml
+    source_path: Omnigent-Install/schemas/clarification-answer.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - Omnigent clarification router
+      - authority lead agents
+      - Hermes approval controller
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: clarification-questions
+    path: contracts/schemas/clarification-questions.schema.yaml
+    source_path: Omnigent-Install/schemas/clarification-questions.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - lead engineer
+      - Omnigent clarification router
+      - Hermes audit trail
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: hermes-job-envelope
+    path: contracts/schemas/hermes-job-envelope.schema.yaml
+    source_path: Omnigent-Install/schemas/hermes-job-envelope.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - Hermes service
+      - Omnigent worker lane
+      - worker launch bridge
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: hermes-job-event
+    path: contracts/schemas/hermes-job-event.schema.yaml
+    source_path: Omnigent-Install/schemas/hermes-job-event.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - Hermes service
+      - worker-side event client
+      - Omnigent marker bridge
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: hermes-job-run
+    path: contracts/schemas/hermes-job-run.schema.yaml
+    source_path: Omnigent-Install/schemas/hermes-job-run.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - Hermes service
+      - dashboard
+      - audit and restore tooling
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: hermes-operational-postgres
+    path: contracts/schemas/hermes-operational-postgres.sql
+    source_path: Omnigent-Install/schemas/hermes-operational-postgres.sql
+    type: sql_schema
+    schema_version: 1
+    intended_consumers:
+      - Hermes service
+      - Postgres deployment
+      - audit and restore tooling
+    compatibility: copied_from_source_commit
+    adapter_owner: Omnigent-Install
+  - id: hermes-governance-agents
+    path: contracts/policies/hermes-governance-agents.yaml
+    source_path: Omnigent-Install/policies/hermes-governance-agents.yaml
+    type: policy
+    schema_version: 1
+    intended_consumers:
+      - Hermes service
+      - Merge Master
+      - Human Review Router
+      - GitHub team mapping
+    compatibility: copied_from_source_commit
+    adapter_owner: Hermes-Install
+  - id: merge-risk-policy
+    path: contracts/policies/merge-risk-policy.yaml
+    source_path: Omnigent-Install/policies/merge-risk-policy.yaml
+    type: policy
+    schema_version: 1
+    intended_consumers:
+      - Merge Master
+      - Hermes approval controller
+      - Human Review Router
+    compatibility: copied_from_source_commit
+    adapter_owner: Hermes-Install

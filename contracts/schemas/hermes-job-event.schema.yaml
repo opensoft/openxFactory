@@ -1,0 +1,86 @@
+schema_version: 1
+name: hermes_job_event
+type: object
+required:
+  - event
+properties:
+  event:
+    type: object
+    required:
+      - id
+      - job_id
+      - run_id
+      - occurred_at
+      - event_type
+      - actor
+    properties:
+      id:
+        type: string
+      job_id:
+        type: string
+      run_id:
+        type: string
+      occurred_at:
+        type: string
+      event_type:
+        type: string
+        enum:
+          - job_queued
+          - job_started
+          - auth_validated
+          - stage_started
+          - stage_completed
+          - subagent_dispatched
+          - subagent_result_collected
+          - artifact_recorded
+          - approval_requested
+          - approval_recorded
+          - job_blocked
+          - job_failed
+          - job_completed
+      actor:
+        type: object
+        required:
+          - type
+          - id
+        properties:
+          type:
+            type: string
+            enum:
+              - Hermes
+              - Omnigent
+              - lead_agent
+              - worker
+              - human
+              - github
+          id:
+            type: string
+      stage:
+        type: string
+      payload:
+        type: object
+        properties:
+          stage_id:
+            type: string
+          subagent_session_id:
+            type: string
+          question_id:
+            type: string
+          question_ids:
+            type: array
+            items:
+              type: string
+          agent_id:
+            type: string
+          agent_ids:
+            type: array
+            items:
+              type: string
+          artifact_id:
+            type: string
+          approval_request_id:
+            type: string
+          bridge_key:
+            type: string
+          bridge_source:
+            type: string

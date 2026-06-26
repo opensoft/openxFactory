@@ -1,0 +1,49 @@
+schema_version: 1
+name: clarification_questions
+type: object
+required:
+  - job_id
+  - project
+  - feature_id
+  - asked_by
+  - questions
+properties:
+  job_id:
+    type: string
+  project:
+    type: string
+  feature_id:
+    type: string
+  asked_by:
+    type: string
+  source:
+    type: string
+  questions:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - category
+        - question
+        - required_before
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        question:
+          type: string
+        recommended_route:
+          type: string
+        rationale:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        required_before:
+          type: array
+          items:
+            type: string
+

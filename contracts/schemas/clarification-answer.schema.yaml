@@ -1,0 +1,33 @@
+schema_version: 1
+name: clarification_answer
+type: object
+required:
+  - question_id
+  - answered_by
+  - decision
+  - rationale
+  - confidence
+properties:
+  question_id:
+    type: string
+  answered_by:
+    type: string
+  role:
+    type: string
+  decision:
+    type: string
+  rationale:
+    type: string
+  constraints:
+    type: array
+    items:
+      type: string
+  follow_up_required:
+    type: boolean
+  confidence:
+    type: string
+    enum:
+      - low
+      - medium
+      - high
+

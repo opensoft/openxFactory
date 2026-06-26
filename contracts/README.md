@@ -23,20 +23,43 @@ commit they consume before runtime adapters are treated as compatible.
 
 ## Planned Contracts
 
-Initial planned contracts:
+Copied contracts:
 
 | Contract | Purpose | Initial Source |
 |---|---|---|
-| `hermes-job-envelope.schema.yaml` | Job request envelope from Hermes to Omnigent/Polly or other workers | `Omnigent-Install/schemas/` |
-| `hermes-job-event.schema.yaml` | Structured event emitted by worker, bridge, or Hermes service | `Omnigent-Install/schemas/` |
-| `hermes-job-run.schema.yaml` | Job run status and lifecycle record | `Omnigent-Install/schemas/` |
-| `clarification-questions.schema.yaml` | Spec Kit clarification questions emitted by lead engineering roles | `Omnigent-Install/schemas/` |
-| `clarification-answer.schema.yaml` | Single routed answer from an authority role | `Omnigent-Install/schemas/` |
-| `clarification-answer-packet.schema.yaml` | Collected answer packet returned to the requesting lead | `Omnigent-Install/schemas/` |
+| `schemas/hermes-job-envelope.schema.yaml` | Job request envelope from Hermes to Omnigent/Polly or other workers | `Omnigent-Install/schemas/` |
+| `schemas/hermes-job-event.schema.yaml` | Structured event emitted by worker, bridge, or Hermes service | `Omnigent-Install/schemas/` |
+| `schemas/hermes-job-run.schema.yaml` | Job run status and lifecycle record | `Omnigent-Install/schemas/` |
+| `schemas/clarification-questions.schema.yaml` | Spec Kit clarification questions emitted by lead engineering roles | `Omnigent-Install/schemas/` |
+| `schemas/clarification-answer.schema.yaml` | Single routed answer from an authority role | `Omnigent-Install/schemas/` |
+| `schemas/clarification-answer-packet.schema.yaml` | Collected answer packet returned to the requesting lead | `Omnigent-Install/schemas/` |
+| `schemas/hermes-operational-postgres.sql` | Hermes operational job/run/event/artifact/approval/traceability database contract | `Omnigent-Install/schemas/` |
+| `policies/hermes-governance-agents.yaml` | Hermes profile/group governance and routing policy | `Omnigent-Install/policies/` |
+| `policies/merge-risk-policy.yaml` | Merge Master risk classification and GitHub action policy | `Omnigent-Install/policies/` |
+
+Planned contracts:
+
+| Contract | Purpose | Initial Source |
+|---|---|---|
 | `pr-admission-packet.schema.yaml` | Evidence packet used before opening a GitHub PR | To define |
 | `merge-readiness-report.schema.yaml` | Merge council readiness report contract | To define |
-| `merge-risk-policy.schema.yaml` | Merge master risk classification and escalation contract | To define |
 | `repo-boundary-release-map.schema.yaml` | Mapping between `openWorkflow` release and install repo commits | To define |
+
+## Contract Manifest
+
+The machine-readable inventory is:
+
+```text
+contracts/manifest.yaml
+```
+
+Each entry records:
+
+- source path
+- source compatibility reference
+- copied schema or policy version when available
+- intended consumers
+- adapter ownership rule
 
 ## Version Pinning
 

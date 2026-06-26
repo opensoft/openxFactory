@@ -1,0 +1,141 @@
+schema_version: 1
+name: hermes_job_envelope
+type: object
+required:
+  - job
+properties:
+  job:
+    type: object
+    required:
+      - id
+      - schema_version
+      - issued_by
+      - job_type
+      - project
+      - repository
+      - feature_id
+      - orchestrator
+      - routing_policy
+      - auth_profile
+      - worker_selector
+      - allowed_phase
+      - approval_policy
+      - required_outputs
+      - traceability
+      - stop_conditions
+    properties:
+      id:
+        type: string
+      schema_version:
+        type: integer
+      issued_by:
+        type: string
+        enum:
+          - Hermes
+      job_type:
+        type: string
+        enum:
+          - feature_decomposition
+          - speckit_specify
+          - speckit_clarify
+          - speckit_plan
+          - speckit_tasks
+          - speckit_analyze
+          - speckit_implement
+          - implementation_worker
+          - branch_review
+          - pr_admission
+          - merge_council
+      project:
+        type: string
+      profile:
+        type: string
+      repository:
+        type: object
+        required:
+          - org
+          - name
+          - default_branch
+        properties:
+          org:
+            type: string
+          name:
+            type: string
+          default_branch:
+            type: string
+          worktree_ref:
+            type: string
+      epic_id:
+        type: string
+      feature_id:
+        type: string
+      feature_title:
+        type: string
+      orchestrator:
+        type: string
+      routing_policy:
+        type: string
+      owner:
+        type: string
+      auth_profile:
+        type: string
+      auth_mode:
+        type: string
+        enum:
+          - subscription
+          - api
+          - mixed
+      worker_selector:
+        type: object
+        required:
+          - pool
+          - role
+          - min_capabilities
+        properties:
+          pool:
+            type: string
+          role:
+            type: string
+          min_capabilities:
+            type: array
+            items:
+              type: string
+      allowed_phase:
+        type: object
+      approval_policy:
+        type: object
+        required:
+          - hermes_approval_required_before_apply
+          - authority_agents_may_approve
+          - human_escalation_required_for
+        properties:
+          hermes_approval_required_before_apply:
+            type: boolean
+          authority_agents_may_approve:
+            type: boolean
+          human_escalation_required_for:
+            type: array
+            items:
+              type: string
+      required_outputs:
+        type: array
+        items:
+          type: string
+      traceability:
+        type: object
+        required:
+          - root
+          - edges
+        properties:
+          root:
+            type: string
+          edges:
+            type: array
+            items:
+              type: object
+      budget:
+        type: object
+      stop_conditions:
+        type: array
+        items:
+          type: string

@@ -39,11 +39,11 @@
 
 ## 6. FEAT-MIG-005 Shared Contract Migration
 
-- [ ] 6.1 Inventory `Omnigent-Install/schemas` and policy YAML sources.
-- [ ] 6.2 Copy canonical contracts into `openWorkflow/contracts`.
-- [ ] 6.3 Add source, version, compatibility, and adapter ownership notes.
-- [ ] 6.4 Validate contract syntax where applicable.
-- [ ] 6.5 Confirm install repo schema copies are not deleted in this feature.
+- [x] 6.1 Inventory `Omnigent-Install/schemas` and policy YAML sources.
+- [x] 6.2 Copy canonical contracts into `openWorkflow/contracts`.
+- [x] 6.3 Add source, version, compatibility, and adapter ownership notes.
+- [x] 6.4 Validate contract syntax where applicable.
+- [x] 6.5 Confirm install repo schema copies are not deleted in this feature.
 
 ## 7. FEAT-MIG-006 Reference Pilot And Example Placement
 
