@@ -54,10 +54,10 @@
 
 ## 8. FEAT-MIG-007 Mark Install Repo Policy Copies
 
-- [ ] 8.1 Update migrated `Omnigent-Install` source docs with canonical links or legacy labels.
-- [ ] 8.2 Update migrated `Hermes-Install` source docs with canonical links or legacy labels.
-- [ ] 8.3 Run install repo validation and no-secret checks.
-- [ ] 8.4 Record install repo PR evidence in OpenSpec.
+- [x] 8.1 Update migrated `Omnigent-Install` source docs with canonical links or legacy labels.
+- [x] 8.2 Update migrated `Hermes-Install` source docs with canonical links or legacy labels.
+- [x] 8.3 Run install repo validation and no-secret checks.
+- [x] 8.4 Record install repo PR evidence in OpenSpec.
 
 ## 9. FEAT-MIG-008 Removal Or Cleanup Decision
 
