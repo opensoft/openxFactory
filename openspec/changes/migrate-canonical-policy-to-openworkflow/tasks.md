@@ -1,17 +1,17 @@
 ## 1. Proposal And Approval
 
-- [ ] 1.1 Validate proposal, design, specs, and tasks.
-- [ ] 1.2 Record Hermes approval to proceed with dogfood decomposition.
-- [ ] 1.3 Confirm migration uses copy-first feature slices and no direct bulk reshuffle.
+- [x] 1.1 Validate proposal, design, specs, and tasks.
+- [x] 1.2 Record Hermes approval to proceed with dogfood decomposition.
+- [x] 1.3 Confirm migration uses copy-first feature slices and no direct bulk reshuffle.
 
 ## 2. FEAT-MIG-001 Roles And Authority
 
-- [ ] 2.1 Inventory source role docs from `Omnigent-Install` and `Hermes-Install`.
-- [ ] 2.2 Create `openWorkflow/docs/roles-and-authority.md`.
-- [ ] 2.3 Define PO, PM, CA, PA, LA, LE, LC, LQ, LI, LS, Merge Master, and Merge Council.
-- [ ] 2.4 Separate Hermes governance roles from Omnigent execution roles.
-- [ ] 2.5 Preserve source provenance and update `openWorkflow` README.
-- [ ] 2.6 Validate OpenSpec and record PR admission/merge readiness evidence.
+- [x] 2.1 Inventory source role docs from `Omnigent-Install` and `Hermes-Install`.
+- [x] 2.2 Create `openWorkflow/docs/roles-and-authority.md`.
+- [x] 2.3 Define PO, PM, CA, PA, LA, LE, LC, LQ, LI, LS, Merge Master, and Merge Council.
+- [x] 2.4 Separate Hermes governance roles from Omnigent execution roles.
+- [x] 2.5 Preserve source provenance and update `openWorkflow` README.
+- [x] 2.6 Validate OpenSpec and record PR admission/merge readiness evidence.
 
 ## 3. FEAT-MIG-002 Spec Kit Stage Ownership And Clarification Routing
 
