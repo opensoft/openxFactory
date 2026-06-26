@@ -1,0 +1,16 @@
+artifact_id: ART-ALFA-FEAT-001-PR-OPEN
+artifact_type: github_pr_record
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-PR_ADMISSION
+repository: opensoft/project-alfa
+branch: pilot/FEAT-001-repo-diagnostics-command
+base_branch: main
+commit_sha: b1e487f8d574d81ca769ad2fce4098030bc92f8b
+pr_number: 3
+pr_url: https://github.com/opensoft/project-alfa/pull/3
+title: "FEAT-001: Repo diagnostics command"
+state: open
+draft: true
+approval_request_id: APR-ALFA-FEAT-001-PR-ADMISSION
+opened_after_hermes_pr_admission_artifact: true
+notes: Existing live pilot PR was converted to draft and captured after Hermes PR admission approval evidence.

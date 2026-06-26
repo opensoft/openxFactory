@@ -1,0 +1,19 @@
+artifact_id: ART-ALFA-FEAT-001-GITHUB-ACTIONS
+artifact_type: github_actions_results
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+commit_sha: b1e487f8d574d81ca769ad2fce4098030bc92f8b
+overall_result: pass
+checks:
+  - name: SonarCloud Code Analysis
+    result: pass
+    source: github_status_check
+    details_url: https://sonarcloud.io/dashboard?id=opensoft_project-alfa&pullRequest=3
+branch_protection:
+  required_checks_passed: true
+  required_reviews_satisfied: false
+  merge_state_status: BLOCKED
+  review_decision: REVIEW_REQUIRED
+  final_enforcement_layer: GitHub

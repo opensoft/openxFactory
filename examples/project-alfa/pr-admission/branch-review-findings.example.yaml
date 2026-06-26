@@ -1,0 +1,38 @@
+artifact_id: ART-ALFA-FEAT-014-BRANCH-REVIEW
+artifact_type: branch_review_findings
+feature_id: FEAT-014
+job_id: JOB-ALFA-PR-ADMISSION-001
+branch: work/FEAT-014-invoice-retrieval
+prompt_set: workers/prompts/branch-review-prompt-set.yaml
+result: pass
+reviewers:
+  - reviewer: Spec Traceability
+    model_class: opus
+    decision: pass
+    blocking: false
+    notes: Acceptance criteria and task evidence are traceable.
+  - reviewer: Security
+    model_class: opus
+    decision: pass
+    blocking: false
+    notes: Tenant ownership guard is present in the planned diff evidence.
+  - reviewer: Tests
+    model_class: sonnet
+    decision: pass
+    blocking: false
+    notes: Required deterministic checks and AC evidence pass.
+  - reviewer: Architecture
+    model_class: codex
+    decision: pass
+    blocking: false
+    notes: Route and service boundary remain inside invoice retrieval.
+  - reviewer: Maintainability
+    model_class: non_anthropic
+    decision: warn
+    blocking: false
+    notes: Follow up after PR with service-level telemetry naming cleanup.
+blocking_findings: []
+warnings:
+  - id: WARN-014-001
+    reviewer: Maintainability
+    summary: Telemetry naming should be normalized in a later cleanup.

@@ -1,0 +1,15 @@
+artifact_id: ART-ALFA-FEAT-014-SECURITY-SCAN
+artifact_type: security_scan_results
+feature_id: FEAT-014
+job_id: JOB-ALFA-MERGE-COUNCIL-001
+repository: opensoft/project-alfa
+pr_number: 238
+overall_result: pass
+scans:
+  - name: secret-scan
+    result: pass
+  - name: dependency-audit
+    result: pass
+  - name: tenant-isolation-review
+    result: pass
+blocking_findings: []

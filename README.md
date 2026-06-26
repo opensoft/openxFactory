@@ -36,6 +36,10 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Repo Boundary Change Pilot Plan](docs/repo-boundary-pilot-plan.md)
 - [Dogfood Content Migration Plan](docs/dogfood-content-migration-plan.md)
 
+## Reference Examples
+
+- [Workflow Reference Examples](examples/README.md)
+
 ## OpenSpec Records
 
 Active changes:

@@ -1,0 +1,37 @@
+artifact_id: ART-ALFA-FEAT-001-BRANCH
+artifact_type: branch_commit_record
+feature_id: FEAT-001
+repository: opensoft/project-alfa
+branch: pilot/FEAT-001-repo-diagnostics-command
+base_branch: main
+created_from: origin/main
+commit_sha: b1e487f8d574d81ca769ad2fce4098030bc92f8b
+changed_files:
+  - scripts/alfa-diagnostics.sh
+  - tests/alfa-diagnostics-smoke.sh
+  - specs/001-repo-diagnostics-command/analysis.md
+  - specs/001-repo-diagnostics-command/clarify.md
+  - specs/001-repo-diagnostics-command/implementation-report.md
+  - specs/001-repo-diagnostics-command/spec.md
+  - specs/001-repo-diagnostics-command/plan.md
+  - specs/001-repo-diagnostics-command/tasks.md
+line_budget:
+  max_changed_lines_per_pr: 10000
+  estimated_changed_lines: 269
+  status: within_budget
+assignments:
+  coder: LC
+  tester: LQ
+  integrator: LI
+traceability:
+  edges:
+    - from_type: tasks
+      from_id: FEAT-001-TASKS
+      relation: implemented_on
+      to_type: branch
+      to_id: pilot/FEAT-001-repo-diagnostics-command
+    - from_type: branch
+      from_id: pilot/FEAT-001-repo-diagnostics-command
+      relation: contains
+      to_type: commit
+      to_id: b1e487f8d574d81ca769ad2fce4098030bc92f8b

@@ -1,0 +1,302 @@
+jobs:
+  - id: JOB-ALFA-SPECIFY-001
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_specify
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: E1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: true
+      may_run_speckit_clarify: false
+      may_run_speckit_plan: false
+      may_run_speckit_tasks: false
+      may_run_speckit_analyze: false
+      may_run_speckit_implement: false
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: &approval_policy
+      hermes_approval_required_before_apply: true
+      authority_agents_may_approve: true
+      human_escalation_required_for:
+        - scope_expansion
+        - security_exception
+        - conflicting_authority_answers
+        - production_credential_change
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/spec.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-SPECIFY-001
+    budget: &stage_budget
+      max_child_agents: 4
+      max_runtime_minutes: 30
+      max_changed_lines: 0
+    stop_conditions: &stage_stop_conditions
+      - stop_after_stage_artifact
+      - stop_before_applying_answers
+      - stop_before_code_edits
+      - stop_before_pr
+
+  - id: JOB-ALFA-CLARIFY-004
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_clarify
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: E1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: false
+      may_run_speckit_clarify: true
+      may_run_speckit_plan: false
+      may_run_speckit_tasks: false
+      may_run_speckit_analyze: false
+      may_run_speckit_implement: false
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: *approval_policy
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/clarify.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-CLARIFY-004
+    budget: *stage_budget
+    stop_conditions: *stage_stop_conditions
+
+  - id: JOB-ALFA-PLAN-001
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_plan
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: E1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: false
+      may_run_speckit_clarify: false
+      may_run_speckit_plan: true
+      may_run_speckit_tasks: false
+      may_run_speckit_analyze: false
+      may_run_speckit_implement: false
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: *approval_policy
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/plan.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-PLAN-001
+    budget: *stage_budget
+    stop_conditions: *stage_stop_conditions
+
+  - id: JOB-ALFA-TASKS-001
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_tasks
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: C1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: false
+      may_run_speckit_clarify: false
+      may_run_speckit_plan: false
+      may_run_speckit_tasks: true
+      may_run_speckit_analyze: false
+      may_run_speckit_implement: false
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: *approval_policy
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/tasks.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-TASKS-001
+    budget: *stage_budget
+    stop_conditions: *stage_stop_conditions
+
+  - id: JOB-ALFA-ANALYZE-001
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_analyze
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: E1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: false
+      may_run_speckit_clarify: false
+      may_run_speckit_plan: false
+      may_run_speckit_tasks: false
+      may_run_speckit_analyze: true
+      may_run_speckit_implement: false
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: *approval_policy
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/analysis.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-ANALYZE-001
+    budget: *stage_budget
+    stop_conditions: *stage_stop_conditions
+
+  - id: JOB-ALFA-IMPLEMENT-001
+    schema_version: 1
+    issued_by: Hermes
+    job_type: speckit_implement
+    project: alfa
+    profile: first-test
+    epic_id: EPIC-ALFA-BILLING-001
+    feature_id: FEAT-014
+    feature_title: Invoice Retrieval
+    repository:
+      org: opensoft
+      name: project-alfa
+      default_branch: main
+      worktree_ref: main
+    orchestrator: agents/project-alfa-test/alfa-test-orchestrator.yaml
+    routing_policy: agents/project-alfa-test/project-roster.yaml
+    owner: C1
+    auth_profile: brett-dev
+    auth_mode: subscription
+    worker_selector:
+      pool: local-phase1
+      role: omnigent-worker
+      min_capabilities:
+        - docker
+        - omnigent
+    allowed_phase:
+      may_run_speckit_specify: false
+      may_run_speckit_clarify: false
+      may_run_speckit_plan: false
+      may_run_speckit_tasks: false
+      may_run_speckit_analyze: false
+      may_run_speckit_implement: true
+      may_edit_code: false
+      may_open_pr: false
+    approval_policy: *approval_policy
+    required_outputs:
+      - examples/project-alfa-speckit/artifacts/FEAT-014/implementation-report.md
+    traceability:
+      root: FEAT-014
+      edges:
+        - from_type: feature
+          from_id: FEAT-014
+          relation: executes_as
+          to_type: job
+          to_id: JOB-ALFA-IMPLEMENT-001
+    budget: *stage_budget
+    stop_conditions: *stage_stop_conditions

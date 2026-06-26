@@ -1,0 +1,66 @@
+artifact_id: ART-ALFA-FEAT-001-STAGE-GATES
+artifact_type: hermes_stage_gate_evidence
+job_id: JOB-FEAT_001-REPO_DIAGNOSTICS_COMMAND
+feature_id: FEAT-001
+repository: opensoft/project-alfa
+branch: pilot/FEAT-001-repo-diagnostics-command
+gates:
+  - gate_id: GATE-ALFA-FEAT-001-SPECKIT-START
+    approval_request_id: APR-ALFA-FEAT-001-DECOMPOSITION
+    approval_type: approve_feature_decomposition
+    required_before: /speckit.specify
+    authority_scope: feature_decomposition_approval
+    approving_profile: M1
+    protected_transition: start_speckit
+  - gate_id: GATE-ALFA-FEAT-001-APPLY-CLARIFY
+    approval_request_id: APR-ALFA-FEAT-001-CLARIFY-ANSWERS
+    approval_type: apply_clarification_answers
+    required_before: apply_clarification_answers
+    authority_scope: clarification_approval
+    approving_profile: M1
+    protected_transition: apply_answers
+  - gate_id: GATE-ALFA-FEAT-001-IMPLEMENTATION
+    approval_request_id: APR-ALFA-FEAT-001-IMPLEMENTATION
+    approval_type: approve_feature_implementation
+    required_before: /speckit.implement
+    authority_scope: implementation_approval
+    approving_profile: M1
+    protected_transition: start_implementation
+dispatches:
+  - stage: implementation
+    event_type: subagent_dispatched
+    agent_id: C1
+    role: coder
+    assignment: implement FEAT-001 diagnostics command
+  - stage: deterministic_checks
+    event_type: subagent_dispatched
+    agent_id: Q1
+    role: tester
+    assignment: run FEAT-001 diagnostics smoke checks
+  - stage: evidence_assembly
+    event_type: subagent_dispatched
+    agent_id: I1
+    role: integrator
+    assignment: assemble branch, test, and traceability evidence
+required_artifacts:
+  - ART-ALFA-FEAT-001-DECOMPOSITION
+  - ART-ALFA-FEAT-001-SPECKIT-ARTIFACTS
+  - ART-ALFA-FEAT-001-BRANCH
+  - ART-ALFA-FEAT-001-CHECKS
+traceability:
+  edges:
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-DECOMPOSITION
+      relation: awaits
+      to_type: approval_request
+      to_id: APR-ALFA-FEAT-001-DECOMPOSITION
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-SPECKIT-ARTIFACTS
+      relation: awaits
+      to_type: approval_request
+      to_id: APR-ALFA-FEAT-001-CLARIFY-ANSWERS
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-CHECKS
+      relation: supports
+      to_type: approval_request
+      to_id: APR-ALFA-FEAT-001-IMPLEMENTATION

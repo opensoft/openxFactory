@@ -1,0 +1,130 @@
+decomposition_packet:
+  id: DECOMP-ALFA-BILLING-001
+  schema_version: 1
+  project: alfa
+  epic_id: EPIC-ALFA-BILLING-001
+  source_type: openspec_change
+  source_path: openspec/changes/billing-self-service/spec.md
+  produced_by: Polly
+  approval_state: pending
+  constitution:
+    max_changed_lines_per_pr: 10000
+    orthogonal_features_required: true
+    encapsulated_features_required: true
+    user_perceivable_feature_required: true
+    bug_report_mapping_required: true
+    no_speckit_before_hermes_approval: true
+  phases:
+    - id: PHASE-ALFA-BILLING-01
+      title: Invoice Read Access
+      outcome: Customers can locate and inspect invoice records.
+      feature_ids:
+        - FEAT-014
+        - FEAT-015
+    - id: PHASE-ALFA-BILLING-02
+      title: Invoice Document Access
+      outcome: Customers can download invoice PDFs with auditability.
+      feature_ids:
+        - FEAT-016
+  features:
+    - id: FEAT-014
+      title: Invoice Retrieval
+      phase_id: PHASE-ALFA-BILLING-01
+      user_perceivable_capability: Customer opens an invoice list and sees invoices for their organization.
+      bug_report_mapping: User reports "I cannot find my invoices" or "I see someone else's invoice."
+      encapsulation_boundary: Invoice list route, query service, organization ownership filter, list-state UI.
+      orthogonal_to:
+        - FEAT-015
+        - FEAT-016
+      changed_lines_budget: 8500
+      speckit_entry: /speckit.specify
+      acceptance_criteria:
+        - id: FEAT-014.AC-01
+          text: Only invoices owned by the user's organization are returned.
+        - id: FEAT-014.AC-02
+          text: Empty and loading states are visible in the invoice list.
+        - id: FEAT-014.AC-03
+          text: Cross-tenant invoice list access is denied and tested.
+    - id: FEAT-015
+      title: Invoice Detail
+      phase_id: PHASE-ALFA-BILLING-01
+      user_perceivable_capability: Customer opens one invoice and sees line items, totals, and status.
+      bug_report_mapping: User reports "this invoice total/status/line item looks wrong."
+      encapsulation_boundary: Invoice detail route, invoice detail service, line-item read model, detail-state UI.
+      orthogonal_to:
+        - FEAT-014
+        - FEAT-016
+      changed_lines_budget: 9000
+      speckit_entry: /speckit.specify
+      acceptance_criteria:
+        - id: FEAT-015.AC-01
+          text: Invoice detail shows status, total, dates, and line items.
+        - id: FEAT-015.AC-02
+          text: Cross-tenant invoice detail access is denied and tested.
+    - id: FEAT-016
+      title: Invoice PDF Download
+      phase_id: PHASE-ALFA-BILLING-02
+      user_perceivable_capability: Customer downloads a PDF copy of an invoice from the invoice screen.
+      bug_report_mapping: User reports "the invoice PDF download fails" or "the wrong PDF downloaded."
+      encapsulation_boundary: PDF download action, document service adapter, audit record, download UI state.
+      orthogonal_to:
+        - FEAT-014
+        - FEAT-015
+      changed_lines_budget: 9500
+      speckit_entry: /speckit.specify
+      acceptance_criteria:
+        - id: FEAT-016.AC-01
+          text: PDF download returns the requested invoice document for the user's organization.
+        - id: FEAT-016.AC-02
+          text: Download attempts are auditable.
+        - id: FEAT-016.AC-03
+          text: Missing or forbidden PDFs show user-visible error states.
+  dependency_dag:
+    nodes:
+      - FEAT-014
+      - FEAT-015
+      - FEAT-016
+    edges:
+      - from: FEAT-014
+        to: FEAT-015
+        reason: Detail entry points link from the invoice list.
+      - from: FEAT-015
+        to: FEAT-016
+        reason: PDF download is exposed from invoice detail.
+  traceability:
+    edges:
+      - from_type: epic
+        from_id: EPIC-ALFA-BILLING-001
+        relation: decomposes_to
+        to_type: phase
+        to_id: PHASE-ALFA-BILLING-01
+      - from_type: epic
+        from_id: EPIC-ALFA-BILLING-001
+        relation: decomposes_to
+        to_type: phase
+        to_id: PHASE-ALFA-BILLING-02
+      - from_type: phase
+        from_id: PHASE-ALFA-BILLING-01
+        relation: decomposes_to
+        to_type: feature
+        to_id: FEAT-014
+      - from_type: phase
+        from_id: PHASE-ALFA-BILLING-01
+        relation: decomposes_to
+        to_type: feature
+        to_id: FEAT-015
+      - from_type: phase
+        from_id: PHASE-ALFA-BILLING-02
+        relation: decomposes_to
+        to_type: feature
+        to_id: FEAT-016
+      - from_type: feature
+        from_id: FEAT-014
+        relation: must_precede
+        to_type: feature
+        to_id: FEAT-015
+      - from_type: feature
+        from_id: FEAT-015
+        relation: must_precede
+        to_type: feature
+        to_id: FEAT-016

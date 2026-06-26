@@ -1,0 +1,19 @@
+schema_version: 1
+decision_id: MMD-FEAT-001-001
+job_id: JOB_FEAT_001_REPO_DIAGNOSTICS_COMMAND
+repository: opensoft/project-alfa
+pr_number: 3
+feature_id: FEAT-001
+risk: low
+decision: approve
+github_action: submit_approving_review
+rationale:
+  - council passed
+  - checks passed
+  - no production behavior change
+  - no credential or network access
+  - changed lines under budget
+evidence:
+  merge_readiness_report: ART-FEAT-001-MERGE-READINESS
+  pr_admission: APR-FEAT-001-PR-ADMISSION
+  merge_council: APR-FEAT-001-MERGE-COUNCIL

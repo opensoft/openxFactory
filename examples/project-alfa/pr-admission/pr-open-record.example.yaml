@@ -1,0 +1,12 @@
+artifact_id: ART-ALFA-FEAT-014-PR-OPEN
+artifact_type: github_pr_record
+feature_id: FEAT-014
+job_id: JOB-ALFA-PR-ADMISSION-001
+repository: opensoft/project-alfa
+branch: work/FEAT-014-invoice-retrieval
+base_branch: main
+pr_number: 0
+pr_url: local-smoke://opensoft/project-alfa/pull/FEAT-014
+draft: true
+opened_after_approval: true
+approval_request_id: APR-ALFA-FEAT-014-PR-ADMISSION-001

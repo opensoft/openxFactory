@@ -1,0 +1,37 @@
+artifact_id: ART-ALFA-FEAT-001-CHECKS
+artifact_type: deterministic_check_results
+feature_id: FEAT-001
+repository: opensoft/project-alfa
+branch: pilot/FEAT-001-repo-diagnostics-command
+commit_sha: b1e487f8d574d81ca769ad2fce4098030bc92f8b
+runner: Q1
+decision: pass
+checks:
+  - id: alfa-diagnostics-human-output
+    command: ./scripts/alfa-diagnostics.sh
+    status: pass
+    evidence: diagnostics output includes repository, branch, commit, status, file count, and changed file count
+  - id: alfa-diagnostics-json-output
+    command: ./scripts/alfa-diagnostics.sh json
+    status: pass
+    evidence: JSON output includes repository, branch, commit, status, file_count, and changed_files
+  - id: alfa-diagnostics-smoke
+    command: ./tests/alfa-diagnostics-smoke.sh
+    status: pass
+    evidence: smoke test completed for human and JSON diagnostics modes
+line_budget:
+  max_changed_lines_per_pr: 10000
+  actual_changed_lines: 269
+  status: within_budget
+traceability:
+  edges:
+    - from_type: branch
+      from_id: pilot/FEAT-001-repo-diagnostics-command
+      relation: verified_by
+      to_type: artifact
+      to_id: ART-ALFA-FEAT-001-CHECKS
+    - from_type: artifact
+      from_id: ART-ALFA-FEAT-001-CHECKS
+      relation: verifies
+      to_type: feature
+      to_id: FEAT-001

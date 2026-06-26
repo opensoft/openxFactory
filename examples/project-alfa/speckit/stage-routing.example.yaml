@@ -1,0 +1,111 @@
+stages:
+  speckit_specify:
+    command: /speckit.specify
+    owner: E1
+    consulted:
+      - M1
+      - A1
+    artifact_id: ART-ALFA-SPECIFY-001
+    artifact_type: speckit_spec
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/spec.md
+    approval_request_id: APR-ALFA-SPECIFY-001
+    approval_type: approve_speckit_spec
+    questions:
+      - id: SQ-001
+        category: product_scope
+        route: M1
+      - id: SQ-002
+        category: subsystem_architecture
+        route: A1
+  speckit_clarify:
+    command: /speckit.clarify
+    owner: E1
+    artifact_id: ART-ALFA-CLARIFY-004
+    artifact_type: speckit_clarification_packet
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/clarify.md
+    approval_request_id: APR-ALFA-CLARIFY-004
+    approval_type: approve_speckit_clarifications
+    questions:
+      - id: CQ-101
+        category: tenant_isolation
+        route: A1
+      - id: CQ-102
+        category: test_strategy
+        route: Q1
+      - id: CQ-103
+        category: product_scope
+        route: M1
+  speckit_plan:
+    command: /speckit.plan
+    owner: E1
+    consulted:
+      - A1
+      - C1
+      - Q1
+    artifact_id: ART-ALFA-PLAN-001
+    artifact_type: speckit_plan
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/plan.md
+    approval_request_id: APR-ALFA-PLAN-001
+    approval_type: approve_speckit_plan
+    questions:
+      - id: PQ-001
+        category: subsystem_architecture
+        route: A1
+      - id: PQ-002
+        category: implementation_feasibility
+        route: C1
+      - id: PQ-003
+        category: acceptance_coverage
+        route: Q1
+  speckit_tasks:
+    command: /speckit.tasks
+    owner: C1
+    reviewed_by:
+      - E1
+      - Q1
+    artifact_id: ART-ALFA-TASKS-001
+    artifact_type: speckit_tasks
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/tasks.md
+    approval_request_id: APR-ALFA-TASKS-001
+    approval_type: approve_speckit_tasks
+    questions:
+      - id: TQ-001
+        category: engineering_interpretation
+        route: E1
+      - id: TQ-002
+        category: test_evidence
+        route: Q1
+  speckit_analyze:
+    command: /speckit.analyze
+    owner: E1
+    reviewed_by:
+      - A1
+      - Q1
+    artifact_id: ART-ALFA-ANALYZE-001
+    artifact_type: speckit_analysis
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/analysis.md
+    approval_request_id: APR-ALFA-ANALYZE-001
+    approval_type: approve_speckit_analysis
+    questions:
+      - id: AQ-001
+        category: subsystem_architecture
+        route: A1
+      - id: AQ-002
+        category: quality_gates
+        route: Q1
+  speckit_implement:
+    command: /speckit.implement
+    owner: C1
+    executor: coder_agents
+    artifact_id: ART-ALFA-IMPLEMENT-001
+    artifact_type: speckit_implementation_report
+    artifact_path: examples/project-alfa-speckit/artifacts/FEAT-014/implementation-report.md
+    approval_request_id: APR-ALFA-IMPLEMENT-001
+    approval_type: approve_speckit_implementation_control
+    questions:
+      - id: IQ-001
+        category: coding_approach
+        route: C1
+      - id: IQ-002
+        category: test_evidence
+        route: Q1

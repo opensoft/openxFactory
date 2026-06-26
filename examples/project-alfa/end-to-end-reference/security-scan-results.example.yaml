@@ -1,0 +1,18 @@
+artifact_id: ART-ALFA-FEAT-001-SECURITY-SCAN
+artifact_type: security_scan_results
+feature_id: FEAT-001
+job_id: JOB-FEAT_001-MERGE_COUNCIL
+repository: opensoft/project-alfa
+pr_number: 3
+overall_result: pass
+scans:
+  - name: no-committed-secrets
+    result: pass
+    evidence: scripts/smoke-no-committed-secrets.sh
+  - name: sonarcloud-code-analysis
+    result: pass
+    evidence: ART-ALFA-FEAT-001-GITHUB-ACTIONS
+  - name: dependency-audit
+    result: not_configured
+    evidence: explicit not-configured evidence for first live pilot
+blocking_findings: []

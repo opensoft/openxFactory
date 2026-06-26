@@ -1,0 +1,80 @@
+job:
+  id: JOB-FEAT_001-MERGE_COUNCIL
+  schema_version: 1
+  issued_by: Hermes
+  job_type: merge_council
+  project: project-alfa
+  profile: project-alfa-feat-001-merge-council
+  repository:
+    org: opensoft
+    name: project-alfa
+    default_branch: main
+    worktree_ref: pull/3
+  epic_id: EPIC-ALFA-OPS-001
+  phase_id: PHASE-ALFA-OPS-001
+  feature_id: FEAT-001
+  feature_title: Repo Diagnostics Command
+  orchestrator: hermes
+  routing_policy: agents/project-alfa/project-roster.yaml
+  owner: MM
+  auth_profile: hermes-service
+  auth_mode: mixed
+  worker_selector:
+    pool: hermes-control-plane
+    role: merge-council
+    min_capabilities:
+      - github-actions-read
+      - pr-review-read
+      - security-scan-read
+      - merge-council
+      - merge-master
+      - human-review-routing
+      - traceability
+  allowed_phase:
+    phase: merge_council
+    may_edit_code: false
+    may_open_pr: false
+    may_merge_directly: false
+    may_approve_merge: false
+    github_branch_protection_final_gate: true
+  approval_policy:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: true
+    human_escalation_required_for:
+      - required_github_review_missing
+      - blocking_council_result
+      - failed_github_actions
+      - failed_security_scan
+      - unresolved_required_fixes
+      - branch_protection_override
+  required_outputs:
+    - github_pr_record
+    - github_actions_results
+    - pr_review_results
+    - security_scan_results
+    - merge_readiness_report
+    - merge_council_results
+    - merge_master_risk_classification
+    - human_review_route
+    - traceability_edges
+  traceability:
+    root: EPIC-ALFA-OPS-001
+    edges:
+      - from_type: artifact
+        from_id: ART-ALFA-FEAT-001-PR-OPEN
+        relation: enters
+        to_type: job
+        to_id: JOB-FEAT_001-MERGE_COUNCIL
+      - from_type: feature
+        from_id: FEAT-001
+        relation: evaluated_for_merge_by
+        to_type: job
+        to_id: JOB-FEAT_001-MERGE_COUNCIL
+  stop_conditions:
+    - failed_github_actions
+    - failed_security_scan
+    - blocking_council_result
+    - required_github_review_missing
+    - required_fixes_unresolved
+    - merge_attempted_before_github_queue
+    - branch_protection_not_satisfied
