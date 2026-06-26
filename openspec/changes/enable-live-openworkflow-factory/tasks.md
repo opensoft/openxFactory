@@ -37,10 +37,10 @@
 
 ## 6. Project Alfa Live Pilot
 
-- [ ] 6.1 Select or confirm the low-risk Project Alfa pilot feature.
-- [ ] 6.2 Run or replay decomposition, Spec Kit, branch, check, and review flow.
-- [ ] 6.3 Verify changed-line budget and traceability.
-- [ ] 6.4 Record pilot evidence bundle.
+- [x] 6.1 Select or confirm the low-risk Project Alfa pilot feature.
+- [x] 6.2 Run or replay decomposition, Spec Kit, branch, check, and review flow.
+- [x] 6.3 Verify changed-line budget and traceability.
+- [x] 6.4 Record pilot evidence bundle.
 
 ## 7. PR Admission, Merge Council, And Merge Master
 
