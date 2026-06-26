@@ -52,11 +52,11 @@
 
 ## 8. CloudPC Worker, Auth, Memory, And Operations
 
-- [ ] 8.1 Verify CloudPC worker pack runbook and Docker Compose layout.
-- [ ] 8.2 Verify auth profile restore/onboarding runbooks avoid committed secrets.
-- [ ] 8.3 Verify worker memory rules treat memory as context, not canonical truth.
-- [ ] 8.4 Verify operations and DR smoke sequence is documented.
-- [ ] 8.5 Record operations readiness evidence.
+- [x] 8.1 Verify CloudPC worker pack runbook and Docker Compose layout.
+- [x] 8.2 Verify auth profile restore/onboarding runbooks avoid committed secrets.
+- [x] 8.3 Verify worker memory rules treat memory as context, not canonical truth.
+- [x] 8.4 Verify operations and DR smoke sequence is documented.
+- [x] 8.5 Record operations readiness evidence.
 
 ## 9. Final Validation And Archive
 
