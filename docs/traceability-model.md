@@ -2,6 +2,21 @@
 
 The factory must document traceability from epic to merge.
 
+## Source Provenance
+
+Reviewed sources:
+
+- `/home/brett/projects/Agents/Omnigent-Install/docs/runbooks/phase3-feature-decomposition.md`
+- `/home/brett/projects/Agents/Omnigent-Install/examples/project-alfa-decomposition/decomposition-packet.example.yaml`
+- `/home/brett/projects/Agents/Omnigent-Install/docs/hermes-job-status-schema.md`
+- `/home/brett/projects/Agents/Omnigent-Install/docs/runbooks/hermes-api.md`
+- `docs/feature-decomposition.md`
+- `docs/pr-admission.md`
+- `docs/merge-council.md`
+
+The install repo source docs remain in place until a later migration feature
+marks them as canonical links, legacy copies, or implementation runbooks.
+
 ## Trace Chain
 
 ```text
@@ -84,6 +99,63 @@ merge_council_decision:
 merge_council_report:
 merge_commit:
 archive_ref:
+```
+
+## Traceability Edge Contract
+
+Traceability edges should be machine-readable and durable. At minimum, an edge
+records:
+
+```yaml
+traceability_edge:
+  from_type:
+  from_id:
+  relation:
+  to_type:
+  to_id:
+  evidence:
+    artifact_id:
+    path:
+```
+
+Core relations:
+
+| Relation | Meaning |
+|---|---|
+| `decomposes_to` | epic to phase, or phase to feature |
+| `approves` | Hermes approval to decomposition, Spec Kit entry, PR admission, or merge decision |
+| `produces` | job, worker, or agent produces an artifact |
+| `implements` | branch, task, or PR implements a feature or acceptance criterion |
+| `verifies` | test, review, or check verifies an acceptance criterion |
+| `blocks` | finding or decision blocks progression |
+| `must_precede` | one feature must merge or complete before another |
+| `references` | artifact links to another artifact without ownership |
+
+Required decomposition edges:
+
+```text
+epic -> phase
+phase -> feature
+feature -> feature dependency, when ordering exists
+decomposition approval -> decomposition packet
+approved feature -> Spec Kit entry
+```
+
+Required implementation and merge edges:
+
+```text
+feature -> Spec Kit spec/plan/tasks/analyze artifacts
+Spec Kit tasks -> implementation branch
+branch -> deterministic checks
+branch -> branch review
+branch review -> PR admission packet
+PR admission approval -> GitHub PR
+GitHub PR -> GitHub checks
+GitHub PR -> Merge Council report
+Merge Council report -> Merge Master decision
+Merge Master decision -> GitHub review action
+GitHub PR -> merge commit
+OpenSpec change -> archived OpenSpec change
 ```
 
 ## Traceability Report
