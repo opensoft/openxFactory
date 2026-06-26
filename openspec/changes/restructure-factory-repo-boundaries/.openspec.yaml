@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-06-26
+goal: Use the repo boundary audit and pilot plan to govern a low-risk, doc-first
+  migration of canonical policy, contracts, install repo scope links, and future
+  submodule pins.

@@ -31,6 +31,10 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Repository Boundary Audit](docs/repo-boundary-audit.md)
 - [Repo Boundary Change Pilot Plan](docs/repo-boundary-pilot-plan.md)
 
+## Active OpenSpec Changes
+
+- [restructure-factory-repo-boundaries](openspec/changes/restructure-factory-repo-boundaries/proposal.md)
+
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, or generated agent workspaces.

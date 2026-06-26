@@ -1,0 +1,56 @@
+## 1. Proposal And Approval
+
+- [ ] 1.1 Review `proposal.md`, `design.md`, and specs with Hermes governance.
+- [ ] 1.2 Record Hermes approval to proceed with decomposition.
+- [ ] 1.3 Confirm the first implementation feature is doc-only and `openWorkflow` only.
+
+## 2. FEAT-RB-001 Canonical Boundary Policy
+
+- [ ] 2.1 Verify `docs/repo-boundary-audit.md` states canonical ownership for `openWorkflow`, `Hermes-Install`, and `Omnigent-Install`.
+- [ ] 2.2 Verify `docs/repo-boundary-pilot-plan.md` states the doc-only guardrails and stop conditions.
+- [ ] 2.3 Add or update README links so the boundary policy and pilot plan are discoverable.
+- [ ] 2.4 Run local doc and OpenSpec validation for the feature.
+- [ ] 2.5 Record branch review and PR admission evidence for the feature.
+
+## 3. FEAT-RB-002 Contract Home Placeholder
+
+- [ ] 3.1 Create `contracts/README.md` in `openWorkflow`.
+- [ ] 3.2 List planned shared contracts and schema names.
+- [ ] 3.3 Document contract source-of-truth, version pinning, adapter, and generated-copy rules.
+- [ ] 3.4 Validate that no install repo files are changed in this feature.
+
+## 4. FEAT-RB-003 Omnigent-Install Scope Link
+
+- [ ] 4.1 Update `Omnigent-Install` README to state its install, worker runtime, operations, and DR scope.
+- [ ] 4.2 Link `Omnigent-Install` to canonical `openWorkflow` boundary and workflow policy.
+- [ ] 4.3 Mark duplicate policy material as implementation notes or legacy copies where appropriate.
+- [ ] 4.4 Run existing `Omnigent-Install` smoke checks.
+
+## 5. FEAT-RB-004 Hermes-Install Scope Link
+
+- [ ] 5.1 Update `Hermes-Install` README to state its Hermes install, operations, backup, restore, upgrade, and DR scope.
+- [ ] 5.2 Link `Hermes-Install` to canonical `openWorkflow` boundary and workflow policy.
+- [ ] 5.3 Document the unresolved `Hermes-Install` remote ownership decision.
+- [ ] 5.4 Verify no deployment scripts or manifests change in this feature.
+
+## 6. FEAT-RB-005 Submodule Decision Record
+
+- [ ] 6.1 Add an `openWorkflow` decision record for install repo submodules.
+- [ ] 6.2 Document proposed paths `installs/hermes-install` and `installs/omnigent-install`.
+- [ ] 6.3 Document update, rollback, and pinned-commit procedure.
+- [ ] 6.4 Record that Hermes submodule creation waits for the remote ownership decision.
+
+## 7. FEAT-RB-006 First Actual Submodule Add
+
+- [ ] 7.1 Confirm FEAT-RB-001 through FEAT-RB-005 are merged.
+- [ ] 7.2 Confirm install repo scope docs are updated and approved.
+- [ ] 7.3 Add only the approved first install repo submodule.
+- [ ] 7.4 Validate fresh clone and submodule initialization.
+- [ ] 7.5 Record merge council readiness evidence before merge.
+
+## 8. Final Validation
+
+- [ ] 8.1 Validate the OpenSpec change with `openspec validate restructure-factory-repo-boundaries --strict`.
+- [ ] 8.2 Confirm no secrets, credential profiles, generated databases, or runtime state are tracked.
+- [ ] 8.3 Confirm each implemented feature has acceptance evidence.
+- [ ] 8.4 Archive the OpenSpec change only after all approved feature slices are complete.
