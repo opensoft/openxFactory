@@ -35,10 +35,10 @@
 
 ## 6. FEAT-RB-005 Submodule Decision Record
 
-- [ ] 6.1 Add an `openWorkflow` decision record for install repo submodules.
-- [ ] 6.2 Document proposed paths `installs/hermes-install` and `installs/omnigent-install`.
-- [ ] 6.3 Document update, rollback, and pinned-commit procedure.
-- [ ] 6.4 Record that Hermes submodule creation waits for the remote ownership decision.
+- [x] 6.1 Add an `openWorkflow` decision record for install repo submodules.
+- [x] 6.2 Document proposed paths `installs/hermes-install` and `installs/omnigent-install`.
+- [x] 6.3 Document update, rollback, and pinned-commit procedure.
+- [x] 6.4 Record that Hermes submodule creation waits for the remote ownership decision.
 
 ## 7. FEAT-RB-006 First Actual Submodule Add
 
