@@ -7,6 +7,9 @@ The goal is to keep the install repositories focused on subsystem install,
 operations, backup, recovery, and disaster recovery, while `openWorkflow`
 owns the integrated factory workflow.
 
+The pilot implementation plan for applying this boundary through the factory
+workflow is [Repo Boundary Change Pilot Plan](repo-boundary-pilot-plan.md).
+
 ## Repository Responsibilities
 
 ```text
