@@ -25,6 +25,7 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
 - [Feature Decomposition Standard](docs/feature-decomposition.md)
+- [Roles and Authority](docs/roles-and-authority.md)
 - [Deployment and Worker Model](docs/deployment-worker-model.md)
 - [Merge Council and Readiness Reports](docs/merge-council.md)
 - [Workflow Gap Solutions](docs/workflow-gap-solutions.md)
