@@ -1,0 +1,57 @@
+schema_version: 1
+name: clarification_answer_packet
+type: object
+required:
+  - job_id
+  - project
+  - feature_id
+  - assembled_by
+  - status
+  - answers
+  - hermes_approval_required
+properties:
+  job_id:
+    type: string
+  project:
+    type: string
+  feature_id:
+    type: string
+  assembled_by:
+    type: string
+  status:
+    type: string
+    enum:
+      - ready_for_hermes_approval
+      - blocked
+      - approved
+      - rejected
+  hermes_approval_required:
+    type: boolean
+  answers:
+    type: array
+    items:
+      type: object
+      required:
+        - question_id
+        - answered_by
+        - decision
+      properties:
+        question_id:
+          type: string
+        answered_by:
+          type: string
+        category:
+          type: string
+        decision:
+          type: string
+        rationale:
+          type: string
+        constraints:
+          type: array
+          items:
+            type: string
+  blockers:
+    type: array
+    items:
+      type: string
+

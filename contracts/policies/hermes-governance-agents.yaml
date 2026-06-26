@@ -1,0 +1,197 @@
+schema_version: 1
+policy_id: hermes-governance-agents-v1
+install_model:
+  hermes_installs: 1
+  groups_are_logical_boundaries: true
+  separate_install_per_group: false
+  source_of_truth: single_hermes_control_plane
+groups:
+  opensoft/hermes-governance:
+    purpose: Hermes-level governance, approvals, escalation, merge authority
+    agents:
+      - PO
+      - PM
+      - CA
+      - HG
+      - HA
+      - HM
+      - HC
+      - HP
+      - HD
+      - HR
+      - MC
+      - MM
+  opensoft/hermes-architecture:
+    purpose: Chief Architect reviews and system architecture decisions
+    agents:
+      - CA
+      - HG
+      - HC
+      - LA
+  opensoft/hermes-security:
+    purpose: High-risk security and tenant isolation escalations
+    agents:
+      - LS
+      - CA
+      - HC
+      - HG
+      - HR
+  opensoft/omnigent-engineering:
+    purpose: Repo execution leads
+    agents:
+      - LA
+      - LE
+      - LC
+      - LQ
+      - LI
+      - LS
+profiles:
+  PO1:
+    role: PO
+    home_group: opensoft/hermes-governance
+    member_of:
+      - opensoft/hermes-governance
+  M1:
+    role: PM
+    home_group: opensoft/hermes-governance
+    member_of:
+      - opensoft/hermes-governance
+  CA1:
+    role: CA
+    home_group: opensoft/hermes-governance
+    member_of:
+      - opensoft/hermes-governance
+      - opensoft/hermes-architecture
+      - opensoft/hermes-security
+  A1:
+    role: LA
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+      - opensoft/hermes-architecture
+  E1:
+    role: LE
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+  C1:
+    role: LC
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+  Q1:
+    role: LQ
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+  I1:
+    role: LI
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+  S1:
+    role: LS
+    home_group: opensoft/omnigent-engineering
+    member_of:
+      - opensoft/omnigent-engineering
+      - opensoft/hermes-security
+github_team_mapping:
+  opensoft/hermes-governance: opensoft/hermes-governance
+  opensoft/hermes-architecture: opensoft/hermes-architecture
+  opensoft/hermes-security: opensoft/hermes-security
+  opensoft/omnigent-engineering: opensoft/omnigent-engineering
+authority_roles:
+  PO:
+    layer: hermes
+    name: Project Owner
+    owns:
+      - business_outcome
+      - product_vision
+      - release_value
+      - user_visible_behavior
+      - final_scope_tradeoffs
+  PM:
+    layer: hermes
+    name: Project Manager
+    owns:
+      - schedule
+      - priority
+      - milestone_sequence
+      - dependency_coordination
+      - acceptance_process
+  CA:
+    layer: hermes
+    name: Chief Architect
+    owns:
+      - system_architecture
+      - cross_project_boundaries
+      - canonical_data_ownership
+      - product_wide_contracts
+      - platform_constraints
+      - architecture_memory_source_of_truth
+  LA:
+    layer: omnigent
+    name: Lead Architect
+    owns:
+      - subsystem_architecture
+      - repo_service_module_boundaries
+      - local_tech_stack
+      - internal_interfaces
+      - implementation_architecture
+agents:
+  HG:
+    name: Hermes Governor
+    owns:
+      - policy_interpretation
+      - escalation_rules
+      - authority_boundaries
+  HA:
+    name: Hermes Approval Controller
+    owns:
+      - approval_requests
+      - approval_resolution
+      - authority_conflicts
+      - escalation
+  HM:
+    name: Hermes Memory Curator
+    owns:
+      - memory_promotion
+      - official_memory_review
+      - memory_source_linking
+  HC:
+    name: Hermes Compliance Audit Agent
+    owns:
+      - traceability_audit
+      - evidence_completeness
+      - restore_critical_records
+  HP:
+    name: Hermes Portfolio Manager
+    owns:
+      - project_priority
+      - milestone_sequence
+      - capacity_tradeoffs
+  HD:
+    name: Hermes Dashboard Status Agent
+    owns:
+      - status_summary
+      - stuck_work_detection
+      - worker_status
+  HR:
+    name: Human Review Router
+    owns:
+      - human_reviewer_selection
+      - team_review_requests
+      - escalation_routing
+  MC:
+    name: Merge Council
+    owns:
+      - merge_readiness_review
+      - council_lane_results
+      - required_fixes
+  MM:
+    name: Merge Master
+    owns:
+      - merge_risk_classification
+      - github_review_action
+      - human_review_escalation
+      - merge_block_decision

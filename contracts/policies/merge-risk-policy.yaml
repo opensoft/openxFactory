@@ -1,0 +1,59 @@
+schema_version: 1
+policy_id: merge-risk-policy-v1
+line_budget:
+  default_max_changed_lines: 10000
+risk_levels:
+  low:
+    merge_master_may_approve: true
+    requires_human_review: false
+    examples:
+      - documentation_only
+      - tests_only
+      - small_internal_tooling
+      - local_only_script
+      - no_production_behavior_change
+    required_conditions:
+      - council_ready
+      - no_blocking_council_lanes
+      - github_checks_passing
+      - traceability_complete
+      - under_line_budget
+      - no_auth_security_tenant_payment_or_secret_paths
+      - no_destructive_data_change
+  medium:
+    merge_master_may_approve: false
+    requires_human_review: true
+    action: request_human_review
+    examples:
+      - user_visible_behavior
+      - integration_boundary_change
+      - dependency_upgrade
+      - non_destructive_database_migration
+  high:
+    merge_master_may_approve: false
+    requires_human_review: true
+    action: human_approval_required
+    examples:
+      - auth
+      - authorization
+      - tenant_isolation
+      - payments
+      - secrets
+      - infrastructure
+      - destructive_data_change
+      - branch_protection_exception
+      - over_line_budget
+github_actions:
+  approve:
+    allowed_for_risk:
+      - low
+    requires_execute_env: MERGE_MASTER_EXECUTE
+  request_human_review:
+    allowed_for_risk:
+      - medium
+      - high
+  block:
+    allowed_for_risk:
+      - low
+      - medium
+      - high
