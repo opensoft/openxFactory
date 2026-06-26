@@ -3,6 +3,13 @@
 This plan uses the factory workflow itself to implement the repo-boundary
 restructure described in [Repository Boundary Audit](repo-boundary-audit.md).
 
+Status: completed. The OpenSpec change `restructure-factory-repo-boundaries`
+has been archived, and the canonical specs now live under `openspec/specs/`.
+
+The next phase is the copy-first content migration described in
+[Dogfood Content Migration Plan](dogfood-content-migration-plan.md). That phase
+must use the full factory stack on the factory itself.
+
 The pilot is intentionally constrained: doc-only first, `openWorkflow` first,
 no deletions, and no submodules until the policy and contracts are approved.
 
@@ -276,13 +283,13 @@ Each feature should produce:
 ## Initial Checklist
 
 - [x] Create repo boundary audit.
-- [ ] Create OpenSpec proposal for `restructure-factory-repo-boundaries`.
-- [ ] Decompose change into the feature slices above.
-- [ ] Run FEAT-RB-001 as the first doc-only pilot.
-- [ ] Review branch locally before PR admission.
-- [ ] Open GitHub PR after Hermes approval.
-- [ ] Run merge council on the PR.
-- [ ] Merge only after GitHub checks and merge council approval.
+- [x] Create OpenSpec proposal for `restructure-factory-repo-boundaries`.
+- [x] Decompose change into the feature slices above.
+- [x] Run FEAT-RB-001 as the first doc-only pilot.
+- [x] Review branch locally before PR admission.
+- [x] Open GitHub PR after Hermes approval.
+- [x] Run merge council on the PR.
+- [x] Merge only after GitHub checks and merge council approval.
 
 ## Stop Conditions
 

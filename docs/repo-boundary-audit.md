@@ -9,6 +9,8 @@ owns the integrated factory workflow.
 
 The pilot implementation plan for applying this boundary through the factory
 workflow is [Repo Boundary Change Pilot Plan](repo-boundary-pilot-plan.md).
+The next implementation phase is the
+[Dogfood Content Migration Plan](dogfood-content-migration-plan.md).
 
 ## Repository Responsibilities
 
@@ -304,11 +306,15 @@ or mirror it into the `opensoft` organization.
 
 ## Migration Plan
 
+Status: the initial repo-boundary pilot is complete. The remaining migration
+work must be performed through the dogfood workflow described in
+[Dogfood Content Migration Plan](dogfood-content-migration-plan.md).
+
 ### Phase 1: Classify
 
-- [ ] Mark each `Omnigent-Install` doc as keep, move canonical policy, move to Hermes, or proof-lab.
-- [ ] Mark each `Hermes-Install` doc/script as keep or summarize into `openWorkflow`.
-- [ ] Identify canonical contracts and create `openWorkflow/contracts/`.
+- [x] Mark each `Omnigent-Install` doc as keep, move canonical policy, move to Hermes, or proof-lab.
+- [x] Mark each `Hermes-Install` doc/script as keep or summarize into `openWorkflow`.
+- [x] Identify canonical contracts and create `openWorkflow/contracts/`.
 - [ ] Identify examples that should become reference workflow examples.
 
 ### Phase 2: Copy Canonical Policy
@@ -324,9 +330,9 @@ phase.
 
 ### Phase 3: Point Install Repos Back To openWorkflow
 
-- [ ] Update `Omnigent-Install` README with reduced scope.
-- [ ] Update `Hermes-Install` README with reduced scope.
-- [ ] Add links from install repo docs to canonical `openWorkflow` policy.
+- [x] Update `Omnigent-Install` README with reduced scope.
+- [x] Update `Hermes-Install` README with reduced scope.
+- [x] Add links from install repo docs to canonical `openWorkflow` policy.
 - [ ] Mark duplicate policy docs as implementation notes or legacy copies.
 
 ### Phase 4: Move Runtime-Specific Pieces
@@ -338,10 +344,10 @@ phase.
 
 ### Phase 5: Add Submodules
 
-- [ ] Ensure `Hermes-Install` canonical remote is under the intended organization.
+- [ ] Resolve `Hermes-Install` canonical remote decision.
 - [ ] Add `installs/hermes-install` submodule.
-- [ ] Add `installs/omnigent-install` submodule.
-- [ ] Document submodule update and release pin process.
+- [x] Add `installs/omnigent-install` submodule.
+- [x] Document submodule update and release pin process.
 
 ### Phase 6: Enforce Boundary
 
