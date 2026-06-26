@@ -1,0 +1,3 @@
+[submodule "installs/omnigent-install"]
+	path = installs/omnigent-install
+	url = git@github.com:opensoft/Omnigent-Install.git

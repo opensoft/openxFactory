@@ -35,6 +35,23 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 
 - [restructure-factory-repo-boundaries](openspec/changes/restructure-factory-repo-boundaries/proposal.md)
 
+## Install Repo Pins
+
+`openWorkflow` pins approved install repo revisions under `installs/`.
+
+Current submodules:
+
+- [installs/omnigent-install](installs/omnigent-install) -> `opensoft/Omnigent-Install`
+
+Clone or refresh with:
+
+```bash
+git submodule update --init --recursive
+```
+
+Hermes install is not yet a submodule. Its canonical remote decision is still
+open; see [Decision 0001](docs/decisions/0001-install-repo-submodules.md).
+
 ## Status
 
 This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, or generated agent workspaces.
