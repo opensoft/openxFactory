@@ -28,6 +28,7 @@ Hermes decides what is approved to pursue. Polly decides how approved engineerin
 - [Deployment and Worker Model](docs/deployment-worker-model.md)
 - [Merge Council and Readiness Reports](docs/merge-council.md)
 - [Workflow Gap Solutions](docs/workflow-gap-solutions.md)
+- [Repository Boundary Audit](docs/repo-boundary-audit.md)
 
 ## Status
 
