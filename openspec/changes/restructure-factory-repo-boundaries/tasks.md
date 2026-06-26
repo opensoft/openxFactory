@@ -42,11 +42,11 @@
 
 ## 7. FEAT-RB-006 First Actual Submodule Add
 
-- [ ] 7.1 Confirm FEAT-RB-001 through FEAT-RB-005 are merged.
-- [ ] 7.2 Confirm install repo scope docs are updated and approved.
-- [ ] 7.3 Add only the approved first install repo submodule.
-- [ ] 7.4 Validate fresh clone and submodule initialization.
-- [ ] 7.5 Record merge council readiness evidence before merge.
+- [x] 7.1 Confirm FEAT-RB-001 through FEAT-RB-005 are merged.
+- [x] 7.2 Confirm install repo scope docs are updated and approved.
+- [x] 7.3 Add only the approved first install repo submodule.
+- [x] 7.4 Validate fresh clone and submodule initialization.
+- [x] 7.5 Record merge council readiness evidence before merge.
 
 ## 8. Final Validation
 
