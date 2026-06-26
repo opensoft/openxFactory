@@ -68,8 +68,8 @@
 
 ## 10. Final Validation And Archive
 
-- [ ] 10.1 Validate `migrate-canonical-policy-to-openworkflow` with `openspec validate --all --strict`.
-- [ ] 10.2 Confirm all feature slices have evidence and merge readiness reports.
-- [ ] 10.3 Confirm install repos link to canonical policy.
-- [ ] 10.4 Confirm no active stop conditions remain.
-- [ ] 10.5 Archive the OpenSpec change after all approved slices complete.
+- [x] 10.1 Validate `migrate-canonical-policy-to-openworkflow` with `openspec validate --all --strict`.
+- [x] 10.2 Confirm all feature slices have evidence and merge readiness reports.
+- [x] 10.3 Confirm install repos link to canonical policy.
+- [x] 10.4 Confirm no active stop conditions remain.
+- [x] 10.5 Archive the OpenSpec change after all approved slices complete.
