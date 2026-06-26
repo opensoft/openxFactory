@@ -14,10 +14,10 @@
 
 ## 3. Hermes Runtime Control Plane
 
-- [ ] 3.1 Verify Hermes API supports jobs, runs, events, artifacts, approvals, and traceability.
-- [ ] 3.2 Verify Hermes uses Postgres operational schema from canonical contract.
-- [ ] 3.3 Add or update smoke test for create/query/control-plane lifecycle.
-- [ ] 3.4 Record runtime evidence and stop-condition checks.
+- [x] 3.1 Verify Hermes API supports jobs, runs, events, artifacts, approvals, and traceability.
+- [x] 3.2 Verify Hermes uses Postgres operational schema from canonical contract.
+- [x] 3.3 Add or update smoke test for create/query/control-plane lifecycle.
+- [x] 3.4 Record runtime evidence and stop-condition checks.
 
 ## 4. Omnigent Worker Event Bridge
 
