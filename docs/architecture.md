@@ -1,24 +1,27 @@
 # Architecture
 
-This project designs a multi-project AI software development factory.
+This project defines a domain-neutral xFactory workflow rail.
+
+`openWorkflow` is not the engineering factory, the medical factory, or any other domain factory. It defines the contract, gate, traceability, routing, state, and audit model that domain factory repos use.
 
 ## Roles
 
 ### Hermes
 
-Hermes is the portfolio and governance layer.
+Hermes is the governance and memory layer.
 
 Hermes owns:
 
-- portfolio and project management
-- policy
-- memory
+- intent approval
+- policy authority
+- memory and durable governance history
+- portfolio or domain governance context
 - approval control
-- cross-project dashboards
+- cross-project or cross-domain dashboards
 - OpenSpec-managed change state
-- merge council coordination
+- review coordination
 
-Hermes may read Spec Kit artifacts for status and traceability, but Hermes does not run Spec Kit implementation commands.
+Hermes may read domain execution artifacts for status and traceability, but Hermes does not run domain agent implementation work directly.
 
 ### OpenSpec
 
@@ -36,60 +39,111 @@ OpenSpec owns:
 
 OpenSpec remains the source of truth for approved requirement change intent.
 
-### Omnigent/Polly
+### openWorkflow / xFactory
 
-Omnigent is the repo-level agent orchestration platform.
+openWorkflow/xFactory is the domain-neutral workflow rail.
 
-Polly is the engineering orchestrator inside Omnigent. Polly plans engineering work, decomposes approved scope into small orthogonal features, delegates implementation to coding agents, runs deterministic checks, and coordinates local branch review before PR creation.
+It owns:
 
-Polly owns:
+- workflow contracts
+- gate definitions
+- state transitions
+- traceability expectations
+- routing contracts
+- admission records
+- review record requirements
+- audit expectations
+- handoff boundaries between governance, execution, and enforcement systems
 
-- repo-level engineering decomposition
-- feature dependency DAGs
+openWorkflow does not define the domain-specific agent population. Domain factory repos define that.
+
+### Domain Factory Repos
+
+Domain factory repos specialize the neutral workflow rail for a domain.
+
+Examples:
+
+```text
+opencodexFactory
+  software, code, repository, and engineering workflows
+  Omnigent runs coding and engineering agents
+
+MedxFactory
+  clinical, medical, patient, and diagnostic workflows
+  Omnigent runs clinical and medical reasoning agents
+```
+
+A domain factory owns:
+
+- domain-specific execution model
+- domain-specific DocTypes or artifacts
+- domain-specific agent population
+- domain-specific validation outputs
+- domain-specific review package shape
+- domain-specific implementation guidance
+
+### Domain Omnigent Layer
+
+A domain Omnigent layer executes bounded domain work under Hermes policy and openWorkflow gates.
+
+It may produce:
+
+- proposals
+- assessments
+- simulations
+- implementation artifacts
+- review packets
+- summaries
 - traceability artifacts
-- branch preparation
-- local deterministic checks
-- local pre-PR branch review
-- PR creation after admission
 
-### Spec Kit
+It must not own:
 
-Spec Kit is the feature-level development process used by Omnigent/Polly.
+- Hermes approval authority
+- domain-neutral workflow contracts
+- final clinical, business, or governance decisions
+- final external enforcement controls
 
-Spec Kit owns:
+### External Enforcement Systems
 
-- feature specification
-- clarification
-- implementation planning
-- generated tasks
-- pre-implementation analysis
-- task execution by coding agents
+External enforcement systems own final enforcement where applicable.
 
-Spec Kit is not the portfolio source of truth. It consumes Hermes-approved OpenSpec scope.
+Examples:
 
-### GitHub
+```text
+GitHub branch protection and merge queue for engineering repositories
+clinical chart/order systems for medical workflows
+compliance systems for regulated review records
+```
 
-GitHub is the canonical enforcement layer.
-
-GitHub owns:
-
-- pull requests
-- status checks
-- branch protection
-- merge queue
-- code review records
-- final merge enforcement
+The enforcement system depends on the domain.
 
 ## Authority Model
 
 ```text
 Hermes + OpenSpec
-  owns intent, approval, portfolio policy, and change history
+  owns intent, policy, approval, memory, and change history
 
-Omnigent/Polly + Spec Kit
-  owns repo execution, feature planning, implementation, and local review
+openWorkflow / xFactory
+  owns contracts, gates, traceability, routing, state transitions, and audit rail
 
-GitHub
-  owns PR state, protected branch policy, and final merge enforcement
+Domain factory repo
+  owns domain-specific execution interpretation
+
+Domain Omnigent layer
+  executes bounded domain agent work under policy and gates
+
+External enforcement system
+  owns final enforcement where applicable
 ```
 
+## Domain Examples
+
+```text
+opencodexFactory
+  openWorkflow rail + engineering policy + coding agents + repo enforcement
+
+MedxFactory
+  openWorkflow rail + medical policy + clinical agents + clinician review
+```
+
+The two domain factories share workflow structure, but not domain artifacts or agent populations.
