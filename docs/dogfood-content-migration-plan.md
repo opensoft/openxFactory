@@ -1,328 +1,151 @@
-# Dogfood Content Migration Plan
+# Domain Neutralization and Engineering Content Migration Plan
 
-This plan defines how the factory should use its own workflow stack to migrate
-canonical policy, contracts, and reference examples into their final repo
-homes.
-
-The repo-boundary pilot proved the governance path. This plan is the next
-phase: use the same stack to perform the actual copy-first content migration.
+This plan defines how `openWorkflow` remains domain-neutral while engineering-specific workflow content moves to `opensoft/opencodexFactory`.
 
 ## Principle
 
-We will dogfood the factory on itself.
+```text
+openWorkflow
+  owns domain-neutral contracts, gates, traceability, routing, state transitions, and audit.
+
+opencodexFactory
+  owns coding and engineering agents, Spec Kit engineering flow, branch review, PR admission, merge readiness, and repo-centered engineering workflow.
+
+MedxFactory
+  owns clinical and medical reasoning agents, patient modeling, diagnostic dreams, simulation, and clinician review workflows.
+```
+
+Do not treat `openWorkflow` as the software engineering factory. It is the neutral workflow rail used by multiple domain factories.
+
+## Migration Rule
+
+Use copy-first migration.
 
 ```text
-OpenSpec owns the change proposal
-Hermes approves scope, sequencing, PR admission, and merge readiness
-Omnigent/Polly decomposes and orchestrates implementation
-Spec Kit runs only for approved feature slices
-GitHub PRs carry the implementation
-Merge council records readiness before merge
-GitHub branch protection remains the final enforcement layer
+1. Create or update the engineering-domain canonical copy in opencodexFactory.
+2. Replace the openWorkflow copy with a domain-neutral contract or pointer.
+3. Preserve source references and audit history.
+4. Do not move secrets, credentials, runtime state, databases, generated workspaces, or production memory stores.
+5. Do not delete legacy source docs in the same change that creates canonical domain copies unless explicitly approved.
 ```
 
-Do not perform the migration as a direct bulk file shuffle outside this
-workflow.
-
-## Scope
-
-The migration will move or summarize canonical material from install and proof
-repos into `openWorkflow`, then point the install repos back to the canonical
-copies.
-
-Initial source repos:
-
-- `opensoft/Omnigent-Install`
-- `FarHeap/Hermes-Install`
-
-Initial target repo:
-
-- `opensoft/openWorkflow`
-
-## Required OpenSpec Change
-
-Create a new OpenSpec change:
-
-```yaml
-change_id: migrate-canonical-policy-to-openworkflow
-owner: Hermes
-implementation_orchestrator: Omnigent/Polly
-primary_repo: opensoft/openWorkflow
-related_repos:
-  - opensoft/Omnigent-Install
-  - FarHeap/Hermes-Install
-source_specs:
-  - openspec/specs/repo-boundary-governance/spec.md
-  - openspec/specs/shared-contract-ownership/spec.md
-```
-
-The OpenSpec proposal must link to:
-
-- [Repository Boundary Audit](repo-boundary-audit.md)
-- [Repo Boundary Change Pilot Plan](repo-boundary-pilot-plan.md)
-- [Decision 0001: Install Repo Submodules](decisions/0001-install-repo-submodules.md)
-- [Factory Contracts](../contracts/README.md)
-
-## Dogfood Workflow
+## Target Repositories
 
 ```text
-Hermes opens OpenSpec proposal
-  -> Hermes approves decomposition
-  -> Omnigent/Polly decomposes migration into small features
-  -> Hermes approves one feature slice at a time
-  -> Omnigent runs Spec Kit for the approved slice
-  -> implementation agent makes copy-first doc/contract changes
-  -> Omnigent runs local checks
-  -> Omnigent runs branch review
-  -> Hermes admits branch to PR
-  -> GitHub PR opens
-  -> merge council records readiness
-  -> GitHub merge enforcement completes merge
-  -> OpenSpec evidence is updated
+openWorkflow
+  target role: domain-neutral workflow substrate
+
+opencodexFactory
+  target role: engineering xFactory implementation
+
+MedxFactory
+  target role: medical xFactory implementation
 ```
 
-## Migration Rules
+## Completed / Current Engineering Split
 
-- Use copy-first migration.
-- Do not delete source docs in the same PR that creates canonical docs.
-- Do not move runtime code while migrating policy.
-- Do not combine schema migration with generated adapter changes.
-- Do not combine submodule pointer changes with content moves.
-- Do not move or copy `.local`, `.claude`, `.codex/auth`, databases, token
-  files, credential profiles, or generated runtime state.
-- Every feature slice must have evidence: source references, acceptance
-  criteria, checks, branch review, PR admission, and merge readiness.
-- Install repo copies become implementation notes or legacy working copies
-  before they are removed.
+The first engineering-domain docs were created in `opensoft/opencodexFactory`:
 
-## Feature Slices
+```text
+docs/engineering-xfactory-domain.md
+docs/engineering-omnigent-constitution.md
+docs/omnigent-coding-agent-workflow.md
+docs/spec-kit-engineering-flow.md
+docs/feature-decomposition-traceability.md
+docs/pr-admission-merge-readiness.md
+docs/engineering-worker-model.md
+```
 
-### FEAT-MIG-001: Roles And Authority
+Core `openWorkflow` docs were rewritten or narrowed to domain-neutral contracts:
 
-Purpose: create the canonical cross-factory role and authority model.
+```text
+README.md
+docs/architecture.md
+docs/workflow-contract.md
+docs/omnigent-constitution.md
+docs/feature-decomposition.md
+docs/spec-kit-stage-ownership.md
+docs/pr-admission.md
+docs/merge-council.md
+docs/merge-master.md
+docs/deployment-worker-model.md
+```
 
-Primary target:
+## Remaining Migration Slices
 
-- `openWorkflow/docs/roles-and-authority.md`
+### FEAT-XFACTORY-001: Engineering examples and proof harnesses
 
-Initial sources:
+Move repo-centered examples and proof harnesses to `opencodexFactory` or mark them as legacy references.
 
-- `Omnigent-Install/docs/project-lead-agents.md`
-- `Omnigent-Install/docs/hermes-governance-agents.md`
-- `Omnigent-Install/docs/hermes-profiles-and-groups.md`
-- relevant Hermes group notes from `Hermes-Install/README.md`
+Candidate source paths:
 
-Allowed:
-
-- copy or summarize canonical role policy into `openWorkflow`
-- preserve source links and provenance
-- update `openWorkflow` README
-
-Not allowed:
-
-- no install repo deletion
-- no runtime config changes
-- no agent roster mutation
-- no submodule pointer changes
-
-Acceptance criteria:
-
-- `openWorkflow` defines PO, PM, CA, PA, LA, LE, LC, LQ, LI, LS, Merge Master,
-  and Merge Council responsibilities.
-- Hermes-level roles are clearly separated from Omnigent execution roles.
-- Install repo source docs remain in place.
-
-### FEAT-MIG-002: Spec Kit Stage Ownership And Clarification Routing
-
-Purpose: make Spec Kit stage ownership and clarification routing canonical in
-`openWorkflow`.
-
-Primary target:
-
-- `openWorkflow/docs/spec-kit-stage-ownership.md`
-
-Initial sources:
-
-- `Omnigent-Install/docs/clarification-routing.md`
-- `Omnigent-Install/docs/clarification-router-implementation-plan.md`
-- `Omnigent-Install/docs/runbooks/phase4-speckit-control.md`
+```text
+openWorkflow/examples/
+openWorkflow/openspec/changes/archive/*/evidence/*pr*
+openWorkflow/openspec/changes/archive/*/evidence/*merge*
+```
 
 Acceptance criteria:
 
-- `/speckit.specify`, `/speckit.clarify`, `/speckit.plan`,
-  `/speckit.tasks`, `/speckit.analyze`, and `/speckit.implement` ownership is
-  canonical.
-- Clarification routing from LE to PO/PM/PA/LS/LQ/LI/LC is canonical.
-- Omnigent implementation docs link back to the canonical policy.
+```text
+engineering examples live in opencodexFactory
+openWorkflow keeps only domain-neutral examples or pointers
+no generated runtime state is moved
+```
 
-### FEAT-MIG-003: PR Admission, Merge Council, And Merge Master
+### FEAT-XFACTORY-002: Contract split
 
-Purpose: consolidate branch admission and merge authority policy.
-
-Primary targets:
-
-- `openWorkflow/docs/pr-admission.md`
-- `openWorkflow/docs/merge-master.md`
-- updates to `openWorkflow/docs/merge-council.md`
-
-Initial sources:
-
-- `Omnigent-Install/docs/runbooks/phase6-pr-admission.md`
-- `Omnigent-Install/docs/runbooks/phase7-merge-council.md`
-- `Omnigent-Install/docs/runbooks/merge-master-implementation-plan.md`
-- `Omnigent-Install/policies/merge-risk-policy.yaml`
+Review `openWorkflow/contracts` and separate neutral workflow contracts from engineering-specific schemas.
 
 Acceptance criteria:
 
-- PR admission policy is canonical in `openWorkflow`.
-- Merge council readiness inputs and outputs are canonical.
-- Merge Master risk and human escalation rules are canonical.
-- Install repo runbooks are marked as implementation guidance.
+```text
+neutral contracts remain in openWorkflow
+engineering-specific contracts move to opencodexFactory
+contract provenance is preserved
+```
 
-### FEAT-MIG-004: Feature Decomposition And Traceability
+### FEAT-XFACTORY-003: Archived OpenSpec cleanup
 
-Purpose: consolidate decomposition doctrine and traceability artifacts.
-
-Primary targets:
-
-- updates to `openWorkflow/docs/feature-decomposition.md`
-- updates to `openWorkflow/docs/traceability-model.md`
-
-Initial sources:
-
-- `Omnigent-Install/docs/runbooks/phase3-feature-decomposition.md`
-- `Omnigent-Install/docs/project-master-plan.md`
-- `Omnigent-Install/examples/project-alfa-decomposition/`
+Archived OpenSpec evidence may remain as history, but README and active docs should not point to engineering-specific archived material as current canonical policy.
 
 Acceptance criteria:
 
-- orthogonal, user-perceivable, encapsulated feature slicing is canonical.
-- bug-to-feature mapping requirements are canonical.
-- traceability from OpenSpec to Spec Kit to branch review to PR to merge is
-  canonical.
+```text
+history remains auditable
+current canonical links point to domain-neutral openWorkflow docs or engineering opencodexFactory docs
+```
 
-### FEAT-MIG-005: Shared Contract Migration
+### FEAT-XFACTORY-004: Install repo pointer cleanup
 
-Purpose: copy canonical shared schemas/contracts into `openWorkflow/contracts`.
+Install repo docs should point to either:
 
-Primary target:
-
-- `openWorkflow/contracts/`
-
-Initial sources:
-
-- `Omnigent-Install/schemas/`
-- `Omnigent-Install/policies/hermes-governance-agents.yaml`
-- `Omnigent-Install/policies/merge-risk-policy.yaml`
-
-Acceptance criteria:
-
-- canonical contract files exist in `openWorkflow/contracts`.
-- each contract has a source, version, compatibility note, and install-repo
-  adapter rule.
-- install repo schema copies are not deleted in the same PR.
-
-### FEAT-MIG-006: Reference Pilot And Example Placement
-
-Purpose: decide where end-to-end proof examples live.
-
-Primary target options:
-
-- `openWorkflow/examples/`
-- future `factory-lab` repo
-- temporary status quo in `Omnigent-Install`
-
-Initial sources:
-
-- `Omnigent-Install/examples/project-alfa-*`
-- `Omnigent-Install/examples/live-pilot/`
-- `Omnigent-Install/pilot-flows/`
-- `Omnigent-Install/live-pilot/`
-
-Acceptance criteria:
-
-- Hermes approves the placement decision.
-- no proof harness is moved until replacement validation exists.
-- examples that become canonical reference examples live in `openWorkflow`.
-
-### FEAT-MIG-007: Mark Install Repo Policy Copies
-
-Purpose: update install repo docs to clearly distinguish canonical policy from
-implementation notes.
-
-Affected repos:
-
-- `Omnigent-Install`
-- `Hermes-Install`
-
-Acceptance criteria:
-
-- migrated source docs link to canonical `openWorkflow` docs.
-- source docs are marked implementation notes, legacy copies, or operational
-  runbooks.
-- existing install repo smoke tests still pass.
-
-### FEAT-MIG-008: Removal Or Cleanup Decision
-
-Purpose: decide whether legacy policy copies should be removed, archived, or
-kept as implementation notes.
-
-Prerequisites:
-
-- FEAT-MIG-001 through FEAT-MIG-007 merged
-- canonical docs validated
-- install repo links updated
-- proof harnesses still pass
-
-Acceptance criteria:
-
-- removals, if any, are isolated to a dedicated PR.
-- no runtime files, scripts, manifests, or generated adapters are removed by
-  policy cleanup.
-- rollback path is documented.
-
-## Required Evidence Per Feature
-
-Each feature must produce:
-
-- OpenSpec feature record
-- source inventory
-- acceptance criteria table
-- implementation diff
-- local validation output
-- branch review
-- PR admission packet
-- merge readiness report
-- post-merge OpenSpec task update
-
-## Validation Matrix
-
-| Feature Type | Required Validation |
-|---|---|
-| `openWorkflow` docs only | `openspec validate --all --strict`, `git diff --check` |
-| `openWorkflow/contracts` | schema/file lint where applicable, contract source/provenance check |
-| `Omnigent-Install` docs | existing Omnigent smoke checks plus no-committed-secrets check |
-| `Hermes-Install` docs | README-only or file-scope diff check; no manifest/script changes unless explicitly approved |
-| examples/proof harness | fresh clone, referenced file existence, and no generated state |
+```text
+openWorkflow for neutral workflow contracts
+opencodexFactory for engineering execution
+MedxFactory for medical execution
+```
 
 ## Stop Conditions
 
-Stop and return to Hermes approval if any feature:
+Stop and return to Hermes approval if any migration step:
 
-- proposes deleting source docs before canonical copies are merged
-- touches secrets, credentials, generated runtime state, or databases
-- moves runtime code while migrating policy
-- changes submodule pointers during a content migration PR
-- changes install repo scripts/manifests without explicit feature approval
-- cannot produce PR admission or merge readiness evidence
+```text
+touches secrets, credentials, production memory, databases, or generated workspaces
+moves runtime code while only a documentation split is approved
+changes submodule pointers without explicit approval
+removes historical audit evidence
+changes domain authority boundaries without approval
+```
 
 ## Success Criteria
 
-The dogfood migration is complete when:
+The split is complete when:
 
-- canonical policy docs live in `openWorkflow`
-- canonical shared contracts live in `openWorkflow/contracts`
-- install repos link to canonical policy instead of owning it
-- proof/reference examples have an approved home
-- duplicate install repo policy copies are marked or cleaned up by approved PRs
-- OpenSpec archives the migration with evidence for every feature slice
+```text
+openWorkflow reads as domain-neutral
+opencodexFactory owns software engineering implementation docs
+MedxFactory owns medical implementation docs
+openWorkflow points to domain factories instead of embedding their execution details
+Frappe, vector DBs, agents, and repo tools are not treated as authority layers
+```
