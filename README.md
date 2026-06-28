@@ -1,45 +1,68 @@
 # openWorkflow
 
-`openWorkflow` documents the AI software development factory used by Opensoft and related Hermes-managed projects.
+`openWorkflow` documents the domain-neutral xFactory workflow rail used by Opensoft domain factory projects.
 
-The factory combines:
+It defines reusable contracts for:
 
-- Hermes for portfolio governance, policy, memory, approvals, and dashboards.
-- OpenSpec for managed specification changes and durable requirements history.
-- Omnigent/Polly for repo-level engineering orchestration.
-- Spec Kit for feature-level implementation flow.
-- GitHub for pull requests, status checks, branch protection, merge queue, and final merge enforcement.
+- workflow gates
+- state transitions
+- traceability
+- routing
+- approval handoffs
+- review records
+- audit expectations
+- authority boundaries between governance, workflow, execution, and enforcement layers
 
 ## Core Boundary
 
-OpenSpec belongs to Hermes.
+`openWorkflow` is domain-neutral.
 
-Spec Kit belongs to Omnigent/Polly.
+```text
+Hermes
+  owns intent, policy, memory, approval, and governance history.
 
-Hermes decides what is approved to pursue. Polly decides how approved engineering work is decomposed and executed. Spec Kit is used only after a feature has passed Hermes approval and Polly has accepted the feature for implementation.
+openWorkflow / xFactory
+  owns contracts, gates, traceability, routing, state transitions, and audit.
+
+Domain factory repos
+  own domain-specific execution behavior.
+
+Domain Omnigent layers
+  run bounded domain agents under Hermes policy and openWorkflow gates.
+
+External enforcement systems
+  enforce final state where applicable.
+```
+
+Domain examples:
+
+```text
+opencodexFactory
+  uses Omnigent to run coding and engineering agents.
+
+MedxFactory
+  uses Omnigent to run clinical and medical reasoning agents.
+```
 
 ## Documentation
 
-- [Omnigent Constitution](docs/omnigent-constitution.md)
+Core domain-neutral docs:
+
 - [Architecture](docs/architecture.md)
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
-- [Feature Decomposition Standard](docs/feature-decomposition.md)
 - [Roles and Authority](docs/roles-and-authority.md)
-- [Spec Kit Stage Ownership](docs/spec-kit-stage-ownership.md)
-- [Deployment and Worker Model](docs/deployment-worker-model.md)
-- [PR Admission](docs/pr-admission.md)
-- [Merge Council and Readiness Reports](docs/merge-council.md)
-- [Merge Master](docs/merge-master.md)
-- [Workflow Gap Solutions](docs/workflow-gap-solutions.md)
-- [Repository Boundary Audit](docs/repo-boundary-audit.md)
-- [Repo Boundary Change Pilot Plan](docs/repo-boundary-pilot-plan.md)
-- [Dogfood Content Migration Plan](docs/dogfood-content-migration-plan.md)
-- [Content Cleanup Decision](docs/content-cleanup-decision.md)
+- [Repository Boundary Governance](openspec/specs/repo-boundary-governance/spec.md)
+- [Shared Contract Ownership](openspec/specs/shared-contract-ownership/spec.md)
 
-## Reference Examples
+Engineering-domain implementation docs now belong in `opensoft/opencodexFactory`.
 
-- [Workflow Reference Examples](examples/README.md)
+Medical-domain implementation docs belong in `opensoft/MedxFactory`.
+
+## Domain Implementations
+
+- `opensoft/opencodexFactory` — software, code, repo, and engineering xFactory domain stack.
+- `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
 
 ## OpenSpec Records
 
@@ -64,7 +87,7 @@ Canonical specs:
 
 ## Install Repo Pins
 
-`openWorkflow` pins approved install repo revisions under `installs/`.
+`openWorkflow` pins approved install repo revisions under `installs/` when needed.
 
 Current submodules:
 
@@ -76,9 +99,8 @@ Clone or refresh with:
 git submodule update --init --recursive
 ```
 
-Hermes install is not yet a submodule. Its canonical remote decision is still
-open; see [Decision 0001](docs/decisions/0001-install-repo-submodules.md).
+Hermes install is not yet a submodule. Its canonical remote decision is still open; see [Decision 0001](docs/decisions/0001-install-repo-submodules.md).
 
 ## Status
 
-This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, or generated agent workspaces.
+This repository is documentation-first. It should not contain live credentials, production memory-provider databases, runtime secrets, generated agent workspaces, or domain-specific runtime data.
