@@ -18,26 +18,32 @@ xFactory / openWorkflow
   generic workflow contracts, gates, routing, and traceability
 
 Domain factory
-  xFactory plus domain-specific Hermes and Omnigent overlays
+  xFactory plus domain-specific Hermes, client Hermes, customer Hermes,
+  and Omnigent overlays
 
-Subject layer
-  patient, client, company, project, matter, campaign, or other specific input
+Customer layer
+  patient, buyer, prospect, project, matter, campaign, or other
+  customer-specific operating subject
 ```
 
 Examples:
 
 ```text
-opencodexFactory
-  = xFactory + Opensoft Hermes overlay + Opensoft Omnigent overlay
+openCodexFactory
+  = xFactory + Software Engineering Domain Hermes + Software Company Hermes
+    + Project Hermes + Opensoft Omnigent overlay
 
 MedxFactory
-  = xFactory + Medx Domain Hermes overlay + Medx Omnigent overlay
+  = xFactory + Medical Domain Hermes + Clinic Hermes + Patient Hermes
+    + Medx Omnigent overlay
 
 LedgerxFactory
-  = xFactory + LedgerX Hermes overlay + LedgerX Omnigent overlay
+  = xFactory + Ledger Domain Hermes + Firm Hermes + Ledger/Client Hermes
+    + LedgerX Omnigent overlay
 
 AdxFactory
-  = xFactory + Adx Hermes overlay + Adx Omnigent overlay
+  = xFactory + Marketing Domain Hermes + Marketing Company Hermes
+    + Buyer Hermes + Adx Omnigent overlay
 ```
 
 The domain factory should not fork the xFactory contract. It should provide
@@ -47,14 +53,19 @@ standards, and domain-specific workflows that plug into the same base contract.
 ## Layer Model
 
 ```text
-Subject
-  patient, client, company, project, matter, campaign
+Customer subject
+  patient, buyer, prospect, project, matter, campaign
 
-Subject Hermes layer
-  subject-specific control, private memory, consent, preferences, context
+Customer Hermes layer
+  customer-specific control, private memory, consent, preferences, context
+
+Client Hermes layer
+  Opensoft client/operator control, tenant memory, local policy, staff,
+  integrations, and customer relationship context
 
 Domain Hermes layer
-  domain governance, domain agent team, policy, routing, review standards
+  domain governance, domain agent team, policy, routing, review standards,
+  product learning, and domain memory
 
 xFactory / openWorkflow layer
   general job envelope, gates, traceability, worker routing, artifact contracts
@@ -83,6 +94,27 @@ The base Hermes install owns:
 - group registry loading
 - backup, restore, and operational procedures
 
+Every xFactory domain stack standardizes on three Hermes overlays above the
+base runtime:
+
+```text
+Customer Hermes
+  "What does this specific customer subject need, allow, prefer, remember,
+  and currently have in flight?"
+
+Client Hermes
+  "What does this Opensoft client organization operate, permit, configure,
+  staff, integrate with, and owe to its customers?"
+
+Domain Hermes
+  "What does this domain know, require, permit, route, review, and improve?"
+```
+
+The three layers must remain distinct even when one deployment starts small.
+Small deployments may run the layers in one physical Hermes installation, but
+their manifests, memory boundaries, authorization scopes, and approval records
+must still identify which layer owns each decision.
+
 Domain Hermes overlays tune that base runtime for a domain.
 
 A domain Hermes overlay owns:
@@ -98,57 +130,408 @@ A domain Hermes overlay owns:
 - domain review standards
 - domain tool routing
 
-Subject Hermes overlays tune the domain runtime for one subject.
+Client Hermes overlays tune the domain runtime for one Opensoft client
+organization or tenant operator.
 
-A subject Hermes overlay owns:
+A client Hermes overlay owns:
 
-- subject identity
-- subject-specific private context
+- client organization identity
+- deployment profile and tenant configuration
+- client staff, roles, teams, and escalation contacts
+- local operating policy and service boundaries
+- client-specific integrations, systems, and tool permissions
+- client-specific memory and operating history
+- customer roster and relationship context
+- local approval gates that are stricter than the domain default
+- client-specific reporting, SLA, and communication preferences
+
+Customer Hermes overlays tune the client runtime for one customer subject.
+
+A customer Hermes overlay owns:
+
+- customer subject identity
+- customer-specific private context
 - consent, authorization, and data-sharing boundaries
-- subject goals and preferences
-- subject timeline
-- subject-specific agent assignments
-- subject-specific memory
-- subject-specific status and follow-up
+- customer goals and preferences
+- customer timeline
+- customer-specific agent assignments
+- customer-specific memory
+- customer-specific status and follow-up
+- customer-specific communication preferences
 
 The same base Hermes install can support many domain overlays. The same domain
-Hermes overlay can support many subject Hermes overlays.
+Hermes overlay can support many client Hermes overlays. The same client Hermes
+overlay can support many customer Hermes overlays.
 
-## Dual Hermes Layers
+## Three Hermes Layers
 
-The domain Hermes layer and the subject Hermes layer must remain distinct.
+The customer Hermes, client Hermes, and domain Hermes layers must remain
+distinct.
 
 ```text
-Subject Hermes
-  "What does this specific subject need, allow, prefer, and remember?"
+Customer Hermes
+  Close to the customer subject.
+
+Client Hermes
+  Close to the Opensoft client/operator organization.
 
 Domain Hermes
-  "What does this domain know, require, permit, route, and review?"
+  Close to the reusable domain product and expert team.
 ```
 
-The subject Hermes layer is a private concierge and lifetime-control layer.
+The customer Hermes layer is a private concierge and lifetime-control layer.
 
-It is close to the subject. In a medical factory, the subject is a patient. In
-an accounting factory, the subject may be a client, company, ledger, or tax
-matter. In a code factory, the subject may be a project, repo, product, or
-feature initiative.
+It is close to the specific customer subject. In a medical factory, the
+customer subject is a patient. In a marketing factory, it is a buyer, prospect,
+audience member, or account. In a code factory, it is a project, repo, product,
+or feature initiative.
+
+The client Hermes layer is the operating layer for the Opensoft client.
+
+It is close to the organization using the factory. In a medical factory, the
+client is a clinic, group practice, hospital, pharmacy, imaging center, or IDTF.
+In a marketing factory, the client is the marketing company or agency. In a code
+factory, the client is the software company or engineering organization.
 
 The domain Hermes layer is the shared domain control tower.
 
 It is close to the expert team. It manages reusable domain expertise, domain
 workflows, policy, review quality, escalation, and domain-level memory.
 
-### Subject Hermes Owns
+## Hermes Monitoring and Self-Initiation
 
-- subject-specific identity and context
+Hermes layers are active control teams, not passive configuration records. Each
+layer may monitor its owned state, notice changes, start allowed workflows,
+request approval, escalate risks, and create xFactory jobs inside its authority
+boundary.
+
+Self-initiation must always be traceable to one of these sources:
+
+- standing approval envelope
+- customer request or observed customer need
+- client operating requirement
+- domain policy requirement
+- scheduled review or follow-up
+- risk, exception, or compliance trigger
+- human instruction
+- downstream system event
+
+Self-initiation does not mean a layer may bypass approvals. It means the layer
+may recognize that work is needed and create the next governed action.
+
+Allowed self-initiated actions:
+
+- observe and record a state change
+- update private memory inside the owning layer
+- create a recommendation
+- create an approval request
+- route a question to another Hermes layer
+- start a low-risk workflow inside a standing approval envelope
+- create an xFactory job with the required references and gates
+- escalate to human or domain review
+
+Disallowed self-initiated actions:
+
+- weaken a domain, client, or customer gate
+- promote private customer data into client or domain memory without approval
+- execute regulated or high-risk work outside an approval envelope
+- decide a domain outcome when the domain requires expert or human review
+- assume authority from another xFactory domain stack
+
+### Customer Hermes Teams
+
+There should be one customer Hermes instance or logical team per customer
+subject.
+
+Each customer Hermes team has a small core roster:
+
+- identity and context steward
+- consent, authorization, and privacy steward
+- customer-item relationship steward
+- journey state and follow-up steward
+- communication steward
+- memory and timeline steward
+
+The customer team may dynamically add or remove agents based on:
+
+- active focal items
+- journey state
+- customer risk level
+- consent boundaries
+- current workflow
+- client policy
+- domain policy
+- required expertise
+- language, accessibility, or communication needs
+
+Dynamic agents are assigned to the customer's current need. They do not become
+permanent owners of customer truth unless the customer Hermes layer records that
+assignment. When the need ends, customer Hermes should close or retire the
+temporary assignment and preserve only the approved trace.
+
+Examples:
+
+```text
+MedxFactory
+  Patient Hermes starts with core patient context, consent, timeline, and
+  follow-up agents. A cardiology-focused agent may join while the patient has an
+  active cardiac focal item.
+
+AdxFactory
+  Buyer Hermes starts with identity, consent, journey, and communication agents.
+  A pricing-objection agent may join while the buyer is in late consideration
+  for a specific offer.
+
+openCodexFactory
+  Project Hermes starts with scope, repo, traceability, and delivery agents. A
+  security-review agent may join while the project touches sensitive auth code.
+```
+
+### Client Hermes Monitoring
+
+Client Hermes monitors the domain-specific operating needs of the Opensoft
+client organization. It should not try to become the client's entire business
+operating system unless the domain stack is specifically a corporate business
+factory.
+
+Client Hermes owns monitoring for:
+
+- tenant configuration and enabled workflows
+- client staff, roles, licenses, privileges, and domain capability assignments
+- domain-specific compliance obligations
+- client-specific policy overrides within domain limits
+- customer roster and customer relationship state
+- client integrations needed for the domain
+- domain-specific credentials, coverage, payer, vendor, or facility constraints
+- local approvals, escalations, review queues, and operating exceptions
+- client-level outcome reporting for the domain
+
+Client Hermes does not own general business operations by default:
+
+- payroll
+- employee tax withholding
+- general HR benefits
+- general corporate accounting
+- general corporate legal
+- office rent and facilities unrelated to domain service delivery
+- generic procurement unrelated to domain workflows
+
+Those belong in a corporate business, finance, HR, legal, or operations domain
+stack unless they directly gate the domain workflow.
+
+### Domain-Specific Business Boundary
+
+Some business-looking concerns are still domain concerns because they determine
+whether domain work may legally, safely, or contractually happen.
+
+Use this rule:
+
+```text
+If the fact gates whether a domain workflow may be performed, routed, billed,
+reviewed, or trusted, it belongs in the domain factory boundary.
+
+If the fact is a general company operation that would exist the same way in any
+business, it belongs outside the domain factory unless another domain workflow
+explicitly depends on it.
+```
+
+Clinic examples:
+
+| Concern | Owner | Reason |
+| --- | --- | --- |
+| Employee tax withholding | Corporate business or payroll stack | General employer obligation, not clinic-domain work authorization |
+| Practitioner malpractice or required professional coverage | MedxFactory client Hermes, with domain policy from Medical Domain Hermes | It may gate whether a practitioner may perform covered clinical work |
+| LVN, NP, MD license and scope for a procedure | Medical Domain Hermes defines the general rule; Clinic Hermes applies it to local staff, state, facility, and current credential state | Determines whether a clinical workflow may be assigned or performed |
+| Clinic-local policy that is stricter than law | Clinic Hermes | Client-specific operating constraint inside the domain |
+| State regulation for who may perform an advanced procedure | Medical Domain Hermes | Reusable domain law and scope-of-practice rule |
+| Patient consent for that procedure | Patient Hermes | Customer-specific authorization boundary |
+
+The domain Hermes layer owns the reusable rules: laws, standards, role
+capabilities, domain policy, evidence requirements, and review gates.
+
+The client Hermes layer owns the local application of those rules: which staff,
+locations, facilities, payers, credentials, policies, and current documents make
+the work allowed for this client now.
+
+The customer Hermes layer owns customer-specific permission and need: consent,
+preferences, condition, journey state, and whether the customer should be routed
+into that workflow.
+
+When a concern crosses stacks, the current layer should route or request a
+decision rather than absorb the other stack's responsibilities.
+
+Examples:
+
+```text
+Clinic Hermes sees an NP credential expiring.
+  -> This is in MedxFactory because it gates clinical assignment.
+
+Clinic Hermes sees payroll tax filing is due.
+  -> This belongs to a corporate business or payroll factory.
+
+Clinic Hermes sees payroll failure could remove all nurses from next week's
+schedule.
+  -> Clinic Hermes may raise a domain operating risk and route the payroll issue
+     to the corporate stack, but it does not become payroll owner.
+```
+
+## Standard Layer Mapping
+
+| Domain stack | Customer Hermes | Client Hermes | Domain Hermes |
+| --- | --- | --- | --- |
+| MedxFactory | Patient Hermes | Clinic, practice, hospital, pharmacy, imaging center, or IDTF Hermes | Medical Domain Hermes |
+| AdxFactory | Buyer Hermes for a buyer, prospect, audience member, or account | Marketing Company Hermes for the agency or marketing operator | Marketing Domain Hermes |
+| openCodexFactory | Project Hermes for a project, repo, product, or feature initiative | Software Company Hermes for the engineering organization | Software Engineering Domain Hermes |
+| LedgerxFactory | Ledger/Client Hermes for a company, ledger, tax matter, or engagement | Firm Hermes for the accounting or finance operator | Ledger Domain Hermes |
+
+## Customer-Item Interaction Model
+
+Every domain factory should model a customer subject in relation to one or more
+focal items. The focal item is the thing the customer is considering, using,
+experiencing, affected by, trying to change, or trying to resolve.
+
+The base xFactory contract uses neutral terms:
+
+```text
+Customer
+  the person, organization, account, project, or other subject being modeled
+
+Focal item
+  the product, service, condition, treatment, project, matter, campaign, or
+  other thing the customer is interacting with
+
+Interaction
+  an observed or planned contact between the customer and the focal item,
+  client organization, domain process, content, tool, or human team
+
+Journey state
+  the customer's current position in a domain-specific lifecycle
+
+Outcome
+  a target, predicted, observed, or reviewed result of the interaction over time
+
+Intervention
+  an approved action intended to change the journey state or outcome
+```
+
+The point of the model is to make each domain able to ask the same general
+questions:
+
+- Who or what is the customer subject?
+- What focal item is currently important?
+- What is the customer's current state relative to that item?
+- What interactions have already happened?
+- What outcome are we trying to predict, improve, prevent, or personalize?
+- Which intervention is allowed, useful, and appropriately reviewed?
+- What evidence would prove the prediction or intervention was right or wrong?
+
+Domain stacks specialize the neutral model:
+
+| Domain stack | Customer | Focal item | Journey state | Outcome |
+| --- | --- | --- | --- | --- |
+| AdxFactory | Buyer, prospect, account, advertiser audience member, or marketing client customer | Product, service, offer, brand, campaign, subscription, or purchase decision | Awareness, interest, consideration, conversion, onboarding, retention, expansion, churn risk | Conversion, retention, lifetime value, satisfaction, campaign response, next-best action |
+| MedxFactory | Patient | Disease, symptom cluster, treatment, diagnostic pathway, medication, device, care plan, or referral | Risk, suspicion, diagnosis, treatment planning, active treatment, monitoring, remission, recurrence, follow-up | Clinical outcome, diagnostic confidence, adherence, side effects, progression, recovery, readmission risk |
+| openCodexFactory | Project, repo, product, feature initiative, or engineering customer | Feature, bug, architecture decision, service, dependency, release, or technical debt item | Discovery, specification, planning, implementation, review, release, operation, incident response | Delivery confidence, defect risk, maintainability, release readiness, user impact |
+| LedgerxFactory | Company, client, ledger, tax matter, or engagement | Transaction, account, filing, report, obligation, forecast, audit issue, or financial decision | Intake, reconciliation, review, filing, close, audit, advisory, exception handling | Accuracy, compliance risk, cash position, tax exposure, audit readiness, decision confidence |
+
+### Model Records
+
+The generic model should be represented by linked records rather than a single
+large blob:
+
+```text
+customer_profile
+  stable customer identity, permissions, preferences, private context refs
+
+focal_item
+  stable item identity, domain type, owner, lifecycle state, source refs
+
+customer_item_relationship
+  why this item matters to this customer, current state, goals, constraints
+
+interaction_event
+  timestamped customer/client/domain touchpoint with evidence refs
+
+journey_state_snapshot
+  current inferred state, confidence, inputs, and review status
+
+prediction
+  expected next state, outcome, risk, or opportunity with confidence and horizon
+
+intervention_plan
+  approved action, owner, constraints, intended effect, and rollback/escalation
+
+outcome_observation
+  measured result, evidence, comparison to prediction, and learning decision
+```
+
+These records form a loop:
+
+```text
+observe interaction
+  -> update customer-item relationship
+  -> infer journey state
+  -> predict likely outcome or next need
+  -> propose intervention
+  -> route through client and domain approval gates
+  -> execute through xFactory / Omnigent
+  -> observe outcome
+  -> update customer, client, and domain memory according to promotion rules
+```
+
+### Layer Ownership
+
+Customer Hermes owns the private customer-item relationship from the customer's
+point of view. It records preferences, constraints, consent, history, and what
+the customer appears to need next.
+
+Client Hermes owns the operating relationship from the client organization's
+point of view. It records what the client is allowed to do, which customer
+relationship exists, which systems can be used, and which interventions fit the
+client's service model.
+
+Domain Hermes owns the reusable lifecycle model. It defines allowed focal item
+types, journey states, outcome measures, prediction standards, intervention
+classes, evidence requirements, and review gates.
+
+xFactory / openWorkflow owns the contract shape that connects these records to
+jobs, gates, traceability, reviews, predictions, interventions, and observed
+outcomes.
+
+Domain Omnigent executes approved modeling and intervention work. It may infer,
+simulate, recommend, generate, test, or package outputs, but it does not own the
+customer truth, client authority, domain policy, or final outcome claim.
+
+### Customer Hermes Owns
+
+- customer-specific identity and context
 - consent and authorization
 - private memory
-- active subject state
+- active customer state
+- customer-item relationships
+- interaction history
+- journey state snapshots
+- customer-level predictions and outcome observations
 - user-facing communication
 - preferences and goals
-- subject timeline
-- subject-specific team assignment
-- subject-specific data-sharing decisions
+- customer timeline
+- customer-specific team assignment
+- customer-specific data-sharing decisions
+
+### Client Hermes Owns
+
+- client organization identity and profile
+- tenant configuration and isolation
+- staff, teams, locations, and operating hours
+- client-specific integrations and credentials references
+- client policy overrides within domain limits
+- client customer roster and relationship metadata
+- client-side interaction history
+- approved intervention catalog and operating constraints
+- client-level outcome reporting
+- client-specific memory and operating history
+- local approvals, escalations, and communication preferences
+- customer onboarding and offboarding rules
 
 ### Domain Hermes Owns
 
@@ -157,6 +540,9 @@ workflows, policy, review quality, escalation, and domain-level memory.
 - domain routing
 - domain playbooks
 - domain quality gates
+- focal item types and lifecycle states
+- journey models and outcome taxonomies
+- prediction and intervention standards
 - domain review councils
 - domain memory
 - escalation and exception policy
@@ -170,15 +556,19 @@ The sellable domain stacks should live in separate repositories under the
 ```text
 opensoft/MedxFactory
   medical domain stack
+  https://github.com/opensoft/MedxFactory
 
 opensoft/LedgerxFactory
   accounting, finance, and ledger domain stack
+  https://github.com/opensoft/LedgerxFactory
 
 opensoft/AdxFactory
   marketing, advertising, growth, and campaign domain stack
+  https://github.com/opensoft/AdxFactory
 
-opensoft/opencodexFactory
+opensoft/openCodexFactory
   software, code, repo, and engineering domain stack
+  https://github.com/opensoft/openCodexFactory
 ```
 
 Each domain stack repo defines one productized domain factory. It may contain
@@ -191,18 +581,21 @@ motion.
 
 Tenant deployments are instantiated from a domain stack repo. A tenant may be a
 clinic, hospital, pharmacy, marketing agency, accounting firm, or software
-team. The tenant owns customer-specific configuration and isolation, while the
-domain stack repo owns the reusable product definition.
+team. The tenant is represented by the client Hermes layer. It owns
+client-specific configuration and isolation, while the domain stack repo owns
+the reusable product definition.
 
 ```text
 opensoft/MedxFactory
   -> clinic profile
     -> tenant deployment for Clinic A
+      -> Clinic Hermes for Clinic A
       -> Patient Hermes for Patient 001
       -> Patient Hermes for Patient 002
 
   -> hospital profile
     -> tenant deployment for Hospital B
+      -> Hospital Hermes for Hospital B
       -> Patient Hermes for Patient 900
 ```
 
@@ -228,7 +621,13 @@ Recommended shape:
       memory-boundaries.yaml
       escalation-rules.yaml
 
-    subject/
+    client/
+      template.yaml
+      memory-boundaries.yaml
+      policy-overrides.yaml
+      integration-boundaries.yaml
+
+    customer/
       template.yaml
       memory-boundaries.yaml
       consent-model.yaml
@@ -244,9 +643,11 @@ Recommended shape:
     examples/
 ```
 
-For MedxFactory, the subject Hermes layer should be named Patient Hermes in
+For MedxFactory, the customer Hermes layer should be named Patient Hermes in
 files and manifests because it spans the lifetime of the patient, not a single
-case, referral, visit, or claim.
+case, referral, visit, or claim. The client Hermes layer should be named for the
+operator profile, such as Clinic Hermes, Hospital Hermes, Pharmacy Hermes, or
+IDTF Hermes.
 
 Recommended MedxFactory shape:
 
@@ -280,6 +681,12 @@ MedxFactory/
       memory-boundaries.yaml
       escalation-rules.yaml
 
+    clinic/
+      template.yaml
+      memory-boundaries.yaml
+      policy-overrides.yaml
+      integration-boundaries.yaml
+
     patient/
       template.yaml
       consent-model.yaml
@@ -306,6 +713,7 @@ MedxFactory/
 ```text
 Patient
   -> Patient Hermes
+  -> Clinic Hermes
   -> Medx Domain Hermes
   -> xFactory / openWorkflow
   -> Medx Omnigent
@@ -321,6 +729,15 @@ Patient Hermes answers:
 - What does this patient need next?
 - Which information may be shared with the domain layer?
 - Which domain workflow should be requested?
+
+Clinic Hermes answers:
+
+- Which clinic, tenant, staff, and operating profile applies?
+- Which local systems and integrations may be used?
+- Which clinic-specific policies, schedules, forms, and communication rules apply?
+- Which patients belong to this clinic context?
+- Which local approval or escalation path applies?
+- Which information may be shared beyond the clinic boundary?
 
 Medx Domain Hermes answers:
 
@@ -341,30 +758,33 @@ Medx Omnigent answers:
 
 ## Routing Modes
 
-The two Hermes layers support three routing modes.
+The three Hermes layers support three routing modes.
 
-### Direct Subject-to-Factory Route
+### Standing Client-Approved Route
 
 ```text
-Subject Hermes
+Customer Hermes
+  -> Client Hermes
   -> xFactory / openWorkflow
   -> Domain Omnigent
 ```
 
 Use this when the workflow is already approved, bounded, repeatable, and low
-risk.
+risk under both domain policy and the client's standing approval envelope.
 
 Example:
 
 ```text
-Patient Hermes requests a standard follow-up packet that already matches an
-approved Medx workflow template.
+Patient Hermes requests a standard follow-up packet for Clinic A. Clinic Hermes
+confirms the patient relationship, communication policy, and standing approval
+before the request enters xFactory.
 ```
 
 ### Domain-Mediated Route
 
 ```text
-Subject Hermes
+Customer Hermes
+  -> Client Hermes
   -> Domain Hermes
   -> xFactory / openWorkflow
   -> Domain Omnigent
@@ -376,17 +796,19 @@ or approval is needed before execution.
 Example:
 
 ```text
-Patient Hermes asks for evaluation of a new symptom cluster. Medx Domain Hermes
-selects the correct medical workflow, agents, gates, and escalation path before
-creating the xFactory job.
+Patient Hermes asks for evaluation of a new symptom cluster. Clinic Hermes
+confirms the clinic context and patient relationship. Medx Domain Hermes selects
+the correct medical workflow, agents, gates, and escalation path before creating
+the xFactory job.
 ```
 
 ### Escalated Domain Route
 
 ```text
-Subject Hermes
+Customer Hermes
+  -> Client Hermes
   -> Domain Hermes
-  -> domain review or human approval
+  -> client, domain, or human review
   -> xFactory / openWorkflow
   -> Domain Omnigent
 ```
@@ -397,20 +819,26 @@ visible, or outside a standing approval envelope.
 Example:
 
 ```text
-Patient Hermes requests an action that may affect care decisions. Medx Domain Hermes
-requires domain review and explicit approval before execution.
+Patient Hermes requests an action that may affect care decisions. Clinic Hermes
+requires local review, and Medx Domain Hermes requires domain review and
+explicit approval before execution.
 ```
 
 ## Learning and Memory Boundaries
 
-Subject-specific data must not automatically mutate shared domain experts.
+Customer-specific data must not automatically mutate client memory, domain
+memory, or shared domain experts.
 
 ```text
-Subject memory
-  private, subject-specific, consent-bound
+Customer memory
+  private, customer-specific, consent-bound
+
+Client memory
+  tenant-scoped, customer-aware, organization-specific
 
 Domain memory
-  shared, reviewed, de-identified when required, reusable across subjects
+  shared, reviewed, de-identified when required, reusable across clients and
+  customers
 
 Base memory
   runtime and operational memory that is not domain expertise
@@ -419,8 +847,9 @@ Base memory
 Allowed promotion path:
 
 ```text
-subject observation
-  -> subject Hermes records private context
+customer observation
+  -> customer Hermes records private context
+  -> client Hermes reviews tenant relevance and authorization
   -> domain Hermes reviews whether the lesson is reusable
   -> privacy, consent, and de-identification checks pass
   -> domain memory update is approved
@@ -431,11 +860,11 @@ Disallowed shortcut:
 
 ```text
 patient data
-  -> directly changes shared Medx experts
+  -> directly changes Clinic Hermes, Medx Domain Hermes, or shared Medx experts
 ```
 
 Domain experts should get better in their domain, but not by silently absorbing
-private subject data.
+private customer data.
 
 ## Domain Omnigent Overlays
 
@@ -472,8 +901,14 @@ xFactory defines the contract between them.
 xFactory / openWorkflow owns general contract fields such as:
 
 - job identity
-- subject reference
+- customer reference
+- client reference
 - domain reference
+- focal item references
+- customer-item relationship references
+- interaction event references
+- journey state references
+- prediction, intervention, and outcome references
 - requesting Hermes layer
 - approving Hermes layer
 - allowed phase
@@ -487,6 +922,9 @@ xFactory / openWorkflow owns general contract fields such as:
 
 Domain factories own domain-specific fields such as:
 
+- focal item type catalogs
+- domain journey state machines
+- outcome measure definitions
 - specialty routing
 - domain policy references
 - domain review council membership
@@ -496,19 +934,36 @@ Domain factories own domain-specific fields such as:
 - domain-specific risk labels
 - domain-specific output formats
 
-Subject overlays own subject-specific fields such as:
+Client overlays own client-specific fields such as:
 
-- subject identifier
+- client identifier
+- tenant profile
+- client Hermes reference
+- customer roster references
+- client policy references
+- integration references
+- staff or team routing references
+- approved intervention references
+- local approval references
+- client memory references
+
+Customer overlays own customer-specific fields such as:
+
+- customer identifier
+- focal item relationship references
+- interaction history references
+- journey state snapshot references
+- prediction and outcome observation references
 - consent references
 - private context references
-- subject timeline references
-- subject team assignments
-- subject-specific communication preferences
+- customer timeline references
+- customer team assignments
+- customer-specific communication preferences
 
 ## Suggested Job Envelope Extension
 
-The generic Hermes job envelope should support factory, domain, and subject
-metadata without making xFactory domain-specific.
+The generic Hermes job envelope should support factory, domain, client, and
+customer metadata without making xFactory domain-specific.
 
 Example:
 
@@ -528,18 +983,43 @@ domain:
     - medx/policies/diagnostic-review.yaml
   review_profile: medx_standard_review
 
-subject:
-  subject_kind: patient
-  subject_ref: patient-hermes://patients/<patient-id>
+client:
+  client_kind: clinic
+  client_ref: clinic-hermes://clinics/<clinic-id>
+  client_hermes_ref: hermes://clinics/<clinic-id>
+  tenant_profile: clinic
+  policy_refs:
+    - clinic-hermes://clinics/<clinic-id>/policies/current
+  integration_refs:
+    - clinic-hermes://clinics/<clinic-id>/integrations/ehr
+
+customer:
+  customer_kind: patient
+  customer_ref: patient-hermes://patients/<patient-id>
   patient_hermes_ref: hermes://patients/<patient-id>
   consent_refs:
     - patient-hermes://patients/<patient-id>/consents/current
   private_context_refs:
     - patient-hermes://patients/<patient-id>/timeline/current
 
+focus:
+  focal_items:
+    - item_kind: treatment_plan
+      item_ref: medx://treatments/<treatment-plan-id>
+      relationship_ref: patient-hermes://patients/<patient-id>/relationships/<relationship-id>
+  journey_state_ref: patient-hermes://patients/<patient-id>/journey/current
+  outcome_objectives:
+    - reduce_readmission_risk
+    - improve_treatment_adherence
+  prediction_refs:
+    - patient-hermes://patients/<patient-id>/predictions/<prediction-id>
+  intervention_refs:
+    - clinic-hermes://clinics/<clinic-id>/interventions/<intervention-id>
+
 routing:
   requested_by: patient_hermes
-  approved_by: domain_hermes
+  client_approved_by: clinic_hermes
+  domain_approved_by: medx_domain_hermes
   route_mode: domain_mediated
 ```
 
@@ -567,8 +1047,19 @@ omnigent
 opensoft/<Domain>Factory
   productized domain stack with Hermes and Omnigent overlays
 
-subject registries
-  private subject Hermes overlays and subject-specific memory references
+customer registries
+  private customer Hermes overlays and customer-specific memory references
+```
+
+Recommended workstation layout:
+
+```text
+/home/brett/projects/xFactory/
+  README.md
+  MedxFactory/
+  LedgerxFactory/
+  AdxFactory/
+  openCodexFactory/
 ```
 
 The domain stack repo may reference existing agent registries, such as
@@ -579,11 +1070,12 @@ definition belongs in the domain factory repo.
 
 1. xFactory is domain-neutral.
 2. Domain factories are overlays, not forks.
-3. Subject Hermes and domain Hermes are separate authority layers.
-4. Subject data remains subject-bound unless explicitly promoted.
+3. Customer Hermes, client Hermes, and domain Hermes are separate authority layers.
+4. Customer data remains customer-bound unless explicitly promoted.
 5. Domain learning requires review, approval, and privacy checks.
 6. Hermes approves intent and policy.
 7. Omnigent executes approved work.
 8. openWorkflow defines the handoff contract.
 9. Domain overlays may add gates, but must not bypass base xFactory gates.
-10. Direct subject-to-factory routing is allowed only inside a standing domain approval envelope.
+10. Direct customer-to-factory routing is allowed only inside standing client
+    and domain approval envelopes.
