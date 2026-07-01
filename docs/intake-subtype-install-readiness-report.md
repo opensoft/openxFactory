@@ -91,7 +91,7 @@ Machine-readable detail: [pass1.yaml](../examples/intake-runtime-simulations/pas
 | `partner.channel` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
 | `pr.communications` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
 
-### software -> openCodexFactory
+### software -> codexFactory
 
 | Subtype | Current readiness | Missing domain artifacts | Runtime missing |
 | --- | --- | --- | --- |

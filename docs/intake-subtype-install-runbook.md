@@ -85,7 +85,7 @@ adapter endpoints, approvals, validation evidence, or live execution approval.
 | `partner.channel` | `profiles/partner.channel.yaml` | `partner_campaign_intake`, `co_marketing_review`, `enablement_packet` | `partner_portal_read`, `document_store_read`, `cms_write` | `partner_portal`, `document_store`, `cms`, `crm` |
 | `pr.communications` | `profiles/pr.communications.yaml` | `message_intake`, `statement_review`, `media_response_packet` | `document_store_read`, `cms_write`, `media_list_read` | `document_store`, `cms`, `media_database`, `pr_platform` |
 
-### software -> openCodexFactory
+### software -> codexFactory
 
 | Subtype | Profile file | Workflow specs | Credential requirements | Adapter contracts |
 | --- | --- | --- | --- | --- |

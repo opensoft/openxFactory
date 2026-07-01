@@ -25,7 +25,7 @@ handoff boundaries.
 `DomainxFactory` names an instantiated domain stack that consumes
 `openxFactory` contracts and specializes them for one kind of expert work.
 Examples include `MedxFactory`, `LawxFactory` or `LegalxFactory`,
-`LedgerxFactory`, `OpsxFactory`, `AdxFactory`, and `openCodexFactory`.
+`LedgerxFactory`, `OpsxFactory`, `AdxFactory`, and `codexFactory`.
 
 ## Repository Layers
 
@@ -48,7 +48,7 @@ xFactory repository
     LedgerxFactory/
     OpsxFactory/
     AdxFactory/
-    openCodexFactory/
+    codexFactory/
 ```
 
 The top-level `xFactory` repo is allowed to know about all submodules because
@@ -108,7 +108,7 @@ The reverse should not be required.
 ```text
 openxFactory
   should not need to pin MedxFactory, LegalxFactory, LedgerxFactory, OpsxFactory,
-  AdxFactory, or openCodexFactory to remain valid.
+  AdxFactory, or codexFactory to remain valid.
 ```
 
 This direction protects domain factories from accidental breakage. An
@@ -167,7 +167,7 @@ product names:
 | Accounting / finance | `LedgerxFactory` |
 | IT operations | `OpsxFactory` |
 | Marketing / advertising | `AdxFactory` |
-| Software engineering | `openCodexFactory` |
+| Software engineering | `codexFactory` |
 
 The legal stack currently appears in intake templates as `LegalxFactory`.
 If `LawxFactory` is preferred, update the intake templates, taxonomy docs, and

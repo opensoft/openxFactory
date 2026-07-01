@@ -28,7 +28,7 @@ templates:
 
   - id: software
     file: software.yaml
-    recommended_factory_repo: openCodexFactory
+    recommended_factory_repo: codexFactory
     factory_type: software
     default_profile: product_engineering.repo_delivery
 

@@ -18,7 +18,7 @@ See [Terminology And Repository Topology](terminology-and-repo-topology.md) and
 
 The first product domain stack repositories are expected to be
 `opensoft/MedxFactory`, `opensoft/OpsxFactory`, `opensoft/LedgerxFactory`,
-`opensoft/AdxFactory`, and `opensoft/opencodexFactory`.
+`opensoft/AdxFactory`, and `opensoft/codexFactory`.
 
 Credential access across those domain stacks is governed by the
 [xFactory Credential Access Model](credential-access-model.md). Domain repos
@@ -106,7 +106,7 @@ contracts and specialize the xFactory layer for a domain.
 Examples:
 
 ```text
-opencodexFactory
+codexFactory
   software, code, repository, and engineering workflows
   Omnigent runs coding and engineering agents
 
@@ -185,7 +185,7 @@ External enforcement system
 ## Domain Examples
 
 ```text
-opencodexFactory
+codexFactory
   xFactory layer + engineering policy + coding agents + repo enforcement
 
 MedxFactory

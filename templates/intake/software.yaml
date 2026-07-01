@@ -4,7 +4,7 @@ kind: xfactory_intake_template
 template:
   id: software
   name: Software Engineering And Product Delivery
-  recommended_factory_repo: openCodexFactory
+  recommended_factory_repo: codexFactory
   description: Repository, feature, PR, CI/CD, release, and incident workflow support.
 
 taxonomy_defaults:

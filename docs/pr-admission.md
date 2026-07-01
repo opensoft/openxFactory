@@ -4,7 +4,7 @@
 
 Engineering-specific PR admission now lives in:
 
-- `opensoft/opencodexFactory/docs/pr-admission-merge-readiness.md`
+- `opensoft/codexFactory/docs/pr-admission-merge-readiness.md`
 
 ## Neutral Admission Rule
 
@@ -20,7 +20,7 @@ domain work product complete
 ## Domain Examples
 
 ```text
-opencodexFactory
+codexFactory
   PR admission controls whether an implementation branch may open or proceed as a repository pull request.
 
 MedxFactory

@@ -10,7 +10,7 @@ what belongs in a domain stack.
 
 This checklist applies to every xFactory domain stack, including:
 
-- `openCodexFactory`
+- `codexFactory`
 - `MedxFactory`
 - `OpsxFactory`
 - `LedgerxFactory`

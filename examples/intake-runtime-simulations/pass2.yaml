@@ -1099,11 +1099,11 @@ groups:
     - legal_approvers
     - media_database
 - template_id: software
-  recommended_factory_repo: openCodexFactory
+  recommended_factory_repo: codexFactory
   subtypes:
   - id: product_engineering.repo_delivery
     label: Repo And Feature Delivery
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1130,7 +1130,7 @@ groups:
     - review_approvers
   - id: release_ops.cicd
     label: Release And CI/CD
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1157,7 +1157,7 @@ groups:
     - release_approvers
   - id: incident_response.software
     label: Software Incident Response
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1184,7 +1184,7 @@ groups:
     - deployment_authority
   - id: security.appsec
     label: Application Security
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1211,7 +1211,7 @@ groups:
     - security_approvers
   - id: data_engineering.pipelines
     label: Data Engineering Pipelines
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1238,7 +1238,7 @@ groups:
     - data_approvers
   - id: mlops.model_delivery
     label: MLOps And Model Delivery
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1265,7 +1265,7 @@ groups:
     - deployment_approvers
   - id: platform_engineering.internal_tools
     label: Platform Engineering And Internal Tools
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1292,7 +1292,7 @@ groups:
     - rollout_approvers
   - id: qa.test_automation
     label: QA And Test Automation
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1319,7 +1319,7 @@ groups:
     - qa_approvers
   - id: docs.developer_experience
     label: Documentation And Developer Experience
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied
@@ -1346,7 +1346,7 @@ groups:
     - analytics_access
   - id: product_management.requirements
     label: Product Management And Requirements
-    repo: openCodexFactory
+    repo: codexFactory
     simulated_generic_fixes:
     - factory_repo_bootstrapped_if_missing
     - starter_v6_applied

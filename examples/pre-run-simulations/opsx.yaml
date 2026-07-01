@@ -19,7 +19,7 @@ answer_metadata:
 domain:
   repo: OpsxFactory
   category: it_operations
-  closest_existing_domain: openCodexFactory
+  closest_existing_domain: codexFactory
   simulation_status: starter_v3_stack_with_explicit_credentials
 
 hermes_layers:

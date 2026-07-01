@@ -39,7 +39,7 @@ Hermes-approved intent
 The domain factory decides the agent population and domain artifacts.
 
 ```text
-opencodexFactory
+codexFactory
   uses Omnigent to run coding and engineering agents
   produces code changes, tests, branch reviews, PR admission packets, and merge readiness evidence
 
@@ -80,7 +80,7 @@ archived
 
 ## Engineering Implementation Pointer
 
-Engineering-specific implementation details live in `opensoft/opencodexFactory`.
+Engineering-specific implementation details live in `opensoft/codexFactory`.
 
 That repo defines coding agents, engineering decomposition, Spec Kit engineering flow, branch review, PR admission, and merge readiness.
 

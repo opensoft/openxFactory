@@ -13,7 +13,7 @@ Use this starter pack when creating a domain repo such as:
 - `OpsxFactory`
 - `LedgerxFactory`
 - `AdxFactory`
-- `opencodexFactory`
+- `codexFactory`
 
 A domain factory repo does not fork xFactory. It implements the
 openxFactory/xFactory contract for one domain.
@@ -1102,7 +1102,7 @@ Current review lessons:
 - `MedxFactory` shows that schemas and local validation must arrive early. The
   starter therefore creates a Makefile, schema descriptors, and a validation
   script from day one.
-- `openCodexFactory` shows that examples make the workflow contract concrete.
+- `codexFactory` shows that examples make the workflow contract concrete.
   The starter therefore creates an `examples/` area and a golden-path folder.
 - `OpsxFactory` shows that credential-aware domains need a broker contract,
   runtime grant templates, policy files, and idempotent rerun reports before

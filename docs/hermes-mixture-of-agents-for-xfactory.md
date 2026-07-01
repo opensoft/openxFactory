@@ -438,7 +438,7 @@ Spend-risk reviewer
 Acting role: Marketing Domain Hermes Approval Controller
 ```
 
-openCodexFactory:
+codexFactory:
 
 ```text
 Architecture reviewer

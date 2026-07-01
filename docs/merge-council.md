@@ -4,7 +4,7 @@
 
 Engineering-specific merge council and merge readiness behavior now lives in:
 
-- `opensoft/opencodexFactory/docs/pr-admission-merge-readiness.md`
+- `opensoft/codexFactory/docs/pr-admission-merge-readiness.md`
 
 ## Neutral Readiness Rule
 
@@ -20,7 +20,7 @@ validated domain work product
 ## Domain Examples
 
 ```text
-opencodexFactory
+codexFactory
   readiness review evaluates whether a pull request or repository change is ready to merge.
 
 MedxFactory

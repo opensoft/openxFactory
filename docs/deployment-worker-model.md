@@ -4,7 +4,7 @@
 
 Engineering-specific worker deployment now lives in:
 
-- `opensoft/opencodexFactory/docs/engineering-worker-model.md`
+- `opensoft/codexFactory/docs/engineering-worker-model.md`
 
 ## Neutral Control/Execution Split
 
@@ -19,7 +19,7 @@ Domain factory workers
 ## Domain Examples
 
 ```text
-opencodexFactory workers
+codexFactory workers
   run coding agents, repository checks, branch review, test execution, and PR-readiness tasks.
 
 MedxFactory workers

@@ -216,7 +216,7 @@ ops
   OpsxFactory
 
 software
-  openCodexFactory
+  codexFactory
 
 marketing
   AdxFactory

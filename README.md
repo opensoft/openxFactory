@@ -11,7 +11,7 @@ Use these terms precisely:
   routing, source authority, memory promotion, credential, and audit layer
   inside `openxFactory` and every DomainxFactory.
 - A `DomainxFactory` is an instantiated domain stack such as `MedxFactory`,
-  `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `openCodexFactory`.
+  `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `codexFactory`.
 
 See [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 for the stack, layer, and submodule ownership model.
@@ -51,7 +51,7 @@ External enforcement systems
 Domain examples:
 
 ```text
-opencodexFactory
+codexFactory
   uses Omnigent to run coding and engineering agents.
 
 MedxFactory
@@ -90,7 +90,7 @@ Core domain-neutral docs:
 - [Repository Boundary Governance](openspec/specs/repo-boundary-governance/spec.md)
 - [Shared Contract Ownership](openspec/specs/shared-contract-ownership/spec.md)
 
-Engineering-domain implementation docs now belong in `opensoft/opencodexFactory`.
+Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
 
 Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
@@ -98,7 +98,7 @@ IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
 
 ## Domain Implementations
 
-- `opensoft/opencodexFactory` — software, code, repo, and engineering xFactory domain stack.
+- `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
 - `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
 - `opensoft/OpsxFactory` — IT operations, sysops, devops, identity, infrastructure, and tenant administration xFactory domain stack.
 

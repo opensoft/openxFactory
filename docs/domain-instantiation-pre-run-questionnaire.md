@@ -38,7 +38,7 @@ layers differently:
 | --- | --- | --- | --- | --- | --- |
 | `MedxFactory` | Patient Hermes | Clinic, practice, hospital, pharmacy, imaging center, or IDTF Hermes | Medical Domain Hermes | Patient and care context | Care-affecting action, patient privacy, clinical authority |
 | `OpsxFactory` | Managed System Hermes | IT Customer Hermes | Operations Domain Hermes | Tenant, system, service, subscription, DNS zone, backup vault | Privileged admin action, outage, destructive change |
-| `openCodexFactory` | Project, repo, product, or feature Hermes | Software Company Hermes | Software Engineering Domain Hermes | Feature, repo, PR, release, incident | Merge, deploy, data exposure, production impact |
+| `codexFactory` | Project, repo, product, or feature Hermes | Software Company Hermes | Software Engineering Domain Hermes | Feature, repo, PR, release, incident | Merge, deploy, data exposure, production impact |
 | `AdxFactory` | Buyer, audience, account, or campaign Hermes | Agency, brand, growth team, or marketing operator Hermes | Marketing Domain Hermes | Campaign, audience, offer, channel, account | Brand risk, external send, paid spend, privacy, attribution |
 | `LedgerxFactory` | Ledger, company, client, tax matter, or engagement Hermes | Firm, controller org, bookkeeping team, or finance team Hermes | Ledger Domain Hermes | Ledger, filing, report, transaction, obligation | Money movement, filing accuracy, audit, compliance |
 
@@ -255,7 +255,7 @@ answer_metadata:
 domain:
   repo: <Domain>Factory
   category: <domain-category>
-  closest_existing_domain: <MedxFactory|OpsxFactory|openCodexFactory|AdxFactory|LedgerxFactory>
+  closest_existing_domain: <MedxFactory|OpsxFactory|codexFactory|AdxFactory|LedgerxFactory>
   factory_type: <medical|law|accounting|marketing|operations|software|custom>
   factory_subtype: <subtype>
   target_domain: <domain-being-worked-on>

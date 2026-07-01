@@ -2,11 +2,11 @@
 
 `openWorkflow` is domain-neutral and no longer owns the engineering-specific Spec Kit stage ownership policy.
 
-Spec Kit is a software engineering feature-flow implementation and now belongs in `opencodexFactory`.
+Spec Kit is a software engineering feature-flow implementation and now belongs in `codexFactory`.
 
 Canonical engineering-domain documentation:
 
-- `opensoft/opencodexFactory/docs/spec-kit-engineering-flow.md`
+- `opensoft/codexFactory/docs/spec-kit-engineering-flow.md`
 
 ## Neutral openWorkflow Rule
 
@@ -24,7 +24,7 @@ approved intent
 Domain factories decide which implementation mechanism runs inside the domain execution gate.
 
 ```text
-opencodexFactory
+codexFactory
   may use Spec Kit for software feature flow.
 
 MedxFactory

@@ -46,7 +46,7 @@ with the grant it receives. Workers never persist the credential.
 ### Domain Stack Repos
 
 Domain stack repos such as `MedxFactory`, `OpsxFactory`, `LedgerxFactory`,
-`AdxFactory`, and `opencodexFactory` may define:
+`AdxFactory`, and `codexFactory` may define:
 
 - credential requirement IDs
 - credential purposes
@@ -286,7 +286,7 @@ movement or filing actions, and read-only grants by default.
 AdxFactory should separate planning access, read-only analytics access,
 campaign-management access, and spend-authorizing access.
 
-opencodexFactory should separate read, branch, PR, package publish, deployment,
+codexFactory should separate read, branch, PR, package publish, deployment,
 and production access. Deployment and production grants should require explicit
 Hermes approval.
 

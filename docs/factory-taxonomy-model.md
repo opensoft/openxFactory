@@ -348,7 +348,7 @@ LegalxFactory
 LedgerxFactory
 AdxFactory
 OpsxFactory
-openCodexFactory
+codexFactory
 ```
 
 Profiles should represent subtypes and target domains:

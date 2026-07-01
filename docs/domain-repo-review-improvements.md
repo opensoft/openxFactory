@@ -11,7 +11,7 @@ template.
 - `LedgerxFactory`
 - `MedxFactory`
 - `OpsxFactory`
-- `openCodexFactory`
+- `codexFactory`
 
 ## What The Repos Show
 
@@ -24,7 +24,7 @@ details are complete.
 schemas, templates, and a local validation command should appear early because
 they turn a concept repo into an implementation target.
 
-`openCodexFactory` is the clearest executable example. It shows that workflows
+`codexFactory` is the clearest executable example. It shows that workflows
 become understandable when backed by example artifacts, golden-path flows,
 schema files, and validation scripts.
 

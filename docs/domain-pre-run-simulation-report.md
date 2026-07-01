@@ -13,7 +13,7 @@ This report simulates the pre-run questionnaire for:
 - `AdxFactory`
 - `LedgerxFactory`
 - `MedxFactory`
-- `openCodexFactory`
+- `codexFactory`
 - `OpsxFactory`
 
 The simulation is not a live instantiation. It does not create client records,
@@ -49,7 +49,7 @@ A: The meaning of the customer-subject changes:
 | `AdxFactory` | campaign, audience, offer, channel, account, buyer segment |
 | `LedgerxFactory` | company, ledger, engagement, tax matter, filing, report |
 | `MedxFactory` | patient, case, decision candidate, care plan, diagnostic pathway |
-| `openCodexFactory` | project, repo, feature, PR, release, incident |
+| `codexFactory` | project, repo, feature, PR, release, incident |
 | `OpsxFactory` | tenant, subscription, service, DNS zone, backup vault, endpoint fleet |
 
 ### Q: What is the biggest implementation risk found in simulation?
@@ -268,13 +268,13 @@ A:
 - Human clinical review requirements by workflow type
 - Blocked-path and repair examples
 
-## 6. openCodexFactory Simulation
+## 6. codexFactory Simulation
 
-Structured record: `examples/pre-run-simulations/opencodex.yaml`
+Structured record: `examples/pre-run-simulations/codex.yaml`
 
 ### Q: What does this domain own?
 
-A: `openCodexFactory` owns the engineering interpretation of the xFactory rail:
+A: `codexFactory` owns the engineering interpretation of the xFactory rail:
 approved intent intake, feature decomposition, Spec Kit execution, coding-agent
 implementation, deterministic validation, branch review, PR admission, merge
 readiness, and repository-centered examples.
@@ -402,7 +402,7 @@ A:
 
 1. Apply the starter v3 scaffold to `AdxFactory` and `LedgerxFactory` first;
    they are the lightest concept stacks and will stress-test the questionnaire.
-2. Add credential modules to `MedxFactory`, `openCodexFactory`, `AdxFactory`,
+2. Add credential modules to `MedxFactory`, `codexFactory`, `AdxFactory`,
    and `LedgerxFactory`.
 3. Convert the simulated answer records into domain-owned
    `examples/instantiation-answers.example.yaml` files inside each domain repo.

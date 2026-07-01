@@ -1319,7 +1319,7 @@ answer_metadata:
 domain:
   repo: {ctx.product_name}
   category: {ctx.category}
-  closest_existing_domain: <MedxFactory|OpsxFactory|openCodexFactory|AdxFactory|LedgerxFactory>
+  closest_existing_domain: <MedxFactory|OpsxFactory|codexFactory|AdxFactory|LedgerxFactory>
 
 hermes_layers:
   domain_hermes: {ctx.domain_layer_name}

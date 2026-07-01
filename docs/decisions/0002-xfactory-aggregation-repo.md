@@ -13,7 +13,7 @@ The workspace contains multiple related repositories:
 - install or subsystem repositories such as `Hermes-Install`,
   `Omnigent-Install`, and `AgentTower`.
 - DomainxFactory repositories such as `MedxFactory`, `LedgerxFactory`,
-  `OpsxFactory`, `AdxFactory`, and `openCodexFactory`.
+  `OpsxFactory`, `AdxFactory`, and `codexFactory`.
 
 Earlier docs sometimes treated `openxFactory`, `openWorkflow`, and the
 `xFactory layer` as interchangeable. That made repository ownership unclear.
@@ -47,7 +47,7 @@ xFactory/
     LedgerxFactory/
     MedxFactory/
     OpsxFactory/
-    openCodexFactory/
+    codexFactory/
 ```
 
 `openxFactory` remains the canonical open reference stack and contract source.
@@ -83,7 +83,7 @@ xFactories/AdxFactory/        -> git@github.com:opensoft/AdxFactory.git
 xFactories/LedgerxFactory/    -> git@github.com:opensoft/LedgerxFactory.git
 xFactories/MedxFactory/       -> git@github.com:opensoft/MedxFactory.git
 xFactories/OpsxFactory/       -> git@github.com:opensoft/OpsxFactory.git
-xFactories/openCodexFactory/  -> git@github.com:opensoft/openCodexFactory.git
+xFactories/codexFactory/  -> git@github.com:opensoft/codexFactory.git
 ```
 
 `opensoft/Hermes-Install` is not currently reachable. If Hermes moves, mirrors,

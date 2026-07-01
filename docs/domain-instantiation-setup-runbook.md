@@ -150,7 +150,7 @@ Setup emphasis:
 - Workers receive runtime grants only, never standing global administrator
   credentials.
 
-### 3.3 openCodexFactory
+### 3.3 codexFactory
 
 Recommended interpretation:
 

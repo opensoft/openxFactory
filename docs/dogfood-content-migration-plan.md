@@ -1,6 +1,6 @@
 # Domain Neutralization and Engineering Content Migration Plan
 
-This plan defines how `openWorkflow` remains domain-neutral while engineering-specific workflow content moves to `opensoft/opencodexFactory`.
+This plan defines how `openWorkflow` remains domain-neutral while engineering-specific workflow content moves to `opensoft/codexFactory`.
 
 ## Principle
 
@@ -8,7 +8,7 @@ This plan defines how `openWorkflow` remains domain-neutral while engineering-sp
 openWorkflow
   owns domain-neutral contracts, gates, traceability, routing, state transitions, and audit.
 
-opencodexFactory
+codexFactory
   owns coding and engineering agents, Spec Kit engineering flow, branch review, PR admission, merge readiness, and repo-centered engineering workflow.
 
 MedxFactory
@@ -22,7 +22,7 @@ Do not treat `openWorkflow` as the software engineering factory. It is the neutr
 Use copy-first migration.
 
 ```text
-1. Create or update the engineering-domain canonical copy in opencodexFactory.
+1. Create or update the engineering-domain canonical copy in codexFactory.
 2. Replace the openWorkflow copy with a domain-neutral contract or pointer.
 3. Preserve source references and audit history.
 4. Do not move secrets, credentials, runtime state, databases, generated workspaces, or production memory stores.
@@ -35,7 +35,7 @@ Use copy-first migration.
 openWorkflow
   target role: domain-neutral workflow substrate
 
-opencodexFactory
+codexFactory
   target role: engineering xFactory implementation
 
 MedxFactory
@@ -44,7 +44,7 @@ MedxFactory
 
 ## Completed / Current Engineering Split
 
-The first engineering-domain docs were created in `opensoft/opencodexFactory`:
+The first engineering-domain docs were created in `opensoft/codexFactory`:
 
 ```text
 docs/engineering-xfactory-domain.md
@@ -75,7 +75,7 @@ docs/deployment-worker-model.md
 
 ### FEAT-XFACTORY-001: Engineering examples and proof harnesses
 
-Move repo-centered examples and proof harnesses to `opencodexFactory` or mark them as legacy references.
+Move repo-centered examples and proof harnesses to `codexFactory` or mark them as legacy references.
 
 Candidate source paths:
 
@@ -88,7 +88,7 @@ openWorkflow/openspec/changes/archive/*/evidence/*merge*
 Acceptance criteria:
 
 ```text
-engineering examples live in opencodexFactory
+engineering examples live in codexFactory
 openWorkflow keeps only domain-neutral examples or pointers
 no generated runtime state is moved
 ```
@@ -101,7 +101,7 @@ Acceptance criteria:
 
 ```text
 neutral contracts remain in openWorkflow
-engineering-specific contracts move to opencodexFactory
+engineering-specific contracts move to codexFactory
 contract provenance is preserved
 ```
 
@@ -113,7 +113,7 @@ Acceptance criteria:
 
 ```text
 history remains auditable
-current canonical links point to domain-neutral openWorkflow docs or engineering opencodexFactory docs
+current canonical links point to domain-neutral openWorkflow docs or engineering codexFactory docs
 ```
 
 ### FEAT-XFACTORY-004: Install repo pointer cleanup
@@ -122,7 +122,7 @@ Install repo docs should point to either:
 
 ```text
 openWorkflow for neutral workflow contracts
-opencodexFactory for engineering execution
+codexFactory for engineering execution
 MedxFactory for medical execution
 ```
 
@@ -144,7 +144,7 @@ The split is complete when:
 
 ```text
 openWorkflow reads as domain-neutral
-opencodexFactory owns software engineering implementation docs
+codexFactory owns software engineering implementation docs
 MedxFactory owns medical implementation docs
 openWorkflow points to domain factories instead of embedding their execution details
 Frappe, vector DBs, agents, and repo tools are not treated as authority layers

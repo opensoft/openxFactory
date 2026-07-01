@@ -4,7 +4,7 @@
 
 Engineering-specific Merge Master behavior now lives in:
 
-- `opensoft/opencodexFactory/docs/pr-admission-merge-readiness.md`
+- `opensoft/codexFactory/docs/pr-admission-merge-readiness.md`
 
 ## Neutral Rule
 
@@ -25,7 +25,7 @@ The action controller must not bypass the external enforcement system or domain 
 ## Domain Examples
 
 ```text
-opencodexFactory
+codexFactory
   converts merge readiness into repository review, merge, block, or request-change posture.
 
 MedxFactory

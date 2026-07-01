@@ -1362,12 +1362,12 @@ groups:
     - legal_approvers
     - media_database
 - template_id: software
-  recommended_factory_repo: openCodexFactory
+  recommended_factory_repo: codexFactory
   repo_exists: true
   subtypes:
   - id: product_engineering.repo_delivery
     label: Repo And Feature Delivery
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1400,7 +1400,7 @@ groups:
     - review_approvers
   - id: release_ops.cicd
     label: Release And CI/CD
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1433,7 +1433,7 @@ groups:
     - release_approvers
   - id: incident_response.software
     label: Software Incident Response
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1466,7 +1466,7 @@ groups:
     - deployment_authority
   - id: security.appsec
     label: Application Security
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1502,7 +1502,7 @@ groups:
     - security_approvers
   - id: data_engineering.pipelines
     label: Data Engineering Pipelines
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1538,7 +1538,7 @@ groups:
     - data_approvers
   - id: mlops.model_delivery
     label: MLOps And Model Delivery
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1573,7 +1573,7 @@ groups:
     - deployment_approvers
   - id: platform_engineering.internal_tools
     label: Platform Engineering And Internal Tools
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1606,7 +1606,7 @@ groups:
     - rollout_approvers
   - id: qa.test_automation
     label: QA And Test Automation
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1641,7 +1641,7 @@ groups:
     - qa_approvers
   - id: docs.developer_experience
     label: Documentation And Developer Experience
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
@@ -1676,7 +1676,7 @@ groups:
     - analytics_access
   - id: product_management.requirements
     label: Product Management And Requirements
-    repo: openCodexFactory
+    repo: codexFactory
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:

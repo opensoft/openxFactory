@@ -5,10 +5,10 @@ answer_metadata:
   status: simulated
   scope: domain
   generated_from:
-    - openCodexFactory/README.md
-    - openCodexFactory/stack.yaml
-    - openCodexFactory/docs/engineering-xfactory-domain.md
-    - openCodexFactory/docs/engineering-worker-model.md
+    - codexFactory/README.md
+    - codexFactory/stack.yaml
+    - codexFactory/docs/engineering-xfactory-domain.md
+    - codexFactory/docs/engineering-worker-model.md
   assumptions:
     - Software Company Hermes should become the normalized client Hermes layer.
     - Project Hermes should become the normalized customer Hermes layer.
@@ -18,7 +18,7 @@ answer_metadata:
     - final merge and deploy enforcement systems
 
 domain:
-  repo: openCodexFactory
+  repo: codexFactory
   category: software
   closest_existing_domain: OpsxFactory
   simulation_status: executable_stack_with_inferred_credentials

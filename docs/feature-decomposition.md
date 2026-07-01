@@ -4,7 +4,7 @@
 
 Engineering-specific feature decomposition now lives in:
 
-- `opensoft/opencodexFactory/docs/feature-decomposition-traceability.md`
+- `opensoft/codexFactory/docs/feature-decomposition-traceability.md`
 
 ## Neutral Requirement
 
@@ -25,7 +25,7 @@ safe to validate within the domain workflow
 Different domain factories interpret work units differently.
 
 ```text
-opencodexFactory
+codexFactory
   decomposes software work into engineering features, tasks, tests, branch changes, and PR-ready slices.
 
 MedxFactory

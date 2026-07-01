@@ -615,7 +615,7 @@ catalog:
         runtime_binding_focus: [source_docs, cms_access, legal_approvers, media_database]
 
   - template_id: software
-    recommended_factory_repo: openCodexFactory
+    recommended_factory_repo: codexFactory
     subtypes:
       - id: product_engineering.repo_delivery
         label: Repo And Feature Delivery

@@ -21,8 +21,8 @@ Domain Omnigent layer
 
 Engineering-specific Omnigent rules now live in:
 
-- `opensoft/opencodexFactory/docs/engineering-omnigent-constitution.md`
-- `opensoft/opencodexFactory/docs/omnigent-coding-agent-workflow.md`
+- `opensoft/codexFactory/docs/engineering-omnigent-constitution.md`
+- `opensoft/codexFactory/docs/omnigent-coding-agent-workflow.md`
 
 Medical-specific Omnigent rules live in:
 
@@ -31,7 +31,7 @@ Medical-specific Omnigent rules live in:
 ## Boundary
 
 ```text
-opencodexFactory
+codexFactory
   uses Omnigent to run coding and engineering agents.
 
 MedxFactory

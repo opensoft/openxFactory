@@ -97,7 +97,7 @@ Machine-readable detail: [pass2.yaml](../examples/intake-runtime-simulations/pas
 | `partner.channel` | `partner_portal_read`, `document_store_read`, `cms_write` | `partner_portal`, `document_store`, `cms`, `crm` | `partner_portal_access`, `asset_store`, `approval_matrix`, `cms_access` |
 | `pr.communications` | `document_store_read`, `cms_write`, `media_list_read` | `document_store`, `cms`, `media_database`, `pr_platform` | `source_docs`, `cms_access`, `legal_approvers`, `media_database` |
 
-### software -> openCodexFactory
+### software -> codexFactory
 
 | Subtype | Credential bindings to collect | Adapter endpoints to collect | Runtime focus |
 | --- | --- | --- | --- |

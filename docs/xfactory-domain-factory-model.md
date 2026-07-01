@@ -56,7 +56,7 @@ Customer layer
 Examples:
 
 ```text
-openCodexFactory
+codexFactory
   = xFactory + Software Engineering Domain Hermes + Software Company Hermes
     + Project Hermes + Opensoft Omnigent overlay
 
@@ -368,7 +368,7 @@ AdxFactory
   A pricing-objection agent may join while the buyer is in late consideration
   for a specific offer.
 
-openCodexFactory
+codexFactory
   Project Hermes starts with scope, repo, traceability, and delivery agents. A
   security-review agent may join while the project touches sensitive auth code.
 ```
@@ -467,7 +467,7 @@ schedule.
 | --- | --- | --- | --- |
 | MedxFactory | Patient Hermes | Clinic, practice, hospital, pharmacy, imaging center, or IDTF Hermes | Medical Domain Hermes |
 | AdxFactory | Buyer Hermes for a buyer, prospect, audience member, or account | Marketing Company Hermes for the agency or marketing operator | Marketing Domain Hermes |
-| openCodexFactory | Project Hermes for a project, repo, product, or feature initiative | Software Company Hermes for the engineering organization | Software Engineering Domain Hermes |
+| codexFactory | Project Hermes for a project, repo, product, or feature initiative | Software Company Hermes for the engineering organization | Software Engineering Domain Hermes |
 | LedgerxFactory | Ledger/Client Hermes for a company, ledger, tax matter, or engagement | Firm Hermes for the accounting or finance operator | Ledger Domain Hermes |
 
 ## Customer-Item Interaction Model
@@ -517,7 +517,7 @@ Domain stacks specialize the neutral model:
 | --- | --- | --- | --- | --- |
 | AdxFactory | Buyer, prospect, account, advertiser audience member, or marketing client customer | Product, service, offer, brand, campaign, subscription, or purchase decision | Awareness, interest, consideration, conversion, onboarding, retention, expansion, churn risk | Conversion, retention, lifetime value, satisfaction, campaign response, next-best action |
 | MedxFactory | Patient | Disease, symptom cluster, treatment, diagnostic pathway, medication, device, care plan, or referral | Risk, suspicion, diagnosis, treatment planning, active treatment, monitoring, remission, recurrence, follow-up | Clinical outcome, diagnostic confidence, adherence, side effects, progression, recovery, readmission risk |
-| openCodexFactory | Project, repo, product, feature initiative, or engineering customer | Feature, bug, architecture decision, service, dependency, release, or technical debt item | Discovery, specification, planning, implementation, review, release, operation, incident response | Delivery confidence, defect risk, maintainability, release readiness, user impact |
+| codexFactory | Project, repo, product, feature initiative, or engineering customer | Feature, bug, architecture decision, service, dependency, release, or technical debt item | Discovery, specification, planning, implementation, review, release, operation, incident response | Delivery confidence, defect risk, maintainability, release readiness, user impact |
 | LedgerxFactory | Company, client, ledger, tax matter, or engagement | Transaction, account, filing, report, obligation, forecast, audit issue, or financial decision | Intake, reconciliation, review, filing, close, audit, advisory, exception handling | Accuracy, compliance risk, cash position, tax exposure, audit readiness, decision confidence |
 
 ### Model Records
@@ -656,9 +656,9 @@ opensoft/AdxFactory
   marketing, advertising, growth, and campaign domain stack
   https://github.com/opensoft/AdxFactory
 
-opensoft/openCodexFactory
+opensoft/codexFactory
   software, code, repo, and engineering domain stack
-  https://github.com/opensoft/openCodexFactory
+  https://github.com/opensoft/codexFactory
 ```
 
 Each domain stack repo defines one productized domain factory. It may contain
@@ -1225,7 +1225,7 @@ Recommended workstation layout:
   OpsxFactory/
   LedgerxFactory/
   AdxFactory/
-  openCodexFactory/
+  codexFactory/
 ```
 
 The domain stack repo may reference existing agent registries, such as
