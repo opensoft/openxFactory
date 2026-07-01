@@ -1,13 +1,20 @@
 # Architecture
 
-This project defines a domain-neutral xFactory workflow rail.
+This project defines the open reference stack for the xFactory family and the
+domain-neutral xFactory layer inside that stack.
 
-`openWorkflow` is not the engineering factory, the medical factory, or any other domain factory. It defines the contract, gate, traceability, routing, state, and audit model that domain factory repos use.
+`openxFactory` is not the engineering factory, the medical factory, or any other
+domain factory. It defines the open reference stack and canonical contracts that
+domain factory repos consume.
 
-The same contract also generalizes into the `xFactory` pattern: a
-domain-neutral workflow layer that can support code, medical, accounting,
-marketing, and other domain factories through Hermes and Omnigent overlays. See
-[xFactory Domain Factory Model](xfactory-domain-factory-model.md).
+The `xFactory layer` is the layer inside `openxFactory` and every DomainxFactory
+that defines the contract, gate, traceability, routing, state, source authority,
+memory promotion, credential, and audit model.
+
+The top-level `xFactory` repository is an aggregation repo that pins
+`openxFactory`, subsystem install repos, and DomainxFactory repos as submodules.
+See [Terminology And Repository Topology](terminology-and-repo-topology.md) and
+[Decision 0002](decisions/0002-xfactory-aggregation-repo.md).
 
 The first product domain stack repositories are expected to be
 `opensoft/MedxFactory`, `opensoft/OpsxFactory`, `opensoft/LedgerxFactory`,
@@ -23,7 +30,7 @@ Hermes Mixture of Agents reasoning is governed by
 [Hermes Mixture Of Agents For xFactory](hermes-mixture-of-agents-for-xfactory.md).
 Mixture of Agents is a Hermes reasoning pattern, not a new execution authority:
 reference agents advise, the acting Hermes role synthesizes, Hermes gates
-decide, openxFactory enforces, and Omnigent workers execute bounded work.
+decide, the xFactory layer enforces, and Omnigent workers execute bounded work.
 
 ## Roles
 
@@ -71,9 +78,10 @@ OpenSpec owns:
 
 OpenSpec remains the source of truth for approved requirement change intent.
 
-### openWorkflow / xFactory
+### xFactory Layer
 
-openWorkflow/xFactory is the domain-neutral workflow rail.
+The xFactory layer is the domain-neutral workflow rail inside `openxFactory` and
+inside every DomainxFactory.
 
 It owns:
 
@@ -87,11 +95,13 @@ It owns:
 - audit expectations
 - handoff boundaries between governance, execution, and enforcement systems
 
-openWorkflow does not define the domain-specific agent population. Domain factory repos define that.
+The xFactory layer does not define the domain-specific agent population. Domain
+factory repos define that.
 
-### Domain Factory Repos
+### DomainxFactory Repos
 
-Domain factory repos specialize the neutral workflow rail for a domain.
+DomainxFactory repos are instantiated domain stacks that consume `openxFactory`
+contracts and specialize the xFactory layer for a domain.
 
 Examples:
 
@@ -120,7 +130,8 @@ A domain factory owns:
 
 ### Domain Omnigent Layer
 
-A domain Omnigent layer executes bounded domain work under Hermes policy and openWorkflow gates.
+A domain Omnigent layer executes bounded domain work under Hermes policy and
+xFactory layer gates.
 
 It may produce:
 
@@ -159,10 +170,10 @@ The enforcement system depends on the domain.
 Hermes + OpenSpec
   owns intent, policy, approval, memory, and change history
 
-openWorkflow / xFactory
+xFactory layer
   owns contracts, gates, traceability, routing, state transitions, and audit rail
 
-Domain factory repo
+DomainxFactory repo
   owns domain-specific execution interpretation
 
 Domain Omnigent layer
@@ -175,13 +186,13 @@ External enforcement system
 
 ```text
 opencodexFactory
-  openWorkflow rail + engineering policy + coding agents + repo enforcement
+  xFactory layer + engineering policy + coding agents + repo enforcement
 
 MedxFactory
-  openWorkflow rail + medical policy + clinical agents + clinician review
+  xFactory layer + medical policy + clinical agents + clinician review
 
 OpsxFactory
-  openWorkflow rail + operations policy + IT agents + privileged action review
+  xFactory layer + operations policy + IT agents + privileged action review
 ```
 
 The two domain factories share workflow structure, but not domain artifacts or agent populations.

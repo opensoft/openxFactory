@@ -1,6 +1,20 @@
 # openxFactory
 
-`openxFactory` documents the domain-neutral xFactory workflow rail used by Opensoft domain factory projects.
+`openxFactory` documents the open reference stack and domain-neutral xFactory
+layer used by Opensoft domain factory projects.
+
+Use these terms precisely:
+
+- `xFactory` is the top-level product family and aggregation repository.
+- `openxFactory` is the open reference stack and canonical contract source.
+- The `xFactory layer` is the domain-neutral workflow, gate, traceability,
+  routing, source authority, memory promotion, credential, and audit layer
+  inside `openxFactory` and every DomainxFactory.
+- A `DomainxFactory` is an instantiated domain stack such as `MedxFactory`,
+  `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `openCodexFactory`.
+
+See [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
+for the stack, layer, and submodule ownership model.
 
 It defines reusable contracts for:
 
@@ -15,20 +29,20 @@ It defines reusable contracts for:
 
 ## Core Boundary
 
-`openxFactory` is domain-neutral.
+`openxFactory` is domain-neutral, but it is a stack, not only a layer.
 
 ```text
 Hermes
   owns intent, policy, memory, approval, and governance history.
 
-openxFactory / xFactory
+xFactory layer
   owns contracts, gates, traceability, routing, state transitions, and audit.
 
 Domain factory repos
   own domain-specific execution behavior.
 
 Domain Omnigent layers
-  run bounded domain agents under Hermes policy and openxFactory gates.
+  run bounded domain agents under Hermes policy and xFactory layer gates.
 
 External enforcement systems
   enforce final state where applicable.
@@ -52,6 +66,7 @@ OpsxFactory
 Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
+- [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
@@ -111,6 +126,9 @@ Canonical specs:
 ## Install Repo Pins
 
 `openxFactory` pins approved install repo revisions under `installs/` when needed.
+Long-term workspace aggregation belongs in the top-level `xFactory` repo, not in
+`openxFactory`. DomainxFactory repos should pin the `openxFactory` version they
+consume; `openxFactory` should not need to pin every DomainxFactory consumer.
 
 Current submodules:
 
