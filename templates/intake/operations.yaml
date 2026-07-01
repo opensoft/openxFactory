@@ -1,0 +1,223 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: operations
+  name: IT Operations, SysOps, MSP, And DevOps
+  recommended_factory_repo: OpsxFactory
+  description: Privileged operations workflows for tenants, systems, infrastructure, and developer platforms.
+
+taxonomy_defaults:
+  factory_type: operations
+  factory_subtype: identity_admin
+  target_domain: operations
+  target_domain_subtype: m365
+  client_industry: managed_service_provider
+  client_type: managed_service_provider
+  customer_subject_type: managed_system
+
+hermes_defaults:
+  domain_hermes: Operations Domain Hermes
+  client_hermes_aliases:
+    - IT Customer Hermes
+    - MSP Client Hermes
+    - DevOps Customer Hermes
+  customer_hermes_aliases:
+    - Managed System Hermes
+    - Tenant Hermes
+    - Service Hermes
+    - Production Workload Hermes
+
+supported_profiles:
+  - id: identity_admin.m365
+    label: Microsoft 365 And Entra ID
+    factory_subtype: identity_admin
+    target_domain: operations
+    target_domain_subtype: m365
+    client_types:
+      - managed_service_provider
+      - internal_it_team
+    customer_subject_types:
+      - tenant
+      - user_account
+      - security_group
+    starter_workflows:
+      - user_lifecycle
+      - mailbox_migration
+      - conditional_access_review
+    credential_families:
+      - microsoft_365_admin
+      - exchange_admin
+      - entra_directory_admin
+    high_risk_boundaries:
+      - privileged_admin_action
+      - tenant_wide_policy_change
+      - destructive_change
+
+  - id: devops.cloud
+    label: Cloud And DevOps
+    factory_subtype: devops
+    target_domain: operations
+    target_domain_subtype: cloud
+    client_types:
+      - devops_team
+      - software_company
+      - managed_service_provider
+    customer_subject_types:
+      - subscription
+      - workload
+      - deployment
+    starter_workflows:
+      - deployment_review
+      - backup_restore
+      - infrastructure_change
+    credential_families:
+      - cloud_read
+      - cloud_deploy
+      - backup_operator
+    high_risk_boundaries:
+      - production_impact
+      - outage
+      - destructive_change
+
+  - id: dns.network
+    label: DNS And Network
+    factory_subtype: network_ops
+    target_domain: operations
+    target_domain_subtype: dns
+    client_types:
+      - managed_service_provider
+      - internal_it_team
+    customer_subject_types:
+      - dns_zone
+      - network_device
+      - service_endpoint
+    starter_workflows:
+      - dns_record_update
+      - certificate_renewal
+      - domain_cutover
+    credential_families:
+      - dns_admin
+      - certificate_authority_access
+      - network_device_admin
+    high_risk_boundaries:
+      - service_outage
+      - domain_takeover_risk
+      - destructive_change
+
+recommended_questions:
+  - Which tenants, subscriptions, systems, or services are in scope?
+  - Which provider admin portals will this touch?
+  - Which actions are read-only, admin, destructive, or production-affecting?
+  - What maintenance windows apply?
+  - Who can approve privileged work?
+  - What rollback or restore path is required?
+
+common_workflows:
+  - id: user_lifecycle
+    risk: high
+    required_mix_mode: scored_vote
+  - id: mailbox_migration
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: dns_record_update
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: deployment_review
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: backup_restore
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: microsoft_365_admin
+    access_modes:
+      - delegated_oauth
+    actions:
+      - read
+      - admin
+  - id: exchange_admin
+    access_modes:
+      - delegated_oauth
+    actions:
+      - read
+      - admin
+  - id: dns_admin
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+      - write
+      - destructive
+  - id: cloud_deploy
+    access_modes:
+      - workload_identity
+      - delegated_oauth
+    actions:
+      - deploy
+      - admin
+  - id: entra_directory_admin
+    access_modes:
+      - delegated_oauth
+    actions:
+      - read
+      - admin
+  - id: cloud_read
+    access_modes:
+      - workload_identity
+      - delegated_oauth
+    actions:
+      - read
+  - id: backup_operator
+    access_modes:
+      - delegated_api
+      - workload_identity
+    actions:
+      - read
+      - admin
+  - id: certificate_authority_access
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+      - write
+  - id: network_device_admin
+    access_modes:
+      - delegated_api
+      - privileged_session
+    actions:
+      - read
+      - admin
+
+adapter_families:
+  - microsoft_365
+  - entra_id
+  - exchange_online
+  - azure
+  - aws
+  - gcp
+  - dns_provider
+  - backup_platform
+  - github
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  admin_requires_human_approval: true
+  destructive_requires_human_approval: true
+  production_change_requires_rollback_plan: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  credential_review: scored_vote
+  privileged_action_review: deliberative_council
+  rollback_review: deliberative_council
+
+runtime_binding_focus:
+  - admin consent
+  - delegated OAuth
+  - workload identity
+  - maintenance windows
+  - rollback or restore path
+  - privileged action audit

@@ -1,0 +1,3280 @@
+schema_version: 1
+kind: xfactory_subtype_install_readiness_pass1
+generated_at: '2026-07-01T01:00:27Z'
+meaning: Current catalog and local repo state before applying the fix runbook.
+groups:
+- template_id: medical
+  recommended_factory_repo: MedxFactory
+  repo_exists: true
+  subtypes:
+  - id: clinical_operations.clinic
+    label: Clinic Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - intake_summary
+    - referral_management
+    - patient_follow_up
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - scheduling_write
+    - patient_messaging_send
+    missing_adapter_contracts:
+    - ehr
+    - practice_management
+    - scheduling
+    - patient_messaging
+    runtime_gaps: &id001
+    - deployment_target_unbound
+    - hermes_runtime_unbound
+    - omnigent_runtime_unbound
+    - secret_provider_unbound
+    - credential_bindings_unbound
+    - adapter_endpoints_unbound
+    - approvers_unresolved
+    - runtime_validation_not_run
+    - dry_run_not_run
+    - live_approval_missing
+    runtime_binding_focus:
+    - ehr_connectivity
+    - scheduling_access
+    - patient_messaging_approval
+    - audit_store
+  - id: clinical_operations.group_practice
+    label: Group Practice Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - care_gap_review
+    - referral_management
+    - provider_panel_follow_up
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - care_team_roster_read
+    - scheduling_write
+    missing_adapter_contracts:
+    - ehr
+    - provider_directory
+    - scheduling
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - provider_roster
+    - ehr_access
+    - referral_sources
+    - care_team_approvers
+  - id: clinical_operations.hospital
+    label: Hospital Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - discharge_follow_up
+    - care_transition_review
+    - referral_management
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - care_team_roster_read
+    - scheduling_write
+    missing_adapter_contracts:
+    - ehr
+    - care_team_roster
+    - scheduling
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ehr_connectivity
+    - care_team_roster
+    - discharge_sources
+    - hospital_audit
+  - id: clinical_operations.pharmacy
+    label: Pharmacy Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - pharmacy_reconciliation
+    - refill_follow_up
+    - medication_access_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - pharmacy_system_read
+    - patient_messaging_send
+    - payer_portal_read
+    missing_adapter_contracts:
+    - pharmacy_system
+    - payer_portal
+    - patient_messaging
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - pharmacy_system_access
+    - payer_portal_access
+    - patient_consent
+    - pharmacist_review
+  - id: clinical_operations.imaging_center
+    label: Imaging Center Or IDTF
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - order_intake
+    - diagnostic_result_packet
+    - referring_provider_follow_up
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - imaging_system_read
+    - referral_document_read
+    - provider_messaging_send
+    missing_adapter_contracts:
+    - imaging_system
+    - referral_document_store
+    - provider_messaging
+    - scheduling
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - imaging_system_access
+    - referral_sources
+    - provider_messaging
+    - audit_store
+  - id: clinical_operations.telehealth
+    label: Telehealth Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - visit_intake
+    - follow_up_packet
+    - escalation_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - scheduling_write
+    - patient_messaging_send
+    missing_adapter_contracts:
+    - ehr
+    - telehealth_platform
+    - scheduling
+    - patient_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - telehealth_platform
+    - ehr_access
+    - patient_messaging
+    - clinical_escalation
+  - id: clinical_operations.lab
+    label: Lab Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - lab_order_intake
+    - abnormal_result_packet
+    - provider_follow_up
+    missing_template_credential_details:
+    - lab_system_read
+    missing_repo_credential_requirements:
+    - lab_system_read
+    - referral_document_read
+    - provider_messaging_send
+    missing_adapter_contracts:
+    - lis
+    - ehr
+    - provider_messaging
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - lis_access
+    - result_sources
+    - provider_messaging
+    - audit_store
+  - id: clinical_operations.behavioral_health
+    label: Behavioral Health Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - intake_summary
+    - follow_up_packet
+    - risk_escalation_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - scheduling_write
+    - patient_messaging_send
+    missing_adapter_contracts:
+    - ehr
+    - scheduling
+    - patient_messaging
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ehr_access
+    - sensitive_record_controls
+    - crisis_escalation
+    - messaging_approval
+  - id: clinical_operations.dental
+    label: Dental Operations
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - patient_intake
+    - treatment_plan_packet
+    - insurance_follow_up
+    missing_template_credential_details:
+    - practice_management_read
+    missing_repo_credential_requirements:
+    - practice_management_read
+    - scheduling_write
+    - patient_messaging_send
+    missing_adapter_contracts:
+    - dental_practice_management
+    - scheduling
+    - payer_portal
+    - patient_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - practice_management_access
+    - scheduling
+    - payer_portals
+    - patient_messaging
+  - id: clinical_operations.home_health
+    label: Home Health And Hospice
+    repo: MedxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - care_visit_review
+    - authorization_follow_up
+    - care_plan_update_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehr_patient_read
+    - scheduling_write
+    - payer_portal_read
+    missing_adapter_contracts:
+    - ehr
+    - scheduling
+    - payer_portal
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ehr_access
+    - scheduling_access
+    - payer_portals
+    - care_team_approvals
+- template_id: operations
+  recommended_factory_repo: OpsxFactory
+  repo_exists: true
+  subtypes:
+  - id: identity_admin.m365
+    label: Microsoft 365 And Entra ID
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - user_lifecycle
+    - mailbox_migration
+    - conditional_access_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - microsoft_365_admin
+    missing_adapter_contracts:
+    - microsoft_365
+    - entra_id
+    - exchange_online
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - admin_consent
+    - delegated_oauth
+    - tenant_id
+    - audit_log
+  - id: exchange.mailbox_migration
+    label: Exchange And Mailbox Migration
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - mailbox_inventory
+    - migration_batch_plan
+    - migration_status_review
+    missing_template_credential_details:
+    - document_repository_read
+    missing_repo_credential_requirements:
+    - microsoft_365_admin
+    - document_repository_read
+    missing_adapter_contracts:
+    - exchange_online
+    - microsoft_365
+    - migration_tool
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - exchange_admin_consent
+    - migration_endpoint
+    - maintenance_window
+    - audit_log
+  - id: endpoint.intune
+    label: Endpoint And Intune
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - device_inventory_review
+    - compliance_policy_review
+    - app_deployment_plan
+    missing_template_credential_details:
+    - intune_admin
+    missing_repo_credential_requirements:
+    - intune_admin
+    - microsoft_365_admin
+    missing_adapter_contracts:
+    - intune
+    - entra_id
+    - endpoint_management
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - intune_consent
+    - device_groups
+    - rollout_rings
+    - emergency_stop
+  - id: cloud_ops.azure
+    label: Azure Cloud Operations
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - subscription_review
+    - infrastructure_change
+    - backup_restore
+    missing_template_credential_details:
+    - azure_read
+    - azure_operator
+    missing_repo_credential_requirements:
+    - azure_read
+    - azure_operator
+    missing_adapter_contracts:
+    - azure
+    - backup_platform
+    - observability
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - workload_identity
+    - subscription_access
+    - backup_access
+    - audit_log
+  - id: cloud_ops.aws
+    label: AWS Cloud Operations
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - account_review
+    - infrastructure_change
+    - incident_packet
+    missing_template_credential_details:
+    - aws_read
+    - aws_operator
+    missing_repo_credential_requirements:
+    - aws_read
+    - aws_operator
+    missing_adapter_contracts:
+    - aws
+    - backup_platform
+    - observability
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - iam_role
+    - account_access
+    - cloudtrail
+    - backup_access
+  - id: dns.domain_ops
+    label: DNS And Domain Operations
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - dns_record_update
+    - domain_cutover
+    - certificate_renewal
+    missing_template_credential_details:
+    - document_repository_read
+    missing_repo_credential_requirements:
+    - certificate_authority_access
+    - document_repository_read
+    missing_adapter_contracts:
+    - dns_provider
+    - certificate_authority
+    - monitoring
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - dns_api_access
+    - zone_refs
+    - certificate_refs
+    - monitoring
+  - id: backup.dr
+    label: Backup And Disaster Recovery
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - backup_inventory
+    - restore_test_plan
+    - recovery_readiness_review
+    missing_template_credential_details:
+    - document_repository_read
+    missing_repo_credential_requirements:
+    - cloud_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - backup_platform
+    - cloud_provider
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - backup_platform_access
+    - restore_test_env
+    - audit_log
+    - approval_path
+  - id: network.firewall
+    label: Network And Firewall Operations
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - rule_review
+    - change_plan
+    - post_change_validation
+    missing_template_credential_details:
+    - monitoring_read
+    - document_repository_read
+    missing_repo_credential_requirements:
+    - network_device_admin
+    - monitoring_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - firewall
+    - network_device
+    - monitoring
+    - ticketing
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - device_access
+    - monitoring_access
+    - change_window
+    - rollback_path
+  - id: devops.github_org
+    label: GitHub Organization Operations
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - org_access_review
+    - branch_protection_review
+    - repo_settings_update
+    missing_template_credential_details:
+    - github_org_admin
+    - repo_read
+    - branch_write
+    missing_repo_credential_requirements:
+    - repo_read
+    - branch_write
+    missing_adapter_contracts:
+    - github
+    - ci_cd
+    - ticketing
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - github_app_install
+    - org_permissions
+    - repo_list
+    - audit_log
+  - id: security.incident_response
+    label: Security Incident Response
+    repo: OpsxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - incident_intake
+    - containment_plan
+    - post_incident_review
+    missing_template_credential_details:
+    - siem_read
+    - endpoint_read
+    missing_repo_credential_requirements:
+    - siem_read
+    - endpoint_read
+    - cloud_read
+    missing_adapter_contracts:
+    - siem
+    - edr
+    - cloud_provider
+    - ticketing
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - siem_access
+    - edr_access
+    - incident_channel
+    - evidence_store
+- template_id: accounting
+  recommended_factory_repo: LedgerxFactory
+  repo_exists: true
+  subtypes:
+  - id: bookkeeping.small_business
+    label: Small Business Bookkeeping
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - client_intake
+    - bank_feed_review
+    - reconciliation
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - accounting_system_read
+    - bank_feed_read
+    - document_store_read
+    missing_adapter_contracts:
+    - quickbooks
+    - xero
+    - bank_feed
+    - document_store
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - accounting_system_access
+    - bank_feed_access
+    - client_approvers
+    - audit_trail
+  - id: bookkeeping.property_management
+    label: Property Management Bookkeeping
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - rent_roll_review
+    - owner_statement_packet
+    - reconciliation
+    missing_template_credential_details:
+    - property_management_system_read
+    missing_repo_credential_requirements:
+    - property_management_system_read
+    - bank_feed_read
+    - document_store_read
+    missing_adapter_contracts:
+    - property_management_system
+    - accounting_system
+    - bank_feed
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - property_system_access
+    - accounting_access
+    - owner_approvers
+    - audit_trail
+  - id: tax.individual
+    label: Individual Tax
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - tax_document_intake
+    - organizer_review
+    - filing_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - tax_portal_access
+    - document_store_read
+    - accounting_system_read
+    missing_adapter_contracts:
+    - tax_portal
+    - document_store
+    - tax_software
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - tax_portal_access
+    - document_store
+    - preparer_approver
+    - audit_trail
+  - id: tax.business
+    label: Business Tax
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - tax_packet_preparation
+    - filing_review
+    - notice_response_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - tax_portal_access
+    - document_store_read
+    - accounting_system_read
+    missing_adapter_contracts:
+    - tax_portal
+    - document_store
+    - accounting_system
+    - tax_software
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - tax_portal_access
+    - accounting_access
+    - signer_approval
+    - audit_trail
+  - id: audit.support
+    label: Audit Support
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - audit_evidence_request
+    - control_evidence_packet
+    - exception_response
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - document_store_read
+    - accounting_system_read
+    - erp_read
+    missing_adapter_contracts:
+    - document_store
+    - accounting_system
+    - erp
+    - audit_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - evidence_repository
+    - erp_access
+    - audit_approvers
+    - retention_rules
+  - id: month_end.close
+    label: Month-End Close
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - close_checklist_review
+    - accrual_packet
+    - variance_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - accounting_system_read
+    - erp_read
+    - document_store_read
+    missing_adapter_contracts:
+    - erp
+    - accounting_system
+    - document_store
+    - spreadsheet
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - erp_access
+    - close_calendar
+    - controller_approver
+    - audit_trail
+  - id: payroll.ops
+    label: Payroll Operations
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - payroll_precheck
+    - exception_review
+    - payroll_approval_packet
+    missing_template_credential_details:
+    - payroll_system_read
+    missing_repo_credential_requirements:
+    - payroll_system_read
+    - document_store_read
+    - tax_portal_access
+    missing_adapter_contracts:
+    - payroll_system
+    - document_store
+    - tax_portal
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - payroll_system_access
+    - employee_data_controls
+    - approver_roles
+    - audit_trail
+  - id: accounts_payable.ops
+    label: Accounts Payable
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - invoice_intake
+    - approval_match_review
+    - payment_packet
+    missing_template_credential_details:
+    - ap_system_read
+    - vendor_master_read
+    missing_repo_credential_requirements:
+    - ap_system_read
+    - document_store_read
+    - vendor_master_read
+    missing_adapter_contracts:
+    - ap_system
+    - erp
+    - document_store
+    - payment_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ap_system_access
+    - approval_matrix
+    - vendor_master
+    - audit_trail
+  - id: accounts_receivable.ops
+    label: Accounts Receivable
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - ar_aging_review
+    - collection_follow_up_packet
+    - cash_application_review
+    missing_template_credential_details:
+    - ar_system_read
+    - customer_messaging_send
+    missing_repo_credential_requirements:
+    - ar_system_read
+    - document_store_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - ar_system
+    - erp
+    - document_store
+    - customer_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ar_system_access
+    - messaging_access
+    - finance_approvers
+    - audit_trail
+  - id: controller.finance_ops
+    label: Controller Finance Operations
+    repo: LedgerxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - management_report_packet
+    - budget_variance_review
+    - board_packet_support
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - erp_read
+    - accounting_system_read
+    - document_store_read
+    missing_adapter_contracts:
+    - erp
+    - accounting_system
+    - bi_platform
+    - document_store
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - erp_access
+    - reporting_sources
+    - controller_approver
+    - retention_rules
+- template_id: marketing
+  recommended_factory_repo: AdxFactory
+  repo_exists: true
+  subtypes:
+  - id: campaign_ops.paid_media
+    label: Paid Media Campaign Operations
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - campaign_intake
+    - creative_review
+    - budget_adjustment
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ad_account_read
+    - ad_account_write
+    - analytics_read
+    missing_adapter_contracts:
+    - google_ads
+    - meta_ads
+    - linkedin_ads
+    - analytics
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ad_account_connection
+    - analytics_access
+    - spend_approvers
+    - brand_policy
+  - id: lifecycle.email
+    label: Lifecycle Email And CRM
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - segment_review
+    - email_send_review
+    - attribution_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - crm_read
+    - email_send
+    - analytics_read
+    missing_adapter_contracts:
+    - crm
+    - email_platform
+    - analytics
+    - consent_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - crm_access
+    - email_platform_access
+    - consent_source
+    - send_approvers
+  - id: brand.claims
+    label: Brand And Claims Review
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - claim_review
+    - landing_page_review
+    - campaign_launch_readiness
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - creative_asset_read
+    - cms_write
+    - legal_source_read
+    missing_adapter_contracts:
+    - creative_asset_store
+    - cms
+    - legal_source
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - asset_store_access
+    - cms_access
+    - legal_sources
+    - brand_approvers
+  - id: content.seo
+    label: Content And SEO
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - content_brief
+    - seo_review
+    - publish_readiness
+    missing_template_credential_details:
+    - search_console_read
+    missing_repo_credential_requirements:
+    - cms_write
+    - analytics_read
+    - search_console_read
+    missing_adapter_contracts:
+    - cms
+    - analytics
+    - search_console
+    - keyword_tool
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - cms_access
+    - search_console_access
+    - analytics_access
+    - publish_approvers
+  - id: social.community
+    label: Social And Community
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - post_review
+    - response_draft
+    - escalation_packet
+    missing_template_credential_details:
+    - social_read
+    - social_publish
+    missing_repo_credential_requirements:
+    - social_read
+    - social_publish
+    - creative_asset_read
+    missing_adapter_contracts:
+    - social_platform
+    - community_platform
+    - creative_asset_store
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - social_account_access
+    - moderation_policy
+    - publish_approvers
+    - escalation_channel
+  - id: product_marketing.launch
+    label: Product Marketing Launch
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - launch_intake
+    - positioning_review
+    - launch_readiness
+    missing_template_credential_details:
+    - document_store_read
+    missing_repo_credential_requirements:
+    - document_store_read
+    - cms_write
+    - analytics_read
+    missing_adapter_contracts:
+    - document_store
+    - cms
+    - analytics
+    - project_management
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - source_docs
+    - cms_access
+    - launch_approvers
+    - analytics_access
+  - id: analytics.attribution
+    label: Analytics And Attribution
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - tracking_audit
+    - attribution_review
+    - performance_report
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - analytics_read
+    - ad_account_read
+    - crm_read
+    missing_adapter_contracts:
+    - analytics
+    - ad_platform
+    - crm
+    - bi_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - analytics_access
+    - ad_account_access
+    - crm_access
+    - report_approvers
+  - id: ecommerce.growth
+    label: Ecommerce Growth
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - offer_review
+    - promo_launch_review
+    - conversion_analysis
+    missing_template_credential_details:
+    - ecommerce_platform_read
+    missing_repo_credential_requirements:
+    - ecommerce_platform_read
+    - cms_write
+    - analytics_read
+    missing_adapter_contracts:
+    - ecommerce_platform
+    - cms
+    - analytics
+    - email_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - storefront_access
+    - cms_access
+    - analytics_access
+    - promotion_approvers
+  - id: partner.channel
+    label: Partner And Channel Marketing
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - partner_campaign_intake
+    - co_marketing_review
+    - enablement_packet
+    missing_template_credential_details:
+    - partner_portal_read
+    - document_store_read
+    missing_repo_credential_requirements:
+    - partner_portal_read
+    - document_store_read
+    - cms_write
+    missing_adapter_contracts:
+    - partner_portal
+    - document_store
+    - cms
+    - crm
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - partner_portal_access
+    - asset_store
+    - approval_matrix
+    - cms_access
+  - id: pr.communications
+    label: PR And Communications
+    repo: AdxFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - message_intake
+    - statement_review
+    - media_response_packet
+    missing_template_credential_details:
+    - document_store_read
+    - media_list_read
+    missing_repo_credential_requirements:
+    - document_store_read
+    - cms_write
+    - media_list_read
+    missing_adapter_contracts:
+    - document_store
+    - cms
+    - media_database
+    - pr_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - source_docs
+    - cms_access
+    - legal_approvers
+    - media_database
+- template_id: software
+  recommended_factory_repo: openCodexFactory
+  repo_exists: true
+  subtypes:
+  - id: product_engineering.repo_delivery
+    label: Repo And Feature Delivery
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - approved_intent_intake
+    - feature_decomposition
+    - pr_admission
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - repo_read
+    - branch_write
+    - pr_write
+    missing_adapter_contracts:
+    - github
+    - gitlab
+    - ci_cd
+    - issue_tracker
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - repo_access
+    - branch_protection
+    - ci_access
+    - review_approvers
+  - id: release_ops.cicd
+    label: Release And CI/CD
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - release_readiness
+    - deployment_review
+    - rollback_plan_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ci_read
+    - deployment_operator
+    - cloud_read
+    missing_adapter_contracts:
+    - ci_cd
+    - cloud_provider
+    - package_registry
+    - observability
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ci_access
+    - deployment_identity
+    - cloud_read
+    - release_approvers
+  - id: incident_response.software
+    label: Software Incident Response
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - incident_intake
+    - root_cause_packet
+    - remediation_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - observability_read
+    - repo_read
+    - deployment_operator
+    missing_adapter_contracts:
+    - observability
+    - github
+    - ci_cd
+    - incident_management
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - observability_access
+    - incident_channel
+    - repo_access
+    - deployment_authority
+  - id: security.appsec
+    label: Application Security
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - finding_triage
+    - secure_fix_plan
+    - security_review_packet
+    missing_template_credential_details:
+    - security_scanner_read
+    - issue_tracker_write
+    missing_repo_credential_requirements:
+    - repo_read
+    - security_scanner_read
+    - issue_tracker_write
+    missing_adapter_contracts:
+    - github
+    - security_scanner
+    - issue_tracker
+    - ci_cd
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - scanner_access
+    - repo_access
+    - issue_tracker_access
+    - security_approvers
+  - id: data_engineering.pipelines
+    label: Data Engineering Pipelines
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - pipeline_intake
+    - data_quality_review
+    - pipeline_change_packet
+    missing_template_credential_details:
+    - data_catalog_read
+    - pipeline_operator
+    missing_repo_credential_requirements:
+    - repo_read
+    - data_catalog_read
+    - pipeline_operator
+    missing_adapter_contracts:
+    - data_catalog
+    - orchestrator
+    - warehouse
+    - repo
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - catalog_access
+    - orchestrator_access
+    - warehouse_read
+    - data_approvers
+  - id: mlops.model_delivery
+    label: MLOps And Model Delivery
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - model_eval_packet
+    - deployment_readiness
+    - monitoring_review
+    missing_template_credential_details:
+    - model_registry_read
+    missing_repo_credential_requirements:
+    - model_registry_read
+    - ci_read
+    - deployment_operator
+    missing_adapter_contracts:
+    - model_registry
+    - ci_cd
+    - observability
+    - feature_store
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - model_registry_access
+    - ci_access
+    - monitoring_access
+    - deployment_approvers
+  - id: platform_engineering.internal_tools
+    label: Platform Engineering And Internal Tools
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - platform_request_intake
+    - tool_change_review
+    - rollout_readiness
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - repo_read
+    - cloud_read
+    - deployment_operator
+    missing_adapter_contracts:
+    - github
+    - cloud_provider
+    - ci_cd
+    - service_catalog
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - repo_access
+    - service_catalog
+    - cloud_read
+    - rollout_approvers
+  - id: qa.test_automation
+    label: QA And Test Automation
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - test_gap_review
+    - test_plan_packet
+    - release_quality_review
+    missing_template_credential_details:
+    - issue_tracker_write
+    missing_repo_credential_requirements:
+    - repo_read
+    - ci_read
+    - issue_tracker_write
+    missing_adapter_contracts:
+    - github
+    - ci_cd
+    - test_management
+    - issue_tracker
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - repo_access
+    - ci_access
+    - test_results
+    - qa_approvers
+  - id: docs.developer_experience
+    label: Documentation And Developer Experience
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - docs_gap_review
+    - api_doc_update
+    - onboarding_packet
+    missing_template_credential_details:
+    - cms_write
+    missing_repo_credential_requirements:
+    - repo_read
+    - branch_write
+    - cms_write
+    missing_adapter_contracts:
+    - github
+    - docs_site
+    - cms
+    - analytics
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - repo_access
+    - docs_publish_access
+    - review_approvers
+    - analytics_access
+  - id: product_management.requirements
+    label: Product Management And Requirements
+    repo: openCodexFactory
+    repo_exists: true
+    max_readiness: domain_scaffold_required
+    domain_gaps:
+    - adapter_contracts_missing
+    - credential_requirements_file_missing
+    - domain_validator_missing
+    - hermes_agent_mixes_missing
+    - repo_credential_requirements_missing
+    - subtype_profile_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - intent_intake
+    - requirement_clarification
+    - acceptance_criteria_packet
+    missing_template_credential_details:
+    - issue_tracker_read
+    - document_store_read
+    missing_repo_credential_requirements:
+    - issue_tracker_read
+    - document_store_read
+    - repo_read
+    missing_adapter_contracts:
+    - issue_tracker
+    - document_store
+    - roadmap_tool
+    - repo
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - issue_tracker_access
+    - docs_access
+    - stakeholder_approvers
+    - repo_context
+- template_id: law
+  recommended_factory_repo: LegalxFactory
+  repo_exists: false
+  subtypes:
+  - id: compliance.medical.pharmacy
+    label: Medical Compliance - Pharmacy
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - compliance_intake
+    - regulation_mapping
+    - remediation_plan_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - regulation_source_read
+    - policy_document_read
+    - evidence_repository_read
+    missing_adapter_contracts:
+    - legal_research
+    - compliance_management_system
+    - policy_repository
+    - evidence_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - legal_sources
+    - policy_docs
+    - evidence_repository
+    - professional_approvers
+  - id: compliance.medical.clinic
+    label: Medical Compliance - Clinic
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - policy_gap_review
+    - evidence_request_packet
+    - corrective_action_plan
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - policy_document_read
+    - evidence_repository_read
+    - compliance_system_read
+    missing_adapter_contracts:
+    - legal_research
+    - policy_repository
+    - compliance_management_system
+    - evidence_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - policy_docs
+    - evidence_repository
+    - compliance_system
+    - attorney_or_consultant_approvers
+  - id: compliance.privacy.healthcare
+    label: Healthcare Privacy Compliance
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - privacy_assessment
+    - incident_review_packet
+    - policy_update_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - policy_document_read
+    - evidence_repository_read
+    - incident_record_read
+    missing_adapter_contracts:
+    - legal_research
+    - incident_management
+    - policy_repository
+    - evidence_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - incident_records
+    - policy_docs
+    - evidence_store
+    - counsel_approvers
+  - id: compliance.employment.payroll
+    label: Employment Compliance - Payroll
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - payroll_policy_review
+    - wage_hour_gap_packet
+    - remediation_plan_review
+    missing_template_credential_details:
+    - payroll_record_read
+    missing_repo_credential_requirements:
+    - regulation_source_read
+    - policy_document_read
+    - payroll_record_read
+    missing_adapter_contracts:
+    - legal_research
+    - payroll_system
+    - policy_repository
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - legal_sources
+    - payroll_record_refs
+    - policy_docs
+    - counsel_approvers
+  - id: compliance.finance.broker_dealer
+    label: Financial Compliance - Broker Dealer
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - rule_mapping
+    - supervisory_policy_review
+    - exam_response_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - regulation_source_read
+    - policy_document_read
+    - evidence_repository_read
+    missing_adapter_contracts:
+    - legal_research
+    - compliance_management_system
+    - policy_repository
+    - evidence_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - regulatory_sources
+    - policy_docs
+    - evidence_repository
+    - compliance_approvers
+  - id: contract_review.saas.vendor
+    label: SaaS Vendor Contract Review
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - contract_intake
+    - clause_review
+    - redline_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - document_store_read
+    - contract_repository_read
+    - redline_workspace_write
+    missing_adapter_contracts:
+    - contract_lifecycle_management
+    - document_repository
+    - redline_workspace
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - contract_repository
+    - playbook_docs
+    - redline_workspace
+    - attorney_approvers
+  - id: contract_review.healthcare.vendor
+    label: Healthcare Vendor Contract Review
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - contract_intake
+    - compliance_clause_review
+    - redline_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - document_store_read
+    - contract_repository_read
+    - regulation_source_read
+    missing_adapter_contracts:
+    - contract_lifecycle_management
+    - legal_research
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - contract_repository
+    - regulatory_sources
+    - privacy_playbook
+    - attorney_approvers
+  - id: legal_ops.matter_management
+    label: Legal Operations And Matter Management
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - matter_intake
+    - deadline_review
+    - status_packet
+    missing_template_credential_details:
+    - matter_management_read
+    - calendar_read
+    missing_repo_credential_requirements:
+    - matter_management_read
+    - document_store_read
+    - calendar_read
+    missing_adapter_contracts:
+    - matter_management
+    - document_repository
+    - calendar
+    - email
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - matter_system_access
+    - calendar_access
+    - document_store
+    - privilege_boundaries
+  - id: litigation.discovery
+    label: Litigation Discovery Support
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - discovery_request_intake
+    - evidence_index_packet
+    - privilege_review_packet
+    missing_template_credential_details:
+    - ediscovery_platform_read
+    - privilege_log_write
+    missing_repo_credential_requirements:
+    - document_store_read
+    - ediscovery_platform_read
+    - privilege_log_write
+    missing_adapter_contracts:
+    - ediscovery_platform
+    - document_repository
+    - matter_management
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ediscovery_access
+    - document_store
+    - privilege_reviewers
+    - deadline_calendar
+  - id: policy.governance
+    label: Policy Governance
+    repo: LegalxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - policy_intake
+    - policy_gap_review
+    - approval_packet
+    missing_template_credential_details:
+    - approval_system_write
+    missing_repo_credential_requirements:
+    - policy_document_read
+    - evidence_repository_read
+    - approval_system_write
+    missing_adapter_contracts:
+    - policy_repository
+    - compliance_management_system
+    - approval_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - policy_repository
+    - approval_system
+    - control_sources
+    - governance_approvers
+- template_id: insurance
+  recommended_factory_repo: InsurexFactory
+  repo_exists: false
+  subtypes:
+  - id: claims.property_casualty
+    label: Property And Casualty Claims
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - claim_intake
+    - evidence_packet
+    - coverage_review_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - policy_admin_read
+    - claims_system_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - claims_system
+    - policy_admin
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - claims_access
+    - policy_admin_access
+    - evidence_repository
+    - claim_approvers
+  - id: claims.health
+    label: Health Insurance Claims
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - claim_intake
+    - medical_necessity_packet
+    - denial_review_packet
+    missing_template_credential_details:
+    - provider_portal_read
+    missing_repo_credential_requirements:
+    - claims_system_read
+    - policy_admin_read
+    - provider_portal_read
+    missing_adapter_contracts:
+    - claims_system
+    - payer_system
+    - provider_portal
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - claims_access
+    - member_privacy_controls
+    - provider_sources
+    - reviewer_approvers
+  - id: claims.workers_comp
+    label: Workers Compensation Claims
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - claim_intake
+    - medical_record_packet
+    - return_to_work_review
+    missing_template_credential_details:
+    - medical_record_read
+    missing_repo_credential_requirements:
+    - claims_system_read
+    - document_repository_read
+    - medical_record_read
+    missing_adapter_contracts:
+    - claims_system
+    - document_repository
+    - medical_record_source
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - claims_access
+    - medical_record_sources
+    - jurisdiction_rules
+    - adjuster_approvers
+  - id: underwriting.commercial
+    label: Commercial Underwriting
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - submission_intake
+    - risk_evidence_review
+    - quote_readiness_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - underwriting_system_read
+    - document_repository_read
+    - rating_system_read
+    missing_adapter_contracts:
+    - underwriting_system
+    - rating_system
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - underwriting_system_access
+    - rating_system
+    - guideline_sources
+    - underwriter_approvers
+  - id: underwriting.personal_lines
+    label: Personal Lines Underwriting
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - application_intake
+    - risk_factor_review
+    - quote_readiness_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - underwriting_system_read
+    - rating_system_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - underwriting_system
+    - rating_system
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - underwriting_access
+    - rating_access
+    - eligibility_rules
+    - approval_roles
+  - id: policy_ops.brokerage
+    label: Brokerage Policy Operations
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - renewal_review
+    - certificate_request
+    - policy_change_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - agency_management_read
+    - carrier_portal_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - agency_management
+    - carrier_portal
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - agency_management_access
+    - carrier_portals
+    - producer_approvers
+    - document_store
+  - id: actuarial.pricing
+    label: Actuarial And Pricing Support
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - data_intake_review
+    - assumption_packet
+    - pricing_review_packet
+    missing_template_credential_details:
+    - data_warehouse_read
+    - model_repository_read
+    missing_repo_credential_requirements:
+    - data_warehouse_read
+    - model_repository_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - data_warehouse
+    - model_repository
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - data_access
+    - model_repository
+    - actuarial_reviewers
+    - audit_trail
+  - id: insurance.compliance
+    label: Insurance Compliance
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - rule_mapping
+    - filing_readiness_packet
+    - audit_response
+    missing_template_credential_details:
+    - regulation_source_read
+    - policy_document_read
+    - evidence_repository_read
+    missing_repo_credential_requirements:
+    - regulation_source_read
+    - policy_document_read
+    - evidence_repository_read
+    missing_adapter_contracts:
+    - legal_research
+    - compliance_management_system
+    - policy_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - regulatory_sources
+    - policy_docs
+    - evidence_repository
+    - compliance_approvers
+  - id: subrogation.recovery
+    label: Subrogation And Recovery
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - recovery_opportunity_review
+    - demand_packet
+    - follow_up_review
+    missing_template_credential_details:
+    - customer_messaging_send
+    missing_repo_credential_requirements:
+    - claims_system_read
+    - document_repository_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - claims_system
+    - document_repository
+    - messaging_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - claims_access
+    - document_store
+    - messaging_approval
+    - counsel_approvers
+  - id: risk_engineering.loss_control
+    label: Risk Engineering And Loss Control
+    repo: InsurexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - inspection_packet
+    - recommendation_review
+    - follow_up_packet
+    missing_template_credential_details:
+    - inspection_system_read
+    - customer_messaging_send
+    missing_repo_credential_requirements:
+    - inspection_system_read
+    - document_repository_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - inspection_system
+    - document_repository
+    - customer_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - inspection_system
+    - document_store
+    - insured_messaging
+    - underwriter_approvers
+- template_id: manufacturing
+  recommended_factory_repo: MakexFactory
+  repo_exists: false
+  subtypes:
+  - id: quality_ops.plant
+    label: Plant Quality Operations
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - nonconformance_intake
+    - root_cause_packet
+    - corrective_action_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - qms_read
+    - document_repository_read
+    - erp_read
+    missing_adapter_contracts:
+    - qms
+    - erp
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - qms_access
+    - erp_access
+    - quality_approvers
+    - audit_trail
+  - id: maintenance.asset
+    label: Maintenance And Asset Operations
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - work_order_triage
+    - preventive_maintenance_review
+    - downtime_root_cause_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - cmms_read
+    - sensor_data_read
+    - work_order_write
+    missing_adapter_contracts:
+    - cmms
+    - historian
+    - sensor_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - cmms_access
+    - sensor_sources
+    - work_order_permissions
+    - maintenance_approvers
+  - id: safety.ehs
+    label: Safety And EHS
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - safety_incident_packet
+    - hazard_review
+    - training_gap_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ehs_system_read
+    - policy_document_read
+    - training_system_read
+    missing_adapter_contracts:
+    - ehs_system
+    - training_system
+    - policy_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - ehs_access
+    - training_access
+    - safety_approvers
+    - regulatory_sources
+  - id: production_planning.scheduling
+    label: Production Planning And Scheduling
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - schedule_review
+    - constraint_packet
+    - change_impact_review
+    missing_template_credential_details:
+    - mes_read
+    - scheduling_write
+    missing_repo_credential_requirements:
+    - erp_read
+    - mes_read
+    - scheduling_write
+    missing_adapter_contracts:
+    - erp
+    - mes
+    - planning_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - erp_access
+    - mes_access
+    - schedule_write_permissions
+    - planner_approvers
+  - id: procurement.supplier_quality
+    label: Supplier Quality And Procurement
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - supplier_intake
+    - supplier_quality_review
+    - purchase_order_packet
+    missing_template_credential_details:
+    - supplier_portal_read
+    missing_repo_credential_requirements:
+    - erp_read
+    - supplier_portal_read
+    - qms_read
+    missing_adapter_contracts:
+    - erp
+    - supplier_portal
+    - qms
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - erp_access
+    - supplier_portal
+    - qms_access
+    - procurement_approvers
+  - id: inventory.materials
+    label: Inventory And Materials
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - inventory_exception_review
+    - shortage_packet
+    - replenishment_review
+    missing_template_credential_details:
+    - inventory_write
+    - warehouse_system_read
+    missing_repo_credential_requirements:
+    - erp_read
+    - inventory_write
+    - warehouse_system_read
+    missing_adapter_contracts:
+    - erp
+    - wms
+    - inventory_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - inventory_access
+    - erp_access
+    - adjustment_approvers
+    - audit_trail
+  - id: regulatory.gmp
+    label: GMP And Regulated Manufacturing
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - batch_record_review
+    - deviation_packet
+    - validation_readiness
+    missing_template_credential_details:
+    - mes_read
+    missing_repo_credential_requirements:
+    - qms_read
+    - document_repository_read
+    - mes_read
+    missing_adapter_contracts:
+    - qms
+    - mes
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - qms_access
+    - batch_records
+    - qa_approvers
+    - audit_trail
+  - id: engineering.change_control
+    label: Engineering Change Control
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - change_intake
+    - impact_review
+    - approval_packet
+    missing_template_credential_details:
+    - plm_read
+    missing_repo_credential_requirements:
+    - plm_read
+    - document_repository_read
+    - erp_read
+    missing_adapter_contracts:
+    - plm
+    - document_repository
+    - erp
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - plm_access
+    - document_store
+    - approval_matrix
+    - audit_trail
+  - id: field_service.equipment
+    label: Field Service Equipment
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - service_case_intake
+    - parts_review
+    - service_follow_up_packet
+    missing_template_credential_details:
+    - field_service_system_read
+    - inventory_read
+    - customer_messaging_send
+    missing_repo_credential_requirements:
+    - field_service_system_read
+    - inventory_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - field_service_system
+    - inventory_system
+    - customer_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - field_service_access
+    - inventory_access
+    - messaging_access
+    - service_approvers
+  - id: energy.utilities_ops
+    label: Utilities And Energy Operations
+    repo: MakexFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - asset_review
+    - outage_packet
+    - maintenance_plan_review
+    missing_template_credential_details:
+    - asset_system_read
+    missing_repo_credential_requirements:
+    - asset_system_read
+    - sensor_data_read
+    - work_order_write
+    missing_adapter_contracts:
+    - asset_management
+    - historian
+    - cmms
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - asset_system_access
+    - historian_access
+    - work_order_permissions
+    - operator_approvers
+- template_id: logistics
+  recommended_factory_repo: FlowxFactory
+  repo_exists: false
+  subtypes:
+  - id: freight_ops.carrier
+    label: Freight And Carrier Operations
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - shipment_intake
+    - carrier_exception_review
+    - delivery_follow_up
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - tms_read
+    - carrier_portal_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - tms
+    - carrier_portal
+    - customer_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - tms_access
+    - carrier_portals
+    - messaging_approval
+    - audit_trail
+  - id: warehouse_ops.inventory
+    label: Warehouse And Inventory
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - inventory_exception_review
+    - pick_pack_issue_packet
+    - replenishment_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - wms_read
+    - inventory_write
+    - erp_read
+    missing_adapter_contracts:
+    - wms
+    - erp
+    - inventory_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - wms_access
+    - inventory_write_permissions
+    - erp_access
+    - warehouse_approvers
+  - id: supply_chain.procurement
+    label: Supply Chain And Procurement
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - supplier_intake
+    - shortage_review
+    - purchase_order_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - erp_read
+    - supplier_portal_read
+    - procurement_system_write
+    missing_adapter_contracts:
+    - erp
+    - supplier_portal
+    - procurement_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - erp_access
+    - supplier_portal
+    - procurement_system
+    - approval_matrix
+  - id: transportation.fleet
+    label: Fleet And Transportation
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - fleet_issue_intake
+    - route_exception_review
+    - maintenance_follow_up
+    missing_template_credential_details:
+    - fleet_system_read
+    - telematics_read
+    missing_repo_credential_requirements:
+    - fleet_system_read
+    - telematics_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - fleet_system
+    - telematics
+    - tms
+    - customer_messaging
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - fleet_access
+    - telematics_access
+    - dispatch_approvers
+    - messaging_approval
+  - id: cold_chain.compliance
+    label: Cold Chain Compliance
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - temperature_exception_packet
+    - lane_review
+    - compliance_follow_up
+    missing_template_credential_details:
+    - sensor_data_read
+    - evidence_repository_read
+    missing_repo_credential_requirements:
+    - tms_read
+    - sensor_data_read
+    - evidence_repository_read
+    missing_adapter_contracts:
+    - tms
+    - sensor_platform
+    - evidence_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - sensor_access
+    - tms_access
+    - quality_approvers
+    - evidence_store
+  - id: customs.trade_compliance
+    label: Customs And Trade Compliance
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - entry_intake
+    - classification_review
+    - documentation_packet
+    missing_template_credential_details:
+    - customs_system_read
+    - document_repository_read
+    - regulation_source_read
+    missing_repo_credential_requirements:
+    - customs_system_read
+    - document_repository_read
+    - regulation_source_read
+    missing_adapter_contracts:
+    - customs_system
+    - document_repository
+    - legal_research
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - customs_system_access
+    - regulation_sources
+    - broker_approvers
+    - document_store
+  - id: last_mile.delivery
+    label: Last Mile Delivery
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - delivery_exception_review
+    - customer_update_packet
+    - route_adjustment
+    missing_template_credential_details:
+    - delivery_platform_read
+    - order_system_read
+    missing_repo_credential_requirements:
+    - delivery_platform_read
+    - customer_messaging_send
+    - order_system_read
+    missing_adapter_contracts:
+    - delivery_platform
+    - customer_messaging
+    - order_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - delivery_platform_access
+    - order_system
+    - messaging_access
+    - dispatcher_approvers
+  - id: reverse_logistics.returns
+    label: Reverse Logistics And Returns
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - return_intake
+    - disposition_review
+    - vendor_claim_packet
+    missing_template_credential_details:
+    - order_system_read
+    missing_repo_credential_requirements:
+    - wms_read
+    - order_system_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - wms
+    - order_system
+    - customer_messaging
+    - vendor_portal
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - wms_access
+    - order_system
+    - messaging_access
+    - approval_matrix
+  - id: logistics.customer_service
+    label: Logistics Customer Service
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - case_intake
+    - status_response_draft
+    - escalation_packet
+    missing_template_credential_details:
+    - crm_read
+    missing_repo_credential_requirements:
+    - tms_read
+    - customer_messaging_send
+    - crm_read
+    missing_adapter_contracts:
+    - tms
+    - crm
+    - customer_messaging
+    - ticketing
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - crm_access
+    - tms_access
+    - messaging_approval
+    - escalation_channel
+  - id: planning.demand_forecast
+    label: Demand Planning And Forecasting
+    repo: FlowxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - forecast_intake
+    - variance_review
+    - demand_plan_packet
+    missing_template_credential_details:
+    - inventory_read
+    - analytics_read
+    missing_repo_credential_requirements:
+    - erp_read
+    - inventory_read
+    - analytics_read
+    missing_adapter_contracts:
+    - erp
+    - inventory_system
+    - analytics
+    - planning_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - planning_system_access
+    - erp_access
+    - inventory_access
+    - planner_approvers
+- template_id: retail
+  recommended_factory_repo: CommerxFactory
+  repo_exists: false
+  subtypes:
+  - id: ecommerce_ops.marketplace
+    label: Marketplace Operations
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - order_exception_review
+    - listing_quality_review
+    - marketplace_case_packet
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - ecommerce_platform_read
+    - marketplace_read
+    - support_system_write
+    missing_adapter_contracts:
+    - ecommerce_platform
+    - marketplace
+    - support_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - marketplace_access
+    - ecommerce_access
+    - support_system
+    - approval_matrix
+  - id: customer_ops.returns
+    label: Returns And Customer Support
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - return_intake
+    - refund_review
+    - customer_response_draft
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - order_system_read
+    - support_system_write
+    - payment_system_read
+    missing_adapter_contracts:
+    - order_system
+    - support_system
+    - payment_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - order_system_access
+    - payment_read_access
+    - support_write_access
+    - refund_approvers
+  - id: merchandising.pricing
+    label: Merchandising And Pricing
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - promotion_review
+    - pricing_exception_packet
+    - inventory_replenishment_review
+    missing_template_credential_details: []
+    missing_repo_credential_requirements:
+    - product_catalog_read
+    - pricing_write
+    - inventory_read
+    missing_adapter_contracts:
+    - product_catalog
+    - pricing_system
+    - inventory_system
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - catalog_access
+    - pricing_write_permissions
+    - inventory_access
+    - merchant_approvers
+  - id: inventory.replenishment
+    label: Inventory And Replenishment
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - stockout_review
+    - replenishment_packet
+    - vendor_follow_up
+    missing_template_credential_details:
+    - erp_read
+    - supplier_portal_read
+    missing_repo_credential_requirements:
+    - inventory_read
+    - erp_read
+    - supplier_portal_read
+    missing_adapter_contracts:
+    - inventory_system
+    - erp
+    - supplier_portal
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - inventory_access
+    - erp_access
+    - supplier_portal
+    - replenishment_approvers
+  - id: store_ops.physical
+    label: Physical Store Operations
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - store_task_intake
+    - incident_packet
+    - staffing_gap_review
+    missing_template_credential_details:
+    - store_system_read
+    - workforce_system_read
+    missing_repo_credential_requirements:
+    - store_system_read
+    - workforce_system_read
+    - support_system_write
+    missing_adapter_contracts:
+    - store_system
+    - workforce_system
+    - ticketing
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - store_system_access
+    - workforce_access
+    - escalation_channel
+    - store_approvers
+  - id: loyalty.crm
+    label: Loyalty And CRM
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - segment_review
+    - loyalty_offer_review
+    - customer_message_packet
+    missing_template_credential_details:
+    - crm_read
+    - customer_messaging_send
+    - analytics_read
+    missing_repo_credential_requirements:
+    - crm_read
+    - customer_messaging_send
+    - analytics_read
+    missing_adapter_contracts:
+    - crm
+    - loyalty_platform
+    - customer_messaging
+    - analytics
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - crm_access
+    - consent_source
+    - messaging_access
+    - offer_approvers
+  - id: fraud.chargebacks
+    label: Fraud And Chargebacks
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - chargeback_intake
+    - evidence_packet
+    - dispute_response_review
+    missing_template_credential_details:
+    - document_repository_read
+    missing_repo_credential_requirements:
+    - payment_system_read
+    - order_system_read
+    - document_repository_read
+    missing_adapter_contracts:
+    - payment_system
+    - order_system
+    - document_repository
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - payment_access
+    - order_access
+    - evidence_store
+    - dispute_approvers
+  - id: product_content.catalog
+    label: Product Content And Catalog
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - catalog_gap_review
+    - listing_update_packet
+    - content_quality_review
+    missing_template_credential_details:
+    - cms_write
+    - creative_asset_read
+    missing_repo_credential_requirements:
+    - product_catalog_read
+    - cms_write
+    - creative_asset_read
+    missing_adapter_contracts:
+    - product_catalog
+    - cms
+    - creative_asset_store
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - catalog_access
+    - cms_access
+    - asset_store
+    - publish_approvers
+  - id: retail.analytics
+    label: Retail Analytics And Reporting
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - data_quality_review
+    - sales_report_packet
+    - margin_analysis
+    missing_template_credential_details:
+    - analytics_read
+    missing_repo_credential_requirements:
+    - analytics_read
+    - ecommerce_platform_read
+    - inventory_read
+    missing_adapter_contracts:
+    - analytics
+    - ecommerce_platform
+    - inventory_system
+    - bi_platform
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - analytics_access
+    - commerce_access
+    - inventory_access
+    - report_approvers
+  - id: subscription.commerce
+    label: Subscription Commerce
+    repo: CommerxFactory
+    repo_exists: false
+    max_readiness: template_catalog_ready
+    domain_gaps:
+    - adapter_contracts_missing
+    - factory_repo_missing
+    - repo_credential_requirements_missing
+    - template_credential_details_missing
+    - workflow_specs_missing
+    missing_workflow_specs:
+    - subscription_exception_review
+    - billing_issue_packet
+    - retention_offer_review
+    missing_template_credential_details:
+    - subscription_platform_read
+    - customer_messaging_send
+    missing_repo_credential_requirements:
+    - subscription_platform_read
+    - payment_system_read
+    - customer_messaging_send
+    missing_adapter_contracts:
+    - subscription_platform
+    - payment_system
+    - customer_messaging
+    - crm
+    runtime_gaps: *id001
+    runtime_binding_focus:
+    - subscription_access
+    - payment_read_access
+    - messaging_access
+    - billing_approvers

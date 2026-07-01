@@ -1,0 +1,86 @@
+schema_version: 1
+kind: xfactory_instantiation_prerun_answers
+
+answer_metadata:
+  status: simulated
+  scope: domain
+  generated_from:
+    - AdxFactory/README.md
+    - AdxFactory/stack.yaml
+    - AdxFactory/docs/campaign-hermes-model.md
+    - AdxFactory/docs/campaign-workflow-gates.md
+  assumptions:
+    - Brand Hermes or Marketing Operator Hermes should become the normalized client Hermes layer.
+    - Campaign Hermes should become the normalized customer Hermes layer.
+  must_confirm_before_instantiation:
+    - canonical client Hermes name
+    - customer-subject kind for each deployment
+    - credential provider and approval rules
+
+domain:
+  repo: AdxFactory
+  category: marketing
+  closest_existing_domain: OpsxFactory
+  simulation_status: concept_stack_with_inferred_credentials
+
+hermes_layers:
+  domain_hermes: Adx Domain Hermes
+  client_hermes: Brand Hermes or Marketing Operator Hermes
+  customer_hermes: Campaign Hermes
+  normalized_note: Existing repo names Campaign Hermes and Brand Hermes explicitly; client/customer split should be confirmed per tenant.
+
+legacy_normalization:
+  uses_legacy_subject_layer: true
+  legacy_subject_layer_name: Campaign Hermes
+  normalized_client_layer_name: Brand Hermes or Marketing Operator Hermes
+  normalized_customer_layer_name: Campaign Hermes
+
+instantiation:
+  level: domain
+  hosted_by: opensoft
+  client_kinds:
+    - agency
+    - in_house_marketing_team
+    - growth_team
+    - brand_program
+  customer_subject_kinds:
+    - campaign
+    - audience
+    - offer
+    - channel
+    - account
+    - buyer_segment
+
+workflow_seed:
+  readonly_workflow: campaign_performance_review
+  privileged_workflow: campaign_launch
+  highest_risk_level: high
+  gates:
+    - brief_readiness
+    - audience_and_privacy_review
+    - brand_and_claims_review
+    - creative_approval
+    - launch_readiness
+    - performance_reverification
+
+credentials:
+  raw_secrets_in_repo_allowed: false
+  secret_provider: tbd
+  runtime_grants_required: true
+  inferred_requirements:
+    - analytics_read
+    - ad_account_read
+    - ad_account_write
+    - crm_read
+    - email_send
+    - social_publish
+
+validation:
+  local_command: tbd
+  golden_path_required: true
+  blocked_path_required: true
+  gaps:
+    - add explicit client and customer Hermes overlays
+    - add credential module
+    - add workflow specs
+    - add validation command

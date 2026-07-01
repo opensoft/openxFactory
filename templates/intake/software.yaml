@@ -1,0 +1,201 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: software
+  name: Software Engineering And Product Delivery
+  recommended_factory_repo: openCodexFactory
+  description: Repository, feature, PR, CI/CD, release, and incident workflow support.
+
+taxonomy_defaults:
+  factory_type: software
+  factory_subtype: product_engineering
+  target_domain: software
+  target_domain_subtype: repo_delivery
+  client_industry: software
+  client_type: software_company
+  customer_subject_type: project
+
+hermes_defaults:
+  domain_hermes: Software Engineering Domain Hermes
+  client_hermes_aliases:
+    - Software Company Hermes
+    - Engineering Organization Hermes
+    - Product Team Hermes
+  customer_hermes_aliases:
+    - Project Hermes
+    - Repository Hermes
+    - Feature Hermes
+    - Release Hermes
+    - Incident Hermes
+
+supported_profiles:
+  - id: product_engineering.repo_delivery
+    label: Repo And Feature Delivery
+    factory_subtype: product_engineering
+    target_domain: software
+    target_domain_subtype: repo_delivery
+    client_types:
+      - software_company
+      - engineering_team
+    customer_subject_types:
+      - repo
+      - feature
+      - project
+    starter_workflows:
+      - approved_intent_intake
+      - feature_decomposition
+      - pr_admission
+    credential_families:
+      - repo_read
+      - branch_write
+      - pr_write
+    high_risk_boundaries:
+      - merge
+      - production_deploy
+      - data_exposure
+
+  - id: release_ops.cicd
+    label: Release And CI/CD
+    factory_subtype: release_ops
+    target_domain: software
+    target_domain_subtype: cicd
+    client_types:
+      - software_company
+      - devops_team
+    customer_subject_types:
+      - release
+      - pipeline
+      - deployment
+    starter_workflows:
+      - release_readiness
+      - deployment_review
+      - rollback_plan_review
+    credential_families:
+      - ci_read
+      - deployment_operator
+      - cloud_read
+    high_risk_boundaries:
+      - production_deploy
+      - package_publish
+      - rollback_failure
+
+  - id: incident_response.software
+    label: Software Incident Response
+    factory_subtype: incident_response
+    target_domain: software
+    target_domain_subtype: production_incident
+    client_types:
+      - software_company
+      - platform_team
+    customer_subject_types:
+      - incident
+      - service
+      - production_workload
+    starter_workflows:
+      - incident_intake
+      - root_cause_packet
+      - remediation_review
+    credential_families:
+      - observability_read
+      - repo_read
+      - deployment_operator
+    high_risk_boundaries:
+      - production_impact
+      - customer_data_exposure
+      - emergency_change
+
+recommended_questions:
+  - Which repos, projects, services, or releases are in scope?
+  - Will the workflow open PRs, merge, deploy, or publish packages?
+  - Which CI/CD systems and branch protections apply?
+  - Who approves merge and deployment?
+  - What validation commands must pass?
+
+common_workflows:
+  - id: approved_intent_intake
+    risk: low
+    required_mix_mode: panel_synthesis
+  - id: feature_decomposition
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: pr_admission
+    risk: high
+    required_mix_mode: scored_vote
+  - id: merge_readiness
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: deployment_review
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: repo_read
+    access_modes:
+      - github_app
+      - delegated_oauth
+    actions:
+      - read
+  - id: branch_write
+    access_modes:
+      - github_app
+    actions:
+      - write
+  - id: pr_write
+    access_modes:
+      - github_app
+    actions:
+      - write
+  - id: deployment_operator
+    access_modes:
+      - workload_identity
+      - delegated_oauth
+    actions:
+      - deploy
+  - id: ci_read
+    access_modes:
+      - delegated_api
+      - workload_identity
+    actions:
+      - read
+  - id: cloud_read
+    access_modes:
+      - workload_identity
+      - delegated_oauth
+    actions:
+      - read
+  - id: observability_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+
+adapter_families:
+  - github
+  - gitlab
+  - ci_cd
+  - package_registry
+  - cloud_provider
+  - observability
+  - issue_tracker
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  branch_write_requires_review: true
+  merge_requires_human_or_policy_approval: true
+  deploy_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  pr_admission: scored_vote
+  merge_readiness: deliberative_council
+  deployment_review: deliberative_council
+
+runtime_binding_focus:
+  - repo access
+  - branch protection
+  - CI/CD integration
+  - deployment permissions
+  - test commands
+  - release approver references

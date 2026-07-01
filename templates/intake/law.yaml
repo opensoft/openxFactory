@@ -1,0 +1,232 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: law
+  name: Legal, Compliance, Contracts, And Policy
+  recommended_factory_repo: LegalxFactory
+  description: Legal and compliance workflows for matters, contracts, policies, audits, and regulated domains.
+
+taxonomy_defaults:
+  factory_type: law
+  factory_subtype: compliance
+  target_domain: medical
+  target_domain_subtype: pharmacy
+  client_industry: legal_services
+  client_type: law_firm
+  customer_subject_type: compliance_engagement
+
+hermes_defaults:
+  domain_hermes: Legal Domain Hermes
+  client_hermes_aliases:
+    - Law Firm Hermes
+    - Compliance Consultant Hermes
+    - Legal Department Hermes
+    - Policy Team Hermes
+  customer_hermes_aliases:
+    - Matter Hermes
+    - Compliance Engagement Hermes
+    - Contract Hermes
+    - Policy Hermes
+
+supported_profiles:
+  - id: compliance.medical.pharmacy
+    label: Medical Compliance - Pharmacy
+    factory_subtype: compliance
+    target_domain: medical
+    target_domain_subtype: pharmacy
+    client_types:
+      - law_firm
+      - compliance_consultant
+      - pharmacy_operator
+    customer_subject_types:
+      - compliance_engagement
+      - pharmacy_policy
+      - audit_issue
+    starter_workflows:
+      - compliance_intake
+      - regulation_mapping
+      - remediation_plan_review
+    credential_families:
+      - regulation_source_read
+      - policy_document_read
+      - evidence_repository_read
+    high_risk_boundaries:
+      - legal_interpretation
+      - regulatory_advice
+      - client_facing_compliance_output
+
+  - id: compliance.medical.clinic
+    label: Medical Compliance - Clinic
+    factory_subtype: compliance
+    target_domain: medical
+    target_domain_subtype: clinic
+    client_types:
+      - law_firm
+      - compliance_consultant
+      - clinic
+    customer_subject_types:
+      - compliance_engagement
+      - policy_review
+      - audit_issue
+    starter_workflows:
+      - policy_gap_review
+      - evidence_request_packet
+      - corrective_action_plan
+    credential_families:
+      - policy_document_read
+      - evidence_repository_read
+      - compliance_system_read
+    high_risk_boundaries:
+      - regulatory_advice
+      - audit_response
+      - client_facing_compliance_output
+
+  - id: contract_review.saas.vendor
+    label: SaaS Vendor Contract Review
+    factory_subtype: contract_review
+    target_domain: software
+    target_domain_subtype: saas_vendor
+    client_types:
+      - law_firm
+      - legal_department
+      - procurement_team
+    customer_subject_types:
+      - contract
+      - vendor
+      - matter
+    starter_workflows:
+      - contract_intake
+      - clause_review
+      - redline_packet
+    credential_families:
+      - document_store_read
+      - contract_repository_read
+      - redline_workspace_write
+    high_risk_boundaries:
+      - legal_advice
+      - negotiated_position
+      - client_facing_redline
+
+  - id: compliance.privacy.healthcare
+    label: Healthcare Privacy Compliance
+    factory_subtype: compliance
+    target_domain: privacy
+    target_domain_subtype: healthcare
+    client_types:
+      - law_firm
+      - compliance_consultant
+      - healthcare_operator
+    customer_subject_types:
+      - privacy_assessment
+      - policy_review
+      - incident
+    starter_workflows:
+      - privacy_assessment
+      - incident_review_packet
+      - policy_update_review
+    credential_families:
+      - policy_document_read
+      - evidence_repository_read
+      - incident_record_read
+    high_risk_boundaries:
+      - privacy_incident
+      - regulatory_reporting
+      - client_facing_privacy_advice
+
+recommended_questions:
+  - Is the work compliance, contract review, policy, litigation support, or legal operations?
+  - What target domain is the legal work about?
+  - Is the client a law firm, consultant, regulated operator, or internal legal team?
+  - What authority is reserved for an attorney or accountable professional?
+  - What sources of law, regulation, policy, or contract are authoritative?
+  - What outputs are legal advice, compliance advice, or internal drafts?
+
+common_workflows:
+  - id: compliance_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: regulation_mapping
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: policy_gap_review
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: contract_clause_review
+    risk: high
+    required_mix_mode: scored_vote
+  - id: client_facing_advice_review
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: regulation_source_read
+    access_modes:
+      - public_source
+      - subscription_source
+    actions:
+      - read
+  - id: policy_document_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: contract_repository_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: redline_workspace_write
+    access_modes:
+      - document_repository
+    actions:
+      - write
+  - id: evidence_repository_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: compliance_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: document_store_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: incident_record_read
+    access_modes:
+      - delegated_api
+      - document_repository
+    actions:
+      - read
+
+adapter_families:
+  - legal_research
+  - document_repository
+  - contract_lifecycle_management
+  - compliance_management_system
+  - policy_repository
+  - evidence_repository
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  client_facing_legal_output_requires_human_approval: true
+  regulatory_advice_requires_human_approval: true
+  external_filing_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  source_authority_review: scored_vote
+  legal_position_review: deliberative_council
+  client_facing_output_review: deliberative_council
+
+runtime_binding_focus:
+  - legal research source access
+  - document repository access
+  - attorney or professional approver references
+  - source authority rules
+  - client confidentiality boundaries

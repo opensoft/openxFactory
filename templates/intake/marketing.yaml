@@ -1,0 +1,210 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: marketing
+  name: Marketing, Advertising, Growth, And Brand Operations
+  recommended_factory_repo: AdxFactory
+  description: Campaign, content, audience, spend, attribution, and brand workflow support.
+
+taxonomy_defaults:
+  factory_type: marketing
+  factory_subtype: campaign_ops
+  target_domain: marketing
+  target_domain_subtype: paid_media
+  client_industry: marketing_agency
+  client_type: agency
+  customer_subject_type: campaign
+
+hermes_defaults:
+  domain_hermes: Marketing Domain Hermes
+  client_hermes_aliases:
+    - Agency Hermes
+    - Brand Hermes
+    - Growth Team Hermes
+    - Marketing Operator Hermes
+  customer_hermes_aliases:
+    - Campaign Hermes
+    - Audience Hermes
+    - Buyer Hermes
+    - Account Hermes
+
+supported_profiles:
+  - id: campaign_ops.paid_media
+    label: Paid Media
+    factory_subtype: campaign_ops
+    target_domain: marketing
+    target_domain_subtype: paid_media
+    client_types:
+      - agency
+      - brand
+      - growth_team
+    customer_subject_types:
+      - campaign
+      - audience
+      - ad_account
+    starter_workflows:
+      - campaign_intake
+      - creative_review
+      - budget_adjustment
+    credential_families:
+      - ad_account_read
+      - ad_account_write
+      - analytics_read
+    high_risk_boundaries:
+      - paid_spend
+      - brand_risk
+      - targeting_or_privacy_risk
+
+  - id: lifecycle.email
+    label: Lifecycle Email And CRM
+    factory_subtype: lifecycle_marketing
+    target_domain: marketing
+    target_domain_subtype: email
+    client_types:
+      - agency
+      - brand
+      - ecommerce_operator
+    customer_subject_types:
+      - audience
+      - segment
+      - campaign
+    starter_workflows:
+      - segment_review
+      - email_send_review
+      - attribution_review
+    credential_families:
+      - crm_read
+      - email_send
+      - analytics_read
+    high_risk_boundaries:
+      - external_send
+      - privacy
+      - regulated_claim
+
+  - id: brand.claims
+    label: Brand And Claims Review
+    factory_subtype: brand_ops
+    target_domain: marketing
+    target_domain_subtype: claims
+    client_types:
+      - agency
+      - brand
+      - regulated_marketer
+    customer_subject_types:
+      - claim
+      - offer
+      - creative_asset
+    starter_workflows:
+      - claim_review
+      - landing_page_review
+      - campaign_launch_readiness
+    credential_families:
+      - creative_asset_read
+      - cms_write
+      - legal_source_read
+    high_risk_boundaries:
+      - regulated_claim
+      - public_publish
+      - brand_risk
+
+recommended_questions:
+  - Is the work paid media, lifecycle, content, brand, or analytics?
+  - Which channels are in scope?
+  - Will the workflow spend money, send messages, or publish externally?
+  - What brand, legal, privacy, or claims review is required?
+  - Who approves campaign launch or spend changes?
+
+common_workflows:
+  - id: campaign_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: audience_segmentation
+    risk: high
+    required_mix_mode: scored_vote
+  - id: creative_review
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: campaign_launch
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: budget_adjustment
+    risk: high
+    required_mix_mode: scored_vote
+
+credential_families:
+  - id: analytics_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: ad_account_write
+    access_modes:
+      - delegated_oauth
+    actions:
+      - read
+      - write
+      - publish
+  - id: email_send
+    access_modes:
+      - delegated_api
+    actions:
+      - send
+  - id: cms_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+      - publish
+  - id: ad_account_read
+    access_modes:
+      - delegated_oauth
+    actions:
+      - read
+  - id: crm_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: creative_asset_read
+    access_modes:
+      - document_repository
+      - delegated_api
+    actions:
+      - read
+  - id: legal_source_read
+    access_modes:
+      - document_repository
+      - subscription_source
+    actions:
+      - read
+
+adapter_families:
+  - google_ads
+  - meta_ads
+  - linkedin_ads
+  - analytics
+  - crm
+  - email_platform
+  - cms
+  - creative_asset_store
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  external_send_requires_human_approval: true
+  public_publish_requires_human_approval: true
+  paid_spend_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  spend_review: scored_vote
+  claims_review: deliberative_council
+  launch_review: deliberative_council
+
+runtime_binding_focus:
+  - ad account connection
+  - CRM and email permissions
+  - brand approver references
+  - spend limits
+  - privacy and consent source

@@ -1,0 +1,207 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: logistics
+  name: Logistics, Supply Chain, Freight, And Warehouse Operations
+  recommended_factory_repo: FlowxFactory
+  description: Freight, routing, carrier, inventory, warehouse, and exception workflow support.
+
+taxonomy_defaults:
+  factory_type: logistics
+  factory_subtype: freight_ops
+  target_domain: logistics
+  target_domain_subtype: carrier
+  client_industry: logistics
+  client_type: logistics_operator
+  customer_subject_type: shipment
+
+hermes_defaults:
+  domain_hermes: Logistics Domain Hermes
+  client_hermes_aliases:
+    - Logistics Operator Hermes
+    - 3PL Hermes
+    - Warehouse Hermes
+    - Transportation Team Hermes
+  customer_hermes_aliases:
+    - Shipment Hermes
+    - Route Hermes
+    - Warehouse Order Hermes
+    - Carrier Hermes
+
+supported_profiles:
+  - id: freight_ops.carrier
+    label: Freight And Carrier Operations
+    factory_subtype: freight_ops
+    target_domain: logistics
+    target_domain_subtype: carrier
+    client_types:
+      - logistics_operator
+      - freight_broker
+      - carrier
+    customer_subject_types:
+      - shipment
+      - carrier
+      - route
+    starter_workflows:
+      - shipment_intake
+      - carrier_exception_review
+      - delivery_follow_up
+    credential_families:
+      - tms_read
+      - carrier_portal_read
+      - customer_messaging_send
+    high_risk_boundaries:
+      - customer_facing_commitment
+      - carrier_selection
+      - exception_resolution
+
+  - id: warehouse_ops.inventory
+    label: Warehouse And Inventory
+    factory_subtype: warehouse_ops
+    target_domain: logistics
+    target_domain_subtype: inventory
+    client_types:
+      - warehouse_operator
+      - retailer
+      - manufacturer
+    customer_subject_types:
+      - order
+      - inventory_item
+      - warehouse_task
+    starter_workflows:
+      - inventory_exception_review
+      - pick_pack_issue_packet
+      - replenishment_review
+    credential_families:
+      - wms_read
+      - inventory_write
+      - erp_read
+    high_risk_boundaries:
+      - inventory_write
+      - customer_order_change
+      - warehouse_execution
+
+  - id: supply_chain.procurement
+    label: Supply Chain And Procurement
+    factory_subtype: supply_chain
+    target_domain: logistics
+    target_domain_subtype: procurement
+    client_types:
+      - supply_chain_team
+      - manufacturer
+      - retailer
+    customer_subject_types:
+      - supplier
+      - purchase_order
+      - shortage
+    starter_workflows:
+      - supplier_intake
+      - shortage_review
+      - purchase_order_packet
+    credential_families:
+      - erp_read
+      - supplier_portal_read
+      - procurement_system_write
+    high_risk_boundaries:
+      - supplier_commitment
+      - purchase_order_write
+      - customer_impact
+
+recommended_questions:
+  - Is the work freight, warehouse, inventory, procurement, or supply chain?
+  - What is the customer subject: shipment, order, route, supplier, or inventory item?
+  - Which TMS, WMS, ERP, or carrier systems are in scope?
+  - Will the workflow commit externally to customers, carriers, or suppliers?
+  - Who approves route, cost, order, or purchase order changes?
+
+common_workflows:
+  - id: shipment_intake
+    risk: low
+    required_mix_mode: panel_synthesis
+  - id: carrier_exception_review
+    risk: high
+    required_mix_mode: scored_vote
+  - id: inventory_exception_review
+    risk: high
+    required_mix_mode: scored_vote
+  - id: purchase_order_packet
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: delivery_follow_up
+    risk: moderate
+    required_mix_mode: panel_synthesis
+
+credential_families:
+  - id: tms_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: wms_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: inventory_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+  - id: customer_messaging_send
+    access_modes:
+      - delegated_api
+    actions:
+      - send
+  - id: carrier_portal_read
+    access_modes:
+      - delegated_api
+      - browser_session
+    actions:
+      - read
+  - id: erp_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: supplier_portal_read
+    access_modes:
+      - delegated_api
+      - browser_session
+    actions:
+      - read
+  - id: procurement_system_write
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+      - write
+
+adapter_families:
+  - tms
+  - wms
+  - erp
+  - carrier_portal
+  - supplier_portal
+  - customer_messaging
+  - document_repository
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  external_commitment_requires_human_approval: true
+  inventory_write_requires_human_approval: true
+  purchase_order_write_requires_human_approval: true
+  default_high_risk_mix_mode: scored_vote
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  exception_review: scored_vote
+  procurement_review: deliberative_council
+  customer_commitment_review: deliberative_council
+
+runtime_binding_focus:
+  - TMS or WMS access
+  - ERP integration
+  - carrier and supplier portals
+  - customer communication approval
+  - audit trail

@@ -1,0 +1,86 @@
+schema_version: 1
+kind: xfactory_instantiation_prerun_answers
+
+answer_metadata:
+  status: simulated
+  scope: domain
+  generated_from:
+    - openCodexFactory/README.md
+    - openCodexFactory/stack.yaml
+    - openCodexFactory/docs/engineering-xfactory-domain.md
+    - openCodexFactory/docs/engineering-worker-model.md
+  assumptions:
+    - Software Company Hermes should become the normalized client Hermes layer.
+    - Project Hermes should become the normalized customer Hermes layer.
+  must_confirm_before_instantiation:
+    - tenant-specific check command mapping
+    - credential requirements and runtime grant model
+    - final merge and deploy enforcement systems
+
+domain:
+  repo: openCodexFactory
+  category: software
+  closest_existing_domain: OpsxFactory
+  simulation_status: executable_stack_with_inferred_credentials
+
+hermes_layers:
+  domain_hermes: Software Engineering Domain Hermes
+  client_hermes: Software Company Hermes
+  customer_hermes: Project Hermes
+  normalized_note: Existing repo names Project Hermes as subject layer; client Hermes should be explicit for tenant rollout.
+
+legacy_normalization:
+  uses_legacy_subject_layer: true
+  legacy_subject_layer_name: Project Hermes
+  normalized_client_layer_name: Software Company Hermes
+  normalized_customer_layer_name: Project Hermes
+
+instantiation:
+  level: domain
+  hosted_by: opensoft
+  client_kinds:
+    - software_team
+    - product_team
+    - platform_team
+    - software_agency
+  customer_subject_kinds:
+    - project
+    - repository
+    - feature
+    - pull_request
+    - release
+    - incident
+
+workflow_seed:
+  readonly_workflow: approved_intent_intake
+  privileged_workflow: merge_readiness
+  highest_risk_level: high
+  gates:
+    - feature_decomposition
+    - spec_kit_execution
+    - deterministic_validation
+    - branch_review
+    - pr_admission
+    - merge_readiness
+
+credentials:
+  raw_secrets_in_repo_allowed: false
+  secret_provider: tbd
+  runtime_grants_required: true
+  inferred_requirements:
+    - repo_read
+    - branch_write
+    - pull_request_write
+    - package_publish
+    - deployment_operator
+    - cloud_read
+    - cloud_deploy
+
+validation:
+  local_command: scripts/validate-docs.sh
+  golden_path_required: true
+  blocked_path_required: true
+  gaps:
+    - add explicit client Hermes layer
+    - add credential module
+    - add pre-run questionnaire artifact

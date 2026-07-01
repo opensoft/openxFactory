@@ -1,0 +1,192 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: accounting
+  name: Accounting, Tax, Audit, And Finance Operations
+  recommended_factory_repo: LedgerxFactory
+  description: Ledger, close, tax, audit, and finance workflow support.
+
+taxonomy_defaults:
+  factory_type: accounting
+  factory_subtype: bookkeeping
+  target_domain: finance
+  target_domain_subtype: small_business
+  client_industry: accounting_services
+  client_type: accounting_firm
+  customer_subject_type: ledger
+
+hermes_defaults:
+  domain_hermes: Ledger Domain Hermes
+  client_hermes_aliases:
+    - Accounting Firm Hermes
+    - Bookkeeping Firm Hermes
+    - Controller Organization Hermes
+    - Finance Team Hermes
+  customer_hermes_aliases:
+    - Ledger Hermes
+    - Company Hermes
+    - Tax Matter Hermes
+    - Engagement Hermes
+
+supported_profiles:
+  - id: bookkeeping.small_business
+    label: Small Business Bookkeeping
+    factory_subtype: bookkeeping
+    target_domain: finance
+    target_domain_subtype: small_business
+    client_types:
+      - accounting_firm
+      - bookkeeping_firm
+    customer_subject_types:
+      - company
+      - ledger
+    starter_workflows:
+      - client_intake
+      - bank_feed_review
+      - reconciliation
+    credential_families:
+      - accounting_system_read
+      - bank_feed_read
+      - document_store_read
+    high_risk_boundaries:
+      - ledger_write
+      - money_movement
+      - client_facing_financial_output
+
+  - id: tax.business
+    label: Business Tax
+    factory_subtype: tax
+    target_domain: finance
+    target_domain_subtype: business_tax
+    client_types:
+      - accounting_firm
+      - tax_practice
+    customer_subject_types:
+      - tax_matter
+      - filing
+      - company
+    starter_workflows:
+      - tax_packet_preparation
+      - filing_review
+      - notice_response_packet
+    credential_families:
+      - tax_portal_access
+      - document_store_read
+      - accounting_system_read
+    high_risk_boundaries:
+      - tax_advice
+      - filing_submission
+      - compliance_representation
+
+  - id: audit.support
+    label: Audit Support
+    factory_subtype: audit
+    target_domain: finance
+    target_domain_subtype: audit
+    client_types:
+      - accounting_firm
+      - finance_team
+    customer_subject_types:
+      - audit_issue
+      - evidence_packet
+      - engagement
+    starter_workflows:
+      - audit_evidence_request
+      - control_evidence_packet
+      - exception_response
+    credential_families:
+      - document_store_read
+      - accounting_system_read
+      - erp_read
+    high_risk_boundaries:
+      - audit_evidence_integrity
+      - external_auditor_output
+      - compliance_representation
+
+recommended_questions:
+  - Is the work bookkeeping, tax, audit, close, controller, or finance ops?
+  - What accounting or ERP systems are in scope?
+  - Will the workflow write to the ledger or only prepare evidence?
+  - Are filings, payments, or money movement in scope?
+  - Who approves client-facing financial output?
+
+common_workflows:
+  - id: client_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: reconciliation
+    risk: high
+    required_mix_mode: scored_vote
+  - id: month_end_close
+    risk: high
+    required_mix_mode: scored_vote
+  - id: tax_packet_preparation
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: filing_review
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: accounting_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: ledger_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+  - id: bank_feed_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: tax_portal_access
+    access_modes:
+      - delegated_oauth
+      - browser_session
+    actions:
+      - read
+      - submit
+  - id: document_store_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: erp_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+
+adapter_families:
+  - quickbooks
+  - xero
+  - netsuite
+  - erp
+  - bank_feed
+  - document_store
+  - tax_portal
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  ledger_write_requires_human_approval: true
+  filing_requires_human_approval: true
+  money_movement_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  reconciliation_review: scored_vote
+  filing_review: deliberative_council
+  audit_evidence_review: deliberative_council
+
+runtime_binding_focus:
+  - accounting system connection
+  - document store access
+  - client approval references
+  - filing portal references
+  - audit trail

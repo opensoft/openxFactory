@@ -1,0 +1,230 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: medical
+  name: Medical And Clinical Operations
+  recommended_factory_repo: MedxFactory
+  description: Clinical and medical operations workflows for healthcare operators.
+
+taxonomy_defaults:
+  factory_type: medical
+  factory_subtype: clinical_operations
+  target_domain: medical
+  target_domain_subtype: clinic
+  client_industry: healthcare
+  client_type: clinic
+  customer_subject_type: patient
+
+hermes_defaults:
+  domain_hermes: Medical Domain Hermes
+  client_hermes_aliases:
+    - Clinic Hermes
+    - Group Practice Hermes
+    - Hospital Hermes
+    - Pharmacy Hermes
+    - Imaging Center Hermes
+    - IDTF Hermes
+  customer_hermes_aliases:
+    - Patient Hermes
+
+supported_profiles:
+  - id: clinical_operations.clinic
+    label: Clinic
+    factory_subtype: clinical_operations
+    target_domain: medical
+    target_domain_subtype: clinic
+    client_types:
+      - clinic
+      - group_practice
+    customer_subject_types:
+      - patient
+    starter_workflows:
+      - intake_summary
+      - referral_management
+      - patient_follow_up
+    credential_families:
+      - ehr_patient_read
+      - scheduling_write
+      - patient_messaging_send
+    high_risk_boundaries:
+      - care_affecting_action
+      - patient_facing_communication
+      - diagnosis_related_output
+
+  - id: clinical_operations.hospital
+    label: Hospital
+    factory_subtype: clinical_operations
+    target_domain: medical
+    target_domain_subtype: hospital
+    client_types:
+      - hospital
+      - health_system
+    customer_subject_types:
+      - patient
+      - care_episode
+    starter_workflows:
+      - discharge_follow_up
+      - care_gap_review
+      - referral_management
+    credential_families:
+      - ehr_patient_read
+      - care_team_roster_read
+      - scheduling_write
+    high_risk_boundaries:
+      - care_transition
+      - clinical_escalation
+      - regulated_record_access
+
+  - id: clinical_operations.pharmacy
+    label: Pharmacy
+    factory_subtype: clinical_operations
+    target_domain: medical
+    target_domain_subtype: pharmacy
+    client_types:
+      - pharmacy
+      - specialty_pharmacy
+    customer_subject_types:
+      - patient
+      - medication_profile
+    starter_workflows:
+      - pharmacy_reconciliation
+      - refill_follow_up
+      - medication_access_review
+    credential_families:
+      - pharmacy_system_read
+      - patient_messaging_send
+      - payer_portal_read
+    high_risk_boundaries:
+      - medication_related_output
+      - patient_privacy
+      - payer_or_benefit_decision
+
+  - id: clinical_operations.imaging_center
+    label: Imaging Center Or IDTF
+    factory_subtype: clinical_operations
+    target_domain: medical
+    target_domain_subtype: imaging_center
+    client_types:
+      - imaging_center
+      - idtf
+    customer_subject_types:
+      - patient
+      - diagnostic_order
+    starter_workflows:
+      - order_intake
+      - diagnostic_result_packet
+      - referring_provider_follow_up
+    credential_families:
+      - imaging_system_read
+      - referral_document_read
+      - provider_messaging_send
+    high_risk_boundaries:
+      - diagnostic_result_handling
+      - patient_privacy
+      - provider_facing_communication
+
+recommended_questions:
+  - Which healthcare organization type is operating this stack?
+  - Which patient systems will be read?
+  - Which workflows are patient-facing?
+  - Which workflows are care-affecting?
+  - What patient consent or authorization model applies?
+  - Which licensed or accountable human roles must review output?
+
+common_workflows:
+  - id: intake_summary
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: referral_management
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: diagnostic_review_packet
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: prior_authorization
+    risk: high
+    required_mix_mode: scored_vote
+  - id: patient_follow_up
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: ehr_patient_read
+    access_modes:
+      - delegated_api
+      - ehr_integration
+    actions:
+      - read
+  - id: scheduling_write
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+      - write
+  - id: patient_messaging_send
+    access_modes:
+      - delegated_api
+    actions:
+      - send
+  - id: payer_portal_read
+    access_modes:
+      - delegated_api
+      - browser_session
+    actions:
+      - read
+  - id: care_team_roster_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: pharmacy_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: imaging_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: referral_document_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: provider_messaging_send
+    access_modes:
+      - delegated_api
+    actions:
+      - send
+
+adapter_families:
+  - ehr
+  - practice_management
+  - scheduling
+  - patient_messaging
+  - payer_portal
+  - imaging_system
+  - document_repository
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  patient_facing_requires_human_approval: true
+  care_affecting_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+  raw_phi_in_repo_allowed: false
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  credential_review: scored_vote
+  care_affecting_review: deliberative_council
+  memory_promotion_review: deliberative_council
+
+runtime_binding_focus:
+  - ehr connectivity
+  - patient consent source
+  - scheduling integration
+  - patient messaging approval
+  - audit store
+  - emergency escalation owner

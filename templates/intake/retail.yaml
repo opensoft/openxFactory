@@ -1,0 +1,206 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: retail
+  name: Retail, Ecommerce, Marketplace, And Customer Operations
+  recommended_factory_repo: CommerxFactory
+  description: Orders, returns, inventory, marketplaces, pricing, customer support, and ecommerce workflow support.
+
+taxonomy_defaults:
+  factory_type: retail
+  factory_subtype: ecommerce_ops
+  target_domain: retail
+  target_domain_subtype: marketplace
+  client_industry: retail
+  client_type: ecommerce_operator
+  customer_subject_type: order
+
+hermes_defaults:
+  domain_hermes: Commerce Domain Hermes
+  client_hermes_aliases:
+    - Retailer Hermes
+    - Ecommerce Operator Hermes
+    - Marketplace Seller Hermes
+    - Customer Ops Hermes
+  customer_hermes_aliases:
+    - Order Hermes
+    - Customer Account Hermes
+    - Product Hermes
+    - Return Hermes
+
+supported_profiles:
+  - id: ecommerce_ops.marketplace
+    label: Marketplace Operations
+    factory_subtype: ecommerce_ops
+    target_domain: retail
+    target_domain_subtype: marketplace
+    client_types:
+      - ecommerce_operator
+      - marketplace_seller
+      - retailer
+    customer_subject_types:
+      - order
+      - product_listing
+      - customer_account
+    starter_workflows:
+      - order_exception_review
+      - listing_quality_review
+      - marketplace_case_packet
+    credential_families:
+      - ecommerce_platform_read
+      - marketplace_read
+      - support_system_write
+    high_risk_boundaries:
+      - customer_facing_response
+      - marketplace_policy
+      - listing_or_price_change
+
+  - id: customer_ops.returns
+    label: Returns And Customer Support
+    factory_subtype: customer_ops
+    target_domain: retail
+    target_domain_subtype: returns
+    client_types:
+      - retailer
+      - ecommerce_operator
+      - support_team
+    customer_subject_types:
+      - return
+      - order
+      - customer_account
+    starter_workflows:
+      - return_intake
+      - refund_review
+      - customer_response_draft
+    credential_families:
+      - order_system_read
+      - support_system_write
+      - payment_system_read
+    high_risk_boundaries:
+      - refund_or_credit
+      - customer_facing_response
+      - policy_exception
+
+  - id: merchandising.pricing
+    label: Merchandising And Pricing
+    factory_subtype: merchandising
+    target_domain: retail
+    target_domain_subtype: pricing
+    client_types:
+      - retailer
+      - ecommerce_operator
+      - merchandising_team
+    customer_subject_types:
+      - product
+      - price_change
+      - promotion
+    starter_workflows:
+      - promotion_review
+      - pricing_exception_packet
+      - inventory_replenishment_review
+    credential_families:
+      - product_catalog_read
+      - pricing_write
+      - inventory_read
+    high_risk_boundaries:
+      - price_change
+      - promotion_publish
+      - margin_impact
+
+recommended_questions:
+  - Is the work ecommerce, marketplace, returns, customer support, pricing, or merchandising?
+  - Which storefront, marketplace, support, inventory, and payment systems are in scope?
+  - Will the workflow message customers, issue refunds, change prices, or publish listings?
+  - What marketplace or brand policies apply?
+  - Who approves refunds, pricing changes, and customer-facing exceptions?
+
+common_workflows:
+  - id: order_exception_review
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: return_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: refund_review
+    risk: high
+    required_mix_mode: scored_vote
+  - id: listing_quality_review
+    risk: high
+    required_mix_mode: scored_vote
+  - id: pricing_exception_packet
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: ecommerce_platform_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: support_system_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+      - send
+  - id: pricing_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+      - publish
+  - id: payment_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: marketplace_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: order_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: product_catalog_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: inventory_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+
+adapter_families:
+  - ecommerce_platform
+  - marketplace
+  - support_system
+  - payment_system
+  - product_catalog
+  - inventory_system
+  - customer_messaging
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  customer_facing_response_requires_human_approval: true
+  refund_requires_human_approval: true
+  pricing_publish_requires_human_approval: true
+  default_high_risk_mix_mode: scored_vote
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  refund_review: scored_vote
+  marketplace_policy_review: deliberative_council
+  pricing_review: deliberative_council
+
+runtime_binding_focus:
+  - ecommerce platform access
+  - marketplace access
+  - support system connection
+  - payment read access
+  - pricing and refund approvers

@@ -1,0 +1,87 @@
+schema_version: 1
+kind: xfactory_instantiation_prerun_answers
+
+answer_metadata:
+  status: declared
+  scope: domain
+  generated_from:
+    - OpsxFactory/README.md
+    - OpsxFactory/stack.yaml
+    - OpsxFactory/credentials/requirements.yaml
+    - OpsxFactory/workflows
+  assumptions:
+    - Secret provider remains TBD until client instantiation.
+  must_confirm_before_instantiation:
+    - provider adapter contracts
+    - real approver references
+    - secret provider choice per client
+
+domain:
+  repo: OpsxFactory
+  category: it_operations
+  closest_existing_domain: openCodexFactory
+  simulation_status: starter_v3_stack_with_explicit_credentials
+
+hermes_layers:
+  domain_hermes: Operations Domain Hermes
+  client_hermes: IT Customer Hermes
+  customer_hermes: Managed System Hermes
+  normalized_note: Existing repo uses the explicit three-Hermes layer model.
+
+legacy_normalization:
+  uses_legacy_subject_layer: false
+  legacy_subject_layer_name: null
+  normalized_client_layer_name: IT Customer Hermes
+  normalized_customer_layer_name: Managed System Hermes
+
+instantiation:
+  level: domain
+  hosted_by: opensoft
+  client_kinds:
+    - managed_it_customer
+    - internal_it_team
+    - msp_customer
+    - devops_customer
+  customer_subject_kinds:
+    - microsoft_365_tenant
+    - azure_subscription
+    - github_organization
+    - dns_zone
+    - production_service
+    - backup_vault
+    - endpoint_fleet
+
+workflow_seed:
+  readonly_workflow: github_org_review
+  privileged_workflow: dns_record_update
+  highest_risk_level: production_critical
+  gates:
+    - approval_packet
+    - runtime_capability_grant
+    - preflight_report
+    - operation_plan
+    - rollback_plan
+    - validation_report
+    - credential_audit_summary
+    - revocation_record
+
+credentials:
+  raw_secrets_in_repo_allowed: false
+  secret_provider: tbd
+  runtime_grants_required: true
+  declared_requirements:
+    - entra_directory_admin
+    - exchange_admin
+    - dns_admin
+    - github_org_admin
+    - deployment_operator
+    - backup_operator
+
+validation:
+  local_command: make validate
+  golden_path_required: true
+  blocked_path_required: true
+  gaps:
+    - fill provider adapter contracts
+    - replace starter examples with complete golden-path artifacts
+    - define real client approver references during tenant instantiation

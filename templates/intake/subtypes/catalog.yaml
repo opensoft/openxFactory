@@ -1,0 +1,1533 @@
+schema_version: 1
+kind: xfactory_intake_subtype_catalog
+
+catalog:
+  - template_id: medical
+    recommended_factory_repo: MedxFactory
+    subtypes:
+      - id: clinical_operations.clinic
+        label: Clinic Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: clinic
+        client_types: [clinic, group_practice]
+        customer_subject_types: [patient, care_episode]
+        starter_workflows: [intake_summary, referral_management, patient_follow_up]
+        credential_families: [ehr_patient_read, scheduling_write, patient_messaging_send]
+        adapter_families: [ehr, practice_management, scheduling, patient_messaging]
+        high_risk_boundaries: [care_affecting_action, patient_facing_communication, diagnosis_related_output]
+        recommended_questions: [which_ehr, patient_consent_model, patient_facing_workflows, clinician_review_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [ehr_connectivity, scheduling_access, patient_messaging_approval, audit_store]
+
+      - id: clinical_operations.group_practice
+        label: Group Practice Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: group_practice
+        client_types: [group_practice, multispecialty_practice]
+        customer_subject_types: [patient, referral, care_plan]
+        starter_workflows: [care_gap_review, referral_management, provider_panel_follow_up]
+        credential_families: [ehr_patient_read, care_team_roster_read, scheduling_write]
+        adapter_families: [ehr, provider_directory, scheduling, document_repository]
+        high_risk_boundaries: [care_coordination, patient_privacy, provider_escalation]
+        recommended_questions: [specialties_in_scope, cross_provider_access, care_team_roles, escalation_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [provider_roster, ehr_access, referral_sources, care_team_approvers]
+
+      - id: clinical_operations.hospital
+        label: Hospital Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: hospital
+        client_types: [hospital, health_system]
+        customer_subject_types: [patient, care_episode, discharge_plan]
+        starter_workflows: [discharge_follow_up, care_transition_review, referral_management]
+        credential_families: [ehr_patient_read, care_team_roster_read, scheduling_write]
+        adapter_families: [ehr, care_team_roster, scheduling, document_repository]
+        high_risk_boundaries: [care_transition, clinical_escalation, regulated_record_access]
+        recommended_questions: [department_scope, discharge_workflows, responsible_clinicians, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [ehr_connectivity, care_team_roster, discharge_sources, hospital_audit]
+
+      - id: clinical_operations.pharmacy
+        label: Pharmacy Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: pharmacy
+        client_types: [pharmacy, specialty_pharmacy]
+        customer_subject_types: [patient, medication_profile, refill]
+        starter_workflows: [pharmacy_reconciliation, refill_follow_up, medication_access_review]
+        credential_families: [pharmacy_system_read, patient_messaging_send, payer_portal_read]
+        adapter_families: [pharmacy_system, payer_portal, patient_messaging, document_repository]
+        high_risk_boundaries: [medication_related_output, patient_privacy, payer_or_benefit_decision]
+        recommended_questions: [pharmacy_system, refill_scope, medication_review_authority, payer_portals]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [pharmacy_system_access, payer_portal_access, patient_consent, pharmacist_review]
+
+      - id: clinical_operations.imaging_center
+        label: Imaging Center Or IDTF
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: imaging_center
+        client_types: [imaging_center, idtf]
+        customer_subject_types: [patient, diagnostic_order, imaging_result]
+        starter_workflows: [order_intake, diagnostic_result_packet, referring_provider_follow_up]
+        credential_families: [imaging_system_read, referral_document_read, provider_messaging_send]
+        adapter_families: [imaging_system, referral_document_store, provider_messaging, scheduling]
+        high_risk_boundaries: [diagnostic_result_handling, patient_privacy, provider_facing_communication]
+        recommended_questions: [modalities, ordering_provider_sources, result_delivery_rules, radiologist_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [imaging_system_access, referral_sources, provider_messaging, audit_store]
+
+      - id: clinical_operations.telehealth
+        label: Telehealth Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: telehealth
+        client_types: [telehealth_provider, virtual_care_group]
+        customer_subject_types: [patient, visit, care_plan]
+        starter_workflows: [visit_intake, follow_up_packet, escalation_review]
+        credential_families: [ehr_patient_read, scheduling_write, patient_messaging_send]
+        adapter_families: [ehr, telehealth_platform, scheduling, patient_messaging]
+        high_risk_boundaries: [patient_facing_advice, urgent_escalation, licensure_boundary]
+        recommended_questions: [states_served, provider_licensure, urgent_escalation_path, messaging_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [telehealth_platform, ehr_access, patient_messaging, clinical_escalation]
+
+      - id: clinical_operations.lab
+        label: Lab Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: lab
+        client_types: [lab, diagnostic_lab]
+        customer_subject_types: [patient, lab_order, lab_result]
+        starter_workflows: [lab_order_intake, abnormal_result_packet, provider_follow_up]
+        credential_families: [lab_system_read, referral_document_read, provider_messaging_send]
+        adapter_families: [lis, ehr, provider_messaging, document_repository]
+        high_risk_boundaries: [abnormal_result_handling, patient_privacy, provider_notification]
+        recommended_questions: [lis_system, abnormal_result_policy, ordering_provider_path, result_release_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [lis_access, result_sources, provider_messaging, audit_store]
+
+      - id: clinical_operations.behavioral_health
+        label: Behavioral Health Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: behavioral_health
+        client_types: [behavioral_health_practice, clinic]
+        customer_subject_types: [patient, care_plan, safety_plan]
+        starter_workflows: [intake_summary, follow_up_packet, risk_escalation_review]
+        credential_families: [ehr_patient_read, scheduling_write, patient_messaging_send]
+        adapter_families: [ehr, scheduling, patient_messaging, document_repository]
+        high_risk_boundaries: [safety_risk, sensitive_record_access, patient_facing_communication]
+        recommended_questions: [sensitive_record_rules, crisis_escalation_path, consent_model, clinician_review_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [ehr_access, sensitive_record_controls, crisis_escalation, messaging_approval]
+
+      - id: clinical_operations.dental
+        label: Dental Operations
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: dental
+        client_types: [dental_practice, dental_group]
+        customer_subject_types: [patient, treatment_plan, appointment]
+        starter_workflows: [patient_intake, treatment_plan_packet, insurance_follow_up]
+        credential_families: [practice_management_read, scheduling_write, patient_messaging_send]
+        adapter_families: [dental_practice_management, scheduling, payer_portal, patient_messaging]
+        high_risk_boundaries: [treatment_plan_output, patient_facing_communication, insurance_submission]
+        recommended_questions: [practice_management_system, payer_portals, treatment_plan_review, messaging_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: scored_vote}
+        runtime_binding_focus: [practice_management_access, scheduling, payer_portals, patient_messaging]
+
+      - id: clinical_operations.home_health
+        label: Home Health And Hospice
+        factory_subtype: clinical_operations
+        target_domain: medical
+        target_domain_subtype: home_health
+        client_types: [home_health_agency, hospice_provider]
+        customer_subject_types: [patient, care_visit, care_plan]
+        starter_workflows: [care_visit_review, authorization_follow_up, care_plan_update_packet]
+        credential_families: [ehr_patient_read, scheduling_write, payer_portal_read]
+        adapter_families: [ehr, scheduling, payer_portal, document_repository]
+        high_risk_boundaries: [care_plan_change, patient_privacy, payer_authorization]
+        recommended_questions: [visit_types, payer_authorization_rules, care_team_roles, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [ehr_access, scheduling_access, payer_portals, care_team_approvals]
+
+  - template_id: operations
+    recommended_factory_repo: OpsxFactory
+    subtypes:
+      - id: identity_admin.m365
+        label: Microsoft 365 And Entra ID
+        factory_subtype: identity_admin
+        target_domain: operations
+        target_domain_subtype: m365
+        client_types: [managed_service_provider, internal_it_team]
+        customer_subject_types: [tenant, user_account, security_group]
+        starter_workflows: [user_lifecycle, mailbox_migration, conditional_access_review]
+        credential_families: [microsoft_365_admin, exchange_admin, entra_directory_admin]
+        adapter_families: [microsoft_365, entra_id, exchange_online]
+        high_risk_boundaries: [privileged_admin_action, tenant_wide_policy_change, destructive_change]
+        recommended_questions: [tenant_scope, admin_consent_model, approver_group, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [admin_consent, delegated_oauth, tenant_id, audit_log]
+
+      - id: exchange.mailbox_migration
+        label: Exchange And Mailbox Migration
+        factory_subtype: messaging_ops
+        target_domain: operations
+        target_domain_subtype: exchange
+        client_types: [managed_service_provider, internal_it_team]
+        customer_subject_types: [mailbox, migration_batch, tenant]
+        starter_workflows: [mailbox_inventory, migration_batch_plan, migration_status_review]
+        credential_families: [exchange_admin, microsoft_365_admin, document_repository_read]
+        adapter_families: [exchange_online, microsoft_365, migration_tool]
+        high_risk_boundaries: [mail_flow_impact, data_loss_risk, permission_change]
+        recommended_questions: [source_tenant, target_tenant, migration_window, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [exchange_admin_consent, migration_endpoint, maintenance_window, audit_log]
+
+      - id: endpoint.intune
+        label: Endpoint And Intune
+        factory_subtype: endpoint_ops
+        target_domain: operations
+        target_domain_subtype: intune
+        client_types: [managed_service_provider, internal_it_team]
+        customer_subject_types: [device_fleet, endpoint, policy]
+        starter_workflows: [device_inventory_review, compliance_policy_review, app_deployment_plan]
+        credential_families: [intune_admin, entra_directory_admin, microsoft_365_admin]
+        adapter_families: [intune, entra_id, endpoint_management]
+        high_risk_boundaries: [device_lockout, policy_rollout, app_deployment]
+        recommended_questions: [device_scope, enrollment_model, policy_groups, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [intune_consent, device_groups, rollout_rings, emergency_stop]
+
+      - id: cloud_ops.azure
+        label: Azure Cloud Operations
+        factory_subtype: cloud_ops
+        target_domain: operations
+        target_domain_subtype: azure
+        client_types: [devops_team, managed_service_provider, platform_team]
+        customer_subject_types: [subscription, workload, resource_group]
+        starter_workflows: [subscription_review, infrastructure_change, backup_restore]
+        credential_families: [azure_read, azure_operator, backup_operator]
+        adapter_families: [azure, backup_platform, observability]
+        high_risk_boundaries: [production_impact, outage, destructive_change]
+        recommended_questions: [subscription_scope, resource_groups, change_windows, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [workload_identity, subscription_access, backup_access, audit_log]
+
+      - id: cloud_ops.aws
+        label: AWS Cloud Operations
+        factory_subtype: cloud_ops
+        target_domain: operations
+        target_domain_subtype: aws
+        client_types: [devops_team, managed_service_provider, platform_team]
+        customer_subject_types: [account, workload, vpc]
+        starter_workflows: [account_review, infrastructure_change, incident_packet]
+        credential_families: [aws_read, aws_operator, backup_operator]
+        adapter_families: [aws, backup_platform, observability]
+        high_risk_boundaries: [production_impact, outage, destructive_change]
+        recommended_questions: [account_scope, iam_model, region_scope, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [iam_role, account_access, cloudtrail, backup_access]
+
+      - id: dns.domain_ops
+        label: DNS And Domain Operations
+        factory_subtype: network_ops
+        target_domain: operations
+        target_domain_subtype: dns
+        client_types: [managed_service_provider, internal_it_team, devops_team]
+        customer_subject_types: [dns_zone, domain, service_endpoint]
+        starter_workflows: [dns_record_update, domain_cutover, certificate_renewal]
+        credential_families: [dns_admin, certificate_authority_access, document_repository_read]
+        adapter_families: [dns_provider, certificate_authority, monitoring]
+        high_risk_boundaries: [service_outage, domain_takeover_risk, destructive_change]
+        recommended_questions: [dns_provider, zones_in_scope, approval_window, rollback_ttl]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [dns_api_access, zone_refs, certificate_refs, monitoring]
+
+      - id: backup.dr
+        label: Backup And Disaster Recovery
+        factory_subtype: backup_ops
+        target_domain: operations
+        target_domain_subtype: disaster_recovery
+        client_types: [managed_service_provider, internal_it_team, platform_team]
+        customer_subject_types: [backup_vault, restore_point, workload]
+        starter_workflows: [backup_inventory, restore_test_plan, recovery_readiness_review]
+        credential_families: [backup_operator, cloud_read, document_repository_read]
+        adapter_families: [backup_platform, cloud_provider, document_repository]
+        high_risk_boundaries: [restore_overwrite, data_loss_risk, production_impact]
+        recommended_questions: [backup_platform, recovery_objectives, restore_targets, approval_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [backup_platform_access, restore_test_env, audit_log, approval_path]
+
+      - id: network.firewall
+        label: Network And Firewall Operations
+        factory_subtype: network_ops
+        target_domain: operations
+        target_domain_subtype: firewall
+        client_types: [managed_service_provider, internal_it_team, network_team]
+        customer_subject_types: [firewall_rule, network_device, site]
+        starter_workflows: [rule_review, change_plan, post_change_validation]
+        credential_families: [network_device_admin, monitoring_read, document_repository_read]
+        adapter_families: [firewall, network_device, monitoring, ticketing]
+        high_risk_boundaries: [network_outage, exposure_risk, destructive_change]
+        recommended_questions: [firewall_vendor, site_scope, change_window, rollback_rule]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [device_access, monitoring_access, change_window, rollback_path]
+
+      - id: devops.github_org
+        label: GitHub Organization Operations
+        factory_subtype: devops
+        target_domain: operations
+        target_domain_subtype: github
+        client_types: [software_company, devops_team, managed_service_provider]
+        customer_subject_types: [github_org, repo, team]
+        starter_workflows: [org_access_review, branch_protection_review, repo_settings_update]
+        credential_families: [github_org_admin, repo_read, branch_write]
+        adapter_families: [github, ci_cd, ticketing]
+        high_risk_boundaries: [repo_access_change, branch_protection_change, secret_exposure]
+        recommended_questions: [org_scope, repo_scope, branch_protection_policy, approver_group]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [github_app_install, org_permissions, repo_list, audit_log]
+
+      - id: security.incident_response
+        label: Security Incident Response
+        factory_subtype: security_ops
+        target_domain: operations
+        target_domain_subtype: incident_response
+        client_types: [security_team, managed_service_provider, internal_it_team]
+        customer_subject_types: [incident, alert, affected_asset]
+        starter_workflows: [incident_intake, containment_plan, post_incident_review]
+        credential_families: [siem_read, endpoint_read, cloud_read]
+        adapter_families: [siem, edr, cloud_provider, ticketing]
+        high_risk_boundaries: [containment_action, account_disable, evidence_integrity]
+        recommended_questions: [incident_scope, authority_to_contain, evidence_sources, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, credential_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [siem_access, edr_access, incident_channel, evidence_store]
+
+  - template_id: accounting
+    recommended_factory_repo: LedgerxFactory
+    subtypes:
+      - id: bookkeeping.small_business
+        label: Small Business Bookkeeping
+        factory_subtype: bookkeeping
+        target_domain: finance
+        target_domain_subtype: small_business
+        client_types: [accounting_firm, bookkeeping_firm]
+        customer_subject_types: [company, ledger, account]
+        starter_workflows: [client_intake, bank_feed_review, reconciliation]
+        credential_families: [accounting_system_read, bank_feed_read, document_store_read]
+        adapter_families: [quickbooks, xero, bank_feed, document_store]
+        high_risk_boundaries: [ledger_write, money_movement, client_facing_financial_output]
+        recommended_questions: [accounting_system, bank_feed_sources, write_permissions, review_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, reconciliation_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [accounting_system_access, bank_feed_access, client_approvers, audit_trail]
+
+      - id: bookkeeping.property_management
+        label: Property Management Bookkeeping
+        factory_subtype: bookkeeping
+        target_domain: finance
+        target_domain_subtype: property_management
+        client_types: [bookkeeping_firm, property_manager]
+        customer_subject_types: [property, owner_statement, ledger]
+        starter_workflows: [rent_roll_review, owner_statement_packet, reconciliation]
+        credential_families: [property_management_system_read, bank_feed_read, document_store_read]
+        adapter_families: [property_management_system, accounting_system, bank_feed]
+        high_risk_boundaries: [owner_statement_output, ledger_write, money_movement]
+        recommended_questions: [property_system, rent_roll_scope, owner_statement_rules, approver_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, reconciliation_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [property_system_access, accounting_access, owner_approvers, audit_trail]
+
+      - id: tax.individual
+        label: Individual Tax
+        factory_subtype: tax
+        target_domain: finance
+        target_domain_subtype: individual_tax
+        client_types: [tax_practice, accounting_firm]
+        customer_subject_types: [taxpayer, tax_return, tax_matter]
+        starter_workflows: [tax_document_intake, organizer_review, filing_packet]
+        credential_families: [tax_portal_access, document_store_read, accounting_system_read]
+        adapter_families: [tax_portal, document_store, tax_software]
+        high_risk_boundaries: [tax_advice, filing_submission, sensitive_financial_data]
+        recommended_questions: [tax_years, filing_scope, tax_software, preparer_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_review: scored_vote, filing_review: deliberative_council}
+        runtime_binding_focus: [tax_portal_access, document_store, preparer_approver, audit_trail]
+
+      - id: tax.business
+        label: Business Tax
+        factory_subtype: tax
+        target_domain: finance
+        target_domain_subtype: business_tax
+        client_types: [tax_practice, accounting_firm]
+        customer_subject_types: [company, tax_return, filing]
+        starter_workflows: [tax_packet_preparation, filing_review, notice_response_packet]
+        credential_families: [tax_portal_access, document_store_read, accounting_system_read]
+        adapter_families: [tax_portal, document_store, accounting_system, tax_software]
+        high_risk_boundaries: [tax_advice, filing_submission, compliance_representation]
+        recommended_questions: [entity_types, filing_scope, tax_portals, signer_approver]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_review: scored_vote, filing_review: deliberative_council}
+        runtime_binding_focus: [tax_portal_access, accounting_access, signer_approval, audit_trail]
+
+      - id: audit.support
+        label: Audit Support
+        factory_subtype: audit
+        target_domain: finance
+        target_domain_subtype: audit
+        client_types: [accounting_firm, finance_team]
+        customer_subject_types: [audit_issue, evidence_packet, engagement]
+        starter_workflows: [audit_evidence_request, control_evidence_packet, exception_response]
+        credential_families: [document_store_read, accounting_system_read, erp_read]
+        adapter_families: [document_store, accounting_system, erp, audit_platform]
+        high_risk_boundaries: [audit_evidence_integrity, external_auditor_output, compliance_representation]
+        recommended_questions: [audit_scope, evidence_sources, auditor_deadlines, review_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, high_risk_review: deliberative_council}
+        runtime_binding_focus: [evidence_repository, erp_access, audit_approvers, retention_rules]
+
+      - id: month_end.close
+        label: Month-End Close
+        factory_subtype: close
+        target_domain: finance
+        target_domain_subtype: month_end
+        client_types: [finance_team, controller_organization, accounting_firm]
+        customer_subject_types: [close_period, ledger, account]
+        starter_workflows: [close_checklist_review, accrual_packet, variance_review]
+        credential_families: [accounting_system_read, erp_read, document_store_read]
+        adapter_families: [erp, accounting_system, document_store, spreadsheet]
+        high_risk_boundaries: [financial_reporting, ledger_write, executive_output]
+        recommended_questions: [close_calendar, materiality_thresholds, account_scope, controller_approval]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, variance_review: scored_vote, close_review: deliberative_council}
+        runtime_binding_focus: [erp_access, close_calendar, controller_approver, audit_trail]
+
+      - id: payroll.ops
+        label: Payroll Operations
+        factory_subtype: payroll
+        target_domain: finance
+        target_domain_subtype: payroll
+        client_types: [finance_team, accounting_firm, payroll_provider]
+        customer_subject_types: [payroll_run, employee_record, tax_deposit]
+        starter_workflows: [payroll_precheck, exception_review, payroll_approval_packet]
+        credential_families: [payroll_system_read, document_store_read, tax_portal_access]
+        adapter_families: [payroll_system, document_store, tax_portal]
+        high_risk_boundaries: [payroll_change, tax_deposit, sensitive_employee_data]
+        recommended_questions: [payroll_provider, pay_groups, approval_deadlines, employee_data_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, exception_review: scored_vote, payroll_review: deliberative_council}
+        runtime_binding_focus: [payroll_system_access, employee_data_controls, approver_roles, audit_trail]
+
+      - id: accounts_payable.ops
+        label: Accounts Payable
+        factory_subtype: accounts_payable
+        target_domain: finance
+        target_domain_subtype: payables
+        client_types: [finance_team, accounting_firm]
+        customer_subject_types: [vendor_invoice, vendor, payment_batch]
+        starter_workflows: [invoice_intake, approval_match_review, payment_packet]
+        credential_families: [ap_system_read, document_store_read, vendor_master_read]
+        adapter_families: [ap_system, erp, document_store, payment_platform]
+        high_risk_boundaries: [payment_recommendation, vendor_change, fraud_risk]
+        recommended_questions: [ap_system, approval_matrix, payment_authority, fraud_controls]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, exception_review: scored_vote, payment_review: deliberative_council}
+        runtime_binding_focus: [ap_system_access, approval_matrix, vendor_master, audit_trail]
+
+      - id: accounts_receivable.ops
+        label: Accounts Receivable
+        factory_subtype: accounts_receivable
+        target_domain: finance
+        target_domain_subtype: receivables
+        client_types: [finance_team, accounting_firm]
+        customer_subject_types: [customer_account, invoice, collection_case]
+        starter_workflows: [ar_aging_review, collection_follow_up_packet, cash_application_review]
+        credential_families: [ar_system_read, document_store_read, customer_messaging_send]
+        adapter_families: [ar_system, erp, document_store, customer_messaging]
+        high_risk_boundaries: [customer_facing_collection, cash_application, credit_hold]
+        recommended_questions: [ar_system, collection_policy, messaging_approval, credit_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, aging_review: scored_vote, customer_output_review: deliberative_council}
+        runtime_binding_focus: [ar_system_access, messaging_access, finance_approvers, audit_trail]
+
+      - id: controller.finance_ops
+        label: Controller Finance Operations
+        factory_subtype: controller_ops
+        target_domain: finance
+        target_domain_subtype: controller
+        client_types: [controller_organization, finance_team]
+        customer_subject_types: [management_report, budget, financial_decision]
+        starter_workflows: [management_report_packet, budget_variance_review, board_packet_support]
+        credential_families: [erp_read, accounting_system_read, document_store_read]
+        adapter_families: [erp, accounting_system, bi_platform, document_store]
+        high_risk_boundaries: [management_reporting, board_output, financial_forecast]
+        recommended_questions: [reporting_cadence, management_metrics, board_review, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, variance_review: scored_vote, report_review: deliberative_council}
+        runtime_binding_focus: [erp_access, reporting_sources, controller_approver, retention_rules]
+
+  - template_id: marketing
+    recommended_factory_repo: AdxFactory
+    subtypes:
+      - id: campaign_ops.paid_media
+        label: Paid Media Campaign Operations
+        factory_subtype: campaign_ops
+        target_domain: marketing
+        target_domain_subtype: paid_media
+        client_types: [agency, brand, growth_team]
+        customer_subject_types: [campaign, audience, ad_account]
+        starter_workflows: [campaign_intake, creative_review, budget_adjustment]
+        credential_families: [ad_account_read, ad_account_write, analytics_read]
+        adapter_families: [google_ads, meta_ads, linkedin_ads, analytics]
+        high_risk_boundaries: [paid_spend, brand_risk, targeting_or_privacy_risk]
+        recommended_questions: [channels, spend_limits, launch_approvers, claim_review_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, spend_review: scored_vote, launch_review: deliberative_council}
+        runtime_binding_focus: [ad_account_connection, analytics_access, spend_approvers, brand_policy]
+
+      - id: lifecycle.email
+        label: Lifecycle Email And CRM
+        factory_subtype: lifecycle_marketing
+        target_domain: marketing
+        target_domain_subtype: email
+        client_types: [agency, brand, ecommerce_operator]
+        customer_subject_types: [audience, segment, campaign]
+        starter_workflows: [segment_review, email_send_review, attribution_review]
+        credential_families: [crm_read, email_send, analytics_read]
+        adapter_families: [crm, email_platform, analytics, consent_platform]
+        high_risk_boundaries: [external_send, privacy, regulated_claim]
+        recommended_questions: [crm_platform, consent_source, send_approval, suppression_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, segment_review: scored_vote, send_review: deliberative_council}
+        runtime_binding_focus: [crm_access, email_platform_access, consent_source, send_approvers]
+
+      - id: brand.claims
+        label: Brand And Claims Review
+        factory_subtype: brand_ops
+        target_domain: marketing
+        target_domain_subtype: claims
+        client_types: [agency, brand, regulated_marketer]
+        customer_subject_types: [claim, offer, creative_asset]
+        starter_workflows: [claim_review, landing_page_review, campaign_launch_readiness]
+        credential_families: [creative_asset_read, cms_write, legal_source_read]
+        adapter_families: [creative_asset_store, cms, legal_source, document_repository]
+        high_risk_boundaries: [regulated_claim, public_publish, brand_risk]
+        recommended_questions: [claim_categories, review_authority, source_evidence, publish_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, claim_review: deliberative_council, publish_review: deliberative_council}
+        runtime_binding_focus: [asset_store_access, cms_access, legal_sources, brand_approvers]
+
+      - id: content.seo
+        label: Content And SEO
+        factory_subtype: content_marketing
+        target_domain: marketing
+        target_domain_subtype: seo
+        client_types: [agency, brand, publisher]
+        customer_subject_types: [content_piece, keyword_cluster, page]
+        starter_workflows: [content_brief, seo_review, publish_readiness]
+        credential_families: [cms_write, analytics_read, search_console_read]
+        adapter_families: [cms, analytics, search_console, keyword_tool]
+        high_risk_boundaries: [public_publish, regulated_claim, brand_voice]
+        recommended_questions: [cms_platform, target_pages, approval_flow, claim_review_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, seo_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [cms_access, search_console_access, analytics_access, publish_approvers]
+
+      - id: social.community
+        label: Social And Community
+        factory_subtype: social_marketing
+        target_domain: marketing
+        target_domain_subtype: social
+        client_types: [agency, brand, creator_team]
+        customer_subject_types: [social_post, community_thread, social_account]
+        starter_workflows: [post_review, response_draft, escalation_packet]
+        credential_families: [social_read, social_publish, creative_asset_read]
+        adapter_families: [social_platform, community_platform, creative_asset_store]
+        high_risk_boundaries: [public_publish, brand_risk, customer_escalation]
+        recommended_questions: [platforms, moderation_rules, publish_approvers, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, response_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [social_account_access, moderation_policy, publish_approvers, escalation_channel]
+
+      - id: product_marketing.launch
+        label: Product Marketing Launch
+        factory_subtype: product_marketing
+        target_domain: marketing
+        target_domain_subtype: launch
+        client_types: [brand, product_team, agency]
+        customer_subject_types: [launch, product, offer]
+        starter_workflows: [launch_intake, positioning_review, launch_readiness]
+        credential_families: [document_store_read, cms_write, analytics_read]
+        adapter_families: [document_store, cms, analytics, project_management]
+        high_risk_boundaries: [public_claim, launch_commitment, brand_risk]
+        recommended_questions: [launch_date, product_claims, channel_scope, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, positioning_review: scored_vote, launch_review: deliberative_council}
+        runtime_binding_focus: [source_docs, cms_access, launch_approvers, analytics_access]
+
+      - id: analytics.attribution
+        label: Analytics And Attribution
+        factory_subtype: analytics
+        target_domain: marketing
+        target_domain_subtype: attribution
+        client_types: [agency, brand, growth_team]
+        customer_subject_types: [report, campaign, channel]
+        starter_workflows: [tracking_audit, attribution_review, performance_report]
+        credential_families: [analytics_read, ad_account_read, crm_read]
+        adapter_families: [analytics, ad_platform, crm, bi_platform]
+        high_risk_boundaries: [executive_reporting, privacy, budget_recommendation]
+        recommended_questions: [analytics_sources, attribution_model, privacy_constraints, reporting_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, data_quality_review: scored_vote, report_review: deliberative_council}
+        runtime_binding_focus: [analytics_access, ad_account_access, crm_access, report_approvers]
+
+      - id: ecommerce.growth
+        label: Ecommerce Growth
+        factory_subtype: growth_marketing
+        target_domain: marketing
+        target_domain_subtype: ecommerce
+        client_types: [ecommerce_operator, brand, agency]
+        customer_subject_types: [offer, campaign, product]
+        starter_workflows: [offer_review, promo_launch_review, conversion_analysis]
+        credential_families: [ecommerce_platform_read, cms_write, analytics_read]
+        adapter_families: [ecommerce_platform, cms, analytics, email_platform]
+        high_risk_boundaries: [promotion_publish, pricing_claim, customer_messaging]
+        recommended_questions: [storefront, promo_rules, margin_constraints, launch_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, offer_review: scored_vote, launch_review: deliberative_council}
+        runtime_binding_focus: [storefront_access, cms_access, analytics_access, promotion_approvers]
+
+      - id: partner.channel
+        label: Partner And Channel Marketing
+        factory_subtype: channel_marketing
+        target_domain: marketing
+        target_domain_subtype: partner
+        client_types: [brand, channel_team, agency]
+        customer_subject_types: [partner, campaign, enablement_asset]
+        starter_workflows: [partner_campaign_intake, co_marketing_review, enablement_packet]
+        credential_families: [partner_portal_read, document_store_read, cms_write]
+        adapter_families: [partner_portal, document_store, cms, crm]
+        high_risk_boundaries: [partner_commitment, brand_risk, public_publish]
+        recommended_questions: [partner_types, approval_roles, co_branding_rules, asset_sources]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, partner_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [partner_portal_access, asset_store, approval_matrix, cms_access]
+
+      - id: pr.communications
+        label: PR And Communications
+        factory_subtype: communications
+        target_domain: marketing
+        target_domain_subtype: public_relations
+        client_types: [brand, agency, communications_team]
+        customer_subject_types: [press_release, statement, media_inquiry]
+        starter_workflows: [message_intake, statement_review, media_response_packet]
+        credential_families: [document_store_read, cms_write, media_list_read]
+        adapter_families: [document_store, cms, media_database, pr_platform]
+        high_risk_boundaries: [public_statement, legal_claim, reputation_risk]
+        recommended_questions: [spokesperson_roles, legal_review, publication_channels, crisis_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, message_review: scored_vote, public_statement_review: deliberative_council}
+        runtime_binding_focus: [source_docs, cms_access, legal_approvers, media_database]
+
+  - template_id: software
+    recommended_factory_repo: openCodexFactory
+    subtypes:
+      - id: product_engineering.repo_delivery
+        label: Repo And Feature Delivery
+        factory_subtype: product_engineering
+        target_domain: software
+        target_domain_subtype: repo_delivery
+        client_types: [software_company, engineering_team]
+        customer_subject_types: [repo, feature, project]
+        starter_workflows: [approved_intent_intake, feature_decomposition, pr_admission]
+        credential_families: [repo_read, branch_write, pr_write]
+        adapter_families: [github, gitlab, ci_cd, issue_tracker]
+        high_risk_boundaries: [merge, production_deploy, data_exposure]
+        recommended_questions: [repos_in_scope, branch_policy, validation_commands, review_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, pr_admission: scored_vote, merge_readiness: deliberative_council}
+        runtime_binding_focus: [repo_access, branch_protection, ci_access, review_approvers]
+
+      - id: release_ops.cicd
+        label: Release And CI/CD
+        factory_subtype: release_ops
+        target_domain: software
+        target_domain_subtype: cicd
+        client_types: [software_company, devops_team]
+        customer_subject_types: [release, pipeline, deployment]
+        starter_workflows: [release_readiness, deployment_review, rollback_plan_review]
+        credential_families: [ci_read, deployment_operator, cloud_read]
+        adapter_families: [ci_cd, cloud_provider, package_registry, observability]
+        high_risk_boundaries: [production_deploy, package_publish, rollback_failure]
+        recommended_questions: [release_train, deployment_targets, rollback_rules, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, deployment_review: deliberative_council, rollback_review: deliberative_council}
+        runtime_binding_focus: [ci_access, deployment_identity, cloud_read, release_approvers]
+
+      - id: incident_response.software
+        label: Software Incident Response
+        factory_subtype: incident_response
+        target_domain: software
+        target_domain_subtype: production_incident
+        client_types: [software_company, platform_team]
+        customer_subject_types: [incident, service, production_workload]
+        starter_workflows: [incident_intake, root_cause_packet, remediation_review]
+        credential_families: [observability_read, repo_read, deployment_operator]
+        adapter_families: [observability, github, ci_cd, incident_management]
+        high_risk_boundaries: [production_impact, customer_data_exposure, emergency_change]
+        recommended_questions: [services_in_scope, incident_roles, evidence_sources, emergency_authority]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, root_cause_review: scored_vote, remediation_review: deliberative_council}
+        runtime_binding_focus: [observability_access, incident_channel, repo_access, deployment_authority]
+
+      - id: security.appsec
+        label: Application Security
+        factory_subtype: appsec
+        target_domain: software
+        target_domain_subtype: application_security
+        client_types: [security_team, software_company]
+        customer_subject_types: [finding, repo, vulnerability]
+        starter_workflows: [finding_triage, secure_fix_plan, security_review_packet]
+        credential_families: [repo_read, security_scanner_read, issue_tracker_write]
+        adapter_families: [github, security_scanner, issue_tracker, ci_cd]
+        high_risk_boundaries: [vulnerability_disclosure, sensitive_code, production_risk]
+        recommended_questions: [scanner_sources, severity_model, disclosure_rules, security_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, finding_review: scored_vote, security_review: deliberative_council}
+        runtime_binding_focus: [scanner_access, repo_access, issue_tracker_access, security_approvers]
+
+      - id: data_engineering.pipelines
+        label: Data Engineering Pipelines
+        factory_subtype: data_engineering
+        target_domain: software
+        target_domain_subtype: data_pipelines
+        client_types: [data_team, software_company]
+        customer_subject_types: [pipeline, dataset, data_quality_issue]
+        starter_workflows: [pipeline_intake, data_quality_review, pipeline_change_packet]
+        credential_families: [repo_read, data_catalog_read, pipeline_operator]
+        adapter_families: [data_catalog, orchestrator, warehouse, repo]
+        high_risk_boundaries: [data_exposure, pipeline_breakage, production_data_change]
+        recommended_questions: [datasets_in_scope, pii_rules, pipeline_orchestrator, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, data_quality_review: scored_vote, pipeline_change_review: deliberative_council}
+        runtime_binding_focus: [catalog_access, orchestrator_access, warehouse_read, data_approvers]
+
+      - id: mlops.model_delivery
+        label: MLOps And Model Delivery
+        factory_subtype: mlops
+        target_domain: software
+        target_domain_subtype: model_delivery
+        client_types: [ml_team, software_company]
+        customer_subject_types: [model, evaluation, deployment]
+        starter_workflows: [model_eval_packet, deployment_readiness, monitoring_review]
+        credential_families: [model_registry_read, ci_read, deployment_operator]
+        adapter_families: [model_registry, ci_cd, observability, feature_store]
+        high_risk_boundaries: [model_behavior_change, production_deploy, data_exposure]
+        recommended_questions: [model_registry, eval_metrics, deployment_targets, rollback_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, eval_review: scored_vote, deployment_review: deliberative_council}
+        runtime_binding_focus: [model_registry_access, ci_access, monitoring_access, deployment_approvers]
+
+      - id: platform_engineering.internal_tools
+        label: Platform Engineering And Internal Tools
+        factory_subtype: platform_engineering
+        target_domain: software
+        target_domain_subtype: internal_platform
+        client_types: [platform_team, software_company]
+        customer_subject_types: [service, tool, developer_workflow]
+        starter_workflows: [platform_request_intake, tool_change_review, rollout_readiness]
+        credential_families: [repo_read, cloud_read, deployment_operator]
+        adapter_families: [github, cloud_provider, ci_cd, service_catalog]
+        high_risk_boundaries: [developer_outage, production_impact, access_change]
+        recommended_questions: [platform_services, developer_groups, rollout_plan, rollback_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, rollout_review: scored_vote, change_review: deliberative_council}
+        runtime_binding_focus: [repo_access, service_catalog, cloud_read, rollout_approvers]
+
+      - id: qa.test_automation
+        label: QA And Test Automation
+        factory_subtype: quality_engineering
+        target_domain: software
+        target_domain_subtype: testing
+        client_types: [qa_team, software_company]
+        customer_subject_types: [test_suite, bug, release]
+        starter_workflows: [test_gap_review, test_plan_packet, release_quality_review]
+        credential_families: [repo_read, ci_read, issue_tracker_write]
+        adapter_families: [github, ci_cd, test_management, issue_tracker]
+        high_risk_boundaries: [release_quality, false_confidence, production_defect]
+        recommended_questions: [test_frameworks, coverage_goals, release_gates, qa_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, test_plan_review: scored_vote, release_quality_review: deliberative_council}
+        runtime_binding_focus: [repo_access, ci_access, test_results, qa_approvers]
+
+      - id: docs.developer_experience
+        label: Documentation And Developer Experience
+        factory_subtype: developer_experience
+        target_domain: software
+        target_domain_subtype: docs
+        client_types: [developer_experience_team, software_company]
+        customer_subject_types: [docs_site, api_reference, onboarding_flow]
+        starter_workflows: [docs_gap_review, api_doc_update, onboarding_packet]
+        credential_families: [repo_read, branch_write, cms_write]
+        adapter_families: [github, docs_site, cms, analytics]
+        high_risk_boundaries: [public_docs_publish, incorrect_api_guidance, security_sensitive_docs]
+        recommended_questions: [docs_sources, publish_process, review_roles, analytics_sources]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, docs_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [repo_access, docs_publish_access, review_approvers, analytics_access]
+
+      - id: product_management.requirements
+        label: Product Management And Requirements
+        factory_subtype: product_management
+        target_domain: software
+        target_domain_subtype: requirements
+        client_types: [product_team, software_company]
+        customer_subject_types: [feature, roadmap_item, requirement]
+        starter_workflows: [intent_intake, requirement_clarification, acceptance_criteria_packet]
+        credential_families: [issue_tracker_read, document_store_read, repo_read]
+        adapter_families: [issue_tracker, document_store, roadmap_tool, repo]
+        high_risk_boundaries: [scope_commitment, customer_commitment, engineering_prioritization]
+        recommended_questions: [product_area, stakeholder_groups, source_of_truth, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, requirement_review: scored_vote, readiness_review: deliberative_council}
+        runtime_binding_focus: [issue_tracker_access, docs_access, stakeholder_approvers, repo_context]
+
+  - template_id: law
+    recommended_factory_repo: LegalxFactory
+    subtypes:
+      - id: compliance.medical.pharmacy
+        label: Medical Compliance - Pharmacy
+        factory_subtype: compliance
+        target_domain: medical
+        target_domain_subtype: pharmacy
+        client_types: [law_firm, compliance_consultant, pharmacy_operator]
+        customer_subject_types: [compliance_engagement, pharmacy_policy, audit_issue]
+        starter_workflows: [compliance_intake, regulation_mapping, remediation_plan_review]
+        credential_families: [regulation_source_read, policy_document_read, evidence_repository_read]
+        adapter_families: [legal_research, compliance_management_system, policy_repository, evidence_repository]
+        high_risk_boundaries: [legal_interpretation, regulatory_advice, client_facing_compliance_output]
+        recommended_questions: [pharmacy_scope, regulatory_sources, audit_context, accountable_reviewer]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_authority_review: scored_vote, legal_position_review: deliberative_council}
+        runtime_binding_focus: [legal_sources, policy_docs, evidence_repository, professional_approvers]
+
+      - id: compliance.medical.clinic
+        label: Medical Compliance - Clinic
+        factory_subtype: compliance
+        target_domain: medical
+        target_domain_subtype: clinic
+        client_types: [law_firm, compliance_consultant, clinic]
+        customer_subject_types: [compliance_engagement, policy_review, audit_issue]
+        starter_workflows: [policy_gap_review, evidence_request_packet, corrective_action_plan]
+        credential_families: [policy_document_read, evidence_repository_read, compliance_system_read]
+        adapter_families: [legal_research, policy_repository, compliance_management_system, evidence_repository]
+        high_risk_boundaries: [regulatory_advice, audit_response, client_facing_compliance_output]
+        recommended_questions: [clinic_type, policies_in_scope, audit_or_gap_context, reviewer_authority]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_authority_review: scored_vote, legal_position_review: deliberative_council}
+        runtime_binding_focus: [policy_docs, evidence_repository, compliance_system, attorney_or_consultant_approvers]
+
+      - id: compliance.privacy.healthcare
+        label: Healthcare Privacy Compliance
+        factory_subtype: compliance
+        target_domain: privacy
+        target_domain_subtype: healthcare
+        client_types: [law_firm, compliance_consultant, healthcare_operator]
+        customer_subject_types: [privacy_assessment, policy_review, incident]
+        starter_workflows: [privacy_assessment, incident_review_packet, policy_update_review]
+        credential_families: [policy_document_read, evidence_repository_read, incident_record_read]
+        adapter_families: [legal_research, incident_management, policy_repository, evidence_repository]
+        high_risk_boundaries: [privacy_incident, regulatory_reporting, client_facing_privacy_advice]
+        recommended_questions: [privacy_regime, incident_scope, reporting_deadlines, counsel_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_authority_review: scored_vote, incident_review: deliberative_council}
+        runtime_binding_focus: [incident_records, policy_docs, evidence_store, counsel_approvers]
+
+      - id: compliance.employment.payroll
+        label: Employment Compliance - Payroll
+        factory_subtype: compliance
+        target_domain: employment
+        target_domain_subtype: payroll
+        client_types: [law_firm, compliance_consultant, employer]
+        customer_subject_types: [compliance_engagement, payroll_policy, employee_matter]
+        starter_workflows: [payroll_policy_review, wage_hour_gap_packet, remediation_plan_review]
+        credential_families: [regulation_source_read, policy_document_read, payroll_record_read]
+        adapter_families: [legal_research, payroll_system, policy_repository, document_repository]
+        high_risk_boundaries: [employment_advice, wage_hour_liability, employee_private_data]
+        recommended_questions: [jurisdictions, employee_groups, payroll_sources, counsel_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_authority_review: scored_vote, legal_position_review: deliberative_council}
+        runtime_binding_focus: [legal_sources, payroll_record_refs, policy_docs, counsel_approvers]
+
+      - id: compliance.finance.broker_dealer
+        label: Financial Compliance - Broker Dealer
+        factory_subtype: compliance
+        target_domain: finance
+        target_domain_subtype: broker_dealer
+        client_types: [law_firm, compliance_consultant, financial_services_firm]
+        customer_subject_types: [compliance_engagement, policy_review, audit_issue]
+        starter_workflows: [rule_mapping, supervisory_policy_review, exam_response_packet]
+        credential_families: [regulation_source_read, policy_document_read, evidence_repository_read]
+        adapter_families: [legal_research, compliance_management_system, policy_repository, evidence_repository]
+        high_risk_boundaries: [regulatory_advice, exam_response, client_facing_compliance_output]
+        recommended_questions: [regulators, business_lines, supervisory_procedures, reviewer_authority]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_authority_review: scored_vote, legal_position_review: deliberative_council}
+        runtime_binding_focus: [regulatory_sources, policy_docs, evidence_repository, compliance_approvers]
+
+      - id: contract_review.saas.vendor
+        label: SaaS Vendor Contract Review
+        factory_subtype: contract_review
+        target_domain: software
+        target_domain_subtype: saas_vendor
+        client_types: [law_firm, legal_department, procurement_team]
+        customer_subject_types: [contract, vendor, matter]
+        starter_workflows: [contract_intake, clause_review, redline_packet]
+        credential_families: [document_store_read, contract_repository_read, redline_workspace_write]
+        adapter_families: [contract_lifecycle_management, document_repository, redline_workspace]
+        high_risk_boundaries: [legal_advice, negotiated_position, client_facing_redline]
+        recommended_questions: [contract_type, playbook_source, negotiation_authority, approver_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, clause_review: scored_vote, redline_review: deliberative_council}
+        runtime_binding_focus: [contract_repository, playbook_docs, redline_workspace, attorney_approvers]
+
+      - id: contract_review.healthcare.vendor
+        label: Healthcare Vendor Contract Review
+        factory_subtype: contract_review
+        target_domain: medical
+        target_domain_subtype: vendor_contract
+        client_types: [law_firm, legal_department, healthcare_operator]
+        customer_subject_types: [contract, vendor, matter]
+        starter_workflows: [contract_intake, compliance_clause_review, redline_packet]
+        credential_families: [document_store_read, contract_repository_read, regulation_source_read]
+        adapter_families: [contract_lifecycle_management, legal_research, document_repository]
+        high_risk_boundaries: [medical_privacy_terms, regulated_vendor_terms, client_facing_redline]
+        recommended_questions: [vendor_type, privacy_terms, regulatory_sources, counsel_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_review: scored_vote, redline_review: deliberative_council}
+        runtime_binding_focus: [contract_repository, regulatory_sources, privacy_playbook, attorney_approvers]
+
+      - id: legal_ops.matter_management
+        label: Legal Operations And Matter Management
+        factory_subtype: legal_ops
+        target_domain: law
+        target_domain_subtype: matter_management
+        client_types: [law_firm, legal_department]
+        customer_subject_types: [matter, deadline, task]
+        starter_workflows: [matter_intake, deadline_review, status_packet]
+        credential_families: [matter_management_read, document_store_read, calendar_read]
+        adapter_families: [matter_management, document_repository, calendar, email]
+        high_risk_boundaries: [deadline_miss, privileged_information, client_status_output]
+        recommended_questions: [matter_system, deadline_sources, privilege_rules, status_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, deadline_review: scored_vote, status_review: deliberative_council}
+        runtime_binding_focus: [matter_system_access, calendar_access, document_store, privilege_boundaries]
+
+      - id: litigation.discovery
+        label: Litigation Discovery Support
+        factory_subtype: litigation_support
+        target_domain: law
+        target_domain_subtype: discovery
+        client_types: [law_firm, litigation_support_provider, legal_department]
+        customer_subject_types: [matter, discovery_request, evidence_set]
+        starter_workflows: [discovery_request_intake, evidence_index_packet, privilege_review_packet]
+        credential_families: [document_store_read, ediscovery_platform_read, privilege_log_write]
+        adapter_families: [ediscovery_platform, document_repository, matter_management]
+        high_risk_boundaries: [privilege, production_error, court_deadline]
+        recommended_questions: [case_scope, discovery_platform, privilege_rules, attorney_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, privilege_review: deliberative_council}
+        runtime_binding_focus: [ediscovery_access, document_store, privilege_reviewers, deadline_calendar]
+
+      - id: policy.governance
+        label: Policy Governance
+        factory_subtype: policy_governance
+        target_domain: governance
+        target_domain_subtype: corporate_policy
+        client_types: [legal_department, compliance_team, policy_team]
+        customer_subject_types: [policy, control, exception]
+        starter_workflows: [policy_intake, policy_gap_review, approval_packet]
+        credential_families: [policy_document_read, evidence_repository_read, approval_system_write]
+        adapter_families: [policy_repository, compliance_management_system, approval_system]
+        high_risk_boundaries: [policy_publish, control_change, executive_approval]
+        recommended_questions: [policy_domains, approval_matrix, exception_rules, publication_channels]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, policy_review: scored_vote, approval_review: deliberative_council}
+        runtime_binding_focus: [policy_repository, approval_system, control_sources, governance_approvers]
+
+  - template_id: insurance
+    recommended_factory_repo: InsurexFactory
+    subtypes:
+      - id: claims.property_casualty
+        label: Property And Casualty Claims
+        factory_subtype: claims
+        target_domain: insurance
+        target_domain_subtype: property_casualty
+        client_types: [carrier, tpa, brokerage]
+        customer_subject_types: [claim, policy, insured]
+        starter_workflows: [claim_intake, evidence_packet, coverage_review_packet]
+        credential_families: [policy_admin_read, claims_system_read, document_repository_read]
+        adapter_families: [claims_system, policy_admin, document_repository]
+        high_risk_boundaries: [coverage_position, claim_denial, payment_recommendation]
+        recommended_questions: [line_of_business, claim_system, coverage_authority, payment_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, coverage_review: deliberative_council}
+        runtime_binding_focus: [claims_access, policy_admin_access, evidence_repository, claim_approvers]
+
+      - id: claims.health
+        label: Health Insurance Claims
+        factory_subtype: claims
+        target_domain: insurance
+        target_domain_subtype: health
+        client_types: [payer, tpa, health_plan]
+        customer_subject_types: [claim, member, provider]
+        starter_workflows: [claim_intake, medical_necessity_packet, denial_review_packet]
+        credential_families: [claims_system_read, policy_admin_read, provider_portal_read]
+        adapter_families: [claims_system, payer_system, provider_portal, document_repository]
+        high_risk_boundaries: [coverage_denial, member_privacy, regulated_decision]
+        recommended_questions: [plan_types, claim_types, review_authority, member_privacy_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, denial_review: deliberative_council}
+        runtime_binding_focus: [claims_access, member_privacy_controls, provider_sources, reviewer_approvers]
+
+      - id: claims.workers_comp
+        label: Workers Compensation Claims
+        factory_subtype: claims
+        target_domain: insurance
+        target_domain_subtype: workers_comp
+        client_types: [carrier, tpa, employer]
+        customer_subject_types: [claim, injured_worker, employer]
+        starter_workflows: [claim_intake, medical_record_packet, return_to_work_review]
+        credential_families: [claims_system_read, document_repository_read, medical_record_read]
+        adapter_families: [claims_system, document_repository, medical_record_source]
+        high_risk_boundaries: [benefit_decision, medical_privacy, legal_deadline]
+        recommended_questions: [jurisdictions, claim_types, medical_sources, adjuster_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, benefit_review: deliberative_council}
+        runtime_binding_focus: [claims_access, medical_record_sources, jurisdiction_rules, adjuster_approvers]
+
+      - id: underwriting.commercial
+        label: Commercial Underwriting
+        factory_subtype: underwriting
+        target_domain: insurance
+        target_domain_subtype: commercial
+        client_types: [carrier, mga, brokerage]
+        customer_subject_types: [underwriting_file, applicant, policy]
+        starter_workflows: [submission_intake, risk_evidence_review, quote_readiness_packet]
+        credential_families: [underwriting_system_read, document_repository_read, rating_system_read]
+        adapter_families: [underwriting_system, rating_system, document_repository]
+        high_risk_boundaries: [quote_or_bind_recommendation, regulated_decision, applicant_data_privacy]
+        recommended_questions: [line_of_business, underwriting_guidelines, rating_system, approval_authority]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, risk_review: scored_vote, quote_review: deliberative_council}
+        runtime_binding_focus: [underwriting_system_access, rating_system, guideline_sources, underwriter_approvers]
+
+      - id: underwriting.personal_lines
+        label: Personal Lines Underwriting
+        factory_subtype: underwriting
+        target_domain: insurance
+        target_domain_subtype: personal_lines
+        client_types: [carrier, mga, brokerage]
+        customer_subject_types: [application, policy, household]
+        starter_workflows: [application_intake, risk_factor_review, quote_readiness_packet]
+        credential_families: [underwriting_system_read, rating_system_read, document_repository_read]
+        adapter_families: [underwriting_system, rating_system, document_repository]
+        high_risk_boundaries: [eligibility_decision, consumer_data_privacy, quote_recommendation]
+        recommended_questions: [products, rating_inputs, eligibility_rules, underwriter_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, risk_review: scored_vote, eligibility_review: deliberative_council}
+        runtime_binding_focus: [underwriting_access, rating_access, eligibility_rules, approval_roles]
+
+      - id: policy_ops.brokerage
+        label: Brokerage Policy Operations
+        factory_subtype: policy_ops
+        target_domain: insurance
+        target_domain_subtype: brokerage
+        client_types: [brokerage, agency]
+        customer_subject_types: [policy, client_account, renewal]
+        starter_workflows: [renewal_review, certificate_request, policy_change_packet]
+        credential_families: [agency_management_read, carrier_portal_read, document_repository_read]
+        adapter_families: [agency_management, carrier_portal, document_repository]
+        high_risk_boundaries: [client_facing_recommendation, carrier_submission, policy_change]
+        recommended_questions: [agency_system, carriers_in_scope, renewal_rules, producer_approval]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, renewal_review: scored_vote, policy_change_review: deliberative_council}
+        runtime_binding_focus: [agency_management_access, carrier_portals, producer_approvers, document_store]
+
+      - id: actuarial.pricing
+        label: Actuarial And Pricing Support
+        factory_subtype: actuarial
+        target_domain: insurance
+        target_domain_subtype: pricing
+        client_types: [carrier, actuarial_team]
+        customer_subject_types: [rate_model, pricing_study, assumption_set]
+        starter_workflows: [data_intake_review, assumption_packet, pricing_review_packet]
+        credential_families: [data_warehouse_read, model_repository_read, document_repository_read]
+        adapter_families: [data_warehouse, model_repository, document_repository]
+        high_risk_boundaries: [rate_recommendation, model_risk, regulated_filing]
+        recommended_questions: [data_sources, model_scope, filing_requirements, actuarial_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, data_review: scored_vote, pricing_review: deliberative_council}
+        runtime_binding_focus: [data_access, model_repository, actuarial_reviewers, audit_trail]
+
+      - id: insurance.compliance
+        label: Insurance Compliance
+        factory_subtype: compliance
+        target_domain: insurance
+        target_domain_subtype: regulatory
+        client_types: [carrier, brokerage, compliance_consultant]
+        customer_subject_types: [compliance_engagement, filing, audit_issue]
+        starter_workflows: [rule_mapping, filing_readiness_packet, audit_response]
+        credential_families: [regulation_source_read, policy_document_read, evidence_repository_read]
+        adapter_families: [legal_research, compliance_management_system, policy_repository]
+        high_risk_boundaries: [regulatory_advice, filing, audit_response]
+        recommended_questions: [jurisdictions, regulators, product_lines, compliance_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, source_review: scored_vote, compliance_review: deliberative_council}
+        runtime_binding_focus: [regulatory_sources, policy_docs, evidence_repository, compliance_approvers]
+
+      - id: subrogation.recovery
+        label: Subrogation And Recovery
+        factory_subtype: recovery
+        target_domain: insurance
+        target_domain_subtype: subrogation
+        client_types: [carrier, tpa, recovery_team]
+        customer_subject_types: [claim, recovery_case, liable_party]
+        starter_workflows: [recovery_opportunity_review, demand_packet, follow_up_review]
+        credential_families: [claims_system_read, document_repository_read, customer_messaging_send]
+        adapter_families: [claims_system, document_repository, messaging_platform]
+        high_risk_boundaries: [demand_communication, legal_position, settlement_recommendation]
+        recommended_questions: [claim_types, demand_authority, communication_rules, counsel_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, opportunity_review: scored_vote, demand_review: deliberative_council}
+        runtime_binding_focus: [claims_access, document_store, messaging_approval, counsel_approvers]
+
+      - id: risk_engineering.loss_control
+        label: Risk Engineering And Loss Control
+        factory_subtype: risk_engineering
+        target_domain: insurance
+        target_domain_subtype: loss_control
+        client_types: [carrier, brokerage, risk_engineering_team]
+        customer_subject_types: [inspection, risk_recommendation, insured_location]
+        starter_workflows: [inspection_packet, recommendation_review, follow_up_packet]
+        credential_families: [inspection_system_read, document_repository_read, customer_messaging_send]
+        adapter_families: [inspection_system, document_repository, customer_messaging]
+        high_risk_boundaries: [risk_recommendation, insured_communication, underwriting_impact]
+        recommended_questions: [inspection_types, recommendation_authority, communication_rules, underwriter_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, recommendation_review: deliberative_council}
+        runtime_binding_focus: [inspection_system, document_store, insured_messaging, underwriter_approvers]
+
+  - template_id: manufacturing
+    recommended_factory_repo: MakexFactory
+    subtypes:
+      - id: quality_ops.plant
+        label: Plant Quality Operations
+        factory_subtype: quality_ops
+        target_domain: manufacturing
+        target_domain_subtype: plant
+        client_types: [plant_operator, manufacturer]
+        customer_subject_types: [quality_issue, batch, production_line]
+        starter_workflows: [nonconformance_intake, root_cause_packet, corrective_action_review]
+        credential_families: [qms_read, document_repository_read, erp_read]
+        adapter_families: [qms, erp, document_repository]
+        high_risk_boundaries: [product_quality_decision, regulatory_quality_record, corrective_action]
+        recommended_questions: [qms_system, product_scope, quality_authority, capA_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, quality_review: deliberative_council, capA_review: deliberative_council}
+        runtime_binding_focus: [qms_access, erp_access, quality_approvers, audit_trail]
+
+      - id: maintenance.asset
+        label: Maintenance And Asset Operations
+        factory_subtype: maintenance
+        target_domain: manufacturing
+        target_domain_subtype: asset
+        client_types: [plant_operator, facilities_operator]
+        customer_subject_types: [asset, work_order, downtime_event]
+        starter_workflows: [work_order_triage, preventive_maintenance_review, downtime_root_cause_packet]
+        credential_families: [cmms_read, sensor_data_read, work_order_write]
+        adapter_families: [cmms, historian, sensor_platform]
+        high_risk_boundaries: [safety, downtime, maintenance_execution]
+        recommended_questions: [cmms_system, asset_scope, downtime_rules, maintenance_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, priority_review: scored_vote, execution_review: deliberative_council}
+        runtime_binding_focus: [cmms_access, sensor_sources, work_order_permissions, maintenance_approvers]
+
+      - id: safety.ehs
+        label: Safety And EHS
+        factory_subtype: safety
+        target_domain: manufacturing
+        target_domain_subtype: ehs
+        client_types: [plant_operator, safety_team]
+        customer_subject_types: [incident, hazard, corrective_action]
+        starter_workflows: [safety_incident_packet, hazard_review, training_gap_review]
+        credential_families: [ehs_system_read, policy_document_read, training_system_read]
+        adapter_families: [ehs_system, training_system, policy_repository]
+        high_risk_boundaries: [worker_safety, regulatory_reporting, corrective_action]
+        recommended_questions: [ehs_system, incident_types, reporting_rules, safety_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, hazard_review: scored_vote, safety_review: deliberative_council}
+        runtime_binding_focus: [ehs_access, training_access, safety_approvers, regulatory_sources]
+
+      - id: production_planning.scheduling
+        label: Production Planning And Scheduling
+        factory_subtype: production_planning
+        target_domain: manufacturing
+        target_domain_subtype: scheduling
+        client_types: [manufacturer, plant_operator]
+        customer_subject_types: [production_order, schedule, constraint]
+        starter_workflows: [schedule_review, constraint_packet, change_impact_review]
+        credential_families: [erp_read, mes_read, scheduling_write]
+        adapter_families: [erp, mes, planning_system]
+        high_risk_boundaries: [production_commitment, schedule_change, customer_delivery_impact]
+        recommended_questions: [planning_system, production_lines, schedule_authority, escalation_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, constraint_review: scored_vote, change_review: deliberative_council}
+        runtime_binding_focus: [erp_access, mes_access, schedule_write_permissions, planner_approvers]
+
+      - id: procurement.supplier_quality
+        label: Supplier Quality And Procurement
+        factory_subtype: procurement
+        target_domain: manufacturing
+        target_domain_subtype: supplier_quality
+        client_types: [manufacturer, procurement_team]
+        customer_subject_types: [supplier, purchase_order, quality_issue]
+        starter_workflows: [supplier_intake, supplier_quality_review, purchase_order_packet]
+        credential_families: [erp_read, supplier_portal_read, qms_read]
+        adapter_families: [erp, supplier_portal, qms]
+        high_risk_boundaries: [supplier_commitment, purchase_order_write, quality_escape]
+        recommended_questions: [supplier_scope, po_authority, quality_criteria, procurement_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, supplier_review: scored_vote, po_review: deliberative_council}
+        runtime_binding_focus: [erp_access, supplier_portal, qms_access, procurement_approvers]
+
+      - id: inventory.materials
+        label: Inventory And Materials
+        factory_subtype: materials
+        target_domain: manufacturing
+        target_domain_subtype: inventory
+        client_types: [manufacturer, warehouse_team]
+        customer_subject_types: [inventory_item, material_shortage, batch]
+        starter_workflows: [inventory_exception_review, shortage_packet, replenishment_review]
+        credential_families: [erp_read, inventory_write, warehouse_system_read]
+        adapter_families: [erp, wms, inventory_system]
+        high_risk_boundaries: [inventory_adjustment, production_shortage, material_traceability]
+        recommended_questions: [inventory_system, adjustment_authority, shortage_rules, warehouse_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, exception_review: scored_vote, adjustment_review: deliberative_council}
+        runtime_binding_focus: [inventory_access, erp_access, adjustment_approvers, audit_trail]
+
+      - id: regulatory.gmp
+        label: GMP And Regulated Manufacturing
+        factory_subtype: regulatory_quality
+        target_domain: manufacturing
+        target_domain_subtype: gmp
+        client_types: [manufacturer, regulated_manufacturer]
+        customer_subject_types: [batch_record, deviation, validation_packet]
+        starter_workflows: [batch_record_review, deviation_packet, validation_readiness]
+        credential_families: [qms_read, document_repository_read, mes_read]
+        adapter_families: [qms, mes, document_repository]
+        high_risk_boundaries: [regulatory_quality_record, release_decision, validation_failure]
+        recommended_questions: [regulated_products, quality_systems, release_authority, validation_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, record_review: scored_vote, release_review: deliberative_council}
+        runtime_binding_focus: [qms_access, batch_records, qa_approvers, audit_trail]
+
+      - id: engineering.change_control
+        label: Engineering Change Control
+        factory_subtype: change_control
+        target_domain: manufacturing
+        target_domain_subtype: engineering_change
+        client_types: [manufacturer, engineering_team]
+        customer_subject_types: [change_request, product, drawing]
+        starter_workflows: [change_intake, impact_review, approval_packet]
+        credential_families: [plm_read, document_repository_read, erp_read]
+        adapter_families: [plm, document_repository, erp]
+        high_risk_boundaries: [product_change, quality_impact, customer_commitment]
+        recommended_questions: [plm_system, product_scope, impact_review_roles, approval_matrix]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, impact_review: scored_vote, change_review: deliberative_council}
+        runtime_binding_focus: [plm_access, document_store, approval_matrix, audit_trail]
+
+      - id: field_service.equipment
+        label: Field Service Equipment
+        factory_subtype: field_service
+        target_domain: manufacturing
+        target_domain_subtype: equipment
+        client_types: [manufacturer, service_team]
+        customer_subject_types: [service_case, equipment, technician_visit]
+        starter_workflows: [service_case_intake, parts_review, service_follow_up_packet]
+        credential_families: [field_service_system_read, inventory_read, customer_messaging_send]
+        adapter_families: [field_service_system, inventory_system, customer_messaging]
+        high_risk_boundaries: [customer_commitment, safety, warranty_decision]
+        recommended_questions: [service_system, equipment_scope, warranty_rules, customer_messaging_approval]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, parts_review: scored_vote, customer_output_review: deliberative_council}
+        runtime_binding_focus: [field_service_access, inventory_access, messaging_access, service_approvers]
+
+      - id: energy.utilities_ops
+        label: Utilities And Energy Operations
+        factory_subtype: utilities_ops
+        target_domain: manufacturing
+        target_domain_subtype: utilities
+        client_types: [utility_operator, industrial_operator]
+        customer_subject_types: [asset, outage, work_order]
+        starter_workflows: [asset_review, outage_packet, maintenance_plan_review]
+        credential_families: [asset_system_read, sensor_data_read, work_order_write]
+        adapter_families: [asset_management, historian, cmms]
+        high_risk_boundaries: [safety, outage, regulatory_reporting]
+        recommended_questions: [asset_system, outage_rules, regulatory_context, operator_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, outage_review: scored_vote, maintenance_review: deliberative_council}
+        runtime_binding_focus: [asset_system_access, historian_access, work_order_permissions, operator_approvers]
+
+  - template_id: logistics
+    recommended_factory_repo: FlowxFactory
+    subtypes:
+      - id: freight_ops.carrier
+        label: Freight And Carrier Operations
+        factory_subtype: freight_ops
+        target_domain: logistics
+        target_domain_subtype: carrier
+        client_types: [logistics_operator, freight_broker, carrier]
+        customer_subject_types: [shipment, carrier, route]
+        starter_workflows: [shipment_intake, carrier_exception_review, delivery_follow_up]
+        credential_families: [tms_read, carrier_portal_read, customer_messaging_send]
+        adapter_families: [tms, carrier_portal, customer_messaging]
+        high_risk_boundaries: [customer_facing_commitment, carrier_selection, exception_resolution]
+        recommended_questions: [tms_system, carrier_portals, commitment_authority, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, exception_review: scored_vote, customer_commitment_review: deliberative_council}
+        runtime_binding_focus: [tms_access, carrier_portals, messaging_approval, audit_trail]
+
+      - id: warehouse_ops.inventory
+        label: Warehouse And Inventory
+        factory_subtype: warehouse_ops
+        target_domain: logistics
+        target_domain_subtype: inventory
+        client_types: [warehouse_operator, retailer, manufacturer]
+        customer_subject_types: [order, inventory_item, warehouse_task]
+        starter_workflows: [inventory_exception_review, pick_pack_issue_packet, replenishment_review]
+        credential_families: [wms_read, inventory_write, erp_read]
+        adapter_families: [wms, erp, inventory_system]
+        high_risk_boundaries: [inventory_write, customer_order_change, warehouse_execution]
+        recommended_questions: [wms_system, inventory_authority, warehouse_sites, exception_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, inventory_review: scored_vote, write_review: deliberative_council}
+        runtime_binding_focus: [wms_access, inventory_write_permissions, erp_access, warehouse_approvers]
+
+      - id: supply_chain.procurement
+        label: Supply Chain And Procurement
+        factory_subtype: supply_chain
+        target_domain: logistics
+        target_domain_subtype: procurement
+        client_types: [supply_chain_team, manufacturer, retailer]
+        customer_subject_types: [supplier, purchase_order, shortage]
+        starter_workflows: [supplier_intake, shortage_review, purchase_order_packet]
+        credential_families: [erp_read, supplier_portal_read, procurement_system_write]
+        adapter_families: [erp, supplier_portal, procurement_system]
+        high_risk_boundaries: [supplier_commitment, purchase_order_write, customer_impact]
+        recommended_questions: [supplier_scope, po_authority, shortage_rules, procurement_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, shortage_review: scored_vote, po_review: deliberative_council}
+        runtime_binding_focus: [erp_access, supplier_portal, procurement_system, approval_matrix]
+
+      - id: transportation.fleet
+        label: Fleet And Transportation
+        factory_subtype: transportation
+        target_domain: logistics
+        target_domain_subtype: fleet
+        client_types: [carrier, fleet_operator, logistics_operator]
+        customer_subject_types: [vehicle, driver, route]
+        starter_workflows: [fleet_issue_intake, route_exception_review, maintenance_follow_up]
+        credential_families: [fleet_system_read, telematics_read, customer_messaging_send]
+        adapter_families: [fleet_system, telematics, tms, customer_messaging]
+        high_risk_boundaries: [driver_safety, route_commitment, maintenance_execution]
+        recommended_questions: [fleet_system, vehicle_scope, driver_data_rules, dispatch_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, route_review: scored_vote, safety_review: deliberative_council}
+        runtime_binding_focus: [fleet_access, telematics_access, dispatch_approvers, messaging_approval]
+
+      - id: cold_chain.compliance
+        label: Cold Chain Compliance
+        factory_subtype: cold_chain
+        target_domain: logistics
+        target_domain_subtype: temperature_control
+        client_types: [logistics_operator, pharma_distributor, food_distributor]
+        customer_subject_types: [shipment, temperature_excursion, lane]
+        starter_workflows: [temperature_exception_packet, lane_review, compliance_follow_up]
+        credential_families: [tms_read, sensor_data_read, evidence_repository_read]
+        adapter_families: [tms, sensor_platform, evidence_repository]
+        high_risk_boundaries: [product_integrity, regulatory_record, customer_notification]
+        recommended_questions: [temperature_sources, excursion_rules, product_classes, quality_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, compliance_review: deliberative_council}
+        runtime_binding_focus: [sensor_access, tms_access, quality_approvers, evidence_store]
+
+      - id: customs.trade_compliance
+        label: Customs And Trade Compliance
+        factory_subtype: trade_compliance
+        target_domain: logistics
+        target_domain_subtype: customs
+        client_types: [customs_broker, importer, logistics_operator]
+        customer_subject_types: [shipment, customs_entry, product_classification]
+        starter_workflows: [entry_intake, classification_review, documentation_packet]
+        credential_families: [customs_system_read, document_repository_read, regulation_source_read]
+        adapter_families: [customs_system, document_repository, legal_research]
+        high_risk_boundaries: [regulatory_filing, classification_decision, customs_penalty]
+        recommended_questions: [countries, product_classes, filing_authority, broker_review]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, classification_review: scored_vote, filing_review: deliberative_council}
+        runtime_binding_focus: [customs_system_access, regulation_sources, broker_approvers, document_store]
+
+      - id: last_mile.delivery
+        label: Last Mile Delivery
+        factory_subtype: last_mile
+        target_domain: logistics
+        target_domain_subtype: delivery
+        client_types: [delivery_operator, retailer, logistics_operator]
+        customer_subject_types: [delivery, driver, customer_order]
+        starter_workflows: [delivery_exception_review, customer_update_packet, route_adjustment]
+        credential_families: [delivery_platform_read, customer_messaging_send, order_system_read]
+        adapter_families: [delivery_platform, customer_messaging, order_system]
+        high_risk_boundaries: [customer_facing_commitment, driver_safety, delivery_change]
+        recommended_questions: [delivery_platform, messaging_rules, route_authority, escalation_path]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, exception_review: scored_vote, customer_output_review: deliberative_council}
+        runtime_binding_focus: [delivery_platform_access, order_system, messaging_access, dispatcher_approvers]
+
+      - id: reverse_logistics.returns
+        label: Reverse Logistics And Returns
+        factory_subtype: reverse_logistics
+        target_domain: logistics
+        target_domain_subtype: returns
+        client_types: [retailer, logistics_operator, manufacturer]
+        customer_subject_types: [return, rma, inventory_item]
+        starter_workflows: [return_intake, disposition_review, vendor_claim_packet]
+        credential_families: [wms_read, order_system_read, customer_messaging_send]
+        adapter_families: [wms, order_system, customer_messaging, vendor_portal]
+        high_risk_boundaries: [refund_or_credit, inventory_disposition, customer_facing_response]
+        recommended_questions: [returns_system, disposition_rules, customer_messaging_rules, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, disposition_review: scored_vote, customer_output_review: deliberative_council}
+        runtime_binding_focus: [wms_access, order_system, messaging_access, approval_matrix]
+
+      - id: logistics.customer_service
+        label: Logistics Customer Service
+        factory_subtype: customer_service
+        target_domain: logistics
+        target_domain_subtype: service
+        client_types: [logistics_operator, carrier, 3pl]
+        customer_subject_types: [case, shipment, customer_account]
+        starter_workflows: [case_intake, status_response_draft, escalation_packet]
+        credential_families: [tms_read, customer_messaging_send, crm_read]
+        adapter_families: [tms, crm, customer_messaging, ticketing]
+        high_risk_boundaries: [customer_commitment, service_credit, escalation_response]
+        recommended_questions: [crm_system, messaging_channels, commitment_rules, escalation_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, response_review: scored_vote, escalation_review: deliberative_council}
+        runtime_binding_focus: [crm_access, tms_access, messaging_approval, escalation_channel]
+
+      - id: planning.demand_forecast
+        label: Demand Planning And Forecasting
+        factory_subtype: planning
+        target_domain: logistics
+        target_domain_subtype: demand
+        client_types: [supply_chain_team, retailer, manufacturer]
+        customer_subject_types: [forecast, sku, demand_plan]
+        starter_workflows: [forecast_intake, variance_review, demand_plan_packet]
+        credential_families: [erp_read, inventory_read, analytics_read]
+        adapter_families: [erp, inventory_system, analytics, planning_system]
+        high_risk_boundaries: [purchase_commitment, inventory_risk, executive_reporting]
+        recommended_questions: [forecast_sources, planning_horizon, approval_roles, inventory_constraints]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, variance_review: scored_vote, forecast_review: deliberative_council}
+        runtime_binding_focus: [planning_system_access, erp_access, inventory_access, planner_approvers]
+
+  - template_id: retail
+    recommended_factory_repo: CommerxFactory
+    subtypes:
+      - id: ecommerce_ops.marketplace
+        label: Marketplace Operations
+        factory_subtype: ecommerce_ops
+        target_domain: retail
+        target_domain_subtype: marketplace
+        client_types: [ecommerce_operator, marketplace_seller, retailer]
+        customer_subject_types: [order, product_listing, customer_account]
+        starter_workflows: [order_exception_review, listing_quality_review, marketplace_case_packet]
+        credential_families: [ecommerce_platform_read, marketplace_read, support_system_write]
+        adapter_families: [ecommerce_platform, marketplace, support_system]
+        high_risk_boundaries: [customer_facing_response, marketplace_policy, listing_or_price_change]
+        recommended_questions: [marketplaces, listing_scope, support_rules, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, marketplace_review: scored_vote, policy_review: deliberative_council}
+        runtime_binding_focus: [marketplace_access, ecommerce_access, support_system, approval_matrix]
+
+      - id: customer_ops.returns
+        label: Returns And Customer Support
+        factory_subtype: customer_ops
+        target_domain: retail
+        target_domain_subtype: returns
+        client_types: [retailer, ecommerce_operator, support_team]
+        customer_subject_types: [return, order, customer_account]
+        starter_workflows: [return_intake, refund_review, customer_response_draft]
+        credential_families: [order_system_read, support_system_write, payment_system_read]
+        adapter_families: [order_system, support_system, payment_system]
+        high_risk_boundaries: [refund_or_credit, customer_facing_response, policy_exception]
+        recommended_questions: [return_policy, refund_authority, support_channels, approver_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, refund_review: scored_vote, customer_output_review: deliberative_council}
+        runtime_binding_focus: [order_system_access, payment_read_access, support_write_access, refund_approvers]
+
+      - id: merchandising.pricing
+        label: Merchandising And Pricing
+        factory_subtype: merchandising
+        target_domain: retail
+        target_domain_subtype: pricing
+        client_types: [retailer, ecommerce_operator, merchandising_team]
+        customer_subject_types: [product, price_change, promotion]
+        starter_workflows: [promotion_review, pricing_exception_packet, inventory_replenishment_review]
+        credential_families: [product_catalog_read, pricing_write, inventory_read]
+        adapter_families: [product_catalog, pricing_system, inventory_system]
+        high_risk_boundaries: [price_change, promotion_publish, margin_impact]
+        recommended_questions: [pricing_system, margin_rules, promotion_authority, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, pricing_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [catalog_access, pricing_write_permissions, inventory_access, merchant_approvers]
+
+      - id: inventory.replenishment
+        label: Inventory And Replenishment
+        factory_subtype: inventory_ops
+        target_domain: retail
+        target_domain_subtype: replenishment
+        client_types: [retailer, ecommerce_operator, supply_chain_team]
+        customer_subject_types: [sku, reorder_plan, stockout]
+        starter_workflows: [stockout_review, replenishment_packet, vendor_follow_up]
+        credential_families: [inventory_read, erp_read, supplier_portal_read]
+        adapter_families: [inventory_system, erp, supplier_portal]
+        high_risk_boundaries: [purchase_commitment, stockout_risk, margin_impact]
+        recommended_questions: [inventory_system, reorder_rules, supplier_scope, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, stockout_review: scored_vote, purchase_review: deliberative_council}
+        runtime_binding_focus: [inventory_access, erp_access, supplier_portal, replenishment_approvers]
+
+      - id: store_ops.physical
+        label: Physical Store Operations
+        factory_subtype: store_ops
+        target_domain: retail
+        target_domain_subtype: store
+        client_types: [retailer, store_operator]
+        customer_subject_types: [store, task, incident]
+        starter_workflows: [store_task_intake, incident_packet, staffing_gap_review]
+        credential_families: [store_system_read, workforce_system_read, support_system_write]
+        adapter_families: [store_system, workforce_system, ticketing]
+        high_risk_boundaries: [store_safety, staffing_change, customer_impact]
+        recommended_questions: [store_locations, workforce_system, escalation_roles, safety_rules]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, incident_review: scored_vote, safety_review: deliberative_council}
+        runtime_binding_focus: [store_system_access, workforce_access, escalation_channel, store_approvers]
+
+      - id: loyalty.crm
+        label: Loyalty And CRM
+        factory_subtype: loyalty
+        target_domain: retail
+        target_domain_subtype: crm
+        client_types: [retailer, ecommerce_operator, marketing_team]
+        customer_subject_types: [customer_account, segment, offer]
+        starter_workflows: [segment_review, loyalty_offer_review, customer_message_packet]
+        credential_families: [crm_read, customer_messaging_send, analytics_read]
+        adapter_families: [crm, loyalty_platform, customer_messaging, analytics]
+        high_risk_boundaries: [privacy, customer_messaging, offer_terms]
+        recommended_questions: [crm_platform, consent_source, offer_rules, message_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, segment_review: scored_vote, offer_review: deliberative_council}
+        runtime_binding_focus: [crm_access, consent_source, messaging_access, offer_approvers]
+
+      - id: fraud.chargebacks
+        label: Fraud And Chargebacks
+        factory_subtype: fraud_ops
+        target_domain: retail
+        target_domain_subtype: chargebacks
+        client_types: [retailer, ecommerce_operator, payments_team]
+        customer_subject_types: [chargeback, transaction, customer_account]
+        starter_workflows: [chargeback_intake, evidence_packet, dispute_response_review]
+        credential_families: [payment_system_read, order_system_read, document_repository_read]
+        adapter_families: [payment_system, order_system, document_repository]
+        high_risk_boundaries: [fraud_decision, dispute_response, customer_account_action]
+        recommended_questions: [payment_processors, evidence_sources, dispute_deadlines, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, evidence_review: scored_vote, dispute_review: deliberative_council}
+        runtime_binding_focus: [payment_access, order_access, evidence_store, dispute_approvers]
+
+      - id: product_content.catalog
+        label: Product Content And Catalog
+        factory_subtype: catalog_ops
+        target_domain: retail
+        target_domain_subtype: product_content
+        client_types: [retailer, ecommerce_operator, merchandising_team]
+        customer_subject_types: [product, listing, content_asset]
+        starter_workflows: [catalog_gap_review, listing_update_packet, content_quality_review]
+        credential_families: [product_catalog_read, cms_write, creative_asset_read]
+        adapter_families: [product_catalog, cms, creative_asset_store]
+        high_risk_boundaries: [public_listing, regulated_claim, brand_risk]
+        recommended_questions: [catalog_system, product_categories, claim_review_rules, publish_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, content_review: scored_vote, publish_review: deliberative_council}
+        runtime_binding_focus: [catalog_access, cms_access, asset_store, publish_approvers]
+
+      - id: retail.analytics
+        label: Retail Analytics And Reporting
+        factory_subtype: analytics
+        target_domain: retail
+        target_domain_subtype: reporting
+        client_types: [retailer, ecommerce_operator, analytics_team]
+        customer_subject_types: [report, sku, channel]
+        starter_workflows: [data_quality_review, sales_report_packet, margin_analysis]
+        credential_families: [analytics_read, ecommerce_platform_read, inventory_read]
+        adapter_families: [analytics, ecommerce_platform, inventory_system, bi_platform]
+        high_risk_boundaries: [executive_reporting, pricing_recommendation, privacy]
+        recommended_questions: [data_sources, reporting_cadence, metric_definitions, approval_roles]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, data_quality_review: scored_vote, report_review: deliberative_council}
+        runtime_binding_focus: [analytics_access, commerce_access, inventory_access, report_approvers]
+
+      - id: subscription.commerce
+        label: Subscription Commerce
+        factory_subtype: subscription_ops
+        target_domain: retail
+        target_domain_subtype: subscription
+        client_types: [subscription_business, ecommerce_operator]
+        customer_subject_types: [subscription, customer_account, billing_issue]
+        starter_workflows: [subscription_exception_review, billing_issue_packet, retention_offer_review]
+        credential_families: [subscription_platform_read, payment_system_read, customer_messaging_send]
+        adapter_families: [subscription_platform, payment_system, customer_messaging, crm]
+        high_risk_boundaries: [billing_change, customer_messaging, retention_offer]
+        recommended_questions: [subscription_platform, billing_rules, retention_authority, messaging_approvers]
+        hermes_mixture_defaults: {setup_readiness: panel_synthesis, billing_review: scored_vote, retention_review: deliberative_council}
+        runtime_binding_focus: [subscription_access, payment_read_access, messaging_access, billing_approvers]

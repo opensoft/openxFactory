@@ -8,8 +8,35 @@ general piping layer: authority boundaries, job envelopes, approvals,
 traceability, worker routing, admission gates, review gates, and final
 enforcement handoffs.
 
+Credential access is part of the same contract boundary. See
+[xFactory Credential Access Model](credential-access-model.md) for how domain
+stacks declare credential needs, clients bind them to secret providers, Hermes
+approves use, and Omnigent workers receive short-lived scoped grants. See
+[xFactory Domain Factory Starter Pack](domain-factory-starter-pack.md) for the
+starter credentialing module each new domain should stub out.
+
+Hermes Mixture of Agents reasoning is part of the Hermes overlay surface, not a
+replacement for xFactory. See
+[Hermes Mixture Of Agents For xFactory](hermes-mixture-of-agents-for-xfactory.md)
+for the standard mix profile shape, context-packet rules, evidence records, and
+credential guardrails.
+
 Domain factories apply domain-specific Hermes and Omnigent overlays on top of
 that general piping layer.
+
+Template selection must separate the factory's work type from the buyer's
+industry. See [xFactory Taxonomy Model](factory-taxonomy-model.md).
+
+```text
+factory_type + factory_subtype
+  selects the expert work and Omnigent layer
+
+target_domain + target_domain_subtype
+  selects the subject matter overlay
+
+client_industry + client_type
+  selects client-facing assumptions and deployment language
+```
 
 ## Core Idea
 
@@ -36,6 +63,10 @@ openCodexFactory
 MedxFactory
   = xFactory + Medical Domain Hermes + Clinic Hermes + Patient Hermes
     + Medx Omnigent overlay
+
+OpsxFactory
+  = xFactory + Operations Domain Hermes + IT Customer Hermes
+    + Managed System Hermes + Opsx Omnigent overlay
 
 LedgerxFactory
   = xFactory + Ledger Domain Hermes + Firm Hermes + Ledger/Client Hermes
@@ -162,6 +193,61 @@ A customer Hermes overlay owns:
 The same base Hermes install can support many domain overlays. The same domain
 Hermes overlay can support many client Hermes overlays. The same client Hermes
 overlay can support many customer Hermes overlays.
+
+## Hermes Mixture Of Agents
+
+Any Hermes layer may use a Mixture of Agents preset as an internal reasoning
+step.
+
+```text
+Hermes layer
+  -> Hermes role or council
+  -> optional Mixture of Agents preset
+  -> acting Hermes role synthesizes recommendation
+  -> Hermes gate decision
+  -> openxFactory job envelope or state transition
+```
+
+Mixture of Agents does not add a fourth Hermes layer. It is a review pattern
+inside the existing domain, client, or customer Hermes layer.
+
+Reference agents are advisory. They receive only approved context packets and
+must not receive raw secrets, unrestricted private records, runtime credential
+grants, or tool access. The acting Hermes role may request tool use or runtime
+capability grants only through the openxFactory gate and credential broker
+contract.
+
+Domain factory repos declare reusable mix profiles under `hermes/domain/`.
+Client and customer overlays may specialize those profiles through templates
+under `hermes/client/` and `hermes/customer/`.
+
+```text
+hermes/domain/agent-mixes.yaml
+hermes/client/agent-mixes.template.yaml
+hermes/customer/agent-mixes.template.yaml
+```
+
+Common mix uses include pre-run simulation, setup readiness review, gate review
+packets, credential approval review, memory promotion review, high-risk action
+planning, and domain expert panels.
+
+The default native Hermes Mixture of Agents pattern is `panel_synthesis`:
+independent reference outputs followed by acting Hermes synthesis. xFactory adds
+two governed council modes on top of that primitive:
+
+```text
+scored_vote
+  independent opinions -> explicit vote or score -> acting Hermes synthesis
+
+deliberative_council
+  independent opinions -> disagreement summary -> rebuttal
+  -> revised opinions -> consensus or dissent record
+  -> acting Hermes recommendation
+```
+
+Both modes produce recommendation evidence only. They do not approve work
+without the owning Hermes gate, review council, accountable human, or external
+enforcement system.
 
 ## Three Hermes Layers
 
@@ -558,6 +644,10 @@ opensoft/MedxFactory
   medical domain stack
   https://github.com/opensoft/MedxFactory
 
+opensoft/OpsxFactory
+  IT operations, sysops, devops, identity, infrastructure, and tenant administration domain stack
+  https://github.com/opensoft/OpsxFactory
+
 opensoft/LedgerxFactory
   accounting, finance, and ledger domain stack
   https://github.com/opensoft/LedgerxFactory
@@ -637,6 +727,17 @@ Recommended shape:
     expert-routing/
     validation-checks/
     output-templates/
+
+  credentials/
+    README.md
+    requirements.yaml
+    bindings.template.yaml
+    grants.template.yaml
+    audit.yaml
+    policies/
+      approval-policy.yaml
+      rotation-policy.yaml
+      revocation-policy.yaml
 
   tenants/
     README.md
@@ -866,6 +967,70 @@ patient data
 Domain experts should get better in their domain, but not by silently absorbing
 private customer data.
 
+## External Source Workspaces
+
+Domain factories may use external source workspaces such as NotebookLM to gather,
+summarize, compare, and discuss source material. These workspaces are mediated
+source surfaces, not ground truth by themselves.
+
+The generic rule is:
+
+```text
+external source workspace output
+  -> source trace
+  -> ground source verification when required
+  -> Hermes review
+  -> memory, policy, workflow, or agent use
+```
+
+NotebookLM workspaces may attach to any Hermes layer or to an approved domain
+agent task:
+
+- Customer Hermes may use customer-scoped notebooks for private customer context.
+- Client Hermes may use client-scoped notebooks for tenant policies, SOPs,
+  integrations, staff credentials, coverage, and local operating sources.
+- Domain Hermes may use domain-scoped notebooks for reusable research,
+  regulations, standards, playbooks, and root truth corpus exploration.
+- Domain agents may use task-scoped notebooks as job context under the owning
+  Hermes layer's approval and source policy.
+
+Every workspace-derived claim must carry a source authority level:
+
+```text
+L0 unverified_note
+L1 notebook_synthesis
+L2 notebook_cited_source
+L3 ground_source_verified
+L4 hermes_reviewed_truth
+L5 operational_policy
+```
+
+NotebookLM output defaults to `L1`. Citations to notebook sources may support
+`L2`. A claim reaches `L3` only when the original article, regulation, chart,
+policy, document, or other ground source is recorded and checked. It reaches
+`L4` or `L5` only after the relevant Hermes layer accepts it.
+
+The required trace chain is:
+
+```text
+claim
+  -> NotebookLM output or note
+  -> notebook workspace
+  -> notebook source
+  -> original ground source
+  -> cited passage, page, section, timestamp, or document-level citation
+  -> verification record
+  -> Hermes review decision
+  -> consuming memory, policy, workflow, or agent artifact
+```
+
+If a notebook citation points only to an entire source, the trace must record
+that document-level citation. If the consuming workflow requires precise
+support, the verifier must add page, section, passage, timestamp, or equivalent
+location metadata before the claim can be promoted.
+
+See [NotebookLM Source Workspaces](notebooklm-source-workspaces.md).
+
 ## Domain Omnigent Overlays
 
 Base Omnigent provides the general agent harness and execution substrate.
@@ -1057,6 +1222,7 @@ Recommended workstation layout:
 /home/brett/projects/xFactory/
   README.md
   MedxFactory/
+  OpsxFactory/
   LedgerxFactory/
   AdxFactory/
   openCodexFactory/

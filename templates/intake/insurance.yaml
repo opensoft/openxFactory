@@ -1,0 +1,198 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: insurance
+  name: Insurance, Claims, Underwriting, And Policy Operations
+  recommended_factory_repo: InsurexFactory
+  description: Claims, underwriting, brokerage, policy, and evidence workflow support.
+
+taxonomy_defaults:
+  factory_type: insurance
+  factory_subtype: claims
+  target_domain: insurance
+  target_domain_subtype: property_casualty
+  client_industry: insurance
+  client_type: carrier
+  customer_subject_type: claim
+
+hermes_defaults:
+  domain_hermes: Insurance Domain Hermes
+  client_hermes_aliases:
+    - Carrier Hermes
+    - Brokerage Hermes
+    - TPA Hermes
+    - Claims Organization Hermes
+  customer_hermes_aliases:
+    - Claim Hermes
+    - Policy Hermes
+    - Insured Hermes
+    - Underwriting File Hermes
+
+supported_profiles:
+  - id: claims.property_casualty
+    label: Property And Casualty Claims
+    factory_subtype: claims
+    target_domain: insurance
+    target_domain_subtype: property_casualty
+    client_types:
+      - carrier
+      - tpa
+      - brokerage
+    customer_subject_types:
+      - claim
+      - policy
+      - insured
+    starter_workflows:
+      - claim_intake
+      - evidence_packet
+      - coverage_review_packet
+    credential_families:
+      - policy_admin_read
+      - claims_system_read
+      - document_repository_read
+    high_risk_boundaries:
+      - coverage_position
+      - claim_denial
+      - payment_recommendation
+
+  - id: underwriting.commercial
+    label: Commercial Underwriting
+    factory_subtype: underwriting
+    target_domain: insurance
+    target_domain_subtype: commercial
+    client_types:
+      - carrier
+      - mga
+      - brokerage
+    customer_subject_types:
+      - underwriting_file
+      - applicant
+      - policy
+    starter_workflows:
+      - submission_intake
+      - risk_evidence_review
+      - quote_readiness_packet
+    credential_families:
+      - underwriting_system_read
+      - document_repository_read
+      - rating_system_read
+    high_risk_boundaries:
+      - quote_or_bind_recommendation
+      - regulated_decision
+      - applicant_data_privacy
+
+  - id: policy_ops.brokerage
+    label: Brokerage Policy Operations
+    factory_subtype: policy_ops
+    target_domain: insurance
+    target_domain_subtype: brokerage
+    client_types:
+      - brokerage
+      - agency
+    customer_subject_types:
+      - policy
+      - client_account
+      - renewal
+    starter_workflows:
+      - renewal_review
+      - certificate_request
+      - policy_change_packet
+    credential_families:
+      - agency_management_read
+      - carrier_portal_read
+      - document_repository_read
+    high_risk_boundaries:
+      - client_facing_recommendation
+      - carrier_submission
+      - policy_change
+
+recommended_questions:
+  - Is the work claims, underwriting, brokerage, policy ops, or compliance?
+  - What lines of business are in scope?
+  - Will the workflow recommend denial, coverage, quote, bind, or payment?
+  - Which systems hold policy, claim, applicant, and evidence records?
+  - Who approves regulated insurance decisions?
+
+common_workflows:
+  - id: claim_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: coverage_review_packet
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: payment_recommendation
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: submission_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: quote_readiness_packet
+    risk: high
+    required_mix_mode: scored_vote
+
+credential_families:
+  - id: policy_admin_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: claims_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: underwriting_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: carrier_portal_read
+    access_modes:
+      - delegated_api
+      - browser_session
+    actions:
+      - read
+  - id: document_repository_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: rating_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: agency_management_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+
+adapter_families:
+  - claims_system
+  - policy_admin
+  - agency_management
+  - carrier_portal
+  - rating_system
+  - document_repository
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  coverage_position_requires_human_approval: true
+  payment_recommendation_requires_human_approval: true
+  quote_or_bind_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  evidence_review: scored_vote
+  coverage_review: deliberative_council
+  underwriting_review: deliberative_council
+
+runtime_binding_focus:
+  - claims system access
+  - policy admin access
+  - document evidence source
+  - regulated decision approvers
+  - audit and retention rules

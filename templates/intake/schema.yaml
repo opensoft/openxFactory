@@ -1,0 +1,66 @@
+schema_version: 1
+kind: xfactory_intake_template_schema
+
+required_top_level:
+  - schema_version
+  - kind
+  - template
+  - taxonomy_defaults
+  - supported_profiles
+  - recommended_questions
+  - common_workflows
+  - credential_families
+  - adapter_families
+  - risk_defaults
+  - hermes_mixture_defaults
+  - runtime_binding_focus
+
+template_fields:
+  id: stable template id
+  name: human-readable name
+  recommended_factory_repo: target domain factory repo
+  description: short template summary
+
+taxonomy_defaults:
+  factory_type: professional work type
+  factory_subtype: default service area
+  target_domain: default domain the work is about
+  target_domain_subtype: default narrower context
+  client_industry: default buyer/operator industry
+  client_type: default organization type
+  customer_subject_type: default top-of-stack subject
+
+supported_profiles:
+  description: reusable profile choices offered by the intake UI
+  required_fields:
+    - id
+    - label
+    - factory_subtype
+    - target_domain
+    - target_domain_subtype
+    - client_types
+    - customer_subject_types
+    - starter_workflows
+    - credential_families
+    - high_risk_boundaries
+
+recommended_questions:
+  description: question branches the intake UI should ask for this template
+
+common_workflows:
+  description: workflow seeds suggested by the template
+
+credential_families:
+  description: abstract credential needs; never raw credentials
+
+adapter_families:
+  description: systems this template commonly integrates with
+
+risk_defaults:
+  description: default risk posture and approval expectations
+
+hermes_mixture_defaults:
+  description: recommended Hermes council mode defaults
+
+runtime_binding_focus:
+  description: self-hosted runtime checks likely needed after pre-run intake

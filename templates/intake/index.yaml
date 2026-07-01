@@ -1,0 +1,63 @@
+schema_version: 1
+kind: xfactory_intake_template_index
+
+templates:
+  - id: medical
+    file: medical.yaml
+    recommended_factory_repo: MedxFactory
+    factory_type: medical
+    default_profile: clinical_operations.clinic
+
+  - id: operations
+    file: operations.yaml
+    recommended_factory_repo: OpsxFactory
+    factory_type: operations
+    default_profile: identity_admin.m365
+
+  - id: accounting
+    file: accounting.yaml
+    recommended_factory_repo: LedgerxFactory
+    factory_type: accounting
+    default_profile: bookkeeping.small_business
+
+  - id: marketing
+    file: marketing.yaml
+    recommended_factory_repo: AdxFactory
+    factory_type: marketing
+    default_profile: campaign_ops.paid_media
+
+  - id: software
+    file: software.yaml
+    recommended_factory_repo: openCodexFactory
+    factory_type: software
+    default_profile: product_engineering.repo_delivery
+
+  - id: law
+    file: law.yaml
+    recommended_factory_repo: LegalxFactory
+    factory_type: law
+    default_profile: compliance.medical.pharmacy
+
+  - id: insurance
+    file: insurance.yaml
+    recommended_factory_repo: InsurexFactory
+    factory_type: insurance
+    default_profile: claims.property_casualty
+
+  - id: manufacturing
+    file: manufacturing.yaml
+    recommended_factory_repo: MakexFactory
+    factory_type: manufacturing
+    default_profile: quality_ops.plant
+
+  - id: logistics
+    file: logistics.yaml
+    recommended_factory_repo: FlowxFactory
+    factory_type: logistics
+    default_profile: freight_ops.carrier
+
+  - id: retail
+    file: retail.yaml
+    recommended_factory_repo: CommerxFactory
+    factory_type: retail
+    default_profile: ecommerce_ops.marketplace

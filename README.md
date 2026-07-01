@@ -1,6 +1,6 @@
-# openWorkflow
+# openxFactory
 
-`openWorkflow` documents the domain-neutral xFactory workflow rail used by Opensoft domain factory projects.
+`openxFactory` documents the domain-neutral xFactory workflow rail used by Opensoft domain factory projects.
 
 It defines reusable contracts for:
 
@@ -15,20 +15,20 @@ It defines reusable contracts for:
 
 ## Core Boundary
 
-`openWorkflow` is domain-neutral.
+`openxFactory` is domain-neutral.
 
 ```text
 Hermes
   owns intent, policy, memory, approval, and governance history.
 
-openWorkflow / xFactory
+openxFactory / xFactory
   owns contracts, gates, traceability, routing, state transitions, and audit.
 
 Domain factory repos
   own domain-specific execution behavior.
 
 Domain Omnigent layers
-  run bounded domain agents under Hermes policy and openWorkflow gates.
+  run bounded domain agents under Hermes policy and openxFactory gates.
 
 External enforcement systems
   enforce final state where applicable.
@@ -42,6 +42,9 @@ opencodexFactory
 
 MedxFactory
   uses Omnigent to run clinical and medical reasoning agents.
+
+OpsxFactory
+  uses Omnigent to run sysops, devops, and IT administration agents.
 ```
 
 ## Documentation
@@ -50,7 +53,22 @@ Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
+- [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
+- [xFactory Domain Factory Starter Pack](docs/domain-factory-starter-pack.md)
+- [Domain Instantiation Pre-Run Questionnaire](docs/domain-instantiation-pre-run-questionnaire.md)
+- [Domain Instantiation Setup Runbook](docs/domain-instantiation-setup-runbook.md)
+- [xFactory Intake And Installer Plan](docs/intake-and-installer-plan.md)
+- [Self-Hosted Runtime Binding Plan](docs/self-hosted-runtime-binding-plan.md)
+- [Intake Template Catalog](templates/intake/README.md)
+- [Intake Subtype Install Readiness Report](docs/intake-subtype-install-readiness-report.md)
+- [Intake Subtype Install Runbook](docs/intake-subtype-install-runbook.md)
+- [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
+- [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
+- [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [xFactory Credential Access Model](docs/credential-access-model.md)
+- [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
+- [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
 - [Roles and Authority](docs/roles-and-authority.md)
@@ -61,10 +79,13 @@ Engineering-domain implementation docs now belong in `opensoft/opencodexFactory`
 
 Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
+IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
+
 ## Domain Implementations
 
 - `opensoft/opencodexFactory` — software, code, repo, and engineering xFactory domain stack.
 - `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
+- `opensoft/OpsxFactory` — IT operations, sysops, devops, identity, infrastructure, and tenant administration xFactory domain stack.
 
 ## OpenSpec Records
 
@@ -89,7 +110,7 @@ Canonical specs:
 
 ## Install Repo Pins
 
-`openWorkflow` pins approved install repo revisions under `installs/` when needed.
+`openxFactory` pins approved install repo revisions under `installs/` when needed.
 
 Current submodules:
 

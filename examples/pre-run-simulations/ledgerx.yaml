@@ -1,0 +1,86 @@
+schema_version: 1
+kind: xfactory_instantiation_prerun_answers
+
+answer_metadata:
+  status: simulated
+  scope: domain
+  generated_from:
+    - LedgerxFactory/README.md
+    - LedgerxFactory/stack.yaml
+    - LedgerxFactory/docs/client-hermes-model.md
+    - LedgerxFactory/docs/accounting-workflow-gates.md
+  assumptions:
+    - Firm Hermes should become the normalized client Hermes layer.
+    - Client Hermes should become the normalized customer Hermes layer until narrowed by engagement.
+  must_confirm_before_instantiation:
+    - customer-subject kind for each deployment
+    - credential provider and approval rules
+    - human professional review boundaries
+
+domain:
+  repo: LedgerxFactory
+  category: accounting
+  closest_existing_domain: MedxFactory
+  simulation_status: concept_stack_with_inferred_credentials
+
+hermes_layers:
+  domain_hermes: Ledgerx Domain Hermes
+  client_hermes: Firm Hermes
+  customer_hermes: Client Hermes
+  normalized_note: Existing repo names Client Hermes and Firm Hermes; customer-subject should be narrowed per engagement.
+
+legacy_normalization:
+  uses_legacy_subject_layer: true
+  legacy_subject_layer_name: Client Hermes
+  normalized_client_layer_name: Firm Hermes
+  normalized_customer_layer_name: Client Hermes
+
+instantiation:
+  level: domain
+  hosted_by: opensoft
+  client_kinds:
+    - accounting_firm
+    - bookkeeping_firm
+    - finance_team
+    - controller_organization
+  customer_subject_kinds:
+    - company
+    - ledger
+    - tax_matter
+    - engagement
+    - filing
+    - report
+
+workflow_seed:
+  readonly_workflow: client_intake_readiness
+  privileged_workflow: filing_review
+  highest_risk_level: high
+  gates:
+    - client_intake_readiness
+    - document_completeness
+    - reconciliation_review
+    - close_readiness
+    - tax_boundary_review
+    - final_approval
+
+credentials:
+  raw_secrets_in_repo_allowed: false
+  secret_provider: tbd
+  runtime_grants_required: true
+  inferred_requirements:
+    - accounting_system_read
+    - bank_feed_read
+    - ledger_write
+    - document_store_read
+    - filing_portal_access
+    - payment_approval
+
+validation:
+  local_command: tbd
+  golden_path_required: true
+  blocked_path_required: true
+  gaps:
+    - add explicit three-layer Hermes overlays
+    - add credential module
+    - add workflow specs
+    - add validation command

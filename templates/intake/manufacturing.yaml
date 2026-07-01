@@ -1,0 +1,206 @@
+schema_version: 1
+kind: xfactory_intake_template
+
+template:
+  id: manufacturing
+  name: Manufacturing, Industrial Ops, Quality, And Maintenance
+  recommended_factory_repo: MakexFactory
+  description: Plant, quality, maintenance, SOP, procurement, and safety workflow support.
+
+taxonomy_defaults:
+  factory_type: manufacturing
+  factory_subtype: quality_ops
+  target_domain: manufacturing
+  target_domain_subtype: plant
+  client_industry: manufacturing
+  client_type: plant_operator
+  customer_subject_type: production_line
+
+hermes_defaults:
+  domain_hermes: Manufacturing Domain Hermes
+  client_hermes_aliases:
+    - Plant Hermes
+    - Manufacturer Hermes
+    - Industrial Operator Hermes
+  customer_hermes_aliases:
+    - Production Line Hermes
+    - Work Order Hermes
+    - Quality Issue Hermes
+    - Maintenance Asset Hermes
+
+supported_profiles:
+  - id: quality_ops.plant
+    label: Plant Quality Operations
+    factory_subtype: quality_ops
+    target_domain: manufacturing
+    target_domain_subtype: plant
+    client_types:
+      - plant_operator
+      - manufacturer
+    customer_subject_types:
+      - quality_issue
+      - batch
+      - production_line
+    starter_workflows:
+      - nonconformance_intake
+      - root_cause_packet
+      - corrective_action_review
+    credential_families:
+      - qms_read
+      - document_repository_read
+      - erp_read
+    high_risk_boundaries:
+      - product_quality_decision
+      - regulatory_quality_record
+      - corrective_action
+
+  - id: maintenance.asset
+    label: Maintenance And Asset Operations
+    factory_subtype: maintenance
+    target_domain: manufacturing
+    target_domain_subtype: asset
+    client_types:
+      - plant_operator
+      - facilities_operator
+    customer_subject_types:
+      - asset
+      - work_order
+      - downtime_event
+    starter_workflows:
+      - work_order_triage
+      - preventive_maintenance_review
+      - downtime_root_cause_packet
+    credential_families:
+      - cmms_read
+      - sensor_data_read
+      - work_order_write
+    high_risk_boundaries:
+      - safety
+      - downtime
+      - maintenance_execution
+
+  - id: safety.ehs
+    label: Safety And EHS
+    factory_subtype: safety
+    target_domain: manufacturing
+    target_domain_subtype: ehs
+    client_types:
+      - plant_operator
+      - safety_team
+    customer_subject_types:
+      - incident
+      - hazard
+      - corrective_action
+    starter_workflows:
+      - safety_incident_packet
+      - hazard_review
+      - training_gap_review
+    credential_families:
+      - ehs_system_read
+      - policy_document_read
+      - training_system_read
+    high_risk_boundaries:
+      - worker_safety
+      - regulatory_reporting
+      - corrective_action
+
+recommended_questions:
+  - Is the work quality, maintenance, safety, procurement, or production ops?
+  - Which plant, line, asset, batch, or issue is the customer subject?
+  - Which QMS, CMMS, ERP, or historian systems are in scope?
+  - Could the workflow affect safety, quality release, or production uptime?
+  - Who approves corrective actions or production-impacting changes?
+
+common_workflows:
+  - id: nonconformance_intake
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: root_cause_packet
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: corrective_action_review
+    risk: high
+    required_mix_mode: deliberative_council
+  - id: work_order_triage
+    risk: moderate
+    required_mix_mode: panel_synthesis
+  - id: safety_incident_packet
+    risk: high
+    required_mix_mode: deliberative_council
+
+credential_families:
+  - id: qms_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: cmms_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: work_order_write
+    access_modes:
+      - delegated_api
+    actions:
+      - write
+  - id: sensor_data_read
+    access_modes:
+      - historian_api
+      - delegated_api
+    actions:
+      - read
+  - id: document_repository_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: erp_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: ehs_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+  - id: policy_document_read
+    access_modes:
+      - document_repository
+    actions:
+      - read
+  - id: training_system_read
+    access_modes:
+      - delegated_api
+    actions:
+      - read
+
+adapter_families:
+  - qms
+  - cmms
+  - erp
+  - historian
+  - ehs_system
+  - document_repository
+  - training_system
+
+risk_defaults:
+  readonly_requires_human_approval: false
+  safety_related_requires_human_approval: true
+  quality_release_requires_human_approval: true
+  production_change_requires_human_approval: true
+  default_high_risk_mix_mode: deliberative_council
+
+hermes_mixture_defaults:
+  setup_readiness: panel_synthesis
+  quality_review: deliberative_council
+  safety_review: deliberative_council
+  maintenance_priority_review: scored_vote
+
+runtime_binding_focus:
+  - QMS or CMMS access
+  - plant system boundaries
+  - safety approver references
+  - production impact approval
+  - audit and retention

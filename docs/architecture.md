@@ -10,8 +10,20 @@ marketing, and other domain factories through Hermes and Omnigent overlays. See
 [xFactory Domain Factory Model](xfactory-domain-factory-model.md).
 
 The first product domain stack repositories are expected to be
-`opensoft/MedxFactory`, `opensoft/LedgerxFactory`, `opensoft/AdxFactory`, and
-`opensoft/opencodexFactory`.
+`opensoft/MedxFactory`, `opensoft/OpsxFactory`, `opensoft/LedgerxFactory`,
+`opensoft/AdxFactory`, and `opensoft/opencodexFactory`.
+
+Credential access across those domain stacks is governed by the
+[xFactory Credential Access Model](credential-access-model.md). Domain repos
+declare credential requirements, clients bind those requirements to real secret
+providers, Hermes approves runtime use, and Omnigent workers receive only
+short-lived scoped grants.
+
+Hermes Mixture of Agents reasoning is governed by
+[Hermes Mixture Of Agents For xFactory](hermes-mixture-of-agents-for-xfactory.md).
+Mixture of Agents is a Hermes reasoning pattern, not a new execution authority:
+reference agents advise, the acting Hermes role synthesizes, Hermes gates
+decide, openxFactory enforces, and Omnigent workers execute bounded work.
 
 ## Roles
 
@@ -31,6 +43,17 @@ Hermes owns:
 - review coordination
 
 Hermes may read domain execution artifacts for status and traceability, but Hermes does not run domain agent implementation work directly.
+
+Hermes may use Mixture of Agents presets inside a domain, client, or customer
+Hermes layer. A mix can improve reasoning quality by collecting independent
+reference-agent opinions and synthesizing them through an acting Hermes role.
+The mix output is evidence or recommendation only until the owning Hermes gate,
+review council, accountable human, or external enforcement system approves the
+next transition.
+
+The native Hermes pattern is `panel_synthesis`. xFactory adds `scored_vote` and
+`deliberative_council` protocols when the domain needs explicit scoring,
+rebuttal rounds, consensus, dissent records, and audit-grade review.
 
 ### OpenSpec
 
@@ -80,6 +103,10 @@ opencodexFactory
 MedxFactory
   clinical, medical, patient, and diagnostic workflows
   Omnigent runs clinical and medical reasoning agents
+
+OpsxFactory
+  sysops, devops, IT administration, identity, infrastructure, and tenant operations
+  Omnigent runs IT operations agents
 ```
 
 A domain factory owns:
@@ -152,6 +179,9 @@ opencodexFactory
 
 MedxFactory
   openWorkflow rail + medical policy + clinical agents + clinician review
+
+OpsxFactory
+  openWorkflow rail + operations policy + IT agents + privileged action review
 ```
 
 The two domain factories share workflow structure, but not domain artifacts or agent populations.

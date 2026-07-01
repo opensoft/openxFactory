@@ -1,0 +1,84 @@
+schema_version: 1
+kind: xfactory_instantiation_prerun_answers
+
+answer_metadata:
+  status: simulated
+  scope: domain
+  generated_from:
+    - MedxFactory/README.md
+    - MedxFactory/stack.yaml
+    - MedxFactory/docs/care-organization-hermes.md
+    - MedxFactory/workflows/decision-foundation-loop.yaml
+  assumptions:
+    - Patient Hermes remains the normalized customer Hermes layer.
+    - Care Organization Hermes remains the normalized client Hermes layer.
+  must_confirm_before_instantiation:
+    - credential broker contract
+    - patient consent model per workflow
+    - human clinical review requirements
+
+domain:
+  repo: MedxFactory
+  category: medical
+  closest_existing_domain: OpsxFactory
+  simulation_status: implementation_stack_with_missing_credential_module
+
+hermes_layers:
+  domain_hermes: Medx Domain Hermes
+  client_hermes: Care Organization Hermes
+  customer_hermes: Patient Hermes
+  normalized_note: Existing repo already models Patient, Care Organization, and Medx Domain Hermes.
+
+legacy_normalization:
+  uses_legacy_subject_layer: true
+  legacy_subject_layer_name: Patient Hermes
+  normalized_client_layer_name: Care Organization Hermes
+  normalized_customer_layer_name: Patient Hermes
+
+instantiation:
+  level: domain
+  hosted_by: opensoft
+  client_kinds:
+    - clinic
+    - group_practice
+    - hospital
+    - pharmacy
+    - imaging_center
+    - idtf
+  customer_subject_kinds:
+    - patient
+    - patient_case
+    - decision_candidate
+    - care_plan
+    - diagnostic_pathway
+
+workflow_seed:
+  readonly_workflow: patient_foundation_review
+  privileged_workflow: decision_foundation_loop
+  highest_risk_level: critical
+  gates:
+    - decision_scope_gate
+    - dependency_mapping_gate
+    - reliability_assessment_gate
+    - risk_of_wrong_gate
+    - clinician_review_routing_gate
+
+credentials:
+  raw_secrets_in_repo_allowed: false
+  secret_provider: tbd
+  runtime_grants_required: true
+  inferred_requirements:
+    - ehr_patient_read
+    - scheduling_write
+    - patient_messaging_send
+    - imaging_result_read
+    - pharmacy_reconciliation
+
+validation:
+  local_command: make validate
+  golden_path_required: true
+  blocked_path_required: true
+  gaps:
+    - add explicit credential module
+    - add pre-run questionnaire artifact
+    - add blocked-path and repair examples
