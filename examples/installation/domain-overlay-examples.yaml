@@ -1,0 +1,233 @@
+schema_version: 1
+kind: xfactory_domain_installation_overlay_examples
+
+examples:
+  - id: medxfactory_clinic_installation_overlay
+    overlay:
+      id: medx_clinic_overlay
+      domain_factory_repo: opensoft/MedxFactory
+      domain: medical
+      profile: clinic
+      owner_layer: Medx Domain Hermes
+      description: >
+        Specializes the openxFactory installation spine for clinic workflows,
+        patient-facing consent, licensed-role boundaries, referrals, prior auth,
+        clinical documentation boundaries, and RCM handoffs.
+    compatibility:
+      openxfactory_repo: opensoft/openxFactory
+      openxfactory_ref: main
+      installation_spine_template: templates/installation/openxfactory-installation-spine.yaml
+      supported_stage_ids:
+        - install_scope
+        - domain_resolution
+        - source_access_consent
+        - source_inventory
+        - current_state_inference
+        - workflow_definition_packet
+        - user_validation_walkthrough
+        - best_practice_comparison
+        - migration_plan
+        - workflow_change_consent
+        - target_workflow_generation
+        - dry_run_cutover
+        - drift_monitoring
+    stage_overrides:
+      - stage_id: source_access_consent
+        operation: supplement
+        reason: Add patient privacy, delegated authorization, and HIPAA-sensitive source language.
+        domain_inputs:
+          - patient_consent_policy
+          - facility_access_policy
+        domain_outputs:
+          - medx_source_access_consent_addendum
+        emits_openxfactory_artifacts: true
+      - stage_id: current_state_inference
+        operation: supplement
+        reason: Map documents and messages to patient journey, referral, eligibility, prior auth, clinical review, and RCM events.
+        domain_inputs:
+          - medx_activity_ontology
+          - medx_patient_subject_model
+        domain_outputs:
+          - medx_current_state_annotations
+        emits_openxfactory_artifacts: true
+      - stage_id: best_practice_comparison
+        operation: replace
+        reason: Medical best practice and regulatory boundaries are domain-specific.
+        domain_inputs:
+          - medx_policy_pack
+          - licensed_role_rules
+          - patient_consent_rules
+        domain_outputs:
+          - medx_practice_gap_findings
+        emits_openxfactory_artifacts: true
+        approval_rule_ref: medx/domain/policies/install-review.yaml
+      - stage_id: migration_plan
+        operation: replace
+        reason: Clinical, administrative, and RCM migration plans need domain playbooks and role constraints.
+        domain_inputs:
+          - medx_migration_playbooks
+          - clinic_role_capabilities
+        domain_outputs:
+          - medx_migration_plan_sections
+        emits_openxfactory_artifacts: true
+        approval_rule_ref: medx/domain/policies/cutover-approval.yaml
+      - stage_id: workflow_change_consent
+        operation: constrain
+        reason: Patient-facing or clinical workflow changes may require stricter consent and role approvals.
+        domain_inputs:
+          - patient_consent_rules
+          - clinic_approver_matrix
+        domain_outputs:
+          - medx_consent_constraints
+        emits_openxfactory_artifacts: true
+      - stage_id: dry_run_cutover
+        operation: veto
+        reason: Cutover must stop when licensed-role, consent, or clinical-safety preconditions are missing.
+        domain_inputs:
+          - licensed_role_rules
+          - clinical_safety_checklist
+        domain_outputs:
+          - medx_cutover_blocker
+        emits_openxfactory_artifacts: true
+        blocking_condition: missing_required_medx_precondition
+        resolution_path: route_to_medx_domain_review
+    artifact_bindings:
+      required_openxfactory_artifacts:
+        - installation_scope
+        - domain_overlay_binding
+        - source_access_consent
+        - workflow_definition_packet
+        - practice_gap
+        - workflow_migration_plan
+        - workflow_change_consent
+        - target_workflow_package
+        - dry_run_cutover_record
+      domain_artifacts:
+        - medx_source_access_consent_addendum
+        - medx_current_state_annotations
+        - medx_practice_gap_findings
+        - medx_migration_plan_sections
+        - medx_consent_constraints
+        - medx_cutover_blocker
+    validation:
+      nonreplaceable_controls_acknowledged: true
+      stricter_rule_wins: true
+      replacement_requires_same_artifact_family: true
+      domain_review_required_for:
+        - clinical_workflow_change
+        - patient_data_promotion
+        - high_risk_cutover
+
+  - id: ledgerxfactory_accounting_installation_overlay
+    overlay:
+      id: ledgerx_accounting_overlay
+      domain_factory_repo: opensoft/LedgerxFactory
+      domain: accounting
+      profile: accounting_firm
+      owner_layer: Ledger Domain Hermes
+      description: >
+        Specializes the openxFactory installation spine for accounting,
+        bookkeeping, reconciliation, close, tax, audit, reporting, approval,
+        and financial control workflows.
+    compatibility:
+      openxfactory_repo: opensoft/openxFactory
+      openxfactory_ref: main
+      installation_spine_template: templates/installation/openxfactory-installation-spine.yaml
+      supported_stage_ids:
+        - install_scope
+        - domain_resolution
+        - source_access_consent
+        - source_inventory
+        - current_state_inference
+        - workflow_definition_packet
+        - user_validation_walkthrough
+        - best_practice_comparison
+        - migration_plan
+        - workflow_change_consent
+        - target_workflow_generation
+        - dry_run_cutover
+        - drift_monitoring
+    stage_overrides:
+      - stage_id: source_inventory
+        operation: supplement
+        reason: Add accounting systems, bank feeds, ledgers, document stores, approval channels, and reporting packages.
+        domain_inputs:
+          - ledgerx_source_taxonomy
+          - accounting_system_catalog
+        domain_outputs:
+          - ledgerx_source_inventory_annotations
+        emits_openxfactory_artifacts: true
+      - stage_id: current_state_inference
+        operation: supplement
+        reason: Map emails and documents to invoice, bill, bank-feed, reconciliation, close, tax, and reporting events.
+        domain_inputs:
+          - ledgerx_activity_ontology
+          - ledger_subject_model
+        domain_outputs:
+          - ledgerx_current_state_annotations
+        emits_openxfactory_artifacts: true
+      - stage_id: best_practice_comparison
+        operation: replace
+        reason: Accounting controls, segregation of duties, close cadence, and audit readiness are domain-specific.
+        domain_inputs:
+          - ledgerx_control_framework
+          - accounting_policy_pack
+        domain_outputs:
+          - ledgerx_practice_gap_findings
+        emits_openxfactory_artifacts: true
+        approval_rule_ref: ledgerx/domain/policies/install-review.yaml
+      - stage_id: migration_plan
+        operation: replace
+        reason: Migration must preserve books, reconciliations, approvals, audit trail, filing deadlines, and close status.
+        domain_inputs:
+          - ledgerx_migration_playbooks
+          - client_close_calendar
+        domain_outputs:
+          - ledgerx_migration_plan_sections
+        emits_openxfactory_artifacts: true
+        approval_rule_ref: ledgerx/domain/policies/cutover-approval.yaml
+      - stage_id: target_workflow_generation
+        operation: replace
+        reason: Target workflows should be generated from accounting workflow templates and control mappings.
+        domain_inputs:
+          - ledgerx_workflow_templates
+          - ledgerx_control_mappings
+        domain_outputs:
+          - ledgerx_target_workflow_sections
+        emits_openxfactory_artifacts: true
+        approval_rule_ref: ledgerx/domain/policies/target-generation-review.yaml
+      - stage_id: drift_monitoring
+        operation: supplement
+        reason: Add drift signals for manual side ledgers, unreconciled feeds, skipped approvals, late close tasks, and unsupported exceptions.
+        domain_inputs:
+          - ledgerx_drift_signal_catalog
+        domain_outputs:
+          - ledgerx_drift_signals
+        emits_openxfactory_artifacts: true
+    artifact_bindings:
+      required_openxfactory_artifacts:
+        - installation_scope
+        - domain_overlay_binding
+        - installation_source_inventory
+        - workflow_definition_packet
+        - practice_gap
+        - workflow_migration_plan
+        - workflow_change_consent
+        - target_workflow_package
+        - dry_run_cutover_record
+        - drift_monitoring_plan
+      domain_artifacts:
+        - ledgerx_source_inventory_annotations
+        - ledgerx_current_state_annotations
+        - ledgerx_practice_gap_findings
+        - ledgerx_migration_plan_sections
+        - ledgerx_target_workflow_sections
+        - ledgerx_drift_signals
+    validation:
+      nonreplaceable_controls_acknowledged: true
+      stricter_rule_wins: true
+      replacement_requires_same_artifact_family: true
+      domain_review_required_for:
+        - accounting_control_change
+        - bank_feed_write_action
+        - close_or_filing_cutover

@@ -42,6 +42,7 @@ Native openxFactory contracts:
 | Contract | Purpose | Initial Source |
 |---|---|---|
 | `schemas/avatar-first-ui-profile.schema.yaml` | Domain-neutral avatar-first UI profile contract for xFactory frontends and domain overlays | `openxFactory` |
+| `schemas/domain-installation-overlay.schema.yaml` | Domain overlay contract for supplementing, replacing, constraining, or vetoing openxFactory installation stages | `openxFactory` |
 
 Planned contracts:
 

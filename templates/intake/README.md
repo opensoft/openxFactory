@@ -26,6 +26,11 @@ UI templates live separately under [templates/ui](../ui/README.md). Intake
 selects the domain factory and profile; avatar-first UI profiles define how
 users interact with the selected factory.
 
+Installation templates live separately under
+[templates/installation](../installation/README.md). Intake decides which
+factory and profile should be installed; the installation spine decides how the
+client environment is discovered, validated, migrated, and cut over.
+
 Client-layer templates live under [templates/client-layer](../client-layer/README.md).
 They define how a Client Hermes overlay models products, services,
 subscriptions, managed services, and hybrid offers.

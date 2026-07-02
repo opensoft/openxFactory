@@ -122,3 +122,15 @@ contracts:
       - Omnigent interaction workers
     compatibility: canonical_openxfactory_contract
     adapter_owner: domain factory repos
+  - id: domain-installation-overlay
+    path: contracts/schemas/domain-installation-overlay.schema.yaml
+    source_path: openxFactory/contracts/schemas/domain-installation-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - domain factory installation overlays
+      - openxFactory installer
+      - Client Hermes installation workflows
+      - Domain Hermes review workflows
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos

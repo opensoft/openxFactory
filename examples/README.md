@@ -47,6 +47,7 @@ and install-specific examples that may change with Omnigent implementation.
 ```text
 examples/
   avatar-first-ui/
+  installation/
   merge-master/
   project-alfa/
     decomposition/

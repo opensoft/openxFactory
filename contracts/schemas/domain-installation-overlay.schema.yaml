@@ -1,0 +1,124 @@
+schema_version: 1
+name: domain_installation_overlay
+type: object
+required:
+  - overlay
+  - compatibility
+  - stage_overrides
+  - artifact_bindings
+  - validation
+properties:
+  overlay:
+    type: object
+    required:
+      - id
+      - domain_factory_repo
+      - domain
+      - profile
+      - owner_layer
+    properties:
+      id:
+        type: string
+      domain_factory_repo:
+        type: string
+      domain:
+        type: string
+      profile:
+        type: string
+      owner_layer:
+        type: string
+      description:
+        type: string
+  compatibility:
+    type: object
+    required:
+      - openxfactory_repo
+      - openxfactory_ref
+      - installation_spine_template
+      - supported_stage_ids
+    properties:
+      openxfactory_repo:
+        type: string
+      openxfactory_ref:
+        type: string
+      installation_spine_template:
+        type: string
+      supported_stage_ids:
+        type: array
+        items:
+          type: string
+  stage_overrides:
+    type: array
+    items:
+      type: object
+      required:
+        - stage_id
+        - operation
+        - reason
+        - emits_openxfactory_artifacts
+      properties:
+        stage_id:
+          type: string
+        operation:
+          type: string
+          enum:
+            - supplement
+            - replace
+            - constrain
+            - veto
+        reason:
+          type: string
+        domain_inputs:
+          type: array
+          items:
+            type: string
+        domain_outputs:
+          type: array
+          items:
+            type: string
+        emits_openxfactory_artifacts:
+          type: boolean
+        approval_rule_ref:
+          type: string
+        blocking_condition:
+          type: string
+        resolution_path:
+          type: string
+  artifact_bindings:
+    type: object
+    required:
+      - required_openxfactory_artifacts
+      - domain_artifacts
+    properties:
+      required_openxfactory_artifacts:
+        type: array
+        items:
+          type: string
+      domain_artifacts:
+        type: array
+        items:
+          type: string
+  validation:
+    type: object
+    required:
+      - nonreplaceable_controls_acknowledged
+      - stricter_rule_wins
+      - replacement_requires_same_artifact_family
+    properties:
+      nonreplaceable_controls_acknowledged:
+        type: boolean
+        enum:
+          - true
+      stricter_rule_wins:
+        type: boolean
+        enum:
+          - true
+      replacement_requires_same_artifact_family:
+        type: boolean
+        enum:
+          - true
+      domain_review_required_for:
+        type: array
+        items:
+          type: string
+

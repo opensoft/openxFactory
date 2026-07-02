@@ -1,0 +1,324 @@
+schema_version: 1
+kind: xfactory_open_installation_spine
+
+template:
+  id: openxfactory_installation_spine
+  name: openxFactory Installation Spine
+  description: >
+    Domain-neutral installation control plane for configuring a client xFactory
+    from declared scope, client resources, current workflow evidence,
+    best-practice migration, consent, target generation, dry-run, and drift
+    monitoring.
+  default_strategy: hybrid_domain_overlay
+
+layering:
+  base_layer:
+    owner: openxFactory
+    role: installation_control_plane
+    always_runs: true
+  domain_overlay_layer:
+    owner: DomainxFactory repo
+    role: domain_interpretation_and_best_practice
+    optional: true
+    allowed_operations:
+      - supplement
+      - replace
+      - constrain
+      - veto
+  generic_fallback:
+    applies_when: no_compatible_domain_overlay
+    mode: product_service_general_install
+    limits:
+      - no_regulated_domain_claims_without_domain_overlay
+      - no_professional_standard_claims_without_domain_overlay
+      - no_domain_memory_promotion_without_domain_review
+
+nonreplaceable_controls:
+  - id: scoped_source_access_consent
+    rule: Source access must be scoped, consented, and revocable.
+  - id: forbidden_secret_exports
+    rule: Raw credentials, refresh tokens, private keys, and unrestricted private exports are forbidden.
+  - id: current_state_not_policy
+    rule: Client resources prove current state only until Hermes accepts target policy.
+  - id: ai_hypothesis_boundary
+    rule: AI-inferred workflows remain hypotheses until source-backed and user validated.
+  - id: target_definition_packet
+    rule: Target workflows require an approved workflow definition packet.
+  - id: gap_disposition_required
+    rule: Every current-to-target mismatch requires a gap disposition.
+  - id: workflow_change_consent_required
+    rule: Workflow changes require explicit consent before enforced cutover.
+  - id: source_refs_and_authority_levels
+    rule: Installation artifacts must retain source refs and authority levels.
+  - id: customer_boundary_protection
+    rule: Customer-specific facts remain in customer or client boundaries unless promotion is approved.
+  - id: compatible_artifacts_required
+    rule: Domain overlays must emit openxFactory-compatible artifact families.
+
+overlay_operations:
+  supplement:
+    description: Add domain prompts, sources, roles, examples, checks, or UI language.
+    may_weaken_base_control: false
+  replace:
+    description: Replace stage implementation while preserving required openxFactory outputs.
+    requires:
+      - compatible_stage_id
+      - emitted_openxfactory_artifacts
+      - approval_rule_reference
+  constrain:
+    description: Add stricter gates, thresholds, preconditions, or human review.
+    may_weaken_base_control: false
+  veto:
+    description: Block stage continuation when domain preconditions are missing.
+    requires:
+      - blocking_condition
+      - reviewer_or_resolution_path
+
+stages:
+  - id: install_scope
+    sequence: 1
+    openxfactory_responsibility: >
+      Capture client, tenant boundary, requested outcome, product/service
+      scope, deployment assumptions, and out-of-scope workflows.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - installation_scope
+    validation_rules:
+      - scope_has_accountable_client_owner
+      - scope_lists_included_and_excluded_workflows
+
+  - id: domain_resolution
+    sequence: 2
+    openxfactory_responsibility: >
+      Decide whether a compatible DomainxFactory overlay applies or whether
+      the generic product/service installer should run.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+      - veto
+    required_artifacts:
+      - domain_overlay_binding
+    validation_rules:
+      - domain_overlay_version_is_pinned_when_present
+      - generic_fallback_declares_domain_limits_when_no_overlay_exists
+
+  - id: source_access_consent
+    sequence: 3
+    openxfactory_responsibility: >
+      Collect scoped consent for document, email, ticket, CRM, calendar,
+      collaboration, and related system analysis.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+      - veto
+    required_artifacts:
+      - source_access_consent
+    validation_rules:
+      - source_access_is_read_only_until_write_scope_is_approved
+      - source_access_consent_is_separate_from_workflow_change_consent
+
+  - id: source_inventory
+    sequence: 4
+    openxfactory_responsibility: >
+      Catalog systems, owners, source families, folders, mailboxes, date
+      windows, retention rules, and access modes.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - installation_source_inventory
+    validation_rules:
+      - every_source_has_owner_scope_and_retention_rule
+      - forbidden_source_exports_are_blocked
+
+  - id: current_state_inference
+    sequence: 5
+    openxfactory_responsibility: >
+      Build evidence graph, event ledger, candidate workflow instances, and
+      current-state hypotheses from approved resources.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - workflow_evidence_claim
+      - current_workflow_map
+    validation_rules:
+      - ai_inference_is_marked_hypothesis
+      - evidence_claims_have_source_refs
+      - current_state_claims_do_not_become_l5_policy_without_approval
+
+  - id: workflow_definition_packet
+    sequence: 6
+    openxfactory_responsibility: >
+      Convert current-state evidence into states, transitions, roles, gates,
+      artifacts, systems, messages, exceptions, and unresolved questions.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - workflow_definition_packet
+    validation_rules:
+      - packet_has_source_refs_for_each_material_step
+      - conflicts_are_preserved_for_validation
+
+  - id: user_validation_walkthrough
+    sequence: 7
+    openxfactory_responsibility: >
+      Walk affected users or workflow owners through inferred current state,
+      supporting evidence, conflicts, risks, and open questions.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - user_validation_record
+    validation_rules:
+      - current_state_validation_is_not_workflow_change_consent
+      - unresolved_questions_are_recorded
+
+  - id: best_practice_comparison
+    sequence: 8
+    openxfactory_responsibility: >
+      Compare validated current state against generic xFactory workflow,
+      security, privacy, approval, and communication standards.
+    allowed_overlay_operations:
+      - supplement
+      - replace
+      - constrain
+      - veto
+    required_artifacts:
+      - practice_gap
+    validation_rules:
+      - every_mismatch_has_disposition
+      - replaced_domain_comparison_emits_openxfactory_gap_records
+
+  - id: migration_plan
+    sequence: 9
+    openxfactory_responsibility: >
+      Produce current-to-target delta, containment controls, dual-run or
+      shadow-run plan, cutover criteria, rollback path, training, and monitoring.
+    allowed_overlay_operations:
+      - supplement
+      - replace
+      - constrain
+      - veto
+    required_artifacts:
+      - workflow_migration_plan
+    validation_rules:
+      - plan_maps_current_steps_to_target_steps
+      - high_risk_gaps_have_containment_controls
+      - replacement_plan_preserves_openxfactory_plan_shape
+
+  - id: workflow_change_consent
+    sequence: 10
+    openxfactory_responsibility: >
+      Collect explicit approval to replace, constrain, automate, retire, or
+      enforce a target workflow.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+      - veto
+    required_artifacts:
+      - workflow_change_consent
+    validation_rules:
+      - consent_identifies_current_workflow_target_workflow_and_affected_roles
+      - missing_consent_blocks_enforced_cutover
+
+  - id: target_workflow_generation
+    sequence: 11
+    openxfactory_responsibility: >
+      Generate the approved target workflow package from validated current
+      state, gap records, migration plan, consent, and approvals.
+    allowed_overlay_operations:
+      - supplement
+      - replace
+      - constrain
+      - veto
+    required_artifacts:
+      - target_workflow_package
+    validation_rules:
+      - target_package_references_definition_packet_gap_records_and_consent
+      - replacement_generator_preserves_openxfactory_target_package_refs
+
+  - id: dry_run_cutover
+    sequence: 12
+    openxfactory_responsibility: >
+      Run dry-run or shadow-run checks, compare outputs, approve cutover,
+      define rollback or repair, and retire old practice.
+    allowed_overlay_operations:
+      - supplement
+      - replace
+      - constrain
+      - veto
+    required_artifacts:
+      - dry_run_cutover_record
+    validation_rules:
+      - cutover_has_approver_refs
+      - rollback_or_repair_path_is_defined
+      - retired_practices_are_explicitly_blocked_or_marked
+
+  - id: drift_monitoring
+    sequence: 13
+    openxfactory_responsibility: >
+      Monitor for return to retired practices, side-channel work, new
+      workarounds, training gaps, target defects, and policy drift.
+    allowed_overlay_operations:
+      - supplement
+      - constrain
+    required_artifacts:
+      - drift_monitoring_plan
+    validation_rules:
+      - drift_signals_have_owner_and_review_cadence
+      - drift_findings_route_to_training_policy_tooling_or_workflow_defect
+
+artifact_families:
+  - id: installation_scope
+  - id: domain_overlay_binding
+  - id: source_access_consent
+  - id: installation_source_inventory
+  - id: workflow_evidence_claim
+  - id: current_workflow_map
+  - id: workflow_definition_packet
+  - id: user_validation_record
+  - id: practice_gap
+  - id: workflow_migration_plan
+  - id: workflow_change_consent
+  - id: target_workflow_package
+  - id: dry_run_cutover_record
+  - id: drift_monitoring_plan
+
+generic_product_service_defaults:
+  applies_when: no_domain_overlay
+  target_models:
+    - product
+    - service
+    - subscription
+    - managed_service
+    - hybrid_offer
+  starter_workflows:
+    - lead_or_request_intake
+    - eligibility_or_fit_check
+    - quote_scope_or_order_confirmation
+    - fulfillment_or_service_delivery
+    - approval_or_exception_handling
+    - customer_update
+    - support_or_issue_resolution
+    - renewal_expansion_or_closeout
+  best_practice_sources:
+    - openxfactory_workflow_gates
+    - security_and_credential_minimization
+    - consent_and_authority_boundaries
+    - customer_communication_clarity
+    - approval_traceability
+    - auditability_and_rollback
+
+overlay_manifest_contract:
+  schema: contracts/schemas/domain-installation-overlay.schema.yaml
+  required_top_level_keys:
+    - overlay
+    - compatibility
+    - stage_overrides
+    - artifact_bindings
+    - validation
+

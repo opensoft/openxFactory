@@ -25,6 +25,13 @@ client documents and email
 The installer should learn what the client really does today. It should not
 silently copy that behavior into the new xFactory deployment.
 
+This discovery workflow runs inside the
+[openxFactory Installation Spine And Domain Overlays](openxfactory-installation-spine.md)
+model. openxFactory owns the general control plane. Domain repos such as
+MedxFactory or LedgerxFactory may supplement, replace, constrain, or veto
+specific installation stages when domain expertise changes the correct answer.
+They must still emit the required openxFactory installation artifacts.
+
 ## 2. Why This Matters
 
 Client documents and emails are valuable because they show real operating
@@ -110,6 +117,11 @@ Use this pipeline for client installation.
 14. Target workflow generation
 15. Dry-run and cutover
 ```
+
+The pipeline is the openxFactory installation spine for Client Hermes. Domain
+overlays may specialize a stage, but they must preserve source traceability,
+current-state versus target-state separation, workflow-change consent, and the
+shared artifact families.
 
 ### 5.1 Source Inventory
 

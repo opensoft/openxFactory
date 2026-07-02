@@ -14,6 +14,11 @@ Purpose: provide reusable templates for Client Hermes overlays.
   records to discover workflows and migrate bad current practice to approved
   target practice.
 
+General installation spine templates live under
+[templates/installation](../installation/README.md). Client-layer templates are
+used inside that spine when the installer configures a tenant or Client Hermes
+overlay.
+
 The template is a design contract. Domain factories specialize it, and real
 client or tenant instantiations bind it to actual staff, systems, approvers,
 credential references, and offer catalogs.

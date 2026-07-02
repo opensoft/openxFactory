@@ -454,6 +454,22 @@ milestones, support boundaries, and renewal or expansion logic.
 
 See [Client Hermes Product And Service Scaffold](client-hermes-product-service-scaffold.md).
 
+### Installation Spine And Domain Overlays
+
+Client installation uses a two-layer model. The openxFactory installation spine
+always runs the shared control plane: scope, consent, source inventory,
+current-state inference, validation, gap disposition, migration planning,
+workflow-change consent, target generation, cutover, rollback, and drift
+monitoring.
+
+Domain repos such as MedxFactory or LedgerxFactory may overlay that spine. They
+should supplement stages where they add domain vocabulary, source types,
+examples, or stricter gates. They should replace only the stages where domain
+expertise changes the implementation, usually best-practice comparison,
+migration playbooks, target workflow generation, and domain cutover checks.
+
+See [openxFactory Installation Spine And Domain Overlays](openxfactory-installation-spine.md).
+
 ### Client Installation Discovery And Migration
 
 Client Hermes may use the installing company's document management system,
