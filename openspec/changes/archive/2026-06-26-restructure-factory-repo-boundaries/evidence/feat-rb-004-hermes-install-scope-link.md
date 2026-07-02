@@ -11,10 +11,10 @@ Decision: READY FOR PR ADMISSION
 Allowed scope:
 
 - `Hermes-Install` README scope clarification
-- links from `Hermes-Install` to canonical `openWorkflow` docs
+- links from `Hermes-Install` to canonical `openxFactory` docs
 - explicit note that the `Hermes-Install` remote ownership decision is unresolved
 - statement that duplicate policy docs are implementation notes or legacy
-  working copies unless `openWorkflow` delegates ownership
+  working copies unless `openxFactory` delegates ownership
 
 Confirmed exclusions:
 
@@ -27,9 +27,9 @@ Confirmed exclusions:
 
 ## Inputs Reviewed
 
-- `openWorkflow/docs/repo-boundary-audit.md`
-- `openWorkflow/contracts/README.md`
-- `openWorkflow/openspec/changes/restructure-factory-repo-boundaries/proposal.md`
+- `openxFactory/docs/repo-boundary-audit.md`
+- `openxFactory/contracts/README.md`
+- `openxFactory/openspec/changes/restructure-factory-repo-boundaries/proposal.md`
 - `Hermes-Install/README.md`
 - `Hermes-Install` PR #1 diff
 
@@ -38,7 +38,7 @@ Confirmed exclusions:
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
 | `Hermes-Install` README states Hermes install, operations, backup, restore, upgrade, and DR scope | Yes | `Hermes-Install` PR #1 | Scope section added |
-| README links to canonical `openWorkflow` boundary and workflow policy | Yes | `Hermes-Install` PR #1 | Links to boundary audit, pilot plan, contracts, OpenSpec change |
+| README links to canonical `openxFactory` boundary and workflow policy | Yes | `Hermes-Install` PR #1 | Links to boundary audit, pilot plan, contracts, OpenSpec change |
 | unresolved `Hermes-Install` remote ownership decision is documented | Yes | `Hermes-Install` PR #1 | FarHeap vs Opensoft decision stated |
 | no deployment scripts or manifests changed | Yes | `git diff --name-status` | Only `README.md` changed in clean PR branch |
 
@@ -64,7 +64,7 @@ Review result: PASS
 Review notes:
 
 - The implementation PR changes only `Hermes-Install/README.md`.
-- The README now treats `openWorkflow` as canonical workflow and contract
+- The README now treats `openxFactory` as canonical workflow and contract
   authority.
 - The README keeps Hermes-specific install, runtime, bridge, memory, auth, and
   recovery scope in `Hermes-Install`.

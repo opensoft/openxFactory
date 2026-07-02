@@ -1,0 +1,334 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_template
+
+template:
+  id: avatar_first
+  name: Avatar-First xFactory UI
+  description: >
+    Shared UI template where an AI avatar is the primary interaction surface and
+    conventional UI panels provide support controls, context, transcript,
+    settings, and handoff.
+  recommended_default_level: L1_audio_first_visual_avatar
+
+authority_boundaries:
+  avatar_is_presentation_only: true
+  workflow_authority_layer: openxFactory
+  policy_authority_layer: Hermes
+  execution_layer: Domain Omnigent
+  final_enforcement_layer: domain_specific_external_system_or_accountable_human
+
+implementation_levels:
+  - id: L0_text_avatar
+    label: Text Avatar
+    default_use: guided chat, intake, and review where voice is not required
+  - id: L1_audio_first_visual_avatar
+    label: Audio-First Visual Avatar
+    default_use: voice, captions, portrait or simple generated avatar, subtle animation
+  - id: L2_live_2d_3d_avatar
+    label: Live 2D Or 3D Avatar
+    default_use: speech-driven motion, expressions, visemes, gestures, and caption sync
+  - id: L3_streaming_avatar_vendor
+    label: Streaming Avatar Vendor
+    default_use: demo or pilot after vendor, privacy, audit, and retention review
+  - id: L4_custom_realtime_avatar_engine
+    label: Custom Realtime Avatar Engine
+    default_use: high-control immersive surface with domain-owned realtime rendering
+
+hermes_layer_ui_guidance:
+  customer_hermes:
+    default_ui_mode: avatar_first
+    primary_user_set:
+      - customer_subject
+      - authorized_representative
+      - caregiver_or_delegate_when_domain_allows
+    avatar_helpful_for:
+      - intake
+      - follow_up
+      - explanation
+      - preference_capture
+      - consent_or_authorization_discussion
+      - language_switching
+      - comprehension_or_confirmation_checks
+      - handoff_requests
+    conventional_ui_helpful_for:
+      - structured_fact_confirmation
+      - timeline_review
+      - document_upload
+      - preference_settings
+      - consent_and_sharing_settings
+      - workflow_status
+      - transcript_and_history_review
+    rationale: >
+      Customer-subject users usually need guidance, trust, accessibility,
+      language support, and clear handoff more than dense controls.
+
+  client_hermes:
+    default_ui_mode: hybrid
+    primary_user_set:
+      - staff
+      - operator
+      - manager
+      - approver
+      - tenant_administrator
+    avatar_helpful_for:
+      - guided_workflow_launch
+      - triage_explanation
+      - training_and_onboarding
+      - blocked_workflow_explanation
+      - policy_interpretation
+      - review_packet_summary
+      - next_best_action_guidance
+      - customer_handoff_preparation
+    conventional_ui_helpful_for:
+      - dashboards
+      - queues
+      - rosters
+      - permissions
+      - credential_bindings
+      - integration_status
+      - schedules
+      - approval_lists
+      - reporting
+      - bulk_operations
+    rationale: >
+      Client operators need conversational help for ambiguity, but also dense
+      operational controls for scanning, approvals, configuration, and repeated
+      work.
+
+  domain_hermes:
+    default_ui_mode: conventional_first_with_avatar_copilot
+    primary_user_set:
+      - domain_expert
+      - reviewer
+      - maintainer
+      - governance_owner
+      - specialist_council
+    avatar_helpful_for:
+      - policy_explanation
+      - review_council_summary
+      - maintainer_onboarding
+      - implementation_option_comparison
+      - high_risk_request_explanation
+      - policy_or_schema_drafting
+    conventional_ui_helpful_for:
+      - policy_editing
+      - schema_and_version_management
+      - routing_tables
+      - gate_configuration
+      - evidence_review
+      - source_promotion
+      - evaluation_metrics
+      - approval_records
+      - audit_logs
+      - diff_and_trace_inspection
+    rationale: >
+      Domain governance needs precision, evidence density, version control,
+      source traceability, and auditability more than a conversational front
+      door.
+
+interaction_surface:
+  primary_region: avatar_stage
+  support_regions:
+    - conversation_rail
+    - context_panel
+    - action_bar
+    - handoff_panel
+    - settings_panel
+  session_states:
+    - idle
+    - preflight
+    - disclosure
+    - preference_selection
+    - active_conversation
+    - tool_request_pending
+    - workflow_waiting
+    - comprehension_or_confirmation_check
+    - handoff_requested
+    - handoff_active
+    - paused
+    - completed
+    - abandoned
+    - blocked
+    - escalated
+    - archived
+  accessibility:
+    captions_required: true
+    keyboard_navigation_required: true
+    reduced_motion_required: true
+    text_only_fallback_required: true
+    language_switch_required_when_multilingual: true
+
+channels:
+  avatar_rendering:
+    owns:
+      - persona_visual
+      - animation_state
+      - speaking_status
+      - disclosure_prompt
+      - handoff_prompt
+    must_not_own:
+      - sole_copy_of_domain_state
+      - credential_grants
+      - final_authority_decisions
+  conversation_media:
+    owns:
+      - text_turns
+      - audio_stream
+      - caption_stream
+      - interruption_events
+      - session_lifecycle
+    must_not_own:
+      - domain_policy_decisions
+      - unrestricted_tool_execution
+  workflow_tool:
+    owns:
+      - governed_tool_requests
+      - tool_authorization_checks
+      - domain_workflow_state
+      - approved_tool_results
+    must_not_own:
+      - raw_secret_storage
+      - ungated_external_enforcement
+  governance_supervisor:
+    owns:
+      - policy_monitoring
+      - risk_escalation
+      - blocked_state_detection
+      - audit_event_creation
+    must_not_own:
+      - avatar_persona_selection_without_policy
+      - domain_execution_without_gates
+
+standard_controls:
+  - id: start_session
+    action_class: session
+    required: true
+  - id: pause_or_stop_session
+    action_class: session
+    required: true
+  - id: mute_microphone
+    action_class: media
+    required: true
+  - id: captions
+    action_class: accessibility
+    required: true
+  - id: switch_persona
+    action_class: preference
+    required: true
+    fallback: expose disabled state with explanation when only one persona is approved
+  - id: switch_language
+    action_class: preference
+    required: true
+    fallback: expose handoff or unsupported-language state
+  - id: slow_down
+    action_class: communication
+    required: true
+  - id: repeat
+    action_class: communication
+    required: true
+  - id: explain_simply
+    action_class: communication
+    required: true
+  - id: show_more_detail
+    action_class: communication
+    required: true
+  - id: attach_or_share_context
+    action_class: context
+    required: true
+  - id: request_handoff
+    action_class: escalation
+    required: true
+  - id: show_privacy_and_disclosure
+    action_class: trust
+    required: true
+  - id: view_transcript
+    action_class: audit
+    required: true
+  - id: view_workflow_state
+    action_class: workflow
+    required: true
+
+persona_policy_defaults:
+  selection_allowed: true
+  impersonation_allowed: false
+  continuity_supported: true
+  disclosure_required: true
+  domain_persona_catalog_required: true
+  animation_level_default: subtle
+
+tool_boundary_defaults:
+  allowed_tool_classes:
+    - retrieve_user_preferences
+    - retrieve_approved_context_summary
+    - create_confirmation_record
+    - request_human_handoff
+    - create_supervisor_event
+    - retrieve_non_sensitive_explanation
+  restricted_tool_classes:
+    - final_authority_decision
+    - privileged_external_action
+    - destructive_action
+    - money_movement
+    - care_affecting_action
+    - legal_or_compliance_commitment
+    - unsupported_instruction
+  approval_required_for:
+    - external_send
+    - external_write
+    - privileged_action
+    - regulated_subject_action
+    - high_risk_recommendation
+
+escalation_defaults:
+  handoff_supported: true
+  handoff_roles:
+    - accountable_human
+    - domain_specialist
+    - support_operator
+  escalation_triggers:
+    - user_requests_human
+    - unsupported_language
+    - repeated_confusion
+    - policy_conflict
+    - high_risk_action_requested
+    - tool_request_denied
+    - supervisor_blocks_response
+
+traceability_defaults:
+  required_refs:
+    - session_id
+    - workflow_id
+    - domain_factory_repo
+    - client_ref
+    - user_or_subject_ref
+    - persona_id
+    - persona_version
+  required_events:
+    - session_started
+    - disclosure_presented
+    - preference_selected
+    - user_turn
+    - avatar_turn
+    - interruption
+    - tool_requested
+    - tool_allowed
+    - tool_denied
+    - handoff_requested
+    - handoff_completed
+    - session_completed
+  transcript_policy: domain_owned_retention_policy_required
+
+domain_overlay_slots:
+  required:
+    - domain_factory_repo
+    - primary_user_kind
+    - primary_subject_kind
+    - approved_persona_catalog
+    - supported_languages
+    - domain_disclosure_text
+    - allowed_tool_classes
+    - restricted_tool_classes
+    - handoff_roles
+    - escalation_triggers
+    - transcript_retention_policy
+    - conventional_ui_fallback

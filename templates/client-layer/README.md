@@ -1,0 +1,19 @@
+# Client Layer Templates
+
+Status: starter catalog
+Repository context: openxFactory
+Purpose: provide reusable templates for Client Hermes overlays.
+
+## Files
+
+- [product-service-scaffold.yaml](product-service-scaffold.yaml) defines a
+  domain-neutral Client Hermes scaffold for clients that sell or operate
+  products, services, subscriptions, managed services, or hybrid offers.
+- [installation-discovery-migration.yaml](installation-discovery-migration.yaml)
+  defines how Client Hermes may use client documents, email history, and related
+  records to discover workflows and migrate bad current practice to approved
+  target practice.
+
+The template is a design contract. Domain factories specialize it, and real
+client or tenant instantiations bind it to actual staff, systems, approvers,
+credential references, and offer catalogs.

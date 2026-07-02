@@ -1,9 +1,9 @@
 # xFactory Domain Factory Model
 
-This document generalizes `openWorkflow` from a software development factory
+This document generalizes `openxFactory` from a software development factory
 into the reusable `xFactory` pattern.
 
-`openWorkflow` is the canonical workflow contract for xFactory. It defines the
+`openxFactory` is the canonical workflow contract for xFactory. It defines the
 general piping layer: authority boundaries, job envelopes, approvals,
 traceability, worker routing, admission gates, review gates, and final
 enforcement handoffs.
@@ -41,7 +41,7 @@ client_industry + client_type
 ## Core Idea
 
 ```text
-xFactory / openWorkflow
+xFactory / openxFactory
   generic workflow contracts, gates, routing, and traceability
 
 Domain factory
@@ -98,7 +98,7 @@ Domain Hermes layer
   domain governance, domain agent team, policy, routing, review standards,
   product learning, and domain memory
 
-xFactory / openWorkflow layer
+xFactory / openxFactory layer
   general job envelope, gates, traceability, worker routing, artifact contracts
 
 Domain Omnigent layer
@@ -405,6 +405,87 @@ Client Hermes does not own general business operations by default:
 Those belong in a corporate business, finance, HR, legal, or operations domain
 stack unless they directly gate the domain workflow.
 
+### Client Hermes Product And Service Model
+
+Client Hermes should model the client organization's domain-specific offers.
+Most clients sell, deliver, support, or operate one or more of:
+
+- products
+- services
+- productized services
+- subscriptions
+- managed services
+- marketplace offers
+- projects or engagements
+- outcome-based offers
+
+This gives the client layer a reusable operating grammar:
+
+```text
+offer catalog
+  -> what the client provides
+
+customer roster
+  -> who receives value and under what relationship
+
+staff and capability map
+  -> who may perform or approve work
+
+integration and credential map
+  -> which systems and scoped grants are needed
+
+approval and escalation rules
+  -> what can proceed, what is blocked, and who decides
+
+delivery and outcome model
+  -> how fulfillment, service delivery, support, quality, renewal, and
+     completion are tracked
+```
+
+Product-like offers need catalog, variant, entitlement, configuration,
+fulfillment, activation, warranty/return, and support rules.
+
+Service-like offers need intake criteria, scope, assignment, schedule, capacity,
+deliverables, SLA, completion criteria, review, follow-up, and renewal rules.
+
+Hybrid offers should be modeled as bundles with product components, service
+components, standing approval envelopes, shared customer entitlements, delivery
+milestones, support boundaries, and renewal or expansion logic.
+
+See [Client Hermes Product And Service Scaffold](client-hermes-product-service-scaffold.md).
+
+### Client Installation Discovery And Migration
+
+Client Hermes may use the installing company's document management system,
+historical email, ticketing systems, CRM notes, calendars, and collaboration
+spaces to discover how the client actually works today.
+
+Those sources are evidence of current state, not automatic policy for the new
+xFactory installation. A discovered workflow must pass through source tracing,
+current-state mapping, workflow definition, user validation, best-practice
+comparison, gap classification, migration planning, workflow-change consent, and
+Hermes approval before it becomes a target workflow.
+
+Use this rule:
+
+```text
+observed current practice
+  -> source trace
+  -> current workflow map
+  -> workflow definition packet
+  -> user validation
+  -> best-practice gap review
+  -> migration plan
+  -> workflow-change consent
+  -> approved target workflow
+```
+
+Bad or weak current practice should be dispositioned as `adopt_as_is`,
+`configure_variant`, `migrate_to_best_practice`, `contain_temporarily`,
+`quarantine`, or `reject`.
+
+See [Client Installation Discovery And Workflow Migration](client-installation-discovery-and-migration.md).
+
 ### Domain-Specific Business Boundary
 
 Some business-looking concerns are still domain concerns because they determine
@@ -580,7 +661,7 @@ Domain Hermes owns the reusable lifecycle model. It defines allowed focal item
 types, journey states, outcome measures, prediction standards, intervention
 classes, evidence requirements, and review gates.
 
-xFactory / openWorkflow owns the contract shape that connects these records to
+xFactory / openxFactory owns the contract shape that connects these records to
 jobs, gates, traceability, reviews, predictions, interventions, and observed
 outcomes.
 
@@ -816,7 +897,7 @@ Patient
   -> Patient Hermes
   -> Clinic Hermes
   -> Medx Domain Hermes
-  -> xFactory / openWorkflow
+  -> xFactory / openxFactory
   -> Medx Omnigent
   -> Base Omnigent
   -> medical records, diagnostics, documents, scheduling, devices, tools
@@ -866,7 +947,7 @@ The three Hermes layers support three routing modes.
 ```text
 Customer Hermes
   -> Client Hermes
-  -> xFactory / openWorkflow
+  -> xFactory / openxFactory
   -> Domain Omnigent
 ```
 
@@ -887,7 +968,7 @@ before the request enters xFactory.
 Customer Hermes
   -> Client Hermes
   -> Domain Hermes
-  -> xFactory / openWorkflow
+  -> xFactory / openxFactory
   -> Domain Omnigent
 ```
 
@@ -910,7 +991,7 @@ Customer Hermes
   -> Client Hermes
   -> Domain Hermes
   -> client, domain, or human review
-  -> xFactory / openWorkflow
+  -> xFactory / openxFactory
   -> Domain Omnigent
 ```
 
@@ -1063,7 +1144,7 @@ xFactory defines the contract between them.
 
 ## Factory Contract Boundary
 
-xFactory / openWorkflow owns general contract fields such as:
+xFactory / openxFactory owns general contract fields such as:
 
 - job identity
 - customer reference
@@ -1136,7 +1217,7 @@ Example:
 factory:
   schema_version: 1
   factory_kind: MedxFactory
-  xfactory_contract: openWorkflow
+  xfactory_contract: openxFactory
   xfactory_contract_version: "2026-06-27"
 
 domain:
@@ -1197,7 +1278,7 @@ consents, tools, and experts are appropriate for the requested work.
 Recommended ownership:
 
 ```text
-openWorkflow
+openxFactory
   canonical xFactory contracts and general workflow policy
 
 Hermes-Install
@@ -1241,7 +1322,7 @@ definition belongs in the domain factory repo.
 5. Domain learning requires review, approval, and privacy checks.
 6. Hermes approves intent and policy.
 7. Omnigent executes approved work.
-8. openWorkflow defines the handoff contract.
+8. openxFactory defines the handoff contract.
 9. Domain overlays may add gates, but must not bypass base xFactory gates.
 10. Direct customer-to-factory routing is allowed only inside standing client
     and domain approval envelopes.

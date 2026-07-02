@@ -1,6 +1,6 @@
 ## Why
 
-The factory documentation has grown across `openWorkflow`, `Hermes-Install`,
+The factory documentation has grown across `openxFactory`, `Hermes-Install`,
 and `Omnigent-Install`, which makes it unclear which repo owns workflow policy
 versus subsystem installation and recovery. We need a governed repo-boundary
 change now so Hermes, Omnigent/Polly, OpenSpec, Spec Kit, GitHub, and the
@@ -9,7 +9,7 @@ install proofs.
 
 ## What Changes
 
-- Establish `openWorkflow` as the canonical authority for factory workflow
+- Establish `openxFactory` as the canonical authority for factory workflow
   policy, cross-system roles, traceability, merge policy, and shared
   contracts.
 - Narrow `Hermes-Install` to Hermes installation, operations, backup, restore,
@@ -17,8 +17,8 @@ install proofs.
 - Narrow `Omnigent-Install` to Omnigent/Polly installation, worker runtime,
   credential setup, operations, backup, restore, upgrade, and DR.
 - Use copy-first migration for canonical policy so current install repo proofs
-  remain stable while policy moves into `openWorkflow`.
-- Add a canonical contract home in `openWorkflow` before moving schema files or
+  remain stable while policy moves into `openxFactory`.
+- Add a canonical contract home in `openxFactory` before moving schema files or
   generating adapters.
 - Defer submodule creation until policy, contract ownership, and install repo
   scope links are approved.
@@ -30,11 +30,11 @@ install proofs.
 ### New Capabilities
 
 - `repo-boundary-governance`: Defines how the factory assigns canonical
-  ownership between `openWorkflow`, `Hermes-Install`, and `Omnigent-Install`,
+  ownership between `openxFactory`, `Hermes-Install`, and `Omnigent-Install`,
   including migration phases, allowed changes, and stop conditions.
 - `shared-contract-ownership`: Defines how cross-system workflow contracts,
   schemas, version pins, and install-repo adapters are governed from
-  `openWorkflow`.
+  `openxFactory`.
 
 ### Modified Capabilities
 
@@ -43,11 +43,11 @@ install proofs.
 ## Impact
 
 - Affected repositories:
-  - `opensoft/openWorkflow`
+  - `opensoft/openxFactory`
   - `opensoft/Omnigent-Install`
   - `FarHeap/Hermes-Install`, or a future `opensoft/Hermes-Install` mirror
-- Initial implementation is documentation-only and starts in `openWorkflow`.
-- Later features may update install repo READMEs, add `openWorkflow/contracts/`,
+- Initial implementation is documentation-only and starts in `openxFactory`.
+- Later features may update install repo READMEs, add `openxFactory/contracts/`,
   and add install repos as submodules after explicit approval.
 - No secrets, credential profiles, generated databases, runtime workspaces, or
   live service manifests are moved by the initial proposal.

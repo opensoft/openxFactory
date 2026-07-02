@@ -1,0 +1,217 @@
+schema_version: 1
+kind: xfactory_client_installation_discovery_migration_scaffold
+
+template:
+  id: client_installation_discovery_migration
+  name: Client Installation Discovery And Workflow Migration
+  description: >
+    Reusable scaffold for using client documents, email history, and related
+    collaboration records to discover current workflows, compare them to target
+    practice, and migrate safely instead of copying bad practice into the
+    installation.
+
+core_rule:
+  current_state_evidence_is_not_operational_policy: true
+  target_workflows_require_gap_review: true
+  client_hermes_approves_local_cutover: true
+  domain_hermes_reviews_domain_standard_changes: true
+  workflow_change_requires_consent: true
+
+source_families:
+  - id: document_management
+    useful_for:
+      - sops
+      - templates
+      - checklists
+      - policy_binders
+      - client_facing_forms
+    guardrails:
+      - confirm_owner
+      - confirm_effective_date
+      - detect_duplicates
+  - id: historical_email
+    useful_for:
+      - request_patterns
+      - approval_patterns
+      - exception_handling
+      - customer_language
+      - staff_routing
+    guardrails:
+      - scoped_read_only_access
+      - representative_sampling
+      - no_raw_mail_in_repo
+  - id: ticketing_or_case_system
+    useful_for:
+      - queues
+      - statuses
+      - sla_patterns
+      - exception_classes
+    guardrails:
+      - verify_closure_semantics
+      - preserve_source_trace
+  - id: crm_or_customer_notes
+    useful_for:
+      - relationship_state
+      - service_history
+      - customer_commitments
+    guardrails:
+      - keep_customer_facts_in_customer_or_client_boundary
+      - require_promotion_review
+  - id: calendar_and_scheduling
+    useful_for:
+      - capacity
+      - service_windows
+      - approval_cadence
+    guardrails:
+      - prefer_aggregate_patterns
+      - avoid_unneeded_private_detail
+
+authority_policy:
+  observed_current_practice_max_before_review: L3_ground_source_verified_current_state
+  written_client_policy_max_before_review: L3_ground_source_verified_current_state
+  accepted_client_policy_requires: L4_hermes_reviewed_truth
+  target_operational_rule_requires: L5_operational_policy
+  domain_best_practice_requires: L5_operational_policy
+
+installation_pipeline:
+  - id: source_inventory
+  - id: access_and_consent_scope
+  - id: sampling_plan
+  - id: evidence_extraction
+  - id: current_workflow_map
+  - id: workflow_definition_packet
+  - id: user_validation_walkthrough
+  - id: best_practice_comparison
+  - id: gap_and_risk_classification
+  - id: migration_plan
+  - id: workflow_change_consent
+  - id: client_hermes_approval
+  - id: domain_hermes_review_when_required
+  - id: target_workflow_generation
+  - id: dry_run_and_cutover
+
+workflow_inference_method:
+  deterministic:
+    - metadata_parsing
+    - entity_normalization
+    - case_grouping
+    - event_ledger_construction
+    - temporal_edge_inference
+    - transition_frequency_analysis
+    - bottleneck_and_loop_detection
+  ai_assisted:
+    - activity_classification
+    - approval_and_exception_extraction
+    - synonym_mapping
+    - missing_step_hypothesis
+    - variant_summary
+    - walkthrough_explanation
+  authority_rule: ai_output_is_hypothesis_until_source_backed_and_user_validated
+
+visualization_candidates:
+  - id: mermaid
+    license: MIT
+    best_for: generated_readonly_diagrams
+  - id: react_flow_xyflow
+    license: MIT
+    best_for: interactive_workflow_validation_canvas
+  - id: cytoscape_js
+    license: MIT
+    best_for: evidence_graph_and_variant_visualization
+  - id: xstate
+    license: MIT
+    best_for: statechart_semantics_and_simulation
+  - id: excalidraw
+    license: MIT
+    best_for: collaborative_annotation
+
+gap_dispositions:
+  - id: adopt_as_is
+  - id: configure_variant
+  - id: migrate_to_best_practice
+  - id: contain_temporarily
+  - id: quarantine
+  - id: reject
+
+migration_ladder:
+  - observe
+  - contain
+  - map_target
+  - design_migration
+  - dual_run_or_shadow_run
+  - approve_cutover
+  - retire_old_practice
+  - monitor_drift
+
+agent_scaffold:
+  - id: source_inventory_agent
+    purpose: catalog approved document, email, ticket, CRM, calendar, and collaboration sources
+  - id: evidence_extraction_agent
+    purpose: turn source material into cited workflow claims without promoting claims to policy
+  - id: workflow_mapper_agent
+    purpose: build current-state workflow maps from observed client records
+  - id: workflow_definition_agent
+    purpose: convert current-state claims into states, transitions, roles, gates, artifacts, systems, and confidence
+  - id: practice_gap_auditor
+    purpose: compare current practice with domain standards, client policy, security, and customer-facing expectations
+  - id: migration_planner_agent
+    purpose: produce containment, dual-run, cutover, retirement, and monitoring plans
+  - id: consent_adoption_gatekeeper
+    purpose: collect workflow-change consent and block cutover when required approval is missing
+  - id: change_adoption_coach
+    purpose: explain the target workflow and draft staff or customer change communications
+  - id: drift_monitor_agent
+    purpose: detect post-cutover reversion to retired practices or new workarounds
+
+skill_scaffold:
+  - id: source_inventory
+  - id: document_sop_extraction
+  - id: email_workflow_mining
+  - id: workflow_trace_reconstruction
+  - id: workflow_definition_packet
+  - id: practice_gap_analysis
+  - id: migration_plan_design
+  - id: workflow_change_consent
+  - id: change_communication
+  - id: drift_monitoring
+
+user_interaction_scaffold:
+  avatar_assisted:
+    - explain_current_workflow
+    - explain_gap_risk
+    - recommend_target_workflow
+    - explain_staff_change
+    - prepare_approval_request
+    - explain_consent_needed
+    - decide_automation_boundary
+  conventional_ui:
+    - source_inventory
+    - evidence_claim_table
+    - current_state_workflow_map
+    - best_practice_gap_matrix
+    - migration_backlog
+    - consent_acknowledgement_register
+    - cutover_checklist
+    - drift_exception_dashboard
+    - audit_trace_search
+
+record_families:
+  - id: installation_source_inventory
+  - id: workflow_evidence_claim
+  - id: workflow_definition_packet
+  - id: practice_gap
+  - id: workflow_migration_plan
+  - id: workflow_change_consent
+
+validation_rules:
+  - target_workflow_requires_gap_review
+  - current_state_claim_cannot_be_l5_without_hermes_approval
+  - bad_practice_gap_requires_disposition
+  - high_risk_gap_requires_containment_controls
+  - target_workflow_requires_definition_packet
+  - migration_plan_requires_current_to_target_delta
+  - workflow_change_requires_consent
+  - affected_users_require_notice_or_representative_approval
+  - cutover_plan_requires_approver_references
+  - raw_email_exports_forbidden_in_repo_artifacts
+  - customer_fact_promotion_requires_deidentification_and_review

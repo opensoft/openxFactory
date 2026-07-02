@@ -22,6 +22,14 @@ client_industry + client_type
 
 See [xFactory Taxonomy Model](../../docs/factory-taxonomy-model.md).
 
+UI templates live separately under [templates/ui](../ui/README.md). Intake
+selects the domain factory and profile; avatar-first UI profiles define how
+users interact with the selected factory.
+
+Client-layer templates live under [templates/client-layer](../client-layer/README.md).
+They define how a Client Hermes overlay models products, services,
+subscriptions, managed services, and hybrid offers.
+
 ## Files
 
 - [index.yaml](index.yaml) lists all starter templates.

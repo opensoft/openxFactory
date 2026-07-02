@@ -1,0 +1,120 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_overlay_examples
+
+examples:
+  - profile:
+      id: medx_patient_facing_avatar
+      domain_factory_repo: MedxFactory
+      default_implementation_level: L1_audio_first_visual_avatar
+      primary_user_kind: patient
+      primary_subject_kind: patient
+      avatar_required: true
+      conventional_ui_fallback_required: true
+    authority_boundaries:
+      avatar_is_presentation_only: true
+      workflow_authority_layer: openxFactory
+      policy_authority_layer: Patient Hermes + Care Organization Hermes + Medx Domain Hermes
+      execution_layer: Medx Omnigent
+      final_enforcement_layer: licensed_clinician_or_clinical_system
+    domain_overlay:
+      persona_roles:
+        - doctor_agent
+        - nurse_agent
+      handoff_roles:
+        - clinician
+        - nurse
+        - interpreter
+        - care_team_member
+      restricted_tool_classes:
+        - final_diagnosis
+        - final_treatment_decision
+        - order_entry
+        - chart_correction
+        - consent_pressure
+
+  - profile:
+      id: opencodex_engineering_avatar
+      domain_factory_repo: codexFactory
+      default_implementation_level: L0_text_avatar
+      primary_user_kind: engineer
+      primary_subject_kind: repository
+      avatar_required: true
+      conventional_ui_fallback_required: true
+    authority_boundaries:
+      avatar_is_presentation_only: true
+      workflow_authority_layer: openxFactory
+      policy_authority_layer: Engineering Hermes
+      execution_layer: opencodex Omnigent
+      final_enforcement_layer: GitHub_branch_protection_or_merge_queue
+    domain_overlay:
+      persona_roles:
+        - implementation_guide
+        - review_guide
+        - release_guide
+      handoff_roles:
+        - lead_engineer
+        - reviewer
+        - merge_master
+      restricted_tool_classes:
+        - merge_without_approval
+        - push_secret
+        - destructive_repo_action
+        - production_deploy_without_gate
+
+  - profile:
+      id: opsx_admin_avatar
+      domain_factory_repo: OpsxFactory
+      default_implementation_level: L1_audio_first_visual_avatar
+      primary_user_kind: operator
+      primary_subject_kind: tenant_or_resource
+      avatar_required: true
+      conventional_ui_fallback_required: true
+    authority_boundaries:
+      avatar_is_presentation_only: true
+      workflow_authority_layer: openxFactory
+      policy_authority_layer: Operations Hermes
+      execution_layer: Opsx Omnigent
+      final_enforcement_layer: cloud_or_identity_control_plane
+    domain_overlay:
+      persona_roles:
+        - operations_copilot
+        - incident_guide
+        - change_preflight_guide
+      handoff_roles:
+        - tenant_admin
+        - service_owner
+        - incident_commander
+      restricted_tool_classes:
+        - privileged_admin_action
+        - destructive_cloud_action
+        - identity_permission_change
+        - production_change_without_approval
+
+  - profile:
+      id: ledgerx_accounting_avatar
+      domain_factory_repo: LedgerxFactory
+      default_implementation_level: L0_text_avatar
+      primary_user_kind: finance_operator
+      primary_subject_kind: account_or_transaction
+      avatar_required: true
+      conventional_ui_fallback_required: true
+    authority_boundaries:
+      avatar_is_presentation_only: true
+      workflow_authority_layer: openxFactory
+      policy_authority_layer: Accounting Hermes
+      execution_layer: Ledgerx Omnigent
+      final_enforcement_layer: accounting_system_or_accountable_finance_role
+    domain_overlay:
+      persona_roles:
+        - bookkeeping_guide
+        - close_assistant
+        - exception_review_guide
+      handoff_roles:
+        - accountant
+        - controller
+        - client_finance_owner
+      restricted_tool_classes:
+        - final_tax_position
+        - bank_transfer
+        - irreversible_posting
+        - compliance_filing_without_review

@@ -42,19 +42,32 @@ Forbidden inputs:
    Hermes, and customer Hermes.
 4. Confirm the three Hermes layer names and authority boundaries.
 5. Confirm client, tenant, and customer-subject isolation.
-6. Fill `stack.yaml`.
-7. Fill profile files.
-8. Fill model files.
-9. Fill Hermes overlays.
-10. Fill credential requirements and broker contract.
-11. Fill Omnigent worker capabilities, command policy, and tool routing.
-12. Add workflow specs.
-13. Add schemas.
-14. Add examples.
-15. Run validation.
-16. Produce the setup decision record.
-17. Produce or request the runtime binding manifest.
-18. Mark what remains domain implementation versus client instantiation versus
+6. Declare any authorized installation discovery sources, including document
+   management, email, ticketing, CRM, calendar, or collaboration records.
+7. Mark discovered client workflows as current-state evidence, not target
+   operational policy.
+8. Convert discovered resources into workflow definition packets with states,
+   transitions, roles, artifacts, systems, gates, completion criteria, and source
+   traces.
+9. Validate current-state workflow packets with the workflow owner or affected
+   users before treating them as confirmed current state.
+10. Create gap records and migration plans for current practices that differ from
+   domain or client best practice.
+11. Get workflow-change consent before replacing, constraining, automating, or
+    retiring an existing user workflow.
+12. Fill `stack.yaml`.
+13. Fill profile files.
+14. Fill model files.
+15. Fill Hermes overlays.
+16. Fill credential requirements and broker contract.
+17. Fill Omnigent worker capabilities, command policy, and tool routing.
+18. Add workflow specs.
+19. Add schemas.
+20. Add examples.
+21. Run validation.
+22. Produce the setup decision record.
+23. Produce or request the runtime binding manifest.
+24. Mark what remains domain implementation versus client instantiation versus
     runtime approval.
 
 Runtime binding covers the customer-specific pieces that cannot be safely
@@ -91,6 +104,14 @@ Stop before applying changes when:
   unresolved
 - the requested change would turn an inferred answer into an approved answer
   without stakeholder confirmation
+- document or email mining would promote observed current practice into target
+  workflow policy without gap review and Hermes approval
+- a current-state workflow packet has not been validated by the workflow owner
+  or affected users
+- a high-risk bad-practice finding has no containment, migration, or cutover
+  plan
+- a workflow change would affect user work without the consent, notice,
+  acknowledgement, or representative approval required by client policy
 
 ## 3. Domain Interpretation Examples
 

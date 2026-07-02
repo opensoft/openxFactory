@@ -10,7 +10,7 @@ The next phase is the copy-first content migration described in
 [Dogfood Content Migration Plan](dogfood-content-migration-plan.md). That phase
 must use the full factory stack on the factory itself.
 
-The pilot is intentionally constrained: doc-only first, `openWorkflow` first,
+The pilot is intentionally constrained: doc-only first, `openxFactory` first,
 no deletions, and no submodules until the policy and contracts are approved.
 
 ## Goal
@@ -21,10 +21,10 @@ manage a real governance change with low blast radius.
 The change being piloted:
 
 ```text
-openWorkflow becomes the canonical factory workflow repo
+openxFactory becomes the canonical factory workflow repo
 Hermes-Install narrows to Hermes install, operations, and DR
 Omnigent-Install narrows to Omnigent install, operations, and DR
-openWorkflow later pins install repos as submodules
+openxFactory later pins install repos as submodules
 ```
 
 ## Guardrails
@@ -32,7 +32,7 @@ openWorkflow later pins install repos as submodules
 The pilot must follow these restrictions:
 
 - doc-only changes first
-- touch `openWorkflow` only in the first feature
+- touch `openxFactory` only in the first feature
 - do not delete or move working install repo files in the first feature
 - do not add submodules in the first feature
 - do not move Hermes runtime code in the first feature
@@ -48,7 +48,7 @@ owner: Hermes
 implementation_orchestrator: Omnigent/Polly
 initial_scope: doc-only
 source_document: docs/repo-boundary-audit.md
-primary_repo: opensoft/openWorkflow
+primary_repo: opensoft/openxFactory
 related_repos:
   - opensoft/Omnigent-Install
   - FarHeap/Hermes-Install
@@ -75,9 +75,9 @@ Hermes opens OpenSpec proposal
 
 ### FEAT-RB-001: Canonical Boundary Policy
 
-Repo touched: `openWorkflow`
+Repo touched: `openxFactory`
 
-Purpose: make `openWorkflow` the explicit authority for repo boundaries.
+Purpose: make `openxFactory` the explicit authority for repo boundaries.
 
 Allowed changes:
 
@@ -95,7 +95,7 @@ Not allowed:
 
 Acceptance criteria:
 
-- `openWorkflow` clearly states canonical ownership of factory workflow policy
+- `openxFactory` clearly states canonical ownership of factory workflow policy
 - `Hermes-Install` and `Omnigent-Install` responsibilities are defined
 - migration phases are documented
 - open decisions are listed
@@ -103,7 +103,7 @@ Acceptance criteria:
 
 ### FEAT-RB-002: Contract Home Placeholder
 
-Repo touched: `openWorkflow`
+Repo touched: `openxFactory`
 
 Purpose: define where canonical shared schemas and contracts will live.
 
@@ -121,7 +121,7 @@ Not allowed:
 
 Acceptance criteria:
 
-- `openWorkflow/contracts/` exists
+- `openxFactory/contracts/` exists
 - contract source-of-truth rule is documented
 - install repo adapter rule is documented
 
@@ -135,7 +135,7 @@ runtime, auth, backup, restore, upgrade, and DR.
 Allowed changes:
 
 - README scope clarification
-- links to canonical `openWorkflow` docs
+- links to canonical `openxFactory` docs
 - mark policy docs as implementation notes where appropriate
 
 Not allowed:
@@ -146,7 +146,7 @@ Not allowed:
 
 Acceptance criteria:
 
-- README points to `openWorkflow` as workflow authority
+- README points to `openxFactory` as workflow authority
 - Omnigent-specific install scope is clear
 - existing Omnigent smoke tests still pass
 
@@ -160,7 +160,7 @@ restore, upgrade, and DR.
 Allowed changes:
 
 - README scope clarification
-- links to canonical `openWorkflow` docs
+- links to canonical `openxFactory` docs
 - note remote ownership decision for future submodule use
 
 Not allowed:
@@ -171,13 +171,13 @@ Not allowed:
 
 Acceptance criteria:
 
-- README points to `openWorkflow` as workflow authority
+- README points to `openxFactory` as workflow authority
 - Hermes-specific install scope is clear
 - existing Hermes install files are unchanged
 
 ### FEAT-RB-005: Submodule Decision Record
 
-Repo touched: `openWorkflow`
+Repo touched: `openxFactory`
 
 Purpose: document, but not yet implement, the submodule layout.
 
@@ -201,7 +201,7 @@ Acceptance criteria:
 
 ### FEAT-RB-006: First Actual Submodule Add
 
-Repo touched: `openWorkflow`
+Repo touched: `openxFactory`
 
 Purpose: add the first install repo as a submodule after policy approval.
 
@@ -261,7 +261,7 @@ Merge Council:
 | Risk | Control |
 |---|---|
 | Repo split breaks working proof harness | copy-first migration, no deletions in first pass |
-| Policy duplicated across repos | `openWorkflow` becomes canonical, install repos link back |
+| Policy duplicated across repos | `openxFactory` becomes canonical, install repos link back |
 | Submodules create operational confusion | decision record before any submodule add |
 | Hermes runtime code moves too early | runtime moves deferred until separate feature |
 | Install repo tests fail | each install-repo feature must run existing smoke tests |
@@ -305,7 +305,7 @@ Stop the pilot if any of the following occur:
 
 The pilot is successful when:
 
-- `openWorkflow` owns the canonical repo-boundary policy
+- `openxFactory` owns the canonical repo-boundary policy
 - the first PR is doc-only and low risk
 - Hermes records the approval path
 - Omnigent/Polly produces traceability artifacts

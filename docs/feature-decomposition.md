@@ -1,6 +1,6 @@
 # Work Decomposition Contract
 
-`openWorkflow` is domain-neutral. This document defines the neutral requirement that approved work must be decomposed into bounded, traceable work units before domain execution.
+`openxFactory` is domain-neutral. This document defines the neutral requirement that approved work must be decomposed into bounded, traceable work units before domain execution.
 
 Engineering-specific feature decomposition now lives in:
 
@@ -32,9 +32,9 @@ MedxFactory
   decomposes medical work into patient issues, hypotheses, simulation scenarios, specialist pod reviews, and clinician review packages.
 ```
 
-## openWorkflow Ownership
+## openxFactory Ownership
 
-openWorkflow owns:
+openxFactory owns:
 
 ```text
 the requirement to decompose approved work

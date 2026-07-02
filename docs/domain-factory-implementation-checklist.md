@@ -32,6 +32,9 @@ admissible to the next gate.
 - domain-specific business boundary rules
 - external source workspace and source authority rules
 - neutral workflow, gate, approval, traceability, and handoff vocabulary
+- avatar-first UI session, channel, control, and traceability vocabulary
+- client installation discovery and current-practice-to-target-practice
+  migration vocabulary
 - base manifest and schema conventions
 - required folder surface for generated domain factories
 - validation rules and readiness levels
@@ -43,7 +46,11 @@ Domain factories own the domain nouns and domain behavior:
 - customer kinds, client kinds, focal item kinds, journey states, outcomes, and interventions
 - domain Hermes policies, review standards, escalation rules, and memory boundaries
 - client and customer Hermes templates
+- client installation source policies, current-state workflow maps, gap
+  registers, and workflow migration plans
 - domain workflows, checks, examples, and tenant/profile examples
+- domain avatar personas, language, tool boundaries, handoff roles, and UI
+  runtime implementation
 - domain source policies, source authority mappings, and ground-source trace rules
 - domain execution overlay, expert routing, validation checks, and output templates
 
@@ -158,6 +165,7 @@ domain.
     implementation-runbook.md
     implementation-guide.md
     credentialing.md
+    avatar-first-ui.md
     hermes-agent-mixes.md
 
   hermes/
@@ -197,6 +205,10 @@ domain.
 
   profiles/
     README.md
+
+  ui/
+    README.md
+    avatar-first.yaml
 
   omnigent/
     domain-overlay.yaml
@@ -459,6 +471,8 @@ Client Hermes must declare:
 
 - supported client kinds
 - required client fields
+- product, service, subscription, managed-service, or hybrid offer model
+- offer catalog ownership and lifecycle rules
 - tenant isolation rules
 - client policy override rules
 - integration boundary rules
@@ -467,7 +481,22 @@ Client Hermes must declare:
 - customer roster and relationship rules
 - staff, credential, privilege, or capability assignment rules where domain-relevant
 - client-side approval and escalation rules
+- client-layer agent and skill scaffold
+- client-layer user interaction scaffold
 - external source workspace policy for client-specific sources
+- authorized installation discovery sources, including document management,
+  email, ticketing, CRM, calendar, and collaboration records
+- current-state evidence rules that prevent observed bad practice from becoming
+  target workflow policy without review
+- workflow definition packet requirements for turning documents, email, tickets,
+  CRM notes, calendars, and collaboration records into states, transitions,
+  roles, gates, artifacts, systems, completion criteria, and source traces
+- best-practice gap dispositions: `adopt_as_is`, `configure_variant`,
+  `migrate_to_best_practice`, `contain_temporarily`, `quarantine`, and `reject`
+- migration plans for weak or bad current practice, including containment,
+  dual-run or shadow-run, cutover, retirement, and drift monitoring
+- workflow-change consent rules for affected users, workflow owners, client
+  approvers, customer-subjects, or representatives before cutover
 - self-initiation triggers
 - client memory boundaries
 - client Mixture of Agents template overrides that may strengthen but not weaken domain defaults

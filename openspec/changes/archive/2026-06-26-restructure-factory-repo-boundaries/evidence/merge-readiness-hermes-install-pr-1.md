@@ -7,9 +7,9 @@ Decision: READY
 
 ## Inputs Reviewed
 
-- `openWorkflow` proposal, design, and repo-boundary specs
-- `openWorkflow/docs/repo-boundary-audit.md`
-- `openWorkflow/contracts/README.md`
+- `openxFactory` proposal, design, and repo-boundary specs
+- `openxFactory/docs/repo-boundary-audit.md`
+- `openxFactory/contracts/README.md`
 - `Hermes-Install/README.md`
 - Hermes implementation PR diff
 
@@ -19,7 +19,7 @@ Allowed scope:
 
 - `Hermes-Install/README.md`
 - repository scope clarification
-- links to canonical `openWorkflow` policy and contracts
+- links to canonical `openxFactory` policy and contracts
 - remote ownership decision note
 - policy-copy/implementation-note clarification
 
@@ -37,7 +37,7 @@ Confirmed exclusions:
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
 | `Hermes-Install` README states install, operations, backup, restore, upgrade, and DR scope | Yes | `Hermes-Install#1` | Scope section added |
-| README links to canonical `openWorkflow` policy | Yes | `Hermes-Install#1` | Links added |
+| README links to canonical `openxFactory` policy | Yes | `Hermes-Install#1` | Links added |
 | unresolved remote ownership decision is documented | Yes | `Hermes-Install#1` | FarHeap vs Opensoft decision noted |
 | no deployment scripts or manifests changed | Yes | `git diff --name-status` | Only `README.md` changed |
 
@@ -75,4 +75,4 @@ None.
 - Merge `FarHeap/Hermes-Install#1` only.
 - Do not include submodule work in this PR.
 - Do not move runtime code or manifests in this PR.
-- After merge, merge the corresponding `openWorkflow` OpenSpec evidence PR.
+- After merge, merge the corresponding `openxFactory` OpenSpec evidence PR.

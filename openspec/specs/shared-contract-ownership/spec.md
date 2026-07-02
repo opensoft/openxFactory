@@ -1,42 +1,42 @@
 # shared-contract-ownership Specification
 
 ## Purpose
-Defines how `openWorkflow` owns shared factory contracts, how install repos pin
+Defines how `openxFactory` owns shared factory contracts, how install repos pin
 contract compatibility, how submodules are sequenced, and how evidence is
 preserved from proposal through merge readiness.
 ## Requirements
 ### Requirement: Canonical contract home
-`openWorkflow` SHALL define the canonical home for shared factory contracts
+`openxFactory` SHALL define the canonical home for shared factory contracts
 used between Hermes, Omnigent/Polly, Spec Kit, OpenSpec, GitHub, and merge
 council workflows. Migrated contracts SHALL preserve source provenance and
 consumer compatibility expectations.
 
 #### Scenario: Shared schema is introduced
 - **WHEN** a schema or contract governs behavior between two or more factory subsystems
-- **THEN** the canonical contract MUST be defined or referenced from `openWorkflow/contracts/`
+- **THEN** the canonical contract MUST be defined or referenced from `openxFactory/contracts/`
 
 #### Scenario: Subsystem adapter needs a contract
 - **WHEN** an install repo needs a runtime adapter, generated client, smoke fixture, or pinned schema copy
-- **THEN** the install repo MAY keep an implementation copy but MUST identify the corresponding `openWorkflow` contract version
+- **THEN** the install repo MAY keep an implementation copy but MUST identify the corresponding `openxFactory` contract version
 
 #### Scenario: Existing schema is migrated
-- **WHEN** a shared schema is copied from an install repo into `openWorkflow/contracts/`
+- **WHEN** a shared schema is copied from an install repo into `openxFactory/contracts/`
 - **THEN** the canonical copy MUST identify the source path, intended consumers, compatibility reference, and adapter ownership rule
 
 ### Requirement: Contract version pinning
 Install repositories SHALL pin compatible contract versions or commits from
-`openWorkflow` before runtime adapters are treated as compatible.
+`openxFactory` before runtime adapters are treated as compatible.
 
 #### Scenario: Install repo consumes a contract
 - **WHEN** `Hermes-Install` or `Omnigent-Install` consumes a shared contract
-- **THEN** it MUST document which `openWorkflow` contract version or commit it is compatible with
+- **THEN** it MUST document which `openxFactory` contract version or commit it is compatible with
 
 #### Scenario: Contract changes incompatibly
 - **WHEN** a shared contract change would break an install repo adapter or smoke test
 - **THEN** the change MUST be split from adapter migration or explicitly approved as a breaking change
 
 ### Requirement: Submodule sequencing
-`openWorkflow` SHALL document submodule intent and update procedures before
+`openxFactory` SHALL document submodule intent and update procedures before
 adding install repositories as submodules.
 
 #### Scenario: Submodule is proposed
@@ -44,7 +44,7 @@ adding install repositories as submodules.
 - **THEN** a decision record MUST document the remote, path, pinned commit, update process, and rollback process
 
 #### Scenario: Hermes-Install remote is unresolved
-- **WHEN** `Hermes-Install` still points to a non-Opensoft remote and the target umbrella repo is `opensoft/openWorkflow`
+- **WHEN** `Hermes-Install` still points to a non-Opensoft remote and the target umbrella repo is `opensoft/openxFactory`
 - **THEN** the Hermes submodule MUST NOT be added until the move, fork, mirror, or external remote decision is approved
 
 ### Requirement: Evidence preservation

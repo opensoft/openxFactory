@@ -1,6 +1,6 @@
 # Workflow Gap Solutions
 
-This document proposes concrete solutions for the known workflow gaps in openWorkflow.
+This document proposes concrete solutions for the known workflow gaps in openxFactory.
 
 The goal is to turn the current principles into executable contracts between Hermes, Omnigent/Polly, workers, Spec Kit, and GitHub.
 

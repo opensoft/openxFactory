@@ -1,6 +1,6 @@
 # Roles And Authority
 
-This document is the canonical `openWorkflow` role and authority model for the
+This document is the canonical `openxFactory` role and authority model for the
 AI software development factory. Install repositories may keep operational
 implementation notes, but cross-factory responsibility, approval, escalation,
 and routing policy starts here.

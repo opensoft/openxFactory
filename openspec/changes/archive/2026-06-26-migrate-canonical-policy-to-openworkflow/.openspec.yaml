@@ -1,5 +1,0 @@
-schema: spec-driven
-created: 2026-06-26
-goal: Use OpenSpec, Hermes governance, Omnigent/Polly orchestration, Spec Kit
-  slices, PR admission, merge council, and GitHub PRs to migrate canonical
-  material into openWorkflow without bulk direct reshuffling.

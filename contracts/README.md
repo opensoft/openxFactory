@@ -1,7 +1,7 @@
 # Factory Contracts
 
 This directory is the canonical home for shared factory contracts owned by
-`openWorkflow`.
+`openxFactory`.
 
 Contracts belong here when they define behavior between two or more factory
 subsystems, including Hermes, Omnigent/Polly, OpenSpec, Spec Kit, GitHub,
@@ -10,7 +10,7 @@ merge council, and worker agents.
 ## Ownership Rule
 
 ```text
-openWorkflow/contracts/
+openxFactory/contracts/
   owns canonical contract meaning, versioning, and compatibility rules
 
 Hermes-Install and Omnigent-Install
@@ -18,7 +18,7 @@ Hermes-Install and Omnigent-Install
   configuration derived from these contracts
 ```
 
-Install repositories must identify the `openWorkflow` contract version or
+Install repositories must identify the `openxFactory` contract version or
 commit they consume before runtime adapters are treated as compatible.
 
 ## Planned Contracts
@@ -37,13 +37,19 @@ Copied contracts:
 | `policies/hermes-governance-agents.yaml` | Hermes profile/group governance and routing policy | `Omnigent-Install/policies/` |
 | `policies/merge-risk-policy.yaml` | Merge Master risk classification and GitHub action policy | `Omnigent-Install/policies/` |
 
+Native openxFactory contracts:
+
+| Contract | Purpose | Initial Source |
+|---|---|---|
+| `schemas/avatar-first-ui-profile.schema.yaml` | Domain-neutral avatar-first UI profile contract for xFactory frontends and domain overlays | `openxFactory` |
+
 Planned contracts:
 
 | Contract | Purpose | Initial Source |
 |---|---|---|
 | `pr-admission-packet.schema.yaml` | Evidence packet used before opening a GitHub PR | To define |
 | `merge-readiness-report.schema.yaml` | Merge council readiness report contract | To define |
-| `repo-boundary-release-map.schema.yaml` | Mapping between `openWorkflow` release and install repo commits | To define |
+| `repo-boundary-release-map.schema.yaml` | Mapping between `openxFactory` release and install repo commits | To define |
 
 ## Contract Manifest
 
@@ -66,8 +72,8 @@ Each entry records:
 Contract consumers must pin compatibility in one of these forms:
 
 ```yaml
-openworkflow_contract_ref:
-  repo: opensoft/openWorkflow
+openxfactory_contract_ref:
+  repo: opensoft/openxFactory
   commit: <git-sha>
   contract: contracts/<contract-name>
   version: <semantic-version-or-date>
@@ -76,8 +82,8 @@ openworkflow_contract_ref:
 or:
 
 ```yaml
-openworkflow_contract_ref:
-  repo: opensoft/openWorkflow
+openxfactory_contract_ref:
+  repo: opensoft/openxFactory
   tag: <release-tag>
   contract: contracts/<contract-name>
 ```
@@ -94,7 +100,7 @@ including:
 - runtime validation configs
 
 Those files are not canonical unless the contract explicitly delegates
-ownership. They must link back to the corresponding `openWorkflow` contract.
+ownership. They must link back to the corresponding `openxFactory` contract.
 
 ## Breaking Changes
 
@@ -114,7 +120,7 @@ Contract migration is copy-first:
 
 ```text
 existing install repo schema
-  -> copy or summarize canonical contract into openWorkflow/contracts/
+  -> copy or summarize canonical contract into openxFactory/contracts/
   -> add version and compatibility notes
   -> update install repo adapter to reference canonical contract
   -> remove or mark legacy copies only after replacement checks pass

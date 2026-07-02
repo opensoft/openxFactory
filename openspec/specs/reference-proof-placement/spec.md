@@ -1,7 +1,7 @@
 # reference-proof-placement Specification
 
 ## Purpose
-TBD - created by archiving change migrate-canonical-policy-to-openworkflow. Update Purpose after archive.
+TBD - created by archiving change migrate-canonical-policy-to-openxfactory. Update Purpose after archive.
 ## Requirements
 ### Requirement: Reference proof placement decision
 The system SHALL decide the canonical home for reference examples and proof
@@ -9,7 +9,7 @@ harnesses before moving them.
 
 #### Scenario: Proof example is considered canonical
 - **WHEN** an end-to-end example explains the factory workflow rather than only testing an install repo
-- **THEN** Hermes MUST approve whether it belongs in `openWorkflow/examples/`, a future `factory-lab` repo, or remains temporarily in the install repo
+- **THEN** Hermes MUST approve whether it belongs in `openxFactory/examples/`, a future `factory-lab` repo, or remains temporarily in the install repo
 
 #### Scenario: Proof harness has runtime dependencies
 - **WHEN** a proof harness depends on install repo scripts, generated workspaces, live credentials, or runtime state
@@ -19,7 +19,7 @@ harnesses before moving them.
 Reference migrations SHALL exclude generated runtime state.
 
 #### Scenario: Example files are copied
-- **WHEN** reference examples are copied into `openWorkflow`
+- **WHEN** reference examples are copied into `openxFactory`
 - **THEN** `.local`, credentials, token files, databases, generated workspaces, and runtime logs MUST be excluded
 
 ### Requirement: Reference validation

@@ -1,6 +1,6 @@
 ## Context
 
-`openWorkflow` now documents the factory-level architecture, workflow
+`openxFactory` now documents the factory-level architecture, workflow
 contract, traceability model, feature decomposition standard, merge council
 model, repo boundary audit, and repo boundary pilot plan.
 
@@ -18,7 +18,7 @@ company and cross-company Hermes group meaning and Hermes authority boundaries.
 
 **Goals:**
 
-- Make `openWorkflow` the canonical source for integrated factory workflow
+- Make `openxFactory` the canonical source for integrated factory workflow
   policy.
 - Keep `Hermes-Install` focused on Hermes install, operations, backup, restore,
   upgrade, and DR.
@@ -41,11 +41,11 @@ company and cross-company Hermes group meaning and Hermes authority boundaries.
 
 ## Decisions
 
-### Decision: Use `openWorkflow` as the policy source of truth
+### Decision: Use `openxFactory` as the policy source of truth
 
 Factory behavior crosses subsystem boundaries. Policy that describes how
 Hermes, Omnigent/Polly, OpenSpec, Spec Kit, GitHub, merge council, and agents
-work together belongs in `openWorkflow`.
+work together belongs in `openxFactory`.
 
 Alternative considered: keep policy in whichever install repo implements it.
 This would keep local implementation context close to scripts, but it would
@@ -54,7 +54,7 @@ harder to audit.
 
 ### Decision: Use copy-first migration
 
-Canonical policy should be copied or summarized into `openWorkflow` before
+Canonical policy should be copied or summarized into `openxFactory` before
 install repo copies are deleted or marked legacy.
 
 Alternative considered: move files directly. Direct movement is faster, but it
@@ -81,7 +81,7 @@ system test.
 
 ### Decision: Treat contracts separately from install adapters
 
-`openWorkflow` should own shared schema and contract meaning. Install repos may
+`openxFactory` should own shared schema and contract meaning. Install repos may
 keep generated adapters, smoke fixtures, and pinned copies as implementation
 artifacts.
 
@@ -103,7 +103,7 @@ layout risk in one step.
 
 - Repo split breaks working proof harness -> use copy-first migration and avoid
   deletions until replacement checks exist.
-- Policy remains duplicated too long -> mark `openWorkflow` canonical and add
+- Policy remains duplicated too long -> mark `openxFactory` canonical and add
   install repo links back to canonical policy.
 - Submodules create operational confusion -> require a decision record before
   any `git submodule add`.
@@ -119,8 +119,8 @@ layout risk in one step.
 
 1. Create this OpenSpec proposal.
 2. Use Hermes approval to authorize decomposition.
-3. Implement FEAT-RB-001 as doc-only in `openWorkflow`.
-4. Add `openWorkflow/contracts/` placeholder in FEAT-RB-002.
+3. Implement FEAT-RB-001 as doc-only in `openxFactory`.
+4. Add `openxFactory/contracts/` placeholder in FEAT-RB-002.
 5. Update `Omnigent-Install` README scope and links in FEAT-RB-003.
 6. Update `Hermes-Install` README scope and links in FEAT-RB-004.
 7. Add a submodule decision record in FEAT-RB-005.
@@ -134,8 +134,8 @@ submodules are not part of the initial implementation.
 
 - Should `Hermes-Install` move, fork, or mirror from `FarHeap/Hermes-Install`
   to `opensoft/Hermes-Install` before submodule use?
-- Should end-to-end proof harnesses eventually live in `openWorkflow`, a new
+- Should end-to-end proof harnesses eventually live in `openxFactory`, a new
   `factory-lab` repo, or remain in `Omnigent-Install` until production
   adapters exist?
 - Should canonical schemas be moved as plain YAML under `contracts/`, or should
-  `openWorkflow` generate pinned contract bundles for install repos?
+  `openxFactory` generate pinned contract bundles for install repos?

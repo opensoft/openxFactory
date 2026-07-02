@@ -1,16 +1,16 @@
 # Domain Omnigent Execution Boundary
 
-`openWorkflow` is domain-neutral and no longer owns an engineering-specific Omnigent/Polly constitution.
+`openxFactory` is domain-neutral and no longer owns an engineering-specific Omnigent/Polly constitution.
 
 ## Neutral Rule
 
-Domain Omnigent layers execute bounded domain work under Hermes policy and openWorkflow/xFactory gates.
+Domain Omnigent layers execute bounded domain work under Hermes policy and openxFactory/xFactory gates.
 
 ```text
 Hermes
   owns intent, policy, approval, memory, and governance history.
 
-openWorkflow / xFactory
+openxFactory / xFactory
   owns contracts, gates, traceability, routing, state transitions, and audit.
 
 Domain Omnigent layer
@@ -38,4 +38,4 @@ MedxFactory
   uses Omnigent to run clinical and medical reasoning agents.
 ```
 
-`openWorkflow` keeps only the domain-neutral authority boundary.
+`openxFactory` keeps only the domain-neutral authority boundary.

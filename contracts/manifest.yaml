@@ -4,11 +4,11 @@ source_compatibility_ref:
   local_source_path: /home/brett/projects/Agents/Omnigent-Install
   source_commit: e254c22ce14e585e909b05c44aed21fd07beba84
 adapter_ownership_rule: >-
-  openWorkflow owns canonical contract meaning, versioning, and compatibility
+  openxFactory owns canonical contract meaning, versioning, and compatibility
   expectations. Install repositories may keep pinned copies, generated
   adapters, smoke fixtures, runtime validation configs, and operational
   implementation notes, but those files must identify the compatible
-  openWorkflow contract version before they are treated as current.
+  openxFactory contract version before they are treated as current.
 contracts:
   - id: clarification-answer-packet
     path: contracts/schemas/clarification-answer-packet.schema.yaml
@@ -110,3 +110,15 @@ contracts:
       - Human Review Router
     compatibility: copied_from_source_commit
     adapter_owner: Hermes-Install
+  - id: avatar-first-ui-profile
+    path: contracts/schemas/avatar-first-ui-profile.schema.yaml
+    source_path: openxFactory/contracts/schemas/avatar-first-ui-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - domain factory frontends
+      - domain starter generator
+      - Hermes UI policy overlays
+      - Omnigent interaction workers
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos

@@ -1,6 +1,6 @@
 # Enforcement Action Controller
 
-`openWorkflow` is domain-neutral. This document defines the neutral concept of converting a readiness decision into the next allowed enforcement or action state.
+`openxFactory` is domain-neutral. This document defines the neutral concept of converting a readiness decision into the next allowed enforcement or action state.
 
 Engineering-specific Merge Master behavior now lives in:
 
@@ -32,8 +32,8 @@ MedxFactory
   converts clinical package readiness into clinician review, specialist escalation, reverification, or block posture.
 ```
 
-## openWorkflow Ownership
+## openxFactory Ownership
 
-openWorkflow owns the generic mapping between readiness states and next workflow states.
+openxFactory owns the generic mapping between readiness states and next workflow states.
 
 Domain factory repos own the specific enforcement/action details.

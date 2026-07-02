@@ -11,9 +11,9 @@ Decision: READY FOR PR ADMISSION
 Allowed scope:
 
 - `Omnigent-Install` README scope clarification
-- links from `Omnigent-Install` to canonical `openWorkflow` docs
+- links from `Omnigent-Install` to canonical `openxFactory` docs
 - statement that duplicate policy docs are implementation notes or legacy
-  working copies unless `openWorkflow` delegates ownership
+  working copies unless `openxFactory` delegates ownership
 
 Confirmed exclusions:
 
@@ -27,9 +27,9 @@ Confirmed exclusions:
 
 ## Inputs Reviewed
 
-- `openWorkflow/docs/repo-boundary-audit.md`
-- `openWorkflow/contracts/README.md`
-- `openWorkflow/openspec/changes/restructure-factory-repo-boundaries/proposal.md`
+- `openxFactory/docs/repo-boundary-audit.md`
+- `openxFactory/contracts/README.md`
+- `openxFactory/openspec/changes/restructure-factory-repo-boundaries/proposal.md`
 - `Omnigent-Install/README.md`
 - `Omnigent-Install` PR #1 diff
 
@@ -38,7 +38,7 @@ Confirmed exclusions:
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
 | `Omnigent-Install` README states install, worker runtime, operations, and DR scope | Yes | `Omnigent-Install` PR #1 | README scope narrowed |
-| README links to canonical `openWorkflow` boundary and workflow policy | Yes | `Omnigent-Install` PR #1 | Links to boundary audit, pilot plan, contracts, OpenSpec change |
+| README links to canonical `openxFactory` boundary and workflow policy | Yes | `Omnigent-Install` PR #1 | Links to boundary audit, pilot plan, contracts, OpenSpec change |
 | duplicate policy material marked as implementation notes or legacy copies | Yes | `Omnigent-Install` PR #1 | Added Policy Copies section |
 | existing Omnigent smoke checks pass | Yes | validation output | See Local Checks |
 | no runtime code or install artifacts changed | Yes | PR diff | README only |
@@ -67,7 +67,7 @@ Review result: PASS
 Review notes:
 
 - The implementation PR changes only `Omnigent-Install/README.md`.
-- The README now treats `openWorkflow` as canonical workflow and contract
+- The README now treats `openxFactory` as canonical workflow and contract
   authority.
 - The README keeps Omnigent-specific implementation, runtime, worker, adapter,
   and verification scope in `Omnigent-Install`.

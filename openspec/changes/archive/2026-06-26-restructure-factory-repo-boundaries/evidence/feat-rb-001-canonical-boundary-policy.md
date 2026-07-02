@@ -2,7 +2,7 @@
 
 Feature: FEAT-RB-001 Canonical Boundary Policy
 Change: `restructure-factory-repo-boundaries`
-Repo: `opensoft/openWorkflow`
+Repo: `opensoft/openxFactory`
 Decision: READY FOR PR ADMISSION
 
 ## Scope
@@ -11,7 +11,7 @@ This feature is the first low-risk pilot slice for the repo-boundary change.
 
 Allowed scope:
 
-- `openWorkflow` only
+- `openxFactory` only
 - documentation and OpenSpec artifacts only
 - no install repo edits
 - no file moves
@@ -45,12 +45,12 @@ require separate approval.
 
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
-| `openWorkflow` clearly states canonical workflow policy ownership | Yes | `docs/repo-boundary-audit.md` | Defines `openWorkflow` as policy, contract, authority, and traceability owner |
+| `openxFactory` clearly states canonical workflow policy ownership | Yes | `docs/repo-boundary-audit.md` | Defines `openxFactory` as policy, contract, authority, and traceability owner |
 | `Hermes-Install` responsibility is defined | Yes | `docs/repo-boundary-audit.md` | Scoped to Hermes install, operations, backup, restore, upgrade, and DR |
 | `Omnigent-Install` responsibility is defined | Yes | `docs/repo-boundary-audit.md` | Scoped to Omnigent/Polly install, workers, operations, backup, restore, upgrade, and DR |
 | migration phases are documented | Yes | `docs/repo-boundary-audit.md` and `docs/repo-boundary-pilot-plan.md` | Includes classify, copy policy, link install repos, defer runtime moves, submodule plan |
 | open decisions are listed | Yes | `docs/repo-boundary-audit.md` and `design.md` | Includes Hermes remote ownership and proof-harness location |
-| first feature is doc-only and `openWorkflow` only | Yes | this evidence file and git diff | No install repo edits, no runtime code, no submodules |
+| first feature is doc-only and `openxFactory` only | Yes | this evidence file and git diff | No install repo edits, no runtime code, no submodules |
 | README links to boundary docs and OpenSpec change | Yes | `README.md` | Boundary audit, pilot plan, and active OpenSpec change are linked |
 
 ## Local Checks
@@ -67,7 +67,7 @@ Expected result:
 
 - OpenSpec change validates
 - markdown diff has no whitespace errors
-- changed files are limited to `openWorkflow` documentation/OpenSpec artifacts
+- changed files are limited to `openxFactory` documentation/OpenSpec artifacts
 
 ## Branch Review
 

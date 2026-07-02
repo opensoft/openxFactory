@@ -2,14 +2,14 @@
 
 Feature: FEAT-RB-005 Submodule Decision Record
 OpenSpec Change: `restructure-factory-repo-boundaries`
-Repo: `opensoft/openWorkflow`
+Repo: `opensoft/openxFactory`
 Decision: READY FOR PR ADMISSION
 
 ## Scope
 
 Allowed scope:
 
-- `openWorkflow` decision record
+- `openxFactory` decision record
 - OpenSpec task and evidence updates
 - no actual submodule creation
 

@@ -140,6 +140,16 @@ explicit for the target stack.
 - What can be shared across customer-subjects?
 - What identifiers are allowed in repo examples?
 - What identifiers must only exist in runtime or tenant configuration?
+- Which client document management, mailbox, ticketing, CRM, calendar, or
+  collaboration sources may be used for installation discovery?
+- Which sources are official policy, which are working documents, and which are
+  merely historical evidence?
+- Which known current practices should not be treated as target practice?
+- Who approves migration from current practice to target practice?
+- Which user groups are affected by each workflow change?
+- Which workflow changes require direct user consent, manager approval,
+  representative approval, customer consent, or only notice?
+- What training, acknowledgement, or change notice is required before cutover?
 
 ### 3.4 Customer-Subject Model
 
@@ -209,6 +219,14 @@ explicit for the target stack.
 - What citation or trace is required?
 - Which outputs are advisory only?
 - Which outputs can affect external state only after review?
+- Which current-state claims may be inferred from documents or email?
+- Which current-state claims require ground-source verification?
+- Which bad-practice findings require containment before automation?
+- What migration record is required before a discovered current workflow becomes
+  a target workflow?
+- What workflow definition packet is required before best-practice migration?
+- What current-to-target delta must be shown to users before consent?
+- What consent record is required before target workflow cutover?
 
 ### 3.9 Compliance And Human Authority
 

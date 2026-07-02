@@ -1,10 +1,10 @@
 # Repository Boundary Audit
 
-This document defines the boundary between `openWorkflow`, `Hermes-Install`,
+This document defines the boundary between `openxFactory`, `Hermes-Install`,
 and `Omnigent-Install`.
 
 The goal is to keep the install repositories focused on subsystem install,
-operations, backup, recovery, and disaster recovery, while `openWorkflow`
+operations, backup, recovery, and disaster recovery, while `openxFactory`
 owns the integrated factory workflow.
 
 The pilot implementation plan for applying this boundary through the factory
@@ -15,7 +15,7 @@ The next implementation phase is the
 ## Repository Responsibilities
 
 ```text
-openWorkflow
+openxFactory
   canonical factory workflow, policy, contracts, authority, traceability
 
 Hermes-Install
@@ -31,7 +31,7 @@ Use this rule when deciding where a file or concept belongs:
 
 ```text
 If it defines how the whole factory behaves:
-  openWorkflow
+  openxFactory
 
 If it installs, restores, operates, or verifies Hermes:
   Hermes-Install
@@ -40,13 +40,13 @@ If it installs, restores, operates, or verifies Omnigent/Polly workers:
   Omnigent-Install
 
 If it is a contract between subsystems:
-  openWorkflow owns the canonical contract
+  openxFactory owns the canonical contract
   install repos may keep pinned copies, generated adapters, or smoke-test fixtures
 ```
 
-## openWorkflow Scope
+## openxFactory Scope
 
-`openWorkflow` owns:
+`openxFactory` owns:
 
 - Hermes, Omnigent, OpenSpec, Spec Kit, GitHub, and agent boundary model
 - workflow contract from epic through merge
@@ -61,7 +61,7 @@ If it is a contract between subsystems:
 - end-to-end reference examples that explain how the factory works
 - release mapping that pins compatible install repo revisions
 
-`openWorkflow` should not own:
+`openxFactory` should not own:
 
 - live service manifests
 - live secrets
@@ -96,7 +96,7 @@ If it is a contract between subsystems:
 - end-to-end factory traceability model
 
 When Hermes-specific implementation is needed for a factory policy, the policy
-belongs in `openWorkflow`; the Hermes adapter, config, script, or manifest
+belongs in `openxFactory`; the Hermes adapter, config, script, or manifest
 belongs in `Hermes-Install`.
 
 ## Omnigent-Install Scope
@@ -127,7 +127,7 @@ belongs in `Hermes-Install`.
 - end-to-end traceability model
 
 When Omnigent implements a factory policy, the policy belongs in
-`openWorkflow`; the worker profile, prompt pack, harness script, smoke test, or
+`openxFactory`; the worker profile, prompt pack, harness script, smoke test, or
 adapter belongs in `Omnigent-Install`.
 
 ## Current Omnigent-Install Audit
@@ -157,9 +157,9 @@ These are install or operations artifacts and should remain:
 - LLM credential onboarding and restore runbooks
 - worker deployment, scale-out, and operations runbooks
 
-### Move Canonical Policy To openWorkflow
+### Move Canonical Policy To openxFactory
 
-The canonical versions of these concepts should live in `openWorkflow`:
+The canonical versions of these concepts should live in `openxFactory`:
 
 - `docs/project-master-plan.md`
 - `docs/omnigent-implementation-plan.md`, for workflow doctrine sections
@@ -176,8 +176,8 @@ The canonical versions of these concepts should live in `openWorkflow`:
 - `policies/hermes-governance-agents.yaml`, for canonical group/authority meaning
 - `policies/merge-risk-policy.yaml`, for canonical risk policy
 
-After canonical policy is moved or copied to `openWorkflow`, the install repo
-may keep implementation-oriented copies that point back to `openWorkflow`.
+After canonical policy is moved or copied to `openxFactory`, the install repo
+may keep implementation-oriented copies that point back to `openxFactory`.
 
 ### Candidate For Hermes-Install
 
@@ -201,10 +201,10 @@ If these are only a local integration proof for Omnigent, keep them temporarily
 in `Omnigent-Install` and mark them as proof-lab artifacts. If they are becoming
 the actual Hermes service implementation, move them to `Hermes-Install`.
 
-### Candidate For openWorkflow Integration Tests
+### Candidate For openxFactory Integration Tests
 
 These are end-to-end factory proofs. They may eventually belong in
-`openWorkflow` under an integration-test or reference-pilot area:
+`openxFactory` under an integration-test or reference-pilot area:
 
 - `examples/project-alfa-*`
 - `examples/live-pilot/`
@@ -236,9 +236,9 @@ the working proof harness.
 - company agent registry restore instructions
 - Hermes runtime backup and recovery instructions
 
-### Move Or Summarize In openWorkflow
+### Move Or Summarize In openxFactory
 
-The following concepts should be summarized in `openWorkflow` if they define
+The following concepts should be summarized in `openxFactory` if they define
 factory behavior rather than install procedure:
 
 - company and cross-company Hermes group meaning
@@ -253,13 +253,13 @@ deployed.
 
 ## Shared Contract Ownership
 
-Canonical contracts belong in `openWorkflow`.
+Canonical contracts belong in `openxFactory`.
 
 Install repos may keep generated or pinned copies, but the source of truth
 should be here:
 
 ```text
-openWorkflow/contracts/
+openxFactory/contracts/
   hermes-job-envelope.schema.yaml
   hermes-job-event.schema.yaml
   hermes-job-run.schema.yaml
@@ -273,17 +273,17 @@ openWorkflow/contracts/
 Version rule:
 
 ```text
-openWorkflow contract version
+openxFactory contract version
   -> install repo pins compatible version
   -> smoke tests prove adapter compatibility
 ```
 
 ## Proposed Submodule Layout
 
-`openWorkflow` should become the umbrella repo for the factory:
+`openxFactory` should become the umbrella repo for the factory:
 
 ```text
-openWorkflow/
+openxFactory/
   docs/
   contracts/
   examples/
@@ -295,13 +295,13 @@ openWorkflow/
 Recommended remotes:
 
 ```text
-github.com/opensoft/openWorkflow
+github.com/opensoft/openxFactory
 github.com/opensoft/Hermes-Install
 github.com/opensoft/Omnigent-Install
 ```
 
 Current note: local `Hermes-Install` points to `github.com:FarHeap/Hermes-Install`.
-Before adding it as an `openWorkflow` submodule, decide whether to move, fork,
+Before adding it as an `openxFactory` submodule, decide whether to move, fork,
 or mirror it into the `opensoft` organization.
 
 ## Migration Plan
@@ -313,26 +313,26 @@ work must be performed through the dogfood workflow described in
 ### Phase 1: Classify
 
 - [x] Mark each `Omnigent-Install` doc as keep, move canonical policy, move to Hermes, or proof-lab.
-- [x] Mark each `Hermes-Install` doc/script as keep or summarize into `openWorkflow`.
-- [x] Identify canonical contracts and create `openWorkflow/contracts/`.
+- [x] Mark each `Hermes-Install` doc/script as keep or summarize into `openxFactory`.
+- [x] Identify canonical contracts and create `openxFactory/contracts/`.
 - [ ] Identify examples that should become reference workflow examples.
 
 ### Phase 2: Copy Canonical Policy
 
-- [ ] Copy canonical role and authority docs into `openWorkflow`.
-- [ ] Copy canonical merge council and merge master policy into `openWorkflow`.
-- [ ] Copy canonical PR admission and human escalation policy into `openWorkflow`.
-- [ ] Copy canonical Spec Kit stage ownership and clarification routing into `openWorkflow`.
-- [ ] Copy canonical traceability and artifact contract docs into `openWorkflow`.
+- [ ] Copy canonical role and authority docs into `openxFactory`.
+- [ ] Copy canonical merge council and merge master policy into `openxFactory`.
+- [ ] Copy canonical PR admission and human escalation policy into `openxFactory`.
+- [ ] Copy canonical Spec Kit stage ownership and clarification routing into `openxFactory`.
+- [ ] Copy canonical traceability and artifact contract docs into `openxFactory`.
 
 Use copy-first migration. Do not delete working install repo files in this
 phase.
 
-### Phase 3: Point Install Repos Back To openWorkflow
+### Phase 3: Point Install Repos Back To openxFactory
 
 - [x] Update `Omnigent-Install` README with reduced scope.
 - [x] Update `Hermes-Install` README with reduced scope.
-- [x] Add links from install repo docs to canonical `openWorkflow` policy.
+- [x] Add links from install repo docs to canonical `openxFactory` policy.
 - [ ] Mark duplicate policy docs as implementation notes or legacy copies.
 
 ### Phase 4: Move Runtime-Specific Pieces
@@ -353,15 +353,15 @@ phase.
 
 - [ ] Add a repo-boundary checklist to PR templates.
 - [ ] Add smoke checks that install repos do not become canonical policy owners.
-- [ ] Add release notes mapping `openWorkflow` versions to install repo commits.
+- [ ] Add release notes mapping `openxFactory` versions to install repo commits.
 
 ## Decision Log
 
 | Decision | Status |
 |---|---|
-| `openWorkflow` is the canonical factory workflow repo | accepted |
+| `openxFactory` is the canonical factory workflow repo | accepted |
 | `Hermes-Install` is scoped to Hermes install, operations, and DR | accepted |
 | `Omnigent-Install` is scoped to Omnigent install, workers, operations, and DR | accepted |
-| `openWorkflow` may submodule both install repos | proposed |
+| `openxFactory` may submodule both install repos | proposed |
 | `Hermes-Install` should move or mirror to `opensoft` before submodule use | open |
 | Proof-lab artifacts remain in place until replacement location exists | accepted |

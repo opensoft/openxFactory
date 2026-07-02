@@ -2,14 +2,14 @@
 
 Feature: FEAT-RB-002 Contract Home Placeholder
 OpenSpec Change: `restructure-factory-repo-boundaries`
-Repo: `opensoft/openWorkflow`
+Repo: `opensoft/openxFactory`
 Decision: READY FOR PR ADMISSION
 
 ## Scope
 
 Allowed scope:
 
-- `openWorkflow` only
+- `openxFactory` only
 - contract placeholder documentation only
 - OpenSpec task and evidence updates
 
@@ -36,12 +36,12 @@ Confirmed exclusions:
 
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
-| `openWorkflow/contracts/` exists | Yes | `contracts/README.md` | Placeholder only |
+| `openxFactory/contracts/` exists | Yes | `contracts/README.md` | Placeholder only |
 | planned shared contracts and schema names are listed | Yes | `contracts/README.md` | Includes Hermes job, clarification, PR admission, merge readiness, risk, release map |
-| source-of-truth rule is documented | Yes | `contracts/README.md` | `openWorkflow/contracts/` owns canonical contract meaning |
+| source-of-truth rule is documented | Yes | `contracts/README.md` | `openxFactory/contracts/` owns canonical contract meaning |
 | version pinning rule is documented | Yes | `contracts/README.md` | Commit/tag pin examples included |
 | adapter/generated-copy rule is documented | Yes | `contracts/README.md` | Install repo copies are implementation artifacts |
-| no install repo files changed | Yes | git diff | Only `openWorkflow` files changed |
+| no install repo files changed | Yes | git diff | Only `openxFactory` files changed |
 
 ## Local Checks
 
@@ -58,7 +58,7 @@ Expected result:
 
 - OpenSpec validates.
 - Diff has no whitespace errors.
-- Diff is limited to `openWorkflow`.
+- Diff is limited to `openxFactory`.
 - No secret, credential, database, or runtime-state files are present.
 
 ## Branch Review

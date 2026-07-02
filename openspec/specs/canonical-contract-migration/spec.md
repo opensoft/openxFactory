@@ -1,15 +1,15 @@
 # canonical-contract-migration Specification
 
 ## Purpose
-TBD - created by archiving change migrate-canonical-policy-to-openworkflow. Update Purpose after archive.
+TBD - created by archiving change migrate-canonical-policy-to-openxfactory. Update Purpose after archive.
 ## Requirements
 ### Requirement: Copy-first contract migration
-The system SHALL migrate shared contracts into `openWorkflow/contracts/` using
+The system SHALL migrate shared contracts into `openxFactory/contracts/` using
 copy-first feature slices.
 
 #### Scenario: Shared schema is copied
 - **WHEN** a schema from an install repo governs behavior between factory subsystems
-- **THEN** it MUST be copied or summarized into `openWorkflow/contracts/` before install repo copies are removed
+- **THEN** it MUST be copied or summarized into `openxFactory/contracts/` before install repo copies are removed
 
 #### Scenario: Generated adapter exists
 - **WHEN** an install repo has generated clients, adapters, smoke fixtures, or runtime configs derived from a contract
@@ -20,7 +20,7 @@ Each migrated contract SHALL document source provenance and compatibility
 expectations.
 
 #### Scenario: Contract is migrated
-- **WHEN** a contract is added to `openWorkflow/contracts/`
+- **WHEN** a contract is added to `openxFactory/contracts/`
 - **THEN** it MUST identify its source path, intended consumers, compatibility version or commit, and adapter ownership rule
 
 #### Scenario: Contract breaks an adapter

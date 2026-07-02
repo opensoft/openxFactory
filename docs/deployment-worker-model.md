@@ -1,6 +1,6 @@
 # Domain Worker Routing Model
 
-`openWorkflow` is domain-neutral. This document defines the neutral control-plane and worker-routing concept for xFactory domains.
+`openxFactory` is domain-neutral. This document defines the neutral control-plane and worker-routing concept for xFactory domains.
 
 Engineering-specific worker deployment now lives in:
 
@@ -9,7 +9,7 @@ Engineering-specific worker deployment now lives in:
 ## Neutral Control/Execution Split
 
 ```text
-Hermes / openWorkflow control plane
+Hermes / openxFactory control plane
   -> governance, approvals, contracts, gates, routing, traceability, queues, dashboards, audit
 
 Domain factory workers
@@ -39,6 +39,6 @@ avoid storing secrets or production runtime state
 return status and evidence to the workflow rail
 ```
 
-## openWorkflow Ownership
+## openxFactory Ownership
 
-openWorkflow owns the routing and audit contract. Domain factory repos own the worker sizing, runtime tools, agent population, and domain-specific execution details.
+openxFactory owns the routing and audit contract. Domain factory repos own the worker sizing, runtime tools, agent population, and domain-specific execution details.

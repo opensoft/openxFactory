@@ -2,7 +2,7 @@
 
 Feature: FEAT-RB-006 First Actual Submodule Add
 OpenSpec Change: `restructure-factory-repo-boundaries`
-Repo: `opensoft/openWorkflow`
+Repo: `opensoft/openxFactory`
 Decision: READY FOR PR ADMISSION
 
 ## Scope
@@ -28,11 +28,11 @@ Confirmed exclusions:
 
 | Prerequisite | Status | Evidence |
 |---|---|---|
-| FEAT-RB-001 merged | Complete | `openWorkflow#1` |
-| FEAT-RB-002 merged | Complete | `openWorkflow#2` |
-| FEAT-RB-003 merged | Complete | `Omnigent-Install#1`, `openWorkflow#3` |
-| FEAT-RB-004 merged | Complete | `Hermes-Install#1`, `openWorkflow#4` |
-| FEAT-RB-005 merged | Complete | `openWorkflow#5` |
+| FEAT-RB-001 merged | Complete | `openxFactory#1` |
+| FEAT-RB-002 merged | Complete | `openxFactory#2` |
+| FEAT-RB-003 merged | Complete | `Omnigent-Install#1`, `openxFactory#3` |
+| FEAT-RB-004 merged | Complete | `Hermes-Install#1`, `openxFactory#4` |
+| FEAT-RB-005 merged | Complete | `openxFactory#5` |
 | Omnigent install scope docs approved | Complete | `Omnigent-Install#1` |
 | Hermes remote decision resolved | Deferred | Decision 0001 blocks Hermes submodule only |
 
@@ -70,9 +70,9 @@ Fresh clone validation:
 
 ```bash
 git clone --branch feat/repo-boundary-omnigent-submodule --recurse-submodules \
-  git@github.com:opensoft/openWorkflow.git /tmp/openworkflow-submodule-smoke
-git -C /tmp/openworkflow-submodule-smoke submodule status
-test -f /tmp/openworkflow-submodule-smoke/installs/omnigent-install/README.md
+  git@github.com:opensoft/openxFactory.git /tmp/openxfactory-submodule-smoke
+git -C /tmp/openxfactory-submodule-smoke submodule status
+test -f /tmp/openxfactory-submodule-smoke/installs/omnigent-install/README.md
 ```
 
 Result:

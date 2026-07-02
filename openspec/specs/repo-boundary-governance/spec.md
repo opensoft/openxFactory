@@ -1,22 +1,22 @@
 # repo-boundary-governance Specification
 
 ## Purpose
-Defines how `openWorkflow`, `Hermes-Install`, and `Omnigent-Install` assign
+Defines how `openxFactory`, `Hermes-Install`, and `Omnigent-Install` assign
 canonical workflow policy ownership, install repository scope, copy-first
 migration rules, and guarded repo-boundary execution.
 ## Requirements
 ### Requirement: Canonical workflow authority
-`openWorkflow` SHALL be the canonical repository for factory-level workflow
+`openxFactory` SHALL be the canonical repository for factory-level workflow
 policy, authority rules, role definitions, traceability rules, merge policy,
 and cross-system operating contracts.
 
 #### Scenario: Factory policy is introduced
 - **WHEN** a new policy affects Hermes, Omnigent/Polly, OpenSpec, Spec Kit, GitHub, or merge council behavior together
-- **THEN** the canonical policy MUST be created or updated in `openWorkflow`
+- **THEN** the canonical policy MUST be created or updated in `openxFactory`
 
 #### Scenario: Install repo needs policy context
 - **WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy
-- **THEN** the install repo MUST link to the canonical `openWorkflow` policy rather than become the policy source of truth
+- **THEN** the install repo MUST link to the canonical `openxFactory` policy rather than become the policy source of truth
 
 ### Requirement: Install repository scope
 `Hermes-Install` and `Omnigent-Install` SHALL be scoped to subsystem install,
@@ -38,7 +38,7 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 
 #### Scenario: Canonical policy exists in an install repo
 - **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install`
-- **THEN** the policy MUST be copied or summarized into `openWorkflow` before the install repo copy is deleted or marked legacy
+- **THEN** the policy MUST be copied or summarized into `openxFactory` before the install repo copy is deleted or marked legacy
 
 #### Scenario: Existing proof harness depends on current files
 - **WHEN** a proposed move could break an existing proof harness or smoke test
@@ -49,7 +49,7 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 - **THEN** the work MUST be proposed, decomposed, reviewed, admitted to PR, and merged using the factory workflow itself
 
 ### Requirement: Guarded pilot execution
-The initial repo-boundary pilot SHALL be doc-only, start in `openWorkflow`,
+The initial repo-boundary pilot SHALL be doc-only, start in `openxFactory`,
 and avoid deletions, submodules, runtime code movement, secrets, credentials,
 generated state, databases, and runtime workspaces. Later dogfood migration
 features SHALL keep the same stop conditions unless Hermes approves a narrower
@@ -57,7 +57,7 @@ exception for a specific feature.
 
 #### Scenario: First pilot feature is executed
 - **WHEN** FEAT-RB-001 is implemented
-- **THEN** it MUST touch `openWorkflow` only and MUST NOT change install repo files, runtime code, or submodules
+- **THEN** it MUST touch `openxFactory` only and MUST NOT change install repo files, runtime code, or submodules
 
 #### Scenario: Stop condition is encountered
 - **WHEN** a change proposes deleting install repo files, touching secrets, combining submodules with file moves, or modifying runtime state
@@ -68,13 +68,13 @@ exception for a specific feature.
 - **THEN** the feature MUST stop and return to Hermes approval before implementation continues
 
 ### Requirement: Install repo scope links
-Install repositories SHALL explicitly link back to `openWorkflow` for canonical
+Install repositories SHALL explicitly link back to `openxFactory` for canonical
 factory workflow policy once their scope clarification feature is approved.
 
 #### Scenario: Omnigent-Install scope is clarified
 - **WHEN** the Omnigent install scope feature is implemented
-- **THEN** its README MUST state that `openWorkflow` owns factory workflow policy and that `Omnigent-Install` owns Omnigent/Polly install and DR
+- **THEN** its README MUST state that `openxFactory` owns factory workflow policy and that `Omnigent-Install` owns Omnigent/Polly install and DR
 
 #### Scenario: Hermes-Install scope is clarified
 - **WHEN** the Hermes install scope feature is implemented
-- **THEN** its README MUST state that `openWorkflow` owns factory workflow policy and that `Hermes-Install` owns Hermes install and DR
+- **THEN** its README MUST state that `openxFactory` owns factory workflow policy and that `Hermes-Install` owns Hermes install and DR

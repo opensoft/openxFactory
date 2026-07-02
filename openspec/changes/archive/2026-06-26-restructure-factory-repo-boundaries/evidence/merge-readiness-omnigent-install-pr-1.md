@@ -7,9 +7,9 @@ Decision: READY
 
 ## Inputs Reviewed
 
-- `openWorkflow` proposal, design, and repo-boundary specs
-- `openWorkflow/docs/repo-boundary-audit.md`
-- `openWorkflow/contracts/README.md`
+- `openxFactory` proposal, design, and repo-boundary specs
+- `openxFactory/docs/repo-boundary-audit.md`
+- `openxFactory/contracts/README.md`
 - `Omnigent-Install/README.md`
 - Omnigent implementation PR diff
 - Omnigent local smoke results
@@ -21,7 +21,7 @@ Allowed scope:
 
 - `Omnigent-Install/README.md`
 - repository scope clarification
-- links to canonical `openWorkflow` policy and contracts
+- links to canonical `openxFactory` policy and contracts
 - policy-copy/implementation-note clarification
 
 Confirmed exclusions:
@@ -39,7 +39,7 @@ Confirmed exclusions:
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
 | `Omnigent-Install` README states install, worker runtime, operations, and DR scope | Yes | `Omnigent-Install#1` | Scope narrowed |
-| README links to canonical `openWorkflow` boundary and workflow policy | Yes | `Omnigent-Install#1` | Links added |
+| README links to canonical `openxFactory` boundary and workflow policy | Yes | `Omnigent-Install#1` | Links added |
 | duplicate policy material is marked as implementation notes or legacy copies | Yes | `Omnigent-Install#1` | Policy Copies section added |
 | existing Omnigent smoke checks pass | Yes | FEAT-RB-003 evidence | Local checks passed |
 | GitHub check passes | Yes | SonarCloud | Success |
@@ -81,4 +81,4 @@ None.
 - Merge `opensoft/Omnigent-Install#1` only.
 - Do not include Hermes scope-link work in this PR.
 - Do not move files or create submodules in this PR.
-- After merge, merge the corresponding `openWorkflow` OpenSpec evidence PR.
+- After merge, merge the corresponding `openxFactory` OpenSpec evidence PR.

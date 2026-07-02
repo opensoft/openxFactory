@@ -1,0 +1,198 @@
+schema_version: 1
+kind: xfactory_client_hermes_product_service_scaffold
+
+template:
+  id: client_product_service_scaffold
+  name: Client Hermes Product And Service Scaffold
+  description: >
+    Reusable client-layer scaffold for operating organizations that sell,
+    deliver, support, or manage products, services, subscriptions, managed
+    services, marketplace offers, projects, engagements, or hybrid offers.
+
+offer_shapes:
+  - id: product
+    models:
+      - catalog_item
+      - variant
+      - entitlement
+      - configuration
+      - fulfillment
+      - activation
+      - warranty_or_return
+      - support_policy
+  - id: service
+    models:
+      - scope
+      - intake_requirements
+      - assignment
+      - schedule
+      - capacity
+      - deliverable
+      - sla
+      - completion_criteria
+      - follow_up
+  - id: productized_service
+    models:
+      - package
+      - fixed_inputs
+      - fixed_outputs
+      - turnaround
+      - escalation_path
+  - id: subscription
+    models:
+      - plan
+      - term
+      - entitlement
+      - usage
+      - renewal
+      - cancellation
+      - expansion
+  - id: managed_service
+    models:
+      - monitored_asset
+      - standing_approval_envelope
+      - service_window
+      - incident_class
+      - change_class
+      - escalation_contact
+  - id: marketplace_offer
+    models:
+      - supplier
+      - listing
+      - eligibility
+      - routing
+      - dispute_path
+  - id: outcome_based_offer
+    models:
+      - target_outcome
+      - measurement_method
+      - intervention_class
+      - proof_requirement
+      - review_cadence
+
+client_layer_objects:
+  - client_profile
+  - offer_catalog
+  - customer_roster
+  - operating_policy
+  - integration_map
+  - staff_capability_map
+  - approval_matrix
+  - escalation_map
+  - communication_policy
+  - outcome_dashboard
+
+agent_scaffold:
+  - id: client_profile_steward
+    purpose: maintain client identity, tenant boundaries, operating units, and supported customer kinds
+  - id: offer_catalog_steward
+    purpose: model products, services, subscriptions, bundles, eligibility, scope, deliverables, and entitlements
+  - id: customer_relationship_steward
+    purpose: maintain customer roster, relationship status, onboarding, offboarding, entitlement state, and account context
+  - id: intake_and_triage_agent
+    purpose: convert requests into the right offer, workflow, risk class, and required context
+  - id: configure_quote_scope_agent
+    purpose: scope a product, service, plan, engagement, or workflow package before approval or delivery
+  - id: fulfillment_delivery_coordinator
+    purpose: track assignment, schedule, capacity, deliverables, status, and completion criteria
+  - id: policy_approval_gatekeeper
+    purpose: apply client policy, local approval rules, service boundaries, and stricter-than-domain gates
+  - id: integration_credential_steward
+    purpose: track systems, credential bindings, tool permissions, grant readiness, and integration health
+  - id: staff_capability_routing_agent
+    purpose: map staff roles, licenses, permissions, availability, and escalation contacts to allowed work
+  - id: communication_handoff_agent
+    purpose: draft customer updates, internal handoffs, escalation notes, and next-step explanations
+  - id: quality_outcome_monitor
+    purpose: track SLA, quality, exceptions, outcome measures, complaint signals, and follow-up triggers
+  - id: renewal_expansion_retention_agent
+    purpose: monitor renewals, lifecycle events, expansion, cancellations, and service continuity
+  - id: exception_dispute_agent
+    purpose: handle blocked work, disputes, returns, failed service delivery, policy conflicts, and complaints
+  - id: client_memory_steward
+    purpose: decide what becomes client-level memory, customer-private memory, or domain-learning candidate
+  - id: source_inventory_agent
+    purpose: catalog approved document, email, ticket, CRM, calendar, and collaboration sources for installation discovery
+  - id: workflow_definition_agent
+    purpose: convert source-backed current-state evidence into workflow definition packets
+  - id: practice_gap_auditor
+    purpose: compare observed current practice with domain standards, client policy, security, and customer-facing expectations
+  - id: migration_planner_agent
+    purpose: produce containment, dual-run, cutover, retirement, and drift-monitoring plans
+  - id: consent_adoption_gatekeeper
+    purpose: collect workflow-change consent and block cutover when approval or acknowledgement is missing
+
+skill_scaffold:
+  - id: offer_modeling
+  - id: eligibility_and_fit
+  - id: intake_and_scope
+  - id: configuration_and_entitlement
+  - id: routing_and_assignment
+  - id: approval_packet_preparation
+  - id: delivery_coordination
+  - id: customer_communication
+  - id: integration_readiness
+  - id: quality_and_outcome_monitoring
+  - id: exception_handling
+  - id: renewal_and_lifecycle
+  - id: source_inventory
+  - id: workflow_trace_reconstruction
+  - id: workflow_definition_packet
+  - id: practice_gap_analysis
+  - id: migration_plan_design
+  - id: workflow_change_consent
+
+user_interaction_scaffold:
+  avatar_assisted:
+    - guided_workflow_launch
+    - product_or_service_mapping
+    - missing_context_explanation
+    - blocked_workflow_explanation
+    - approval_need_explanation
+    - staff_or_queue_recommendation
+    - customer_message_drafting
+    - change_summary
+    - current_workflow_explanation
+    - gap_risk_explanation
+    - target_workflow_recommendation
+    - consent_needed_explanation
+  conventional_ui:
+    - customer_roster
+    - offer_catalog
+    - queue_status_board
+    - approval_queue
+    - staff_capability_matrix
+    - schedule_capacity_view
+    - integration_credential_status
+    - sla_outcome_dashboard
+    - exception_dispute_queue
+    - audit_transcript_search
+    - policy_escalation_configuration
+    - source_inventory
+    - evidence_claim_table
+    - workflow_definition_packet
+    - best_practice_gap_matrix
+    - migration_backlog
+    - consent_acknowledgement_register
+    - cutover_checklist
+
+starter_workflows:
+  - id: offer_setup
+  - id: customer_onboarding
+  - id: request_intake
+  - id: eligibility_fit_check
+  - id: scope_configuration
+  - id: approval_routing
+  - id: delivery_fulfillment
+  - id: customer_communication
+  - id: exception_handling
+  - id: outcome_review
+  - id: renewal_lifecycle
+  - id: installation_discovery
+  - id: workflow_migration
+
+memory_buckets:
+  - client_private_memory
+  - customer_relationship_memory
+  - domain_learning_candidates
+  - current_state_evidence

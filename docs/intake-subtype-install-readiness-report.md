@@ -50,31 +50,31 @@ Machine-readable detail: [pass1.yaml](../examples/intake-runtime-simulations/pas
 
 | Subtype | Current readiness | Missing domain artifacts | Runtime missing |
 | --- | --- | --- | --- |
-| `identity_admin.m365` | `domain_scaffold_required` | workflows:3, repo_credentials:1, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `exchange.mailbox_migration` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `endpoint.intune` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `cloud_ops.azure` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:2, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `cloud_ops.aws` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:2, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `dns.domain_ops` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `backup.dr` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `network.firewall` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `devops.github_org` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:3, adapters:3, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `security.incident_response` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `identity_admin.m365` | `domain_scaffold_required` | workflows:3, repo_credentials:1, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `exchange.mailbox_migration` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `endpoint.intune` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `cloud_ops.azure` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `cloud_ops.aws` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `dns.domain_ops` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:1, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `backup.dr` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:1, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `network.firewall` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `devops.github_org` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:3, adapters:3, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `security.incident_response` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
 
 ### accounting -> LedgerxFactory
 
 | Subtype | Current readiness | Missing domain artifacts | Runtime missing |
 | --- | --- | --- | --- |
-| `bookkeeping.small_business` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `bookkeeping.property_management` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:1, adapters:3, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `tax.individual` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:3, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `tax.business` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `audit.support` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `month_end.close` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `payroll.ops` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:1, adapters:3, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `accounts_payable.ops` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `accounts_receivable.ops` | `domain_scaffold_required` | workflows:3, repo_credentials:3, template_credentials:2, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
-| `controller.finance_ops` | `domain_scaffold_required` | workflows:3, repo_credentials:3, adapters:4, credential_requirements_file_missing, domain_validator_missing, hermes_agent_mixes_missing, subtype_profile_missing | runtime |
+| `bookkeeping.small_business` | `domain_scaffold_required` | subtype_profile_missing | runtime |
+| `bookkeeping.property_management` | `domain_scaffold_required` | workflows:2, repo_credentials:1, template_credentials:1, adapters:2, subtype_profile_missing | runtime |
+| `tax.individual` | `domain_scaffold_required` | workflows:2, subtype_profile_missing | runtime |
+| `tax.business` | `domain_scaffold_required` | workflows:3, adapters:1, subtype_profile_missing | runtime |
+| `audit.support` | `domain_scaffold_required` | workflows:3, adapters:2, subtype_profile_missing | runtime |
+| `month_end.close` | `domain_scaffold_required` | workflows:2, adapters:1, subtype_profile_missing | runtime |
+| `payroll.ops` | `domain_scaffold_required` | workflows:3, repo_credentials:1, template_credentials:1, adapters:1, subtype_profile_missing | runtime |
+| `accounts_payable.ops` | `domain_scaffold_required` | workflows:2, repo_credentials:2, template_credentials:2, adapters:1, subtype_profile_missing | runtime |
+| `accounts_receivable.ops` | `domain_scaffold_required` | workflows:3, repo_credentials:2, template_credentials:2, adapters:2, subtype_profile_missing | runtime |
+| `controller.finance_ops` | `domain_scaffold_required` | workflows:3, adapters:2, subtype_profile_missing | runtime |
 
 ### marketing -> AdxFactory
 

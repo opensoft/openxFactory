@@ -21,7 +21,7 @@ Decision: READY
 
 Allowed scope:
 
-- `openWorkflow` only
+- `openxFactory` only
 - documentation and OpenSpec artifacts only
 - FEAT-RB-001 only
 
@@ -38,12 +38,12 @@ Confirmed exclusions:
 
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
-| `openWorkflow` clearly states canonical workflow policy ownership | Yes | `docs/repo-boundary-audit.md` | Already present and reviewed |
+| `openxFactory` clearly states canonical workflow policy ownership | Yes | `docs/repo-boundary-audit.md` | Already present and reviewed |
 | `Hermes-Install` responsibility is defined | Yes | `docs/repo-boundary-audit.md` | Install, operations, backup, restore, upgrade, DR |
 | `Omnigent-Install` responsibility is defined | Yes | `docs/repo-boundary-audit.md` | Omnigent/Polly install, workers, operations, DR |
 | migration phases are documented | Yes | `docs/repo-boundary-audit.md`, `docs/repo-boundary-pilot-plan.md` | Copy-first and staged migration |
 | open decisions are listed | Yes | `docs/repo-boundary-audit.md`, `design.md` | Hermes remote ownership remains open |
-| first feature is doc-only and `openWorkflow` only | Yes | PR diff | Only OpenSpec task/evidence files changed |
+| first feature is doc-only and `openxFactory` only | Yes | PR diff | Only OpenSpec task/evidence files changed |
 | branch review and PR admission evidence exists | Yes | `evidence/feat-rb-001-canonical-boundary-policy.md` | Decision: ADMIT |
 
 ## Council Results

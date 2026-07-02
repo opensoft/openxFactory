@@ -1,11 +1,11 @@
 # Domain Neutralization and Engineering Content Migration Plan
 
-This plan defines how `openWorkflow` remains domain-neutral while engineering-specific workflow content moves to `opensoft/codexFactory`.
+This plan defines how `openxFactory` remains domain-neutral while engineering-specific workflow content moves to `opensoft/codexFactory`.
 
 ## Principle
 
 ```text
-openWorkflow
+openxFactory
   owns domain-neutral contracts, gates, traceability, routing, state transitions, and audit.
 
 codexFactory
@@ -15,7 +15,7 @@ MedxFactory
   owns clinical and medical reasoning agents, patient modeling, diagnostic dreams, simulation, and clinician review workflows.
 ```
 
-Do not treat `openWorkflow` as the software engineering factory. It is the neutral workflow rail used by multiple domain factories.
+Do not treat `openxFactory` as the software engineering factory. It is the neutral workflow rail used by multiple domain factories.
 
 ## Migration Rule
 
@@ -23,7 +23,7 @@ Use copy-first migration.
 
 ```text
 1. Create or update the engineering-domain canonical copy in codexFactory.
-2. Replace the openWorkflow copy with a domain-neutral contract or pointer.
+2. Replace the openxFactory copy with a domain-neutral contract or pointer.
 3. Preserve source references and audit history.
 4. Do not move secrets, credentials, runtime state, databases, generated workspaces, or production memory stores.
 5. Do not delete legacy source docs in the same change that creates canonical domain copies unless explicitly approved.
@@ -32,7 +32,7 @@ Use copy-first migration.
 ## Target Repositories
 
 ```text
-openWorkflow
+openxFactory
   target role: domain-neutral workflow substrate
 
 codexFactory
@@ -56,7 +56,7 @@ docs/pr-admission-merge-readiness.md
 docs/engineering-worker-model.md
 ```
 
-Core `openWorkflow` docs were rewritten or narrowed to domain-neutral contracts:
+Core `openxFactory` docs were rewritten or narrowed to domain-neutral contracts:
 
 ```text
 README.md
@@ -80,27 +80,27 @@ Move repo-centered examples and proof harnesses to `codexFactory` or mark them a
 Candidate source paths:
 
 ```text
-openWorkflow/examples/
-openWorkflow/openspec/changes/archive/*/evidence/*pr*
-openWorkflow/openspec/changes/archive/*/evidence/*merge*
+openxFactory/examples/
+openxFactory/openspec/changes/archive/*/evidence/*pr*
+openxFactory/openspec/changes/archive/*/evidence/*merge*
 ```
 
 Acceptance criteria:
 
 ```text
 engineering examples live in codexFactory
-openWorkflow keeps only domain-neutral examples or pointers
+openxFactory keeps only domain-neutral examples or pointers
 no generated runtime state is moved
 ```
 
 ### FEAT-XFACTORY-002: Contract split
 
-Review `openWorkflow/contracts` and separate neutral workflow contracts from engineering-specific schemas.
+Review `openxFactory/contracts` and separate neutral workflow contracts from engineering-specific schemas.
 
 Acceptance criteria:
 
 ```text
-neutral contracts remain in openWorkflow
+neutral contracts remain in openxFactory
 engineering-specific contracts move to codexFactory
 contract provenance is preserved
 ```
@@ -113,7 +113,7 @@ Acceptance criteria:
 
 ```text
 history remains auditable
-current canonical links point to domain-neutral openWorkflow docs or engineering codexFactory docs
+current canonical links point to domain-neutral openxFactory docs or engineering codexFactory docs
 ```
 
 ### FEAT-XFACTORY-004: Install repo pointer cleanup
@@ -121,7 +121,7 @@ current canonical links point to domain-neutral openWorkflow docs or engineering
 Install repo docs should point to either:
 
 ```text
-openWorkflow for neutral workflow contracts
+openxFactory for neutral workflow contracts
 codexFactory for engineering execution
 MedxFactory for medical execution
 ```
@@ -143,9 +143,9 @@ changes domain authority boundaries without approval
 The split is complete when:
 
 ```text
-openWorkflow reads as domain-neutral
+openxFactory reads as domain-neutral
 codexFactory owns software engineering implementation docs
 MedxFactory owns medical implementation docs
-openWorkflow points to domain factories instead of embedding their execution details
+openxFactory points to domain factories instead of embedding their execution details
 Frappe, vector DBs, agents, and repo tools are not treated as authority layers
 ```

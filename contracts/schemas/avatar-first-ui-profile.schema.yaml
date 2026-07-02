@@ -1,0 +1,204 @@
+schema_version: 1
+name: avatar_first_ui_profile
+type: object
+required:
+  - profile
+  - authority_boundaries
+  - interaction_surface
+  - channels
+  - standard_controls
+  - tool_boundaries
+  - escalation
+  - traceability
+properties:
+  profile:
+    type: object
+    required:
+      - id
+      - domain_factory_repo
+      - default_implementation_level
+      - primary_user_kind
+      - primary_subject_kind
+    properties:
+      id:
+        type: string
+      domain_factory_repo:
+        type: string
+      default_implementation_level:
+        type: string
+        enum:
+          - L0_text_avatar
+          - L1_audio_first_visual_avatar
+          - L2_live_2d_3d_avatar
+          - L3_streaming_avatar_vendor
+          - L4_custom_realtime_avatar_engine
+      primary_user_kind:
+        type: string
+      primary_subject_kind:
+        type: string
+      avatar_required:
+        type: boolean
+      conventional_ui_fallback_required:
+        type: boolean
+  authority_boundaries:
+    type: object
+    required:
+      - avatar_is_presentation_only
+      - workflow_authority_layer
+      - policy_authority_layer
+      - execution_layer
+      - final_enforcement_layer
+    properties:
+      avatar_is_presentation_only:
+        type: boolean
+        enum:
+          - true
+      workflow_authority_layer:
+        type: string
+      policy_authority_layer:
+        type: string
+      execution_layer:
+        type: string
+      final_enforcement_layer:
+        type: string
+  interaction_surface:
+    type: object
+    required:
+      - primary_region
+      - support_regions
+      - session_states
+      - accessibility
+    properties:
+      primary_region:
+        type: string
+        enum:
+          - avatar_stage
+      support_regions:
+        type: array
+        items:
+          type: string
+          enum:
+            - conversation_rail
+            - context_panel
+            - action_bar
+            - handoff_panel
+            - settings_panel
+      session_states:
+        type: array
+        items:
+          type: string
+      accessibility:
+        type: object
+  channels:
+    type: object
+    required:
+      - avatar_rendering
+      - conversation_media
+      - workflow_tool
+      - governance_supervisor
+    properties:
+      avatar_rendering:
+        type: object
+      conversation_media:
+        type: object
+      workflow_tool:
+        type: object
+      governance_supervisor:
+        type: object
+  persona_catalog:
+    type: object
+    required:
+      - owner_layer
+      - selection_allowed
+      - personas
+    properties:
+      owner_layer:
+        type: string
+      selection_allowed:
+        type: boolean
+      personas:
+        type: array
+        items:
+          type: object
+          required:
+            - id
+            - role
+            - presentation_style
+            - voice_style
+            - animation_level
+            - supported_languages
+            - allowed_contexts
+            - required_disclosure
+            - impersonation_allowed
+            - status
+            - version
+  standard_controls:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - action_class
+        - required
+      properties:
+        id:
+          type: string
+        action_class:
+          type: string
+        required:
+          type: boolean
+        fallback:
+          type: string
+  tool_boundaries:
+    type: object
+    required:
+      - allowed_tool_classes
+      - restricted_tool_classes
+      - approval_required_for
+    properties:
+      allowed_tool_classes:
+        type: array
+        items:
+          type: string
+      restricted_tool_classes:
+        type: array
+        items:
+          type: string
+      approval_required_for:
+        type: array
+        items:
+          type: string
+  escalation:
+    type: object
+    required:
+      - handoff_supported
+      - handoff_roles
+      - escalation_triggers
+    properties:
+      handoff_supported:
+        type: boolean
+      handoff_roles:
+        type: array
+        items:
+          type: string
+      escalation_triggers:
+        type: array
+        items:
+          type: string
+  traceability:
+    type: object
+    required:
+      - required_refs
+      - required_events
+      - transcript_policy
+    properties:
+      required_refs:
+        type: array
+        items:
+          type: string
+      required_events:
+        type: array
+        items:
+          type: string
+      transcript_policy:
+        type: string

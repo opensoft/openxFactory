@@ -139,6 +139,12 @@ The runner:
   exists
 - creates a pre-run questionnaire, setup runbook, and example pre-run answers
 - creates Hermes Mixture of Agents docs, profiles, templates, and schema hooks
+- creates the avatar-first UI profile and validation hooks
+- creates product/service Client Hermes scaffold templates for offer catalog,
+  client agents, skills, and user interactions
+- creates Client Hermes installation discovery and workflow migration templates
+  for document/email evidence, gap review, containment, cutover, and drift
+  monitoring
 - marks pre-run answer quality as starter placeholder, declared, inferred,
   simulated, confirmed, or approved
 - records legacy `subject_layer` normalization and implementation gaps
@@ -181,6 +187,8 @@ Every new domain factory repo should start with this shape:
     boundary.md
     domain-overview.md
     customer-hermes-model.md
+    client-layer.md
+    client-installation-discovery.md
     workflow-gates.md
     omnigent-constitution.md
     pre-run-questionnaire.md
@@ -189,6 +197,7 @@ Every new domain factory repo should start with this shape:
     implementation-guide.md
     credentialing.md
     hermes-agent-mixes.md
+    avatar-first-ui.md
 
   models/
     action-classes.yaml
@@ -200,6 +209,10 @@ Every new domain factory repo should start with this shape:
 
   profiles/
     README.md
+
+  ui/
+    README.md
+    avatar-first.yaml
 
   workflows/
     README.md
@@ -217,6 +230,11 @@ Every new domain factory repo should start with this shape:
 
     client/
       template.yaml
+      offering-catalog.template.yaml
+      agent-teams.template.yaml
+      skills.template.yaml
+      user-interactions.template.yaml
+      installation-discovery.template.yaml
       agent-mixes.template.yaml
       memory-boundaries.yaml
       policy-overrides.yaml
@@ -262,6 +280,7 @@ Every new domain factory repo should start with this shape:
     workflow.schema.yaml
     credential-requirements.schema.yaml
     agent-mixes.schema.yaml
+    avatar-first-ui.schema.yaml
     instantiation-questionnaire.schema.yaml
 
   examples/
@@ -993,6 +1012,9 @@ OpsxFactory-specific rules:
 [ ] Add hermes/domain overlay.
 [ ] Add hermes/domain agent mix profiles.
 [ ] Add hermes/client overlay.
+[ ] Add hermes/client product/service offer scaffold.
+[ ] Add hermes/client installation discovery and workflow migration scaffold.
+[ ] Define how observed document/email workflows are reviewed before becoming target workflows.
 [ ] Add hermes/client agent mix template.
 [ ] Add hermes/customer overlay or domain-specific alias.
 [ ] Add hermes/customer agent mix template.

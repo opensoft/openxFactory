@@ -75,7 +75,10 @@ Core domain-neutral docs:
 - [Domain Instantiation Pre-Run Questionnaire](docs/domain-instantiation-pre-run-questionnaire.md)
 - [Domain Instantiation Setup Runbook](docs/domain-instantiation-setup-runbook.md)
 - [xFactory Intake And Installer Plan](docs/intake-and-installer-plan.md)
+- [TUI Spec Questionnaire](docs/tui-spec-questionnaire.md)
 - [Self-Hosted Runtime Binding Plan](docs/self-hosted-runtime-binding-plan.md)
+- [Runtime Services Plan](docs/runtime-services-plan.md)
+- [Deploy Artifacts Plan](docs/deploy-artifacts-plan.md)
 - [Intake Template Catalog](templates/intake/README.md)
 - [Intake Subtype Install Readiness Report](docs/intake-subtype-install-readiness-report.md)
 - [Intake Subtype Install Runbook](docs/intake-subtype-install-runbook.md)
@@ -83,6 +86,10 @@ Core domain-neutral docs:
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
 - [xFactory Credential Access Model](docs/credential-access-model.md)
+- [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
+- [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
+- [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
+- [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Workflow Contract](docs/workflow-contract.md)
@@ -114,7 +121,7 @@ none
 Archived changes:
 
 - [restructure-factory-repo-boundaries](openspec/changes/archive/2026-06-26-restructure-factory-repo-boundaries/proposal.md)
-- [migrate-canonical-policy-to-openworkflow](openspec/changes/archive/2026-06-26-migrate-canonical-policy-to-openworkflow/proposal.md)
+- [migrate-canonical-policy-to-openxfactory](openspec/changes/archive/2026-06-26-migrate-canonical-policy-to-openxfactory/proposal.md)
 
 Canonical specs:
 

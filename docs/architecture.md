@@ -86,6 +86,7 @@ inside every DomainxFactory.
 It owns:
 
 - workflow contracts
+- avatar-first UI contracts
 - gate definitions
 - state transitions
 - traceability expectations
@@ -127,6 +128,8 @@ A domain factory owns:
 - domain-specific validation outputs
 - domain-specific review package shape
 - domain-specific implementation guidance
+- domain-specific avatar personas, controls, safety overlays, and UI runtime
+  implementation
 
 ### Domain Omnigent Layer
 
@@ -196,3 +199,16 @@ OpsxFactory
 ```
 
 The two domain factories share workflow structure, but not domain artifacts or agent populations.
+
+## Avatar-First UI
+
+The shared xFactory user experience is avatar-first: an AI avatar is the main
+interaction surface for guided conversation, intake, review, explanation, and
+handoff. Conventional UI remains available for controls, context, transcript,
+settings, evidence, and workflow state.
+
+openxFactory owns the domain-neutral avatar-first UI contract. Domain factory
+repos specialize it with domain personas, language, safety policy, handoff
+roles, tool boundaries, and implementation details.
+
+See [Avatar-First UI Standard](avatar-first-ui-standard.md).

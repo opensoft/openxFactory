@@ -47,10 +47,10 @@ adapter endpoints, approvals, validation evidence, or live execution approval.
 | `identity_admin.m365` | `profiles/identity_admin.m365.yaml` | `user_lifecycle`, `mailbox_migration`, `conditional_access_review` | `microsoft_365_admin` | `microsoft_365`, `entra_id`, `exchange_online` |
 | `exchange.mailbox_migration` | `profiles/exchange.mailbox_migration.yaml` | `mailbox_inventory`, `migration_batch_plan`, `migration_status_review` | `microsoft_365_admin`, `document_repository_read` | `exchange_online`, `microsoft_365`, `migration_tool` |
 | `endpoint.intune` | `profiles/endpoint.intune.yaml` | `device_inventory_review`, `compliance_policy_review`, `app_deployment_plan` | `intune_admin`, `microsoft_365_admin` | `intune`, `entra_id`, `endpoint_management` |
-| `cloud_ops.azure` | `profiles/cloud_ops.azure.yaml` | `subscription_review`, `infrastructure_change`, `backup_restore` | `azure_read`, `azure_operator` | `azure`, `backup_platform`, `observability` |
-| `cloud_ops.aws` | `profiles/cloud_ops.aws.yaml` | `account_review`, `infrastructure_change`, `incident_packet` | `aws_read`, `aws_operator` | `aws`, `backup_platform`, `observability` |
+| `cloud_ops.azure` | `profiles/cloud_ops.azure.yaml` | `subscription_review`, `infrastructure_change`, `backup_restore` | `azure_read`, `azure_operator`, `backup_operator` | `azure`, `backup_platform`, `observability` |
+| `cloud_ops.aws` | `profiles/cloud_ops.aws.yaml` | `account_review`, `infrastructure_change`, `incident_packet` | `aws_read`, `aws_operator`, `backup_operator` | `aws`, `backup_platform`, `observability` |
 | `dns.domain_ops` | `profiles/dns.domain_ops.yaml` | `dns_record_update`, `domain_cutover`, `certificate_renewal` | `certificate_authority_access`, `document_repository_read` | `dns_provider`, `certificate_authority`, `monitoring` |
-| `backup.dr` | `profiles/backup.dr.yaml` | `backup_inventory`, `restore_test_plan`, `recovery_readiness_review` | `cloud_read`, `document_repository_read` | `backup_platform`, `cloud_provider`, `document_repository` |
+| `backup.dr` | `profiles/backup.dr.yaml` | `backup_inventory`, `restore_test_plan`, `recovery_readiness_review` | `backup_operator`, `cloud_read`, `document_repository_read` | `backup_platform`, `cloud_provider`, `document_repository` |
 | `network.firewall` | `profiles/network.firewall.yaml` | `rule_review`, `change_plan`, `post_change_validation` | `network_device_admin`, `monitoring_read`, `document_repository_read` | `firewall`, `network_device`, `monitoring`, `ticketing` |
 | `devops.github_org` | `profiles/devops.github_org.yaml` | `org_access_review`, `branch_protection_review`, `repo_settings_update` | `repo_read`, `branch_write` | `github`, `ci_cd`, `ticketing` |
 | `security.incident_response` | `profiles/security.incident_response.yaml` | `incident_intake`, `containment_plan`, `post_incident_review` | `siem_read`, `endpoint_read`, `cloud_read` | `siem`, `edr`, `cloud_provider`, `ticketing` |
@@ -59,16 +59,16 @@ adapter endpoints, approvals, validation evidence, or live execution approval.
 
 | Subtype | Profile file | Workflow specs | Credential requirements | Adapter contracts |
 | --- | --- | --- | --- | --- |
-| `bookkeeping.small_business` | `profiles/bookkeeping.small_business.yaml` | `client_intake`, `bank_feed_review`, `reconciliation` | `accounting_system_read`, `bank_feed_read`, `document_store_read` | `quickbooks`, `xero`, `bank_feed`, `document_store` |
-| `bookkeeping.property_management` | `profiles/bookkeeping.property_management.yaml` | `rent_roll_review`, `owner_statement_packet`, `reconciliation` | `property_management_system_read`, `bank_feed_read`, `document_store_read` | `property_management_system`, `accounting_system`, `bank_feed` |
-| `tax.individual` | `profiles/tax.individual.yaml` | `tax_document_intake`, `organizer_review`, `filing_packet` | `tax_portal_access`, `document_store_read`, `accounting_system_read` | `tax_portal`, `document_store`, `tax_software` |
-| `tax.business` | `profiles/tax.business.yaml` | `tax_packet_preparation`, `filing_review`, `notice_response_packet` | `tax_portal_access`, `document_store_read`, `accounting_system_read` | `tax_portal`, `document_store`, `accounting_system`, `tax_software` |
-| `audit.support` | `profiles/audit.support.yaml` | `audit_evidence_request`, `control_evidence_packet`, `exception_response` | `document_store_read`, `accounting_system_read`, `erp_read` | `document_store`, `accounting_system`, `erp`, `audit_platform` |
-| `month_end.close` | `profiles/month_end.close.yaml` | `close_checklist_review`, `accrual_packet`, `variance_review` | `accounting_system_read`, `erp_read`, `document_store_read` | `erp`, `accounting_system`, `document_store`, `spreadsheet` |
-| `payroll.ops` | `profiles/payroll.ops.yaml` | `payroll_precheck`, `exception_review`, `payroll_approval_packet` | `payroll_system_read`, `document_store_read`, `tax_portal_access` | `payroll_system`, `document_store`, `tax_portal` |
-| `accounts_payable.ops` | `profiles/accounts_payable.ops.yaml` | `invoice_intake`, `approval_match_review`, `payment_packet` | `ap_system_read`, `document_store_read`, `vendor_master_read` | `ap_system`, `erp`, `document_store`, `payment_platform` |
-| `accounts_receivable.ops` | `profiles/accounts_receivable.ops.yaml` | `ar_aging_review`, `collection_follow_up_packet`, `cash_application_review` | `ar_system_read`, `document_store_read`, `customer_messaging_send` | `ar_system`, `erp`, `document_store`, `customer_messaging` |
-| `controller.finance_ops` | `profiles/controller.finance_ops.yaml` | `management_report_packet`, `budget_variance_review`, `board_packet_support` | `erp_read`, `accounting_system_read`, `document_store_read` | `erp`, `accounting_system`, `bi_platform`, `document_store` |
+| `bookkeeping.small_business` | `profiles/bookkeeping.small_business.yaml` | none | none | none |
+| `bookkeeping.property_management` | `profiles/bookkeeping.property_management.yaml` | `rent_roll_review`, `owner_statement_packet` | `property_management_system_read` | `property_management_system`, `accounting_system` |
+| `tax.individual` | `profiles/tax.individual.yaml` | `tax_document_intake`, `organizer_review` | none | none |
+| `tax.business` | `profiles/tax.business.yaml` | `tax_packet_preparation`, `filing_review`, `notice_response_packet` | none | `accounting_system` |
+| `audit.support` | `profiles/audit.support.yaml` | `audit_evidence_request`, `control_evidence_packet`, `exception_response` | none | `accounting_system`, `audit_platform` |
+| `month_end.close` | `profiles/month_end.close.yaml` | `accrual_packet`, `variance_review` | none | `accounting_system` |
+| `payroll.ops` | `profiles/payroll.ops.yaml` | `payroll_precheck`, `exception_review`, `payroll_approval_packet` | `payroll_system_read` | `payroll_system` |
+| `accounts_payable.ops` | `profiles/accounts_payable.ops.yaml` | `invoice_intake`, `approval_match_review` | `ap_system_read`, `vendor_master_read` | `ap_system` |
+| `accounts_receivable.ops` | `profiles/accounts_receivable.ops.yaml` | `ar_aging_review`, `collection_follow_up_packet`, `cash_application_review` | `ar_system_read`, `customer_messaging_send` | `ar_system`, `customer_messaging` |
+| `controller.finance_ops` | `profiles/controller.finance_ops.yaml` | `management_report_packet`, `budget_variance_review`, `board_packet_support` | none | `accounting_system`, `bi_platform` |
 
 ### marketing -> AdxFactory
 

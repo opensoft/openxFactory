@@ -1,6 +1,6 @@
 # Readiness Review Council
 
-`openWorkflow` is domain-neutral. This document defines the neutral readiness-review concept that domain work should receive a documented readiness decision before final enforcement or high-risk action.
+`openxFactory` is domain-neutral. This document defines the neutral readiness-review concept that domain work should receive a documented readiness decision before final enforcement or high-risk action.
 
 Engineering-specific merge council and merge readiness behavior now lives in:
 
@@ -42,6 +42,6 @@ next-state recommendation
 audit timestamp
 ```
 
-## openWorkflow Ownership
+## openxFactory Ownership
 
-openWorkflow owns the generic readiness-review contract. Domain factory repos own the domain-specific evidence and review body details.
+openxFactory owns the generic readiness-review contract. Domain factory repos own the domain-specific evidence and review body details.

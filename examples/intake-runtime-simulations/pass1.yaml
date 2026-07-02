@@ -1,6 +1,6 @@
 schema_version: 1
 kind: xfactory_subtype_install_readiness_pass1
-generated_at: '2026-07-01T01:00:27Z'
+generated_at: '2026-07-01T09:41:17Z'
 meaning: Current catalog and local repo state before applying the fix runbook.
 groups:
 - template_id: medical
@@ -362,6 +362,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -390,6 +391,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -421,6 +423,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -452,6 +455,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -467,6 +471,7 @@ groups:
     missing_repo_credential_requirements:
     - azure_read
     - azure_operator
+    - backup_operator
     missing_adapter_contracts:
     - azure
     - backup_platform
@@ -484,6 +489,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -499,6 +505,7 @@ groups:
     missing_repo_credential_requirements:
     - aws_read
     - aws_operator
+    - backup_operator
     missing_adapter_contracts:
     - aws
     - backup_platform
@@ -516,6 +523,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -547,6 +555,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -559,6 +568,7 @@ groups:
     missing_template_credential_details:
     - document_repository_read
     missing_repo_credential_requirements:
+    - backup_operator
     - cloud_read
     - document_repository_read
     missing_adapter_contracts:
@@ -578,6 +588,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -612,6 +623,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -645,6 +657,7 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
+    - domain_validator_missing
     - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
@@ -682,27 +695,11 @@ groups:
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
-    - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
-    - workflow_specs_missing
-    missing_workflow_specs:
-    - client_intake
-    - bank_feed_review
-    - reconciliation
+    missing_workflow_specs: []
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - accounting_system_read
-    - bank_feed_read
-    - document_store_read
-    missing_adapter_contracts:
-    - quickbooks
-    - xero
-    - bank_feed
-    - document_store
+    missing_repo_credential_requirements: []
+    missing_adapter_contracts: []
     runtime_gaps: *id001
     runtime_binding_focus:
     - accounting_system_access
@@ -716,9 +713,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
     - template_credential_details_missing
@@ -726,17 +720,13 @@ groups:
     missing_workflow_specs:
     - rent_roll_review
     - owner_statement_packet
-    - reconciliation
     missing_template_credential_details:
     - property_management_system_read
     missing_repo_credential_requirements:
     - property_management_system_read
-    - bank_feed_read
-    - document_store_read
     missing_adapter_contracts:
     - property_management_system
     - accounting_system
-    - bank_feed
     runtime_gaps: *id001
     runtime_binding_focus:
     - property_system_access
@@ -749,26 +739,14 @@ groups:
     repo_exists: true
     max_readiness: domain_scaffold_required
     domain_gaps:
-    - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
     - workflow_specs_missing
     missing_workflow_specs:
     - tax_document_intake
     - organizer_review
-    - filing_packet
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - tax_portal_access
-    - document_store_read
-    - accounting_system_read
-    missing_adapter_contracts:
-    - tax_portal
-    - document_store
-    - tax_software
+    missing_repo_credential_requirements: []
+    missing_adapter_contracts: []
     runtime_gaps: *id001
     runtime_binding_focus:
     - tax_portal_access
@@ -782,10 +760,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
     - workflow_specs_missing
     missing_workflow_specs:
@@ -793,15 +767,9 @@ groups:
     - filing_review
     - notice_response_packet
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - tax_portal_access
-    - document_store_read
-    - accounting_system_read
+    missing_repo_credential_requirements: []
     missing_adapter_contracts:
-    - tax_portal
-    - document_store
     - accounting_system
-    - tax_software
     runtime_gaps: *id001
     runtime_binding_focus:
     - tax_portal_access
@@ -815,10 +783,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
     - workflow_specs_missing
     missing_workflow_specs:
@@ -826,14 +790,9 @@ groups:
     - control_evidence_packet
     - exception_response
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - document_store_read
-    - accounting_system_read
-    - erp_read
+    missing_repo_credential_requirements: []
     missing_adapter_contracts:
-    - document_store
     - accounting_system
-    - erp
     - audit_platform
     runtime_gaps: *id001
     runtime_binding_focus:
@@ -848,26 +807,15 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
     - workflow_specs_missing
     missing_workflow_specs:
-    - close_checklist_review
     - accrual_packet
     - variance_review
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - accounting_system_read
-    - erp_read
-    - document_store_read
+    missing_repo_credential_requirements: []
     missing_adapter_contracts:
-    - erp
     - accounting_system
-    - document_store
-    - spreadsheet
     runtime_gaps: *id001
     runtime_binding_focus:
     - erp_access
@@ -881,9 +829,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
     - template_credential_details_missing
@@ -896,12 +841,8 @@ groups:
     - payroll_system_read
     missing_repo_credential_requirements:
     - payroll_system_read
-    - document_store_read
-    - tax_portal_access
     missing_adapter_contracts:
     - payroll_system
-    - document_store
-    - tax_portal
     runtime_gaps: *id001
     runtime_binding_focus:
     - payroll_system_access
@@ -915,9 +856,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
     - template_credential_details_missing
@@ -925,19 +863,14 @@ groups:
     missing_workflow_specs:
     - invoice_intake
     - approval_match_review
-    - payment_packet
     missing_template_credential_details:
     - ap_system_read
     - vendor_master_read
     missing_repo_credential_requirements:
     - ap_system_read
-    - document_store_read
     - vendor_master_read
     missing_adapter_contracts:
     - ap_system
-    - erp
-    - document_store
-    - payment_platform
     runtime_gaps: *id001
     runtime_binding_focus:
     - ap_system_access
@@ -951,9 +884,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
     - repo_credential_requirements_missing
     - subtype_profile_missing
     - template_credential_details_missing
@@ -967,12 +897,9 @@ groups:
     - customer_messaging_send
     missing_repo_credential_requirements:
     - ar_system_read
-    - document_store_read
     - customer_messaging_send
     missing_adapter_contracts:
     - ar_system
-    - erp
-    - document_store
     - customer_messaging
     runtime_gaps: *id001
     runtime_binding_focus:
@@ -987,10 +914,6 @@ groups:
     max_readiness: domain_scaffold_required
     domain_gaps:
     - adapter_contracts_missing
-    - credential_requirements_file_missing
-    - domain_validator_missing
-    - hermes_agent_mixes_missing
-    - repo_credential_requirements_missing
     - subtype_profile_missing
     - workflow_specs_missing
     missing_workflow_specs:
@@ -998,15 +921,10 @@ groups:
     - budget_variance_review
     - board_packet_support
     missing_template_credential_details: []
-    missing_repo_credential_requirements:
-    - erp_read
-    - accounting_system_read
-    - document_store_read
+    missing_repo_credential_requirements: []
     missing_adapter_contracts:
-    - erp
     - accounting_system
     - bi_platform
-    - document_store
     runtime_gaps: *id001
     runtime_binding_focus:
     - erp_access

@@ -21,7 +21,7 @@ Decision: READY
 
 Allowed scope:
 
-- `openWorkflow` only
+- `openxFactory` only
 - contract placeholder documentation
 - OpenSpec task and evidence updates
 
@@ -40,12 +40,12 @@ Confirmed exclusions:
 
 | AC | Covered | Evidence | Notes |
 |---|---:|---|---|
-| `openWorkflow/contracts/` exists | Yes | `contracts/README.md` | Placeholder only |
+| `openxFactory/contracts/` exists | Yes | `contracts/README.md` | Placeholder only |
 | planned shared contracts and schemas are listed | Yes | `contracts/README.md` | Hermes job, clarification, PR admission, merge readiness, risk, release map |
-| contract source-of-truth rule is documented | Yes | `contracts/README.md` | `openWorkflow/contracts/` owns canonical meaning |
+| contract source-of-truth rule is documented | Yes | `contracts/README.md` | `openxFactory/contracts/` owns canonical meaning |
 | version pinning rule is documented | Yes | `contracts/README.md` | Commit/tag examples included |
 | adapter/generated-copy rule is documented | Yes | `contracts/README.md` | Install repo copies remain implementation artifacts |
-| no install repo files changed | Yes | PR diff | Only `openWorkflow` files changed |
+| no install repo files changed | Yes | PR diff | Only `openxFactory` files changed |
 | branch review and PR admission evidence exists | Yes | `evidence/feat-rb-002-contract-home-placeholder.md` | Decision: ADMIT |
 
 ## Council Results

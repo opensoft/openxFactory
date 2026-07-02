@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 6
+STARTER_VERSION = 8
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -128,8 +128,11 @@ It implements the openxFactory/xFactory contract with:
 - [Domain Overview](docs/domain-overview.md)
 - [Workflow Gates](docs/workflow-gates.md)
 - [Customer Hermes Model](docs/customer-hermes-model.md)
+- [Client Layer](docs/client-layer.md)
+- [Client Installation Discovery](docs/client-installation-discovery.md)
 - [Omnigent Constitution](docs/omnigent-constitution.md)
 - [Hermes Agent Mixes](docs/hermes-agent-mixes.md)
+- [Avatar-First UI](docs/avatar-first-ui.md)
 - [Credentialing](docs/credentialing.md)
 - [Boundary](docs/boundary.md)
 """,
@@ -179,6 +182,10 @@ credentials:
   binding_template: credentials/bindings.template.yaml
   grant_template: credentials/grants.template.yaml
   audit_policy: credentials/audit.yaml
+
+ui:
+  avatar_first_profile: ui/avatar-first.yaml
+  default_surface: avatar_first
 
 tenancy:
   client_kinds: []
@@ -545,6 +552,95 @@ It should preserve:
 Those authorities remain with {ctx.client_layer_name}, {ctx.domain_layer_name},
 domain policy, and required human review.
 """,
+        "docs/client-layer.md": md_header(ctx) + f"""# {ctx.client_layer_name} Product And Service Model
+
+{ctx.client_layer_name} is the operating layer for the client organization or
+tenant. It should model what the client sells, delivers, supports, or operates.
+
+Most clients expose one or more offer shapes:
+
+- product
+- service
+- productized service
+- subscription
+- managed service
+- marketplace offer
+- project or engagement
+- outcome-based offer
+
+## Starter Surface
+
+Fill these templates before real client or tenant instantiation:
+
+- `hermes/client/offering-catalog.template.yaml`
+- `hermes/client/agent-teams.template.yaml`
+- `hermes/client/skills.template.yaml`
+- `hermes/client/user-interactions.template.yaml`
+- `hermes/client/installation-discovery.template.yaml`
+- `hermes/client/policy-overrides.yaml`
+- `hermes/client/integration-boundaries.yaml`
+
+## User Interaction Bias
+
+Client Hermes should be hybrid:
+
+- avatar-assisted for setup, triage, blocked-workflow explanation, policy
+  interpretation, approval guidance, and handoff drafting
+- conventional UI for queues, rosters, catalogs, approvals, schedules,
+  credential bindings, integration status, reporting, and audit
+""",
+        "docs/client-installation-discovery.md": md_header(ctx) + f"""# {ctx.client_layer_name} Installation Discovery
+
+{ctx.client_layer_name} may use authorized client documents, email history,
+ticketing records, CRM notes, calendars, and collaboration spaces to discover
+real operating workflows during installation.
+
+Those sources are current-state evidence. They do not become target operating
+policy until they pass through source tracing, workflow mapping, best-practice
+gap review, migration planning, workflow-change consent, and Hermes approval.
+
+## Required Rule
+
+```text
+observed current practice
+  -> source trace
+  -> current workflow map
+  -> workflow definition packet
+  -> user validation
+  -> best-practice gap review
+  -> migration plan
+  -> workflow-change consent
+  -> approved target workflow
+```
+
+## How Resources Become Flow
+
+Use a hybrid method:
+
+- deterministic parsing builds the evidence graph and candidate process graph
+- AI classifies messy documents and messages into workflow activities, decisions,
+  approvals, exceptions, and handoffs
+- source-backed workflow packets, not AI summaries, become the auditable record
+
+The installer should group resources into candidate workflow instances, create an
+event ledger, infer edges by time/order/status/reply/assignment signals, compute
+variants and bottlenecks, then walk users through the current-state packet before
+best-practice migration.
+
+## Starter Surface
+
+Fill this template before using client source material for configuration:
+
+- `hermes/client/installation-discovery.template.yaml`
+
+Bad or weak current practice must be dispositioned as `adopt_as_is`,
+`configure_variant`, `migrate_to_best_practice`, `contain_temporarily`,
+`quarantine`, or `reject`.
+
+Cutover must reference explicit workflow-change consent from the accountable
+client approver and the workflow owner or affected-user representative required
+by client policy.
+""",
         "docs/workflow-gates.md": md_header(ctx) + f"""# {ctx.product_name} Workflow Gates
 
 Every domain workflow should expose gate records that name:
@@ -617,6 +713,61 @@ council decides whether work may proceed.
 Replace the starter profiles with domain-owned profiles before live
 instantiation.
 """,
+        "docs/avatar-first-ui.md": md_header(ctx) + f"""# {ctx.product_name} Avatar-First UI
+
+{ctx.product_name} uses the openxFactory avatar-first UI standard as its
+default user interaction model.
+
+The avatar is the primary conversation and presentation surface. It is not the
+authority layer. Domain policy, workflow gates, credential rules, and external
+enforcement remain outside the avatar.
+
+## Standard Shell
+
+- Avatar stage
+- Conversation rail
+- Context panel
+- Action bar
+- Handoff panel
+- Settings panel
+
+## Domain Responsibilities
+
+Fill `ui/avatar-first.yaml` with:
+
+- approved persona roles
+- supported languages
+- domain disclosure text
+- allowed and restricted tool classes
+- handoff roles
+- escalation triggers
+- transcript retention policy
+- conventional UI fallback
+
+## Hermes Layer UI Defaults
+
+Customer Hermes should be avatar-first because it is closest to the customer
+subject and needs guidance, explanation, preference capture, accessibility, and
+handoff.
+
+Client Hermes should be hybrid because staff and operators need both
+conversational assistance and dense operational controls such as queues,
+approvals, schedules, rosters, integration status, and reporting.
+
+Domain Hermes should be conventional-first with an avatar copilot because
+domain experts need policy editing, schema review, evidence inspection, source
+promotion, audit logs, and traceability.
+
+## Boundary
+
+```text
+openxFactory
+  -> avatar-first UI contract, session states, channel model, traceability
+
+{ctx.product_name}
+  -> personas, domain-specific safety policy, tools, handoff roles, UI runtime
+```
+""",
         "models/action-classes.yaml": yaml_header(ctx) + """schema_version: 1
 kind: xfactory_action_classes
 
@@ -685,6 +836,286 @@ evidence_types:
   - id: agent_mix_evidence
 """,
         "profiles/README.md": md_header(ctx) + "# Profiles\n\nProfiles define deployable shapes for this domain.\n",
+        "ui/README.md": md_header(ctx) + f"""# UI
+
+UI profiles specialize openxFactory's avatar-first UI standard for
+{ctx.product_name}.
+
+The UI profile is a contract for the frontend/runtime implementation. It must
+not contain secrets, raw customer records, transcripts, or live runtime state.
+""",
+        "ui/avatar-first.yaml": yaml_header(ctx) + f"""schema_version: 1
+kind: xfactory_avatar_first_ui_profile
+
+profile:
+  id: {ctx.domain_id}_avatar_first
+  domain_factory_repo: {ctx.product_name}
+  default_implementation_level: L1_audio_first_visual_avatar
+  primary_user_kind: <domain-user-kind>
+  primary_subject_kind: <customer-subject-kind>
+  avatar_required: true
+  conventional_ui_fallback_required: true
+
+authority_boundaries:
+  avatar_is_presentation_only: true
+  workflow_authority_layer: openxFactory
+  policy_authority_layer: {ctx.domain_layer_name}
+  execution_layer: {ctx.display_name} Omnigent
+  final_enforcement_layer: <domain-specific-human-or-system>
+
+interaction_surface:
+  primary_region: avatar_stage
+  support_regions:
+    - conversation_rail
+    - context_panel
+    - action_bar
+    - handoff_panel
+    - settings_panel
+  session_states:
+    - idle
+    - preflight
+    - disclosure
+    - preference_selection
+    - active_conversation
+    - tool_request_pending
+    - workflow_waiting
+    - comprehension_or_confirmation_check
+    - handoff_requested
+    - handoff_active
+    - paused
+    - completed
+    - abandoned
+    - blocked
+    - escalated
+    - archived
+  accessibility:
+    captions_required: true
+    keyboard_navigation_required: true
+    reduced_motion_required: true
+    text_only_fallback_required: true
+
+channels:
+  avatar_rendering:
+    owns:
+      - persona_visual
+      - animation_state
+      - speaking_status
+    must_not_own:
+      - sole_copy_of_domain_state
+      - credential_grants
+      - final_authority_decisions
+  conversation_media:
+    owns:
+      - text_turns
+      - audio_stream
+      - caption_stream
+      - interruption_events
+    must_not_own:
+      - domain_policy_decisions
+      - unrestricted_tool_execution
+  workflow_tool:
+    owns:
+      - governed_tool_requests
+      - tool_authorization_checks
+      - domain_workflow_state
+    must_not_own:
+      - raw_secret_storage
+      - ungated_external_enforcement
+  governance_supervisor:
+    owns:
+      - policy_monitoring
+      - risk_escalation
+      - blocked_state_detection
+      - audit_event_creation
+    must_not_own:
+      - domain_execution_without_gates
+
+persona_catalog:
+  owner_layer: {ctx.client_layer_name}
+  selection_allowed: true
+  personas:
+    - id: default_domain_avatar_v1
+      role: domain_guide
+      presentation_style: calm_professional
+      voice_style: clear_reassuring
+      animation_level: subtle
+      supported_languages:
+        - en
+      allowed_contexts:
+        - guided_intake
+        - workflow_explanation
+        - review_summary
+      required_disclosure: virtual_xfactory_assistant
+      impersonation_allowed: false
+      status: draft
+      version: 1
+
+standard_controls:
+  - id: start_session
+    action_class: session
+    required: true
+  - id: pause_or_stop_session
+    action_class: session
+    required: true
+  - id: mute_microphone
+    action_class: media
+    required: true
+  - id: captions
+    action_class: accessibility
+    required: true
+  - id: switch_persona
+    action_class: preference
+    required: true
+  - id: switch_language
+    action_class: preference
+    required: true
+  - id: slow_down
+    action_class: communication
+    required: true
+  - id: repeat
+    action_class: communication
+    required: true
+  - id: explain_simply
+    action_class: communication
+    required: true
+  - id: show_more_detail
+    action_class: communication
+    required: true
+  - id: attach_or_share_context
+    action_class: context
+    required: true
+  - id: request_handoff
+    action_class: escalation
+    required: true
+  - id: show_privacy_and_disclosure
+    action_class: trust
+    required: true
+  - id: view_transcript
+    action_class: audit
+    required: true
+  - id: view_workflow_state
+    action_class: workflow
+    required: true
+
+tool_boundaries:
+  allowed_tool_classes:
+    - retrieve_user_preferences
+    - retrieve_approved_context_summary
+    - create_confirmation_record
+    - request_human_handoff
+    - create_supervisor_event
+  restricted_tool_classes:
+    - final_authority_decision
+    - privileged_external_action
+    - destructive_action
+    - unsupported_instruction
+  approval_required_for:
+    - external_send
+    - external_write
+    - privileged_action
+    - high_risk_recommendation
+
+escalation:
+  handoff_supported: true
+  handoff_roles:
+    - accountable_human
+    - domain_specialist
+    - support_operator
+  escalation_triggers:
+    - user_requests_human
+    - unsupported_language
+    - repeated_confusion
+    - policy_conflict
+    - high_risk_action_requested
+    - tool_request_denied
+    - supervisor_blocks_response
+
+traceability:
+  required_refs:
+    - session_id
+    - workflow_id
+    - domain_factory_repo
+    - client_ref
+    - user_or_subject_ref
+    - persona_id
+    - persona_version
+  required_events:
+    - session_started
+    - disclosure_presented
+    - preference_selected
+    - user_turn
+    - avatar_turn
+    - interruption
+    - tool_requested
+    - tool_allowed
+    - tool_denied
+    - handoff_requested
+    - handoff_completed
+    - session_completed
+  transcript_policy: domain_owned_retention_policy_required
+
+hermes_layer_ui_guidance:
+  customer_hermes:
+    default_ui_mode: avatar_first
+    avatar_helpful_for:
+      - intake
+      - follow_up
+      - explanation
+      - preference_capture
+      - consent_or_authorization_discussion
+      - language_switching
+      - comprehension_or_confirmation_checks
+      - handoff_requests
+    conventional_ui_helpful_for:
+      - structured_fact_confirmation
+      - timeline_review
+      - document_upload
+      - preference_settings
+      - consent_and_sharing_settings
+      - workflow_status
+      - transcript_and_history_review
+  client_hermes:
+    default_ui_mode: hybrid
+    avatar_helpful_for:
+      - guided_workflow_launch
+      - triage_explanation
+      - training_and_onboarding
+      - blocked_workflow_explanation
+      - policy_interpretation
+      - review_packet_summary
+      - next_best_action_guidance
+    conventional_ui_helpful_for:
+      - dashboards
+      - queues
+      - rosters
+      - permissions
+      - credential_bindings
+      - integration_status
+      - schedules
+      - approval_lists
+      - reporting
+      - bulk_operations
+  domain_hermes:
+    default_ui_mode: conventional_first_with_avatar_copilot
+    avatar_helpful_for:
+      - policy_explanation
+      - review_council_summary
+      - maintainer_onboarding
+      - implementation_option_comparison
+      - high_risk_request_explanation
+      - policy_or_schema_drafting
+    conventional_ui_helpful_for:
+      - policy_editing
+      - schema_and_version_management
+      - routing_tables
+      - gate_configuration
+      - evidence_review
+      - source_promotion
+      - evaluation_metrics
+      - approval_records
+      - audit_logs
+      - diff_and_trace_inspection
+""",
         "workflows/README.md": md_header(ctx) + "# Workflows\n\nWorkflow specs belong in this folder.\n",
         "workflows/example-readonly.yaml": yaml_header(ctx) + f"""schema_version: 1
 kind: xfactory_workflow
@@ -917,6 +1348,359 @@ client_hermes:
     - local operating policy
     - staff and escalation contacts
     - credential binding references
+""",
+        "hermes/client/offering-catalog.template.yaml": yaml_header(ctx) + """schema_version: 1
+kind: client_hermes_offering_catalog_template
+
+client_offering_catalog:
+  operating_model: <product|service|hybrid|marketplace|managed_service>
+  products:
+    - id: example_product
+      status: draft
+      variants: []
+      entitlement_rules: []
+      fulfillment_rules: []
+      support_rules: []
+  services:
+    - id: example_service
+      status: draft
+      intake_requirements: []
+      scope_boundaries: []
+      staff_capabilities_required: []
+      deliverables: []
+      sla_rules: []
+      completion_criteria: []
+  subscriptions: []
+  bundles: []
+  managed_services: []
+  outcome_based_offers: []
+""",
+        "hermes/client/agent-teams.template.yaml": yaml_header(ctx) + """schema_version: 1
+kind: client_hermes_agent_team_template
+
+client_agent_team:
+  core_agents:
+    - id: client_profile_steward
+      purpose: maintain client identity, tenant boundaries, operating units, and supported customer kinds
+    - id: offer_catalog_steward
+      purpose: model products, services, subscriptions, bundles, eligibility, scope, deliverables, and entitlements
+    - id: customer_relationship_steward
+      purpose: maintain customer roster, onboarding, offboarding, relationship status, and entitlement state
+    - id: intake_and_triage_agent
+      purpose: map requests to offer, workflow, risk class, and required context
+    - id: configure_quote_scope_agent
+      purpose: scope product options, service scope, plan limits, or engagement terms
+    - id: fulfillment_delivery_coordinator
+      purpose: track assignment, schedule, capacity, deliverables, status, and completion criteria
+    - id: policy_approval_gatekeeper
+      purpose: apply client policy, local approval rules, service boundaries, and stricter-than-domain gates
+    - id: integration_credential_steward
+      purpose: track systems, credential bindings, tool permissions, grant readiness, and integration health
+    - id: staff_capability_routing_agent
+      purpose: map staff roles, privileges, licenses, availability, and escalation contacts to allowed work
+    - id: communication_handoff_agent
+      purpose: draft customer updates, internal handoffs, escalation notes, and next-step explanations
+    - id: quality_outcome_monitor
+      purpose: track SLA, quality, exceptions, outcome measures, complaint signals, and follow-up triggers
+    - id: renewal_expansion_retention_agent
+      purpose: monitor renewals, lifecycle events, expansion, cancellations, and service continuity
+    - id: exception_dispute_agent
+      purpose: handle blocked work, disputes, returns, failed service delivery, policy conflicts, and complaints
+    - id: client_memory_steward
+      purpose: decide what becomes client-level memory, customer-private memory, or domain-learning candidate
+    - id: workflow_definition_agent
+      purpose: convert source-backed current-state evidence into workflow definition packets
+    - id: consent_adoption_gatekeeper
+      purpose: collect workflow-change consent and block cutover when approval or acknowledgement is missing
+""",
+        "hermes/client/skills.template.yaml": yaml_header(ctx) + """schema_version: 1
+kind: client_hermes_skill_template
+
+client_skills:
+  - id: offer_modeling
+    evidence_required:
+      - offer_catalog_entry
+  - id: eligibility_and_fit
+    evidence_required:
+      - eligibility_basis
+  - id: intake_and_scope
+    evidence_required:
+      - scoped_request
+  - id: configuration_and_entitlement
+    evidence_required:
+      - selected_options
+      - entitlement_basis
+  - id: routing_and_assignment
+    evidence_required:
+      - routing_basis
+  - id: approval_packet_preparation
+    evidence_required:
+      - policy_fit
+      - risk_summary
+      - approver_reference
+  - id: delivery_coordination
+    evidence_required:
+      - assignment
+      - status
+  - id: customer_communication
+    evidence_required:
+      - message_draft
+      - communication_policy_basis
+  - id: integration_readiness
+    evidence_required:
+      - system_refs
+      - credential_binding_refs
+  - id: quality_and_outcome_monitoring
+    evidence_required:
+      - outcome_measure
+      - follow_up_signal
+  - id: exception_handling
+    evidence_required:
+      - exception_summary
+      - escalation_path
+  - id: renewal_and_lifecycle
+    evidence_required:
+      - lifecycle_state
+      - next_action
+  - id: workflow_definition_packet
+    evidence_required:
+      - current_state_claim_refs
+      - states
+      - transitions
+      - approval_gates
+  - id: workflow_change_consent
+    evidence_required:
+      - current_workflow_ref
+      - target_workflow_ref
+      - consenting_party_ref
+      - consent_status
+""",
+        "hermes/client/user-interactions.template.yaml": yaml_header(ctx) + """schema_version: 1
+kind: client_hermes_user_interaction_template
+
+client_user_interactions:
+  avatar_assisted:
+    - id: guided_workflow_launch
+      user_set:
+        - staff
+        - operator
+    - id: product_or_service_mapping
+      user_set:
+        - staff
+        - manager
+    - id: missing_context_explanation
+      user_set:
+        - staff
+        - operator
+    - id: blocked_workflow_explanation
+      user_set:
+        - operator
+        - approver
+    - id: approval_need_explanation
+      user_set:
+        - manager
+        - approver
+    - id: customer_message_drafting
+      user_set:
+        - staff
+        - operator
+    - id: change_summary
+      user_set:
+        - manager
+        - approver
+    - id: consent_needed_explanation
+      user_set:
+        - manager
+        - approver
+        - staff
+  conventional_ui:
+    - id: customer_roster
+    - id: offer_catalog
+    - id: queue_status_board
+    - id: approval_queue
+    - id: staff_capability_matrix
+    - id: schedule_capacity_view
+    - id: integration_credential_status
+    - id: sla_outcome_dashboard
+    - id: exception_dispute_queue
+    - id: audit_transcript_search
+    - id: policy_escalation_configuration
+    - id: workflow_definition_packet
+    - id: consent_acknowledgement_register
+""",
+        "hermes/client/installation-discovery.template.yaml": yaml_header(ctx) + """schema_version: 1
+kind: client_hermes_installation_discovery_template
+
+installation_discovery:
+  enabled: false
+  core_rule:
+    current_state_evidence_is_not_operational_policy: true
+    target_workflows_require_gap_review: true
+    client_hermes_approves_local_cutover: true
+    workflow_change_requires_consent: true
+  source_families:
+    - id: document_management
+      access_scope: <read_only|metadata_only|sampled_read>
+      owner_ref: <owner-reference>
+      date_window: <date-window>
+      approved_by: <approver-reference>
+    - id: historical_email
+      access_scope: <read_only|metadata_only|sampled_read>
+      owner_ref: <owner-reference>
+      date_window: <date-window>
+      approved_by: <approver-reference>
+    - id: ticketing_or_case_system
+      access_scope: <read_only|metadata_only|sampled_read>
+      owner_ref: <owner-reference>
+      date_window: <date-window>
+      approved_by: <approver-reference>
+  authority_policy:
+    observed_current_practice_max_before_review: L3_ground_source_verified_current_state
+    accepted_client_policy_requires: L4_hermes_reviewed_truth
+    target_operational_rule_requires: L5_operational_policy
+  pipeline:
+    - source_inventory
+    - access_and_consent_scope
+    - sampling_plan
+    - evidence_extraction
+    - current_workflow_map
+    - workflow_definition_packet
+    - user_validation_walkthrough
+    - best_practice_comparison
+    - gap_and_risk_classification
+    - migration_plan
+    - workflow_change_consent
+    - client_hermes_approval
+    - target_workflow_generation
+    - dry_run_and_cutover
+  workflow_inference_method:
+    deterministic:
+      - metadata_parsing
+      - entity_normalization
+      - case_grouping
+      - event_ledger_construction
+      - temporal_edge_inference
+      - transition_frequency_analysis
+      - bottleneck_and_loop_detection
+    ai_assisted:
+      - activity_classification
+      - approval_and_exception_extraction
+      - synonym_mapping
+      - missing_step_hypothesis
+      - variant_summary
+      - walkthrough_explanation
+    authority_rule: ai_output_is_hypothesis_until_source_backed_and_user_validated
+  visualization_candidates:
+    - id: mermaid
+      license: MIT
+      best_for: generated_readonly_diagrams
+    - id: react_flow_xyflow
+      license: MIT
+      best_for: interactive_workflow_validation_canvas
+    - id: cytoscape_js
+      license: MIT
+      best_for: evidence_graph_and_variant_visualization
+    - id: xstate
+      license: MIT
+      best_for: statechart_semantics_and_simulation
+    - id: excalidraw
+      license: MIT
+      best_for: collaborative_annotation
+  gap_dispositions:
+    - adopt_as_is
+    - configure_variant
+    - migrate_to_best_practice
+    - contain_temporarily
+    - quarantine
+    - reject
+  migration_ladder:
+    - observe
+    - contain
+    - map_target
+    - design_migration
+    - dual_run_or_shadow_run
+    - approve_cutover
+    - retire_old_practice
+    - monitor_drift
+
+record_templates:
+  installation_source_inventory:
+    source_id: <source-id>
+    source_family: <document_management|historical_email|ticketing_or_case_system|crm|calendar|collaboration>
+    owner_ref: <owner-reference>
+    access_scope: <read_only|metadata_only|sampled_read>
+    date_window: <date-window>
+    retention_rule: <retention-rule>
+    approved_by: <approver-reference>
+  workflow_evidence_claim:
+    claim_id: <claim-id>
+    workflow_ref: <workflow-ref>
+    claim_type: <current_step|policy|approver|exception|artifact|communication>
+    source_refs: []
+    authority_level: L3_ground_source_verified_current_state
+    confidence: <low|medium|high>
+    current_state_only: true
+    unresolved_questions: []
+  workflow_definition_packet:
+    workflow_ref: <workflow-ref>
+    status: <draft_current_state|user_validated_current_state|target_candidate|approved_target>
+    trigger_events: []
+    actors: []
+    states: []
+    transitions: []
+    approval_gates: []
+    artifacts: []
+    systems_touched: []
+    customer_messages: []
+    completion_criteria: []
+    exception_paths: []
+    source_claim_refs: []
+    unresolved_questions: []
+  practice_gap:
+    gap_id: <gap-id>
+    workflow_ref: <workflow-ref>
+    current_claim_refs: []
+    target_standard_refs: []
+    risk_level: <low|medium|high|critical>
+    disposition: <adopt_as_is|configure_variant|migrate_to_best_practice|contain_temporarily|quarantine|reject>
+    rationale: <rationale>
+  workflow_migration_plan:
+    plan_id: <plan-id>
+    workflow_ref: <workflow-ref>
+    current_state_refs: []
+    target_state_refs: []
+    containment_controls: []
+    dual_run_required: true
+    cutover_criteria: []
+    retired_practices: []
+    rollback_or_repair_path: <rollback-or-repair-path>
+    approval_refs: []
+  workflow_change_consent:
+    consent_id: <consent-id>
+    workflow_ref: <workflow-ref>
+    consent_type: <source_analysis|current_state_validation|workflow_change|cutover>
+    consenting_party_ref: <consenting-party-reference>
+    consenting_party_role: <client_approver|workflow_owner|affected_user_representative|domain_reviewer|customer_subject>
+    affected_user_groups: []
+    current_workflow_ref: <current-workflow-ref>
+    target_workflow_ref: <target-workflow-ref>
+    changes_approved: []
+    training_or_notice_required: []
+    effective_window: <effective-window>
+    rollback_or_repair_acknowledged: true
+    consent_status: <requested|granted|denied|expired|withdrawn>
+    evidence_refs: []
+
+validation_rules:
+  - target_workflow_requires_gap_review
+  - current_state_claim_cannot_be_l5_without_hermes_approval
+  - bad_practice_gap_requires_disposition
+  - high_risk_gap_requires_containment_controls
+  - target_workflow_requires_definition_packet
+  - migration_plan_requires_current_to_target_delta
+  - workflow_change_requires_consent
+  - affected_users_require_notice_or_representative_approval
+  - raw_email_exports_forbidden_in_repo_artifacts
 """,
         "hermes/client/agent-mixes.template.yaml": yaml_header(ctx) + """schema_version: 1
 kind: hermes_client_agent_mix_template
@@ -1231,6 +2015,7 @@ schema:
     - omnigent.domain_overlay
     - credentials.requirements
     - credentials.broker_contract
+    - ui.avatar_first_profile
     - tenancy.isolation.memory
 """,
         "schemas/workflow.schema.yaml": yaml_header(ctx) + """schema_version: 1
@@ -1271,6 +2056,36 @@ schema:
   required_paths:
     - mix_profiles
 """,
+        "schemas/avatar-first-ui.schema.yaml": yaml_header(ctx) + """schema_version: 1
+kind: xfactory_schema
+
+schema:
+  id: avatar_first_ui
+  applies_to_kind: xfactory_avatar_first_ui_profile
+  required_paths:
+    - profile.id
+    - profile.domain_factory_repo
+    - profile.default_implementation_level
+    - profile.primary_user_kind
+    - profile.primary_subject_kind
+    - authority_boundaries.avatar_is_presentation_only
+    - authority_boundaries.workflow_authority_layer
+    - authority_boundaries.policy_authority_layer
+    - authority_boundaries.execution_layer
+    - interaction_surface.primary_region
+    - interaction_surface.support_regions
+    - channels.avatar_rendering
+    - channels.conversation_media
+    - channels.workflow_tool
+    - channels.governance_supervisor
+    - persona_catalog.personas
+    - standard_controls
+    - tool_boundaries.allowed_tool_classes
+    - tool_boundaries.restricted_tool_classes
+    - escalation.escalation_triggers
+    - traceability.required_refs
+    - traceability.required_events
+""",
         "schemas/instantiation-questionnaire.schema.yaml": yaml_header(ctx) + """schema_version: 1
 kind: xfactory_schema
 
@@ -1290,6 +2105,10 @@ schema:
     - hermes_mixture.reference_agents_have_tools
     - hermes_mixture.reference_agents_receive_runtime_grants
     - hermes_mixture.profile_modes
+    - avatar_first_ui.enabled
+    - avatar_first_ui.profile_path
+    - avatar_first_ui.avatar_is_presentation_only
+    - avatar_first_ui.required_controls
     - legacy_normalization.uses_legacy_subject_layer
     - instantiation.level
     - workflow_seed.readonly_workflow
@@ -1394,6 +2213,41 @@ hermes_mixture:
     - acting_agent_synthesis
     - dissent_summary
 
+avatar_first_ui:
+  enabled: true
+  profile_path: ui/avatar-first.yaml
+  default_implementation_level: L1_audio_first_visual_avatar
+  avatar_is_presentation_only: true
+  persona_catalog_owner: {ctx.client_layer_name}
+  disclosure_required: true
+  conventional_ui_fallback_required: true
+  required_controls:
+    - captions
+    - switch_persona
+    - switch_language
+    - slow_down
+    - repeat
+    - explain_simply
+    - request_handoff
+    - view_transcript
+    - view_workflow_state
+  handoff_required: true
+
+installation_discovery:
+  enabled: false
+  template_path: hermes/client/installation-discovery.template.yaml
+  raw_private_records_in_repo_allowed: false
+  current_state_evidence_is_not_operational_policy: true
+  target_workflows_require_gap_review: true
+  workflow_change_requires_consent: true
+  allowed_source_families:
+    - document_management
+    - historical_email
+    - ticketing_or_case_system
+    - crm_or_customer_notes
+    - calendar_and_scheduling
+  bad_practice_migration_required: true
+
 legacy_normalization:
   uses_legacy_subject_layer: false
   legacy_subject_layer_name: null
@@ -1474,11 +2328,19 @@ REQUIRED_FILES = [
     "docs/domain-overview.md",
     "docs/workflow-gates.md",
     "docs/customer-hermes-model.md",
+    "docs/client-layer.md",
+    "docs/client-installation-discovery.md",
     "docs/omnigent-constitution.md",
     "docs/hermes-agent-mixes.md",
     "docs/pre-run-questionnaire.md",
     "docs/setup-runbook.md",
+    "docs/avatar-first-ui.md",
     "hermes/domain/agent-mixes.yaml",
+    "hermes/client/offering-catalog.template.yaml",
+    "hermes/client/agent-teams.template.yaml",
+    "hermes/client/skills.template.yaml",
+    "hermes/client/user-interactions.template.yaml",
+    "hermes/client/installation-discovery.template.yaml",
     "hermes/client/agent-mixes.template.yaml",
     "hermes/customer/agent-mixes.template.yaml",
     "credentials/requirements.yaml",
@@ -1492,12 +2354,15 @@ REQUIRED_FILES = [
     "omnigent/worker-capabilities.yaml",
     "omnigent/command-policy.yaml",
     "omnigent/tool-routing.yaml",
+    "ui/README.md",
+    "ui/avatar-first.yaml",
     "workflows/example-readonly.yaml",
     "workflows/example-privileged.yaml",
     "schemas/stack.schema.yaml",
     "schemas/workflow.schema.yaml",
     "schemas/credential-requirements.schema.yaml",
     "schemas/agent-mixes.schema.yaml",
+    "schemas/avatar-first-ui.schema.yaml",
     "schemas/instantiation-questionnaire.schema.yaml",
     "examples/instantiation-answers.example.yaml",
     "examples/golden-path/README.md",
@@ -1555,6 +2420,15 @@ def validate_pre_run_answers(errors: list[str]) -> None:
             "hermes_mixture.reference_agents_have_tools",
             "hermes_mixture.reference_agents_receive_runtime_grants",
             "hermes_mixture.profile_modes",
+            "avatar_first_ui.enabled",
+            "avatar_first_ui.profile_path",
+            "avatar_first_ui.avatar_is_presentation_only",
+            "avatar_first_ui.required_controls",
+            "installation_discovery.enabled",
+            "installation_discovery.template_path",
+            "installation_discovery.raw_private_records_in_repo_allowed",
+            "installation_discovery.current_state_evidence_is_not_operational_policy",
+            "installation_discovery.target_workflows_require_gap_review",
             "legacy_normalization.uses_legacy_subject_layer",
             "instantiation.level",
             "workflow_seed.readonly_workflow",
@@ -1585,6 +2459,25 @@ def validate_pre_run_answers(errors: list[str]) -> None:
         errors.append(f"{rel} must set hermes_mixture.reference_agents_receive_runtime_grants: false")
     if value_at(answers, "hermes_mixture.default_decision_status") not in (None, "recommendation_only"):
         errors.append(f"{rel} hermes_mixture.default_decision_status must be recommendation_only")
+    if value_at(answers, "avatar_first_ui.enabled") is not True:
+        errors.append(f"{rel} must set avatar_first_ui.enabled: true")
+    if value_at(answers, "installation_discovery.raw_private_records_in_repo_allowed") is not False:
+        errors.append(f"{rel} must set installation_discovery.raw_private_records_in_repo_allowed: false")
+    if value_at(answers, "installation_discovery.current_state_evidence_is_not_operational_policy") is not True:
+        errors.append(
+            f"{rel} must set installation_discovery.current_state_evidence_is_not_operational_policy: true"
+        )
+    if value_at(answers, "installation_discovery.target_workflows_require_gap_review") is not True:
+        errors.append(f"{rel} must set installation_discovery.target_workflows_require_gap_review: true")
+    if value_at(answers, "avatar_first_ui.avatar_is_presentation_only") is not True:
+        errors.append(f"{rel} must set avatar_first_ui.avatar_is_presentation_only: true")
+    required_ui_controls = value_at(answers, "avatar_first_ui.required_controls")
+    if isinstance(required_ui_controls, list):
+        for control in ["captions", "request_handoff", "view_workflow_state"]:
+            if control not in required_ui_controls:
+                errors.append(f"{rel} avatar_first_ui.required_controls must include {control}")
+    else:
+        errors.append(f"{rel} avatar_first_ui.required_controls must be a list")
     profile_modes = value_at(answers, "hermes_mixture.profile_modes")
     if isinstance(profile_modes, dict):
         allowed_modes = {"panel_synthesis", "scored_vote", "deliberative_council"}
@@ -1707,6 +2600,58 @@ def validate_agent_mixes(errors: list[str]) -> set[str]:
     return profile_ids
 
 
+def validate_avatar_first_ui(errors: list[str]) -> None:
+    rel = "ui/avatar-first.yaml"
+    data = load_yaml(rel)
+    if data.get("kind") != "xfactory_avatar_first_ui_profile":
+        errors.append(f"{rel} kind must be xfactory_avatar_first_ui_profile")
+    validate_required_paths(
+        data,
+        [
+            "profile.id",
+            "profile.domain_factory_repo",
+            "profile.default_implementation_level",
+            "profile.primary_user_kind",
+            "profile.primary_subject_kind",
+            "authority_boundaries.avatar_is_presentation_only",
+            "authority_boundaries.workflow_authority_layer",
+            "authority_boundaries.policy_authority_layer",
+            "authority_boundaries.execution_layer",
+            "interaction_surface.primary_region",
+            "interaction_surface.support_regions",
+            "channels.avatar_rendering",
+            "channels.conversation_media",
+            "channels.workflow_tool",
+            "channels.governance_supervisor",
+            "standard_controls",
+            "tool_boundaries.allowed_tool_classes",
+            "tool_boundaries.restricted_tool_classes",
+            "escalation.escalation_triggers",
+            "traceability.required_refs",
+            "traceability.required_events",
+        ],
+        rel,
+        errors,
+    )
+    if value_at(data, "authority_boundaries.avatar_is_presentation_only") is not True:
+        errors.append(f"{rel} must keep authority_boundaries.avatar_is_presentation_only: true")
+    controls = data.get("standard_controls")
+    if not isinstance(controls, list):
+        errors.append(f"{rel} standard_controls must be a list")
+        return
+    control_ids = {str(control.get("id")) for control in controls if isinstance(control, dict)}
+    for control_id in [
+        "captions",
+        "switch_persona",
+        "switch_language",
+        "request_handoff",
+        "view_transcript",
+        "view_workflow_state",
+    ]:
+        if control_id not in control_ids:
+            errors.append(f"{rel} standard_controls must include {control_id}")
+
+
 def main() -> int:
     errors: list[str] = []
     for rel in REQUIRED_FILES:
@@ -1732,6 +2677,7 @@ def main() -> int:
             stack.get("omnigent", {}).get("domain_overlay"),
             stack.get("credentials", {}).get("requirements"),
             stack.get("credentials", {}).get("broker_contract"),
+            stack.get("ui", {}).get("avatar_first_profile"),
         ]:
             if rel and not (ROOT / rel).exists():
                 errors.append(f"stack.yaml references missing path: {rel}")
@@ -1741,6 +2687,7 @@ def main() -> int:
         risks = ids_from(load_yaml("models/risk-levels.yaml").get("risk_levels"))
         capabilities = ids_from(load_yaml("omnigent/worker-capabilities.yaml").get("worker_capabilities"))
         mix_profile_ids = validate_agent_mixes(errors)
+        validate_avatar_first_ui(errors)
         validate_pre_run_answers(errors)
         workflow_ids: set[str] = set()
         for workflow_path in sorted((ROOT / "workflows").glob("*.yaml")):
@@ -1809,6 +2756,7 @@ def starter_owned_upgrade_reason(rel: str, existing: str) -> str | None:
             "validate_pre_run_workflow_seed" not in existing
             or "validate_agent_mixes" not in existing
             or "deliberative_council" not in existing
+            or "validate_avatar_first_ui" not in existing
         )
     ):
         return "upgraded starter-owned validator to current starter surface"
@@ -1847,6 +2795,7 @@ def starter_owned_upgrade_reason(rel: str, existing: str) -> str | None:
             "answer_metadata:" not in existing
             or "hermes_mixture:" not in existing
             or "deliberative_council" not in existing
+            or "avatar_first_ui:" not in existing
         )
     ):
         return "upgraded starter-owned pre-run answer example to current starter model"
@@ -1857,9 +2806,16 @@ def starter_owned_upgrade_reason(rel: str, existing: str) -> str | None:
             "answer_metadata.status" not in existing
             or "hermes_mixture.enabled" not in existing
             or "hermes_mixture.profile_modes" not in existing
+            or "avatar_first_ui.enabled" not in existing
         )
     ):
         return "upgraded starter-owned pre-run answer schema"
+    if (
+        rel == "schemas/stack.schema.yaml"
+        and "source: openxFactory/domain-factory-starter-pack" in existing
+        and "ui.avatar_first_profile" not in existing
+    ):
+        return "upgraded starter-owned stack schema for avatar-first UI profile"
     if (
         rel == "schemas/agent-mixes.schema.yaml"
         and "source: openxFactory/domain-factory-starter-pack" in existing
@@ -1907,8 +2863,11 @@ def add_readme_links(target: Path, log: RunLog, dry_run: bool) -> None:
         "- [Domain Overview](docs/domain-overview.md)",
         "- [Workflow Gates](docs/workflow-gates.md)",
         "- [Customer Hermes Model](docs/customer-hermes-model.md)",
+        "- [Client Layer](docs/client-layer.md)",
+        "- [Client Installation Discovery](docs/client-installation-discovery.md)",
         "- [Omnigent Constitution](docs/omnigent-constitution.md)",
         "- [Hermes Agent Mixes](docs/hermes-agent-mixes.md)",
+        "- [Avatar-First UI](docs/avatar-first-ui.md)",
         "- [Credentialing](docs/credentialing.md)",
         "- [Boundary](docs/boundary.md)",
     ]

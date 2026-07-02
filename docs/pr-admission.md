@@ -1,6 +1,6 @@
 # External Admission Contract
 
-`openWorkflow` is domain-neutral. This document defines the neutral admission concept: a domain work product must not advance to external enforcement until required evidence and review gates are satisfied.
+`openxFactory` is domain-neutral. This document defines the neutral admission concept: a domain work product must not advance to external enforcement until required evidence and review gates are satisfied.
 
 Engineering-specific PR admission now lives in:
 
@@ -27,9 +27,9 @@ MedxFactory
   clinical admission controls whether a diagnostic package, treatment review, or clinician-facing recommendation may proceed to clinician review.
 ```
 
-## openWorkflow Ownership
+## openxFactory Ownership
 
-openWorkflow owns:
+openxFactory owns:
 
 ```text
 admission state vocabulary

@@ -1,6 +1,0 @@
-schema: spec-driven
-created: 2026-06-26
-goal: Turn the documented openWorkflow factory into a repeatable live pilot
-  stack by pinning contracts, hardening Hermes/Omnigent runtime integration,
-  running a real Project Alfa pilot, and preserving GitHub as final merge
-  enforcement.

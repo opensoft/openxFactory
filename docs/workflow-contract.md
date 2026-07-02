@@ -2,7 +2,7 @@
 
 This is the required domain-neutral xFactory workflow contract from approved intent through final enforcement.
 
-`openWorkflow` defines the rail. Domain factory repos define the domain-specific execution.
+`openxFactory` defines the rail. Domain factory repos define the domain-specific execution.
 
 ## Required Workflow
 
@@ -10,7 +10,7 @@ This is the required domain-neutral xFactory workflow contract from approved int
 2. Hermes approves the intent for decomposition.
 3. The appropriate domain factory accepts the approved scope.
 4. The domain factory decomposes the scope into bounded, traceable, reviewable work units.
-5. openWorkflow/xFactory gates determine which work units are admitted for execution.
+5. openxFactory/xFactory gates determine which work units are admitted for execution.
 6. The domain Omnigent layer runs bounded domain agents under the approved scope.
 7. Deterministic checks or domain-specific validation run where applicable.
 8. Domain review runs before any external enforcement or clinical/business action.
@@ -24,7 +24,7 @@ OpenSpec or another Hermes-approved intent record is used before domain executio
 
 ```text
 Hermes-approved intent
-  -> openWorkflow/xFactory contract and gate context
+  -> openxFactory/xFactory contract and gate context
   -> domain factory accepts the work
   -> domain factory decomposes into bounded work units
   -> domain Omnigent executes approved domain work
@@ -50,6 +50,26 @@ MedxFactory
 
 The workflow rail remains the same. The domain execution differs.
 
+## Avatar-First UI Rule
+
+Avatar-first UI is the standard user-facing interaction model for xFactories,
+but it does not change workflow authority.
+
+```text
+avatar UI
+  -> presents conversation, controls, context, transcript, and handoff
+
+openxFactory gates
+  -> decide workflow admission and state transitions
+
+Hermes and accountable domain roles
+  -> own policy, approval, review, and authority decisions
+```
+
+The avatar may request tools and render approved results. It must not bypass
+approved intent, credential grants, review gates, or external enforcement
+requirements.
+
 ## Non-Negotiable Gates
 
 - No domain execution starts without approved intent.
@@ -57,8 +77,8 @@ The workflow rail remains the same. The domain execution differs.
 - No domain agent output becomes authoritative without the required workflow gates.
 - No high-risk action proceeds without deterministic gate evaluation where required.
 - No external enforcement occurs without a review/admission record.
-- No domain-specific runtime data, secrets, credentials, production memory stores, or generated workspaces belong in `openWorkflow`.
-- No clinical, engineering, or business final action is owned by openWorkflow itself.
+- No domain-specific runtime data, secrets, credentials, production memory stores, or generated workspaces belong in `openxFactory`.
+- No clinical, engineering, or business final action is owned by openxFactory itself.
 
 ## Initial Admission States
 

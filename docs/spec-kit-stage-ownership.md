@@ -1,6 +1,6 @@
 # Spec Kit Engineering Flow Pointer
 
-`openWorkflow` is domain-neutral and no longer owns the engineering-specific Spec Kit stage ownership policy.
+`openxFactory` is domain-neutral and no longer owns the engineering-specific Spec Kit stage ownership policy.
 
 Spec Kit is a software engineering feature-flow implementation and now belongs in `codexFactory`.
 
@@ -8,9 +8,9 @@ Canonical engineering-domain documentation:
 
 - `opensoft/codexFactory/docs/spec-kit-engineering-flow.md`
 
-## Neutral openWorkflow Rule
+## Neutral openxFactory Rule
 
-openWorkflow owns only the neutral sequence:
+openxFactory owns only the neutral sequence:
 
 ```text
 approved intent
