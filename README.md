@@ -7,9 +7,11 @@ Use these terms precisely:
 
 - `xFactory` is the top-level product family and aggregation repository.
 - `openxFactory` is the open reference stack and canonical contract source.
-- The `xFactory layer` is the domain-neutral workflow, gate, traceability,
-  routing, source authority, memory promotion, credential, and audit layer
-  inside `openxFactory` and every DomainxFactory.
+- The `xFactory layer` is the domain-neutral stack composition and workflow
+  governance layer inside `openxFactory` and every DomainxFactory. It defines
+  which stack parts are required for a domain and how work moves through gates,
+  routing, traceability, source authority, memory promotion, credentials, and
+  audit.
 - A `DomainxFactory` is an instantiated domain stack such as `MedxFactory`,
   `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `codexFactory`.
 
@@ -36,7 +38,8 @@ Hermes
   owns intent, policy, memory, approval, and governance history.
 
 xFactory layer
-  owns contracts, gates, traceability, routing, state transitions, and audit.
+  owns stack composition, contracts, gates, traceability, routing, state
+  transitions, and audit.
 
 Domain factory repos
   own domain-specific execution behavior.

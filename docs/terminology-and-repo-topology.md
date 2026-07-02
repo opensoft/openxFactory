@@ -18,7 +18,8 @@ Omnigent, AgentTower, credentials, source authority, traceability, and domain
 factory scaffolding.
 
 `xFactory layer` names the domain-neutral layer inside `openxFactory` and every
-DomainxFactory. It owns the generic contract for job envelopes, gates, routing,
+DomainxFactory. It owns the generic stack composition contract and runtime
+governance contract: required stack parts, job envelopes, gates, routing,
 traceability, state transitions, audit, source authority, memory promotion, and
 handoff boundaries.
 
@@ -75,6 +76,10 @@ The `xFactory layer` is one layer inside that stack.
 
 It owns:
 
+- stack composition contracts
+- required layer/module declarations
+- the three-Hermes-layer contract
+- default responsibility boundaries for customer, client, and domain Hermes
 - workflow contracts
 - job envelopes
 - gates and admission states
@@ -91,6 +96,55 @@ It owns:
 The `xFactory layer` does not own domain truth, customer truth, raw memory
 stores, production credentials, domain agent behavior, or final external
 enforcement.
+
+## Stack Composition Contract
+
+The xFactory layer defines what a valid DomainxFactory stack must contain before
+domain-specific specialization begins.
+
+Every DomainxFactory must declare and map these required parts:
+
+```text
+xFactory layer binding
+  consumed openxFactory version, contract compatibility, gates, traceability
+
+Customer Hermes
+  customer-specific context, consent, preferences, journey state, private memory
+
+Client Hermes
+  tenant/client policy, staff, integrations, local constraints, credentials
+
+Domain Hermes
+  reusable domain policy, source authority, domain memory boundaries,
+  review standards, escalation, and reusable lifecycle model
+
+Domain Omnigent
+  expert execution, routing, tools, validation, output templates, evidence
+
+Credential broker contract
+  requirements, bindings, runtime grants, audit, revocation
+
+Source and memory governance
+  source authority levels, claim trace, memory promotion, policy promotion
+
+External enforcement adapters
+  systems that enforce final state for the domain
+```
+
+xFactory defines the required grammar and responsibility boundaries. The
+DomainxFactory supplies the domain names and domain content.
+
+```text
+xFactory says:
+  "A customer Hermes layer is required and owns customer-specific memory,
+  consent, preferences, and active state."
+
+MedxFactory says:
+  "In this domain, customer Hermes is Patient Hermes."
+
+OpsxFactory says:
+  "In this domain, customer Hermes is Managed System or Tenant Hermes."
+```
 
 ## DomainxFactory Compatibility Direction
 

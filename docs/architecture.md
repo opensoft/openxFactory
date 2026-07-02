@@ -8,8 +8,10 @@ domain factory. It defines the open reference stack and canonical contracts that
 domain factory repos consume.
 
 The `xFactory layer` is the layer inside `openxFactory` and every DomainxFactory
-that defines the contract, gate, traceability, routing, state, source authority,
-memory promotion, credential, and audit model.
+that defines the stack composition contract and the runtime governance contract.
+It determines which stack parts a domain must have, including the three Hermes
+layers, and defines the contract, gate, traceability, routing, state, source
+authority, memory promotion, credential, and audit model.
 
 The top-level `xFactory` repository is an aggregation repo that pins
 `openxFactory`, subsystem install repos, and DomainxFactory repos as submodules.
@@ -80,11 +82,14 @@ OpenSpec remains the source of truth for approved requirement change intent.
 
 ### xFactory Layer
 
-The xFactory layer is the domain-neutral workflow rail inside `openxFactory` and
-inside every DomainxFactory.
+The xFactory layer is the domain-neutral stack composition and workflow
+governance layer inside `openxFactory` and inside every DomainxFactory.
 
 It owns:
 
+- required stack-part contracts
+- the three-Hermes-layer contract: customer, client, and domain
+- default responsibility boundaries for each Hermes layer
 - workflow contracts
 - avatar-first UI contracts
 - gate definitions
@@ -96,8 +101,11 @@ It owns:
 - audit expectations
 - handoff boundaries between governance, execution, and enforcement systems
 
-The xFactory layer does not define the domain-specific agent population. Domain
-factory repos define that.
+The xFactory layer says that a DomainxFactory must map customer Hermes, client
+Hermes, and domain Hermes to concrete domain names and authority scopes. It does
+not decide the domain-specific content of those layers. Domain factory repos
+define the domain nouns, domain policies, domain memory boundaries, and
+domain-specific agent population.
 
 ### DomainxFactory Repos
 

@@ -3,10 +3,21 @@
 This document generalizes `openxFactory` from a software development factory
 into the reusable `xFactory` pattern.
 
-`openxFactory` is the canonical workflow contract for xFactory. It defines the
-general piping layer: authority boundaries, job envelopes, approvals,
-traceability, worker routing, admission gates, review gates, and final
-enforcement handoffs.
+`openxFactory` is the canonical stack and workflow contract for xFactory. It
+defines the general composition and piping layer: required stack parts,
+authority boundaries, job envelopes, approvals, traceability, worker routing,
+admission gates, review gates, and final enforcement handoffs.
+
+The xFactory layer has two jobs:
+
+```text
+stack composition
+  define which layers/modules a DomainxFactory must have and what each owns
+
+runtime governance
+  define how approved work moves through gates, routing, execution, review,
+  memory/source promotion, credentials, audit, and final handoff
+```
 
 Credential access is part of the same contract boundary. See
 [xFactory Credential Access Model](credential-access-model.md) for how domain
@@ -42,7 +53,7 @@ client_industry + client_type
 
 ```text
 xFactory / openxFactory
-  generic workflow contracts, gates, routing, and traceability
+  generic stack composition, workflow contracts, gates, routing, and traceability
 
 Domain factory
   xFactory plus domain-specific Hermes, client Hermes, customer Hermes,
@@ -99,7 +110,8 @@ Domain Hermes layer
   product learning, and domain memory
 
 xFactory / openxFactory layer
-  general job envelope, gates, traceability, worker routing, artifact contracts
+  required stack parts, three-Hermes-layer contract, general job envelope,
+  gates, traceability, worker routing, artifact contracts
 
 Domain Omnigent layer
   domain-tuned orchestration, expert selection, task decomposition, checks

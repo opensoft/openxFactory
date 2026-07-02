@@ -24,9 +24,16 @@ admissible to the next gate.
 
 ## 2. Parent Versus Domain Boundary
 
-`openxFactory` owns the generic grammar of factories:
+`openxFactory` owns the generic grammar of factories. That grammar includes the
+xFactory layer's stack composition contract and runtime governance contract:
 
+- required stack parts for a DomainxFactory
 - the three-Hermes-layer contract: customer, client, domain
+- default responsibility boundaries for customer Hermes, client Hermes, and
+  domain Hermes
+- required xFactory layer binding and contract pin fields
+- required domain Omnigent, credential broker, source governance, and external
+  enforcement adapter surfaces
 - the customer-item interaction model
 - Hermes monitoring and self-initiation rules
 - domain-specific business boundary rules
@@ -43,6 +50,8 @@ admissible to the next gate.
 Domain factories own the domain nouns and domain behavior:
 
 - layer aliases, such as Patient Hermes, Clinic Hermes, or Medical Domain Hermes
+- the domain-specific mapping from xFactory's customer/client/domain Hermes
+  layers to concrete names and authority scopes
 - customer kinds, client kinds, focal item kinds, journey states, outcomes, and interventions
 - domain Hermes policies, review standards, escalation rules, and memory boundaries
 - client and customer Hermes templates
