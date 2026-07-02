@@ -92,6 +92,7 @@ Core domain-neutral docs:
 - [Installation Template Catalog](templates/installation/README.md)
 - [xFactory Credential Access Model](docs/credential-access-model.md)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
+- [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
 - [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)

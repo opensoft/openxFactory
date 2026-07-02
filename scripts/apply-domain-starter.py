@@ -542,15 +542,26 @@ The boundary is simple: openxFactory defines how governed work moves, while
 It should preserve:
 
 - customer subject identity
+- consent profile
+- preference profile
+- timeline
+- evidence graph
+- source claims
 - current customer-subject state
+- current state snapshots
 - customer-specific memory
-- consent, authorization, or operating permission boundaries
 - active workflow context
-- evidence and follow-up state
+- follow-up obligations
+- promotion candidates
 
 {ctx.customer_layer_name} should not become the global source of domain truth.
 Those authorities remain with {ctx.client_layer_name}, {ctx.domain_layer_name},
 domain policy, and required human review.
+
+Use the canonical openxFactory object vocabulary from Customer Hermes Memory
+Model: identity profile, consent profile, preference profile, timeline,
+evidence graph, source claim, current state snapshot, memory item, active
+workflow context, follow-up obligation, and promotion candidate.
 """,
         "docs/client-layer.md": md_header(ctx) + f"""# {ctx.client_layer_name} Product And Service Model
 

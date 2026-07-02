@@ -197,10 +197,18 @@ A customer Hermes overlay owns:
 - consent, authorization, and data-sharing boundaries
 - customer goals and preferences
 - customer timeline
+- customer evidence graph and source claims
+- customer current state snapshots
 - customer-specific agent assignments
 - customer-specific memory
 - customer-specific status and follow-up
+- customer-to-client or customer-to-domain promotion candidates
 - customer-specific communication preferences
+
+See [Customer Hermes Memory Model](customer-hermes-memory-model.md) for the
+canonical identity, consent, preference, timeline, evidence graph, current
+state, memory, workflow context, follow-up, and promotion objects shared across
+DomainxFactories.
 
 The same base Hermes install can support many domain overlays. The same domain
 Hermes overlay can support many client Hermes overlays. The same client Hermes

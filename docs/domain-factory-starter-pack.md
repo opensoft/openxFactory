@@ -302,6 +302,12 @@ commit.
 Domains may add clearer aliases when useful, but the logical mapping to domain,
 client, and customer Hermes must remain explicit in `stack.yaml`.
 
+Customer Hermes implementations should preserve the canonical object vocabulary
+from [Customer Hermes Memory Model](customer-hermes-memory-model.md): identity
+profile, consent profile, preference profile, timeline, evidence graph, source
+claim, current state snapshot, memory item, active workflow context, follow-up
+obligation, and promotion candidate.
+
 Examples:
 
 ```text
