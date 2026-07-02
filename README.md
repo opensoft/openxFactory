@@ -70,6 +70,7 @@ Core domain-neutral docs:
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
+- [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
 - [xFactory Domain Factory Starter Pack](docs/domain-factory-starter-pack.md)
 - [Domain Instantiation Pre-Run Questionnaire](docs/domain-instantiation-pre-run-questionnaire.md)
 - [Domain Instantiation Setup Runbook](docs/domain-instantiation-setup-runbook.md)
