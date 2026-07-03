@@ -1,0 +1,36 @@
+schema_version: 1
+kind: hermes_memory_gateway_config_example
+hermes_memory_gateway:
+  governed_memory_tool_surface:
+    query: xfactory.memory.query
+    write: xfactory.memory.write
+    context_packet: xfactory.memory.context_packet
+    propose_promotion: xfactory.memory.propose_promotion
+    revoke_or_tombstone: xfactory.memory.revoke_or_tombstone
+    erase_content: xfactory.memory.erase_content
+    audit: xfactory.memory.audit
+    provider_health: xfactory.memory.provider_health
+  governed_provider_routes:
+    customer_memory:
+      provider_id: gbrain_customer_memory_v1
+      binding_ref: opensoft_hosted_gbrain_medx_dev
+      context_packet_required: true
+    expert_knowledge:
+      provider_id: medx_root_truth_db_v1
+      binding_ref: hybrid_medx_expert_knowledge
+      context_packet_required: true
+  direct_provider_access:
+    gbrain:
+      allowed: true
+      purpose: bootstrap_health_check_diagnostics
+      credential_scope: operator_scoped_read_only
+      namespace: shadow/non-production
+      can_create_authoritative_memory: false
+    expert_dbs:
+      allowed: true
+      purpose: bootstrap_health_check_diagnostics
+      credential_scope: operator_scoped_read_only
+      namespace: shadow/non-production
+      can_create_authoritative_expert_context: false
+  caller_identity_required: true
+  worker_provider_credentials_allowed: false

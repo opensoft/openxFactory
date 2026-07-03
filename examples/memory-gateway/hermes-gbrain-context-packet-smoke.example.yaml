@@ -1,0 +1,36 @@
+schema_version: 1
+kind: xfactory_memory_gateway_smoke
+name: hermes_gbrain_context_packet
+steps:
+  - actor: Patient Hermes
+    call: xfactory.memory.context_packet
+    request:
+      id: req-hermes-gbrain-001
+      operation: xfactory.memory.context_packet
+      caller:
+        id: hermes-role:patient-care-coordinator
+        type: hermes_role
+        authenticated: true
+      consumer_layer: customer
+      purpose: care_plan_review
+      workflow_ref: workflow:medx:care-plan-review
+      client_ref: client:medx-demo-clinic
+      subject_refs:
+        - patient:demo-001
+      provider_id: gbrain_customer_memory_v1
+  - actor: xFactory Memory Gateway
+    expects:
+      - verifies caller identity
+      - resolves consent profile version
+      - resolves subject safety profile
+      - resolves provider binding before provider I/O
+      - obtains short-lived gateway-only grant
+      - returns redacted traceable context packet
+  - actor: Patient Hermes
+    receives:
+      context_packet_ref: context-packet:medx-demo-001-care-plan-review
+      redaction_class: customer_private
+      trace_refs:
+        - source-claim:patient-demo-001-medication-history
+      audit_refs:
+        - audit:hermes-gbrain-context-packet-001

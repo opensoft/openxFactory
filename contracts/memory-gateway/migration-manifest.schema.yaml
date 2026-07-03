@@ -1,0 +1,41 @@
+schema_version: 1
+name: memory_gateway_migration_manifest
+type: object
+required:
+  - migration_manifest
+properties:
+  migration_manifest:
+    type: object
+    required:
+      - id
+      - route
+      - mode
+      - source_provider_id
+      - target_provider_id
+      - rollback_window
+      - audit_refs
+    properties:
+      id:
+        type: string
+      route:
+        type: string
+      mode:
+        type: string
+      source_provider_id:
+        type: string
+      target_provider_id:
+        type: string
+      dual_write:
+        type: boolean
+      shadow_read:
+        type: boolean
+      cutover_criteria:
+        type: array
+        items:
+          type: string
+      rollback_window:
+        type: string
+      audit_refs:
+        type: array
+        items:
+          type: string

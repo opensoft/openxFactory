@@ -1,0 +1,47 @@
+schema_version: 1
+name: memory_gateway_break_glass_profile
+type: object
+required:
+  - break_glass_profile
+properties:
+  break_glass_profile:
+    type: object
+    required:
+      - id
+      - workflow_ref
+      - allowed_actor_classes
+      - subject_scope
+      - provider_binding_refs
+      - minimal_packet_profile
+      - max_ttl_seconds
+      - escalation_targets
+      - retrospective_review_sla
+    properties:
+      id:
+        type: string
+      workflow_ref:
+        type: string
+      allowed_actor_classes:
+        type: array
+        items:
+          type: string
+      subject_scope:
+        type: array
+        items:
+          type: string
+      provider_binding_refs:
+        type: array
+        items:
+          type: string
+      redaction_class:
+        type: string
+      minimal_packet_profile:
+        type: object
+      max_ttl_seconds:
+        type: integer
+      escalation_targets:
+        type: array
+        items:
+          type: string
+      retrospective_review_sla:
+        type: string

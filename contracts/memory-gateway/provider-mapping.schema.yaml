@@ -1,0 +1,38 @@
+schema_version: 1
+name: memory_gateway_provider_mapping
+type: object
+required:
+  - provider_mapping
+properties:
+  provider_mapping:
+    type: object
+    required:
+      - id
+      - canonical_object_id
+      - canonical_port
+      - provider_id
+      - provider_object_ref
+      - namespace
+      - layer
+      - audit_refs
+    properties:
+      id:
+        type: string
+      canonical_object_id:
+        type: string
+      canonical_port:
+        type: string
+      provider_id:
+        type: string
+      provider_object_ref:
+        type: string
+      namespace:
+        type: string
+      layer:
+        type: string
+      audit_refs:
+        type: array
+        items:
+          type: string
+      migration_ref:
+        type: string

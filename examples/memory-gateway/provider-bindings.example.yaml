@@ -1,0 +1,78 @@
+schema_version: 1
+kind: xfactory_memory_gateway_provider_binding_examples
+provider_bindings:
+  - id: opensoft_hosted_gbrain_medx_dev
+    provider_id: gbrain_customer_memory_v1
+    custody_mode: opensoft_hosted
+    allowed_layers:
+      - customer
+      - client
+    allowed_operations:
+      - xfactory.memory.query
+      - xfactory.memory.context_packet
+      - xfactory.memory.write
+    allowed_clients:
+      - client:medx-demo-clinic
+    allowed_subject_scopes:
+      - patient:demo/*
+    namespace: medx/demo/customer-memory
+    grant:
+      broker_ref: broker://opensoft/dev/memory
+      ttl_seconds: 900
+      issued_to_gateway_only: true
+  - id: customer_owned_postgres_opsx
+    provider_id: local_postgres_customer_memory_v1
+    custody_mode: customer_owned
+    allowed_layers:
+      - customer
+      - client
+    allowed_operations:
+      - xfactory.memory.query
+      - xfactory.memory.context_packet
+      - xfactory.memory.write
+      - xfactory.memory.erase_content
+    allowed_clients:
+      - client:opsx-msp-demo
+    allowed_subject_scopes:
+      - managed-system:demo/*
+    namespace: opsx/demo/customer-memory
+    grant:
+      broker_ref: broker://customer-owned/opsx/memory
+      ttl_seconds: 600
+      issued_to_gateway_only: true
+  - id: hybrid_medx_expert_knowledge
+    provider_id: medx_root_truth_db_v1
+    custody_mode: hybrid
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    allowed_operations:
+      - xfactory.memory.query
+      - xfactory.memory.context_packet
+      - xfactory.memory.provider_health
+    allowed_clients:
+      - client:medx-demo-clinic
+    allowed_subject_scopes:
+      - domain:medx
+    namespace: medx/domain/expert-knowledge
+    grant:
+      broker_ref: broker://hybrid/medx/expert-knowledge
+      ttl_seconds: 300
+      issued_to_gateway_only: true
+  - id: internal_shadow_diagnostics
+    provider_id: gbrain_customer_memory_v1
+    custody_mode: internal_development
+    allowed_layers:
+      - xfactory
+    allowed_operations:
+      - xfactory.memory.provider_health
+    allowed_clients:
+      - client:internal-dev
+    allowed_subject_scopes:
+      - shadow:*
+    namespace: shadow/non-production
+    grant:
+      broker_ref: broker://internal/shadow/read-only
+      ttl_seconds: 120
+      issued_to_gateway_only: true
+      read_only: true

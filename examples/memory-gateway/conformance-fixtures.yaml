@@ -1,0 +1,385 @@
+schema_version: 1
+kind: xfactory_memory_gateway_conformance_fixtures
+fixtures:
+  - id: read_denied_missing_consent
+    tier: M0
+    operation: xfactory.memory.query
+    expected_decision: denied
+    expected_denial_reason: missing_consent
+    provider_io_attempted: false
+    asserts:
+      - consent rail runs before provider I/O
+      - audit event records consent profile version when present
+  - id: read_denied_withdrawn_consent
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: consent_withdrawn
+    provider_io_attempted: false
+    asserts:
+      - withdrawn consent blocks future use
+      - audit event is content-free
+  - id: write_denied_missing_source_refs
+    tier: M0_write_minimum
+    operation: xfactory.memory.write
+    expected_decision: denied
+    expected_denial_reason: missing_source_refs
+    provider_io_attempted: false
+    asserts:
+      - source-backed write rail denies before adapter dispatch
+  - id: write_denied_secret_like_content
+    tier: M0_write_minimum
+    operation: xfactory.memory.write
+    expected_decision: denied
+    expected_denial_reason: secret_like_content
+    provider_io_attempted: false
+    asserts:
+      - secret scanner rail runs before provider I/O
+  - id: promotion_denied_without_deidentification
+    tier: M1
+    operation: xfactory.memory.propose_promotion
+    expected_decision: denied
+    expected_denial_reason: promotion_missing_deidentification
+    provider_io_attempted: false
+    asserts:
+      - cross-layer promotion cannot rely on provider consolidation
+  - id: promotion_denied_without_required_review
+    tier: M1
+    operation: xfactory.memory.propose_promotion
+    expected_decision: denied
+    expected_denial_reason: promotion_missing_review
+    provider_io_attempted: false
+    asserts:
+      - Domain Hermes or Client Hermes review is required before promotion
+  - id: context_packet_created_with_trace
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_packet_fields:
+      - trace_refs
+      - redaction_class
+      - current_state_snapshot_refs
+      - audit_refs
+  - id: provider_binding_denies_layer
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+    asserts:
+      - layer scope is checked before grant issuance
+  - id: provider_binding_denies_operation
+    tier: M0
+    operation: xfactory.memory.write
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+  - id: provider_binding_denies_client
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+  - id: provider_binding_denies_subject_scope
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+  - id: minor_denied_missing_guardian_authority
+    tier: M2
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: subject_safety_denied
+    provider_io_attempted: false
+  - id: minor_degrades_prohibited_personalization
+    tier: M2
+    operation: xfactory.memory.context_packet
+    expected_decision: degraded
+    expected_denial_reason: subject_safety_denied
+    provider_io_attempted: true
+    expected_packet_fields:
+      - redaction_class
+      - subject_safety_profile_ref
+      - audit_refs
+  - id: usage_event_emitted_for_context_packet
+    tier: M3
+    operation: xfactory.memory.context_packet
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_usage_fields:
+      - operation
+      - provider_role
+      - provider_id
+      - client_ref
+      - domain_ref
+      - workflow_ref
+      - bill_to
+      - usage_units
+      - latency_ms
+      - subject_ref_hash
+  - id: budget_hard_limit_denies_expensive_operation
+    tier: M3
+    operation: xfactory.memory.query
+    operation_class: bulk_retrieval
+    expected_decision: denied
+    expected_denial_reason: budget_hard_limit
+    provider_io_attempted: false
+  - id: migration_dual_write_routes_source_and_target
+    tier: M4
+    operation: xfactory.memory.write
+    migration_mode: dual_write
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_mapping_count: 2
+  - id: migration_shadow_read_compares_routes
+    tier: M4
+    operation: xfactory.memory.query
+    migration_mode: shadow_read
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - target route is compared but Hermes call surface is unchanged
+  - id: migration_cutover_preserves_operation_name
+    tier: M4
+    operation: xfactory.memory.context_packet
+    migration_mode: cutover
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - operation remains xfactory.memory.context_packet
+  - id: migration_rollback_restores_previous_route
+    tier: M4
+    operation: xfactory.memory.context_packet
+    migration_mode: rollback
+    expected_decision: allowed
+    provider_io_attempted: true
+  - id: provider_profile_missing_required_companion
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: unsupported_provider_port
+    provider_io_attempted: false
+    asserts:
+      - required companion stores must be configured
+  - id: provider_profile_unsupported_operation
+    tier: M0
+    operation: xfactory.memory.write
+    expected_decision: denied
+    expected_denial_reason: unsupported_provider_port
+    provider_io_attempted: false
+  - id: provider_profile_prohibited_content
+    tier: M0_write_minimum
+    operation: xfactory.memory.write
+    expected_decision: denied
+    expected_denial_reason: secret_like_content
+    provider_io_attempted: false
+  - id: expert_context_packet_created
+    tier: M0
+    operation: xfactory.memory.context_packet
+    consumer_layer: domain_omnigent
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_packet_fields:
+      - expert_profile
+      - source_refs
+      - knowledge_scopes
+      - provider_refs
+      - allowed_uses
+      - prohibited_uses
+      - usage_refs
+      - audit_refs
+  - id: expert_knowledge_denied_uncited
+    tier: M0
+    operation: xfactory.memory.context_packet
+    consumer_layer: domain_omnigent
+    expected_decision: denied
+    expected_denial_reason: source_authority_below_threshold
+    provider_io_attempted: false
+  - id: expert_knowledge_degraded_stale
+    tier: M0
+    operation: xfactory.memory.context_packet
+    consumer_layer: domain_omnigent
+    expected_decision: degraded
+    expected_denial_reason: source_authority_below_threshold
+    provider_io_attempted: true
+  - id: expert_db_migration_shadow_read
+    tier: M4
+    operation: xfactory.memory.context_packet
+    consumer_layer: domain_omnigent
+    migration_mode: shadow_read
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - Omnigent keeps using xfactory.memory.context_packet
+  - id: threat_overbroad_packet_request_denied
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+    threat_case: over_broad_packet_request
+  - id: threat_purpose_gaming_break_glass_denied
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: break_glass_not_declared
+    provider_io_attempted: false
+    threat_case: purpose_gaming
+  - id: threat_confused_deputy_denied
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+    threat_case: confused_deputy_across_tenants
+  - id: threat_worker_bypass_denied_by_credential_absence
+    tier: M0
+    operation: direct_provider_call
+    expected_decision: denied
+    expected_denial_reason: worker_has_no_provider_credentials
+    provider_io_attempted: false
+    threat_case: worker_bypass
+  - id: threat_memory_laundering_denied
+    tier: M1
+    operation: worker_local_memory_write
+    expected_decision: denied
+    expected_denial_reason: packet_redaction_inheritance_violation
+    provider_io_attempted: false
+    threat_case: memory_laundering
+  - id: threat_cross_tenant_namespace_residue_denied
+    tier: M0
+    operation: xfactory.memory.query
+    expected_decision: denied
+    expected_denial_reason: provider_binding_denied
+    provider_io_attempted: false
+    threat_case: cross_tenant_namespace_residue
+  - id: caller_identity_denied_unattributable
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: unauthenticated_caller
+    provider_io_attempted: false
+  - id: diagnostic_credential_scope_read_only_non_production
+    tier: M0
+    operation: xfactory.memory.provider_health
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - diagnostic credential is operator-scoped
+      - diagnostic credential is read-only
+      - diagnostic namespace is non-production or shadow
+  - id: worker_identity_provider_credential_absence
+    tier: M0
+    operation: direct_provider_call
+    expected_decision: denied
+    expected_denial_reason: worker_has_no_provider_credentials
+    provider_io_attempted: false
+  - id: fail_mode_write_fail_closed_gateway_outage
+    tier: M0_write_minimum
+    operation: xfactory.memory.write
+    gateway_available: false
+    expected_decision: failed_closed
+    expected_denial_reason: gateway_unavailable
+    provider_io_attempted: false
+  - id: fail_mode_read_degrades_to_cached_packet
+    tier: M0
+    operation: xfactory.memory.context_packet
+    gateway_available: false
+    cached_redacted_packet_available: true
+    expected_decision: degraded
+    provider_io_attempted: false
+  - id: fail_mode_read_denies_without_cache
+    tier: M0
+    operation: xfactory.memory.context_packet
+    gateway_available: false
+    cached_redacted_packet_available: false
+    expected_decision: denied
+    expected_denial_reason: gateway_unavailable
+    provider_io_attempted: false
+  - id: break_glass_minimal_packet
+    tier: M0
+    operation: xfactory.memory.context_packet
+    break_glass: true
+    expected_decision: allowed
+    provider_io_attempted: true
+    required_break_glass_fields:
+      - caller_identity
+      - subject_scope
+      - provider_binding
+      - redaction
+      - max_ttl
+      - enhanced_audit
+      - notifications
+      - retrospective_review_sla
+  - id: break_glass_denied_undeclared_workflow
+    tier: M0
+    operation: xfactory.memory.context_packet
+    break_glass: true
+    expected_decision: denied
+    expected_denial_reason: break_glass_not_declared
+    provider_io_attempted: false
+  - id: packet_leash_ttl_expiry_reruns_rails
+    tier: M0
+    operation: context_packet_consume
+    expected_decision: denied
+    expected_denial_reason: packet_expired
+    provider_io_attempted: false
+  - id: packet_leash_cross_purpose_rejected
+    tier: M0
+    operation: context_packet_consume
+    expected_decision: denied
+    expected_denial_reason: packet_wrong_purpose
+    provider_io_attempted: false
+  - id: packet_leash_worker_memory_redaction_violation
+    tier: M1
+    operation: worker_local_memory_write
+    expected_decision: denied
+    expected_denial_reason: packet_redaction_inheritance_violation
+    provider_io_attempted: false
+  - id: erasure_provider_side_delete_with_confirmations
+    tier: M1
+    operation: xfactory.memory.erase_content
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_erasure_fields:
+      - provider_confirmations
+      - content_free_audit_metadata
+  - id: erasure_denies_unsupported_policy_constrained_subject
+    tier: M1
+    operation: xfactory.memory.erase_content
+    expected_decision: denied
+    expected_denial_reason: erasure_unsupported
+    provider_io_attempted: false
+  - id: revocation_does_not_claim_erasure
+    tier: M1
+    operation: xfactory.memory.revoke_or_tombstone
+    expected_decision: allowed
+    provider_io_attempted: false
+    asserts:
+      - revocation leaves erasure obligation tracked until erase_content confirms deletion
+  - id: consent_rail_records_profile_version
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: allowed
+    provider_io_attempted: true
+    expected_audit_fields:
+      - consent_profile_version
+  - id: consent_change_is_audited
+    tier: M0
+    operation: consent_profile_change
+    expected_decision: allowed
+    provider_io_attempted: false
+    expected_audit_fields:
+      - actor
+      - authority_basis
+      - effective_time
+      - affected_purposes
+  - id: consent_backing_store_swap_does_not_change_contract
+    tier: M0
+    operation: consent_profile_resolve
+    expected_decision: allowed
+    provider_io_attempted: false
+    asserts:
+      - Hermes operational state and dedicated consent service use the same consent profile shape

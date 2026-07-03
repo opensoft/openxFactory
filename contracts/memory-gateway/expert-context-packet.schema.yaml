@@ -1,0 +1,62 @@
+schema_version: 1
+name: memory_gateway_expert_context_packet
+type: object
+required:
+  - expert_context_packet
+properties:
+  expert_context_packet:
+    type: object
+    required:
+      - id
+      - issued_at
+      - expires_at
+      - expert_profile
+      - workflow_ref
+      - knowledge_scopes
+      - source_refs
+      - provider_refs
+      - allowed_uses
+      - prohibited_uses
+      - audit_refs
+      - usage_refs
+    properties:
+      id:
+        type: string
+      issued_at:
+        type: string
+      expires_at:
+        type: string
+      expert_profile:
+        type: string
+      workflow_ref:
+        type: string
+      knowledge_scopes:
+        type: array
+        items:
+          type: string
+      source_refs:
+        type: array
+        items:
+          type: string
+      provider_refs:
+        type: array
+        items:
+          type: string
+      source_authority:
+        type: object
+      allowed_uses:
+        type: array
+        items:
+          type: string
+      prohibited_uses:
+        type: array
+        items:
+          type: string
+      audit_refs:
+        type: array
+        items:
+          type: string
+      usage_refs:
+        type: array
+        items:
+          type: string

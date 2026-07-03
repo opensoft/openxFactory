@@ -256,7 +256,8 @@ equally blocking:
 
 ```text
 M0  core boundary: rails-before-I/O, context packets, caller identity,
-    credential custody, consent contract, fail modes, audit
+    credential custody, consent contract, provider binding, provider mapping,
+    fail modes, audit
 M1  lifecycle: promotion review, revocation and erasure, tombstones
 M2  subject safety: adult/minor rails, guardian authority, minor-safe packets
 M3  economics: usage metering, budgets, billing events
@@ -264,10 +265,14 @@ M4  portability: provider migration (dual-write, shadow-read, cutover,
     rollback)
 ```
 
-A gateway implementation is minimally conformant at M0. Domains must not
-enable governed authoritative writes through a gateway below M0. Higher tiers
-gate the features they describe (for example, no provider migration without
-M4 conformance) but do not block M0 adoption.
+A gateway implementation is minimally conformant at M0. At M0 it may issue
+governed reads and bounded context packets. Ordinary authoritative memory writes
+also require the M0 write-minimum: write request schema, source-backed write
+rail, deny-before-I/O behavior, provider mapping, and audit. M0 never permits
+cross-layer promotion, revocation/tombstone, erasure, or migration; those are
+gated by the higher tiers that define them. Higher tiers gate the features they
+describe (for example, no provider migration without M4 conformance) but do not
+block M0 adoption.
 
 Alternative considered: keep a flat requirement list. That reads simpler but
 recreates the documentation-outruns-implementation failure mode this repo has
@@ -295,9 +300,8 @@ through short-lived credential broker grants at operation time.
 
 Diagnostic direct-provider access uses separate operator-scoped credentials
 that are read-only, bound to non-production or shadow namespaces, and never
-issued to worker identities. The earlier framing "direct calls are treated as
-non-authoritative" remains true but is now a consequence of custody (workers
-cannot reach governed namespaces at all) rather than an interpretive rule.
+issued to worker identities. Diagnostic reads can never create approved
+Customer Hermes memory or authoritative expert context.
 
 ### Decision: Consent profiles are a first-class contract backed by Hermes state
 
@@ -313,10 +317,11 @@ authority basis, and effective time.
 
 `revoke_or_tombstone` blocks future use at the rail layer while preserving
 audit. It does not remove content from providers. A separate `erase_content`
-operation exists for legal erasure (GDPR/HIPAA-class obligations). Provider
-profiles must declare erasure capability per port: `hard_delete`,
+operation exists for domain/legal-policy-declared erasure or suppression
+obligations. Provider profiles must declare erasure capability per port:
+`hard_delete`,
 `requires_reindex`, `companion_managed`, or `unsupported`. Routing
-regulated-subject memory to a provider whose erasure capability is
+domain-policy-constrained subject memory to a provider whose erasure capability is
 `unsupported` requires an explicit, documented compensating control and shows
 up in conformance validation. Erasure completion is itself an audited event
 with provider-side confirmation refs.
@@ -343,10 +348,14 @@ is part of the contract, not an ops detail:
   already-redacted packet from cache, or deny. Never bypass rails to a
   provider.
 - Domains may declare break-glass workflows (for example Medx emergency
-  escalation). Break-glass grants a pre-defined minimal emergency packet
-  profile, requires the caller to assert the emergency basis, always succeeds
-  or fails within a bounded time, and always produces an enhanced audit
-  record plus a mandatory retrospective review task.
+  escalation). Break-glass is not a rail bypass: caller identity,
+  domain-declared workflow eligibility, subject scope, provider binding,
+  redaction, TTL, and enhanced audit still apply. It grants only a pre-defined
+  minimal emergency packet profile, requires the caller to assert the emergency
+  basis, always succeeds or fails within a bounded time, and always produces an
+  enhanced audit record plus a mandatory retrospective review task. Each domain
+  declaration must include allowed actor classes, maximum TTL,
+  notification/escalation targets, and retrospective review SLA.
 
 Alternative considered: leave availability behavior to the implementation.
 For a component that sits between a clinician-facing agent and patient
@@ -427,16 +436,17 @@ M0 break-glass; case 6 at M0 mapping).
 - Subject-safety policy can become domain-specific quickly -> keep a canonical
   subject-safety profile shape and let DomainxFactories specialize allowed age
   bands, approvals, interaction modes, redaction, and retention.
-- Direct GBrain tools may bypass rails -> treat direct provider tools as
-  non-authoritative for governed memory and later restrict authoritative writes.
+- Direct GBrain tools may bypass rails -> restrict direct provider tools to
+  read-only, operator-scoped, non-production or shadow diagnostics that never
+  create authoritative memory.
 - Context packets may omit useful memory -> include traceable retrieval
   diagnostics and allow Hermes to request another packet with a new purpose.
 - Expert context packets may include stale, uncited, or below-threshold
   knowledge -> require source-authority policy, freshness metadata, citations,
   and downgrade or denial behavior before expert provider I/O returns context.
-- Omnigent workers may bypass xFactory for expert DB speed -> treat direct
-  expert DB calls as diagnostic or experimental unless routed through gateway
-  bindings and audit.
+- Omnigent workers may bypass xFactory for expert DB speed -> worker
+  identities hold no provider credentials; direct expert DB access is limited
+  to read-only, operator-scoped, non-production or shadow diagnostics.
 - Promotion review may slow learning -> support lightweight promotion candidates
   with clear status and batch review.
 - Migration can silently lose meaning across providers -> preserve canonical
@@ -461,8 +471,9 @@ M0 break-glass; case 6 at M0 mapping).
 8. Register `xfactory.memory.*` tools in Hermes.
 9. Add migration route-table examples and dual-write/shadow-read fixtures for
    Customer Hermes memory and Omnigent expert DB routes.
-10. Update Hermes guidance so direct GBrain access is diagnostic or
-   non-authoritative unless explicitly approved.
+10. Update Hermes guidance so direct GBrain access is read-only,
+   operator-scoped, non-production or shadow diagnostics and can never create
+   authoritative memory.
 11. Add conformance tests for consent denial, subject-safety denial, source-ref
    denial, redaction, promotion review, revocation, billing event emission,
    migration route behavior, expert source-authority denial, expert context

@@ -28,7 +28,10 @@ Checks (errors fail the run; warnings fail only with --strict):
       requirements resolve; near-duplicate IDs across the credential
       requirement / worker capability vocabularies (same token modulo
       case/separators) are flagged.
-  10. Secret scan across tracked text files.
+  10. memory_gateway declares providers, bindings, conformance tier, and
+      break-glass workflow requirements; Hermes overlay files are checked for
+      direct memory provider endpoint or connection refs.
+  11. Secret scan across tracked text files.
 """
 
 from __future__ import annotations
@@ -73,6 +76,22 @@ SECRET_PATTERNS = [
 ]
 TEXT_SUFFIXES = {".yaml", ".yml", ".md", ".json", ".py", ".sh", ".sql", ".txt"}
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv"}
+MEMORY_GATEWAY_TIERS = {"M0", "M1", "M2", "M3", "M4"}
+MEMORY_GATEWAY_OPERATIONS = {
+    "xfactory.memory.query",
+    "xfactory.memory.write",
+    "xfactory.memory.context_packet",
+    "xfactory.memory.propose_promotion",
+    "xfactory.memory.revoke_or_tombstone",
+    "xfactory.memory.erase_content",
+    "xfactory.memory.audit",
+    "xfactory.memory.provider_health",
+}
+DIRECT_MEMORY_BINDING_RE = re.compile(
+    r"(?im)^\s*(memory_provider_endpoint|provider_endpoint|provider_url|"
+    r"connection_ref|provider_connection|gbrain_connection|honcho_connection|"
+    r"agentmemory_connection|expert_db_connection)\s*:"
+)
 
 
 def snake(name: str) -> str:
@@ -329,6 +348,138 @@ def check_cross_ids(root: Path, workflow_ids: set[str], rpt: Report) -> None:
                          f"{cid!r} — confirm these are intentionally distinct")
 
 
+def check_memory_gateway(stack: dict, rpt: Report) -> None:
+    gateway = stack.get("memory_gateway")
+    if gateway is None:
+        rpt.warn("stack.yaml: memory_gateway block missing; governed memory providers "
+                 "will be scaffold-only until declared")
+        return
+    if not isinstance(gateway, dict):
+        rpt.error("stack.yaml: memory_gateway must be a mapping")
+        return
+    tier = gateway.get("conformance_tier")
+    if tier not in MEMORY_GATEWAY_TIERS:
+        rpt.error(f"stack.yaml: memory_gateway.conformance_tier {tier!r} must be one "
+                  f"of {sorted(MEMORY_GATEWAY_TIERS)}")
+    contract = str(gateway.get("canonical_contract", ""))
+    if "memory-gateway" not in contract:
+        rpt.error("stack.yaml: memory_gateway.canonical_contract must reference "
+                  "openxFactory/contracts/memory-gateway")
+    placeholder = gateway.get("placeholder") is True
+
+    providers = gateway.get("providers")
+    if not isinstance(providers, list) or not providers:
+        msg = "stack.yaml: memory_gateway.providers must be a non-empty list"
+        (rpt.warn if placeholder else rpt.error)(msg)
+        providers = []
+    provider_ids: set[str] = set()
+    expert_provider_ids: set[str] = set()
+    for index, provider in enumerate(providers):
+        if not isinstance(provider, dict):
+            rpt.error(f"stack.yaml: memory_gateway.providers[{index}] must be a mapping")
+            continue
+        pid = provider.get("provider_id")
+        role = provider.get("provider_role")
+        profile_ref = provider.get("profile_ref")
+        if not pid or not role or not profile_ref:
+            rpt.error(f"stack.yaml: memory_gateway.providers[{index}] needs "
+                      "provider_id, provider_role, and profile_ref")
+            continue
+        provider_ids.add(str(pid))
+        if str(role).startswith("expert_") or role in {
+            "root_truth_db", "vector_index", "graph_store", "source_workspace",
+            "playbook_store",
+        }:
+            expert_provider_ids.add(str(pid))
+            if not provider.get("allowed_knowledge_scopes"):
+                rpt.error(f"stack.yaml: expert provider {pid!r} missing "
+                          "allowed_knowledge_scopes")
+            if not provider.get("source_authority_minimum"):
+                rpt.error(f"stack.yaml: expert provider {pid!r} missing "
+                          "source_authority_minimum")
+
+    bindings = gateway.get("bindings")
+    if not isinstance(bindings, list) or not bindings:
+        msg = "stack.yaml: memory_gateway.bindings must be a non-empty list"
+        (rpt.warn if placeholder else rpt.error)(msg)
+        bindings = []
+    bound_provider_ids: set[str] = set()
+    for index, binding in enumerate(bindings):
+        if not isinstance(binding, dict):
+            rpt.error(f"stack.yaml: memory_gateway.bindings[{index}] must be a mapping")
+            continue
+        bid = binding.get("binding_id")
+        pid = binding.get("provider_id")
+        if not bid or not pid:
+            rpt.error(f"stack.yaml: memory_gateway.bindings[{index}] needs "
+                      "binding_id and provider_id")
+            continue
+        if pid not in provider_ids:
+            rpt.error(f"stack.yaml: memory_gateway binding {bid!r} references unknown "
+                      f"provider_id {pid!r}")
+        bound_provider_ids.add(str(pid))
+        for key in ("layer_scope", "allowed_operations", "client_scope", "subject_scope"):
+            if key in binding and not isinstance(binding.get(key), list):
+                rpt.error(f"stack.yaml: memory_gateway binding {bid!r}.{key} must be a list")
+        for op in binding.get("allowed_operations", []) or []:
+            if op not in MEMORY_GATEWAY_OPERATIONS:
+                rpt.error(f"stack.yaml: memory_gateway binding {bid!r} has unknown "
+                          f"operation {op!r}")
+        ttl = binding.get("grant_ttl_seconds")
+        if not isinstance(ttl, int) or ttl <= 0:
+            rpt.error(f"stack.yaml: memory_gateway binding {bid!r} needs positive "
+                      "grant_ttl_seconds")
+    for pid in sorted(provider_ids - bound_provider_ids):
+        rpt.warn(f"stack.yaml: memory_gateway provider {pid!r} has no binding")
+
+    expert_gateway = gateway.get("omnigent_expert_memory_gateway")
+    if expert_provider_ids and not isinstance(expert_gateway, dict):
+        rpt.error("stack.yaml: memory_gateway.omnigent_expert_memory_gateway missing "
+                  "while expert providers are declared")
+    elif isinstance(expert_gateway, dict):
+        if not expert_gateway.get("allowed_knowledge_scopes") and not placeholder:
+            rpt.error("stack.yaml: omnigent_expert_memory_gateway.allowed_knowledge_scopes "
+                      "missing")
+        if not expert_gateway.get("source_authority_minimum") and not placeholder:
+            rpt.error("stack.yaml: omnigent_expert_memory_gateway.source_authority_minimum "
+                      "missing")
+        if expert_gateway.get("audit_required") is not True:
+            rpt.error("stack.yaml: omnigent_expert_memory_gateway.audit_required must be true")
+
+    for workflow in gateway.get("break_glass_workflows", []) or []:
+        if not isinstance(workflow, dict):
+            rpt.error("stack.yaml: memory_gateway.break_glass_workflows entries must be mappings")
+            continue
+        wid = workflow.get("id", "<unknown>")
+        for key in (
+            "workflow_ref", "allowed_actor_classes", "subject_scope",
+            "minimal_packet_profile", "max_ttl_seconds", "notification_targets",
+            "retrospective_review_sla",
+        ):
+            if key not in workflow:
+                rpt.error(f"stack.yaml: break-glass workflow {wid!r} missing {key}")
+        if not isinstance(workflow.get("max_ttl_seconds"), int) or workflow.get("max_ttl_seconds", 0) <= 0:
+            rpt.error(f"stack.yaml: break-glass workflow {wid!r} needs positive max_ttl_seconds")
+
+
+def check_hermes_direct_provider_bindings(root: Path, layers: dict, rpt: Report) -> None:
+    for role, layer in layers.items():
+        overlay = layer.get("overlay")
+        if not overlay:
+            continue
+        odir = root / overlay
+        if not odir.is_dir():
+            continue
+        for path in odir.rglob("*"):
+            if not path.is_file() or path.suffix not in {".yaml", ".yml"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            if DIRECT_MEMORY_BINDING_RE.search(text):
+                rpt.error(f"{path.relative_to(root)}: Hermes {role} overlay contains "
+                          "direct memory provider endpoint/connection ref; declare it "
+                          "under stack.yaml memory_gateway bindings instead")
+
+
 def scan_secrets(root: Path, rpt: Report) -> None:
     for path in root.rglob("*"):
         if not path.is_file() or path.suffix not in TEXT_SUFFIXES:
@@ -380,6 +531,8 @@ def main() -> int:
     check_tenants(root, profile_ids, rpt)
     workflow_ids = check_workflows(root, stack, layers, rpt)
     check_cross_ids(root, workflow_ids, rpt)
+    check_memory_gateway(stack, rpt)
+    check_hermes_direct_provider_bindings(root, layers, rpt)
     if not args.no_secret_scan:
         scan_secrets(root, rpt)
 

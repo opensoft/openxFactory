@@ -1,0 +1,46 @@
+schema_version: 1
+kind: xfactory_memory_gateway_provider_profile_example
+provider_profile:
+  id: gbrain_customer_memory_v1
+  provider_role: customer_memory
+  product: GBrain
+  adapter: xfactory.memory.adapters.gbrain_stub
+  allowed_layers:
+    - customer
+    - client
+  ports:
+    identity: adapter
+    consent: companion
+    preference: adapter
+    timeline: adapter
+    source_claim: adapter
+    evidence_graph: companion
+    current_state: adapter
+    memory_item: native
+    workflow_context: adapter
+    follow_up: adapter
+    promotion: external
+    audit: companion
+  erasure:
+    identity: companion_managed
+    memory_item: requires_reindex
+    current_state: requires_reindex
+    evidence_graph: companion_managed
+    audit: unsupported
+  companion_stores:
+    - consent-profile-store
+    - evidence-graph-store
+    - audit-ledger
+  prohibited_content:
+    - raw_credentials
+    - tokens
+    - private_keys
+    - unrestricted_source_truth
+  expensive_operation_classes:
+    - bulk_retrieval
+    - reembedding
+    - cross_provider_migration
+  adapter_behavior:
+    context_packet: retrieve_redacted_memory_items
+    write: source_backed_memory_item_only
+    provider_health: diagnostic_read_only

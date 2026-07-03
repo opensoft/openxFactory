@@ -1,0 +1,42 @@
+schema_version: 1
+kind: xfactory_memory_gateway_provider_profile_example
+provider_profile:
+  id: local_postgres_customer_memory_v1
+  provider_role: local_document_store
+  product: Postgres
+  adapter: xfactory.memory.adapters.local_fake
+  allowed_layers:
+    - customer
+    - client
+    - domain_omnigent
+  ports:
+    identity: native
+    consent: native
+    preference: native
+    timeline: native
+    source_claim: native
+    evidence_graph: adapter
+    current_state: native
+    memory_item: native
+    workflow_context: native
+    follow_up: native
+    promotion: native
+    audit: native
+    expert_knowledge: adapter
+    source_authority: adapter
+  erasure:
+    identity: hard_delete
+    memory_item: hard_delete
+    current_state: hard_delete
+    expert_knowledge: hard_delete
+    audit: unsupported
+  companion_stores: []
+  prohibited_content:
+    - raw_credentials
+    - unrestricted_private_source_truth
+  expensive_operation_classes:
+    - bulk_retrieval
+    - cross_provider_migration
+  boundary_note: >-
+    A local store can be the first implementation path without making any
+    external memory product mandatory.

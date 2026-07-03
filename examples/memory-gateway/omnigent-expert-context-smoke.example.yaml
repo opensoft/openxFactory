@@ -1,0 +1,30 @@
+schema_version: 1
+kind: xfactory_memory_gateway_smoke
+name: omnigent_expert_context_packet
+steps:
+  - actor: Medx Diagnostic Reviewer
+    call: xfactory.memory.context_packet
+    request:
+      id: req-expert-context-001
+      operation: xfactory.memory.context_packet
+      caller:
+        id: omnigent-worker:medx-diagnostic-reviewer
+        type: omnigent_worker
+        authenticated: true
+      consumer_layer: domain_omnigent
+      purpose: diagnostic_review
+      workflow_ref: workflow:medx:diagnostic-review
+      client_ref: client:medx-demo-clinic
+      expert_profile: expert://medx/diagnostic-reviewer
+      provider_id: medx_root_truth_db_v1
+      knowledge_scopes:
+        - clinical_guideline
+        - medical_case_pattern
+      min_source_authority: reviewed
+  - actor: xFactory Memory Gateway
+    expects:
+      - verifies expert profile
+      - verifies Domain Hermes allowed-use policy
+      - verifies source-authority threshold before provider I/O
+      - emits content-free usage event
+      - returns bounded expert context packet

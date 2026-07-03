@@ -1,0 +1,30 @@
+schema_version: 1
+kind: xfactory_memory_gateway_expert_context_packet_example
+expert_context_packet:
+  id: expert-context:medx-diagnostic-reviewer-001
+  issued_at: "2026-07-03T00:00:00Z"
+  expires_at: "2026-07-03T00:20:00Z"
+  expert_profile: expert://medx/diagnostic-reviewer
+  workflow_ref: workflow:medx:diagnostic-review
+  knowledge_scopes:
+    - clinical_guideline
+    - medical_case_pattern
+  source_refs:
+    - source:medx-guideline:diagnostic-review:v2026-01
+    - case-pattern:deidentified:respiratory-differential:v2
+  provider_refs:
+    - provider:medx_root_truth_db_v1
+    - provider:medx_case_pattern_store_v1
+  source_authority:
+    minimum_level: reviewed
+    citations_required: true
+    freshness_checked_at: "2026-07-03T00:00:00Z"
+  allowed_uses:
+    - diagnostic_review_support
+  prohibited_uses:
+    - autonomous_diagnosis
+    - customer_private_storage
+  audit_refs:
+    - audit:expert-context-001
+  usage_refs:
+    - usage:expert-context-001

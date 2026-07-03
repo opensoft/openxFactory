@@ -1,0 +1,27 @@
+schema_version: 1
+kind: xfactory_memory_gateway_expert_context_packet_example
+expert_context_packet:
+  id: expert-context:opsx-runbook-001
+  issued_at: "2026-07-03T00:00:00Z"
+  expires_at: "2026-07-03T00:30:00Z"
+  expert_profile: expert://opsx/runbook-reviewer
+  workflow_ref: workflow:opsx:incident-triage
+  knowledge_scopes:
+    - ops_runbook
+  source_refs:
+    - source:opsx-runbook:identity-incident:v4
+  provider_refs:
+    - provider:opsx_playbook_store_v1
+  source_authority:
+    minimum_level: reviewed
+    citations_required: true
+    freshness_checked_at: "2026-07-03T00:00:00Z"
+  allowed_uses:
+    - triage_recommendation
+  prohibited_uses:
+    - destructive_command_execution
+    - live_secret_exposure
+  audit_refs:
+    - audit:opsx-expert-context-001
+  usage_refs:
+    - usage:opsx-expert-context-001

@@ -1,0 +1,63 @@
+schema_version: 1
+name: memory_gateway_context_packet
+type: object
+required:
+  - context_packet
+properties:
+  context_packet:
+    type: object
+    required:
+      - id
+      - issued_at
+      - expires_at
+      - purpose
+      - workflow_ref
+      - subject_refs
+      - redaction_class
+      - trace_refs
+      - audit_refs
+    properties:
+      id:
+        type: string
+      issued_at:
+        type: string
+      expires_at:
+        type: string
+      purpose:
+        type: string
+      workflow_ref:
+        type: string
+      subject_refs:
+        type: array
+        items:
+          type: string
+      consent_profile_ref:
+        type: string
+      subject_safety_profile_ref:
+        type: string
+      redaction_class:
+        type: string
+      current_state_snapshot_refs:
+        type: array
+        items:
+          type: string
+      memory_item_refs:
+        type: array
+        items:
+          type: string
+      source_claim_refs:
+        type: array
+        items:
+          type: string
+      trace_refs:
+        type: array
+        items:
+          type: string
+      provider_refs:
+        type: array
+        items:
+          type: string
+      audit_refs:
+        type: array
+        items:
+          type: string

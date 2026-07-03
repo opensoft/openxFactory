@@ -1,0 +1,31 @@
+schema_version: 1
+kind: xfactory_memory_gateway_provider_mapping_examples
+provider_mappings:
+  - id: map_memory_item_gbrain_001
+    canonical_object_id: memory_item:patient-123:allergy-penicillin
+    canonical_port: memory_item
+    provider_id: gbrain_customer_memory_v1
+    provider_object_ref: gbrain://tenant/medx/patient-123/mem/allergy-penicillin
+    namespace: medx/patient-123/customer-memory
+    layer: customer
+    audit_refs:
+      - audit:allow-context-packet-001
+  - id: map_current_state_postgres_001
+    canonical_object_id: current_state:managed-system-7:health
+    canonical_port: current_state
+    provider_id: local_postgres_customer_memory_v1
+    provider_object_ref: postgres://opsx/local/current_state/managed-system-7
+    namespace: opsx/managed-system-7/customer-memory
+    layer: customer
+    audit_refs:
+      - audit:write-current-state-001
+  - id: map_expert_guideline_vector_001
+    canonical_object_id: expert_knowledge:medx:diagnostic-guideline:2026-01
+    canonical_port: expert_knowledge
+    provider_id: medx_vector_index_v1
+    provider_object_ref: vector://medx/guidelines/diagnostic-guideline-2026-01
+    namespace: medx/domain/expert-knowledge
+    layer: domain_omnigent
+    migration_ref: migration:medx-vector-to-root-truth-shadow-001
+    audit_refs:
+      - audit:expert-context-001

@@ -1,0 +1,45 @@
+schema_version: 1
+name: memory_gateway_usage_event
+type: object
+required:
+  - usage_event
+properties:
+  usage_event:
+    type: object
+    required:
+      - id
+      - operation
+      - provider_role
+      - provider_id
+      - client_ref
+      - domain_ref
+      - workflow_ref
+      - bill_to
+      - usage_units
+      - latency_ms
+      - subject_ref_hash
+    properties:
+      id:
+        type: string
+      operation:
+        type: string
+      provider_role:
+        type: string
+      provider_id:
+        type: string
+      client_ref:
+        type: string
+      domain_ref:
+        type: string
+      workflow_ref:
+        type: string
+      bill_to:
+        type: string
+      usage_units:
+        type: object
+      latency_ms:
+        type: integer
+      subject_ref_hash:
+        type: string
+      budget_decision:
+        type: string

@@ -145,6 +145,8 @@ The runner:
 - creates Client Hermes installation discovery and workflow migration templates
   for document/email evidence, gap review, containment, cutover, and drift
   monitoring
+- creates memory gateway placeholders that point at the canonical openxFactory
+  contract without selecting a required memory provider
 - marks pre-run answer quality as starter placeholder, declared, inferred,
   simulated, confirmed, or approved
 - records legacy `subject_layer` normalization and implementation gaps
@@ -187,6 +189,7 @@ Every new domain factory repo should start with this shape:
     boundary.md
     domain-overview.md
     customer-hermes-model.md
+    memory-gateway.md
     client-layer.md
     client-installation-discovery.md
     workflow-gates.md
@@ -257,6 +260,10 @@ Every new domain factory repo should start with this shape:
 
   adapters/
     README.md
+
+  memory-gateway/
+    README.md
+    provider-placeholders.yaml
 
   credentials/
     README.md
@@ -370,6 +377,35 @@ models:
 xfactory:
   contract_repo: github.com/opensoft/openxFactory
   contract_name: openxFactory
+  contract_ref_type: commit
+  contract_ref: "0000000000000000000000000000000000000000"
+  contract_schema_version: 1
+  contract_declared_at: null
+  contract_source: starter_placeholder
+
+memory_gateway:
+  canonical_contract: openxFactory/contracts/memory-gateway
+  conformance_tier: M0
+  placeholder: true
+  customer_memory_gateway:
+    customer_layer_name: Example Customer Hermes
+    customer_subject_kinds: []
+    required_operations:
+      - xfactory.memory.context_packet
+      - xfactory.memory.query
+    direct_provider_policy:
+      worker_credentials_allowed: false
+      diagnostics_only: true
+      diagnostic_namespace: shadow/non-production
+  omnigent_expert_memory_gateway:
+    consumer_layer: domain_omnigent
+    expert_profiles: []
+    allowed_knowledge_scopes: []
+    source_authority_minimum: source_backed
+    audit_required: true
+  providers: []
+  bindings: []
+  break_glass_workflows: []
 
 hermes:
   domain_layer_name: Example Domain Hermes
@@ -391,14 +427,21 @@ credentials:
   audit_policy: credentials/audit.yaml
 
 tenancy:
-  client_kinds: []
-  customer_kinds: []
+  client_kinds:
+    - starter_client
+  customer_kinds:
+    - starter_customer
   isolation:
     memory: per_client
     records: per_client
     secrets: per_client
     customer_context: per_customer
 ```
+
+`memory_gateway.placeholder: true` means the starter has not selected a memory
+or expert knowledge provider yet. A domain-ready stack should replace the empty
+`providers` and `bindings` lists with concrete provider profiles, gateway-only
+grant scopes, source-authority policy, and any declared break-glass workflows.
 
 ## 4.5. Hermes Mixture Of Agents Module
 

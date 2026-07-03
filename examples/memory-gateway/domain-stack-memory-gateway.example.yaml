@@ -1,0 +1,78 @@
+schema_version: 1
+kind: xfactory_domain_stack_memory_gateway_example
+memory_gateway:
+  conformance_tier: M0
+  canonical_contract: openxFactory/contracts/memory-gateway
+  customer_memory_gateway:
+    customer_layer_name: Patient Hermes
+    customer_subject_kinds:
+      - patient
+    required_operations:
+      - xfactory.memory.context_packet
+      - xfactory.memory.query
+    direct_provider_policy:
+      worker_credentials_allowed: false
+      diagnostics_only: true
+      diagnostic_namespace: shadow/non-production
+  omnigent_expert_memory_gateway:
+    consumer_layer: domain_omnigent
+    expert_profiles:
+      - expert://medx/diagnostic-reviewer
+    allowed_knowledge_scopes:
+      - clinical_guideline
+      - medical_case_pattern
+    source_authority_minimum: reviewed
+    audit_required: true
+  providers:
+    - provider_id: gbrain_customer_memory_v1
+      provider_role: customer_memory
+      profile_ref: examples/memory-gateway/gbrain-provider-profile.yaml
+    - provider_id: local_postgres_customer_memory_v1
+      provider_role: local_document_store
+      profile_ref: examples/memory-gateway/local-postgres-provider-profile.yaml
+    - provider_id: medx_root_truth_db_v1
+      provider_role: root_truth_db
+      profile_ref: examples/memory-gateway/expert-provider-profiles.yaml#medx_root_truth_db_v1
+      allowed_knowledge_scopes:
+        - clinical_guideline
+        - medical_case_pattern
+      source_authority_minimum: reviewed
+  bindings:
+    - binding_id: opensoft_hosted_gbrain_medx_dev
+      provider_id: gbrain_customer_memory_v1
+      layer_scope:
+        - customer
+        - client
+      allowed_operations:
+        - xfactory.memory.query
+        - xfactory.memory.context_packet
+      client_scope:
+        - client:medx-demo-clinic
+      subject_scope:
+        - patient:demo/*
+      grant_ttl_seconds: 900
+    - binding_id: hybrid_medx_expert_knowledge
+      provider_id: medx_root_truth_db_v1
+      layer_scope:
+        - domain_omnigent
+      allowed_operations:
+        - xfactory.memory.query
+        - xfactory.memory.context_packet
+      client_scope:
+        - client:medx-demo-clinic
+      subject_scope:
+        - domain:medx
+      grant_ttl_seconds: 300
+  break_glass_workflows:
+    - id: medx_emergency_clinical_escalation
+      workflow_ref: workflow:medx:emergency-clinical-escalation
+      allowed_actor_classes:
+        - licensed_clinician
+        - emergency_supervisor
+      subject_scope:
+        - patient:active-care/*
+      minimal_packet_profile: emergency_clinical_minimal
+      max_ttl_seconds: 900
+      notification_targets:
+        - review-council:medx-clinical-safety
+      retrospective_review_sla: PT24H

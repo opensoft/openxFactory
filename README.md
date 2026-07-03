@@ -99,6 +99,7 @@ Core domain-neutral docs:
 - [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
 - [xFactory Memory Gateway Architecture](docs/customer-memory-gateway-architecture.md)
+- [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
 - [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)
@@ -134,6 +135,10 @@ Every DomainxFactory must validate against the canonical contract:
   `domain` (reusable expert domain).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Memory gateway: [contracts/memory-gateway](contracts/memory-gateway/README.md)
+  and `scripts/validate-memory-gateway.py` validate the canonical gateway
+  schemas, provider examples, conformance fixtures, and first runtime smoke
+  path for `xfactory.memory.*`.
 - Versioning: [Contract Versioning Policy](docs/contract-versioning-policy.md)
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 

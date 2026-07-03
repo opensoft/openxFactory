@@ -1,0 +1,42 @@
+schema_version: 1
+name: memory_gateway_promotion_candidate
+type: object
+required:
+  - promotion_candidate
+properties:
+  promotion_candidate:
+    type: object
+    required:
+      - id
+      - source_layer
+      - target_layer
+      - source_refs
+      - consent_profile_ref
+      - deidentification_status
+      - required_review
+      - status
+    properties:
+      id:
+        type: string
+      source_layer:
+        type: string
+      target_layer:
+        type: string
+      source_refs:
+        type: array
+        items:
+          type: string
+      consent_profile_ref:
+        type: string
+      deidentification_status:
+        type: string
+      required_review:
+        type: array
+        items:
+          type: string
+      review_refs:
+        type: array
+        items:
+          type: string
+      status:
+        type: string

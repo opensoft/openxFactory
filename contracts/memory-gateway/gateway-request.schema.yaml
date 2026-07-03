@@ -1,0 +1,54 @@
+schema_version: 1
+name: memory_gateway_request
+type: object
+required:
+  - request
+properties:
+  request:
+    type: object
+    required:
+      - id
+      - operation
+      - caller
+      - consumer_layer
+      - purpose
+      - workflow_ref
+    properties:
+      id:
+        type: string
+      operation:
+        type: string
+      caller:
+        type: object
+        required:
+          - id
+          - type
+          - authenticated
+      consumer_layer:
+        type: string
+      purpose:
+        type: string
+      workflow_ref:
+        type: string
+      client_ref:
+        type: string
+      subject_refs:
+        type: array
+        items:
+          type: string
+      provider_role:
+        type: string
+      provider_id:
+        type: string
+      expert_profile:
+        type: string
+      knowledge_scopes:
+        type: array
+        items:
+          type: string
+      min_source_authority:
+        type: string
+      payload:
+        type: object
+      emergency_basis:
+        type: string

@@ -1,0 +1,36 @@
+schema_version: 1
+name: memory_gateway_erasure
+type: object
+required:
+  - erasure
+properties:
+  erasure:
+    type: object
+    required:
+      - id
+      - subject_ref
+      - obligation_basis
+      - affected_provider_mappings
+      - provider_confirmations
+      - audit_refs
+    properties:
+      id:
+        type: string
+      subject_ref:
+        type: string
+      obligation_basis:
+        type: string
+      affected_provider_mappings:
+        type: array
+        items:
+          type: string
+      provider_confirmations:
+        type: array
+        items:
+          type: object
+      content_free_audit_metadata:
+        type: object
+      audit_refs:
+        type: array
+        items:
+          type: string

@@ -1,0 +1,41 @@
+schema_version: 1
+kind: xfactory_memory_gateway_break_glass_example
+break_glass_profile:
+  id: medx_emergency_clinical_escalation
+  workflow_ref: workflow:medx:emergency-clinical-escalation
+  allowed_actor_classes:
+    - licensed_clinician
+    - emergency_supervisor
+  subject_scope:
+    - patient:active-care/*
+  provider_binding_refs:
+    - opensoft_hosted_gbrain_medx_dev
+    - hybrid_medx_expert_knowledge
+  redaction_class: emergency_minimal
+  minimal_packet_profile:
+    includes:
+      - active_allergies
+      - current_medications
+      - recent_critical_events
+      - emergency_contacts
+    excludes:
+      - full_timeline
+      - inferred_personality
+      - marketing_preferences
+  max_ttl_seconds: 900
+  escalation_targets:
+    - review-council:medx-clinical-safety
+    - audit-queue:break-glass-review
+  retrospective_review_sla: PT24H
+expected_gateway_behavior:
+  verify_before_provider_io:
+    - caller_identity
+    - domain_declared_workflow
+    - subject_scope
+    - provider_binding
+    - redaction_profile
+    - max_ttl
+  emits:
+    - enhanced_audit_event
+    - notification_to_escalation_targets
+    - retrospective_review_task

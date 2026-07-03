@@ -11,11 +11,25 @@ Hermes
   owns intent, policy, approval, memory, and governance history.
 
 openxFactory / xFactory
-  owns contracts, gates, traceability, routing, state transitions, and audit.
+  owns contracts, gates, traceability, routing, state transitions,
+  memory/knowledge provider bindings, and audit.
 
 Domain Omnigent layer
   executes bounded domain work under the approved contract.
 ```
+
+## Memory And Expert Knowledge
+
+Domain Omnigent workers do not attach directly to authoritative expert memory,
+root-truth DBs, vector indexes, graph stores, source workspaces, case-pattern
+stores, playbooks, or evaluation memory for governed work.
+
+They request bounded expert context through `xfactory.memory.context_packet`.
+The xFactory Memory Gateway verifies caller identity, expert profile, workflow
+purpose, provider binding, source-authority policy, allowed knowledge scope,
+usage/audit policy, and migration route before provider I/O. Direct provider
+access is limited to read-only, operator-scoped, non-production or shadow
+diagnostics and can never create authoritative expert context.
 
 ## Domain Implementations
 

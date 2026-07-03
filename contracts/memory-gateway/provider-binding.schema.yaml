@@ -1,0 +1,48 @@
+schema_version: 1
+name: memory_gateway_provider_binding
+type: object
+required:
+  - provider_binding
+properties:
+  provider_binding:
+    type: object
+    required:
+      - id
+      - provider_id
+      - custody_mode
+      - allowed_layers
+      - allowed_operations
+      - allowed_clients
+      - allowed_subject_scopes
+      - grant
+    properties:
+      id:
+        type: string
+      provider_id:
+        type: string
+      custody_mode:
+        type: string
+      allowed_layers:
+        type: array
+        items:
+          type: string
+      allowed_operations:
+        type: array
+        items:
+          type: string
+      allowed_clients:
+        type: array
+        items:
+          type: string
+      allowed_subject_scopes:
+        type: array
+        items:
+          type: string
+      namespace:
+        type: string
+      grant:
+        type: object
+        required:
+          - broker_ref
+          - ttl_seconds
+          - issued_to_gateway_only

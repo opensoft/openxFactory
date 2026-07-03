@@ -46,7 +46,8 @@ truth and review policy.
   providers used by Omnigent through bounded expert context packets.
 - Group all requirements into conformance tiers (M0 core boundary through M4
   migration) so a minimally conformant gateway is a small, buildable target
-  and governed authoritative writes require M0.
+  and governed reads/context packets can start before lifecycle and migration
+  features are implemented.
 - Define a threat model (over-broad packet requests, purpose gaming, confused
   deputy, gateway bypass, memory laundering, cross-tenant residue) with each
   abuse case mapped to the rail that defeats it.
@@ -57,8 +58,8 @@ truth and review policy.
 - Define a first-class, versioned consent profile contract (backed by Hermes
   operational state initially) as the first schema deliverable.
 - Define explicit fail modes per operation class (writes fail closed; reads
-  may degrade to cached redacted packets) and audited break-glass for
-  domain-declared emergency workflows.
+  may degrade to cached redacted packets) and audited, rail-gated break-glass
+  for domain-declared emergency workflows.
 - Distinguish revocation (block future use) from erasure (provider-side
   content deletion) and require provider profiles to declare erasure
   capability per port.
@@ -76,8 +77,7 @@ truth and review policy.
   expert knowledge wiring, and tiered conformance expectations for Customer
   Hermes memory and expert memory/knowledge providers. Renamed because half
   the capability governs Omnigent expert knowledge, not customer memory; the
-  spec directory rename (`specs/customer-memory-gateway/` ->
-  `specs/memory-gateway/`) is a `git mv` at apply time (tracked in tasks).
+  spec directory now lives at `specs/memory-gateway/`.
 
 ### Modified Capabilities
 

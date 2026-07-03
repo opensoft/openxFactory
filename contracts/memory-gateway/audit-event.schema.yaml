@@ -1,0 +1,43 @@
+schema_version: 1
+name: memory_gateway_audit_event
+type: object
+required:
+  - audit_event
+properties:
+  audit_event:
+    type: object
+    required:
+      - id
+      - at
+      - operation
+      - caller_ref
+      - decision
+      - rail_results
+      - provider_io_attempted
+    properties:
+      id:
+        type: string
+      at:
+        type: string
+      operation:
+        type: string
+      caller_ref:
+        type: string
+      consumer_layer:
+        type: string
+      decision:
+        type: string
+      denial_reason:
+        type: string
+      consent_profile_version:
+        type: string
+      rail_results:
+        type: array
+        items:
+          type: object
+      provider_io_attempted:
+        type: boolean
+      enhanced:
+        type: boolean
+      review_task_ref:
+        type: string

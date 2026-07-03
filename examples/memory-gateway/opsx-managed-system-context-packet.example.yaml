@@ -1,0 +1,25 @@
+schema_version: 1
+kind: xfactory_memory_gateway_context_packet_example
+context_packet:
+  id: context-packet:opsx-managed-system-7-health-check
+  issued_at: "2026-07-03T00:00:00Z"
+  expires_at: "2026-07-03T00:10:00Z"
+  purpose: incident_triage
+  workflow_ref: workflow:opsx:incident-triage
+  subject_refs:
+    - managed-system:demo-7
+  consent_profile_ref: consent:managed-system-demo-7:v1
+  subject_safety_profile_ref: opsx_managed_system_standard
+  redaction_class: internal
+  current_state_snapshot_refs:
+    - current-state:managed-system-demo-7:v12
+  memory_item_refs:
+    - memory-item:managed-system-demo-7:maintenance-window
+  source_claim_refs:
+    - source-claim:managed-system-demo-7-monitoring
+  trace_refs:
+    - telemetry:managed-system-demo-7:cpu-spike
+  provider_refs:
+    - postgres://opsx/local/current_state/managed-system-7
+  audit_refs:
+    - audit:opsx-context-packet-001

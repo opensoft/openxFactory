@@ -1,0 +1,56 @@
+schema_version: 1
+name: memory_gateway_consent_profile
+type: object
+required:
+  - consent_profile
+properties:
+  consent_profile:
+    type: object
+    required:
+      - id
+      - version
+      - subject_ref
+      - authority_basis
+      - purposes
+      - effective_from
+      - status
+      - audit_refs
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+      subject_ref:
+        type: string
+      authority_basis:
+        type: string
+        enum:
+          - direct
+          - guardian
+          - delegated
+          - court_ordered
+      guardian_or_delegate_ref:
+        type: string
+      purposes:
+        type: array
+        items:
+          type: string
+      effective_from:
+        type: string
+      effective_until:
+        type: string
+      status:
+        type: string
+        enum:
+          - active
+          - withdrawn
+          - expired
+          - superseded
+      audit_refs:
+        type: array
+        items:
+          type: string
+      change_events:
+        type: array
+        items:
+          type: object

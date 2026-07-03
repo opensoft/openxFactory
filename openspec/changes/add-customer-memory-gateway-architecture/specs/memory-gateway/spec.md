@@ -1,7 +1,11 @@
 ## ADDED Requirements
 
 Conformance tiers (see design.md, "Requirements are tiered"): a gateway is
-minimally conformant at M0; governed authoritative writes require M0.
+minimally conformant at M0 for governed reads and bounded context packets.
+Ordinary authoritative writes additionally require the M0 write-minimum:
+write request schema, source-backed write rail, deny-before-I/O behavior,
+provider mapping, and audit. Cross-layer promotion, revocation/tombstone,
+erasure, and migration require the higher tiers that define them.
 
 ```text
 M0: Gateway Mediates Governed Memory Access; Canonical Ports Are Product
@@ -39,8 +43,11 @@ using a memory or knowledge provider.
 
 - **WHEN** a direct provider tool is used for health checks, bootstrap, or
   diagnostics
-- **THEN** the result MUST NOT create approved Customer Hermes memory unless the
-  operation is also recorded through the gateway rails
+- **THEN** the result MUST NOT create approved Customer Hermes memory or
+  authoritative expert context under any condition
+- **AND** the direct access MUST use separate operator-scoped credentials that
+  are read-only, bound to non-production or shadow namespaces, and never issued
+  to worker identities
 
 #### Scenario: Omnigent requests governed expert knowledge
 
@@ -489,9 +496,13 @@ with enhanced audit.
 
 - **WHEN** a domain-declared break-glass workflow (for example emergency
   clinical escalation) asserts an emergency basis
-- **THEN** the gateway MUST resolve a pre-defined minimal emergency packet
-  profile within a bounded time, and MUST record an enhanced audit event and
-  create a mandatory retrospective review task
+- **THEN** the gateway MUST verify caller identity, domain-declared workflow
+  eligibility, subject scope, provider binding, redaction profile, and maximum
+  TTL before resolving a pre-defined minimal emergency packet profile within a
+  bounded time
+- **AND** it MUST record an enhanced audit event, notify the configured
+  escalation targets, and create a mandatory retrospective review task with the
+  domain-declared review SLA
 
 #### Scenario: Break-glass is not available to undeclared workflows
 
@@ -503,19 +514,22 @@ with enhanced audit.
 ### Requirement: Erasure Is Distinct From Revocation
 
 The system SHALL provide an erase-content operation, distinct from
-revoke-or-tombstone, for legal erasure obligations, and SHALL require provider
-profiles to declare erasure capability per port.
+revoke-or-tombstone, for domain/legal-policy-declared erasure or suppression
+obligations, and SHALL require provider profiles to declare erasure capability
+per port.
 
-#### Scenario: Erasure is requested for a regulated subject
+#### Scenario: Erasure is requested for a policy-constrained subject
 
-- **WHEN** a legal erasure obligation applies to customer-subject memory
+- **WHEN** a domain or legal policy-declared erasure or suppression obligation
+  applies to customer-subject memory
 - **THEN** the gateway MUST execute provider-side content deletion through the
   adapter, record provider confirmation refs in the audit trail, and preserve
   content-free audit metadata
 
 #### Scenario: Provider cannot erase
 
-- **WHEN** memory for a regulated subject category would be routed to a
+- **WHEN** memory for a domain-policy-constrained subject category would be
+  routed to a
   provider whose profile declares erasure capability `unsupported` for the
   required port
 - **THEN** the gateway MUST deny the routing unless an explicit, documented

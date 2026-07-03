@@ -145,6 +145,35 @@ contracts:
       - conformance validator (scripts/validate-domain-factory.py)
     compatibility: canonical_openxfactory_contract
     adapter_owner: domain factory repos
+  - id: memory-gateway-contracts
+    path: contracts/memory-gateway/
+    source_path: openxFactory/contracts/memory-gateway/
+    type: contract_family
+    schema_version: 1
+    intended_consumers:
+      - Customer Hermes memory adapters
+      - Domain Hermes policy and review rails
+      - Domain Omnigent expert memory adapters
+      - domain factory stack.yaml declarations
+      - conformance validator (scripts/validate-memory-gateway.py)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Domain repos must reference this contract family through their pinned
+      openxFactory checkout and keep provider-specific adapters behind
+      xfactory.memory.*. Provider endpoints and connection refs belong in the
+      xFactory memory_gateway binding layer, never in Hermes overlays.
+  - id: memory-gateway-conformance-validator
+    path: scripts/validate-memory-gateway.py
+    source_path: openxFactory/scripts/validate-memory-gateway.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - DomainxFactory CI
+      - memory provider adapter implementers
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
   - id: domain-factory-conformance-validator
     path: scripts/validate-domain-factory.py
     source_path: openxFactory/scripts/validate-domain-factory.py

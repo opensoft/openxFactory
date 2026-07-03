@@ -100,9 +100,10 @@ knowledge DBs. An expert worker should request a bounded expert context packet
 or expert query through xFactory, not attach directly to an unrestricted root
 truth DB, vector index, graph DB, source workspace, or case-pattern store.
 
-Direct provider calls may still exist for bootstrap, health checks, or
-non-authoritative diagnostics, but they do not create approved Customer Hermes
-memory.
+Direct provider calls may exist only for bootstrap, health checks, or
+diagnostics using separate operator-scoped credentials that are read-only and
+bound to non-production or shadow namespaces. They never create approved
+Customer Hermes memory or authoritative expert context.
 
 ## 4. Framework Components
 
@@ -782,7 +783,7 @@ packet operation.
 The first implementation should add these repo surfaces.
 
 ```text
-contracts/customer-memory-gateway/
+contracts/memory-gateway/
   gateway-request.schema.yaml
   gateway-response.schema.yaml
   provider-profile.schema.yaml
@@ -791,37 +792,43 @@ contracts/customer-memory-gateway/
   subject-safety-profile.schema.yaml
   context-packet.schema.yaml
   expert-context-packet.schema.yaml
-  expert-provider-profile.schema.yaml
   expert-knowledge-source.schema.yaml
   promotion-candidate.schema.yaml
   migration-manifest.schema.yaml
   usage-event.schema.yaml
+  revocation.schema.yaml
+  erasure.schema.yaml
+  break-glass-profile.schema.yaml
   audit-event.schema.yaml
   README.md
 
-examples/customer-memory-gateway/
+examples/memory-gateway/
   gbrain-provider-profile.yaml
   honcho-provider-profile.yaml
   agentmemory-provider-profile.yaml
-  postgres-provider-profile.yaml
-  medx-root-truth-provider-profile.yaml
-  opsx-runbook-provider-profile.yaml
+  local-postgres-provider-profile.yaml
+  expert-provider-profiles.yaml
+  provider-bindings.example.yaml
+  provider-mappings.example.yaml
+  conformance-fixtures.yaml
   medx-patient-context-packet.example.yaml
-  medx-expert-context-packet.example.yaml
+  medx-omnigent-diagnostic-reviewer-context.example.yaml
   opsx-managed-system-context-packet.example.yaml
-  opsx-expert-runbook-context-packet.example.yaml
-  migration-dual-write.example.yaml
-  expert-db-migration.example.yaml
-  minor-subject-safety.example.yaml
-  adult-subject-safety.example.yaml
+  opsx-runbook-expert-context.example.yaml
+  customer-memory-migration-manifest.example.yaml
+  subject-safety.example.yaml
+  medx-break-glass.example.yaml
 
 scripts/
-  validate-customer-memory-gateway.py
+  validate-memory-gateway.py
+
+xfactory/
+  memory_gateway.py
 ```
 
-Runtime code can come later, but schema and example validation should make the
-framework executable enough that DomainxFactories can declare bindings and
-providers consistently.
+The first runtime slice lives in `xfactory/memory_gateway.py`. It is a local
+control-plane module with a service-ready API boundary: extraction to a
+standalone service must not change the `xfactory.memory.*` surface.
 
 ## 13. Minimum Implementable Slice
 
@@ -981,10 +988,9 @@ xfactory.memory.write
 xfactory.memory.context_packet
 xfactory.memory.propose_promotion
 xfactory.memory.revoke_or_tombstone
+xfactory.memory.erase_content
 xfactory.memory.audit
 xfactory.memory.provider_health
-xfactory.memory.migration_plan
-xfactory.memory.migration_status
 ```
 
 ### Query
@@ -1310,7 +1316,7 @@ Omnigent asks for expert context
 MVP files and concepts:
 
 ```text
-contracts/customer-memory-gateway/
+contracts/memory-gateway/
   gateway-request.schema.yaml
   gateway-response.schema.yaml
   provider-profile.schema.yaml
@@ -1318,15 +1324,18 @@ contracts/customer-memory-gateway/
   expert-context-packet.schema.yaml
   promotion-candidate.schema.yaml
 
-examples/customer-memory-gateway/
+examples/memory-gateway/
   gbrain-provider-profile.yaml
   agentmemory-provider-profile.yaml
-  medx-root-truth-provider-profile.yaml
+  expert-provider-profiles.yaml
   medx-patient-context-packet.example.yaml
-  medx-expert-context-packet.example.yaml
+  medx-omnigent-diagnostic-reviewer-context.example.yaml
 
 docs/
   customer-memory-gateway-architecture.md
+
+xfactory/
+  memory_gateway.py
 ```
 
 MVP conformance checks:
@@ -1347,7 +1356,7 @@ Each DomainxFactory should declare how it specializes the gateway:
 
 ```yaml
 customer_memory_gateway:
-  canonical_contract: openxFactory/customer-memory-gateway
+  canonical_contract: openxFactory/contracts/memory-gateway
   customer_layer_name: Patient Hermes
   customer_subject_kinds:
     - patient
@@ -1375,7 +1384,7 @@ that its Omnigent overlay may use.
 
 ```yaml
 omnigent_expert_memory_gateway:
-  canonical_contract: openxFactory/customer-memory-gateway
+  canonical_contract: openxFactory/contracts/memory-gateway
   consumer_layer: domain_omnigent
   expert_profiles:
     - expert://medx/oncology/diagnostic-reviewer
@@ -1422,7 +1431,8 @@ Project Hermes.
 11. Add domain-specific customer and expert context packet examples.
 12. Add migration route-table examples and dual-write fixtures for customer
     memory and expert DB routes.
-13. Tighten direct provider access so authoritative memory writes require the
+13. Tighten direct provider access so it cannot create authoritative Customer
+    Hermes memory or Omnigent expert context; governed operations require the
     gateway.
 
 ## 25. Design Rule

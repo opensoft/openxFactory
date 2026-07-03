@@ -1,0 +1,163 @@
+schema_version: 1
+kind: xfactory_memory_gateway_vocabularies
+vocabularies:
+  gateway_operations:
+    - xfactory.memory.query
+    - xfactory.memory.write
+    - xfactory.memory.context_packet
+    - xfactory.memory.propose_promotion
+    - xfactory.memory.revoke_or_tombstone
+    - xfactory.memory.erase_content
+    - xfactory.memory.audit
+    - xfactory.memory.provider_health
+  canonical_ports:
+    - identity
+    - consent
+    - preference
+    - timeline
+    - source_claim
+    - evidence_graph
+    - current_state
+    - memory_item
+    - workflow_context
+    - follow_up
+    - promotion
+    - audit
+    - expert_profile
+    - expert_knowledge
+    - expert_case_memory
+    - expert_policy_memory
+    - expert_tool_memory
+    - expert_evaluation_memory
+    - source_authority
+  provider_roles:
+    - customer_memory
+    - profile_memory
+    - worker_local_memory
+    - local_document_store
+  expert_provider_roles:
+    - expert_knowledge_memory
+    - expert_case_memory
+    - expert_policy_memory
+    - expert_tool_memory
+    - expert_evaluation_memory
+    - root_truth_db
+    - vector_index
+    - graph_store
+    - source_workspace
+    - playbook_store
+  provider_support_levels:
+    - native
+    - adapter
+    - companion
+    - external
+    - unsupported
+  binding_custody_modes:
+    - opensoft_hosted
+    - customer_owned
+    - hybrid
+    - internal_development
+  subject_categories:
+    - adult
+    - minor
+    - protected
+    - delegated
+    - guardian_mediated
+    - domain_policy_constrained
+  age_bands:
+    - adult
+    - minor_under_13
+    - minor_13_to_15
+    - minor_16_to_17
+    - unknown
+  guardian_authority_modes:
+    - direct
+    - guardian
+    - delegated
+    - court_ordered
+    - unavailable
+  rail_denial_reasons:
+    - unauthenticated_caller
+    - missing_consent
+    - consent_withdrawn
+    - missing_source_refs
+    - secret_like_content
+    - unsupported_provider_port
+    - provider_binding_denied
+    - subject_safety_denied
+    - source_authority_below_threshold
+    - budget_hard_limit
+    - gateway_unavailable
+    - packet_expired
+    - packet_wrong_purpose
+    - break_glass_not_declared
+    - erasure_unsupported
+  privacy_classes:
+    - public
+    - internal
+    - customer_private
+    - regulated
+    - minor_protected
+    - secret_prohibited
+  authority_levels:
+    - self_reported
+    - observed
+    - source_backed
+    - reviewed
+    - domain_authoritative
+    - below_threshold
+  billing_modes:
+    - none
+    - async_soft_limit
+    - sync_hard_limit
+    - approval_required
+    - bill_to_client
+    - bill_to_opensoft
+  migration_modes:
+    - none
+    - backfill
+    - dual_write
+    - shadow_read
+    - canary
+    - cutover
+    - rollback
+  knowledge_scopes:
+    - clinical_guideline
+    - medical_case_pattern
+    - ops_runbook
+    - engineering_project
+    - accounting_policy
+    - advertising_policy
+    - source_workspace
+    - evaluation_memory
+  promotion_statuses:
+    - proposed
+    - blocked
+    - needs_review
+    - approved
+    - rejected
+    - applied
+  conformance_tiers:
+    - M0
+    - M1
+    - M2
+    - M3
+    - M4
+  fail_modes:
+    - fail_closed
+    - cached_redacted_packet
+    - deny
+    - break_glass
+  erasure_capability_levels:
+    - hard_delete
+    - requires_reindex
+    - companion_managed
+    - unsupported
+  redaction_classes:
+    - none
+    - standard
+    - customer_private
+    - minor_safe
+    - emergency_minimal
+    - deidentified
+    - expert_source_scoped

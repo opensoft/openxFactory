@@ -1,0 +1,159 @@
+schema_version: 1
+kind: xfactory_expert_provider_profile_examples
+provider_profiles:
+  - id: medx_root_truth_db_v1
+    provider_role: root_truth_db
+    product: Medx Root Truth DB
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    ports:
+      expert_knowledge: native
+      source_authority: native
+      expert_case_memory: external
+      expert_policy_memory: adapter
+      audit: companion
+    erasure:
+      expert_knowledge: companion_managed
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - clinical_guideline
+      - medical_case_pattern
+    source_authority:
+      minimum_level: reviewed
+      citations_required: true
+      freshness_required: true
+    prohibited_content:
+      - uncited_clinical_recommendation
+      - customer_private_without_context_packet
+    expensive_operation_classes:
+      - bulk_retrieval
+      - reembedding
+  - id: medx_vector_index_v1
+    provider_role: vector_index
+    product: Medx Vector Index
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain_omnigent
+    ports:
+      expert_knowledge: adapter
+      source_authority: companion
+      audit: companion
+    erasure:
+      expert_knowledge: requires_reindex
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - clinical_guideline
+      - source_workspace
+    source_authority:
+      minimum_level: source_backed
+      citations_required: true
+      freshness_required: true
+    companion_stores:
+      - medx_root_truth_db_v1
+      - audit-ledger
+    prohibited_content:
+      - uncited_clinical_recommendation
+    expensive_operation_classes:
+      - reembedding
+  - id: source_workspace_v1
+    provider_role: source_workspace
+    product: Source Workspace
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    ports:
+      expert_knowledge: adapter
+      source_authority: native
+      audit: companion
+    erasure:
+      expert_knowledge: companion_managed
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - source_workspace
+      - engineering_project
+    source_authority:
+      minimum_level: source_backed
+      citations_required: true
+      freshness_required: true
+    prohibited_content:
+      - source_without_owner
+    expensive_operation_classes:
+      - bulk_retrieval
+  - id: medx_case_pattern_store_v1
+    provider_role: expert_case_memory
+    product: Case Pattern Store
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    ports:
+      expert_case_memory: native
+      source_authority: companion
+      audit: companion
+    erasure:
+      expert_case_memory: companion_managed
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - medical_case_pattern
+    source_authority:
+      minimum_level: reviewed
+      citations_required: true
+      freshness_required: true
+    prohibited_content:
+      - identifiable_patient_case_without_deidentification
+    expensive_operation_classes:
+      - bulk_retrieval
+  - id: opsx_playbook_store_v1
+    provider_role: playbook_store
+    product: Opsx Runbook Store
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    ports:
+      expert_policy_memory: adapter
+      expert_tool_memory: adapter
+      source_authority: native
+      audit: companion
+    erasure:
+      expert_policy_memory: companion_managed
+      expert_tool_memory: companion_managed
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - ops_runbook
+    source_authority:
+      minimum_level: reviewed
+      citations_required: true
+      freshness_required: true
+    prohibited_content:
+      - live_secret
+      - destructive_command_without_policy
+    expensive_operation_classes:
+      - bulk_retrieval
+  - id: expert_evaluation_memory_v1
+    provider_role: expert_evaluation_memory
+    product: Evaluation Memory Store
+    adapter: xfactory.memory.adapters.local_fake
+    allowed_layers:
+      - domain
+      - domain_omnigent
+    ports:
+      expert_evaluation_memory: native
+      source_authority: adapter
+      audit: companion
+    erasure:
+      expert_evaluation_memory: hard_delete
+      audit: unsupported
+    allowed_knowledge_scopes:
+      - evaluation_memory
+    source_authority:
+      minimum_level: observed
+      citations_required: false
+      freshness_required: true
+    prohibited_content:
+      - customer_private_without_context_packet
+    expensive_operation_classes:
+      - bulk_retrieval

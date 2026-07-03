@@ -121,6 +121,164 @@ properties:
         type: string
       orchestrator_profile:
         type: string
+  memory_gateway:
+    type: object
+    description: >-
+      DomainxFactory specialization of the canonical xFactory Memory Gateway.
+      This block declares provider profiles, per-layer bindings, break-glass
+      workflows, and the conformance tier the domain claims. Hermes overlay
+      files must not contain direct memory provider endpoints or credential
+      refs; governed access is routed through xfactory.memory.*.
+    required:
+      - conformance_tier
+      - canonical_contract
+      - providers
+      - bindings
+    properties:
+      conformance_tier:
+        type: string
+        enum:
+          - M0
+          - M1
+          - M2
+          - M3
+          - M4
+      canonical_contract:
+        type: string
+      placeholder:
+        type: boolean
+        description: >-
+          True only for starter scaffolds that have not selected providers yet.
+          Domain-ready stacks must declare concrete providers and bindings.
+      customer_memory_gateway:
+        type: object
+        properties:
+          customer_layer_name:
+            type: string
+          customer_subject_kinds:
+            type: array
+            items:
+              type: string
+          required_operations:
+            type: array
+            items:
+              type: string
+          direct_provider_policy:
+            type: object
+            properties:
+              worker_credentials_allowed:
+                type: boolean
+              diagnostics_only:
+                type: boolean
+              diagnostic_namespace:
+                type: string
+      omnigent_expert_memory_gateway:
+        type: object
+        properties:
+          consumer_layer:
+            type: string
+          expert_profiles:
+            type: array
+            items:
+              type: string
+          allowed_knowledge_scopes:
+            type: array
+            items:
+              type: string
+          source_authority_minimum:
+            type: string
+          audit_required:
+            type: boolean
+      providers:
+        type: array
+        items:
+          type: object
+          required:
+            - provider_id
+            - provider_role
+            - profile_ref
+          properties:
+            provider_id:
+              type: string
+            provider_role:
+              type: string
+            profile_ref:
+              type: string
+            allowed_knowledge_scopes:
+              type: array
+              items:
+                type: string
+            source_authority_minimum:
+              type: string
+      bindings:
+        type: array
+        items:
+          type: object
+          required:
+            - binding_id
+            - provider_id
+            - layer_scope
+            - allowed_operations
+            - grant_ttl_seconds
+          properties:
+            binding_id:
+              type: string
+            provider_id:
+              type: string
+            layer_scope:
+              type: array
+              items:
+                type: string
+            allowed_operations:
+              type: array
+              items:
+                type: string
+            client_scope:
+              type: array
+              items:
+                type: string
+            subject_scope:
+              type: array
+              items:
+                type: string
+            grant_ttl_seconds:
+              type: integer
+      break_glass_workflows:
+        type: array
+        items:
+          type: object
+          required:
+            - id
+            - workflow_ref
+            - allowed_actor_classes
+            - subject_scope
+            - minimal_packet_profile
+            - max_ttl_seconds
+            - notification_targets
+            - retrospective_review_sla
+          properties:
+            id:
+              type: string
+            workflow_ref:
+              type: string
+            allowed_actor_classes:
+              type: array
+              items:
+                type: string
+            subject_scope:
+              type: array
+              items:
+                type: string
+            minimal_packet_profile:
+              type: string
+            max_ttl_seconds:
+              type: integer
+            notification_targets:
+              type: array
+              items:
+                type: string
+            retrospective_review_sla:
+              type: string
   tenancy:
     type: object
     description: >-

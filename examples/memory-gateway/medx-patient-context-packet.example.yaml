@@ -1,0 +1,25 @@
+schema_version: 1
+kind: xfactory_memory_gateway_context_packet_example
+context_packet:
+  id: context-packet:medx-demo-001-care-plan-review
+  issued_at: "2026-07-03T00:00:00Z"
+  expires_at: "2026-07-03T00:15:00Z"
+  purpose: care_plan_review
+  workflow_ref: workflow:medx:care-plan-review
+  subject_refs:
+    - patient:demo-001
+  consent_profile_ref: consent:patient-demo-001:v3
+  subject_safety_profile_ref: medx_adult_patient_standard
+  redaction_class: customer_private
+  current_state_snapshot_refs:
+    - current-state:patient-demo-001:v8
+  memory_item_refs:
+    - memory-item:patient-demo-001:care-preferences
+  source_claim_refs:
+    - source-claim:patient-demo-001-medication-history
+  trace_refs:
+    - timeline-event:patient-demo-001-intake-2026-06-30
+  provider_refs:
+    - gbrain://tenant/medx/patient-123/mem/care-preferences
+  audit_refs:
+    - audit:hermes-gbrain-context-packet-001

@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 9  # v9: stack.yaml now emits canonical hermes.layers (contract-v1.1)
+STARTER_VERSION = 10  # v10: memory_gateway placeholders without provider lock-in
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -128,6 +128,7 @@ It implements the openxFactory/xFactory contract with:
 - [Domain Overview](docs/domain-overview.md)
 - [Workflow Gates](docs/workflow-gates.md)
 - [Customer Hermes Model](docs/customer-hermes-model.md)
+- [Memory Gateway](docs/memory-gateway.md)
 - [Client Layer](docs/client-layer.md)
 - [Client Installation Discovery](docs/client-installation-discovery.md)
 - [Omnigent Constitution](docs/omnigent-constitution.md)
@@ -160,6 +161,35 @@ models:
 xfactory:
   contract_repo: github.com/opensoft/openxFactory
   contract_name: openxFactory
+  contract_ref_type: commit
+  contract_ref: "0000000000000000000000000000000000000000"
+  contract_schema_version: 1
+  contract_declared_at: null
+  contract_source: starter_placeholder
+
+memory_gateway:
+  canonical_contract: openxFactory/contracts/memory-gateway
+  conformance_tier: M0
+  placeholder: true
+  customer_memory_gateway:
+    customer_layer_name: {ctx.customer_layer_name}
+    customer_subject_kinds: []
+    required_operations:
+      - xfactory.memory.context_packet
+      - xfactory.memory.query
+    direct_provider_policy:
+      worker_credentials_allowed: false
+      diagnostics_only: true
+      diagnostic_namespace: shadow/non-production
+  omnigent_expert_memory_gateway:
+    consumer_layer: domain_omnigent
+    expert_profiles: []
+    allowed_knowledge_scopes: []
+    source_authority_minimum: source_backed
+    audit_required: true
+  providers: []
+  bindings: []
+  break_glass_workflows: []
 
 hermes:
   # Canonical layer declaration (contract-v1.1). Roles are fixed vocabulary:
@@ -201,8 +231,10 @@ ui:
   default_surface: avatar_first
 
 tenancy:
-  client_kinds: []
-  customer_kinds: []
+  client_kinds:
+    - starter_client
+  customer_kinds:
+    - starter_customer
   isolation:
     memory: per_client
     records: per_client
@@ -575,6 +607,27 @@ Use the canonical openxFactory object vocabulary from Customer Hermes Memory
 Model: identity profile, consent profile, preference profile, timeline,
 evidence graph, source claim, current state snapshot, memory item, active
 workflow context, follow-up obligation, and promotion candidate.
+""",
+        "docs/memory-gateway.md": md_header(ctx) + f"""# {ctx.product_name} Memory Gateway
+
+This domain uses the canonical openxFactory memory gateway contract:
+
+```text
+openxFactory/contracts/memory-gateway
+```
+
+The starter declares the gateway as a placeholder in `stack.yaml` without
+selecting a required provider. Domain implementation must fill:
+
+- Customer Hermes provider profiles and bindings
+- Omnigent expert memory or knowledge provider profiles and bindings
+- consent, subject-safety, source-authority, audit, and usage policies
+- break-glass workflows, if any
+- smoke examples that call `xfactory.memory.*`
+
+Hermes overlay files must not contain direct provider endpoints or connection
+refs for governed memory. Put provider route and binding references under
+`memory_gateway` in `stack.yaml`.
 """,
         "docs/client-layer.md": md_header(ctx) + f"""# {ctx.client_layer_name} Product And Service Model
 
@@ -1844,6 +1897,22 @@ tool_routing:
     adapter: adapters/README.md
     required_worker_capability: readonly
 """,
+        "memory-gateway/README.md": md_header(ctx) + f"""# {ctx.product_name} Memory Gateway Placeholders
+
+This directory is a domain-owned placeholder for examples and fixtures derived
+from `openxFactory/contracts/memory-gateway`.
+
+Do not put raw credentials, provider tokens, live endpoints, or customer data
+here. Domain-ready provider choices belong in `stack.yaml` under
+`memory_gateway.providers` and `memory_gateway.bindings`.
+""",
+        "memory-gateway/provider-placeholders.yaml": yaml_header(ctx) + """schema_version: 1
+kind: domain_memory_gateway_placeholders
+customer_memory_providers: []
+expert_memory_providers: []
+context_packet_smokes: []
+break_glass_workflows: []
+""",
         "omnigent/expert-routing/README.md": md_header(ctx) + "# Expert Routing\n\nDomain expert routing rules belong here.\n",
         "omnigent/validation-checks/README.md": md_header(ctx) + "# Validation Checks\n\nValidation check definitions belong here.\n",
         "omnigent/output-templates/README.md": md_header(ctx) + "# Output Templates\n\nOutput templates belong here.\n",
@@ -2352,6 +2421,7 @@ REQUIRED_FILES = [
     "docs/domain-overview.md",
     "docs/workflow-gates.md",
     "docs/customer-hermes-model.md",
+    "docs/memory-gateway.md",
     "docs/client-layer.md",
     "docs/client-installation-discovery.md",
     "docs/omnigent-constitution.md",
@@ -2378,6 +2448,8 @@ REQUIRED_FILES = [
     "omnigent/worker-capabilities.yaml",
     "omnigent/command-policy.yaml",
     "omnigent/tool-routing.yaml",
+    "memory-gateway/README.md",
+    "memory-gateway/provider-placeholders.yaml",
     "ui/README.md",
     "ui/avatar-first.yaml",
     "workflows/example-readonly.yaml",
@@ -2887,6 +2959,7 @@ def add_readme_links(target: Path, log: RunLog, dry_run: bool) -> None:
         "- [Domain Overview](docs/domain-overview.md)",
         "- [Workflow Gates](docs/workflow-gates.md)",
         "- [Customer Hermes Model](docs/customer-hermes-model.md)",
+        "- [Memory Gateway](docs/memory-gateway.md)",
         "- [Client Layer](docs/client-layer.md)",
         "- [Client Installation Discovery](docs/client-installation-discovery.md)",
         "- [Omnigent Constitution](docs/omnigent-constitution.md)",

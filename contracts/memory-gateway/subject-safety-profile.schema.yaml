@@ -1,0 +1,45 @@
+schema_version: 1
+name: memory_gateway_subject_safety_profile
+type: object
+required:
+  - subject_safety_profile
+properties:
+  subject_safety_profile:
+    type: object
+    required:
+      - id
+      - subject_category
+      - age_band
+      - authority_mode
+      - allowed_interaction_modes
+      - prohibited_uses
+      - redaction_class
+      - retention_profile
+      - audit_level
+    properties:
+      id:
+        type: string
+      subject_category:
+        type: string
+      age_band:
+        type: string
+      authority_mode:
+        type: string
+      guardian_or_delegate_ref:
+        type: string
+      allowed_interaction_modes:
+        type: array
+        items:
+          type: string
+      prohibited_uses:
+        type: array
+        items:
+          type: string
+      redaction_class:
+        type: string
+      retention_profile:
+        type: string
+      personalization:
+        type: object
+      audit_level:
+        type: string

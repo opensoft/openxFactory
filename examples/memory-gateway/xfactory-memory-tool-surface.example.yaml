@@ -1,0 +1,81 @@
+schema_version: 1
+kind: xfactory_memory_tool_surface
+tools:
+  - name: xfactory.memory.query
+    caller_layers:
+      - customer
+      - client
+      - domain_omnigent
+    rail_order:
+      - caller_identity
+      - consent_or_source_authority
+      - provider_binding
+      - budget_if_expensive
+      - audit
+  - name: xfactory.memory.write
+    caller_layers:
+      - customer
+      - client
+    rail_order:
+      - caller_identity
+      - source_refs
+      - secret_scan
+      - provider_binding
+      - audit
+  - name: xfactory.memory.context_packet
+    caller_layers:
+      - customer
+      - client
+      - domain_omnigent
+    rail_order:
+      - caller_identity
+      - consent_or_source_authority
+      - subject_safety
+      - provider_binding
+      - packet_ttl
+      - audit
+  - name: xfactory.memory.propose_promotion
+    caller_layers:
+      - customer
+      - domain_omnigent
+    rail_order:
+      - caller_identity
+      - source_refs
+      - deidentification
+      - required_review
+      - audit
+  - name: xfactory.memory.revoke_or_tombstone
+    caller_layers:
+      - customer
+      - client
+      - domain
+    rail_order:
+      - caller_identity
+      - consent_or_policy_change
+      - tombstone
+      - audit
+  - name: xfactory.memory.erase_content
+    caller_layers:
+      - customer
+      - client
+      - domain
+    rail_order:
+      - caller_identity
+      - erasure_obligation
+      - provider_erasure_capability
+      - provider_confirmation
+      - audit
+  - name: xfactory.memory.audit
+    caller_layers:
+      - xfactory
+      - domain
+    rail_order:
+      - caller_identity
+      - audit_scope
+  - name: xfactory.memory.provider_health
+    caller_layers:
+      - xfactory
+    rail_order:
+      - caller_identity
+      - diagnostic_binding
+      - read_only_shadow_namespace

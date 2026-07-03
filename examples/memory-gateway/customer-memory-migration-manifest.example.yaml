@@ -1,0 +1,29 @@
+schema_version: 1
+kind: xfactory_memory_gateway_migration_manifest_example
+migration_manifest:
+  id: migration:medx-gbrain-to-local-postgres-001
+  route: route:medx/customer-memory/primary
+  mode: dual_write
+  source_provider_id: gbrain_customer_memory_v1
+  target_provider_id: local_postgres_customer_memory_v1
+  dual_write: true
+  shadow_read: true
+  cutover_criteria:
+    - provider_mapping_parity_99_percent
+    - no_unresolved_erasure_exceptions
+    - audit_sample_review_passed
+  rollback_window: P14D
+  audit_refs:
+    - audit:migration-plan-approved-001
+route_table:
+  hermes_call_surface:
+    - xfactory.memory.query
+    - xfactory.memory.context_packet
+    - xfactory.memory.write
+  states:
+    - mode: dual_write
+      primary_provider_id: gbrain_customer_memory_v1
+      shadow_provider_id: local_postgres_customer_memory_v1
+    - mode: cutover
+      primary_provider_id: local_postgres_customer_memory_v1
+      fallback_provider_id: gbrain_customer_memory_v1

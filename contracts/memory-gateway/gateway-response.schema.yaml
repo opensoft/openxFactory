@@ -1,0 +1,43 @@
+schema_version: 1
+name: memory_gateway_response
+type: object
+required:
+  - response
+properties:
+  response:
+    type: object
+    required:
+      - id
+      - request_id
+      - status
+      - audit_refs
+    properties:
+      id:
+        type: string
+      request_id:
+        type: string
+      status:
+        type: string
+        enum:
+          - allowed
+          - denied
+          - degraded
+          - failed_closed
+      denial_reason:
+        type: string
+      context_packet_ref:
+        type: string
+      expert_context_packet_ref:
+        type: string
+      provider_mapping_refs:
+        type: array
+        items:
+          type: string
+      usage_refs:
+        type: array
+        items:
+          type: string
+      audit_refs:
+        type: array
+        items:
+          type: string

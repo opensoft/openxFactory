@@ -1,0 +1,37 @@
+schema_version: 1
+name: memory_gateway_expert_knowledge_source
+type: object
+required:
+  - expert_knowledge_source
+properties:
+  expert_knowledge_source:
+    type: object
+    required:
+      - id
+      - provider_id
+      - knowledge_scope
+      - authority_level
+      - citation_refs
+      - freshness
+    properties:
+      id:
+        type: string
+      provider_id:
+        type: string
+      knowledge_scope:
+        type: string
+      authority_level:
+        type: string
+      citation_refs:
+        type: array
+        items:
+          type: string
+      freshness:
+        type: object
+        required:
+          - last_verified_at
+          - stale_after
+      prohibited_uses:
+        type: array
+        items:
+          type: string

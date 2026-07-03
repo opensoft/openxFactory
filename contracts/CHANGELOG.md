@@ -2,6 +2,20 @@
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+## contract-v1.2 — 2026-07-03 (additive)
+
+Added:
+
+- `contracts/memory-gateway/` — canonical xFactory Memory Gateway contract
+  surface for Customer Hermes memory and Domain Omnigent expert
+  memory/knowledge access. Includes vocabularies, consent profile, gateway
+  request/response, provider profile, binding, mapping, subject safety,
+  context packet, expert context packet, expert source, promotion, migration,
+  usage, revocation, erasure, break-glass, and audit event schemas.
+- `scripts/validate-memory-gateway.py` — canonical validation for gateway
+  contracts, provider profiles, conformance fixtures, domain examples, and the
+  first local runtime smoke path.
+
 ## contract-v1.1 — 2026-07-03 (additive + deprecating)
 
 Added:

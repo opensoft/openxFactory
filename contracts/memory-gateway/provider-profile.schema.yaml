@@ -1,0 +1,51 @@
+schema_version: 1
+name: memory_gateway_provider_profile
+type: object
+required:
+  - provider_profile
+properties:
+  provider_profile:
+    type: object
+    required:
+      - id
+      - provider_role
+      - adapter
+      - allowed_layers
+      - ports
+      - erasure
+      - expensive_operation_classes
+    properties:
+      id:
+        type: string
+      provider_role:
+        type: string
+      product:
+        type: string
+      adapter:
+        type: string
+      allowed_layers:
+        type: array
+        items:
+          type: string
+      ports:
+        type: object
+      erasure:
+        type: object
+      companion_stores:
+        type: array
+        items:
+          type: string
+      prohibited_content:
+        type: array
+        items:
+          type: string
+      expensive_operation_classes:
+        type: array
+        items:
+          type: string
+      source_authority:
+        type: object
+      allowed_knowledge_scopes:
+        type: array
+        items:
+          type: string

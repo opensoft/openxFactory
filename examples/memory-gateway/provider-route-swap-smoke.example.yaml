@@ -1,0 +1,16 @@
+schema_version: 1
+kind: xfactory_memory_gateway_smoke
+name: hermes_route_swap_without_call_surface_change
+before:
+  hermes_call_surface: xfactory.memory.context_packet
+  primary_provider: gbrain_customer_memory_v1
+  route_state: active
+after:
+  hermes_call_surface: xfactory.memory.context_packet
+  primary_provider: local_postgres_customer_memory_v1
+  route_state: cutover
+asserts:
+  - Hermes operation name does not change.
+  - Provider mappings preserve canonical object IDs.
+  - Audit records link source and target route decisions.
+  - Rollback route remains available inside the declared rollback window.
