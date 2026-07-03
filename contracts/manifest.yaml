@@ -134,3 +134,30 @@ contracts:
       - Domain Hermes review workflows
     compatibility: canonical_openxfactory_contract
     adapter_owner: domain factory repos
+  - id: xfactory-domain-stack
+    path: contracts/schemas/xfactory-domain-stack.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-domain-stack.schema.yaml
+    type: schema
+    schema_version: 1
+    intended_consumers:
+      - every DomainxFactory stack.yaml
+      - domain starter generator
+      - conformance validator (scripts/validate-domain-factory.py)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+  - id: domain-factory-conformance-validator
+    path: scripts/validate-domain-factory.py
+    source_path: openxFactory/scripts/validate-domain-factory.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - every DomainxFactory CI
+      - domain starter generator
+      - openxFactory contract release checks
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Domain repos must invoke this validator from their pinned openxFactory
+      checkout (for example via Makefile target `validate`). Copying the
+      validator into a domain repo is a conformance violation; domain repos
+      may add domain-specific validators alongside it but not replace it.

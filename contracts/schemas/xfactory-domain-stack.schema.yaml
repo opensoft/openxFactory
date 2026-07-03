@@ -1,0 +1,155 @@
+schema_version: 1
+name: xfactory_domain_stack
+description: >-
+  Canonical shape of a DomainxFactory stack.yaml. This is the conformance
+  contract every domain repo pins and is validated against by
+  scripts/validate-domain-factory.py (consumed from openxFactory, never
+  copied). The Hermes stack is declared as an ordered list of authority
+  layers, each bound to a canonical role. Canonical roles fix vocabulary:
+  "customer" is always the served subject (patient, client entity, campaign,
+  project, managed system); "client" is always the tenant/operator
+  organization (clinic, firm, agency, engineering org, MSP); "domain" is
+  always the reusable expert domain. Domains supply display names but may
+  not repurpose role semantics. Legacy key styles (subject_overlay,
+  care_organization_overlay, client_overlay/customer_overlay flat keys)
+  are deprecated and produce validator warnings.
+type: object
+required:
+  - schema_version
+  - kind
+  - domain
+  - xfactory
+  - hermes
+  - omnigent
+  - tenancy
+properties:
+  schema_version:
+    type: integer
+  kind:
+    type: string
+    enum:
+      - xfactory_domain_stack
+  domain:
+    type: object
+    required:
+      - id
+      - product_name
+      - display_name
+      - category
+    properties:
+      id:
+        type: string
+        pattern: "^[a-z][a-z0-9_]*$"
+      product_name:
+        type: string
+      display_name:
+        type: string
+      category:
+        type: string
+  xfactory:
+    type: object
+    required:
+      - contract_repo
+      - contract_name
+      - contract_ref_type
+      - contract_ref
+      - contract_schema_version
+      - contract_declared_at
+      - contract_source
+    properties:
+      contract_repo:
+        type: string
+      contract_name:
+        type: string
+        enum:
+          - openxFactory
+      contract_ref_type:
+        type: string
+        enum:
+          - commit
+          - tag
+      contract_ref:
+        type: string
+      contract_schema_version:
+        type: integer
+      contract_declared_at:
+        type: string
+      contract_source:
+        type: string
+  hermes:
+    type: object
+    required:
+      - layers
+    properties:
+      layers:
+        type: array
+        description: >-
+          Ordered top (served subject) to bottom (reusable domain). Must
+          contain exactly one layer per canonical role customer, client,
+          and domain. Additional intermediate layers are allowed with
+          role: extension and an authority_scope note.
+        minItems: 3
+        items:
+          type: object
+          required:
+            - role
+            - display_name
+            - overlay
+          properties:
+            role:
+              type: string
+              enum:
+                - customer
+                - client
+                - domain
+                - extension
+            display_name:
+              type: string
+            overlay:
+              type: string
+              description: Repo-relative directory containing the layer overlay/template files.
+            authority_scope:
+              type: string
+              description: Required when role is extension.
+  omnigent:
+    type: object
+    required:
+      - domain_overlay
+      - orchestrator_profile
+    properties:
+      domain_overlay:
+        type: string
+      orchestrator_profile:
+        type: string
+  tenancy:
+    type: object
+    description: >-
+      Must declare tenant_kinds (or client_kinds for operator-tenant domains)
+      and an isolation map. Every isolation value must be one of the
+      recognized isolation scopes so isolation is a checkable claim rather
+      than free text.
+    properties:
+      tenant_kinds:
+        type: array
+        items:
+          type: string
+      client_kinds:
+        type: array
+        items:
+          type: string
+      customer_kinds:
+        type: array
+        items:
+          type: string
+      isolation:
+        type: object
+        additional_property_values:
+          enum:
+            - per_tenant
+            - per_client
+            - per_customer
+            - per_patient
+            - per_campaign
+            - per_project
+            - per_ledger
+            - shared_with_review

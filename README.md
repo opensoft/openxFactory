@@ -11,7 +11,9 @@ Use these terms precisely:
   governance layer inside `openxFactory` and every DomainxFactory. It defines
   which stack parts are required for a domain and how work moves through gates,
   routing, traceability, source authority, memory promotion, credentials, and
-  audit.
+  audit. It also governs memory and knowledge provider bindings, migrations,
+  metering, and bounded context packets for Customer Hermes and Domain
+  Omnigent.
 - A `DomainxFactory` is an instantiated domain stack such as `MedxFactory`,
   `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `codexFactory`.
 
@@ -39,13 +41,15 @@ Hermes
 
 xFactory layer
   owns stack composition, contracts, gates, traceability, routing, state
-  transitions, and audit.
+  transitions, memory/knowledge provider governance, and audit.
 
 Domain factory repos
   own domain-specific execution behavior.
 
 Domain Omnigent layers
-  run bounded domain agents under Hermes policy and xFactory layer gates.
+  run bounded domain agents under Hermes policy and xFactory layer gates,
+  including expert memory and knowledge DB access through xFactory context
+  packets.
 
 External enforcement systems
   enforce final state where applicable.
@@ -93,6 +97,8 @@ Core domain-neutral docs:
 - [xFactory Credential Access Model](docs/credential-access-model.md)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
 - [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
+- [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
+- [xFactory Memory Gateway Architecture](docs/customer-memory-gateway-architecture.md)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
 - [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)
@@ -115,13 +121,28 @@ IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
 - `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
 - `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
 - `opensoft/OpsxFactory` — IT operations, sysops, devops, identity, infrastructure, and tenant administration xFactory domain stack.
+- `opensoft/LedgerxFactory` — accounting, finance, and ledger xFactory domain stack.
+- `opensoft/AdxFactory` — marketing and advertising xFactory domain stack.
+
+## Conformance
+
+Every DomainxFactory must validate against the canonical contract:
+
+- Stack shape: [xfactory-domain-stack schema](contracts/schemas/xfactory-domain-stack.schema.yaml)
+  — Hermes layers are declared as `hermes.layers` with canonical roles
+  `customer` (served subject), `client` (tenant/operator organization), and
+  `domain` (reusable expert domain).
+- Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
+  — run from the pinned openxFactory checkout, never copied into domain repos.
+- Versioning: [Contract Versioning Policy](docs/contract-versioning-policy.md)
+  and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
 ## OpenSpec Records
 
 Active changes:
 
 ```text
-none
+add-customer-memory-gateway-architecture
 ```
 
 Archived changes:

@@ -25,7 +25,7 @@ handoff boundaries.
 
 `DomainxFactory` names an instantiated domain stack that consumes
 `openxFactory` contracts and specializes them for one kind of expert work.
-Examples include `MedxFactory`, `LawxFactory` or `LegalxFactory`,
+Examples include `MedxFactory`, `LegalxFactory`,
 `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, and `codexFactory`.
 
 ## Repository Layers
@@ -45,7 +45,7 @@ xFactory repository
 
   xFactories/
     MedxFactory/
-    LegalxFactory or LawxFactory/
+    LegalxFactory/
     LedgerxFactory/
     OpsxFactory/
     AdxFactory/
@@ -217,12 +217,12 @@ product names:
 | Domain | Preferred concrete stack name |
 | --- | --- |
 | Medical | `MedxFactory` |
-| Legal | `LegalxFactory` or `LawxFactory`, choose one canonical repo name |
+| Legal | `LegalxFactory` (decided 2026-07-03; `LawxFactory` rejected) |
 | Accounting / finance | `LedgerxFactory` |
 | IT operations | `OpsxFactory` |
 | Marketing / advertising | `AdxFactory` |
 | Software engineering | `codexFactory` |
 
-The legal stack currently appears in intake templates as `LegalxFactory`.
-If `LawxFactory` is preferred, update the intake templates, taxonomy docs, and
-submodule names together so the repo has one canonical legal stack name.
+Decision (2026-07-03): the canonical legal stack name is `LegalxFactory`,
+matching the existing intake templates and taxonomy docs. `LawxFactory` is
+retired as an alternative and must not be introduced in new documents.

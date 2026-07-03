@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 8
+STARTER_VERSION = 9  # v9: stack.yaml now emits canonical hermes.layers (contract-v1.1)
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -162,6 +162,19 @@ xfactory:
   contract_name: openxFactory
 
 hermes:
+  # Canonical layer declaration (contract-v1.1). Roles are fixed vocabulary:
+  # customer = served subject, client = tenant/operator org, domain = expert domain.
+  layers:
+    - role: customer
+      display_name: {ctx.customer_layer_name}
+      overlay: hermes/customer
+    - role: client
+      display_name: {ctx.client_layer_name}
+      overlay: hermes/client
+    - role: domain
+      display_name: {ctx.domain_layer_name}
+      overlay: hermes/domain
+  # Deprecated flat keys (removal at contract-v2.0); kept for older tooling.
   domain_layer_name: {ctx.domain_layer_name}
   domain_overlay: hermes/domain
   domain_agent_mixes: hermes/domain/agent-mixes.yaml

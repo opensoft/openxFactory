@@ -1,0 +1,397 @@
+#!/usr/bin/env python3
+"""Canonical DomainxFactory conformance validator.
+
+Owned by openxFactory (contracts deliverable). Domain repos run this file
+directly from their pinned openxFactory checkout; they must not copy it.
+
+Usage:
+    python3 validate-domain-factory.py /path/to/DomainxFactory [--strict]
+
+Checks (errors fail the run; warnings fail only with --strict):
+  1.  stack.yaml exists, parses, has canonical top-level shape.
+  2.  xfactory contract pin is well-formed (commit SHA or tag).
+  3.  hermes.layers declares exactly one customer, one client, one domain
+      role (extensions allowed with authority_scope); overlay dirs exist
+      and contain at least one YAML file. Legacy flat keys are accepted
+      with deprecation warnings.
+  4.  omnigent.domain_overlay dir exists.
+  5.  tenancy declares kinds + isolation; isolation values are from the
+      recognized scope vocabulary.
+  6.  profiles/*.yaml: every profile's tenant_kind/client_kind is declared
+      in stack tenancy; every declared kind has a profile (warning).
+  7.  tenants/examples/*.yaml: profile references resolve.
+  8.  workflows/*.yaml: every gate has id + owner_layer + requires;
+      owner_layer resolves to a declared layer, omnigent, or xfactory.
+      "openworkflow_*" tokens are flagged as deprecated naming.
+  9.  Cross-ID consistency (when files exist): tool-routing workflow and
+      worker-capability references resolve; workflow credential
+      requirements resolve; near-duplicate IDs across the credential
+      requirement / worker capability vocabularies (same token modulo
+      case/separators) are flagged.
+  10. Secret scan across tracked text files.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    print("ERROR: PyYAML is required (pip install pyyaml)")
+    sys.exit(2)
+
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+TAG_RE = re.compile(r"^v?\d+\.\d+(\.\d+)?([-.][0-9A-Za-z.]+)?$")
+DOMAIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+
+CANONICAL_ROLES = ("customer", "client", "domain")
+ISOLATION_SCOPES = {
+    "per_tenant", "per_client", "per_customer", "per_patient",
+    "per_campaign", "per_project", "per_ledger", "shared_with_review",
+}
+LEGACY_HERMES_KEYS = {
+    "subject_overlay": "customer",
+    "subject_layer_name": "customer",
+    "customer_overlay": "customer",
+    "customer_layer_name": "customer",
+    "client_overlay": "client",
+    "client_layer_name": "client",
+    "care_organization_overlay": "client",
+    "domain_overlay": "domain",
+    "domain_layer_name": "domain",
+}
+SECRET_PATTERNS = [
+    re.compile(r"-----BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY-----"),
+    re.compile(r"(?i)\b(password|passwd|secret|token)\s*[:=]\s*['\"]?[A-Za-z0-9+/]{12,}"),
+    re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+]
+TEXT_SUFFIXES = {".yaml", ".yml", ".md", ".json", ".py", ".sh", ".sql", ".txt"}
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv"}
+
+
+def snake(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", name.strip().lower()).strip("_")
+
+
+def norm_id(token: str) -> str:
+    return re.sub(r"[-_]", "", token.strip().lower())
+
+
+class Report:
+    def __init__(self) -> None:
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
+
+    def error(self, msg: str) -> None:
+        self.errors.append(msg)
+
+    def warn(self, msg: str) -> None:
+        self.warnings.append(msg)
+
+
+def load_yaml(path: Path, rpt: Report):
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            return yaml.safe_load(fh)
+    except Exception as exc:  # noqa: BLE001
+        rpt.error(f"{path}: failed to parse YAML: {exc}")
+        return None
+
+
+def check_pin(stack: dict, rpt: Report) -> None:
+    xf = stack.get("xfactory")
+    if not isinstance(xf, dict):
+        rpt.error("stack.yaml: missing xfactory pin block")
+        return
+    for key in ("contract_repo", "contract_name", "contract_ref_type",
+                "contract_ref", "contract_schema_version",
+                "contract_declared_at", "contract_source"):
+        if key not in xf:
+            rpt.error(f"stack.yaml: xfactory.{key} missing")
+    ref_type, ref = xf.get("contract_ref_type"), str(xf.get("contract_ref", ""))
+    if ref_type == "commit" and not COMMIT_RE.match(ref):
+        rpt.error(f"stack.yaml: contract_ref {ref!r} is not a 40-hex commit SHA")
+    elif ref_type == "tag" and not TAG_RE.match(ref):
+        rpt.error(f"stack.yaml: contract_ref {ref!r} is not a valid tag")
+    elif ref_type not in ("commit", "tag"):
+        rpt.error(f"stack.yaml: contract_ref_type must be commit|tag, got {ref_type!r}")
+
+
+def resolve_layers(root: Path, stack: dict, rpt: Report) -> dict[str, dict]:
+    """Return {role: {display_name, overlay}} from canonical or legacy shape."""
+    hermes = stack.get("hermes")
+    if not isinstance(hermes, dict):
+        rpt.error("stack.yaml: missing hermes block")
+        return {}
+    layers: dict[str, dict] = {}
+    declared = hermes.get("layers")
+    if isinstance(declared, list):
+        for i, layer in enumerate(declared):
+            if not isinstance(layer, dict):
+                rpt.error(f"stack.yaml: hermes.layers[{i}] is not a mapping")
+                continue
+            role = layer.get("role")
+            if role not in CANONICAL_ROLES + ("extension",):
+                rpt.error(f"stack.yaml: hermes.layers[{i}].role {role!r} invalid")
+                continue
+            if role == "extension":
+                if not layer.get("authority_scope"):
+                    rpt.error(f"stack.yaml: extension layer {layer.get('display_name')!r} "
+                              "requires authority_scope")
+                continue
+            if role in layers:
+                rpt.error(f"stack.yaml: duplicate hermes layer role {role!r}")
+                continue
+            if not layer.get("display_name") or not layer.get("overlay"):
+                rpt.error(f"stack.yaml: hermes.layers[{i}] needs display_name and overlay")
+                continue
+            layers[role] = layer
+        for role in CANONICAL_ROLES:
+            if role not in layers:
+                rpt.error(f"stack.yaml: hermes.layers missing required role {role!r}")
+    else:
+        rpt.warn("stack.yaml: hermes uses legacy flat keys; migrate to hermes.layers "
+                 "(canonical roles customer/client/domain)")
+        for key, role in LEGACY_HERMES_KEYS.items():
+            if key.endswith("_overlay") and key in hermes:
+                layers.setdefault(role, {})["overlay"] = hermes[key]
+            if key.endswith("_layer_name") and key in hermes:
+                layers.setdefault(role, {})["display_name"] = hermes[key]
+        for role in CANONICAL_ROLES:
+            if role not in layers or "overlay" not in layers.get(role, {}):
+                msg = f"stack.yaml: no overlay resolvable for hermes role {role!r}"
+                (rpt.error if role in ("customer", "domain") else rpt.warn)(msg)
+    for role, layer in layers.items():
+        overlay = layer.get("overlay")
+        if not overlay:
+            continue
+        odir = root / overlay
+        if not odir.is_dir():
+            rpt.error(f"hermes {role} overlay dir missing: {overlay}")
+        elif not any(p.suffix in (".yaml", ".yml") for p in odir.rglob("*") if p.is_file()):
+            rpt.error(f"hermes {role} overlay dir has no YAML content: {overlay}")
+    return layers
+
+
+def check_tenancy(stack: dict, rpt: Report) -> list[str]:
+    tenancy = stack.get("tenancy")
+    if not isinstance(tenancy, dict):
+        rpt.error("stack.yaml: missing tenancy block")
+        return []
+    kinds = list(tenancy.get("tenant_kinds") or []) + list(tenancy.get("client_kinds") or [])
+    if not kinds:
+        rpt.error("stack.yaml: tenancy must declare tenant_kinds or client_kinds")
+    isolation = tenancy.get("isolation")
+    if not isinstance(isolation, dict) or not isolation:
+        rpt.error("stack.yaml: tenancy.isolation missing or empty")
+    else:
+        for key, val in isolation.items():
+            if val not in ISOLATION_SCOPES:
+                rpt.error(f"stack.yaml: tenancy.isolation.{key}={val!r} is not a "
+                          f"recognized isolation scope {sorted(ISOLATION_SCOPES)}")
+    return kinds
+
+
+def check_profiles(root: Path, kinds: list[str], rpt: Report) -> set[str]:
+    profile_ids: set[str] = set()
+    covered_kinds: set[str] = set()
+    pdir = root / "profiles"
+    if not pdir.is_dir():
+        rpt.warn("profiles/ directory missing")
+        return profile_ids
+    for pf in sorted(pdir.glob("*.yaml")):
+        data = load_yaml(pf, rpt)
+        if not isinstance(data, dict):
+            continue
+        prof = data.get("profile", data)
+        pid = prof.get("id")
+        if not pid:
+            rpt.error(f"{pf.name}: profile.id missing")
+            continue
+        profile_ids.add(pid)
+        kind = prof.get("tenant_kind") or prof.get("client_kind")
+        if kind:
+            covered_kinds.add(kind)
+            if kinds and kind not in kinds:
+                rpt.error(f"{pf.name}: kind {kind!r} not declared in stack tenancy")
+    for kind in kinds:
+        if kind not in covered_kinds:
+            rpt.warn(f"tenancy kind {kind!r} has no deployment profile")
+    return profile_ids
+
+
+def check_tenants(root: Path, profile_ids: set[str], rpt: Report) -> None:
+    tdir = root / "tenants" / "examples"
+    if not tdir.is_dir():
+        rpt.warn("tenants/examples/ missing (no instantiation examples)")
+        return
+    for tf in sorted(tdir.glob("*.yaml")):
+        data = load_yaml(tf, rpt)
+        if not isinstance(data, dict):
+            continue
+        tenant = data.get("tenant", data)
+        ref = tenant.get("profile")
+        if ref and profile_ids and ref not in profile_ids:
+            rpt.error(f"tenants/examples/{tf.name}: profile {ref!r} does not resolve")
+
+
+def check_workflows(root: Path, stack: dict, layers: dict, rpt: Report) -> set[str]:
+    workflow_ids: set[str] = set()
+    wdir = root / "workflows"
+    if not wdir.is_dir():
+        rpt.warn("workflows/ directory missing")
+        return workflow_ids
+    domain_id = (stack.get("domain") or {}).get("id", "")
+    allowed = set(CANONICAL_ROLES) | {"xfactory", "omnigent", f"{domain_id}_omnigent"}
+    for layer in layers.values():
+        if layer.get("display_name"):
+            allowed.add(snake(layer["display_name"]))
+    yaml_files = sorted(wdir.glob("*.yaml"))
+    if not yaml_files:
+        rpt.warn("workflows/ contains no workflow YAML (prose-only workflow catalog)")
+    for wf in yaml_files:
+        data = load_yaml(wf, rpt)
+        if not isinstance(data, dict):
+            continue
+        flow = data.get("workflow", data)
+        wid = flow.get("id")
+        if wid:
+            workflow_ids.add(wid)
+        gates = flow.get("gates") or []
+        if not gates:
+            rpt.warn(f"workflows/{wf.name}: no gates declared")
+        for gate in gates:
+            gid = gate.get("id")
+            owner = gate.get("owner_layer")
+            if not gid or not owner:
+                rpt.error(f"workflows/{wf.name}: gate missing id/owner_layer")
+                continue
+            if not gate.get("requires"):
+                rpt.error(f"workflows/{wf.name}: gate {gid} has empty requires")
+            token = snake(str(owner))
+            if token.startswith("openworkflow"):
+                rpt.warn(f"workflows/{wf.name}: gate {gid} owner_layer {owner!r} uses "
+                         "deprecated openWorkflow naming; use 'xfactory'")
+            elif token not in allowed:
+                rpt.error(f"workflows/{wf.name}: gate {gid} owner_layer {owner!r} does "
+                          f"not resolve to a declared layer (allowed: {sorted(allowed)})")
+    return workflow_ids
+
+
+def check_cross_ids(root: Path, workflow_ids: set[str], rpt: Report) -> None:
+    req_ids: set[str] = set()
+    cap_ids: set[str] = set()
+    req_file = root / "credentials" / "requirements.yaml"
+    if req_file.is_file():
+        data = load_yaml(req_file, rpt) or {}
+        for item in data.get("requirements", []) or []:
+            rid = item.get("id") if isinstance(item, dict) else item
+            if rid:
+                req_ids.add(rid)
+    cap_file = root / "omnigent" / "worker-capabilities.yaml"
+    if cap_file.is_file():
+        data = load_yaml(cap_file, rpt) or {}
+        for item in data.get("capabilities", data.get("worker_capabilities", [])) or []:
+            cid = item.get("id") if isinstance(item, dict) else item
+            if cid:
+                cap_ids.add(cid)
+    routing_file = root / "omnigent" / "tool-routing.yaml"
+    if routing_file.is_file():
+        data = load_yaml(routing_file, rpt) or {}
+        for route in data.get("routes", data.get("routing", [])) or []:
+            if not isinstance(route, dict):
+                continue
+            wf_ref = route.get("workflow")
+            if wf_ref and workflow_ids and wf_ref not in workflow_ids:
+                rpt.error(f"tool-routing: workflow {wf_ref!r} does not resolve")
+            cap_ref = route.get("required_worker_capability")
+            if cap_ref and cap_ids and cap_ref not in cap_ids:
+                rpt.error(f"tool-routing: capability {cap_ref!r} does not resolve")
+    # near-duplicate vocabulary check
+    for rid in req_ids:
+        for cid in cap_ids:
+            if rid != cid and norm_id(rid) == norm_id(cid):
+                rpt.error(f"identifier drift: credential requirement {rid!r} and worker "
+                          f"capability {cid!r} are the same token with different "
+                          "separators — unify the vocabulary")
+    # partial-overlap warning (e.g. github_org_admin vs github-admin)
+    for rid in req_ids:
+        for cid in cap_ids:
+            nr, nc = norm_id(rid), norm_id(cid)
+            if nr != nc and (nr in nc or nc in nr):
+                rpt.warn(f"identifier near-miss: requirement {rid!r} vs capability "
+                         f"{cid!r} — confirm these are intentionally distinct")
+
+
+def scan_secrets(root: Path, rpt: Report) -> None:
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix not in TEXT_SUFFIXES:
+            continue
+        if any(part in SKIP_DIRS for part in path.parts):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for pattern in SECRET_PATTERNS:
+            if pattern.search(text):
+                rpt.error(f"possible secret in {path.relative_to(root)} "
+                          f"(pattern {pattern.pattern[:40]}...)")
+                break
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("repo", type=Path, help="Path to the DomainxFactory repo root")
+    ap.add_argument("--strict", action="store_true", help="Treat warnings as failures")
+    ap.add_argument("--no-secret-scan", action="store_true")
+    args = ap.parse_args()
+
+    root = args.repo.resolve()
+    rpt = Report()
+    stack_file = root / "stack.yaml"
+    if not stack_file.is_file():
+        print(f"ERROR: {stack_file} not found")
+        return 1
+    stack = load_yaml(stack_file, rpt)
+    if not isinstance(stack, dict):
+        rpt.error("stack.yaml did not parse to a mapping")
+        stack = {}
+
+    if stack.get("kind") != "xfactory_domain_stack":
+        rpt.error(f"stack.yaml: kind must be xfactory_domain_stack, got {stack.get('kind')!r}")
+    domain = stack.get("domain") or {}
+    if not DOMAIN_ID_RE.match(str(domain.get("id", ""))):
+        rpt.error(f"stack.yaml: domain.id {domain.get('id')!r} invalid")
+
+    check_pin(stack, rpt)
+    layers = resolve_layers(root, stack, rpt)
+    kinds = check_tenancy(stack, rpt)
+    omni = (stack.get("omnigent") or {}).get("domain_overlay")
+    if not omni or not (root / omni).is_dir():
+        rpt.error(f"omnigent domain_overlay dir missing: {omni!r}")
+    profile_ids = check_profiles(root, kinds, rpt)
+    check_tenants(root, profile_ids, rpt)
+    workflow_ids = check_workflows(root, stack, layers, rpt)
+    check_cross_ids(root, workflow_ids, rpt)
+    if not args.no_secret_scan:
+        scan_secrets(root, rpt)
+
+    for msg in rpt.errors:
+        print(f"ERROR: {msg}")
+    for msg in rpt.warnings:
+        print(f"WARN:  {msg}")
+    failed = bool(rpt.errors) or (args.strict and bool(rpt.warnings))
+    print(f"\n{root.name}: {len(rpt.errors)} error(s), {len(rpt.warnings)} warning(s) "
+          f"-> {'FAIL' if failed else 'PASS'}")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

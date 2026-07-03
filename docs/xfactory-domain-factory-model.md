@@ -26,6 +26,16 @@ approves use, and Omnigent workers receive short-lived scoped grants. See
 [xFactory Domain Factory Starter Pack](domain-factory-starter-pack.md) for the
 starter credentialing module each new domain should stub out.
 
+Memory and knowledge provider access is also part of the xFactory contract
+boundary. See
+[xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md)
+for how Customer Hermes memory providers and Omnigent expert memory or
+knowledge DBs are routed through xFactory rails, bindings, migrations,
+metering, and audit before any provider adapter is used. See
+[Customer Memory Fill And Maintenance Taxonomy](customer-memory-fill-maintenance-taxonomy.md)
+for the general fill and maintenance modes that each DomainxFactory must map to
+its own source families, evidence types, reviewers, and adapters.
+
 Hermes Mixture of Agents reasoning is part of the Hermes overlay surface, not a
 replacement for xFactory. See
 [Hermes Mixture Of Agents For xFactory](hermes-mixture-of-agents-for-xfactory.md)
@@ -114,7 +124,8 @@ xFactory / openxFactory layer
   gates, traceability, worker routing, artifact contracts
 
 Domain Omnigent layer
-  domain-tuned orchestration, expert selection, task decomposition, checks
+  domain-tuned orchestration, expert selection, task decomposition, checks,
+  and bounded expert context consumption
 
 Base Omnigent layer
   generic agent harness, sessions, workers, tools, sandboxes
@@ -209,6 +220,12 @@ See [Customer Hermes Memory Model](customer-hermes-memory-model.md) for the
 canonical identity, consent, preference, timeline, evidence graph, current
 state, memory, workflow context, follow-up, and promotion objects shared across
 DomainxFactories.
+
+See [xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md)
+for the product-neutral implementation pattern that routes Hermes memory access
+and Omnigent expert memory or knowledge DB access through xFactory rails before
+provider adapters such as GBrain, Honcho, AgentMemory, root-truth DBs, source
+workspaces, graph stores, vector indexes, playbook stores, or evaluation memory.
 
 The same base Hermes install can support many domain overlays. The same domain
 Hermes overlay can support many client Hermes overlays. The same client Hermes
@@ -702,8 +719,10 @@ jobs, gates, traceability, reviews, predictions, interventions, and observed
 outcomes.
 
 Domain Omnigent executes approved modeling and intervention work. It may infer,
-simulate, recommend, generate, test, or package outputs, but it does not own the
-customer truth, client authority, domain policy, or final outcome claim.
+simulate, recommend, generate, test, or package outputs, and it may request
+bounded expert context through xFactory. It does not own the customer truth,
+client authority, reusable domain truth, domain policy, expert DB mutation, or
+final outcome claim.
 
 ### Customer Hermes Owns
 
@@ -1158,6 +1177,7 @@ A domain Omnigent overlay owns:
 
 - domain expert agent mappings
 - domain task decomposition rules
+- expert context packet requirements
 - domain validation checks
 - domain tool packs
 - domain worker capabilities
@@ -1177,6 +1197,13 @@ Hermes approves what should be done.
 Omnigent decides how approved work is decomposed and executed.
 xFactory defines the contract between them.
 ```
+
+Expert memory follows that same rule. Domain Omnigent can use external expert
+memory and knowledge DBs only through xFactory-governed context packets or
+approved gateway operations. xFactory maintains the expert provider bindings,
+route tables, source-authority rails, usage events, migration manifests, and
+audit records. Domain Hermes remains the owner of reusable expert truth and
+review standards.
 
 ## Factory Contract Boundary
 

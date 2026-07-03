@@ -5,6 +5,15 @@ Repository context: openxFactory
 Purpose: define the canonical memory and identity objects owned by the
 Customer Hermes layer, including Patient Hermes in MedxFactory.
 
+Implementation architecture: see
+[xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md)
+for the product-neutral gateway, rails, provider profile, GBrain adapter, and
+Hermes wiring model. That gateway also governs Omnigent expert memory and
+external knowledge DB access through the same context-packet and provider-route
+pattern. See
+[Customer Memory Fill And Maintenance Taxonomy](customer-memory-fill-maintenance-taxonomy.md)
+for the general fill and maintenance modes every DomainxFactory must map.
+
 ## 1. Core Rule
 
 Customer Hermes owns the customer-subject memory boundary.
@@ -25,7 +34,8 @@ Domain Hermes
 
 xFactory
   owns the contract for gates, traceability, source authority, promotion,
-  credentials, routing, state transitions, and audit.
+  credentials, routing, memory/knowledge provider bindings, state transitions,
+  and audit.
 ```
 
 Customer Hermes may specialize by domain:
@@ -397,6 +407,8 @@ Rules:
   approval is missing.
 - Omnigent workers should receive bounded context packets derived from this
   object, not unrestricted customer memory.
+- Omnigent expert knowledge packets use the same xFactory gateway, but they are
+  expert-scoped and do not change the Customer Hermes object model.
 
 ## 13. Follow-Up Obligation
 
@@ -468,6 +480,22 @@ workflow asks for customer context
   -> xFactory records trace refs in the job envelope
   -> Omnigent receives bounded context, not raw memory
 ```
+
+The same gateway pattern applies when Omnigent needs expert knowledge:
+
+```text
+workflow asks for expert knowledge context
+  -> Domain Hermes policy identifies the expert profile and allowed use
+  -> xFactory source-authority rail filters external knowledge DBs
+  -> expert provider route retrieves source-scoped candidates
+  -> xFactory emits bounded expert context with source refs and audit refs
+  -> Omnigent receives expert context, not raw DB access
+```
+
+Customer Hermes memory and Omnigent expert memory may appear in the same
+workflow, but they remain different authority scopes. Customer Hermes owns
+customer-subject truth. Domain Hermes owns reusable expert truth. xFactory owns
+the gates, provider bindings, migrations, and audit trail between them.
 
 Writes follow a similar path:
 

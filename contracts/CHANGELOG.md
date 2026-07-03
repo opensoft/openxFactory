@@ -1,0 +1,34 @@
+# openxFactory Contract Changelog
+
+Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
+
+## contract-v1.1 — 2026-07-03 (additive + deprecating)
+
+Added:
+
+- `contracts/schemas/xfactory-domain-stack.schema.yaml` — canonical
+  stack.yaml shape. Introduces `hermes.layers`: an ordered list of authority
+  layers each bound to a canonical role (`customer` = served subject,
+  `client` = tenant/operator organization, `domain` = reusable expert
+  domain, `extension` = declared intermediate layer with authority_scope).
+  Fixes the cross-domain vocabulary collision where "Client Hermes" meant
+  the subject layer in some domains and the tenant layer in others.
+- `scripts/validate-domain-factory.py` — canonical conformance validator,
+  consumed (not copied) by domain repos. Replaces per-domain hand-rolled
+  validators as the conformance baseline; domain validators may extend it.
+- `docs/contract-versioning-policy.md` and this changelog.
+
+Deprecated (warnings, removal at contract-v2.0):
+
+- `hermes` flat keys (`subject_overlay`, `subject_layer_name`,
+  `care_organization_overlay`, flat `client_overlay`/`customer_overlay`
+  styles) in favor of `hermes.layers`.
+- `openworkflow_*` owner/layer tokens in workflow gates in favor of
+  `xfactory`.
+
+## contract-v1.0 — 2026-06-26 (baseline)
+
+- Initial canonical contract set migrated from install repos: job
+  envelope/event/run schemas, clarification packets, avatar-first UI
+  profile, domain installation overlay, governance and merge-risk
+  policies, hermes operational Postgres DDL.
