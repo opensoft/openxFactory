@@ -1,12 +1,13 @@
 # Doc Health Pipeline — Brainstorm
 
-Status: brainstorm
-Captured: 2026-07-08 — non-normative; to be organized into staging and then
-an OpenSpec proposal. Nothing in this document is policy. The lifecycle
-vocabulary and ideation convention sections were organized into the
+Status: staged
+Captured: 2026-07-08; fully organized 2026-07-09. Nothing in this document is
+policy; kept as design history. Where each section went:
+lifecycle vocabulary + ideation convention ->
 [add-document-lifecycle-vocabulary](../../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
-change; the tagging, nightly report, and implementation sections remain
-un-staged.
+(ratified); prose tagging -> [staging/prose-tagging/](../staging/prose-tagging/tag-syntax.md);
+nightly run + report -> [staging/doc-health-checks/](../staging/doc-health-checks/nightly-run-shape.md);
+agentic pass -> [staging/semantic-health-sweep/](../staging/semantic-health-sweep/agentic-pass.md).
 Repository context: openxFactory (contract-level, cross-factory topic)
 Participants: Brett Heap, Claude (design session)
 

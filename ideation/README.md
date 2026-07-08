@@ -41,12 +41,30 @@ Rules while this convention is in draft:
 
 ## Contents
 
-- [Doc Health Pipeline](brainstorm/doc-health-pipeline.md) — first captured
-  design: prose-to-spec conversion rules, tagging, staging, and the nightly
-  repo-health report.
+Brainstorm (design history; both fully organized into staging):
+
+- [Doc Health Pipeline](brainstorm/doc-health-pipeline.md) — split into the
+  prose-tagging, doc-health-checks, and semantic-health-sweep staged topics;
+  its lifecycle/ideation sections were ratified by
+  add-document-lifecycle-vocabulary.
 - [Domain-To-Neutral Concept Promotion](brainstorm/domain-to-neutral-promotion.md)
-  — organized 2026-07-08 into
-  [Domain-To-Neutral Promotion Process](../docs/domain-to-neutral-promotion-process.md)
-  and the [Candidate Register](../docs/domain-neutralization-candidate-register.md);
-  retained for design history and remaining open questions. First topic to
-  complete the brainstorm -> organized transition.
+  — organized into the promotion process doc, the candidate register, and the
+  promotion-refinements staged topic.
+- [Workflow Visualization Tooling](brainstorm/workflow-visualization-tooling.md)
+  — organized into the workflow-visualization staged topic; kept as license
+  evidence.
+
+Staged topics (orthogonal feats; each exits through an OpenSpec change):
+
+- [prose-tagging](staging/prose-tagging/tag-syntax.md) — concrete xspec
+  candidate/supersedes tag syntax.
+- [doc-health-checks](staging/doc-health-checks/nightly-run-shape.md) — the
+  deterministic nightly run, report, and ranked plan
+  (+ [status-check-rules](staging/doc-health-checks/status-check-rules.md)).
+- [semantic-health-sweep](staging/semantic-health-sweep/agentic-pass.md) —
+  the agentic contradiction/normative-prose pass; deliberately sequenced
+  after the deterministic run.
+- [promotion-refinements](staging/promotion-refinements/open-questions.md) —
+  drafting ownership, stack.yaml provenance fields, mid-promotion pins.
+- [workflow-visualization](staging/workflow-visualization/validation-ui-tooling.md)
+  — MIT tooling decision for the client validation walkthrough UI.
