@@ -7,6 +7,8 @@ Source: [doc-health-pipeline brainstorm](../../brainstorm/doc-health-pipeline.md
 Target capability: `document-lifecycle` (delta: MODIFIED — concretize the
 "explicit machine-readable tag" and "explicit supersedes marker" the ratified
 requirements reference abstractly)
+Proposed by: [concretize-prose-tagging-syntax](../../../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
+— this topic has passed the proposal gate; the change carries the spec delta.
 
 ## Claims
 
@@ -25,11 +27,21 @@ requirements reference abstractly)
 
 ## Open questions
 
-- HTML comments vs visible Markdown syntax (comments are invisible in
-  rendered views — is that a feature or a hazard for reviewers?).
-- Whether `xspec:candidate` blocks may nest or span headings.
+Both resolved at the proposal gate — see
+[design.md](../../../openspec/changes/concretize-prose-tagging-syntax/design.md)
+of the proposing change:
+
+- HTML comments vs visible Markdown syntax → **HTML comments** (markers are
+  machine contract surface, not reader content; gate reviewers work in
+  source; the doc-health report is the rendered-view inventory).
+- Nesting / heading-spanning of `xspec:candidate` blocks → **neither** (one
+  block, one target, one section-anchored extraction unit; keeps hygiene a
+  plain line scan).
 
 ## Exit
 
-One OpenSpec change delta to `document-lifecycle` ratifying the syntax;
-implementation lands with the doc-health checker.
+One OpenSpec change delta to `document-lifecycle` ratifying the syntax:
+[concretize-prose-tagging-syntax](../../../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
+(created 2026-07-08). Implementation of enforcement lands with the
+doc-health checker — hygiene rules handed to
+[../doc-health-checks/tag-hygiene-rules.md](../doc-health-checks/tag-hygiene-rules.md).

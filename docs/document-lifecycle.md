@@ -69,6 +69,44 @@ affected spec requirement. Accidental restatement of promoted policy in
 different words is a defect, and health tooling reports unmarked
 contradictions as findings.
 
+### Prose Tagging Markers
+
+The machine-readable markers the rule and the conversion queue rely on use
+one canonical grammar under the `xspec:` namespace, expressed as HTML
+comments (concretized by the
+[concretize-prose-tagging-syntax](../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
+change):
+
+```text
+<!-- xspec:candidate target=<capability> -->
+...prose selected for conversion to a spec or contract...
+<!-- /xspec:candidate -->
+
+<!-- xspec:supersedes spec=<capability>/<requirement-slug> change=<change-id> -->
+```
+
+- `<capability>` is a spec capability id under `openspec/specs/` (or in an
+  active change's `specs/` while the capability is pre-promotion);
+  `<requirement-slug>` is the kebab-case requirement name, e.g.
+  `document-lifecycle/explicit-delta-rule`.
+- Candidacy is **block-level only**: no `Status:` value expresses
+  conversion candidacy — a document's lifecycle status and its conversion
+  queue stay orthogonal. Only prose inside well-formed candidate blocks is
+  queued.
+- Candidate blocks may not nest and may not span Markdown heading
+  boundaries; every open fence has a matching close fence in the same
+  section. A passage covering several sections gets one block per section.
+- `change=` on a supersedes marker is included as soon as the OpenSpec
+  change exists; a marker that never acquires one becomes an aging finding.
+- Markers are contract surface: the literal string `xspec:` appears in
+  governance Markdown only inside well-formed markers, so
+  `grep -rn 'xspec:' --include='*.md'` is the complete inventory. Health
+  tooling reports malformed markers, unresolved targets, and structural
+  violations as findings.
+- Staged fragments (`ideation/staging/<topic>/`) are queued structurally by
+  their headers (target capability + delta type) and need no inline
+  markers.
+
 ## Gates In Practice
 
 - `captured -> organized`: brainstorm material is selected, deduplicated, and
