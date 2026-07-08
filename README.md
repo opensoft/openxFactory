@@ -105,6 +105,8 @@ Core domain-neutral docs:
 - [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
+- [Ideation Work Area](ideation/README.md) (draft convention; first capture:
+  [Doc Health Pipeline](ideation/brainstorm/doc-health-pipeline.md))
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
 - [Roles and Authority](docs/roles-and-authority.md)
