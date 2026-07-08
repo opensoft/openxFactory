@@ -153,6 +153,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
+add-doc-health-contract
 add-document-lifecycle-vocabulary
 add-lifecycle-notebook-projection
 concretize-prose-tagging-syntax
