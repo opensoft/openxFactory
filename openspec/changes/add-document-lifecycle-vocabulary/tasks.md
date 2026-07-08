@@ -28,16 +28,16 @@
 
 ## 4. Status Header Sweep (DomainxFactories)
 
-- [ ] 4.1 Sweep `xFactories/codexFactory` docs to the taxonomy.
-- [ ] 4.2 Sweep `xFactories/MedxFactory` docs to the taxonomy.
-- [ ] 4.3 Sweep `xFactories/OpsxFactory`, `xFactories/LedgerxFactory`, and
+- [x] 4.1 Sweep `xFactories/codexFactory` docs to the taxonomy.
+- [x] 4.2 Sweep `xFactories/MedxFactory` docs to the taxonomy.
+- [x] 4.3 Sweep `xFactories/OpsxFactory`, `xFactories/LedgerxFactory`, and
       `xFactories/AdxFactory` docs to the taxonomy.
-- [ ] 4.4 Seed an `ideation/` area (README only) in each DomainxFactory.
+- [x] 4.4 Seed an `ideation/` area (README only) in each DomainxFactory.
 
 ## 5. Validation
 
-- [ ] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` passes.
-- [ ] 5.2 Grep-verify no doc outside promoted-spec backing claims `standard`
+- [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` passes.
+- [x] 5.2 Grep-verify no doc outside promoted-spec backing claims `standard`
       status and no free-form status values remain in swept repos.
-- [ ] 5.3 Record the status-checking rules as requirements input for the
+- [x] 5.3 Record the status-checking rules as requirements input for the
       doc-health pipeline implementation proposal (codexFactory).
