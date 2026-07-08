@@ -1,0 +1,46 @@
+# Workspace records for the lifecycle notebook projection.
+# Model: docs/notebooklm-source-workspaces.md section 6.
+# Governed by: docs/lifecycle-notebook-projection.md.
+workspaces:
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation
+    provider: notebooklm
+    provider_notebook_id: 27b1880b-6974-4cfe-a76f-4318f6021608
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-07-08T20:00:00Z"
+    managed_by: codexFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-drafts
+    provider: notebooklm
+    provider_notebook_id: b83e63e3-262a-4dfe-9b9f-332b3d27d1bb
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of draft governance docs
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-07-08T20:00:00Z"
+    managed_by: codexFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-canon
+    provider: notebooklm
+    provider_notebook_id: 6f10282a-7b5b-41c5-9109-55e603890730
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of ratified and standard docs plus promoted specs
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-07-08T20:00:00Z"
+    managed_by: codexFactory/scripts/sync-notebooklm-books.py

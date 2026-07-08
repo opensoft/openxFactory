@@ -7,6 +7,9 @@ Purpose: define how NotebookLM notebooks may be used as source workspaces for
 Hermes layers and domain agents without confusing notebook synthesis with
 ground truth.
 
+Related: lifecycle-derived notebooks over the governance corpus itself are
+governed by [Lifecycle Notebook Projection](lifecycle-notebook-projection.md).
+
 ## 1. Role In xFactory
 
 NotebookLM is a mediated source workspace.

@@ -108,6 +108,7 @@ Core domain-neutral docs:
 - [Workflow Visualization Tooling Exploration](ideation/brainstorm/workflow-visualization-tooling.md)
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
+- [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
 - [Ideation Work Area](ideation/README.md) (ratified convention; see
   [Document Lifecycle](docs/document-lifecycle.md))
 - [Workflow Contract](docs/workflow-contract.md)
