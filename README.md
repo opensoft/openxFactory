@@ -153,6 +153,7 @@ Active changes:
 
 ```text
 add-document-lifecycle-vocabulary
+add-lifecycle-notebook-projection
 reconcile-domain-neutral-and-engineering-spec-ownership
 ```
 
