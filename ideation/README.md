@@ -45,5 +45,8 @@ Rules while this convention is in draft:
   design: prose-to-spec conversion rules, tagging, staging, and the nightly
   repo-health report.
 - [Domain-To-Neutral Concept Promotion](brainstorm/domain-to-neutral-promotion.md)
-  — lifecycle for lifting concepts born in a DomainxFactory into the neutral
-  layer (and devolving them back down); companion to the doc health pipeline.
+  — organized 2026-07-08 into
+  [Domain-To-Neutral Promotion Process](../docs/domain-to-neutral-promotion-process.md)
+  and the [Candidate Register](../docs/domain-neutralization-candidate-register.md);
+  retained for design history and remaining open questions. First topic to
+  complete the brainstorm -> organized transition.

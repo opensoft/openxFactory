@@ -1,9 +1,14 @@
 # Domain-To-Neutral Concept Promotion — Brainstorm
 
-Status: brainstorm — non-normative; captured 2026-07-08. Companion to
-[Doc Health Pipeline](doc-health-pipeline.md): that pipeline moves ideas
-through states *within* a repo; this one moves proven concepts *between*
-repo tiers. Nothing in this document is policy.
+Status: organized — this brainstorm was organized into
+[docs/domain-to-neutral-promotion-process.md](../../docs/domain-to-neutral-promotion-process.md)
+and the seed
+[docs/domain-neutralization-candidate-register.md](../../docs/domain-neutralization-candidate-register.md)
+on 2026-07-08. The process doc is now the working definition; this file is
+kept as design history plus the open questions below that remain unresolved.
+Companion to [Doc Health Pipeline](doc-health-pipeline.md): that pipeline
+moves ideas through states *within* a repo; this one moves proven concepts
+*between* repo tiers. Nothing in this document is policy.
 Repository context: openxFactory (contract-level, cross-factory topic)
 
 ## Problem
@@ -72,8 +77,12 @@ domain-local copy retired      or reduced to overlay-only; health report
 
 ## Open questions
 
-- Does promotion require two consuming domains, or is one domain plus a
-  declared roadmap need enough?
+Resolved by the process doc: the two-domain trigger question (the Candidate
+Rule admits single-domain candidates with plainly neutral surfaces, and the
+Scoring axes weigh reuse explicitly).
+
+Still open:
+
 - Who drafts the neutralization — the originating domain's workers or
   codexFactory doc-engineering workers under the doc-health pipeline?
 - Should `stack.yaml` grow a `promoted_from` / `specializes` field so

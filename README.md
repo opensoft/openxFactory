@@ -93,6 +93,8 @@ Core domain-neutral docs:
 - [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
+- [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)
 - [xFactory Credential Access Model](docs/credential-access-model.md)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
