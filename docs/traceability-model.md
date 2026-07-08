@@ -1,103 +1,104 @@
 # Traceability Model
 
-The factory must document traceability from epic to merge.
+The factory must document traceability from approved intent through the final
+admission, enforcement, and archive state. This document defines the
+domain-neutral chain. DomainxFactory repos define their domain-specific
+artifact names and evidence packets.
 
 ## Source Provenance
 
 Reviewed sources:
 
-- `/home/brett/projects/Agents/Omnigent-Install/docs/runbooks/phase3-feature-decomposition.md`
-- `/home/brett/projects/Agents/Omnigent-Install/examples/project-alfa-decomposition/decomposition-packet.example.yaml`
-- `/home/brett/projects/Agents/Omnigent-Install/docs/hermes-job-status-schema.md`
-- `/home/brett/projects/Agents/Omnigent-Install/docs/runbooks/hermes-api.md`
+- `docs/workflow-contract.md`
 - `docs/feature-decomposition.md`
 - `docs/pr-admission.md`
 - `docs/merge-council.md`
+- `openspec/specs/repo-boundary-governance/spec.md`
+- `openspec/specs/shared-contract-ownership/spec.md`
+- `opensoft/codexFactory/docs/feature-decomposition-traceability.md`
 
-The install repo source docs remain in place until a later migration feature
-marks them as canonical links, legacy copies, or implementation runbooks.
-
-## Trace Chain
-
-```text
-epic
-  -> phase
-    -> feature
-      -> OpenSpec change
-      -> Spec Kit feature artifacts
-      -> implementation tasks
-      -> bug mapping index
-      -> branch
-      -> local deterministic check report
-      -> local branch review report
-      -> pull request
-      -> GitHub checks
-      -> Hermes merge council decision
-      -> merge commit
-      -> archived OpenSpec change
-```
-
-## Suggested Repo Artifacts
-
-Each managed repo should keep OpenSpec state in the standard OpenSpec location:
+## Neutral Trace Chain
 
 ```text
-openspec/
-  specs/
-  changes/
+approved intent
+  -> decomposition approval
+  -> bounded domain work unit
+  -> domain execution artifact
+  -> validation evidence
+  -> domain review record
+  -> admission decision
+  -> external enforcement record, where applicable
+  -> archive record
 ```
 
-Factory coordination artifacts should live separately:
+Domain examples:
+
+```text
+codexFactory
+  bounded domain work unit = engineering feature
+  domain execution artifact = Spec Kit artifacts, implementation diff, checks
+  external enforcement record = GitHub PR, review action, merge commit
+
+MedxFactory
+  bounded domain work unit = clinical issue or hypothesis
+  domain execution artifact = simulation, specialist review, reliability packet
+  external enforcement record = clinician-facing review package
+```
+
+## Suggested Coordination Artifacts
+
+Factory coordination artifacts should live separately from domain runtime data:
 
 ```text
 .factory/
-  epic.yaml
-  phases.yaml
-  features.yaml
-  dependency-dag.yaml
-  bug-mapping-index.yaml
+  intent.yaml
+  work-units.yaml
+  dependency-graph.yaml
   traceability.json
   admissions/
   reviews/
-  merge-council/
+  enforcement/
+  archive/
 ```
 
-## Feature Handoff Shape
+DomainxFactory repos may add their own artifact folders for implementation
+evidence, but those artifacts must retain upstream `openxFactory` scope and gate
+references.
 
-Polly should receive a Hermes-approved feature contract before invoking Spec Kit.
+## Work Unit Handoff Shape
+
+Domain execution should receive a Hermes-approved and xFactory-gated work unit
+contract before agents run.
 
 ```yaml
-feature_id: OPW-0001
-openspec_change: add-example-capability
+work_unit_id: WORK-0001
 approved_by: hermes
-approval_id: hermes-admission-2026-06-21-001
-target_repo: opensoft/example
+approval_id: hermes-admission-2026-07-08-001
+domain_factory: codexFactory
+target_system: github.com/example/product
+approved_scope_refs:
+  - openxfactory://scope/SCOPE-001
 scope:
   must:
-    - Implement only the approved feature behavior.
+    - Execute only the approved work unit behavior.
   must_not:
     - Expand scope without a new Hermes approval.
 acceptance_refs:
-  - openspec/changes/add-example-capability/specs/example/spec.md
+  - openxfactory://acceptance/AC-001
 ```
 
 ## Minimum Traceability Fields
 
 ```yaml
-epic_id:
-phase_id:
-feature_id:
-openspec_change:
-speckit_feature:
-branch:
-implementation_model:
-review_models:
-local_checks:
-branch_review:
-pr:
-merge_council_decision:
-merge_council_report:
-merge_commit:
+intent_id:
+approval_id:
+domain_factory:
+work_unit_id:
+domain_execution_ref:
+validation_evidence:
+review_record:
+admission_decision:
+enforcement_ref:
 archive_ref:
 ```
 
@@ -122,99 +123,77 @@ Core relations:
 
 | Relation | Meaning |
 |---|---|
-| `decomposes_to` | epic to phase, or phase to feature |
-| `approves` | Hermes approval to decomposition, Spec Kit entry, PR admission, or merge decision |
+| `decomposes_to` | intent or phase decomposes to a bounded work unit |
+| `approves` | Hermes or governance approval allows a gate transition |
 | `produces` | job, worker, or agent produces an artifact |
-| `implements` | branch, task, or PR implements a feature or acceptance criterion |
-| `verifies` | test, review, or check verifies an acceptance criterion |
+| `implements` | domain execution artifact implements an accepted work unit |
+| `verifies` | validation evidence verifies acceptance criteria |
+| `reviews` | domain review record reviews evidence before admission |
+| `admits` | governance or admission layer approves the next state |
+| `enforces` | external enforcement system applies final state |
 | `blocks` | finding or decision blocks progression |
-| `must_precede` | one feature must merge or complete before another |
+| `must_precede` | one work unit must complete before another |
 | `references` | artifact links to another artifact without ownership |
 
-Required decomposition edges:
+Required neutral edges:
 
 ```text
-epic -> phase
-phase -> feature
-feature -> feature dependency, when ordering exists
-decomposition approval -> decomposition packet
-approved feature -> Spec Kit entry
-```
-
-Required implementation and merge edges:
-
-```text
-feature -> Spec Kit spec/plan/tasks/analyze artifacts
-Spec Kit tasks -> implementation branch
-branch -> deterministic checks
-branch -> branch review
-branch review -> PR admission packet
-PR admission approval -> GitHub PR
-GitHub PR -> GitHub checks
-GitHub PR -> Merge Council report
-Merge Council report -> Merge Master decision
-Merge Master decision -> GitHub review action
-GitHub PR -> merge commit
-OpenSpec change -> archived OpenSpec change
+approved intent -> bounded domain work unit
+decomposition approval -> work-unit packet
+work unit -> domain execution artifact
+domain execution artifact -> validation evidence
+validation evidence -> review record
+review record -> admission decision
+admission decision -> external enforcement record, where applicable
+final state -> archive record
 ```
 
 ## Traceability Report
 
-Every feature should have a traceability report that connects approved intent to implementation and merge evidence.
+Every work unit should have a traceability report that connects approved intent
+to domain execution and final state evidence.
 
 ```markdown
-# Feature Traceability Report
+# Work Unit Traceability Report
 
-Feature: FEAT-014 Invoice Retrieval
-OpenSpec Change: add-invoice-retrieval
-Spec Kit Feature: 014-invoice-retrieval
-Branch: feat/014-invoice-retrieval
-PR: #238
+Work Unit: WORK-0001
+Domain Factory: codexFactory
+Approved Scope: openxfactory://scope/SCOPE-001
 
 ## Source Intent
 
-- Epic: EPIC-003 Billing Operations
-- Phase: PHASE-002 Invoice Workflows
-- OpenSpec change: openspec/changes/add-invoice-retrieval
-- Hermes approval: HA-2026-06-21-014
+- Intent: INTENT-001
+- Approval: HA-2026-07-08-001
+- Acceptance refs: openxfactory://acceptance/AC-001
 
-## Spec Kit Artifacts
+## Domain Execution Evidence
 
-- spec.md
-- plan.md
-- tasks.md
-- analysis report
+- Domain artifact: domain-specific path or URI
+- Validation evidence: .factory/admissions/WORK-0001/checks.md
+- Review record: .factory/reviews/WORK-0001/review.md
 
-## Acceptance Criteria Evidence
+## Admission And Enforcement
 
-| AC | Spec Source | Implementation Evidence | Test Evidence | Status |
-|---|---|---|---|---|
-| FEAT-014.AC-01 | spec.md | invoice-service.ts | invoice-route.test.ts | Covered |
-| FEAT-014.AC-02 | spec.md | invoice-route.ts | invoice-service.test.ts | Covered |
-| FEAT-014.AC-03 | spec.md | Missing | Missing | Not Covered |
-
-## Review Evidence
-
-- Local deterministic checks: .factory/admissions/FEAT-014/checks.md
-- Local branch review: .factory/reviews/FEAT-014/branch-review.md
-- Merge council report: .factory/merge-council/FEAT-014/report.md
+- Admission decision: .factory/admissions/WORK-0001/result.yaml
+- Enforcement record: domain-specific path or URI
 
 ## Final State
 
-Decision: NOT_READY
-Next Action: return to Polly for targeted fixes
+Decision: READY
+Archive: .factory/archive/WORK-0001/
 ```
 
 ## Acceptance Criteria Evidence Rules
 
-Acceptance criteria should be tracked individually. A feature is not traceable if it only has a general statement such as "tests added" or "implemented in service."
+Acceptance criteria should be tracked individually. A work unit is not traceable
+if it only has a general statement such as "validated" or "reviewed."
 
 Each acceptance criterion should include:
 
 - criterion ID
 - source artifact
-- implementation evidence
-- test evidence
+- domain execution evidence
+- validation evidence
 - reviewer evidence, when applicable
 - status
 - notes
@@ -229,62 +208,15 @@ not_applicable
 deferred
 ```
 
-Machine-readable example:
+## Domain-Specific Traceability
 
-```yaml
-acceptance_criteria_evidence:
-  - id: FEAT-014.AC-01
-    source: specs/invoices/spec.md
-    implementation_evidence:
-      - apps/api/invoices/invoice-service.ts
-    test_evidence:
-      - apps/api/invoices/invoice-route.test.ts
-    status: covered
-    notes: null
-
-  - id: FEAT-014.AC-03
-    source: specs/invoices/spec.md
-    implementation_evidence: []
-    test_evidence: []
-    status: not_covered
-    notes: "Cross-tenant denial missing."
-```
-
-## Bug-to-Feature Traceability
-
-The traceability model must support user-reported bug routing.
-
-Users usually report bugs by perceived feature, not by epic, PR, service, package, or file path. Hermes should maintain a bug mapping index so a report like "invoice retrieval is showing another company's invoice" maps cleanly to the owning feature, acceptance criterion, PR, tests, and merge council history.
-
-Minimum bug mapping fields:
-
-```yaml
-bug_mapping:
-  feature_id:
-  user_reported_names:
-  visible_surfaces:
-  primary_failure_modes:
-  owned_paths:
-  acceptance_criteria:
-  prs:
-  merge_council_reports:
-```
-
-## Merge Council Artifact Location
-
-Merge council reports should be stored under:
+Engineering-specific traceability lives in:
 
 ```text
-.factory/merge-council/<feature-id>/
-  report.md
-  result.yaml
-  reviewer-results/
-    spec-traceability.yaml
-    security.yaml
-    tests.yaml
-    architecture.yaml
-    maintainability.yaml
-    integration.yaml
+opensoft/codexFactory/docs/feature-decomposition-traceability.md
+opensoft/codexFactory/docs/pr-admission-merge-readiness.md
 ```
 
-The Markdown report is for human review. The YAML result is for dashboards, GitHub checks, and Hermes memory.
+Those docs specialize this neutral model with engineering features, Spec Kit
+artifacts, implementation branches, deterministic checks, GitHub PRs, merge
+readiness packets, and merge commits.

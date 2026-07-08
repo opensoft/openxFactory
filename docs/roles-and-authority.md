@@ -26,20 +26,20 @@ Hermes
   Portfolio, product, project, system architecture, policy, memory,
   approvals, risk, escalation, merge authority, and dashboard truth.
 
-Omnigent / Polly
-  Repo-level engineering orchestration inside Hermes-approved boundaries.
+Domain Omnigent / execution layer
+  Domain-specific orchestration inside Hermes-approved boundaries.
 
-Spec Kit
-  Feature-level engineering flow executed by Omnigent after approval.
+Domain execution framework
+  Domain-specific workflow mechanism selected by the owning DomainxFactory.
 
-GitHub
-  Canonical PR, checks, branch protection, review, merge queue, and final
-  merge enforcement.
+External enforcement system
+  Domain-specific final-state enforcement after review and admission.
 ```
 
-Hermes decides what is approved to pursue and whether a branch may enter the PR
-path. Omnigent decides how approved engineering work is decomposed, assigned,
-checked, and prepared for admission. GitHub enforces the final merge rules.
+Hermes decides what is approved to pursue and whether a work product may enter
+the next admission path. Domain Omnigent decides how approved domain work is
+decomposed, assigned, checked, and prepared for admission. The external
+enforcement system applies final state where the domain workflow requires it.
 
 ## Architecture Language
 
@@ -74,8 +74,8 @@ and escalation truth across repos.
 | `PM` | Project Manager | sequencing, milestones, dependency coordination, capacity, delivery process, stakeholder coordination | when work happens, how features are sequenced, who must be consulted or escalated |
 | `CA` | Chief Architect | system architecture, cross-project boundaries, canonical data ownership, product-wide contracts, long-lived architecture memory | which system owns a capability, how projects integrate, which contracts are canonical, whether repo design violates the system model |
 | `PA` | Project Architect | project architecture, project-level technical direction, project integration shape, project architecture decisions | how one project should satisfy CA constraints, where project boundaries sit, whether project architecture remains coherent |
-| `Merge Council` | Merge readiness body | multi-lane readiness evidence and blocking findings | whether a PR is ready, not ready, or needs fixes before merge action |
-| `Merge Master` | Merge authority agent | final risk interpretation and GitHub review action policy | approve low-risk ready PRs, request human review, or block |
+| `Merge Council` | Merge readiness body | multi-lane readiness evidence and blocking findings | whether a domain work product is ready, not ready, or needs fixes before enforcement |
+| `Merge Master` | Merge authority agent | final risk interpretation and external enforcement action policy | approve low-risk ready actions, request human review, or block |
 
 Hermes roles do not own day-to-day code structure, coder assignment, local test
 mechanics, or repository repair loops unless a local decision affects product
@@ -84,12 +84,12 @@ meaning, project sequencing, system architecture, security, or merge risk.
 ## Omnigent Execution Roles
 
 Omnigent roles execute inside a specific repo, service, project implementation,
-or approved engineering branch.
+or approved domain work unit.
 
 | ID | Role | Owns | Decides |
 |---|---|---|---|
 | `LA` | Lead Architect | subsystem architecture, repo/service/module boundaries, local tech stack, internal interfaces, local data model implementation | how the repo is structured to satisfy PA and CA constraints, whether local implementation design is coherent |
-| `LE` | Lead Engineer | Spec Kit specify and clarify coordination, engineering interpretation, feasibility, feature decomposition, stage-gate readiness | how approved scope becomes Spec Kit artifacts, which questions must be routed, whether a feature is ready for tasks |
+| `LE` | Lead Engineer | engineering interpretation, feasibility, feature decomposition, stage-gate readiness | how approved software scope becomes executable engineering work inside `codexFactory`, which questions must be routed, whether a feature is ready for implementation |
 | `LC` | Lead Coder / Coding Agent Manager | coder assignment, implementation strategy, code execution, local repair loop, implementation readiness | which coder agents do which tasks, how local failures are repaired, whether implementation evidence is ready |
 | `LQ` | Lead Quality Engineer | test strategy, acceptance coverage, regression coverage, quality gates, test evidence | what evidence proves acceptance criteria, which tests are required, whether quality gates are satisfied |
 | `LI` | Lead Integration Engineer | merge sequencing, dependency DAG validation, integration branch checks, conflict detection, cross-feature compatibility | safe merge order, dependency sequencing, integration readiness across branches |
@@ -121,59 +121,34 @@ Common escalation routes:
 | Implementation feasibility | `LC` | `LE`, `LA`, `LQ` |
 | Merge approval or escalation | `Merge Master` | `Merge Council`, `HR` when present |
 
-## Spec Kit Ownership Summary
+## Domain Execution Ownership
 
-The detailed Spec Kit stage policy lives in
-`docs/spec-kit-stage-ownership.md` once FEAT-MIG-002 is migrated. Until then,
-this summary is the role model boundary:
+`openxFactory` owns cross-factory authority, escalation, and neutral workflow
+gates. It does not own every domain's execution mechanics.
 
-```yaml
-speckit_ownership:
-  specify:
-    owner: LE
-    consulted:
-      - PO
-      - PM
-      - PA
+```text
+openxFactory
+  owns approved intent, decomposition gate, execution gate, validation gate,
+  review gate, admission gate, external enforcement handoff, traceability, and
+  escalation policy.
 
-  clarify:
-    owner: LE
-    routes_questions_to:
-      product_scope: PO or PM
-      architecture_data_contracts: PA
-      security: LS
-      test_evidence: LQ
-      integration_merge_sequencing: LI
-      implementation_feasibility: LC
-    final_answer_assembler: LE
-    final_approval: Hermes
-
-  plan:
-    owner: LE
-    consulted:
-      - PA
-      - LC
-      - LQ
-      - LI
-      - LS
-
-  tasks:
-    owner: LC
-    reviewed_by:
-      - LE
-      - LQ
-
-  analyze:
-    owner: LE
-    reviewed_by:
-      - PA
-      - LQ
-      - LS
-
-  implement:
-    owner: LC
-    executor: coder agents
+DomainxFactory repos
+  own domain-specific execution roles, stage mechanics, artifact formats,
+  validators, and worker routing.
 ```
+
+For software engineering, `codexFactory` owns Spec Kit stage ownership,
+engineering clarification routing, branch review, PR admission packet format,
+and merge readiness packet format. The current engineering policy lives in:
+
+```text
+opensoft/codexFactory/docs/spec-kit-engineering-flow.md
+opensoft/codexFactory/docs/feature-decomposition-traceability.md
+opensoft/codexFactory/docs/pr-admission-merge-readiness.md
+```
+
+Other DomainxFactories use the same neutral gates but specialize them with their
+own domain artifacts and review roles.
 
 ## Hermes Profiles And Groups
 
@@ -243,24 +218,27 @@ profiles:
       - opensoft/hermes-architecture
 ```
 
-## Merge Authority
+## External Enforcement Authority
 
 The Merge Council is a Hermes-convened readiness body. It reviews evidence and
 emits blocking findings, warnings, and required fixes. It does not merge code
-and does not bypass GitHub.
+and does not bypass the external enforcement system.
 
 The Merge Master is a Hermes governance agent. It reads Merge Council output,
-GitHub checks, branch protection, PR review state, traceability, and risk
-policy. It may:
+external enforcement checks, admission state, traceability, and risk policy. It
+may:
 
-- approve low-risk PRs when policy allows;
-- request human or team review for medium/high-risk PRs;
-- block a PR with a documented reason.
+- approve low-risk enforcement actions when policy allows;
+- request human or team review for medium/high-risk actions;
+- block an enforcement action with a documented reason.
 
 Human review is required for risky reviews. Hermes should act as a real review
-authority for low-risk work once GitHub branch protection accepts the Merge
+authority for low-risk work once the domain enforcement system accepts the Merge
 Master identity, but it must route human review for risk that exceeds its
 authority.
+
+For `codexFactory`, the external enforcement system is GitHub: pull requests,
+checks, branch protection, reviews, merge queues, and merge commits.
 
 ## Role Rule Of Thumb
 

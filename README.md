@@ -147,11 +147,13 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-add-customer-memory-gateway-architecture
+reconcile-domain-neutral-and-engineering-spec-ownership
 ```
 
 Archived changes:
 
+- [add-customer-memory-gateway-architecture](openspec/changes/archive/2026-07-08-add-customer-memory-gateway-architecture/proposal.md)
+- [enable-live-openxfactory](openspec/changes/archive/2026-06-26-enable-live-openxfactory/proposal.md)
 - [restructure-factory-repo-boundaries](openspec/changes/archive/2026-06-26-restructure-factory-repo-boundaries/proposal.md)
 - [migrate-canonical-policy-to-openxfactory](openspec/changes/archive/2026-06-26-migrate-canonical-policy-to-openxfactory/proposal.md)
 
@@ -159,6 +161,7 @@ Canonical specs:
 
 - [canonical-contract-migration](openspec/specs/canonical-contract-migration/spec.md)
 - [canonical-policy-migration](openspec/specs/canonical-policy-migration/spec.md)
+- [memory-gateway](openspec/specs/memory-gateway/spec.md)
 - [reference-proof-placement](openspec/specs/reference-proof-placement/spec.md)
 - [repo-boundary-governance](openspec/specs/repo-boundary-governance/spec.md)
 - [shared-contract-ownership](openspec/specs/shared-contract-ownership/spec.md)
