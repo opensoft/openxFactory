@@ -54,6 +54,12 @@ Brainstorm (design history; both fully organized into staging):
   — organized into the workflow-visualization staged topic; kept as license
   evidence.
 
+Brainstorm (active):
+
+- [OpenSpec × Speckit Release Flow](brainstorm/openspec-speckit-release-flow.md)
+  — brownfield realization axis: release targets, delta-driven feat
+  decomposition, and the archive gate binding to merge evidence.
+
 Staged topics (orthogonal feats; each exits through an OpenSpec change):
 
 - [prose-tagging](staging/prose-tagging/tag-syntax.md) — concrete xspec
