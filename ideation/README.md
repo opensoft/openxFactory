@@ -44,3 +44,6 @@ Rules while this convention is in draft:
 - [Doc Health Pipeline](brainstorm/doc-health-pipeline.md) — first captured
   design: prose-to-spec conversion rules, tagging, staging, and the nightly
   repo-health report.
+- [Domain-To-Neutral Concept Promotion](brainstorm/domain-to-neutral-promotion.md)
+  — lifecycle for lifting concepts born in a DomainxFactory into the neutral
+  layer (and devolving them back down); companion to the doc health pipeline.
