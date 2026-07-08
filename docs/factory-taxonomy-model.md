@@ -1,6 +1,7 @@
 # xFactory Taxonomy Model
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: separate the kind of work an xFactory performs from the industry of
 the company using it and the regulated or operational domain the work is about.

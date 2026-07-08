@@ -1,6 +1,7 @@
 # Domain Repo Review Improvements
 
-Status: shared xFactory template review
+Status: record
+Kind: report
 Repository context: openxFactory
 Purpose: capture what the sibling domain repos teach the openxFactory starter
 template.

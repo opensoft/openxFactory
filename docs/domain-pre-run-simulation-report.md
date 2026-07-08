@@ -1,6 +1,7 @@
 # Domain Pre-Run Simulation Report
 
-Status: simulated pre-run review
+Status: record
+Kind: report
 Repository context: openxFactory
 Date: 2026-06-30
 Purpose: answer the pre-run questionnaire for the currently implemented

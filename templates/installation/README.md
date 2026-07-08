@@ -1,6 +1,7 @@
 # xFactory Installation Templates
 
-Status: starter catalog
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide machine-readable installation templates that can be reused by
 generic openxFactory installs and specialized DomainxFactory overlays.

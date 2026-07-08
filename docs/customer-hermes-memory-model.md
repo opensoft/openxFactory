@@ -1,6 +1,7 @@
 # Customer Hermes Memory Model
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define the canonical memory and identity objects owned by the
 Customer Hermes layer, including Patient Hermes in MedxFactory.

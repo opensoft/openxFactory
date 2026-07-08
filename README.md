@@ -93,6 +93,7 @@ Core domain-neutral docs:
 - [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [Document Lifecycle](docs/document-lifecycle.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
 - [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)
@@ -104,11 +105,11 @@ Core domain-neutral docs:
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
-- [Workflow Visualization Tooling Exploration](docs/workflow-visualization-tooling-exploration.md)
+- [Workflow Visualization Tooling Exploration](ideation/brainstorm/workflow-visualization-tooling.md)
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
-- [Ideation Work Area](ideation/README.md) (draft convention; first capture:
-  [Doc Health Pipeline](ideation/brainstorm/doc-health-pipeline.md))
+- [Ideation Work Area](ideation/README.md) (ratified convention; see
+  [Document Lifecycle](docs/document-lifecycle.md))
 - [Workflow Contract](docs/workflow-contract.md)
 - [Traceability Model](docs/traceability-model.md)
 - [Roles and Authority](docs/roles-and-authority.md)

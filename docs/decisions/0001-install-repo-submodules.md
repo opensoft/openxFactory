@@ -1,6 +1,8 @@
 # Decision 0001: Install Repo Submodules
 
-Status: Accepted for Omnigent pre-release branch tracking, deferred for Hermes
+Status: ratified
+Kind: reference
+Decision: accepted for Omnigent pre-release branch tracking, deferred for Hermes
 
 Date: 2026-06-26
 

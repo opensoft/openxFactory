@@ -1,6 +1,7 @@
 # xFactory Credential Access Model
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define how xFactory systems declare, bind, approve, issue, use, audit,
 and revoke credentials without storing raw secrets in repos, Hermes memory, or

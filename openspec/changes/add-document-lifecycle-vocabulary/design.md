@@ -71,6 +71,13 @@ Applied by a follow-up sweep (task 4); docs are grandfathered until swept.
 | `planned` / `v1 operating plan` / `v1 scaffold decision` | `Status: draft` + `Kind: plan` |
 | `organized — ...` (ideation) | `Status: staged`, with the organized-into pointer kept in the body |
 | prose sentences ("the initial repo-boundary pilot is complete...") | move the sentence into the body; pick the true status |
+| `Accepted` (decision records) | `Status: ratified` + `Kind: reference`; acceptance detail moves to a `Decision:` line (pre-OpenSpec ratification acknowledged) |
+| `canonical openxFactory contract surface` | `Status: standard` where a promoted spec backs it (memory-gateway), else `draft` |
+| `architecture proposal` (memory gateway) | `Status: ratified` + `Kind: architecture`, naming the archived ratifying change |
+| completed plans / audits ("completed.", pilot prose) | plans: `Status: retired` naming the completion; audit reports: `Status: record` + `Kind: report` |
+| `starter catalog` (template READMEs) | `Status: draft` + `Kind: template` |
+| `awaiting answers` (questionnaire) | `Status: draft` + `Kind: template`; progress note moves to body |
+| `exploration note` in `docs/` | move the file to `ideation/brainstorm/` with `Status: brainstorm` (exploration belongs in the sanctioned area) |
 
 The demotion of the 14 "shared xFactory standard" docs to `draft` is
 deliberate and is the single most valuable honesty gain in this change: after

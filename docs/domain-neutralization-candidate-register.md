@@ -1,6 +1,7 @@
 # Domain Neutralization Candidate Register
 
-Status: seed backlog
+Status: staged
+Kind: register
 Repository context: openxFactory
 Source scan date: 2026-07-08
 Purpose: list domain repo patterns that may become neutral openxFactory
@@ -20,7 +21,10 @@ this backlog.
 
 Status lifecycle: `seed` -> `staged` -> `openspec` -> `implemented` ->
 `adopted` (domain re-pin and local-copy retirement complete), or `rejected` /
-`deferred` at any point.
+`deferred` at any point. These are compact aliases for the canonical
+[document lifecycle](document-lifecycle.md) spine: `seed` = captured/organized,
+`staged` = organized, `openspec` = proposed/ratified, `implemented` =
+implemented/promoted, `adopted` = adopted.
 
 | ID | Topic | Decision | Priority | Status | Likely openxFactory artifact |
 | --- | --- | --- | --- | --- | --- |

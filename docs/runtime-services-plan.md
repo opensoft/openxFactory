@@ -1,6 +1,7 @@
 # Runtime Services Plan
 
-Status: implementation plan
+Status: draft
+Kind: plan
 Repository context: openxFactory
 Purpose: define the minimum runtime service set needed to move xFactory from
 contracts and domain repos to a runnable stack.

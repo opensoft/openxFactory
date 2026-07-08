@@ -1,6 +1,7 @@
 # NotebookLM Source Workspaces
 
-Status: shared xFactory standard
+Status: draft
+Kind: reference
 Repository context: openxFactory
 Purpose: define how NotebookLM notebooks may be used as source workspaces for
 Hermes layers and domain agents without confusing notebook synthesis with

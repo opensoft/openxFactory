@@ -1,6 +1,7 @@
 # Client Installation Discovery And Workflow Migration
 
-Status: shared xFactory standard
+Status: draft
+Kind: process
 Repository context: openxFactory
 Purpose: define how Client Hermes may use an installing company's document
 management system, historical email, and related collaboration records to
@@ -239,7 +240,7 @@ state diagram with source links and confidence levels.
 The output is a validated current-state workflow, not consent to change it.
 
 Visualization candidates for this walkthrough are tracked in
-[Workflow Visualization Tooling Exploration](workflow-visualization-tooling-exploration.md).
+[Workflow Visualization Tooling Exploration](../ideation/brainstorm/workflow-visualization-tooling.md).
 
 ### 5.6 Best-Practice Comparison
 

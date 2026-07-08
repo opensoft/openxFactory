@@ -1,6 +1,8 @@
 # TUI Spec Questionnaire
 
-Status: awaiting answers
+Status: draft
+Kind: template
+Progress: awaiting answers
 Created: 2026-07-01
 Repository context: `openxFactory`
 Purpose: capture the context and unanswered decisions needed to write a

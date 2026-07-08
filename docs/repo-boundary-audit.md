@@ -306,8 +306,11 @@ or mirror it into the `opensoft` organization.
 
 ## Migration Plan
 
-Status: the initial repo-boundary pilot is complete. The remaining migration
-work must be performed through the dogfood workflow described in
+Status: record
+Kind: report
+
+The initial repo-boundary pilot is complete. The remaining migration work must
+be performed through the dogfood workflow described in
 [Dogfood Content Migration Plan](dogfood-content-migration-plan.md).
 
 ### Phase 1: Classify

@@ -1,6 +1,7 @@
 # Intake Runtime Simulations
 
-Status: generated examples
+Status: record
+Kind: reference
 Repository context: openxFactory
 
 This folder stores machine-readable outputs from the subtype install-readiness

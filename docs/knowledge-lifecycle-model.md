@@ -1,7 +1,7 @@
 # xFactory Knowledge Lifecycle Model
 
-Status: draft — to be ratified through an OpenSpec change proposal before it
-becomes a shared xFactory standard (see section 11)
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define how domain knowledge and expert memory enter, are distilled,
 are placed across deployment tiers, are kept current, and are promoted or

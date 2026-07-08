@@ -1,6 +1,7 @@
 # Domain-To-Neutral Concept Promotion — Brainstorm
 
-Status: organized — this brainstorm was organized into
+Status: staged
+Organized: this brainstorm was organized into
 [docs/domain-to-neutral-promotion-process.md](../../docs/domain-to-neutral-promotion-process.md)
 and the seed
 [docs/domain-neutralization-candidate-register.md](../../docs/domain-neutralization-candidate-register.md)

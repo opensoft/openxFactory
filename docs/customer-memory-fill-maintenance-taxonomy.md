@@ -1,6 +1,7 @@
 # Customer Memory Fill And Maintenance Taxonomy
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Related docs:
 [Customer Hermes Memory Model](customer-hermes-memory-model.md),

@@ -1,6 +1,6 @@
 # Workflow Visualization Tooling Exploration
 
-Status: exploration note
+Status: brainstorm
 Repository context: openxFactory
 Purpose: capture MIT-licensed open source visualization candidates for the Client
 Hermes user validation walkthrough.

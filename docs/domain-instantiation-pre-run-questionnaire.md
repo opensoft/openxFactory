@@ -1,6 +1,7 @@
 # Domain Instantiation Pre-Run Questionnaire
 
-Status: shared xFactory standard
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: define the questions that must be answered before a domain factory is
 implemented for a new domain, profile, client, tenant, or customer-subject.

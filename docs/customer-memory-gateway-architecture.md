@@ -1,6 +1,8 @@
 # xFactory Memory Gateway Architecture
 
-Status: architecture proposal
+Status: ratified
+Kind: architecture
+Ratified by: add-customer-memory-gateway-architecture (archived 2026-07-08)
 Repository context: openxFactory
 Related models:
 [Customer Hermes Memory Model](customer-hermes-memory-model.md),

@@ -1,6 +1,7 @@
 # Deploy Artifacts Plan
 
-Status: implementation plan
+Status: draft
+Kind: plan
 Repository context: openxFactory
 Purpose: define the deployment artifacts needed to run the complete xFactory
 stack locally and then promote it to production.

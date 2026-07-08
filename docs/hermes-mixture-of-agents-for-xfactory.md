@@ -1,6 +1,7 @@
 # Hermes Mixture Of Agents For xFactory
 
-Status: shared xFactory design guidance
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define how Hermes Mixture of Agents reasoning should be used inside
 xFactory without weakening the domain, client, customer, credential, and

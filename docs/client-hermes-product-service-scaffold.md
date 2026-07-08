@@ -1,6 +1,7 @@
 # Client Hermes Product And Service Scaffold
 
-Status: shared xFactory standard
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: define a reusable Client Hermes scaffold for organizations that sell,
 deliver, support, or operate products, services, or hybrid offers.

@@ -1,6 +1,7 @@
 # xFactory Intake Subtype Catalog
 
-Status: starter catalog
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide 10 starter subtype/profile records for each top-level xFactory
 intake template.

@@ -1,6 +1,7 @@
 # xFactory Intake Templates
 
-Status: starter catalog
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide machine-readable intake templates for website intake, TUI
 self-install, and downloadable installer flows.

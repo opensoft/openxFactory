@@ -1,6 +1,7 @@
 # Intake Subtype Install Readiness Report
 
-Status: generated simulation report
+Status: record
+Kind: report
 Repository context: openxFactory
 
 ## Meaning

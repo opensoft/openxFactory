@@ -1,7 +1,8 @@
 # Domain-To-Neutral Promotion Process
 
-Status: draft — to be ratified through an OpenSpec change proposal before it
-becomes a shared xFactory standard
+Status: ratified
+Kind: process
+Ratified by: [add-document-lifecycle-vocabulary](../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
 Repository context: openxFactory
 Purpose: define a repeatable way to find domain repo patterns that should become
 neutral openxFactory contracts, templates, validators, or specs.

@@ -2,29 +2,29 @@
 
 ## 1. Vocabulary Artifact
 
-- [ ] 1.1 Write `docs/document-lifecycle.md` stating the lifecycle spine, the
+- [x] 1.1 Write `docs/document-lifecycle.md` stating the lifecycle spine, the
       `Status:`/`Kind:` taxonomy, and the transition gates, referencing this
       change's design mapping table.
-- [ ] 1.2 Link the new doc from the README documentation index.
+- [x] 1.2 Link the new doc from the README documentation index.
 
 ## 2. Ratify Existing Process Docs
 
-- [ ] 2.1 Move `docs/domain-to-neutral-promotion-process.md` from draft to
+- [x] 2.1 Move `docs/domain-to-neutral-promotion-process.md` from draft to
       `ratified` status, citing this change.
-- [ ] 2.2 Move `docs/domain-neutralization-candidate-register.md` to
+- [x] 2.2 Move `docs/domain-neutralization-candidate-register.md` to
       `staged` + `Kind: register` and define its alias statuses in terms of
       the lifecycle spine.
-- [ ] 2.3 Remove the draft caveat from `ideation/README.md` and update both
+- [x] 2.3 Remove the draft caveat from `ideation/README.md` and update both
       ideation brainstorm docs' statuses to taxonomy values.
 
 ## 3. Status Header Sweep (openxFactory)
 
-- [ ] 3.1 Migrate every `Status:` header in `openxFactory/docs/` to the
+- [x] 3.1 Migrate every `Status:` header in `openxFactory/docs/` to the
       controlled taxonomy per the design mapping table, adding `Kind:` where
       useful.
-- [ ] 3.2 Demote each "shared xFactory standard" claim to `draft` unless a
+- [x] 3.2 Demote each "shared xFactory standard" claim to `draft` unless a
       promoted spec backs it; list the demotions in the commit message.
-- [ ] 3.3 Mark generated reports and simulations as `record`.
+- [x] 3.3 Mark generated reports and simulations as `record`.
 
 ## 4. Status Header Sweep (DomainxFactories)
 

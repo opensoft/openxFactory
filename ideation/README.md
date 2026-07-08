@@ -1,8 +1,8 @@
 # Ideation Work Area
 
-Status: draft convention — this structure is itself a brainstorm output and is
-to be ratified through an OpenSpec change proposal before it becomes a shared
-xFactory standard.
+Status: ratified
+Kind: process
+Ratified by: [add-document-lifecycle-vocabulary](../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
 Repository context: openxFactory
 Purpose: provide the governed pre-proposal pipeline that turns free-form
 thinking into OpenSpec proposals, so prose never silently becomes (or

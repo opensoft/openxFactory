@@ -1,6 +1,7 @@
 # Intake Subtype Second-Pass Gap Report
 
-Status: generated simulation report
+Status: record
+Kind: report
 Repository context: openxFactory
 
 ## Meaning

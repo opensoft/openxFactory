@@ -1,6 +1,7 @@
 # Terminology And Repository Topology
 
-Status: shared xFactory standard
+Status: draft
+Kind: reference
 Repository context: openxFactory
 Purpose: distinguish the xFactory layer from the openxFactory reference stack
 and from domain-specific DomainxFactory stacks.

@@ -1,6 +1,7 @@
 # Domain Factory Implementation Checklist
 
-Status: shared xFactory standard
+Status: draft
+Kind: reference
 Repository context: openxFactory
 Purpose: define how to generate, specialize, validate, and operate a domain
 factory without blurring what belongs in the parent `openxFactory` contract and

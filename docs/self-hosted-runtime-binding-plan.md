@@ -1,6 +1,7 @@
 # Self-Hosted Runtime Binding Plan
 
-Status: shared xFactory implementation plan
+Status: draft
+Kind: plan
 Repository context: openxFactory
 Purpose: define how a self-hosted user supplies runtime bindings,
 credentials, adapters, validation, and approvals so xFactory can move from an

@@ -1,6 +1,7 @@
 # Avatar-First UI Standard
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define the reusable user interface model for xFactories where an AI
 avatar is the primary interaction surface.

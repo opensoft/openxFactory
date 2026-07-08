@@ -1,6 +1,7 @@
 # openxFactory Installation Spine And Domain Overlays
 
-Status: shared xFactory standard
+Status: draft
+Kind: architecture
 Repository context: openxFactory
 Purpose: define how installations use a domain-neutral openxFactory workflow
 and optional DomainxFactory overlays such as MedxFactory or LedgerxFactory.

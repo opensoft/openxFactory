@@ -1,6 +1,7 @@
 # Intake Subtype Install Runbook
 
-Status: generated runbook
+Status: record
+Kind: runbook
 Repository context: openxFactory
 
 ## Purpose

@@ -1,6 +1,7 @@
 # xFactory Intake And Installer Plan
 
-Status: shared xFactory product and implementation plan
+Status: draft
+Kind: plan
 Repository context: openxFactory
 Purpose: define how xFactory collects pre-run answers through a hosted website,
 a terminal UI, and a downloadable installer, then turns those answers into an

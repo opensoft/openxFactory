@@ -1,6 +1,7 @@
 # Client Layer Templates
 
-Status: starter catalog
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide reusable templates for Client Hermes overlays.
 

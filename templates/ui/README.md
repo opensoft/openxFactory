@@ -1,6 +1,7 @@
 # xFactory UI Templates
 
-Status: starter catalog
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide reusable UI templates that domain factories specialize.
 

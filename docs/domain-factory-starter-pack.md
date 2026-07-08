@@ -1,6 +1,7 @@
 # xFactory Domain Factory Starter Pack
 
-Status: shared xFactory standard
+Status: draft
+Kind: template
 Repository context: openxFactory
 Purpose: provide starter instructions for stubbing out a new xFactory domain
 repo, including the credentialing module every domain must specialize.

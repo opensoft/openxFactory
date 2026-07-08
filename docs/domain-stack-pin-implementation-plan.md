@@ -1,6 +1,7 @@
 # Domain Stack Pin Implementation Plan
 
-Status: planned
+Status: draft
+Kind: plan
 Repository context: openxFactory
 Purpose: define how every DomainxFactory declares the exact `openxFactory`
 contract version it consumes, and how the top-level `xFactory` aggregation repo

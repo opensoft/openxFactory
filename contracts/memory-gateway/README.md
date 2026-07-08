@@ -1,6 +1,8 @@
 # xFactory Memory Gateway Contracts
 
-Status: canonical openxFactory contract surface
+Status: standard
+Kind: reference
+Backed by: openspec/specs/memory-gateway/spec.md
 
 This directory defines the product-neutral contracts for the xFactory Memory
 Gateway. The gateway governs Customer Hermes memory and Domain Omnigent expert

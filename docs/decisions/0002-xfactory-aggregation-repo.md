@@ -1,6 +1,8 @@
 # Decision 0002: xFactory Aggregation Repository
 
-Status: Accepted
+Status: ratified
+Kind: reference
+Decision: accepted
 
 Date: 2026-07-02
 

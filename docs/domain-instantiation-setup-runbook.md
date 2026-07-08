@@ -1,6 +1,7 @@
 # Domain Instantiation Setup Runbook
 
-Status: shared xFactory standard
+Status: draft
+Kind: runbook
 Repository context: openxFactory
 Purpose: turn pre-run questionnaire answers into a domain factory implementation
 or a client/tenant/customer-subject instantiation.
