@@ -151,6 +151,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
+add-document-lifecycle-vocabulary
 reconcile-domain-neutral-and-engineering-spec-ownership
 ```
 
