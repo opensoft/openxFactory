@@ -155,6 +155,7 @@ Active changes:
 ```text
 add-document-lifecycle-vocabulary
 add-lifecycle-notebook-projection
+concretize-prose-tagging-syntax
 reconcile-domain-neutral-and-engineering-spec-ownership
 ```
 
