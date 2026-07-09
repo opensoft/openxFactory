@@ -5,6 +5,11 @@
       "path": "agentic-pass.md",
       "sha256": "451e4328142a676b18d5dc35b707d444e13642d045d9c7cafbf486449b22164c",
       "source_path": "ideation/staging/semantic-health-sweep/agentic-pass.md"
+    },
+    {
+      "path": "omnigent-worker-dispatch.md",
+      "sha256": "33624afafeeddb02bb8cf5d43fa69030dca04f839e986d57f8071ec3bef5694b",
+      "source_path": null
     }
   ],
   "format_version": 1,
