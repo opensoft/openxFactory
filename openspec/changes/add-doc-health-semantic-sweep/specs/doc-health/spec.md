@@ -20,6 +20,43 @@ the deterministic families.
 - **WHEN** the sweep judges a passage to conflict with a promoted spec requirement
 - **THEN** the sweep MUST emit a `semantic-contradiction` finding naming the repo, the path, the passage, and the suspected conflicting requirement
 
+### Requirement: Sweep execution split
+The semantic sweep SHALL comprise two parts with distinct execution
+authorities. Orchestration — inventory consumption, scope resolution,
+worker invocation, findings merge, and report commit — is deterministic
+runner code executing under the factory identity (a short-lived
+installation token minted from the openxFactory GitHub App), exactly as the
+deterministic pass runs today. Analysis — the model-driven judgment step —
+executes only as the bounded worker defined by this capability and never
+holds the factory identity.
+
+#### Scenario: The nightly sweep executes
+- **WHEN** the sweep runs in the nightly workflow
+- **THEN** orchestration performs checkout, scope resolution, and the report commit under the factory identity
+- **AND** the analysis step is invoked by orchestration and returns only its findings artifact
+
+#### Scenario: Analysis authority is bounded
+- **WHEN** the analysis step executes
+- **THEN** it MUST NOT perform repository writes, report commits, or any orchestration action
+
+### Requirement: Bounded analysis worker profile
+The analysis worker SHALL execute under a bounded, read-only Omnigent
+worker profile: no repository credentials in its environment (orchestration
+provides a local read-only checkout), no credential grants beyond model API
+access, no write path except its findings artifact, and a job envelope
+conforming to the neutral job-envelope contract whose reference the report
+records alongside the pinned model id and prompt-contract version. Analysis
+output SHALL carry L1 authority.
+
+#### Scenario: An analysis run executes
+- **WHEN** the analysis worker runs
+- **THEN** its environment holds no repository credentials and no factory identity token
+- **AND** the report records the job envelope reference, the model id, and the prompt-contract version used
+
+#### Scenario: The analysis worker fails
+- **WHEN** the analysis step errors or the model is unavailable
+- **THEN** the run MUST record the sweep as skipped in the report and the deterministic results MUST land unaffected
+
 ### Requirement: Semantic findings are proposals
 Every semantic finding SHALL be a proposal, not a verdict: it carries the
 document, the passage, the suspected conflicting requirement (for
@@ -37,21 +74,26 @@ MUST NOT open regression issues in v1.
 - **WHEN** a semantic finding stops appearing between consecutive reports
 - **THEN** its resolution MUST cite an OpenSpec change or a recorded disposition, exactly as the contested-finding rule already requires
 
-### Requirement: Bounded sweep execution profile
-The semantic sweep SHALL execute under a bounded, read-only worker profile:
-read-only repository access, no credential grants beyond model API access,
-no write path except its findings artifact, and a pinned model id and
-prompt-contract version recorded in each report. Sweep output SHALL carry
-L1 authority.
+### Requirement: Semantic finding disposition authority
+Disposition authority for semantic findings SHALL follow content ownership:
+a finding on a domain factory's own documents is disposed by that factory's
+authority (its Domain Hermes); a finding implicating a neutral openxFactory
+artifact, or a contradiction spanning repositories, is disposed at the
+neutral repository's ratify gate. Client and Customer Hermes layers have no
+disposition standing in v1 — their influence on the sweep is limited to
+scope declarations.
 
-#### Scenario: A sweep run executes
-- **WHEN** the sweep step runs in the nightly workflow
-- **THEN** it runs against a read-only checkout with no repository credentials
-- **AND** the report records the model id and prompt-contract version used
+#### Scenario: A finding concerns a domain factory's document
+- **WHEN** a semantic finding names only documents owned by one domain factory
+- **THEN** disposition belongs to that factory's authority and the ranked-plan item names it
 
-#### Scenario: The sweep worker fails
-- **WHEN** the sweep step errors or the model is unavailable
-- **THEN** the run MUST record the sweep as skipped in the report and the deterministic results MUST land unaffected
+#### Scenario: A finding implicates a neutral artifact
+- **WHEN** a semantic finding names an openxFactory artifact or spans repositories
+- **THEN** disposition belongs to the neutral repository's ratify gate and the ranked-plan item names it
+
+#### Scenario: A layer without standing disposes a finding
+- **WHEN** a disposition is recorded by an authority other than the finding's named disposer
+- **THEN** the resolution is uncited under the contested-finding rule and the next run MUST emit the "uncited resolution" error finding
 
 ### Requirement: Sweep sequencing and snapshot consistency
 The semantic sweep SHALL run after the deterministic pass and consume the
@@ -68,19 +110,27 @@ previous report.
 - **WHEN** the deterministic pass fails before emitting an inventory
 - **THEN** the sweep MUST NOT run against a stale inventory and MUST be reported as skipped
 
-### Requirement: Sweep cadence defaults
-The contract SHALL define sweep cadence defaults: nightly runs sweep only
-documents changed since the previous report, and a weekly run sweeps the
-full corpus; every report states which scope executed, and any non-default
-scope is a stated deviation under the existing report contract.
+### Requirement: Hermes-layer sweep scope resolution
+Sweep scope SHALL be Hermes-owned policy resolved deterministically by
+orchestration: each Hermes layer overlay (customer, client, domain) MAY
+declare a `doc_health.sweep_scope` value from the ordered set
+`incremental` < `full-weekly` < `full-nightly`; the effective scope is the
+deepest value declared across layers; when no layer declares one, the
+default is `incremental` (nightly changed-docs sweep plus a weekly full
+sweep). Every report MUST state the effective scope and, when a declaration
+raised it above the default, the declaring layer.
 
-#### Scenario: A nightly incremental sweep runs
-- **WHEN** a nightly run executes with unchanged cadence defaults
-- **THEN** the sweep covers exactly the changed-docs set and the report states the incremental scope
+#### Scenario: No layer declares a scope
+- **WHEN** no Hermes layer overlay declares `doc_health.sweep_scope`
+- **THEN** the sweep runs at `incremental` and the report states the default applied
 
-#### Scenario: A weekly full sweep runs
-- **WHEN** the weekly full sweep executes
-- **THEN** the sweep covers the full inventory and the report states the full scope
+#### Scenario: A layer declares a deeper scope
+- **WHEN** any layer declares a scope deeper than the others or the default
+- **THEN** the effective scope is that deepest declaration and the report names the declaring layer
+
+#### Scenario: A layer declares a shallower scope
+- **WHEN** a layer declares a scope shallower than another layer's declaration
+- **THEN** the effective scope remains the deepest declaration — no layer can lower another's review level
 
 ### Requirement: Report-only to blocking promotion gate
 The semantic sweep SHALL remain report-only until a future OpenSpec delta

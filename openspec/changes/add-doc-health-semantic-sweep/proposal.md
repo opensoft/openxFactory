@@ -22,8 +22,18 @@ baseline — that exit condition is now met.
 - Findings are proposals, never verdicts: each names the doc, the passage,
   the suspected conflicting requirement, and a confidence note; disposition
   stays with a human or a gate. The sweep never blocks merges in v1.
-- The sweep runs under a bounded read-only Omnigent worker profile with no
-  credential grants; its output carries L1 authority.
+- The sweep splits into two parts with distinct authorities: deterministic
+  orchestration under the factory identity (the openxFactory GitHub App
+  token, as the deterministic pass runs today), and a credential-less
+  analysis worker bounded by an Omnigent worker profile with a job envelope
+  the report cites; analysis output carries L1 authority.
+- Sweep scope is Hermes-owned policy: each layer (customer, client, domain)
+  may declare a `doc_health.sweep_scope`; the deepest declaration wins,
+  defaulting to incremental (nightly changed-docs + weekly full).
+- Disposition authority follows content ownership: the owning factory's
+  Domain Hermes for its own docs, the neutral ratify gate for neutral or
+  cross-repo findings; Client/Customer Hermes have no disposition standing
+  in v1.
 - Sequencing: the sweep runs after the deterministic pass and consumes its
   inventory, so both passes report against the same corpus snapshot.
 - Re-scope the deterministic pass's exclusion sentence: "semantic sweeps are
@@ -39,11 +49,12 @@ baseline — that exit condition is now met.
 
 ### Modified Capabilities
 
-- `doc-health`: ADDED requirements for the agentic semantic sweep (scope,
-  finding contract, execution profile, sequencing, cadence, and the
-  report-only-to-blocking promotion gate); MODIFIED "Deterministic check
-  families" to re-scope its semantic-sweep exclusion to the deterministic
-  pass only.
+- `doc-health`: ADDED requirements for the agentic semantic sweep (the two
+  semantic families, the orchestration/analysis execution split, the bounded
+  analysis worker profile, findings-as-proposals, disposition authority,
+  sequencing, Hermes-layer scope resolution, and the report-only-to-blocking
+  promotion gate); MODIFIED "Deterministic check families" to re-scope its
+  semantic-sweep exclusion to the deterministic pass only.
 
 ## Impact
 
@@ -55,6 +66,9 @@ baseline — that exit condition is now met.
   existing ownership split.
 - xFactory aggregation repo: nightly workflow gains the sweep step after
   the deterministic run; sweep findings section lands in the dated report.
+- Domain repos: Hermes layer overlays MAY declare `doc_health.sweep_scope`
+  (optional; no immediate change — the default applies until a layer
+  declares).
 - Realization gate: non-none code surface — this change archives only after
   the sweep implementation merges and a green run of the sweep surface
   exists.

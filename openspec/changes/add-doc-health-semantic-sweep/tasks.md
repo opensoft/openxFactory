@@ -21,23 +21,32 @@
 - [ ] 3.1 Add the versioned prompt contract under `scripts/doc_health/`
       (instructions, finding schema with confidence note, the two semantic
       families)
-- [ ] 3.2 Implement the sweep runner: consume the inventory, select full or
-      changed-docs scope, invoke the headless agent with pinned model id,
-      parse findings, assign stable ids (path + passage hash)
-- [ ] 3.3 Enforce the finding contract in code: always `contested`, severity
-      capped at `warning`, required fields present; drop and log anything
-      malformed
-- [ ] 3.4 Merge sweep findings into the dated report: semantic family
-      sections, ranked-plan items, model id + prompt version + scope line,
+- [ ] 3.2 Implement scope resolution: read `doc_health.sweep_scope` from
+      the customer/client/domain Hermes overlays across pinned repos, take
+      the deepest declaration, default `incremental`; tests for default,
+      deepest-wins, and no-lowering cases
+- [ ] 3.3 Implement the sweep orchestration: consume the inventory, apply
+      the resolved scope, invoke the credential-less analysis worker with
+      pinned model id and a neutral job envelope, parse findings, assign
+      stable ids (path + passage hash)
+- [ ] 3.4 Enforce the finding contract in code: always `contested`, severity
+      capped at `warning`, required fields present, disposer assigned by
+      content ownership (owning factory vs neutral ratify gate); drop and
+      log anything malformed
+- [ ] 3.5 Merge sweep findings into the dated report: semantic family
+      sections, ranked-plan items naming their disposer, effective scope +
+      declaring layer + model id + prompt version + envelope reference,
       skipped marker on failure
-- [ ] 3.5 Tests: finding contract enforcement, dedupe against previous
-      report, skipped-sweep report path
+- [ ] 3.6 Tests: finding contract enforcement, disposer assignment, dedupe
+      against previous report, skipped-sweep report path
 
 ## 4. Runner integration (xFactory aggregation repo)
 
 - [ ] 4.1 Add the sweep step to the nightly workflow after the deterministic
-      pass: non-fatal, read-only checkout, model API key as the only secret,
-      weekly-full/nightly-incremental switch
+      pass: non-fatal, orchestration under the existing app-token identity,
+      analysis worker with a local read-only checkout and the model API key
+      as its only secret, scope resolved from Hermes overlays (no workflow
+      knob)
 - [ ] 4.2 Verify a nightly run with the sweep skipped-on-failure path leaves
       deterministic results intact
 
