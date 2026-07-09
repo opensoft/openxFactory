@@ -166,13 +166,11 @@ Active changes:
   — agentic semantic sweep extending `doc-health` (code surface:
   codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
   until realization evidence lands)
-- [add-proposal-supporting-doc-lifecycle](openspec/changes/add-proposal-supporting-doc-lifecycle/proposal.md)
-  — moves proposed source material out of staging, preserves it with active
-  changes, and packages it beside archived changes (code surface:
-  codexFactory; ratified 2026-07-09; realization evidence recorded)
-
 Archived changes:
 
+- [add-proposal-supporting-doc-lifecycle](openspec/changes/archive/2026-07-09-add-proposal-supporting-doc-lifecycle/proposal.md)
+  — proposal-owned supporting documents, deterministic archive bundles, and
+  proposal-stage NotebookLM returns (ratified and realized 2026-07-09)
 - [add-release-realization-flow](openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
 - [add-lifecycle-notebook-hybrid-imports](openspec/changes/archive/2026-07-09-add-lifecycle-notebook-hybrid-imports/proposal.md)
 - [neutralize-job-envelope](openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
