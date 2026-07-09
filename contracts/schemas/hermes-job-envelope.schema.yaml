@@ -12,8 +12,6 @@ properties:
       - issued_by
       - job_type
       - project
-      - repository
-      - feature_id
       - orchestrator
       - routing_policy
       - auth_profile
@@ -33,19 +31,25 @@ properties:
         enum:
           - Hermes
       job_type:
+        # values are owned by domain vocabularies; the engineering enum
+        # lives in codexFactory's engineering-job-envelope overlay
         type: string
-        enum:
-          - feature_decomposition
-          - speckit_specify
-          - speckit_clarify
-          - speckit_plan
-          - speckit_tasks
-          - speckit_analyze
-          - speckit_implement
-          - implementation_worker
-          - branch_review
-          - pr_admission
-          - merge_council
+      domain:
+        type: string
+      subject_ref:
+        type: string
+      client_ref:
+        type: string
+      workflow_ref:
+        type: string
+      focal_item_ref:
+        type: string
+      gate_ref:
+        type: string
+      artifact_refs:
+        type: array
+        items:
+          type: string
       project:
         type: string
       profile:

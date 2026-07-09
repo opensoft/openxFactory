@@ -30,7 +30,7 @@ implemented/promoted, `adopted` = adopted.
 | --- | --- | --- | --- | --- | --- |
 | DTN-001 | Neutral workflow contract schema | `promote` | P0 | `adopted` | `contracts/schemas/xfactory-workflow.schema.yaml` |
 | DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `adopted` | gate schema, vocabulary, and validator rules |
-| DTN-003 | Generalized job/run/event envelope | `split` | P0 | `seed` | domain-neutral job envelope schemas replacing engineering-specific fields |
+| DTN-003 | Generalized job/run/event envelope | `split` | P0 | `adopted` | domain-neutral job envelope schemas replacing engineering-specific fields |
 | DTN-004 | Credential broker and runtime capability grant schemas | `split` | P1 | `seed` | broker, grant, binding, requirement, and audit schemas |
 | DTN-005 | Proposed trigger and admission boundary | `promote` | P1 | `seed` | proposed-trigger schema and admission workflow doc |
 | DTN-006 | Candidate-only work product lifecycle | `promote` | P1 | `seed` | candidate lifecycle vocabulary and promotion gates |
@@ -40,7 +40,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-010 | Avatar or conversation safety supervisor | `split` | P2 | `seed` | neutral safety supervisor state machine and overlay slots |
 | DTN-011 | Domain profile, tenant, and deployment profile normalization | `promote` | P2 | `seed` | standard profile/deployment questionnaire schema |
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
-| DTN-013 | Neutral roles and authority model | `split` | P0 | `seed` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
+| DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 
 ## Candidate Details
 
@@ -90,6 +90,13 @@ Domain-local exclusions: gate names, evidence standards, professional review
 thresholds, and escalation roles.
 
 ### DTN-003: Generalized job/run/event envelope
+
+OpenSpec: [neutralize-job-envelope](../openspec/changes/neutralize-job-envelope/proposal.md).
+Adopted 2026-07-09: envelope/run loosened (contract-v1.5), event already
+neutral; codexFactory overlay re-tightens engineering jobs and declares
+`specializes` (first use). Neutrality test: 7 example envelopes pass core +
+overlay; it also surfaced a pre-existing defect — `merge_master` was used
+by the canonical example but missing from the old enum (fixed in overlay).
 
 Existing openxFactory job schemas still include engineering-specific fields such
 as repository, feature, and engineering job types. The domain repos now show the
@@ -251,6 +258,12 @@ Domain-local exclusions: source families, evidence types, authority thresholds,
 retention rules, privacy rules, and reviewer roles.
 
 ### DTN-013: Neutral roles and authority model
+
+OpenSpec: [split-roles-authority](../openspec/changes/split-roles-authority/proposal.md).
+Adopted 2026-07-09: neutral doc keeps governance layers/roles/principles;
+engineering instantiation (execution leads, escalation routes, groups YAML)
+moved to codexFactory/docs/engineering-roles-and-authority.md with a
+`specializes` declaration.
 
 `docs/roles-and-authority.md` lives in openxFactory but is engineering-specific:
 it describes itself as the model "for the AI software development factory",

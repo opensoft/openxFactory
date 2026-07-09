@@ -10,7 +10,6 @@ properties:
       - id
       - job_id
       - project
-      - feature_id
       - status
       - worker
       - auth
