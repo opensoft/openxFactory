@@ -1,7 +1,12 @@
 # OpenSpec × Speckit Release Flow (Brownfield) — Brainstorm
 
-Status: brainstorm
-Captured: 2026-07-09 — non-normative. Nothing in this document is policy.
+Status: staged
+Captured: 2026-07-09; organized 2026-07-09 into
+[staging/release-flow/organized-model.md](../staging/release-flow/organized-model.md)
+and proposed as
+[add-release-realization-flow](../../openspec/changes/add-release-realization-flow/proposal.md)
+after the implement-doc-health-checker pilot answered the open questions.
+Kept as design history. Nothing in this document is policy.
 Repository context: openxFactory (contract-level, cross-factory topic)
 Participants: Brett Heap, Claude (design session)
 
