@@ -1,9 +1,9 @@
 # Workflow Visualization Standard
 
-Status: ratified
+Status: standard
 Kind: reference
 Repository context: openxFactory
-Ratified by: [adopt-workflow-visualization-stack](../openspec/changes/adopt-workflow-visualization-stack/proposal.md)
+Backed by: [openspec/specs/workflow-visualization/spec.md](../openspec/specs/workflow-visualization/spec.md) (promoted from the archived adopt-workflow-visualization-stack change)
 Purpose: sanction the tooling for workflow-contract visualization and fix the
 walkthrough view coverage that validation-UI feature work is accepted
 against. Companion to the [Avatar-First UI Standard](avatar-first-ui-standard.md)
@@ -58,8 +58,7 @@ Mermaid-generated read-only form.
 
 - [Avatar-First UI Standard](avatar-first-ui-standard.md) — interaction
   surface, personas, safety; this standard never overrides it.
-- `workflow-visualization` capability
-  ([spec](../openspec/changes/adopt-workflow-visualization-stack/specs/workflow-visualization/spec.md)
-  until promoted) — the normative requirements behind this doc.
+- [`workflow-visualization` capability](../openspec/specs/workflow-visualization/spec.md)
+  — the promoted normative requirements behind this doc.
 - Future validation-UI implementation is codexFactory Spec Kit feature work,
   accepted against the nine views above.

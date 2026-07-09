@@ -253,7 +253,7 @@ the concept was genuinely neutral. If it cannot, the promotion was too broad:
 demote it back and retry with a narrower skeleton.
 
 Refinements ratified by the
-[refine-promotion-provenance](../openspec/changes/refine-promotion-provenance/proposal.md)
+[refine-promotion-provenance](../openspec/changes/archive/2026-07-09-refine-promotion-provenance/proposal.md)
 change:
 
 - Drafting ownership: codexFactory doc-engineering workers produce

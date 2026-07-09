@@ -25,7 +25,7 @@ MODIFIED) plus a possible `xfactory-domain-stack` schema field addition.
 ## Exit
 
 Satisfied by the standalone
-[refine-promotion-provenance](../../../openspec/changes/refine-promotion-provenance/proposal.md)
+[refine-promotion-provenance](../../../openspec/changes/archive/2026-07-09-refine-promotion-provenance/proposal.md)
 change (2026-07-09). The original lean — folding into the first DTN change —
 was reversed at the proposal gate: with all prior changes archived there was
 no delta-stacking hazard, and settling process policy first lets DTN

@@ -155,11 +155,13 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-adopt-workflow-visualization-stack
-refine-promotion-provenance
+none
 ```
 
 Archived changes:
+
+- [refine-promotion-provenance](openspec/changes/archive/2026-07-09-refine-promotion-provenance/proposal.md)
+- [adopt-workflow-visualization-stack](openspec/changes/archive/2026-07-09-adopt-workflow-visualization-stack/proposal.md)
 
 - [add-doc-health-contract](openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
 - [concretize-prose-tagging-syntax](openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md)

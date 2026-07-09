@@ -29,7 +29,7 @@ lifecycle state.
 ## Exit
 
 Satisfied by
-[adopt-workflow-visualization-stack](../../../openspec/changes/adopt-workflow-visualization-stack/proposal.md)
+[adopt-workflow-visualization-stack](../../../openspec/changes/archive/2026-07-09-adopt-workflow-visualization-stack/proposal.md)
 (2026-07-09), ratifying [docs/workflow-visualization-standard.md](../../../docs/workflow-visualization-standard.md).
 Spec Kit feature work in codexFactory implements the validation walkthrough
 UI against the nine-view checklist.
