@@ -162,9 +162,9 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-```text
-none
-```
+- [add-doc-health-semantic-sweep](openspec/changes/add-doc-health-semantic-sweep/proposal.md)
+  — agentic semantic sweep extending `doc-health` (code surface:
+  codexFactory, xFactory; awaiting ratify gate)
 
 Archived changes:
 

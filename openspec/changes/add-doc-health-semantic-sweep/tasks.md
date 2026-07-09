@@ -1,0 +1,50 @@
+# Tasks: Add Doc-Health Semantic Sweep
+
+## 1. Contract (openxFactory)
+
+- [ ] 1.1 Validate the change strictly (`openspec validate
+      add-doc-health-semantic-sweep --strict` and `--all --strict`) and list
+      it in the README "OpenSpec Records" block
+- [ ] 1.2 Mark the staged topic
+      `ideation/staging/semantic-health-sweep/agentic-pass.md` as exiting via
+      this change (exit note referencing the change id)
+
+## 2. Inventory emission (codexFactory)
+
+- [ ] 2.1 Extend the deterministic checker to emit its doc inventory (repo,
+      path, status, content hash) as a machine-readable artifact per run
+- [ ] 2.2 Add tests: inventory content matches the corpus walked, hash diff
+      against a previous inventory yields the changed-docs set
+
+## 3. Sweep implementation (codexFactory)
+
+- [ ] 3.1 Add the versioned prompt contract under `scripts/doc_health/`
+      (instructions, finding schema with confidence note, the two semantic
+      families)
+- [ ] 3.2 Implement the sweep runner: consume the inventory, select full or
+      changed-docs scope, invoke the headless agent with pinned model id,
+      parse findings, assign stable ids (path + passage hash)
+- [ ] 3.3 Enforce the finding contract in code: always `contested`, severity
+      capped at `warning`, required fields present; drop and log anything
+      malformed
+- [ ] 3.4 Merge sweep findings into the dated report: semantic family
+      sections, ranked-plan items, model id + prompt version + scope line,
+      skipped marker on failure
+- [ ] 3.5 Tests: finding contract enforcement, dedupe against previous
+      report, skipped-sweep report path
+
+## 4. Runner integration (xFactory aggregation repo)
+
+- [ ] 4.1 Add the sweep step to the nightly workflow after the deterministic
+      pass: non-fatal, read-only checkout, model API key as the only secret,
+      weekly-full/nightly-incremental switch
+- [ ] 4.2 Verify a nightly run with the sweep skipped-on-failure path leaves
+      deterministic results intact
+
+## 5. Realization and archive
+
+- [ ] 5.1 Obtain a green nightly run whose report contains the semantic
+      sweep section (realization evidence for the code surface)
+- [ ] 5.2 Archive the change, promote the delta into
+      `openspec/specs/doc-health/spec.md`, close the staged topic, and
+      re-pin domain stack files if the contract ref moves
