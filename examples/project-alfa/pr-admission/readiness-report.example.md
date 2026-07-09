@@ -1,5 +1,7 @@
 # PR Admission Readiness Report
 
+Status: record
+
 Feature: FEAT-014 Invoice Retrieval
 Branch: work/FEAT-014-invoice-retrieval
 Decision: READY FOR HERMES APPROVAL

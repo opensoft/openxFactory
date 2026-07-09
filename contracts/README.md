@@ -1,5 +1,7 @@
 # Factory Contracts
 
+Status: draft
+
 This directory is the canonical home for shared factory contracts owned by
 `openxFactory`.
 

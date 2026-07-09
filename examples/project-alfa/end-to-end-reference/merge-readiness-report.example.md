@@ -1,5 +1,7 @@
 # Merge Readiness Report
 
+Status: record
+
 Feature: FEAT-001 Repo Diagnostics Command
 PR: #3
 Decision: NOT READY

@@ -1,5 +1,7 @@
 # Reference Examples
 
+Status: draft
+
 This directory contains canonical, static reference examples for the
 Hermes/Omnigent/OpenSpec/Spec Kit/GitHub workflow.
 

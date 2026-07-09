@@ -1,6 +1,6 @@
 # Decision 0002: xFactory Aggregation Repository
 
-Status: ratified
+Status: record
 Kind: reference
 Decision: accepted
 

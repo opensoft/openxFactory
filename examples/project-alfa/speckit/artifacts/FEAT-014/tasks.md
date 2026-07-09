@@ -1,5 +1,7 @@
 # FEAT-014 Tasks
 
+Status: record
+
 ## Tasks
 
 - Add invoice list query contract.

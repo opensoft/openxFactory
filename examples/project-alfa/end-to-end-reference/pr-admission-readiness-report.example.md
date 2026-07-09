@@ -1,5 +1,7 @@
 # PR Admission Readiness Report
 
+Status: record
+
 Feature: FEAT-001 Repo Diagnostics Command
 Branch: pilot/FEAT-001-repo-diagnostics-command
 Commit: b1e487f8d574d81ca769ad2fce4098030bc92f8b

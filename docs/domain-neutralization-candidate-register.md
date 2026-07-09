@@ -1,6 +1,6 @@
 # Domain Neutralization Candidate Register
 
-Status: staged
+Status: draft
 Kind: register
 Repository context: openxFactory
 Source scan date: 2026-07-08

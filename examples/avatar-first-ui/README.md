@@ -1,5 +1,7 @@
 # Avatar-First UI Examples
 
+Status: draft
+
 These examples show how domain factories specialize the shared
 openxFactory avatar-first UI template.
 

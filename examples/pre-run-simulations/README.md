@@ -1,5 +1,7 @@
 # Pre-Run Simulations
 
+Status: draft
+
 These files are simulated pre-run answer records for the existing xFactory
 domain repos.
 

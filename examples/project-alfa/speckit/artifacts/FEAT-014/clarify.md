@@ -1,5 +1,7 @@
 # FEAT-014 Clarification Packet
 
+Status: record
+
 ## Routed Questions
 
 - CQ-101 tenant isolation -> A1

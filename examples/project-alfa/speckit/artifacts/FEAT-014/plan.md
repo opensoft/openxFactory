@@ -1,5 +1,7 @@
 # FEAT-014 Plan
 
+Status: record
+
 ## Technical Plan
 
 - Use tenant ownership filtering in the invoice query path.

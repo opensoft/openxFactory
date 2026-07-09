@@ -1,5 +1,7 @@
 # openxFactory Contract Changelog
 
+Status: draft
+
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
 ## contract-v1.4 — 2026-07-09 (additive)

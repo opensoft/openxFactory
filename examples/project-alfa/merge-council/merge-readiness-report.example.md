@@ -1,5 +1,7 @@
 # Merge Readiness Report
 
+Status: record
+
 Feature: FEAT-014 Invoice Retrieval
 PR: #238
 Decision: READY FOR MERGE QUEUE

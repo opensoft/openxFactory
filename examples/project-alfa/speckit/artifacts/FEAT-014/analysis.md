@@ -1,5 +1,7 @@
 # FEAT-014 Analysis
 
+Status: record
+
 ## Findings
 
 - Scope is contained to invoice list retrieval.

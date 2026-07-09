@@ -1,5 +1,7 @@
 # FEAT-014 Invoice Retrieval Spec
 
+Status: record
+
 Customers can view invoices that belong to their own organization.
 
 ## Acceptance Criteria

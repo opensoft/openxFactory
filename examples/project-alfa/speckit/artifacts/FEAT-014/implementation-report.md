@@ -1,5 +1,7 @@
 # FEAT-014 Implementation Control Report
 
+Status: record
+
 ## Control Result
 
 Implementation is controlled by LC/C1 and remains inside Hermes gates.

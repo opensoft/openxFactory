@@ -1,5 +1,7 @@
 # xFactory Memory Gateway Examples
 
+Status: draft
+
 These examples show how DomainxFactories can bind memory and expert knowledge
 providers without making any provider the authority boundary.
 
