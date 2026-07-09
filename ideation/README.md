@@ -75,6 +75,9 @@ Staged topics (orthogonal feats; each exits through an OpenSpec change):
 - [lifecycle-notebook-hybrids](staging/lifecycle-notebook-hybrids/hybrid-analysis-process.md)
   — one temporary Canon + idea NotebookLM hybrid per brainstorm or staged
   topic analysis.
+- [contested-findings](staging/contested-findings/fix-plan.md) — report #1
+  incident: false-positive location finding auto-fixed a compliant register;
+  instance fix (checker + restore) plus the contested-finding process rule.
 - [workflow-gate-contract](staging/workflow-gate-contract/neutralization-draft.md)
   — DTN-001 + DTN-002 neutralization (workflow schema + gate vocabulary).
 - [workflow-visualization](staging/workflow-visualization/validation-ui-tooling.md)

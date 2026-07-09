@@ -119,6 +119,56 @@ unresolved relative to the Canon release in this notebook?
    further work, move the human-reviewed conclusions into staging or an
    OpenSpec proposal with source references.
 
+## Notebook-Originated Idea Return Path
+
+NotebookLM notes are split into two lanes:
+
+- **Scratch notes** stay inside NotebookLM. They are not imported into the
+  repository and are not part of the governed lifecycle.
+- **Export notes** are deliberately promoted inside NotebookLM by converting
+  the note to a source and giving the source an export title.
+
+Only converted sources with one of these title prefixes are imported:
+
+```text
+[export:brainstorm] <repo>: <topic> - <idea title>
+[export:staged] <repo>: <topic> - <idea title>
+```
+
+If `<repo>:` is omitted, `openxFactory` is assumed. Examples:
+
+```text
+[export:brainstorm] openxFactory: release-flow - branch ladder concern
+[export:staged] doc-health-checks - notebook projection drift
+```
+
+The codexFactory sync implementation imports those tagged sources with:
+
+```bash
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --import-exports "<hybrid-notebook-id-or-alias>"
+
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --import-exports "<hybrid-notebook-id-or-alias>" --apply
+```
+
+Dry-run lists the target files. `--apply` writes imported ideas to:
+
+```text
+openxFactory/ideation/brainstorm/<topic>/notebooklm-ideas-YYYY-MM-DD.md
+openxFactory/ideation/staging/<topic>/notebooklm-ideas-YYYY-MM-DD.md
+```
+
+Each imported file declares `Status: brainstorm` or `Status: staged`, records
+the NotebookLM source id and source title, and carries `Authority: L1 notebook
+synthesis`. Re-running the importer skips source ids that are already present
+in ideation files.
+
+Converted sources without `[export:brainstorm]` or `[export:staged]` are
+ignored. This gives operators an explicit NotebookLM-side gate: convert to
+source plus export title means "pull this back"; ordinary notes and untagged
+converted sources stay local to the notebook.
+
 ## Current Product Constraint
 
 The live `test-canon` test proved that a NotebookLM notebook created from
