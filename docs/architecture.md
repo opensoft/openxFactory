@@ -1,5 +1,7 @@
 # Architecture
 
+Status: draft
+
 This project defines the open reference stack for the xFactory family and the
 domain-neutral xFactory layer inside that stack.
 

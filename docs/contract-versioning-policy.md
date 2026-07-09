@@ -1,5 +1,7 @@
 # Contract Versioning Policy
 
+Status: draft
+
 This policy governs how openxFactory contracts change and how DomainxFactory
 repos upgrade. It closes the gap where everything was `schema_version: 1`
 pinned to a single commit with no defined upgrade path.

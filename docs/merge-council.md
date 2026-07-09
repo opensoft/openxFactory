@@ -1,5 +1,7 @@
 # Readiness Review Council
 
+Status: draft
+
 `openxFactory` is domain-neutral. This document defines the neutral readiness-review concept that domain work should receive a documented readiness decision before final enforcement or high-risk action.
 
 Engineering-specific merge council and merge readiness behavior now lives in:

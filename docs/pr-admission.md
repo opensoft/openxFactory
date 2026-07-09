@@ -1,5 +1,7 @@
 # External Admission Contract
 
+Status: draft
+
 `openxFactory` is domain-neutral. This document defines the neutral admission concept: a domain work product must not advance to external enforcement until required evidence and review gates are satisfied.
 
 Engineering-specific PR admission now lives in:

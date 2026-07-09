@@ -1,5 +1,7 @@
 # Spec Kit Engineering Flow Pointer
 
+Status: draft
+
 `openxFactory` is domain-neutral and no longer owns the engineering-specific Spec Kit stage ownership policy.
 
 Spec Kit is a software engineering feature-flow implementation and now belongs in `codexFactory`.

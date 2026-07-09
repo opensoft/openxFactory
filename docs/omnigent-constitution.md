@@ -1,5 +1,7 @@
 # Domain Omnigent Execution Boundary
 
+Status: draft
+
 `openxFactory` is domain-neutral and no longer owns an engineering-specific Omnigent/Polly constitution.
 
 ## Neutral Rule

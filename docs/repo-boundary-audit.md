@@ -1,5 +1,7 @@
 # Repository Boundary Audit
 
+Status: record
+
 This document defines the boundary between `openxFactory`, `Hermes-Install`,
 and `Omnigent-Install`.
 

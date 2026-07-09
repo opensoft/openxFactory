@@ -1,5 +1,7 @@
 # Workflow Contract
 
+Status: draft
+
 This is the required domain-neutral xFactory workflow contract from approved intent through final enforcement.
 
 `openxFactory` defines the rail. Domain factory repos define the domain-specific execution.

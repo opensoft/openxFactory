@@ -1,5 +1,7 @@
 # Enforcement Action Controller
 
+Status: draft
+
 `openxFactory` is domain-neutral. This document defines the neutral concept of converting a readiness decision into the next allowed enforcement or action state.
 
 Engineering-specific Merge Master behavior now lives in:

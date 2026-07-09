@@ -1,7 +1,11 @@
 # canonical-contract-migration Specification
 
 ## Purpose
-TBD - created by archiving change migrate-canonical-policy-to-openxfactory. Update Purpose after archive.
+Govern how shared contract schemas move from source repos (e.g.
+Omnigent-Install) into `openxFactory/contracts/` as the canonical home:
+copy-first slices, recorded source commits, and manifest entries that keep
+adapter ownership with the install repos while openxFactory owns meaning,
+versioning, and compatibility.
 ## Requirements
 ### Requirement: Copy-first contract migration
 The system SHALL migrate shared contracts into `openxFactory/contracts/` using

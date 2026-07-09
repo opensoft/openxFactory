@@ -1,7 +1,10 @@
 # reference-proof-placement Specification
 
 ## Purpose
-TBD - created by archiving change migrate-canonical-policy-to-openxfactory. Update Purpose after archive.
+Decide and record the canonical home for reference examples and proof
+harnesses before any are moved, so that runnable proofs stay next to the
+runtime that executes them while openxFactory keeps only domain-neutral
+reference material.
 ## Requirements
 ### Requirement: Reference proof placement decision
 The system SHALL decide the canonical home for reference examples and proof

@@ -1,5 +1,7 @@
 # Traceability Model
 
+Status: draft
+
 The factory must document traceability from approved intent through the final
 admission, enforcement, and archive state. This document defines the
 domain-neutral chain. DomainxFactory repos define their domain-specific

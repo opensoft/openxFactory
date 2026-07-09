@@ -1,7 +1,10 @@
 # canonical-policy-migration Specification
 
 ## Purpose
-TBD - created by archiving change migrate-canonical-policy-to-openxfactory. Update Purpose after archive.
+Govern how canonical factory policy documents (roles, gates, boundaries)
+migrate into `openxFactory` from domain and install repos: copy-first feature
+slices with provenance, so openxFactory becomes the single domain-neutral
+policy source and downstream repos keep only pinned or specialized copies.
 ## Requirements
 ### Requirement: Copy-first policy migration
 The system SHALL migrate canonical factory policy into `openxFactory` using

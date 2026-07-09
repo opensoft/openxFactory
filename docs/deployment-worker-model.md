@@ -1,5 +1,7 @@
 # Domain Worker Routing Model
 
+Status: draft
+
 `openxFactory` is domain-neutral. This document defines the neutral control-plane and worker-routing concept for xFactory domains.
 
 Engineering-specific worker deployment now lives in:

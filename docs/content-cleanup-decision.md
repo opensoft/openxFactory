@@ -1,5 +1,7 @@
 # Content Cleanup Decision
 
+Status: record
+
 Decision: keep migrated install repo policy, schema, and example copies for now
 as marked implementation, compatibility, or operational copies.
 

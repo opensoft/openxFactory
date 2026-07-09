@@ -1,5 +1,7 @@
 # Roles And Authority
 
+Status: draft
+
 This document is the canonical `openxFactory` role and authority model for the
 AI software development factory. Install repositories may keep operational
 implementation notes, but cross-factory responsibility, approval, escalation,

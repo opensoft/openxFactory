@@ -1,4 +1,6 @@
 schema_version: 1
+# Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
+contract_bundle_version: contract-v1.3
 source_compatibility_ref:
   repo: opensoft/Omnigent-Install
   local_source_path: /home/brett/projects/Agents/Omnigent-Install

@@ -40,6 +40,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-010 | Avatar or conversation safety supervisor | `split` | P2 | `seed` | neutral safety supervisor state machine and overlay slots |
 | DTN-011 | Domain profile, tenant, and deployment profile normalization | `promote` | P2 | `seed` | standard profile/deployment questionnaire schema |
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
+| DTN-013 | Neutral roles and authority model | `split` | P0 | `seed` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 
 ## Candidate Details
 
@@ -238,4 +239,24 @@ Evidence:
 
 Domain-local exclusions: source families, evidence types, authority thresholds,
 retention rules, privacy rules, and reviewer roles.
+
+### DTN-013: Neutral roles and authority model
+
+`docs/roles-and-authority.md` lives in openxFactory but is engineering-specific:
+it describes itself as the model "for the AI software development factory",
+defines the engineering-only LE/LC/LQ/LI/LS lead-role set, and names GitHub as
+the external enforcement system. This contradicts the repo's neutrality rule
+(`docs/omnigent-constitution.md`, `docs/workflow-contract.md`). The split:
+keep an abstract role/authority/escalation model here (authority tiers, lead
+roles as slots, external-enforcement slot), and move the engineering
+instantiation (LE/LC/LQ/LI/LS, GitHub enforcement) down to codexFactory.
+
+Evidence:
+
+- `docs/roles-and-authority.md`
+- `docs/omnigent-constitution.md`
+- `docs/workflow-contract.md`
+
+Domain-local exclusions: concrete role names, reviewer group mappings, and the
+domain's external enforcement system.
 

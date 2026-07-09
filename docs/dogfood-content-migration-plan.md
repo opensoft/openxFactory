@@ -1,5 +1,7 @@
 # Domain Neutralization and Engineering Content Migration Plan
 
+Status: draft
+
 This plan defines how `openxFactory` remains domain-neutral while engineering-specific workflow content moves to `opensoft/codexFactory`.
 
 ## Principle

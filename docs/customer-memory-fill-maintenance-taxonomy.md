@@ -53,7 +53,8 @@ openxFactory owns the general shape:
 DomainxFactory repos own the domain mapping:
 
 - domain name for the customer layer, such as Patient Hermes, Managed System
-  Hermes, Project Hermes, Client Hermes, or Campaign Hermes
+  Hermes, Project Hermes, or Campaign Hermes ("Client Hermes" is reserved for
+  the tenant/operator layer and must not alias the customer layer)
 - domain source families and adapters
 - domain claim types, timeline event types, and evidence graph relations
 - domain authority thresholds and reviewer roles

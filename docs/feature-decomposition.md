@@ -1,5 +1,7 @@
 # Work Decomposition Contract
 
+Status: draft
+
 `openxFactory` is domain-neutral. This document defines the neutral requirement that approved work must be decomposed into bounded, traceable work units before domain execution.
 
 Engineering-specific feature decomposition now lives in:

@@ -1,5 +1,7 @@
 # xFactory Domain Factory Model
 
+Status: draft
+
 This document generalizes `openxFactory` from a software development factory
 into the reusable `xFactory` pattern.
 
