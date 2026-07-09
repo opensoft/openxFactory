@@ -163,11 +163,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-add-release-realization-flow
+none
 ```
 
 Archived changes:
 
+- [add-release-realization-flow](openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
 - [add-lifecycle-notebook-hybrid-imports](openspec/changes/archive/2026-07-09-add-lifecycle-notebook-hybrid-imports/proposal.md)
 - [neutralize-job-envelope](openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
 - [split-roles-authority](openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md)
