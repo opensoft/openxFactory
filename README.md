@@ -159,7 +159,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-none
+neutralize-job-envelope
 ```
 
 Archived changes:

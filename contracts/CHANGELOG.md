@@ -4,6 +4,20 @@ Status: draft
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+## contract-v1.5 — 2026-07-09 (loosening, backward compatible)
+
+Changed:
+
+- `contracts/schemas/hermes-job-envelope.schema.yaml` — neutralized
+  (neutralize-job-envelope change; DTN-003): `repository` and `feature_id`
+  now optional, `job_type` a domain-owned string, new optional neutral
+  references (`domain`, `subject_ref`, `client_ref`, `workflow_ref`,
+  `focal_item_ref`, `gate_ref`, `artifact_refs`). Engineering strictness
+  moves to codexFactory's engineering-job-envelope overlay.
+- `contracts/schemas/hermes-job-run.schema.yaml` — `feature_id` optional.
+- `contracts/schemas/hermes-job-event.schema.yaml` — unchanged (already
+  neutral; lifecycle enums are domain-neutral vocabulary).
+
 ## contract-v1.4 — 2026-07-09 (additive)
 
 Added:
