@@ -168,6 +168,7 @@ add-release-realization-flow
 
 Archived changes:
 
+- [add-lifecycle-notebook-hybrid-imports](openspec/changes/archive/2026-07-09-add-lifecycle-notebook-hybrid-imports/proposal.md)
 - [neutralize-job-envelope](openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
 - [split-roles-authority](openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md)
 - [promote-credential-contracts](openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md)
