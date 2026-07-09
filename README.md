@@ -154,7 +154,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-none
+adopt-workflow-visualization-stack
+refine-promotion-provenance
 ```
 
 Archived changes:
