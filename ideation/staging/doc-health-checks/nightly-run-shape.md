@@ -7,7 +7,7 @@ Source: [doc-health-pipeline brainstorm](../../brainstorm/doc-health-pipeline.md
 Target capability: new `doc-health` capability (delta: ADDED) — contract in
 openxFactory, implementation in codexFactory, nightly runner hosted by the
 `xFactory` aggregation repo (the only repo pinning all submodules).
-Proposed by: [add-doc-health-contract](../../../openspec/changes/add-doc-health-contract/proposal.md)
+Proposed by: [add-doc-health-contract](../../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
 — the first of this topic's two declared exit changes (the contract); the
 codexFactory implementation change follows after it ratifies, scoped by
 [implementation-handoff.md](implementation-handoff.md).
@@ -37,7 +37,7 @@ run MUST implement, now carried by the contract change.
 ## Open questions
 
 Both resolved at the proposal gate — see
-[design.md](../../../openspec/changes/add-doc-health-contract/design.md)
+[design.md](../../../openspec/changes/archive/2026-07-09-add-doc-health-contract/design.md)
 of the proposing change:
 
 - Aging thresholds → **contract defaults**: staged topics and candidate
@@ -50,7 +50,7 @@ of the proposing change:
 ## Exit
 
 Two OpenSpec changes:
-[add-doc-health-contract](../../../openspec/changes/add-doc-health-contract/proposal.md)
+[add-doc-health-contract](../../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
 (openxFactory, the capability and report schema — created 2026-07-09) and
 the codexFactory implementation change with the workflow + scripts, scoped
 by [implementation-handoff.md](implementation-handoff.md).

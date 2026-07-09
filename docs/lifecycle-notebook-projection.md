@@ -1,8 +1,8 @@
 # Lifecycle Notebook Projection
 
-Status: ratified
+Status: standard
 Kind: process
-Ratified by: [add-lifecycle-notebook-projection](../openspec/changes/add-lifecycle-notebook-projection/proposal.md)
+Backed by: [openspec/specs/lifecycle-notebook-projection/spec.md](../openspec/specs/lifecycle-notebook-projection/spec.md) (promoted from the archived add-lifecycle-notebook-projection change)
 Repository context: openxFactory
 Purpose: define the full NotebookLM workflow for the governance corpus — how
 document lifecycle states project into derived notebooks, how those notebooks

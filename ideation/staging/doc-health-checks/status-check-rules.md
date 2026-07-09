@@ -5,7 +5,7 @@ Kind: reference
 Repository context: openxFactory
 Target: the codexFactory doc-health implementation proposal (deterministic
 pass); staged per task 5.3 of the add-document-lifecycle-vocabulary change.
-Proposed by: [add-doc-health-contract](../../../openspec/changes/add-doc-health-contract/proposal.md)
+Proposed by: [add-doc-health-contract](../../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
 — checks 1–8 below are now carried as the contract's status, succession,
 location, immutability, aging, and register check families.
 

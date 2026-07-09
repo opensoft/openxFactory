@@ -1,9 +1,9 @@
 # xFactory Document Lifecycle
 
-Status: ratified
+Status: standard
 Kind: process
 Repository context: openxFactory
-Ratified by: [add-document-lifecycle-vocabulary](../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
+Backed by: [openspec/specs/document-lifecycle/spec.md](../openspec/specs/document-lifecycle/spec.md) (promoted from the archived add-document-lifecycle-vocabulary change)
 Purpose: define the canonical lifecycle for governance documents, the
 controlled `Status:` and `Kind:` header taxonomy, and the gates between
 states, for openxFactory and every DomainxFactory.
@@ -74,7 +74,7 @@ contradictions as findings.
 The machine-readable markers the rule and the conversion queue rely on use
 one canonical grammar under the `xspec:` namespace, expressed as HTML
 comments (concretized by the
-[concretize-prose-tagging-syntax](../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
+[concretize-prose-tagging-syntax](../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md)
 change):
 
 ```text
@@ -129,5 +129,5 @@ change):
 - [Domain Neutralization Candidate Register](domain-neutralization-candidate-register.md)
   — per-concept register whose aliases map onto this spine.
 - Migration mapping for pre-taxonomy `Status:` values:
-  [design.md](../openspec/changes/add-document-lifecycle-vocabulary/design.md)
+  [design.md](../openspec/changes/archive/2026-07-09-add-document-lifecycle-vocabulary/design.md)
   of the ratifying change.

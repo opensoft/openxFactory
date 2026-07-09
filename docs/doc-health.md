@@ -1,9 +1,9 @@
 # xFactory Doc-Health Contract
 
-Status: ratified
+Status: standard
 Kind: process
 Repository context: openxFactory
-Ratified by: [add-doc-health-contract](../openspec/changes/add-doc-health-contract/proposal.md)
+Backed by: [openspec/specs/doc-health/spec.md](../openspec/specs/doc-health/spec.md) (promoted from the archived add-doc-health-contract change)
 Purpose: define the deterministic health-check contract for the factory
 family's governance corpus — the check families, the report and ranked-plan
 schema, finding severities, aging thresholds, and the ownership split.

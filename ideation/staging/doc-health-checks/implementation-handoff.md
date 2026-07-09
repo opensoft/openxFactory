@@ -3,7 +3,7 @@
 Status: staged
 Kind: reference
 Repository context: openxFactory
-Source: [add-doc-health-contract](../../../openspec/changes/add-doc-health-contract/proposal.md)
+Source: [add-doc-health-contract](../../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
 (task 3.1) — the ratified contract this scopes an implementation of.
 Target capability: the follow-on **codexFactory** implementation change
 (the second of this topic's two declared exit changes). Contract surface

@@ -2,7 +2,7 @@
 
 Status: ratified
 Kind: process
-Ratified by: [add-document-lifecycle-vocabulary](../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
+Ratified by: [add-document-lifecycle-vocabulary](../openspec/changes/archive/2026-07-09-add-document-lifecycle-vocabulary/proposal.md)
 Repository context: openxFactory
 Purpose: provide the governed pre-proposal pipeline that turns free-form
 thinking into OpenSpec proposals, so prose never silently becomes (or

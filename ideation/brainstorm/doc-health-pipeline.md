@@ -4,9 +4,9 @@ Status: staged
 Captured: 2026-07-08; fully organized 2026-07-09. Nothing in this document is
 policy; kept as design history. Where each section went:
 lifecycle vocabulary + ideation convention ->
-[add-document-lifecycle-vocabulary](../../openspec/changes/add-document-lifecycle-vocabulary/proposal.md)
+[add-document-lifecycle-vocabulary](../../openspec/changes/archive/2026-07-09-add-document-lifecycle-vocabulary/proposal.md)
 (ratified); prose tagging ->
-[concretize-prose-tagging-syntax](../../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
+[concretize-prose-tagging-syntax](../../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md)
 (proposed, via [staging/prose-tagging/](../staging/prose-tagging/tag-syntax.md);
 note: the doc-level `Status: spec-candidate` idea below was dropped at the
 proposal gate — candidacy is block-level only);
