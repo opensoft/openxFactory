@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "b0976871232c8cef70f958903b147a57173b500113feea368323ee27cc59130f"
+  },
+  "change_id": "promote-credential-contracts",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "8fa00cffff1855a957d11e208837edb0b72643314de692618d87ff9326f6f308"
+    },
+    {
+      "path": "neutralization-draft.md",
+      "sha256": "7f216a8389718b6241cd0ca1b550e7082132c42d44a82e25d0dd623d76e7e6ea"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/credential-contracts",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

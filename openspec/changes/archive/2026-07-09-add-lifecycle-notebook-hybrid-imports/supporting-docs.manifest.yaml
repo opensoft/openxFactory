@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "f1126f2c70b4108032f942b1e756800b506c0324cc486169ee52afea8160acc3"
+  },
+  "change_id": "add-lifecycle-notebook-hybrid-imports",
+  "files": [
+    {
+      "path": "hybrid-analysis-process.md",
+      "sha256": "f81bf2d08903fcdba236f16fed8776ff1c28eca2122d29581b461c4cd1ddae74"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "846ca7b20709a801a296ec8234565ce18fcc21c573f57629ffb48837f21df764"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/lifecycle-notebook-hybrids",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

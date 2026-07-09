@@ -7,11 +7,11 @@ lifecycle vocabulary + ideation convention ->
 [add-document-lifecycle-vocabulary](../../openspec/changes/archive/2026-07-09-add-document-lifecycle-vocabulary/proposal.md)
 (ratified); prose tagging ->
 [concretize-prose-tagging-syntax](../../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md)
-(proposed, via [staging/prose-tagging/](../staging/prose-tagging/tag-syntax.md);
+(proposed, via [concretize-prose-tagging-syntax](../../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md);
 note: the doc-level `Status: spec-candidate` idea below was dropped at the
 proposal gate — candidacy is block-level only);
-nightly run + report -> [staging/doc-health-checks/](../staging/doc-health-checks/nightly-run-shape.md);
-agentic pass -> [staging/semantic-health-sweep/](../staging/semantic-health-sweep/agentic-pass.md).
+nightly run + report -> [add-doc-health-contract](../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md);
+agentic pass -> [add-doc-health-semantic-sweep](../../openspec/changes/add-doc-health-semantic-sweep/proposal.md).
 Repository context: openxFactory (contract-level, cross-factory topic)
 Participants: Brett Heap, Claude (design session)
 

@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "6b29e10d280b2640d33a8ff4cd691ae4ce19d0bf7646281db2e05fc70a764c76"
+  },
+  "change_id": "neutralize-job-envelope",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "2d253565a1c3cc271c4751433ab74b67cbec9ca7799e8fd732ffe24368fedebb"
+    },
+    {
+      "path": "neutralization-draft.md",
+      "sha256": "0f0ebecc9dd520fe1d1937f2e0b4a3207d3dba891774147e43c801d2aded2f0d"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/job-envelope-neutralization",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

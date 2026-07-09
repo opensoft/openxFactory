@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "6e2db9bb0e6fedad263526a0acc5cd2a892c45519acb56ba3150d174864eadbf"
+  },
+  "change_id": "split-roles-authority",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "24896c4679edd6cffe85bd5cd56fd1a99b2bdbdd1ec99e1fa1d060d1f495e46f"
+    },
+    {
+      "path": "neutralization-draft.md",
+      "sha256": "0e1399183d80b375c72ef6c3c247779c16c5ef246d82f874e05502e548190279"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/roles-authority-split",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

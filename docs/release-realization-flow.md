@@ -3,7 +3,7 @@
 Status: ratified
 Kind: process
 Repository context: openxFactory
-Ratified by: [add-release-realization-flow](../openspec/changes/add-release-realization-flow/proposal.md)
+Ratified by: [add-release-realization-flow](../openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
 Purpose: define how OpenSpec changes with code surfaces are realized —
 the realization axis, the archive gate, decomposition scale rules, release
 targets, and the branch vocabulary — so brownfield tracking falls out of
@@ -66,6 +66,13 @@ approved, unrealized, and visibly so. Archiving an unrealized code-surface
 change is a **contested-class act** under the doc-health contract: it
 requires an explicit disposition, and doing it silently surfaces in the
 regression diff.
+
+If a change owns `supporting-docs/`, the archive gate also requires every
+accepted normative claim to be represented in proposal, design, or spec delta;
+one final NotebookLM source return when a hybrid exists; strict validation;
+and deterministic packaging. The wrapper creates `supporting-docs.tar.gz` and
+`supporting-docs.manifest.yaml` before invoking normal `openspec archive`, so
+spec promotion is unchanged.
 
 ## Decomposition Scale Rule
 

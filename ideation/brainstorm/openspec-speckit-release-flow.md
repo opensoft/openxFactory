@@ -2,7 +2,7 @@
 
 Status: staged
 Captured: 2026-07-09; organized 2026-07-09 into
-[staging/release-flow/organized-model.md](../staging/release-flow/organized-model.md)
+[add-release-realization-flow](../../openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
 and proposed as
 [add-release-realization-flow](../../openspec/changes/add-release-realization-flow/proposal.md)
 after the implement-doc-health-checker pilot answered the open questions.

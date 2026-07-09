@@ -22,11 +22,15 @@ staging/<topic>/           structured fragments ready for proposal drafting:
                            claim, target capability, delta type
                            (ADDED / MODIFIED / REMOVED), evidence links
       |
-      |  proposal gate: the staged set is coherent and complete
+      |  proposal gate: selected files move with Git history
       v
-openspec/changes/<name>/   a normal OpenSpec change proposal; from here the
-                           standard flow applies (approve -> implement ->
-                           archive -> promoted specs)
+openspec/changes/<name>/   a normal OpenSpec change proposal with source
+  supporting-docs/        material and a manifest; from here the standard
+                           flow applies (approve -> implement -> archive)
+      |
+      |  archive gate: support becomes a verified tar-gzip bundle
+      v
+openspec/changes/archive/  proposal history + promoted spec delta + bundle
 ```
 
 Rules while this convention is in draft:
@@ -35,7 +39,12 @@ Rules while this convention is in draft:
   the area is for. Everywhere else, prose that changes promoted policy must be
   an explicit delta (see the doc-health pipeline brainstorm).
 - Moving material from `brainstorm/` to `staging/` and from `staging/` to an
-  OpenSpec change are deliberate, reviewed steps — never bulk copies.
+  OpenSpec change are deliberate, reviewed steps. Selected staged files are
+  moved, not copied, into the change's `supporting-docs/` folder. Unselected
+  files remain staged for a later proposal.
+- `ideation/staging/` lists only organized work that has not crossed a proposal
+  gate. Completed proposal source is retained with the active or archived
+  OpenSpec change, not as a stale staged topic.
 - Each DomainxFactory keeps its own `ideation/` area for domain-scoped topics;
   cross-factory and contract-level topics belong here in openxFactory.
 
@@ -60,25 +69,11 @@ Brainstorm (active):
   — brownfield realization axis: release targets, delta-driven feat
   decomposition, and the archive gate binding to merge evidence.
 
-Staged topics (orthogonal feats; each exits through an OpenSpec change):
+Staged topics:
 
-- [prose-tagging](staging/prose-tagging/tag-syntax.md) — concrete xspec
-  candidate/supersedes tag syntax.
-- [doc-health-checks](staging/doc-health-checks/nightly-run-shape.md) — the
-  deterministic nightly run, report, and ranked plan
-  (+ [status-check-rules](staging/doc-health-checks/status-check-rules.md)).
-- [semantic-health-sweep](staging/semantic-health-sweep/agentic-pass.md) —
-  the agentic contradiction/normative-prose pass; deliberately sequenced
-  after the deterministic run.
-- [promotion-refinements](staging/promotion-refinements/open-questions.md) —
-  drafting ownership, stack.yaml provenance fields, mid-promotion pins.
-- [lifecycle-notebook-hybrids](staging/lifecycle-notebook-hybrids/hybrid-analysis-process.md)
-  — one temporary Canon + idea NotebookLM hybrid per brainstorm or staged
-  topic analysis.
-- [contested-findings](staging/contested-findings/fix-plan.md) — report #1
-  incident: false-positive location finding auto-fixed a compliant register;
-  instance fix (checker + restore) plus the contested-finding process rule.
-- [workflow-gate-contract](staging/workflow-gate-contract/neutralization-draft.md)
-  — DTN-001 + DTN-002 neutralization (workflow schema + gate vocabulary).
-- [workflow-visualization](staging/workflow-visualization/validation-ui-tooling.md)
-  — MIT tooling decision for the client validation walkthrough UI.
+- None after the proposal-support migration. New organized work appears here
+  only until its OpenSpec proposal is created.
+
+Proposal source and completed design history are retained with their active or
+archived OpenSpec changes under `supporting-docs/` or
+`supporting-docs.tar.gz`, with readable manifests.

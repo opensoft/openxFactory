@@ -1,0 +1,16 @@
+{
+  "change_id": "add-doc-health-semantic-sweep",
+  "files": [
+    {
+      "path": "agentic-pass.md",
+      "sha256": "451e4328142a676b18d5dc35b707d444e13642d045d9c7cafbf486449b22164c",
+      "source_path": "ideation/staging/semantic-health-sweep/agentic-pass.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/semantic-health-sweep",
+  "remaining_paths": [],
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

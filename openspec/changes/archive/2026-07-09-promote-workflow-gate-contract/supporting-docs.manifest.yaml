@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "f2286acc3f1513af172d2db84e39238a888543467ab56f8c09bb040930437469"
+  },
+  "change_id": "promote-workflow-gate-contract",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "4c892d79d1fc806907d3dba10b54bf961964eb73103d1e4fcd5e8702570afdb2"
+    },
+    {
+      "path": "neutralization-draft.md",
+      "sha256": "346e0107d60774cf0f4a1cc85fd57d108d1c622edb2c80aae603b5258c91bb41"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/workflow-gate-contract",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

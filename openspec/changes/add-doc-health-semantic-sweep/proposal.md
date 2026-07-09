@@ -10,7 +10,7 @@ baseline, but twelve grep-shaped check families cannot find the two defect
 classes the corpus review flagged as highest-risk: untagged normative prose
 ("must", "owns", "never" asserted outside promoted specs) and semantic
 contradictions between prose and the requirements it should follow. The
-staged topic (`ideation/staging/semantic-health-sweep/`) gated this pass on
+proposal support (`supporting-docs/agentic-pass.md`) gated this pass on
 the deterministic run operating long enough to provide a doc inventory and
 baseline — that exit condition is now met.
 
@@ -58,9 +58,8 @@ baseline — that exit condition is now met.
 
 ## Impact
 
-- openxFactory: `doc-health` spec delta; staged topic
-  `ideation/staging/semantic-health-sweep/` closes when this change
-  archives.
+- openxFactory: `doc-health` spec delta; proposal support is retained with
+  this change and packaged when the change archives.
 - codexFactory: sweep implementation (prompt contract, runner integration
   under `scripts/doc_health/`, tests) — implementation owner per the
   existing ownership split.

@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "d59febec598ecb4165c9552caaa1eb39c3aa7f663d0c382459083f8df82c1b0b"
+  },
+  "change_id": "adopt-workflow-visualization-stack",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "def90fc3e2344d03370d5b188ca4c9d44fdd7f3fde7fae126a06fca32f512a0e"
+    },
+    {
+      "path": "validation-ui-tooling.md",
+      "sha256": "427daac8906ad8ce43e3f7bb563eb84eff6078c7b8cee16eafa3b28ec4edc9f7"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/workflow-visualization",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

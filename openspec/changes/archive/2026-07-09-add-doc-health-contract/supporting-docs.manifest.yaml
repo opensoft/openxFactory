@@ -1,0 +1,36 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "017f2e7982b46630153b2299a02518e745d3875eac7540843cead26d61ca579a"
+  },
+  "change_id": "add-doc-health-contract",
+  "files": [
+    {
+      "path": "implementation-handoff.md",
+      "sha256": "1d846a8b8552f57a2a325434c8db7b796269ee794b0018bd6cd855dad1091811"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "9c5c8f00e38345412bcbdbfed739fae918ddccddfb12d3173c541a5482cb0ea9"
+    },
+    {
+      "path": "nightly-run-shape.md",
+      "sha256": "d7401cac6097bfd0816c0e6b9f5a0583579c813bd895612d4c555f01e7dfce10"
+    },
+    {
+      "path": "status-check-rules.md",
+      "sha256": "7c54ceb99fad4b2cf115a50da046945b46ce772e2b350f765d6998122b16029c"
+    },
+    {
+      "path": "tag-hygiene-rules.md",
+      "sha256": "0c0aab4d29abe65bf65ab98bb77acdd0bdf3a2d4a34fedc562bbc5702837ca26"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/doc-health-checks",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

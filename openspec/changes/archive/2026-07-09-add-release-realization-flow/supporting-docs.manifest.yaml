@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "dc0fa69dc6433f4067a51db1fba072e44329ad95a40d4e47aa228911718a3e3c"
+  },
+  "change_id": "add-release-realization-flow",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "247daa11fad8b19a50741d19a3e6f990e975de9bd3263abb0d22e4284c1ef062"
+    },
+    {
+      "path": "organized-model.md",
+      "sha256": "a92cb3b0e790b07c5be8a64116302b8cdea2bcf05e11c56257aa13113fb30383"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/release-flow",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

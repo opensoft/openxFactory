@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "c3ddfeafde8842ff84e1cc78e9734d9b970d3027763e93d2f99ee2ef502fd49c"
+  },
+  "change_id": "refine-promotion-provenance",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "532921f64ff1bb408b2f7767069731292d6208c8c039f2585ac326550c3c675b"
+    },
+    {
+      "path": "open-questions.md",
+      "sha256": "c3e0a2bb7c05bae141966409f1d8fd7212b6e3981c7c32bc8d90db5ed3fb4078"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/promotion-refinements",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

@@ -166,6 +166,10 @@ Active changes:
   — agentic semantic sweep extending `doc-health` (code surface:
   codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
   until realization evidence lands)
+- [add-proposal-supporting-doc-lifecycle](openspec/changes/add-proposal-supporting-doc-lifecycle/proposal.md)
+  — moves proposed source material out of staging, preserves it with active
+  changes, and packages it beside archived changes (code surface:
+  codexFactory; ratified 2026-07-09; realization evidence recorded)
 
 Archived changes:
 

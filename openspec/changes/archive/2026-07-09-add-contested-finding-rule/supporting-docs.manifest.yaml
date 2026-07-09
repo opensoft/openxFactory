@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "3f9d4f3cc1271ad9dd16da360323fb29e86ac03d9e859073084fb5138b85dcb0"
+  },
+  "change_id": "add-contested-finding-rule",
+  "files": [
+    {
+      "path": "fix-plan.md",
+      "sha256": "88cc9db9480d8df7b7c4788a3ac0f0b6c3820e9e2134c78136c89325c5d7e155"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "13ab353a8eb0ebf731eee49769a627ec9f44a39fd92b4c6ab4e48d25c20dbd9b"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/contested-findings",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

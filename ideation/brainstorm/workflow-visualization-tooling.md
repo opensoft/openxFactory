@@ -2,7 +2,7 @@
 
 Status: staged
 Organized: 2026-07-09 into
-[staging/workflow-visualization/](../staging/workflow-visualization/validation-ui-tooling.md);
+[adopt-workflow-visualization-stack](../../openspec/changes/archive/2026-07-09-adopt-workflow-visualization-stack/proposal.md);
 kept as evidence (license sources checked).
 Repository context: openxFactory
 Purpose: capture MIT-licensed open source visualization candidates for the Client

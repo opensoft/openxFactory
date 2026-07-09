@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "3e5db18a9f58823accc71ead6cf5d41ebbe3b4675e060c20060528ec4fb8286c"
+  },
+  "change_id": "concretize-prose-tagging-syntax",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "f3bd0799a6eefc8bd9fe56a07b9144dfc3b19d5b1eaa32eff56795c2bdc8b0f7"
+    },
+    {
+      "path": "tag-syntax.md",
+      "sha256": "a988b4542a62594618c709e742fdd28d67f7f8f39230a8450c8a341d0d446c8c"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/prose-tagging",
+  "packaged_at": "2026-07-09",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

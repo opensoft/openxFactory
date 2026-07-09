@@ -17,6 +17,7 @@ captured     free-form thinking exists (ideation/brainstorm/)
 organized    pieces identified, deduped, targeted (ideation/staging/,
              candidate registers)
 proposed     an OpenSpec change exists
+             selected source material lives with that active change
 ratified     the change is approved
 implemented  the artifact (doc, schema, validator, template) is built
 promoted     canonical — the contract/spec layer owns it
@@ -113,13 +114,40 @@ change):
   targeted into `ideation/staging/` or a candidate register; the source is
   marked accordingly.
 - `organized -> proposed`: an OpenSpec change is created carrying the spec
-  deltas; staged material references it.
+  deltas; selected staged material moves with Git history into
+  `openspec/changes/<change-id>/supporting-docs/`. Proposed prose becomes
+  `draft`; immutable evidence stays `record`.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
 - `implemented -> promoted`: the change archives and its requirements live
-  under canonical specs; affected docs may claim `standard`.
+  under canonical specs; affected docs may claim `standard`. Before archive,
+  proposal support is packaged as `supporting-docs.tar.gz` beside the archived
+  change with a readable checksum manifest. Historical bundles never live
+  under canonical `openspec/specs/`.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).
+
+### Proposal Supporting Documents
+
+`ideation/staging/` is a live queue, not permanent storage. At the proposal
+gate, selected files move into the active OpenSpec change:
+
+```text
+ideation/staging/<topic>/
+  -> openspec/changes/<change-id>/supporting-docs/
+  -> openspec/changes/archive/<date>-<change-id>/supporting-docs.tar.gz
+```
+
+Each active support folder owns `manifest.yaml`, recording the source path,
+source revision, transition date, selected files and hashes, optional
+NotebookLM workspace, and any files deliberately left staged. A partial
+promotion moves only selected files; the residual topic remains in staging.
+When no material remains, the staging folder disappears.
+
+The archived change keeps `supporting-docs.manifest.yaml` readable beside the
+compressed bundle. Proposal, design, and spec artifacts must carry every
+accepted normative claim before compression; the bundle is provenance, not
+canonical policy.
 
 ## Related Documents
 

@@ -17,8 +17,8 @@ sync dry-run is one of the drift checks).
 
 This contract covers the **deterministic pass only**: same inputs, same
 findings, no model calls. The agentic/semantic sweep (untagged normative
-prose, prose-vs-spec contradiction) is a separate future capability
-(`ideation/staging/semantic-health-sweep/`). Implementation lives in
+prose, prose-vs-spec contradiction) is a separate active change
+(`openspec/changes/add-doc-health-semantic-sweep/`). Implementation lives in
 codexFactory; the nightly runner is hosted by the xFactory aggregation
 repo; this document and the `doc-health` spec own the contract.
 
@@ -34,7 +34,7 @@ family that cannot run is reported as skipped, never silently omitted.
 | 2 | Standard backing | Every `standard` claim (header or prose) is backed by a promoted spec or canonical contract |
 | 3 | Ratified provenance | Every `Ratified by:` resolves to an existing OpenSpec change |
 | 4 | Succession integrity | `superseded` docs name successors; `retired` docs name reasons |
-| 5 | Location conformance | `brainstorm` docs only in `ideation/brainstorm/`; staging fragments only in `ideation/staging/` |
+| 5 | Location conformance | Lifecycle locations, proposal-support manifests/statuses, archive bundle checksums, and no historical bundles under canonical specs |
 | 6 | Record immutability | `record` docs unchanged after capture (link fixes excepted) |
 | 7 | Staged/candidate aging | Staged topics, candidate blocks, unmarked supersedes refs, and draft ages against the thresholds below |
 | 8 | Register-lifecycle consistency | Candidate register aliases map to lifecycle states; `adopted` entries have no surviving near-duplicates |
@@ -103,6 +103,12 @@ each domain repo  owns APPROVAL of its own content: the pipeline reports
 Changes to check families, schema, severities, or thresholds are OpenSpec
 deltas to the `doc-health` capability here; the implementation follows.
 
+Proposal-support integrity is part of location conformance rather than a
+thirteenth family. It reports staged documents that already cite a proposal,
+active support folders without valid manifests, `staged` status below an
+active proposal, unverifiable archived bundles, and bundles misplaced below
+`openspec/specs/`.
+
 ## Related Documents
 
 - [Document Lifecycle](document-lifecycle.md) — states, taxonomy, marker
@@ -111,5 +117,5 @@ deltas to the `doc-health` capability here; the implementation follows.
   drift-check target and report distribution surface.
 - [Domain Neutralization Candidate Register](domain-neutralization-candidate-register.md)
   — register the consistency family checks.
-- Implementation scope for the follow-on codexFactory change:
-  [ideation/staging/doc-health-checks/implementation-handoff.md](../ideation/staging/doc-health-checks/implementation-handoff.md).
+- Implementation history is retained with the archived doc-health OpenSpec
+  changes and their supporting-document manifests.

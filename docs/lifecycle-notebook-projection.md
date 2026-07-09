@@ -118,8 +118,8 @@ nlm studio status xf-canon
 ```
 
 Cadence: manual after meaningful doc changes for now; intended to run from
-the nightly doc-health action once that pipeline is implemented (see
-`ideation/staging/doc-health-pipeline/`).
+the nightly doc-health action once that pipeline is implemented (see the
+archived `add-doc-health-contract` OpenSpec record).
 
 ## 7. Temporary Hybrid Analysis Notebooks
 
@@ -131,6 +131,7 @@ origin idea target:
 ```text
 Canon release line + ideation/brainstorm/<topic>/
 Canon release line + ideation/staging/<topic>/
+Canon release line + openspec/changes/<change-id>/supporting-docs/
 ```
 
 The hybrid's charter source is titled `00 [hybrid charter] Read me first` and
@@ -139,10 +140,10 @@ hybrid output is `L1 notebook synthesis`. Hybrid output can raise claims and
 suggest deltas, but it cannot decide policy, memory, release scope, OpenSpec
 approval, or customer-facing output.
 
-The staged operating process is
-[ideation/staging/lifecycle-notebook-hybrids/hybrid-analysis-process.md](../ideation/staging/lifecycle-notebook-hybrids/hybrid-analysis-process.md).
-That process remains the operator runbook for assembling, refreshing, and
-retiring hybrid notebooks.
+When a staged topic crosses the proposal gate, its hybrid origin moves with it
+to the active change's `supporting-docs/` folder. The Canon release line remains
+unchanged. The archived lifecycle-notebook-hybrid-imports change retains the
+source operating process and its support bundle.
 
 ## 8. Hybrid Source Return Imports
 
@@ -163,14 +164,23 @@ python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
   --import-new-sources "<hybrid-notebook-id-or-alias>" \
   --target-path "openxFactory/ideation/staging/<topic>" \
   --apply
+
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --import-new-sources "<hybrid-notebook-id-or-alias>" \
+  --target-path "openxFactory/openspec/changes/<change-id>/supporting-docs" \
+  --apply
 ```
 
 Import mode is dry-run by default. With `--apply`, imported material is written
 to `notebooklm-ideas-YYYY-MM-DD.md` under the supplied origin folder. The file
-carries `Status: brainstorm` or `Status: staged`, `Kind: reference`,
+carries `Status: brainstorm`, `Status: staged`, or `Status: draft` according
+to its origin, `Kind: reference`,
 `Authority: L1 notebook synthesis`, the source workspace, the NotebookLM
 source id, and the NotebookLM source title. Re-running the importer skips
-source ids that are already present in ideation files.
+source ids that are already present in lifecycle files.
+
+Before a proposal archives, run one final source-return import. Package only
+after the import completes, then retire the temporary hybrid from active use.
 
 Seed sources are context, not new material. Importers skip `00 [charter]`,
 `00 [hybrid charter]`, and titles beginning `[brainstorm]`, `[staged]`,
