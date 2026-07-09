@@ -62,6 +62,9 @@ delta; this document is provenance for the reasoning.
 
 ## Workstation registration runbook (task 4.4)
 
+Canonical runbook: `CloudPC-Install/docs/doc-analysis-worker-host.md`
+(pinned at `installs/cloudpc-install` in the aggregation repo). Summary:
+
 1. Provision the cloud workstation per the omnigent-install cloudpc
    worker pack; install python3.
 2. Install and log in the `claude` CLI under the worker persona
