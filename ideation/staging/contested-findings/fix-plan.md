@@ -59,6 +59,10 @@ spec.
 
 ## Exit
 
-One OpenSpec change (openxFactory): `add-contested-finding-rule` carrying
-the doc-health and document-lifecycle deltas; the checker fix and register
-restore ride as its cross-repo tasks, sequenced checker-first.
+Satisfied by
+[add-contested-finding-rule](../../../openspec/changes/add-contested-finding-rule/proposal.md)
+(2026-07-09). Correction found at proposal: document-lifecycle needed NO
+delta — its promoted text already allows registers; both deltas landed in
+doc-health (register-aware location rule + resolution classes with the
+uncited-resolution regression rule). Checker fixed first, register restored
+to `staged` second; exemption verified against the live corpus.

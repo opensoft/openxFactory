@@ -240,6 +240,32 @@ Retire the hybrid after the idea is rejected, deferred, or promoted into an
 OpenSpec proposal. Keep only the reviewed conclusions and the workspace record
 needed to trace any NotebookLM-derived claims.
 
+## Ready For Review Gate
+
+Changes to this process or to its codexFactory implementation are ready for
+proposal review only after the checks run in this order:
+
+1. Implement or edit the affected docs and tooling.
+2. Run local implementation tests for the touched tooling.
+3. Run the owning repo's validation suite.
+4. Run OpenSpec validation for the affected proposal/spec corpus.
+5. Mark the proposal/change ready for review only if all prior checks pass.
+
+For the current NotebookLM importer, the concrete sequence is:
+
+```bash
+cd xFactories/codexFactory
+python3 -m unittest discover -s tests/notebooklm -q
+bash scripts/validate-docs.sh
+
+cd ../../openxFactory
+OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+```
+
+OpenSpec validation checks proposal/spec structure. It does not replace
+implementation tests for importer behavior or repo validation for generated
+artifacts, schemas, and self-gates.
+
 ## Exit
 
 If this process becomes standard, ratify it through an OpenSpec change against
