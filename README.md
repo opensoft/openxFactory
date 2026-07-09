@@ -94,6 +94,7 @@ Core domain-neutral docs:
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
 - [Document Lifecycle](docs/document-lifecycle.md)
+- [Doc-Health Contract](docs/doc-health.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
 - [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)

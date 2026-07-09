@@ -8,6 +8,10 @@ pass); companion to [status-check-rules.md](status-check-rules.md); staged
 per task 3.1 of the
 [concretize-prose-tagging-syntax](../../../openspec/changes/concretize-prose-tagging-syntax/proposal.md)
 change, which defines the canonical marker grammar these checks enforce.
+Proposed by: [add-doc-health-contract](../../../openspec/changes/add-doc-health-contract/proposal.md)
+— the checks below are now the contract's tag-hygiene family; the grammar
+itself stays owned by the `document-lifecycle` capability and is enforced
+by reference, never restated.
 
 ## Grep contract
 

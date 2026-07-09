@@ -59,6 +59,56 @@ surface.)
   feat branches (Spec Kit), release branches (integration) — the doc that
   ratifies this flow must define all three or the terminology will rot.
 
+## Visualization
+
+This view maps the current document lifecycle gates onto the brownfield
+OpenSpec-to-Spec-Kit realization path.
+
+```mermaid
+flowchart TD
+  brainstorm["Brainstorm\nStatus: brainstorm\nideation/brainstorm/"]
+  staged["Staged topic\nStatus: staged\nideation/staging/ or candidate register"]
+  proposal["OpenSpec change\nStatus: draft/proposed\nopenspec/changes/<name>/"]
+  ratified["Ratified change\napproved OpenSpec intent"]
+  surface{"code_surface?"}
+  doconly["Doc/prose artifact lands\nimplementation == prose"]
+  target{"target_release"}
+  immediate["Generate Spec Kit feats immediately\napproved-intent-intake -> feature-decomposition"]
+  waiting["Wait on release branch\nratified but unrealized"]
+  delta["Compute release delta\nagainst implemented target"]
+  dag["Feature DAG\none or more Spec Kit feats"]
+  speckit["Spec Kit execution\nspecify -> clarify -> plan -> tasks -> analyze -> implement"]
+  gates["Engineering gates\nbranch-review -> pr-admission -> merge-readiness"]
+  merge["Merge feats to target\nmerge evidence exists"]
+  realized["Realization gate\nall required feats implemented on target"]
+  archive["Archive OpenSpec change\npromote specs/contracts"]
+
+  brainstorm -->|"organize gate"| staged
+  staged -->|"proposal gate"| proposal
+  proposal -->|"ratification gate"| ratified
+  ratified --> surface
+  surface -->|"none"| doconly
+  doconly --> archive
+  surface -->|"one or more repos"| target
+  target -->|"implemented target"| immediate
+  target -->|"future release branch"| waiting
+  waiting -->|"release ready for implemented line"| delta
+  delta --> immediate
+  immediate --> dag
+  dag --> speckit
+  speckit --> gates
+  gates --> merge
+  merge --> realized
+  realized --> archive
+```
+
+Read the key boundary as:
+
+```text
+ratified does not mean archived when code_surface is non-empty.
+archive waits for realization evidence on the implemented target.
+```
+
 ## Open questions
 
 - Late vs early decomposition for batched releases: the captured model
