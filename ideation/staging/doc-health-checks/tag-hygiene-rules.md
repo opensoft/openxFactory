@@ -1,6 +1,9 @@
 # Staged: Tag Hygiene Rules For The Doc-Health Pipeline
 
-Status: staged
+Status: superseded
+Superseded by: [doc-health contract](../../../docs/doc-health.md) and the
+codexFactory change `implement-doc-health-checker` (archived 2026-07-09) —
+both declared exit changes exist and are realized.
 Kind: reference
 Repository context: openxFactory
 Target: the codexFactory doc-health implementation proposal (deterministic

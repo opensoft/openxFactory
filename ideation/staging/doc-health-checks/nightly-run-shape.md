@@ -1,6 +1,9 @@
 # Staged: Nightly Doc-Health Run Shape
 
-Status: staged
+Status: superseded
+Superseded by: [doc-health contract](../../../docs/doc-health.md) and the
+codexFactory change `implement-doc-health-checker` (archived 2026-07-09) —
+both declared exit changes exist and are realized.
 Kind: architecture
 Repository context: openxFactory
 Source: [doc-health-pipeline brainstorm](../../brainstorm/doc-health-pipeline.md)
