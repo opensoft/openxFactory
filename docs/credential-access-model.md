@@ -7,6 +7,11 @@ Purpose: define how xFactory systems declare, bind, approve, issue, use, audit,
 and revoke credentials without storing raw secrets in repos, Hermes memory, or
 worker workspaces.
 
+Record shapes: the five credential contract kinds are canonically shaped
+by [contracts/schemas/xfactory-credential-contracts.schema.yaml](../contracts/schemas/xfactory-credential-contracts.schema.yaml)
+(promote-credential-contracts change); this document owns the semantic
+invariants those records carry.
+
 ## 1. Core Rule
 
 ```text

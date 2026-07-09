@@ -143,6 +143,9 @@ Every DomainxFactory must validate against the canonical contract:
   `domain` (reusable expert domain).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
+  and `scripts/validate-credential-contracts.py <domain-repo>` — the five
+  credential record kinds under `credentials/` (DTN-004).
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
@@ -160,6 +163,7 @@ Active changes:
 
 ```text
 neutralize-job-envelope
+promote-credential-contracts
 split-roles-authority
 ```
 
