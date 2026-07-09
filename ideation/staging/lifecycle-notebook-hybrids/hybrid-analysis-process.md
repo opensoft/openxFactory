@@ -119,40 +119,52 @@ unresolved relative to the Canon release in this notebook?
    further work, move the human-reviewed conclusions into staging or an
    OpenSpec proposal with source references.
 
-## Notebook-Originated Idea Return Path
+## Notebook-Originated Source Return Path
 
-NotebookLM notes are split into two lanes:
+NotebookLM material returns to the repository by source membership, not by
+manual title tagging.
 
-- **Scratch notes** stay inside NotebookLM. They are not imported into the
-  repository and are not part of the governed lifecycle.
-- **Export notes** are deliberately promoted inside NotebookLM by converting
-  the note to a source and giving the source an export title.
+- **Scratch notes** stay inside NotebookLM because they are notes, not sources.
+  They are not imported into the repository and are not part of the governed
+  lifecycle.
+- **Imported material** is any new source in the analysis notebook. This
+  includes notes that a human converted to sources, sources discovered through
+  NotebookLM research, web sources, files, Drive sources, and any other source
+  type NotebookLM exposes.
 
-Only converted sources with one of these title prefixes are imported:
-
-```text
-[export:brainstorm] <repo>: <topic> - <idea title>
-[export:staged] <repo>: <topic> - <idea title>
-```
-
-If `<repo>:` is omitted, `openxFactory` is assumed. Examples:
+The origin folder determines where imported material returns:
 
 ```text
-[export:brainstorm] openxFactory: release-flow - branch ladder concern
-[export:staged] doc-health-checks - notebook projection drift
+analysis notebook created from ideation/brainstorm/<topic>/
+  -> import new sources to ideation/brainstorm/<topic>/
+
+analysis notebook created from ideation/staging/<topic>/
+  -> import new sources to ideation/staging/<topic>/
 ```
 
-The codexFactory sync implementation imports those tagged sources with:
+The codexFactory sync implementation imports those new sources with:
 
 ```bash
 python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
-  --import-exports "<hybrid-notebook-id-or-alias>"
+  --import-new-sources "<hybrid-notebook-id-or-alias>" \
+  --target-path "openxFactory/ideation/brainstorm/<topic>"
 
 python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
-  --import-exports "<hybrid-notebook-id-or-alias>" --apply
+  --import-new-sources "<hybrid-notebook-id-or-alias>" \
+  --target-path "openxFactory/ideation/brainstorm/<topic>" \
+  --apply
 ```
 
-Dry-run lists the target files. `--apply` writes imported ideas to:
+For organized pre-feature work, point `--target-path` at the staged topic:
+
+```bash
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --import-new-sources "<hybrid-notebook-id-or-alias>" \
+  --target-path "openxFactory/ideation/staging/<topic>" \
+  --apply
+```
+
+Dry-run lists the target files. `--apply` writes imported source material to:
 
 ```text
 openxFactory/ideation/brainstorm/<topic>/notebooklm-ideas-YYYY-MM-DD.md
@@ -164,10 +176,10 @@ the NotebookLM source id and source title, and carries `Authority: L1 notebook
 synthesis`. Re-running the importer skips source ids that are already present
 in ideation files.
 
-Converted sources without `[export:brainstorm]` or `[export:staged]` are
-ignored. This gives operators an explicit NotebookLM-side gate: convert to
-source plus export title means "pull this back"; ordinary notes and untagged
-converted sources stay local to the notebook.
+The importer skips managed seed sources from the original hybrid build:
+`00 [charter]`, `[brainstorm]`, `[staged]`, `[draft]`, `[ratified]`,
+`[standard]`, `[spec]`, and `[grounding]`. Everything else that appears as a
+NotebookLM source is treated as new source material for the origin folder.
 
 ## Current Product Constraint
 

@@ -11,9 +11,10 @@ Origin: NotebookLM note converted to source, then pulled by live MCP test.
 These notes are imported evidence and idea material. They do not decide policy,
 memory, release scope, or OpenSpec approval.
 
-Import note: this source was not titled with `[export:brainstorm]` or
-`[export:staged]` when pulled. The automated `--import-exports` importer would
-ignore it until the source title is changed to the export-tagged form.
+Import note: this source was not manually renamed. It represents the intended
+real-life behavior: once a note is converted to a NotebookLM source, the source
+is eligible to return to the brainstorm/staging folder that created the
+analysis notebook.
 
 ## The codexFactory Governance Lifecycle and Sync Protocol
 
