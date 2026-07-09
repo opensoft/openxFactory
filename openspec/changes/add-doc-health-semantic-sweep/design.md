@@ -4,7 +4,7 @@
 
 The deterministic doc-health pass (twelve check families, codexFactory
 implementation, nightly xFactory runner) is live with a committed report
-baseline. The staged topic `ideation/staging/semantic-health-sweep/` defines
+baseline. The proposal support `supporting-docs/agentic-pass.md` defines
 a second pass that only a model can perform: reading prose the way a
 reviewer would. The two passes deliberately stay in one capability but with
 distinct mechanisms — grep-shaped determinism vs LLM judgment — and this
@@ -53,9 +53,19 @@ depends on model availability.
    envelope conforming to the neutral job-envelope contract, and the report
    records the envelope reference alongside the pinned model id and
    prompt-contract version — full audit linkage without moving CI plumbing
-   into Omnigent. In v1 the worker is a headless Claude Code invocation
-   (`claude -p`) conforming to the profile; migrating it onto the
-   AgentTower runtime later changes hosting, not the contract.
+   into Omnigent. Hosting (amended 2026-07-09 per ratifier direction): the
+   worker runs on the Omnigent worker host now — a cloud workstation
+   registered as a self-hosted runner (labels `self-hosted, omnigent` on
+   the aggregation repo, enabled by repo variable `OMNIGENT_WORKER=true`),
+   per the omnigent-install `doc-analysis-worker` profile. Orchestration
+   delivers a self-contained corpus bundle (prompt, selected docs,
+   promoted specs) as a build artifact, so the worker host needs no
+   repository access of any kind; model auth is the workstation's own
+   claude persona login (subscription auth per the cloudpc worker pack —
+   no API key on the host). An inline `claude -p` invocation in the
+   finalize job remains the fallback while no worker host is registered.
+   Migrating onto the AgentTower runtime later changes hosting again, not
+   the contract.
 3. **Sweep scope is Hermes-owned policy, deepest declaration wins.** Each
    Hermes layer overlay (customer, client, domain) MAY declare
    `doc_health.sweep_scope` from the ordered set `incremental` <
@@ -118,8 +128,13 @@ depends on model availability.
 2. codexFactory: implement inventory emission, scope resolution from Hermes
    overlays, the analysis worker invocation and prompt contract, and tests;
    merge through normal gates.
-3. xFactory: add the sweep step to the nightly workflow (non-fatal).
-4. First green nightly with the sweep section in the report is the
+3. xFactory: the nightly workflow becomes a three-job dispatch pipeline —
+   prepare (bundle), analysis (omnigent worker host, non-fatal), finalize
+   (merge + report commit) — with the inline sweep as fallback.
+4. Register the Omnigent cloud workstation: runner agent on
+   opensoft/xFactory with labels `self-hosted, omnigent`, claude persona
+   login, then set repo variable `OMNIGENT_WORKER=true`.
+5. First green nightly with the sweep section in the report is the
    realization evidence; the change archives on it.
 
 Rollback: remove the workflow step; the deterministic pass is untouched.
@@ -131,7 +146,7 @@ Rollback: remove the workflow step; the deterministic pass is untouched.
   bill).
 - Whether untagged-normative-prose findings should eventually become a
   deterministic family once the prose-tagging vocabulary stabilizes
-  (tracked in `ideation/staging/prose-tagging/`, not here).
+  (tracked by the archived `concretize-prose-tagging-syntax` change, not here).
 - Whether `doc_health.sweep_scope` belongs in a general Hermes policy
   vocabulary once more policies want layered deepest-wins resolution
   (candidate for a future neutral capability; out of scope here).

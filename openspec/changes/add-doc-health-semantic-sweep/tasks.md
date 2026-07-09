@@ -5,9 +5,8 @@
 - [x] 1.1 Validate the change strictly (`openspec validate
       add-doc-health-semantic-sweep --strict` and `--all --strict`) and list
       it in the README "OpenSpec Records" block
-- [x] 1.2 Mark the staged topic
-      `ideation/staging/semantic-health-sweep/agentic-pass.md` as exiting via
-      this change (exit note referencing the change id)
+- [x] 1.2 Move the staged topic into
+      `supporting-docs/agentic-pass.md` with proposal provenance
 
 ## 2. Inventory emission (codexFactory)
 
@@ -49,6 +48,14 @@
       knob)
 - [x] 4.2 Verify a nightly run with the sweep skipped-on-failure path leaves
       deterministic results intact
+- [x] 4.3 Restructure the nightly into the dispatch pipeline: prepare
+      (self-contained corpus bundle artifact), analysis (omnigent worker
+      host, self-hosted runner, credential-less, subscription auth),
+      finalize (findings merge + report commit); inline sweep remains the
+      fallback; doc-analysis-worker profile added to omnigent-install
+- [ ] 4.4 Register the Omnigent cloud workstation: runner agent on
+      opensoft/xFactory (labels self-hosted + omnigent), claude persona
+      login, python3; then set repo variable OMNIGENT_WORKER=true
 
 ## 5. Realization and archive
 
