@@ -45,6 +45,27 @@ def find_block(lines: list[str], key: str) -> tuple[int, int]:
     return start, end
 
 
+PRESERVED_KEYS = ("promoted_from", "specializes")
+SUB_KEY_RE = re.compile(r"^  [A-Za-z0-9_]+:")
+
+
+def preserved_subblocks(block: list[str]) -> list[str]:
+    """Carry optional provenance sub-blocks through a pin rewrite verbatim."""
+    kept: list[str] = []
+    index = 0
+    while index < len(block):
+        line = block[index]
+        if any(line.startswith(f"  {key}:") for key in PRESERVED_KEYS):
+            kept.append(line)
+            index += 1
+            while index < len(block) and not SUB_KEY_RE.match(block[index]):
+                kept.append(block[index])
+                index += 1
+        else:
+            index += 1
+    return kept
+
+
 def update_stack(path: Path, ref: str, ref_type: str, declared_at: str, source: str) -> bool:
     original = path.read_text(encoding="utf-8")
     lines = original.splitlines(keepends=True)
@@ -60,6 +81,7 @@ def update_stack(path: Path, ref: str, ref_type: str, declared_at: str, source: 
         f"  contract_declared_at: \"{declared_at}\"\n",
         f"  contract_source: {source}\n",
     ]
+    replacement.extend(preserved_subblocks(lines[start + 1:end]))
     updated = "".join(lines[:start] + replacement + lines[end:])
     if updated != original:
         path.write_text(updated, encoding="utf-8")
