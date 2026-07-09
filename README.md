@@ -159,10 +159,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-promote-workflow-gate-contract
+none
 ```
 
 Archived changes:
+
+- [promote-workflow-gate-contract](openspec/changes/archive/2026-07-09-promote-workflow-gate-contract/proposal.md)
 
 - [refine-promotion-provenance](openspec/changes/archive/2026-07-09-refine-promotion-provenance/proposal.md)
 - [adopt-workflow-visualization-stack](openspec/changes/archive/2026-07-09-adopt-workflow-visualization-stack/proposal.md)

@@ -45,7 +45,7 @@ domains become consumers #1–#4 simultaneously.
 ## Exit
 
 Satisfied by
-[promote-workflow-gate-contract](../../../openspec/changes/promote-workflow-gate-contract/proposal.md)
+[promote-workflow-gate-contract](../../../openspec/changes/archive/2026-07-09-promote-workflow-gate-contract/proposal.md)
 (2026-07-09). Neutrality test passed: Adx/Ledgerx/Medx validated unchanged,
 codexFactory needed only the missing envelope, Ops's operational workflow
 files are out of contract scope (noted in the register). Register entries

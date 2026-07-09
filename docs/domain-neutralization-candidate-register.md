@@ -46,7 +46,7 @@ implemented/promoted, `adopted` = adopted.
 
 ### DTN-001: Neutral workflow contract schema
 
-OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md)
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/archive/2026-07-09-promote-workflow-gate-contract/proposal.md)
 (with DTN-002). Adopted 2026-07-09: all five domains validate (Adx 4,
 Ledgerx 5, Medx 1, codex 7 contracts; Ops's `opsx_workflow` operational
 definitions are out of contract scope — convergence is a possible future
@@ -71,7 +71,7 @@ evidence types, reviewer roles, and action policies.
 
 ### DTN-002: Gate record and gate outcome vocabulary
 
-OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md)
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/archive/2026-07-09-promote-workflow-gate-contract/proposal.md)
 (with DTN-001). Adopted 2026-07-09 with DTN-001; both observed blocking
 styles canonicalized.
 
