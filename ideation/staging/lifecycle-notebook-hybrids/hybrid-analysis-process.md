@@ -171,15 +171,16 @@ openxFactory/ideation/brainstorm/<topic>/notebooklm-ideas-YYYY-MM-DD.md
 openxFactory/ideation/staging/<topic>/notebooklm-ideas-YYYY-MM-DD.md
 ```
 
-Each imported file declares `Status: brainstorm` or `Status: staged`, records
-the NotebookLM source id and source title, and carries `Authority: L1 notebook
-synthesis`. Re-running the importer skips source ids that are already present
-in ideation files.
+Each imported file declares `Status: brainstorm` or `Status: staged`, carries
+`Kind: reference`, records the NotebookLM source id and source title, and
+carries `Authority: L1 notebook synthesis`. Re-running the importer skips
+source ids that are already present in ideation files.
 
 The importer skips managed seed sources from the original hybrid build:
-`00 [charter]`, `[brainstorm]`, `[staged]`, `[draft]`, `[ratified]`,
-`[standard]`, `[spec]`, and `[grounding]`. Everything else that appears as a
-NotebookLM source is treated as new source material for the origin folder.
+`00 [charter]`, `00 [hybrid charter]`, `[brainstorm]`, `[staged]`, `[draft]`,
+`[ratified]`, `[standard]`, `[spec]`, and `[grounding]`. Everything else that
+appears as a NotebookLM source is treated as new source material for the origin
+folder.
 
 ## Current Product Constraint
 

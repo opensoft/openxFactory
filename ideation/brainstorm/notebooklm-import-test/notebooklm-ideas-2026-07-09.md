@@ -59,3 +59,14 @@ If your note is intended to act as a formal modification to the system, rather
 than just a brainstorm, it must be expressed as an explicit change from the
 current state. This requires an OpenSpec change proposal or an
 `xspec:supersedes` marker naming the affected spec requirement [7, 9].
+
+## NotebookLM hybrid import non-note live source
+
+NotebookLM source id: f954f92f-e464-445a-98fc-46c6f9a2c15d
+NotebookLM source title: NotebookLM hybrid import non-note live source
+Source workspace: 70647cc5-3929-486e-8d04-aad89a0f4adb
+
+Live acceptance source for xFactory NotebookLM hybrid imports. This source was
+added directly as a NotebookLM text source, not created as a note, to prove
+that non-note sources in a hybrid can be returned to the origin brainstorm
+folder as L1 notebook synthesis.

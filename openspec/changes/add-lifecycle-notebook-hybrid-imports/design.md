@@ -43,6 +43,7 @@ the lifecycle projection:
 
 ```text
 00 [charter]
+00 [hybrid charter]
 [brainstorm]
 [staged]
 [draft]

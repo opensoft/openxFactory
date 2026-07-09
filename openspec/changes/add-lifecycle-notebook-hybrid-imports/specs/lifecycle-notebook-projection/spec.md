@@ -50,9 +50,9 @@ material inside NotebookLM and SHALL NOT be imported.
 Hybrid importers SHALL skip seed sources that exist only to provide analysis
 context. Seed sources include the hybrid charter, copied Canon sources,
 grounding sources, and originally projected lifecycle sources. Managed seed
-titles SHALL include `00 [charter]` and titles beginning `[brainstorm]`,
-`[staged]`, `[draft]`, `[ratified]`, `[standard]`, `[spec]`, or
-`[grounding]`.
+titles SHALL include `00 [charter]`, `00 [hybrid charter]`, and titles
+beginning `[brainstorm]`, `[staged]`, `[draft]`, `[ratified]`, `[standard]`,
+`[spec]`, or `[grounding]`.
 
 #### Scenario: Canon context exists in the hybrid
 - **WHEN** a hybrid notebook contains copied Canon sources with `[ratified]`, `[standard]`, or `[spec]` titles

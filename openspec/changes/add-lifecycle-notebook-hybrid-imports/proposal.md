@@ -37,8 +37,8 @@ change turns that pilot into governed behavior.
   - the Canon, grounding, charter, and originally projected idea sources are
     baseline context and must not be imported back as new ideas.
   - the importer skips managed seed titles such as `00 [charter]`,
-    `[brainstorm]`, `[staged]`, `[draft]`, `[ratified]`, `[standard]`,
-    `[spec]`, and `[grounding]`.
+    `00 [hybrid charter]`, `[brainstorm]`, `[staged]`, `[draft]`,
+    `[ratified]`, `[standard]`, `[spec]`, and `[grounding]`.
 - Require imported material to be written into the origin folder as governed
   ideation material with source id, title, workspace reference, and
   `Authority: L1 notebook synthesis`.
