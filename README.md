@@ -155,7 +155,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-none
+promote-workflow-gate-contract
 ```
 
 Archived changes:

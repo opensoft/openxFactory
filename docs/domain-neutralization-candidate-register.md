@@ -28,8 +28,8 @@ implemented/promoted, `adopted` = adopted.
 
 | ID | Topic | Decision | Priority | Status | Likely openxFactory artifact |
 | --- | --- | --- | --- | --- | --- |
-| DTN-001 | Neutral workflow contract schema | `promote` | P0 | `seed` | `contracts/schemas/xfactory-workflow.schema.yaml` |
-| DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `seed` | gate schema, vocabulary, and validator rules |
+| DTN-001 | Neutral workflow contract schema | `promote` | P0 | `openspec` | `contracts/schemas/xfactory-workflow.schema.yaml` |
+| DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `openspec` | gate schema, vocabulary, and validator rules |
 | DTN-003 | Generalized job/run/event envelope | `split` | P0 | `seed` | domain-neutral job envelope schemas replacing engineering-specific fields |
 | DTN-004 | Credential broker and runtime capability grant schemas | `split` | P1 | `seed` | broker, grant, binding, requirement, and audit schemas |
 | DTN-005 | Proposed trigger and admission boundary | `promote` | P1 | `seed` | proposed-trigger schema and admission workflow doc |
@@ -45,6 +45,8 @@ implemented/promoted, `adopted` = adopted.
 ## Candidate Details
 
 ### DTN-001: Neutral workflow contract schema
+
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md) (with DTN-002).
 
 Domain workflow YAML files share `workflow.id`, `display_name`, `owner_layer`,
 `inputs`, `outputs`, `gates`, `policy`, and `audit`, but openxFactory does not
@@ -64,6 +66,8 @@ Domain-local exclusions: specific workflow names, domain triggers, domain
 evidence types, reviewer roles, and action policies.
 
 ### DTN-002: Gate record and gate outcome vocabulary
+
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md) (with DTN-001).
 
 The domain repos repeatedly define gate owner, requirements, blocking behavior,
 evidence, risk, exception, next transition, and audit outcomes. openxFactory
