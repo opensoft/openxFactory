@@ -74,7 +74,7 @@ Imported source material is written as:
 
 ```text
 Status: brainstorm | staged
-Kind: note
+Kind: reference
 Authority: L1 notebook synthesis
 Source workspace: <notebook id or alias>
 NotebookLM source id: <source id>

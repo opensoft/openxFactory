@@ -1,7 +1,7 @@
 # NotebookLM Ideas: notebooklm-import-test
 
 Status: brainstorm
-Kind: note
+Kind: reference
 Repository context: openxFactory
 Source workspace: test-canon
 Source workspace id: 70647cc5-3929-486e-8d04-aad89a0f4adb

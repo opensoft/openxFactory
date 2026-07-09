@@ -67,7 +67,7 @@ titles SHALL include `00 [charter]` and titles beginning `[brainstorm]`,
 Every imported hybrid source entry SHALL be written to the origin folder as
 governed ideation material. The imported file SHALL carry the origin lifecycle
 status (`brainstorm` for brainstorm origins and `staged` for staged origins),
-`Kind: note`, the source workspace id or alias, `Authority: L1 notebook
+`Kind: reference`, the source workspace id or alias, `Authority: L1 notebook
 synthesis`, the NotebookLM source id, and the NotebookLM source title. Import
 MUST be idempotent by NotebookLM source id.
 

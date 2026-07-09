@@ -67,8 +67,8 @@ notebooks when an operator supplies the origin target folder.
   - promotes the staged process in
     `ideation/staging/lifecycle-notebook-hybrids/` into the ratified
     lifecycle notebook projection workflow.
-  - updates `docs/lifecycle-notebook-projection.md` and its OpenSpec spec to
-    include hybrid creation, source return, and review gates.
+  - updates the OpenSpec `lifecycle-notebook-projection` spec and staged
+    process notes to include hybrid creation, source return, and review gates.
   - keeps live NotebookLM pull output under `ideation/brainstorm/` or
     `ideation/staging/` until it moves through normal gates.
 - codexFactory:
