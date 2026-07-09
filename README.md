@@ -160,6 +160,7 @@ Active changes:
 
 ```text
 neutralize-job-envelope
+split-roles-authority
 ```
 
 Archived changes:

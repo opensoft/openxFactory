@@ -40,7 +40,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-010 | Avatar or conversation safety supervisor | `split` | P2 | `seed` | neutral safety supervisor state machine and overlay slots |
 | DTN-011 | Domain profile, tenant, and deployment profile normalization | `promote` | P2 | `seed` | standard profile/deployment questionnaire schema |
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
-| DTN-013 | Neutral roles and authority model | `split` | P0 | `seed` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
+| DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 
 ## Candidate Details
 
@@ -258,6 +258,12 @@ Domain-local exclusions: source families, evidence types, authority thresholds,
 retention rules, privacy rules, and reviewer roles.
 
 ### DTN-013: Neutral roles and authority model
+
+OpenSpec: [split-roles-authority](../openspec/changes/split-roles-authority/proposal.md).
+Adopted 2026-07-09: neutral doc keeps governance layers/roles/principles;
+engineering instantiation (execution leads, escalation routes, groups YAML)
+moved to codexFactory/docs/engineering-roles-and-authority.md with a
+`specializes` declaration.
 
 `docs/roles-and-authority.md` lives in openxFactory but is engineering-specific:
 it describes itself as the model "for the AI software development factory",
