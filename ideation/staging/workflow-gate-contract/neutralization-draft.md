@@ -44,7 +44,9 @@ domains become consumers #1–#4 simultaneously.
 
 ## Exit
 
-One OpenSpec change: `promote-workflow-gate-contract` (openxFactory) —
-schema + vocabulary + validator + adoption tasks. Register entries DTN-001
-and DTN-002 move `seed -> openspec` at proposal, `adopted` after domain
-re-validation completes.
+Satisfied by
+[promote-workflow-gate-contract](../../../openspec/changes/promote-workflow-gate-contract/proposal.md)
+(2026-07-09). Neutrality test passed: Adx/Ledgerx/Medx validated unchanged,
+codexFactory needed only the missing envelope, Ops's operational workflow
+files are out of contract scope (noted in the register). Register entries
+DTN-001/DTN-002: `adopted`.

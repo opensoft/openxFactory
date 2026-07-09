@@ -143,6 +143,10 @@ Every DomainxFactory must validate against the canonical contract:
   `domain` (reusable expert domain).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
+  and `scripts/validate-workflow-contracts.py <domain-repo>` — every
+  `<domain>_workflow_contract` under `workflows/` validates against the
+  neutral shape (DTN-001/002).
 - Memory gateway: [contracts/memory-gateway](contracts/memory-gateway/README.md)
   and `scripts/validate-memory-gateway.py` validate the canonical gateway
   schemas, provider examples, conformance fixtures, and first runtime smoke

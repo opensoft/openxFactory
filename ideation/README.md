@@ -72,6 +72,9 @@ Staged topics (orthogonal feats; each exits through an OpenSpec change):
   after the deterministic run.
 - [promotion-refinements](staging/promotion-refinements/open-questions.md) —
   drafting ownership, stack.yaml provenance fields, mid-promotion pins.
+- [lifecycle-notebook-hybrids](staging/lifecycle-notebook-hybrids/hybrid-analysis-process.md)
+  — one temporary Canon + idea NotebookLM hybrid per brainstorm or staged
+  topic analysis.
 - [workflow-gate-contract](staging/workflow-gate-contract/neutralization-draft.md)
   — DTN-001 + DTN-002 neutralization (workflow schema + gate vocabulary).
 - [workflow-visualization](staging/workflow-visualization/validation-ui-tooling.md)

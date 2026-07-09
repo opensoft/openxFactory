@@ -28,8 +28,8 @@ implemented/promoted, `adopted` = adopted.
 
 | ID | Topic | Decision | Priority | Status | Likely openxFactory artifact |
 | --- | --- | --- | --- | --- | --- |
-| DTN-001 | Neutral workflow contract schema | `promote` | P0 | `openspec` | `contracts/schemas/xfactory-workflow.schema.yaml` |
-| DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `openspec` | gate schema, vocabulary, and validator rules |
+| DTN-001 | Neutral workflow contract schema | `promote` | P0 | `adopted` | `contracts/schemas/xfactory-workflow.schema.yaml` |
+| DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `adopted` | gate schema, vocabulary, and validator rules |
 | DTN-003 | Generalized job/run/event envelope | `split` | P0 | `seed` | domain-neutral job envelope schemas replacing engineering-specific fields |
 | DTN-004 | Credential broker and runtime capability grant schemas | `split` | P1 | `seed` | broker, grant, binding, requirement, and audit schemas |
 | DTN-005 | Proposed trigger and admission boundary | `promote` | P1 | `seed` | proposed-trigger schema and admission workflow doc |
@@ -46,7 +46,11 @@ implemented/promoted, `adopted` = adopted.
 
 ### DTN-001: Neutral workflow contract schema
 
-OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md) (with DTN-002).
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md)
+(with DTN-002). Adopted 2026-07-09: all five domains validate (Adx 4,
+Ledgerx 5, Medx 1, codex 7 contracts; Ops's `opsx_workflow` operational
+definitions are out of contract scope — convergence is a possible future
+candidate), `promoted_from` declared in every stack.yaml.
 
 Domain workflow YAML files share `workflow.id`, `display_name`, `owner_layer`,
 `inputs`, `outputs`, `gates`, `policy`, and `audit`, but openxFactory does not
@@ -67,7 +71,9 @@ evidence types, reviewer roles, and action policies.
 
 ### DTN-002: Gate record and gate outcome vocabulary
 
-OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md) (with DTN-001).
+OpenSpec: [promote-workflow-gate-contract](../openspec/changes/promote-workflow-gate-contract/proposal.md)
+(with DTN-001). Adopted 2026-07-09 with DTN-001; both observed blocking
+styles canonicalized.
 
 The domain repos repeatedly define gate owner, requirements, blocking behavior,
 evidence, risk, exception, next transition, and audit outcomes. openxFactory

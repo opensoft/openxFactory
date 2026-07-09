@@ -2,6 +2,17 @@
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+## contract-v1.4 — 2026-07-09 (additive)
+
+Added:
+
+- `contracts/schemas/xfactory-workflow.schema.yaml` — neutral workflow
+  contract and gate record/blocking vocabulary promoted from four-domain
+  evidence (promote-workflow-gate-contract change; DTN-001, DTN-002).
+- `scripts/validate-workflow-contracts.py` — canonical workflow contract
+  validator (errors for structure, warnings for undeclared owner layers,
+  out-of-scope kinds skipped with notice).
+
 ## contract-v1.3 — 2026-07-09 (additive)
 
 Added:

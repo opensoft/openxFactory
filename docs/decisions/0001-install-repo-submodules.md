@@ -6,7 +6,7 @@ Decision: accepted for Omnigent pre-release branch tracking, deferred for Hermes
 
 Date: 2026-06-26
 
-OpenSpec change: `restructure-factory-repo-boundaries`
+Ratified by: restructure-factory-repo-boundaries
 
 ## Context
 

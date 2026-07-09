@@ -1,0 +1,103 @@
+schema_version: 1
+name: xfactory_workflow
+description: >-
+  Canonical shape of a DomainxFactory workflow contract (workflows/*.yaml
+  with kind <domain>_workflow_contract). Promoted from convergent domain
+  evidence by the promote-workflow-gate-contract change (DTN-001, DTN-002).
+  The required set is the observed cross-domain minimum: id, owner_layer,
+  purpose, and gates; display_name, triggers, inputs, outputs, policy,
+  audit, and state_store are optional so existing domain contracts validate
+  without content migration (the neutrality test). Gate blocking is declared
+  through either blocks_on_failure or blocks_when — both observed styles are
+  canonical. Domain nouns (workflow names, triggers, evidence types,
+  reviewer roles, thresholds) are domain-local content this schema
+  constrains in shape only. Files whose kind does not match the
+  workflow-contract pattern (e.g. OpsxFactory's opsx_workflow operational
+  definitions) are out of this contract's scope.
+type: object
+required:
+  - schema_version
+  - kind
+  - workflow
+properties:
+  schema_version:
+    type: integer
+  kind:
+    type: string
+    pattern: "^[a-z][a-z0-9]*_workflow_contract$"
+  workflow:
+    type: object
+    required:
+      - id
+      - owner_layer
+      - purpose
+      - gates
+    properties:
+      id:
+        type: string
+      display_name:
+        type: string
+      owner_layer:
+        type: string
+      purpose:
+        type: string
+      state_store:
+        type: string
+      triggers:
+        type: array
+        items:
+          type: string
+      inputs:
+        type: array
+        items:
+          type: string
+      outputs:
+        type: array
+        items:
+          type: string
+      gates:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required:
+            - id
+            - owner_layer
+            - requires
+          anyOf:
+            - required:
+                - blocks_on_failure
+            - required:
+                - blocks_when
+          properties:
+            id:
+              type: string
+            owner_layer:
+              type: string
+            requires:
+              type: array
+              minItems: 1
+              items:
+                type: string
+            blocks_on_failure:
+              type: boolean
+            blocks_when:
+              type: array
+              minItems: 1
+              items:
+                type: string
+            produces:
+              type: array
+              items:
+                type: string
+      policy:
+        type: object
+      audit:
+        type: object
+        properties:
+          required:
+            type: boolean
+          records:
+            type: array
+            items:
+              type: string
