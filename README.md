@@ -164,7 +164,8 @@ Active changes:
 
 - [add-doc-health-semantic-sweep](openspec/changes/add-doc-health-semantic-sweep/proposal.md)
   — agentic semantic sweep extending `doc-health` (code surface:
-  codexFactory, xFactory; awaiting ratify gate)
+  codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
+  until realization evidence lands)
 
 Archived changes:
 
