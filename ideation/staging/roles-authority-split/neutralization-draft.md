@@ -31,5 +31,5 @@ Kit/PR policy pointers to codexFactory; the role instantiation remained.
 ## Exit
 
 Satisfied by
-[split-roles-authority](../../../openspec/changes/split-roles-authority/proposal.md)
+[split-roles-authority](../../../openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md)
 (2026-07-09). Register DTN-013: `adopted`.

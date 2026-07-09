@@ -4,6 +4,16 @@ Status: draft
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+## contract-v1.6 — 2026-07-09 (additive)
+
+Added:
+
+- `contracts/schemas/xfactory-credential-contracts.schema.yaml` — the five
+  credential record shapes promoted from OpsxFactory evidence
+  (promote-credential-contracts change; DTN-004).
+- `scripts/validate-credential-contracts.py` — canonical credential
+  contract validator.
+
 ## contract-v1.5 — 2026-07-09 (loosening, backward compatible)
 
 Changed:

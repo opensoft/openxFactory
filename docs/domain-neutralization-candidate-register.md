@@ -31,7 +31,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-001 | Neutral workflow contract schema | `promote` | P0 | `adopted` | `contracts/schemas/xfactory-workflow.schema.yaml` |
 | DTN-002 | Gate record and gate outcome vocabulary | `promote` | P0 | `adopted` | gate schema, vocabulary, and validator rules |
 | DTN-003 | Generalized job/run/event envelope | `split` | P0 | `adopted` | domain-neutral job envelope schemas replacing engineering-specific fields |
-| DTN-004 | Credential broker and runtime capability grant schemas | `split` | P1 | `seed` | broker, grant, binding, requirement, and audit schemas |
+| DTN-004 | Credential broker and runtime capability grant schemas | `split` | P1 | `adopted` | broker, grant, binding, requirement, and audit schemas |
 | DTN-005 | Proposed trigger and admission boundary | `promote` | P1 | `seed` | proposed-trigger schema and admission workflow doc |
 | DTN-006 | Candidate-only work product lifecycle | `promote` | P1 | `seed` | candidate lifecycle vocabulary and promotion gates |
 | DTN-007 | Decision provenance and citation ledger | `split` | P1 | `seed` | neutral decision provenance ledger schema |
@@ -91,7 +91,7 @@ thresholds, and escalation roles.
 
 ### DTN-003: Generalized job/run/event envelope
 
-OpenSpec: [neutralize-job-envelope](../openspec/changes/neutralize-job-envelope/proposal.md).
+OpenSpec: [neutralize-job-envelope](../openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md).
 Adopted 2026-07-09: envelope/run loosened (contract-v1.5), event already
 neutral; codexFactory overlay re-tightens engineering jobs and declares
 `specializes` (first use). Neutrality test: 7 example envelopes pass core +
@@ -114,6 +114,10 @@ Domain-local exclusions: GitHub-specific enforcement fields, clinical case
 fields, tenant admin command fields, and domain artifact names.
 
 ### DTN-004: Credential broker and runtime capability grant schemas
+
+OpenSpec: [promote-credential-contracts](../openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md).
+Adopted 2026-07-09: five record kinds canonicalized shape-only; all Ops
+contracts validated unchanged; Ops policy kinds deliberately out of scope.
 
 openxFactory already owns credential access as a neutral concept. OpsxFactory has
 the clearest concrete broker, binding, grant, requirement, and audit templates.
@@ -259,7 +263,7 @@ retention rules, privacy rules, and reviewer roles.
 
 ### DTN-013: Neutral roles and authority model
 
-OpenSpec: [split-roles-authority](../openspec/changes/split-roles-authority/proposal.md).
+OpenSpec: [split-roles-authority](../openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md).
 Adopted 2026-07-09: neutral doc keeps governance layers/roles/principles;
 engineering instantiation (execution leads, escalation routes, groups YAML)
 moved to codexFactory/docs/engineering-roles-and-authority.md with a

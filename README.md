@@ -143,6 +143,9 @@ Every DomainxFactory must validate against the canonical contract:
   `domain` (reusable expert domain).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
+  and `scripts/validate-credential-contracts.py <domain-repo>` — the five
+  credential record kinds under `credentials/` (DTN-004).
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
@@ -159,11 +162,14 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-neutralize-job-envelope
-split-roles-authority
+none
 ```
 
 Archived changes:
+
+- [neutralize-job-envelope](openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
+- [split-roles-authority](openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md)
+- [promote-credential-contracts](openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md)
 
 - [add-contested-finding-rule](openspec/changes/archive/2026-07-09-add-contested-finding-rule/proposal.md)
 
