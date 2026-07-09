@@ -252,6 +252,24 @@ version through a thin overlay — the origin becoming consumer #1 is the proof
 the concept was genuinely neutral. If it cannot, the promotion was too broad:
 demote it back and retry with a narrower skeleton.
 
+Refinements ratified by the
+[refine-promotion-provenance](../openspec/changes/refine-promotion-provenance/proposal.md)
+change:
+
+- Drafting ownership: codexFactory doc-engineering workers produce
+  neutralization drafts in openxFactory staging; the originating domain's
+  Hermes reviews and approves the surrendered meaning before the OpenSpec
+  change ratifies.
+- Machine-readable provenance: consuming `stack.yaml` files may declare
+  `xfactory.promoted_from` (origin of a promoted artifact, by candidate id)
+  and `xfactory.specializes` (neutral artifact refined by a local overlay).
+  Health tooling verifies declared provenance resolves once the register
+  entry reaches `adopted`.
+- Mid-promotion authority: while a concept exists in both a domain repo and
+  openxFactory staging or an active change, the domain-local copy remains
+  authoritative until the re-pin gate completes; the candidate register
+  entry's status is the tiebreaker consumers check.
+
 Devolution runs the same lifecycle in reverse. When a neutral artifact proves
 domain-specific in practice, stage a demotion: the owning domain adopts the
 content, and openxFactory keeps only the abstract hook or deletes the

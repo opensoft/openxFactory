@@ -28,6 +28,8 @@ lifecycle state.
 
 ## Exit
 
-An OpenSpec change ratifying the tooling decision (Mermaid + React Flow as
-the sanctioned stack), then Spec Kit feature work in codexFactory for the
-validation walkthrough UI.
+Satisfied by
+[adopt-workflow-visualization-stack](../../../openspec/changes/adopt-workflow-visualization-stack/proposal.md)
+(2026-07-09), ratifying [docs/workflow-visualization-standard.md](../../../docs/workflow-visualization-standard.md).
+Spec Kit feature work in codexFactory implements the validation walkthrough
+UI against the nine-view checklist.

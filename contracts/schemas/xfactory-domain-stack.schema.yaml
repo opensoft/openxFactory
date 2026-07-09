@@ -76,6 +76,41 @@ properties:
         type: string
       contract_source:
         type: string
+      promoted_from:
+        type: array
+        description: >-
+          Optional promotion provenance: neutral openxFactory artifacts this
+          domain originated. Declared when a concept born in this repo was
+          promoted through the domain-to-neutral promotion process; health
+          tooling verifies entries resolve once the candidate register entry
+          reaches adopted status.
+        items:
+          type: object
+          required:
+            - artifact
+            - candidate_id
+          properties:
+            artifact:
+              type: string
+            candidate_id:
+              type: string
+            origin_artifact:
+              type: string
+      specializes:
+        type: array
+        description: >-
+          Optional overlay provenance: neutral openxFactory artifacts this
+          domain refines through thin overlays after adopting a promotion.
+        items:
+          type: object
+          required:
+            - neutral_artifact
+            - overlay
+          properties:
+            neutral_artifact:
+              type: string
+            overlay:
+              type: string
   hermes:
     type: object
     required:

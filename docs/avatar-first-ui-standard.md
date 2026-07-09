@@ -5,6 +5,9 @@ Kind: architecture
 Repository context: openxFactory
 Purpose: define the reusable user interface model for xFactories where an AI
 avatar is the primary interaction surface.
+Companion: [Workflow Visualization Standard](workflow-visualization-standard.md)
+— sanctioned tooling and view coverage for the conventional visualization
+surface beside the avatar.
 
 ## 1. Core Principle
 

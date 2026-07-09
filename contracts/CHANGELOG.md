@@ -2,6 +2,15 @@
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+## contract-v1.3 — 2026-07-09 (additive)
+
+Added:
+
+- `contracts/schemas/xfactory-domain-stack.schema.yaml` — optional
+  `xfactory.promoted_from` and `xfactory.specializes` promotion-provenance
+  fields (refine-promotion-provenance change). Backward compatible; existing
+  stacks remain valid.
+
 ## contract-v1.2 — 2026-07-03 (additive)
 
 Added:
