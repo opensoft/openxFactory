@@ -30,5 +30,5 @@ Ops is the sole origin today.
 ## Exit
 
 Satisfied by
-[promote-credential-contracts](../../../openspec/changes/promote-credential-contracts/proposal.md)
+[promote-credential-contracts](../../../openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md)
 (2026-07-09). Register DTN-004: `adopted`.

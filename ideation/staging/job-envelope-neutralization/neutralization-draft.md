@@ -44,7 +44,7 @@ the same examples strictly.
 ## Exit
 
 Satisfied by
-[neutralize-job-envelope](../../../openspec/changes/neutralize-job-envelope/proposal.md)
+[neutralize-job-envelope](../../../openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
 (2026-07-09). Register DTN-003: `adopted`. Bonus finding: the neutrality
 test surfaced `merge_master` missing from the old canonical enum despite
 canonical-example usage — stale-vocabulary drift the split repaired.

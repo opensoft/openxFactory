@@ -91,7 +91,7 @@ thresholds, and escalation roles.
 
 ### DTN-003: Generalized job/run/event envelope
 
-OpenSpec: [neutralize-job-envelope](../openspec/changes/neutralize-job-envelope/proposal.md).
+OpenSpec: [neutralize-job-envelope](../openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md).
 Adopted 2026-07-09: envelope/run loosened (contract-v1.5), event already
 neutral; codexFactory overlay re-tightens engineering jobs and declares
 `specializes` (first use). Neutrality test: 7 example envelopes pass core +
@@ -115,7 +115,7 @@ fields, tenant admin command fields, and domain artifact names.
 
 ### DTN-004: Credential broker and runtime capability grant schemas
 
-OpenSpec: [promote-credential-contracts](../openspec/changes/promote-credential-contracts/proposal.md).
+OpenSpec: [promote-credential-contracts](../openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md).
 Adopted 2026-07-09: five record kinds canonicalized shape-only; all Ops
 contracts validated unchanged; Ops policy kinds deliberately out of scope.
 
@@ -263,7 +263,7 @@ retention rules, privacy rules, and reviewer roles.
 
 ### DTN-013: Neutral roles and authority model
 
-OpenSpec: [split-roles-authority](../openspec/changes/split-roles-authority/proposal.md).
+OpenSpec: [split-roles-authority](../openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md).
 Adopted 2026-07-09: neutral doc keeps governance layers/roles/principles;
 engineering instantiation (execution leads, escalation routes, groups YAML)
 moved to codexFactory/docs/engineering-roles-and-authority.md with a

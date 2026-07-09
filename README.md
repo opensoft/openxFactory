@@ -162,12 +162,14 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-neutralize-job-envelope
-promote-credential-contracts
-split-roles-authority
+none
 ```
 
 Archived changes:
+
+- [neutralize-job-envelope](openspec/changes/archive/2026-07-09-neutralize-job-envelope/proposal.md)
+- [split-roles-authority](openspec/changes/archive/2026-07-09-split-roles-authority/proposal.md)
+- [promote-credential-contracts](openspec/changes/archive/2026-07-09-promote-credential-contracts/proposal.md)
 
 - [add-contested-finding-rule](openspec/changes/archive/2026-07-09-add-contested-finding-rule/proposal.md)
 
