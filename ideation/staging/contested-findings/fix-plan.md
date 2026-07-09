@@ -60,7 +60,7 @@ spec.
 ## Exit
 
 Satisfied by
-[add-contested-finding-rule](../../../openspec/changes/add-contested-finding-rule/proposal.md)
+[add-contested-finding-rule](../../../openspec/changes/archive/2026-07-09-add-contested-finding-rule/proposal.md)
 (2026-07-09). Correction found at proposal: document-lifecycle needed NO
 delta — its promoted text already allows registers; both deltas landed in
 doc-health (register-aware location rule + resolution classes with the

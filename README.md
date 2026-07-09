@@ -159,10 +159,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 ```text
-add-contested-finding-rule
+none
 ```
 
 Archived changes:
+
+- [add-contested-finding-rule](openspec/changes/archive/2026-07-09-add-contested-finding-rule/proposal.md)
 
 - [promote-workflow-gate-contract](openspec/changes/archive/2026-07-09-promote-workflow-gate-contract/proposal.md)
 
