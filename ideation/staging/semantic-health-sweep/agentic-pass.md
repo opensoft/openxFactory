@@ -34,3 +34,9 @@ different governance questions.
 One OpenSpec change after the deterministic run has operated for long enough
 to provide the doc inventory and a baseline (do not ratify both passes
 together; sequencing is the risk control).
+
+Exiting via: `add-doc-health-semantic-sweep` (ratified 2026-07-09; open
+questions resolved in its design.md — headless worker under an Omnigent
+profile, Hermes-layer scope resolution defaulting to weekly full + nightly
+changed-docs, 70%/20-disposition precision gate). This topic closes when
+that change archives on realization evidence.
