@@ -17,10 +17,10 @@
 ## 4. Aggregation Integration
 
 - [x] 4.1 Add the SSH submodule at `installs/xfactory-installer` and update the xFactory topology and current-submodule documentation.
-- [ ] 4.2 Verify private visibility, remote URL, exact gitlink, compatibility declaration, repository validation, and recursive checkout behavior.
-- [ ] 4.3 Commit and push only the installer proposal, new installer pin, and parent integration paths without including unrelated dirty work.
+- [x] 4.2 Verify private visibility, remote URL, exact gitlink, compatibility declaration, repository validation, and recursive checkout behavior.
+- [x] 4.3 Commit and push only the installer proposal, new installer pin, and parent integration paths without including unrelated dirty work.
 
 ## 5. Completion
 
-- [ ] 5.1 Run repository validation, strict OpenSpec validation, parent diff checks, and final status verification.
-- [ ] 5.2 Record that WinUI implementation, Intune enrollment, Graph grants, signing, and Store submission remain successor work rather than bootstrap realization claims.
+- [x] 5.1 Run repository validation, strict OpenSpec validation, parent diff checks, and final status verification.
+- [x] 5.2 Record that WinUI implementation, Intune enrollment, Graph grants, signing, and Store submission remain successor work rather than bootstrap realization claims.
