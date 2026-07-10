@@ -5,18 +5,18 @@
 
 ## 2. Private Repository Bootstrap
 
-- [ ] 2.1 Create `opensoft/xFactory-Installer` with private GitHub visibility and verify the remote owner and default branch.
-- [ ] 2.2 Add truthful repository, architecture, security, compatibility, release, ownership, and validation surfaces without placeholder application claims.
-- [ ] 2.3 Run repository validation and secret scanning against the bootstrap tree.
+- [x] 2.1 Create `opensoft/xFactory-Installer` with private GitHub visibility and verify the remote owner and default branch.
+- [x] 2.2 Add truthful repository, architecture, security, compatibility, release, ownership, and validation surfaces without placeholder application claims.
+- [x] 2.3 Run repository validation and prohibited credential/package scanning against the bootstrap tree.
 
 ## 3. Initial Release
 
-- [ ] 3.1 Commit the validated repository bootstrap on `main` and push it to the private remote.
-- [ ] 3.2 Tag and push immutable bootstrap release `v0.1.0-bootstrap` and verify that the tag resolves to the validated commit.
+- [x] 3.1 Commit the validated repository bootstrap on `main` and push it to the private remote.
+- [x] 3.2 Tag and push immutable bootstrap release `v0.1.0-bootstrap` and verify that the tag resolves to the validated commit.
 
 ## 4. Aggregation Integration
 
-- [ ] 4.1 Add the SSH submodule at `installs/xfactory-installer` and update the xFactory topology and current-submodule documentation.
+- [x] 4.1 Add the SSH submodule at `installs/xfactory-installer` and update the xFactory topology and current-submodule documentation.
 - [ ] 4.2 Verify private visibility, remote URL, exact gitlink, compatibility declaration, repository validation, and recursive checkout behavior.
 - [ ] 4.3 Commit and push only the installer proposal, new installer pin, and parent integration paths without including unrelated dirty work.
 
