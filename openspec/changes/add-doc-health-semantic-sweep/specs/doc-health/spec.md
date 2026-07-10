@@ -58,6 +58,13 @@ Before artifact download, the child workflow SHALL verify that its source run,
 correlation, repository, workflow path, event, and source revision identify the
 authorized nightly parent run at the same immutable revision.
 
+Artifact-worker readiness SHALL be isolated from the general Hermes worker
+registry. Its read and heartbeat routes SHALL require distinct bearer tokens;
+the authenticated first heartbeat MAY create the readiness identity, and every
+later heartbeat SHALL be a complete schema-versioned replacement with a
+strictly newer observation time. Legacy worker registration or heartbeat
+routes MUST NOT mutate the state used for artifact dispatch.
+
 #### Scenario: An analysis run executes
 - **WHEN** the analysis worker runs
 - **THEN** its environment holds no repository credentials and no factory identity token
@@ -70,8 +77,15 @@ authorized nightly parent run at the same immutable revision.
 #### Scenario: Self-hosted dispatch is enabled
 - **WHEN** orchestration considers dispatching the analysis child
 - **THEN** hosted readiness MUST observe an eligible online and idle runner plus a matching external heartbeat no older than five minutes
+- **AND** exactly one runner in the restricted group MUST own the heartbeat's `host-*` dispatch label, and it MUST be the heartbeat-named runner
 - **AND** the heartbeat MUST attest available capacity, eligible host class, worker and required profile versions, authorization boundaries, service/model health, and repository-credential absence
-- **AND** hosted finalization MUST NOT depend on the self-hosted child job
+- **AND** hosted finalization MUST NOT depend on the self-hosted child job or fail because a readiness/result API is unavailable or malformed
+
+#### Scenario: A readiness identity publishes its first or a later heartbeat
+- **WHEN** the authenticated readiness heartbeat endpoint receives the first complete supported-schema snapshot for a worker id
+- **THEN** it MUST create the isolated readiness identity without requiring legacy worker registration
+- **WHEN** a later heartbeat is partial, uses an unsupported schema, or is not newer than the stored observation
+- **THEN** Hermes MUST reject it without changing the prior readiness snapshot
 
 #### Scenario: Analysis child is dispatched directly or with substituted input
 - **WHEN** the source run, correlation, repository, workflow path, event, or source revision does not match the authorized nightly parent
@@ -93,6 +107,10 @@ MUST NOT open regression issues in v1.
 #### Scenario: A semantic finding is disposed
 - **WHEN** a semantic finding stops appearing between consecutive reports
 - **THEN** its resolution MUST cite an OpenSpec change or a recorded disposition, exactly as the contested-finding rule already requires
+
+#### Scenario: The semantic sweep is unavailable
+- **WHEN** a prior semantic finding is absent only because the current semantic sweep was skipped or unavailable
+- **THEN** the prior finding MUST NOT be treated as resolved and MUST NOT generate an uncited-resolution error
 
 ### Requirement: Semantic finding disposition authority
 Disposition authority for semantic findings SHALL follow content ownership:
@@ -125,6 +143,7 @@ previous report.
 #### Scenario: A nightly run executes both passes
 - **WHEN** the nightly run completes
 - **THEN** the sweep's corpus is exactly the deterministic pass's inventory for that run
+- **AND** the final report MUST verify that the prepared inventory matches the immutable checkout before merging worker findings
 
 #### Scenario: The deterministic pass fails
 - **WHEN** the deterministic pass fails before emitting an inventory

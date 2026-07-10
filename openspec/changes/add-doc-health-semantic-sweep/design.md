@@ -57,8 +57,9 @@ depends on model availability.
    worker runs on the Omnigent worker host now — a cloud workstation with a
    sealed artifact-only account registered at organization scope in runner
    group `xfactory-artifact-workers`. The group is restricted to the
-   aggregation repository and analysis child workflow; dispatch uses a unique
-   label attested by a fresh external heartbeat. `OMNIGENT_WORKER=true` is
+   aggregation repository and an `@refs/heads/main`-pinned analysis child
+   workflow; dispatch uses a `host-*` label owned by exactly one runner and
+   attested by a fresh external heartbeat. `OMNIGENT_WORKER=true` is
    enablement, not readiness. Orchestration
    delivers a self-contained corpus bundle (prompt, selected docs,
    promoted specs) as a build artifact, so the worker host needs no
@@ -84,12 +85,16 @@ depends on model availability.
    Deepest-wins is monotone: any layer can raise scrutiny, none can lower
    another's. Resolution is deterministic — read up to three YAML overlays,
    take the max — so it lives in orchestration and needs no Hermes runtime.
-4. **Snapshot coupling via the inventory artifact.** The deterministic pass
-   emits its doc inventory (paths, statuses, content hashes) as a
+4. **Snapshot coupling via the inventory artifact.** Hosted preparation runs
+   the deterministic pass first and emits its doc inventory (paths, statuses,
+   content hashes) before it can create or upload a semantic bundle. That
+   inventory is a
    machine-readable artifact; the sweep consumes exactly that inventory.
    Both passes therefore describe the same corpus snapshot, and the
    changed-docs set is derived by hash diff against the previous inventory
-   rather than by a second git walk.
+   rather than by a second git walk. Hosted finalization downloads the
+   prepared inventory and refuses worker findings if it does not exactly
+   match the immutable checkout.
 5. **Findings map onto the existing severity/resolution contract.**
    Semantic findings are always resolution-class `contested` and severity
    at most `warning`. Because the regression-issue rule fires only on
@@ -108,6 +113,13 @@ depends on model availability.
    evidence of ≥70% confirmed-valid rate across ≥20 dispositioned semantic
    findings within a rolling 30-day window. The dispositions file is the
    measurement source, so the gate is auditable.
+8. **Readiness is a separate authenticated state boundary.** The artifact
+   readiness API does not read or write the general Hermes worker registry.
+   A write-token-authenticated first heartbeat is its constrained bootstrap;
+   each update is a complete schema-v1 snapshot and must have a strictly newer
+   observation time. The read token is distinct. This prevents unauthenticated
+   legacy worker routes, partial metadata merges, and delayed replays from
+   authorizing a dispatch.
 
 ## Risks / Trade-offs
 
@@ -123,7 +135,13 @@ depends on model availability.
   heartbeat no older than five minutes, including availability, host-class,
   version, authorization, health, and credential-absence attestations; a
   bounded watchdog records and cancels stale work, and deterministic results
-  land regardless.
+  land regardless. Discovery/queue time is bounded separately from the
+  30-minute execution budget; query failures are recorded as unavailable and
+  the deterministic finalizer runs under `always()`.
+- [Skipped semantic work makes prior proposals appear resolved] → semantic
+  families are excluded from disappearance processing whenever the current
+  sweep records a skip, so an outage cannot manufacture uncited-resolution
+  errors.
 - [Prompt drift silently changes finding quality] → the prompt contract is
   a versioned file in codexFactory; the report records the prompt version
   alongside the model id and envelope reference.

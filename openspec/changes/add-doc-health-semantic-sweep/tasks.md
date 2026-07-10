@@ -53,7 +53,11 @@
       artifact-only child performs analysis under subscription auth; hosted
       finalize polls for a bounded interval and never depends on a self-hosted
       job; inline sweep remains the disabled-dispatch fallback; the
-      doc-analysis-worker profile is added to omnigent-install
+      doc-analysis-worker profile is added to omnigent-install. Remediation
+      review completed 2026-07-09: readiness state is authenticated and
+      isolated, heartbeats are complete/monotonic, inputs are shell-safe,
+      runner labels are unique, deterministic inventory precedes dispatch,
+      finalization is failure-isolated, and queue/run budgets align.
 - [ ] 4.4 Register the Omnigent cloud workstation in organization runner group
       `xfactory-artifact-workers` with artifact/profile/host/unique labels,
       sealed local service account, Claude subscription login, and Python 3;
