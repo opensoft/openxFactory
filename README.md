@@ -174,6 +174,13 @@ Active changes:
   — agentic semantic sweep extending `doc-health` (code surface:
   codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
   until realization evidence lands)
+- [define-avatar-client-runtime](openspec/changes/define-avatar-client-runtime/proposal.md)
+  — avatar-first UI standard plus the AVC contract kernel (eight contracts),
+  deterministic reference broker with fail-closed authority stub, and F0
+  brokered-call spike (code surface: openxFactory; simplified 2026-07-10
+  after a seven-expert panel review; client implementation and live OpenAI
+  qualification follow in `implement-avatar-client-lab`,
+  `qualify-avatar-live-voice`, and `avatar-pilot-hardening`)
 
 Archived changes:
 
