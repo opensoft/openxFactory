@@ -54,18 +54,23 @@ depends on model availability.
    records the envelope reference alongside the pinned model id and
    prompt-contract version — full audit linkage without moving CI plumbing
    into Omnigent. Hosting (amended 2026-07-09 per ratifier direction): the
-   worker runs on the Omnigent worker host now — a cloud workstation
-   registered as a self-hosted runner (labels `self-hosted, omnigent` on
-   the aggregation repo, enabled by repo variable `OMNIGENT_WORKER=true`),
-   per the omnigent-install `doc-analysis-worker` profile. Orchestration
+   worker runs on the Omnigent worker host now — a cloud workstation with a
+   sealed artifact-only account registered at organization scope in runner
+   group `xfactory-artifact-workers`. The group is restricted to the
+   aggregation repository and analysis child workflow; dispatch uses a unique
+   label attested by a fresh external heartbeat. `OMNIGENT_WORKER=true` is
+   enablement, not readiness. Orchestration
    delivers a self-contained corpus bundle (prompt, selected docs,
    promoted specs) as a build artifact, so the worker host needs no
-   repository access of any kind; model auth is the workstation's own
+   repository checkout access; the GitHub job receives only Actions-read
+   permission for artifact transfer and that token is excluded from the model
+   subprocess. Model auth is the workstation's own
    claude persona login (subscription auth per the cloudpc worker pack —
    no API key on the host). An inline `claude -p` invocation in the
    finalize job remains the fallback while no worker host is registered.
-   Migrating onto the AgentTower runtime later changes hosting again, not
-   the contract.
+   The model consumes the corpus as an untrusted stdin payload with tools and
+   session persistence disabled and returns schema-validated output. Migrating
+   onto the AgentTower runtime later changes hosting again, not the contract.
 3. **Sweep scope is Hermes-owned policy, deepest declaration wins.** Each
    Hermes layer overlay (customer, client, domain) MAY declare
    `doc_health.sweep_scope` from the ordered set `incremental` <
@@ -112,8 +117,12 @@ depends on model availability.
 - [Sweep cost grows with corpus] → `incremental` default; a deeper scope is
   a deliberate Hermes declaration, so cost increases are attributable to a
   layer's explicit policy, never drift.
-- [Model outage breaks the nightly run] → the analysis step is non-fatal:
-  on failure the report records the sweep as skipped, deterministic results
+- [Offline self-hosted runner queues the nightly indefinitely] → analysis is
+  an independently dispatched child, never a dependency of hosted finalization.
+  Hosted readiness requires both GitHub online/idle state and a matching
+  heartbeat no older than five minutes, including availability, host-class,
+  version, authorization, health, and credential-absence attestations; a
+  bounded watchdog records and cancels stale work, and deterministic results
   land regardless.
 - [Prompt drift silently changes finding quality] → the prompt contract is
   a versioned file in codexFactory; the report records the prompt version
@@ -128,12 +137,15 @@ depends on model availability.
 2. codexFactory: implement inventory emission, scope resolution from Hermes
    overlays, the analysis worker invocation and prompt contract, and tests;
    merge through normal gates.
-3. xFactory: the nightly workflow becomes a three-job dispatch pipeline —
-   prepare (bundle), analysis (omnigent worker host, non-fatal), finalize
-   (merge + report commit) — with the inline sweep as fallback.
-4. Register the Omnigent cloud workstation: runner agent on
-   opensoft/xFactory with labels `self-hosted, omnigent`, claude persona
-   login, then set repo variable `OMNIGENT_WORKER=true`.
+3. xFactory: hosted preparation builds the bundle, performs fail-closed
+   readiness, and asynchronously dispatches an artifact-only child; hosted
+   finalization polls for a bounded interval, records a precise skip when no
+   valid artifact arrives, and remains independent of the self-hosted queue.
+   The inline sweep remains the fallback while dispatch is disabled.
+4. Register the Omnigent cloud workstation in organization runner group
+   `xfactory-artifact-workers` with artifact/profile/host/unique labels, publish
+   the external heartbeat, verify hosted readiness, then set
+   `OMNIGENT_WORKER=true`.
 5. First green nightly with the sweep section in the report is the
    realization evidence; the change archives on it.
 

@@ -48,14 +48,27 @@ conforming to the neutral job-envelope contract whose reference the report
 records alongside the pinned model id and prompt-contract version. Analysis
 output SHALL carry L1 authority.
 
+The analysis workflow MAY receive a least-privilege, Actions-read GitHub job
+token solely to transfer the self-contained input and findings artifacts, but
+the model subprocess MUST NOT receive that token or any repository credential.
+The model SHALL consume the corpus as untrusted stdin data with filesystem
+tools and session persistence disabled, and its output SHALL satisfy the
+versioned structured-output schema before findings-contract validation.
+
 #### Scenario: An analysis run executes
 - **WHEN** the analysis worker runs
 - **THEN** its environment holds no repository credentials and no factory identity token
 - **AND** the report records the job envelope reference, the model id, and the prompt-contract version used
 
 #### Scenario: The analysis worker fails
-- **WHEN** the analysis step errors or the model is unavailable
+- **WHEN** readiness is absent, the runner is offline or queued, the child exceeds its bounded wait, the analysis errors, or the model is unavailable
 - **THEN** the run MUST record the sweep as skipped in the report and the deterministic results MUST land unaffected
+
+#### Scenario: Self-hosted dispatch is enabled
+- **WHEN** orchestration considers dispatching the analysis child
+- **THEN** hosted readiness MUST observe an eligible online and idle runner plus a matching external heartbeat no older than five minutes
+- **AND** the heartbeat MUST attest available capacity, eligible host class, worker and required profile versions, authorization boundaries, service/model health, and repository-credential absence
+- **AND** hosted finalization MUST NOT depend on the self-hosted child job
 
 ### Requirement: Semantic findings are proposals
 Every semantic finding SHALL be a proposal, not a verdict: it carries the

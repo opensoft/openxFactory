@@ -48,14 +48,17 @@
       knob)
 - [x] 4.2 Verify a nightly run with the sweep skipped-on-failure path leaves
       deterministic results intact
-- [x] 4.3 Restructure the nightly into the dispatch pipeline: prepare
-      (self-contained corpus bundle artifact), analysis (omnigent worker
-      host, self-hosted runner, credential-less, subscription auth),
-      finalize (findings merge + report commit); inline sweep remains the
-      fallback; doc-analysis-worker profile added to omnigent-install
-- [ ] 4.4 Register the Omnigent cloud workstation: runner agent on
-      opensoft/xFactory (labels self-hosted + omnigent), claude persona
-      login, python3; then set repo variable OMNIGENT_WORKER=true
+- [x] 4.3 Restructure the nightly into the dispatch pipeline: hosted prepare
+      builds the self-contained bundle and performs readiness; an independent
+      artifact-only child performs analysis under subscription auth; hosted
+      finalize polls for a bounded interval and never depends on a self-hosted
+      job; inline sweep remains the disabled-dispatch fallback; the
+      doc-analysis-worker profile is added to omnigent-install
+- [ ] 4.4 Register the Omnigent cloud workstation in organization runner group
+      `xfactory-artifact-workers` with artifact/profile/host/unique labels,
+      sealed local service account, Claude subscription login, and Python 3;
+      publish a fresh external heartbeat, prove hosted readiness, then set
+      `OMNIGENT_WORKER=true`
 
 ## 5. Realization and archive
 
