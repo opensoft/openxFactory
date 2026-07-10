@@ -58,7 +58,7 @@
       isolated, heartbeats are complete/monotonic, inputs are shell-safe,
       runner labels are unique, deterministic inventory precedes dispatch,
       finalization is failure-isolated, and queue/run budgets align.
-- [ ] 4.4 Add a manual hosted readiness-only mode that queries the real runner
+- [x] 4.4 Add a manual hosted readiness-only mode that queries the real runner
       group and authenticated Hermes endpoint through the production
       fail-closed evaluator while forcing analysis dispatch and inline fallback
       off; test that it can report ready with `OMNIGENT_WORKER=false` and cannot
