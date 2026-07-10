@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "226b2a64290a9cc7d5bc616db0a1a5d7bd184e4e28de1e69e9f104f0725c28fe"
+  },
+  "change_id": "add-xfactory-installer-repository",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "21c0c8dea3dde7562c544a923ddd1967e8d4ad81fac4e09b42c598ee6e406f36"
+    },
+    {
+      "path": "repository-boundary.md",
+      "sha256": "dd178299947c93bac05c4f831979dbe0c8214cd4b30b1ba2ba1a9802d29a51df"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": null,
+  "packaged_at": "2026-07-09",
+  "source_revision": "not-applicable-ad-hoc",
+  "transitioned_at": "2026-07-09"
+}
