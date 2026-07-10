@@ -58,11 +58,19 @@
       isolated, heartbeats are complete/monotonic, inputs are shell-safe,
       runner labels are unique, deterministic inventory precedes dispatch,
       finalization is failure-isolated, and queue/run budgets align.
-- [ ] 4.4 Register the Omnigent cloud workstation in organization runner group
+- [ ] 4.4 Add a manual hosted readiness-only mode that queries the real runner
+      group and authenticated Hermes endpoint through the production
+      fail-closed evaluator while forcing analysis dispatch and inline fallback
+      off; test that it can report ready with `OMNIGENT_WORKER=false` and cannot
+      create an analysis child
+- [ ] 4.5 Follow the omnigent-install
+      `docs/runbooks/doc-health-cloudpc-pilot.md` gates: deploy the readiness
+      boundary; register the Omnigent cloud workstation in organization runner group
       `xfactory-artifact-workers` with artifact/profile/host/unique labels,
       sealed local service account, Claude subscription login, and Python 3;
-      publish a fresh external heartbeat, prove hosted readiness, then set
-      `OMNIGENT_WORKER=true`
+      publish a fresh external heartbeat, prove hosted readiness while dispatch
+      remains disabled, then set `OMNIGENT_WORKER=true` only for the bounded
+      manual test unless recurring heartbeat publication is proven
 
 ## 5. Realization and archive
 

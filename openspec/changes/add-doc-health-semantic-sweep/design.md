@@ -120,6 +120,15 @@ depends on model availability.
    observation time. The read token is distinct. This prevents unauthenticated
    legacy worker routes, partial metadata merges, and delayed replays from
    authorizing a dispatch.
+9. **Hosted readiness is proven before dispatch enablement.** A manual
+   readiness-only mode queries the same restricted organization runner group,
+   authenticated Hermes route, and fail-closed evaluator used by the nightly,
+   but its dispatch guard is unconditionally off. This closes the bootstrap
+   loop: operators can prove the runner/heartbeat pair from hosted
+   orchestration while `OMNIGENT_WORKER=false`; only after that evidence do
+   they enable a bounded live run. Alternative considered: temporarily enable
+   the worker to test readiness — rejected because a ready result would launch
+   the child immediately and collapse validation into execution.
 
 ## Risks / Trade-offs
 
@@ -160,11 +169,15 @@ depends on model availability.
    finalization polls for a bounded interval, records a precise skip when no
    valid artifact arrives, and remains independent of the self-hosted queue.
    The inline sweep remains the fallback while dispatch is disabled.
-4. Register the Omnigent cloud workstation in organization runner group
-   `xfactory-artifact-workers` with artifact/profile/host/unique labels, publish
-   the external heartbeat, verify hosted readiness, then set
-   `OMNIGENT_WORKER=true`.
-5. First green nightly with the sweep section in the report is the
+4. Add the hosted readiness-only preflight, then deploy the Hermes readiness
+   boundary and register the Omnigent cloud workstation in organization runner
+   group `xfactory-artifact-workers` with artifact/profile/host/unique labels.
+   Publish the external heartbeat and prove hosted readiness while dispatch is
+   disabled. The operator sequence and evidence gates are defined in the
+   omnigent-install `docs/runbooks/doc-health-cloudpc-pilot.md` runbook.
+5. Set `OMNIGENT_WORKER=true` only for a bounded manual dispatch window; turn
+   it off after the test unless recurring heartbeat publication is proven.
+6. First green nightly with the sweep section in the report is the
    realization evidence; the change archives on it.
 
 Rollback: remove the workflow step; the deterministic pass is untouched.

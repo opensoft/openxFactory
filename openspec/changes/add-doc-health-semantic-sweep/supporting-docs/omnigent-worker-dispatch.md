@@ -60,17 +60,24 @@ delta; this document is provenance for the reasoning.
 - The two identities never cross: the factory identity never reaches the
   worker host; the model credential never appears in jobs that push.
 
-## Workstation registration runbook (task 4.4)
+## Workstation registration runbook (tasks 4.4 and 4.5)
 
-Canonical runbook: `CloudPC-Install/docs/doc-analysis-worker-host.md`
-(pinned at `installs/cloudpc-install` in the aggregation repo). Summary:
+End-to-end execution runbook:
+`Omnigent-Install/docs/runbooks/doc-health-cloudpc-pilot.md` (pinned at
+`installs/omnigent-install` in the aggregation repo). The Cloud PC security end
+state remains canonical in `CloudPC-Install/docs/doc-analysis-worker-host.md`.
+Summary:
 
-1. Provision the cloud workstation per the omnigent-install cloudpc
-   worker pack; install python3.
-2. Install and log in the `claude` CLI under the worker persona
-   (subscription auth; no API key on the host).
-3. Register a GitHub Actions runner agent on `opensoft/xFactory` with
-   labels `self-hosted` and `omnigent`.
-4. `gh variable set OMNIGENT_WORKER --repo opensoft/xFactory --body true`
-5. The next nightly produces the live sweep section — the realization
-   evidence this change archives on.
+1. Deploy the authenticated Hermes readiness-only public boundary.
+2. Provision the cloud workstation per the worker pack; install Python 3,
+   Git Bash, the runner service, and a Claude subscription login under the
+   sealed service account.
+3. Restrict the organization runner group to `opensoft/xFactory` and the
+   `@refs/heads/main`-pinned analysis child; register exact profile, host-class,
+   and unique `host-*` labels.
+4. Publish a fresh complete heartbeat and run the hosted readiness-only
+   preflight while `OMNIGENT_WORKER=false`. No analysis child may launch.
+5. Set `OMNIGENT_WORKER=true` only for the bounded manual nightly test. Turn it
+   off afterward unless recurring heartbeat publication is proven.
+6. The green nightly's live sweep section is the realization evidence this
+   change archives on.
