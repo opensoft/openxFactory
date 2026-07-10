@@ -71,8 +71,29 @@ Brainstorm (active):
 
 Staged topics:
 
-- None after the proposal-support migration. New organized work appears here
-  only until its OpenSpec proposal is created.
+- [client-infrastructure-liaison](staging/client-infrastructure-liaison/client-infrastructure-liaison.md)
+  — adds a neutral Client Hermes coordination role and structured request
+  lifecycle for client-managed, managed-host, or OpsxFactory-executed
+  infrastructure dependencies without granting domain agents tenant
+  administration authority.
+- [proposal-origin-contract](staging/proposal-origin-contract/origin-contract.md)
+  — requires every OpenSpec proposal to identify a durable staging origin or
+  an explicitly approved ad-hoc origin; this topic must dogfood the staged
+  origin path when it becomes a proposal. Its supporting
+  [FDA SaMD traceability rationale](staging/proposal-origin-contract/fda-samd-traceability-rationale.md)
+  records why origin provenance is necessary but not sufficient for regulated
+  device-software traceability.
+
+Active proposals promoted from staging:
+
+- [add-cross-factory-ideation-routing](../openspec/changes/add-cross-factory-ideation-routing/proposal.md)
+  — owns the former `ideation-routing` staged packet under
+  `supporting-docs/` and proposes capture-first claim routing, destination
+  acceptance, deterministic routing validation, and a bounded organizer.
+- [add-document-cataloging](../openspec/changes/add-document-cataloging/proposal.md)
+  — user-approved split from the former umbrella proposal; owns external
+  controlled tagging, immutable catalog snapshots, deterministic catalog
+  validation, and the bounded document cataloger.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or

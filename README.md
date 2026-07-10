@@ -162,10 +162,19 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-document-cataloging](openspec/changes/add-document-cataloging/proposal.md)
+  — external governed-document catalog, controlled discovery taxonomy,
+  immutable snapshots, thirteenth deterministic doc-health family, and bounded
+  document-cataloger lane; implementation follows the semantic-sweep archive
+- [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
+  — staged-origin proposal for unknown-owner/cross-domain claim routing,
+  destination acceptance, the fourteenth deterministic doc-health family, and
+  bounded ideation-organizer lane; implementation follows document cataloging
 - [add-doc-health-semantic-sweep](openspec/changes/add-doc-health-semantic-sweep/proposal.md)
   — agentic semantic sweep extending `doc-health` (code surface:
   codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
   until realization evidence lands)
+
 Archived changes:
 
 - [add-proposal-supporting-doc-lifecycle](openspec/changes/archive/2026-07-09-add-proposal-supporting-doc-lifecycle/proposal.md)

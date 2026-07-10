@@ -1,0 +1,32 @@
+{
+  "change_id": "add-document-cataloging",
+  "files": [
+    {
+      "path": "document-catalog-and-tagging-contract.md",
+      "sha256": "2c1b4b0f9b6cdbc3cd645ab7414c615bc677d7ccb18a16a9674e09d2c48bdae8",
+      "source_path": null
+    },
+    {
+      "path": "document-catalog.template.yaml",
+      "sha256": "74048c2da8ef4609c98a734add1f3529f8b849d039dc3549847da2716082184a",
+      "source_path": null
+    },
+    {
+      "path": "document-tag-application-matrix.md",
+      "sha256": "b4d3808fee2ffa94d131123d245bea93f4cceb36bed731b98a2c3c257985c437",
+      "source_path": null
+    },
+    {
+      "path": "document-tag-registry.template.yaml",
+      "sha256": "c4417aa6eccd2876616e6febe393d651b64e0fec74e62873ba1977c6904907a3",
+      "source_path": null
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": null,
+  "remaining_paths": [],
+  "source_revision": "uncommitted-worktree",
+  "source_state": "Proposal-authored catalog material split from the untracked add-cross-factory-ideation-routing change by explicit user approval.",
+  "transitioned_at": "2026-07-09"
+}

@@ -1,0 +1,184 @@
+# Supporting template for add-document-cataloging.
+schema_version: 1
+kind: xfactory_document_catalog
+status: record
+run:
+  run_id: DOC-CATALOG-YYYYMMDD-<id>
+  as_of: <timestamp>
+  repository: xFactories/MedxFactory
+  repository_revision: <current full commit>
+  inventory_snapshot_id: <snapshot id>
+  taxonomy:
+    effective_sha256: <sha256 of ordered registry inputs>
+    digest_fields:
+      - repository
+      - path
+      - content_sha256
+      - registry_version
+    inputs:
+      - repository: openxFactory
+        path: contracts/document-tag-registry.yaml
+        pinned_repository_revision: <current full commit>
+        registry_last_modified_revision: <commit that produced this registry blob>
+        content_sha256: <sha256>
+        registry_version: 1
+      - repository: xFactories/MedxFactory
+        path: catalog/document-tag-registry.yaml
+        pinned_repository_revision: <current full commit>
+        registry_last_modified_revision: <commit that produced this registry blob>
+        content_sha256: <sha256>
+        registry_version: 1
+  classifier:
+    worker_profile: document-cataloger
+    implementation_version: <classifier version>
+    model: <pinned model id>
+    prompt_contract_version: 1
+entries:
+  - locator:
+      repository: xFactories/MedxFactory
+      path: docs/example.md
+      opaque_ref: null
+      path_sha256: <sha256>
+    revision: <current full commit>
+    content_sha256: <sha256>
+    artifact_type: governance_markdown
+    extracted_metadata:
+      status: draft
+      kind: architecture
+      repository_context: MedxFactory
+      declared_handling: null
+    dispatch_policy:
+      state: allowed
+      source_policy_ref: <policy evidence>
+      host_attestation_ref: <tenant and handling authorization evidence>
+    facet_assignments:
+      - facet: factory_scope
+        values:
+          - domain
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.91
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+      - facet: domain_contexts
+        values:
+          - xFactories/MedxFactory
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.94
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+      - facet: capability_refs
+        values:
+          - repository: openxFactory
+            capability: document-lifecycle
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.86
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+      - facet: topic_tags
+        values:
+          - medx.clinical-operations
+        proposed_values: []
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.83
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+      - facet: document_role
+        values:
+          - architecture
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.97
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+      - facet: sensitivity_signal
+        values:
+          - unspecified
+        state: suggested
+        state_since: <timestamp>
+        provenance:
+          taxonomy_sha256: <effective taxonomy sha256>
+          method: classifier
+          classifier_version: <classifier version>
+          model: <pinned model id>
+          prompt_contract_version: 1
+          confidence: 0.72
+          section: <stable section reference>
+          passage_sha256: <sha256>
+          evidence_refs: []
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: <timestamp>
+            evidence_refs: []
+        review: null
+deleted_since_previous: []
+skips: []

@@ -1,0 +1,33 @@
+{
+  "change_id": "add-cross-factory-ideation-routing",
+  "files": [
+    {
+      "path": "idea-routing-record.template.yaml",
+      "sha256": "6c6f8be45edd3c9fa4481a786495e05dcbfb50cefc955cea58d7e8246fa1cfe1",
+      "source_path": "ideation/staging/ideation-routing/idea-routing-record.template.yaml"
+    },
+    {
+      "path": "ideation-routing.md",
+      "sha256": "9a2106611b1511f01cff5f57fdfbf96e3f4f111ce1c57f4db9328c6943bd5985",
+      "source_path": "ideation/staging/ideation-routing/ideation-routing.md"
+    },
+    {
+      "path": "metadata-application-matrix.md",
+      "sha256": "5d4a373461fdf99d2295abd1cbe28be4e579a4cce71a4239c552a33f8e0807b5",
+      "source_path": "ideation/staging/ideation-routing/metadata-application-matrix.md"
+    },
+    {
+      "path": "organizer-and-sweep-contract.md",
+      "sha256": "4f8d398063e0f01a3e91a3b263c48c30b2f1f949cbf350fae6ef8bc69d804248",
+      "source_path": "ideation/staging/ideation-routing/organizer-and-sweep-contract.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/ideation-routing",
+  "remaining_paths": [],
+  "source_base_revision": "ae3c0c0cd6cf3ad9257131acf086a881dea9f7e5",
+  "source_revision": "uncommitted-worktree",
+  "source_state": "The staged packet was promoted before its first commit; per-file hashes are the authoritative source snapshot. Catalog-specific proposal-authored files were moved to add-document-cataloging by explicit user-approved split.",
+  "transitioned_at": "2026-07-09"
+}

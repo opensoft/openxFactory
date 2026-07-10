@@ -1,0 +1,26 @@
+# Supporting template for add-document-cataloging.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces:
+  - id: xfactory
+    owner: openxFactory
+    description: Neutral tags reusable across factory domains.
+  - id: medx
+    owner: xFactories/MedxFactory
+    description: MedxFactory-owned domain tags.
+tags:
+  - id: xfactory.document-governance
+    namespace: xfactory
+    label: Document governance
+    description: Lifecycle, catalog, health, and promotion governance.
+    aliases: []
+    status: active
+  - id: medx.clinical-operations
+    namespace: medx
+    label: Clinical operations
+    description: Medical-domain operational workflow and policy.
+    aliases: []
+    status: active
+proposed_tags: []
+retired_tags: []
