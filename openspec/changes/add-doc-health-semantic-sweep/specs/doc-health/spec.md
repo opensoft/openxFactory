@@ -54,6 +54,9 @@ the model subprocess MUST NOT receive that token or any repository credential.
 The model SHALL consume the corpus as untrusted stdin data with filesystem
 tools and session persistence disabled, and its output SHALL satisfy the
 versioned structured-output schema before findings-contract validation.
+Before artifact download, the child workflow SHALL verify that its source run,
+correlation, repository, workflow path, event, and source revision identify the
+authorized nightly parent run at the same immutable revision.
 
 #### Scenario: An analysis run executes
 - **WHEN** the analysis worker runs
@@ -69,6 +72,10 @@ versioned structured-output schema before findings-contract validation.
 - **THEN** hosted readiness MUST observe an eligible online and idle runner plus a matching external heartbeat no older than five minutes
 - **AND** the heartbeat MUST attest available capacity, eligible host class, worker and required profile versions, authorization boundaries, service/model health, and repository-credential absence
 - **AND** hosted finalization MUST NOT depend on the self-hosted child job
+
+#### Scenario: Analysis child is dispatched directly or with substituted input
+- **WHEN** the source run, correlation, repository, workflow path, event, or source revision does not match the authorized nightly parent
+- **THEN** the child MUST fail before downloading the corpus artifact
 
 ### Requirement: Semantic findings are proposals
 Every semantic finding SHALL be a proposal, not a verdict: it carries the
