@@ -139,14 +139,14 @@ surface, stdlib-only core, no provisional reach, fail-closed authority, and reda
 zero deployment surfaces, zero third-party runtime imports, zero provisional reach, and zero protected
 content in telemetry.
 
-- [ ] T050 [P] [US3] Implement the pure stdlib AST / import / export / file-surface scanner in `tests/avatar_runtime/boundary/scanner.py` (FR-004a, execution-free)
-- [ ] T051 [US3] Implement `tests/avatar_runtime/boundary/test_package_boundary.py` asserting no listener/app-factory/deployment/persistence/SDK/credential surface, stdlib-only runtime, and no provisional import (FR-001/004, ARR-001-S01, ARR-002-S02, SC-005/010) — depends on T050
-- [ ] T052 [US3] Implement the standalone execution-free gate `scripts/validate-avatar-runtime.py` importing `boundary/scanner.py` (FR-004a, Clarifications Q4) — depends on T050
-- [ ] T053 [US3] Add the single `scripts/validate-avatar-runtime.py` line to the README validator index (declared governance exception; no other sibling path touched) in `README.md` (FR-036, SC-008)
-- [ ] T054 [P] [US3] `tests/avatar_runtime/test_redaction_telemetry.py` — redaction validator rejects SDP/credential/payload/media/high-cardinality id and does not publish (ARR-007-S04, FR-033, SC-007)
-- [ ] T055 [P] [US3] `tests/avatar_runtime/boundary/test_live_provider_rejected.py` — reference code attempting provider-key load / network call fails and routes to a live-runtime change (ARR-001-S02, FR-002)
-- [ ] T056 [P] [US3] `tests/avatar_runtime/boundary/test_state_discarded.py` — runtime destruction requires no migration/cleanup/secret-grant recovery (ARR-001-S03, FR-003, SC-009)
-- [ ] T057 [P] [US3] `tests/avatar_runtime/test_failclosed_inspection.py` — purpose-mapping-absent denial before provider creation (ARR-007-S01) and kill-switch deny/lease-revoke (ARR-007-S03), reusing US1 modules. NOTE (F1): ARR-007-S01/S03 are also covered by US1 tests (T036/T039); `scenario-test-map.yaml` MUST record each as a SINGLE entry listing both the US1 and US3 test nodes, not duplicate entries.
+- [x] T050 [P] [US3] Implement the pure stdlib AST / import / export / file-surface scanner in `tests/avatar_runtime/boundary/scanner.py` (FR-004a, execution-free)
+- [x] T051 [US3] Implement `tests/avatar_runtime/boundary/test_package_boundary.py` asserting no listener/app-factory/deployment/persistence/SDK/credential surface, stdlib-only runtime, and no provisional import (FR-001/004, ARR-001-S01, ARR-002-S02, SC-005/010) — depends on T050
+- [x] T052 [US3] Implement the standalone execution-free gate `scripts/validate-avatar-runtime.py` importing `boundary/scanner.py` (FR-004a, Clarifications Q4) — depends on T050
+- [x] T053 [US3] Add the single `scripts/validate-avatar-runtime.py` line to the README validator index (declared governance exception; no other sibling path touched) in `README.md` (FR-036, SC-008)
+- [x] T054 [P] [US3] `tests/avatar_runtime/test_redaction_telemetry.py` — redaction validator rejects SDP/credential/payload/media/high-cardinality id and does not publish (ARR-007-S04, FR-033, SC-007)
+- [x] T055 [P] [US3] `tests/avatar_runtime/boundary/test_live_provider_rejected.py` — reference code attempting provider-key load / network call fails and routes to a live-runtime change (ARR-001-S02, FR-002)
+- [x] T056 [P] [US3] `tests/avatar_runtime/boundary/test_state_discarded.py` — runtime destruction requires no migration/cleanup/secret-grant recovery (ARR-001-S03, FR-003, SC-009)
+- [x] T057 [P] [US3] `tests/avatar_runtime/test_failclosed_inspection.py` — purpose-mapping-absent denial before provider creation (ARR-007-S01) and kill-switch deny/lease-revoke (ARR-007-S03), reusing US1 modules. NOTE (F1): ARR-007-S01/S03 are also covered by US1 tests (T036/T039); `scenario-test-map.yaml` MUST record each as a SINGLE entry listing both the US1 and US3 test nodes, not duplicate entries.
 
 **Checkpoint**: US3 provides the reviewer-facing boundary + redaction guarantees, independently runnable.
 
@@ -159,7 +159,7 @@ content in telemetry.
 - [ ] T058 Run the Principle V feature gate (`scripts/validate-avatar-runtime.py` + `pytest tests/avatar_runtime -p randomly` + `check_conformance.py`) and record the used seeds in `realization-pin.yaml`
 - [ ] T059 [P] Run the `quickstart.md` validation end-to-end and reconcile expected outcomes
 - [ ] T060 Run `git diff --check` and confirm 0 canonical-contract / F0 / UI / DomainxFactory / deployment / release-metadata files changed (FR-036, SC-008); record this gate result as the mapped evidence for `ARR-008-S04` in `scenario-test-map.yaml` (evidence type: `gate`) (E1)
-- [ ] T060a [P] Implement a suite-wide test-lint guard scanning `tests/avatar_runtime/` for wall-clock time / randomness / network / filesystem-persistence usage (strengthens SC-004; complements the package boundary scanner, which targets the runtime package not the tests) in `tests/avatar_runtime/boundary/test_suite_hygiene.py`
+- [x] T060a [P] Implement a suite-wide test-lint guard scanning `tests/avatar_runtime/` for wall-clock time / randomness / network / filesystem-persistence usage (strengthens SC-004; complements the package boundary scanner, which targets the runtime package not the tests) in `tests/avatar_runtime/boundary/test_suite_hygiene.py`
 - [ ] T061 [P] Verify mapping completeness: all 34 `ARR-*` scenarios mapped and every applicable `ACR-*` mapped or dispositioned with rationale (SC-001/002)
 - [ ] T062 [P] Cross-check FR/SC coverage against `scenario-test-map.yaml`; add/adjust non-applicability dispositions with rationale where needed
 - [ ] T063 Final determinism sweep across multiple recorded seeds via `tests/avatar_runtime/test_determinism.py`; record the seeds in `tests/avatar_runtime/conformance/realization-pin.yaml` and confirm the reproducible-failing-seed procedure from reported output (SC-003)
