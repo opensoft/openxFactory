@@ -31,10 +31,10 @@ stdlib-only runtime; tests/validator may use pinned `pytest`, `pytest-randomly`,
 
 **Purpose**: Directory structure and toolchain configuration.
 
-- [ ] T001 Create the package and test-tree structure (`xfactory/avatar_runtime/`, `tests/avatar_runtime/{fakes,provisional,boundary,conformance}/`) per plan.md §Project Structure
-- [ ] T002 [P] Author `xfactory/avatar_runtime/__init__.py` reference-only docstring stating non-deployable / no application factory / no listener / no provider key
-- [ ] T003 [P] Pin and document test-only dev dependencies and the `pytest` + `pytest-randomly` configuration (Python 3.11+, no 3.12-only syntax) in `tests/avatar_runtime/README.md`
-- [ ] T004 [P] Document the recorded-seed convention (how many seeds, where recorded) for `pytest-randomly` runs in `tests/avatar_runtime/README.md`
+- [x] T001 Create the package and test-tree structure (`xfactory/avatar_runtime/`, `tests/avatar_runtime/{fakes,provisional,boundary,conformance}/`) per plan.md §Project Structure
+- [x] T002 [P] Author `xfactory/avatar_runtime/__init__.py` reference-only docstring stating non-deployable / no application factory / no listener / no provider key
+- [x] T003 [P] Pin and document test-only dev dependencies and the `pytest` + `pytest-randomly` configuration (Python 3.11+, no 3.12-only syntax) in `tests/avatar_runtime/README.md`
+- [x] T004 [P] Document the recorded-seed convention (how many seeds, where recorded) for `pytest-randomly` runs in `tests/avatar_runtime/README.md`
 
 ---
 
@@ -44,14 +44,14 @@ stdlib-only runtime; tests/validator may use pinned `pytest`, `pytest-randomly`,
 
 **⚠️ CRITICAL**: No user-story work can begin until this phase is complete.
 
-- [ ] T005 [P] Implement the seven injected-port `Protocol`s (`ClockPort`, `IdPort`, `ProviderPort`, `PolicyPort`, `ConsentPort`, `OperationPort`, `UsagePort`) in `xfactory/avatar_runtime/ports.py` (per contracts/ports.md, FR-007)
-- [ ] T006 [P] Implement frozen typed values + closed fail-closed registries (`SessionState`, `AttemptStatus`, `PreflightKind`, `OutcomeCode`, `PurposeId`, `EventKind`, `ProducerAuthority`, `ReasonCode`, `DispositionKind`) in `xfactory/avatar_runtime/values.py` (per data-model.md, FR-010/§VII)
-- [ ] T007 [P] Implement `ManualClock` (monotonic + wall, `advance()`) in `xfactory/avatar_runtime/clocks.py` (FR-008)
-- [ ] T008 [P] Implement `QueuedIdSource` (deterministic id sequence, no randomness) in `xfactory/avatar_runtime/ids.py` (FR-007)
-- [ ] T009 Implement structured `TelemetryRecord` + redaction validator (reject-and-do-not-publish on SDP/credential/payload/media/high-cardinality id) in `xfactory/avatar_runtime/telemetry.py` (FR-033, SC-007) — depends on T006
-- [ ] T010 [P] Implement in-memory `FakeProvider` (create / sideband-open / sideband-verified / hangup) and fail-closed policy/consent/operation/usage fixtures in `tests/avatar_runtime/fakes/` (design D2/D6)
-- [ ] T011 Implement the in-process `runtime.py` assembly wiring ports + modules, with `destroy()` creating no durable state, in `xfactory/avatar_runtime/runtime.py` (FR-001/FR-003) — depends on T005–T009
-- [ ] T012 Implement `tests/avatar_runtime/conftest.py` fixtures (manual clock, id source, fake provider, authority fixtures) + seed recording — depends on T007, T008, T010
+- [x] T005 [P] Implement the seven injected-port `Protocol`s (`ClockPort`, `IdPort`, `ProviderPort`, `PolicyPort`, `ConsentPort`, `OperationPort`, `UsagePort`) in `xfactory/avatar_runtime/ports.py` (per contracts/ports.md, FR-007)
+- [x] T006 [P] Implement frozen typed values + closed fail-closed registries (`SessionState`, `AttemptStatus`, `PreflightKind`, `OutcomeCode`, `PurposeId`, `EventKind`, `ProducerAuthority`, `ReasonCode`, `DispositionKind`) in `xfactory/avatar_runtime/values.py` (per data-model.md, FR-010/§VII)
+- [x] T007 [P] Implement `ManualClock` (monotonic + wall, `advance()`) in `xfactory/avatar_runtime/clocks.py` (FR-008)
+- [x] T008 [P] Implement `QueuedIdSource` (deterministic id sequence, no randomness) in `xfactory/avatar_runtime/ids.py` (FR-007)
+- [x] T009 Implement structured `TelemetryRecord` + redaction validator (reject-and-do-not-publish on SDP/credential/payload/media/high-cardinality id) in `xfactory/avatar_runtime/telemetry.py` (FR-033, SC-007) — depends on T006
+- [x] T010 [P] Implement in-memory `FakeProvider` (create / sideband-open / sideband-verified / hangup) and fail-closed policy/consent/operation/usage fixtures in `tests/avatar_runtime/fakes/` (design D2/D6)
+- [x] T011 Implement the in-process `runtime.py` assembly wiring ports + modules, with `destroy()` creating no durable state, in `xfactory/avatar_runtime/runtime.py` (FR-001/FR-003) — depends on T005–T009
+- [x] T012 Implement `tests/avatar_runtime/conftest.py` fixtures (manual clock, id source, fake provider, authority fixtures) + seed recording — depends on T007, T008, T010
 
 **Checkpoint**: Foundation ready — user-story implementation can begin.
 
