@@ -76,16 +76,16 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Independent Test**: All eight schema files resolve their `$ref`s offline, each declares id + `contract_schema_version`, every registry is closed, and schema enums set-equal their registry files (spec US1 Independent Test; SC-001/SC-004).
 
-- [ ] T017 [P] [US1] Author `contracts/avatar-client/avc-01-session-request.schema.yaml` (transient `sdp_offer`; resume {logical session, epoch, last-applied seq}; body fields are references) per data-model §A / spec §FR-009
-- [ ] T018 [P] [US1] Author `contracts/avatar-client/avc-02-session-result.schema.yaml` (discriminated `grant|denial|terminal`; inline capabilities on grant; media-authorization state + offer-fingerprint binding + heartbeat/lease fields; denial/terminal STRUCTURALLY cannot carry SDP/answer/credential) per spec §FR-007/§FR-006/§FR-010
-- [ ] T019 [P] [US1] Author `contracts/avatar-client/avc-04-session-event.schema.yaml` (immutable; observation|authoritative + registered producer; AVC-05 transcript-segment payload) per spec §FR-002/§FR-011
-- [ ] T020 [P] [US1] Author `contracts/avatar-client/avc-06-structured-confirmation.schema.yaml` (challenge fields; no binding digest) per spec §FR-013
-- [ ] T021 [P] [US1] Author `contracts/avatar-client/avc-07-retention-profile.schema.yaml` (retention classes + reserved-forbidden; schema only, no instances) per spec §FR-001(Q2)/§FR-017
-- [ ] T022 [P] [US1] Author `contracts/avatar-client/avc-08-persona-profile.schema.yaml` (immutable-per-session persona; schema only, no catalog instances) per spec §FR-001(Q2)/§FR-014
-- [ ] T023 [P] [US1] Author `contracts/avatar-client/avc-11-session-command.schema.yaml` (command id idempotency key; optional `expected_state_revision`; opaque attachment reference only) per spec §FR-011/§FR-016
-- [ ] T024 [P] [US1] Author `contracts/avatar-client/avc-12-state-snapshot.schema.yaml` (`last_event_sequence` cursor; `state_revision`; leased-control/recovery fields; client-local presentation non-authoritative) per spec §FR-011/§FR-012
-- [ ] T025 [US1] Implement validator checks: draft-2020-12 schema validity, offline `$ref` resolution, and AVC-09/AVC-10 reserved-identifier guard in `scripts/validate-avatar-client.py` — depends on T015, T017–T024
-- [ ] T026 [US1] Implement validator schema↔registry parity + exact-count checks (15 reasons / 3 purposes) + speech-gate enum closure in `scripts/validate-avatar-client.py` — depends on T025
+- [x] T017 [P] [US1] Author `contracts/avatar-client/avc-01-session-request.schema.yaml` (transient `sdp_offer`; resume {logical session, epoch, last-applied seq}; body fields are references) per data-model §A / spec §FR-009
+- [x] T018 [P] [US1] Author `contracts/avatar-client/avc-02-session-result.schema.yaml` (discriminated `grant|denial|terminal`; inline capabilities on grant; media-authorization state + offer-fingerprint binding + heartbeat/lease fields; denial/terminal STRUCTURALLY cannot carry SDP/answer/credential) per spec §FR-007/§FR-006/§FR-010
+- [x] T019 [P] [US1] Author `contracts/avatar-client/avc-04-session-event.schema.yaml` (immutable; observation|authoritative + registered producer; AVC-05 transcript-segment payload) per spec §FR-002/§FR-011
+- [x] T020 [P] [US1] Author `contracts/avatar-client/avc-06-structured-confirmation.schema.yaml` (challenge fields; no binding digest) per spec §FR-013
+- [x] T021 [P] [US1] Author `contracts/avatar-client/avc-07-retention-profile.schema.yaml` (retention classes + reserved-forbidden; schema only, no instances) per spec §FR-001(Q2)/§FR-017
+- [x] T022 [P] [US1] Author `contracts/avatar-client/avc-08-persona-profile.schema.yaml` (immutable-per-session persona; schema only, no catalog instances) per spec §FR-001(Q2)/§FR-014
+- [x] T023 [P] [US1] Author `contracts/avatar-client/avc-11-session-command.schema.yaml` (command id idempotency key; optional `expected_state_revision`; opaque attachment reference only) per spec §FR-011/§FR-016
+- [x] T024 [P] [US1] Author `contracts/avatar-client/avc-12-state-snapshot.schema.yaml` (`last_event_sequence` cursor; `state_revision`; leased-control/recovery fields; client-local presentation non-authoritative) per spec §FR-011/§FR-012
+- [x] T025 [US1] Implement validator checks: draft-2020-12 schema validity, offline `$ref` resolution, and AVC-09/AVC-10 reserved-identifier guard in `scripts/validate-avatar-client.py` — depends on T015, T017–T024
+- [x] T026 [US1] Implement validator schema↔registry parity + exact-count checks (15 reasons / 3 purposes) + speech-gate enum closure in `scripts/validate-avatar-client.py` — depends on T025
 
 **Checkpoint**: US1 independently testable — canonical schema + registry surface exists and self-validates.
 

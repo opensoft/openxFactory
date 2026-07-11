@@ -1,0 +1,29 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-12-state-snapshot.schema.yaml"
+contract_id: "AVC-12"
+contract_schema_version: 1
+title: "AVC-12 avatar state snapshot"
+description: >-
+  Server-issued projection used to initialize or recover authoritative state.
+  last_event_sequence is the ONLY recovery stream cursor; state_revision guards
+  state-changing commands (spec FR-011/FR-012). presentation_mode is
+  client-local and non-authoritative.
+type: object
+additionalProperties: false
+properties:
+  logical_session_id: {type: string, minLength: 1}
+  last_event_sequence: {$ref: "shared-definitions.schema.yaml#/$defs/last_event_sequence"}
+  state_revision: {$ref: "shared-definitions.schema.yaml#/$defs/state_revision"}
+  session_lifecycle: {type: string}
+  control_health: {type: string, enum: [healthy, degraded, lost]}
+  media_state: {type: string}
+  workflow_projection: {type: object}
+  session_outcome: {$ref: "shared-definitions.schema.yaml#/$defs/session_outcome"}
+  presentation_mode:
+    type: string
+    description: "Client-local UI hint, non-authoritative"
+    enum: [conversation, work, review]
+required:
+  - logical_session_id
+  - last_event_sequence
+  - state_revision

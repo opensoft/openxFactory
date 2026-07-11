@@ -1,0 +1,20 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-08-persona-profile.schema.yaml"
+contract_id: "AVC-08"
+contract_schema_version: 1
+title: "AVC-08 avatar persona profile"
+description: >-
+  Persona is selected at session start and fixed for the logical session;
+  changing persona ends the session (spec FR-014). Schema + fixtures only — the
+  concrete persona catalog is domain-owned (Q2).
+type: object
+additionalProperties: false
+properties:
+  persona_id: {type: string, minLength: 1}
+  disclosure: {type: string, minLength: 1, description: "Display-safe disclosure text key/content"}
+  language: {type: string}
+  immutable_per_session: {const: true}
+  lifecycle: {type: string, enum: [active, retired]}
+required:
+  - persona_id
+  - disclosure

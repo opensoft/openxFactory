@@ -1,0 +1,95 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-02-session-result.schema.yaml"
+contract_id: "AVC-02"
+contract_schema_version: 1
+title: "AVC-02 avatar session result"
+description: >-
+  Sole serialized response to AVC-01, discriminated by result_kind into grant,
+  denial, or terminal. Only `grant` may carry an SDP answer, a control
+  credential, or capabilities; denial/terminal are STRUCTURALLY incapable of
+  carrying SDP, an SDP answer, or a credential (spec FR-007). Reasons and
+  fallback modes are closed registries.
+type: object
+$defs:
+  reason:
+    type: string
+    x-vocab: reason
+    enum:
+      - identity_denied
+      - consent_missing
+      - policy_denied
+      - contract_incompatible
+      - profile_disabled
+      - interaction_mode_unsupported
+      - quota_blocked
+      - second_instance_denied
+      - idempotency_conflict
+      - media_readiness_timeout
+      - provider_unavailable
+      - grant_consumed
+      - attempt_expired
+      - attempt_abandoned
+      - attempt_revoked
+  fallback:
+    type: string
+    x-vocab: fallback
+    enum: [text, human_handoff, retry_later, upgrade_required, none]
+  grant:
+    type: object
+    additionalProperties: false
+    properties:
+      request_id: {type: string, minLength: 1}
+      result_kind: {const: grant}
+      media_attempt_status: {type: string}
+      grant_id: {type: string, minLength: 1}
+      logical_session_id: {type: string, minLength: 1}
+      session_epoch: {$ref: "shared-definitions.schema.yaml#/$defs/session_epoch"}
+      media_leg: {$ref: "shared-definitions.schema.yaml#/$defs/media_leg"}
+      resolved_capabilities:
+        type: array
+        items: {type: string}
+      sdp_offer_sha256: {$ref: "shared-definitions.schema.yaml#/$defs/sdp_offer_sha256"}
+      sdp_answer: {type: string, minLength: 1}
+      control_channel:
+        type: object
+        additionalProperties: false
+        properties:
+          wss_url: {type: string}
+          control_credential: {type: string}
+        required: [wss_url, control_credential]
+      heartbeat_interval_ms: {type: integer, minimum: 1, maximum: 5000}
+      lease_expires_at_ms: {type: integer, minimum: 0, maximum: 10000}
+      media_readiness_timeout_ms: {type: integer, minimum: 1000, maximum: 5000}
+      media_authorization_state: {$ref: "shared-definitions.schema.yaml#/$defs/media_authorization_state"}
+      initial_snapshot: {type: object}
+    required:
+      - request_id
+      - result_kind
+      - grant_id
+      - logical_session_id
+      - session_epoch
+      - media_leg
+      - sdp_offer_sha256
+      - sdp_answer
+      - control_channel
+      - heartbeat_interval_ms
+      - lease_expires_at_ms
+      - media_authorization_state
+  non_grant:
+    type: object
+    additionalProperties: false
+    properties:
+      request_id: {type: string, minLength: 1}
+      result_kind: {enum: [denial, terminal]}
+      reason: {$ref: "#/$defs/reason"}
+      retryable: {type: boolean}
+      retry_after_ms: {type: integer, minimum: 0}
+      fallback_modes:
+        type: array
+        items: {$ref: "#/$defs/fallback"}
+      safe_message_key: {type: string}
+      media_attempt_status: {type: string}
+    required: [request_id, result_kind, reason, retryable, fallback_modes]
+oneOf:
+  - {$ref: "#/$defs/grant"}
+  - {$ref: "#/$defs/non_grant"}
