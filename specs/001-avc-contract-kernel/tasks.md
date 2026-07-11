@@ -144,9 +144,9 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Independent Test**: The realized files satisfy the SCO-*/RBG-* scenarios (private client boundary, internal-live evidence gate, deferred aggregation/web-console), recorded as manual evidence in the register (spec US5 Independent Test).
 
-- [ ] T041 [P] [US5] Verify the shared-contract-ownership delta (SCO-001/SCO-002) against realized files — ownership, content-addressed pinning, canonical-fixture execution, reference-vs-client boundaries — and record manual evidence in `evidence-register.yaml` per spec §FR-025
-- [ ] T042 [P] [US5] Verify the repo-boundary-governance delta (RBG-001/002/003) against realized files — private `xfactory-avatar-client` boundary, internal-live release-evidence gate, deferred aggregation/web-console — and record manual evidence in `evidence-register.yaml` per spec §FR-026/§FR-027/§FR-028
-- [ ] T043 [US5] Declare the two completion states (implementation-complete-pending-F0 vs realized) in `contracts/avatar-client/README.md` / `interface-lock.yaml` per spec §FR-034 — depends on T035, T038
+- [x] T041 [P] [US5] Verify the shared-contract-ownership delta (SCO-001/SCO-002) against realized files — ownership, content-addressed pinning, canonical-fixture execution, reference-vs-client boundaries — and record manual evidence in `evidence-register.yaml` per spec §FR-025
+- [x] T042 [P] [US5] Verify the repo-boundary-governance delta (RBG-001/002/003) against realized files — private `xfactory-avatar-client` boundary, internal-live release-evidence gate, deferred aggregation/web-console — and record manual evidence in `evidence-register.yaml` per spec §FR-026/§FR-027/§FR-028
+- [x] T043 [US5] Declare the two completion states (implementation-complete-pending-F0 vs realized) in `contracts/avatar-client/README.md` / `interface-lock.yaml` per spec §FR-034 — depends on T035, T038
 
 **Checkpoint**: US5 independently testable — governance boundaries ratified and evidenced.
 

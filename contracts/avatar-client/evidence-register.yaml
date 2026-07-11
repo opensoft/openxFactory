@@ -285,16 +285,16 @@ entries:
     fail_closed_default: "later ring blocked without prior-ring evidence; tag blocked without F0 PASS; kill switches enforced"
   - scenario_id: RBG-001-S01
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "Realized kernel creates no xfactory-avatar-client repo and contains no provider keys or server tool handlers; boundary ratified in repo-boundary-governance delta."
+    reviewer: spec-001-kernel
+    disposition: verified
   - scenario_id: RBG-001-S02
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "No privileged provider code exists in the owned surface; the delta routes such code to the server trust boundary."
+    reviewer: spec-001-kernel
+    disposition: verified
   - scenario_id: RBG-002-S01
     evidence_type: deferred
     status: deferred
@@ -312,16 +312,16 @@ entries:
     fail_closed_default: "client release-evidence obligations are enforced at the internal-live gate"
   - scenario_id: RBG-003-S01
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "Kernel selects no aggregation gitlink; aggregation integration is deferred to a dedicated change per the delta."
+    reviewer: spec-001-kernel
+    disposition: verified
   - scenario_id: RBG-003-S02
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "Kernel builds no web console; a separate web repo/binding boundary is required per the delta."
+    reviewer: spec-001-kernel
+    disposition: verified
   - scenario_id: SCO-001-S01
     evidence_type: automated
     status: evidenced
@@ -345,13 +345,13 @@ entries:
     fail_closed_default: "a provider event stays in the owning adapter unless a reviewed neutral evolution justifies it"
   - scenario_id: SCO-002-S01
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "Kernel contains contracts + reference validator only; no provider call creation, key holding, sideband, or tool/prompt config in contracts/avatar-client/."
+    reviewer: spec-001-kernel
+    disposition: verified
   - scenario_id: SCO-002-S02
     evidence_type: manual
-    status: planned
-    result: "pending US5 verification against the realized delta"
-    reviewer: unassigned
-    disposition: pending
+    status: accepted
+    result: "Neutral authority/vocabulary defined once in the kernel; overlays pin a release without forking (ratified in shared-contract-ownership delta)."
+    reviewer: spec-001-kernel
+    disposition: verified

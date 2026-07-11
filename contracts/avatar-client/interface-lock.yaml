@@ -41,3 +41,12 @@ f0_evidence_pin:
   f0_source_commit: null
   f0_results_schema_sha256: null
   f0_interface_impact_schema_sha256: null
+# Two completion states (spec FR-034 / Q7). The OpenSpec change stays active
+# until `realized`.
+completion_states:
+  current: implementation_complete_publication_pending_f0
+  definitions:
+    implementation_complete_publication_pending_f0:
+      description: "All kernel artifacts + validator merged and green; publication gate enforced."
+    realized:
+      description: "F0 PASS, all variances dispositioned, threat model accepted, annotated tag published, per-file digests recorded."
