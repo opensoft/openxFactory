@@ -77,11 +77,14 @@ vocabulary/status/variance; no host-absolute paths (Principle IV — validator
 resolves everything relative to `Path(__file__).resolve().parents[1]`); no
 credentials, SDP, raw payloads, or high-cardinality identifiers in any committed
 file (Principle VII; FR-018/SC-008); this change alone writes
-`contracts/avatar-client/` and `scripts/validate-avatar-client.py`; shared
-release metadata (`contracts/manifest.yaml`, `CHANGELOG.md`, `README.md`) is
-touched only at the serialized final realization step.
+`contracts/avatar-client/` and `scripts/validate-avatar-client.py`; the shared
+release-metadata files (`contracts/manifest.yaml`, `contracts/CHANGELOG.md`,
+`contracts/README.md`) and the repo-root `README.md` document-index link are
+touched only at the serialized final realization step, with explicit-path
+staging (see Design Note 4 for the three distinct README files).
 
-**Scale/Scope**: 8 schemas + 1 shared-definitions module + 9 registry files
+**Scale/Scope**: 8 schemas + 1 shared-definitions module (incl. the closed
+speech-gate enum) + 9 registry files
 (8 vocabularies + consent purposes) + acceptance map (17 requirements /
 72 scenarios) + evidence register + interface-lock (incl. F0 evidence pin) +
 redaction config + a fixture suite (valid/invalid/boundary/compatibility/
@@ -101,7 +104,7 @@ Phase 0 and be re-checked after Phase 1.*
 |-----------|---------|-------|
 | I. Contract-First, Domain-Neutral Core | **PASS** | Only neutral contracts land under `contracts/avatar-client/`. No domain vocabulary/policy. AVC-07/AVC-08 ship schema+fixtures only; persona/retention instances stay domain-owned (FR-001, Q2). |
 | II. Governed Change Flow (OpenSpec → one Speckit feature) | **PASS** | Single Speckit feature for `define-avatar-client-contract-kernel`; `code_surface: openxFactory`. Speckit `tasks.md` will own implementation decomposition; the OpenSpec `tasks.md` remains the governance handoff — mapped, not duplicated (see Design Note 1). Two completion states honor "archives only on merged, green realization evidence" (FR-034). |
-| III. Document Lifecycle & Status Discipline | **PASS** | Data artifacts carry `schema_version` + `kind` (Principle IV). The only prose doc, `contracts/avatar-client/README.md`, is linked into the repo README index and carries a controlled `Status:` header at realization. No `standard` claim is made without the promoted spec/contract backing it. |
+| III. Document Lifecycle & Status Discipline | **PASS** | Data artifacts carry `schema_version` + `kind` (Principle IV). The family prose doc `contracts/avatar-client/README.md` carries a controlled `Status:` header and is linked into the repository doc index (repo-root `README.md`) at realization — see Design Note 4 for the three distinct README files. No `standard` claim is made without the promoted spec/contract backing it. |
 | IV. Schema and Artifact Discipline | **PASS** | Every YAML carries `schema_version` + `kind`; no `.template`/`.example` live-config for AVC-07/08 (Q2); no host-absolute paths; no raw credentials (bounded sentinels only, Q3); new docs linked into the README index. |
 | V. Validation Gates (NON-NEGOTIABLE) | **PASS** | `validate-avatar-client.py` is the local gate run before push; OpenSpec `validate --all --strict` also required. Behavior proven by deterministic fixtures + validator output, not assertion. Contested findings resolved by cited change/disposition. |
 | VI. Versioned, Content-Addressed Releases | **PASS** | Five coordinated values (per-file `contract_schema_version`, `contract_bundle_version`, annotated `contract-v1.7` tag, exact commit + per-file SHA-256 digests, CHANGELOG entry). Version allocated at realization (next minor after `contract-v1.6`); additive = minor. Digests span the full consumed set (FR-022). |
@@ -177,15 +180,16 @@ contracts/avatar-client/                       # OWNED EXCLUSIVELY BY THIS CHANG
 ├── redaction/
 │   ├── denylist-patterns.yaml                 # content-scan patterns (validator config)
 │   └── sentinels.yaml                         # bounded synthetic sentinels
-└── README.md                                  # avatar-client contract index (Status header)
+└── README.md                                  # avatar-client FAMILY contract index (Status header)
 
 scripts/
 └── validate-avatar-client.py                  # reference validator (unpinned tooling)
 
-# Shared release metadata — edited ONLY at the serialized final realization step:
+# Shared release metadata — edited ONLY at the serialized final realization step (explicit-path staging):
 contracts/manifest.yaml                        # + avatar-client entries w/ per-file digests
 contracts/CHANGELOG.md                         # + contract-v1.7 entry
-contracts/README.md                            # + avatar-client family in doc index
+contracts/README.md                            # RELEASE-METADATA index (changelog/manifest pointer)
+README.md   (repo root)                        # REPOSITORY doc index — link the avatar-client family (Principle IV)
 ```
 
 **Structure Decision**: Single-project, contract-first layout. All canonical
@@ -219,6 +223,22 @@ a separate pinned file.
    FR-022 (which is: 8 schemas, shared-definitions, registries, consent-purpose
    registry, fixtures, acceptance map, interface lock, evidence register). This
    keeps the pinned semantic surface exactly as Q1 enumerated it.
+4. **Three distinct README files (analyze A1/A2).** Do not conflate them:
+   (a) `contracts/avatar-client/README.md` — the avatar-client **family contract
+   index** (carries a `Status:` header), authored in US3;
+   (b) `contracts/README.md` — the **release-metadata index** (changelog/manifest
+   pointer), updated atomically with manifest/changelog at serialized realization;
+   (c) repo-root `README.md` — the **repository document index** into which the
+   new family is linked per Principle IV, edited only at serialized realization
+   with explicit-path staging (shared-tree discipline). The Principle IV
+   doc-index obligation targets (c), not (a) or (b).
+5. **Speech-gate vocabulary as a shared-definitions enum (analyze A3).** The
+   speech-gate values (`confirmation_before_action` default, `streaming_monitor`,
+   reserved `pre_speech_review`; design Decision 11 / FR-015) are encoded as a
+   **closed enum inside `shared-definitions.schema.yaml`** referenced by the
+   relevant AVC fields — NOT as a tenth registry file. This satisfies Principle
+   VII closed-vocabulary discipline and FR-004's read-only registry enumeration
+   without expanding the ratified nine-registry set.
 
 ## Complexity Tracking
 

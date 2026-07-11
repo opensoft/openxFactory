@@ -20,10 +20,14 @@ the altitude the plan needs. Every YAML artifact carries `schema_version` and
   epoch; media leg; media attempt; server-derived SDP-offer fingerprint
   (`sdp_offer_sha256`); state revision; last-event sequence; media authorization
   state; session outcomes; retention class; redaction marker; retry-equivalence
-  rule.
-- **Relationships**: referenced by all 8 contracts via relative `$ref`.
+  rule; **speech-gate closed enum** (`confirmation_before_action` default,
+  `streaming_monitor`, reserved `pre_speech_review`; FR-015 / design Decision 11).
+- **Relationships**: referenced by all 8 contracts via relative `$ref`; the
+  speech-gate enum is referenced by the relevant policy/speech fields.
 - **Rules**: no field in `$defs` may require a provider DTO, model identifier,
-  client widget state, or secret (FR-006).
+  client widget state, or secret (FR-006). The speech-gate vocabulary is a closed
+  enum here — NOT a tenth registry file (analyze A3) — so selecting the reserved
+  `pre_speech_review` value fails preflight into text/human fallback.
 
 ### The eight contracts
 | ID | File | Key neutral field groups | Notable rules |
@@ -65,6 +69,11 @@ ordered `members[]` (`id`, `description`, optional `producer`/`authority`/
 parity** — every schema enum bound to a registry must set-equal that registry's
 member ids (validator-enforced, D3); member id sets for `session-result-reasons`
 (15) and `consent-purposes` (3) are exact (SC-004).
+
+**Note (analyze A3)**: there are nine registry FILES. The speech-gate vocabulary
+is intentionally NOT a registry file — it is a closed enum inside
+`shared-definitions.schema.yaml` (§A) — so the ratified nine-registry enumeration
+(FR-004/FR-005) is unchanged.
 
 ---
 
