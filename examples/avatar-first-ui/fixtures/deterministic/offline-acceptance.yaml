@@ -1,0 +1,39 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-offline-acceptance
+evidence_ids: [AFU-008-S01, AFU-001-S01, AFU-004-S01]
+# Deterministic offline-acceptance fixture (SC-006). Fixed clock/IDs/font/locale/
+# platform + canonical AVC command/event/snapshot inputs → declared canonical
+# view-state/record shapes. No live model, provider, clock, or RNG. Two identical
+# runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:00Z"
+  ids:
+    session_id: sess-0001
+    workflow_id: wf-0001
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+  events:
+    - {event_type: session_started, authority: authoritative}
+    - {event_type: media_authorized, authority: authoritative}
+  snapshot:
+    state_revision: 1
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0001}
+    - {kind: media_authorized, session_id: sess-0001}

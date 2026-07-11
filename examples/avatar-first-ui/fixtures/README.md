@@ -41,9 +41,24 @@ derives each evidence ID via `evidence_id_template: TEST-{scenario_id}` (e.g.
 
 ## Requirement → evidence map
 
-The evidence map binding each `AFU-*` requirement/scenario to a fixture or a
-named successor is populated in the US3 phase (task T025); the negative fixtures
-also anchor the nine enforced validator rule classes (see
-`../../../specs/004-avatar-first-ui/contracts/validator-rules.md`). Flutter
-widget, golden, platform-accessibility, and live-provider evidence remain
-successor-owned (`implement-avatar-client-lab`, `avatar-pilot-hardening`).
+Every `AFU-*` requirement resolves to owned offline evidence (a fixture or the
+examples/validator) or a named successor. Fixture `evidence_ids` are scenario IDs
+(`AFU-*-S*`); the acceptance map derives each evidence ID as `TEST-{scenario_id}`.
+Flutter widget, golden, platform-accessibility, and live-provider evidence remain
+successor-owned.
+
+| Requirement | Owned offline evidence (this change) | Successor-owned (deferred) |
+| --- | --- | --- |
+| AFU-001 Adaptive shell over orthogonal runtime state | `deterministic/offline-acceptance.yaml` (AFU-001-S01), `negative/authority-transition.yaml` (AFU-001-S03), standard §15 | — |
+| AFU-002 Hermes-layer surface defaults | four archetype examples in `../domain-overlays.example.yaml`, standard §16 | — |
+| AFU-003 Flutter client / web-console split | standard §21 (boundary + handoff URL rules) | `implement-avatar-client-lab` (client), workflow-visualization (console) |
+| AFU-004 Standard controls, recording awareness, fallback | `negative/mode-reserved.yaml` (S01), `held-answer-active.yaml` (S02), `control-fallback-missing.yaml` (S04), `timing-out-of-range.yaml` (S05), standard §17–§18 | `implement-avatar-client-lab` (widget/live) |
+| AFU-005 Accessibility & localization baseline | structured `accessibility_baseline` in examples, standard §22 | `avatar-pilot-hardening` (WCAG audit, platform qualification) |
+| AFU-006 Persona presentation & disclosure | `negative/persona-unresolved.yaml` (S02), `purpose-invalid.yaml` (S03), `retention-unresolved.yaml` (S04), standard §19 | — |
+| AFU-007 Untrusted content & external-action rendering | `negative/unsafe-render.yaml` (S01), standard §20 | `implement-avatar-client-lab` (widget architecture test) |
+| AFU-008 Deterministic UI acceptance | `deterministic/offline-acceptance.yaml` (S01), validator determinism check | `implement-avatar-client-lab` (goldens), live-provider replay |
+
+The negative fixtures also anchor the nine enforced validator rule classes (see
+`../../../specs/004-avatar-first-ui/contracts/validator-rules.md`). The offline
+validator enforces acceptance-map parity (`AFUV-PARITY-ACCEPTANCE`): 8 requirements
+/ 25 scenarios, and every fixture `evidence_id` must be a real scenario ID.

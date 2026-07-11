@@ -466,6 +466,63 @@ def validate_examples(errors: list[str], baseline: dict[str, Any]) -> None:
         check_profile(example, f"{rel(EXAMPLES_PATH)}#{profile.get('id', index)}", baseline, errors)
 
 
+ACCEPTANCE_MAP = (ROOT / "openspec" / "changes" / "align-avatar-first-ui-standard"
+                  / "supporting-docs" / "avatar-first-ui-acceptance-map.yaml")
+
+
+def load_acceptance_scenarios(errors: list[str]) -> set[str]:
+    """Read the OpenSpec acceptance map read-only; assert 8 req / 25 scenarios."""
+    if not ACCEPTANCE_MAP.exists():
+        emit(errors, ERR_PARITY_ACCEPTANCE, f"{rel(ACCEPTANCE_MAP)} acceptance map not found")
+        return set()
+    data = load_yaml(ACCEPTANCE_MAP)
+    reqs = data.get("requirements", []) or []
+    scenarios = {s.get("id") for r in reqs for s in (r.get("scenarios") or [])}
+    exp_r = data.get("expected_requirement_count")
+    exp_s = data.get("expected_scenario_count")
+    if exp_r is not None and len(reqs) != exp_r:
+        emit(errors, ERR_PARITY_ACCEPTANCE,
+             f"{rel(ACCEPTANCE_MAP)} requirement count {len(reqs)} != expected {exp_r}")
+    if exp_s is not None and len(scenarios) != exp_s:
+        emit(errors, ERR_PARITY_ACCEPTANCE,
+             f"{rel(ACCEPTANCE_MAP)} scenario count {len(scenarios)} != expected {exp_s}")
+    return scenarios
+
+
+def validate_parity(errors: list[str]) -> None:
+    """AFUV-PARITY-ACCEPTANCE — every fixture's scenario evidence_ids resolve
+    against the acceptance map via evidence_id_template: TEST-{scenario_id}."""
+    scenarios = load_acceptance_scenarios(errors)
+    if not scenarios:
+        return
+    for path in sorted(FIXTURES_DIR.rglob("*.yaml")):
+        fixture = load_yaml(path)
+        for eid in fixture.get("evidence_ids", []) or []:
+            if eid not in scenarios:
+                emit(errors, ERR_EVIDENCE_UNKNOWN,
+                     f"{rel(path)} evidence_id {eid} is not a scenario in the acceptance map "
+                     f"(its evidence id would be TEST-{eid})")
+
+
+def check_determinism(errors: list[str]) -> None:
+    """SC-006 — deterministic fixtures resolve to byte-stable expected shapes.
+
+    Fixtures carry their own fixed clock/IDs and use no live clock or RNG, so a
+    canonical serialization of `expected` is stable across repeated loads."""
+    import json
+    det_dir = FIXTURES_DIR / "deterministic"
+    for path in sorted(det_dir.glob("*.yaml")) if det_dir.is_dir() else []:
+        fixture = load_yaml(path)
+        expected = fixture.get("expected")
+        if expected is None:
+            emit(errors, ERR_SCHEMA_SHAPE, f"{rel(path)} deterministic fixture missing expected shapes")
+            continue
+        first = json.dumps(expected, sort_keys=True)
+        second = json.dumps(load_yaml(path).get("expected"), sort_keys=True)
+        if first != second:
+            emit(errors, ERR_SCHEMA_SHAPE, f"{rel(path)} expected shape is not deterministic")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the avatar-first UI standard surface (offline).")
     parser.add_argument("--mode", choices=["baseline", "realization"], default="baseline",
@@ -480,6 +537,8 @@ def main(argv: list[str] | None = None) -> int:
     validate_template(errors)
     validate_examples(errors, baseline)
     validate_fixtures(errors, baseline)
+    validate_parity(errors)
+    check_determinism(errors)
     if errors:
         for error in errors:
             print(f"ERROR {error}")

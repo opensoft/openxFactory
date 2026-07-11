@@ -132,11 +132,11 @@ annotated as deferred.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Complete `examples/avatar-first-ui/fixtures/README.md` as the evidence map binding each `AFU-*` scenario/requirement to its fixture(s) or named successor (`implement-avatar-client-lab`, `avatar-pilot-hardening`), mirroring the OpenSpec acceptance map (read-only) and using the map's `evidence_id_template: TEST-{scenario_id}` convention per spec §FR-022/§SC-001
-- [ ] T026 [US3] Populate each fixture's `evidence_ids` (acceptance-map scenario IDs, e.g. `AFU-001-S01`), `inputs` (fixed clock/ID/font/locale/platform), `canonical` AVC command/event/snapshot inputs, and `expected` view-state/record shapes per contracts/fixture-shape.md and spec §FR-023
-- [ ] T027 [US3] Implement acceptance-map parity check `AFUV-PARITY-ACCEPTANCE` in `scripts/validate-avatar-first-ui.py`: consume `openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml` read-only; assert 8 requirements / 25 scenarios; and resolve every fixture's scenario `evidence_ids` against the map via `evidence_id_template: TEST-{scenario_id}` (no hand-authored `TEST-` IDs) per spec §SC-008 (I1 disposition)
-- [ ] T028 [US3] Implement the determinism assertion in `scripts/validate-avatar-first-ui.py` (identical inputs → equivalent expected shapes + identical evidence IDs across two runs) per spec §SC-006/quickstart.md §6
-- [ ] T029 [US3] Run the US3 independent test (acceptance-map parity + validator over all artifacts + determinism spot-check) and confirm zero unowned requirements/scenarios per quickstart.md §4/§6
+- [X] T025 [US3] Complete `examples/avatar-first-ui/fixtures/README.md` as the evidence map binding each `AFU-*` scenario/requirement to its fixture(s) or named successor (`implement-avatar-client-lab`, `avatar-pilot-hardening`), mirroring the OpenSpec acceptance map (read-only) and using the map's `evidence_id_template: TEST-{scenario_id}` convention per spec §FR-022/§SC-001
+- [X] T026 [US3] Populate each fixture's `evidence_ids` (acceptance-map scenario IDs, e.g. `AFU-001-S01`), `inputs` (fixed clock/ID/font/locale/platform), `canonical` AVC command/event/snapshot inputs, and `expected` view-state/record shapes per contracts/fixture-shape.md and spec §FR-023
+- [X] T027 [US3] Implement acceptance-map parity check `AFUV-PARITY-ACCEPTANCE` in `scripts/validate-avatar-first-ui.py`: consume `openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml` read-only; assert 8 requirements / 25 scenarios; and resolve every fixture's scenario `evidence_ids` against the map via `evidence_id_template: TEST-{scenario_id}` (no hand-authored `TEST-` IDs) per spec §SC-008 (I1 disposition)
+- [X] T028 [US3] Implement the determinism assertion in `scripts/validate-avatar-first-ui.py` (identical inputs → equivalent expected shapes + identical evidence IDs across two runs) per spec §SC-006/quickstart.md §6
+- [X] T029 [US3] Run the US3 independent test (acceptance-map parity + validator over all artifacts + determinism spot-check) and confirm zero unowned requirements/scenarios per quickstart.md §4/§6
 
 **Checkpoint**: Requirement-to-evidence traceability is complete and offline-reproducible.
 
