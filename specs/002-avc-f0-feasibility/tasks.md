@@ -102,15 +102,15 @@ absent/mismatched acceptance map both yield INCONCLUSIVE with no inference and n
 
 ### Tests for User Story 2
 
-- [ ] T029 [P] [US2] Offline test — preflight rejects tenant data, enabled tools, key-in-args/tracked files, readiness > 5000 ms, non-lab/unpinned profile in `experiments/avatar-brokered-call/tests/offline/test_preflight.py` (US2-S2/SC-009)
-- [ ] T030 [P] [US2] Offline test — candidate unavailable / API-shape mismatch → INCONCLUSIVE, no inferred behavior in `experiments/avatar-brokered-call/tests/offline/test_candidate_unavailable.py` (US2-S3/FR-004)
-- [ ] T031 [P] [US2] Offline test — acceptance-map digest gate: match → ACR IDs loaded; absent/mismatch/wrong baseline → INCONCLUSIVE, no placeholders in `experiments/avatar-brokered-call/tests/offline/test_acceptance_map.py` (FR-018/Q3)
+- [x] T029 [P] [US2] Offline test — preflight rejects tenant data, enabled tools, key-in-args/tracked files, readiness > 5000 ms, non-lab/unpinned profile in `experiments/avatar-brokered-call/tests/offline/test_preflight.py` (US2-S2/SC-009)
+- [x] T030 [P] [US2] Offline test — candidate unavailable / API-shape mismatch → INCONCLUSIVE, no inferred behavior in `experiments/avatar-brokered-call/tests/offline/test_candidate_unavailable.py` (US2-S3/FR-004)
+- [x] T031 [P] [US2] Offline test — acceptance-map digest gate: match → ACR IDs loaded; absent/mismatch/wrong baseline → INCONCLUSIVE, no placeholders in `experiments/avatar-brokered-call/tests/offline/test_acceptance_map.py` (FR-018/Q3)
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] Implement preflight rejection rules + safe-config-records-only-digests in `experiments/avatar-brokered-call/src/avatar_f0/config.py` (FR-001/FR-003/SC-009) — depends on T009
-- [ ] T033 [P] [US2] Implement the digest-verified acceptance-map reader → concrete ACR IDs (ACR-003/008/011/012) in `experiments/avatar-brokered-call/src/avatar_f0/acceptance_map.py` (FR-018/Q3)
-- [ ] T034 [US2] Wire candidate-unavailable / API-shape → INCONCLUSIVE into the broker/run flow in `experiments/avatar-brokered-call/src/avatar_f0/broker.py` (FR-004) — depends on T014
+- [x] T032 [US2] Implement preflight rejection rules + safe-config-records-only-digests in `experiments/avatar-brokered-call/src/avatar_f0/config.py` (FR-001/FR-003/SC-009) — depends on T009
+- [x] T033 [P] [US2] Implement the digest-verified acceptance-map reader → concrete ACR IDs (ACR-003/008/011/012) in `experiments/avatar-brokered-call/src/avatar_f0/acceptance_map.py` (FR-018/Q3)
+- [x] T034 [US2] Wire candidate-unavailable / API-shape → INCONCLUSIVE into the broker/run flow in `experiments/avatar-brokered-call/src/avatar_f0/broker.py` (FR-004) — depends on T014
 
 **Checkpoint**: US2 safety gates and reproducibility guards hold offline.
 
@@ -128,17 +128,17 @@ variance citation match the rules.
 
 ### Tests for User Story 3
 
-- [ ] T035 [P] [US3] Offline test — redaction allowlist + prohibited-content scan fail closed (run FAIL, no commit, exit 3) across evidence/logs/traces in `experiments/avatar-brokered-call/tests/offline/test_redaction.py` (FR-017/SC-007)
-- [ ] T036 [P] [US3] Offline test — `f0-results.json` validates against the owned schema (zero errors) and the drift-guard equals the registered digest in `experiments/avatar-brokered-call/tests/offline/test_schema_valid.py` (SC-008)
-- [ ] T037 [P] [US3] Offline test — classification derivation (PASS needs all mandatory pass; contrary ⇒ FAIL; missing ⇒ INCONCLUSIVE; a p95/ceiling miss is never averaged away) in `experiments/avatar-brokered-call/tests/offline/test_classify.py` (FR-016)
-- [ ] T038 [P] [US3] Offline test — interface-impact emitted on every run (empty on clean pass); variances cite concrete ACR IDs and validate against the schema in `experiments/avatar-brokered-call/tests/offline/test_interface_impact.py` (FR-018/SC-010)
+- [x] T035 [P] [US3] Offline test — redaction allowlist + prohibited-content scan fail closed (run FAIL, no commit, exit 3) across evidence/logs/traces in `experiments/avatar-brokered-call/tests/offline/test_redaction.py` (FR-017/SC-007)
+- [x] T036 [P] [US3] Offline test — `f0-results.json` validates against the owned schema (zero errors) and the drift-guard equals the registered digest in `experiments/avatar-brokered-call/tests/offline/test_schema_valid.py` (SC-008)
+- [x] T037 [P] [US3] Offline test — classification derivation (PASS needs all mandatory pass; contrary ⇒ FAIL; missing ⇒ INCONCLUSIVE; a p95/ceiling miss is never averaged away) in `experiments/avatar-brokered-call/tests/offline/test_classify.py` (FR-016)
+- [x] T038 [P] [US3] Offline test — interface-impact emitted on every run (empty on clean pass); variances cite concrete ACR IDs and validate against the schema in `experiments/avatar-brokered-call/tests/offline/test_interface_impact.py` (FR-018/SC-010)
 
 ### Implementation for User Story 3
 
-- [ ] T039 [P] [US3] Implement the redaction allowlist writer + prohibited-content scan in `experiments/avatar-brokered-call/src/avatar_f0/redaction.py` (FR-017/SC-007)
-- [ ] T040 [US3] Implement the PASS/FAIL/INCONCLUSIVE classification derivation in `experiments/avatar-brokered-call/src/avatar_f0/classify.py` (FR-016) — depends on T028
-- [ ] T041 [US3] Implement the evidence writer for `f0-results.json` + `f0-results.md` (with `report_sha256`), written directly/atomically to the change `evidence/` dir only, in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` (FR-015/Q5/SC-011) — depends on T039, T040
-- [ ] T042 [US3] Implement the `f0-interface-impact.yaml` writer citing digest-verified ACR IDs, and record the acceptance-map `source_commit` + `content_sha256` into the evidence's `acceptance_map` block, in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` (FR-018) — depends on T033, T041
+- [x] T039 [P] [US3] Implement the redaction allowlist writer + prohibited-content scan in `experiments/avatar-brokered-call/src/avatar_f0/redaction.py` (FR-017/SC-007)
+- [x] T040 [US3] Implement the PASS/FAIL/INCONCLUSIVE classification derivation in `experiments/avatar-brokered-call/src/avatar_f0/classify.py` (FR-016) — depends on T028
+- [x] T041 [US3] Implement the evidence writer for `f0-results.json` + `f0-results.md` (with `report_sha256`), written directly/atomically to the change `evidence/` dir only, in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` (FR-015/Q5/SC-011) — depends on T039, T040
+- [x] T042 [US3] Implement the `f0-interface-impact.yaml` writer citing digest-verified ACR IDs, and record the acceptance-map `source_commit` + `content_sha256` into the evidence's `acceptance_map` block, in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` (FR-018) — depends on T033, T041
 
 **Checkpoint**: US3 produces publishable, schema-valid, correctly classified evidence offline.
 
@@ -156,16 +156,16 @@ offsets and an unconfirmed terminal is FAIL/INCONCLUSIVE, never success.
 
 ### Tests for User Story 4
 
-- [ ] T043 [P] [US4] Offline test — p50/p95/max summary math for the three metrics in `experiments/avatar-brokered-call/tests/offline/test_metrics.py` (SC-002/SC-003/SC-005)
-- [ ] T044 [P] [US4] Offline test — readiness-timeout (F0-C path): withhold authorization, terminate, fail if any media/answer occurred in `experiments/avatar-brokered-call/tests/offline/test_readiness_timeout.py` (FR-012/US4-S2)
-- [ ] T045 [P] [US4] Offline test — revocation records separate revocation/hangup/terminal offsets and terminal ≤ 5000 ms; unconfirmed ⇒ FAIL/INCONCLUSIVE in `experiments/avatar-brokered-call/tests/offline/test_revocation.py` (FR-013/FR-014/US4-S4)
+- [x] T043 [P] [US4] Offline test — p50/p95/max summary math for the three metrics in `experiments/avatar-brokered-call/tests/offline/test_metrics.py` (SC-002/SC-003/SC-005)
+- [x] T044 [P] [US4] Offline test — readiness-timeout (F0-C path): withhold authorization, terminate, fail if any media/answer occurred in `experiments/avatar-brokered-call/tests/offline/test_readiness_timeout.py` (FR-012/US4-S2)
+- [x] T045 [P] [US4] Offline test — revocation records separate revocation/hangup/terminal offsets and terminal ≤ 5000 ms; unconfirmed ⇒ FAIL/INCONCLUSIVE in `experiments/avatar-brokered-call/tests/offline/test_revocation.py` (FR-013/FR-014/US4-S4)
 
 ### Implementation for User Story 4
 
-- [ ] T046 [P] [US4] Implement the metrics summary (`sideband_ready_ms`, `first_playable_after_authorized_ms`, `hangup_to_terminal_ms`) in `experiments/avatar-brokered-call/src/avatar_f0/metrics.py` (SC-002/SC-003/SC-005) — depends on T007
-- [ ] T047 [US4] Add the readiness-timeout threshold assertion to the F0-C path in `experiments/avatar-brokered-call/src/avatar_f0/assertions.py` (FR-012) — depends on T025, T028
-- [ ] T048 [P] [US4] Implement the F0-D revocation runner with separate revocation/hangup/terminal offsets in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0d_revocation.py` (FR-013/FR-014) — depends on T022
-- [ ] T049 [US4] Fold timing-bound checks (p95/ceiling, never averaged) into classification in `experiments/avatar-brokered-call/src/avatar_f0/classify.py` (SC-002/SC-003) — depends on T040, T046
+- [x] T046 [P] [US4] Implement the metrics summary (`sideband_ready_ms`, `first_playable_after_authorized_ms`, `hangup_to_terminal_ms`) in `experiments/avatar-brokered-call/src/avatar_f0/metrics.py` (SC-002/SC-003/SC-005) — depends on T007
+- [x] T047 [US4] Add the readiness-timeout threshold assertion to the F0-C path in `experiments/avatar-brokered-call/src/avatar_f0/assertions.py` (FR-012) — depends on T025, T028
+- [x] T048 [P] [US4] Implement the F0-D revocation runner with separate revocation/hangup/terminal offsets in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0d_revocation.py` (FR-013/FR-014) — depends on T022
+- [x] T049 [US4] Fold timing-bound checks (p95/ceiling, never averaged) into classification in `experiments/avatar-brokered-call/src/avatar_f0/classify.py` (SC-002/SC-003) — depends on T040, T046
 
 **Checkpoint**: US4 timing/revocation measurement and bounds hold offline.
 
@@ -183,13 +183,13 @@ written outside the two owned locations.
 
 ### Tests for User Story 5
 
-- [ ] T050 [P] [US5] Offline test — no-key run → INCONCLUSIVE, exit 0, zero provider calls, zero fabricated artifacts (DoD) in `experiments/avatar-brokered-call/tests/offline/test_no_key_completion.py` (SC-013/Q1)
-- [ ] T051 [P] [US5] Offline test — scope-isolation guard: a run writes nothing outside `experiments/avatar-brokered-call/` and the change `evidence/` dir in `experiments/avatar-brokered-call/tests/offline/test_scope_isolation.py` (SC-011)
+- [x] T050 [P] [US5] Offline test — no-key run → INCONCLUSIVE, exit 0, zero provider calls, zero fabricated artifacts (DoD) in `experiments/avatar-brokered-call/tests/offline/test_no_key_completion.py` (SC-013/Q1)
+- [x] T051 [P] [US5] Offline test — scope-isolation guard: a run writes nothing outside `experiments/avatar-brokered-call/` and the change `evidence/` dir in `experiments/avatar-brokered-call/tests/offline/test_scope_isolation.py` (SC-011)
 
 ### Implementation for User Story 5
 
-- [ ] T052 [US5] Implement the no-key / completion path (terminal INCONCLUSIVE, exit 0, no fabricated artifacts; completion ≠ qualification) in `experiments/avatar-brokered-call/src/avatar_f0/cli.py` (SC-013/Q1/FR-019) — depends on T017, T041
-- [ ] T053 [P] [US5] Enforce the evidence write-path allowlist and document the non-qualification boundary (no profile promotion / no live-prod media) in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` and `experiments/avatar-brokered-call/README.md` (FR-019/FR-020/FR-021/SC-011/SC-012)
+- [x] T052 [US5] Implement the no-key / completion path (terminal INCONCLUSIVE, exit 0, no fabricated artifacts; completion ≠ qualification) in `experiments/avatar-brokered-call/src/avatar_f0/cli.py` (SC-013/Q1/FR-019) — depends on T017, T041
+- [x] T053 [P] [US5] Enforce the evidence write-path allowlist and document the non-qualification boundary (no profile promotion / no live-prod media) in `experiments/avatar-brokered-call/src/avatar_f0/evidence.py` and `experiments/avatar-brokered-call/README.md` (FR-019/FR-020/FR-021/SC-011/SC-012)
 
 **Checkpoint**: US5 completion and boundary guarantees hold offline.
 
@@ -200,11 +200,11 @@ written outside the two owned locations.
 **Purpose**: Finalize docs, run the full gate, and (only if a key is present) execute the live
 matrix.
 
-- [ ] T054 [P] Finalize `experiments/avatar-brokered-call/README.md` run/redaction/safety notes and align with `specs/002-avc-f0-feasibility/quickstart.md`
-- [ ] T055 Run the full offline suite green (`pytest experiments/avatar-brokered-call/tests/offline`) — the DoD offline gate (SC-013)
-- [ ] T056 [P] Add the live suite (skipped → INCONCLUSIVE when `OPENAI_API_KEY` absent) in `experiments/avatar-brokered-call/tests/live/`
-- [ ] T057 Execute the validation gate: repo-local validators, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, `git diff --check`, supporting-doc hash verification, and confirm no canonical-contract/reference-runtime/UI/DomainxFactory/deployment file changed (SC-011)
-- [ ] T058 Execute the live trial matrix when `OPENAI_API_KEY` is present and write terminal evidence to the change `evidence/` dir; otherwise commit the schema-valid INCONCLUSIVE record — completion per SC-013 — depends on T055, T057
+- [x] T054 [P] Finalize `experiments/avatar-brokered-call/README.md` run/redaction/safety notes and align with `specs/002-avc-f0-feasibility/quickstart.md`
+- [x] T055 Run the full offline suite green (`pytest experiments/avatar-brokered-call/tests/offline`) — the DoD offline gate (SC-013)
+- [x] T056 [P] Add the live suite (skipped → INCONCLUSIVE when `OPENAI_API_KEY` absent) in `experiments/avatar-brokered-call/tests/live/`
+- [x] T057 Execute the validation gate: repo-local validators, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, `git diff --check`, supporting-doc hash verification, and confirm no canonical-contract/reference-runtime/UI/DomainxFactory/deployment file changed (SC-011)
+- [x] T058 Execute the live trial matrix when `OPENAI_API_KEY` is present and write terminal evidence to the change `evidence/` dir; otherwise commit the schema-valid INCONCLUSIVE record — completion per SC-013 — depends on T055, T057
 
 ---
 
