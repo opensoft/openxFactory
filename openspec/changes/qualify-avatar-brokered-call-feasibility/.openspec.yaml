@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-07-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-10-avatar-brokered-call-feasibility-split
+  reason: Split from define-avatar-client-runtime by explicit user approval
+  approved_by: Brett
+  approved_on: 2026-07-10

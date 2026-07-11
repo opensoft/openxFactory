@@ -1,0 +1,160 @@
+schema_version: 1
+change_id: align-avatar-first-ui-standard
+interface_baseline: avatar-client-parallel-v1
+expected_requirement_count: 8
+expected_scenario_count: 25
+evidence_id_template: TEST-{scenario_id}
+requirements:
+- id: AFU-001
+  capability: avatar-first-ui
+  title: Adaptive shell over orthogonal runtime state
+  owner_tasks:
+  - '1.1'
+  - '1.2'
+  - '2.1'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: AFU-001-S01
+    title: User begins guided intake
+  - id: AFU-001-S02
+    title: Consequential values require review
+  - id: AFU-001-S03
+    title: Authoritative snapshot replaces stale projection
+- id: AFU-002
+  capability: avatar-first-ui
+  title: Hermes-layer surface defaults
+  owner_tasks:
+  - '1.1'
+  - '1.2'
+  - '2.2'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: AFU-002-S01
+    title: Customer needs guided explanation
+  - id: AFU-002-S02
+    title: Client operator performs repeated work
+  - id: AFU-002-S03
+    title: Domain authority reviews policy
+- id: AFU-003
+  capability: avatar-first-ui
+  title: Flutter client and web-console responsibility split
+  owner_tasks:
+  - '1.1'
+  - '3.2'
+  owner_changes:
+  - implement-avatar-client-lab
+  evidence_types:
+  - manual
+  - successor
+  scenarios:
+  - id: AFU-003-S01
+    title: User reviews workflow status in the client
+  - id: AFU-003-S02
+    title: User edits workflow or policy
+- id: AFU-004
+  capability: avatar-first-ui
+  title: Standard controls, recording awareness, and fallback
+  owner_tasks:
+  - '1.1'
+  - '1.2'
+  - '2.1'
+  - '2.2'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: AFU-004-S01
+    title: Microphone capture begins
+  - id: AFU-004-S02
+    title: SDP answer is received before media authorization
+  - id: AFU-004-S03
+    title: Session request returns a denial
+  - id: AFU-004-S04
+    title: Audio is unavailable
+  - id: AFU-004-S05
+    title: Control is lost while audio remains connected
+- id: AFU-005
+  capability: avatar-first-ui
+  title: Accessibility and localization baseline
+  owner_tasks:
+  - '1.1'
+  - '1.2'
+  - '2.2'
+  - '3.1'
+  - '3.2'
+  owner_changes:
+  - implement-avatar-client-lab
+  - avatar-pilot-hardening
+  evidence_types:
+  - automated
+  - manual
+  - successor
+  scenarios:
+  - id: AFU-005-S01
+    title: User enables reduced motion or text-only mode
+  - id: AFU-005-S02
+    title: Pseudo-locale and zoom are applied
+  - id: AFU-005-S03
+    title: Screen reader follows a state transition
+- id: AFU-006
+  capability: avatar-first-ui
+  title: Persona presentation and disclosure
+  owner_tasks:
+  - '1.1'
+  - '1.2'
+  - '2.1'
+  - '2.2'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: AFU-006-S01
+    title: User selects a persona before audio
+  - id: AFU-006-S02
+    title: Persona is unavailable
+  - id: AFU-006-S03
+    title: User withdraws media consent
+  - id: AFU-006-S04
+    title: Handoff context is reviewed
+- id: AFU-007
+  capability: avatar-first-ui
+  title: Untrusted content and external-action rendering
+  owner_tasks:
+  - '1.1'
+  - '2.1'
+  - '2.2'
+  - '3.1'
+  owner_changes:
+  - implement-avatar-client-lab
+  evidence_types:
+  - automated
+  - successor
+  scenarios:
+  - id: AFU-007-S01
+    title: Model emits markup or a dangerous link
+  - id: AFU-007-S02
+    title: Tool summary contains command-like text
+- id: AFU-008
+  capability: avatar-first-ui
+  title: Deterministic UI acceptance
+  owner_tasks:
+  - '2.2'
+  - '3.1'
+  - '3.2'
+  - '3.4'
+  owner_changes:
+  - implement-avatar-client-lab
+  evidence_types:
+  - automated
+  - successor
+  scenarios:
+  - id: AFU-008-S01
+    title: Offline acceptance is replayed
+  - id: AFU-008-S02
+    title: Provider DTO reaches a widget test
+  - id: AFU-008-S03
+    title: Required UI evidence is missing

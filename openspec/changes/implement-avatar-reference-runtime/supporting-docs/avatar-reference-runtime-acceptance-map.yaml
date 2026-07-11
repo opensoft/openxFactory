@@ -1,0 +1,146 @@
+schema_version: 1
+change_id: implement-avatar-reference-runtime
+interface_baseline: avatar-client-parallel-v1
+expected_requirement_count: 8
+expected_scenario_count: 34
+evidence_id_template: TEST-{scenario_id}
+requirements:
+- id: ARR-001
+  capability: avatar-reference-runtime
+  title: Non-deployable reference package boundary
+  owner_tasks:
+  - '1.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-001-S01
+    title: Reference package is inspected for deployment surfaces
+  - id: ARR-001-S02
+    title: Live provider code is proposed
+  - id: ARR-001-S03
+    title: Reference state is discarded
+- id: ARR-002
+  capability: avatar-reference-runtime
+  title: Parallel interface seam and final contract pin
+  owner_tasks:
+  - '1.2'
+  - '3.2'
+  - '3.3'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-002-S01
+    title: Parallel implementation starts before kernel release
+  - id: ARR-002-S02
+    title: Provisional adapter is imported by package code
+  - id: ARR-002-S03
+    title: Final conformance uses only a tag
+  - id: ARR-002-S04
+    title: Kernel variance is accepted
+- id: ARR-003
+  capability: avatar-reference-runtime
+  title: Fully injected deterministic dependencies
+  owner_tasks:
+  - '1.2'
+  - '2.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-003-S01
+    title: Time-dependent transition is tested
+  - id: ARR-003-S02
+    title: Provider response is reordered
+  - id: ARR-003-S03
+    title: Authority dependency is unavailable
+- id: ARR-004
+  capability: avatar-reference-runtime
+  title: Deterministic session results and media-attempt lifecycle
+  owner_tasks:
+  - '2.1'
+  - '2.2'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-004-S01
+    title: Equivalent pending request is retried
+  - id: ARR-004-S02
+    title: Request identity changes
+  - id: ARR-004-S03
+    title: Fresh authorized resume replaces a pending leg
+  - id: ARR-004-S04
+    title: Secret cache is destroyed
+  - id: ARR-004-S05
+    title: Another client instance competes
+- id: ARR-005
+  capability: avatar-reference-runtime
+  title: Two-channel media authorization and leased control
+  owner_tasks:
+  - '2.3'
+  - '2.5'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-005-S01
+    title: Both control channels become ready
+  - id: ARR-005-S02
+    title: Sideband misses readiness
+  - id: ARR-005-S03
+    title: Lease expires while provider remains connected
+  - id: ARR-005-S04
+    title: Stale control epoch reconnects
+  - id: ARR-005-S05
+    title: Consent is invalidated
+- id: ARR-006
+  capability: avatar-reference-runtime
+  title: Single-log command, event, and snapshot recovery
+  owner_tasks:
+  - '2.4'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-006-S01
+    title: Command is duplicated
+  - id: ARR-006-S02
+    title: Revision guard is stale
+  - id: ARR-006-S03
+    title: Event arrives during snapshot projection
+  - id: ARR-006-S04
+    title: Recovery buffer overflows
+  - id: ARR-006-S05
+    title: Observation claims authority
+- id: ARR-007
+  capability: avatar-reference-runtime
+  title: Fail-closed authority, revocation, usage, and telemetry
+  owner_tasks:
+  - '2.5'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-007-S01
+    title: Required purpose mapping is absent
+  - id: ARR-007-S02
+    title: Confirmation is stale or superseded
+  - id: ARR-007-S03
+    title: Kill switch is active
+  - id: ARR-007-S04
+    title: Telemetry contains protected content
+  - id: ARR-007-S05
+    title: Usage cap is reached
+- id: ARR-008
+  capability: avatar-reference-runtime
+  title: Acceptance-ID-complete deterministic evidence
+  owner_tasks:
+  - '3.1'
+  - '3.3'
+  - '3.4'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ARR-008-S01
+    title: Required kernel scenario is unmapped
+  - id: ARR-008-S02
+    title: Test changes with execution order
+  - id: ARR-008-S03
+    title: Canonical fixture disagrees with provisional behavior
+  - id: ARR-008-S04
+    title: Sibling-owned file changes

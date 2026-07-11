@@ -8,15 +8,37 @@ pinned to a single commit with no defined upgrade path.
 
 ## Version Identity
 
-A contract release is identified by three things:
+A contract release is identified by five coordinated values:
 
 1. `contract_schema_version` — an integer on each contract file and on the
    contract set as a whole. Incremented only for breaking changes.
-2. A git tag on openxFactory of the form `contract-v<major>.<minor>` (for
-   example `contract-v1.0`). Minor increments for additive, non-breaking
-   changes; major increments together with `contract_schema_version`.
-3. `contracts/CHANGELOG.md` — one entry per release listing every contract
+2. `contract_bundle_version` in `contracts/manifest.yaml` — the aggregate
+   release version allocated at realization after merge order is known.
+3. An annotated git tag on openxFactory of the form
+   `contract-v<major>.<minor>` (for example `contract-v1.0`). Minor increments
+   are additive and non-breaking; major increments occur together with
+   `contract_schema_version`.
+4. The exact release commit plus per-file SHA-256 digests — the
+   content-addressed identity consumers pin. A movable branch or tag alone is
+   not a sufficient compatibility pin.
+5. `contracts/CHANGELOG.md` — one entry per release listing every contract
    added, changed, or deprecated, with migration notes for breaking changes.
+
+The manifest version, changelog heading, and annotated tag MUST match. The
+manifest and changelog update SHALL be committed atomically with the contract
+files; the tag SHALL point to that realized commit. A proposed change MUST NOT
+reserve a minor number before merge order is known, and a bundle is not
+published until its tag exists. Consumers record the human-readable bundle
+tag while pinning the exact commit and required file digests.
+
+### Recovered Legacy Baseline
+
+The historical `contract-v1.1` through `contract-v1.6` changelog entries were
+created before tag enforcement and have no corresponding repository tags.
+They are treated as an explicitly recovered, unpublished legacy sequence with
+`contract-v1.6` as the manifest baseline. The next realized contract change
+allocates the next available minor version and begins mandatory annotated-tag
+publication; historical tags MUST NOT be fabricated retroactively.
 
 ## Change Classes
 
@@ -36,7 +58,8 @@ A contract release is identified by three things:
 
 1. Read `contracts/CHANGELOG.md` between the pinned ref and the target ref.
 2. Update `stack.yaml` `xfactory.contract_ref` (and `contract_schema_version`
-   if major) to the target release tag or commit.
+   if major) to the exact target release commit, record the matching bundle
+   tag, and update required per-file digests.
 3. Run `openxFactory/scripts/validate-domain-factory.py <domain-repo> --strict`
    from the target checkout. Fix every error; triage every warning.
 4. Record the upgrade in the domain repo (commit message referencing the

@@ -1,0 +1,22 @@
+{
+  "change_id": "align-avatar-first-ui-standard",
+  "files": [
+    {
+      "path": "avatar-first-ui-acceptance-map.yaml",
+      "sha256": "aeb04719bd69c29e955bc067cf1b60f00fc390e71486cdc773bbed945ea1490e",
+      "source_path": null
+    },
+    {
+      "path": "avatar-first-ui-acceptance-traceability.md",
+      "sha256": "a587055856efbfef5745f8d7c3ef0b8c55281f2da4f157138674d1ba537030b7",
+      "source_path": null
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": null,
+  "remaining_paths": [],
+  "source_revision": "uncommitted-worktree",
+  "source_state": "Proposal-authored acceptance artifacts for the avatar-first UI standards workstream split from define-avatar-client-runtime by explicit user approval. Historical Flutter/UI exploration remains with the staged-origin kernel packet.",
+  "transitioned_at": "2026-07-10"
+}

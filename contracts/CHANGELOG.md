@@ -4,6 +4,12 @@ Status: draft
 
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
+Legacy baseline note: versions `contract-v1.1` through `contract-v1.6`
+predate mandatory annotated tags. The manifest is reconciled to
+`contract-v1.6`; the next realized contract release allocates the next
+available minor version and begins tag enforcement without fabricating
+historical tags.
+
 ## contract-v1.6 — 2026-07-09 (additive)
 
 Added:

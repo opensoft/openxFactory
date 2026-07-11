@@ -1,0 +1,377 @@
+schema_version: 1
+change_id: define-avatar-client-contract-kernel
+interface_baseline: avatar-client-parallel-v1
+expected_requirement_count: 17
+expected_scenario_count: 72
+evidence_id_template: TEST-{scenario_id}
+requirements:
+- id: ACR-001
+  capability: avatar-client-runtime
+  title: Versioned neutral avatar-client contract kernel
+  owner_tasks:
+  - '2.1'
+  - '3.1'
+  - '3.2'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-001-S01
+    title: Compatible binding reads an additive contract
+  - id: ACR-001-S02
+    title: Consumer receives an incompatible major
+  - id: ACR-001-S03
+    title: Consequential vocabulary is unknown
+- id: ACR-002
+  capability: avatar-client-runtime
+  title: Authenticated, purpose-bound session results
+  owner_tasks:
+  - '2.1'
+  - '2.2'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-002-S01
+    title: Authorized session is granted
+  - id: ACR-002-S02
+    title: Body identity is forged
+  - id: ACR-002-S03
+    title: Session request is retried after a lost response
+  - id: ACR-002-S04
+    title: A retry substitutes another SDP offer
+  - id: ACR-002-S05
+    title: A grant answer is bound to another local offer
+  - id: ACR-002-S06
+    title: A failed pending attempt needs a regenerated offer
+  - id: ACR-002-S07
+    title: A second client instance requests the active session
+  - id: ACR-002-S08
+    title: Tenant quota is exhausted
+  - id: ACR-002-S09
+    title: Non-grant result attempts to carry a secret
+  owner_changes:
+  - implement-avatar-reference-runtime
+- id: ACR-003
+  capability: avatar-client-runtime
+  title: Brokered direct media with sideband control
+  owner_tasks:
+  - '2.2'
+  - '2.5'
+  - '3.1'
+  evidence_types:
+  - automated
+  - live_f0
+  - manual
+  scenarios:
+  - id: ACR-003-S01
+    title: Production OpenAI call starts
+  - id: ACR-003-S02
+    title: Both control channels become ready
+  - id: ACR-003-S03
+    title: Media is attempted before authorization
+  - id: ACR-003-S04
+    title: A modified client bypasses the local media gate
+  - id: ACR-003-S05
+    title: Sideband does not become ready
+  - id: ACR-003-S06
+    title: Profile exceeds the readiness ceiling
+  - id: ACR-003-S07
+    title: Client attempts provider reconfiguration
+  - id: ACR-003-S08
+    title: A profile requests push-to-talk
+  - id: ACR-003-S09
+    title: Session ends or is revoked
+  owner_changes:
+  - qualify-avatar-brokered-call-feasibility
+  - implement-avatar-reference-runtime
+  - implement-avatar-client-lab
+- id: ACR-004
+  capability: avatar-client-runtime
+  title: Single-log command, event, and snapshot authority
+  owner_tasks:
+  - '2.3'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-004-S01
+    title: Client submits a valid command
+  - id: ACR-004-S02
+    title: Command is retried
+  - id: ACR-004-S03
+    title: Revision-guarded command uses a stale revision
+  - id: ACR-004-S04
+    title: Event stream has a gap
+  - id: ACR-004-S05
+    title: An event arrives while a recovery snapshot is produced
+  - id: ACR-004-S06
+    title: Client reports a tool completed
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - implement-avatar-client-lab
+- id: ACR-005
+  capability: avatar-client-runtime
+  title: Leased control channel and deterministic recovery
+  owner_tasks:
+  - '2.2'
+  - '2.3'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-005-S01
+    title: Control channel is lost while media remains connected
+  - id: ACR-005-S02
+    title: A media profile exceeds the neutral lease ceilings
+  - id: ACR-005-S03
+    title: Control connection drops transiently
+  - id: ACR-005-S04
+    title: Pending action exists during reconnect
+  - id: ACR-005-S05
+    title: User pauses and resumes
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - implement-avatar-client-lab
+- id: ACR-006
+  capability: avatar-client-runtime
+  title: Governed tools and effect-bound confirmation
+  owner_tasks:
+  - '2.3'
+  - '2.4'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-006-S01
+    title: Model proposes a consequential action
+  - id: ACR-006-S02
+    title: Exact effect is confirmed
+  - id: ACR-006-S03
+    title: Confirmation is stale or superseded
+  - id: ACR-006-S04
+    title: Silence or transcript text resembles agreement
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - implement-avatar-client-lab
+  - avatar-pilot-hardening
+- id: ACR-007
+  capability: avatar-client-runtime
+  title: Server-owned model profiles and session-fixed persona
+  owner_tasks:
+  - '2.4'
+  - '2.5'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-007-S01
+    title: Qualified default model changes
+  - id: ACR-007-S02
+    title: Candidate model has not passed live qualification
+  - id: ACR-007-S03
+    title: Future model lacks API support
+  - id: ACR-007-S04
+    title: User asks to change persona mid-session
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - qualify-avatar-live-voice
+  - align-avatar-first-ui-standard
+- id: ACR-008
+  capability: avatar-client-runtime
+  title: Consent-before-capture and enforceable speech gates
+  owner_tasks:
+  - '2.1'
+  - '2.5'
+  - '3.1'
+  evidence_types:
+  - automated
+  - manual
+  scenarios:
+  - id: ACR-008-S01
+    title: User has not completed media disclosure
+  - id: ACR-008-S02
+    title: Memory consent record is offered as media authority
+  - id: ACR-008-S03
+    title: Policy requires the reserved gate
+  - id: ACR-008-S04
+    title: Consent is withdrawn during speech
+  - id: ACR-008-S05
+    title: Consent is invalidated server-side
+  - id: ACR-008-S06
+    title: Provider termination cannot meet the revocation bound
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - align-avatar-first-ui-standard
+  - avatar-pilot-hardening
+- id: ACR-009
+  capability: avatar-client-runtime
+  title: Disposable provider context and attachment references
+  owner_tasks:
+  - '2.2'
+  - '2.3'
+  - '2.4'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-009-S01
+    title: Session reaches its duration limit
+  - id: ACR-009-S02
+    title: Media leg reconnects after a network drop
+  - id: ACR-009-S03
+    title: User attaches a document
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - implement-avatar-client-lab
+- id: ACR-010
+  capability: avatar-client-runtime
+  title: Minimal retention with no local persistence
+  owner_tasks:
+  - '2.4'
+  - '3.1'
+  evidence_types:
+  - automated
+  scenarios:
+  - id: ACR-010-S01
+    title: Captions are presentation only
+  - id: ACR-010-S02
+    title: A reserved retention class is requested
+  - id: ACR-010-S03
+    title: Conflicting edit is submitted
+  owner_changes:
+  - implement-avatar-reference-runtime
+  - align-avatar-first-ui-standard
+  - implement-avatar-client-lab
+- id: ACR-011
+  capability: avatar-client-runtime
+  title: Redacted telemetry and latency evidence
+  owner_tasks:
+  - '2.5'
+  - '3.1'
+  - '3.2'
+  evidence_types:
+  - automated
+  - live_f0
+  scenarios:
+  - id: ACR-011-S01
+    title: Telemetry attempts to include protected content
+  - id: ACR-011-S02
+    title: Live pilot is proposed without budgets
+  owner_changes:
+  - qualify-avatar-brokered-call-feasibility
+  - implement-avatar-reference-runtime
+  - qualify-avatar-live-voice
+- id: ACR-012
+  capability: avatar-client-runtime
+  title: Deterministic-first release gating and kill switches
+  owner_tasks:
+  - '1.2'
+  - '1.3'
+  - '3.2'
+  evidence_types:
+  - automated
+  - live_f0
+  - manual
+  scenarios:
+  - id: ACR-012-S01
+    title: Live qualification begins early
+  - id: ACR-012-S02
+    title: Contract publication is requested without F0 evidence
+  - id: ACR-012-S03
+    title: Acceptance scenario lacks traceability
+  - id: ACR-012-S04
+    title: Emergency kill switch is activated
+  owner_changes:
+  - qualify-avatar-brokered-call-feasibility
+  - implement-avatar-reference-runtime
+  - qualify-avatar-live-voice
+  - avatar-pilot-hardening
+- id: RBG-001
+  capability: repo-boundary-governance
+  title: Neutral avatar-client repository boundary
+  owner_tasks:
+  - '4.1'
+  owner_changes:
+  - implement-avatar-client-lab
+  evidence_types:
+  - manual
+  - successor
+  scenarios:
+  - id: RBG-001-S01
+    title: Client repository is created
+  - id: RBG-001-S02
+    title: Privileged provider code is proposed in the client
+- id: RBG-002
+  capability: repo-boundary-governance
+  title: Avatar-client release evidence
+  owner_tasks:
+  - '4.1'
+  owner_changes:
+  - qualify-avatar-live-voice
+  - avatar-pilot-hardening
+  evidence_types:
+  - manual
+  - successor
+  scenarios:
+  - id: RBG-002-S01
+    title: Client is released for internal live use
+  - id: RBG-002-S02
+    title: Trusted media adapter integrity is unproven
+  - id: RBG-002-S03
+    title: Client and server are incompatible
+- id: RBG-003
+  capability: repo-boundary-governance
+  title: Deferred aggregation and web-console integration
+  owner_tasks:
+  - '4.1'
+  owner_changes:
+  - avatar-pilot-hardening
+  evidence_types:
+  - manual
+  - successor
+  scenarios:
+  - id: RBG-003-S01
+    title: Aggregation integration is proposed
+  - id: RBG-003-S02
+    title: Web operations console begins
+- id: SCO-001
+  capability: shared-contract-ownership
+  title: Avatar-client contract ownership and consumer pinning
+  owner_tasks:
+  - '3.2'
+  - '3.3'
+  - '4.1'
+  owner_changes:
+  - implement-avatar-client-lab
+  evidence_types:
+  - automated
+  - successor
+  scenarios:
+  - id: SCO-001-S01
+    title: Avatar runtime contract is introduced
+  - id: SCO-001-S02
+    title: Contract bundle release identifiers disagree
+  - id: SCO-001-S03
+    title: Consumer records only a contract tag
+  - id: SCO-001-S04
+    title: Client models drift from the pinned contract
+  - id: SCO-001-S05
+    title: Provider event is added
+- id: SCO-002
+  capability: shared-contract-ownership
+  title: Avatar runtime reference ownership
+  owner_tasks:
+  - '4.1'
+  - '4.2'
+  owner_changes:
+  - implement-avatar-client-lab
+  - qualify-avatar-live-voice
+  evidence_types:
+  - automated
+  - manual
+  - successor
+  scenarios:
+  - id: SCO-002-S01
+    title: Server-side provider integration is implemented
+  - id: SCO-002-S02
+    title: Domain overlay adopts the runtime

@@ -174,13 +174,29 @@ Active changes:
   — agentic semantic sweep extending `doc-health` (code surface:
   codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
   until realization evidence lands)
-- [define-avatar-client-runtime](openspec/changes/define-avatar-client-runtime/proposal.md)
-  — avatar-first UI standard plus the AVC contract kernel (eight contracts),
-  deterministic reference broker with fail-closed authority stub, and F0
-  brokered-call spike (code surface: openxFactory; simplified 2026-07-10
-  after a seven-expert panel review; client implementation and live OpenAI
-  qualification follow in `implement-avatar-client-lab`,
-  `qualify-avatar-live-voice`, and `avatar-pilot-hardening`)
+- [define-avatar-client-contract-kernel](openspec/changes/define-avatar-client-contract-kernel/proposal.md)
+  — staged-origin owner of the reviewed avatar packet and canonical
+  eight-contract AVC kernel, registries, fixtures, validation, release, and
+  repository-boundary rules
+- [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
+  — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
+  readiness, revocation, redacted evidence, and contract interface impacts;
+  F0 does not qualify live use
+- [implement-avatar-reference-runtime](openspec/changes/implement-avatar-reference-runtime/proposal.md)
+  — non-deployable deterministic broker/control reference with injected ports,
+  fail-closed authority fixtures, race/recovery tests, and exact-kernel
+  conformance
+- [align-avatar-first-ui-standard](openspec/changes/align-avatar-first-ui-standard/proposal.md)
+  — avatar-first standard, domain profile carrier, template, examples, and
+  offline validator; Flutter implementation remains a successor
+
+The four avatar-client changes use disjoint implementation surfaces and may be
+implemented in parallel; shared contract release metadata is serialized only
+at final integration. Contract publication requires F0 `PASS`; runtime and UI
+realization require final content-addressed kernel pins. Client
+implementation, live provider qualification, and pilot hardening remain in
+`implement-avatar-client-lab`, `qualify-avatar-live-voice`, and
+`avatar-pilot-hardening`.
 
 Archived changes:
 

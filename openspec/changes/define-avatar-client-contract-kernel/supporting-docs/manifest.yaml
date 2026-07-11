@@ -1,0 +1,67 @@
+{
+  "change_id": "define-avatar-client-contract-kernel",
+  "files": [
+    {
+      "path": "avatar-client-acceptance-map.yaml",
+      "sha256": "0b1f5742b744e686a0e3a970a5df1ddeea88a8ce0ce6fdd602f3731672f5e50e",
+      "source_path": null
+    },
+    {
+      "path": "avatar-client-acceptance-traceability.md",
+      "sha256": "8dff78fcbf5dbec0425e6f53ffffe0f227571dd8704455ffc57ed58fca9c5c89",
+      "source_path": null
+    },
+    {
+      "path": "avatar-client-f1-f4-acceptance.md",
+      "sha256": "6a780c3245e88a274a4a7f82fbc9e71c456be701cd32dd8ba0f2a383a37a5776",
+      "source_path": "ideation/brainstorm/avatar-client-f1-f4-acceptance.md"
+    },
+    {
+      "path": "avatar-client-neutral-contracts.md",
+      "sha256": "f5a5a5af3e9dc362f76823fe0112edd9e8fe5e17e091b4b560dc417c26ed39bd",
+      "source_path": "ideation/brainstorm/avatar-client-neutral-contracts.md"
+    },
+    {
+      "path": "avatar-client-parallel-workstream-plan.md",
+      "sha256": "f3aa5658a85524508660b2b33c2ef153f6ab42428e8c1b11daa1e1bc24728f97",
+      "source_path": null
+    },
+    {
+      "path": "avatar-client-threat-model.md",
+      "sha256": "d351cc87a5becc3dedc51d2bb3fa00c54211e04f617b9da35451b3421ed16a74",
+      "source_path": null
+    },
+    {
+      "path": "expert-panel-review-2026-07-10.md",
+      "sha256": "cfa1d26e53793f910eb6ebe11bb3291ee4977c945a6b0d66d51dfb314f65c715",
+      "source_path": null
+    },
+    {
+      "path": "expert-panel-review-correction-2026-07-10.md",
+      "sha256": "567a62af04b24893c4c50213a39663595465d55818c6a6f050ca7d8b21f877fb",
+      "source_path": null
+    },
+    {
+      "path": "flutter-avatar-client-ui-lab.md",
+      "sha256": "3793645fcf8445c2b1ad4d03f1b0bf0944ecad54ff03d5c0e70bcdbe26673821",
+      "source_path": "ideation/brainstorm/flutter-avatar-client-ui-lab.md"
+    },
+    {
+      "path": "ownership-and-delta-map.md",
+      "sha256": "71c2d43a040979f994fbb8a8fa7dabb549f6115e4118d3ecb4bce4018724cb9e",
+      "source_path": null
+    },
+    {
+      "path": "pre-review-validation-baseline-2026-07-10.md",
+      "sha256": "75e385a78af9b527494dd8fb59c7a50ec3f9d73aa4bdf568fe204e42de23d6c9",
+      "source_path": null
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/avatar-client",
+  "remaining_paths": [],
+  "source_revision": "uncommitted-worktree",
+  "source_state": "The staged avatar-client packet remains owned here as historical provenance. The original implementation proposal was split by explicit user approval into four parallel workstreams; F0 protocol/schema ownership moved to qualify-avatar-brokered-call-feasibility, while this change retains the canonical kernel, review record, threat model, historical pre-review files, and parallel workstream plan. Per-file hashes are authoritative and no staged paths remain.",
+  "transitioned_at": "2026-07-10"
+}
