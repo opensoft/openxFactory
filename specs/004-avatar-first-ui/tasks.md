@@ -43,8 +43,8 @@ adding `AFUV-RETENTION-UNRESOLVED` for FR-027). See contracts/validator-rules.md
 
 **Purpose**: Scaffold the new fixtures area and fix the shared error-ID catalog.
 
-- [ ] T001 Create the deterministic fixtures scaffold `examples/avatar-first-ui/fixtures/` with `compatibility/` and `negative/` subdirectories and a placeholder `examples/avatar-first-ui/fixtures/README.md` (evidence-map stub) per contracts/fixture-shape.md
-- [ ] T002 [P] Record the stable validator error/evidence-ID catalog — the nine `AFUV-*` rule-class IDs plus parity/structure IDs — as an authoritative constants/reference block header in `scripts/validate-avatar-first-ui.py` per contracts/validator-rules.md (no logic yet)
+- [X] T001 Create the deterministic fixtures scaffold `examples/avatar-first-ui/fixtures/` with `compatibility/` and `negative/` subdirectories and a placeholder `examples/avatar-first-ui/fixtures/README.md` (evidence-map stub) per contracts/fixture-shape.md
+- [X] T002 [P] Record the stable validator error/evidence-ID catalog — the nine `AFUV-*` rule-class IDs plus parity/structure IDs — as an authoritative constants/reference block header in `scripts/validate-avatar-first-ui.py` per contracts/validator-rules.md (no logic yet)
 
 ---
 

@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
-"""Validate the shared avatar-first UI template and examples."""
+"""Validate the shared avatar-first UI standard surface (offline).
+
+Checks the registered avatar-first UI profile schema, the shared template, the
+domain-neutral example archetypes, and the deterministic fixtures against the
+avatar-first UI standard. Runs fully offline (no provider or runtime service).
+
+Two modes:
+- ``--mode baseline`` (default) resolves kernel-owned IDs and readiness/heartbeat
+  /lease ceilings against the frozen ``avatar-client-parallel-v1`` baseline that
+  is mirrored read-only in ``BASELINE`` below (recorded from the kernel change
+  ``define-avatar-client-contract-kernel`` supporting docs; not authored here).
+- ``--mode realization`` loads the exact released kernel registries read-only and
+  fails closed on drift (deferred to the serialized post-kernel release).
+
+Every rejected rule prints ``ERROR <error-id> <message>`` so the stable error IDs
+are usable evidence anchors.
+
+Stable error / evidence ID catalog (nine enforced rule classes + parity/structure
+IDs). See specs/004-avatar-first-ui/contracts/validator-rules.md.
+"""
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 from typing import Any
@@ -15,6 +35,36 @@ except ImportError:
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# --- Stable error / evidence ID catalog (T002) -----------------------------
+# Structure / parity IDs
+ERR_SCHEMA_SHAPE = "AFUV-SCHEMA-SHAPE"
+ERR_TEMPLATE_SHAPE = "AFUV-TEMPLATE-SHAPE"
+ERR_PARITY_EXAMPLE = "AFUV-PARITY-EXAMPLE"
+ERR_PARITY_ACCEPTANCE = "AFUV-PARITY-ACCEPTANCE"
+ERR_EVIDENCE_UNKNOWN = "AFUV-EVIDENCE-UNKNOWN"
+# Nine enforced rule classes (Q6 eight + retention from the 2026-07-11 analyze gate)
+ERR_AUTHORITY_TRANSITION = "AFUV-AUTHORITY-TRANSITION"
+ERR_TIMING_OUT_OF_RANGE = "AFUV-TIMING-OUT-OF-RANGE"
+ERR_CONTROL_FALLBACK_MISSING = "AFUV-CONTROL-FALLBACK-MISSING"
+ERR_PERSONA_UNRESOLVED = "AFUV-PERSONA-UNRESOLVED"
+ERR_MODE_RESERVED = "AFUV-MODE-RESERVED"
+ERR_UNSAFE_RENDER = "AFUV-UNSAFE-RENDER"
+ERR_PURPOSE_INVALID = "AFUV-PURPOSE-INVALID"
+ERR_HELD_ANSWER_ACTIVE = "AFUV-HELD-ANSWER-ACTIVE"
+ERR_RETENTION_UNRESOLVED = "AFUV-RETENTION-UNRESOLVED"
+
+ENFORCED_RULE_IDS = (
+    ERR_AUTHORITY_TRANSITION,
+    ERR_TIMING_OUT_OF_RANGE,
+    ERR_CONTROL_FALLBACK_MISSING,
+    ERR_PERSONA_UNRESOLVED,
+    ERR_MODE_RESERVED,
+    ERR_UNSAFE_RENDER,
+    ERR_PURPOSE_INVALID,
+    ERR_HELD_ANSWER_ACTIVE,
+    ERR_RETENTION_UNRESOLVED,
+)
 
 REQUIRED_CONTROL_IDS = {
     "start_session",
