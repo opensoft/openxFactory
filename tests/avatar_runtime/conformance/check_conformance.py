@@ -105,6 +105,10 @@ def collect_test_nodes(root: Path = ROOT) -> set[str]:
         line = line.strip()
         if "::" in line and line.startswith("tests/"):
             nodes.add(line)
+            # Also index the base id (without a [param] suffix) so mappings can
+            # reference a parametrized test by its function node id.
+            base = line.split("[", 1)[0]
+            nodes.add(base)
     return nodes
 
 

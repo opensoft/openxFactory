@@ -118,7 +118,7 @@ scenario; then simulate realization and confirm a bare tag / provisional-vs-cano
 
 - [x] T041 [P] [US2] Implement the test-only `avatar-client-parallel-v1` provisional adapter (unreachable from the package) in `tests/avatar_runtime/provisional/` (FR-004, ARR-002-S01)
 - [x] T042 [US2] Implement acceptance sourcing (read-only) in `tests/avatar_runtime/conformance/acceptance_source.py` reading BOTH required-set sources with source-commit + digest verification: (a) the runtime ARR map `openspec/changes/implement-avatar-reference-runtime/supporting-docs/avatar-reference-runtime-acceptance-map.yaml` (34 ARR) and (b) the client ACR baseline map `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` (applicable ACR). Record each map's content digest in `realization-pin.yaml` so the required-set stays content-addressed after the change dirs archive on landing (FR-034/FR-034a) — depends on T041
-- [ ] T043 [US2] Author `tests/avatar_runtime/conformance/scenario-test-map.yaml` binding every `ARR-*` and every applicable `ACR-*` scenario to exactly ONE entry whose disposition is `mapped` (a LIST of one-or-more test node ids — dual-story coverage of a scenario is a single entry listing all its nodes, never duplicate entries), `non_applicable` (with rationale), or `gate` (a checker/gate evidence reference for non-pytest evidence) (FR-034, SC-001/002) — depends on T027–T040, T037a, T042
+- [x] T043 [US2] Author `tests/avatar_runtime/conformance/scenario-test-map.yaml` binding every `ARR-*` and every applicable `ACR-*` scenario to exactly ONE entry whose disposition is `mapped` (a LIST of one-or-more test node ids — dual-story coverage of a scenario is a single entry listing all its nodes, never duplicate entries), `non_applicable` (with rationale), or `gate` (a checker/gate evidence reference for non-pytest evidence) (FR-034, SC-001/002) — depends on T027–T040, T037a, T042
 - [x] T044 [US2] Implement `tests/avatar_runtime/conformance/check_conformance.py` failing on missing / duplicate / dangling / skipped-required / unknown mappings (FR-034) — depends on T043
 - [x] T045 [P] [US2] Author the `tests/avatar_runtime/conformance/realization-pin.yaml` schema/skeleton (`schema_version` + `kind`, five release coordinates + conformance-result fields; populated at realization) (FR-005, SC-006)
 - [x] T046 [US2] Add realization-pin validation to the checker (bare tag → fail; require `provisional_adapter_disabled: true` and all five coordinates) (FR-005, ARR-002-S03) — depends on T044, T045
@@ -156,13 +156,13 @@ content in telemetry.
 
 **Purpose**: Whole-feature gate, coverage, and evidence.
 
-- [ ] T058 Run the Principle V feature gate (`scripts/validate-avatar-runtime.py` + `pytest tests/avatar_runtime -p randomly` + `check_conformance.py`) and record the used seeds in `realization-pin.yaml`
-- [ ] T059 [P] Run the `quickstart.md` validation end-to-end and reconcile expected outcomes
-- [ ] T060 Run `git diff --check` and confirm 0 canonical-contract / F0 / UI / DomainxFactory / deployment / release-metadata files changed (FR-036, SC-008); record this gate result as the mapped evidence for `ARR-008-S04` in `scenario-test-map.yaml` (evidence type: `gate`) (E1)
+- [x] T058 Run the Principle V feature gate (`scripts/validate-avatar-runtime.py` + `pytest tests/avatar_runtime -p randomly` + `check_conformance.py`) and record the used seeds in `realization-pin.yaml`
+- [x] T059 [P] Run the `quickstart.md` validation end-to-end and reconcile expected outcomes
+- [x] T060 Run `git diff --check` and confirm 0 canonical-contract / F0 / UI / DomainxFactory / deployment / release-metadata files changed (FR-036, SC-008); record this gate result as the mapped evidence for `ARR-008-S04` in `scenario-test-map.yaml` (evidence type: `gate`) (E1)
 - [x] T060a [P] Implement a suite-wide test-lint guard scanning `tests/avatar_runtime/` for wall-clock time / randomness / network / filesystem-persistence usage (strengthens SC-004; complements the package boundary scanner, which targets the runtime package not the tests) in `tests/avatar_runtime/boundary/test_suite_hygiene.py`
-- [ ] T061 [P] Verify mapping completeness: all 34 `ARR-*` scenarios mapped and every applicable `ACR-*` mapped or dispositioned with rationale (SC-001/002)
-- [ ] T062 [P] Cross-check FR/SC coverage against `scenario-test-map.yaml`; add/adjust non-applicability dispositions with rationale where needed
-- [ ] T063 Final determinism sweep across multiple recorded seeds via `tests/avatar_runtime/test_determinism.py`; record the seeds in `tests/avatar_runtime/conformance/realization-pin.yaml` and confirm the reproducible-failing-seed procedure from reported output (SC-003)
+- [x] T061 [P] Verify mapping completeness: all 34 `ARR-*` scenarios mapped and every applicable `ACR-*` mapped or dispositioned with rationale (SC-001/002)
+- [x] T062 [P] Cross-check FR/SC coverage against `scenario-test-map.yaml`; add/adjust non-applicability dispositions with rationale where needed
+- [x] T063 Final determinism sweep across multiple recorded seeds via `tests/avatar_runtime/test_determinism.py`; record the seeds in `tests/avatar_runtime/conformance/realization-pin.yaml` and confirm the reproducible-failing-seed procedure from reported output (SC-003)
 
 ---
 
