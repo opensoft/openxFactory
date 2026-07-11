@@ -47,9 +47,11 @@ measurable, NOT whether fixtures run.
 
 ## Edge Case Coverage
 
-- [ ] CHK022 Is one negative fixture per rule class listed so no enforced rule is left without fixture-level evidence? [Edge Case, Coverage, contracts/validator-rules.md]
-- [ ] CHK023 Is the boundary of a fixture referencing an unknown `AFU-*` evidence ID addressed (parity failure)? [Edge Case, contracts/validator-rules.md]
+- [ ] CHK022 Is one negative fixture per enforced rule class (nine, incl. retention-unresolved) listed so no enforced rule is left without fixture-level evidence? [Edge Case, Coverage, contracts/validator-rules.md]
+- [ ] CHK023 Is the boundary of a fixture referencing an unknown `AFU-*` scenario ID addressed (parity failure)? [Edge Case, contracts/validator-rules.md]
 - [ ] CHK024 Is the held-answer-rendered-as-active negative case explicitly required as a fixture? [Edge Case, Spec §FR-008, §FR-019]
+- [ ] CHK029 Is the unresolvable-retention-policy-reference case required as a dedicated negative fixture (`AFUV-RETENTION-UNRESOLVED`) enforcing FR-027's fail-closed rule? [Edge Case, Spec §FR-027, §FR-019]
+- [ ] CHK030 Is the evidence-ID convention specified (fixtures declare `AFU-*` scenario IDs; evidence IDs derive via the acceptance map's `TEST-{scenario_id}` template)? [Clarity, Consistency, contracts/fixture-shape.md]
 
 ## Dependencies & Assumptions
 

@@ -112,14 +112,15 @@ Location `examples/avatar-first-ui/fixtures/`. Shape (see
 | Field | Meaning |
 |-------|---------|
 | `fixture_id` | Stable ID |
-| `evidence_ids[]` | `AFU-*` requirement/scenario IDs the fixture attests |
+| `evidence_ids[]` | The `AFU-*` scenario/requirement IDs the fixture attests (e.g. `AFU-001-S01`). The acceptance map's evidence IDs derive from these via its `evidence_id_template: TEST-{scenario_id}` (e.g. `TEST-AFU-001-S01`); the fixture declares the scenario ID and the evidence ID is template-derived. |
 | `inputs` | Fixed clock, IDs, font, locale, platform capabilities |
 | `canonical` | Canonical AVC command/event/snapshot inputs |
 | `expected` | Expected view-state / record shapes |
 | `expect_error` (negative only) | The single stable error/evidence ID this fixture must trigger |
 
 Two identical runs ⇒ equivalent `expected` shapes and identical `evidence_ids`
-(SC-006).
+(SC-006). Parity binding (AFUV-PARITY-ACCEPTANCE) resolves each fixture's
+scenario `evidence_ids` against the acceptance map via `TEST-{scenario_id}`.
 
 ## Validator error / evidence ID catalog
 
@@ -128,7 +129,8 @@ class and a negative fixture (D10; final list in
 [contracts/validator-rules.md](./contracts/validator-rules.md)):
 `AFUV-AUTHORITY-TRANSITION`, `AFUV-TIMING-OUT-OF-RANGE`,
 `AFUV-CONTROL-FALLBACK-MISSING`, `AFUV-PERSONA-UNRESOLVED`, `AFUV-MODE-RESERVED`,
-`AFUV-UNSAFE-RENDER`, `AFUV-PURPOSE-INVALID`, `AFUV-HELD-ANSWER-ACTIVE`, plus
+`AFUV-UNSAFE-RENDER`, `AFUV-PURPOSE-INVALID`, `AFUV-HELD-ANSWER-ACTIVE`,
+`AFUV-RETENTION-UNRESOLVED` (nine enforced rule classes), plus
 parity/structure IDs (`AFUV-PARITY-*`, `AFUV-SCHEMA-*`).
 
 ## State note

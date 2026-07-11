@@ -67,7 +67,7 @@ edits to kernel, reference-runtime, F0, DomainxFactory, Flutter, or deployment
 files during parallel work.
 
 **Scale/Scope**: 5 owned artifacts + a new `examples/avatar-first-ui/fixtures/`
-directory; 4 representative example profiles + ≥1 compatibility fixture + ≥8
+directory; 4 representative example profiles + ≥1 compatibility fixture + ≥9
 negative fixtures (one per enforced rule class, each with a stable
 error/evidence ID); 8 `AFU-*` requirements / 25 scenarios traced.
 
@@ -245,7 +245,7 @@ in `research.md` / `data-model.md` / `contracts/`):
 | FR-010 | standard (accessibility evidence boundary) | impl | D9 |
 | FR-011 | standard + schema (`persona_reference`, disclosure) | 1 | D7 |
 | FR-012 | standard + validator (safe rendering) | 1 | D2, rule `AFUV-UNSAFE-RENDER` |
-| FR-013 | schema (carrier field list) | 1 | schema outline, data-model |
+| FR-013 | schema (umbrella carrier field list; individual field rules FR-025–FR-028) | 1 | schema outline, data-model |
 | FR-014 | schema (`consent_purpose_mappings`) | 1 | D6 |
 | FR-015 | schema (`interaction_mode`, `speech_gate`) | 1 | D3 |
 | FR-016 | schema (additive, closed defaults) | 1 | D12 |

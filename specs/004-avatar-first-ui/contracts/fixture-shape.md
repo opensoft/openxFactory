@@ -18,7 +18,7 @@ examples/avatar-first-ui/fixtures/
 ├── README.md                 # index + evidence-ID → fixture map (linked from examples/README.md)
 ├── compatibility/            # pre-alignment profiles that MUST still validate
 │   └── legacy-persona-catalog.yaml
-└── negative/                 # one fixture per enforced rule class (see validator-rules.md)
+└── negative/                 # one fixture per enforced rule class (9; see validator-rules.md)
     ├── authority-transition.yaml
     ├── timing-out-of-range.yaml
     ├── control-fallback-missing.yaml
@@ -26,7 +26,8 @@ examples/avatar-first-ui/fixtures/
     ├── mode-reserved.yaml
     ├── unsafe-render.yaml
     ├── purpose-invalid.yaml
-    └── held-answer-active.yaml
+    ├── held-answer-active.yaml
+    └── retention-unresolved.yaml
 ```
 
 ## Fixture shape (positive / determinism)
@@ -35,7 +36,9 @@ examples/avatar-first-ui/fixtures/
 schema_version: 1
 kind: xfactory_avatar_first_ui_fixture
 fixture_id: <stable-id>
-evidence_ids: [AFU-00X-S0Y, ...]     # AFU requirement/scenario IDs attested
+evidence_ids: [AFU-00X-S0Y, ...]     # AFU SCENARIO IDs attested; the acceptance map's
+                                     # evidence ID derives via evidence_id_template:
+                                     # TEST-{scenario_id} (e.g. TEST-AFU-001-S01)
 inputs:
   clock: "2026-07-11T00:00:00Z"      # fixed
   ids: [ ... ]                       # fixed IDs (session, workflow, persona ref)
@@ -75,4 +78,8 @@ that attest it (automated evidence) or to the named successor that owns deferred
 evidence (`implement-avatar-client-lab`, `avatar-pilot-hardening`). This mirrors
 the OpenSpec acceptance map
 (`openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml`)
-and is checked by `AFUV-PARITY-ACCEPTANCE`.
+and is checked by `AFUV-PARITY-ACCEPTANCE`. Evidence-ID convention: a fixture's
+`evidence_ids` are the acceptance map's scenario IDs (`AFU-*-S0Y`); the map's
+evidence ID for each is derived by its `evidence_id_template: TEST-{scenario_id}`
+(e.g. `TEST-AFU-001-S01`). The parity check binds fixtures to the map on that
+derivation, so fixtures never hand-author `TEST-` IDs.

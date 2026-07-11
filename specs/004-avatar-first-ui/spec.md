@@ -24,7 +24,7 @@ adapters, or live client (those remain in `implement-avatar-client-lab`).
 - Q: In what form and location are the deterministic UI fixture shapes published? → A: Versioned YAML/JSON fixture files under `examples/avatar-first-ui/fixtures/`, separate from profile examples. Each fixture carries fixed clock/ID/font/locale/platform inputs, canonical command/event/snapshot inputs, expected view-state/record shapes, and its AFU evidence IDs; the offline validator checks them.
 - Q: Does the UI profile schema embed readiness/heartbeat/lease ceiling constants, or carry selected values validated against kernel-owned ceilings? → A: The profile carries selected readiness, heartbeat, and lease values. Numeric ceilings remain kernel-owned and are loaded read-only by the validator (parallel baseline during development, released registries at realization); the UI schema does not duplicate maxima, and missing or unresolvable bounds fail closed.
 - Q: What does the profile's runtime compatibility field encode, and what does the final cross-check compare it against? → A: Exact content-addressed coordinates, no released version ranges. During parallel work it records the exact `avatar-client-parallel-v1` baseline identity and required baseline digests; at realization it records the released bundle tag, exact commit, and required registry/interface-lock digests, and validates every referenced ID against those bytes. A loose version range is not permitted for a released profile, and because profile fields already declare the specific capabilities/outcomes/states consumed, no second hand-maintained capability list is required.
-- Q: What is the required minimum set of negative fixtures the validator must reject? → A: At least one negative fixture per enforced rule class (presentation-authored transition; out-of-range readiness/heartbeat/lease; missing control fallback; unknown/invalid persona reference; reserved/forbidden mode; unsafe rendering/HTML or URI; missing/invalid consent-purpose mapping; held-answer rendered as active), each failing one primary rule with a stable error/evidence ID.
+- Q: What is the required minimum set of negative fixtures the validator must reject? → A: At least one negative fixture per enforced rule class (presentation-authored transition; out-of-range readiness/heartbeat/lease; missing control fallback; unknown/invalid persona reference; reserved/forbidden mode; unsafe rendering/HTML or URI; missing/invalid consent-purpose mapping; held-answer rendered as active), each failing one primary rule with a stable error/evidence ID. [Analyze-gate disposition 2026-07-11: the enforced-rule-class set was extended to nine — `unresolvable retention-policy reference` (AFUV-RETENTION-UNRESOLVED) was added to enforce FR-027's fail-closed requirement; see FR-019.]
 - Q: How is the accessibility baseline represented in the profile schema? → A: As explicit structured per-capability declarations (keyboard operation, stable/visible focus, screen-reader announcements, captions, text-only mode, reduced motion, high contrast, non-color cues, zoom/reflow, and pseudo-locale coverage); every field has a closed default and is individually validator-checkable.
 - Q: What does the profile's retention overlay carry? → A: References to externally owned retention-policy IDs plus presentation flags/labels needed to show resolved retention state. It contains no inline durations, legal policy, consent evidence, or authority to change retention; an unresolved policy reference fails closed.
 
@@ -351,8 +351,9 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   locator (the persona-catalog schema is out of scope, per FR-011); a retention
   overlay of retention-policy references plus presentation flags/labels (per
   FR-027); a structured accessibility baseline of explicit per-capability
-  declarations (per FR-028); and handoff roles. (AFU-001, AFU-002, AFU-004,
-  AFU-006)
+  declarations (per FR-028); and handoff roles. This is the umbrella carrier
+  requirement; the individual field rules are specified in FR-025 through
+  FR-028. (AFU-001, AFU-002, AFU-004, AFU-006)
 - **FR-014**: The profile schema MUST reference the three neutral consent-purpose
   IDs and MAY allow stricter domain-specific IDs, but MUST NOT contain consent
   evidence or make the memory-gateway consent profile authoritative. (AFU-006)
@@ -406,7 +407,8 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   fixture per enforced rule class (presentation-authored transition; out-of-range
   readiness/heartbeat/lease; missing control fallback; unknown/invalid persona
   reference; reserved/forbidden mode; unsafe rendering/HTML or URI;
-  missing/invalid consent-purpose mapping; held-answer rendered as active), each
+  missing/invalid consent-purpose mapping; held-answer rendered as active;
+  unresolvable retention-policy reference), each
   failing one primary rule with a stable error/evidence ID. (AFU-002, AFU-004,
   AFU-006, AFU-007)
 

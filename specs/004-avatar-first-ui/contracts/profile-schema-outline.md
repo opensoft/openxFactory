@@ -100,8 +100,10 @@ New/updated examples switch to `persona_reference`.
 
 ## Fail-closed summary (Principle VII)
 
-Omitted optional field ⇒ most-restrictive value. Unresolvable persona / retention
-/ ceiling / consent-purpose reference ⇒ validation failure with the matching
-stable error ID (see [validator-rules.md](./validator-rules.md)). Reserved/forbidden
-interaction mode without a fallback ⇒ failure. Presentation may never author an
-authoritative axis.
+Omitted optional field ⇒ most-restrictive value. Unresolvable persona /
+retention / ceiling / consent-purpose reference ⇒ validation failure with the
+matching stable error ID (`AFUV-PERSONA-UNRESOLVED`, `AFUV-RETENTION-UNRESOLVED`,
+`AFUV-TIMING-OUT-OF-RANGE`, `AFUV-PURPOSE-INVALID` respectively — see
+[validator-rules.md](./validator-rules.md)). Reserved/forbidden interaction mode
+without a fallback ⇒ failure. Presentation may never author an authoritative
+axis.

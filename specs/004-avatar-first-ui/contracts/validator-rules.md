@@ -22,10 +22,14 @@ evidence anchors (D10, FR-020, SC-002).
 | Schema `name`/`schema_version`/`kind` correct; required top-level keys present | `AFUV-SCHEMA-SHAPE` | schema check |
 | Template `kind`, `avatar_is_presentation_only: true`, 4 channels, required controls | `AFUV-TEMPLATE-SHAPE` | template check |
 | Example/profile parity with schema (all four archetypes validate) | `AFUV-PARITY-EXAMPLE` | examples check |
-| Acceptance-map parity: 8 requirements / 25 scenarios present and mapped | `AFUV-PARITY-ACCEPTANCE` | acceptance-map parity |
-| Fixture references a real `AFU-*` evidence ID | `AFUV-EVIDENCE-UNKNOWN` | fixtures check |
+| Acceptance-map parity: 8 requirements / 25 scenarios present; each fixture's scenario `evidence_ids` resolve against the map via `evidence_id_template: TEST-{scenario_id}` | `AFUV-PARITY-ACCEPTANCE` | acceptance-map parity |
+| Fixture references a real `AFU-*` scenario ID (evidence ID = `TEST-{scenario_id}`) | `AFUV-EVIDENCE-UNKNOWN` | fixtures check |
 
-## Enforced rule classes (each has ≥1 negative fixture — Q6=A)
+## Enforced rule classes (each has ≥1 negative fixture — Q6=A + analyze-gate disposition)
+
+Nine enforced rule classes. Class 9 (`AFUV-RETENTION-UNRESOLVED`) was added by the
+2026-07-11 analyze-gate disposition (G1) so FR-027's fail-closed retention rule
+carries dedicated negative-fixture evidence, extending Q6's original eight.
 
 | # | Rule class | Error ID | Negative fixture (under `fixtures/negative/`) | Source |
 |---|-----------|----------|-----------------------------------------------|--------|
@@ -37,12 +41,7 @@ evidence anchors (D10, FR-020, SC-002).
 | 6 | Unsafe rendering: HTML/executable/provider widget/unsafe URI or non-allowlisted destination | `AFUV-UNSAFE-RENDER` | `unsafe-render.yaml` | FR-012 |
 | 7 | Missing/invalid consent-purpose mapping (non-neutral or unmapped) | `AFUV-PURPOSE-INVALID` | `purpose-invalid.yaml` | FR-014 |
 | 8 | Held answer rendered as active capture/playback (no matching `media_authorized`) | `AFUV-HELD-ANSWER-ACTIVE` | `held-answer-active.yaml` | FR-008, FR-009 |
-
-Additional fail-closed checks reuse the class above them:
-- Unresolvable retention-policy reference ⇒ `AFUV-PURPOSE-INVALID` family? No —
-  use a dedicated `AFUV-RETENTION-UNRESOLVED` for clarity; add a negative fixture
-  `retention-unresolved.yaml` (FR-027) if a distinct rule class is warranted at
-  implement time.
+| 9 | Unresolvable retention-policy reference (fails closed) | `AFUV-RETENTION-UNRESOLVED` | `retention-unresolved.yaml` | FR-027 |
 
 ## Positive & compatibility checks
 
