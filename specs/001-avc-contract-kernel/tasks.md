@@ -178,11 +178,11 @@ model is accepted. If any is false, STOP — the tag stays blocked
 
 **Purpose**: Repo-wide gates and evidence closure.
 
-- [ ] T050 [P] Run `python3 scripts/validate-avatar-client.py --strict` and confirm all checks green
-- [ ] T051 [P] Run `OPENSPEC_TELEMETRY=0 openspec validate define-avatar-client-contract-kernel --strict` and `--all --strict`
-- [ ] T052 [P] Run `git diff --check` and confirm no host-absolute paths and no secrets in committed files (Principle IV/VII)
-- [ ] T053 Run the recorded DomainxFactory compatibility validators; block only regressions introduced by this change, not dated pre-existing debt (OpenSpec task 4.3)
-- [ ] T054 Execute the `quickstart.md` validation end-to-end (author loop, portable consumer conformance, F0 gate, realization dry-run)
+- [x] T050 [P] Run `python3 scripts/validate-avatar-client.py --strict` and confirm all checks green
+- [x] T051 [P] Run `OPENSPEC_TELEMETRY=0 openspec validate define-avatar-client-contract-kernel --strict` and `--all --strict`
+- [x] T052 [P] Run `git diff --check` and confirm no host-absolute paths and no secrets in committed files (Principle IV/VII)
+- [x] T053 Run the recorded DomainxFactory compatibility validators; block only regressions introduced by this change, not dated pre-existing debt (OpenSpec task 4.3)
+- [x] T054 Execute the `quickstart.md` validation end-to-end (author loop, portable consumer conformance, F0 gate, realization dry-run)
 
 ---
 
