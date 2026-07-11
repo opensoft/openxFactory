@@ -127,7 +127,7 @@ and terminal-observation offsets recorded separately.
 
 **Acceptance Scenarios**:
 
-1. **Given** sideband and xFactory control become ready within the selected 1,000-to-5,000-millisecond value, **When** the readiness assertion is evaluated, **Then** the measured trial may pass its readiness assertion.
+1. **Given** sideband and xFactory control become ready within the selected 1,000-to-5,000-millisecond value (the configured `readiness_deadline_ms`, default 3,000 ms), **When** the readiness assertion is evaluated, **Then** the measured trial may pass its readiness assertion.
 2. **Given** either required control channel misses the selected deadline (readiness-timeout), **When** the trial runs, **Then** the harness withholds media authorization, terminates the call, and fails if any media or answer application occurred.
 3. **Given** the harness revokes an authorized trial and observes provider termination within five seconds (revocation / provider-hangup), **When** the trial runs, **Then** it records separate revocation-request, hangup-request, and terminal-observation offsets.
 4. **Given** a mandatory terminal signal is absent or arrives after five seconds, **When** the revocation assertion is evaluated, **Then** the assertion is FAIL or INCONCLUSIVE according to whether contrary behavior or missing evidence was observed.
