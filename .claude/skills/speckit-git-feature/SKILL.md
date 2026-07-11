@@ -1,15 +1,15 @@
 ---
 name: speckit-git-feature
-description: Create a feature branch with sequential or timestamp numbering
+description: Create a feature branch or worktree with sequential or timestamp numbering
 compatibility: Requires spec-kit project structure with .specify/ directory
 metadata:
   author: github-spec-kit
   source: git:commands/speckit.git.feature.md
 ---
 
-# Create Feature Branch
+# Create Feature Checkout
 
-Create and switch to a new git feature branch for the given specification. This command handles **branch creation only** — the spec directory and files are created by the core `/speckit-specify` workflow.
+Create a new git feature checkout for the given specification. Depending on the git extension config, this command either switches the current checkout to a new feature branch or creates a linked worktree from a configured base branch. This command handles **git checkout creation only** — the spec directory and files are created by the core `/speckit-specify` workflow.
 
 ## User Input
 
@@ -40,6 +40,20 @@ Determine the branch numbering strategy by checking configuration in this order:
 3. Check `.specify/init-options.json` for `branch_numbering` value (deprecated, backward compatibility — will be removed in a future release)
 4. Default to `sequential` if none of the above exist
 
+## Checkout Mode
+
+Read `.specify/extensions/git/git-config.yml` for:
+
+- `checkout_mode`: `branch` (switch the current checkout) or `worktree` (create a linked worktree; the current checkout does NOT switch branches)
+- `base_branch`: branch to fork from when using worktree mode
+- `worktree_root`: parent directory for linked worktrees
+
+The script also honors these temporary environment overrides when present:
+
+- `SPECKIT_GIT_CHECKOUT_MODE`
+- `SPECKIT_GIT_BASE_BRANCH`
+- `SPECKIT_GIT_WORKTREE_ROOT`
+
 ## Execution
 
 Generate a concise short name (2-4 words) for the branch:
@@ -58,12 +72,13 @@ Run the appropriate script based on your platform:
 - Do NOT pass `--number` — the script determines the correct next number automatically
 - Always include the JSON flag (`--json` for Bash, `-Json` for PowerShell) so the output can be parsed reliably
 - You must only ever run this script once per feature
-- The JSON output will contain `BRANCH_NAME` and `FEATURE_NUM`
+- The JSON output will always contain `BRANCH_NAME`, `FEATURE_NUM`, and `CHECKOUT_MODE`
+- When `CHECKOUT_MODE` is `worktree`, the JSON also contains `BASE_BRANCH` and `WORKTREE_PATH`; the current checkout does NOT switch branches — continue all feature work (spec files, follow-on Speckit commands, commits) inside `WORKTREE_PATH`
 
 ## Graceful Degradation
 
 If Git is not installed or the current directory is not a Git repository:
-- Branch creation is skipped with a warning: `[specify] Warning: Git repository not detected; skipped branch creation`
+- Checkout creation is skipped with a warning: `[specify] Warning: Git repository not detected; skipped <checkout_mode> creation`
 - The script still outputs `BRANCH_NAME` and `FEATURE_NUM` so the caller can reference them
 
 ## Output
@@ -71,3 +86,6 @@ If Git is not installed or the current directory is not a Git repository:
 The script outputs JSON with:
 - `BRANCH_NAME`: The branch name (e.g., `003-user-auth` or `20260319-143022-user-auth`)
 - `FEATURE_NUM`: The numeric or timestamp prefix used
+- `CHECKOUT_MODE`: `branch` or `worktree`
+- `BASE_BRANCH` (worktree mode): the branch the worktree was forked from
+- `WORKTREE_PATH` (worktree mode): absolute path of the new linked worktree where all feature work must happen

@@ -12,10 +12,17 @@ Sync Impact Report
      beyond the stock template; no edits required
   ✅ .specify/templates/tasks-template.md — validation-gate tasks are covered
      by Principle V; no edits required
-- Follow-up TODOs: none
+- Follow-up TODOs: land the retroactive `adopt-project-constitution` OpenSpec
+  change to back the ratified status claim (until then Status stays draft)
 -->
 
 # openxFactory Constitution
+
+Status: draft
+Kind: process
+Adoption note: adopted for project bootstrap on 2026-07-11 with user approval;
+the `ratified` status claim awaits a retroactive OpenSpec change
+(planned: `adopt-project-constitution`) per the document-lifecycle standard.
 
 ## Core Principles
 
@@ -34,9 +41,13 @@ only holds if the neutral layer stays neutral.
 
 Any change to product behavior, architecture, artifact contracts, boundaries,
 or governance policy MUST go through an OpenSpec change before implementation.
-Each OpenSpec change hands off to exactly one Speckit feature (`specs/NNN-*`);
-OpenSpec records governance decisions and handoff, Speckit owns implementation
-tasks — the two task lists are never duplicated. Proposals declare
+A change realizes per the promoted release-realization spec: doc-only changes
+(`code_surface: none`) archive when their artifacts land, with no Speckit
+feature; changes whose OpenSpec tasks are directly executable MAY realize
+through that task list; larger changes decompose into one or more Speckit
+features (`specs/NNN-*`). Where Speckit features exist, OpenSpec records
+governance decisions and handoff while Speckit owns the implementation tasks,
+without duplicating task lists. Proposals declare
 `code_surface:` and `target_release:`; a change with a code surface archives
 only on merged, green realization evidence. Small implementation-only fixes
 within an already-governed feature may skip OpenSpec.
@@ -138,4 +149,4 @@ explicit Complexity Tracking justification or a constitution amendment. For
 day-to-day guidance see `README.md`, `docs/document-lifecycle.md`, and
 `docs/contract-versioning-policy.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-11 | **Last Amended**: 2026-07-11
+**Version**: 1.0.0 | **Adopted**: 2026-07-11 (ratification pending an OpenSpec change) | **Last Amended**: 2026-07-11
