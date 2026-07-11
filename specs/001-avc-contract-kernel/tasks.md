@@ -116,9 +116,9 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Independent Test**: The validator computes per-file digests over the consumed set and confirms manifest/digest identity **against a provisional/fixture manifest** (the real manifest is authored at realization, T046 — analyze A6); a tag-only pin fails; a consumer can execute fixtures with any draft-2020-12 implementation (spec US3 Independent Test; SC-006/SC-009).
 
-- [ ] T035 [US3] Author `contracts/avatar-client/README.md` — the FAMILY contract index (`Status:` header, `kind`) — and define the manifest-entry format for the semantic consumed set per data-model §H / spec §FR-022 (this is NOT the release-metadata `contracts/README.md` nor the repo-root README — see plan Design Note 4)
-- [ ] T036 [US3] Implement validator per-file SHA-256 digest computation over the semantic consumed set (8 schemas, shared-defs, 9 registries, fixtures+index, acceptance-map, interface-lock, evidence-register) + manifest/digest identity check against a provisional/fixture manifest (tag-only pin fails; full-manifest-green only at realization — analyze A6) in `scripts/validate-avatar-client.py` per spec §FR-022/§FR-023/§SC-006 — depends on T033
-- [ ] T037 [US3] Author portable consumer-pinning conformance notes + a tag-only-pin negative fixture demonstrating draft-2020-12 execution without the Python validator per spec §FR-023/§SC-009 — depends on T036
+- [x] T035 [US3] Author `contracts/avatar-client/README.md` — the FAMILY contract index (`Status:` header, `kind`) — and define the manifest-entry format for the semantic consumed set per data-model §H / spec §FR-022 (this is NOT the release-metadata `contracts/README.md` nor the repo-root README — see plan Design Note 4)
+- [x] T036 [US3] Implement validator per-file SHA-256 digest computation over the semantic consumed set (8 schemas, shared-defs, 9 registries, fixtures+index, acceptance-map, interface-lock, evidence-register) + manifest/digest identity check against a provisional/fixture manifest (tag-only pin fails; full-manifest-green only at realization — analyze A6) in `scripts/validate-avatar-client.py` per spec §FR-022/§FR-023/§SC-006 — depends on T033
+- [x] T037 [US3] Author portable consumer-pinning conformance notes + a tag-only-pin negative fixture demonstrating draft-2020-12 execution without the Python validator per spec §FR-023/§SC-009 — depends on T036
 
 **Checkpoint**: US3 independently testable — release mechanics verifiable without publishing a tag.
 

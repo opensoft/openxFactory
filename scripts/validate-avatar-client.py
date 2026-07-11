@@ -472,8 +472,33 @@ def check_redaction(f: Findings) -> None:
 
 
 def check_digests(f: Findings) -> None:
-    """US3 (T036): per-file digests over the semantic consumed set. No-op until manifest."""
-    return  # Implemented in Phase 5 (US3).
+    """US3 (T036): per-file SHA-256 over the semantic consumed set + manifest/digest
+    identity. The real contracts/manifest.yaml entries are authored at realization
+    (T046); until then the digest set is computed and reported (A6). At realization
+    the manifest digests must match the computed set (SCO-001-S02/S03)."""
+    files = semantic_files()
+    if not files:
+        return
+    computed = {str(p.relative_to(ROOT)): digest_file(p) for p in files}
+    manifest = ROOT / "contracts" / "manifest.yaml"
+    avc_entries: list[dict] = []
+    if manifest.is_file():
+        mdoc = load_yaml(manifest) or {}
+        avc_entries = [c for c in (mdoc.get("contracts") or [])
+                       if str(c.get("path", "")).startswith("contracts/avatar-client/")]
+    if not avc_entries:
+        f.note(f"release manifest/digests authored at realization (T046); "
+               f"provisional per-file digest set computed over {len(computed)} semantic files")
+        return
+    manifest_paths = {c["path"]: c.get("sha256") for c in avc_entries}
+    for path, dg in computed.items():
+        if path not in manifest_paths:
+            f.error("digest-missing", f"{path} not registered in contracts/manifest.yaml")
+        elif manifest_paths[path] != dg:
+            f.error("digest-mismatch", f"{path}: manifest sha256 != computed digest")
+    for path in manifest_paths:
+        if path not in computed:
+            f.error("digest-extra", f"manifest lists {path} outside the semantic set")
 
 
 def check_f0_gate(f: Findings, require_realization: bool) -> None:
