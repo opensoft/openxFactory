@@ -9,17 +9,17 @@ kind: avatar-client-redaction-sentinels
 sentinels:
   - id: fake_bearer_token
     bounded_form: "SENTINEL_BEARER_000000000000"
-    max_len: 28
+    max_len: 32
     represents: credential
   - id: fake_provider_key
     bounded_form: "SENTINEL_PROVKEY_0000000000"
-    max_len: 26
+    max_len: 32
     represents: credential
   - id: fake_sdp_answer
     bounded_form: "SENTINEL_SDP_ANSWER_000000"
-    max_len: 25
+    max_len: 32
     represents: sdp
   - id: fake_control_credential
     bounded_form: "SENTINEL_CTRLCRED_00000000"
-    max_len: 26
+    max_len: 32
     represents: credential

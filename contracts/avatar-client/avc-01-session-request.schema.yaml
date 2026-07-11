@@ -9,7 +9,8 @@ description: >-
   transient and never persisted; the broker computes sdp_offer_sha256 and
   discards the body.
 type: object
-additionalProperties: false
+# Open object: additive optional fields on the same major are preserved
+# (compatibility policy; ACR-001-S01). Vocabularies stay closed via enums.
 $defs:
   capability:
     type: string

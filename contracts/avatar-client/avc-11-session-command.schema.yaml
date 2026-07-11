@@ -9,7 +9,7 @@ description: >-
   command types; media/presentation commands omit it (spec FR-011). May carry
   only an opaque authorized attachment reference (spec FR-016).
 type: object
-additionalProperties: false
+# Open object for additive fields; command_type vocabulary stays closed.
 $defs:
   command_type:
     type: string

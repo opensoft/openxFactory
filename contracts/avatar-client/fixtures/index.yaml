@@ -1,15 +1,360 @@
 schema_version: 1
 kind: avatar-client-fixture-index
-# Machine-readable index of every self-describing fixture case (spec FR-019 / Q5;
-# research D2). Each case file under fixtures/<schema>/ is a
-# `avatar-client-fixture-case` document with fields:
-#   case_id       stable id (unique)
-#   target        schema/registry id the instance is validated against
-#   target_kind   "schema" | "registry"
-#   expect        "valid" | "invalid"
-#   scenario_ids  list of stable ACR-*/SCO-*/RBG-* ids (may be empty)
-#   evidence_id   e.g. TEST-<scenario> (for automated acceptance evidence)
-#   instance      pure JSON-compatible document under test
-# Any conformant draft 2020-12 implementation can execute this suite without the
-# Python validator. Cases are added in Phase 4 (US2).
-cases: []
+# Self-describing conformance suite (spec FR-019 / Q5). Each case declares its
+# target schema, expected result, class, and (for automated acceptance evidence)
+# stable scenario ids + evidence id. Any conformant draft 2020-12 implementation
+# can execute the suite from this one file without the Python validator.
+# Classes: valid | invalid | boundary | compatibility | unknown-field |
+#          unknown-authority | redaction | adversarial
+cases:
+  # ---------- AVC-01 session request ----------
+  - case_id: avc01-valid
+    target: avc-01-session-request.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      request_id: req-1
+      client: {client_id: c1, client_instance_id: ci1}
+      actor: {actor_id: a1}
+      workflow_purpose: {workflow_id: intake, purpose_id: avatar_session}
+      consent: {consent_record_ref: cr1, consent_version: 1, required_purpose_ids: [avatar.media_capture, avatar.provider_processing]}
+      requested_capabilities: [live_voice, captions]
+      interaction_mode: provider_vad
+      contract_major: 1
+  - case_id: avc01-unknown-field-in-closed-shape
+    target: avc-01-session-request.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: unknown-field
+    scenario_ids: []
+    instance:
+      request_id: req-1
+      client: {client_id: c1, client_instance_id: ci1}
+      actor: {actor_id: a1, bogus_extra: x}
+      workflow_purpose: {workflow_id: intake, purpose_id: avatar_session}
+      consent: {consent_record_ref: cr1, consent_version: 1, required_purpose_ids: [avatar.media_capture]}
+      requested_capabilities: [live_voice]
+      interaction_mode: provider_vad
+      contract_major: 1
+  - case_id: avc01-push-to-talk-refused
+    target: avc-01-session-request.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: adversarial
+    scenario_ids: [ACR-003-S08]
+    evidence_id: TEST-ACR-003-S08
+    instance:
+      request_id: req-1
+      client: {client_id: c1, client_instance_id: ci1}
+      actor: {actor_id: a1}
+      workflow_purpose: {workflow_id: intake, purpose_id: avatar_session}
+      consent: {consent_record_ref: cr1, consent_version: 1, required_purpose_ids: [avatar.media_capture]}
+      requested_capabilities: [live_voice]
+      interaction_mode: push_to_talk
+      contract_major: 1
+
+  # ---------- AVC-02 session result ----------
+  - case_id: avc02-grant-valid
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: [ACR-002-S01]
+    evidence_id: TEST-ACR-002-S01
+    instance:
+      request_id: req-1
+      result_kind: grant
+      grant_id: g1
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      sdp_offer_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+      control_channel: {wss_url: "wss://control.example", control_credential: "SENTINEL_CTRLCRED_00000000"}
+      heartbeat_interval_ms: 3000
+      lease_expires_at_ms: 10000
+      media_readiness_timeout_ms: 3000
+      media_authorization_state: pending
+      resolved_speech_gate: confirmation_before_action
+  - case_id: avc02-denial-valid
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      request_id: req-1
+      result_kind: denial
+      reason: consent_missing
+      retryable: false
+      fallback_modes: [text, human_handoff]
+      safe_message_key: msg.consent_missing
+  - case_id: avc02-denial-additive-field
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: compatibility
+    scenario_ids: [ACR-001-S01]
+    evidence_id: TEST-ACR-001-S01
+    instance:
+      request_id: req-1
+      result_kind: denial
+      reason: policy_denied
+      retryable: false
+      fallback_modes: [none]
+      future_optional_hint: "ignored additive field on the same major"
+  - case_id: avc02-denial-carries-secret
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: [ACR-002-S09]
+    evidence_id: TEST-ACR-002-S09
+    instance:
+      request_id: req-1
+      result_kind: denial
+      reason: identity_denied
+      retryable: false
+      fallback_modes: [text]
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+  - case_id: avc02-readiness-ceiling-exceeded
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: boundary
+    scenario_ids: [ACR-003-S06]
+    evidence_id: TEST-ACR-003-S06
+    instance:
+      request_id: req-1
+      result_kind: grant
+      grant_id: g1
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      sdp_offer_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+      control_channel: {wss_url: "wss://control.example", control_credential: "SENTINEL_CTRLCRED_00000000"}
+      heartbeat_interval_ms: 3000
+      lease_expires_at_ms: 10000
+      media_readiness_timeout_ms: 6000
+      media_authorization_state: pending
+  - case_id: avc02-lease-ceiling-exceeded
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: boundary
+    scenario_ids: [ACR-005-S02]
+    evidence_id: TEST-ACR-005-S02
+    instance:
+      request_id: req-1
+      result_kind: grant
+      grant_id: g1
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      sdp_offer_sha256: "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+      control_channel: {wss_url: "wss://control.example", control_credential: "SENTINEL_CTRLCRED_00000000"}
+      heartbeat_interval_ms: 6000
+      lease_expires_at_ms: 10000
+      media_authorization_state: pending
+  - case_id: avc02-speech-gate-weakened
+    target: avc-02-session-result.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: adversarial
+    scenario_ids: [ACR-008-S03]
+    evidence_id: TEST-ACR-008-S03
+    instance:
+      request_id: req-1
+      result_kind: grant
+      grant_id: g1
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      sdp_offer_sha256: "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+      control_channel: {wss_url: "wss://control.example", control_credential: "SENTINEL_CTRLCRED_00000000"}
+      heartbeat_interval_ms: 3000
+      lease_expires_at_ms: 10000
+      media_authorization_state: pending
+      resolved_speech_gate: permissive_open
+
+  # ---------- AVC-04 session event ----------
+  - case_id: avc04-authoritative-valid
+    target: avc-04-session-event.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      event_id: e1
+      sequence: 5
+      event_type: command_accepted
+      event_class: authoritative
+      producer: control_api
+  - case_id: avc04-observation-valid
+    target: avc-04-session-event.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      event_id: e2
+      sequence: 6
+      event_type: transcript_segment
+      event_class: observation
+      producer: provider
+  - case_id: avc04-unauthorized-producer
+    target: avc-04-session-event.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: unknown-authority
+    scenario_ids: [ACR-004-S06]
+    evidence_id: TEST-ACR-004-S06
+    instance:
+      event_id: e3
+      sequence: 7
+      event_type: workflow_result
+      event_class: authoritative
+      producer: client
+
+  # ---------- AVC-06 structured confirmation ----------
+  - case_id: avc06-valid
+    target: avc-06-structured-confirmation.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      confirmation_id: cf1
+      confirmation_version: 1
+      effect_summary: "Send referral to Dr. Smith"
+      risk_class: medium
+      issuing_state_revision: 12
+  - case_id: avc06-bad-risk-class
+    target: avc-06-structured-confirmation.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: invalid
+    scenario_ids: []
+    instance:
+      confirmation_id: cf1
+      confirmation_version: 1
+      effect_summary: "x"
+      risk_class: catastrophic
+      issuing_state_revision: 12
+
+  # ---------- AVC-07 retention profile ----------
+  - case_id: avc07-valid
+    target: avc-07-retention-profile.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      retention_class: structured_record
+      applies_to: confirmation_decisions
+      local_persistence: false
+  - case_id: avc07-reserved-class-refused
+    target: avc-07-retention-profile.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: invalid
+    scenario_ids: [ACR-010-S02]
+    evidence_id: TEST-ACR-010-S02
+    instance:
+      retention_class: full_transcript
+
+  # ---------- AVC-08 persona profile ----------
+  - case_id: avc08-valid
+    target: avc-08-persona-profile.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      persona_id: nurse_ally
+      disclosure: disclosure.avatar_v1
+      language: en
+      immutable_per_session: true
+      lifecycle: active
+  - case_id: avc08-missing-persona-id
+    target: avc-08-persona-profile.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: invalid
+    scenario_ids: []
+    instance:
+      disclosure: disclosure.avatar_v1
+
+  # ---------- AVC-11 session command ----------
+  - case_id: avc11-valid
+    target: avc-11-session-command.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      command_id: cmd-1
+      command_type: submit_confirmation_decision
+      logical_session_id: s1
+      session_epoch: 0
+      payload: {confirmation_id: cf1, confirmation_version: 1, decision: accept}
+  - case_id: avc11-unknown-command-vocab
+    target: avc-11-session-command.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: adversarial
+    scenario_ids: [ACR-001-S03]
+    evidence_id: TEST-ACR-001-S03
+    instance:
+      command_id: cmd-2
+      command_type: do_whatever_you_want
+      logical_session_id: s1
+      session_epoch: 0
+
+  # ---------- AVC-12 state snapshot ----------
+  - case_id: avc12-valid
+    target: avc-12-state-snapshot.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    instance:
+      logical_session_id: s1
+      last_event_sequence: 42
+      state_revision: 40
+      control_health: healthy
+      presentation_mode: conversation
+      session_outcome: granted
+  - case_id: avc12-missing-cursor
+    target: avc-12-state-snapshot.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: invalid
+    scenario_ids: []
+    instance:
+      logical_session_id: s1
+      state_revision: 40
+
+  # ---------- redaction / telemetry ----------
+  - case_id: telemetry-bounded-sentinel-ok
+    target: avc-04-session-event.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: redaction
+    scenario_ids: [ACR-011-S01]
+    evidence_id: TEST-ACR-011-S01
+    instance:
+      event_id: tlog-1
+      sequence: 1
+      event_type: transcript_segment
+      event_class: observation
+      producer: provider
+      payload:
+        redacted: true
+        # bounded sentinel only — a real credential/SDP here would fail the scan
+        example_token: "SENTINEL_BEARER_000000000000"

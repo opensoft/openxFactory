@@ -9,7 +9,7 @@ description: >-
   command_id; actor identity comes from authenticated context. No binding
   digest is required (spec FR-013).
 type: object
-additionalProperties: false
+# Open object for additive fields; risk_class vocabulary stays closed.
 properties:
   confirmation_id: {type: string, minLength: 1}
   confirmation_version: {type: integer, minimum: 0}

@@ -9,7 +9,7 @@ description: >-
   state-changing commands (spec FR-011/FR-012). presentation_mode is
   client-local and non-authoritative.
 type: object
-additionalProperties: false
+# Open object for additive fields; control_health/presentation vocab stays closed.
 properties:
   logical_session_id: {type: string, minLength: 1}
   last_event_sequence: {$ref: "shared-definitions.schema.yaml#/$defs/last_event_sequence"}

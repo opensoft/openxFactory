@@ -97,14 +97,14 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Independent Test**: `validate-avatar-client.py --strict` passes valid fixtures, rejects invalid/adversarial/redaction-violating ones, and fails on any unmapped/duplicated/renamed/evidence-free scenario (spec US2 Independent Test; SC-002/SC-003/SC-005/SC-008).
 
-- [ ] T027 [P] [US2] Realize `contracts/avatar-client/acceptance-map.yaml` from the supporting-docs map (17 requirements / 72 scenarios; ACR-*/SCO-*/RBG-*) per data-model §C / spec §FR-021
-- [ ] T028 [US2] Author self-describing valid + invalid + boundary fixture cases for every schema under `contracts/avatar-client/fixtures/` and register them in `fixtures/index.yaml` per spec §FR-019 / data-model §F — depends on T016, T017–T024
-- [ ] T029 [US2] Author compatibility + unknown-field + unknown-authority fixture cases (ACR-001-S01/S02/S03, event-producer misuse) and index them per spec §FR-008 — depends on T028
-- [ ] T030 [US2] Author redaction + adversarial fixture cases per schema and per owned scenario using ONLY bounded sentinels from `redaction/sentinels.yaml`, and index them — depends on T003, T028
-- [ ] T031 [US2] Author `contracts/avatar-client/evidence-register.yaml` resolving all 72 scenarios — automated→fixture id; manual→result+reviewer+disposition; live_f0/successor→owner_change+fail_closed_default — where the manual-recorded vs deferred(owner+fail-closed) split FOLLOWS the acceptance-map `owner_changes`/`evidence_types` (analyze A7) per spec §FR-032 / data-model §D — depends on T027
-- [ ] T032 [US2] Implement validator fixture execution (each case validated to its declared `expect`) + per-schema/per-scenario coverage check in `scripts/validate-avatar-client.py` — depends on T025, T028–T030
-- [ ] T033 [US2] Implement validator acceptance-map parity (17/72; unmapped/duplicate/renamed) + evidence-register completeness, legal status transitions, and referenced-artifact existence in `scripts/validate-avatar-client.py` — depends on T027, T031
-- [ ] T034 [US2] Populate `redaction/denylist-patterns.yaml` and implement validator dual redaction (structural confirmation + content scan with bounded-sentinel allowlist) in `scripts/validate-avatar-client.py` per spec §FR-018 / research §D4 — depends on T003, T032
+- [x] T027 [P] [US2] Realize `contracts/avatar-client/acceptance-map.yaml` from the supporting-docs map (17 requirements / 72 scenarios; ACR-*/SCO-*/RBG-*) per data-model §C / spec §FR-021
+- [x] T028 [US2] Author self-describing valid + invalid + boundary fixture cases for every schema under `contracts/avatar-client/fixtures/` and register them in `fixtures/index.yaml` per spec §FR-019 / data-model §F — depends on T016, T017–T024
+- [x] T029 [US2] Author compatibility + unknown-field + unknown-authority fixture cases (ACR-001-S01/S02/S03, event-producer misuse) and index them per spec §FR-008 — depends on T028
+- [x] T030 [US2] Author redaction + adversarial fixture cases per schema and per owned scenario using ONLY bounded sentinels from `redaction/sentinels.yaml`, and index them — depends on T003, T028
+- [x] T031 [US2] Author `contracts/avatar-client/evidence-register.yaml` resolving all 72 scenarios — automated→fixture id; manual→result+reviewer+disposition; live_f0/successor→owner_change+fail_closed_default — where the manual-recorded vs deferred(owner+fail-closed) split FOLLOWS the acceptance-map `owner_changes`/`evidence_types` (analyze A7) per spec §FR-032 / data-model §D — depends on T027
+- [x] T032 [US2] Implement validator fixture execution (each case validated to its declared `expect`) + per-schema/per-scenario coverage check in `scripts/validate-avatar-client.py` — depends on T025, T028–T030
+- [x] T033 [US2] Implement validator acceptance-map parity (17/72; unmapped/duplicate/renamed) + evidence-register completeness, legal status transitions, and referenced-artifact existence in `scripts/validate-avatar-client.py` — depends on T027, T031
+- [x] T034 [US2] Populate `redaction/denylist-patterns.yaml` and implement validator dual redaction (structural confirmation + content scan with bounded-sentinel allowlist) in `scripts/validate-avatar-client.py` per spec §FR-018 / research §D4 — depends on T003, T032
 
 **Checkpoint**: US2 independently testable — conformance + traceability + redaction all enforced by the validator.
 

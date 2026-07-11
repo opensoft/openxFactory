@@ -8,7 +8,7 @@ description: >-
   changing persona ends the session (spec FR-014). Schema + fixtures only — the
   concrete persona catalog is domain-owned (Q2).
 type: object
-additionalProperties: false
+# Open object for additive fields; lifecycle vocabulary stays closed.
 properties:
   persona_id: {type: string, minLength: 1}
   disclosure: {type: string, minLength: 1, description: "Display-safe disclosure text key/content"}

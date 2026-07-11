@@ -36,7 +36,9 @@ $defs:
     enum: [text, human_handoff, retry_later, upgrade_required, none]
   grant:
     type: object
-    additionalProperties: false
+    # Open object: additive optional fields on the same major are preserved
+    # (compatibility policy; ACR-001-S01). Closed VOCABULARY stays closed via
+    # enums. A grant legitimately carries an SDP answer + control credential.
     properties:
       request_id: {type: string, minLength: 1}
       result_kind: {const: grant}
@@ -61,6 +63,7 @@ $defs:
       lease_expires_at_ms: {type: integer, minimum: 0, maximum: 10000}
       media_readiness_timeout_ms: {type: integer, minimum: 1000, maximum: 5000}
       media_authorization_state: {$ref: "shared-definitions.schema.yaml#/$defs/media_authorization_state"}
+      resolved_speech_gate: {$ref: "shared-definitions.schema.yaml#/$defs/speech_gate"}
       initial_snapshot: {type: object}
     required:
       - request_id
@@ -77,7 +80,18 @@ $defs:
       - media_authorization_state
   non_grant:
     type: object
-    additionalProperties: false
+    # Open object for additive fields, BUT structurally incapable of carrying
+    # SDP, an SDP answer, or a credential (spec FR-007). The `not` forbids those
+    # exact keys regardless of additive evolution.
+    not:
+      anyOf:
+        - {required: [sdp]}
+        - {required: [sdp_offer]}
+        - {required: [sdp_answer]}
+        - {required: [control_credential]}
+        - {required: [provider_credential]}
+        - {required: [credential]}
+        - {required: [control_channel]}
     properties:
       request_id: {type: string, minLength: 1}
       result_kind: {enum: [denial, terminal]}

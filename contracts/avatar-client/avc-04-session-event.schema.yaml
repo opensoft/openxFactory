@@ -9,7 +9,7 @@ description: >-
   the broker, authority stub, or an accountable human may emit authoritative
   results; client/provider sources may emit only registered observations.
 type: object
-additionalProperties: false
+# Open object for additive fields; event_type vocabulary stays closed.
 $defs:
   event_type:
     type: string
@@ -39,3 +39,17 @@ required:
   - event_type
   - event_class
   - producer
+# Producer authority by class (spec FR-011; ACR-004-S06): only broker, the
+# control API, the authority stub, or an accountable human may emit
+# authoritative results; client/provider sources may emit only observations.
+allOf:
+  - if:
+      properties: {event_class: {const: authoritative}}
+      required: [event_class]
+    then:
+      properties: {producer: {enum: [broker, control_api, authority_stub, human]}}
+  - if:
+      properties: {event_class: {const: observation}}
+      required: [event_class]
+    then:
+      properties: {producer: {enum: [client, provider]}}

@@ -1,0 +1,357 @@
+schema_version: 1
+kind: avatar-client-evidence-register
+change_id: define-avatar-client-contract-kernel
+# A7: automated->fixture id or validator check; manual->recorded result +
+# reviewer + disposition; deferred->owner_change + fail_closed_default. The
+# split follows the acceptance-map owner_changes/evidence_types.
+entries:
+  - scenario_id: ACR-001-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-001-S01
+  - scenario_id: ACR-001-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "preflight fails before media/governed commands when the contract major is unsatisfiable"
+  - scenario_id: ACR-001-S03
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-001-S03
+  - scenario_id: ACR-002-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-002-S01
+  - scenario_id: ACR-002-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S06
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S07
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S08
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "broker denies with a credential-free AVC-02 and creates no second provider call"
+  - scenario_id: ACR-002-S09
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-002-S09
+  - scenario_id: ACR-003-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S06
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-003-S06
+  - scenario_id: ACR-003-S07
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-003-S08
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-003-S08
+  - scenario_id: ACR-003-S09
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "media stays disabled until authoritative media_authorized; the leg terminates on failure"
+  - scenario_id: ACR-004-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "unknown/gapped authoritative events halt consequential transitions; snapshot recovery required"
+  - scenario_id: ACR-004-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "unknown/gapped authoritative events halt consequential transitions; snapshot recovery required"
+  - scenario_id: ACR-004-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "unknown/gapped authoritative events halt consequential transitions; snapshot recovery required"
+  - scenario_id: ACR-004-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "unknown/gapped authoritative events halt consequential transitions; snapshot recovery required"
+  - scenario_id: ACR-004-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "unknown/gapped authoritative events halt consequential transitions; snapshot recovery required"
+  - scenario_id: ACR-004-S06
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-004-S06
+  - scenario_id: ACR-005-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "control loss immediately disables governed commands and stops capture/playback"
+  - scenario_id: ACR-005-S02
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-005-S02
+  - scenario_id: ACR-005-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "control loss immediately disables governed commands and stops capture/playback"
+  - scenario_id: ACR-005-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "control loss immediately disables governed commands and stops capture/playback"
+  - scenario_id: ACR-005-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "control loss immediately disables governed commands and stops capture/playback"
+  - scenario_id: ACR-006-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no external operation or authoritative transition without a valid AVC-06 decision"
+  - scenario_id: ACR-006-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no external operation or authoritative transition without a valid AVC-06 decision"
+  - scenario_id: ACR-006-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no external operation or authoritative transition without a valid AVC-06 decision"
+  - scenario_id: ACR-006-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no external operation or authoritative transition without a valid AVC-06 decision"
+  - scenario_id: ACR-007-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "live voice stays disabled with text/handoff fallback until a qualified profile exists"
+  - scenario_id: ACR-007-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "live voice stays disabled with text/handoff fallback until a qualified profile exists"
+  - scenario_id: ACR-007-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "live voice stays disabled with text/handoff fallback until a qualified profile exists"
+  - scenario_id: ACR-007-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "live voice stays disabled with text/handoff fallback until a qualified profile exists"
+  - scenario_id: ACR-008-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "capture/provider session blocked without valid consent; revocation terminates the media leg"
+  - scenario_id: ACR-008-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "capture/provider session blocked without valid consent; revocation terminates the media leg"
+  - scenario_id: ACR-008-S03
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-008-S03
+  - scenario_id: ACR-008-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "capture/provider session blocked without valid consent; revocation terminates the media leg"
+  - scenario_id: ACR-008-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "capture/provider session blocked without valid consent; revocation terminates the media leg"
+  - scenario_id: ACR-008-S06
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "capture/provider session blocked without valid consent; revocation terminates the media leg"
+  - scenario_id: ACR-009-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no local persistence; attachments reference-only; rehydration from server-owned state"
+  - scenario_id: ACR-009-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no local persistence; attachments reference-only; rehydration from server-owned state"
+  - scenario_id: ACR-009-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "no local persistence; attachments reference-only; rehydration from server-owned state"
+  - scenario_id: ACR-010-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "captions remain ephemeral; conflicting revision-guarded edits enter review mode"
+  - scenario_id: ACR-010-S02
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-010-S02
+  - scenario_id: ACR-010-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-reference-runtime
+    fail_closed_default: "captions remain ephemeral; conflicting revision-guarded edits enter review mode"
+  - scenario_id: ACR-011-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ACR-011-S01
+  - scenario_id: ACR-011-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "live pilot gate remains blocked without approved measured latency/recovery budgets"
+  - scenario_id: ACR-012-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "later ring blocked without prior-ring evidence; tag blocked without F0 PASS; kill switches enforced"
+  - scenario_id: ACR-012-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "later ring blocked without prior-ring evidence; tag blocked without F0 PASS; kill switches enforced"
+  - scenario_id: ACR-012-S03
+    evidence_type: automated
+    status: evidenced
+    check: acceptance_map_parity
+  - scenario_id: ACR-012-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-brokered-call-feasibility
+    fail_closed_default: "later ring blocked without prior-ring evidence; tag blocked without F0 PASS; kill switches enforced"
+  - scenario_id: RBG-001-S01
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending
+  - scenario_id: RBG-001-S02
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending
+  - scenario_id: RBG-002-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "client release-evidence obligations are enforced at the internal-live gate"
+  - scenario_id: RBG-002-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "client release-evidence obligations are enforced at the internal-live gate"
+  - scenario_id: RBG-002-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "client release-evidence obligations are enforced at the internal-live gate"
+  - scenario_id: RBG-003-S01
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending
+  - scenario_id: RBG-003-S02
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending
+  - scenario_id: SCO-001-S01
+    evidence_type: automated
+    status: evidenced
+    check: contract_location
+  - scenario_id: SCO-001-S02
+    evidence_type: automated
+    status: evidenced
+    check: release_identity
+  - scenario_id: SCO-001-S03
+    evidence_type: automated
+    status: evidenced
+    check: content_addressed_pin
+  - scenario_id: SCO-001-S04
+    evidence_type: automated
+    status: evidenced
+    check: fixture_conformance
+  - scenario_id: SCO-001-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: implement-avatar-client-lab
+    fail_closed_default: "a provider event stays in the owning adapter unless a reviewed neutral evolution justifies it"
+  - scenario_id: SCO-002-S01
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending
+  - scenario_id: SCO-002-S02
+    evidence_type: manual
+    status: planned
+    result: "pending US5 verification against the realized delta"
+    reviewer: unassigned
+    disposition: pending

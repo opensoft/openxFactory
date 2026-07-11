@@ -295,8 +295,8 @@ def run(strict: bool, require_realization: bool) -> int:
     # Fixture / acceptance / evidence / redaction / digest / F0-gate checks are
     # added in later phases; each guards on artifact presence so the validator
     # stays green at every phase checkpoint.
-    check_fixtures(f, registry, docs)
-    check_acceptance_and_evidence(f)
+    ev_ids = check_fixtures(f, registry, docs)
+    check_acceptance_and_evidence(f, ev_ids)
     check_redaction(f)
     check_digests(f)
     check_f0_gate(f, require_realization)
@@ -315,30 +315,160 @@ def run(strict: bool, require_realization: bool) -> int:
     return 0
 
 
-def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> None:
-    """US2 (T032): execute self-describing fixtures + coverage. No-op until authored."""
+ALL_CLASSES = {"valid", "invalid", "boundary", "compatibility",
+               "unknown-field", "unknown-authority", "redaction", "adversarial"}
+KNOWN_CHECKS = {"acceptance_map_parity", "contract_location", "release_identity",
+                "content_addressed_pin", "fixture_conformance"}
+EVID_TYPES = {"automated", "manual", "deferred"}
+
+
+def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
+    """US2 (T032): execute every self-describing fixture to its declared `expect`
+    and check per-schema + per-class coverage. Returns the set of fixture
+    evidence_ids for the evidence-register cross-check."""
+    evidence_ids: set[str] = set()
     index = AVC / "fixtures" / "index.yaml"
     if not index.is_file():
-        return
-    # Implemented in Phase 4 (US2).
+        return evidence_ids
+    idx = load_yaml(index)
+    cases = idx.get("cases") or []
+    schema_valid: dict[str, set[str]] = {}
+    classes_seen: set[str] = set()
+    case_ids: set[str] = set()
+    for c in cases:
+        cid = c.get("case_id")
+        if cid in case_ids:
+            f.error("fixture-dup", f"duplicate case_id {cid}")
+        case_ids.add(cid)
+        target, expect, klass = c.get("target"), c.get("expect"), c.get("class")
+        if klass not in ALL_CLASSES:
+            f.error("fixture-class", f"{cid}: unknown class {klass!r}")
+        classes_seen.add(klass)
+        if expect not in ("valid", "invalid"):
+            f.error("fixture-expect", f"{cid}: expect must be valid|invalid")
+            continue
+        sdoc = docs.get(target)
+        if sdoc is None:
+            f.error("fixture-target", f"{cid}: unknown target schema {target!r}")
+            continue
+        errs = list(Draft202012Validator(sdoc, registry=registry).iter_errors(c.get("instance")))
+        actual = "valid" if not errs else "invalid"
+        if actual != expect:
+            detail = errs[0].message[:120] if errs else ""
+            f.error("fixture", f"{cid}: expected {expect} but got {actual} {detail}")
+        else:
+            schema_valid.setdefault(target, set()).add(expect)
+        if c.get("evidence_id"):
+            evidence_ids.add(c["evidence_id"])
+    # per-schema coverage: every contract schema has >=1 valid and >=1 invalid
+    for fname in CONTRACT_FILES.values():
+        have = schema_valid.get(fname, set())
+        for need in ("valid", "invalid"):
+            if need not in have:
+                f.error("coverage-schema", f"{fname}: missing a passing {need} fixture case")
+    # per-class coverage across the suite
+    for klass in sorted(ALL_CLASSES - classes_seen):
+        f.error("coverage-class", f"no fixture case of class {klass}")
+    return evidence_ids
 
 
-def check_acceptance_and_evidence(f: Findings) -> None:
-    """US2 (T033): acceptance-map parity + evidence-register. No-op until authored."""
-    if not (AVC / "acceptance-map.yaml").is_file():
+def check_acceptance_and_evidence(f: Findings, fixture_evidence_ids: set[str]) -> None:
+    """US2 (T033): acceptance-map parity + evidence-register completeness, legal
+    status, and referenced-artifact existence (spec FR-020/FR-032; ACR-012-S03)."""
+    amap_path = AVC / "acceptance-map.yaml"
+    if not amap_path.is_file():
         return
-    # Implemented in Phase 4 (US2).
+    amap = load_yaml(amap_path)
+    reqs = amap.get("requirements") or []
+    scen_ids: list[str] = []
+    for r in reqs:
+        for s in r.get("scenarios") or []:
+            scen_ids.append(s["id"])
+    if len(reqs) != amap.get("expected_requirement_count"):
+        f.error("map-count", f"requirement count {len(reqs)} != expected {amap.get('expected_requirement_count')}")
+    if len(scen_ids) != amap.get("expected_scenario_count"):
+        f.error("map-count", f"scenario count {len(scen_ids)} != expected {amap.get('expected_scenario_count')}")
+    if len(scen_ids) != len(set(scen_ids)):
+        f.error("map-dup", "duplicate scenario ids in acceptance map")
+    map_set = set(scen_ids)
+
+    reg_path = AVC / "evidence-register.yaml"
+    if not reg_path.is_file():
+        f.error("evidence", "evidence-register.yaml missing")
+        return
+    reg = load_yaml(reg_path)
+    entries = reg.get("entries") or []
+    reg_ids = [e["scenario_id"] for e in entries]
+    reg_set = set(reg_ids)
+    for missing in sorted(map_set - reg_set):
+        f.error("evidence-missing", f"scenario {missing} has no evidence-register entry")
+    for extra in sorted(reg_set - map_set):
+        f.error("evidence-extra", f"evidence-register entry {extra} is not in the acceptance map")
+    if len(reg_ids) != len(reg_set):
+        f.error("evidence-dup", "duplicate scenario ids in evidence register")
+
+    valid_status = {"planned", "evidenced", "accepted", "deferred"}
+    for e in entries:
+        sid = e.get("scenario_id")
+        et = e.get("evidence_type")
+        st = e.get("status")
+        if et not in EVID_TYPES:
+            f.error("evidence-type", f"{sid}: unknown evidence_type {et!r}")
+        if st not in valid_status:
+            f.error("evidence-status", f"{sid}: illegal status {st!r}")
+        if et == "automated":
+            if e.get("evidence_id"):
+                if e["evidence_id"] not in fixture_evidence_ids:
+                    f.error("evidence-fixture", f"{sid}: evidence_id {e['evidence_id']} not found in fixtures index")
+            elif e.get("check"):
+                if e["check"] not in KNOWN_CHECKS:
+                    f.error("evidence-check", f"{sid}: unknown validator check {e['check']!r}")
+            else:
+                f.error("evidence-free", f"{sid}: automated entry has neither evidence_id nor check")
+        elif et == "manual":
+            for k in ("result", "reviewer", "disposition"):
+                if not e.get(k):
+                    f.error("evidence-manual", f"{sid}: manual entry missing {k}")
+        elif et == "deferred":
+            for k in ("owner_change", "fail_closed_default"):
+                if not e.get(k):
+                    f.error("evidence-deferred", f"{sid}: deferred entry missing {k}")
 
 
 def check_redaction(f: Findings) -> None:
-    """US2 (T034): dual redaction content scan. No-op until denylist populated."""
-    denylist = AVC / "redaction" / "denylist-patterns.yaml"
-    if not denylist.is_file():
+    """US2 (T034): dual redaction. Structural exclusion lives in the schemas; this
+    is the committed-content scan with a bounded-sentinel allowlist (spec FR-018)."""
+    denylist_path = AVC / "redaction" / "denylist-patterns.yaml"
+    sentinels_path = AVC / "redaction" / "sentinels.yaml"
+    if not denylist_path.is_file():
         return
-    doc = load_yaml(denylist)
-    if not (doc.get("patterns") or []):
+    patterns = (load_yaml(denylist_path).get("patterns") or [])
+    if not patterns:
         return
-    # Implemented in Phase 4 (US2).
+    sentinels = {s["bounded_form"] for s in (load_yaml(sentinels_path).get("sentinels") or [])}
+    # structural sanity: sentinels must be obviously-fake bounded forms
+    for s in (load_yaml(sentinels_path).get("sentinels") or []):
+        bf = s.get("bounded_form", "")
+        if not bf.startswith("SENTINEL_") or len(bf) > int(s.get("max_len", 0) or 0):
+            f.error("sentinel", f"sentinel {s.get('id')} is not a bounded SENTINEL_ form within max_len")
+    compiled = [(p["id"], re.compile(p["regex"])) for p in patterns]
+    for path in sorted(AVC.rglob("*")):
+        if not path.is_file():
+            continue
+        # The redaction/ config necessarily contains pattern fragments and the
+        # bounded-sentinel forms; excluding it avoids self-matching (it is
+        # validator config, not semantic contract content).
+        if "redaction" in path.relative_to(AVC).parts:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for pid, rx in compiled:
+            for m in rx.finditer(text):
+                if m.group(0) in sentinels:
+                    continue
+                f.error("redaction", f"{path.relative_to(ROOT)}: denylist pattern {pid} matched non-sentinel content: {m.group(0)[:40]!r}")
 
 
 def check_digests(f: Findings) -> None:

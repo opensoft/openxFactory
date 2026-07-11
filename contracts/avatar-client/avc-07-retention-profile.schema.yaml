@@ -9,7 +9,7 @@ description: >-
   transcription are RESERVED and forbidden in this kernel (spec FR-017;
   ACR-010-S02). Schema + fixtures only — no live retention instances (Q2).
 type: object
-additionalProperties: false
+# Open object for additive fields; retention_class vocabulary stays closed.
 $defs:
   retention_class:
     type: string

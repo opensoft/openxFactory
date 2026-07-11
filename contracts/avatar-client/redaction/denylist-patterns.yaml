@@ -1,7 +1,14 @@
 schema_version: 1
 kind: avatar-client-redaction-denylist
-# Content-scan denylist (spec FR-018 layer 2). Populated in T034; the validator
-# scans every committed file under contracts/avatar-client/ against these
-# patterns and fails on any match that is not an exact bounded sentinel
-# (redaction/sentinels.yaml). Patterns are authored in T034.
-patterns: []
+# Content-scan denylist (spec FR-018 layer 2). The validator scans every
+# committed file under contracts/avatar-client/ against these patterns; any match
+# that is not an EXACT bounded sentinel (redaction/sentinels.yaml) fails
+# validation (SC-008). Patterns target real secret/SDP markers only — they must
+# NOT match the SENTINEL_-prefixed bounded forms or the hex offer fingerprint.
+patterns:
+  - {id: provider_api_key, class: credential, regex: "sk-[A-Za-z0-9]{16,}"}
+  - {id: bearer_token, class: credential, regex: "(?i)bearer[ ]+[A-Za-z0-9._-]{16,}"}
+  - {id: private_key_block, class: credential, regex: "-----BEGIN [A-Z ]*PRIVATE KEY-----"}
+  - {id: sdp_version_line, class: sdp, regex: "(?im)^[ ]*v=0[ ]*$"}
+  - {id: sdp_candidate, class: sdp, regex: "(?i)a=candidate:"}
+  - {id: sdp_media_audio, class: sdp, regex: "(?im)^[ ]*m=audio[ ]"}
