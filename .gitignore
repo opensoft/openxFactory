@@ -4,3 +4,6 @@ __pycache__/
 # Session-local agent state (cta dashboard pane)
 .claude/dashboard.md
 .claude/speckit-history.md
+
+# Worktree-local Spec Kit feature pointer
+.specify/feature.json
