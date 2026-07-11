@@ -14,6 +14,54 @@ neutral consent purposes, canonical fixtures, an avatar-client validator, a
 stable acceptance map (ACR-*/SCO-*/RBG-* identifiers), and content-addressed
 release governance.
 
+## Clarifications
+
+### Session 2026-07-11
+
+- Q: Which files constitute the content-addressed released bundle? → A: The
+  digested, manifest-registered bundle is the full consumed set — the 8 schemas,
+  shared definitions, all closed registries, the consent-purpose registry, the
+  canonical fixtures, the acceptance map, the interface lock, and the
+  consolidated evidence/disposition register — each with its own SHA-256 digest;
+  `scripts/validate-avatar-client.py` ships at the release commit as reproducible
+  reference tooling, not a pinned semantic artifact.
+- Q: For AVC-07/AVC-08, ship schemas only or instances too? → A: Ship schema +
+  conformance fixtures only; no live persona/retention instances, extra examples,
+  or domain templates (domains own concrete persona and retention content).
+- Q: How is redaction / secret-exclusion enforced? → A: Both structural schema
+  exclusion (secret/SDP/raw-media fields structurally invalid where prohibited)
+  and a committed-content denylist scan over fixtures and evidence; synthetic
+  test sentinels MUST be explicitly bounded so they cannot become a bypass for
+  real secret patterns.
+- Q: What evidence artifact covers manual/live_f0/successor scenarios? → A: One
+  consolidated, content-addressed evidence/disposition register under
+  `contracts/avatar-client/` — automated scenarios name fixture evidence; manual
+  scenarios carry a recorded result plus reviewer/disposition fields; `live_f0`
+  and successor scenarios name the owning change and the fail-closed default that
+  remains active; the validator checks completeness, allowed status transitions,
+  and referenced-artifact existence.
+- Q: How is cross-language consumer conformance defined? → A: Through
+  language-neutral, self-describing fixtures — each declares its target
+  schema/registry, expected valid/invalid result, and stable scenario/evidence
+  ID — executable by any draft-2020-12 implementation; the Python validator is
+  the reference runner, not a required consumer dependency.
+- Q: Who owns the F0 evidence schemas the gate consumes? → A: The F0 sibling
+  `qualify-avatar-brokered-call-feasibility` owns and versions
+  `f0-results.schema.yaml` and `f0-interface-impact.schema.yaml`; the kernel
+  publication gate pins the exact F0 source commit and both schema digests,
+  validates the evidence instances against those pinned schemas, then reads
+  `PASS` / variance dispositions, and fails closed on a missing schema, digest
+  mismatch, validation failure, unknown status, or unknown variance field. The
+  kernel does not duplicate or co-own the F0 schemas.
+- Q: Is tag publication inside this feature's Definition of Done? → A: Two
+  completion states. The Speckit feature may reach "implementation complete,
+  publication pending F0" once all kernel artifacts and validators are merged and
+  green and the publication gate is enforced; the OpenSpec change stays active
+  and its publication/handoff tasks remain incomplete until F0 is `PASS`, all
+  variances are dispositioned, the annotated tag is published, and release
+  digests are recorded. The release is not called realized at the earlier
+  milestone.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -218,6 +266,16 @@ deferred to dedicated changes.
 - **Push-to-talk request**: a profile requesting push-to-talk fails preflight
   because the required provider events are outside the two-event client
   allowlist. *(traces ACR-003-S08)*
+- **Bounded test sentinel**: a synthetic secret/SDP sentinel used inside a
+  fixture must stay within its declared bounded form; a sentinel that widens into
+  a real credential/SDP pattern fails the content scan rather than bypassing it.
+- **Evidence register gap**: a manual scenario with no recorded result or a
+  disposition that skips an allowed status transition fails validation as
+  evidence-free.
+- **F0 evidence shape mismatch**: an `f0-results` or `f0-interface-impact`
+  instance that fails validation against the pinned F0 schema, or whose source
+  commit or schema digest does not match the pinned values, blocks the tag
+  (fail-closed) even if it claims `PASS`.
 
 ## Requirements *(mandatory)*
 
@@ -230,7 +288,10 @@ deferred to dedicated changes.
   discriminated session result, AVC-04 session event, AVC-06 structured
   confirmation, AVC-07 retention profile, AVC-08 persona profile, AVC-11 session
   command, and AVC-12 state snapshot — each declaring its contract identifier and
-  contract schema version.
+  contract schema version. For AVC-07 and AVC-08 the feature MUST ship the schema
+  plus conformance fixtures only and MUST NOT ship live persona/retention
+  instances, illustrative examples, or `.template.yaml` stubs, which remain
+  domain-owned. *(Q2)*
 - **FR-002**: The feature MUST absorb AVC-03 (capabilities inline on AVC-02
   grants) and AVC-05 (transcript segment as a registered AVC-04 event payload),
   and MUST keep AVC-09 and AVC-10 reserved with their identifiers never reused.
@@ -300,36 +361,67 @@ deferred to dedicated changes.
 - **FR-017**: The contracts MUST encode minimal retention classes with reserved,
   forbidden classes (full transcript, audio, video, independent transcription) and
   no local persistence of sensitive session data, traceable to ACR-010.
-- **FR-018**: The contracts and telemetry fixtures MUST encode redaction such that
-  any artifact containing a credential, SDP, raw transcript, raw media, or a
-  prohibited high-cardinality identifier fails validation, traceable to ACR-011.
+- **FR-018**: The feature MUST enforce redaction in two layers: (1) **structural**
+  — the schemas make a credential, SDP, raw transcript, raw media, or prohibited
+  high-cardinality identifier structurally invalid wherever prohibited, so a
+  secret-carrying artifact cannot validate; and (2) **content scan** — the
+  validator scans committed fixtures and evidence against a denylist of
+  credential, SDP, raw-payload, transcript/media, and prohibited
+  high-cardinality-identifier patterns. Synthetic test sentinels MUST be
+  explicitly bounded so they cannot become a bypass for real secret patterns.
+  *(traces ACR-011; Q3)*
 
 #### Conformance, fixtures, and traceability (traces ACR-012)
 
 - **FR-019**: The feature MUST provide canonical valid, invalid, boundary,
   compatibility, unknown-field, unknown-authority, redaction, and adversarial
   fixtures for every schema and for every ACR-*, SCO-*, and RBG-* scenario owned
-  by this change.
+  by this change. Fixtures MUST be language-neutral and self-describing — each
+  declaring its target schema or registry, its expected valid or invalid result,
+  and its stable scenario/evidence ID — so that any conformant JSON Schema draft
+  2020-12 implementation can execute them without additional coordination.
+  *(traces ACR-012; Q5)*
 - **FR-020**: The feature MUST provide `scripts/validate-avatar-client.py`, which
   validates schemas, cross-references, closed registries, fixtures, acceptance-map
-  parity, evidence presence, secret exclusion, and interface-lock consistency, and
+  parity, evidence-register completeness and status transitions, secret exclusion
+  (structural plus content scan per FR-018), and interface-lock consistency, and
   MUST fail on any missing, duplicate, renamed, or evidence-free normative
-  requirement or scenario. *(traces ACR-012-S03)*
+  requirement or scenario. The validator is the reference runner for the
+  self-describing fixtures; it is reproducible reference tooling and MUST NOT be a
+  required dependency for a consumer to prove conformance. *(traces ACR-012-S03;
+  Q4, Q5)*
 - **FR-021**: The feature MUST publish a complete acceptance map using stable
   ACR-*, SCO-*, and RBG-* identifiers, each naming its owning task, fixture or
   manual evidence ID, release ring, and status, covering every normative
   requirement and scenario across the three capability deltas. *(traces ACR-012)*
+- **FR-032**: The feature MUST publish one consolidated, content-addressed
+  evidence/disposition register under `contracts/avatar-client/` that resolves
+  every acceptance-map scenario to evidence: `automated` scenarios name their
+  fixture evidence; `manual` scenarios carry a recorded result plus
+  reviewer/disposition fields; and `live_f0` and successor scenarios name the
+  owning change plus the fail-closed default that remains active until that owner
+  lands. The validator MUST check the register for completeness, allowed status
+  transitions, and referenced-artifact existence, and MUST fail on a missing or
+  evidence-free entry. *(traces ACR-012; Q1, Q4)*
 
 #### Release governance and ownership (traces SCO-001, SCO-002)
 
 - **FR-022**: openxFactory MUST be ratified as the canonical owner of the AVC
   contract kernel; each published bundle MUST have one matching manifest version,
   changelog entry, annotated tag, exact release commit, and per-file digests, all
-  identifying the same realized bundle, or release validation fails. *(traces
-  SCO-001-S02)*
+  identifying the same realized bundle, or release validation fails. The digested,
+  manifest-registered bundle MUST comprise the full consumed set — the eight
+  schemas, the shared definitions, every closed registry, the consent-purpose
+  registry, the canonical fixtures, the acceptance map, the interface lock, and
+  the consolidated evidence/disposition register (FR-032) — with a per-file
+  SHA-256 digest on each entry; `scripts/validate-avatar-client.py` MUST ship at
+  the release commit as reproducible reference tooling but MUST NOT be a pinned
+  semantic artifact. *(traces SCO-001-S02; Q1)*
 - **FR-023**: Consumers MUST pin the exact openxFactory commit plus per-file
   digests and prove conformance by executing the canonical fixtures of the pinned
-  release; a tag-only pin MUST fail conformance. *(traces SCO-001-S03, SCO-001-S04)*
+  release with any conformant JSON Schema draft 2020-12 implementation; a tag-only
+  pin MUST fail conformance, and proving conformance MUST NOT require the kernel's
+  Python validator. *(traces SCO-001-S03, SCO-001-S04; Q5)*
 - **FR-024**: The contract bundle version MUST be allocated only at realization
   (next available minor after merge order is known), with `contracts/manifest.yaml`,
   `contracts/CHANGELOG.md`, and `contracts/README.md` updated atomically and the
@@ -369,6 +461,22 @@ deferred to dedicated changes.
   threat model MUST be accepted and the F0 protocol MUST produce passing
   machine-readable evidence for answer ordering, sideband-failure containment,
   readiness timing, and five-second hangup; F0 MUST NOT qualify a live model.
+- **FR-033**: The F0 evidence schemas `f0-results.schema.yaml` and
+  `f0-interface-impact.schema.yaml` are owned and versioned by the F0 sibling
+  `qualify-avatar-brokered-call-feasibility`; the kernel MUST NOT duplicate or
+  co-own them. The kernel publication gate MUST pin the exact F0 source commit and
+  both schema digests, validate the consumed evidence instances against those
+  pinned schemas before reading `PASS` or variance dispositions, and fail closed
+  on a missing schema, a digest mismatch, a validation failure, an unknown status,
+  or an unknown variance field. *(traces ACR-012-S02; Q6)*
+- **FR-034**: The feature MUST distinguish two completion states. It MAY reach
+  "implementation complete, publication pending F0" once all kernel artifacts and
+  validators are merged and green and the publication gate is enforced. It reaches
+  "realized" only when F0 is `PASS`, all variances are dispositioned, the
+  annotated tag is published, and the release digests are recorded; the OpenSpec
+  change MUST remain active — with its publication and handoff obligations
+  incomplete — and MUST NOT be treated as realized or archived at the earlier
+  milestone. *(traces ACR-012; Q7)*
 
 ### Key Entities
 
@@ -383,22 +491,36 @@ deferred to dedicated changes.
 - **Neutral consent-purpose registry**: the three ratified avatar consent
   purposes (`avatar.media_capture`, `avatar.provider_processing`,
   `avatar.structured_record`).
-- **Canonical fixtures**: valid, invalid, boundary, compatibility, unknown-field,
-  unknown-authority, redaction, and adversarial examples that consumers run to
-  prove conformance.
-- **Avatar-client validator**: `scripts/validate-avatar-client.py`, the schema,
-  fixture, registry, acceptance-map, secret-exclusion, and interface-lock checker.
+- **Canonical fixtures**: language-neutral, self-describing valid, invalid,
+  boundary, compatibility, unknown-field, unknown-authority, redaction, and
+  adversarial examples — each declaring its target schema/registry, expected
+  result, and stable scenario/evidence ID — that consumers run under any
+  draft-2020-12 implementation to prove conformance.
+- **Avatar-client validator**: `scripts/validate-avatar-client.py`, the reference
+  runner and checker for schemas, fixtures, registries, acceptance-map parity, the
+  evidence/disposition register, structural-plus-scan secret exclusion, and
+  interface-lock consistency; reproducible tooling, not a pinned artifact or a
+  required consumer dependency.
 - **Acceptance map**: the traceability spine keyed by stable ACR-*/SCO-*/RBG-*
   identifiers, linking each requirement and scenario to task, evidence, release
   ring, and status.
-- **Contract bundle release**: the coordinated release identity — manifest
-  version, changelog entry, annotated tag, exact commit, and per-file digests.
+- **Evidence/disposition register**: the consolidated, content-addressed record
+  under `contracts/avatar-client/` that resolves each acceptance-map scenario to
+  fixture evidence, a recorded manual result with reviewer/disposition, or a named
+  owning change plus fail-closed default; carries allowed status transitions the
+  validator enforces.
+- **Contract bundle release**: the coordinated, content-addressed release identity
+  — manifest version, changelog entry, annotated tag, exact commit, and per-file
+  digests over the full consumed set (schemas, shared definitions, registries,
+  consent-purpose registry, fixtures, acceptance map, interface lock, and evidence
+  register).
 - **Interface lock**: the frozen record of realized field/registry/ordering/
   timeout/lease/closed-default decisions for the `avatar-client-parallel-v1`
   baseline.
 - **F0 feasibility evidence** *(external dependency)*: the sibling
-  `qualify-avatar-brokered-call-feasibility` result consumed as the publication
-  gate.
+  `qualify-avatar-brokered-call-feasibility` result (`f0-results` and
+  `f0-interface-impact` instances) consumed as the publication gate, validated
+  against F0-owned schemas the kernel pins by commit and digest.
 
 ## Success Criteria *(mandatory)*
 
@@ -412,23 +534,35 @@ deferred to dedicated changes.
   redaction-violation fixtures.
 - **SC-003**: Every normative requirement and scenario across the three capability
   deltas (17 requirements and 72 scenarios) has exactly one acceptance-map entry
-  with an evidence identifier — 0 unmapped, duplicated, renamed, or evidence-free
-  entries.
+  and a resolving evidence/disposition-register entry (fixture evidence, recorded
+  manual result, or named owner plus fail-closed default) — 0 unmapped,
+  duplicated, renamed, or evidence-free entries.
 - **SC-004**: Every closed registry rejects 100% of unrecognized values; the
   session-result reason registry contains exactly 15 reasons and the
   consent-purpose registry exactly 3 purposes.
 - **SC-005**: 0 denial or terminal result fixtures that carry SDP, an SDP answer,
   or a credential pass validation.
 - **SC-006**: A released bundle's manifest version, changelog entry, annotated tag,
-  release commit, and per-file digests all identify the same realized bundle, and a
-  pin recorded as a tag alone fails conformance in 100% of checks.
+  release commit, and per-file digests all identify the same realized bundle, every
+  file in the full consumed set (schemas, shared definitions, registries,
+  consent-purpose registry, fixtures, acceptance map, interface lock, evidence
+  register) carries a per-file digest, and a pin recorded as a tag alone fails
+  conformance in 100% of checks.
 - **SC-007**: 0 bundle tags are published while F0 evidence is absent, `FAIL`, or
-  `INCONCLUSIVE`, or while any interface variance is undispositioned.
-- **SC-008**: 0 committed contract, fixture, or evidence files contain credentials,
-  raw provider payloads, SDP, or prohibited high-cardinality identifiers.
+  `INCONCLUSIVE`, any interface variance is undispositioned, or the F0 evidence
+  fails validation against the pinned F0 schema, source commit, or schema digest.
+- **SC-008**: 0 committed contract, fixture, or evidence files pass validation while
+  containing credentials, raw provider payloads, SDP, or prohibited
+  high-cardinality identifiers, whether via a prohibited field or an unbounded
+  synthetic sentinel that widens into a real secret pattern.
 - **SC-009**: A consumer pinned to the released kernel can validate its own models
   against the canonical fixtures using only the published commit and per-file
-  digests, with 0 additional coordination required.
+  digests and any conformant draft-2020-12 implementation, with 0 additional
+  coordination and without the kernel's Python validator.
+- **SC-010**: The publication gate fails closed in 100% of adverse F0 cases — a
+  missing pinned schema, digest mismatch, evidence-validation failure, unknown
+  status, or unknown variance field — and never treats the change as realized
+  before the annotated tag and release digests exist.
 
 ## Out of Scope
 
@@ -452,13 +586,23 @@ These belong to sibling and successor changes and MUST NOT be built here:
   change.
 - **Allocating a specific contract bundle version number** — allocated only at
   realization, not fixed by this specification.
+- **Concrete persona/retention profile instances, examples, and `.template.yaml`
+  stubs** for AVC-07/AVC-08 — domain-owned; the kernel ships only schemas and
+  conformance fixtures.
+- **Owning or duplicating the F0 evidence schemas** (`f0-results.schema.yaml`,
+  `f0-interface-impact.schema.yaml`) — owned/versioned by
+  `qualify-avatar-brokered-call-feasibility`; the kernel only pins and validates
+  against them.
 
 ## Dependencies
 
 - **F0 publication gate**: the annotated contract tag depends on
   `qualify-avatar-brokered-call-feasibility` producing `PASS` evidence and a
-  disposition for every reported interface variance. Concurrent kernel schema and
-  fixture implementation does not depend on F0 completion.
+  disposition for every reported interface variance. That sibling owns and versions
+  the `f0-results.schema.yaml` and `f0-interface-impact.schema.yaml` evidence
+  schemas; the kernel pins the exact F0 source commit and both schema digests and
+  validates evidence instances against them before honoring the gate. Concurrent
+  kernel schema and fixture implementation does not depend on F0 completion.
 - **Frozen interface baseline `avatar-client-parallel-v1`**: parallel work begins
   from this baseline (the reviewed `avatar-client-runtime` delta, the threat model,
   and the stable ACR-* identifiers); baseline corrections are made only in this
@@ -483,9 +627,16 @@ These belong to sibling and successor changes and MUST NOT be built here:
   acceptance map, and the release metadata for the kernel bundle.
 - The acceptance map's expected counts — 17 requirements and 72 scenarios — are the
   authoritative parity target for the validator.
-- Content-addressed pinning (exact commit plus per-file digests) is the sole
-  compatibility mechanism; annotated tags identify a release but do not replace the
-  pin.
+- Content-addressed pinning (exact commit plus per-file digests over the full
+  consumed set) is the sole compatibility mechanism; annotated tags identify a
+  release but do not replace the pin, and the Python validator is reference tooling
+  rather than a pinned artifact or a required consumer dependency.
+- Conformance is portable: fixtures are self-describing and executable by any
+  conformant JSON Schema draft 2020-12 implementation (including the Dart client),
+  so no consumer needs the kernel's Python toolchain to prove conformance.
+- The feature has two completion states; "implementation complete, publication
+  pending F0" is a valid terminal state for the Speckit implementation window,
+  while the OpenSpec change stays active until the tag and release digests exist.
 - The three integration files (`contracts/manifest.yaml`, `contracts/CHANGELOG.md`,
   `contracts/README.md`) are the only intentional shared-write surface for the
   kernel release; the UI sibling touches them only later in its own serialized
