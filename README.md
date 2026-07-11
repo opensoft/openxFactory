@@ -101,6 +101,8 @@ Core domain-neutral docs:
 - [Installation Template Catalog](templates/installation/README.md)
 - [xFactory Credential Access Model](docs/credential-access-model.md)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
+  ([profile examples](examples/avatar-first-ui/README.md) ·
+  [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
 - [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
