@@ -1,0 +1,84 @@
+# 002-owned schema for the F0 interface-impact evidence document.
+# Design artifact; the authoritative shipped copy lives at
+# experiments/avatar-brokered-call/schemas/f0-interface-impact.schema.yaml.
+# JSON-Schema-in-YAML uses $schema/$id (consistent with the registered
+# f0-results.schema.yaml); the EVIDENCE document it validates carries
+# schema_version + kind per constitution Principle IV.
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://openxfactory.local/schemas/avatar-f0-interface-impact.schema.json
+title: Avatar F0 Interface-Impact Report
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - change_id
+  - interface_baseline
+  - acceptance_map
+  - variances
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: avatar-f0-interface-impact
+  change_id:
+    const: qualify-avatar-brokered-call-feasibility
+  interface_baseline:
+    const: avatar-client-parallel-v1
+  acceptance_map:
+    type: object
+    additionalProperties: false
+    required: [source_path, source_commit, content_sha256]
+    properties:
+      source_path: {type: string, minLength: 1}
+      source_commit: {type: string, minLength: 1}
+      content_sha256: {type: string, pattern: "^[a-f0-9]{64}$"}
+  variances:
+    type: array
+    # MAY be empty on a clean pass; the document is always emitted.
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - affected_acr_ids
+        - observed_behavior
+        - evidence_refs
+        - severity
+        - proposed_correction
+        - continuation
+      properties:
+        id:
+          type: string
+          pattern: "^VAR-[0-9]{3}$"
+        affected_acr_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            # Concrete IDs from the digest-verified baseline map only; no placeholders.
+            type: string
+            pattern: "^ACR-[0-9]{3}$"
+        observed_behavior:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        evidence_refs:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            pattern: "^F0-[A-F]-([0-9]{2}|[A-Z0-9_-]+)$"
+        severity:
+          enum: [low, medium, high]
+        proposed_correction:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        continuation:
+          # Whether affected sibling work may continue behind a closed default.
+          enum: [continue_behind_closed_default, blocked_pending_disposition]
+        disposition:
+          # Left for the contract-kernel owner; absent until disposed.
+          type: string
+          maxLength: 2000
