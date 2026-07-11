@@ -1,0 +1,15 @@
+schema_version: 1
+kind: avatar-client-fixture-index
+# Machine-readable index of every self-describing fixture case (spec FR-019 / Q5;
+# research D2). Each case file under fixtures/<schema>/ is a
+# `avatar-client-fixture-case` document with fields:
+#   case_id       stable id (unique)
+#   target        schema/registry id the instance is validated against
+#   target_kind   "schema" | "registry"
+#   expect        "valid" | "invalid"
+#   scenario_ids  list of stable ACR-*/SCO-*/RBG-* ids (may be empty)
+#   evidence_id   e.g. TEST-<scenario> (for automated acceptance evidence)
+#   instance      pure JSON-compatible document under test
+# Any conformant draft 2020-12 implementation can execute this suite without the
+# Python validator. Cases are added in Phase 4 (US2).
+cases: []

@@ -1,0 +1,12 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: interaction-modes
+registry_version: 1
+# Neutral interaction modes. Parity-checked set-equal against the AVC-01
+# `interaction_mode` enum. `provider_vad` is the live mode (exact provider
+# turn-detection values stay in server-owned profiles). Push-to-talk is
+# deliberately EXCLUDED (requires provider events outside the two-event client
+# allowlist) and a request for it fails preflight (ACR-003-S08).
+members:
+  - {id: provider_vad, description: "Provider-managed voice activity detection"}
+  - {id: text_only, description: "Text-only interaction (no live voice)"}

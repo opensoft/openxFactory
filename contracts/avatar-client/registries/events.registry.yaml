@@ -1,0 +1,16 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: events
+registry_version: 1
+# Registered AVC-04 event types with producer + observation/authoritative
+# class. Parity-checked set-equal against the AVC-04 `event_type` enum.
+members:
+  - {id: media_authorized, class: authoritative, producer: broker, description: "Permits answer application + provider-bound audio"}
+  - {id: revocation, class: authoritative, producer: broker, description: "Lease/consent revocation"}
+  - {id: command_accepted, class: authoritative, producer: control_api, description: "Command accepted result"}
+  - {id: command_rejected, class: authoritative, producer: control_api, description: "Command rejected result"}
+  - {id: command_conflict, class: authoritative, producer: control_api, description: "Revision-guard conflict result"}
+  - {id: snapshot_delivered, class: authoritative, producer: control_api, description: "Recovery snapshot frame"}
+  - {id: transcript_segment, class: observation, producer: provider, description: "AVC-05 transcript-segment payload (ephemeral)"}
+  - {id: lifecycle_transition, class: authoritative, producer: broker, description: "Session lifecycle transition"}
+  - {id: workflow_result, class: authoritative, producer: authority_stub, description: "Workflow/approval/execution result"}

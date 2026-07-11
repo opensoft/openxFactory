@@ -1,0 +1,12 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: fallback-modes
+registry_version: 1
+# Approved AVC-02 fallback modes. Parity-checked set-equal against the AVC-02
+# `fallback` enum (spec FR-... denial/terminal fallback_modes).
+members:
+  - {id: text, description: "Fall back to text interaction"}
+  - {id: human_handoff, description: "Hand off to a human"}
+  - {id: retry_later, description: "Retry later (bounded)"}
+  - {id: upgrade_required, description: "Client/contract upgrade required"}
+  - {id: none, description: "No fallback available"}

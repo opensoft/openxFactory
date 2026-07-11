@@ -1,0 +1,7 @@
+schema_version: 1
+kind: avatar-client-redaction-denylist
+# Content-scan denylist (spec FR-018 layer 2). Populated in T034; the validator
+# scans every committed file under contracts/avatar-client/ against these
+# patterns and fails on any match that is not an exact bounded sentinel
+# (redaction/sentinels.yaml). Patterns are authored in T034.
+patterns: []

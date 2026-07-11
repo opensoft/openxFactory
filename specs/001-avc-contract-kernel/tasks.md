@@ -40,9 +40,9 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Purpose**: Directory scaffolding and validator/config skeletons.
 
-- [ ] T001 Create the `contracts/avatar-client/` tree (`registries/`, `fixtures/`, `redaction/`) per plan.md Project Structure
-- [ ] T002 [P] Create `scripts/validate-avatar-client.py` skeleton (`#!/usr/bin/env python3`, `from __future__ import annotations`, guarded `jsonschema`/`yaml` imports, `ROOT = Path(__file__).resolve().parents[1]`, `argparse --strict`, accumulate-then-report, exit codes 0/1/2) per research §D1
-- [ ] T003 [P] Scaffold `contracts/avatar-client/redaction/denylist-patterns.yaml` and `redaction/sentinels.yaml` (schema_version, kind, empty `patterns[]`/`sentinels[]`) per data-model §G
+- [x] T001 Create the `contracts/avatar-client/` tree (`registries/`, `fixtures/`, `redaction/`) per plan.md Project Structure
+- [x] T002 [P] Create `scripts/validate-avatar-client.py` skeleton (`#!/usr/bin/env python3`, `from __future__ import annotations`, guarded `jsonschema`/`yaml` imports, `ROOT = Path(__file__).resolve().parents[1]`, `argparse --strict`, accumulate-then-report, exit codes 0/1/2) per research §D1
+- [x] T003 [P] Scaffold `contracts/avatar-client/redaction/denylist-patterns.yaml` and `redaction/sentinels.yaml` (schema_version, kind, empty `patterns[]`/`sentinels[]`) per data-model §G
 
 ---
 
@@ -52,19 +52,19 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **⚠️ CRITICAL**: No user-story work can begin until this phase is complete.
 
-- [ ] T004 Author `contracts/avatar-client/shared-definitions.schema.yaml` with every `$defs` group (actor/client/subject, workflow purpose, consent ref/version/purpose IDs, trace, session epoch, media leg/attempt, server-derived offer fingerprint, state revision, last-event sequence, media authorization, session outcomes, retention class, redaction, retry-equivalence) per data-model §A / research §D8 / spec §FR-003
-- [ ] T005 Add the closed **speech-gate enum** (`confirmation_before_action` default, `streaming_monitor`, reserved `pre_speech_review`) to `contracts/avatar-client/shared-definitions.schema.yaml` and reference it from the relevant policy/speech fields — NOT a registry file (analyze A3) per spec §FR-015 / design Decision 11 — depends on T004 (same file)
-- [ ] T006 [P] Author `registries/session-result-reasons.registry.yaml` — exactly the 15 ratified reasons per data-model §B / spec §FR-004
-- [ ] T007 [P] Author `registries/events.registry.yaml` — types + producers + observation/authoritative class
-- [ ] T008 [P] Author `registries/commands.registry.yaml` — types + revision-guarded flag
-- [ ] T009 [P] Author `registries/retention-classes.registry.yaml` — ephemeral/telemetry/structured + reserved-forbidden classes
-- [ ] T010 [P] Author `registries/capabilities.registry.yaml` — logical capability ids
-- [ ] T011 [P] Author `registries/interaction-modes.registry.yaml` — includes `provider_vad`; excludes push-to-talk
-- [ ] T012 [P] Author `registries/session-outcomes.registry.yaml` — terminal/lifecycle outcomes
-- [ ] T013 [P] Author `registries/fallback-modes.registry.yaml` — text, human_handoff, retry_later, upgrade_required, none
-- [ ] T014 [P] Author `registries/consent-purposes.registry.yaml` — exactly the 3 neutral purposes per spec §FR-005/§FR-015
-- [ ] T015 Implement validator core harness in `scripts/validate-avatar-client.py` (artifact discovery, offline `$ref` store built from on-disk files, YAML loading, finding accumulation) — depends on T002, T004
-- [ ] T016 Define the fixture-case envelope + `fixtures/index.yaml` convention (fields: case_id, target, target_kind, expect, scenario_ids, evidence_id, instance) per research §D2 / data-model §F
+- [x] T004 Author `contracts/avatar-client/shared-definitions.schema.yaml` with every `$defs` group (actor/client/subject, workflow purpose, consent ref/version/purpose IDs, trace, session epoch, media leg/attempt, server-derived offer fingerprint, state revision, last-event sequence, media authorization, session outcomes, retention class, redaction, retry-equivalence) per data-model §A / research §D8 / spec §FR-003
+- [x] T005 Add the closed **speech-gate enum** (`confirmation_before_action` default, `streaming_monitor`, reserved `pre_speech_review`) to `contracts/avatar-client/shared-definitions.schema.yaml` and reference it from the relevant policy/speech fields — NOT a registry file (analyze A3) per spec §FR-015 / design Decision 11 — depends on T004 (same file)
+- [x] T006 [P] Author `registries/session-result-reasons.registry.yaml` — exactly the 15 ratified reasons per data-model §B / spec §FR-004
+- [x] T007 [P] Author `registries/events.registry.yaml` — types + producers + observation/authoritative class
+- [x] T008 [P] Author `registries/commands.registry.yaml` — types + revision-guarded flag
+- [x] T009 [P] Author `registries/retention-classes.registry.yaml` — ephemeral/telemetry/structured + reserved-forbidden classes
+- [x] T010 [P] Author `registries/capabilities.registry.yaml` — logical capability ids
+- [x] T011 [P] Author `registries/interaction-modes.registry.yaml` — includes `provider_vad`; excludes push-to-talk
+- [x] T012 [P] Author `registries/session-outcomes.registry.yaml` — terminal/lifecycle outcomes
+- [x] T013 [P] Author `registries/fallback-modes.registry.yaml` — text, human_handoff, retry_later, upgrade_required, none
+- [x] T014 [P] Author `registries/consent-purposes.registry.yaml` — exactly the 3 neutral purposes per spec §FR-005/§FR-015
+- [x] T015 Implement validator core harness in `scripts/validate-avatar-client.py` (artifact discovery, offline `$ref` store built from on-disk files, YAML loading, finding accumulation) — depends on T002, T004
+- [x] T016 Define the fixture-case envelope + `fixtures/index.yaml` convention (fields: case_id, target, target_kind, expect, scenario_ids, evidence_id, instance) per research §D2 / data-model §F
 
 **Checkpoint**: Foundation ready — user stories can proceed (in parallel if staffed).
 

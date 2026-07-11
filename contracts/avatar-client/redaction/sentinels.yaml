@@ -1,0 +1,25 @@
+schema_version: 1
+kind: avatar-client-redaction-sentinels
+# Bounded synthetic sentinels (analyze A3 / spec FR-018 Q3). Adversarial and
+# redaction fixtures MUST use ONLY these exact bounded forms to represent a
+# "secret present" case. Each sentinel is an obviously-fake, fixed-length token
+# with the reserved SENTINEL_ prefix so it can never collide with, or widen
+# into, a real credential/SDP pattern. The content scan permits these exact
+# strings and flags anything else that matches a real secret pattern.
+sentinels:
+  - id: fake_bearer_token
+    bounded_form: "SENTINEL_BEARER_000000000000"
+    max_len: 28
+    represents: credential
+  - id: fake_provider_key
+    bounded_form: "SENTINEL_PROVKEY_0000000000"
+    max_len: 26
+    represents: credential
+  - id: fake_sdp_answer
+    bounded_form: "SENTINEL_SDP_ANSWER_000000"
+    max_len: 25
+    represents: sdp
+  - id: fake_control_credential
+    bounded_form: "SENTINEL_CTRLCRED_00000000"
+    max_len: 26
+    represents: credential

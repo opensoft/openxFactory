@@ -1,0 +1,17 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: retention-classes
+registry_version: 1
+# Active retention classes are `members` (parity-checked set-equal against the
+# AVC-07 `retention_class` enum). Reserved classes are FORBIDDEN in this kernel
+# and are listed separately so the schema enum stays exactly the 3 active ones
+# (spec FR-017; ACR-010-S02).
+members:
+  - {id: ephemeral_presentation, description: "Captions, partial transcript deltas — expire with the session"}
+  - {id: operational_telemetry, description: "Redacted telemetry under its policy"}
+  - {id: structured_record, description: "Confirmation decisions, consent versions, approvals, tool/workflow outcomes"}
+reserved:
+  - {id: full_transcript, description: "FORBIDDEN in this kernel; successor change only"}
+  - {id: audio, description: "FORBIDDEN in this kernel; successor change only"}
+  - {id: video, description: "FORBIDDEN in this kernel; successor change only"}
+  - {id: independent_transcription, description: "FORBIDDEN in this kernel; successor change only"}
