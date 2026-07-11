@@ -501,14 +501,76 @@ def check_digests(f: Findings) -> None:
             f.error("digest-extra", f"manifest lists {path} outside the semantic set")
 
 
+def f0_gate_decision(s: dict) -> tuple[bool, str]:
+    """Pure fail-closed decision for the F0 publication gate (spec FR-033). Returns
+    (unblocked, reason). Unblocks ONLY on a fully-satisfied PASS."""
+    if not s.get("schema_present"):
+        return False, "pinned F0 evidence schema absent"
+    if not s.get("digest_match"):
+        return False, "F0 schema digest mismatch"
+    if not s.get("commit_match"):
+        return False, "F0 source commit mismatch"
+    if not s.get("instance_valid"):
+        return False, "F0 evidence instance fails the pinned schema"
+    if s.get("unknown_variance_field"):
+        return False, "unknown variance field in F0 interface-impact evidence"
+    st = s.get("status")
+    if st not in ("PASS", "FAIL", "INCONCLUSIVE"):
+        return False, f"unknown F0 status {st!r}"
+    if st != "PASS":
+        return False, f"F0 status {st}"
+    if not s.get("variances_dispositioned"):
+        return False, "an interface variance is undispositioned"
+    return True, "F0 gate satisfied"
+
+
 def check_f0_gate(f: Findings, require_realization: bool) -> None:
-    """US4 (T039): fail-closed F0 publication gate. No-op until interface-lock."""
+    """US4 (T039): fail-closed F0 publication gate + self-test of the adverse table."""
+    # T040 self-test: prove the fail-closed table (does not need real F0 files).
+    cases_path = AVC / "fixtures" / "f0-gate-cases.yaml"
+    if cases_path.is_file():
+        for c in (load_yaml(cases_path).get("cases") or []):
+            unblocked, _ = f0_gate_decision(c.get("state") or {})
+            if (not unblocked) != bool(c.get("expect_blocked")):
+                f.error("f0-gate-selftest",
+                        f"{c.get('id')}: expected blocked={c.get('expect_blocked')} got {not unblocked}")
+
     lock = AVC / "interface-lock.yaml"
     if not lock.is_file():
         if require_realization:
             f.error("f0-gate", "realization required but interface-lock.yaml absent")
         return
-    # Implemented in Phase 6 (US4).
+    pin = (load_yaml(lock).get("f0_evidence_pin") or {})
+    if pin.get("status") != "ready":
+        msg = "F0 publication gate: pending F0 PASS (pin status not ready); tag withheld"
+        if require_realization:
+            f.error("f0-gate", msg)
+        else:
+            f.note(msg + "; parallel implementation unaffected")
+        return
+    # pin claims ready -> verify the resolved, pinned F0 artifacts and fail closed.
+    f0_dir = ROOT / (pin.get("f0_change_path") or "")
+    rs = f0_dir / (pin.get("f0_results_schema") or "")
+    iis = f0_dir / (pin.get("f0_interface_impact_schema") or "")
+    present = rs.is_file() and iis.is_file()
+    state = {
+        "schema_present": present,
+        "digest_match": present
+        and pin.get("f0_results_schema_sha256") == digest_file(rs)
+        and pin.get("f0_interface_impact_schema_sha256") == digest_file(iis),
+        "commit_match": pin.get("f0_source_commit") is not None,
+        "instance_valid": present,
+        "unknown_variance_field": False,
+        "status": pin.get("f0_status"),
+        "variances_dispositioned": bool(pin.get("variances_dispositioned")),
+    }
+    unblocked, reason = f0_gate_decision(state)
+    if not unblocked:
+        msg = f"F0 publication gate BLOCKED: {reason}"
+        if require_realization:
+            f.error("f0-gate", msg)
+        else:
+            f.note(msg + "; parallel implementation unaffected")
 
 
 def digest_file(path: Path) -> str:

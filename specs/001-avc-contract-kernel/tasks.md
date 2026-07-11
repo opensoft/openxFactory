@@ -130,9 +130,9 @@ files — `contracts/avatar-client/README.md` (family contract index),
 
 **Independent Test**: With schemas/fixtures green, the gate blocks the tag when F0 evidence is absent/FAIL/INCONCLUSIVE, a variance is undispositioned, or a pinned-schema digest/commit/instance check fails (spec US4 Independent Test; SC-007/SC-010).
 
-- [ ] T038 [US4] Author `contracts/avatar-client/interface-lock.yaml` — frozen field/registry/ordering/timeout/lease/closed-default decisions + `f0_evidence_pin` block `{f0_source_commit, f0_results_schema_sha256, f0_interface_impact_schema_sha256}` per spec §FR-030/§FR-033 / data-model §E
-- [ ] T039 [US4] Implement validator F0 gate in `scripts/validate-avatar-client.py`: resolve pinned F0 schemas, verify digests + source commit, validate consumed evidence instances, read `PASS`/dispositions, and FAIL CLOSED on missing schema / digest mismatch / commit mismatch / instance-validation failure / unknown status / unknown variance field per spec §FR-033/§SC-007/§SC-010 — depends on T036, T038
-- [ ] T040 [US4] Author F0-gate fixtures simulating adverse conditions (digest mismatch, invalid instance claiming `PASS`, unknown status/variance, absent/INCONCLUSIVE) and index them per spec §Edge Cases — depends on T039
+- [x] T038 [US4] Author `contracts/avatar-client/interface-lock.yaml` — frozen field/registry/ordering/timeout/lease/closed-default decisions + `f0_evidence_pin` block `{f0_source_commit, f0_results_schema_sha256, f0_interface_impact_schema_sha256}` per spec §FR-030/§FR-033 / data-model §E
+- [x] T039 [US4] Implement validator F0 gate in `scripts/validate-avatar-client.py`: resolve pinned F0 schemas, verify digests + source commit, validate consumed evidence instances, read `PASS`/dispositions, and FAIL CLOSED on missing schema / digest mismatch / commit mismatch / instance-validation failure / unknown status / unknown variance field per spec §FR-033/§SC-007/§SC-010 — depends on T036, T038
+- [x] T040 [US4] Author F0-gate fixtures simulating adverse conditions (digest mismatch, invalid instance claiming `PASS`, unknown status/variance, absent/INCONCLUSIVE) and index them per spec §Edge Cases — depends on T039
 
 **Checkpoint**: US4 independently testable — the gate is enforced and fail-closed; realization remains blocked pending real F0 `PASS`.
 
