@@ -110,10 +110,10 @@ different file.)
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Update `docs/avatar-first-ui-standard.md` runtime section: define the four authoritative axes (session lifecycle, control health, media state, workflow projection) vs client-local `conversation|work|review` presentation modes, and mode-change context preservation + AVC-12 reconciliation per spec §FR-001/§FR-002
-- [ ] T022 [US2] Update `docs/avatar-first-ui-standard.md` Hermes-layer + controls + media sections: layer defaults and override attributes; required controls and missing-control fallback; media-authorization/held-answer; AVC-02 denial/terminal rendering; control-loss vs media-loss per spec §FR-003/§FR-004/§FR-007/§FR-008/§FR-009
-- [ ] T023 [US2] Update `docs/avatar-first-ui-standard.md` persona/disclosure, safe-rendering, workflow-boundary, and accessibility-evidence-boundary sections: persona reference-only + disclosure duties; untrusted-content rules; client/web-console split + handoff URL constraints; declarable a11y vs later platform qualification per spec §FR-005/§FR-006/§FR-010/§FR-011/§FR-012
-- [ ] T024 [US2] Review `docs/avatar-first-ui-standard.md` to confirm each of the eight `AFU-*` behaviors names a single owner (Hermes layer / runtime axis / kernel registry / named successor) with deferred items carrying a closed default per spec §SC-005/§US2
+- [X] T021 [P] [US2] Update `docs/avatar-first-ui-standard.md` runtime section: define the four authoritative axes (session lifecycle, control health, media state, workflow projection) vs client-local `conversation|work|review` presentation modes, and mode-change context preservation + AVC-12 reconciliation per spec §FR-001/§FR-002
+- [X] T022 [US2] Update `docs/avatar-first-ui-standard.md` Hermes-layer + controls + media sections: layer defaults and override attributes; required controls and missing-control fallback; media-authorization/held-answer; AVC-02 denial/terminal rendering; control-loss vs media-loss per spec §FR-003/§FR-004/§FR-007/§FR-008/§FR-009
+- [X] T023 [US2] Update `docs/avatar-first-ui-standard.md` persona/disclosure, safe-rendering, workflow-boundary, and accessibility-evidence-boundary sections: persona reference-only + disclosure duties; untrusted-content rules; client/web-console split + handoff URL constraints; declarable a11y vs later platform qualification per spec §FR-005/§FR-006/§FR-010/§FR-011/§FR-012
+- [X] T024 [US2] Review `docs/avatar-first-ui-standard.md` to confirm each of the eight `AFU-*` behaviors names a single owner (Hermes layer / runtime axis / kernel registry / named successor) with deferred items carrying a closed default per spec §SC-005/§US2
 
 **Checkpoint**: The standard is precise and owner-complete, independent of the schema.
 
