@@ -55,7 +55,7 @@ qualification.
 - [x] T014 Implement brokered call creation + call-ID registry in `experiments/avatar-brokered-call/src/avatar_f0/broker.py` (register call ID before next step) — depends on T008
 - [x] T015 Implement the WebRTC media peer + held-answer gate in `experiments/avatar-brokered-call/src/avatar_f0/media.py` (FR-007; answer withheld until authorized) — depends on T012, T013
 - [x] T016 [P] Implement the bounded cleanup registry/routine in `experiments/avatar-brokered-call/src/avatar_f0/cleanup.py` (FR-005; terminate every known call ID)
-- [ ] T017 Implement the CLI entrypoint skeleton (config → run → evidence wiring, exit codes) in `experiments/avatar-brokered-call/src/avatar_f0/cli.py` — depends on T009
+- [x] T017 Implement the CLI entrypoint skeleton (config → run → evidence wiring, exit codes) in `experiments/avatar-brokered-call/src/avatar_f0/cli.py` — depends on T009
 
 **Checkpoint**: Substrate ready — user-story phases can begin.
 
@@ -73,20 +73,20 @@ prior answer, and an interruption terminates every known call ID.
 
 ### Tests for User Story 1
 
-- [ ] T018 [P] [US1] Offline test — baseline ordering invariant (`sideband_verified ≤ answer_released ≤ lease_ack ≤ media_authorized ≤ answer_applied ≤ first_input_sent`) in `experiments/avatar-brokered-call/tests/offline/test_baseline_ordering.py` (US1-S1/FR-008/SC-001)
-- [ ] T019 [P] [US1] Offline test — sideband-failure authorizes no media, applies no answer, terminates call in `experiments/avatar-brokered-call/tests/offline/test_sideband_failure.py` (US1-S3/FR-009/SC-004)
-- [ ] T020 [P] [US1] Offline test — exact-retry at-most-one call; changed-retry no prior-answer disclosure and no second call in `experiments/avatar-brokered-call/tests/offline/test_retry.py` (US1-S4/S5/FR-010/SC-006)
-- [ ] T021 [P] [US1] Offline test — interrupted run terminates every known call ID and records outcome in `experiments/avatar-brokered-call/tests/offline/test_interrupt_cleanup.py` (US1-S6)
+- [x] T018 [P] [US1] Offline test — baseline ordering invariant (`sideband_verified ≤ answer_released ≤ lease_ack ≤ media_authorized ≤ answer_applied ≤ first_input_sent`) in `experiments/avatar-brokered-call/tests/offline/test_baseline_ordering.py` (US1-S1/FR-008/SC-001)
+- [x] T019 [P] [US1] Offline test — sideband-failure authorizes no media, applies no answer, terminates call in `experiments/avatar-brokered-call/tests/offline/test_sideband_failure.py` (US1-S3/FR-009/SC-004)
+- [x] T020 [P] [US1] Offline test — exact-retry at-most-one call; changed-retry no prior-answer disclosure and no second call in `experiments/avatar-brokered-call/tests/offline/test_retry.py` (US1-S4/S5/FR-010/SC-006)
+- [x] T021 [P] [US1] Offline test — interrupted run terminates every known call ID and records outcome in `experiments/avatar-brokered-call/tests/offline/test_interrupt_cleanup.py` (US1-S6)
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Implement the shared trial-runner scaffold + deterministic `F0-<A–F>-NN` IDs and the per-group run-count orchestration (F0-A=20; F0-B–F0-F=10; 70 total) in `experiments/avatar-brokered-call/src/avatar_f0/trials/base.py` (FR-006) — depends on T015, T012, T016
-- [ ] T023 [P] [US1] Implement the F0-A baseline runner (held answer, ordered authorization, single call) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0a_baseline.py` (FR-006/FR-008)
-- [ ] T024 [P] [US1] Implement the F0-B delayed-sideband runner (injected delay within deadline) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0b_delayed.py`
-- [ ] T025 [P] [US1] Implement the F0-C sideband-failure runner (no media, terminate; hosts the readiness-timeout path used by US4) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0c_sideband_failure.py`
-- [ ] T026 [P] [US1] Implement the F0-E exact-retry runner in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0e_exact_retry.py`
-- [ ] T027 [P] [US1] Implement the F0-F changed-retry runner in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0f_changed_retry.py`
-- [ ] T028 [US1] Implement ordering / retry / no-media assertions + the cross-cutting interrupted-run cleanup assertion in `experiments/avatar-brokered-call/src/avatar_f0/assertions.py` (FR-006/FR-008/FR-009/FR-010) — depends on T023–T027
+- [x] T022 [US1] Implement the shared trial-runner scaffold + deterministic `F0-<A–F>-NN` IDs and the per-group run-count orchestration (F0-A=20; F0-B–F0-F=10; 70 total) in `experiments/avatar-brokered-call/src/avatar_f0/trials/base.py` (FR-006) — depends on T015, T012, T016
+- [x] T023 [P] [US1] Implement the F0-A baseline runner (held answer, ordered authorization, single call) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0a_baseline.py` (FR-006/FR-008)
+- [x] T024 [P] [US1] Implement the F0-B delayed-sideband runner (injected delay within deadline) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0b_delayed.py`
+- [x] T025 [P] [US1] Implement the F0-C sideband-failure runner (no media, terminate; hosts the readiness-timeout path used by US4) in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0c_sideband_failure.py`
+- [x] T026 [P] [US1] Implement the F0-E exact-retry runner in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0e_exact_retry.py`
+- [x] T027 [P] [US1] Implement the F0-F changed-retry runner in `experiments/avatar-brokered-call/src/avatar_f0/trials/f0f_changed_retry.py`
+- [x] T028 [US1] Implement ordering / retry / no-media assertions + the cross-cutting interrupted-run cleanup assertion in `experiments/avatar-brokered-call/src/avatar_f0/assertions.py` (FR-006/FR-008/FR-009/FR-010) — depends on T023–T027
 
 **Checkpoint**: US1 trial matrix runs and asserts offline against a provider double.
 
