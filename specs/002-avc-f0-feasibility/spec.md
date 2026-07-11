@@ -13,6 +13,18 @@ authorizes media, and terminated within the required bound; and that records whe
 the provider differs from the frozen `avatar-client-parallel-v1` baseline. The result
 gates contract-kernel publication but is explicitly **not** a live-use qualification.
 
+## Clarifications
+
+### Session 2026-07-11
+
+- Q: Does 002's Definition of Done require a live terminal `PASS`, or is the harness plus offline tests plus whatever terminal status a live attempt yields sufficient? → A: 002's implementation deliverable is complete when the full harness, offline self-tests, redaction tests, and a schema-valid terminal evidence record are committed; with no lab key the record is `INCONCLUSIVE` and no provider call is attempted or fabricated. A live `PASS` is not required for completion, and completion is never represented as provider qualification.
+- Q: What credential source(s) constitute a valid run, and what is the exact contract? → A: `OPENAI_API_KEY` in the process environment is the runtime contract (CI or an approved secret store may inject it); a gitignored local `.env` may only populate that variable and is never read as a result artifact, copied, printed, or committed; keys supplied via CLI arguments, tracked `.env` files, config files, or evidence files are rejected.
+- Q: How does F0 obtain the concrete `ACR-*` IDs the interface-impact report must cite? → A: F0 reads the versioned `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` from the `avatar-client-parallel-v1` baseline, records its source commit and digest, and cites concrete `ACR-*` IDs directly; if that map is absent or its expected digest/baseline identity does not match, the run is `INCONCLUSIVE` and F0 mints no placeholder IDs; the contract-kernel owner still owns variance disposition.
+- Q: How do the named readiness-timeout, interrupted-run, and cleanup conditions map onto the six schema groups? → A: The six registered groups (F0-A…F0-F) and the 70-trial total are authoritative; readiness-timeout is an assertion/path exercised within F0-C, and interrupted-run and bounded cleanup are cross-cutting assertions exercised across all groups, not additional groups.
+- Q: Where does the harness write the three evidence files, and which location is committed? → A: Harness code writes only under `experiments/avatar-brokered-call/`; committed run evidence is written directly and atomically under `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/`; no second evidence copy is kept. Those are the only writable locations.
+- Q: Is "xFactory control readiness / lease-ack" a real external control-plane dependency or an in-harness stub? → A: An in-harness simulated control/lease authorization stub that models lease-ack and media-authorization ordering only; it has no Hermes or external control-plane dependency and is not reusable production broker code.
+- Q: What are the audio fixture requirements — canonical reuse or generated per revision? → A: One deterministic synthetic speech-plus-silence fixture is generated per harness revision, with enough detectable speech and trailing silence to trigger the pinned `server_vad` profile and elicit a response; generator parameters and the generated-byte digest are pinned in run metadata; no binary audio is committed and no real-user recording is used.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -108,10 +120,10 @@ termination as separate evidence.
 full PASS, but the ordering correctness measured in User Story 1 is the prerequisite
 observation; timing layers measurable ceilings on top of it. (Traces ABF-003.)
 
-**Independent Test**: Run the readiness-timeout and revocation/provider-hangup trials and
-inspect the recorded monotonic offsets against the selected deadline and the five-second
-termination bound, with revocation-request, hangup-request, and terminal-observation
-offsets recorded separately.
+**Independent Test**: Run the F0-C readiness-timeout path and the F0-D revocation/
+provider-hangup trials and inspect the recorded monotonic offsets against the selected
+deadline and the five-second termination bound, with revocation-request, hangup-request,
+and terminal-observation offsets recorded separately.
 
 **Acceptance Scenarios**:
 
@@ -147,6 +159,8 @@ confirm release validation rejects the promotion.
 ### Edge Cases
 
 - **Provider unavailable or API shape differs** before a call can be tested → the run is INCONCLUSIVE, never an inferred PASS or FAIL.
+- **Acceptance-map source missing or digest/baseline mismatch** → the run is INCONCLUSIVE; F0 never mints placeholder `ACR-*` IDs to proceed.
+- **No lab credential present** → no provider call is attempted; the run completes as INCONCLUSIVE with no fabricated artifacts, and this still satisfies feature completion.
 - **Redaction failure detected** in any output (logs, traces, crash output, or evidence files) → the run is FAIL and commit is prevented.
 - **Weak or absent termination confirmation** → request-accepted and termination-observed are kept as separate fields; the stronger assertion is required where the provider exposes a terminal signal, and missing confirmation is never treated as success.
 - **Network jitter obscuring thresholds** → multiple trials and raw monotonic durations are recorded rather than a single sample, and protected payloads are never stored.
@@ -160,16 +174,16 @@ confirm release validation rejects the promotion.
 
 **Environment and safety (ABF-001)**
 
-- **FR-001**: The harness MUST execute only against a dedicated lab provider project using an externally supplied credential loaded from environment or approved secret storage (never from command arguments or result files), generated audio, disabled tools, and no tenant data.
-- **FR-002**: The harness MUST use an immutable per-run candidate profile identified by a digest covering harness revision, dependency-lock digest, model, voice, turn settings, timeout settings, and generated-audio fixture digest.
-- **FR-003**: Preflight MUST reject the run before any provider call when the configuration contains tenant identifiers, tenant content, enabled tools, credentials in arguments, a readiness value above 5,000 milliseconds, or any non-lab or unpinned profile.
+- **FR-001**: The harness MUST execute only against a dedicated lab provider project, using generated audio, disabled tools, and no tenant data. The provider credential MUST be read only from the `OPENAI_API_KEY` process environment variable (which CI or an approved secret store MAY inject, and which a gitignored local `.env` MAY populate); the credential MUST NEVER be read from command arguments, tracked `.env` files, config files, or result files, and MUST NEVER be copied into, printed to, or committed with any evidence artifact.
+- **FR-002**: The harness MUST use an immutable per-run candidate profile identified by a digest covering harness revision, dependency-lock digest, model, voice, turn settings, timeout settings, and generated-audio fixture digest. The generated-audio fixture MUST be one deterministic synthetic speech-plus-silence clip generated per harness revision — with enough detectable speech and trailing silence to trigger the pinned `server_vad` profile and elicit a response — and both its generator parameters and its generated-byte digest MUST be pinned in run metadata; no binary audio is committed and no real-user recording is used.
+- **FR-003**: Preflight MUST reject the run before any provider call when the configuration contains tenant identifiers, tenant content, enabled tools, a credential supplied via command arguments or a tracked `.env`/config/evidence file, a readiness value above 5,000 milliseconds, or any non-lab or unpinned profile.
 - **FR-004**: When the candidate is unavailable or its API shape prevents a mandatory trial from starting, the run MUST report INCONCLUSIVE and MUST NOT infer provider behavior.
 - **FR-005**: The harness MUST terminate every known provider call during cleanup and MUST NOT create a standing service or reusable production broker.
 
 **Trial matrix and ordering (ABF-002)**
 
-- **FR-006**: F0 MUST execute the complete trial matrix — baseline, delayed-sideband, sideband-failure, readiness-timeout, exact-retry, changed-retry, revocation, interrupted-run, and cleanup trials — as the registered six trial groups (F0-A baseline 20 trials; F0-B, F0-C, F0-D, F0-E, F0-F 10 trials each; 70 trials total).
-- **FR-007**: The harness MUST hold the provider answer until both sideband verification and xFactory control readiness complete, and MUST record provider call creation, sideband readiness, media authorization, answer application, and first media as separate observations.
+- **FR-006**: F0 MUST execute exactly the six registered trial groups totalling 70 trials — F0-A baseline (20), F0-B delayed-sideband (10), F0-C sideband-failure (10), F0-D revocation (10), F0-E exact-retry (10), F0-F changed-retry (10); this group set and total are authoritative. Readiness-timeout MUST be exercised as an assertion/path within F0-C (sideband held until the timeout path), and interrupted-run and bounded cleanup MUST be cross-cutting assertions exercised across all groups — none of these three is a separate trial group.
+- **FR-007**: The harness MUST hold the provider answer until both sideband verification and xFactory control readiness complete, and MUST record provider call creation, sideband readiness, media authorization, answer application, and first media as separate observations. "xFactory control readiness / lease-ack" MUST be an in-harness simulated control/lease authorization stub that models the media-authorization ordering only — it MUST NOT depend on Hermes or any external control-plane and MUST NOT be reusable production broker code.
 - **FR-008**: In the baseline and delayed-sideband trials, media authorization MUST occur only after both control channels are verified and before answer application or first media.
 - **FR-009**: On sideband failure the harness MUST authorize no media, apply no answer, and terminate the provider call.
 - **FR-010**: For an exact retry (same request and offer identity) evidence MUST show at most one provider call and an equivalent unconsumed result; for a changed retry (reused request ID with a changed offer fingerprint or non-volatile field) the prior answer MUST NOT be disclosed and no second provider call may be created under that request ID.
@@ -183,10 +197,10 @@ confirm release validation rejects the promotion.
 
 **Evidence, redaction, and handoff (ABF-004)**
 
-- **FR-015**: Each run MUST emit schema-valid machine-readable results (`evidence/f0-results.json`), a human-readable summary (`evidence/f0-results.md`), and an interface-impact document (`evidence/f0-interface-impact.yaml`); the results MUST validate against the registered result schema and include the SHA-256 of the human-readable report.
+- **FR-015**: Each run MUST emit schema-valid machine-readable results, a human-readable summary, and an interface-impact document, written directly and atomically under `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/` as `f0-results.json`, `f0-results.md`, and `f0-interface-impact.yaml`; no second copy of the evidence is kept. The results MUST validate against the registered result schema and include the SHA-256 of the human-readable report.
 - **FR-016**: The overall result MUST be classified as PASS only when every mandatory trial ran and every required assertion passed; FAIL when a mandatory trial produced a contrary, reproducible observation; and INCONCLUSIVE when a mandatory trial could not run or lacked sufficient evidence.
 - **FR-017**: Committed evidence — and all logs, traces, and crash output — MUST exclude credentials, SDP, raw provider payloads, raw media/audio, transcript content, arbitrary or high-cardinality subject identifiers, and unbounded strings; a redaction failure MUST make the run FAIL and prevent commit.
-- **FR-018**: The interface-impact document MUST be emitted on every run (with an empty variance list on a clean pass); every variance MUST name the affected `ACR-*` IDs, observed provider behavior, evidence references, severity, proposed contract correction, and whether sibling work can continue behind a closed default, and MUST be left for the contract-kernel owner to dispose.
+- **FR-018**: The interface-impact document MUST be emitted on every run (with an empty variance list on a clean pass); every variance MUST name the affected `ACR-*` IDs, observed provider behavior, evidence references, severity, proposed contract correction, and whether sibling work can continue behind a closed default, and MUST be left for the contract-kernel owner to dispose. F0 MUST source the concrete `ACR-*` IDs by reading the versioned `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` from the `avatar-client-parallel-v1` baseline and MUST record that map's source commit and content digest in the evidence. If the map is absent or its expected digest/baseline identity does not match, the run MUST be `INCONCLUSIVE`; F0 MUST NOT mint placeholder `ACR-*` IDs.
 
 **Non-qualification boundary (ABF-005)**
 
@@ -195,7 +209,7 @@ confirm release validation rejects the promotion.
 
 **Scope isolation**
 
-- **FR-021**: The harness and all its code MUST live under `experiments/avatar-brokered-call/` and MUST NOT modify canonical contracts (`contracts/avatar-client/`), release metadata, reference-runtime, UI, DomainxFactory, or deployment files; it MUST NOT import reusable runtime code.
+- **FR-021**: The harness and all its code MUST live under `experiments/avatar-brokered-call/`, and committed run evidence MUST live under `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/`; these are the only two locations the run may write. The harness MUST NOT modify canonical contracts (`contracts/avatar-client/`), release metadata, reference-runtime, UI, DomainxFactory, or deployment files, and MUST NOT import reusable runtime code.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -227,9 +241,10 @@ confirm release validation rejects the promotion.
 - **SC-007**: The redaction scan reports zero prohibited-content findings across evidence, logs, traces, and crash output on every committed run.
 - **SC-008**: `f0-results.json` validates against the registered result schema with zero errors, and the overall status is exactly one of PASS, FAIL, or INCONCLUSIVE per the classification rules (PASS requires every mandatory trial and assertion to pass).
 - **SC-009**: 100% of preflight runs configured with tenant data, enabled tools, a non-lab or unpinned profile, credentials in arguments, or a readiness value above 5,000 milliseconds are rejected before any provider call is created.
-- **SC-010**: The interface-impact document is emitted on 100% of runs (empty variance list on a clean pass), and every recorded variance names at least one affected `ACR-*` ID.
-- **SC-011**: Zero files outside `experiments/avatar-brokered-call/` and the change's `evidence/` directory are modified by an F0 run — no canonical contract, release metadata, reference-runtime, UI, DomainxFactory, or deployment file changes.
+- **SC-010**: The interface-impact document is emitted on 100% of runs (empty variance list on a clean pass), and every recorded variance names at least one affected `ACR-*` ID drawn from the digest-verified `avatar-client-acceptance-map.yaml`; zero placeholder or unsourced `ACR-*` IDs appear in committed evidence.
+- **SC-011**: Zero files outside `experiments/avatar-brokered-call/` and `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/` are modified by an F0 run — no canonical contract, release metadata, reference-runtime, UI, DomainxFactory, or deployment file changes.
 - **SC-012**: Zero live rings are enabled from F0 evidence alone; any attempt to enable internal-live or production media using only F0 evidence is rejected pending `qualify-avatar-live-voice`.
+- **SC-013**: Feature 002's implementation deliverable is complete once the harness, offline self-tests, redaction tests, and a schema-valid terminal evidence record are committed; when no lab key is available that record is `INCONCLUSIVE` with zero provider calls attempted and zero fabricated artifacts. A live `PASS` is not required for feature completion, and completion is never represented as provider qualification.
 
 ## Assumptions
 
@@ -237,18 +252,19 @@ confirm release validation rejects the promotion.
 - Provider-create acceptance is the timing origin (t=0) for all monotonic offsets; wall-clock timestamps are coarse run metadata only.
 - The readiness default is 3,000 ms with a 5,000 ms hard ceiling; the revocation termination bound is 5,000 ms; the first-playable-after-authorization architecture threshold is a p95 of 2,000 ms (not a production SLA).
 - The registered trial matrix comprises six groups totalling 70 trials (F0-A = 20; F0-B–F0-F = 10 each); a full PASS requires every mandatory trial and assertion to pass.
-- The lab OpenAI project credential is supplied through the environment; when it is absent no live call is attempted and the run is INCONCLUSIVE (the current recorded execution state), with no fabricated artifacts.
-- Evidence artifacts are written under the change's `evidence/` directory and are publishable by construction via an allowlist that rejects prohibited content before writing.
-- The harness may use an internal probe envelope corresponding to the provisional `avatar-client-parallel-v1` baseline but does not publish that envelope as a contract.
+- The lab OpenAI project credential is supplied only via the `OPENAI_API_KEY` process environment variable (optionally populated by a gitignored local `.env`, or injected by CI or an approved secret store); when it is absent no live call is attempted and the run is INCONCLUSIVE (the current recorded execution state), with no fabricated artifacts — and this still counts as feature completion.
+- Evidence artifacts are written directly and atomically under `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/` (the single authoritative location, no second copy) and are publishable by construction via an allowlist that rejects prohibited content before writing.
+- The harness models "xFactory control readiness / lease-ack" with an in-harness simulated control/lease authorization stub (no Hermes or external control-plane), and may use an internal probe envelope corresponding to the provisional `avatar-client-parallel-v1` baseline without publishing that envelope as a contract.
 - Maintained WebRTC and WebSocket libraries are used rather than a hand-rolled media stack, with a pinned runtime and dependency lock; the specific library choices are implementation decisions deferred to planning.
 
 ## Dependencies
 
 - **Frozen interface baseline**: `avatar-client-parallel-v1` (the provisional AVC envelope) — F0 observes against it and records variances; it does not modify it.
-- **Lab provider access**: an externally supplied lab OpenAI project key/credential and a dedicated provider project, loaded from environment or approved secret storage only.
-- **Generated audio fixture**: a synthetic phrase-and-silence fixture; never a real user recording.
+- **Lab provider access**: an externally supplied lab OpenAI project and a dedicated provider project; the credential is read only from the `OPENAI_API_KEY` process environment variable (optionally populated by a gitignored local `.env`, or injected by CI/an approved secret store), never from arguments or committed files.
+- **Generated audio fixture**: one deterministic synthetic speech-plus-silence clip generated per harness revision (generator parameters and byte digest pinned in run metadata); never a committed binary and never a real user recording.
+- **`ACR-*` acceptance-map source**: the versioned `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` from the `avatar-client-parallel-v1` baseline, read by digest; the interface-impact report cites its concrete `ACR-*` IDs, and a missing or mismatched map forces an INCONCLUSIVE run.
 - **Registered protocol and schema**: `f0-brokered-call-spike-protocol.md` (trial matrix, instrumentation, pass/escalation rules) and `f0-results.schema.yaml` (result-record schema) in the change's `supporting-docs/`.
-- **Contract-kernel owner**: consumes the result and interface-impact report at publication and disposes every variance; the F0 result gates that kernel's publication but F0 cannot edit the kernel.
+- **Contract-kernel owner**: consumes the result and interface-impact report at publication and disposes every variance (including any change to the cited `ACR-*` IDs); the F0 result gates that kernel's publication but F0 cannot edit the kernel.
 - **Successor change**: `qualify-avatar-live-voice` owns live-profile promotion, production topology, and formal latency budgets — out of scope here.
 
 ## Out of Scope

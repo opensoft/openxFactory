@@ -31,9 +31,14 @@
 
 ## Notes
 
+- Clarification session 2026-07-11: 7 material ambiguities resolved and encoded into the
+  `## Clarifications` section and the affected requirements (Q1→SC-013 DoD; Q2→FR-001/FR-003
+  credential contract; Q3→FR-018/SC-010 ACR sourcing; Q4→FR-006 group mapping; Q5→FR-015/
+  FR-021/SC-011 evidence paths; Q6→FR-007 control stub; Q7→FR-002 fixture). All 16 checklist
+  items remain passing (16/16 → 16/16; no regressions).
 - Traceability: User Stories 1–5 map 1:1 to OpenSpec requirements ABF-002, ABF-001,
   ABF-004, ABF-003, ABF-005 respectively; FR-001…FR-021 are grouped by ABF requirement;
-  SC-001…SC-012 are verifiable from the committed evidence record.
+  SC-001…SC-013 are verifiable from the committed evidence record.
 - Timing/ordering bounds (3,000 ms default, 5,000 ms hard ceiling, 5,000 ms revocation,
   2,000 ms first-playable p95) are stated as measurable success criteria because they are
   part of WHAT the experiment must establish, not implementation detail. Provider/library
