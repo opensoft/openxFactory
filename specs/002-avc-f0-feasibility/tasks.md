@@ -30,12 +30,12 @@ qualification.
 
 **Purpose**: Project initialization and pinned, reproducible tooling.
 
-- [ ] T001 Create the project tree (`src/avatar_f0/`, `src/avatar_f0/trials/`, `tests/offline/`, `tests/live/`, `schemas/`) under `experiments/avatar-brokered-call/` per plan.md
-- [ ] T002 Add `experiments/avatar-brokered-call/.python-version` (3.12) and `pyproject.toml` declaring aiortc, websockets, httpx, jsonschema, PyYAML, and the pinned offline TTS engine
-- [ ] T003 [P] Generate `experiments/avatar-brokered-call/requirements.lock` with hashes (its digest feeds the candidate-profile `dependency_lock_sha256`)
-- [ ] T004 [P] Configure pytest + lint/format settings in `experiments/avatar-brokered-call/pyproject.toml`
-- [ ] T005 [P] Place `experiments/avatar-brokered-call/schemas/f0-results.schema.yaml` byte-identical to the registered supporting-docs copy
-- [ ] T006 [P] Author `experiments/avatar-brokered-call/schemas/f0-interface-impact.schema.yaml` from `contracts/f0-interface-impact.schema.yaml` (carries `schema_version` + `kind`)
+- [x] T001 Create the project tree (`src/avatar_f0/`, `src/avatar_f0/trials/`, `tests/offline/`, `tests/live/`, `schemas/`) under `experiments/avatar-brokered-call/` per plan.md
+- [x] T002 Add `experiments/avatar-brokered-call/.python-version` (3.12) and `pyproject.toml` declaring aiortc, websockets, httpx, jsonschema, PyYAML, and the pinned offline TTS engine
+- [x] T003 [P] Generate `experiments/avatar-brokered-call/requirements.lock` with hashes (its digest feeds the candidate-profile `dependency_lock_sha256`)
+- [x] T004 [P] Configure pytest + lint/format settings in `experiments/avatar-brokered-call/pyproject.toml`
+- [x] T005 [P] Place `experiments/avatar-brokered-call/schemas/f0-results.schema.yaml` byte-identical to the registered supporting-docs copy
+- [x] T006 [P] Author `experiments/avatar-brokered-call/schemas/f0-interface-impact.schema.yaml` from `contracts/f0-interface-impact.schema.yaml` (carries `schema_version` + `kind`)
 
 ---
 
@@ -45,16 +45,16 @@ qualification.
 
 **⚠️ CRITICAL**: No user-story phase can complete until this phase is done.
 
-- [ ] T007 [P] Implement the monotonic clock + marker recorder in `experiments/avatar-brokered-call/src/avatar_f0/clock.py` (FR-011; t=0 at provider-create acceptance)
-- [ ] T008 [P] Implement the env-only `OPENAI_API_KEY` credential loader in `experiments/avatar-brokered-call/src/avatar_f0/credential.py` (FR-001; reject non-env sources; never log/print)
-- [ ] T009 [P] Implement the `RunConfig` model (fields per data-model.md) in `experiments/avatar-brokered-call/src/avatar_f0/config.py`
-- [ ] T010 [P] Implement the immutable candidate profile + `profile_digest` in `experiments/avatar-brokered-call/src/avatar_f0/candidate.py` (FR-002)
-- [ ] T011 [P] Implement the deterministic audio-fixture generator + byte digest in `experiments/avatar-brokered-call/src/avatar_f0/fixture.py` (FR-002/Q7; no committed binary) — implementation note: pin the specific offline TTS engine + voice + version and fold it into the candidate `profile_digest`
-- [ ] T012 [P] Implement the in-harness simulated control/lease stub in `experiments/avatar-brokered-call/src/avatar_f0/control_stub.py` (FR-007/Q6; no Hermes/external control-plane)
-- [ ] T013 [P] Implement the sideband WSS client in `experiments/avatar-brokered-call/src/avatar_f0/sideband.py` (open vs verified markers)
-- [ ] T014 Implement brokered call creation + call-ID registry in `experiments/avatar-brokered-call/src/avatar_f0/broker.py` (register call ID before next step) — depends on T008
-- [ ] T015 Implement the WebRTC media peer + held-answer gate in `experiments/avatar-brokered-call/src/avatar_f0/media.py` (FR-007; answer withheld until authorized) — depends on T012, T013
-- [ ] T016 [P] Implement the bounded cleanup registry/routine in `experiments/avatar-brokered-call/src/avatar_f0/cleanup.py` (FR-005; terminate every known call ID)
+- [x] T007 [P] Implement the monotonic clock + marker recorder in `experiments/avatar-brokered-call/src/avatar_f0/clock.py` (FR-011; t=0 at provider-create acceptance)
+- [x] T008 [P] Implement the env-only `OPENAI_API_KEY` credential loader in `experiments/avatar-brokered-call/src/avatar_f0/credential.py` (FR-001; reject non-env sources; never log/print)
+- [x] T009 [P] Implement the `RunConfig` model (fields per data-model.md) in `experiments/avatar-brokered-call/src/avatar_f0/config.py`
+- [x] T010 [P] Implement the immutable candidate profile + `profile_digest` in `experiments/avatar-brokered-call/src/avatar_f0/candidate.py` (FR-002)
+- [x] T011 [P] Implement the deterministic audio-fixture generator + byte digest in `experiments/avatar-brokered-call/src/avatar_f0/fixture.py` (FR-002/Q7; no committed binary) — implementation note: pin the specific offline TTS engine + voice + version and fold it into the candidate `profile_digest`
+- [x] T012 [P] Implement the in-harness simulated control/lease stub in `experiments/avatar-brokered-call/src/avatar_f0/control_stub.py` (FR-007/Q6; no Hermes/external control-plane)
+- [x] T013 [P] Implement the sideband WSS client in `experiments/avatar-brokered-call/src/avatar_f0/sideband.py` (open vs verified markers)
+- [x] T014 Implement brokered call creation + call-ID registry in `experiments/avatar-brokered-call/src/avatar_f0/broker.py` (register call ID before next step) — depends on T008
+- [x] T015 Implement the WebRTC media peer + held-answer gate in `experiments/avatar-brokered-call/src/avatar_f0/media.py` (FR-007; answer withheld until authorized) — depends on T012, T013
+- [x] T016 [P] Implement the bounded cleanup registry/routine in `experiments/avatar-brokered-call/src/avatar_f0/cleanup.py` (FR-005; terminate every known call ID)
 - [ ] T017 Implement the CLI entrypoint skeleton (config → run → evidence wiring, exit codes) in `experiments/avatar-brokered-call/src/avatar_f0/cli.py` — depends on T009
 
 **Checkpoint**: Substrate ready — user-story phases can begin.

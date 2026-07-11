@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "avatar-f0"
+version = "0.1.0"
+description = "Disposable F0 feasibility harness for OpenAI brokered WebRTC calls (openxFactory experiment; not for live use)"
+requires-python = "==3.12.*"
+# Direct dependencies. Exact transitive versions are pinned in requirements.lock,
+# whose content SHA-256 feeds the candidate profile's dependency_lock digest (FR-002).
+dependencies = [
+    "aiortc==1.9.0",     # WebRTC peer + audio track + data channel (live media path only)
+    "websockets==12.0",  # sideband WSS control (live path only)
+    "httpx==0.27.2",     # brokered /v1/realtime/calls creation (live path only)
+    "jsonschema==4.23.0",# Draft 2020-12 evidence validation (offline + live)
+    "PyYAML==6.0.2",     # config / acceptance-map / YAML evidence (offline + live)
+]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.3"]
+
+[project.scripts]
+avatar-f0 = "avatar_f0.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests/offline"]
+# The live suite is opt-in and gated on OPENAI_API_KEY; it is not collected by default.
+addopts = "-q"
+markers = [
+    "live: exercises the real provider; requires OPENAI_API_KEY (skipped otherwise)",
+]

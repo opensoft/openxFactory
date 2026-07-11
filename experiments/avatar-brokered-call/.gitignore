@@ -1,0 +1,20 @@
+# Local virtualenv — never commit (per track instruction)
+.venv/
+# Python caches / editable-install + build artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+*.egg-link
+build/
+dist/
+# Generated audio fixtures — never commit binary audio (Q7/FR-002)
+*.wav
+*.pcm
+*.raw
+*.opus
+# Local credential material — never commit (FR-001)
+.env
+# Local run scratch
+*.log
