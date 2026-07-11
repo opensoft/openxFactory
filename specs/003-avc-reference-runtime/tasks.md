@@ -69,38 +69,38 @@ protocol tests pass identically across repeats and reorders with in-memory ports
 
 ### Runtime modules for User Story 1
 
-- [ ] T013 [P] [US1] Implement `LogicalSession` state machine (epoch, ≤1 instance, ≤1 pending/connected leg, fresh-resume replacement) in `xfactory/avatar_runtime/session.py` (FR-011/FR-015/FR-017)
-- [ ] T014 [P] [US1] Implement `MediaAttempt` state machine + transition tables (reject unknown predecessor / terminal mutation) in `xfactory/avatar_runtime/attempt.py` (data-model.md, design D4)
-- [ ] T015 [US1] Implement AVC-02 total preflight (`grant|denial|terminal`, exact-offer idempotency, changed-offer conflict, tenant caps, `second_instance_denied`) in `xfactory/avatar_runtime/broker.py` (FR-012/013/014/017) — depends on T013, T014
-- [ ] T016 [P] [US1] Implement process-memory-only TTL grant retry cache + credential-free terminal record with cache destruction on connect/expiry/abandon/revoke in `xfactory/avatar_runtime/grant_cache.py` (FR-013/016, SC-009)
-- [ ] T017 [P] [US1] Implement control lease (epoch fencing, transport-identity `lease_ack` check, heartbeat, expiry, reconnect credential rotation) in `xfactory/avatar_runtime/control.py` (FR-019/021/022)
-- [ ] T018 [US1] Implement the two-channel media-authorization barrier (single `media_authorized` only on sideband + identity-matched `lease_ack`; readiness timeout; idempotent termination) in `xfactory/avatar_runtime/media_authz.py` (FR-018/020) — depends on T014, T017
-- [ ] T019 [P] [US1] Implement the single sequenced event log + producer-authority checks in `xfactory/avatar_runtime/events.py` (FR-026)
-- [ ] T020 [US1] Implement command validation (lease/epoch/allowlist/expected-revision) + dedupe by command id in `xfactory/avatar_runtime/commands.py` (FR-024/025) — depends on T019
-- [ ] T021 [US1] Implement the atomic snapshot barrier `B` (projection through B, bounded post-barrier buffer, ordered drain, overflow restart, no historical replay) in `xfactory/avatar_runtime/snapshots.py` (FR-027) — depends on T019
-- [ ] T022 [P] [US1] Implement fail-closed policy resolution (required purposes, speech gates, retention, quotas, confirmation rules) in `xfactory/avatar_runtime/authority.py` (FR-010/028)
-- [ ] T023 [US1] Implement versioned consent binding + invalidation → revocation within the injected 5-second bound in `xfactory/avatar_runtime/consent.py` (FR-023/030) — depends on T017, T018
-- [ ] T024 [P] [US1] Implement the fixture operation handler (external-operation idempotency key, confirmation validity) in `xfactory/avatar_runtime/operations.py` (FR-029)
-- [ ] T025 [P] [US1] Implement in-memory append-only usage records + quota/duration outcomes in `xfactory/avatar_runtime/usage.py` (FR-032)
-- [ ] T026 [US1] Implement all-session + per-profile kill switches (deny new; revoke leases per policy) in `xfactory/avatar_runtime/killswitch.py` (FR-031) — depends on T017
+- [x] T013 [P] [US1] Implement `LogicalSession` state machine (epoch, ≤1 instance, ≤1 pending/connected leg, fresh-resume replacement) in `xfactory/avatar_runtime/session.py` (FR-011/FR-015/FR-017)
+- [x] T014 [P] [US1] Implement `MediaAttempt` state machine + transition tables (reject unknown predecessor / terminal mutation) in `xfactory/avatar_runtime/attempt.py` (data-model.md, design D4)
+- [x] T015 [US1] Implement AVC-02 total preflight (`grant|denial|terminal`, exact-offer idempotency, changed-offer conflict, tenant caps, `second_instance_denied`) in `xfactory/avatar_runtime/broker.py` (FR-012/013/014/017) — depends on T013, T014
+- [x] T016 [P] [US1] Implement process-memory-only TTL grant retry cache + credential-free terminal record with cache destruction on connect/expiry/abandon/revoke in `xfactory/avatar_runtime/grant_cache.py` (FR-013/016, SC-009)
+- [x] T017 [P] [US1] Implement control lease (epoch fencing, transport-identity `lease_ack` check, heartbeat, expiry, reconnect credential rotation) in `xfactory/avatar_runtime/control.py` (FR-019/021/022)
+- [x] T018 [US1] Implement the two-channel media-authorization barrier (single `media_authorized` only on sideband + identity-matched `lease_ack`; readiness timeout; idempotent termination) in `xfactory/avatar_runtime/media_authz.py` (FR-018/020) — depends on T014, T017
+- [x] T019 [P] [US1] Implement the single sequenced event log + producer-authority checks in `xfactory/avatar_runtime/events.py` (FR-026)
+- [x] T020 [US1] Implement command validation (lease/epoch/allowlist/expected-revision) + dedupe by command id in `xfactory/avatar_runtime/commands.py` (FR-024/025) — depends on T019
+- [x] T021 [US1] Implement the atomic snapshot barrier `B` (projection through B, bounded post-barrier buffer, ordered drain, overflow restart, no historical replay) in `xfactory/avatar_runtime/snapshots.py` (FR-027) — depends on T019
+- [x] T022 [P] [US1] Implement fail-closed policy resolution (required purposes, speech gates, retention, quotas, confirmation rules) in `xfactory/avatar_runtime/authority.py` (FR-010/028)
+- [x] T023 [US1] Implement versioned consent binding + invalidation → revocation within the injected 5-second bound in `xfactory/avatar_runtime/consent.py` (FR-023/030) — depends on T017, T018
+- [x] T024 [P] [US1] Implement the fixture operation handler (external-operation idempotency key, confirmation validity) in `xfactory/avatar_runtime/operations.py` (FR-029)
+- [x] T025 [P] [US1] Implement in-memory append-only usage records + quota/duration outcomes in `xfactory/avatar_runtime/usage.py` (FR-032)
+- [x] T026 [US1] Implement all-session + per-profile kill switches (deny new; revoke leases per policy) in `xfactory/avatar_runtime/killswitch.py` (FR-031) — depends on T017
 
 ### Deterministic tests for User Story 1
 
-- [ ] T027 [P] [US1] `tests/avatar_runtime/test_broker_preflight.py` — grant|denial|terminal totality, second-instance denial (ARR-004-S05, FR-012/017)
-- [ ] T028 [P] [US1] `tests/avatar_runtime/test_media_attempts.py` — lifecycle, fresh-resume replacement, one-leg (ARR-004-S03, FR-011/015)
-- [ ] T029 [P] [US1] `tests/avatar_runtime/test_avc02_outcomes.py` — exact-offer idempotency, changed-offer conflict, caps/duration (ARR-004-S01/S02, FR-013/014)
-- [ ] T030 [P] [US1] `tests/avatar_runtime/test_grant_retry.py` — retry cache, credential-free terminal replay, cache destruction (ARR-004-S04, SC-009)
-- [ ] T031 [P] [US1] `tests/avatar_runtime/test_control_leases.py` — lease/epoch/heartbeat/expiry/reconnect rotation (ARR-005-S03/S04, FR-021/022)
-- [ ] T032 [P] [US1] `tests/avatar_runtime/test_media_authorization.py` — two-channel barrier, sideband timeout, hostile identity (ARR-005-S01/S02, FR-018/019/020)
-- [ ] T033 [P] [US1] `tests/avatar_runtime/test_commands.py` — validation, dedupe, revision guard (ARR-006-S01/S02, FR-024/025)
-- [ ] T034 [P] [US1] `tests/avatar_runtime/test_event_log.py` — single sequence, producer-authority rejection (ARR-006-S05, FR-026)
-- [ ] T035 [P] [US1] `tests/avatar_runtime/test_snapshots.py` — barrier B, ordered drain, overflow restart (ARR-006-S03/S04, FR-027)
-- [ ] T036 [P] [US1] `tests/avatar_runtime/test_authority_ports.py` — fail-closed policy/consent/operation, purpose mapping (ARR-003-S03/ARR-007-S01, FR-010/028)
-- [ ] T037 [P] [US1] `tests/avatar_runtime/test_consent_revocation.py` — invalidation → revoke within injected 5s (ARR-005-S05, FR-023)
-- [ ] T037a [P] [US1] `tests/avatar_runtime/test_operation_confirmation.py` — a stale/superseded confirmation blocks the fixture operation and requires a fresh confirmation; execution is idempotent under the external-operation key (ARR-007-S02, FR-029) — depends on T024
-- [ ] T038 [P] [US1] `tests/avatar_runtime/test_usage.py` — quota/duration outcomes, attributed credential-free records (ARR-007-S05, FR-032)
-- [ ] T039 [P] [US1] `tests/avatar_runtime/test_kill_switches.py` — all-session/per-profile deny + lease revoke (ARR-007-S03, FR-031)
-- [ ] T040 [P] [US1] `tests/avatar_runtime/test_determinism.py` — clock-driven transitions, order-independence over recorded seeds (ARR-003-S01/S02, ARR-008-S02, SC-003/004)
+- [x] T027 [P] [US1] `tests/avatar_runtime/test_broker_preflight.py` — grant|denial|terminal totality, second-instance denial (ARR-004-S05, FR-012/017)
+- [x] T028 [P] [US1] `tests/avatar_runtime/test_media_attempts.py` — lifecycle, fresh-resume replacement, one-leg (ARR-004-S03, FR-011/015)
+- [x] T029 [P] [US1] `tests/avatar_runtime/test_avc02_outcomes.py` — exact-offer idempotency, changed-offer conflict, caps/duration (ARR-004-S01/S02, FR-013/014)
+- [x] T030 [P] [US1] `tests/avatar_runtime/test_grant_retry.py` — retry cache, credential-free terminal replay, cache destruction (ARR-004-S04, SC-009)
+- [x] T031 [P] [US1] `tests/avatar_runtime/test_control_leases.py` — lease/epoch/heartbeat/expiry/reconnect rotation (ARR-005-S03/S04, FR-021/022)
+- [x] T032 [P] [US1] `tests/avatar_runtime/test_media_authorization.py` — two-channel barrier, sideband timeout, hostile identity (ARR-005-S01/S02, FR-018/019/020)
+- [x] T033 [P] [US1] `tests/avatar_runtime/test_commands.py` — validation, dedupe, revision guard (ARR-006-S01/S02, FR-024/025)
+- [x] T034 [P] [US1] `tests/avatar_runtime/test_event_log.py` — single sequence, producer-authority rejection (ARR-006-S05, FR-026)
+- [x] T035 [P] [US1] `tests/avatar_runtime/test_snapshots.py` — barrier B, ordered drain, overflow restart (ARR-006-S03/S04, FR-027)
+- [x] T036 [P] [US1] `tests/avatar_runtime/test_authority_ports.py` — fail-closed policy/consent/operation, purpose mapping (ARR-003-S03/ARR-007-S01, FR-010/028)
+- [x] T037 [P] [US1] `tests/avatar_runtime/test_consent_revocation.py` — invalidation → revoke within injected 5s (ARR-005-S05, FR-023)
+- [x] T037a [P] [US1] `tests/avatar_runtime/test_operation_confirmation.py` — a stale/superseded confirmation blocks the fixture operation and requires a fresh confirmation; execution is idempotent under the external-operation key (ARR-007-S02, FR-029) — depends on T024
+- [x] T038 [P] [US1] `tests/avatar_runtime/test_usage.py` — quota/duration outcomes, attributed credential-free records (ARR-007-S05, FR-032)
+- [x] T039 [P] [US1] `tests/avatar_runtime/test_kill_switches.py` — all-session/per-profile deny + lease revoke (ARR-007-S03, FR-031)
+- [x] T040 [P] [US1] `tests/avatar_runtime/test_determinism.py` — clock-driven transitions, order-independence over recorded seeds (ARR-003-S01/S02, ARR-008-S02, SC-003/004)
 
 **Checkpoint**: US1 is a fully functional, independently testable MVP proving the protocol invariants.
 

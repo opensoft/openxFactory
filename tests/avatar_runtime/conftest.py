@@ -2,7 +2,7 @@
 
 pytest's default (prepend) import mode puts this file's directory
 (``tests/avatar_runtime/``) on ``sys.path``, so tests can ``import fakes``,
-``import boundary.scanner``, ``import conformance.check_conformance``, etc.
+``from _support import ...``, ``import boundary.scanner``, etc.
 """
 
 from __future__ import annotations
@@ -13,19 +13,10 @@ from xfactory.avatar_runtime import build_runtime
 from xfactory.avatar_runtime.clocks import ManualClock
 from xfactory.avatar_runtime.ids import QueuedIdSource
 from xfactory.avatar_runtime.telemetry import TelemetrySink
-from xfactory.avatar_runtime.values import (
-    ConsentBinding,
-    KillSwitchState,
-    PolicyBundle,
-)
+from xfactory.avatar_runtime.values import ConsentBinding, KillSwitchState
 
+from _support import PURPOSE, SUBJECT, default_bundle
 from fakes import FakeConsent, FakeOperation, FakePolicy, FakeProvider, FakeUsage
-
-SUBJECT = "subject-1"
-IDENTITY = "identity-1"
-TENANT = "tenant-1"
-PROFILE = "profile-standard"
-PURPOSE = "avatar.voice"
 
 
 @pytest.fixture
@@ -44,21 +35,14 @@ def provider() -> FakeProvider:
 
 
 @pytest.fixture
-def policy_bundle() -> PolicyBundle:
-    return PolicyBundle(
-        identity_ref=IDENTITY,
-        required_purposes=frozenset({PURPOSE}),
-        speech_gate="gate-default",
-        retention_ticks=100,
-        concurrency_cap=2,
-        duration_cap_ticks=1000,
-        confirmation_required=True,
-    )
+def policy_bundle():
+    return default_bundle()
 
 
 @pytest.fixture
-def policy(policy_bundle: PolicyBundle) -> FakePolicy:
-    return FakePolicy({IDENTITY: policy_bundle})
+def policy(policy_bundle) -> FakePolicy:
+    # Broker resolves policy by request.subject_id.
+    return FakePolicy({SUBJECT: policy_bundle})
 
 
 @pytest.fixture
@@ -98,7 +82,6 @@ def runtime(clock, ids, provider, policy, consent, operation, usage, telemetry):
 
 # --- Seed recording (SC-003) --------------------------------------------- #
 def pytest_report_header(config):
-    """Surface the pytest-randomly seed so a failing run is reproducible."""
     seed = getattr(config.option, "randomly_seed", None)
     if seed is not None:
         return f"avatar-runtime randomly-seed: {seed}"
