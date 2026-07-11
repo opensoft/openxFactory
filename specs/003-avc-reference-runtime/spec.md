@@ -97,11 +97,12 @@ kernel and F0 branches. Valuable once P1 exists, because it governs how the
 proven behavior graduates to canonical conformance.
 
 **Independent Test**: With canonical schemas unpublished, run the suite through
-the provisional adapter and confirm it never writes or claims a canonical
-contract. Then, with a released kernel, pin its coordinates, disable the
-provisional adapter, and confirm the canonical run reproduces the same
-authoritative results and that no reference module can import the provisional
-path.
+the provisional adapter — deriving applicable `ACR-*` IDs from the digest-verified
+shared baseline map and checking full coverage via the scenario-test map — and
+confirm it never writes or claims a canonical contract. Then, with a released kernel,
+record its coordinates in `realization-pin.yaml`, disable the provisional adapter, and
+confirm the canonical run reproduces the same authoritative results and that no
+reference module can import the provisional path.
 
 **Acceptance Scenarios**:
 
@@ -201,6 +202,54 @@ telemetry.
 - **Authority unavailable**: Policy, consent, or operation authority that is
   unavailable or returns an unknown value denies or rejects the operation using
   the closed contract outcome.
+- **Runtime pulls a forbidden dependency**: If the runtime package imports any
+  third-party, test-only, provider, or network dependency, boundary validation
+  fails.
+
+## Clarifications
+
+### Session 2026-07-11
+
+- Q: What framework/runner hosts the deterministic suite? → A: `pytest` with pinned
+  test-only dependencies; parametrize the ARR/ACR matrix; prove order-independence
+  with `pytest-randomly` across multiple recorded seeds; a failing seed MUST be
+  reproducible from reported output. (Q1)
+- Q: What minimum Python version does the reference package target? → A: Python 3.11+
+  (matching the existing `xfactory/` floor); no 3.12-only syntax in the reference
+  package. (Q2)
+- Q: What third-party dependency policy applies to runtime vs tests? → A:
+  `xfactory/avatar_runtime/` is standard-library-only; tests and repo validators MAY
+  use pinned repo-approved dependencies (PyYAML, jsonschema, pytest, pytest-randomly);
+  the boundary validator enforces that the runtime package imports no test, provider,
+  or network dependency. (Q3)
+- Q: How is the boundary + provisional-import prohibition evidenced? → A: deterministic
+  static AST / import / export / file-surface boundary tests plus a standalone
+  `scripts/validate-avatar-runtime.py` repo gate that detects provisional-test imports,
+  network/provider SDKs, listeners, application factories, persistence, credential
+  loading, deployment files, and forbidden entrypoints — without executing runtime
+  code. (Q4)
+- Q: Where is the applicable `ACR-*` set read during parallel work? → A: the conformance
+  checker consumes the versioned shared baseline map
+  `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml`
+  (`avatar-client-parallel-v1`), verifying its source commit and digest, and switches to
+  the digest-pinned released `contracts/avatar-client/acceptance-map.yaml` at realization;
+  non-applicability dispositions live in the mapping artifact (Q6); no second
+  hand-maintained ACR enumeration is kept under the runtime tests. (Q5)
+- Q: How is the scenario→test mapping made machine-checkable? → A: a checked-in
+  `tests/avatar_runtime/conformance/scenario-test-map.yaml` maps each required ARR/ACR
+  scenario ID to one or more collected pytest node IDs, or to an allowed
+  non-applicability disposition with rationale; the checker compares it against the
+  acceptance map(s) and the collected test set and fails on missing, duplicate, dangling,
+  skipped-required, or unknown mappings. (Q6)
+- Q: Where are the release pin and conformance results recorded? → A:
+  `tests/avatar_runtime/conformance/realization-pin.yaml`, with explicit `schema_version`
+  and `kind`, kept inside the runtime-owned test surface and validated as part of final
+  conformance. (Q7)
+- Q: How does the suite/boundary check join the shared gate and documentation index? → A:
+  add `scripts/validate-avatar-runtime.py` to the README validator index and run it plus
+  the deterministic pytest suite for every feature commit and before push; this validator
+  script is the narrow governance exception to the runtime/test paths and edits no
+  sibling-owned contract, F0, UI, domain, deployment, or release-metadata path. (Q8)
 
 ## Requirements *(mandatory)*
 
@@ -209,23 +258,35 @@ telemetry.
 **Boundary and parallel seam**
 
 - **FR-001**: The reference implementation MUST reside only within its designated
-  reference package path, with all tests under the designated test tree, and MUST
-  expose no network listener, application factory, deployment manifest, persistent
-  repository, provider-credential loading, or live provider SDK. (ARR-001-S01)
+  reference package path (`xfactory/avatar_runtime/`), with all tests under the
+  designated test tree (`tests/avatar_runtime/`), and MUST expose no network listener,
+  application factory, deployment manifest, persistent repository, provider-credential
+  loading, or live provider SDK. The runtime package MUST import only the Python
+  standard library; boundary validation MUST fail if it imports any third-party,
+  test-only, provider, or network dependency. (ARR-001-S01)
 - **FR-002**: Boundary validation MUST fail when reference-package code attempts
   to load a provider key or make a network provider call, and MUST route such work
   to a separately approved live-runtime change. (ARR-001-S02)
 - **FR-003**: Destroying the in-process runtime MUST require no migration, durable
   state cleanup, or recovery of secret grant material. (ARR-001-S03, ARR-004-S04)
 - **FR-004**: Any `avatar-client-parallel-v1` provisional adapter MUST be confined
-  to the designated provisional location under the test tree; reference and
-  distributable code MUST depend on internal typed values rather than copied
-  canonical schemas, and import-boundary validation MUST fail if any reference
-  module imports the provisional path. (ARR-002-S01, ARR-002-S02)
+  to the designated provisional location under the test tree
+  (`tests/avatar_runtime/provisional/`); reference and distributable code MUST depend
+  on internal typed values rather than copied canonical schemas, and import-boundary
+  validation MUST fail if any reference module imports the provisional path.
+  (ARR-002-S01, ARR-002-S02)
+- **FR-004a**: Boundary and provisional-import validation MUST be performed by
+  deterministic static AST / import / export / file-surface analysis that does not
+  execute runtime code, and MUST be exposed as a standalone `scripts/validate-avatar-runtime.py`
+  repo gate (alongside in-suite boundary tests) that detects provisional-test imports,
+  network/provider SDKs, listeners, application factories, persistence, credential
+  loading, deployment files, and forbidden entrypoints. (ARR-001-S01, ARR-002-S02)
 - **FR-005**: Final realization MUST pin the released kernel tag, exact commit,
   per-file digests, interface-lock digest, and acceptance-map digest, and MUST
   fail if realization evidence records a tag without the exact commit and all
-  required digests. (ARR-002-S03)
+  required digests. These five coordinates and the final conformance results MUST be
+  recorded in `tests/avatar_runtime/conformance/realization-pin.yaml`, carrying explicit
+  `schema_version` and `kind`, and validated as part of final conformance. (ARR-002-S03)
 - **FR-006**: When the contract-kernel owner accepts a baseline variance and names
   the affected acceptance IDs, the runtime MUST reopen only the mapped tests and
   adapters and MUST NOT edit the kernel or unrelated sibling files. (ARR-002-S04,
@@ -335,12 +396,29 @@ telemetry.
   `ACR-*` scenario MUST map to deterministic automated evidence or an explicit
   recorded non-applicability disposition; conformance MUST fail on any missing
   mapping, skipped required case, nondeterministic result, or prohibited path
-  modification. (ARR-008-S01, ARR-008-S02)
+  modification. The mapping MUST be a checked-in
+  `tests/avatar_runtime/conformance/scenario-test-map.yaml` that binds each required
+  ARR/ACR scenario ID to one or more collected test node IDs, or to an allowed
+  non-applicability disposition with rationale; the conformance checker MUST compare
+  it against the acceptance map(s) and the collected test set and MUST fail on missing,
+  duplicate, dangling, skipped-required, or unknown mappings. (ARR-008-S01, ARR-008-S02)
+- **FR-034a**: The applicable `ACR-*` set MUST be derived from an acceptance map rather
+  than a second hand-maintained enumeration: during parallel work the checker consumes
+  the versioned shared baseline map
+  `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml`
+  (`avatar-client-parallel-v1`) with source-commit and digest verification, and at
+  realization it switches to the digest-pinned released
+  `contracts/avatar-client/acceptance-map.yaml`. (ARR-002-S01, ARR-008-S01)
 - **FR-035**: Final evidence MUST run with the provisional adapter disabled against
-  canonical fixtures; if canonical execution disagrees with provisional behavior,
-  realization MUST fail and the mapped behavior MUST be corrected. (ARR-008-S03)
+  canonical fixtures from the released acceptance map; if canonical execution disagrees
+  with provisional behavior, realization MUST fail and the mapped behavior MUST be
+  corrected. (ARR-008-S03)
 - **FR-036**: Realization validation MUST fail if the implementation diff modifies
-  any canonical contract, F0, UI, DomainxFactory, or deployment path. (ARR-008-S04)
+  any canonical contract, F0, UI, DomainxFactory, or deployment path. The only paths
+  this feature writes are the runtime package (`xfactory/avatar_runtime/`), the test
+  tree (`tests/avatar_runtime/`), the standalone gate `scripts/validate-avatar-runtime.py`,
+  and its single README validator-index entry — a narrow, declared governance exception
+  that touches no sibling-owned path. (ARR-008-S04)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -375,8 +453,16 @@ telemetry.
 - **Provisional interface adapter**: A test-only representation of the
   `avatar-client-parallel-v1` baseline and stable acceptance IDs, unreachable from
   distributable code and disabled for final conformance.
+- **Scenario-test map**: `tests/avatar_runtime/conformance/scenario-test-map.yaml` —
+  the checked-in binding of each required ARR/ACR scenario ID to collected test node
+  IDs or an allowed non-applicability disposition with rationale.
+- **Boundary validator gate**: `scripts/validate-avatar-runtime.py` — the standalone,
+  execution-free static analyzer of imports, exports, entrypoints, and file surfaces,
+  indexed in the README validator list.
 - **Kernel release pin**: The five coordinated realization coordinates — tag, exact
-  commit, per-file digests, interface-lock digest, and acceptance-map digest.
+  commit, per-file digests, interface-lock digest, and acceptance-map digest — recorded
+  with conformance results in `tests/avatar_runtime/conformance/realization-pin.yaml`
+  (`schema_version` + `kind`).
 
 ## Success Criteria *(mandatory)*
 
@@ -384,42 +470,58 @@ telemetry.
 
 - **SC-001**: 100% of the 34 defined `ARR-*` scenarios have a mapped deterministic
   automated test.
-- **SC-002**: Every applicable kernel `ACR-*` scenario has either a mapped
-  deterministic test or a recorded non-applicability disposition; conformance
-  reports 0 unmapped applicable scenarios.
+- **SC-002**: Every applicable kernel `ACR-*` scenario — derived from the acceptance
+  map (shared baseline map during parallel work, digest-pinned released map at
+  realization) — has either a mapped deterministic test or a recorded
+  non-applicability disposition in the scenario-test map; conformance reports 0
+  unmapped applicable scenarios and 0 duplicate, dangling, skipped-required, or
+  unknown mappings.
 - **SC-003**: The full deterministic suite produces identical authoritative results
-  across repeated runs and across randomized test order — 0 nondeterministic
-  results.
+  across repeated runs and across randomized test order over multiple recorded seeds —
+  0 nondeterministic results — and any failing seed is reproducible from reported
+  output.
 - **SC-004**: 0 tests depend on wall-clock time, randomness, network access,
   filesystem persistence, or Hermes availability.
-- **SC-005**: 0 import paths from reference or otherwise distributable code reach
-  the provisional interface adapter or any live provider SDK.
+- **SC-005**: The runtime package imports 0 third-party, test-only, provider, or
+  network dependencies, and 0 import paths from reference or otherwise distributable
+  code reach the provisional interface adapter or any live provider SDK.
 - **SC-006**: Final realization records all 5 release-pin coordinates (tag, exact
-  commit, per-file digests, interface-lock digest, acceptance-map digest);
-  realization fails if any coordinate is missing.
+  commit, per-file digests, interface-lock digest, acceptance-map digest) in the
+  runtime-owned `realization-pin.yaml`; realization fails if any coordinate is missing.
 - **SC-007**: 0 emitted telemetry records contain protected content (SDP,
   credentials, provider payloads, raw transcript or media, or arbitrary
   high-cardinality identifiers).
 - **SC-008**: The implementation diff modifies 0 canonical contract, F0, UI,
-  DomainxFactory, or deployment files.
+  DomainxFactory, or deployment files; outside the runtime package and test tree it
+  touches exactly 1 gate script (`scripts/validate-avatar-runtime.py`) plus its single
+  README validator-index entry — the declared governance exception.
 - **SC-009**: Destroying and reconstructing the runtime requires 0 items of secret
   grant material to replay a terminal outcome.
 - **SC-010**: A reviewer can confirm the presence or absence of every required
-  boundary (no listener, entrypoint, provider key, persistence, or live SDK) from
-  automated boundary output alone, without reading the whole package.
+  boundary (no listener, entrypoint, provider key, persistence, or live SDK) from the
+  `scripts/validate-avatar-runtime.py` output alone, without reading the whole package.
 
 ## Assumptions
 
 - **ACR applicability**: The authoritative set of applicable `ACR-*` scenarios is
-  defined by the released kernel's acceptance map. Until release, the
-  `avatar-client-parallel-v1` provisional baseline and its stable acceptance IDs
-  stand in; any non-applicable `ACR-*` scenario carries an explicit recorded
-  disposition rather than a silent omission.
-- **Reference tooling**: The reference implementation and its deterministic tests
-  use the openxFactory-standard reference-code tooling named by the source change;
-  no additional runtime, service framework, or second-language implementation is
-  introduced. Language- and path-level facts are governance boundaries inherited
-  from the ratified source change, not new design choices made here.
+  defined by an acceptance map, not by a hand-maintained enumeration. During parallel
+  work the conformance checker consumes the versioned shared baseline map
+  `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml`
+  (`avatar-client-parallel-v1`) with source-commit and digest verification; at
+  realization it switches to the digest-pinned released
+  `contracts/avatar-client/acceptance-map.yaml`. Any non-applicable `ACR-*` scenario
+  carries an explicit recorded disposition in the scenario-test map rather than a
+  silent omission.
+- **Reference tooling** (clarified 2026-07-11): The reference package targets Python
+  3.11+ (matching the existing `xfactory/` floor) and uses no 3.12-only syntax. The
+  runtime package `xfactory/avatar_runtime/` is standard-library-only; the deterministic
+  tests run under `pytest` with `pytest-randomly` (order-independence proven across
+  multiple recorded seeds, any failing seed reproducible from reported output), and
+  tests and repo validators may use pinned repo-approved dependencies (PyYAML,
+  jsonschema, pytest, pytest-randomly). No additional runtime, service framework, or
+  second-language implementation is introduced. Language-, tooling-, and path-level
+  facts are governance boundaries pinned by the ratified source change and this
+  clarification session, not requirement-body implementation leakage.
 - **Deterministic sources**: The injected clock is a pair of manually advanced
   monotonic and wall clocks; the ID source is a queued deterministic sequence. The
   "five-second" revocation bound is measured on the injected clock, never in real
@@ -436,12 +538,18 @@ telemetry.
 
 ## Dependencies
 
-- **Provisional baseline**: The `avatar-client-parallel-v1` interface baseline and
-  stable `ACR-*` acceptance IDs enable parallel implementation while the kernel and
-  F0 branches are active.
+- **Provisional baseline**: The `avatar-client-parallel-v1` interface baseline and its
+  stable `ACR-*` acceptance IDs — read from the shared baseline map
+  `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml`
+  with source-commit and digest verification — enable parallel implementation while the
+  kernel and F0 branches are active.
 - **Released kernel pin**: Final realization depends on an exact, content-addressed
   released kernel (tag + exact commit + per-file digests + interface-lock digest +
-  acceptance-map digest) and its canonical fixtures.
+  acceptance-map digest), its canonical fixtures, and the released acceptance map
+  `contracts/avatar-client/acceptance-map.yaml`.
+- **Test and validation dependencies**: The deterministic suite and the
+  `scripts/validate-avatar-runtime.py` gate may use pinned repo-approved dependencies
+  (PyYAML, jsonschema, pytest, pytest-randomly); the runtime package itself takes none.
 - **F0 variance handling**: An accepted F0 interface variance reopens only the
   mapped tests and adapters named by its acceptance IDs; unaffected test evidence
   remains valid.
