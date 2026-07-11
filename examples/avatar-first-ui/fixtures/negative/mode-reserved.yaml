@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-mode-reserved
+evidence_ids: [AFU-004-S01]
+expect_error: AFUV-MODE-RESERVED
+# push_to_talk is a reserved, disabled mode; selecting it without a required
+# text/handoff fallback fails closed.
+candidate:
+  interaction_mode:
+    value: push_to_talk

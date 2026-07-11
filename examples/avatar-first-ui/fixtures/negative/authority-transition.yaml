@@ -1,0 +1,12 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-authority-transition
+evidence_ids: [AFU-001-S03]
+expect_error: AFUV-AUTHORITY-TRANSITION
+# Presentation tries to author an authoritative axis (or drops presentation-only).
+candidate:
+  authority_boundaries:
+    avatar_is_presentation_only: false
+  presentation:
+    surface_default: work
+    authors_authoritative_state: true

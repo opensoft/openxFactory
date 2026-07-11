@@ -76,21 +76,21 @@ error ID), offline.
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Update `templates/ui/avatar-first.yaml` with the stable regions, standard controls, authority sources, media/recording awareness, fallback behavior, handoff boundary, and reserved-feature defaults (provider_vad default; server_vad + push_to_talk reserved) per spec §FR-018 and data-model.md
-- [ ] T007 [US1] Rewrite the four representative examples in `examples/avatar-first-ui/domain-overlays.example.yaml` as domain-neutral archetypes — customer avatar-first, client hybrid, domain conventional-first, and `confirmation-before-consequential-action` (neutral vocabulary, Ledgerx inspiration only) — using `persona_reference` and the new blocks per spec §FR-019 (Q2)
-- [ ] T008 [P] [US1] Author the compatibility fixture `examples/avatar-first-ui/fixtures/compatibility/legacy-persona-catalog.yaml` (pre-alignment profile incl. legacy embedded `persona_catalog`, no new blocks) that MUST still validate per spec §FR-016/§SC-003 (Q1 compatibility)
-- [ ] T009 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/authority-transition.yaml` (presentation authors an authoritative axis transition → `AFUV-AUTHORITY-TRANSITION`) per contracts/validator-rules.md
-- [ ] T010 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/timing-out-of-range.yaml` (selected readiness/heartbeat/lease exceeds kernel ceiling → `AFUV-TIMING-OUT-OF-RANGE`)
-- [ ] T011 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/control-fallback-missing.yaml` (required control missing its fallback → `AFUV-CONTROL-FALLBACK-MISSING`)
-- [ ] T012 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/persona-unresolved.yaml` (unknown/invalid persona reference → `AFUV-PERSONA-UNRESOLVED`)
-- [ ] T013 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/mode-reserved.yaml` (reserved/forbidden mode without fallback → `AFUV-MODE-RESERVED`)
-- [ ] T014 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/unsafe-render.yaml` (HTML/executable/unsafe URI → `AFUV-UNSAFE-RENDER`)
-- [ ] T015 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/purpose-invalid.yaml` (missing/invalid consent-purpose mapping → `AFUV-PURPOSE-INVALID`)
-- [ ] T016 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/held-answer-active.yaml` (held answer rendered as active → `AFUV-HELD-ANSWER-ACTIVE`)
-- [ ] T017 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/retention-unresolved.yaml` (unresolvable retention-policy reference fails closed → `AFUV-RETENTION-UNRESOLVED`) per spec §FR-027 and the analyze-gate disposition (9th rule class)
-- [ ] T018 [US1] Implement the per-rule enforcement checks in `scripts/validate-avatar-first-ui.py` for all nine rule classes above (each emits `ERROR <AFUV-*>`; each negative fixture fails exactly its one primary rule) per contracts/validator-rules.md and data-model.md, satisfying spec §FR-020
-- [ ] T019 [US1] Implement per-fixture assertion in `scripts/validate-avatar-first-ui.py`: negative fixtures must fail their declared `expect_error`; template + four examples + compatibility fixture must pass clean; report zero fields defaulting open per spec §SC-002/§SC-004
-- [ ] T020 [US1] Run the US1 independent test (validator over template + examples + all fixtures, baseline mode) and confirm PASS/expected-FAIL matrix per quickstart.md §1
+- [X] T006 [US1] Update `templates/ui/avatar-first.yaml` with the stable regions, standard controls, authority sources, media/recording awareness, fallback behavior, handoff boundary, and reserved-feature defaults (provider_vad default; server_vad + push_to_talk reserved) per spec §FR-018 and data-model.md
+- [X] T007 [US1] Rewrite the four representative examples in `examples/avatar-first-ui/domain-overlays.example.yaml` as domain-neutral archetypes — customer avatar-first, client hybrid, domain conventional-first, and `confirmation-before-consequential-action` (neutral vocabulary, Ledgerx inspiration only) — using `persona_reference` and the new blocks per spec §FR-019 (Q2)
+- [X] T008 [P] [US1] Author the compatibility fixture `examples/avatar-first-ui/fixtures/compatibility/legacy-persona-catalog.yaml` (pre-alignment profile incl. legacy embedded `persona_catalog`, no new blocks) that MUST still validate per spec §FR-016/§SC-003 (Q1 compatibility)
+- [X] T009 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/authority-transition.yaml` (presentation authors an authoritative axis transition → `AFUV-AUTHORITY-TRANSITION`) per contracts/validator-rules.md
+- [X] T010 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/timing-out-of-range.yaml` (selected readiness/heartbeat/lease exceeds kernel ceiling → `AFUV-TIMING-OUT-OF-RANGE`)
+- [X] T011 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/control-fallback-missing.yaml` (required control missing its fallback → `AFUV-CONTROL-FALLBACK-MISSING`)
+- [X] T012 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/persona-unresolved.yaml` (unknown/invalid persona reference → `AFUV-PERSONA-UNRESOLVED`)
+- [X] T013 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/mode-reserved.yaml` (reserved/forbidden mode without fallback → `AFUV-MODE-RESERVED`)
+- [X] T014 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/unsafe-render.yaml` (HTML/executable/unsafe URI → `AFUV-UNSAFE-RENDER`)
+- [X] T015 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/purpose-invalid.yaml` (missing/invalid consent-purpose mapping → `AFUV-PURPOSE-INVALID`)
+- [X] T016 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/held-answer-active.yaml` (held answer rendered as active → `AFUV-HELD-ANSWER-ACTIVE`)
+- [X] T017 [P] [US1] Author negative fixture `examples/avatar-first-ui/fixtures/negative/retention-unresolved.yaml` (unresolvable retention-policy reference fails closed → `AFUV-RETENTION-UNRESOLVED`) per spec §FR-027 and the analyze-gate disposition (9th rule class)
+- [X] T018 [US1] Implement the per-rule enforcement checks in `scripts/validate-avatar-first-ui.py` for all nine rule classes above (each emits `ERROR <AFUV-*>`; each negative fixture fails exactly its one primary rule) per contracts/validator-rules.md and data-model.md, satisfying spec §FR-020
+- [X] T019 [US1] Implement per-fixture assertion in `scripts/validate-avatar-first-ui.py`: negative fixtures must fail their declared `expect_error`; template + four examples + compatibility fixture must pass clean; report zero fields defaulting open per spec §SC-002/§SC-004
+- [X] T020 [US1] Run the US1 independent test (validator over template + examples + all fixtures, baseline mode) and confirm PASS/expected-FAIL matrix per quickstart.md §1
 
 **Checkpoint**: Profile authoring is provably conformant, offline, with full nine-class rule coverage.
 

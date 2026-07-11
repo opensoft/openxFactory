@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-retention-unresolved
+evidence_ids: [AFU-006-S04]
+expect_error: AFUV-RETENTION-UNRESOLVED
+# An unresolvable retention-policy reference (blank) must fail closed (FR-027;
+# 9th enforced rule class per the analyze-gate disposition).
+candidate:
+  retention_overlay:
+    policy_refs: [""]
+    display_flags: {show_retention_state: true}
