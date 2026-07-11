@@ -1,0 +1,32 @@
+schema_version: 1
+kind: avatar-runtime-realization-pin
+
+# ---------------------------------------------------------------------------
+# Realization pin — INTENTIONALLY UNPOPULATED during parallel work.
+#
+# This template documents the five content-addressed release coordinates and
+# the final conformance record required at realization (FR-005, SC-006). It is
+# populated ONLY when the released avatar-client kernel exists; a bare tag
+# without the exact commit + all digests fails realization (ARR-002-S03).
+#
+# `check_conformance.py --final` validates this file: all five coordinates
+# present and non-empty, provisional_adapter_disabled == true, and
+# canonical_matches_provisional == true (FR-035).
+# ---------------------------------------------------------------------------
+released_kernel:
+  tag: null                    # (1) released contract-v<major>.<minor> tag
+  commit: null                 # (2) exact release commit sha
+  file_digests: null           # (3) per-file sha256 of consumed canonical files
+  interface_lock_digest: null  # (4)
+  acceptance_map_digest: null  # (5)
+
+conformance:
+  provisional_adapter_disabled: false   # -> true at final conformance
+  seeds: []                             # recorded pytest-randomly seeds (SC-003)
+  suite_result: pending
+  scenario_test_map_result: pending
+  boundary_gate_result: pending
+  canonical_matches_provisional: false  # -> true when canonical == provisional
+  acceptance_source_digests:            # C2: content-addresses the required-set sources
+    arr: null
+    acr: null
