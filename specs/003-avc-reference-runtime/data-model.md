@@ -21,6 +21,11 @@ values fail closed.
   `readiness_timeout`, `lease_expired`, `consent_revoked`, `killed`, `quota_exceeded`,
   `duration_exceeded`, `purpose_unmapped`, `authority_unavailable`, `confirmation_stale`,
   `connected`, `abandoned`, `expired`, `revoked`.
+  - *Design note (D1)*: `OutcomeCode` is kept as one unified registry for now, intentionally
+    spanning both terminal-status echoes (`connected`/`abandoned`/`expired`/`revoked`) and
+    denial/terminal reason codes. If the released kernel splits these into distinct registries, this
+    model follows suit (a terminal-status vs reason-code split) and reopens only the mapped outcome
+    tests (FR-006); until then the unified closed set stays fail-closed on unknown values.
 - **PurposeId**: the closed set of required neutral avatar purposes (from the acceptance/policy
   fixture); a profile missing a mapping denies preflight (FR-028).
 - **EventKind**: `observation`, `authoritative_result`.
@@ -89,6 +94,21 @@ Tagged union produced by the AVC-02 total function; exactly one per request:
 Rules: exact repeated request+offer before consumption/expiry → same cached grant, ≤1 provider
 call (FR-013); reused request_id + changed offer/non-volatile field → `idempotency_conflict`,
 no prior answer disclosed, no 2nd call (FR-014).
+
+**Idempotency: volatile vs non-volatile offer fields** (U1, FR-014). The `offer_fingerprint`
+is computed over the **non-volatile** request fields; changing any of them under a reused
+`request_id` is an `idempotency_conflict`. **Volatile** fields (excluded from the fingerprint,
+may differ on an exact retry) vs **non-volatile** (included; a change conflicts) are pinned below,
+derived from the `avatar-client-parallel-v1` baseline map's AVC-01 request semantics and
+**revisited at kernel realization** if the released map differs:
+
+| Field class | Members (provisional, from baseline AVC-01) | Effect on retry |
+|-------------|---------------------------------------------|-----------------|
+| Non-volatile (in fingerprint) | session/subject identity, epoch, requested purposes, offer SDP media description, model-profile selector, tenant ref | change → `idempotency_conflict` |
+| Volatile (excluded) | client-local timestamps, transport keep-alive/nonce values, retry counter, non-semantic transport metadata | may differ; still returns the same cached grant |
+
+The exact partition is a fixture constant in the provisional adapter; realization reconciles it
+against the released kernel and reopens only the mapped idempotency tests on any variance (FR-006).
 
 ### GrantCacheEntry  (grant_cache.py — D5, FR-016)
 
@@ -175,6 +195,33 @@ revoke active leases **only** when the switch policy requests it.
 `{ test_id, hashed_or_fixture_refs, transition, clock_timing, usage_outcome, reason: ReasonCode }`.
 The redaction validator rejects any record containing SDP, a credential, a provider payload, raw
 transcript/media, or an arbitrary high-cardinality identifier; rejected records are not published.
+
+**Detectable redaction criteria** (U2, FR-033). "Arbitrary high-cardinality identifier" is made
+checkable by an **allowlist of stable field kinds** plus **pattern classes** for the rejected set;
+the validator fails a record if a field is neither on the allowlist nor a permitted hashed/fixture
+reference:
+
+- **Allowlist (permitted, stable/low-cardinality)**: `test_id`, `scenario_id`, `reason`
+  (`ReasonCode`), closed-registry enum values (state/outcome/purpose), fixture references
+  (`fixture:<name>`), and salted digests (`sha256:<hex>` of an otherwise-sensitive value).
+- **Rejected pattern classes**: SDP blocks (`m=`/`a=`/`v=` lines, ICE candidates), credential
+  shapes (bearer/JWT/`sk-…`/PEM/API-key regexes — mirror `xfactory/memory_gateway.py`'s
+  `SECRET_RE`), raw provider payload blobs, transcript/media byte content, and free-form
+  identifiers matching high-entropy/opaque patterns (raw UUIDs, tokens ≥ N chars) that are **not**
+  a salted digest or a fixture reference.
+
+Realization may tighten the allowlist/patterns to the released kernel's telemetry contract; the
+redaction test (T054) asserts each rejected class is caught and not published (SC-007).
+
+## Terminology (glossary)
+
+- **`lease_ack`** (V1) ≡ the spec's "control acknowledgement" (spec §FR-019). The two name the same
+  concept: the authenticated control-path acknowledgement whose transport-derived identity must match
+  the active session/instance/attempt. **Artifacts, code, and tests use `lease_ack`**; "control
+  acknowledgement" appears only as the spec's prose synonym.
+- **media leg** ≡ a `MediaAttempt` (one pending/connected media path per logical session).
+- **provisional adapter** ≡ "provisional interface adapter" ≡ "provisional seam" — the test-only
+  `avatar-client-parallel-v1` representation under `tests/avatar_runtime/provisional/`.
 
 ## Injected ports (see [contracts/ports.md](./contracts/ports.md))
 
