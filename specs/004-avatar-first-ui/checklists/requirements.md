@@ -46,3 +46,14 @@
   from the OpenSpec `avatar-first-ui` capability delta and its acceptance map.
 - **Clarification markers**: Zero. The OpenSpec change is ratified-grade;
   reasoned assumptions are recorded in the Assumptions section instead.
+- **Clarify session 2026-07-11**: 8 clarifications encoded (Q1–Q8; see the
+  `## Clarifications` section of spec.md). They sharpened scope and testability
+  — persona reference-only (FR-011, FR-013, entity), domain-neutral
+  confirmation archetype (FR-019), fixture form/location under
+  `examples/avatar-first-ui/fixtures/` (FR-023, SC-006), selected
+  readiness/heartbeat/lease values vs kernel-owned ceilings (FR-013, FR-026),
+  content-addressed runtime compatibility (FR-013, FR-025, FR-021), ≥1 negative
+  fixture per rule class with stable error IDs (FR-019, FR-020, SC-002),
+  structured per-capability accessibility baseline (FR-028), and
+  reference-only retention overlay (FR-027). All 16 items re-validated: no
+  state changes (16/16 remain passing), no regressions.

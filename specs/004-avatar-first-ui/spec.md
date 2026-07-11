@@ -15,6 +15,19 @@ validated examples; extend the offline validator; and publish deterministic UI
 fixture shapes and evidence mappings — with no Flutter widgets, provider
 adapters, or live client (those remain in `implement-avatar-client-lab`).
 
+## Clarifications
+
+### Session 2026-07-11
+
+- Q: Does this feature define a persona-catalog schema, or does the UI profile only carry a reference to a catalog owned elsewhere? → A: Reference-only. The profile carries a persona reference (stable persona ID, version, and an optional non-secret catalog locator); the persona-catalog schema and instances remain domain/kernel-owned and out of scope. Resolution failures fail closed to an approved fallback; the UI never invents persona data.
+- Q: Must the confirmation-before-action example be a domain-neutral archetype rather than embed Ledger/accounting specifics? → A: Yes. Publish a domain-neutral `confirmation-before-consequential-action` archetype in neutral vocabulary; Ledgerx is inspiration only and no accounting-specific fields or examples belong in openxFactory.
+- Q: In what form and location are the deterministic UI fixture shapes published? → A: Versioned YAML/JSON fixture files under `examples/avatar-first-ui/fixtures/`, separate from profile examples. Each fixture carries fixed clock/ID/font/locale/platform inputs, canonical command/event/snapshot inputs, expected view-state/record shapes, and its AFU evidence IDs; the offline validator checks them.
+- Q: Does the UI profile schema embed readiness/heartbeat/lease ceiling constants, or carry selected values validated against kernel-owned ceilings? → A: The profile carries selected readiness, heartbeat, and lease values. Numeric ceilings remain kernel-owned and are loaded read-only by the validator (parallel baseline during development, released registries at realization); the UI schema does not duplicate maxima, and missing or unresolvable bounds fail closed.
+- Q: What does the profile's runtime compatibility field encode, and what does the final cross-check compare it against? → A: Exact content-addressed coordinates, no released version ranges. During parallel work it records the exact `avatar-client-parallel-v1` baseline identity and required baseline digests; at realization it records the released bundle tag, exact commit, and required registry/interface-lock digests, and validates every referenced ID against those bytes. A loose version range is not permitted for a released profile, and because profile fields already declare the specific capabilities/outcomes/states consumed, no second hand-maintained capability list is required.
+- Q: What is the required minimum set of negative fixtures the validator must reject? → A: At least one negative fixture per enforced rule class (presentation-authored transition; out-of-range readiness/heartbeat/lease; missing control fallback; unknown/invalid persona reference; reserved/forbidden mode; unsafe rendering/HTML or URI; missing/invalid consent-purpose mapping; held-answer rendered as active), each failing one primary rule with a stable error/evidence ID.
+- Q: How is the accessibility baseline represented in the profile schema? → A: As explicit structured per-capability declarations (keyboard operation, stable/visible focus, screen-reader announcements, captions, text-only mode, reduced motion, high contrast, non-color cues, zoom/reflow, and pseudo-locale coverage); every field has a closed default and is individually validator-checkable.
+- Q: What does the profile's retention overlay carry? → A: References to externally owned retention-policy IDs plus presentation flags/labels needed to show resolved retention state. It contains no inline durations, legal policy, consent evidence, or authority to change retention; an unresolved policy reference fails closed.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -30,12 +43,13 @@ adapters, or live client (those remain in `implement-avatar-client-lab`).
 
 A DomainxFactory profile author uses the aligned profile schema, shared
 template, and validated examples to declare a domain avatar-first UI overlay
-that carries runtime compatibility, a shell surface default, interaction and
-speech-gate selection, readiness/heartbeat/lease bounds, safe outcome and
-fallback slots, media-authorization pending state, neutral consent-purpose
-mappings, persona catalog references, retention overlays, and an accessibility
-baseline. The offline validator confirms the profile is conformant, all
-defaults are closed, and no authoritative axis is authored by presentation.
+that carries content-addressed runtime compatibility, a shell surface default,
+interaction and speech-gate selection, selected readiness/heartbeat/lease values
+(validated against kernel-owned ceilings), safe outcome and fallback slots,
+media-authorization pending state, neutral consent-purpose mappings, a persona
+reference, a retention overlay, and a structured accessibility baseline. The
+offline validator confirms the profile is conformant, all defaults are closed,
+and no authoritative axis is authored by presentation.
 
 **Why this priority**: The profile is the domain overlay carrier — it is the
 single artifact every domain and the reusable client depend on. Without a
@@ -44,20 +58,22 @@ express an avatar-first surface and no successor can build a client. This story
 delivers the core deliverable end to end.
 
 **Independent Test**: Author or load the four representative example profiles
-(customer avatar-first, client hybrid, domain conventional-first, and a
-confirmation-before-action profile) plus compatibility and negative fixtures,
-run the offline validator, and confirm valid profiles pass and each negative
-fixture fails on the intended rule — with no live provider or runtime service
-involved.
+(customer avatar-first, client hybrid, domain conventional-first, and the
+domain-neutral confirmation-before-consequential-action archetype) plus
+compatibility fixtures and one negative fixture per enforced rule class, run the
+offline validator, and confirm valid profiles pass and each negative fixture
+fails on its intended rule with a stable error/evidence ID — with no live
+provider or runtime service involved.
 
 **Acceptance Scenarios**:
 
-1. **Given** a domain profile that carries runtime compatibility, a shell
-   surface default, interaction and speech-gate selection, readiness/heartbeat/
-   lease bounds within ceilings, safe outcome and fallback slots, consent-purpose
-   mappings, persona references, a retention overlay, and an accessibility
-   baseline, **When** the offline validator runs, **Then** the profile passes and
-   the validator reports full coverage of the required fields.
+1. **Given** a domain profile that carries content-addressed runtime
+   compatibility, a shell surface default, interaction and speech-gate selection,
+   selected readiness/heartbeat/lease values within kernel-owned ceilings, safe
+   outcome and fallback slots, consent-purpose mappings, a persona reference, a
+   retention overlay, and a structured accessibility baseline, **When** the
+   offline validator runs, **Then** the profile passes and the validator reports
+   full coverage of the required fields.
 2. **Given** an existing static avatar-first profile authored before this
    alignment, **When** the offline validator runs, **Then** the profile remains
    valid because the new runtime fields are additive with explicit closed
@@ -69,7 +85,7 @@ involved.
    transition, encodes an out-of-range lease/heartbeat/readiness value, omits a
    required control's fallback, or references an unknown persona, **When** the
    offline validator runs, **Then** the validator fails and identifies the
-   violated rule.
+   violated rule with a stable error/evidence ID.
 
 ---
 
@@ -155,10 +171,11 @@ change.
    reviewed, **Then** it retains a named successor owner
    (`implement-avatar-client-lab` or `avatar-pilot-hardening`) and a closed
    default rather than an open claim.
-3. **Given** the published deterministic UI fixture shapes, **When** the same
-   fixture, seed, decisions, and contract version are evaluated twice, **Then**
-   the declared canonical view-state, command, event, and record shapes are
-   equivalent, without a live model.
+3. **Given** the published deterministic UI fixture shapes under
+   `examples/avatar-first-ui/fixtures/`, **When** the same fixture, seed,
+   decisions, and contract version are evaluated twice, **Then** the declared
+   canonical view-state, command, event, and record shapes are equivalent and
+   carry the same AFU evidence IDs, without a live model.
 
 ---
 
@@ -302,13 +319,16 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   additional locales) assigned to named successors. (AFU-005)
 - **FR-011**: The standard MUST define persona presentation and disclosure
   duties: every selectable persona presents a stable ID/version, role, display
-  name, required disclosure, supported languages, and lifecycle status from the
-  domain-owned catalog; the client displays disclosure and records persona
-  ID/version before media starts; persona is fixed for the logical session;
-  real-person impersonation defaults to prohibited; AI/AI-assisted disclosure,
-  current authority boundary, and reachable consent withdrawal are required;
-  and handoff shows target role, exact shared context classes, and purpose with
-  the ability to remove optional context or decline. (AFU-006)
+  name, required disclosure, supported languages, and lifecycle status resolved
+  from the domain/kernel-owned catalog (which this feature does not schematize);
+  the client displays disclosure and records persona ID/version before media
+  starts; persona is fixed for the logical session; real-person impersonation
+  defaults to prohibited; AI/AI-assisted disclosure, current authority boundary,
+  and reachable consent withdrawal are required; and handoff shows target role,
+  exact shared context classes, and purpose with the ability to remove optional
+  context or decline. A persona reference that cannot be resolved MUST fail
+  closed to an approved fallback; the client MUST NOT invent persona data.
+  (AFU-006)
 - **FR-012**: The standard MUST define safe rendering of untrusted content:
   transcript text, model output, tool summaries, attachment names, URLs, visual
   result data, and provider error text are untrusted and rendered as plain text
@@ -321,12 +341,17 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
 
 **Profile schema (`contracts/schemas/avatar-first-ui-profile.schema.yaml`)**
 
-- **FR-013**: The profile schema MUST carry runtime compatibility, a shell
-  surface default, interaction-mode and speech-gate selection, a readiness
-  default/range, heartbeat and lease ceilings, safe outcome and fallback slots,
-  a media-authorization pending state, neutral consent-purpose mappings, a
-  persona catalog reference, a retention overlay, an accessibility baseline, and
-  handoff roles, as the domain overlay carrier. (AFU-001, AFU-002, AFU-004,
+- **FR-013**: The profile schema MUST carry, as the domain overlay carrier:
+  content-addressed runtime compatibility (per FR-025); a shell surface default;
+  interaction-mode and speech-gate selection; selected readiness, heartbeat, and
+  lease values (the numeric ceilings remain kernel-owned and are not duplicated
+  in the schema, per FR-026); safe outcome and fallback slots; a
+  media-authorization pending state; neutral consent-purpose mappings; a persona
+  reference of stable persona ID, version, and an optional non-secret catalog
+  locator (the persona-catalog schema is out of scope, per FR-011); a retention
+  overlay of retention-policy references plus presentation flags/labels (per
+  FR-027); a structured accessibility baseline of explicit per-capability
+  declarations (per FR-028); and handoff roles. (AFU-001, AFU-002, AFU-004,
   AFU-006)
 - **FR-014**: The profile schema MUST reference the three neutral consent-purpose
   IDs and MAY allow stricter domain-specific IDs, but MUST NOT contain consent
@@ -342,6 +367,30 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
 - **FR-017**: The profile schema MUST carry `schema_version` and `kind` and MUST
   remain a registered contract schema consumed read-only against the kernel's
   capability, outcome, consent-purpose, and state registries. (AFU-002)
+- **FR-025**: The runtime-compatibility field MUST record exact content-addressed
+  coordinates and MUST NOT permit a loose released version range: during parallel
+  work it records the exact `avatar-client-parallel-v1` baseline identity and
+  required baseline digests; at realization it records the released bundle tag,
+  exact commit, and required registry/interface-lock digests. Because the profile
+  fields already declare the specific capabilities, outcomes, and states they
+  consume, the schema MUST NOT introduce a second hand-maintained capability
+  list. (AFU-002, AFU-008)
+- **FR-026**: The profile schema MUST carry only the per-profile selected
+  readiness, heartbeat, and lease values; it MUST NOT hardcode duplicate numeric
+  ceilings. The ceilings remain kernel-owned and are resolved read-only at
+  validation (parallel baseline during development, released registries at
+  realization); a selected value with a missing or unresolvable ceiling MUST fail
+  closed. (AFU-004, AFU-008)
+- **FR-027**: The retention overlay MUST carry only references to externally
+  owned retention-policy IDs plus the presentation flags/labels needed to show
+  resolved retention state; it MUST NOT contain inline durations, legal policy,
+  consent evidence, or any authority to change retention, and an unresolved
+  policy reference MUST fail closed. (AFU-006)
+- **FR-028**: The accessibility baseline MUST be represented as explicit
+  structured per-capability declarations — keyboard operation, stable/visible
+  focus, screen-reader announcements, captions, text-only mode, reduced motion,
+  high contrast, non-color cues, zoom/reflow, and pseudo-locale coverage — each
+  with a closed default and each individually validator-checkable. (AFU-005)
 
 **Template and examples (`templates/ui/avatar-first.yaml`, `examples/avatar-first-ui/`)**
 
@@ -350,24 +399,35 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   handoff boundary, and reserved-feature defaults, and MUST be marked as an
   instantiation stub rather than live configuration. (AFU-001, AFU-004)
 - **FR-019**: The examples set MUST include validated customer avatar-first,
-  client hybrid, domain conventional-first, and confirmation-before-action
-  profiles, plus at least one compatibility fixture (existing profile stays
-  valid) and negative fixtures (each expected to fail on a specific rule).
-  (AFU-002, AFU-004, AFU-006, AFU-007)
+  client hybrid, and domain conventional-first profiles plus a domain-neutral
+  `confirmation-before-consequential-action` archetype (neutral vocabulary, no
+  domain-specific fields; Ledgerx is inspiration only), plus at least one
+  compatibility fixture (existing profile stays valid) and at least one negative
+  fixture per enforced rule class (presentation-authored transition; out-of-range
+  readiness/heartbeat/lease; missing control fallback; unknown/invalid persona
+  reference; reserved/forbidden mode; unsafe rendering/HTML or URI;
+  missing/invalid consent-purpose mapping; held-answer rendered as active), each
+  failing one primary rule with a stable error/evidence ID. (AFU-002, AFU-004,
+  AFU-006, AFU-007)
 
 **Validator (`scripts/validate-avatar-first-ui.py`)**
 
 - **FR-020**: The offline validator MUST check schema/template/example parity,
   required regions and controls, the state axes, safe outcome slots, held-answer/
-  media-authorization state, readiness/heartbeat/lease bounds, control
-  fallbacks, consent-purpose mappings, persona references, safe-rendering policy,
-  accessibility fields, and forbidden/reserved modes, using no provider or
-  runtime service. (AFU-004, AFU-006, AFU-007, AFU-008)
+  media-authorization state, selected readiness/heartbeat/lease values against
+  kernel-owned ceilings, control fallbacks, consent-purpose mappings, persona
+  reference resolution, retention-policy references, safe-rendering policy, the
+  structured per-capability accessibility declarations, and forbidden/reserved
+  modes, using no provider or runtime service, and MUST emit a stable
+  error/evidence ID for each rejected rule. (AFU-004, AFU-005, AFU-006, AFU-007,
+  AFU-008)
 - **FR-021**: The offline validator MUST validate against the frozen
-  `avatar-client-parallel-v1` baseline IDs during parallel work and, in
-  final-realization mode, MUST load the exact released kernel registries
-  read-only and fail closed on any drift, reopening only mapped UI fields on an
-  accepted kernel variance. (AFU-008)
+  `avatar-client-parallel-v1` baseline identity and required baseline digests
+  during parallel work and, in final-realization mode, MUST load the exact
+  released kernel registries read-only, validate every referenced ID against the
+  released bundle tag, exact commit, and required registry/interface-lock digests
+  (content-addressed, no loose version range), and fail closed on any drift,
+  reopening only mapped UI fields on an accepted kernel variance. (AFU-008)
 - **FR-022**: The validator or acceptance map MUST confirm that every `AFU-*`
   requirement and scenario maps to standard, schema, template, fixture, or a
   named successor as its evidence, keeping Flutter widget, golden,
@@ -376,9 +436,12 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
 
 **Deterministic fixtures and release**
 
-- **FR-023**: The feature MUST publish deterministic UI fixture shapes (fixed
-  clocks, IDs, fonts, locale fixtures, platform capabilities, and canonical AVC
-  commands/events/snapshots) so acceptance is reproducible across identical runs,
+- **FR-023**: The feature MUST publish deterministic UI fixture shapes as
+  versioned YAML/JSON files under `examples/avatar-first-ui/fixtures/`, separate
+  from the profile examples. Each fixture MUST carry fixed clock/ID/font/locale/
+  platform inputs, canonical AVC command/event/snapshot inputs, expected
+  view-state/record shapes, and its AFU evidence IDs, so acceptance is
+  reproducible across identical runs and checkable by the offline validator,
   without creating Flutter widgets, provider adapters, goldens, or a live client.
   (AFU-008)
 - **FR-024**: The final serialized release MUST, only after the kernel release,
@@ -390,16 +453,25 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Avatar-first UI profile**: The domain overlay carrier. Carries runtime
-  compatibility, shell surface default, interaction-mode and speech-gate
-  selection, readiness/heartbeat/lease bounds, outcome and fallback slots,
-  media-authorization pending state, consent-purpose mappings, persona catalog
-  reference, retention overlay, accessibility baseline, and handoff roles.
-  Additive fields have closed defaults; existing static profiles remain valid.
-- **Persona reference**: A pointer into the domain-owned persona catalog exposing
-  a stable ID/version, role, display name, required disclosure, supported
+- **Avatar-first UI profile**: The domain overlay carrier. Carries
+  content-addressed runtime compatibility, shell surface default, interaction-mode
+  and speech-gate selection, selected readiness/heartbeat/lease values (ceilings
+  kernel-owned, not duplicated), outcome and fallback slots, media-authorization
+  pending state, consent-purpose mappings, a persona reference, a retention
+  overlay, a structured accessibility baseline, and handoff roles. Additive
+  fields have closed defaults; existing static profiles remain valid.
+- **Runtime compatibility**: Exact content-addressed coordinates the profile
+  pins — baseline identity plus required digests during parallel work; released
+  bundle tag, exact commit, and registry/interface-lock digests at realization.
+  No loose released version range; no second hand-maintained capability list
+  (the profile fields already declare the capabilities/outcomes/states consumed).
+- **Persona reference**: A reference to a domain/kernel-owned persona catalog
+  carrying a stable persona ID, version, and an optional non-secret catalog
+  locator; the catalog schema and instances are out of scope for this feature.
+  The resolved persona exposes role, display name, required disclosure, supported
   languages, and lifecycle status. Persona is fixed for a logical session;
-  real-person impersonation defaults to prohibited.
+  real-person impersonation defaults to prohibited; an unresolved reference fails
+  closed to an approved fallback and the client never invents persona data.
 - **Fallback slot**: The declared safe response for a denial, terminal outcome,
   missing control, unavailable persona, or unavailable audio — a
   localization-safe message key plus approved text/handoff/upgrade/retry-later
@@ -408,6 +480,15 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   neutral consent-purpose IDs (with optional stricter domain IDs). Carries no
   consent evidence and does not make the memory-gateway consent profile
   authoritative.
+- **Retention overlay**: References to externally owned retention-policy IDs plus
+  the presentation flags/labels needed to show resolved retention state. Carries
+  no inline durations, legal policy, consent evidence, or authority to change
+  retention; an unresolved policy reference fails closed.
+- **Accessibility baseline**: A structured set of explicit per-capability
+  declarations (keyboard operation, stable/visible focus, screen-reader
+  announcements, captions, text-only mode, reduced motion, high contrast,
+  non-color cues, zoom/reflow, and pseudo-locale coverage), each with a closed
+  default and each individually validator-checkable.
 - **Authoritative runtime axes** (referenced, not owned): session lifecycle
   (broker-owned), control health (lease-derived), media state (trusted-adapter
   observation constrained by authority), and workflow projection
@@ -429,8 +510,9 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   scenarios in the acceptance map resolve to owned evidence (standard, schema,
   template, fixture) or a named successor change, with zero unowned items.
 - **SC-002**: The offline validator passes on the shared template and all four
-  representative example profiles, and fails on every negative fixture, each on
-  the specific rule it targets, using no provider or runtime service.
+  representative example profiles, and fails on every negative fixture (at least
+  one per enforced rule class), each on the specific rule it targets and reported
+  with a stable error/evidence ID, using no provider or runtime service.
 - **SC-003**: 100% of existing static avatar-first profiles that predate this
   alignment remain valid under the aligned schema, confirmed by at least one
   compatibility fixture — every new runtime field is additive with an explicit
@@ -442,9 +524,11 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   presentation modes, and a reviewer can, for each of the eight requirements,
   identify a single owner (Hermes layer, runtime axis, kernel registry, or named
   successor) with no requirement left ownerless.
-- **SC-006**: Deterministic UI fixture shapes produce equivalent declared
-  canonical view-state, command, event, and record shapes across two identical
-  runs (same fixture, seed, decisions, and contract version).
+- **SC-006**: Deterministic UI fixture shapes under
+  `examples/avatar-first-ui/fixtures/` produce equivalent declared canonical
+  view-state, command, event, and record shapes — carrying the same AFU evidence
+  IDs — across two identical runs (same fixture, seed, decisions, and contract
+  version).
 - **SC-007**: The change introduces zero edits to kernel, reference-runtime, F0,
   DomainxFactory, Flutter, or deployment files during parallel work, verified by
   a clean cross-check; the final release updates the manifest, changelog, and
@@ -459,9 +543,10 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   capability) supplies the four authoritative runtime axes and the capability,
   outcome, consent-purpose, and state registries; this feature consumes them
   read-only and never edits `contracts/avatar-client/`.
-- The frozen interface baseline `avatar-client-parallel-v1` provides stable IDs
-  used during parallel work; final realization cross-checks the exact released
-  kernel registries and fails closed on drift.
+- The frozen interface baseline `avatar-client-parallel-v1` provides the exact
+  baseline identity and digests pinned during parallel work; final realization
+  re-pins to the released bundle tag, exact commit, and registry/interface-lock
+  digests (content-addressed, no loose version range) and fails closed on drift.
 - The avatar-first standard, registered profile schema, shared template,
   examples, and validator already exist and are being aligned and extended by
   this feature, not created from scratch; the profile schema is already
@@ -484,3 +569,7 @@ reference-runtime, F0, DomainxFactory, Flutter, or deployment file changed.
   onboarding are owned by `avatar-pilot-hardening`; the conventional web console
   and workflow editor are owned by the workflow-visualization standard;
   DomainxFactory repositories provide domain profiles and mappings later.
+- The persona catalog (schema and instances) and retention-policy definitions
+  are domain/kernel-owned and out of scope for this feature; the UI profile
+  carries only references to them and fails closed when a reference cannot be
+  resolved.
