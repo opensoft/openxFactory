@@ -100,6 +100,8 @@ Core domain-neutral docs:
 - [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)
 - [xFactory Credential Access Model](docs/credential-access-model.md)
+- [Standard Operating Procedures](docs/sops/README.md)
+- [OpenAI Realtime F0 Lab Credential SOP](docs/sops/openai-realtime-f0-lab-credential.md)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
   ([profile examples](examples/avatar-first-ui/README.md) ·
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))

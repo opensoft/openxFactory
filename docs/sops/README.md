@@ -1,0 +1,15 @@
+# openxFactory Standard Operating Procedures
+
+This directory owns repeatable operational procedures for openxFactory development,
+qualification, installation, and incident handling.
+
+SOPs may record credential requirement IDs, environment-variable contracts, secret
+references, owners, and rotation procedures. They must never contain raw passwords, API
+keys, tokens, private keys, or connection strings. Secret values remain in approved
+secret providers or in explicitly permitted host-only development bindings.
+
+## Catalog
+
+| SOP | Purpose |
+| --- | --- |
+| [OpenAI Realtime F0 Lab Credential](openai-realtime-f0-lab-credential.md) | Provision, store, inject, verify, rotate, and revoke the lab credential used by the avatar brokered-call feasibility harness. |

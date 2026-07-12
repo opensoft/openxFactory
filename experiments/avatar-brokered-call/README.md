@@ -12,9 +12,10 @@ authorization until media is authorized, and terminated within the required boun
 ## Safety & redaction
 
 - The provider credential is read **only** from the `OPENAI_API_KEY` process environment
-  variable (a gitignored local `.env` may populate it; CI/an approved secret store may
-  inject it). It is never accepted via CLI args or tracked files, and never written to
-  any artifact (FR-001/FR-003).
+  variable. The standard local binding is the host-only file defined by the
+  [OpenAI Realtime F0 Lab Credential SOP](../../docs/sops/openai-realtime-f0-lab-credential.md);
+  CI or an approved secret store may inject it. It is never accepted via CLI args or
+  tracked files, and never written to any artifact (FR-001/FR-003).
 - Committed evidence is built from an allowlist and re-scanned before writing; a redaction
   finding fails the run closed and blocks the write (FR-017/SC-007). No binary audio is
   committed and no real-user recording is used (Q7).
@@ -41,16 +42,20 @@ avatar-f0 run                   # emits the terminal record; no key => INCONCLUS
 A no-key run is a **valid completion** (SC-013): it attempts no provider call, fabricates
 nothing, and writes a schema-valid `INCONCLUSIVE` record to the change `evidence/` dir.
 
-## Live run (gates the kernel tag; requires a lab key)
+## Credential preparation (live transport pending)
 
 ```bash
-export OPENAI_API_KEY=...        # never as a CLI arg
-avatar-f0 run                    # runs the 70-trial matrix against the lab candidate
+OPENAI_API_KEY="$(tr -d '\r\n' <"$HOME/.ai-keys/openai.key")"
+export OPENAI_API_KEY
+test -n "${OPENAI_API_KEY:-}" && printf 'OPENAI_API_KEY=present\n'
 ```
 
-The live provider path (`aiortc`/`websockets`/`httpx` clients) is exercised only with a
-key present; it is the lab run that produces the terminal `PASS`/`FAIL`/`INCONCLUSIVE`
-gating contract publication.
+Do not run or describe this harness as a live 70-trial provider matrix yet. The current
+`aiortc`, `websockets`, and `httpx` live clients and the live test remain explicit stubs;
+with a key present, the CLI still emits `INCONCLUSIVE` with reason `live_path_deferred`.
+The key can be installed and authenticated now, but the live transport and supervised
+matrix must be implemented before a provider result can gate contract publication. Follow
+the SOP for non-disclosing authentication, container injection, rotation, and revocation.
 
 ## Layout
 

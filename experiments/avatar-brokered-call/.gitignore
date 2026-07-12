@@ -16,5 +16,7 @@ dist/
 *.opus
 # Local credential material — never commit (FR-001)
 .env
+.env.*
+!.env.example
 # Local run scratch
 *.log

@@ -1,6 +1,12 @@
 __pycache__/
 *.py[cod]
 
+# Local environments and credential material
+.venv/
+.env
+.env.*
+!.env.example
+
 # Session-local agent state (cta dashboard pane)
 .claude/dashboard.md
 .claude/speckit-history.md

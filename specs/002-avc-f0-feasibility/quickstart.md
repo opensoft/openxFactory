@@ -10,8 +10,10 @@ is sufficient for feature completion (a terminal `INCONCLUSIVE` record is valid 
 
 - Python 3.12 (pinned by `experiments/avatar-brokered-call/.python-version`).
 - Dependencies installed from the committed hash-locked file (no unpinned installs).
-- No lab key needed for the offline path. For the live path: `OPENAI_API_KEY` in the
-  environment (a gitignored local `.env` may populate it; never pass it as an argument).
+- No lab key needed for the offline path. Credential preparation for the future live path
+  follows the [OpenAI Realtime F0 Lab Credential SOP](../../docs/sops/openai-realtime-f0-lab-credential.md):
+  `OPENAI_API_KEY` is injected into the process from an external secret binding and is
+  never passed as an argument or stored in this repository.
 
 ## Setup
 
@@ -46,14 +48,25 @@ python -m avatar_f0 run --offline-selftest
 | Group/assertion accounting | exactly six groups / 70 trials; readiness-timeout inside F0-C; cleanup cross-cutting (Q4) |
 | Classification | PASS/FAIL/INCONCLUSIVE derived per FR-016 (a p95/ceiling miss cannot be averaged away) |
 
-## Live validation (requires `OPENAI_API_KEY`)
+## Credential readiness (live validation currently blocked)
 
 ```bash
-export OPENAI_API_KEY=...      # or via a gitignored .env; never as a CLI arg
+OPENAI_API_KEY="$(tr -d '\r\n' <"$HOME/.ai-keys/openai.key")"
+export OPENAI_API_KEY
+test -n "${OPENAI_API_KEY:-}" && printf 'OPENAI_API_KEY=present\n'
+```
+
+The current `HttpBroker`, live sideband client, live media peer, and live test are stubs.
+The CLI does not call the provider when the key is present; it writes an `INCONCLUSIVE`
+record with reason `live_path_deferred`. Credential authentication may be checked using
+the SOP, but the command below must not be represented as executable until those stubs are
+implemented:
+
+```bash
 python -m avatar_f0 run --groups F0-A,F0-B,F0-C,F0-D,F0-E,F0-F
 ```
 
-**Expected outcomes**:
+**Required outcomes after the live transport is implemented**:
 
 - Three artifacts written under `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/`
   (`f0-results.json`, `f0-results.md`, `f0-interface-impact.yaml`), and nothing outside the two
