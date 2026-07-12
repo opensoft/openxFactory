@@ -286,6 +286,9 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                               keep_sideband=True)
             if hs.error and hs.error.startswith("api_shape"):
                 status, note = INCONCLUSIVE, "provider api shape prevented the trial"
+            elif hs.error == "ordering":
+                status, note = FAIL, "ordering violated"
+                await _hangup(broker, hs, registry)
             elif not (hs.authorized and hs.first_output):
                 status, note = FAIL, "revocation precondition (authorized active media) not met"
                 await _hangup(broker, hs, registry)
@@ -293,23 +296,24 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                 # Client-enforced revocation (ACR-005 clarified + ratified 2026-07-12). The ≤5s
                 # guarantee has TWO halves, BOTH verified here against the real media leg F0-D
                 # uniquely holds:
-                #   (a) the client stops its OWN media leg (close the peer) within 5s AND no
-                #       media I/O flows after the stop (F0-D-TERMINAL_5S + F0-D-NO_LATE_IO);
+                #   (a) the client stops its OWN media leg — close it and POSITIVELY confirm the
+                #       inbound leg terminated (drain ended) within 5s, so no media flows after
+                #       (F0-D-TERMINAL_5S + F0-D-NO_LATE_IO); a teardown flush still ends the
+                #       drain (counts as stopped) — a leg that keeps streaming never ends (FAIL);
                 #   (b) the provider revocation REQUEST is accepted within 5s.
                 # The provider's authoritative server-side settle may lag (best-effort, ~8.1s
                 # observed) and is recorded informationally, NOT gated.
                 clock.mark("t_revocation_request", env.now_ns())
                 hs.control.revoke()                         # client-side lease revoke (immediate)
-                hs.media.arm_no_late_io()                   # any media I/O after this is 'late'
                 try:
                     await hs.media.close()                  # (a) client-side media stop
                 except Exception:
                     pass
+                # Positive closure confirmation: the inbound leg terminated within the bound.
+                leg_stopped = await hs.media.wait_leg_stopped(env.revocation_bound_ms / 1000.0)
                 clock.mark("t_media_leg_closed", env.now_ns())
                 accepted = await broker.hangup(hs.call_id)  # (b) provider revocation request
                 clock.mark("t_hangup_sent", env.now_ns())
-                await env.sleep(min(0.2, env.revocation_bound_ms / 1000.0))  # observe for late I/O
-                no_late_io = not hs.media.late_io_observed
                 # Informational only (non-gating; no t_peer_terminal marker → no metric bound):
                 # observe the provider's authoritative teardown verdict for the evidence note.
                 settle = "not_probed"
@@ -326,22 +330,22 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                     registry.mark_terminated(hs.call_id_hash)   # cleanup bookkeeping only
                     hs.terminated = True
                 offs = clock.offsets_ms()
-                client_stop_within = ("t_media_leg_closed" in offs
+                client_stop_within = (leg_stopped and "t_media_leg_closed" in offs
                                       and (offs["t_media_leg_closed"] - offs["t_revocation_request"])
                                       <= env.revocation_bound_ms)
                 request_within = (accepted and "t_hangup_sent" in offs
                                   and (offs["t_hangup_sent"] - offs["t_revocation_request"])
                                   <= env.revocation_bound_ms)
-                if client_stop_within and request_within and no_late_io:
+                if client_stop_within and request_within:
                     status = PASS
-                    note = ("client-enforced: media leg closed + revocation request accepted "
-                            f"in-bound, no late I/O; provider settle={settle} (informational)")
-                elif not no_late_io:
-                    status, note = FAIL, "media I/O continued after the client-side stop"
-                elif not client_stop_within:
-                    status, note = FAIL, "client did not stop its media leg within the 5s bound"
+                    note = ("client-enforced: media leg stopped + revocation request accepted "
+                            f"in-bound; provider settle={settle} (informational)")
+                elif not leg_stopped:
+                    status, note = FAIL, "client media leg did not stop within the 5s bound (media still flowing)"
                 elif not accepted:
                     status, note = FAIL, "revocation request not accepted (hangup failed)"
+                elif not client_stop_within:
+                    status, note = FAIL, "client media leg stop exceeded the 5s bound"
                 else:
                     status, note = FAIL, "revocation request not accepted within the 5s bound"
 

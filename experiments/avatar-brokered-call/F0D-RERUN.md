@@ -61,21 +61,21 @@ the F0-D group counts and the per-trial notes (each PASS note records the inform
 
 - **F0-D PASS (all 10)** → client-enforced revocation confirmed live. Go to step 4.
 - **F0-D FAIL** — read the note:
-  - `media I/O continued after the client-side stop` → the client leg did not actually stop
-    (a real defect in the client media teardown — report; do not tune around it).
-  - `client did not stop its media leg within the 5s bound` → the local `close()` exceeded the
-    bound (investigate the aiortc teardown timing on this host).
+  - `client media leg did not stop within the 5s bound (media still flowing)` → the inbound
+    media leg kept streaming after `close()` (the receive drain never ended within the bound)
+    — a real client-teardown / aiortc finding on this host; report, do not tune around it.
   - `revocation request not accepted …` → the provider `hangup` did not return 200 in-bound
     (a provider/API finding — capture the status).
 - **Note the informational provider settle** in the PASS notes (`provider settle=terminated/
   alive/inconclusive`) for the evidence packet — it does not change the outcome.
 
-One caveat to confirm on this run: the client-stop mechanism (`arm_no_late_io` → `close` →
-observation window) is offline-mock-tested; its real timing against a live aiortc peer at
-24 kHz / 20 ms frames is validated here. If a **healthy** stop spuriously trips
-`media I/O continued after the client-side stop`, widen the arm→close ordering or the
-observation window — that is a mechanism-timing fix (commit with the empirical basis; it is
-ACR-005-adjacent, so flag for review), NOT a weakening of the assertion.
+One thing to confirm on this run: F0-D proves the client-side stop by POSITIVE confirmation —
+after `pc.close()`, the inbound receive drain must end (`wait_leg_stopped`) within the bound.
+A teardown flush of a few in-flight frames still ends the drain (counts as stopped, no false
+FAIL); a leg that keeps streaming never ends (→ FAIL). This is mock-tested; confirm on live
+that `pc.close()` reliably ends the drain within 5 s. If a **healthy** stop times out, that is
+a mechanism-timing finding (commit with the empirical basis; ACR-005-adjacent, so flag for
+review), NOT a weakening of the assertion.
 
 ### 4. Full matrix + handoff (once F0-D passes)
 

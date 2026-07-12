@@ -99,10 +99,8 @@ class FakeMedia:
     async def wait_terminal(self, timeout_s):
         return True
 
-    def arm_no_late_io(self):
-        pass
-
-    late_io_observed = False        # a healthy client stop leaves no late media I/O
+    async def wait_leg_stopped(self, timeout_s):
+        return True         # a healthy client stop: the inbound leg terminates in-bound
 
     async def close(self):
         pass
@@ -234,13 +232,14 @@ def test_f0d_fails_when_revocation_request_not_accepted():
     assert d["failed"] == 10 and d["passed"] == 0
 
 
-def test_f0d_fails_on_late_media_io_after_stop():
-    # Half (a) of the guarantee: if media I/O continues after the client-side stop, F0-D FAILs —
-    # even though the revocation request was accepted in-bound.
-    class LateIOMedia(FakeMedia):
-        late_io_observed = True         # the client 'closed' but media kept flowing
+def test_f0d_fails_when_media_leg_does_not_stop():
+    # Half (a) of the guarantee: if the client media leg does not terminate within the bound
+    # (media keeps flowing after 'close'), F0-D FAILs — even with the request accepted in-bound.
+    class NoStopMedia(FakeMedia):
+        async def wait_leg_stopped(self, timeout_s):
+            return False                # the inbound leg never terminated (still streaming)
 
-    rec = _run(make_env(media=lambda: LateIOMedia()), groups=["F0-D"])
+    rec = _run(make_env(media=lambda: NoStopMedia()), groups=["F0-D"])
     assert rec["overall"] == "FAIL"
     d = _f0d_group(rec)
     assert d["failed"] == 10 and d["passed"] == 0
