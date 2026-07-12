@@ -8,6 +8,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# Substrings in a server error frame that indicate the call is gone (termination probe,
+# F0-D). Deliberately conservative: confirm/extend against the exact provider error type
+# observed for a hung-up call on the lab re-run. A generic error is NOT a termination.
+TERMINATION_ERROR_MARKERS = (
+    "not_found", "not found", "call_not_found", "call_ended", "session_expired",
+    "no active session", "invalid_call", "closed",
+)
+
+
+def _is_connection_closed(exc: Exception) -> bool:
+    """True if ``exc`` is a websockets connection-closed signal (the strong 'call gone' cue)."""
+    return type(exc).__name__ in (
+        "ConnectionClosed", "ConnectionClosedOK", "ConnectionClosedError",
+    )
+
 
 @dataclass
 class SimulatedSideband:
@@ -100,6 +115,56 @@ class WssSideband:  # pragma: no cover - live path, exercised only with a lab ke
         except Exception:
             self._verified = False
         return self._verified
+
+    async def probe_terminated(self, timeout_s: float) -> str:
+        """Active termination probe — INVERTED polarity from ``verify`` (F0-D revocation).
+
+        Passively watching the media leg cannot see teardown within the 5 s bound (the
+        provider emits no prompt terminal signal; aiortc's ICE-consent teardown is ~30 s).
+        So after hangup we probe the control channel instead. Returns exactly one of:
+
+          "terminated"    the socket closed, OR the server errored with a call-gone marker
+                          → revocation observed
+          "alive"         the server acknowledged (``session.updated``) → the call is STILL
+                          live → revocation FAILED (must become a FAIL, never ignored)
+          "inconclusive"  timeout, or an error/frame we cannot attribute to termination
+
+        SAFETY: only a POSITIVE termination signal returns "terminated". A generic error, a
+        non-JSON frame, or a timeout is "inconclusive" — never a false "terminated", which
+        would falsely PASS the one assertion that proves we can actually kill a live call.
+        The exact provider close-code / error-type for a hung-up call is confirmed on the
+        lab re-run; extend ``TERMINATION_ERROR_MARKERS`` there if the provider errors rather
+        than closing.
+        """
+        import asyncio
+        import json
+
+        if self._ws is None:
+            return "inconclusive"
+        try:
+            await self._ws.send(
+                json.dumps({"type": "session.update", "session": {"type": "realtime"}})
+            )
+            reply = await asyncio.wait_for(self._ws.recv(), timeout=timeout_s)
+        except asyncio.TimeoutError:
+            return "inconclusive"
+        except Exception as exc:
+            # A closed connection is the strong, unambiguous termination signal; any other
+            # transport failure is inconclusive (cannot attribute to termination).
+            return "terminated" if _is_connection_closed(exc) else "inconclusive"
+        try:
+            msg = json.loads(reply)
+        except Exception:
+            return "inconclusive"
+        typ = msg.get("type", "")
+        if typ == "session.updated":
+            return "alive"          # still processing → revocation FAILED
+        if typ == "error":
+            blob = json.dumps(msg).lower()
+            if any(m in blob for m in TERMINATION_ERROR_MARKERS):
+                return "terminated"
+            return "inconclusive"   # generic error — do NOT assume termination
+        return "inconclusive"
 
     async def close(self) -> None:
         if self._ws is not None:

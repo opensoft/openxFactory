@@ -98,6 +98,7 @@ class _HS:
     error: Optional[str] = None              # "api_shape:<s>" ⇒ INCONCLUSIVE; "ordering" ⇒ FAIL
     media: object = None
     control: object = None
+    sideband: object = None                  # kept open for F0-D's active terminal probe
 
 
 def _offer_fp(offer_sdp: str) -> str:
@@ -118,7 +119,7 @@ async def _hangup(broker, hs: _HS, registry: CallRegistry) -> None:
 
 
 async def _drive(env: LiveEnv, clock: TrialClock, registry: CallRegistry, broker,
-                 request_id: str, *, variant: str) -> _HS:
+                 request_id: str, *, variant: str, keep_sideband: bool = False) -> _HS:
     """Offer → create (held answer) → sideband verify + control authorize → apply → first media."""
     hs = _HS()
     media = env.components.make_media()
@@ -142,6 +143,7 @@ async def _drive(env: LiveEnv, clock: TrialClock, registry: CallRegistry, broker
         registry.register(result.call_id_hash)
 
         sideband = env.components.make_sideband(result.call_id)
+        hs.sideband = sideband        # exposed so F0-D can reuse it for the terminal probe
         await sideband.open()
         clock.mark("t_sideband_open", env.now_ns())
 
@@ -198,7 +200,9 @@ async def _drive(env: LiveEnv, clock: TrialClock, registry: CallRegistry, broker
         hs.error = "api_shape:runtime"
         return hs
     finally:
-        if sideband is not None:
+        # F0-D keeps the sideband open for its post-hangup terminal probe and closes it in
+        # _run_trial's finally; every other path closes it here.
+        if sideband is not None and not keep_sideband:
             try:
                 await sideband.close()
             except Exception:
@@ -278,7 +282,8 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
             await _hangup(broker, hs, registry)  # idempotent; already terminated in _drive
 
         elif group_id == "F0-D":
-            hs = await _drive(env, clock, registry, broker, request_id, variant="baseline")
+            hs = await _drive(env, clock, registry, broker, request_id, variant="baseline",
+                              keep_sideband=True)
             if hs.error and hs.error.startswith("api_shape"):
                 status, note = INCONCLUSIVE, "provider api shape prevented the trial"
             elif not (hs.authorized and hs.first_output):
@@ -287,25 +292,35 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
             else:
                 clock.mark("t_revocation_request", env.now_ns())
                 hs.control.revoke()
-                hs.media.arm_terminal()   # only terminal transitions AFTER hangup count (no latch)
                 accepted = await broker.hangup(hs.call_id)
                 clock.mark("t_hangup_sent", env.now_ns())
-                terminal = await hs.media.wait_terminal(env.revocation_bound_ms / 1000.0)
-                if terminal:
+                # ACTIVE terminal probe on the control channel (passive media teardown is not
+                # observable within the bound). Inverted polarity: "terminated" = revocation
+                # observed; "alive" = call still live = revocation FAILED; "inconclusive" =
+                # no attributable signal. Only a POSITIVE termination signal passes.
+                verdict = "inconclusive"
+                if hs.sideband is not None:
+                    try:
+                        verdict = await hs.sideband.probe_terminated(env.revocation_bound_ms / 1000.0)
+                    except Exception:
+                        verdict = "inconclusive"
+                if verdict == "terminated":
                     clock.mark("t_peer_terminal", env.now_ns())
                     registry.mark_terminated(hs.call_id_hash)
                     hs.terminated = True
                 offs = clock.offsets_ms()
-                within = (accepted and terminal and "t_peer_terminal" in offs
+                within = ("t_peer_terminal" in offs
                           and (offs["t_peer_terminal"] - offs["t_hangup_sent"]) <= env.revocation_bound_ms)
-                if within:
-                    status = PASS
-                elif not accepted:
+                if not accepted:
                     status, note = INCONCLUSIVE, "provider did not accept hangup"
-                elif not terminal:
-                    status, note = INCONCLUSIVE, "no observable terminal signal within bound"
+                elif verdict == "alive":
+                    status, note = FAIL, "revocation failed: call still live after hangup"
+                elif verdict == "inconclusive":
+                    status, note = INCONCLUSIVE, "no conclusive termination signal within bound"
+                elif within:
+                    status = PASS
                 else:
-                    status, note = FAIL, "termination exceeded the 5s bound"
+                    status, note = FAIL, "termination confirmed but exceeded the 5s bound"
 
         elif group_id == "F0-E":
             hs = await _create_retry(env, clock, registry, broker, request_id, changed=False)
@@ -327,10 +342,16 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                 status, note = FAIL, "changed retry did not conflict / created a second call"
             await _hangup(broker, hs, registry)
     finally:
-        # Always release the peer connection, on every path (crash-safety / no leak).
+        # Always release the peer connection and the (F0-D) kept-open sideband, on every
+        # path (crash-safety / no leak).
         if hs.media is not None:
             try:
                 await hs.media.close()
+            except Exception:
+                pass
+        if hs.sideband is not None:
+            try:
+                await hs.sideband.close()
             except Exception:
                 pass
 

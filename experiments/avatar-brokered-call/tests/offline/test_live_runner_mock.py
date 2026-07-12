@@ -54,6 +54,10 @@ class FakeBroker:
 
 
 class FakeSideband:
+    # verdict controls the F0-D active terminal probe: "terminated" (default, revocation
+    # observed) → PASS; "alive" → FAIL; "inconclusive" → INCONCLUSIVE.
+    probe_verdict = "terminated"
+
     def __init__(self, call_id):
         self.call_id = call_id
 
@@ -62,6 +66,9 @@ class FakeSideband:
 
     async def verify(self, timeout_s):
         return True
+
+    async def probe_terminated(self, timeout_s):
+        return self.probe_verdict
 
     async def close(self):
         pass
@@ -185,25 +192,82 @@ def test_transport_exception_is_inconclusive_and_leaks_no_text():
     assert "SECRET-SDP-FRAGMENT" not in json.dumps(rec)
 
 
-def test_f0d_stale_terminal_latch_does_not_false_pass():
-    # A terminal state latched during the handshake (transient ICE blip) must NOT satisfy
-    # the post-hangup revocation bound: arm_terminal() clears it, and with no NEW terminal
-    # signal F0-D is INCONCLUSIVE (never a false PASS).
-    class StaleLatchMedia(FakeMedia):
-        def __init__(self):
-            super().__init__()
-            self._stale = True
+def _sideband_factory(verdict):
+    def make(call_id):
+        sb = FakeSideband(call_id)
+        sb.probe_verdict = verdict
+        return sb
+    return make
 
-        def arm_terminal(self):
-            self._stale = False          # arming clears the stale pre-hangup latch
 
-        async def wait_terminal(self, timeout_s):
-            return self._stale           # no new terminal after arming → False
+def _f0d_group(rec):
+    return next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
 
-    rec = _run(make_env(media=lambda: StaleLatchMedia()), groups=["F0-D"])
+
+def test_f0d_active_probe_terminated_passes():
+    # A positive termination signal from the active probe → F0-D PASS (revocation observed).
+    rec = _run(make_env(sideband=_sideband_factory("terminated")), groups=["F0-D"])
+    d = _f0d_group(rec)
+    assert d["passed"] == d["planned"] == 10 and d["failed"] == 0
+
+
+def test_f0d_still_alive_is_fail_not_ignored():
+    # The critical guard: a call STILL LIVE after hangup (probe → "alive") means revocation
+    # FAILED — it must be a FAIL, never silently ignored or passed.
+    rec = _run(make_env(sideband=_sideband_factory("alive")), groups=["F0-D"])
+    assert rec["overall"] == "FAIL"
+    d = _f0d_group(rec)
+    assert d["failed"] == 10 and d["passed"] == 0
+
+
+def test_f0d_inconclusive_probe_never_false_passes():
+    # An ambiguous probe result (generic error / timeout) must be INCONCLUSIVE, never a
+    # false "terminated" PASS on the safety-critical revocation assertion.
+    rec = _run(make_env(sideband=_sideband_factory("inconclusive")), groups=["F0-D"])
     assert rec["overall"] == "INCONCLUSIVE"
-    d = next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
-    assert d["passed"] == 0
+    d = _f0d_group(rec)
+    assert d["passed"] == 0 and d["failed"] == 0
+
+
+def test_probe_terminated_classification_polarity():
+    # Directly exercise WssSideband.probe_terminated's tri-state polarity (no network).
+    import json as _json
+
+    from avatar_f0.sideband import WssSideband
+
+    class ConnectionClosed(Exception):   # name matches sideband._is_connection_closed
+        pass
+
+    class _FakeWs:
+        def __init__(self, reply=None, raise_exc=None):
+            self._reply, self._raise = reply, raise_exc
+
+        async def send(self, data):
+            pass
+
+        async def recv(self):
+            if self._raise is not None:
+                raise self._raise
+            return self._reply
+
+    async def _probe(reply=None, raise_exc=None):
+        sb = WssSideband("rtc_x", "sk-fake")
+        sb._ws = _FakeWs(reply, raise_exc)
+        return await sb.probe_terminated(1.0)
+
+    run = asyncio.run
+    # still-alive ack → alive (revocation FAILED)
+    assert run(_probe(reply=_json.dumps({"type": "session.updated"}))) == "alive"
+    # error naming a call-gone marker → terminated
+    assert run(_probe(reply=_json.dumps({"type": "error", "error": {"code": "call_not_found"}}))) == "terminated"
+    # generic error → inconclusive (NOT a false terminated)
+    assert run(_probe(reply=_json.dumps({"type": "error", "error": {"code": "rate_limited"}}))) == "inconclusive"
+    # non-JSON / unexpected frame → inconclusive
+    assert run(_probe(reply="<<not json>>")) == "inconclusive"
+    assert run(_probe(reply=_json.dumps({"type": "something.else"}))) == "inconclusive"
+    # socket closed → terminated (strong signal); generic transport error → inconclusive
+    assert run(_probe(raise_exc=ConnectionClosed("gone"))) == "terminated"
+    assert run(_probe(raise_exc=RuntimeError("blip"))) == "inconclusive"
 
 
 def test_cli_live_wiring_runs_with_fakes_no_nameerror(monkeypatch):
