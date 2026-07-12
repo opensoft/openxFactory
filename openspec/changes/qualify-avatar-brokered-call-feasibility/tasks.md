@@ -7,7 +7,7 @@
 ## 2. Trial Matrix
 
 - [ ] 2.1 Implement baseline and delayed-sideband trials with answer holding, sideband verification, xFactory control readiness, authoritative media authorization, answer application, and first-media timing markers.
-- [ ] 2.2 Implement sideband-failure, readiness-timeout, interrupted-run, and cleanup trials that never authorize media and terminate every known provider call.
+- [ ] 2.2 Implement sideband-failure, readiness-timeout, interrupted-run, and cleanup trials that never authorize media and terminate every known provider call. (Offline state: the sideband-failure and readiness-timeout paths are implemented in `trials/f0c_sideband_failure.py`; the readiness-timeout assertion `F0-C-READINESS_TIMEOUT` is wired into F0-C and the cross-cutting `F0-D-INTERRUPTED` / `F0-D-BOUNDED_CLEANUP` assertions are registered in the record + schema PASS conditional, with `cleanup.run_cleanup` invoked from the run-assembly path. Live per-trial execution of these paths is deferred to the supervised lab run — see 3.1.)
 - [ ] 2.3 Implement exact-retry and changed-retry trials proving at-most-one provider call for an equivalent request and no prior-answer disclosure or second call for changed offer identity.
 - [ ] 2.4 Implement consent-revocation and kill-path trials proving immediate control revocation and provider termination within five seconds, with request and observed-termination timing kept distinct.
 

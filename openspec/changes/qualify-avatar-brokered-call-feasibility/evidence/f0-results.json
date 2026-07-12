@@ -1,0 +1,1001 @@
+{
+  "assertions": [
+    {
+      "failed_trials": 0,
+      "id": "F0-A-ORDERING",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-A-SINGLE_CALL",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-B-ORDERING",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-B-WITHIN_CEILING",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-C-NO_MEDIA",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-C-READINESS_TIMEOUT",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-TERMINAL_5S",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-NO_LATE_IO",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-E-SINGLE_CALL",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-F-IDEMPOTENCY",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-INTERRUPTED",
+      "note": "not executed (no lab credential)",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-BOUNDED_CLEANUP",
+      "note": "not executed (no lab credential)",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    }
+  ],
+  "candidate": {
+    "interaction_mode": "provider_vad",
+    "requested_model": "gpt-realtime-2.1",
+    "resolved_model": "unresolved",
+    "turn_detection": {
+      "create_response": true,
+      "interrupt_response": true,
+      "prefix_padding_ms": 300,
+      "silence_duration_ms": 500,
+      "threshold": 0.5,
+      "type": "server_vad"
+    },
+    "voice": "marin"
+  },
+  "completed_at": "2026-07-11T00:00:00Z",
+  "environment": {
+    "dependency_versions": {
+      "PyYAML": "6.0.2",
+      "aiortc": "1.9.0",
+      "httpx": "0.27.2",
+      "jsonschema": "4.23.0",
+      "websockets": "12.0"
+    },
+    "docs_retrieved_at": "2026-07-10T00:00:00Z",
+    "lab_project_ref": "lab:f0-brokered-call",
+    "network_type": "none",
+    "region": null,
+    "runtime": "python3.12"
+  },
+  "metrics": {
+    "first_playable_after_authorized_ms": {
+      "count": 0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "hangup_to_terminal_ms": {
+      "count": 0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "sideband_ready_ms": {
+      "count": 0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    }
+  },
+  "overall": "INCONCLUSIVE",
+  "protocol_version": "1",
+  "redaction_scan": {
+    "prohibited_findings": 0,
+    "status": "PASS"
+  },
+  "report_sha256": "fdf87553eefa31a7a35182ee1b9d11db61826c50fbdb415cf2028382ccd8e38d",
+  "started_at": "2026-07-11T00:00:00Z",
+  "trial_groups": [
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-A",
+      "passed": 0,
+      "planned": 20
+    },
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-B",
+      "passed": 0,
+      "planned": 10
+    },
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-C",
+      "passed": 0,
+      "planned": 10
+    },
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-D",
+      "passed": 0,
+      "planned": 10
+    },
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-E",
+      "passed": 0,
+      "planned": 10
+    },
+    {
+      "completed": 0,
+      "failed": 0,
+      "id": "F0-F",
+      "passed": 0,
+      "planned": 10
+    }
+  ],
+  "trials": [
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-10"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-11"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-12"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-13"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-14"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-15"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-16"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-17"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-18"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-19"
+    },
+    {
+      "assertion_ids": [
+        "F0-A-ORDERING",
+        "F0-A-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-A",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-A-20"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-B-ORDERING",
+        "F0-B-WITHIN_CEILING"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-B",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-B-10"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-C",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-C-10"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-D-TERMINAL_5S",
+        "F0-D-NO_LATE_IO"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-D",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-D-10"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-E-SINGLE_CALL"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-E",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-E-10"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-01"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-02"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-03"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-04"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-05"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-06"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-07"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-08"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-09"
+    },
+    {
+      "assertion_ids": [
+        "F0-F-IDEMPOTENCY"
+      ],
+      "durations_ms": {},
+      "group_id": "F0-F",
+      "note": "not executed (no lab credential)",
+      "provider_request_id_hash": null,
+      "status": "INCONCLUSIVE",
+      "trial_id": "F0-F-10"
+    }
+  ]
+}
