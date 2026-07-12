@@ -51,11 +51,17 @@ class WssSideband:  # pragma: no cover - live path, exercised only with a lab ke
     """Live sideband WSS control channel for an existing call.
 
     Attaches to ``wss://api.openai.com/v1/realtime?call_id=<id>`` with the bearer key and
-    treats the first server event as confirmation the session is live. This is the
-    out-of-band control channel — distinct from the WebRTC media leg — so the harness can
-    verify readiness while the provider answer is still held off the peer connection.
-    ``open`` and ``verify`` are distinct so the harness records ``t_sideband_open`` vs
-    ``t_sideband_verified``.
+    confirms the session with an ACTIVE probe (send a client event, await the server
+    response). This is the out-of-band control channel — distinct from the WebRTC media
+    leg — so the harness can verify readiness while the provider answer is still held off
+    the peer connection. ``open`` and ``verify`` are distinct so the harness records
+    ``t_sideband_open`` vs ``t_sideband_verified``.
+
+    Empirical provider variance (lab, 2026-07-12): the GA ``?call_id=`` attach sends NO
+    unsolicited greeting event (no ``session.created``) in either the held or the
+    connected state, but it answers a client ``session.update`` with ``session.updated``
+    in well under the readiness deadline — including while the answer is held. A passive
+    first-event wait therefore never verifies; the active probe does.
     """
 
     def __init__(self, call_id: str, api_key: str, base_url: str = "wss://api.openai.com") -> None:
@@ -74,14 +80,23 @@ class WssSideband:  # pragma: no cover - live path, exercised only with a lab ke
         )
 
     async def verify(self, timeout_s: float) -> bool:
-        """Await the first control event; its arrival confirms the session is attachable."""
+        """Probe the control channel; a non-error server response confirms the session.
+
+        Sends a benign ``session.update`` and awaits the reply (the provider emits no
+        unsolicited event to wait for — see class docstring). An ``error`` reply or a
+        non-JSON frame counts as NOT verified: fail closed.
+        """
         import asyncio
+        import json
 
         if self._ws is None:
             raise SidebandError("sideband.verify called before open")
         try:
-            await asyncio.wait_for(self._ws.recv(), timeout=timeout_s)
-            self._verified = True
+            await self._ws.send(
+                json.dumps({"type": "session.update", "session": {"type": "realtime"}})
+            )
+            reply = await asyncio.wait_for(self._ws.recv(), timeout=timeout_s)
+            self._verified = json.loads(reply).get("type", "error") != "error"
         except Exception:
             self._verified = False
         return self._verified
