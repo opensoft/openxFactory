@@ -120,13 +120,15 @@ proposal):
   — organized 2026-07-12 after all seven open questions were decided, and
   promoted the same day into the add-ideation-cross-reference-readiness
   proposal; kept as design history with the decisions inline.
+- [Ideation Area Dashboard](brainstorm/ideation-dashboard.md) — organized
+  2026-07-12 into the ideation-dashboard staged topic (six-column docs-first
+  realization funnel over a possibles register, pipeline board, doc list,
+  and non-mutating workbench; drafts gate artifacts, never executes gates);
+  kept as design history with the in-session decisions inline.
 
 Brainstorm (active):
 
-- [Ideation Area Dashboard](brainstorm/ideation-dashboard.md) — read-only
-  generated dashboard GUI (pipeline board, topic clusters, lineage, readiness
-  heat) projecting the governance state of the ideation area; complements the
-  NotebookLM semantic surface; scope, capability home, and v0 cut undecided.
+- none currently.
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a

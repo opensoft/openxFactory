@@ -1,16 +1,23 @@
 # Ideation Area Dashboard — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Proposes a read-only, generated dashboard GUI whose centerpiece is a
 realization funnel — each topic cluster's enumerated *possible* feats, which
 of them staging *picked*, and where each pick went — layered over a pipeline
 board, lineage, readiness, and health views projected from the headers and
-indexes that already exist, complementing (not duplicating) the NotebookLM
-semantic interrogation surface.
+indexes that already exist, plus a non-mutating "workbench" for assembling
+temp doc sets (cluster-seeded or ad-hoc) and pointing NotebookLM, readiness
+scoring, and doc-health at them — complementing (not duplicating) the
+NotebookLM semantic interrogation surface.
 Topics: ideation-dashboard, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection, lifecycle-projection
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
+Organized: 2026-07-12 into the
+[ideation-dashboard staged topic](../staging/ideation-dashboard/ideation-dashboard.md)
+(staged) — all open questions carry decisions in that packet's decision
+record; Brett confirmed the drafted recommended rows R1–R14 unchanged on
+2026-07-12, satisfying the proposal gate.
 Participants: Brett Heap, Claude (design session)
 
 ## Problem
@@ -94,6 +101,52 @@ any topic cluster. Real worked examples the funnel would render today:
 - `domain-to-neutral-promotion` brainstorm → promotion process doc + the DTN
   register + promotion-refinements staged topic.
 
+**Cluster↔possible links are many-to-many** (decided in session, 2026-07-12):
+a single brainstorm doc carries several `Topics:`, so one doc feeds several
+clusters, and one possible can be claimed by more than one cluster — this
+very dashboard possible is claimed by both `ideation-governance` and
+`workflow-visualization`. The funnel therefore draws explicit edges between
+the cluster and possible columns rather than nesting possibles under a
+single cluster row; per-cluster tallies count *links*, not cards, so a
+shared possible appears in every claiming cluster's count.
+
+### Workbench: user-assembled temp sets (added in session, 2026-07-12)
+
+The dashboard gains one bounded interaction: the user can **assemble a
+temporary working set of docs** — a "workbench" (Brett's term: temp staging;
+naming note below) — and point tools at it. Two assembly paths:
+
+1. **Cluster-seeded**: click a topic-cluster card and its member docs
+   pre-populate a workbench — the machine's grouping as a starting point.
+2. **Ad-hoc**: multi-select docs from the doc list directly, ignoring the
+   clusters — because *the user may see a pattern the index does not*. An
+   ad-hoc set that matches no machine cluster is not just a convenience; it
+   is **signal that the tagging/clustering missed something**, and the
+   workbench should be able to propose it back to the cross-reference index
+   as a candidate topic (evidence-backed recommendation, `pending_review` —
+   the same contract the organizer and cataloger already use).
+
+A workbench is a **reference set, never copies or moves** — source docs are
+untouched, so the non-mutating discipline survives intact. The only artifact
+written is the workbench manifest itself. Tools that take a set:
+
+- **Project to a scratch NotebookLM notebook** (`xf-wb-<name>`-style, via the
+  existing nlm CLI + sync-script pattern) for interrogation, mind maps, audio
+  — and, once the hybrid-imports change ratifies, notes taken there flow back
+  through the governed return path.
+- **Score readiness on demand** — run the three-tier panel over just this set
+  instead of waiting for the nightly lane.
+- **Run doc-health scoped to the set.**
+- **Draft an organize-gate action** — pre-fill a `staging/<topic>/` packet
+  skeleton from the set for a human to review and commit; the gate itself
+  stays manual.
+
+**Naming caution**: "temp staging" collides with the governed lifecycle word
+`staged` and the `ideation/staging/` area — a doc must never appear to be
+staged because it sits in a scratch set. Recommend a collision-free word
+(workbench / tray / assembly) in the eventual contract, whatever the UI label
+says.
+
 **The gap this exposes**: nothing today records the possibles that were *not*
 picked. `Target capabilities:` on a staged doc records the pick; the unpicked
 candidates evaporate into prose (or a reader's memory). The dashboard can
@@ -124,9 +177,16 @@ directly — no new library survey needed:
 
 ### View catalogue
 
-- **Realization funnel** (primary): five columns — *topic cluster →
-  possibles → staged picks → proposals → realized* — with edges drawn between
-  them. Possibles render in three visual states: latent (hollow/grey, the
+- **Realization funnel** (primary): six columns — *source docs → topic
+  cluster → possibles → staged picks → proposals → realized* — with explicit
+  edges drawn between all columns. Doc→cluster edges come from each doc's
+  `Topics:` header and cluster→possible edges from the possibles register;
+  both hops are many-to-many (see above), so columns are independent stacks
+  and hover-tracing a card highlights its full upstream/downstream thread.
+  **Decided 2026-07-12: docs-first six-column is the default view**; the
+  five-column clusters-first layout remains as a "collapse docs" mode for
+  when the doc count makes the leading column noisy. Both render from the
+  same snapshot. Possibles render in three visual states: latent (hollow/grey, the
   backlog), picked (filled, edge to its staged topic labelled with the
   staging ID), rejected/superseded (struck, reason on hover). The eye should
   read three things instantly: how much latent potential a cluster still
@@ -165,14 +225,16 @@ Clean division: NotebookLM answers *"what do these documents say?"*
 lifecycle, traceability). Neither renders the other redundant; the dashboard
 could even deep-link a topic card to its NotebookLM notebook query.
 
-### Interactivity boundary
+### Interactivity boundary (revised in session, 2026-07-12)
 
-Moving a doc between stages is a deliberate, reviewed gate — so a GUI must
-never execute a stage transition. The strongest future concession worth
-considering: a card action that *drafts* a gate artifact (e.g. pre-fills an
-organize-gate checklist or a proposal stub) for a human to review and commit.
-Even that is out of scope for v1; recorded here so the boundary is explicit
-from the start.
+The line is no longer "read-only" but **"non-mutating over source docs, and
+never executes a gate."** In scope: selecting and assembling reference sets
+(the workbench), launching analysis tools over a set, and *drafting* gate
+artifacts (a pre-filled staging packet skeleton, a proposed topic tag for the
+index) that a human reviews and commits. Out of scope, permanently: moving,
+editing, promoting, or deleting any source doc, and executing any stage
+transition — a workbench matures into a staged topic only through the normal
+human organize gate, which the workbench merely pre-fills.
 
 ## Relationship to existing designs
 
@@ -183,9 +245,11 @@ from the start.
 - `adopt-workflow-visualization-stack` (adopted): supplies the license-vetted
   rendering libraries and the Mermaid-first exploration order; reuse, do not
   re-survey.
-- `doc-health` (promoted): natural scheduling home — snapshot generation as a
-  nightly lane beside the deterministic checks, semantic sweep, and (pending)
-  readiness lane.
+- `doc-health` (promoted): the nightly pipeline **already runs today**
+  (codexFactory checker, nightly reports, corpus-share series) — the dashboard
+  adds no new scheduler, only a new lane in the existing nightly run, beside
+  the deterministic checks, the semantic sweep, and the readiness-scoring
+  lane once `add-ideation-cross-reference-readiness` lands.
 - `document-cataloging` (active, unimplemented): future tag source of truth
   for clustering, same bootstrap posture as the readiness index — headers now,
   catalog tags folded in later.
@@ -193,6 +257,10 @@ from the start.
   dashboard follows its derived-artifact discipline (regenerate, never edit).
 
 ## Open questions
+
+(Kept as design history — every question below now has a decision or a
+drafted recommendation in the
+[staged topic's decision record](../staging/ideation-dashboard/ideation-dashboard.md).)
 
 - **Possibles register home**: where are a cluster's candidate feats
   declared? Candidates: (a) the ideation-cross-reference index — its
@@ -210,6 +278,19 @@ from the start.
 - **Backfill**: retroactively enumerate possibles for already-organized
   brainstorms (doc-health-pipeline, domain-to-neutral-promotion, avatar),
   or funnel-render only what declares possibles going forward?
+- **Workbench naming**: pick the contract word ("workbench" recommended;
+  "temp staging" collides with the `staged` lifecycle status and the
+  `ideation/staging/` area).
+- **Workbench persistence**: browser-local only (ephemeral, zero repo
+  footprint), gitignored scratch manifests under e.g. `ideation/workbench/`,
+  or committed manifests so a set is shareable and auditable across
+  sessions/people?
+- **Scratch notebook lifecycle**: are `xf-wb-*` notebooks auto-deleted when
+  their workbench is discarded, or kept until explicitly cleaned (they are
+  derived artifacts, so regenerate-don't-edit applies either way)?
+- **Ad-hoc-set feedback contract**: does a human-assembled set that matches
+  no cluster flow to the cross-reference index as a full organizer-style
+  evidence-backed recommendation, or as a lighter "suggested topic" note?
 - **Scope**: openxFactory's ideation area only, or every DomainxFactory's
   `ideation/` too, with a family-wide roll-up view in the aggregation repo?
 - **Capability home**: its own capability, a rendering deliverable inside

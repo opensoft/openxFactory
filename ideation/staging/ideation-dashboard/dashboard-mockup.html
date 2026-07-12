@@ -1,0 +1,777 @@
+<title>xFactory Ideation Dashboard — Mockup</title>
+<style>
+  :root {
+    --surface: #F7F8FA;
+    --panel: #FFFFFF;
+    --ink: #1C232E;
+    --muted: #5A6472;
+    --faint-ink: #8A93A0;
+    --border: #DDE2E9;
+    --faint: #EEF1F5;
+    --st-brainstorm: #7A5AD0;
+    --st-staged: #0D9488;
+    --st-proposal: #B96A1B;
+    --st-realized: #3B6FD4;
+    --good: #2E7D43;
+    --good-bg: #E4F1E8;
+    --blocked: #B0433C;
+    --blocked-bg: #F7E7E5;
+    --edge-pick: #0D9488;
+    --edge-flow: #B4BCC7;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #15181E;
+      --panel: #1C2028;
+      --ink: #E7EAEF;
+      --muted: #97A0AC;
+      --faint-ink: #6E7885;
+      --border: #2C323C;
+      --faint: #22262E;
+      --st-brainstorm: #9678DE;
+      --st-staged: #1FA898;
+      --st-proposal: #C0742A;
+      --st-realized: #5E8BE0;
+      --good: #4CAF6E;
+      --good-bg: #1E3226;
+      --blocked: #E06A5F;
+      --blocked-bg: #3A2422;
+      --edge-pick: #1FA898;
+      --edge-flow: #3A414D;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface: #15181E;
+    --panel: #1C2028;
+    --ink: #E7EAEF;
+    --muted: #97A0AC;
+    --faint-ink: #6E7885;
+    --border: #2C323C;
+    --faint: #22262E;
+    --st-brainstorm: #9678DE;
+    --st-staged: #1FA898;
+    --st-proposal: #C0742A;
+    --st-realized: #5E8BE0;
+    --good: #4CAF6E;
+    --good-bg: #1E3226;
+    --blocked: #E06A5F;
+    --blocked-bg: #3A2422;
+    --edge-pick: #1FA898;
+    --edge-flow: #3A414D;
+  }
+  :root[data-theme="light"] {
+    --surface: #F7F8FA;
+    --panel: #FFFFFF;
+    --ink: #1C232E;
+    --muted: #5A6472;
+    --faint-ink: #8A93A0;
+    --border: #DDE2E9;
+    --faint: #EEF1F5;
+    --st-brainstorm: #7A5AD0;
+    --st-staged: #0D9488;
+    --st-proposal: #B96A1B;
+    --st-realized: #3B6FD4;
+    --good: #2E7D43;
+    --good-bg: #E4F1E8;
+    --blocked: #B0433C;
+    --blocked-bg: #F7E7E5;
+    --edge-pick: #0D9488;
+    --edge-flow: #B4BCC7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.45;
+    padding-bottom: 130px;
+  }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 20px 24px 48px; }
+
+  header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; margin-bottom: 6px; }
+  .brand { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand .dim { color: var(--muted); font-weight: 400; }
+  .mockchip {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px dashed var(--faint-ink); color: var(--muted); border-radius: 3px; padding: 2px 8px;
+  }
+  .asof { color: var(--muted); font-size: 12px; margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 18px; }
+  .tile { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px 9px; }
+  .tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .tile .v { font-family: var(--mono); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .tile .s { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .tile .v .unit { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .spark { display: block; margin-top: 4px; }
+  .spark polyline { fill: none; stroke: var(--st-staged); stroke-width: 2; }
+  .spark circle { fill: var(--st-staged); }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab {
+    font-family: var(--mono); font-size: 13px; background: none; border: none; color: var(--muted);
+    padding: 8px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--st-staged); font-weight: 700; }
+  .tab:focus-visible, .card:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--muted); margin: 0 0 14px; align-items: center; }
+  .legend .g { display: inline-flex; align-items: center; gap: 6px; }
+  .edge-key { width: 22px; height: 2px; display: inline-block; }
+  .edge-key.dashed { height: 0; border-top: 2px dashed var(--st-brainstorm); background: none; }
+
+  .scroller { overflow-x: auto; padding-bottom: 8px; }
+  .funnel-inner { position: relative; min-width: 1240px; }
+  svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  svg.edges path { fill: none; stroke-width: 1.6; opacity: 0.85; transition: opacity 120ms, stroke-width 120ms; }
+  svg.edges path.pick { stroke: var(--edge-pick); }
+  svg.edges path.flow { stroke: var(--edge-flow); }
+  svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opacity: 0.45; }
+  .funnel-inner.focused svg.edges path { opacity: 0.08; }
+  .funnel-inner.focused svg.edges path.hot { opacity: 1; stroke-width: 2.4; }
+  .funnel-inner.focused .card { opacity: 0.3; }
+  .funnel-inner.focused .card.hot { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    svg.edges path, .card { transition: none; }
+  }
+
+  .colheads, .funnel-cols { display: grid; grid-template-columns: 1.05fr 1.35fr 1.15fr 1.35fr 1.05fr; gap: 0 26px; }
+  .colheads { position: relative; z-index: 2; margin-bottom: 10px; }
+  .colhead { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .colhead .n { background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; font-variant-numeric: tabular-nums; }
+  .gatehead { font-size: 10px; color: var(--faint-ink); letter-spacing: 0.05em; text-transform: none; font-family: var(--mono); }
+
+  .funnel-cols { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 14px 0; align-items: start; }
+  .col-stack { display: flex; flex-direction: column; gap: 8px; }
+  .gap { height: 16px; flex: none; }
+
+  .card {
+    position: relative; background: var(--panel); border: 1px solid var(--border); border-radius: 5px;
+    padding: 7px 10px 7px 12px; transition: border-color 120ms, opacity 120ms;
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 5px 0 0 5px; background: var(--stripe, transparent); }
+  .card.stage-brainstorm { --stripe: var(--st-brainstorm); }
+  .card.stage-staged { --stripe: var(--st-staged); }
+  .card.stage-proposal { --stripe: var(--st-proposal); }
+  .card.stage-realized { --stripe: var(--st-realized); }
+  .card:hover { border-color: var(--faint-ink); }
+  .card .title { font-weight: 600; font-size: 13px; text-wrap: balance; }
+  .card .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .card .id { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  .cluster-card .title { font-family: var(--mono); font-size: 13.5px; }
+  .cluster-card .meta { margin-top: 4px; }
+  .tally { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .tally b { color: var(--ink); }
+
+  .possible { padding: 5px 9px 5px 10px; display: flex; align-items: flex-start; gap: 8px; }
+  .possible .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; }
+  .possible.latent { border-style: dashed; }
+  .possible.latent .dot { border: 1.5px dashed var(--faint-ink); background: transparent; }
+  .possible.picked .dot { background: var(--st-staged); }
+  .possible.superseded .dot { background: transparent; border: 1.5px solid var(--faint-ink); }
+  .possible.superseded .title { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+  .possible .title { font-size: 12.5px; font-weight: 500; }
+  .possible .meta { font-size: 11px; }
+  .possible.shared { border-color: var(--st-brainstorm); }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px; border-radius: 3px; padding: 1px 6px;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; margin-top: 4px;
+  }
+  .pill.good { color: var(--good); background: var(--good-bg); }
+  .pill.blocked { color: var(--blocked); background: var(--blocked-bg); }
+  .pill.neutral { color: var(--muted); background: var(--faint); }
+  .pill.stage { background: var(--faint); color: var(--muted); font-weight: 500; }
+
+  .board { display: grid; grid-template-columns: repeat(4, minmax(250px, 1fr)); gap: 18px; min-width: 1080px; }
+  .board .col { display: flex; flex-direction: column; gap: 8px; }
+  .board .colhead { margin-bottom: 4px; }
+  .board .colhead .stagebar { width: 10px; height: 10px; border-radius: 2px; }
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 4px 0; }
+  .ghost { border-style: dashed; background: transparent; }
+  .ghost .title { color: var(--muted); font-weight: 500; }
+
+  .foot { margin-top: 22px; font-size: 12px; color: var(--muted); max-width: 72ch; }
+  .foot code { font-family: var(--mono); font-size: 11px; background: var(--faint); padding: 0 4px; border-radius: 3px; }
+  .view[hidden] { display: none; }
+
+  .variant { display: flex; gap: 4px; margin: 0 0 10px; }
+  .vbtn {
+    font-family: var(--mono); font-size: 11px; padding: 3px 10px; cursor: pointer;
+    background: var(--faint); color: var(--muted); border: 1px solid var(--border); border-radius: 3px;
+  }
+  .vbtn[aria-pressed="true"] { color: var(--ink); border-color: var(--st-staged); font-weight: 700; }
+  .funnel-inner:not(.docs-mode) .only-docs { display: none; }
+  .funnel-inner.docs-mode { min-width: 1430px; }
+  .funnel-inner.docs-mode .colheads, .funnel-inner.docs-mode .funnel-cols {
+    grid-template-columns: 0.95fr 0.95fr 1.25fr 1.05fr 1.25fr 0.95fr;
+  }
+  .card.stage-doc { --stripe: var(--faint-ink); }
+  .card.stage-doc.shared { border-color: var(--st-brainstorm); }
+
+  .assemble {
+    margin-top: 7px; font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    color: var(--st-staged); background: none; border: 1px solid var(--st-staged);
+    border-radius: 3px; padding: 2px 7px; cursor: pointer; align-self: flex-start;
+  }
+  .assemble:hover { background: var(--good-bg); }
+
+  .doclist { display: flex; flex-direction: column; gap: 6px; max-width: 880px; }
+  .docgroup { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 10px 0 2px; }
+  .docrow { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 7px 12px; cursor: pointer; }
+  .docrow:hover { border-color: var(--faint-ink); }
+  .docrow input { accent-color: var(--st-staged); width: 15px; height: 15px; flex: none; margin: 0; }
+  .docrow .name { font-family: var(--mono); font-size: 12px; }
+  .docrow .where { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .docrow .chips { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+  .tchip { font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--faint); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+
+  .tray {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: none;
+    background: var(--panel); border-top: 2px solid var(--st-staged);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.10);
+  }
+  .tray.has { display: block; }
+  .tray-inner { max-width: 1360px; margin: 0 auto; padding: 10px 24px 12px; display: flex; flex-direction: column; gap: 7px; }
+  .tray-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .tray-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--st-staged); font-weight: 700; }
+  .tray input.wbname {
+    font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--faint);
+    border: 1px solid var(--border); border-radius: 3px; padding: 3px 8px; width: 190px;
+  }
+  .wbchip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 2px 4px 2px 8px; }
+  .wbchip button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0 3px; line-height: 1; }
+  .wbchip button:hover { color: var(--blocked); }
+  .tray-hint { font-size: 11.5px; color: var(--muted); }
+  .tray-hint b { color: var(--st-brainstorm); }
+  .tray-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+  .tact {
+    font-family: var(--mono); font-size: 11px; font-weight: 600; cursor: pointer;
+    background: var(--faint); color: var(--ink); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+  }
+  .tact:hover { border-color: var(--st-staged); color: var(--st-staged); }
+  .tact.clear:hover { border-color: var(--blocked); color: var(--blocked); }
+  .tray-status { font-family: var(--mono); font-size: 11px; color: var(--muted); min-height: 14px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="brand">xFactory <span class="dim">/</span> ideation dashboard</span>
+    <span class="mockchip">design mockup · read-only projection</span>
+    <span class="asof">snapshot: openxFactory @ 2026-07-12</span>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Active brainstorms</div><div class="v">2</div><div class="s">+1 imported evidence doc</div></div>
+    <div class="tile"><div class="k">Staged topics</div><div class="v">3</div><div class="s">1 ready · 1 blocked · 1 evidence</div></div>
+    <div class="tile"><div class="k">Active proposals</div><div class="v">9</div><div class="s">4 avatar · 5 governance</div></div>
+    <div class="tile"><div class="k">Archived changes</div><div class="v">21</div><div class="s">latest: 2026-07-12</div></div>
+    <div class="tile">
+      <div class="k">Canon share</div><div class="v">12.8<span class="unit">%</span></div>
+      <svg class="spark" width="110" height="22" viewBox="0 0 110 22" role="img" aria-label="Canon share trend from 11.4 to 12.8 percent since 2026-07-03">
+        <polyline points="2,16 24,14 46,10 62,13 84,9 104,4"></polyline><circle cx="104" cy="4" r="2.5"></circle>
+      </svg>
+      <div class="s">since 07-03 baseline 11.4% (trend illustrative)</div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-funnel" aria-selected="true" aria-controls="view-funnel">realization funnel</button>
+    <button class="tab" role="tab" id="tab-board" aria-selected="false" aria-controls="view-board">pipeline board</button>
+    <button class="tab" role="tab" id="tab-docs" aria-selected="false" aria-controls="view-docs">doc list</button>
+  </div>
+
+  <!-- ============ FUNNEL VIEW ============ -->
+  <section class="view" id="view-funnel" role="tabpanel" aria-labelledby="tab-funnel">
+    <div class="variant" role="group" aria-label="Funnel variant">
+      <button class="vbtn" id="v6" aria-pressed="true">6 columns · docs → clusters (default)</button>
+      <button class="vbtn" id="v5" aria-pressed="false">5 columns · clusters only (collapse docs)</button>
+    </div>
+    <div class="legend">
+      <span class="g"><span style="width:9px;height:9px;border-radius:50%;border:1.5px dashed var(--faint-ink);display:inline-block"></span> latent possible (backlog)</span>
+      <span class="g"><span style="width:9px;height:9px;border-radius:50%;background:var(--st-staged);display:inline-block"></span> picked at organize gate</span>
+      <span class="g"><span style="text-decoration:line-through">superseded</span></span>
+      <span class="g"><span class="edge-key dashed"></span> topic claim (many-to-many)</span>
+      <span class="g"><span class="edge-key" style="background:var(--edge-pick)"></span> pick edge</span>
+      <span class="g"><span class="edge-key" style="background:var(--edge-flow)"></span> gate flow</span>
+      <span class="g" style="margin-left:auto">hover a card to trace its thread</span>
+    </div>
+
+    <div class="scroller">
+      <div class="funnel-inner docs-mode" id="funnel">
+        <svg class="edges" id="edgeLayer" aria-hidden="true"></svg>
+
+        <div class="colheads">
+          <div class="colhead only-docs">source docs <span class="n">7</span> <span class="gatehead">Topics: header</span></div>
+          <div class="colhead">topic cluster <span class="n">5</span></div>
+          <div class="colhead">possibles <span class="n">20</span> <span class="gatehead">→ organize gate</span></div>
+          <div class="colhead">staged picks <span class="n">9</span> <span class="gatehead">→ proposal gate</span></div>
+          <div class="colhead">proposals <span class="n">13</span> <span class="gatehead">→ archive gate</span></div>
+          <div class="colhead">realized <span class="n">3</span></div>
+        </div>
+
+        <div class="funnel-cols">
+          <!-- column 0 (6-col variant only): source docs -->
+          <div class="col-stack only-docs">
+            <div class="card stage-doc" id="fd-dochealth" data-node tabindex="0"><div class="id">doc-health-pipeline.md</div><div class="meta">design history · 4 topics</div></div>
+            <div class="gap"></div>
+            <div class="card stage-doc" id="fd-viztool" data-node tabindex="0"><div class="id">workflow-visualization-tooling.md</div><div class="meta">design history · license evidence</div></div>
+            <div class="card stage-doc shared" id="fd-dash" data-node tabindex="0"><div class="id">ideation-dashboard.md</div><div class="meta">active brainstorm · feeds 2 clusters</div></div>
+            <div class="card stage-doc" id="fd-xref" data-node tabindex="0"><div class="id">ideation-cross-reference-readiness.md</div><div class="meta">design history</div></div>
+            <div class="gap"></div>
+            <div class="card stage-doc" id="fd-fda" data-node tabindex="0"><div class="id">fda-samd-traceability-rationale.md</div><div class="meta">staged evidence</div></div>
+            <div class="gap"></div>
+            <div class="card stage-doc" id="fd-avatar" data-node tabindex="0"><div class="id">avatar packet</div><div class="meta">change-owned supporting-docs</div></div>
+            <div class="gap"></div>
+            <div class="card stage-doc" id="fd-release" data-node tabindex="0"><div class="id">contract-release-and-stack-surface.md</div><div class="meta">active brainstorm note</div></div>
+          </div>
+
+          <!-- column 1: topic clusters -->
+          <div class="col-stack">
+            <div class="card cluster-card stage-brainstorm" id="c-dochealth" data-node tabindex="0">
+              <div class="title">doc-health</div>
+              <div class="meta">1 contributing doc · doc-health-pipeline brainstorm (07-05)</div>
+              <div class="tally"><span><b>4</b> possibles</span><span><b>4</b> picked</span><span><b>0</b> latent</span></div>
+            </div>
+            <div class="gap"></div>
+            <div class="card cluster-card stage-brainstorm" id="c-viz" data-node tabindex="0">
+              <div class="title">workflow-visualization</div>
+              <div class="meta">2 contributing docs · viz-tooling brainstorm (07-09) + ideation-dashboard brainstorm (07-12)</div>
+              <div class="tally"><span><b>3</b> possibles</span><span><b>1</b> picked</span><span><b>2</b> latent</span></div>
+            </div>
+            <div class="gap"></div>
+            <div class="card cluster-card stage-brainstorm" id="c-idgov" data-node tabindex="0">
+              <div class="title">ideation-governance</div>
+              <div class="meta">multiple contributing docs · routing, cataloging, readiness, origin, dashboard</div>
+              <div class="tally"><span><b>6</b> possibles</span><span><b>4</b> picked</span><span><b>1</b> latent</span></div>
+            </div>
+            <div class="gap"></div>
+            <div class="card cluster-card stage-brainstorm" id="c-avatar" data-node tabindex="0">
+              <div class="title">avatar-client-contracts</div>
+              <div class="meta">avatar packet · one pick refined into a bounded set of four at the proposal gate</div>
+              <div class="tally"><span><b>4</b> possibles</span><span><b>4</b> picked</span><span><b>0</b> latent</span></div>
+            </div>
+            <div class="gap"></div>
+            <div class="card cluster-card stage-brainstorm" id="c-release" data-node tabindex="0">
+              <div class="title">contract-release-identity</div>
+              <div class="meta">brainstorm note (07-12) · pure backlog — nothing picked yet</div>
+              <div class="tally"><span><b>4</b> possibles</span><span><b>0</b> picked</span><span><b>4</b> latent</span></div>
+              <span class="pill neutral">readiness: unscored — scoring lane not built yet</span>
+            </div>
+          </div>
+
+          <!-- column 2: possibles -->
+          <div class="col-stack">
+            <div class="card possible picked stage-brainstorm" id="p-prose" data-node tabindex="0"><span class="dot"></span><div><div class="title">Prose-tagging markers</div><div class="meta">picked → prose-tagging</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-checks" data-node tabindex="0"><span class="dot"></span><div><div class="title">Deterministic health checks</div><div class="meta">picked → doc-health-checks</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-sweep" data-node tabindex="0"><span class="dot"></span><div><div class="title">Semantic health sweep</div><div class="meta">picked → semantic-health-sweep</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-vocab" data-node tabindex="0"><span class="dot"></span><div><div class="title">Lifecycle status vocabulary</div><div class="meta">ratified direct from brainstorm sections</div></div></div>
+            <div class="gap"></div>
+            <div class="card possible picked stage-brainstorm" id="p-vizstack" data-node tabindex="0"><span class="dot"></span><div><div class="title">MIT viz stack survey + adoption</div><div class="meta">picked → workflow-visualization</div></div></div>
+            <div class="card possible latent stage-brainstorm" id="p-walkthrough" data-node tabindex="0"><span class="dot"></span><div><div class="title">Client Hermes walkthrough UI</div><div class="meta">latent</div></div></div>
+            <div class="card possible latent shared stage-brainstorm" id="p-dash" data-node tabindex="0"><span class="dot"></span><div><div class="title">Ideation dashboard GUI</div><div class="meta">latent — claimed by 2 clusters (governance + visualization)</div></div></div>
+            <div class="gap"></div>
+            <div class="card possible picked stage-brainstorm" id="p-routing" data-node tabindex="0"><span class="dot"></span><div><div class="title">Claim routing + destination acceptance</div><div class="meta">picked → ideation-routing</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-catalog" data-node tabindex="0"><span class="dot"></span><div><div class="title">Controlled tagging + catalog snapshots</div><div class="meta">picked → document-cataloging</div></div></div>
+            <div class="card possible superseded stage-brainstorm" id="p-umbrella" data-node tabindex="0"><span class="dot"></span><div><div class="title">Single umbrella governance proposal</div><div class="meta">superseded — user-approved split</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-xref" data-node tabindex="0"><span class="dot"></span><div><div class="title">Cross-reference readiness index</div><div class="meta">picked → ideation-cross-reference-readiness</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-origin" data-node tabindex="0"><span class="dot"></span><div><div class="title">Proposal origin contract</div><div class="meta">picked → proposal-origin-contract</div></div></div>
+            <div class="gap"></div>
+            <div class="card possible picked stage-brainstorm" id="p-kernel" data-node tabindex="0"><span class="dot"></span><div><div class="title">Eight-contract AVC kernel</div><div class="meta">picked → avatar packet</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-f0" data-node tabindex="0"><span class="dot"></span><div><div class="title">F0 brokered-call feasibility</div><div class="meta">picked → avatar packet</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-runtime" data-node tabindex="0"><span class="dot"></span><div><div class="title">Deterministic reference runtime</div><div class="meta">picked → avatar packet</div></div></div>
+            <div class="card possible picked stage-brainstorm" id="p-ui" data-node tabindex="0"><span class="dot"></span><div><div class="title">Avatar-first UI standard</div><div class="meta">picked → avatar packet</div></div></div>
+            <div class="gap"></div>
+            <div class="card possible latent stage-brainstorm" id="p-tags" data-node tabindex="0"><span class="dot"></span><div><div class="title">contract-v* release tagging discipline</div><div class="meta">latent</div></div></div>
+            <div class="card possible latent stage-brainstorm" id="p-manifest" data-node tabindex="0"><span class="dot"></span><div><div class="title">Manifest / CHANGELOG consistency check</div><div class="meta">latent</div></div></div>
+            <div class="card possible latent stage-brainstorm" id="p-creds" data-node tabindex="0"><span class="dot"></span><div><div class="title">credentials.required stack manifest slot</div><div class="meta">latent</div></div></div>
+            <div class="card possible latent stage-brainstorm" id="p-pindrift" data-node tabindex="0"><span class="dot"></span><div><div class="title">Pin-drift WARN → ERROR hardening</div><div class="meta">latent — downstream of tagging</div></div></div>
+          </div>
+
+          <!-- column 3: staged picks -->
+          <div class="col-stack">
+            <div class="card stage-staged" id="s-prose" data-node tabindex="0"><div class="title">prose-tagging</div><div class="meta">promoted 07-09</div></div>
+            <div class="card stage-staged" id="s-checks" data-node tabindex="0"><div class="title">doc-health-checks</div><div class="meta">promoted 07-09</div></div>
+            <div class="card stage-staged" id="s-sweep" data-node tabindex="0"><div class="title">semantic-health-sweep</div><div class="meta">promoted 07-12</div></div>
+            <div class="gap"></div>
+            <div class="card stage-staged" id="s-viz" data-node tabindex="0"><div class="title">workflow-visualization</div><div class="meta">promoted 07-09</div></div>
+            <div class="gap"></div>
+            <div class="card stage-staged" id="s-routing" data-node tabindex="0"><div class="title">ideation-routing</div><div class="meta">promoted</div></div>
+            <div class="card stage-staged" id="s-catalog" data-node tabindex="0"><div class="title">document-cataloging</div><div class="meta">promoted</div></div>
+            <div class="card stage-staged" id="s-xref" data-node tabindex="0"><div class="title">ideation-cross-reference-readiness</div><div class="meta">promoted 07-12</div></div>
+            <div class="card stage-staged" id="s-origin" data-node tabindex="0"><div class="title">proposal-origin-contract</div><div class="meta">promoted 07-12 · evidence residue retained</div></div>
+            <div class="gap"></div>
+            <div class="card stage-staged" id="s-avatar" data-node tabindex="0"><div class="title">avatar packet</div><div class="meta">historical staged packet · now owned by the kernel change</div></div>
+          </div>
+
+          <!-- column 4: proposals -->
+          <div class="col-stack">
+            <div class="card stage-proposal" id="pr-prose" data-node tabindex="0"><div class="id">concretize-prose-tagging-syntax</div><span class="pill neutral">archived 07-09</span></div>
+            <div class="card stage-proposal" id="pr-dochealth" data-node tabindex="0"><div class="id">add-doc-health-contract</div><span class="pill neutral">archived 07-09</span></div>
+            <div class="card stage-proposal" id="pr-vocab" data-node tabindex="0"><div class="id">add-document-lifecycle-vocabulary</div><span class="pill neutral">archived 07-09</span></div>
+            <div class="card stage-proposal" id="pr-sweep" data-node tabindex="0"><div class="id">add-doc-health-semantic-sweep</div><span class="pill stage">active</span></div>
+            <div class="gap"></div>
+            <div class="card stage-proposal" id="pr-viz" data-node tabindex="0"><div class="id">adopt-workflow-visualization-stack</div><span class="pill neutral">archived 07-09</span></div>
+            <div class="gap"></div>
+            <div class="card stage-proposal" id="pr-routing" data-node tabindex="0"><div class="id">add-cross-factory-ideation-routing</div><span class="pill stage">active</span></div>
+            <div class="card stage-proposal" id="pr-catalog" data-node tabindex="0"><div class="id">add-document-cataloging</div><span class="pill stage">active</span></div>
+            <div class="card stage-proposal" id="pr-xref" data-node tabindex="0"><div class="id">add-ideation-cross-reference-readiness</div><span class="pill stage">active</span></div>
+            <div class="card stage-proposal" id="pr-origin" data-node tabindex="0"><div class="id">add-proposal-origin-contract</div><span class="pill stage">active</span></div>
+            <div class="gap"></div>
+            <div class="card stage-proposal" id="pr-kernel" data-node tabindex="0"><div class="id">define-avatar-client-contract-kernel</div><span class="pill stage">active</span></div>
+            <div class="card stage-proposal" id="pr-f0" data-node tabindex="0"><div class="id">qualify-avatar-brokered-call-feasibility</div><span class="pill stage">active</span><div class="meta">F0 evidence: 70/70 trials · INCONCLUSIVE</div></div>
+            <div class="card stage-proposal" id="pr-runtime" data-node tabindex="0"><div class="id">implement-avatar-reference-runtime</div><span class="pill stage">active</span></div>
+            <div class="card stage-proposal" id="pr-ui" data-node tabindex="0"><div class="id">align-avatar-first-ui-standard</div><span class="pill stage">active</span></div>
+          </div>
+
+          <!-- column 5: realized -->
+          <div class="col-stack">
+            <div class="card stage-realized" id="r-lifecycle" data-node tabindex="0"><div class="title">document-lifecycle</div><div class="meta">capability · prose-tagging markers, contested-finding rule</div></div>
+            <div class="card stage-realized" id="r-dochealth" data-node tabindex="0"><div class="title">doc-health</div><div class="meta">capability · checker live in codexFactory, nightly reports</div></div>
+            <div class="gap"></div>
+            <div class="card stage-realized" id="r-vizstack" data-node tabindex="0"><div class="title">workflow-visualization stack</div><div class="meta">capability · MIT-vetted: Mermaid, React Flow, Cytoscape.js, XState — the stack this GUI reuses</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOARD VIEW ============ -->
+  <section class="view" id="view-board" role="tabpanel" aria-labelledby="tab-board" hidden>
+    <div class="scroller">
+      <div class="board">
+        <div class="col">
+          <div class="colhead"><span class="stagebar" style="background:var(--st-brainstorm)"></span> brainstorm <span class="n">3</span></div>
+          <div class="card stage-brainstorm"><div class="title">Ideation Area Dashboard</div><div class="meta">architecture · this doc · captured 07-12 · topics: ideation-dashboard, workflow-visualization, …</div><span class="pill stage">6 possibles · 0 picked</span></div>
+          <div class="card stage-brainstorm"><div class="title">Contract release identity &amp; stack-surface gaps</div><div class="meta">note · seeds a future openxFactory proposal</div><span class="pill stage">4 possibles · 0 picked</span></div>
+          <div class="card stage-brainstorm"><div class="title">NotebookLM import test</div><div class="meta">reference · hybrid round-trip evidence</div><span class="pill neutral">evidence</span></div>
+          <hr class="divider">
+          <div class="card ghost"><div class="title">5 organized brainstorms</div><div class="meta">kept as design history — doc-health, DTN promotion, workflow viz, release flow, readiness index</div></div>
+        </div>
+        <div class="col">
+          <div class="colhead"><span class="stagebar" style="background:var(--st-staged)"></span> staged <span class="n">3</span></div>
+          <div class="card stage-staged"><div class="title">client-infrastructure-liaison</div><div class="meta">6 files · neutral Client Hermes coordination role + request lifecycle</div><span class="pill good">✓ ready — add-client-infrastructure-liaison</span></div>
+          <div class="card stage-staged"><div class="title">github-administration-plane</div><div class="meta">1 file · App-identity tiers + OpsxFactory github-administration</div><span class="pill blocked">✕ blocked — 6 open questions</span></div>
+          <div class="card stage-staged"><div class="title">proposal-origin-contract</div><div class="meta">FDA/SaMD traceability rationale, retained after promotion</div><span class="pill neutral">evidence</span></div>
+        </div>
+        <div class="col">
+          <div class="colhead"><span class="stagebar" style="background:var(--st-proposal)"></span> active proposals <span class="n">9</span></div>
+          <div class="card stage-proposal"><div class="id">define-avatar-client-contract-kernel</div><div class="meta">eight-contract AVC kernel, registries, fixtures, validator</div></div>
+          <div class="card stage-proposal"><div class="id">qualify-avatar-brokered-call-feasibility</div><div class="meta">F0 evidence recorded: 70/70 trials, INCONCLUSIVE</div></div>
+          <div class="card stage-proposal"><div class="id">implement-avatar-reference-runtime</div><div class="meta">non-deployable deterministic broker reference</div></div>
+          <div class="card stage-proposal"><div class="id">align-avatar-first-ui-standard</div><div class="meta">standard, profile, examples, validator</div></div>
+          <div class="card stage-proposal"><div class="id">add-cross-factory-ideation-routing</div><div class="meta">capture-first claim routing, bounded organizer</div></div>
+          <div class="card stage-proposal"><div class="id">add-document-cataloging</div><div class="meta">controlled tagging, immutable catalog snapshots</div></div>
+          <div class="card stage-proposal"><div class="id">add-ideation-cross-reference-readiness</div><div class="meta">topic index + three-tier readiness scores, nightly lane</div></div>
+          <div class="card stage-proposal"><div class="id">add-proposal-origin-contract</div><div class="meta">every proposal declares exactly one origin</div></div>
+          <div class="card stage-proposal"><div class="id">add-doc-health-semantic-sweep</div><div class="meta">semantic sweep lane over the deterministic checks</div></div>
+        </div>
+        <div class="col">
+          <div class="colhead"><span class="stagebar" style="background:var(--st-realized)"></span> realized · archived <span class="n">21</span></div>
+          <div class="card stage-realized"><div class="title">14 promoted capabilities</div><div class="meta">document-lifecycle, doc-health, workflow-gate-contract, neutral-job-envelope, roles-authority-model, credential-contracts, …</div></div>
+          <div class="card stage-realized"><div class="id">define-human-escalation-contract</div><div class="meta">archived 2026-07-12</div></div>
+          <div class="card stage-realized"><div class="id">adopt-workflow-visualization-stack</div><div class="meta">archived 2026-07-09 · MIT-vetted rendering stack this GUI reuses</div></div>
+          <div class="card ghost"><div class="title">18 more archived changes</div><div class="meta">2026-06-26 → 2026-07-10</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOC LIST VIEW ============ -->
+  <section class="view" id="view-docs" role="tabpanel" aria-labelledby="tab-docs" hidden>
+    <div class="legend">
+      <span class="g">tick docs to assemble an ad-hoc workbench — the clusters are suggestions, not the only valid grouping; maybe you see something the index does not</span>
+    </div>
+    <div class="doclist" id="doclist"></div>
+  </section>
+
+  <p class="foot">
+    Illustrative design mockup, populated by hand from the repo state at 2026-07-12.
+    The workbench tray is a mock: its actions describe what they would run
+    (scratch NotebookLM notebook, on-demand readiness, scoped doc-health, a
+    pre-filled organize-gate draft) — none execute here, and none would ever
+    move or edit a source doc.
+    Cluster↔possible links are many-to-many: one doc's <code>Topics:</code> list
+    feeds several clusters, and one possible can be claimed by several clusters
+    (dashed violet edges). Possibles are inferred from prose — no possibles
+    register exists yet, which is precisely the gap the funnel exposes: the real
+    dashboard can only render what a register declares. Data source in the
+    proposed design: a generated <code>dashboard.json</code> snapshot (headers,
+    staging INDEX, cross-reference readiness index).
+  </p>
+</div>
+
+<div class="tray" id="tray">
+  <div class="tray-inner">
+    <div class="tray-row">
+      <span class="tray-label">workbench</span>
+      <input class="wbname" id="wbname" placeholder="name this set…" aria-label="Workbench name">
+      <span id="wbchips" class="tray-row" style="gap:6px"></span>
+    </div>
+    <div class="tray-row">
+      <span class="tray-hint" id="wbhint"></span>
+      <span class="tray-actions">
+        <button class="tact" data-act="nlm">→ scratch notebook</button>
+        <button class="tact" data-act="readiness">score readiness</button>
+        <button class="tact" data-act="health">run doc-health</button>
+        <button class="tact" data-act="organize">draft organize gate…</button>
+        <button class="tact clear" data-act="clear">clear</button>
+      </span>
+    </div>
+    <div class="tray-status" id="wbstatus" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  const edges = [
+    // doc -> cluster (6-col variant; from each doc's Topics: header, many-to-many)
+    ["fd-dochealth","c-dochealth","topic"],
+    ["fd-viztool","c-viz","topic"],
+    ["fd-dash","c-viz","topic"],["fd-dash","c-idgov","topic"],
+    ["fd-xref","c-idgov","topic"],
+    ["fd-fda","c-idgov","topic"],
+    ["fd-avatar","c-avatar","topic"],
+    ["fd-release","c-release","topic"],
+    // topic claims: cluster -> possible (many-to-many)
+    ["c-dochealth","p-prose","topic"],["c-dochealth","p-checks","topic"],["c-dochealth","p-sweep","topic"],["c-dochealth","p-vocab","topic"],
+    ["c-viz","p-vizstack","topic"],["c-viz","p-walkthrough","topic"],["c-viz","p-dash","topic"],
+    ["c-idgov","p-routing","topic"],["c-idgov","p-catalog","topic"],["c-idgov","p-umbrella","topic"],["c-idgov","p-xref","topic"],["c-idgov","p-origin","topic"],["c-idgov","p-dash","topic"],
+    ["c-avatar","p-kernel","topic"],["c-avatar","p-f0","topic"],["c-avatar","p-runtime","topic"],["c-avatar","p-ui","topic"],
+    ["c-release","p-tags","topic"],["c-release","p-manifest","topic"],["c-release","p-creds","topic"],["c-release","p-pindrift","topic"],
+    // picks: possible -> staged topic
+    ["p-prose","s-prose","pick"],["p-checks","s-checks","pick"],["p-sweep","s-sweep","pick"],["p-vocab","pr-vocab","pick"],
+    ["p-vizstack","s-viz","pick"],
+    ["p-kernel","s-avatar","pick"],["p-f0","s-avatar","pick"],["p-runtime","s-avatar","pick"],["p-ui","s-avatar","pick"],
+    ["p-routing","s-routing","pick"],["p-catalog","s-catalog","pick"],["p-xref","s-xref","pick"],["p-origin","s-origin","pick"],
+    // gate flow: staged -> proposal -> realized
+    ["s-prose","pr-prose","flow"],["s-checks","pr-dochealth","flow"],["s-sweep","pr-sweep","flow"],
+    ["s-viz","pr-viz","flow"],
+    ["s-avatar","pr-kernel","flow"],["s-avatar","pr-f0","flow"],["s-avatar","pr-runtime","flow"],["s-avatar","pr-ui","flow"],
+    ["s-routing","pr-routing","flow"],["s-catalog","pr-catalog","flow"],["s-xref","pr-xref","flow"],["s-origin","pr-origin","flow"],
+    ["pr-prose","r-lifecycle","flow"],["pr-vocab","r-lifecycle","flow"],["pr-dochealth","r-dochealth","flow"],
+    ["pr-viz","r-vizstack","flow"]
+  ];
+
+  const funnel = document.getElementById("funnel");
+  const layer = document.getElementById("edgeLayer");
+  const paths = [];
+
+  function anchor(el, side) {
+    const c = funnel.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return {
+      x: (side === "right" ? r.right : r.left) - c.left,
+      y: r.top + r.height / 2 - c.top
+    };
+  }
+
+  function draw() {
+    if (document.getElementById("view-funnel").hidden) return;
+    layer.innerHTML = "";
+    paths.length = 0;
+    layer.setAttribute("viewBox", "0 0 " + funnel.scrollWidth + " " + funnel.scrollHeight);
+    layer.setAttribute("width", funnel.scrollWidth);
+    layer.setAttribute("height", funnel.scrollHeight);
+    for (const [from, to, kind] of edges) {
+      const a = document.getElementById(from), b = document.getElementById(to);
+      if (!a || !b) continue;
+      if (a.offsetParent === null || b.offsetParent === null) continue; // hidden in this variant
+      const p1 = anchor(a, "right"), p2 = anchor(b, "left");
+      const mx = (p1.x + p2.x) / 2;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M" + p1.x + " " + p1.y + " C" + mx + " " + p1.y + ", " + mx + " " + p2.y + ", " + p2.x + " " + p2.y);
+      path.setAttribute("class", kind);
+      path.dataset.from = from;
+      path.dataset.to = to;
+      layer.appendChild(path);
+      paths.push(path);
+    }
+  }
+
+  // directional trace: ancestors + descendants only, so hovering one cluster
+  // does not flood into a sibling cluster through a shared possible
+  function reach(id) {
+    const down = new Set([id]);
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const [f, t] of edges) if (down.has(f) && !down.has(t)) { down.add(t); grew = true; }
+    }
+    const up = new Set([id]);
+    grew = true;
+    while (grew) {
+      grew = false;
+      for (const [f, t] of edges) if (up.has(t) && !up.has(f)) { up.add(f); grew = true; }
+    }
+    return new Set([...down, ...up]);
+  }
+
+  const nodes = document.querySelectorAll("[data-node]");
+  nodes.forEach(el => {
+    const on = () => {
+      const hot = reach(el.id);
+      funnel.classList.add("focused");
+      paths.forEach(p => p.classList.toggle("hot", hot.has(p.dataset.from) && hot.has(p.dataset.to)));
+      nodes.forEach(n => n.classList.toggle("hot", hot.has(n.id)));
+    };
+    const off = () => {
+      funnel.classList.remove("focused");
+      paths.forEach(p => p.classList.remove("hot"));
+      nodes.forEach(n => n.classList.remove("hot"));
+    };
+    el.addEventListener("mouseenter", on);
+    el.addEventListener("mouseleave", off);
+    el.addEventListener("focus", on);
+    el.addEventListener("blur", off);
+  });
+
+  // ---- workbench: temp doc sets ----
+  const DOCS = [
+    ["d-dash","ideation-dashboard.md","brainstorm/","brainstorm",["ideation-dashboard","workflow-visualization","ideation-cross-reference","doc-health"]],
+    ["d-release","contract-release-and-stack-surface.md","brainstorm/","brainstorm",["contract-release","stack-surface","credential-contracts"]],
+    ["d-nlm","notebooklm-ideas-2026-07-09.md","brainstorm/notebooklm-import-test/","evidence",["notebooklm-projection","ideation-lifecycle"]],
+    ["d-dochealth","doc-health-pipeline.md","brainstorm/","design history",["doc-health","prose-tagging","ideation-lifecycle","nightly-ci"]],
+    ["d-dtn","domain-to-neutral-promotion.md","brainstorm/","design history",["domain-to-neutral-promotion","contract-ownership"]],
+    ["d-viztool","workflow-visualization-tooling.md","brainstorm/","design history",["workflow-visualization","client-hermes","oss-license-evidence"]],
+    ["d-relflow","openspec-speckit-release-flow.md","brainstorm/","design history",["release-realization","openspec-speckit-integration"]],
+    ["d-xref","ideation-cross-reference-readiness.md","brainstorm/","design history",["ideation-cross-reference","readiness-scoring","hermes-review-panel"]],
+    ["d-cil1","client-infrastructure-liaison.md","staging/client-infrastructure-liaison/","staged",["client-infrastructure-liaison","roles-authority-model"]],
+    ["d-cil2","request-contract-and-transition-matrix.md","staging/client-infrastructure-liaison/","staged",["client-infrastructure-request"]],
+    ["d-cil3","role-authority-and-operating-models.md","staging/client-infrastructure-liaison/","staged",["roles-authority-model"]],
+    ["d-cil4","opsx-handoff-and-readiness-contract.md","staging/client-infrastructure-liaison/","staged",["opsxfactory","handoff"]],
+    ["d-cil5","proposal-impact-and-adoption-map.md","staging/client-infrastructure-liaison/","staged",["adoption"]],
+    ["d-cil6","southside-operating-model-scenarios.md","staging/client-infrastructure-liaison/","staged",["medxfactory","scenarios"]],
+    ["d-gha","multi-app-identity-and-github-administration.md","staging/github-administration-plane/","staged",["github-administration","roles-authority-model"]],
+    ["d-fda","fda-samd-traceability-rationale.md","staging/proposal-origin-contract/","evidence",["proposal-origin","fda-samd","traceability"]],
+    ["d-avatar","avatar packet","openspec/changes/define-avatar-client-contract-kernel/supporting-docs/","change-owned",["avatar","client-contracts"]]
+  ];
+  const CLUSTER_DOCS = {
+    "c-dochealth": ["d-dochealth"],
+    "c-viz": ["d-viztool","d-dash"],
+    "c-idgov": ["d-xref","d-dash","d-fda"],
+    "c-avatar": ["d-avatar"],
+    "c-release": ["d-release"]
+  };
+  const CLUSTER_NAMES = {
+    "c-dochealth": "doc-health", "c-viz": "workflow-visualization", "c-idgov": "ideation-governance",
+    "c-avatar": "avatar-client-contracts", "c-release": "contract-release-identity"
+  };
+
+  const doclistEl = document.getElementById("doclist");
+  let lastGroup = null;
+  for (const [id, name, where, badge, topics] of DOCS) {
+    const group = where.startsWith("brainstorm/") ? "ideation/brainstorm"
+      : where.startsWith("staging/") ? "ideation/staging"
+      : "change-owned (read-only reference)";
+    if (group !== lastGroup) {
+      const h = document.createElement("div");
+      h.className = "docgroup";
+      h.textContent = group;
+      doclistEl.appendChild(h);
+      lastGroup = group;
+    }
+    const row = document.createElement("label");
+    row.className = "docrow";
+    row.innerHTML = '<input type="checkbox" data-doc="' + id + '">'
+      + '<span><span class="name">' + name + '</span><div class="where">' + where + ' · ' + badge + '</div></span>'
+      + '<span class="chips">' + topics.map(t => '<span class="tchip">' + t + '</span>').join("") + '</span>';
+    doclistEl.appendChild(row);
+  }
+
+  const wb = new Set();
+  const tray = document.getElementById("tray");
+  const chipsEl = document.getElementById("wbchips");
+  const hintEl = document.getElementById("wbhint");
+  const statusEl = document.getElementById("wbstatus");
+  const nameEl = document.getElementById("wbname");
+  const docName = id => { const d = DOCS.find(x => x[0] === id); return d ? d[1] : id; };
+
+  function syncChecks() {
+    document.querySelectorAll("input[data-doc]").forEach(cb => { cb.checked = wb.has(cb.dataset.doc); });
+  }
+  function renderWb() {
+    tray.classList.toggle("has", wb.size > 0);
+    chipsEl.innerHTML = "";
+    for (const id of wb) {
+      const chip = document.createElement("span");
+      chip.className = "wbchip";
+      chip.innerHTML = docName(id) + '<button aria-label="remove ' + docName(id) + '">×</button>';
+      chip.querySelector("button").addEventListener("click", () => { wb.delete(id); renderWb(); syncChecks(); });
+      chipsEl.appendChild(chip);
+    }
+    let match = null;
+    for (const [cid, ids] of Object.entries(CLUSTER_DOCS)) {
+      if (ids.length === wb.size && ids.every(i => wb.has(i))) { match = cid; break; }
+    }
+    hintEl.innerHTML = match
+      ? 'matches cluster: <b>' + CLUSTER_NAMES[match] + '</b>'
+      : wb.size
+        ? 'no cluster matches this set — <b>a human-seen pattern</b>; workbench can propose it to the cross-reference index as a candidate topic'
+        : "";
+    statusEl.textContent = "";
+  }
+
+  for (const [cid, ids] of Object.entries(CLUSTER_DOCS)) {
+    const card = document.getElementById(cid);
+    if (!card) continue;
+    const btn = document.createElement("button");
+    btn.className = "assemble";
+    btn.textContent = "+ assemble " + ids.length + (ids.length === 1 ? " doc" : " docs");
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      ids.forEach(i => wb.add(i));
+      if (!nameEl.value) nameEl.value = "wb-" + CLUSTER_NAMES[cid];
+      renderWb(); syncChecks();
+    });
+    card.appendChild(btn);
+  }
+
+  document.addEventListener("change", e => {
+    const cb = e.target.closest ? e.target.closest("input[data-doc]") : null;
+    if (!cb) return;
+    if (cb.checked) wb.add(cb.dataset.doc); else wb.delete(cb.dataset.doc);
+    renderWb();
+  });
+
+  const ACT_MSG = {
+    nlm: n => "mock — would run: nlm notebook create xf-wb-" + n + ", add the set as sources, then interrogate / mind-map it; hybrid-imports return path brings notes back",
+    readiness: () => "mock — would run the three-tier Hermes panel over this set only (on-demand readiness, ahead of the nightly lane)",
+    health: () => "mock — would run the codexFactory doc-health checker scoped to this set",
+    organize: n => "mock — would pre-fill a staging/" + n + "/ packet skeleton for human review; the organize gate itself stays manual"
+  };
+  document.querySelectorAll(".tact").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.act === "clear") { wb.clear(); nameEl.value = ""; renderWb(); syncChecks(); return; }
+    const n = (nameEl.value || "unnamed").trim().replace(/\s+/g, "-");
+    statusEl.textContent = ACT_MSG[b.dataset.act](n);
+  }));
+
+  const v5 = document.getElementById("v5"), v6 = document.getElementById("v6");
+  function setVariant(docsMode) {
+    funnel.classList.toggle("docs-mode", docsMode);
+    v5.setAttribute("aria-pressed", String(!docsMode));
+    v6.setAttribute("aria-pressed", String(docsMode));
+    draw();
+  }
+  v5.addEventListener("click", () => setVariant(false));
+  v6.addEventListener("click", () => setVariant(true));
+
+  const tabs = [["tab-funnel", "view-funnel"], ["tab-board", "view-board"], ["tab-docs", "view-docs"]];
+  tabs.forEach(([tabId, viewId]) => {
+    document.getElementById(tabId).addEventListener("click", () => {
+      tabs.forEach(([t, v]) => {
+        document.getElementById(t).setAttribute("aria-selected", String(t === tabId));
+        document.getElementById(v).hidden = v !== viewId;
+      });
+      draw();
+    });
+  });
+
+  new ResizeObserver(draw).observe(funnel);
+  window.addEventListener("load", draw);
+  draw();
+</script>
