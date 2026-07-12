@@ -18,16 +18,19 @@ fixtures/
 ├── README.md                 # this index + evidence map
 ├── compatibility/            # pre-alignment profiles that MUST still validate
 │   └── legacy-persona-catalog.yaml
-└── negative/                 # one fixture per enforced rule class (nine)
-    ├── authority-transition.yaml       # AFUV-AUTHORITY-TRANSITION
-    ├── timing-out-of-range.yaml        # AFUV-TIMING-OUT-OF-RANGE
-    ├── control-fallback-missing.yaml   # AFUV-CONTROL-FALLBACK-MISSING
-    ├── persona-unresolved.yaml         # AFUV-PERSONA-UNRESOLVED
-    ├── mode-reserved.yaml              # AFUV-MODE-RESERVED
-    ├── unsafe-render.yaml              # AFUV-UNSAFE-RENDER
-    ├── purpose-invalid.yaml            # AFUV-PURPOSE-INVALID
-    ├── held-answer-active.yaml         # AFUV-HELD-ANSWER-ACTIVE
-    └── retention-unresolved.yaml       # AFUV-RETENTION-UNRESOLVED
+└── negative/                 # ≥1 fixture per enforced rule class (nine classes; 12 fixtures)
+    ├── authority-transition.yaml       # AFUV-AUTHORITY-TRANSITION      (class 1)
+    ├── timing-out-of-range.yaml        # AFUV-TIMING-OUT-OF-RANGE       (class 2)
+    ├── timing-float-out-of-range.yaml  # AFUV-TIMING-OUT-OF-RANGE       (class 2, non-int type)
+    ├── control-fallback-missing.yaml   # AFUV-CONTROL-FALLBACK-MISSING  (class 3)
+    ├── control-required-missing.yaml   # AFUV-CONTROL-FALLBACK-MISSING  (class 3, required omitted)
+    ├── persona-unresolved.yaml         # AFUV-PERSONA-UNRESOLVED        (class 4)
+    ├── mode-reserved.yaml              # AFUV-MODE-RESERVED             (class 5)
+    ├── unsafe-render.yaml              # AFUV-UNSAFE-RENDER             (class 6)
+    ├── purpose-invalid.yaml            # AFUV-PURPOSE-INVALID           (class 7)
+    ├── held-answer-active.yaml         # AFUV-HELD-ANSWER-ACTIVE        (class 8)
+    ├── retention-unresolved.yaml       # AFUV-RETENTION-UNRESOLVED      (class 9)
+    └── accessibility-invalid.yaml      # AFUV-ACCESSIBILITY-INVALID     (structural accessibility check)
 ```
 
 ## Evidence-ID convention
