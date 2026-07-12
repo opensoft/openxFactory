@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-07-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-12-notebook-projection-worktree-scope
+  reason: Nightly-sync-blocking scan defect (worktree checkouts projected as a governed repo), fixed directly on Brett's instruction; no staged source material exists
+  approved_by: Brett
+  approved_on: 2026-07-12

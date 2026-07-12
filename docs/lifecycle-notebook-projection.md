@@ -26,8 +26,11 @@ never hand-curated.
 
 Excluded by design: `record` (immutable evidence), `superseded`, `retired`.
 Scope: `openxFactory/` and `xFactories/*/`, skipping `.git`, `installs/`
-(nested submodules), and `openspec/changes/` (change artifacts have their own
-lifecycle; promoted specs are included from `openspec/specs/`).
+(nested submodules), `openspec/changes/` (change artifacts have their own
+lifecycle; promoted specs are included from `openspec/specs/`), and any
+nested git working copy below a scanned repository root — feature-branch
+worktree checkouts (`<repo>-worktrees/` containers) and embedded clones —
+so unmerged or duplicate checkouts never project into the books.
 
 ## 2. Source Titles
 

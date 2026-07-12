@@ -170,6 +170,10 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [exclude-worktrees-from-notebook-projection](openspec/changes/exclude-worktrees-from-notebook-projection/proposal.md)
+  — ad-hoc-origin defect fix adding the corpus scan scope requirement to the
+  notebook projection (nested worktree checkouts must never project);
+  codexFactory scan fix and tests implemented, backlog reconciliation pending
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
   durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate
