@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
+from .acceptance_map import KERNEL_ACCEPTANCE_MAP_SHA256
 from .candidate import READINESS_CEILING_MS, READINESS_DEFAULT_MS
 
 VALID_GROUPS = ("F0-A", "F0-B", "F0-C", "F0-D", "F0-E", "F0-F")
@@ -34,7 +35,8 @@ class RunConfig:
         "openspec/changes/define-avatar-client-contract-kernel/"
         "supporting-docs/avatar-client-acceptance-map.yaml"
     )
-    acceptance_map_expected_sha256: str = ""
+    # Default to the pinned known-good digest so a normal run verifies the map (FR-018).
+    acceptance_map_expected_sha256: str = KERNEL_ACCEPTANCE_MAP_SHA256
     tools_enabled: bool = False
     profile_pinned: bool = True
     is_lab_profile: bool = True

@@ -16,7 +16,7 @@ import yaml
 from jsonschema.validators import Draft202012Validator
 
 from . import CHANGE_ID, FAIL, INTERFACE_BASELINE, PROTOCOL_VERSION
-from .redaction import scan, scan_prose
+from .redaction import scan, scan_log, scan_prose
 
 _PKG_ROOT = Path(__file__).resolve().parent.parent.parent  # experiments/avatar-brokered-call
 SCHEMAS_DIR = _PKG_ROOT / "schemas"
@@ -74,11 +74,13 @@ def build_interface_impact(
     }
 
 
-def finalize_record(record_body: dict, report_md: str, interface_impact: dict) -> dict:
+def finalize_record(record_body: dict, report_md: str, interface_impact: dict,
+                    emitted_logs: str = "") -> dict:
     """Attach redaction_scan + report_sha256, then validate. Fail-closed on redaction."""
-    # Scan structured evidence (field-level rules) + the prose report (prohibited classes).
+    # Scan structured evidence (field-level rules) + the prose report + any emitted
+    # log/trace/crash text (FR-017 covers all logs/traces/crash output, not just artifacts).
     findings = scan({"record": record_body, "interface_impact": interface_impact})
-    findings = findings + scan_prose(report_md)
+    findings = findings + scan_prose(report_md) + scan_log(emitted_logs)
     record = dict(record_body)
     record["redaction_scan"] = {
         "status": FAIL if findings else "PASS",

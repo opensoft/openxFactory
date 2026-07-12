@@ -28,10 +28,12 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent.parent.parent
 
 
-def _git_commit(root: Path) -> str:
+def _git_file_commit(root: Path, relpath: str) -> str:
+    """The commit that last modified ``relpath`` — the file's provenance (FR-018)."""
     try:
-        out = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"],
-                             capture_output=True, text=True, timeout=10)
+        out = subprocess.run(
+            ["git", "-C", str(root), "log", "-1", "--format=%H", "--", relpath],
+            capture_output=True, text=True, timeout=10)
         return out.stdout.strip() or "unknown"
     except Exception:
         return "unknown"
@@ -56,7 +58,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--groups", default=",".join(VALID_GROUPS))
     run.add_argument("--readiness-ms", type=int, default=3000)
     run.add_argument("--acceptance-map", default=RunConfig.__dataclass_fields__["acceptance_map_path"].default)
-    run.add_argument("--acceptance-map-sha256", default="")
+    run.add_argument("--acceptance-map-sha256",
+                     default=RunConfig.__dataclass_fields__["acceptance_map_expected_sha256"].default)
     run.add_argument("--lab-project-ref", default="lab:f0-brokered-call")
     run.add_argument("--offline-selftest", action="store_true",
                      help="make no provider call; emit the INCONCLUSIVE terminal record")
@@ -87,17 +90,18 @@ def cmd_run(args, argv: List[str]) -> int:
         return 2
 
     # Read the digest-verified baseline acceptance map (read-only). Absence/mismatch is a
-    # reason for INCONCLUSIVE; it never mints placeholder IDs.
-    commit = _git_commit(root)
+    # reason for INCONCLUSIVE; it never mints placeholder IDs. Provenance is the commit
+    # that last modified the map file (FR-018 "that map's source commit"), not harness HEAD.
+    map_commit = _git_file_commit(root, cfg.acceptance_map_path)
     acr_note = ""
-    acr_source_commit = commit
+    acr_source_commit = map_commit
     acr_content_sha256 = "0" * 64
     acr_source_path = cfg.acceptance_map_path
     try:
         ref = load_acceptance_map(str(root / cfg.acceptance_map_path),
-                                  cfg.acceptance_map_expected_sha256, source_commit=commit)
+                                  cfg.acceptance_map_expected_sha256, source_commit=map_commit)
         acr_content_sha256 = ref.content_sha256
-        acr_note = (f"Sourced from `{cfg.acceptance_map_path}` @ {commit[:12]} "
+        acr_note = (f"Sourced from `{cfg.acceptance_map_path}` @ {map_commit[:12]} "
                     f"(sha256 {ref.content_sha256[:12]}…); F0-relevant IDs: "
                     f"{', '.join(ref.f0_relevant())}.")
     except AcceptanceMapError as exc:

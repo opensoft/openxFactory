@@ -32,6 +32,12 @@
     },
     {
       "failed_trials": 0,
+      "id": "F0-C-READINESS_TIMEOUT",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
       "id": "F0-D-TERMINAL_5S",
       "passed_trials": 0,
       "status": "INCONCLUSIVE"
@@ -51,6 +57,20 @@
     {
       "failed_trials": 0,
       "id": "F0-F-IDEMPOTENCY",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-INTERRUPTED",
+      "note": "not executed (no lab credential)",
+      "passed_trials": 0,
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "failed_trials": 0,
+      "id": "F0-D-BOUNDED_CLEANUP",
+      "note": "not executed (no lab credential)",
       "passed_trials": 0,
       "status": "INCONCLUSIVE"
     }
@@ -110,7 +130,7 @@
     "prohibited_findings": 0,
     "status": "PASS"
   },
-  "report_sha256": "7f7a8ea98b7ad84717abc595d6c7fdd5b9c9450f4305c17827f95a0ecc894246",
+  "report_sha256": "fdf87553eefa31a7a35182ee1b9d11db61826c50fbdb415cf2028382ccd8e38d",
   "started_at": "2026-07-11T00:00:00Z",
   "trial_groups": [
     {
@@ -519,7 +539,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -530,7 +551,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -541,7 +563,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -552,7 +575,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -563,7 +587,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -574,7 +599,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -585,7 +611,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -596,7 +623,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -607,7 +635,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",
@@ -618,7 +647,8 @@
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA"
+        "F0-C-NO_MEDIA",
+        "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {},
       "group_id": "F0-C",

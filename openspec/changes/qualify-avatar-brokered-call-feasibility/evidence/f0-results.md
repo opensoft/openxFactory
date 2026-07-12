@@ -12,7 +12,7 @@ All 70 mandatory trials across the six groups (F0-A…F0-F) are recorded as INCO
 
 ## Acceptance map
 
-Sourced from `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` @ 3cdcdd8674d6 (sha256 0b1f5742b744…); F0-relevant IDs: ACR-003, ACR-008, ACR-011, ACR-012.
+Sourced from `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` @ 495a8162af08 (sha256 0b1f5742b744…); F0-relevant IDs: ACR-003, ACR-008, ACR-011, ACR-012.
 
 ## Redaction / threat-model disposition
 

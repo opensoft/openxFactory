@@ -1,8 +1,10 @@
-"""Assertion aggregation (FR-006/FR-008/FR-009/FR-010) + cross-cutting cleanup/redaction.
+"""Assertion aggregation (FR-006/FR-008/FR-009/FR-010).
 
 Aggregates per-trial pass/fail into the schema's ``assertions`` array. A trial contributes
 to each assertion it carries: PASS trials count as passed, FAIL as failed, INCONCLUSIVE as
-neither (missing evidence).
+neither (missing evidence). This module ONLY aggregates trial-derived assertions; bounded
+cleanup lives in :mod:`avatar_f0.cleanup` and redaction scanning in
+:mod:`avatar_f0.redaction` (wired from the run/evidence paths, not here).
 """
 from __future__ import annotations
 

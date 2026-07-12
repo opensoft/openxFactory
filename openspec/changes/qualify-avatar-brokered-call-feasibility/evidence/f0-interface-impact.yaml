@@ -1,6 +1,6 @@
 acceptance_map:
   content_sha256: 0b1f5742b744e686a0e3a970a5df1ddeea88a8ce0ce6fdd602f3731672f5e50e
-  source_commit: 3cdcdd8674d691de43229895c8db4b9a5bae6600
+  source_commit: 495a8162af08abaf3566ff971c37aabcb548137e
   source_path: openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml
 change_id: qualify-avatar-brokered-call-feasibility
 interface_baseline: avatar-client-parallel-v1

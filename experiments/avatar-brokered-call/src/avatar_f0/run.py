@@ -18,8 +18,9 @@ from . import (CHANGE_ID, GROUP_PLANNED, INCONCLUSIVE, PROTOCOL_VERSION)
 from .candidate import (INTERACTION_MODE, REQUESTED_MODEL, TURN_DETECTION, VOICE)
 from .assertions import aggregate_assertions
 from .classify import classify_overall
+from .cleanup import CallRegistry, run_cleanup
 from .metrics import build_metrics
-from .models import GroupResult, TrialResult
+from .models import AssertionResult, GroupResult, TrialResult
 from .trials.base import iter_trial_ids
 
 DOCS_RETRIEVED_AT = "2026-07-10T00:00:00Z"
@@ -27,11 +28,23 @@ DOCS_RETRIEVED_AT = "2026-07-10T00:00:00Z"
 GROUP_ASSERTIONS = {
     "F0-A": ["F0-A-ORDERING", "F0-A-SINGLE_CALL"],
     "F0-B": ["F0-B-ORDERING", "F0-B-WITHIN_CEILING"],
-    "F0-C": ["F0-C-NO_MEDIA"],
+    # F0-C hosts both the sideband-failure and the readiness-timeout path (FR-009/FR-012).
+    "F0-C": ["F0-C-NO_MEDIA", "F0-C-READINESS_TIMEOUT"],
     "F0-D": ["F0-D-TERMINAL_5S", "F0-D-NO_LATE_IO"],
     "F0-E": ["F0-E-SINGLE_CALL"],
     "F0-F": ["F0-F-IDEMPOTENCY"],
 }
+
+# Cross-cutting lifecycle assertions (FR-005 / FR-006). These are not owned by a single
+# group's trials — interruption and bounded cleanup apply across every trial's registry —
+# but must be registered (and, in a live run, PASS) so no PASS can silently omit them.
+# They are namespaced under the terminal group (F0-D).
+CROSS_CUTTING_ASSERTIONS = ("F0-D-INTERRUPTED", "F0-D-BOUNDED_CLEANUP")
+
+# Every assertion ID a live PASS must carry and pass (schema-enforced in the PASS branch).
+MANDATORY_ASSERTIONS = tuple(
+    aid for ids in GROUP_ASSERTIONS.values() for aid in ids
+) + CROSS_CUTTING_ASSERTIONS
 
 
 def _environment(lab_project_ref: str, dependency_versions: Dict[str, str], network_type: str) -> dict:
@@ -112,7 +125,17 @@ def build_inconclusive_record(
     """Build the schema-valid no-key INCONCLUSIVE record body (without redaction/report hash)."""
     trials = _inconclusive_trials()
     groups = [GroupResult(id=g, planned=GROUP_PLANNED[g]) for g in GROUP_PLANNED]
+    # Wire the bounded-cleanup path from the run assembly (FR-005): with no lab credential
+    # no provider call is ever created, so the registry is empty and cleanup terminates
+    # nothing — but the code path is exercised, never a no-op that a live PASS could skip.
+    run_cleanup(CallRegistry())
     assertions = aggregate_assertions(trials)
+    # Register the cross-cutting lifecycle assertions. Unexecuted ⇒ INCONCLUSIVE (never
+    # PASS) in the no-key state, consistent with every other mandatory assertion.
+    for aid in CROSS_CUTTING_ASSERTIONS:
+        assertions.append(AssertionResult(id=aid, status=INCONCLUSIVE,
+                                          passed_trials=0, failed_trials=0,
+                                          note="not executed (no lab credential)"))
     metrics = build_metrics(trials)  # all counts 0
     overall = classify_overall(groups, trials, assertions, metrics, "PASS",
                                environment_inconclusive=True)

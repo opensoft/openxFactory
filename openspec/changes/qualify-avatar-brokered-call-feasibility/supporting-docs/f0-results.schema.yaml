@@ -244,6 +244,19 @@ allOf:
             properties:
               status: {const: PASS}
               failed_trials: {const: 0}
+          allOf:
+            - contains:
+                required: [id]
+                properties: {id: {const: F0-C-READINESS_TIMEOUT}}
+              minContains: 1
+            - contains:
+                required: [id]
+                properties: {id: {const: F0-D-INTERRUPTED}}
+              minContains: 1
+            - contains:
+                required: [id]
+                properties: {id: {const: F0-D-BOUNDED_CLEANUP}}
+              minContains: 1
         redaction_scan:
           properties:
             status: {const: PASS}
