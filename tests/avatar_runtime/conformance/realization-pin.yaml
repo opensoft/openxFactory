@@ -1,0 +1,34 @@
+schema_version: 1
+kind: avatar-runtime-realization-pin
+
+# ---------------------------------------------------------------------------
+# Realization pin — INTENTIONALLY UNPOPULATED during parallel work.
+#
+# This template documents the five content-addressed release coordinates and
+# the final conformance record required at realization (FR-005, SC-006). It is
+# populated ONLY when the released avatar-client kernel exists; a bare tag
+# without the exact commit + all digests fails realization (ARR-002-S03).
+#
+# `check_conformance.py --final` validates this file: all five coordinates
+# present and non-empty, provisional_adapter_disabled == true, and
+# canonical_matches_provisional == true (FR-035).
+# ---------------------------------------------------------------------------
+released_kernel:
+  tag: null                    # (1) released contract-v<major>.<minor> tag
+  commit: null                 # (2) exact release commit sha
+  file_digests: null           # (3) per-file sha256 of consumed canonical files
+  interface_lock_digest: null  # (4)
+  acceptance_map_digest: null  # (5)
+
+# Parallel-work state (kernel unreleased): released_kernel stays null; the
+# provisional suite is green and the required-set sources are content-addressed.
+conformance:
+  provisional_adapter_disabled: false   # -> true at final conformance
+  seeds: [12345, 67890, 424242]         # recorded pytest-randomly seeds (SC-003)
+  suite_result: pass                    # provisional suite (84 tests) green across the recorded seeds
+  scenario_test_map_result: pass        # 106/106 scenarios mapped/dispositioned (34 ARR + 72 ACR)
+  boundary_gate_result: pass            # scripts/validate-avatar-runtime.py
+  canonical_matches_provisional: false  # -> true when canonical == provisional (realization)
+  acceptance_source_digests:            # C2: content-addresses the required-set sources
+    arr: sha256:d0036814d47afa4c17d7f8620fba5b8e949b71ad5950918215294b52e436196b
+    acr: sha256:0b1f5742b744e686a0e3a970a5df1ddeea88a8ce0ce6fdd602f3731672f5e50e

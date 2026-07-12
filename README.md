@@ -155,6 +155,10 @@ Every DomainxFactory must validate against the canonical contract:
   and `scripts/validate-memory-gateway.py` validate the canonical gateway
   schemas, provider examples, conformance fixtures, and first runtime smoke
   path for `xfactory.memory.*`.
+- Avatar reference runtime: `scripts/validate-avatar-runtime.py` statically
+  proves the non-deployable, stdlib-only boundary of `xfactory/avatar_runtime/`
+  (no listener, provider SDK, persistence, credential loading, or provisional
+  import) for feature `specs/003-avc-reference-runtime`.
 - Versioning: [Contract Versioning Policy](docs/contract-versioning-policy.md)
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
