@@ -105,6 +105,9 @@ Core domain-neutral docs:
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
   ([profile examples](examples/avatar-first-ui/README.md) ·
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
+- [Avatar-Client (AVC) Contract Kernel](contracts/avatar-client/README.md)
+  (neutral session/consent/revocation contract family; realized at
+  `contract-v1.7` with a fail-closed F0 publication gate)
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
 - [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
@@ -171,11 +174,14 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
-  — staged-origin proposal for the generated ideation dashboard: realization
-  funnel snapshot over a possibles register, non-mutating workbench with
-  draft-only gate artifacts, and the nightly snapshot lane (code surface:
-  openxFactory, codexFactory, xFactory; ideation-cross-reference delta
-  sequenced with add-ideation-cross-reference-readiness)
+  — **ratified 2026-07-12**; staged-origin change for the generated ideation
+  dashboard: realization funnel snapshot over a possibles register,
+  per-actor authoring authority (human create/edit, agent create-only,
+  notebook set-removal), non-mutating workbench with draft-only gate
+  artifacts, and the nightly snapshot lane (code surface: openxFactory,
+  codexFactory, xFactory; archives on realization evidence;
+  ideation-cross-reference delta sequenced with
+  add-ideation-cross-reference-readiness)
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
   durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate

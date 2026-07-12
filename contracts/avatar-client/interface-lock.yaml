@@ -44,7 +44,16 @@ f0_evidence_pin:
 # Two completion states (spec FR-034 / Q7). The OpenSpec change stays active
 # until `realized`.
 completion_states:
-  current: implementation_complete_publication_pending_f0
+  current: realized
+  realized_stamp:
+    date: 2026-07-12
+    contract_bundle_version: contract-v1.7
+    f0_status: PASS                 # 70/70 live trials, client-enforced F0-D
+    f0_source_commit: 5142065b2833a2b6d2ccbcb460bf164fd4e1e417
+    threat_model: accepted          # define-avatar-client-contract-kernel task 1.1; acceptance conditions closed at F0 PASS
+    note: >-
+      Annotated tag contract-v1.7 published from this realized release commit;
+      per-file digests recorded in contracts/manifest.yaml.
   definitions:
     implementation_complete_publication_pending_f0:
       description: "All kernel artifacts + validator merged and green; publication gate enforced."

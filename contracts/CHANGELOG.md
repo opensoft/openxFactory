@@ -5,10 +5,45 @@ Status: draft
 Governed by [Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
 Legacy baseline note: versions `contract-v1.1` through `contract-v1.6`
-predate mandatory annotated tags. The manifest is reconciled to
-`contract-v1.6`; the next realized contract release allocates the next
-available minor version and begins tag enforcement without fabricating
-historical tags.
+predate mandatory annotated tags and carry none. Tag enforcement begins at
+`contract-v1.7` — the first realized release published with an annotated tag —
+without fabricating historical tags.
+
+## contract-v1.7 — 2026-07-12 (additive; first annotated-tag release)
+
+First contract release published under mandatory annotated-tag enforcement
+(Contract Versioning Policy). Realizes the neutral **avatar-client (AVC)
+contract kernel** (`define-avatar-client-contract-kernel`) after the F0
+brokered-call feasibility gate passed — 70/70 live trials, client-enforced
+revocation (`qualify-avatar-brokered-call-feasibility`, harness commit
+`5142065`).
+
+Added — `contracts/avatar-client/` (23-file semantic set; per-file SHA-256
+recorded in `contracts/manifest.yaml`):
+
+- `shared-definitions.schema.yaml` plus eight `avc-*.schema.yaml` contracts
+  (AVC-01/02/04/06/07/08/11/12) — YAML-serialized JSON Schema draft 2020-12.
+- Nine closed registries under `registries/` (session-result-reasons = 15,
+  consent-purposes = 3, events, commands, capabilities, fallback-modes,
+  interaction-modes, retention-classes, session-outcomes).
+- `acceptance-map.yaml`, `interface-lock.yaml` (frozen
+  `avatar-client-parallel-v1` baseline + fail-closed F0 publication-gate pin),
+  `evidence-register.yaml`, and the `fixtures/` conformance set
+  (`index.yaml`, `f0-gate-cases.yaml`).
+- `scripts/validate-avatar-client.py` — reference validator carrying the
+  fail-closed F0 publication gate (content-addressed by commit; not a pinned
+  semantic artifact, so excluded from the digest set).
+
+Governance:
+
+- ACR-005 revocation clarified to **client-enforced within the 5 s bound**
+  (`change/clarify-avatar-revocation-client-enforced`); provider-side settle is
+  recorded informationally. The registered avatar-client threat model is
+  accepted.
+
+Consumers: the avatar-client reference runtime (003) and avatar-first UI
+standard (004) siblings pin this bundle at the `contract-v1.7` tag and verify
+the per-file digests before treating a copy as current.
 
 ## contract-v1.6 — 2026-07-09 (additive)
 

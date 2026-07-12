@@ -163,12 +163,12 @@ dispositioned, the F0 evidence pin validates (Phase 6), AND the registered threa
 model is accepted. If any is false, STOP — the tag stays blocked
 (spec §FR-029/§FR-031/§FR-034; SC-007/SC-010).
 
-- [ ] T044 [GATE] Confirm realization readiness: run `python3 scripts/validate-avatar-client.py --strict` with the F0 gate active and require (a) F0 `PASS`, (b) every interface variance dispositioned, (c) `f0_evidence_pin` green, AND (d) the registered threat model accepted (spec §FR-031; OpenSpec task 1.1). BLOCKS T045–T049.
-- [ ] T045 Allocate the next available minor `contract_bundle_version` after `contract-v1.6` (→ `contract-v1.7`) once merge order is known (never reserved earlier) — depends on T044
-- [ ] T046 Atomically update shared **release-metadata** files — `contracts/manifest.yaml` (avatar-client entries + per-file `sha256` over the semantic consumed set), `contracts/CHANGELOG.md` (`contract-v1.7` entry), `contracts/README.md` (release-metadata index) — as the serialized final integration, staging explicit paths, per spec §FR-024 — depends on T045
-- [ ] T047 Publish the annotated `contract-v1.7` tag from the realized release commit and record per-file digests — depends on T046
-- [ ] T048 Publish the machine-readable kernel handoff (release tag, exact commit, per-file digests, interface-lock digest, acceptance-map digest, compatibility instructions) for the reference-runtime and UI-standard siblings (OpenSpec task 4.2) — depends on T047
-- [ ] T049 Link the avatar-client contract family into the **repo-root `README.md`** document index (Principle IV), staging that explicit path only (shared-tree discipline) — moved into serialized realization per analyze A2 — depends on T048
+- [x] T044 [GATE] Confirm realization readiness: run `python3 scripts/validate-avatar-client.py --strict` with the F0 gate active and require (a) F0 `PASS`, (b) every interface variance dispositioned, (c) `f0_evidence_pin` green, AND (d) the registered threat model accepted (spec §FR-031; OpenSpec task 1.1). BLOCKS T045–T049.
+- [x] T045 Allocate the next available minor `contract_bundle_version` after `contract-v1.6` (→ `contract-v1.7`) once merge order is known (never reserved earlier) — depends on T044
+- [x] T046 Atomically update shared **release-metadata** files — `contracts/manifest.yaml` (avatar-client entries + per-file `sha256` over the semantic consumed set), `contracts/CHANGELOG.md` (`contract-v1.7` entry), `contracts/README.md` (release-metadata index) — as the serialized final integration, staging explicit paths, per spec §FR-024 — depends on T045
+- [x] T047 Publish the annotated `contract-v1.7` tag from the realized release commit and record per-file digests — depends on T046
+- [x] T048 Publish the machine-readable kernel handoff (release tag, exact commit, per-file digests, interface-lock digest, acceptance-map digest, compatibility instructions) for the reference-runtime and UI-standard siblings (OpenSpec task 4.2) — depends on T047
+- [x] T049 Link the avatar-client contract family into the **repo-root `README.md`** document index (Principle IV), staging that explicit path only (shared-tree discipline) — moved into serialized realization per analyze A2 — depends on T048
 
 **Checkpoint**: Completion state = *realized*; the OpenSpec change may now archive.
 

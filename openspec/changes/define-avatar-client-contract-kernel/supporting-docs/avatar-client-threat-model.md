@@ -1,8 +1,10 @@
 # Avatar Client Trust-Boundary Threat Model
 
-Status: draft
+Status: ratified
 Kind: report
 Captured: 2026-07-10
+Accepted: 2026-07-12
+Ratified by: define-avatar-client-contract-kernel (task 1.1); acceptance conditions closed at the contract-v1.7 realization gate
 Proposed by: define-avatar-client-runtime
 Target capability: avatar-client-runtime
 
@@ -96,3 +98,27 @@ This threat model is acceptable for contract freeze only when:
 3. the design and runtime delta use the same trust classification;
 4. no artifact claims sideband termination prevents prior disclosure; and
 5. a reviewer records approval or requested changes in the F0 result record.
+
+## Acceptance record — 2026-07-12 (contract-v1.7 realization gate)
+
+Accepted by the AVC contract-kernel owner as the T044(d) precondition to the
+`contract-v1.7` tag. Each condition is met:
+
+1. **Met** — TM-01…TM-14 map to tasks and evidence IDs in
+   `contracts/avatar-client/evidence-register.yaml` / `acceptance-map.yaml`
+   (structural, held since contract freeze).
+2. **Met** — F0 mandatory assertions PASS: ordering (`F0-A-ORDERING`),
+   timeout (`F0-C-READINESS_TIMEOUT`), redaction (`redaction_scan: PASS`), and
+   hangup/revocation (`F0-D-TERMINAL_5S`, `F0-D-NO_LATE_IO`) — 70/70 live
+   trials, `qualify-avatar-brokered-call-feasibility` harness commit `5142065`.
+3. **Met** — design and runtime deltas share the trust classification
+   (unchanged since freeze).
+4. **Met** — no artifact claims sideband termination prevents prior
+   disclosure. The ACR-005 ruling (`change/clarify-avatar-revocation-client-enforced`)
+   makes revocation **client-enforced**: the ≤5 s guarantee is the client-side
+   media stop plus the accepted provider hangup request; provider-side settle
+   (~8.1 s) is recorded informationally.
+5. **Met** — reviewer disposition recorded in the F0 evidence packet
+   (`evidence/f0-terminal-pass-report-2026-07-12.md`,
+   `evidence/f0d-revocation-rerun-notes-2026-07-12.md`), alongside the
+   machine-verified assertion results in `evidence/f0-results.json`.

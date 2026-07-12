@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.6
+contract_bundle_version: contract-v1.7
 source_compatibility_ref:
   repo: opensoft/Omnigent-Install
   local_source_path: /home/brett/projects/Agents/Omnigent-Install
@@ -192,3 +192,196 @@ contracts:
       checkout (for example via Makefile target `validate`). Copying the
       validator into a domain repo is a conformance violation; domain repos
       may add domain-specific validators alongside it but not replace it.
+  # ---- avatar-client (AVC) contract kernel — contract-v1.7 realization (define-avatar-client-contract-kernel) ----
+  # Canonical openxFactory-owned neutral kernel; per-file sha256 over the semantic
+  # consumed set (validate-avatar-client.py SEMANTIC_GLOBS). Consumed by the
+  # avatar-client reference runtime (003) and avatar-first UI standard (004) siblings.
+  - id: avatar-client-shared-definitions
+    path: contracts/avatar-client/shared-definitions.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/shared-definitions.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a69d4b736bd65a517739f7d4ede514bb5a72634e9bb9690b27949e7ab19057ad
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Sibling repos (avatar-client reference runtime, avatar-first UI standard)
+      consume this kernel through their pinned openxFactory checkout at the
+      contract-v1.7 tag and MUST verify the per-file sha256 before treating a
+      copy as current. The interface baseline is frozen in interface-lock.yaml.
+  - id: avatar-client-avc-01-session-request
+    path: contracts/avatar-client/avc-01-session-request.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-01-session-request.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9c8c3e4079a6cf5b94c0dd829a2ad72a7fb3f51c2627ad17376d9c240c2c82f2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-02-session-result
+    path: contracts/avatar-client/avc-02-session-result.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-02-session-result.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9787776324ec3a28235de6d0c1062e0901a1b5871877f56c165999986f0753bd
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-04-session-event
+    path: contracts/avatar-client/avc-04-session-event.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-04-session-event.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 72a69b7f6b87740eec9ae4ef1838aea307494412d45db9b7ea0f972d5e969e7d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-06-structured-confirmation
+    path: contracts/avatar-client/avc-06-structured-confirmation.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-06-structured-confirmation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 572e1339bc8105d5581bd75e2804121e24a7c55d19d39cbc2db194b4f3f3f9bc
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-07-retention-profile
+    path: contracts/avatar-client/avc-07-retention-profile.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-07-retention-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: bea72a48c83b7dd15f9cd5e68e8ebd8c9965c05cd5e3be7f19a6277007aa1005
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-08-persona-profile
+    path: contracts/avatar-client/avc-08-persona-profile.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-08-persona-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-11-session-command
+    path: contracts/avatar-client/avc-11-session-command.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-11-session-command.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 26eeb1cce04c46e3ac4637537303083eb04c79348ff5a9982cd6b36321add21e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-avc-12-state-snapshot
+    path: contracts/avatar-client/avc-12-state-snapshot.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-12-state-snapshot.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e06d464689c4003df7ec41f67769caf33debc90e50bf084ec8e1345d9c88d3c7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-capabilities
+    path: contracts/avatar-client/registries/capabilities.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/capabilities.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: bbce9ffdb037da046dc5c6829763be68b319a4689551605cd52c5bfacffd5ea7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-commands
+    path: contracts/avatar-client/registries/commands.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/commands.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 0d0c6080e7b7def15a90f58b4a203c4eb76e209f597a0e226190d507c5214f28
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-consent-purposes
+    path: contracts/avatar-client/registries/consent-purposes.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/consent-purposes.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: d4083d41e09121ff37ef799d0b093a61aad40c662a23543273b09f04145ab4fb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-events
+    path: contracts/avatar-client/registries/events.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/events.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: a436fcc0406ecdeb4f3a505403b08592c0eded917dfd8ee646dcb87b6ae4be7f
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-fallback-modes
+    path: contracts/avatar-client/registries/fallback-modes.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/fallback-modes.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: d3ba146d8d276d3894d29a035c8b73a1e612769cead5b57c4b1050288186f39d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-interaction-modes
+    path: contracts/avatar-client/registries/interaction-modes.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/interaction-modes.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: f5283be3a4cf2f6cc384ed44d5d8811c6028954fea605d67b6f982d16d8e396f
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-retention-classes
+    path: contracts/avatar-client/registries/retention-classes.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/retention-classes.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: f41250422ef35fed9f821cb88647428ec42933fdd2d728ea1fa24537979d5c5b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-session-outcomes
+    path: contracts/avatar-client/registries/session-outcomes.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/session-outcomes.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 0a505c2eb05609f313bca2c573af39061825866778bb74024dd363e715716cf1
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-registry-session-result-reasons
+    path: contracts/avatar-client/registries/session-result-reasons.registry.yaml
+    source_path: openxFactory/contracts/avatar-client/registries/session-result-reasons.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 8437ecef36a5a470f0a22e92260d0272182e9dc4b2bed9b7660c0f7b06fe2834
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-fixture-f0-gate-cases
+    path: contracts/avatar-client/fixtures/f0-gate-cases.yaml
+    source_path: openxFactory/contracts/avatar-client/fixtures/f0-gate-cases.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 59bfbed1633e92ee57cf6645ea2b2c22870313146916f713289ffcc359ec3454
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-fixtures-index
+    path: contracts/avatar-client/fixtures/index.yaml
+    source_path: openxFactory/contracts/avatar-client/fixtures/index.yaml
+    type: fixture_index
+    schema_version: 1
+    sha256: c4372f1981b57c0e1fc62f71303ee1d831061caab729a34238aee1dd47765bb9
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-acceptance-map
+    path: contracts/avatar-client/acceptance-map.yaml
+    source_path: openxFactory/contracts/avatar-client/acceptance-map.yaml
+    type: acceptance_map
+    schema_version: 1
+    sha256: 23a5176015ab8f05d334262a6af430b0ca8e8b84ff1d335268c1b5d86ae8210f
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-interface-lock
+    path: contracts/avatar-client/interface-lock.yaml
+    source_path: openxFactory/contracts/avatar-client/interface-lock.yaml
+    type: interface_lock
+    schema_version: 1
+    sha256: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-evidence-register
+    path: contracts/avatar-client/evidence-register.yaml
+    source_path: openxFactory/contracts/avatar-client/evidence-register.yaml
+    type: evidence_register
+    schema_version: 1
+    sha256: 6f42422521adad8818895e6b8bb83ca9d148dc33fb9e61a8c762d5e6cca36d66
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
