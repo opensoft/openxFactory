@@ -64,6 +64,7 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
         self._answer_applied = False
         self._first_output = asyncio.Event()
         self._terminal = asyncio.Event()
+        self._drain_ended = asyncio.Event()   # set when the inbound leg terminates (drain ends)
 
         @self._pc.on("track")
         def _on_track(track):  # noqa: ANN001
@@ -75,9 +76,14 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
                     await track.recv()          # first inbound frame = first playable output
                     self._first_output.set()
                     while True:
-                        await track.recv()       # keep draining so the leg stays alive
+                        await track.recv()       # keep draining; ends when the track closes
                 except Exception:
                     return
+                finally:
+                    # recv() raised → the inbound media leg terminated. Positive closure
+                    # signal: a teardown flush still ends here (counts as stopped), while a
+                    # leg that keeps streaming never reaches this (times out → not stopped).
+                    self._drain_ended.set()
 
             asyncio.ensure_future(_drain())
 
@@ -132,6 +138,23 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
         # Recreate the event; the connectionstatechange handler resolves self._terminal
         # dynamically, so a fresh event only fires on the NEXT terminal transition.
         self._terminal = asyncio.Event()
+
+    async def wait_leg_stopped(self, timeout_s: float) -> bool:
+        """True if the inbound media leg terminates (the receive drain ends) within the bound.
+
+        POSITIVE confirmation that media ceased after the client-side ``close()``: a teardown
+        flush still ends the drain (so a healthy stop counts as stopped — no false FAIL from
+        in-flight frames), while a leg that keeps streaming never ends (times out → not
+        stopped → FAIL). This confirms the INBOUND leg; the outbound sender is stopped by the
+        same ``close()`` and the accepted provider hangup.
+        """
+        import asyncio
+
+        try:
+            await asyncio.wait_for(self._drain_ended.wait(), timeout=timeout_s)
+            return True
+        except Exception:
+            return False
 
     async def wait_terminal(self, timeout_s: float) -> bool:
         import asyncio

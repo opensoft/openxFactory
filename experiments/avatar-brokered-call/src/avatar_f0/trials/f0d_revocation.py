@@ -1,4 +1,12 @@
-"""F0-D revocation runner (FR-013/FR-014): terminal within 5 s; separate offsets.
+"""F0-D revocation runner — LEGACY offline double (provider-confirmation model).
+
+NOTE: this offline simulation encodes the pre-2026-07-12 provider-confirmation model
+(PASS iff provider termination observed within 5 s). It is exercised only by the offline
+unit tests (`test_revocation.py`, `test_metrics.py`) and does NOT feed any terminal
+evidence record. The authoritative, ratified revocation model is CLIENT-ENFORCED (ACR-005,
+clarified 2026-07-12) and lives in :mod:`avatar_f0.live_runner` (F0-D): client-side media
+stop with no late I/O + accepted revocation request within 5 s; provider-side settle is
+informational. Aligning this double to the client-enforced model is a follow-up cleanup.
 
 Authorizes a baseline handshake, then revokes and requests hangup, recording separate
 ``t_revocation_request``, ``t_hangup_sent`` and ``t_peer_terminal`` offsets. An

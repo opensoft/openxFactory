@@ -800,7 +800,10 @@ def check_f0_gate(f: Findings, require_realization: bool) -> None:
 
     status = None
     if isinstance(results_inst, dict):
-        status = results_inst.get("status") or results_inst.get("f0_status")
+        # The F0 result record's terminal field is `overall` (f0-results.schema); accept the
+        # legacy `status`/`f0_status` aliases too.
+        status = (results_inst.get("overall") or results_inst.get("status")
+                  or results_inst.get("f0_status"))
 
     state = {
         "schema_present": schema_present,

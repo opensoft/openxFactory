@@ -54,6 +54,10 @@ class FakeBroker:
 
 
 class FakeSideband:
+    # verdict controls the F0-D active terminal probe: "terminated" (default, revocation
+    # observed) → PASS; "alive" → FAIL; "inconclusive" → INCONCLUSIVE.
+    probe_verdict = "terminated"
+
     def __init__(self, call_id):
         self.call_id = call_id
 
@@ -62,6 +66,9 @@ class FakeSideband:
 
     async def verify(self, timeout_s):
         return True
+
+    async def probe_terminated(self, timeout_s, confirm_gone=None):
+        return self.probe_verdict
 
     async def close(self):
         pass
@@ -91,6 +98,9 @@ class FakeMedia:
 
     async def wait_terminal(self, timeout_s):
         return True
+
+    async def wait_leg_stopped(self, timeout_s):
+        return True         # a healthy client stop: the inbound leg terminates in-bound
 
     async def close(self):
         pass
@@ -185,25 +195,144 @@ def test_transport_exception_is_inconclusive_and_leaks_no_text():
     assert "SECRET-SDP-FRAGMENT" not in json.dumps(rec)
 
 
-def test_f0d_stale_terminal_latch_does_not_false_pass():
-    # A terminal state latched during the handshake (transient ICE blip) must NOT satisfy
-    # the post-hangup revocation bound: arm_terminal() clears it, and with no NEW terminal
-    # signal F0-D is INCONCLUSIVE (never a false PASS).
-    class StaleLatchMedia(FakeMedia):
-        def __init__(self):
-            super().__init__()
-            self._stale = True
+def _sideband_factory(verdict):
+    def make(call_id):
+        sb = FakeSideband(call_id)
+        sb.probe_verdict = verdict
+        return sb
+    return make
 
-        def arm_terminal(self):
-            self._stale = False          # arming clears the stale pre-hangup latch
 
-        async def wait_terminal(self, timeout_s):
-            return self._stale           # no new terminal after arming → False
+def _f0d_group(rec):
+    return next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
 
-    rec = _run(make_env(media=lambda: StaleLatchMedia()), groups=["F0-D"])
-    assert rec["overall"] == "INCONCLUSIVE"
-    d = next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
-    assert d["passed"] == 0
+
+def test_f0d_client_enforced_passes_on_accepted_request():
+    # Client-enforced revocation (ACR-005): F0-D PASSes iff the provider revocation REQUEST is
+    # accepted in-bound. The provider-side settle verdict is INFORMATIONAL and does not change
+    # the outcome — a slow / still-alive / ambiguous provider settle still PASSes.
+    for settle in ("terminated", "alive", "inconclusive"):
+        rec = _run(make_env(sideband=_sideband_factory(settle)), groups=["F0-D"])
+        d = _f0d_group(rec)
+        assert d["passed"] == d["planned"] == 10 and d["failed"] == 0, (settle, d)
+        notes = " ".join(t.get("note", "") for t in rec["trials"] if t["group_id"] == "F0-D")
+        assert f"settle={settle}" in notes          # settle is recorded, not gated
+
+
+def test_f0d_fails_when_revocation_request_not_accepted():
+    # If the provider does not accept the revocation request (hangup fails), F0-D FAILs — the
+    # request-accepted-in-bound part of the guarantee was not met.
+    class NoHangupBroker(FakeBroker):
+        async def hangup(self, call_id):
+            return False
+
+    rec = _run(make_env(broker=lambda: NoHangupBroker()), groups=["F0-D"])
+    assert rec["overall"] == "FAIL"
+    d = _f0d_group(rec)
+    assert d["failed"] == 10 and d["passed"] == 0
+
+
+def test_f0d_fails_when_media_leg_does_not_stop():
+    # Half (a) of the guarantee: if the client media leg does not terminate within the bound
+    # (media keeps flowing after 'close'), F0-D FAILs — even with the request accepted in-bound.
+    class NoStopMedia(FakeMedia):
+        async def wait_leg_stopped(self, timeout_s):
+            return False                # the inbound leg never terminated (still streaming)
+
+    rec = _run(make_env(media=lambda: NoStopMedia()), groups=["F0-D"])
+    assert rec["overall"] == "FAIL"
+    d = _f0d_group(rec)
+    assert d["failed"] == 10 and d["passed"] == 0
+
+
+def test_probe_terminated_drain_loop_polarity():
+    # Directly exercise WssSideband.probe_terminated's drain loop + tri-state polarity, with
+    # queued server events ahead of the definitive signal (no network).
+    import json as _json
+
+    from avatar_f0.sideband import WssSideband
+
+    # Close exceptions carry a code; names match sideband._close_verdict.
+    class ConnectionClosedOK(Exception):
+        def __init__(self, code=1000):
+            self.code = code
+
+    class ConnectionClosedError(Exception):
+        def __init__(self, code=1006):
+            self.code = code
+
+    RESP = _json.dumps({"type": "response.output_audio.delta"})   # unrelated queued event
+    ITEM = _json.dumps({"type": "conversation.item.created"})     # unrelated queued event
+
+    class _FakeWs:
+        # Returns queued frames in order; when exhausted raises ``end`` (a close or TimeoutError).
+        def __init__(self, frames, end):
+            self._frames = list(frames)
+            self._end = end
+
+        async def send(self, data):
+            pass
+
+        async def recv(self):
+            if self._frames:
+                return self._frames.pop(0)
+            raise self._end
+
+    def probe(frames, end=None, confirm=None):
+        if end is None:
+            end = asyncio.TimeoutError()
+        sb = WssSideband("rtc_x", "sk-fake")
+        sb._ws = _FakeWs(frames, end)
+        return asyncio.run(sb.probe_terminated(5.0, confirm_gone=confirm))
+
+    def confirm_returning(value):
+        calls = []
+
+        async def _confirm():
+            calls.append(1)
+            return value
+        _confirm.calls = calls
+        return _confirm
+
+    async def confirm_raising():
+        raise RuntimeError("rest surface unavailable")
+
+    upd = _json.dumps({"type": "session.updated", "event_id": "x"})
+    gone = _json.dumps({"type": "error", "error": {"code": "call_not_found"}})
+    generic = _json.dumps({"type": "error", "error": {"code": "rate_limited"}})
+
+    # alive: our ack arrives, possibly behind queued events → drain then "alive"
+    assert probe([upd]) == "alive"
+    assert probe([RESP, ITEM, upd]) == "alive"
+    # terminated: a confirmed call-gone error, or a CLEAN close, after draining events
+    assert probe([RESP, gone]) == "terminated"
+    assert probe([RESP], end=ConnectionClosedOK(1000)) == "terminated"
+    # NOT terminated: abnormal close (network blip) with no confirmer → inconclusive
+    assert probe([RESP], end=ConnectionClosedError(1006)) == "inconclusive"
+    # NOT terminated: a non-call-gone error is drained, then no signal → inconclusive
+    assert probe([generic]) == "inconclusive"
+    # NOT terminated: only unrelated events until the socket times out → inconclusive
+    assert probe([RESP, ITEM]) == "inconclusive"
+
+    # Out-of-band confirmation (empirical teardown: abnormal close 1006 → REST re-hangup).
+    # Ambiguous close + confirmed gone → terminated; still-alive → alive; unknown → inconclusive.
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(True)) == "terminated"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(False)) == "alive"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(None)) == "inconclusive"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_raising) == "inconclusive"
+    # Silence (timeout) is equally ambiguous → same confirmation matrix applies.
+    assert probe([RESP, ITEM], confirm=confirm_returning(True)) == "terminated"
+    assert probe([generic], confirm=confirm_returning(False)) == "alive"
+    # DEFINITIVE in-band signals must NOT consult the confirmer (no verdict override,
+    # no extra REST call): clean close and session.updated classify on their own.
+    c = confirm_returning(False)
+    assert probe([RESP], end=ConnectionClosedOK(1000), confirm=c) == "terminated"
+    assert not c.calls
+    c2 = confirm_returning(True)
+    assert probe([upd], confirm=c2) == "alive"
+    assert not c2.calls
+    # non-JSON frames are ignored (drained), not misclassified
+    assert probe(["<<not json>>", upd]) == "alive"
 
 
 def test_cli_live_wiring_runs_with_fakes_no_nameerror(monkeypatch):

@@ -8,6 +8,40 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# EXACT provider error codes/types that mean the call is gone (termination probe, F0-D).
+# Matched by exact equality against the error frame's code/type field ONLY — never substring
+# over the serialized blob (a benign message containing e.g. "closed"/"disclosed" must not
+# read as termination). Deliberately conservative and possibly INCOMPLETE: confirm/extend
+# against the exact code observed for a hung-up call on the lab re-run.
+TERMINATION_ERROR_CODES = frozenset({
+    "call_not_found", "session_not_found", "unknown_call", "invalid_call_id",
+    "call_ended", "session_ended", "session_expired",
+})
+
+
+def _error_code(msg: dict) -> str:
+    """The error frame's code/type, lowercased — for EXACT matching against call-gone codes."""
+    err = msg.get("error")
+    if isinstance(err, dict):
+        return str(err.get("code") or err.get("type") or "").strip().lower()
+    return str(msg.get("code") or "").strip().lower()
+
+
+def _close_verdict(exc: Exception) -> str:
+    """Classify a raised exception during the probe.
+
+    Only a CLEAN close (1000/1001) attributes to call termination; an abnormal close
+    (1006/1011) or any other transport failure of the out-of-band control channel cannot be
+    attributed to the media call's teardown → "inconclusive" (never a false "terminated").
+    """
+    if type(exc).__name__ not in ("ConnectionClosed", "ConnectionClosedOK", "ConnectionClosedError"):
+        return "inconclusive"
+    code = getattr(exc, "code", None)
+    if code is None:
+        rcvd = getattr(exc, "rcvd", None)
+        code = getattr(rcvd, "code", None) if rcvd is not None else None
+    return "terminated" if code in (1000, 1001) else "inconclusive"
+
 
 @dataclass
 class SimulatedSideband:
@@ -100,6 +134,98 @@ class WssSideband:  # pragma: no cover - live path, exercised only with a lab ke
         except Exception:
             self._verified = False
         return self._verified
+
+    async def probe_terminated(self, timeout_s: float, confirm_gone=None) -> str:
+        """Active termination probe — INVERTED polarity from ``verify`` (F0-D revocation).
+
+        Passively watching the media leg cannot see teardown within the 5 s bound (the
+        provider emits no prompt terminal signal; aiortc's ICE-consent teardown is ~30 s).
+        So after hangup we probe the control channel instead. Returns exactly one of:
+
+          "terminated"    the socket CLEANLY closed (1000/1001), OR the server errored with a
+                          confirmed call-gone code, OR an ambiguous signal was POSITIVELY
+                          confirmed gone by ``confirm_gone`` → revocation observed
+          "alive"         the server acknowledged our update (``session.updated``), or
+                          ``confirm_gone`` found the call still live → revocation FAILED
+                          (must become a FAIL, never ignored)
+          "inconclusive"  no attributable signal and no (or unknown) confirmation
+
+        The ``?call_id=`` socket is the ACTIVE session's server-event channel, so response.*/
+        conversation.* events queued before the probe are read first — we DRAIN and ignore
+        them, classifying only on a DEFINITIVE, correlated signal within the bound. Our
+        ``session.update`` carries a unique ``event_id`` (no stale ``session.updated`` can
+        exist after ``verify`` consumed its own ack), so a ``session.updated`` observed here
+        is this probe's reply → the call is alive.
+
+        Empirical (lab, 2026-07-12): on hangup the provider does NOT close cleanly or send a
+        call-gone error — it drops the socket with an ABNORMAL close (1006) at ~2.2 s. A bare
+        1006 is indistinguishable from a local network blip, so it must NOT count as
+        terminated by itself. ``confirm_gone`` resolves exactly that ambiguity out-of-band:
+        an async callable (wired by the runner to a REST re-hangup: HTTP 404 → gone=True,
+        200 → still-alive=False, else None) consulted ONLY when the in-band signal is
+        ambiguous (abnormal close, silence, unrecognized error). The observed WSS re-attach
+        alternative was rejected: its 404 takes ~6 s — outside the 5 s revocation bound.
+
+        SAFETY: only a POSITIVE termination signal returns "terminated" (exact-code match,
+        CLEAN close, or an explicit gone=True confirmation) — never a substring, a generic
+        error, or a bare abnormal close. A confirmation of False means the call SURVIVED the
+        original hangup → "alive" → FAIL. Unknown confirmation stays "inconclusive"; a false
+        "terminated" would wrongly PASS the assertion that proves we can kill a live call.
+        """
+        import asyncio
+        import json
+
+        async def _resolve_ambiguous() -> str:
+            # Consult the out-of-band confirmation only for ambiguous in-band signals.
+            if confirm_gone is None:
+                return "inconclusive"
+            try:
+                gone = await confirm_gone()
+            except Exception:
+                return "inconclusive"
+            if gone is True:
+                return "terminated"
+            if gone is False:
+                return "alive"
+            return "inconclusive"
+
+        async def _classify_close(exc: Exception) -> str:
+            verdict = _close_verdict(exc)
+            return verdict if verdict == "terminated" else await _resolve_ambiguous()
+
+        if self._ws is None:
+            return "inconclusive"
+        event_id = f"f0-term-probe-{id(self):x}"
+        try:
+            await self._ws.send(json.dumps(
+                {"type": "session.update", "event_id": event_id, "session": {"type": "realtime"}}
+            ))
+        except Exception as exc:
+            return await _classify_close(exc)
+
+        loop = asyncio.get_event_loop()
+        end = loop.time() + max(0.0, timeout_s)
+        while True:
+            remaining = end - loop.time()
+            if remaining <= 0:
+                return await _resolve_ambiguous()   # silence within the bound
+            try:
+                reply = await asyncio.wait_for(self._ws.recv(), timeout=remaining)
+            except asyncio.TimeoutError:
+                return await _resolve_ambiguous()   # silence within the bound
+            except Exception as exc:
+                return await _classify_close(exc)
+            try:
+                msg = json.loads(reply)
+            except Exception:
+                continue                        # non-JSON frame → ignore, keep draining
+            typ = msg.get("type", "")
+            if typ == "session.updated":
+                return "alive"                  # our update was acked → call still live
+            if typ == "error" and _error_code(msg) in TERMINATION_ERROR_CODES:
+                return "terminated"             # confirmed call-gone code
+            # unrelated queued server event, or a non-call-gone error → drain and keep looking
+            continue
 
     async def close(self) -> None:
         if self._ws is not None:

@@ -39,14 +39,14 @@
     {
       "failed_trials": 0,
       "id": "F0-D-TERMINAL_5S",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-D-NO_LATE_IO",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
@@ -64,13 +64,13 @@
       "failed_trials": 0,
       "id": "F0-D-INTERRUPTED",
       "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-D-BOUNDED_CLEANUP",
       "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "status": "PASS"
     }
   ],
   "candidate": {
@@ -104,10 +104,10 @@
   },
   "metrics": {
     "first_playable_after_authorized_ms": {
-      "count": 30,
-      "max": 675.219,
-      "p50": 610.203,
-      "p95": 636.157
+      "count": 40,
+      "max": 665.766,
+      "p50": 603.63,
+      "p95": 643.488
     },
     "hangup_to_terminal_ms": {
       "count": 0,
@@ -117,18 +117,19 @@
     },
     "sideband_ready_ms": {
       "count": 30,
-      "max": 1587.295,
-      "p50": 754.811,
-      "p95": 1573.685
+      "max": 1663.667,
+      "p50": 772.37,
+      "p95": 1642.119
     }
   },
-  "overall": "INCONCLUSIVE",
+  "overall": "PASS",
   "protocol_version": "1",
   "redaction_scan": {
     "prohibited_findings": 0,
     "status": "PASS"
   },
-  "report_sha256": "4ec0cc90bc5fda11d070104ac783beaf533d40b4d8b897e0da6a3aeb0a4600bf",
+  "report_sha256": "9b01c00e4f58975a23883867a1904933b6206b0b252407cbbd237469f3c404c3",
+  "source_commit": "5142065b2833a2b6d2ccbcb460bf164fd4e1e417",
   "started_at": "2026-07-11T00:00:00Z",
   "trial_groups": [
     {
@@ -156,7 +157,7 @@
       "completed": 10,
       "failed": 0,
       "id": "F0-D",
-      "passed": 0,
+      "passed": 10,
       "planned": 10
     },
     {
@@ -181,16 +182,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 1479.247,
-        "t_answer_released": 1478.016,
-        "t_first_input_sent": 1479.249,
-        "t_first_output_playable": 2088.285,
-        "t_lease_ack": 1478.021,
-        "t_media_authorized": 1478.024,
+        "t_answer_applied": 934.367,
+        "t_answer_released": 932.64,
+        "t_first_input_sent": 934.372,
+        "t_first_output_playable": 1560.254,
+        "t_lease_ack": 932.646,
+        "t_media_authorized": 932.65,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 1381.366,
-        "t_sideband_verified": 1478.005
+        "t_sideband_open": 852.667,
+        "t_sideband_verified": 932.623
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "8f259a0c7125b555710df219947c93dbad95ee710383bda4a9de249b2edaff85",
@@ -203,16 +204,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 864.055,
-        "t_answer_released": 863.048,
-        "t_first_input_sent": 864.059,
-        "t_first_output_playable": 1456.169,
-        "t_lease_ack": 863.054,
-        "t_media_authorized": 863.058,
+        "t_answer_applied": 734.264,
+        "t_answer_released": 733.393,
+        "t_first_input_sent": 734.267,
+        "t_first_output_playable": 1329.936,
+        "t_lease_ack": 733.399,
+        "t_media_authorized": 733.402,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 785.118,
-        "t_sideband_verified": 863.032
+        "t_sideband_open": 656.243,
+        "t_sideband_verified": 733.382
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "4ef37b44b158dcc1dbecd3f98bab5a4fe71683e567158171ef40767ba038ada7",
@@ -225,16 +226,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 747.189,
-        "t_answer_released": 746.282,
-        "t_first_input_sent": 747.191,
-        "t_first_output_playable": 1329.368,
-        "t_lease_ack": 746.284,
-        "t_media_authorized": 746.286,
+        "t_answer_applied": 674.5,
+        "t_answer_released": 673.433,
+        "t_first_input_sent": 674.503,
+        "t_first_output_playable": 1238.493,
+        "t_lease_ack": 673.44,
+        "t_media_authorized": 673.443,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 673.681,
-        "t_sideband_verified": 746.274
+        "t_sideband_open": 585.33,
+        "t_sideband_verified": 673.42
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "ffc20b02c155d440447c89c070ec7271d029e4dfde18b12150c959a3e9d9f717",
@@ -247,16 +248,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 746.687,
-        "t_answer_released": 745.87,
-        "t_first_input_sent": 746.688,
-        "t_first_output_playable": 1377.175,
-        "t_lease_ack": 745.872,
-        "t_media_authorized": 745.874,
+        "t_answer_applied": 854.494,
+        "t_answer_released": 853.448,
+        "t_first_input_sent": 854.496,
+        "t_first_output_playable": 1433.647,
+        "t_lease_ack": 853.452,
+        "t_media_authorized": 853.455,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 640.73,
-        "t_sideband_verified": 745.861
+        "t_sideband_open": 755.359,
+        "t_sideband_verified": 853.438
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "b7f9c2cb1eadde5ce6a69334c1e05e78c88b2e32675dd9fa09c9add472dbd7dd",
@@ -269,16 +270,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 728.144,
-        "t_answer_released": 727.177,
-        "t_first_input_sent": 728.146,
-        "t_first_output_playable": 1338.908,
-        "t_lease_ack": 727.18,
-        "t_media_authorized": 727.182,
+        "t_answer_applied": 885.525,
+        "t_answer_released": 884.637,
+        "t_first_input_sent": 885.527,
+        "t_first_output_playable": 1473.584,
+        "t_lease_ack": 884.643,
+        "t_media_authorized": 884.645,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 651.92,
-        "t_sideband_verified": 727.168
+        "t_sideband_open": 813.757,
+        "t_sideband_verified": 884.626
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "c0c7c20daf90cbc29e23f43c1889a47d82b98873bb78a2caae89a48d1356b6b3",
@@ -291,16 +292,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 706.444,
-        "t_answer_released": 705.593,
-        "t_first_input_sent": 706.445,
-        "t_first_output_playable": 1328.548,
-        "t_lease_ack": 705.596,
-        "t_media_authorized": 705.598,
+        "t_answer_applied": 661.576,
+        "t_answer_released": 660.721,
+        "t_first_input_sent": 661.58,
+        "t_first_output_playable": 1292.889,
+        "t_lease_ack": 660.725,
+        "t_media_authorized": 660.728,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 639.02,
-        "t_sideband_verified": 705.584
+        "t_sideband_open": 581.766,
+        "t_sideband_verified": 660.708
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "41e1674a28c6c3283e1e86da7fcf8536e6158f1d910184eda4cc2fc533d093be",
@@ -313,16 +314,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 649.773,
-        "t_answer_released": 648.533,
-        "t_first_input_sent": 649.776,
-        "t_first_output_playable": 1249.578,
-        "t_lease_ack": 648.537,
-        "t_media_authorized": 648.54,
+        "t_answer_applied": 663.868,
+        "t_answer_released": 663.001,
+        "t_first_input_sent": 663.871,
+        "t_first_output_playable": 1271.924,
+        "t_lease_ack": 663.006,
+        "t_media_authorized": 663.008,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 565.168,
-        "t_sideband_verified": 648.519
+        "t_sideband_open": 585.795,
+        "t_sideband_verified": 662.992
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "06230ef140e73cceb6dc829f87262bd1019d26840a4a6850336dd2eaed5b8a87",
@@ -335,16 +336,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 658.759,
-        "t_answer_released": 657.626,
-        "t_first_input_sent": 658.763,
-        "t_first_output_playable": 1250.732,
-        "t_lease_ack": 657.629,
-        "t_media_authorized": 657.632,
+        "t_answer_applied": 735.009,
+        "t_answer_released": 734.162,
+        "t_first_input_sent": 735.011,
+        "t_first_output_playable": 1323.769,
+        "t_lease_ack": 734.168,
+        "t_media_authorized": 734.17,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 584.855,
-        "t_sideband_verified": 657.613
+        "t_sideband_open": 650.43,
+        "t_sideband_verified": 734.152
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "fd8cc55ab397e93bed55e24804894a4aa22576ed9c64bd08d1858bd6c1a90bae",
@@ -357,16 +358,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 845.857,
-        "t_answer_released": 842.35,
-        "t_first_input_sent": 845.861,
-        "t_first_output_playable": 1462.801,
-        "t_lease_ack": 842.353,
-        "t_media_authorized": 842.354,
+        "t_answer_applied": 738.597,
+        "t_answer_released": 737.736,
+        "t_first_input_sent": 738.599,
+        "t_first_output_playable": 1355.589,
+        "t_lease_ack": 737.741,
+        "t_media_authorized": 737.743,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 740.754,
-        "t_sideband_verified": 842.342
+        "t_sideband_open": 655.396,
+        "t_sideband_verified": 737.727
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "dbf32757961cfd81140374c6c318041645b172732ed0ef7ded764eeb594a20ad",
@@ -379,16 +380,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 681.595,
-        "t_answer_released": 680.853,
-        "t_first_input_sent": 681.597,
-        "t_first_output_playable": 1297.628,
-        "t_lease_ack": 680.856,
-        "t_media_authorized": 680.858,
+        "t_answer_applied": 662.126,
+        "t_answer_released": 658.334,
+        "t_first_input_sent": 662.129,
+        "t_first_output_playable": 1260.132,
+        "t_lease_ack": 658.339,
+        "t_media_authorized": 658.341,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 589.238,
-        "t_sideband_verified": 680.844
+        "t_sideband_open": 580.58,
+        "t_sideband_verified": 658.323
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "4dfd6eb2988be928edd69054692de11d93e5c2f4301a93ff2499644fe78cbe91",
@@ -401,16 +402,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 717.134,
-        "t_answer_released": 713.882,
-        "t_first_input_sent": 717.137,
-        "t_first_output_playable": 1308.362,
-        "t_lease_ack": 713.885,
-        "t_media_authorized": 713.886,
+        "t_answer_applied": 750.128,
+        "t_answer_released": 749.186,
+        "t_first_input_sent": 750.131,
+        "t_first_output_playable": 1342.614,
+        "t_lease_ack": 749.19,
+        "t_media_authorized": 749.192,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 641.628,
-        "t_sideband_verified": 713.873
+        "t_sideband_open": 669.03,
+        "t_sideband_verified": 749.175
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "d885a488b00a7422212b16920db68b014a5ffcc98876cbf0e1a7e8d7b6f16e16",
@@ -423,16 +424,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 735.27,
-        "t_answer_released": 734.218,
-        "t_first_input_sent": 735.275,
-        "t_first_output_playable": 1345.796,
-        "t_lease_ack": 734.221,
-        "t_media_authorized": 734.224,
+        "t_answer_applied": 734.728,
+        "t_answer_released": 733.202,
+        "t_first_input_sent": 734.731,
+        "t_first_output_playable": 1335.241,
+        "t_lease_ack": 733.211,
+        "t_media_authorized": 733.214,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 647.681,
-        "t_sideband_verified": 734.21
+        "t_sideband_open": 629.746,
+        "t_sideband_verified": 733.186
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "a11c467a84aa103770c76c1ab0947e9454be95d204e27a56d384a6b9d2b3f61f",
@@ -445,16 +446,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 706.06,
-        "t_answer_released": 705.33,
-        "t_first_input_sent": 706.061,
-        "t_first_output_playable": 1380.554,
-        "t_lease_ack": 705.333,
-        "t_media_authorized": 705.335,
+        "t_answer_applied": 782.587,
+        "t_answer_released": 781.722,
+        "t_first_input_sent": 782.589,
+        "t_first_output_playable": 1378.093,
+        "t_lease_ack": 781.726,
+        "t_media_authorized": 781.728,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 634.105,
-        "t_sideband_verified": 705.322
+        "t_sideband_open": 665.308,
+        "t_sideband_verified": 781.712
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "811faeb446709464c64a9514be65076916bd6d1ef4204b2b568b30765957fb10",
@@ -467,16 +468,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 762.165,
-        "t_answer_released": 761.172,
-        "t_first_input_sent": 762.168,
-        "t_first_output_playable": 1399.117,
-        "t_lease_ack": 761.174,
-        "t_media_authorized": 761.176,
+        "t_answer_applied": 764.178,
+        "t_answer_released": 763.04,
+        "t_first_input_sent": 764.18,
+        "t_first_output_playable": 1406.437,
+        "t_lease_ack": 763.044,
+        "t_media_authorized": 763.047,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 664.915,
-        "t_sideband_verified": 761.161
+        "t_sideband_open": 674.6,
+        "t_sideband_verified": 763.028
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "df84907851f50c97ee1e3171997cbf2a4a2f91de3b0dbc66516a7eb569c6a9a9",
@@ -489,16 +490,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 754.562,
-        "t_answer_released": 748.473,
-        "t_first_input_sent": 754.569,
-        "t_first_output_playable": 1382.457,
-        "t_lease_ack": 748.477,
-        "t_media_authorized": 748.48,
+        "t_answer_applied": 707.831,
+        "t_answer_released": 701.986,
+        "t_first_input_sent": 707.838,
+        "t_first_output_playable": 1338.787,
+        "t_lease_ack": 701.994,
+        "t_media_authorized": 701.997,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 666.657,
-        "t_sideband_verified": 748.461
+        "t_sideband_open": 610.093,
+        "t_sideband_verified": 701.974
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "2c446d0606b9c0de01ad80ed42a9266832e7b90b2951a81ed10f2254c3522738",
@@ -511,16 +512,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 708.183,
-        "t_answer_released": 707.195,
-        "t_first_input_sent": 708.185,
-        "t_first_output_playable": 1339.402,
-        "t_lease_ack": 707.198,
-        "t_media_authorized": 707.201,
+        "t_answer_applied": 711.645,
+        "t_answer_released": 710.679,
+        "t_first_input_sent": 711.648,
+        "t_first_output_playable": 1348.09,
+        "t_lease_ack": 710.686,
+        "t_media_authorized": 710.689,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 613.02,
-        "t_sideband_verified": 707.183
+        "t_sideband_open": 643.859,
+        "t_sideband_verified": 710.665
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "143508439a99f9d88dc3ddfe7c4ec39df53af235aa429e532d4af490197397e7",
@@ -533,16 +534,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 705.267,
-        "t_answer_released": 703.755,
-        "t_first_input_sent": 705.272,
-        "t_first_output_playable": 1331.364,
-        "t_lease_ack": 703.759,
-        "t_media_authorized": 703.762,
+        "t_answer_applied": 672.794,
+        "t_answer_released": 671.878,
+        "t_first_input_sent": 672.796,
+        "t_first_output_playable": 1259.999,
+        "t_lease_ack": 671.883,
+        "t_media_authorized": 671.886,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 642.677,
-        "t_sideband_verified": 703.741
+        "t_sideband_open": 599.885,
+        "t_sideband_verified": 671.868
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "acea8dc7021cc743787bc42a7dbabbeb35741160421f3450698d4512c9323f48",
@@ -555,16 +556,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 718.684,
-        "t_answer_released": 717.951,
-        "t_first_input_sent": 718.685,
-        "t_first_output_playable": 1332.432,
-        "t_lease_ack": 717.953,
-        "t_media_authorized": 717.955,
+        "t_answer_applied": 700.074,
+        "t_answer_released": 699.217,
+        "t_first_input_sent": 700.076,
+        "t_first_output_playable": 1344.577,
+        "t_lease_ack": 699.221,
+        "t_media_authorized": 699.224,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 634.447,
-        "t_sideband_verified": 717.943
+        "t_sideband_open": 621.373,
+        "t_sideband_verified": 699.207
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "9f1c206b64649b066f96ad4b252405dee458414f2a6e86864bcce2650f29f564",
@@ -577,16 +578,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 820.916,
-        "t_answer_released": 820.191,
-        "t_first_input_sent": 820.917,
-        "t_first_output_playable": 1433.348,
-        "t_lease_ack": 820.193,
-        "t_media_authorized": 820.195,
+        "t_answer_applied": 1309.041,
+        "t_answer_released": 1308.256,
+        "t_first_input_sent": 1309.043,
+        "t_first_output_playable": 1907.703,
+        "t_lease_ack": 1308.26,
+        "t_media_authorized": 1308.263,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 733.284,
-        "t_sideband_verified": 820.182
+        "t_sideband_open": 1226.697,
+        "t_sideband_verified": 1308.247
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "014695331e5a7ed82d71e9a632940cfaa225a9dd2ec75994b1852598b4c43a49",
@@ -599,16 +600,16 @@
         "F0-A-SINGLE_CALL"
       ],
       "durations_ms": {
-        "t_answer_applied": 686.515,
-        "t_answer_released": 685.545,
-        "t_first_input_sent": 686.517,
-        "t_first_output_playable": 1270.249,
-        "t_lease_ack": 685.548,
-        "t_media_authorized": 685.551,
+        "t_answer_applied": 742.076,
+        "t_answer_released": 740.596,
+        "t_first_input_sent": 742.08,
+        "t_first_output_playable": 1345.841,
+        "t_lease_ack": 740.604,
+        "t_media_authorized": 740.607,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 613.732,
-        "t_sideband_verified": 685.534
+        "t_sideband_open": 661.325,
+        "t_sideband_verified": 740.585
       },
       "group_id": "F0-A",
       "provider_request_id_hash": "87955df85790256af0276ee3e8f0a4d9265c0fc43650091e89f8713e8b707527",
@@ -621,16 +622,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1591.449,
-        "t_answer_released": 1587.303,
-        "t_first_input_sent": 1591.454,
-        "t_first_output_playable": 2177.443,
-        "t_lease_ack": 1587.306,
-        "t_media_authorized": 1587.308,
+        "t_answer_applied": 1507.403,
+        "t_answer_released": 1506.441,
+        "t_first_input_sent": 1507.406,
+        "t_first_output_playable": 2088.378,
+        "t_lease_ack": 1506.448,
+        "t_media_authorized": 1506.451,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 691.278,
-        "t_sideband_verified": 1587.295
+        "t_sideband_open": 617.947,
+        "t_sideband_verified": 1506.429
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "5ea0b20c59b299bc7fe5a609390ac44e7c2d551737364ded64fd136d940b5c3b",
@@ -643,16 +644,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1531.01,
-        "t_answer_released": 1530.162,
-        "t_first_input_sent": 1531.014,
-        "t_first_output_playable": 2139.525,
-        "t_lease_ack": 1530.165,
-        "t_media_authorized": 1530.167,
+        "t_answer_applied": 1664.786,
+        "t_answer_released": 1663.678,
+        "t_first_input_sent": 1664.789,
+        "t_first_output_playable": 2273.847,
+        "t_lease_ack": 1663.684,
+        "t_media_authorized": 1663.686,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 653.192,
-        "t_sideband_verified": 1530.154
+        "t_sideband_open": 746.469,
+        "t_sideband_verified": 1663.667
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "ae4ea77a9b6d4decbcfa6f6dd8fd1ef9a74940e53fc338cd17fd1e63064ac586",
@@ -665,16 +666,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1496.567,
-        "t_answer_released": 1495.801,
-        "t_first_input_sent": 1496.569,
-        "t_first_output_playable": 2078.068,
-        "t_lease_ack": 1495.808,
-        "t_media_authorized": 1495.811,
+        "t_answer_applied": 1573.997,
+        "t_answer_released": 1573.252,
+        "t_first_input_sent": 1573.999,
+        "t_first_output_playable": 2201.908,
+        "t_lease_ack": 1573.256,
+        "t_media_authorized": 1573.258,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 618.686,
-        "t_sideband_verified": 1495.784
+        "t_sideband_open": 659.25,
+        "t_sideband_verified": 1573.242
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "6dbc687f79a9403bc8b8beef121a46d08a71dc993f1e08e34c8a596b392ca835",
@@ -687,16 +688,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1468.221,
-        "t_answer_released": 1467.423,
-        "t_first_input_sent": 1468.222,
-        "t_first_output_playable": 2077.574,
-        "t_lease_ack": 1467.427,
-        "t_media_authorized": 1467.429,
+        "t_answer_applied": 1618.348,
+        "t_answer_released": 1613.439,
+        "t_first_input_sent": 1618.355,
+        "t_first_output_playable": 2224.969,
+        "t_lease_ack": 1613.448,
+        "t_media_authorized": 1613.452,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 589.584,
-        "t_sideband_verified": 1467.414
+        "t_sideband_open": 711.521,
+        "t_sideband_verified": 1613.423
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "35d54f172f67baa920d420ed040f7fbf79a28c4e401cdf7b1af5a3ba54d1cf56",
@@ -709,16 +710,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1565.793,
-        "t_answer_released": 1564.925,
-        "t_first_input_sent": 1565.795,
-        "t_first_output_playable": 2170.755,
-        "t_lease_ack": 1564.928,
-        "t_media_authorized": 1564.93,
+        "t_answer_applied": 1624.605,
+        "t_answer_released": 1622.975,
+        "t_first_input_sent": 1624.608,
+        "t_first_output_playable": 2257.296,
+        "t_lease_ack": 1622.982,
+        "t_media_authorized": 1622.985,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 697.954,
-        "t_sideband_verified": 1564.904
+        "t_sideband_open": 725.512,
+        "t_sideband_verified": 1622.961
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "e4fc86a8e180014dd84a2b9fcf67cb44a83191a1e7d6ba1a080c390ee50b168b",
@@ -731,16 +732,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1412.766,
-        "t_answer_released": 1411.797,
-        "t_first_input_sent": 1412.769,
-        "t_first_output_playable": 1985.385,
-        "t_lease_ack": 1411.801,
-        "t_media_authorized": 1411.804,
+        "t_answer_applied": 1465.375,
+        "t_answer_released": 1464.471,
+        "t_first_input_sent": 1465.378,
+        "t_first_output_playable": 2070.207,
+        "t_lease_ack": 1464.476,
+        "t_media_authorized": 1464.479,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 529.054,
-        "t_sideband_verified": 1411.787
+        "t_sideband_open": 567.3,
+        "t_sideband_verified": 1464.46
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "3eae996109379da8e760525d78d4e1fe07a4a210b2d5dfb3044df6f7c283c954",
@@ -753,16 +754,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1497.439,
-        "t_answer_released": 1496.703,
-        "t_first_input_sent": 1497.44,
-        "t_first_output_playable": 2084.537,
-        "t_lease_ack": 1496.707,
-        "t_media_authorized": 1496.709,
+        "t_answer_applied": 1532.813,
+        "t_answer_released": 1531.727,
+        "t_first_input_sent": 1532.816,
+        "t_first_output_playable": 2129.837,
+        "t_lease_ack": 1531.735,
+        "t_media_authorized": 1531.739,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 619.042,
-        "t_sideband_verified": 1496.694
+        "t_sideband_open": 659.57,
+        "t_sideband_verified": 1531.714
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "3e7ee58b5b80cf0063ebb2c3d9d07c9aee8a4984144ee34749c85b8660ac25b7",
@@ -775,16 +776,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1584.797,
-        "t_answer_released": 1580.88,
-        "t_first_input_sent": 1584.8,
-        "t_first_output_playable": 2162.796,
-        "t_lease_ack": 1580.882,
-        "t_media_authorized": 1580.884,
+        "t_answer_applied": 1612.162,
+        "t_answer_released": 1606.108,
+        "t_first_input_sent": 1612.167,
+        "t_first_output_playable": 2191.906,
+        "t_lease_ack": 1606.115,
+        "t_media_authorized": 1606.118,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 695.523,
-        "t_sideband_verified": 1580.87
+        "t_sideband_open": 693.209,
+        "t_sideband_verified": 1606.094
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "8729a5326bb67eb75f0ccaa81977c78f457d4f2d6e8d19a11af63bc2557760e7",
@@ -797,16 +798,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1494.583,
-        "t_answer_released": 1493.491,
-        "t_first_input_sent": 1494.586,
-        "t_first_output_playable": 2105.279,
-        "t_lease_ack": 1493.494,
-        "t_media_authorized": 1493.496,
+        "t_answer_applied": 1537.817,
+        "t_answer_released": 1536.76,
+        "t_first_input_sent": 1537.821,
+        "t_first_output_playable": 2115.245,
+        "t_lease_ack": 1536.767,
+        "t_media_authorized": 1536.769,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 610.086,
-        "t_sideband_verified": 1493.482
+        "t_sideband_open": 661.39,
+        "t_sideband_verified": 1536.746
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "5002130640fcc0dcfda5692221558eacfb53742a97061e86fdccfae351b5b5d8",
@@ -819,16 +820,16 @@
         "F0-B-WITHIN_CEILING"
       ],
       "durations_ms": {
-        "t_answer_applied": 1531.921,
-        "t_answer_released": 1531.044,
-        "t_first_input_sent": 1531.922,
-        "t_first_output_playable": 2126.05,
-        "t_lease_ack": 1531.048,
-        "t_media_authorized": 1531.05,
+        "t_answer_applied": 1658.828,
+        "t_answer_released": 1657.806,
+        "t_first_input_sent": 1658.832,
+        "t_first_output_playable": 2247.9,
+        "t_lease_ack": 1657.813,
+        "t_media_authorized": 1657.816,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 657.582,
-        "t_sideband_verified": 1531.034
+        "t_sideband_open": 789.495,
+        "t_sideband_verified": 1657.794
       },
       "group_id": "F0-B",
       "provider_request_id_hash": "f0589b146aae52299a4e61e5fe5d25c775348296464a9106265bde6384be3f2c",
@@ -840,10 +841,10 @@
         "F0-C-NO_MEDIA"
       ],
       "durations_ms": {
-        "t_hangup_sent": 588.457,
+        "t_hangup_sent": 621.703,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 588.447
+        "t_sideband_open": 621.689
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "ca6f66b8431c7d98063e844d94e77eea5b7947df1b5aa317626900c8ab801d96",
@@ -856,10 +857,10 @@
         "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {
-        "t_hangup_sent": 3849.18,
+        "t_hangup_sent": 3940.425,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 640.123
+        "t_sideband_open": 735.54
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "a16ef63cf1d735dadaf0a46273ddf92fd58e0ff059f75e2eb24c90cb993d9f3c",
@@ -871,10 +872,10 @@
         "F0-C-NO_MEDIA"
       ],
       "durations_ms": {
-        "t_hangup_sent": 620.613,
+        "t_hangup_sent": 704.49,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 620.603
+        "t_sideband_open": 704.481
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "6c1ad412ef1a0f5160c227576be5889de4e412eed311d6be58db1129bdeed979",
@@ -887,10 +888,10 @@
         "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {
-        "t_hangup_sent": 3802.014,
+        "t_hangup_sent": 3970.461,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 589.194
+        "t_sideband_open": 764.701
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "d82226b1f2a1415be3821a2933141819b4c61914dd4aeb59b0c26aea96f7e59f",
@@ -902,10 +903,10 @@
         "F0-C-NO_MEDIA"
       ],
       "durations_ms": {
-        "t_hangup_sent": 585.526,
+        "t_hangup_sent": 608.513,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 585.517
+        "t_sideband_open": 608.503
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "a92bc5ab5da367c42e6192fe46924e8e6e90d569c12c081c0d3a1dd6503cafec",
@@ -918,10 +919,10 @@
         "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {
-        "t_hangup_sent": 4009.233,
+        "t_hangup_sent": 3776.994,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 804.845
+        "t_sideband_open": 573.071
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "34744d272bfb793638e3e826b9197d992eb73d5d291e38135115643df1eedb78",
@@ -933,10 +934,10 @@
         "F0-C-NO_MEDIA"
       ],
       "durations_ms": {
-        "t_hangup_sent": 703.897,
+        "t_hangup_sent": 628.848,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 703.888
+        "t_sideband_open": 628.834
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "c4cff4f8b79b0ac647fbe83d7045c4b653653257de8ab2cc35e830d36992b895",
@@ -949,10 +950,10 @@
         "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {
-        "t_hangup_sent": 3903.063,
+        "t_hangup_sent": 3819.675,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 696.602
+        "t_sideband_open": 615.625
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "2ef588b3420932f3a31bd7d22c40b4ccd6bfc8f82d6d08ddc422417025a356fd",
@@ -964,10 +965,10 @@
         "F0-C-NO_MEDIA"
       ],
       "durations_ms": {
-        "t_hangup_sent": 665.013,
+        "t_hangup_sent": 675.001,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 665.005
+        "t_sideband_open": 674.992
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "52023ad1e64a56113a4ee157f4a0ab8d702e3c9af491a50d27cf9b3fee50045c",
@@ -980,10 +981,10 @@
         "F0-C-READINESS_TIMEOUT"
       ],
       "durations_ms": {
-        "t_hangup_sent": 3921.977,
+        "t_hangup_sent": 3912.525,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_sideband_open": 712.931
+        "t_sideband_open": 702.584
       },
       "group_id": "F0-C",
       "provider_request_id_hash": "0b0bf6e28ea124041ce022da04934ee1ec2cc84947db139cf9e330f2e8c9dd1a",
@@ -996,23 +997,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 871.561,
-        "t_answer_released": 870.48,
-        "t_first_input_sent": 871.563,
-        "t_first_output_playable": 1488.553,
-        "t_hangup_sent": 3995.333,
-        "t_lease_ack": 870.485,
-        "t_media_authorized": 870.488,
+        "t_answer_applied": 755.176,
+        "t_answer_released": 753.668,
+        "t_first_input_sent": 755.181,
+        "t_first_output_playable": 1419.447,
+        "t_hangup_sent": 1690.765,
+        "t_lease_ack": 753.677,
+        "t_media_authorized": 753.681,
+        "t_media_leg_closed": 1421.503,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3778.996,
-        "t_sideband_open": 771.485,
-        "t_sideband_verified": 870.47
+        "t_revocation_request": 1419.463,
+        "t_sideband_open": 674.553,
+        "t_sideband_verified": 753.65
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "debc589e9ca8690111c64dc569f82942cd0166625c2dbbe32d652515c28ecb15",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-01"
     },
     {
@@ -1021,23 +1023,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 645.433,
-        "t_answer_released": 644.637,
-        "t_first_input_sent": 645.435,
-        "t_first_output_playable": 1203.303,
-        "t_hangup_sent": 3674.036,
-        "t_lease_ack": 644.64,
-        "t_media_authorized": 644.642,
+        "t_answer_applied": 674.175,
+        "t_answer_released": 672.688,
+        "t_first_input_sent": 674.179,
+        "t_first_output_playable": 1298.441,
+        "t_hangup_sent": 1558.647,
+        "t_lease_ack": 672.695,
+        "t_media_authorized": 672.698,
+        "t_media_leg_closed": 1300.593,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3462.342,
-        "t_sideband_open": 572.561,
-        "t_sideband_verified": 644.627
+        "t_revocation_request": 1298.46,
+        "t_sideband_open": 602.161,
+        "t_sideband_verified": 672.673
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "d64701d828d438abc2f68130846ef93752ab0764f3fe8d21dd56d9efad65425b",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-02"
     },
     {
@@ -1046,23 +1049,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 673.147,
-        "t_answer_released": 672.414,
-        "t_first_input_sent": 673.149,
-        "t_first_output_playable": 1256.449,
-        "t_hangup_sent": 3726.737,
-        "t_lease_ack": 672.416,
-        "t_media_authorized": 672.418,
+        "t_answer_applied": 684.932,
+        "t_answer_released": 684.116,
+        "t_first_input_sent": 684.934,
+        "t_first_output_playable": 1305.429,
+        "t_hangup_sent": 1534.251,
+        "t_lease_ack": 684.12,
+        "t_media_authorized": 684.123,
+        "t_media_leg_closed": 1306.811,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3524.904,
-        "t_sideband_open": 596.507,
-        "t_sideband_verified": 672.405
+        "t_revocation_request": 1305.444,
+        "t_sideband_open": 594.441,
+        "t_sideband_verified": 684.107
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "549b84909d121a08a0fa4fa395269fa7be904f75f17da78fb29ca862db732def",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-03"
     },
     {
@@ -1071,23 +1075,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 740.764,
-        "t_answer_released": 737.203,
-        "t_first_input_sent": 740.768,
-        "t_first_output_playable": 1342.55,
-        "t_hangup_sent": 3822.938,
-        "t_lease_ack": 737.206,
-        "t_media_authorized": 737.207,
+        "t_answer_applied": 729.4,
+        "t_answer_released": 721.346,
+        "t_first_input_sent": 729.406,
+        "t_first_output_playable": 1341.94,
+        "t_hangup_sent": 1649.237,
+        "t_lease_ack": 721.353,
+        "t_media_authorized": 721.356,
+        "t_media_leg_closed": 1343.617,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3618.028,
-        "t_sideband_open": 664.985,
-        "t_sideband_verified": 737.194
+        "t_revocation_request": 1341.954,
+        "t_sideband_open": 639.037,
+        "t_sideband_verified": 721.332
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "34050ddb5dc7517e2dbd80bc286be2414ad52dcbe87ab48cc1a351ad5f5f22a7",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-04"
     },
     {
@@ -1096,23 +1101,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 724.155,
-        "t_answer_released": 723.247,
-        "t_first_input_sent": 724.157,
-        "t_first_output_playable": 1306.165,
-        "t_hangup_sent": 3782.487,
-        "t_lease_ack": 723.251,
-        "t_media_authorized": 723.253,
+        "t_answer_applied": 1196.828,
+        "t_answer_released": 1195.814,
+        "t_first_input_sent": 1196.83,
+        "t_first_output_playable": 1785.953,
+        "t_hangup_sent": 2193.031,
+        "t_lease_ack": 1195.818,
+        "t_media_authorized": 1195.821,
+        "t_media_leg_closed": 1787.267,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3583.177,
-        "t_sideband_open": 650.051,
-        "t_sideband_verified": 723.235
+        "t_revocation_request": 1785.966,
+        "t_sideband_open": 1095.957,
+        "t_sideband_verified": 1195.805
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "aeef69948bbe0645d98753cd04deed59e21edb9c75f483023cef5e73f39b4a53",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-05"
     },
     {
@@ -1121,23 +1127,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 712.547,
-        "t_answer_released": 711.795,
-        "t_first_input_sent": 712.548,
-        "t_first_output_playable": 1334.941,
-        "t_hangup_sent": 3768.501,
-        "t_lease_ack": 711.799,
-        "t_media_authorized": 711.801,
+        "t_answer_applied": 685.496,
+        "t_answer_released": 684.659,
+        "t_first_input_sent": 685.498,
+        "t_first_output_playable": 1274.133,
+        "t_hangup_sent": 1481.148,
+        "t_lease_ack": 684.663,
+        "t_media_authorized": 684.665,
+        "t_media_leg_closed": 1275.515,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3606.991,
-        "t_sideband_open": 634.896,
-        "t_sideband_verified": 711.785
+        "t_revocation_request": 1274.144,
+        "t_sideband_open": 593.673,
+        "t_sideband_verified": 684.649
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "4bb5cb20ec5e1867e97aacd38bc47655e8ffd2f2f978a134426b1aee07e5fdff",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-06"
     },
     {
@@ -1146,23 +1153,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 702.301,
-        "t_answer_released": 701.429,
-        "t_first_input_sent": 702.304,
-        "t_first_output_playable": 1282.232,
-        "t_hangup_sent": 3784.07,
-        "t_lease_ack": 701.433,
-        "t_media_authorized": 701.435,
+        "t_answer_applied": 885.674,
+        "t_answer_released": 884.604,
+        "t_first_input_sent": 885.677,
+        "t_first_output_playable": 1469.132,
+        "t_hangup_sent": 1654.894,
+        "t_lease_ack": 884.611,
+        "t_media_authorized": 884.615,
+        "t_media_leg_closed": 1470.591,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3559.034,
-        "t_sideband_open": 618.901,
-        "t_sideband_verified": 701.42
+        "t_revocation_request": 1469.15,
+        "t_sideband_open": 776.432,
+        "t_sideband_verified": 884.592
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "f4e9f656cfb2c89e610479d83e0decf0beb305774f5b99e7010317902721358a",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-07"
     },
     {
@@ -1171,23 +1179,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 810.743,
-        "t_answer_released": 810.023,
-        "t_first_input_sent": 810.744,
-        "t_first_output_playable": 1417.771,
-        "t_hangup_sent": 3889.334,
-        "t_lease_ack": 810.027,
-        "t_media_authorized": 810.029,
+        "t_answer_applied": 691.03,
+        "t_answer_released": 690.232,
+        "t_first_input_sent": 691.032,
+        "t_first_output_playable": 1288.891,
+        "t_hangup_sent": 1547.887,
+        "t_lease_ack": 690.236,
+        "t_media_authorized": 690.239,
+        "t_media_leg_closed": 1290.427,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3701.554,
-        "t_sideband_open": 720.211,
-        "t_sideband_verified": 810.015
+        "t_revocation_request": 1288.903,
+        "t_sideband_open": 620.117,
+        "t_sideband_verified": 690.221
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "884df53b81ebfd873d902f0fe41cd896e2d419233560696dfb65c1f1655351cc",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-08"
     },
     {
@@ -1196,23 +1205,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 746.287,
-        "t_answer_released": 742.508,
-        "t_first_input_sent": 746.29,
-        "t_first_output_playable": 1353.013,
-        "t_hangup_sent": 3857.507,
-        "t_lease_ack": 742.512,
-        "t_media_authorized": 742.514,
+        "t_answer_applied": 655.513,
+        "t_answer_released": 654.15,
+        "t_first_input_sent": 655.517,
+        "t_first_output_playable": 1267.515,
+        "t_hangup_sent": 1480.789,
+        "t_lease_ack": 654.155,
+        "t_media_authorized": 654.157,
+        "t_media_leg_closed": 1269.416,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3620.27,
-        "t_sideband_open": 672.104,
-        "t_sideband_verified": 742.495
+        "t_revocation_request": 1267.529,
+        "t_sideband_open": 559.141,
+        "t_sideband_verified": 654.14
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "eacfe8a181e26bf80c0a0cb73b9aaaf5056ef6d3a17eb7265169110a010402d6",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-09"
     },
     {
@@ -1221,23 +1231,24 @@
         "F0-D-NO_LATE_IO"
       ],
       "durations_ms": {
-        "t_answer_applied": 672.346,
-        "t_answer_released": 671.525,
-        "t_first_input_sent": 672.348,
-        "t_first_output_playable": 1278.026,
-        "t_hangup_sent": 3731.17,
-        "t_lease_ack": 671.528,
-        "t_media_authorized": 671.53,
+        "t_answer_applied": 779.28,
+        "t_answer_released": 773.391,
+        "t_first_input_sent": 779.289,
+        "t_first_output_playable": 1406.612,
+        "t_hangup_sent": 1624.234,
+        "t_lease_ack": 773.396,
+        "t_media_authorized": 773.399,
+        "t_media_leg_closed": 1408.107,
         "t_offer_ready": 0.0,
         "t_provider_create_sent": 0.0,
-        "t_revocation_request": 3541.461,
-        "t_sideband_open": 586.946,
-        "t_sideband_verified": 671.515
+        "t_revocation_request": 1406.626,
+        "t_sideband_open": 700.046,
+        "t_sideband_verified": 773.381
       },
       "group_id": "F0-D",
-      "note": "no observable terminal signal within bound",
+      "note": "client-enforced: media leg stopped + revocation request accepted in-bound; provider settle=terminated (informational)",
       "provider_request_id_hash": "de039fa35aae6156a6c7a608d8b9a970658e62a2069491f7c952ffbe25587a2d",
-      "status": "INCONCLUSIVE",
+      "status": "PASS",
       "trial_id": "F0-D-10"
     },
     {

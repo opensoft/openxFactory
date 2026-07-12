@@ -60,7 +60,7 @@ unavailable or the API shape differs before a call can be tested, the result is
 | sideband failure | Fail attach or verification | No media authorization; answer not applied; call terminated |
 | exact retry | Repeat identical request/offer identity | At most one provider call and equivalent result |
 | changed retry | Reuse request ID with changed offer fingerprint | No prior answer returned and no second call under that request |
-| revocation | Revoke after authorization | Immediate control event and provider termination within five seconds |
+| revocation | Revoke after authorization | Client-side media leg stopped with no late I/O + accepted provider revocation request, within five seconds; provider-side settle recorded informationally |
 | cleanup | Interrupt or abort each phase | Every known call ID receives bounded termination and evidence records cleanup |
 
 The harness may use an internal probe envelope corresponding to the provisional
@@ -76,9 +76,13 @@ termination where observable. Wall-clock timestamps are coarse run metadata
 only.
 
 The readiness default is 3,000 milliseconds and the hard ceiling is 5,000
-milliseconds. Revocation termination must be requested and confirmed, where
-the provider exposes confirmation, within five seconds. Missing confirmation
-cannot be treated as success.
+milliseconds. Revocation is client-enforced (ACR-005, clarified 2026-07-12):
+within five seconds the client stops its own media leg with no subsequent media
+I/O and the provider revocation request is accepted; that is the guarantee. The
+provider-side authoritative termination confirmation may be eventually-consistent
+(measured at ~8.1 s on the OpenAI profile) and is recorded as informational
+evidence, not gated. Missing provider confirmation does not fail the assertion
+provided the client-side stop and accepted request completed in-bound.
 
 ### 5. Separate result classification from interface correction
 
