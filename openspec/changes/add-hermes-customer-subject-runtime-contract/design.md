@@ -1,0 +1,180 @@
+## Context
+
+`docs/xfactory-domain-factory-model.md` already establishes that each customer subject receives one Customer Hermes instance or logical team. The same neutral role maps to Project Hermes in codexFactory, Patient Hermes in MedxFactory, and Client Company or Ledger Hermes in LedgerxFactory. The current machine contracts do not realize that architecture: `xfactory-domain-stack.schema.yaml` and `validate-domain-factory.py` intentionally collapse the static declaration to one layer per canonical role, v1 job records still require the engineering noun `project`, and the v1 operational DDL has no installation/stack/layer scope.
+
+Gate G0 therefore requires a new neutral runtime-instance contract rather than a codex-specific exception in Hermes Install. The change crosses topology, durable data, authorization, migration, validation, release identity, and a downstream compatibility pin. Existing v1 consumers and existing DomainxFactory `stack.yaml` files must remain valid while new Hermes runtimes opt into v2.
+
+## Goals / Non-Goals
+
+**Goals:**
+
+- Make the documented one-Customer-Hermes-per-subject pattern canonical and machine-checkable for every DomainxFactory.
+- Distinguish static role templates from concrete runtime layer instances without weakening the existing one-template-per-role rule.
+- Define installation, stack, layer, and customer-subject identity plus lifecycle-aware cardinality.
+- Enforce default-deny subject isolation and exact, auditable cross-layer authority.
+- Make artifacts, approvals, and trace records content-addressed, immutable, scoped, and revocable where authority is involved.
+- Supply parallel v2 message and Postgres contracts plus an atomic, idempotent v1-to-v2 migration.
+- Prove the model with two active Customer instances in one installation and domain-neutral mapping fixtures.
+- Publish a content-addressed contract bundle and require Hermes Install to verify its pin before dependent implementation.
+
+**Non-Goals:**
+
+- Implement or deploy a Hermes service, manager profile, worker pool, or DomainxFactory runtime.
+- Define project, patient, client-company, clinical, accounting, or engineering policy in the neutral repository.
+- Permit direct cross-layer database visibility; bindings authorize explicit governed operations, not broad row access.
+- Remove or reject v1 schemas during the additive compatibility window.
+- Reuse a customer-subject identity, layer identity, or policy namespace after retirement.
+- Allocate a bundle minor version before release realization establishes the next available version.
+
+## Decisions
+
+### 1. Static role declarations remain templates; runtime instances are separate
+
+`stack.yaml hermes.layers` continues to declare exactly one Customer, one Client, and one Domain role template. Duplicate canonical roles remain invalid. Its descriptions and validator messages will explicitly call these declarations templates, and `per_customer_subject` will be added as a neutral isolation vocabulary value without removing existing domain aliases.
+
+A new `contracts/hermes-runtime/runtime-topology.schema.yaml` owns concrete instances. This avoids breaking every DomainxFactory, preserves unambiguous workflow ownership by canonical role, and lets subject onboarding occur without source-repository edits.
+
+**Alternative considered:** repeat `role: customer` in `stack.yaml`. Rejected because the file is a reusable DomainxFactory declaration, its validator indexes by role, and runtime subjects are private lifecycle state rather than source configuration.
+
+### 2. `customer_subject` is the canonical repeatable identity
+
+Every Customer instance carries `customer_subject.kind`, `customer_subject.issuer`, `customer_subject.namespace`, `customer_subject.ref`, and a pinned reference-policy attestation. `kind` is domain-owned vocabulary. `ref` uses the constrained `urn:xfactory:subject:<uuid>` surrogate format and is resolved only by the owning domain system. The policy requires an independently generated cryptographically random UUIDv4/UUIDv7 surrogate or approved keyed tokenization; UUIDv3/v5, reversible encoding, raw/unkeyed hashes, and other deterministic derivation from a patient, account, or source identifier are forbidden. The issuer attests that the surrogate contains no direct identifier or secret. Deterministic sentinel/deny-pattern scans are defense in depth; the neutral validator does not claim that arbitrary PII can be recognized semantically.
+
+Client and Domain instances must not carry `customer_subject`. Domain overlays may expose aliases such as project, patient, or client company, but canonical lifecycle operations remain provision/retire customer subject.
+
+**Alternative considered:** canonical `project_ref`. Rejected because it makes the shared contract engineering-specific and cannot represent patients, companies, campaigns, ledgers, or managed systems honestly.
+
+### 3. Topology identity and cardinality are lifecycle-aware
+
+The topology records durable `installation_id`, `stack_id`, lifecycle state, an exact DomainxFactory/template pin, and an append-only registry of `layer_instances[]`. Each layer records a globally durable `layer_id`, canonical role, display name, unique policy namespace, exact overlay pin, and lifecycle state.
+
+- Topology states are `installing`, `configured`, `operational`, `suspended`, and `retired`; allowed transitions are installing to configured, configured to operational or retired, operational to suspended or retired, suspended to operational or retired, and no transition out of retired.
+- Layer states are `provisioning`, `active`, `suspended`, `failed`, and `retired`; provisioning may become active, failed, or retired; active may suspend, fail, or retire; suspended may reactivate, fail, or retire; failed may re-enter provisioning through a governed recovery or retire; retired is terminal.
+- `installing` allows at most one non-retired Client and Domain registration and zero Customer registrations.
+- `configured` requires exactly one active Client and one active Domain and permits zero or more active Customer instances.
+- `operational` requires exactly one active Client, exactly one active Domain, and at least one active Customer instance.
+- `suspended` preserves all registrations but permits no new governed jobs; `retired` requires terminal retirement of every layer and permits no new work.
+- A conformance fixture must contain at least two active Customer instances.
+- Layer registrations are never hard-deleted. Layer IDs, customer-subject tuples, and policy namespaces are protected by durable tombstones and are unique for the lifetime of the stack, including retired instances.
+
+Single-file pins use a canonical repository identifier, repository-relative regular-file path, exact 40-hex commit, schema identifier/version where applicable, and SHA-256 digest. Directory overlays are pinned through an `overlay-manifest.schema.yaml` document containing one repository-relative `overlay_root`, a bytewise-sorted inventory of every regular file recursively below that root, raw-file SHA-256 digests, and the closed exclusions `.gitkeep` and an optional colocated generated digest inventory. The runtime pin identifies and hashes that manifest. Branch-only, tag-only, unresolved, traversing, symlink-escaping, incomplete, or digest-drifted pins fail.
+
+### 4. The v2 contract family is explicit and composable
+
+New contracts live under `contracts/hermes-runtime/`:
+
+- `shared-definitions.schema.yaml`
+- `customer-subject-reference-profile.schema.yaml`
+- `overlay-manifest.schema.yaml`
+- `runtime-topology.schema.yaml`
+- `installation-trust-anchor.schema.yaml`
+- `installation-trust-anchor-event.schema.yaml`
+- `authority-grant.schema.yaml`
+- `authority-grant-revocation.schema.yaml`
+- `cross-layer-binding.schema.yaml`
+- `cross-layer-binding-revocation.schema.yaml`
+- `operation-authorization.schema.yaml`
+- `artifact-record.schema.yaml`
+- `artifact-lifecycle-event.schema.yaml`
+- `approval-request.schema.yaml`
+- `approval-decision-policy.schema.yaml`
+- `approval-decision.schema.yaml`
+- `approval-supersession-event.schema.yaml`
+- `traceability-edge.schema.yaml`
+- `hermes-job-envelope-v2.schema.yaml`
+- `hermes-job-run-v2.schema.yaml`
+- `hermes-job-event-v2.schema.yaml`
+- `hermes-operational-postgres-v2.sql`
+- `legacy-quarantine-record.schema.yaml`
+- `migrations/v1-to-v2-mapping.schema.yaml`
+- `migrations/v1-to-v2.sql`
+
+Release identity is defined by `contracts/releases/release-digest-inventory.schema.yaml`; realized inventories live at `contracts/releases/<bundle-tag>.digests.yaml` and are checked by `scripts/validate-contract-release.py`.
+
+Every governed v2 record uses the same closed scope tuple: `installation_id`, `stack_id`, and `layer_id`. Cross-layer records carry exact source and target scopes. Installation-wide administrative state uses an explicit installation scope; it is never assigned to a fabricated Customer layer.
+
+### 5. Isolation is default-deny; bindings authorize bounded operations
+
+Each Customer layer has a unique policy namespace and persistence scope. The v2 SQL contract separates a non-login migration/table-owner role, per-layer runtime principals, an installation control-plane principal, and an audit-export principal. Runtime principals have no `BYPASSRLS`, cannot assume owner/admin roles, and reach governed tables only under forced row-level security. A trusted security-definer scope setter maps `current_user` through an active, unexpired `assume_scope` authority grant and sets transaction-local scope; callers cannot supply an ungranted scope. Every transaction rechecks grant and principal/layer lifecycle state. Grant revocation or principal/layer retirement invalidates new scope and already-pooled connections. Connection checkout and return clear scope, and missing, malformed, stale, cross-installation, or reused scope fails closed. Installation administration grants no direct subject-data visibility. The control plane has only execute permission on governed operations and no direct table access.
+
+Each installation begins with one immutable, out-of-band-approved trust-anchor record whose key/principal and policy digest may issue only root-scoped grants. Every non-genesis authority grant cites an issuer grant authorized for `issue_grant`; validation walks to the active trusted anchor, rejects self-issuance and cycles, and enforces scope narrowing. Anchor rotation/revocation is an append-only event requiring the current anchor policy and does not rewrite historical evidence. Source-layer authority is required for disclosing a source resource.
+
+Authority grants are immutable records containing principal, issuer grant, source scope, allowed action, exact resource constraints, policy digest, effective time, and expiry; revocation is append-only. Cross-layer bindings cite the creator's active authority grant and contain exact source/target layers, exact `source_resource` and `target_resource` coordinates, one allowed action, purpose, start time, and expiry. Both resources require digests for content-bearing types; digest omission is permitted only for the closed identity types `layer_identity`, `principal_identity`, and `policy_namespace`. Target acceptance authority is also required when the pinned target policy demands it. Wildcards, inheritance, self-bindings, cycles, and transitive authority are invalid.
+
+A binding does not relax SQL row visibility. It authorizes a controlled service operation that creates a content-addressed projection or governed record in the receiving layer with a trace edge back to the source. Binding/grant validation, database-derived time evaluation, required row locks, the governed write, and an immutable operation-authorization record occur in one transaction. A concurrent expiry or revocation wins unless the authorization transaction has already serialized and committed; no check-then-write window is allowed.
+
+### 6. Governed evidence is immutable and digest-bound
+
+Artifact records require owning scope, immutable artifact ID, SHA-256 digest, byte size, media type, producer, deterministic `<installation_id>/<layer_id>/sha256/<digest>` storage key, and optional job/run correlation. Physical deduplication, if any, remains behind a scoped indirection layer that exposes no cross-layer existence, lifecycle, deletion, timing, or authorization oracle. The entire record is immutable; lifecycle changes are append-only events. A record is not created until content is finalized, so every authoritative artifact has a non-null digest and size. Available metadata cannot point to missing or digest-mismatched content, and body digest/size are reverified at approval and controlled execution time.
+
+Approval requests are append-only and immutable and carry the exact target type/ID/digest/scope, requested action and authority scope, requester principal/grant, reviewer selector, and decision-policy reference/digest. Each append-only decision repeats the target/action/scope/policy and carries its actual reviewer principal/grant. Expiry, cancellation, and revocation are separate supersession events whose issuers also prove active authority. The governed decision-policy schema defines required reviewer selectors and aggregation; conflicting terminal decisions leave the request contested and non-authorizing unless that exact policy defines a deterministic resolution. Target digest drift, request expiry, grant revocation, or authority-scope mismatch invalidates approval.
+
+Trace endpoints repeat type, ID, digest, and layer scope. Cross-layer edges cite one active exact binding; same-layer edges must not claim unrelated binding authority. Trace edges are evidence, not authority grants, and are append-only.
+
+### 7. v2 coexists with v1 and migration requires explicit scope evidence
+
+The existing v1 schemas and tables remain unchanged and accepted with deprecation guidance. New consumers opt into the parallel v2 family. The v2 Postgres contract uses a dedicated authoritative namespace. Reapplication verifies canonical object definitions and checksums rather than trusting `IF NOT EXISTS`; same-named drifted tables, policies, functions, or triggers fail readiness.
+
+The executable migration consumes a typed mapping manifest:
+
+- the source database/schema identity, transaction snapshot or WAL position, pre-migration row counts, and reproducible dataset digest define a frozen source boundary;
+- each legacy `project` value maps to one exact Customer `layer_id` and governed customer-subject tuple;
+- profiles, groups, and workers receive explicit installation/layer or installation-admin scope mappings;
+- related events, artifacts, approvals, and trace rows inherit scope only through verified foreign-key ancestry;
+- a single default Customer mapping is allowed only when the legacy dataset proves it contains exactly one customer subject;
+- the mapping manifest has a SHA-256 digest and an authorized approver with an immutable authority-grant/policy digest.
+
+The mapping schema defines the dataset digest algorithm: tables sorted by UTF-8 name; rows sorted by declared primary-key tuple; columns in schema ordinal order; UTF-8 length-prefixed canonical values with explicit null marker, UTC RFC 3339 microsecond timestamps, lowercase hex binary, and RFC 8785-style canonical JSON; each table frame includes name/schema/row count; SHA-256 hashes the length-prefixed table frames. The cutover disables v1 governed writes or holds equivalent locks for the frozen snapshot and reconciliation. An immutable migration ledger records migration ID, source identity/snapshot, mapping digest, input/output row counts, and outcome. Missing, conflicting, or ambiguous mapping, concurrent source drift, row-count mismatch, or altered-map replay aborts the transaction. Legacy artifacts without a verified body digest, approvals without an immutable target digest, and trace edges without binding evidence are copied only to a separate quarantine schema. Runtime principals cannot query it; authoritative tables and gates cannot reference it; evidence can leave quarantine only by creating a new governed record through normal authority checks.
+
+**Alternative considered:** add nullable scope columns to v1 and infer one default Project. Rejected because it silently invents authority and loses isolation in multi-subject data.
+
+### 8. Semantic validation supplements structural schemas
+
+`scripts/validate-hermes-runtime-contracts.py` will validate Draft 2020-12-compatible structure plus cross-document semantics that schemas alone cannot express: closed lifecycle transitions, durable identity tombstones, reference profiles, overlay inventories, pin resolution, authority grants, binding direction/source/target/expiry/revocation, artifact-body integrity, approval target and policy agreement, trace authorization proof, manifest coverage, and negative isolation cases.
+
+Fixtures under `contracts/hermes-runtime/fixtures/` cover:
+
+- two Customer instances in one operational installation;
+- codexFactory project, MedxFactory patient, and LedgerxFactory client-company mappings against the same neutral schema;
+- invalid lifecycle/cardinality, tombstone reuse, reference-profile/attestation failure, overlay/pin drift, wildcard/transitive/reversed/source-swapped/revoked bindings, artifact drift, approval/authority drift, trace mismatch, and cross-subject access;
+- clean v2 apply, idempotent verified reapply, drifted pre-existing DDL, forged/missing/reused database scope, owner/admin bypass attempts, revocation races, artifact replacement after approval, and pooled-connection leakage;
+- one-subject and two-subject v1 migration, frozen-source reconciliation, crash/retry, altered-map replay, concurrent v1 writes, quarantine boundary enforcement, and atomic failure for missing or ambiguous mappings.
+
+Automated tests live under `tests/hermes_runtime_contracts/` and exercise both schema/semantic validation and real ephemeral Postgres behavior.
+
+### 9. Publication and downstream pinning are content-addressed gates
+
+At realization, the next available additive bundle version is allocated. `contracts/releases/<bundle-tag>.digests.yaml` inventories every required Hermes runtime schema, SQL file, migration, validator, fixture, fixture index, modified static schema/validator, manifest, changelog, and contract README. Each entry uses a repository-relative regular-file path and lowercase `sha256:<64hex>` of raw Git blob bytes sorted bytewise by path. The digest inventory excludes itself; the exact commit is anchored by the annotated tag and downstream compatibility manifest to avoid circular content. Contract files, manifest, changelog, README, and inventory are committed atomically. `scripts/validate-contract-release.py` validates candidate working-tree bytes before commit and exact Git blob bytes after commit/tag.
+
+The release is not published until the tag, manifest version, changelog heading, repository commit, inventory membership, and per-file digests agree. Removal of `source_compatibility_ref.local_source_path` occurs only after a repository-wide consumer audit proves it is unsupported metadata; canonical repository and source-commit fields remain, and the compatibility evidence is recorded so the release remains additive.
+
+Hermes Install must then record the canonical repository, bundle tag, exact commit, canonical manifest path/digest, unique contract IDs/paths/schema versions/digests, and release-inventory path/digest. Its compatibility-manifest digest is stored in the runtime manifest and realization evidence, never inside the compatibility manifest itself. The checker has an online G0 mode that proves the annotated tag exists on the canonical remote and dereferences to the commit, and an offline runtime mode that validates exact commit/tree/blob objects already present locally. Both modes fail closed for branch refs, tag-only pins, duplicate paths, missing bundle members, path traversal, symlinks, or digest drift.
+
+The planned Hermes runtime currently exposes `project_ref`, `/projects`, and `provision-project`. Before it claims compatibility, the existing Hermes OpenSpec change and Speckit specification, plan, research, data model, contracts, quickstart, and tasks must consistently use customer-subject identity and lifecycle names; Project aliases remain in codexFactory specialization. Strict OpenSpec validation and Speckit analysis must pass after the Feature Integrator reconciles shared artifacts and task state.
+
+## Risks / Trade-offs
+
+- **Release metadata races with other active contract changes** → Rebase immediately before realization and allocate the next bundle version only after merge order is known.
+- **RLS tests pass as a privileged owner but not for runtime identities** → Enforce the role/grant/scope-setter model and test non-owner, forged-scope, admin, pooled-connection, cross-stack, and cross-installation negatives.
+- **Opaque subject references still contain sensitive data** → Require pseudonymous domain-issued references, scan fixtures/evidence, and keep resolution in the owning domain system.
+- **Migration invents missing scope or authority** → Require an explicit typed mapping and abort atomically on every unmapped or ambiguous row; quarantine unverifiable evidence.
+- **Parallel v1/v2 contracts increase temporary maintenance** → Keep the bridge explicit, add deprecation guidance, and make v2 the default only at the governed major release.
+- **Bindings become an accidental access-control bypass** → Keep SQL visibility closed, authorize only exact service operations, and require immutable binding evidence on every cross-layer trace.
+- **Neutral Hermes Install drifts back to Project vocabulary** → Validate its manifest and lifecycle interface against the neutral bundle; keep domain aliases outside the canonical core.
+
+## Migration Plan
+
+1. Land and validate the OpenSpec decision and hand it one-to-one to a Speckit feature.
+2. Add v2 schemas, semantic validator, fixture matrix, canonical Postgres DDL, and migration tests without changing v1 acceptance.
+3. Run preliminary strict OpenSpec, DomainxFactory, schema, semantic, and real-Postgres verification before release integration.
+4. Rebase on the current canonical branch, resolve manifest/changelog conflicts, allocate the next available additive bundle version, build the digest inventory, and commit the exact release candidate.
+5. Rerun the complete contract, migration, isolation, security, release, and existing-regression suites plus independent review against that exact candidate commit; make no semantic edit after it passes.
+6. Create and push the annotated tag for the reviewed candidate, then independently verify the remote commit, tag, manifest, inventory, and digests.
+7. Hand the published evidence to the existing Hermes OpenSpec/Speckit feature, whose Feature Integrator owns neutralization, compatibility-manifest/checker implementation, exact pinning, and positive/negative checks.
+8. Mark Gate G0/T009 complete only after the published remote bundle and Hermes pin independently reproduce every required digest and the downstream consistency analysis passes.
+
+Rollback preserves v1 contracts and tables. A failed v2 migration rolls back atomically. A bad unpublished candidate is replaced before tagging; a published bad tag is never moved and must be superseded by a new additive release with an explicit changelog correction.
+
+## Open Questions
+
+No blocking product question remains. The release minor number is deliberately unresolved until realization, and live Hermes deployment bindings remain Gate G1 rather than part of this contract gate.
