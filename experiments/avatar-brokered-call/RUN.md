@@ -30,14 +30,21 @@ The harness reads the key **only** from the `OPENAI_API_KEY` process environment
 or an evidence file, and is never logged, copied, or committed. Preflight **fails closed**
 on a key supplied through any prohibited channel.
 
-Place it via your secret store, or source a gitignored env file, e.g.:
+The canonical local binding is a **raw-key file** at `~/.ai-keys/openai.key` (one line, just
+the key), installed per **`docs/sops/openai-realtime-f0-lab-credential.md`** (§"Install or
+Rotate the Local Binding" — hidden input, mode 600). Load it into the environment for one
+session:
 
 ```bash
-set -a; source /path/to/your/openai-realtime-f0.env; set +a   # file mode 600, dir 700
-# the env file contains exactly:  OPENAI_API_KEY=sk-...
+test "$(stat -c '%a' ~/.ai-keys/openai.key)" = 600
+export OPENAI_API_KEY="$(tr -d '\r\n' < ~/.ai-keys/openai.key)"
+[ -n "$OPENAI_API_KEY" ] && echo "key present (length ${#OPENAI_API_KEY})"    # never printenv the value
 ```
 
-Verify without spending: `printenv OPENAI_API_KEY >/dev/null && echo "key present"`.
+Never `printenv OPENAI_API_KEY`, `cat` the key file, or enable shell tracing while it is
+loaded. Verify auth non-disclosingly with the check in the SOP (§"Verify Authentication
+Without Disclosure") — it prints only the HTTP result and whether `gpt-realtime-2.1` is
+listed. `unset OPENAI_API_KEY` when finished.
 
 ## 2. Environment
 
@@ -45,11 +52,15 @@ Verify without spending: `printenv OPENAI_API_KEY >/dev/null && echo "key presen
 cd experiments/avatar-brokered-call
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python -m pip install -e .        # REQUIRED: installs the avatar_f0 package so
+                                            # `python -m avatar_f0.cli` resolves (the pytest
+                                            # pythonpath=src does NOT cover the CLI).
 ```
 
 `aiortc` / `av` / `pylibsrtp` install from binary wheels on common Linux/macOS. If a wheel
 is unavailable for your platform, install the native libs first (FFmpeg, Opus, libvpx,
-libsrtp2) so the source build can proceed.
+libsrtp2) so the source build can proceed. (Alternatively to `pip install -e .`, prefix the
+CLI with `PYTHONPATH=src`.)
 
 ## 3. Run it
 

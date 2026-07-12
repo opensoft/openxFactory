@@ -237,3 +237,17 @@ def test_offline_report_is_reason_invariant():
     assert inconclusive_report_md("no_lab_credential", "note") == \
         inconclusive_report_md("live_not_requested", "note") == \
         inconclusive_report_md("offline_inconclusive", "note")
+
+
+def test_live_record_carries_source_commit_for_the_gate():
+    # The kernel F0 gate (validate-avatar-client.py) matches results.source_commit against
+    # its pinned f0_source_commit. A live run must record it; the default run omits it so the
+    # offline INCONCLUSIVE record stays commit-free / byte-stable.
+    from avatar_f0.evidence import build_interface_impact, finalize_record, validate_results
+    sha = "a1b2c3d4e5f60718293a4b5c6d7e8f90aabbccdd"
+    rec = _run(make_env(), source_commit=sha)
+    assert rec["source_commit"] == sha
+    final = finalize_record(rec, "report", build_interface_impact("m", sha, "0" * 64, []))
+    validate_results(final)                     # schema accepts the optional field
+    # default (offline / no commit) omits it entirely
+    assert "source_commit" not in _run(make_env())

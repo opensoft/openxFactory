@@ -51,6 +51,17 @@ def _git_file_commit(root: Path, relpath: str) -> str:
         return "unknown"
 
 
+def _git_head(root: Path) -> str:
+    """The current HEAD commit — the F0 source commit this evidence is produced at."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=10)
+        return out.stdout.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
 def _dependency_versions(root: Path) -> dict:
     lock = root / "experiments/avatar-brokered-call/requirements.lock"
     out = {}
@@ -94,6 +105,9 @@ def _run_live(root, cfg):
     lock_text = lock_path.read_text() if lock_path.is_file() else ""
     fixture = generate_fixture()
     harness_rev = _git_file_commit(root, "experiments/avatar-brokered-call/src/avatar_f0")[:12]
+    # Full HEAD is recorded in the evidence as source_commit so the kernel publication gate's
+    # commit_match can succeed; the kernel owner pins this same commit as f0_source_commit.
+    source_commit = _git_head(root)
     candidate = CandidateProfile(
         harness_revision=harness_rev,
         dependency_lock_sha256=dependency_lock_digest(lock_text),
@@ -108,6 +122,7 @@ def _run_live(root, cfg):
         lab_project_ref=cfg.lab_project_ref,
         dependency_versions=_dependency_versions(root),
         started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
+        source_commit=source_commit,
     ))
     return record_body, live_report_md(record_body)
 

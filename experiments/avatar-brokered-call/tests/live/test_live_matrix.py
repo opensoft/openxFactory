@@ -44,6 +44,7 @@ def test_live_baseline_handshake_smoke():
         broker = HttpBroker(key)
         media = AiortcMediaPeer()
         sideband = None
+        result = None
         try:
             offer_sdp = await media.create_offer(fixture_audio_track(fixture.pcm16))
             result = await broker.create_call("f0-live-smoke", "fp-smoke", offer_sdp, session_config)
@@ -73,6 +74,13 @@ def test_live_baseline_handshake_smoke():
             # wiring failure of this smoke test.
             return got_output, terminal
         finally:
+            # Always hang up the created call so a mid-handshake assertion failure never
+            # orphans a live, billed provider call (idempotent on the happy path).
+            if result is not None and result.call_id:
+                try:
+                    await broker.hangup(result.call_id)
+                except Exception:
+                    pass
             if sideband is not None:
                 await sideband.close()
             await media.close()

@@ -395,7 +395,8 @@ async def _interruption_drill(env: LiveEnv, registry: CallRegistry) -> tuple:
 async def run_live_matrix(env: LiveEnv, candidate, *, groups: Optional[List[str]] = None,
                           lab_project_ref: str, dependency_versions: dict,
                           started_at: str, completed_at: str,
-                          resolved_model: Optional[str] = None) -> dict:
+                          resolved_model: Optional[str] = None,
+                          source_commit: Optional[str] = None) -> dict:
     """Run the registered matrix live and assemble the terminal evidence record."""
     wanted = set(groups) if groups else set(GROUP_PLANNED)
     trials: List[TrialResult] = []
@@ -445,7 +446,7 @@ async def run_live_matrix(env: LiveEnv, candidate, *, groups: Optional[List[str]
     metrics = build_metrics(trials)
     overall = classify_overall(group_results, trials, assertions, metrics, "PASS",
                                environment_inconclusive=False)
-    return {
+    record = {
         "protocol_version": PROTOCOL_VERSION,
         "started_at": started_at,
         "completed_at": completed_at,
@@ -457,6 +458,12 @@ async def run_live_matrix(env: LiveEnv, candidate, *, groups: Optional[List[str]
         "assertions": _serialize_assertions(assertions),
         "overall": overall,
     }
+    # Record the harness/F0 source commit so the kernel publication gate can match it against
+    # its pinned f0_source_commit (validate-avatar-client.py commit_match). Live runs only —
+    # the offline INCONCLUSIVE record stays commit-free and byte-stable.
+    if source_commit:
+        record["source_commit"] = source_commit
+    return record
 
 
 def real_live_components(api_key: str, pcm16: bytes) -> LiveComponents:

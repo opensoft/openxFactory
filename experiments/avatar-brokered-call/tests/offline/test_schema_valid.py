@@ -8,7 +8,7 @@ from avatar_f0.run import build_inconclusive_record, inconclusive_report_md
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 REGISTERED = REPO_ROOT / "openspec/changes/qualify-avatar-brokered-call-feasibility/supporting-docs/f0-results.schema.yaml"
-REGISTERED_SHA = "bc81d1882f091bd7cf1b5945aad57ac518837a6024dc52c833b1d17c67ed4220"
+REGISTERED_SHA = "6a94e4a38e08ba5f1eb32dfa3956cec15d9393a4f63019757a270ecb8ee3dc6f"
 
 
 def test_results_schema_drift_guard():

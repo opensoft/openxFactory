@@ -165,6 +165,10 @@ properties:
   report_sha256:
     type: string
     pattern: "^[a-f0-9]{64}$"
+  source_commit:
+    type: string
+    minLength: 7
+    description: Harness/F0 source commit at which this evidence was produced (live runs); the kernel F0 publication gate matches it against the pinned f0_source_commit.
 allOf:
   - if:
       required: [overall]
