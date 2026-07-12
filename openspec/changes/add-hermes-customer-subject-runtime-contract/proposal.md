@@ -1,3 +1,6 @@
+code_surface: openxFactory
+target_release: implemented
+
 ## Why
 
 The neutral architecture already defines one Customer Hermes instance per customer subject, but the canonical machine-readable contracts still model only one layer per role and do not enforce subject-instance isolation across jobs, artifacts, approvals, or trace records. This gap blocks Hermes Install Gate G0 and prevents codexFactory projects, MedxFactory patients, LedgerxFactory client companies, and other domain subjects from sharing the same governed runtime pattern safely.

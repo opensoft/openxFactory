@@ -105,7 +105,7 @@ Binding/grant validation, database-derived time evaluation, required serializati
 - **AND** no projection may commit without an immutable operation-authorization record from the same transaction
 
 ### Requirement: Artifact records are content-addressed and immutable
-Every artifact record SHALL identify its owning scope, artifact ID, SHA-256 content digest, byte size, media type, producer, deterministic `<installation_id>/<layer_id>/sha256/<digest>` storage key, creation time, and optional job/run correlation. Physical deduplication, if used, SHALL remain behind scoped indirection that exposes no cross-layer existence, lifecycle, deletion, timing, or authorization oracle. The entire record SHALL be append-only and immutable; lifecycle changes SHALL be separate append-only events. Artifact metadata SHALL NOT become governed until content is finalized. Available content MUST exist and match its recorded digest and size at admission, approval, and controlled execution time.
+Every artifact record SHALL identify its owning scope, artifact ID, SHA-256 content digest, byte size, media type, producer, deterministic `<installation_id>/<layer_id>/sha256/<digest>` storage key, creation time, and optional job/run correlation. Physical deduplication, if used, SHALL remain behind scoped indirection; unauthorized cross-layer requests SHALL be rejected before blob lookup with the same response shape/status and SHALL expose no semantic existence, lifecycle, deletion, or authorization oracle. The entire record SHALL be append-only and immutable; lifecycle changes SHALL be separate append-only events. Artifact metadata SHALL NOT become governed until content is finalized. Available content MUST exist and match its recorded digest and size at admission, approval, and controlled execution time.
 
 #### Scenario: Available artifact is verified
 - **WHEN** an artifact record is accepted as available
@@ -220,7 +220,8 @@ The v2 family SHALL be published only as part of an additive contract bundle who
 - **WHEN** the next available bundle version is allocated after final rebase
 - **THEN** contract files, manifest, changelog, and digest inventory MUST be committed atomically
 - **AND** the complete suites and independent review MUST pass against that exact candidate commit before tagging
-- **AND** the matching annotated tag MUST point to the unchanged reviewed commit
+- **AND** the exact reviewed commit MUST be reachable from published `origin/main`
+- **AND** a merge-created replacement commit MUST rerun all gates and review before the matching annotated tag points to it
 
 #### Scenario: Tag is missing or movable evidence is used
 - **WHEN** the bundle tag is absent remotely or a consumer relies on a branch, tag, or working-tree file without the exact commit and digest
