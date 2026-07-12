@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-purpose-invalid
+evidence_ids: [AFU-006-S03]
+expect_error: AFUV-PURPOSE-INVALID
+# purpose_ref is not one of the three neutral consent-purpose IDs.
+candidate:
+  consent_purpose_mappings:
+    - behavior: microphone_capture
+      purpose_ref: avatar.unknown_purpose

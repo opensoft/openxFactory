@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-control-fallback-missing
+evidence_ids: [AFU-004-S04]
+expect_error: AFUV-CONTROL-FALLBACK-MISSING
+# A control is declared not-required but omits the mandatory fallback.
+candidate:
+  standard_controls:
+    - id: captions
+      action_class: accessibility
+      required: false

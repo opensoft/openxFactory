@@ -1,0 +1,35 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: compat-legacy-persona-catalog
+evidence_ids: [AFU-001-S02]
+# Pre-alignment profile: uses the legacy embedded persona_catalog and NO new
+# AVC-aligned blocks. It MUST validate clean under --mode baseline, proving the
+# additive-with-closed-defaults compatibility guarantee (FR-016, SC-003, D7).
+candidate:
+  profile:
+    id: legacy_customer_avatar
+    domain_factory_repo: DomainxFactory
+    default_implementation_level: L1_audio_first_visual_avatar
+    primary_user_kind: customer
+    primary_subject_kind: subject
+  authority_boundaries:
+    avatar_is_presentation_only: true
+    workflow_authority_layer: openxFactory
+    policy_authority_layer: Hermes
+    execution_layer: Domain Omnigent
+    final_enforcement_layer: accountable_human_or_external_system
+  persona_catalog:
+    owner_layer: DomainxFactory
+    selection_allowed: true
+    personas:
+      - id: legacy_guide
+        role: guide
+        presentation_style: calm
+        voice_style: neutral
+        animation_level: subtle
+        supported_languages: [en]
+        allowed_contexts: [intake]
+        required_disclosure: You are speaking with an AI assistant.
+        impersonation_allowed: false
+        status: active
+        version: 1

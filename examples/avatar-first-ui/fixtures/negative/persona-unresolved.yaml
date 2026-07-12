@@ -1,0 +1,12 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-persona-unresolved
+evidence_ids: [AFU-006-S02]
+expect_error: AFUV-PERSONA-UNRESOLVED
+# catalog_locator carries a secret (token) — a persona reference must use a
+# non-secret locator; it fails closed rather than resolving persona data.
+candidate:
+  persona_reference:
+    persona_id: neutral.guide
+    version: 1
+    catalog_locator: https://persona.example/catalog?token=abc123

@@ -332,3 +332,95 @@ domain_overlay_slots:
     - escalation_triggers
     - transcript_retention_policy
     - conventional_ui_fallback
+
+# --- AVC-aligned defaults (additive; instantiation stub, not live config) ----
+# Domain overlays instantiate these blocks; every value below is a closed
+# (fail-closed) default. Kernel-owned IDs and readiness/heartbeat/lease ceilings
+# are referenced, not authored here.
+
+presentation_defaults:
+  surface_default: conversation          # client-local; never authoritative
+  presentation_modes: [conversation, work, review]
+  authoritative_axes:                     # owned by avatar-client-runtime (read-only)
+    - session_lifecycle
+    - control_health
+    - media_state
+    - workflow_projection
+
+media_awareness:
+  held_answer_state: connecting           # a held provider answer is never active
+  states:
+    - permission
+    - capture_authorized
+    - capture_pending
+    - capture_active
+    - listening
+    - speaking
+    - control_degraded
+    - control_lost
+    - governed_action_pending
+    - retention_active
+
+interaction_mode_defaults:
+  value: provider_vad                     # neutral default
+  reserved:
+    - server_vad                          # provider-native; stays in a server profile
+    - push_to_talk                        # reserved + disabled; falls back to text/handoff
+  reserved_requires_fallback: true
+
+speech_gate_defaults:
+  value: confirmation_before_action       # default gate
+  allowed: [confirmation_before_action, streaming_monitor]
+  reserved: [pre_speech_review]           # fails preflight into text/handoff fallback
+
+timing_defaults:
+  # selected values only; numeric ceilings are kernel-owned and resolved read-only
+  readiness_ms: 3000
+  heartbeat_ms: 5000
+  lease_ms: 10000
+
+consent_purpose_defaults:
+  # reference the three neutral consent-purpose IDs; domains may add stricter IDs
+  neutral_purpose_ids:
+    - avatar.media_capture
+    - avatar.provider_processing
+    - avatar.structured_record
+  carries_consent_evidence: false
+
+persona_reference_defaults:
+  # reference-only; catalog is domain/kernel-owned and out of scope here
+  requires_persona_id: true
+  requires_version: true
+  catalog_locator_must_be_non_secret: true
+  unresolved_fails_closed: true
+
+retention_overlay_defaults:
+  # references only; no inline durations/policy/consent evidence
+  policy_refs: []
+  unresolved_reference_fails_closed: true
+
+rendering_defaults:
+  mode: plain_text                        # or narrow_sanitized; never raw_html
+  forbid:
+    - raw_html
+    - executable_content
+    - provider_widget
+    - unsafe_uri_scheme
+
+accessibility_baseline_defaults:
+  keyboard_operation: false
+  stable_focus: false
+  visible_focus: false
+  screen_reader_announcements: false
+  captions: false
+  text_only_mode: false
+  reduced_motion: false
+  high_contrast: false
+  non_color_cues: false
+  zoom_reflow: false
+  pseudo_locale_coverage: false
+
+handoff_boundary:
+  roles: []
+  url_carries_no_secret: true             # no token/subject/transcript/provider secret
+  exchange_protocol: deferred_until_web_console

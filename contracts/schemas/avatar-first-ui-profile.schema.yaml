@@ -1,6 +1,16 @@
+# Dialect-pinned to JSON Schema draft 2020-12 (FR-013 family / JSON-Schema
+# hygiene). Repo-local `schema_version`/`kind` meta coexist with the dialect anchor.
+$schema: "https://json-schema.org/draft/2020-12/schema"
 schema_version: 1
+kind: xfactory_avatar_first_ui_profile_schema
 name: avatar_first_ui_profile
 type: object
+# Compatibility: the top-level `required` set is unchanged from the pre-alignment
+# schema. All AVC-aligned blocks below are additive and OPTIONAL with closed
+# (fail-closed) defaults, so existing static profiles remain valid (FR-016).
+# Kernel-owned IDs and readiness/heartbeat/lease ceilings are referenced, not
+# authored here; the offline validator resolves them read-only against the frozen
+# avatar-client-parallel-v1 baseline (FR-017, FR-021, FR-026).
 required:
   - profile
   - authority_boundaries
@@ -202,3 +212,213 @@ properties:
           type: string
       transcript_policy:
         type: string
+
+  # --- AVC-aligned additive blocks (all optional; closed defaults) ----------
+
+  runtime_compatibility:
+    # FR-013, FR-025, FR-021 — exact content-addressed coordinates, no ranges.
+    type: object
+    properties:
+      baseline_identity:
+        type: string
+        description: Exact avatar-client-parallel-v1 baseline identity (parallel work)
+      baseline_digests:
+        type: object
+        description: Required baseline registry/interface-lock digests
+      released_tag:
+        type: string
+        description: Released contract bundle tag (realization only)
+      released_commit:
+        type: string
+        description: Exact release commit SHA (realization only)
+      released_digests:
+        type: object
+        description: Required released registry/interface-lock SHA-256 digests
+
+  presentation:
+    # FR-001, FR-002 — client-local modes; never authoritative.
+    type: object
+    properties:
+      surface_default:
+        type: string
+        enum: [conversation, work, review]
+        default: conversation
+      presentation_modes:
+        type: array
+        default: [conversation, work, review]
+        items:
+          type: string
+          enum: [conversation, work, review]
+
+  media:
+    # FR-008, FR-009 — media/authority states; held answer never active.
+    type: object
+    properties:
+      states:
+        type: array
+        items:
+          type: string
+          enum:
+            - permission
+            - capture_authorized
+            - capture_pending
+            - capture_active
+            - listening
+            - speaking
+            - control_degraded
+            - control_lost
+            - governed_action_pending
+            - retention_active
+      held_answer_state:
+        type: string
+        enum: [connecting, pending]
+        default: connecting
+
+  outcome_slots:
+    # FR-009, FR-012 — reference kernel outcome IDs; safe rendering only.
+    type: array
+    items:
+      type: object
+      required:
+        - outcome_ref
+        - message_key
+      properties:
+        outcome_ref:
+          type: string
+          description: Kernel session-outcome registry ID (read-only)
+        message_key:
+          type: string
+        retry_guidance:
+          type: string
+        fallback_modes:
+          type: array
+          items:
+            type: string
+            enum: [text, handoff, upgrade, retry_later]
+
+  fallback_slots:
+    # FR-007, FR-009 — closed default is text_or_handoff.
+    type: object
+    properties:
+      denial: {type: object}
+      terminal: {type: object}
+      missing_control: {type: object}
+      persona_unavailable: {type: object}
+      audio_unavailable: {type: object}
+
+  interaction_mode:
+    # FR-015 — provider_vad neutral default; server_vad + push_to_talk reserved.
+    type: object
+    properties:
+      value:
+        type: string
+        enum: [provider_vad, server_vad, push_to_talk]
+        default: provider_vad
+      fallback:
+        type: string
+        enum: [text, handoff]
+        description: REQUIRED when value is a reserved mode (server_vad, push_to_talk)
+
+  speech_gate:
+    # FR-015 — kernel-permitted gate; reserved gate falls back closed.
+    type: object
+    properties:
+      value:
+        type: string
+        enum: [confirmation_before_action, streaming_monitor, pre_speech_review]
+        default: confirmation_before_action
+      fallback:
+        type: string
+        enum: [text, handoff]
+
+  timing:
+    # FR-013, FR-026 — selected values only; ceilings kernel-owned (read-only).
+    type: object
+    properties:
+      readiness_ms:
+        type: integer
+        description: Selected media readiness timeout; kernel ceiling resolved read-only
+      heartbeat_ms:
+        type: integer
+        description: Selected heartbeat interval; kernel ceiling resolved read-only
+      lease_ms:
+        type: integer
+        description: Selected initial lease window; kernel ceiling resolved read-only
+
+  consent_purpose_mappings:
+    # FR-014 — reference the three neutral consent-purpose IDs (+ optional domain).
+    type: array
+    items:
+      type: object
+      required:
+        - behavior
+        - purpose_ref
+      properties:
+        behavior:
+          type: string
+        purpose_ref:
+          type: string
+          description: Neutral consent-purpose ID (read-only kernel registry)
+        domain_purpose_ref:
+          type: string
+          description: Optional stricter domain-specific purpose ID
+
+  persona_reference:
+    # FR-011, FR-013 — reference-only; unresolved fails closed.
+    type: object
+    required:
+      - persona_id
+      - version
+    properties:
+      persona_id:
+        type: string
+      version:
+        type: [integer, string]
+      catalog_locator:
+        type: string
+        description: Optional NON-SECRET locator for the domain/kernel-owned catalog
+
+  retention_overlay:
+    # FR-027 — references only; no inline durations/policy/consent evidence.
+    type: object
+    properties:
+      policy_refs:
+        type: array
+        items:
+          type: string
+          description: Externally owned retention-policy ID
+      display_flags:
+        type: object
+        description: Presentation-only flags/labels for resolved retention state
+
+  accessibility_baseline:
+    # FR-010, FR-028 — structured per-capability declarations; closed defaults.
+    type: object
+    properties:
+      keyboard_operation: {type: boolean, default: false}
+      stable_focus: {type: boolean, default: false}
+      visible_focus: {type: boolean, default: false}
+      screen_reader_announcements: {type: boolean, default: false}
+      captions: {type: boolean, default: false}
+      text_only_mode: {type: boolean, default: false}
+      reduced_motion: {type: boolean, default: false}
+      high_contrast: {type: boolean, default: false}
+      non_color_cues: {type: boolean, default: false}
+      zoom_reflow: {type: boolean, default: false}
+      pseudo_locale_coverage: {type: boolean, default: false}
+
+  handoff:
+    # FR-005, FR-006 — roles + URL constraints (no token/subject/transcript/secret).
+    type: object
+    properties:
+      roles:
+        type: array
+        items:
+          type: string
+      url_carries_no_secret:
+        type: boolean
+        default: true
+
+  # NOTE: the legacy embedded `persona_catalog` property (defined above, optional)
+  # remains ACCEPTED for backward compatibility (D7). New profiles use
+  # `persona_reference` instead.

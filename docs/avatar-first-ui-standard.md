@@ -410,3 +410,160 @@ Accounting avatar
 
 The surface pattern is shared. Domain policy decides what the avatar is allowed
 to say, request, execute, or escalate.
+
+## 15. Authoritative Runtime Axes And Presentation Modes
+
+The avatar client reflects four **authoritative runtime axes** owned by
+`avatar-client-runtime` and consumed read-only. It never authors them:
+
+1. **session lifecycle** — broker-owned;
+2. **control health** — lease-derived;
+3. **media state** — trusted-adapter observation constrained by authority; and
+4. **workflow projection** — Hermes/workflow-authority-owned.
+
+Separately, `conversation`, `work`, and `review` are **client-local presentation
+modes**. A surface MAY switch modes without changing any authoritative axis.
+Conversation mode prioritizes guided voice and text; work mode prioritizes
+structured fields, exact values, and evidence; review mode prioritizes
+confirmations, consent, conflicts, and outcomes. Presentation state MUST NOT be
+used to author, imply, or fabricate an authoritative transition.
+
+A mode change MUST preserve the applicable logical session, workflow, persona,
+focus target, pending decision, state revision, and trace context. When recovery
+supplies a newer AVC-12 authoritative snapshot, the shell MUST reconcile to it,
+retain only valid local presentation preferences, and surface any discarded
+pending local intent. Consequential values (names, identifiers, dates, money,
+addresses, consent, proposed effects) MUST be shown as complete display-safe
+values in work or review mode and MUST NOT be confirmed by voice alone.
+
+## 16. Hermes-Layer Surface Defaults (Authoritative)
+
+The defaults in §11 are the authoritative Hermes-layer surface defaults:
+Customer Hermes is **avatar-first**, Client Hermes is **hybrid**, and Domain
+Hermes is **conventional-first with an avatar analyst or copilot**. A
+DomainxFactory override MUST record the user set, workflow need, risk class,
+accessibility fallback, and authority boundary, and MUST NOT make avatar text
+authoritative. Domain risk and accessibility overrides may move a surface toward
+conventional UI but never remove the authority boundary.
+
+## 17. Media Authorization, Held Answer, And AVC-02 Outcomes
+
+The surface MUST continuously distinguish microphone permission, capture
+authorized or pending, capture active, avatar listening, avatar speaking,
+control degraded or lost, governed action pending, and retention active. No
+status may be communicated by animation, audio, or color alone. Stop and mute
+MUST remain reachable whenever capture is possible.
+
+Receiving a held provider answer is **not** active media. When a trusted client
+media adapter has verified an AVC-02 grant and holds a provider answer but has
+not applied a matching `media_authorized` event, the UI MUST show media as
+connecting or pending, MUST NOT show capture or playback as active, and the
+adapter MUST leave the answer unapplied.
+
+AVC-02 denial and terminal results MUST render only their localization-safe
+message key, retry guidance, and approved fallback modes (text, handoff,
+upgrade, or retry-later). Raw provider errors MUST remain outside widget state.
+The AVC-02 result union is `grant | denial | terminal`.
+
+## 18. Control Loss Versus Media Loss
+
+Control loss (lease degraded or lost) is distinct from media loss. On control
+loss the UI MUST display the distinction, show governed commands as disabled,
+and present the stop, reconnect, or handoff options defined by
+`avatar-client-runtime`. Audio may remain connected while control is lost; the
+UI MUST NOT present a lost lease as a healthy governed session.
+
+## 19. Persona Reference And Disclosure
+
+The avatar-first profile carries a **persona reference only**: a stable persona
+ID, version, and an optional non-secret catalog locator. The persona catalog
+(schema and instances) is owned by the domain/kernel and is out of scope for
+this standard. The resolved persona exposes role, display name, required
+disclosure, supported languages, and lifecycle status. The client MUST display
+the disclosure and record the persona ID and version before media starts.
+Persona is fixed for the logical session; a persona change MUST be presented as
+ending the session and starting a new one, never as an in-place substitution.
+Real-person impersonation defaults to prohibited. An unresolved persona
+reference MUST fail closed to an approved fallback; the client MUST NOT invent
+persona identity, voice, or data.
+
+The client MUST disclose an AI or AI-assisted interface whenever the avatar
+could be mistaken for a human or authoritative actor, MUST display the current
+authority boundary, and MUST keep consent withdrawal reachable during the
+session.
+
+## 20. Safe Rendering Of Untrusted Content
+
+Transcript text, model output, tool summaries, attachment names, URLs, visual
+result data, and provider error text are untrusted. The client MUST render them
+as plain text or a narrow sanitized format and MUST NOT render arbitrary HTML,
+executable content, provider-supplied widgets, or unsafe URI schemes. External
+navigation and downloads MUST use destination allowlists, clear origin labeling,
+and policy-appropriate confirmation. Provider text MUST NOT be used as an
+authority signal, confirmation, hidden command, widget identifier, analytics
+key, or localization resource key. Display-safe canonical fields from the
+authority boundary drive consequential cards and actions.
+
+## 21. Client And Web-Console Boundary And Handoff
+
+The reusable client owns the conversation experience, adaptive shell,
+deterministic local projection, standard controls, persona presentation,
+read-only workflow summaries, and handoff initiation. Dense administration,
+policy editing, bulk operations, interactive workflow editing, and audit
+investigation remain in the conventional web console governed by the
+workflow-visualization standard. The client MUST NOT introduce a second
+interactive workflow-canvas standard.
+
+Handoff URLs MUST carry no bearer token, subject identifier, transcript, or
+provider secret. Any future handoff exchange MUST be server-issued, one-time,
+purpose-bound, and reauthorized at the web boundary; the exchange protocol is
+deferred until the web console exists.
+
+## 22. Accessibility And Localization Evidence Boundary
+
+This standard **declares** an accessibility baseline: keyboard-only operation,
+stable and visible focus, screen-reader labels and single meaningful state
+announcements, captions, text-only operation, reduced motion, high contrast,
+non-color cues, zoom/reflow, and English plus a long-string/bidirectional
+pseudo-locale. Avatar animation MUST NOT be the sole carrier of listening,
+thinking, speaking, interruption, control health, authority, errors,
+confirmations, or outcomes.
+
+These declared requirements are distinct from later platform qualification
+evidence. Windows desktop qualification, the web WCAG 2.2 AA audit and its
+exception register, widget semantics, pinned-font goldens, and additional
+locales are owned by named successors (`implement-avatar-client-lab`,
+`avatar-pilot-hardening`), not by this standard.
+
+## 23. Profile Carrier And Deterministic Validation
+
+The registered `avatar-first-ui-profile` schema is the domain overlay carrier.
+New runtime fields are additive with explicit closed (fail-closed) defaults, so
+existing static profiles remain valid. Runtime compatibility is pinned by exact
+content-addressed coordinates (baseline identity and digests during parallel
+work; released bundle tag, exact commit, and registry/interface-lock digests at
+realization) — never a loose released version range. Readiness, heartbeat, and
+lease values are per-profile selections validated against kernel-owned ceilings
+resolved read-only; consent-purpose mappings reference the three neutral IDs;
+the retention overlay references externally owned retention-policy IDs only.
+
+The offline validator (`scripts/validate-avatar-first-ui.py`) checks schema,
+template, examples, and fixtures with no provider or runtime service, emitting a
+stable error/evidence ID for each rejected rule. Deterministic UI fixtures live
+under `examples/avatar-first-ui/fixtures/`.
+
+## 24. Requirement-To-Owner Map
+
+Each avatar-first behavior has exactly one owner. Deferred behavior names a
+successor and keeps a closed default.
+
+| Behavior | Owner |
+| --- | --- |
+| Four authoritative runtime axes; control-loss options | `avatar-client-runtime` (read-only) |
+| Capability, outcome, consent-purpose, state registries; timing ceilings | AVC kernel registries (read-only) |
+| Presentation modes, shell, controls, safe rendering, persona reference, profile carrier, offline validation | this standard + `avatar-first-ui-profile` schema/validator |
+| Hermes-layer surface defaults | this standard (Hermes layers apply them) |
+| Flutter widgets, provider adapters, goldens, live-provider evidence | `implement-avatar-client-lab` |
+| Formal accessibility qualification, domain onboarding | `avatar-pilot-hardening` |
+| Conventional web console, workflow editor | workflow-visualization standard |
+| Domain persona catalogs, retention policies, domain profiles/mappings | DomainxFactory repositories |

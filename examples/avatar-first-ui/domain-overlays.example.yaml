@@ -1,120 +1,273 @@
 schema_version: 1
 kind: xfactory_avatar_first_ui_overlay_examples
 
+# Domain-NEUTRAL archetypes for the avatar-first UI standard. These are
+# instantiation stubs (.example.yaml), not live configuration and not domain
+# content: DomainxFactory repositories provide real domain profiles later.
+# Each archetype carries the AVC-aligned additive blocks with valid, closed
+# values so the offline validator passes. Personas are referenced only (Q1);
+# retention/consent policy is referenced only (Q8/FR-014); kernel IDs and
+# readiness/heartbeat/lease ceilings are consumed read-only from the frozen
+# avatar-client-parallel-v1 baseline.
+
 examples:
+  # 1) Customer surface — avatar-first
   - profile:
-      id: medx_patient_facing_avatar
-      domain_factory_repo: MedxFactory
+      id: customer_avatar_first
+      domain_factory_repo: DomainxFactory
       default_implementation_level: L1_audio_first_visual_avatar
-      primary_user_kind: patient
-      primary_subject_kind: patient
+      primary_user_kind: customer
+      primary_subject_kind: subject
       avatar_required: true
       conventional_ui_fallback_required: true
     authority_boundaries:
       avatar_is_presentation_only: true
       workflow_authority_layer: openxFactory
-      policy_authority_layer: Patient Hermes + Care Organization Hermes + Medx Domain Hermes
-      execution_layer: Medx Omnigent
-      final_enforcement_layer: licensed_clinician_or_clinical_system
+      policy_authority_layer: Hermes
+      execution_layer: Domain Omnigent
+      final_enforcement_layer: accountable_human_or_external_system
+    presentation:
+      surface_default: conversation
+      presentation_modes: [conversation, work, review]
+    media:
+      held_answer_state: connecting
+    interaction_mode:
+      value: provider_vad
+    speech_gate:
+      value: confirmation_before_action
+    timing:
+      readiness_ms: 3000
+      heartbeat_ms: 5000
+      lease_ms: 10000
+    consent_purpose_mappings:
+      - {behavior: microphone_capture, purpose_ref: avatar.media_capture}
+      - {behavior: provider_session, purpose_ref: avatar.provider_processing}
+      - {behavior: retain_structured_record, purpose_ref: avatar.structured_record}
+    persona_reference:
+      persona_id: neutral.guide
+      version: 1
+      catalog_locator: domain-owned-persona-catalog
+    retention_overlay:
+      policy_refs: [retention.default]
+      display_flags: {show_retention_state: true}
+    accessibility_baseline:
+      keyboard_operation: true
+      stable_focus: true
+      visible_focus: true
+      screen_reader_announcements: true
+      captions: true
+      text_only_mode: true
+      reduced_motion: true
+      high_contrast: true
+      non_color_cues: true
+      zoom_reflow: true
+      pseudo_locale_coverage: true
+    rendering:
+      mode: plain_text
+    handoff:
+      roles: [accountable_human]
+      url_carries_no_secret: true
+    runtime_compatibility:
+      baseline_identity: avatar-client-parallel-v1
     domain_overlay:
-      persona_roles:
-        - doctor_agent
-        - nurse_agent
-      handoff_roles:
-        - clinician
-        - nurse
-        - interpreter
-        - care_team_member
-      restricted_tool_classes:
-        - final_diagnosis
-        - final_treatment_decision
-        - order_entry
-        - chart_correction
-        - consent_pressure
+      persona_roles: [neutral_guide]
+      handoff_roles: [accountable_human, support_operator]
+      restricted_tool_classes: [final_authority_decision, privileged_external_action]
 
+  # 2) Client operator surface — hybrid
   - profile:
-      id: opencodex_engineering_avatar
-      domain_factory_repo: codexFactory
-      default_implementation_level: L0_text_avatar
-      primary_user_kind: engineer
-      primary_subject_kind: repository
-      avatar_required: true
-      conventional_ui_fallback_required: true
-    authority_boundaries:
-      avatar_is_presentation_only: true
-      workflow_authority_layer: openxFactory
-      policy_authority_layer: Engineering Hermes
-      execution_layer: opencodex Omnigent
-      final_enforcement_layer: GitHub_branch_protection_or_merge_queue
-    domain_overlay:
-      persona_roles:
-        - implementation_guide
-        - review_guide
-        - release_guide
-      handoff_roles:
-        - lead_engineer
-        - reviewer
-        - merge_master
-      restricted_tool_classes:
-        - merge_without_approval
-        - push_secret
-        - destructive_repo_action
-        - production_deploy_without_gate
-
-  - profile:
-      id: opsx_admin_avatar
-      domain_factory_repo: OpsxFactory
+      id: client_hybrid
+      domain_factory_repo: DomainxFactory
       default_implementation_level: L1_audio_first_visual_avatar
       primary_user_kind: operator
-      primary_subject_kind: tenant_or_resource
-      avatar_required: true
+      primary_subject_kind: subject
+      avatar_required: false
       conventional_ui_fallback_required: true
     authority_boundaries:
       avatar_is_presentation_only: true
       workflow_authority_layer: openxFactory
-      policy_authority_layer: Operations Hermes
-      execution_layer: Opsx Omnigent
-      final_enforcement_layer: cloud_or_identity_control_plane
+      policy_authority_layer: Hermes
+      execution_layer: Domain Omnigent
+      final_enforcement_layer: accountable_human_or_external_system
+    presentation:
+      surface_default: work
+      presentation_modes: [conversation, work, review]
+    media:
+      held_answer_state: connecting
+    interaction_mode:
+      value: provider_vad
+    speech_gate:
+      value: confirmation_before_action
+    timing:
+      readiness_ms: 3000
+      heartbeat_ms: 5000
+      lease_ms: 10000
+    consent_purpose_mappings:
+      - {behavior: microphone_capture, purpose_ref: avatar.media_capture}
+      - {behavior: provider_session, purpose_ref: avatar.provider_processing}
+    persona_reference:
+      persona_id: neutral.copilot
+      version: 1
+      catalog_locator: domain-owned-persona-catalog
+    retention_overlay:
+      policy_refs: [retention.default]
+      display_flags: {show_retention_state: true}
+    accessibility_baseline:
+      keyboard_operation: true
+      stable_focus: true
+      visible_focus: true
+      screen_reader_announcements: true
+      captions: true
+      text_only_mode: true
+      reduced_motion: true
+      high_contrast: true
+      non_color_cues: true
+      zoom_reflow: true
+      pseudo_locale_coverage: true
+    rendering:
+      mode: narrow_sanitized
+    handoff:
+      roles: [accountable_human, domain_specialist]
+      url_carries_no_secret: true
+    runtime_compatibility:
+      baseline_identity: avatar-client-parallel-v1
     domain_overlay:
-      persona_roles:
-        - operations_copilot
-        - incident_guide
-        - change_preflight_guide
-      handoff_roles:
-        - tenant_admin
-        - service_owner
-        - incident_commander
-      restricted_tool_classes:
-        - privileged_admin_action
-        - destructive_cloud_action
-        - identity_permission_change
-        - production_change_without_approval
+      persona_roles: [neutral_copilot]
+      handoff_roles: [accountable_human, domain_specialist]
+      restricted_tool_classes: [destructive_action, money_movement]
 
+  # 3) Domain governance surface — conventional-first with avatar analyst
   - profile:
-      id: ledgerx_accounting_avatar
-      domain_factory_repo: LedgerxFactory
+      id: domain_conventional_first
+      domain_factory_repo: DomainxFactory
       default_implementation_level: L0_text_avatar
-      primary_user_kind: finance_operator
-      primary_subject_kind: account_or_transaction
+      primary_user_kind: domain_expert
+      primary_subject_kind: governed_artifact
+      avatar_required: false
+      conventional_ui_fallback_required: true
+    authority_boundaries:
+      avatar_is_presentation_only: true
+      workflow_authority_layer: openxFactory
+      policy_authority_layer: Hermes
+      execution_layer: Domain Omnigent
+      final_enforcement_layer: governance_council_or_external_system
+    presentation:
+      surface_default: review
+      presentation_modes: [conversation, work, review]
+    media:
+      held_answer_state: connecting
+    interaction_mode:
+      value: provider_vad
+    speech_gate:
+      value: confirmation_before_action
+    timing:
+      readiness_ms: 3000
+      heartbeat_ms: 5000
+      lease_ms: 10000
+    consent_purpose_mappings:
+      - {behavior: microphone_capture, purpose_ref: avatar.media_capture}
+    persona_reference:
+      persona_id: neutral.analyst
+      version: 1
+      catalog_locator: domain-owned-persona-catalog
+    retention_overlay:
+      policy_refs: [retention.governance]
+      display_flags: {show_retention_state: true}
+    accessibility_baseline:
+      keyboard_operation: true
+      stable_focus: true
+      visible_focus: true
+      screen_reader_announcements: true
+      captions: true
+      text_only_mode: true
+      reduced_motion: true
+      high_contrast: true
+      non_color_cues: true
+      zoom_reflow: true
+      pseudo_locale_coverage: true
+    rendering:
+      mode: plain_text
+    handoff:
+      roles: [governance_council]
+      url_carries_no_secret: true
+    runtime_compatibility:
+      baseline_identity: avatar-client-parallel-v1
+    domain_overlay:
+      persona_roles: [neutral_analyst]
+      handoff_roles: [governance_council, domain_specialist]
+      restricted_tool_classes: [policy_commitment, schema_change]
+
+  # 4) Confirmation-before-consequential-action archetype (neutral;
+  #    Ledgerx-style is inspiration only — no accounting-specific content)
+  - profile:
+      id: confirmation_before_consequential_action
+      domain_factory_repo: DomainxFactory
+      default_implementation_level: L1_audio_first_visual_avatar
+      primary_user_kind: customer
+      primary_subject_kind: subject
       avatar_required: true
       conventional_ui_fallback_required: true
     authority_boundaries:
       avatar_is_presentation_only: true
       workflow_authority_layer: openxFactory
-      policy_authority_layer: Accounting Hermes
-      execution_layer: Ledgerx Omnigent
-      final_enforcement_layer: accounting_system_or_accountable_finance_role
+      policy_authority_layer: Hermes
+      execution_layer: Domain Omnigent
+      final_enforcement_layer: accountable_human_or_external_system
+    presentation:
+      surface_default: review
+      presentation_modes: [conversation, work, review]
+    media:
+      held_answer_state: connecting
+    interaction_mode:
+      value: provider_vad
+    speech_gate:
+      value: confirmation_before_action
+    timing:
+      readiness_ms: 2000
+      heartbeat_ms: 4000
+      lease_ms: 8000
+    consent_purpose_mappings:
+      - {behavior: microphone_capture, purpose_ref: avatar.media_capture}
+      - {behavior: provider_session, purpose_ref: avatar.provider_processing}
+      - {behavior: retain_structured_record, purpose_ref: avatar.structured_record}
+    persona_reference:
+      persona_id: neutral.confirmer
+      version: 1
+      catalog_locator: domain-owned-persona-catalog
+    retention_overlay:
+      policy_refs: [retention.consequential]
+      display_flags: {show_retention_state: true}
+    accessibility_baseline:
+      keyboard_operation: true
+      stable_focus: true
+      visible_focus: true
+      screen_reader_announcements: true
+      captions: true
+      text_only_mode: true
+      reduced_motion: true
+      high_contrast: true
+      non_color_cues: true
+      zoom_reflow: true
+      pseudo_locale_coverage: true
+    rendering:
+      mode: plain_text
+    outcome_slots:
+      - outcome_ref: grant
+        message_key: session.ready
+        fallback_modes: [text, handoff]
+      - outcome_ref: denial
+        message_key: session.denied
+        retry_guidance: retry_after_disclosure
+        fallback_modes: [text, handoff, retry_later]
+    fallback_slots:
+      denial: {message_key: session.denied, approved_modes: [text, handoff]}
+      audio_unavailable: {message_key: audio.unavailable, approved_modes: [text]}
+    handoff:
+      roles: [accountable_human]
+      url_carries_no_secret: true
+    runtime_compatibility:
+      baseline_identity: avatar-client-parallel-v1
     domain_overlay:
-      persona_roles:
-        - bookkeeping_guide
-        - close_assistant
-        - exception_review_guide
-      handoff_roles:
-        - accountant
-        - controller
-        - client_finance_owner
-      restricted_tool_classes:
-        - final_tax_position
-        - bank_transfer
-        - irreversible_posting
-        - compliance_filing_without_review
+      persona_roles: [neutral_confirmer]
+      handoff_roles: [accountable_human]
+      restricted_tool_classes: [final_authority_decision, money_movement, regulated_subject_action]

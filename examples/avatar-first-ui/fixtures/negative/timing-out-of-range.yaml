@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-timing-out-of-range
+evidence_ids: [AFU-004-S05]
+expect_error: AFUV-TIMING-OUT-OF-RANGE
+# readiness_ms 6000 exceeds the kernel-owned ceiling (max 5000).
+candidate:
+  timing:
+    readiness_ms: 6000
