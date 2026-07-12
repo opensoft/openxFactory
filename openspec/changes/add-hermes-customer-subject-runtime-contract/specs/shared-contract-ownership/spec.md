@@ -1,7 +1,10 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## MODIFIED Requirements
 
 ### Requirement: Contract version pinning
-Install repositories SHALL pin compatible contract bundles from `openxFactory` before runtime adapters are treated as compatible. A governed bundle pin SHALL include the canonical repository, published bundle tag, exact repository commit, canonical manifest path/digest, release-inventory path/digest, and unique required contract entries containing contract ID, repository-relative path, schema version, and SHA-256 digest. Its own compatibility-manifest digest SHALL be bound from an external runtime manifest or realization record rather than self-recorded. Online Gate verification SHALL prove the annotated tag on the canonical remote; offline runtime verification SHALL resolve exact commit/tree/blob objects already present locally. Both modes SHALL fail closed for branch refs, tag-only refs, duplicate IDs or paths, missing bundle members, traversal, symlink escape, version mismatch, or digest drift.
+Install repositories SHALL pin compatible contract bundles from `openxFactory` before runtime adapters are treated as compatible. A governed bundle pin SHALL include the canonical repository, published bundle tag, exact repository commit, canonical manifest path/digest, release-inventory path/digest, and unique required contract entries containing contract ID, repository-relative path, schema version, and SHA-256 digest. Its own compatibility-manifest digest SHALL be bound from an external runtime manifest or realization record rather than self-recorded. Online Gate verification SHALL prove the annotated tag on the canonical remote; offline runtime verification SHALL resolve exact commit/tree/blob objects already present locally. Both modes SHALL fail closed for branch refs, tag-only refs, duplicate IDs or paths, missing bundle members, traversal, symlink escape, version mismatch, or digest drift. For this Gate G0 handoff, the consumer receipt SHALL require `opensoft/xFactory-Hermes-Install` and SHALL reject `FarHeap/Hermes-Install` before resolving downstream objects.
 
 #### Scenario: Install repo consumes a contract
 - **WHEN** `Hermes-Install` or `Omnigent-Install` consumes a shared contract

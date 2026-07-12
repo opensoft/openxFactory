@@ -1,3 +1,6 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## ADDED Requirements
 
 ### Requirement: Governed records carry explicit scope
@@ -16,7 +19,7 @@ Every v2 governed record SHALL carry a closed scope identifying its installation
 - **THEN** it MUST use an explicit installation administrative scope rather than an arbitrary Customer scope
 
 ### Requirement: Customer-subject persistence is default-deny
-The canonical v2 persistence contract SHALL isolate all governed layer rows by installation, stack, and layer through relational scope, forced row-level controls, and distinct database roles. The migration/table owner SHALL be unavailable to runtime; runtime roles SHALL have no `BYPASSRLS` or role-escalation path; installation administration SHALL imply no subject-data visibility; and the cross-layer control plane SHALL have governed-function execution but no direct table access. A trusted transaction-local scope setter SHALL map `current_user` through an active, unexpired `assume_scope` authority grant, reject caller-selected ungranted scope, and clear scope on connection checkout/return. Every transaction SHALL recheck grant revocation and principal/layer lifecycle state; revocation or retirement SHALL invalidate new scope and already-pooled connections. Missing, malformed, stale, forged, cross-stack, cross-installation, and pooled-connection scope reuse SHALL fail closed.
+The canonical v2 persistence contract SHALL isolate all governed layer rows by installation, stack, and layer through relational scope, forced row-level controls, and distinct database roles. The migration/table owner SHALL be unavailable to runtime; runtime roles SHALL have no `BYPASSRLS` or role-escalation path; installation administration SHALL imply no subject-data visibility; and the cross-layer control plane SHALL have governed-function execution but no direct table access. A trusted transaction-local scope setter SHALL map the authenticated `session_user`, not the security-definer `current_user`, through an active, unexpired `assume_scope` authority grant, reject caller-selected ungranted scope, and clear scope on connection checkout/return. Every transaction SHALL recheck grant revocation and principal/layer lifecycle state; revocation or retirement SHALL invalidate new scope and already-pooled connections. Missing, malformed, stale, forged, cross-stack, cross-installation, and pooled-connection scope reuse SHALL fail closed.
 
 #### Scenario: Subject A queries Subject B
 - **WHEN** a runtime identity scoped to Customer A attempts to enumerate or read Customer B jobs, artifacts, approvals, or traces
@@ -174,7 +177,7 @@ Every trace edge SHALL be append-only and identify source and target type, ID, d
 - **THEN** validation MUST fail
 
 ### Requirement: v2 persistence coexists with v1 and migrates atomically
-openxFactory SHALL publish a fresh-install v2 operational Postgres contract, a typed migration-mapping schema, and an executable idempotent v1-to-v2 migration without mutating v1 semantics in place. Reapplication SHALL compare canonical object definitions/checksums and fail on incompatible pre-existing tables, policies, functions, or triggers.
+openxFactory SHALL publish a fresh-install v2 operational Postgres contract, a typed migration-mapping schema, and an executable idempotent v1-to-v2 migration without mutating v1 semantics in place. Reapplication SHALL compare canonical object definitions/checksums and fail on incompatible pre-existing tables, policies, functions, triggers, role attributes/memberships, schema/table/function ownership and ACLs, row-security enable/force flags, security-definer/search-path configuration, PUBLIC privileges, or quarantine grants.
 
 Migration SHALL disable or equivalently lock v1 governed writes, execute against a recorded source database/schema identity and transaction snapshot or WAL position, consume a content-addressed and authority-approved scope mapping, preserve every legacy row and identifier, reconcile pre/post row counts and source digest, and append an immutable migration ledger. The mapping contract SHALL make the dataset digest independently reproducible by fixing UTF-8 table-name order, primary-key row order, schema-ordinal column order, length-prefixed value framing, an explicit null marker, UTC RFC 3339 microsecond timestamps, lowercase-hex binary, canonical JSON, table metadata frames, and SHA-256 over the framed tables. Missing, conflicting, or ambiguous scope, concurrent source drift, reconciliation mismatch, or replay with a changed mapping SHALL abort atomically. Unverifiable legacy artifacts, approvals, and trace edges SHALL be copied only to a separate quarantine schema that runtime roles cannot query and authoritative tables, views, foreign keys, and gates cannot reference.
 
@@ -182,8 +185,8 @@ Migration SHALL disable or equivalently lock v1 governed writes, execute against
 - **WHEN** the v2 DDL is applied to an empty supported Postgres database and applied again
 - **THEN** both applications MUST succeed only after canonical introspection confirms the same resulting contract state
 
-#### Scenario: Same-named database object has drifted
-- **WHEN** a pre-existing table, policy, function, or trigger has the expected name but an incompatible definition or checksum
+#### Scenario: Same-named database object or security authority has drifted
+- **WHEN** a pre-existing table, policy, function, trigger, role attribute/membership, owner, ACL, row-security flag, function security/search path, PUBLIC privilege, or quarantine grant has the expected name but an incompatible definition or checksum
 - **THEN** v2 readiness MUST fail rather than silently accepting `IF NOT EXISTS`
 
 #### Scenario: Two-subject v1 database is migrated

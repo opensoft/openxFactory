@@ -1,3 +1,6 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## ADDED Requirements
 
 ### Requirement: Static role templates and runtime instances are distinct
@@ -41,7 +44,7 @@ Every Customer runtime instance SHALL identify its subject with domain-owned `cu
 - **THEN** conformance validation MUST fail closed
 
 ### Requirement: Runtime topology has durable identity and lifecycle cardinality
-The runtime topology SHALL record durable installation, stack, and layer identities plus an append-only layer registry. Topology states SHALL be the closed set `installing`, `configured`, `operational`, `suspended`, and `retired`; layer states SHALL be `provisioning`, `active`, `suspended`, `failed`, and `retired`, with terminal retirement and defined transitions. Provisioning may activate, fail, or retire; active and suspended layers may fail; failed layers may re-enter provisioning through governed recovery or retire. Installing permits at most one non-retired Client and Domain registration and no Customer registration; configured requires exactly one active Client and one active Domain and permits zero or more active Customers; operational additionally requires at least one active Customer. Suspended preserves registrations but permits no new jobs; retired requires every layer to be retired. Layer IDs, policy namespaces, and Customer subject tuples SHALL be protected by durable tombstones and unique for the lifetime of the stack.
+The runtime topology SHALL record immutable installation, stack, and layer identity registrations plus append-only installation, stack, and layer lifecycle events. Current lifecycle state SHALL be derived from the immutable initial registration and one linear, predecessor-linked event chain; any materialized current-state projection SHALL be non-authoritative, reconciled to that chain, and writable only through a governed transition operation. Direct identity/state mutation, event update/delete, a forked predecessor, and every transition out of `retired` SHALL fail. Topology states SHALL be the closed set `installing`, `configured`, `operational`, `suspended`, and `retired`; layer states SHALL be `provisioning`, `active`, `suspended`, `failed`, and `retired`, with terminal retirement and defined transitions. Provisioning may activate, fail, or retire; active and suspended layers may fail; failed layers may re-enter provisioning through governed recovery or retire. Installing permits at most one non-retired Client and Domain registration and no Customer registration; configured requires exactly one active Client and one active Domain and permits zero or more active Customers; operational additionally requires at least one active Customer. Suspended preserves registrations but permits no new jobs; retired requires every layer to be retired. Layer IDs, policy namespaces, and Customer subject tuples SHALL be protected by durable tombstones and unique for the lifetime of the stack.
 
 #### Scenario: Operational topology contains two Customer instances
 - **WHEN** one installation has one active Client layer, one active Domain layer, and two active Customer layers with distinct subject tuples and policy namespaces
@@ -62,6 +65,11 @@ The runtime topology SHALL record durable installation, stack, and layer identit
 #### Scenario: Retired identity is reused
 - **WHEN** a retired registration is deleted or a new layer attempts to reuse its layer ID, policy namespace, or customer-subject tuple
 - **THEN** validation MUST fail
+
+#### Scenario: Lifecycle history is bypassed or retirement is reversed
+- **WHEN** an actor directly changes an identity/current-state row, updates or deletes a lifecycle event, forks an event predecessor, or appends a transition out of `retired`
+- **THEN** persistence and conformance validation MUST fail
+- **AND** the derived lifecycle projection MUST remain reconciled to the immutable event chain
 
 ### Requirement: Runtime assembly pins are content-addressed
 Every canonical contract and single-file template used by a topology SHALL be pinned by canonical repository identity, repository-relative regular-file path, exact 40-hex commit, schema identifier/version where applicable, and SHA-256 digest. A directory overlay SHALL be pinned through a governed overlay manifest declaring one repository-relative `overlay_root`, a bytewise-sorted inventory of every regular file recursively below that root, per-file raw-byte SHA-256 digests, and the closed exclusions `.gitkeep` and an optional colocated generated digest inventory; the topology SHALL pin that manifest by commit and digest. Movable branches, tag-only references, missing or extra overlay members, symlink escapes, traversal, and digest drift SHALL fail closed.

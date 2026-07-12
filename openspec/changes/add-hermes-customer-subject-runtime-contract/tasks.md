@@ -1,3 +1,6 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## 1. Governance And Handoff
 
 - [x] 1.1 Record the user-ratified neutral customer-subject-instance decision, scope, compatibility policy, and Gate G0 exit conditions in the proposal, design, and delta specs.

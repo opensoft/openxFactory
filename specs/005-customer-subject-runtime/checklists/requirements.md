@@ -1,5 +1,7 @@
 # Specification Quality Checklist: Neutral Hermes Customer-Subject Runtime Contracts
 
+Status: draft
+
 **Purpose**: Validate specification completeness and quality before planning
 **Created**: 2026-07-12
 **Feature**: [spec.md](../spec.md)

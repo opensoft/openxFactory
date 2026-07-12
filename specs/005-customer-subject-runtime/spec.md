@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-12
 
-**Status**: Draft
+Status: draft
 
 **Input**: User description: "Resolve Gate G0 by encoding and realizing the universal Customer Hermes instance pattern at the openxFactory neutral level, validating multiple Customer instances in one installation, publishing a content-addressed bundle, and enabling Hermes Install to pin it before multi-subject work continues."
 
@@ -29,6 +29,7 @@ As a DomainxFactory author, I can declare one neutral Customer Hermes role templ
 5. **Given** an idempotent Customer-subject provisioning request, **When** the same key and subject are retried, **Then** exactly one layer and lifecycle record result; reuse with a different subject fails.
 6. **Given** an installing, suspended, failed, or retired topology, **When** its lifecycle is validated, **Then** singleton cardinality, no-new-job, governed recovery, and terminal-retirement rules are enforced for that state.
 7. **Given** a static `extension` layer, **When** it is used to represent another Customer subject, **Then** conformance rejects the evasion.
+8. **Given** immutable topology registrations and their lifecycle histories, **When** an actor directly mutates current state, changes/deletes an event, forks a predecessor, or attempts a transition out of retired, **Then** the operation fails and the derived projection remains reconciled to the append-only event chain.
 
 ---
 
@@ -68,7 +69,7 @@ As an installation operator, I can initialize the new operational contract or mi
 3. **Given** missing, conflicting, or ambiguous scope evidence, **When** migration runs, **Then** the transaction aborts without partial authoritative state.
 4. **Given** an artifact, approval, or trace record whose integrity or authority cannot be reconstructed, **When** migration runs, **Then** the record is preserved only in an inaccessible non-authoritative quarantine and cannot satisfy a gate or authoritative reference.
 5. **Given** the same migration ID with a changed source snapshot or mapping digest, **When** it is retried, **Then** replay fails closed.
-6. **Given** a same-named but incompatible pre-existing table, policy, function, or trigger, **When** readiness is evaluated, **Then** schema drift is reported instead of being silently accepted.
+6. **Given** a same-named but incompatible pre-existing table, policy, function, trigger, role attribute/membership, owner, ACL, RLS enable/force flag, security-definer/search-path configuration, PUBLIC privilege, or quarantine grant, **When** readiness is evaluated, **Then** security/catalog drift is reported instead of being silently accepted.
 7. **Given** a crash before migration commit, **When** the identical migration ID, source snapshot, and mapping are retried, **Then** zero partial authoritative state remains and the retry converges exactly once.
 8. **Given** a proposed single default Customer mapping, **When** the frozen legacy dataset does not prove exactly one subject across all governed rows, **Then** migration rejects the default.
 
@@ -113,7 +114,7 @@ As a Hermes Install maintainer, I can consume one published openxFactory bundle 
 - **FR-002**: The system MUST represent concrete runtime layers separately from static role templates.
 - **FR-003**: Every Customer instance MUST carry a domain-owned subject kind, issuer, namespace, pseudonymous surrogate reference in `urn:xfactory:subject:<uuid>` form, and pinned issuer-policy attestation.
 - **FR-004**: The subject-reference policy MUST permit only independently generated cryptographically random UUIDv4/UUIDv7 surrogates or approved keyed tokenization and MUST prohibit UUIDv1/v3/v5, direct identifiers, reversible encoding, raw or unkeyed hashes, and other deterministic unkeyed derivation from source identities.
-- **FR-005**: The runtime topology MUST enforce the closed topology transitions `installing -> configured`, `configured -> operational|retired`, `operational -> suspended|retired`, `suspended -> operational|retired`, with `retired` terminal; and the closed layer transitions `provisioning -> active|failed|retired`, `active -> suspended|failed|retired`, `suspended -> active|failed|retired`, `failed -> provisioning|retired`, with `retired` terminal. State behavior MUST include installing cardinality, configured/operational readiness, suspended no-new-job behavior, governed recovery from failure, and all-layer retirement.
+- **FR-005**: Installation, stack, and layer identity registrations MUST be immutable; lifecycle state MUST derive from an immutable initial state plus one append-only predecessor-linked event chain. Any current-state projection MUST be non-authoritative, governed-operation-only, and reconciled to that chain. Direct registration/state mutation, event update/delete, predecessor forks, and every transition out of `retired` MUST fail. The runtime topology MUST enforce the closed topology transitions `installing -> configured`, `configured -> operational|retired`, `operational -> suspended|retired`, `suspended -> operational|retired`, with `retired` terminal; and the closed layer transitions `provisioning -> active|failed|retired`, `active -> suspended|failed|retired`, `suspended -> active|failed|retired`, `failed -> provisioning|retired`, with `retired` terminal. State behavior MUST include installing cardinality, configured/operational readiness, suspended no-new-job behavior, governed recovery from failure, and all-layer retirement.
 - **FR-006**: An installing topology MUST allow at most one non-retired Client and Domain and no Customer; a configured topology MUST contain exactly one active Client and one active Domain; an operational topology MUST additionally contain at least one active Customer.
 - **FR-007**: Layer IDs, Customer subject tuples, and policy namespaces MUST remain globally unique within a stack through append-only registration and durable retirement tombstones.
 - **FR-008**: All single-file contracts/templates and directory overlays MUST be content-addressed at exact commits; overlay manifests MUST completely inventory their declared roots under closed exclusion rules.
@@ -134,7 +135,7 @@ As a Hermes Install maintainer, I can consume one published openxFactory bundle 
 - **FR-023**: Trace edges MUST bind digest-addressed source/target endpoints to the exact operation authorization, binding, and grants; trace evidence MUST NOT grant authority.
 - **FR-024**: V2 job, run, and event records MUST share the same neutral installation/stack/layer scope and MUST NOT require domain-specific nouns.
 - **FR-025**: Existing v1 contract paths, unchanged v1 envelope/run/event fixtures, and valid pinned consumers MUST remain supported through the additive compatibility bridge.
-- **FR-026**: The v2 operational contract MUST detect drifted pre-existing objects and MUST verify idempotent reapplication rather than relying on object names alone.
+- **FR-026**: The v2 operational contract MUST detect drifted pre-existing objects and MUST verify idempotent reapplication rather than relying on object names alone. Its canonical introspection MUST cover tables, policies, functions, triggers, role attributes/memberships, schema/table/function ownership and ACLs, `relrowsecurity`/`relforcerowsecurity`, security-definer/search-path configuration, PUBLIC execute/create privileges, and quarantine grants.
 - **FR-027**: Migration MUST require a typed, content-addressed, authority-approved mapping that fixes source snapshot identity, subject mappings, administrative/principal mappings, and a reproducible dataset-digest algorithm; a single default Customer mapping is permitted only when the frozen dataset proves exactly one subject across every governed row.
 - **FR-028**: Migration MUST freeze or equivalently lock v1 governed writes, preserve all IDs/rows, reconcile input/output evidence, and record an immutable migration ledger.
 - **FR-029**: Missing, ambiguous, conflicting, concurrently changed, or replay-drifted migration input MUST abort atomically.
@@ -151,16 +152,17 @@ As a Hermes Install maintainer, I can consume one published openxFactory bundle 
 - **FR-040**: Approval supersession by an unauthorized, expired, revoked, or wrong-scope issuer MUST fail closed.
 - **FR-041**: The operational contract and migration acceptance matrix MUST cover PostgreSQL major versions 15 and 16; expanding or removing a supported major requires governed compatibility evidence.
 - **FR-042**: Manifest bundle version, changelog heading, annotated tag, exact main-line commit, and release inventory MUST agree; release metadata MUST reject host-absolute paths, and removal of legacy `local_source_path` MUST be preceded by a recorded supported-consumer audit.
-- **FR-043**: Gate G0 closure evidence MUST record the exact landed Hermes Install repository commit, repository-relative compatibility-manifest/checker/runtime-binding/evidence paths and digests, and positive/negative command results.
+- **FR-043**: Gate G0 closure evidence MUST require canonical consumer repository `opensoft/xFactory-Hermes-Install`, reject the distinct `FarHeap/Hermes-Install` product, and record the exact landed consumer commit, repository-relative compatibility-manifest/checker/runtime-binding/evidence paths and digests, and positive/negative command results.
 - **FR-044**: Trust-anchor rotation or revocation MUST be authorized by the current anchor policy, new grants MUST validate through the active root set, and historical evidence MUST preserve and validate against the root chain active at its authorization time.
 - **FR-045**: Static DomainxFactory isolation vocabulary MUST add the neutral `per_customer_subject` value while retaining validation support for existing domain aliases such as `per_project`, `per_patient`, `per_ledger`, and `per_campaign` during the compatibility bridge.
 
 ### Key Entities
 
-- **Installation**: One deployed Hermes boundary with a durable identity, lifecycle, trust anchor, and exactly one stack for this G0 profile.
+- **Installation**: One deployed Hermes boundary with a durable immutable identity, event-derived lifecycle, trust anchor, and exactly one stack for this G0 profile.
 - **Stack**: The single DomainxFactory assembly within a G0 installation, bound to exact template and contract pins; general multi-stack installations remain out of scope.
 - **Role Template**: The single static Customer, Client, or Domain declaration a DomainxFactory supplies for reuse.
-- **Layer Instance**: A concrete runtime realization of a role template with durable identity, lifecycle, overlay pin, and policy namespace.
+- **Layer Instance**: A concrete runtime realization of a role template with durable immutable identity, event-derived lifecycle, overlay pin, and policy namespace.
+- **Topology Lifecycle Event**: An immutable predecessor-linked installation, stack, or layer transition whose chain is the authoritative source for current lifecycle state.
 - **Customer Subject**: The domain-owned kind plus governed pseudonymous surrogate that selects one repeatable Customer layer.
 - **Subject Reference Policy**: The issuer's pinned rules and attestation for non-linkable pseudonymous subject references.
 - **Overlay Manifest**: A complete content-addressed inventory for one declared overlay root.

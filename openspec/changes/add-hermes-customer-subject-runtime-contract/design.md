@@ -1,3 +1,6 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## Context
 
 `docs/xfactory-domain-factory-model.md` already establishes that each customer subject receives one Customer Hermes instance or logical team. The same neutral role maps to Project Hermes in codexFactory, Patient Hermes in MedxFactory, and Client Company or Ledger Hermes in LedgerxFactory. The current machine contracts do not realize that architecture: `xfactory-domain-stack.schema.yaml` and `validate-domain-factory.py` intentionally collapse the static declaration to one layer per canonical role, v1 job records still require the engineering noun `project`, and the v1 operational DDL has no installation/stack/layer scope.
@@ -46,7 +49,7 @@ Client and Domain instances must not carry `customer_subject`. Domain overlays m
 
 ### 3. Topology identity and cardinality are lifecycle-aware
 
-The topology records durable `installation_id`, `stack_id`, lifecycle state, an exact DomainxFactory/template pin, and an append-only registry of `layer_instances[]`. Each layer records a globally durable `layer_id`, canonical role, display name, unique policy namespace, exact overlay pin, and lifecycle state.
+The topology records immutable Installation, Stack, and Layer registrations with durable IDs, initial state, exact DomainxFactory/template pins, and append-only lifecycle-event chains. Each layer registration records a globally durable `layer_id`, canonical role, display name, unique policy namespace, exact overlay pin, and immutable initial state. Current state is derived from one predecessor-linked chain; any current-state projection is non-authoritative, reconciled to the chain, and writable only by a governed transition in the same transaction as event append. Direct registration/state mutation, lifecycle event update/delete, a forked predecessor, and every transition out of retired fail closed.
 
 - Topology states are `installing`, `configured`, `operational`, `suspended`, and `retired`; allowed transitions are installing to configured, configured to operational or retired, operational to suspended or retired, suspended to operational or retired, and no transition out of retired.
 - Layer states are `provisioning`, `active`, `suspended`, `failed`, and `retired`; provisioning may become active, failed, or retired; active may suspend, fail, or retire; suspended may reactivate, fail, or retire; failed may re-enter provisioning through a governed recovery or retire; retired is terminal.
@@ -55,7 +58,7 @@ The topology records durable `installation_id`, `stack_id`, lifecycle state, an 
 - `operational` requires exactly one active Client, exactly one active Domain, and at least one active Customer instance.
 - `suspended` preserves all registrations but permits no new governed jobs; `retired` requires terminal retirement of every layer and permits no new work.
 - A conformance fixture must contain at least two active Customer instances.
-- Layer registrations are never hard-deleted. Layer IDs, customer-subject tuples, and policy namespaces are protected by durable tombstones and are unique for the lifetime of the stack, including retired instances.
+- Registrations and lifecycle events are never updated or hard-deleted. Layer IDs, customer-subject tuples, and policy namespaces are protected by the registration plus terminal-event tombstone and are unique for the lifetime of the stack, including retired instances.
 
 Single-file pins use a canonical repository identifier, repository-relative regular-file path, exact 40-hex commit, schema identifier/version where applicable, and SHA-256 digest. Directory overlays are pinned through an `overlay-manifest.schema.yaml` document containing one repository-relative `overlay_root`, a bytewise-sorted inventory of every regular file recursively below that root, raw-file SHA-256 digests, and the closed exclusions `.gitkeep` and an optional colocated generated digest inventory. The runtime pin identifies and hashes that manifest. Branch-only, tag-only, unresolved, traversing, symlink-escaping, incomplete, or digest-drifted pins fail.
 
@@ -67,8 +70,15 @@ New contracts live under `contracts/hermes-runtime/`:
 - `customer-subject-reference-profile.schema.yaml`
 - `overlay-manifest.schema.yaml`
 - `runtime-topology.schema.yaml`
+- `installation-lifecycle-event.schema.yaml`
+- `stack-lifecycle-event.schema.yaml`
+- `layer-lifecycle-event.schema.yaml`
 - `installation-trust-anchor.schema.yaml`
 - `installation-trust-anchor-event.schema.yaml`
+- `principal.schema.yaml`
+- `principal-lifecycle-event.schema.yaml`
+- `database-principal-binding.schema.yaml`
+- `database-principal-binding-revocation.schema.yaml`
 - `authority-grant.schema.yaml`
 - `authority-grant-revocation.schema.yaml`
 - `cross-layer-binding.schema.yaml`
@@ -86,6 +96,7 @@ New contracts live under `contracts/hermes-runtime/`:
 - `hermes-job-event-v2.schema.yaml`
 - `hermes-operational-postgres-v2.sql`
 - `legacy-quarantine-record.schema.yaml`
+- `consumer-handoff-receipt.schema.yaml`
 - `migrations/v1-to-v2-mapping.schema.yaml`
 - `migrations/v1-to-v2.sql`
 
@@ -95,7 +106,7 @@ Every governed v2 record uses the same closed scope tuple: `installation_id`, `s
 
 ### 5. Isolation is default-deny; bindings authorize bounded operations
 
-Each Customer layer has a unique policy namespace and persistence scope. The v2 SQL contract separates a non-login migration/table-owner role, per-layer runtime principals, an installation control-plane principal, and an audit-export principal. Runtime principals have no `BYPASSRLS`, cannot assume owner/admin roles, and reach governed tables only under forced row-level security. A trusted security-definer scope setter maps `current_user` through an active, unexpired `assume_scope` authority grant and sets transaction-local scope; callers cannot supply an ungranted scope. Every transaction rechecks grant and principal/layer lifecycle state. Grant revocation or principal/layer retirement invalidates new scope and already-pooled connections. Connection checkout and return clear scope, and missing, malformed, stale, cross-installation, or reused scope fails closed. Installation administration grants no direct subject-data visibility. The control plane has only execute permission on governed operations and no direct table access.
+Each Customer layer has a unique policy namespace and persistence scope. The v2 SQL contract separates a non-login migration/table-owner role, per-layer runtime principals, an installation control-plane principal, and an audit-export principal. Runtime principals have no `BYPASSRLS`, cannot assume owner/admin roles, and reach governed tables only under forced row-level security. A trusted security-definer scope setter maps the authenticated `session_user` through an active, unexpired `assume_scope` authority grant and sets transaction-local scope; it MUST NOT authorize from `current_user`, which resolves to the function owner inside a security-definer function, and callers cannot supply an ungranted scope. Every transaction rechecks grant and principal/layer lifecycle state. Grant revocation or principal/layer retirement invalidates new scope and already-pooled connections. Connection checkout and return clear scope, and missing, malformed, stale, cross-installation, or reused scope fails closed. Installation administration grants no direct subject-data visibility. The control plane has only execute permission on governed operations and no direct table access.
 
 Each installation begins with one immutable, out-of-band-approved trust-anchor record whose key/principal and policy digest may issue only root-scoped grants. Every non-genesis authority grant cites an issuer grant authorized for `issue_grant`; validation walks to the active trusted anchor, rejects self-issuance and cycles, and enforces scope narrowing. Anchor rotation/revocation is an append-only event requiring the current anchor policy and does not rewrite historical evidence. Source-layer authority is required for disclosing a source resource.
 
@@ -113,7 +124,7 @@ Trace endpoints repeat type, ID, digest, and layer scope. Cross-layer edges cite
 
 ### 7. v2 coexists with v1 and migration requires explicit scope evidence
 
-The existing v1 schemas and tables remain unchanged and accepted with deprecation guidance. New consumers opt into the parallel v2 family. The v2 Postgres contract uses a dedicated authoritative namespace. Reapplication verifies canonical object definitions and checksums rather than trusting `IF NOT EXISTS`; same-named drifted tables, policies, functions, or triggers fail readiness.
+The existing v1 schemas and tables remain unchanged and accepted with deprecation guidance. New consumers opt into the parallel v2 family. The v2 Postgres contract uses a dedicated authoritative namespace. Reapplication verifies canonical object definitions and checksums rather than trusting `IF NOT EXISTS`; same-named drifted tables, policies, functions, triggers, role attributes/memberships, ownership/ACLs, row-security flags, security-definer/search-path configuration, PUBLIC privileges, trusted-schema writability, or quarantine grants fail readiness.
 
 The executable migration consumes a typed mapping manifest:
 
@@ -148,7 +159,7 @@ At realization, the next available additive bundle version is allocated. `contra
 
 The release is not published until the tag, manifest version, changelog heading, repository commit, inventory membership, and per-file digests agree. Removal of `source_compatibility_ref.local_source_path` occurs only after a repository-wide consumer audit proves it is unsupported metadata; canonical repository and source-commit fields remain, and the compatibility evidence is recorded so the release remains additive.
 
-Hermes Install must then record the canonical repository, bundle tag, exact commit, canonical manifest path/digest, unique contract IDs/paths/schema versions/digests, and release-inventory path/digest. Its compatibility-manifest digest is stored in the runtime manifest and realization evidence, never inside the compatibility manifest itself. The checker has an online G0 mode that proves the annotated tag exists on the canonical remote and dereferences to the commit, and an offline runtime mode that validates exact commit/tree/blob objects already present locally. Both modes fail closed for branch refs, tag-only pins, duplicate paths, missing bundle members, path traversal, symlinks, or digest drift. Gate evidence also records the exact landed Hermes Install commit plus repository-relative compatibility-manifest, checker, runtime-binding, and evidence paths/digests and the positive/negative command results.
+The Gate G0 consumer is canonical repository `opensoft/xFactory-Hermes-Install`; the distinct `FarHeap/Hermes-Install` single-layer product MUST be rejected by the handoff receipt. The xFactory installer must record the canonical openxFactory repository, bundle tag, exact commit, canonical manifest path/digest, unique contract IDs/paths/schema versions/digests, and release-inventory path/digest. Its compatibility-manifest digest is stored in the runtime manifest and realization evidence, never inside the compatibility manifest itself. The checker has an online G0 mode that proves the annotated tag exists on the canonical remote and dereferences to the commit, and an offline runtime mode that validates exact commit/tree/blob objects already present locally. Both modes fail closed for branch refs, tag-only pins, duplicate paths, missing bundle members, path traversal, symlinks, wrong consumer repository, or digest drift. Gate evidence also records the exact landed xFactory Hermes Install commit plus repository-relative compatibility-manifest, checker, runtime-binding, and evidence paths/digests and the positive/negative command results.
 
 The planned Hermes runtime currently exposes `project_ref`, `/projects`, and `provision-project`. Before it claims compatibility, the existing Hermes OpenSpec change and Speckit specification, plan, research, data model, contracts, quickstart, and tasks must consistently use customer-subject identity and lifecycle names; Project aliases remain in codexFactory specialization. Strict OpenSpec validation and Speckit analysis must pass after the Feature Integrator reconciles shared artifacts and task state.
 

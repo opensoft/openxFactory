@@ -1,3 +1,6 @@
+Status: ratified
+Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+
 ## ADDED Requirements
 
 ### Requirement: Scoped v2 Hermes job lifecycle records
