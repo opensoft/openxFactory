@@ -66,24 +66,42 @@ regression) — **no false-PASS path**: definitive signals provably never consul
 transport failure (None) → INCONCLUSIVE. 94 offline tests pass, including the full
 confirmation-matrix polarity tests.
 
-## ACR-005 disposition required (kernel owner)
+## ACR-005 disposition — RULED 2026-07-12: client-enforced revocation
 
 The finding is not "the harness can't observe termination" — it is **"this provider does not
-give a positive, in-bound (≤5 s) termination confirmation."** The disposition question:
+give a positive, in-bound (≤5 s) termination confirmation"** (abnormal 1006 close ~2.2 s;
+authoritative REST 404 ~8.1 s).
 
-1. **Accept the FAIL and refine ACR-005 to client-enforced revocation** *(recommended).* The
-   AVC revocation guarantee should be enforced at the client/broker — on revoke, tear down
-   the client's **own** media leg immediately (stop consuming/producing media locally) **and**
-   request provider hangup — so no media flows within the bound regardless of the provider's
-   ~8.1 s server-side settle. ACR-005 would specify *client-side stop + hangup-request within
-   5 s*, not *provider-confirmed termination within 5 s*. F0-D would then measure the
-   client-observable stop (harness-controlled, provable).
-2. **Redefine the bound as death-time (~2.2 s) and accept the abnormal 1006 as the signal.**
-   PASS-able, but rests on an ambiguous signal — a control-socket blip at 2.2 s would then
-   false-satisfy the kill guarantee; weakens the assurance.
-3. **Require a provider change** for an in-bound authoritative confirmation — depends on OpenAI.
+**Ruling (kernel owner, 2026-07-12): client-enforced revocation.** The AVC revocation
+guarantee is enforced at the client/broker: on revoke, the client stops its **own** media leg
+immediately (lease revoke → stop consuming/producing media locally) **and** requests provider
+hangup — so no media reaches the user within the bound regardless of the provider's ~8.1 s
+server-side settle. ACR-005 is clarified to require *client-side media stop + accepted
+provider revocation request within 5 s*, **not** *provider-confirmed termination within 5 s*.
+The provider's authoritative server-side settle is best-effort / eventually-consistent and is
+recorded as an informational observation, not a gate.
 
-Do **not** re-stamp `t_peer_terminal` or relax the probe to force a green before this decision.
+Basis for the ruling: the guarantee already lives where it is enforceable — the reference
+runtime (`implement-avatar-reference-runtime`) deterministically revokes the lease and
+terminates the attempt within an injected 5 s bound (`ARR-005-S05`; `control.py` `revoke()`,
+`consent.py` `REVOCATION_BOUND_TICKS`). F0-D's FAIL under the provider-confirmation reading
+therefore does **not** contradict the runtime; it confirms the contract must not delegate the
+kill guarantee to provider-side confirmation timing.
+
+Rejected alternatives: (b) death-time bound (~2.2 s) rests on the ambiguous 1006 — a
+control-socket blip would false-satisfy the kill guarantee; (c) requiring a provider change
+depends on OpenAI.
+
+### Downstream of this ruling (sequenced; governance-first)
+
+1. **Kernel — clarify ACR-005** (OpenSpec change, contract-first): revocation = client-side
+   media stop + accepted hangup request within 5 s; provider-side settle is informational.
+2. **F0 — redefine F0-D** *(follows ratification)*: PASS iff the provider revocation request
+   is accepted in-bound (`hangup` → 200); the provider-side settle verdict/time is recorded
+   informationally; the `hangup_to_terminal_ms` gate is retired in favor of a
+   request-accepted bound. Do **not** re-stamp `t_peer_terminal` to force a green before the
+   kernel clarification lands.
+3. **Runtime — no change**: `ARR-005-S05` already models client-enforced revocation.
 
 ## Provenance and redaction
 
