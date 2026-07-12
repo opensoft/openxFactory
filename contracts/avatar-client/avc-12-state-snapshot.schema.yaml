@@ -10,6 +10,21 @@ description: >-
   client-local and non-authoritative.
 type: object
 # Open object for additive fields; control_health/presentation vocab stays closed.
+# A snapshot is a canonical record and is structurally incapable of carrying a
+# credential, SDP, or raw media/provider payload wherever prohibited (spec
+# FR-018): the `not` forbids those exact keys regardless of additive evolution.
+not:
+  anyOf:
+    - {required: [sdp]}
+    - {required: [sdp_offer]}
+    - {required: [sdp_answer]}
+    - {required: [control_credential]}
+    - {required: [provider_credential]}
+    - {required: [credential]}
+    - {required: [raw_media]}
+    - {required: [audio_blob]}
+    - {required: [raw_transcript]}
+    - {required: [raw_provider_payload]}
 properties:
   logical_session_id: {type: string, minLength: 1}
   last_event_sequence: {$ref: "shared-definitions.schema.yaml#/$defs/last_event_sequence"}
@@ -17,7 +32,18 @@ properties:
   session_lifecycle: {type: string}
   control_health: {type: string, enum: [healthy, degraded, lost]}
   media_state: {type: string}
-  workflow_projection: {type: object}
+  workflow_projection:
+    type: object
+    not:
+      anyOf:
+        - {required: [sdp_answer]}
+        - {required: [control_credential]}
+        - {required: [provider_credential]}
+        - {required: [credential]}
+        - {required: [raw_media]}
+        - {required: [audio_blob]}
+        - {required: [raw_transcript]}
+        - {required: [raw_provider_payload]}
   session_outcome: {$ref: "shared-definitions.schema.yaml#/$defs/session_outcome"}
   presentation_mode:
     type: string

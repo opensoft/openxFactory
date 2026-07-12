@@ -220,6 +220,21 @@ cases:
       event_type: workflow_result
       event_class: authoritative
       producer: client
+  - case_id: avc04-payload-carries-credential
+    target: avc-04-session-event.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: []
+    # FR-018 structural exclusion: an AVC-04 payload MUST NOT carry a credential,
+    # SDP, or raw media/provider payload wherever prohibited.
+    instance:
+      event_id: e4
+      sequence: 8
+      event_type: workflow_result
+      event_class: authoritative
+      producer: broker
+      payload: {control_credential: redacted_placeholder}
 
   # ---------- AVC-06 structured confirmation ----------
   - case_id: avc06-valid
@@ -339,6 +354,19 @@ cases:
     instance:
       logical_session_id: s1
       state_revision: 40
+  - case_id: avc12-snapshot-carries-credential
+    target: avc-12-state-snapshot.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: []
+    # FR-018 structural exclusion: a state snapshot MUST NOT carry a credential,
+    # SDP, or raw media/provider payload wherever prohibited.
+    instance:
+      logical_session_id: s1
+      last_event_sequence: 42
+      state_revision: 40
+      control_credential: redacted_placeholder
 
   # ---------- redaction / telemetry ----------
   - case_id: telemetry-bounded-sentinel-ok
@@ -358,3 +386,34 @@ cases:
         redacted: true
         # bounded sentinel only — a real credential/SDP here would fail the scan
         example_token: "SENTINEL_BEARER_000000000000"
+
+# ---------- consumer-pinning cases (spec FR-023 / SCO-001-S03) ----------
+# Self-describing pin descriptors executed by the validator's
+# `content_addressed_pin` check. A content-addressed pin records the EXACT commit
+# AND a per-file SHA-256 digest for each pinned file; a tag-only pin does not and
+# MUST fail conformance. These are portable data — any consumer can apply the
+# same rule without the Python validator.
+release_pin_cases:
+  - case_id: pin-tag-only-rejected
+    expect: invalid
+    class: adversarial
+    scenario_ids: [SCO-001-S03]
+    evidence_id: TEST-SCO-001-S03
+    description: >-
+      A consumer that records only a bundle tag (no exact commit, no per-file
+      digests) is NOT content-addressed and MUST fail conformance (SCO-001-S03).
+    pin:
+      bundle_tag: avatar-client-contracts-v1.0.0
+  - case_id: pin-content-addressed-ok
+    expect: valid
+    class: valid
+    scenario_ids: [SCO-001-S03]
+    description: >-
+      A pin recording the exact commit plus a per-file SHA-256 digest for each
+      pinned file is content-addressed and conformant.
+    pin:
+      bundle_tag: avatar-client-contracts-v1.0.0
+      commit: "0123456789abcdef0123456789abcdef01234567"
+      file_digests:
+        contracts/avatar-client/shared-definitions.schema.yaml: "0000000000000000000000000000000000000000000000000000000000000000"
+        contracts/avatar-client/avc-01-session-request.schema.yaml: "1111111111111111111111111111111111111111111111111111111111111111"
