@@ -1,7 +1,11 @@
-# NotebookLM Ideas: notebooklm-import-test
+# NotebookLM Ideas: notebooklm-import-test — Brainstorm
 
 Status: brainstorm
 Kind: reference
+Summary: Imported NotebookLM notes testing the hybrid note/source round trip
+back to the originating brainstorm folder, including a restatement of the
+codexFactory governance lifecycle and sync protocol as L1 synthesis evidence.
+Topics: notebooklm-projection, ideation-lifecycle, document-lifecycle, sync-protocol
 Repository context: openxFactory
 Source workspace: test-canon
 Source workspace id: 70647cc5-3929-486e-8d04-aad89a0f4adb

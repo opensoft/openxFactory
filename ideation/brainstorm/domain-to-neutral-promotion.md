@@ -1,16 +1,23 @@
 # Domain-To-Neutral Concept Promotion — Brainstorm
 
 Status: staged
-Organized: this brainstorm was organized into
+Kind: architecture
+Summary: Sketches the trigger signals and lifecycle for promoting a
+domain-born concept into a neutral openxFactory contract (and devolving it
+back), so promotions can't half-neutralize a contract or orphan domain
+copies.
+Topics: domain-to-neutral-promotion, contract-ownership, roles-authority-model
+Repository context: openxFactory (contract-level, cross-factory topic)
+Captured: 2026-07-08
+Organized: 2026-07-08 into
 [docs/domain-to-neutral-promotion-process.md](../../docs/domain-to-neutral-promotion-process.md)
 and the seed
-[docs/domain-neutralization-candidate-register.md](../../docs/domain-neutralization-candidate-register.md)
-on 2026-07-08. The process doc is now the working definition; this file is
-kept as design history plus the open questions below that remain unresolved.
-Companion to [Doc Health Pipeline](doc-health-pipeline.md): that pipeline
-moves ideas through states *within* a repo; this one moves proven concepts
-*between* repo tiers. Nothing in this document is policy.
-Repository context: openxFactory (contract-level, cross-factory topic)
+[docs/domain-neutralization-candidate-register.md](../../docs/domain-neutralization-candidate-register.md).
+The process doc is now the working definition; this file is kept as design
+history plus the open questions below that remain unresolved. Companion to
+[Doc Health Pipeline](doc-health-pipeline.md): that pipeline moves ideas
+through states *within* a repo; this one moves proven concepts *between* repo
+tiers. Nothing in this document is policy.
 
 ## Problem
 

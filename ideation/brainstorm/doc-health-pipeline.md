@@ -1,18 +1,24 @@
 # Doc Health Pipeline — Brainstorm
 
 Status: staged
-Captured: 2026-07-08; fully organized 2026-07-09. Nothing in this document is
-policy; kept as design history. Where each section went:
-lifecycle vocabulary + ideation convention ->
+Kind: architecture
+Summary: Designs a two-layer doc-health pipeline — deterministic tag/validator
+checks plus a nightly agentic sweep — that makes the family's prose-vs-spec
+discipline machine-checkable, with openxFactory owning the contract and
+codexFactory owning execution.
+Topics: doc-health, prose-tagging, ideation-lifecycle, nightly-ci
+Repository context: openxFactory (contract-level, cross-factory topic)
+Captured: 2026-07-08
+Organized: 2026-07-09 — lifecycle vocabulary + ideation convention ->
 [add-document-lifecycle-vocabulary](../../openspec/changes/archive/2026-07-09-add-document-lifecycle-vocabulary/proposal.md)
 (ratified); prose tagging ->
 [concretize-prose-tagging-syntax](../../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md)
-(proposed, via [concretize-prose-tagging-syntax](../../openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/proposal.md);
-note: the doc-level `Status: spec-candidate` idea below was dropped at the
-proposal gate — candidacy is block-level only);
-nightly run + report -> [add-doc-health-contract](../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md);
-agentic pass -> [add-doc-health-semantic-sweep](../../openspec/changes/add-doc-health-semantic-sweep/proposal.md).
-Repository context: openxFactory (contract-level, cross-factory topic)
+(ratified; note: the doc-level `Status: spec-candidate` idea below was
+dropped at the proposal gate — candidacy is block-level only);
+nightly run + report -> [add-doc-health-contract](../../openspec/changes/archive/2026-07-09-add-doc-health-contract/proposal.md)
+(ratified); agentic pass ->
+[add-doc-health-semantic-sweep](../../openspec/changes/add-doc-health-semantic-sweep/proposal.md)
+(proposed). Nothing in this document is policy; kept as design history.
 Participants: Brett Heap, Claude (design session)
 
 ## Problem

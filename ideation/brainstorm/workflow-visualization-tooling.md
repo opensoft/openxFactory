@@ -1,10 +1,16 @@
-# Workflow Visualization Tooling Exploration
+# Workflow Visualization Tooling — Brainstorm
 
 Status: staged
+Kind: reference
+Summary: Surveys MIT-licensed open-source visualization libraries (Mermaid,
+React Flow, Cytoscape.js, XState, and others) and recommends an exploration
+order for the Client Hermes workflow-validation walkthrough UI.
+Topics: workflow-visualization, client-hermes, oss-license-evidence
+Repository context: openxFactory
+Captured: 2026-07-09
 Organized: 2026-07-09 into
 [adopt-workflow-visualization-stack](../../openspec/changes/archive/2026-07-09-adopt-workflow-visualization-stack/proposal.md);
 kept as evidence (license sources checked).
-Repository context: openxFactory
 Purpose: capture MIT-licensed open source visualization candidates for the Client
 Hermes user validation walkthrough.
 

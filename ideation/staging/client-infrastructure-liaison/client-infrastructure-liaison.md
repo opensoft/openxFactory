@@ -325,4 +325,4 @@ origin:
 - [Role Authority And Operating Models](role-authority-and-operating-models.md)
 - [Opsx Handoff And Readiness Contract](opsx-handoff-and-readiness-contract.md)
 - [Proposal Impact And Adoption Map](proposal-impact-and-adoption-map.md)
-- [Southside Operating Model Scenarios](southside-operating-model-scenarios.md)
+- [Southside Clinic Infrastructure Liaison Scenarios](southside-operating-model-scenarios.md)

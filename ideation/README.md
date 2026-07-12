@@ -48,9 +48,47 @@ Rules while this convention is in draft:
 - Each DomainxFactory keeps its own `ideation/` area for domain-scoped topics;
   cross-factory and contract-level topics belong here in openxFactory.
 
+## Brainstorm Header Format
+
+Every file under `brainstorm/` uses this title and header, in this order:
+
+- Title: `# <Title> — Brainstorm` — always end the H1 with the
+  ` — Brainstorm` suffix (imported/evidence files keep an identifying
+  prefix, e.g. `# NotebookLM Ideas: <workspace> — Brainstorm`), so
+  `grep '— Brainstorm$'` finds every brainstorm doc by title alone.
+- `Status:` — `brainstorm` (raw capture) or `staged` (organized; kept as
+  design history) per the [document lifecycle](../docs/document-lifecycle.md)
+  taxonomy. Status tracks lifecycle state, not folder — an organized
+  brainstorm file stays physically in `brainstorm/` with `Status: staged`.
+- `Kind:` — required; one of the recommended vocabulary (`architecture |
+  plan | process | runbook | report | register | template | reference`).
+- `Summary:` — required; one sentence stating what the document concludes or
+  proposes, not its intent — write it so a reader never has to open
+  `## Problem` to know what's inside.
+- `Topics:` — required; a comma-separated list of subject keywords (target
+  capability names where one exists, plus free-text terms), so `grep
+  'Topics:'` across `ideation/` surfaces every doc touching a subject
+  without reading prose bodies.
+- `Repository context:` — required.
+- `Captured:` — the date free-form thinking was captured here. Imported
+  evidence (e.g. a NotebookLM export) uses `Source workspace:` / `Source
+  workspace id:` / `Origin:` instead, since it wasn't authored in-session.
+- `Organized:` — present once the ideas move on; the date plus a link to
+  every destination (OpenSpec change, doc, or staged topic) they landed in,
+  and each link's current lifecycle word (`proposed` / `ratified`). Point
+  destination links at the change's *current* location (active vs.
+  archived) — a link left pointing at an active path after that change
+  archives, or a status word left saying "proposed" after it ratifies, is
+  the defect this format exists to catch.
+- `Participants:` — optional; who was in the design session.
+- `Purpose:` — optional; use in place of a `Problem` section for
+  evidence/reference-gathering brainstorms rather than design-exploration
+  ones.
+
 ## Contents
 
-Brainstorm (design history; both fully organized into staging):
+Brainstorm (design history; fully organized into staging or an archived
+proposal):
 
 - [Doc Health Pipeline](brainstorm/doc-health-pipeline.md) — split into the
   prose-tagging, doc-health-checks, and semantic-health-sweep staged topics;
@@ -62,27 +100,22 @@ Brainstorm (design history; both fully organized into staging):
 - [Workflow Visualization Tooling](brainstorm/workflow-visualization-tooling.md)
   — organized into the workflow-visualization staged topic; kept as license
   evidence.
+- [OpenSpec × Speckit Release Flow](brainstorm/openspec-speckit-release-flow.md)
+  — organized into the archived
+  [add-release-realization-flow](../openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
+  change: release targets, delta-driven feat decomposition, and the archive
+  gate binding to merge evidence.
 
 Brainstorm (active):
 
-- [OpenSpec × Speckit Release Flow](brainstorm/openspec-speckit-release-flow.md)
-  — brownfield realization axis: release targets, delta-driven feat
-  decomposition, and the archive gate binding to merge evidence.
+- [Ideation Cross-Reference Readiness Index](brainstorm/ideation-cross-reference-readiness.md)
+  — topic-indexed cross-reference across brainstorm/staging/archive, scored
+  1-10 for staging readiness by three Hermes-tier reviewers; open questions on
+  the project-layer definition and score-combination rule remain unresolved.
 
-Staged topics:
-
-- [client-infrastructure-liaison](staging/client-infrastructure-liaison/client-infrastructure-liaison.md)
-  — adds a neutral Client Hermes coordination role and structured request
-  lifecycle for client-managed, managed-host, or OpsxFactory-executed
-  infrastructure dependencies without granting domain agents tenant
-  administration authority.
-- [proposal-origin-contract](staging/proposal-origin-contract/origin-contract.md)
-  — requires every OpenSpec proposal to identify a durable staging origin or
-  an explicitly approved ad-hoc origin; this topic must dogfood the staged
-  origin path when it becomes a proposal. Its supporting
-  [FDA SaMD traceability rationale](staging/proposal-origin-contract/fda-samd-traceability-rationale.md)
-  records why origin provenance is necessary but not sufficient for regulated
-  device-software traceability.
+Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
+inventory of every topic under `staging/` — update it, not this list, when a
+staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 

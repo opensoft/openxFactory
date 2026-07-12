@@ -1,13 +1,17 @@
 # OpenSpec × Speckit Release Flow (Brownfield) — Brainstorm
 
 Status: staged
-Captured: 2026-07-09; organized 2026-07-09 into
+Kind: architecture
+Summary: Proposes a two-axis (spec status x realization) model for brownfield
+OpenSpec changes with a code surface, binding the archive gate to Spec Kit
+merge evidence instead of doc-landing.
+Topics: release-realization, openspec-speckit-integration, archive-gate, brownfield-tracking
+Repository context: openxFactory (contract-level, cross-factory topic)
+Captured: 2026-07-09
+Organized: 2026-07-09 into
 [add-release-realization-flow](../../openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
-and proposed as
-[add-release-realization-flow](../../openspec/changes/add-release-realization-flow/proposal.md)
 after the implement-doc-health-checker pilot answered the open questions.
 Kept as design history. Nothing in this document is policy.
-Repository context: openxFactory (contract-level, cross-factory topic)
 Participants: Brett Heap, Claude (design session)
 
 ## Problem
