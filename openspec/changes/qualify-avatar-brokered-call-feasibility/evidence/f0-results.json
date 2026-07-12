@@ -3,38 +3,38 @@
     {
       "failed_trials": 0,
       "id": "F0-A-ORDERING",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 20,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-A-SINGLE_CALL",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 20,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-B-ORDERING",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-B-WITHIN_CEILING",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-C-NO_MEDIA",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-C-READINESS_TIMEOUT",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 5,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
@@ -51,26 +51,24 @@
     {
       "failed_trials": 0,
       "id": "F0-E-SINGLE_CALL",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-F-IDEMPOTENCY",
-      "passed_trials": 0,
-      "status": "INCONCLUSIVE"
+      "passed_trials": 10,
+      "status": "PASS"
     },
     {
       "failed_trials": 0,
       "id": "F0-D-INTERRUPTED",
-      "note": "not executed (no lab credential)",
       "passed_trials": 0,
       "status": "INCONCLUSIVE"
     },
     {
       "failed_trials": 0,
       "id": "F0-D-BOUNDED_CLEANUP",
-      "note": "not executed (no lab credential)",
       "passed_trials": 0,
       "status": "INCONCLUSIVE"
     }
@@ -78,7 +76,7 @@
   "candidate": {
     "interaction_mode": "provider_vad",
     "requested_model": "gpt-realtime-2.1",
-    "resolved_model": "unresolved",
+    "resolved_model": "gpt-realtime-2.1",
     "turn_detection": {
       "create_response": true,
       "interrupt_response": true,
@@ -100,16 +98,16 @@
     },
     "docs_retrieved_at": "2026-07-10T00:00:00Z",
     "lab_project_ref": "lab:f0-brokered-call",
-    "network_type": "none",
+    "network_type": "webrtc",
     "region": null,
     "runtime": "python3.12"
   },
   "metrics": {
     "first_playable_after_authorized_ms": {
-      "count": 0,
-      "max": 0.0,
-      "p50": 0.0,
-      "p95": 0.0
+      "count": 30,
+      "max": 675.219,
+      "p50": 610.203,
+      "p95": 636.157
     },
     "hangup_to_terminal_ms": {
       "count": 0,
@@ -118,10 +116,10 @@
       "p95": 0.0
     },
     "sideband_ready_ms": {
-      "count": 0,
-      "max": 0.0,
-      "p50": 0.0,
-      "p95": 0.0
+      "count": 30,
+      "max": 1587.295,
+      "p50": 754.811,
+      "p95": 1573.685
     }
   },
   "overall": "INCONCLUSIVE",
@@ -130,49 +128,49 @@
     "prohibited_findings": 0,
     "status": "PASS"
   },
-  "report_sha256": "1b2dab5b357228a10ff3c858b66bb24767ac80e58617958c06135b8f97fdb417",
+  "report_sha256": "4ec0cc90bc5fda11d070104ac783beaf533d40b4d8b897e0da6a3aeb0a4600bf",
   "started_at": "2026-07-11T00:00:00Z",
   "trial_groups": [
     {
-      "completed": 0,
+      "completed": 20,
       "failed": 0,
       "id": "F0-A",
-      "passed": 0,
+      "passed": 20,
       "planned": 20
     },
     {
-      "completed": 0,
+      "completed": 10,
       "failed": 0,
       "id": "F0-B",
-      "passed": 0,
+      "passed": 10,
       "planned": 10
     },
     {
-      "completed": 0,
+      "completed": 10,
       "failed": 0,
       "id": "F0-C",
-      "passed": 0,
+      "passed": 10,
       "planned": 10
     },
     {
-      "completed": 0,
+      "completed": 10,
       "failed": 0,
       "id": "F0-D",
       "passed": 0,
       "planned": 10
     },
     {
-      "completed": 0,
+      "completed": 10,
       "failed": 0,
       "id": "F0-E",
-      "passed": 0,
+      "passed": 10,
       "planned": 10
     },
     {
-      "completed": 0,
+      "completed": 10,
       "failed": 0,
       "id": "F0-F",
-      "passed": 0,
+      "passed": 10,
       "planned": 10
     }
   ],
@@ -182,11 +180,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1479.247,
+        "t_answer_released": 1478.016,
+        "t_first_input_sent": 1479.249,
+        "t_first_output_playable": 2088.285,
+        "t_lease_ack": 1478.021,
+        "t_media_authorized": 1478.024,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 1381.366,
+        "t_sideband_verified": 1478.005
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "8f259a0c7125b555710df219947c93dbad95ee710383bda4a9de249b2edaff85",
+      "status": "PASS",
       "trial_id": "F0-A-01"
     },
     {
@@ -194,11 +202,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 864.055,
+        "t_answer_released": 863.048,
+        "t_first_input_sent": 864.059,
+        "t_first_output_playable": 1456.169,
+        "t_lease_ack": 863.054,
+        "t_media_authorized": 863.058,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 785.118,
+        "t_sideband_verified": 863.032
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "4ef37b44b158dcc1dbecd3f98bab5a4fe71683e567158171ef40767ba038ada7",
+      "status": "PASS",
       "trial_id": "F0-A-02"
     },
     {
@@ -206,11 +224,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 747.189,
+        "t_answer_released": 746.282,
+        "t_first_input_sent": 747.191,
+        "t_first_output_playable": 1329.368,
+        "t_lease_ack": 746.284,
+        "t_media_authorized": 746.286,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 673.681,
+        "t_sideband_verified": 746.274
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "ffc20b02c155d440447c89c070ec7271d029e4dfde18b12150c959a3e9d9f717",
+      "status": "PASS",
       "trial_id": "F0-A-03"
     },
     {
@@ -218,11 +246,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 746.687,
+        "t_answer_released": 745.87,
+        "t_first_input_sent": 746.688,
+        "t_first_output_playable": 1377.175,
+        "t_lease_ack": 745.872,
+        "t_media_authorized": 745.874,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 640.73,
+        "t_sideband_verified": 745.861
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "b7f9c2cb1eadde5ce6a69334c1e05e78c88b2e32675dd9fa09c9add472dbd7dd",
+      "status": "PASS",
       "trial_id": "F0-A-04"
     },
     {
@@ -230,11 +268,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 728.144,
+        "t_answer_released": 727.177,
+        "t_first_input_sent": 728.146,
+        "t_first_output_playable": 1338.908,
+        "t_lease_ack": 727.18,
+        "t_media_authorized": 727.182,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 651.92,
+        "t_sideband_verified": 727.168
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "c0c7c20daf90cbc29e23f43c1889a47d82b98873bb78a2caae89a48d1356b6b3",
+      "status": "PASS",
       "trial_id": "F0-A-05"
     },
     {
@@ -242,11 +290,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 706.444,
+        "t_answer_released": 705.593,
+        "t_first_input_sent": 706.445,
+        "t_first_output_playable": 1328.548,
+        "t_lease_ack": 705.596,
+        "t_media_authorized": 705.598,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 639.02,
+        "t_sideband_verified": 705.584
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "41e1674a28c6c3283e1e86da7fcf8536e6158f1d910184eda4cc2fc533d093be",
+      "status": "PASS",
       "trial_id": "F0-A-06"
     },
     {
@@ -254,11 +312,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 649.773,
+        "t_answer_released": 648.533,
+        "t_first_input_sent": 649.776,
+        "t_first_output_playable": 1249.578,
+        "t_lease_ack": 648.537,
+        "t_media_authorized": 648.54,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 565.168,
+        "t_sideband_verified": 648.519
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "06230ef140e73cceb6dc829f87262bd1019d26840a4a6850336dd2eaed5b8a87",
+      "status": "PASS",
       "trial_id": "F0-A-07"
     },
     {
@@ -266,11 +334,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 658.759,
+        "t_answer_released": 657.626,
+        "t_first_input_sent": 658.763,
+        "t_first_output_playable": 1250.732,
+        "t_lease_ack": 657.629,
+        "t_media_authorized": 657.632,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 584.855,
+        "t_sideband_verified": 657.613
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "fd8cc55ab397e93bed55e24804894a4aa22576ed9c64bd08d1858bd6c1a90bae",
+      "status": "PASS",
       "trial_id": "F0-A-08"
     },
     {
@@ -278,11 +356,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 845.857,
+        "t_answer_released": 842.35,
+        "t_first_input_sent": 845.861,
+        "t_first_output_playable": 1462.801,
+        "t_lease_ack": 842.353,
+        "t_media_authorized": 842.354,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 740.754,
+        "t_sideband_verified": 842.342
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "dbf32757961cfd81140374c6c318041645b172732ed0ef7ded764eeb594a20ad",
+      "status": "PASS",
       "trial_id": "F0-A-09"
     },
     {
@@ -290,11 +378,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 681.595,
+        "t_answer_released": 680.853,
+        "t_first_input_sent": 681.597,
+        "t_first_output_playable": 1297.628,
+        "t_lease_ack": 680.856,
+        "t_media_authorized": 680.858,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 589.238,
+        "t_sideband_verified": 680.844
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "4dfd6eb2988be928edd69054692de11d93e5c2f4301a93ff2499644fe78cbe91",
+      "status": "PASS",
       "trial_id": "F0-A-10"
     },
     {
@@ -302,11 +400,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 717.134,
+        "t_answer_released": 713.882,
+        "t_first_input_sent": 717.137,
+        "t_first_output_playable": 1308.362,
+        "t_lease_ack": 713.885,
+        "t_media_authorized": 713.886,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 641.628,
+        "t_sideband_verified": 713.873
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "d885a488b00a7422212b16920db68b014a5ffcc98876cbf0e1a7e8d7b6f16e16",
+      "status": "PASS",
       "trial_id": "F0-A-11"
     },
     {
@@ -314,11 +422,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 735.27,
+        "t_answer_released": 734.218,
+        "t_first_input_sent": 735.275,
+        "t_first_output_playable": 1345.796,
+        "t_lease_ack": 734.221,
+        "t_media_authorized": 734.224,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 647.681,
+        "t_sideband_verified": 734.21
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "a11c467a84aa103770c76c1ab0947e9454be95d204e27a56d384a6b9d2b3f61f",
+      "status": "PASS",
       "trial_id": "F0-A-12"
     },
     {
@@ -326,11 +444,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 706.06,
+        "t_answer_released": 705.33,
+        "t_first_input_sent": 706.061,
+        "t_first_output_playable": 1380.554,
+        "t_lease_ack": 705.333,
+        "t_media_authorized": 705.335,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 634.105,
+        "t_sideband_verified": 705.322
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "811faeb446709464c64a9514be65076916bd6d1ef4204b2b568b30765957fb10",
+      "status": "PASS",
       "trial_id": "F0-A-13"
     },
     {
@@ -338,11 +466,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 762.165,
+        "t_answer_released": 761.172,
+        "t_first_input_sent": 762.168,
+        "t_first_output_playable": 1399.117,
+        "t_lease_ack": 761.174,
+        "t_media_authorized": 761.176,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 664.915,
+        "t_sideband_verified": 761.161
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "df84907851f50c97ee1e3171997cbf2a4a2f91de3b0dbc66516a7eb569c6a9a9",
+      "status": "PASS",
       "trial_id": "F0-A-14"
     },
     {
@@ -350,11 +488,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 754.562,
+        "t_answer_released": 748.473,
+        "t_first_input_sent": 754.569,
+        "t_first_output_playable": 1382.457,
+        "t_lease_ack": 748.477,
+        "t_media_authorized": 748.48,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 666.657,
+        "t_sideband_verified": 748.461
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "2c446d0606b9c0de01ad80ed42a9266832e7b90b2951a81ed10f2254c3522738",
+      "status": "PASS",
       "trial_id": "F0-A-15"
     },
     {
@@ -362,11 +510,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 708.183,
+        "t_answer_released": 707.195,
+        "t_first_input_sent": 708.185,
+        "t_first_output_playable": 1339.402,
+        "t_lease_ack": 707.198,
+        "t_media_authorized": 707.201,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 613.02,
+        "t_sideband_verified": 707.183
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "143508439a99f9d88dc3ddfe7c4ec39df53af235aa429e532d4af490197397e7",
+      "status": "PASS",
       "trial_id": "F0-A-16"
     },
     {
@@ -374,11 +532,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 705.267,
+        "t_answer_released": 703.755,
+        "t_first_input_sent": 705.272,
+        "t_first_output_playable": 1331.364,
+        "t_lease_ack": 703.759,
+        "t_media_authorized": 703.762,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 642.677,
+        "t_sideband_verified": 703.741
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "acea8dc7021cc743787bc42a7dbabbeb35741160421f3450698d4512c9323f48",
+      "status": "PASS",
       "trial_id": "F0-A-17"
     },
     {
@@ -386,11 +554,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 718.684,
+        "t_answer_released": 717.951,
+        "t_first_input_sent": 718.685,
+        "t_first_output_playable": 1332.432,
+        "t_lease_ack": 717.953,
+        "t_media_authorized": 717.955,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 634.447,
+        "t_sideband_verified": 717.943
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "9f1c206b64649b066f96ad4b252405dee458414f2a6e86864bcce2650f29f564",
+      "status": "PASS",
       "trial_id": "F0-A-18"
     },
     {
@@ -398,11 +576,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 820.916,
+        "t_answer_released": 820.191,
+        "t_first_input_sent": 820.917,
+        "t_first_output_playable": 1433.348,
+        "t_lease_ack": 820.193,
+        "t_media_authorized": 820.195,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 733.284,
+        "t_sideband_verified": 820.182
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "014695331e5a7ed82d71e9a632940cfaa225a9dd2ec75994b1852598b4c43a49",
+      "status": "PASS",
       "trial_id": "F0-A-19"
     },
     {
@@ -410,11 +598,21 @@
         "F0-A-ORDERING",
         "F0-A-SINGLE_CALL"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 686.515,
+        "t_answer_released": 685.545,
+        "t_first_input_sent": 686.517,
+        "t_first_output_playable": 1270.249,
+        "t_lease_ack": 685.548,
+        "t_media_authorized": 685.551,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 613.732,
+        "t_sideband_verified": 685.534
+      },
       "group_id": "F0-A",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "87955df85790256af0276ee3e8f0a4d9265c0fc43650091e89f8713e8b707527",
+      "status": "PASS",
       "trial_id": "F0-A-20"
     },
     {
@@ -422,11 +620,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1591.449,
+        "t_answer_released": 1587.303,
+        "t_first_input_sent": 1591.454,
+        "t_first_output_playable": 2177.443,
+        "t_lease_ack": 1587.306,
+        "t_media_authorized": 1587.308,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 691.278,
+        "t_sideband_verified": 1587.295
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "5ea0b20c59b299bc7fe5a609390ac44e7c2d551737364ded64fd136d940b5c3b",
+      "status": "PASS",
       "trial_id": "F0-B-01"
     },
     {
@@ -434,11 +642,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1531.01,
+        "t_answer_released": 1530.162,
+        "t_first_input_sent": 1531.014,
+        "t_first_output_playable": 2139.525,
+        "t_lease_ack": 1530.165,
+        "t_media_authorized": 1530.167,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 653.192,
+        "t_sideband_verified": 1530.154
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "ae4ea77a9b6d4decbcfa6f6dd8fd1ef9a74940e53fc338cd17fd1e63064ac586",
+      "status": "PASS",
       "trial_id": "F0-B-02"
     },
     {
@@ -446,11 +664,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1496.567,
+        "t_answer_released": 1495.801,
+        "t_first_input_sent": 1496.569,
+        "t_first_output_playable": 2078.068,
+        "t_lease_ack": 1495.808,
+        "t_media_authorized": 1495.811,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 618.686,
+        "t_sideband_verified": 1495.784
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "6dbc687f79a9403bc8b8beef121a46d08a71dc993f1e08e34c8a596b392ca835",
+      "status": "PASS",
       "trial_id": "F0-B-03"
     },
     {
@@ -458,11 +686,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1468.221,
+        "t_answer_released": 1467.423,
+        "t_first_input_sent": 1468.222,
+        "t_first_output_playable": 2077.574,
+        "t_lease_ack": 1467.427,
+        "t_media_authorized": 1467.429,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 589.584,
+        "t_sideband_verified": 1467.414
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "35d54f172f67baa920d420ed040f7fbf79a28c4e401cdf7b1af5a3ba54d1cf56",
+      "status": "PASS",
       "trial_id": "F0-B-04"
     },
     {
@@ -470,11 +708,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1565.793,
+        "t_answer_released": 1564.925,
+        "t_first_input_sent": 1565.795,
+        "t_first_output_playable": 2170.755,
+        "t_lease_ack": 1564.928,
+        "t_media_authorized": 1564.93,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 697.954,
+        "t_sideband_verified": 1564.904
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "e4fc86a8e180014dd84a2b9fcf67cb44a83191a1e7d6ba1a080c390ee50b168b",
+      "status": "PASS",
       "trial_id": "F0-B-05"
     },
     {
@@ -482,11 +730,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1412.766,
+        "t_answer_released": 1411.797,
+        "t_first_input_sent": 1412.769,
+        "t_first_output_playable": 1985.385,
+        "t_lease_ack": 1411.801,
+        "t_media_authorized": 1411.804,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 529.054,
+        "t_sideband_verified": 1411.787
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "3eae996109379da8e760525d78d4e1fe07a4a210b2d5dfb3044df6f7c283c954",
+      "status": "PASS",
       "trial_id": "F0-B-06"
     },
     {
@@ -494,11 +752,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1497.439,
+        "t_answer_released": 1496.703,
+        "t_first_input_sent": 1497.44,
+        "t_first_output_playable": 2084.537,
+        "t_lease_ack": 1496.707,
+        "t_media_authorized": 1496.709,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 619.042,
+        "t_sideband_verified": 1496.694
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "3e7ee58b5b80cf0063ebb2c3d9d07c9aee8a4984144ee34749c85b8660ac25b7",
+      "status": "PASS",
       "trial_id": "F0-B-07"
     },
     {
@@ -506,11 +774,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1584.797,
+        "t_answer_released": 1580.88,
+        "t_first_input_sent": 1584.8,
+        "t_first_output_playable": 2162.796,
+        "t_lease_ack": 1580.882,
+        "t_media_authorized": 1580.884,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 695.523,
+        "t_sideband_verified": 1580.87
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "8729a5326bb67eb75f0ccaa81977c78f457d4f2d6e8d19a11af63bc2557760e7",
+      "status": "PASS",
       "trial_id": "F0-B-08"
     },
     {
@@ -518,11 +796,21 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1494.583,
+        "t_answer_released": 1493.491,
+        "t_first_input_sent": 1494.586,
+        "t_first_output_playable": 2105.279,
+        "t_lease_ack": 1493.494,
+        "t_media_authorized": 1493.496,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 610.086,
+        "t_sideband_verified": 1493.482
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "5002130640fcc0dcfda5692221558eacfb53742a97061e86fdccfae351b5b5d8",
+      "status": "PASS",
       "trial_id": "F0-B-09"
     },
     {
@@ -530,23 +818,36 @@
         "F0-B-ORDERING",
         "F0-B-WITHIN_CEILING"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 1531.921,
+        "t_answer_released": 1531.044,
+        "t_first_input_sent": 1531.922,
+        "t_first_output_playable": 2126.05,
+        "t_lease_ack": 1531.048,
+        "t_media_authorized": 1531.05,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 657.582,
+        "t_sideband_verified": 1531.034
+      },
       "group_id": "F0-B",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "f0589b146aae52299a4e61e5fe5d25c775348296464a9106265bde6384be3f2c",
+      "status": "PASS",
       "trial_id": "F0-B-10"
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA",
-        "F0-C-READINESS_TIMEOUT"
+        "F0-C-NO_MEDIA"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 588.457,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 588.447
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "ca6f66b8431c7d98063e844d94e77eea5b7947df1b5aa317626900c8ab801d96",
+      "status": "PASS",
       "trial_id": "F0-C-01"
     },
     {
@@ -554,23 +855,30 @@
         "F0-C-NO_MEDIA",
         "F0-C-READINESS_TIMEOUT"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 3849.18,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 640.123
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "a16ef63cf1d735dadaf0a46273ddf92fd58e0ff059f75e2eb24c90cb993d9f3c",
+      "status": "PASS",
       "trial_id": "F0-C-02"
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA",
-        "F0-C-READINESS_TIMEOUT"
+        "F0-C-NO_MEDIA"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 620.613,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 620.603
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "6c1ad412ef1a0f5160c227576be5889de4e412eed311d6be58db1129bdeed979",
+      "status": "PASS",
       "trial_id": "F0-C-03"
     },
     {
@@ -578,23 +886,30 @@
         "F0-C-NO_MEDIA",
         "F0-C-READINESS_TIMEOUT"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 3802.014,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 589.194
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "d82226b1f2a1415be3821a2933141819b4c61914dd4aeb59b0c26aea96f7e59f",
+      "status": "PASS",
       "trial_id": "F0-C-04"
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA",
-        "F0-C-READINESS_TIMEOUT"
+        "F0-C-NO_MEDIA"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 585.526,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 585.517
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "a92bc5ab5da367c42e6192fe46924e8e6e90d569c12c081c0d3a1dd6503cafec",
+      "status": "PASS",
       "trial_id": "F0-C-05"
     },
     {
@@ -602,23 +917,30 @@
         "F0-C-NO_MEDIA",
         "F0-C-READINESS_TIMEOUT"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 4009.233,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 804.845
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "34744d272bfb793638e3e826b9197d992eb73d5d291e38135115643df1eedb78",
+      "status": "PASS",
       "trial_id": "F0-C-06"
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA",
-        "F0-C-READINESS_TIMEOUT"
+        "F0-C-NO_MEDIA"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 703.897,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 703.888
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "c4cff4f8b79b0ac647fbe83d7045c4b653653257de8ab2cc35e830d36992b895",
+      "status": "PASS",
       "trial_id": "F0-C-07"
     },
     {
@@ -626,23 +948,30 @@
         "F0-C-NO_MEDIA",
         "F0-C-READINESS_TIMEOUT"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 3903.063,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 696.602
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "2ef588b3420932f3a31bd7d22c40b4ccd6bfc8f82d6d08ddc422417025a356fd",
+      "status": "PASS",
       "trial_id": "F0-C-08"
     },
     {
       "assertion_ids": [
-        "F0-C-NO_MEDIA",
-        "F0-C-READINESS_TIMEOUT"
+        "F0-C-NO_MEDIA"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 665.013,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 665.005
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "52023ad1e64a56113a4ee157f4a0ab8d702e3c9af491a50d27cf9b3fee50045c",
+      "status": "PASS",
       "trial_id": "F0-C-09"
     },
     {
@@ -650,11 +979,15 @@
         "F0-C-NO_MEDIA",
         "F0-C-READINESS_TIMEOUT"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_hangup_sent": 3921.977,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_sideband_open": 712.931
+      },
       "group_id": "F0-C",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "0b0bf6e28ea124041ce022da04934ee1ec2cc84947db139cf9e330f2e8c9dd1a",
+      "status": "PASS",
       "trial_id": "F0-C-10"
     },
     {
@@ -662,10 +995,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 871.561,
+        "t_answer_released": 870.48,
+        "t_first_input_sent": 871.563,
+        "t_first_output_playable": 1488.553,
+        "t_hangup_sent": 3995.333,
+        "t_lease_ack": 870.485,
+        "t_media_authorized": 870.488,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3778.996,
+        "t_sideband_open": 771.485,
+        "t_sideband_verified": 870.47
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "debc589e9ca8690111c64dc569f82942cd0166625c2dbbe32d652515c28ecb15",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-01"
     },
@@ -674,10 +1020,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 645.433,
+        "t_answer_released": 644.637,
+        "t_first_input_sent": 645.435,
+        "t_first_output_playable": 1203.303,
+        "t_hangup_sent": 3674.036,
+        "t_lease_ack": 644.64,
+        "t_media_authorized": 644.642,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3462.342,
+        "t_sideband_open": 572.561,
+        "t_sideband_verified": 644.627
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "d64701d828d438abc2f68130846ef93752ab0764f3fe8d21dd56d9efad65425b",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-02"
     },
@@ -686,10 +1045,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 673.147,
+        "t_answer_released": 672.414,
+        "t_first_input_sent": 673.149,
+        "t_first_output_playable": 1256.449,
+        "t_hangup_sent": 3726.737,
+        "t_lease_ack": 672.416,
+        "t_media_authorized": 672.418,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3524.904,
+        "t_sideband_open": 596.507,
+        "t_sideband_verified": 672.405
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "549b84909d121a08a0fa4fa395269fa7be904f75f17da78fb29ca862db732def",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-03"
     },
@@ -698,10 +1070,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 740.764,
+        "t_answer_released": 737.203,
+        "t_first_input_sent": 740.768,
+        "t_first_output_playable": 1342.55,
+        "t_hangup_sent": 3822.938,
+        "t_lease_ack": 737.206,
+        "t_media_authorized": 737.207,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3618.028,
+        "t_sideband_open": 664.985,
+        "t_sideband_verified": 737.194
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "34050ddb5dc7517e2dbd80bc286be2414ad52dcbe87ab48cc1a351ad5f5f22a7",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-04"
     },
@@ -710,10 +1095,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 724.155,
+        "t_answer_released": 723.247,
+        "t_first_input_sent": 724.157,
+        "t_first_output_playable": 1306.165,
+        "t_hangup_sent": 3782.487,
+        "t_lease_ack": 723.251,
+        "t_media_authorized": 723.253,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3583.177,
+        "t_sideband_open": 650.051,
+        "t_sideband_verified": 723.235
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "aeef69948bbe0645d98753cd04deed59e21edb9c75f483023cef5e73f39b4a53",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-05"
     },
@@ -722,10 +1120,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 712.547,
+        "t_answer_released": 711.795,
+        "t_first_input_sent": 712.548,
+        "t_first_output_playable": 1334.941,
+        "t_hangup_sent": 3768.501,
+        "t_lease_ack": 711.799,
+        "t_media_authorized": 711.801,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3606.991,
+        "t_sideband_open": 634.896,
+        "t_sideband_verified": 711.785
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "4bb5cb20ec5e1867e97aacd38bc47655e8ffd2f2f978a134426b1aee07e5fdff",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-06"
     },
@@ -734,10 +1145,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 702.301,
+        "t_answer_released": 701.429,
+        "t_first_input_sent": 702.304,
+        "t_first_output_playable": 1282.232,
+        "t_hangup_sent": 3784.07,
+        "t_lease_ack": 701.433,
+        "t_media_authorized": 701.435,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3559.034,
+        "t_sideband_open": 618.901,
+        "t_sideband_verified": 701.42
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "f4e9f656cfb2c89e610479d83e0decf0beb305774f5b99e7010317902721358a",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-07"
     },
@@ -746,10 +1170,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 810.743,
+        "t_answer_released": 810.023,
+        "t_first_input_sent": 810.744,
+        "t_first_output_playable": 1417.771,
+        "t_hangup_sent": 3889.334,
+        "t_lease_ack": 810.027,
+        "t_media_authorized": 810.029,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3701.554,
+        "t_sideband_open": 720.211,
+        "t_sideband_verified": 810.015
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "884df53b81ebfd873d902f0fe41cd896e2d419233560696dfb65c1f1655351cc",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-08"
     },
@@ -758,10 +1195,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 746.287,
+        "t_answer_released": 742.508,
+        "t_first_input_sent": 746.29,
+        "t_first_output_playable": 1353.013,
+        "t_hangup_sent": 3857.507,
+        "t_lease_ack": 742.512,
+        "t_media_authorized": 742.514,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3620.27,
+        "t_sideband_open": 672.104,
+        "t_sideband_verified": 742.495
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "eacfe8a181e26bf80c0a0cb73b9aaaf5056ef6d3a17eb7265169110a010402d6",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-09"
     },
@@ -770,10 +1220,23 @@
         "F0-D-TERMINAL_5S",
         "F0-D-NO_LATE_IO"
       ],
-      "durations_ms": {},
+      "durations_ms": {
+        "t_answer_applied": 672.346,
+        "t_answer_released": 671.525,
+        "t_first_input_sent": 672.348,
+        "t_first_output_playable": 1278.026,
+        "t_hangup_sent": 3731.17,
+        "t_lease_ack": 671.528,
+        "t_media_authorized": 671.53,
+        "t_offer_ready": 0.0,
+        "t_provider_create_sent": 0.0,
+        "t_revocation_request": 3541.461,
+        "t_sideband_open": 586.946,
+        "t_sideband_verified": 671.515
+      },
       "group_id": "F0-D",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
+      "note": "no observable terminal signal within bound",
+      "provider_request_id_hash": "de039fa35aae6156a6c7a608d8b9a970658e62a2069491f7c952ffbe25587a2d",
       "status": "INCONCLUSIVE",
       "trial_id": "F0-D-10"
     },
@@ -783,9 +1246,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "5795b533442672abab188feb36a5caa2a420c76db3b617842b0b5b93d0146fd9",
+      "status": "PASS",
       "trial_id": "F0-E-01"
     },
     {
@@ -794,9 +1256,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "16996fc03f8e8a89ee584e8b7bb6e00f1ba43b39688279add2eff9471d5ae364",
+      "status": "PASS",
       "trial_id": "F0-E-02"
     },
     {
@@ -805,9 +1266,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "21a5ab03b8da07a099a1f07d261b7825ef7febf7ea2d9fd37bf9f4e6d3ca98c7",
+      "status": "PASS",
       "trial_id": "F0-E-03"
     },
     {
@@ -816,9 +1276,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "6680a2a434f6be42e2669a0277a60627b2cc5cb3f7b438ea2264e7a3bb74422f",
+      "status": "PASS",
       "trial_id": "F0-E-04"
     },
     {
@@ -827,9 +1286,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "a454d3213ff3d5335c375e434c394db94e348cbcc31fc4ffa1ea0bfdc2d78504",
+      "status": "PASS",
       "trial_id": "F0-E-05"
     },
     {
@@ -838,9 +1296,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "9d0efa0a8de0ba4b82d2a9fc87998edd96dfee7d27d9b9805497f78d232af933",
+      "status": "PASS",
       "trial_id": "F0-E-06"
     },
     {
@@ -849,9 +1306,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "f8e5e4cb84d133321e9c31e6365163d39ce7b29b80207645507f8b4028688582",
+      "status": "PASS",
       "trial_id": "F0-E-07"
     },
     {
@@ -860,9 +1316,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "0733339e35ace57d32aff1dcaf23d37208192066aa337fbab431108debf950ee",
+      "status": "PASS",
       "trial_id": "F0-E-08"
     },
     {
@@ -871,9 +1326,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "26b2ab42d6b42e48f831654cd507a812910823cca7e1aa9bc686c8363ee62bd4",
+      "status": "PASS",
       "trial_id": "F0-E-09"
     },
     {
@@ -882,9 +1336,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-E",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "260eb94bb3d34b2cb0315d3c2503a1c2013ca93bdefae942977757e576a05d58",
+      "status": "PASS",
       "trial_id": "F0-E-10"
     },
     {
@@ -893,9 +1346,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "24eb082cdcfebc6bc625dc875b477fa0ae105d62dbe8a162d288e9419fa9f4ae",
+      "status": "PASS",
       "trial_id": "F0-F-01"
     },
     {
@@ -904,9 +1356,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "621368d0a69711cb0a418a44e6afbf5c6ac0917ebc645e385d2261e6625e529d",
+      "status": "PASS",
       "trial_id": "F0-F-02"
     },
     {
@@ -915,9 +1366,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "9243496f557d6850cf8c3bb1b66eff5c6d73de67402f8e286dfbd76b42203dd0",
+      "status": "PASS",
       "trial_id": "F0-F-03"
     },
     {
@@ -926,9 +1376,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "d237a9a65d529e182d103132d41acc3db4ff90fd7cf6f1d6c54613f72f0a4f0a",
+      "status": "PASS",
       "trial_id": "F0-F-04"
     },
     {
@@ -937,9 +1386,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "addecfe225256cd9531004b917b28893a745415113b6fc89fb9865b51a3fc9a3",
+      "status": "PASS",
       "trial_id": "F0-F-05"
     },
     {
@@ -948,9 +1396,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "abd1ea4474448e6c0646afb61beca014285a503086cc041d84ad93c7671272c1",
+      "status": "PASS",
       "trial_id": "F0-F-06"
     },
     {
@@ -959,9 +1406,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "62c356a67b6e21afd931c89f50b239c7a73678680a9fb359a3231fd5f298c76b",
+      "status": "PASS",
       "trial_id": "F0-F-07"
     },
     {
@@ -970,9 +1416,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "20e1f7d351bd4a385a45a3c6cc3c8af088bee1f0417e197fc3936ef9699046e5",
+      "status": "PASS",
       "trial_id": "F0-F-08"
     },
     {
@@ -981,9 +1426,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "d04c699ae1509ec1b93c26586cf10e694b3ad9470364daa2835a1ca5c07a20df",
+      "status": "PASS",
       "trial_id": "F0-F-09"
     },
     {
@@ -992,9 +1436,8 @@
       ],
       "durations_ms": {},
       "group_id": "F0-F",
-      "note": "not executed (no lab credential)",
-      "provider_request_id_hash": null,
-      "status": "INCONCLUSIVE",
+      "provider_request_id_hash": "7efc6837f41d6a196ac5feda9a83534c8e39f2585dea94259e975778aa0b2ccf",
+      "status": "PASS",
       "trial_id": "F0-F-10"
     }
   ]

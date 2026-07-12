@@ -1,23 +1,37 @@
-# Avatar F0 Brokered-Call Feasibility — Results (INCONCLUSIVE)
+# Avatar F0 Brokered-Call Feasibility — Results (live run)
 
 Change: qualify-avatar-brokered-call-feasibility
 
 ## Overall: INCONCLUSIVE
 
-This is the terminal offline INCONCLUSIVE record: no live run was executed (no `OPENAI_API_KEY` was present, or `--live` was not requested), so no provider call was attempted and no measurements were fabricated. Per the feature Definition of Done (SC-013), this is a valid terminal record and a valid completion state; it does NOT qualify any provider profile and does NOT open the kernel publication gate (only a live PASS does).
+| Group | planned | completed | passed | failed |
+| --- | --- | --- | --- | --- |
+| F0-A | 20 | 20 | 20 | 0 |
+| F0-B | 10 | 10 | 10 | 0 |
+| F0-C | 10 | 10 | 10 | 0 |
+| F0-D | 10 | 10 | 0 | 0 |
+| F0-E | 10 | 10 | 10 | 0 |
+| F0-F | 10 | 10 | 10 | 0 |
 
-## Trials
+## Assertions
 
-All 70 mandatory trials across the six groups (F0-A…F0-F) are recorded as INCONCLUSIVE (not executed). The harness, offline self-tests, and redaction tests are complete; the live matrix runs when a lab key is supplied.
-
-## Acceptance map
-
-Sourced from `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml` @ 495a8162af08 (sha256 0b1f5742b744…); F0-relevant IDs: ACR-003, ACR-008, ACR-011, ACR-012.
+- `F0-A-ORDERING`: PASS (passed 20, failed 0)
+- `F0-A-SINGLE_CALL`: PASS (passed 20, failed 0)
+- `F0-B-ORDERING`: PASS (passed 10, failed 0)
+- `F0-B-WITHIN_CEILING`: PASS (passed 10, failed 0)
+- `F0-C-NO_MEDIA`: PASS (passed 10, failed 0)
+- `F0-C-READINESS_TIMEOUT`: PASS (passed 5, failed 0)
+- `F0-D-TERMINAL_5S`: INCONCLUSIVE (passed 0, failed 0)
+- `F0-D-NO_LATE_IO`: INCONCLUSIVE (passed 0, failed 0)
+- `F0-E-SINGLE_CALL`: PASS (passed 10, failed 0)
+- `F0-F-IDEMPOTENCY`: PASS (passed 10, failed 0)
+- `F0-D-INTERRUPTED`: INCONCLUSIVE (passed 0, failed 0)
+- `F0-D-BOUNDED_CLEANUP`: INCONCLUSIVE (passed 0, failed 0)
 
 ## Redaction / threat-model disposition
 
-Evidence is built from an allowlist and re-scanned before writing; no credential, SDP, raw payload, audio, transcript, or high-cardinality identifier is present.
+Evidence carries only hashes, bounded reason codes, and monotonic offsets — no SDP, credential, raw call id, transcript, media, or high-cardinality identifier. The record is re-scanned before writing and a finding fails the run closed.
 
 ## Reviewer decision
 
-Terminal INCONCLUSIVE record accepted as the no-key completion artifact.
+Terminal `INCONCLUSIVE` record from the supervised live lab run.
