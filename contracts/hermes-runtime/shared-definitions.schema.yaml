@@ -1,0 +1,285 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/hermes-runtime/v2/shared-definitions.schema.yaml"
+contract_id: shared-definitions
+contract_schema_version: 2
+title: Neutral Hermes runtime shared definitions
+description: >-
+  Closed, domain-neutral primitives shared by the v2 Hermes runtime contract
+  family. Structural extension data is descriptive only and cannot grant or
+  alter authority.
+$defs:
+  canonical_id:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[a-z0-9](?:[a-z0-9._:-]{0,126}[a-z0-9])?$"
+  installation_id:
+    $ref: "#/$defs/canonical_id"
+  stack_id:
+    $ref: "#/$defs/canonical_id"
+  layer_id:
+    $ref: "#/$defs/canonical_id"
+  principal_id:
+    $ref: "#/$defs/canonical_id"
+  resource_id:
+    $ref: "#/$defs/canonical_id"
+  event_id:
+    $ref: "#/$defs/canonical_id"
+  contract_id:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?$"
+  contract_schema_version:
+    type: integer
+    minimum: 1
+
+  lowercase_uuid:
+    type: string
+    format: uuid
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+  customer_subject_ref:
+    type: string
+    format: uri
+    pattern: "^urn:xfactory:subject:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+
+  sha256_hex:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  sha256_digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  digest:
+    $ref: "#/$defs/sha256_digest"
+
+  rfc3339_timestamp:
+    type: string
+    format: date-time
+    pattern: "^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$"
+  timestamp:
+    $ref: "#/$defs/rfc3339_timestamp"
+
+  canonical_repository:
+    type: string
+    maxLength: 200
+    pattern: "^[A-Za-z0-9](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?/[A-Za-z0-9](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?$"
+  git_commit:
+    type: string
+    pattern: "^[0-9a-f]{40}$"
+  repository_relative_path:
+    type: string
+    minLength: 1
+    maxLength: 1024
+    pattern: "^(?!/)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\\\)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+  git_file_pin:
+    type: object
+    properties:
+      repository:
+        $ref: "#/$defs/canonical_repository"
+      commit:
+        $ref: "#/$defs/git_commit"
+      path:
+        $ref: "#/$defs/repository_relative_path"
+      digest:
+        $ref: "#/$defs/sha256_digest"
+      contract_id:
+        $ref: "#/$defs/contract_id"
+      contract_schema_version:
+        $ref: "#/$defs/contract_schema_version"
+    required: [repository, commit, path, digest]
+    dependentRequired:
+      contract_id: [contract_schema_version]
+      contract_schema_version: [contract_id]
+    additionalProperties: false
+  git_overlay_pin:
+    type: object
+    properties:
+      repository:
+        $ref: "#/$defs/canonical_repository"
+      commit:
+        $ref: "#/$defs/git_commit"
+      overlay_root:
+        $ref: "#/$defs/repository_relative_path"
+      manifest_path:
+        $ref: "#/$defs/repository_relative_path"
+      manifest_digest:
+        $ref: "#/$defs/sha256_digest"
+    required: [repository, commit, overlay_root, manifest_path, manifest_digest]
+    additionalProperties: false
+  contract_pin:
+    type: object
+    properties:
+      repository:
+        $ref: "#/$defs/canonical_repository"
+      commit:
+        $ref: "#/$defs/git_commit"
+      path:
+        $ref: "#/$defs/repository_relative_path"
+      digest:
+        $ref: "#/$defs/sha256_digest"
+      contract_id:
+        $ref: "#/$defs/contract_id"
+      contract_schema_version:
+        $ref: "#/$defs/contract_schema_version"
+    required: [repository, commit, path, digest, contract_id, contract_schema_version]
+    additionalProperties: false
+
+  installation_scope:
+    type: object
+    properties:
+      scope_kind:
+        const: installation
+      installation_id:
+        $ref: "#/$defs/installation_id"
+    required: [scope_kind, installation_id]
+    additionalProperties: false
+  installation_admin_scope:
+    type: object
+    properties:
+      scope_kind:
+        const: installation_admin
+      installation_id:
+        $ref: "#/$defs/installation_id"
+    required: [scope_kind, installation_id]
+    additionalProperties: false
+  stack_scope:
+    type: object
+    properties:
+      scope_kind:
+        const: stack
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      stack_id:
+        $ref: "#/$defs/stack_id"
+    required: [scope_kind, installation_id, stack_id]
+    additionalProperties: false
+  layer_scope:
+    type: object
+    properties:
+      scope_kind:
+        const: layer
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      stack_id:
+        $ref: "#/$defs/stack_id"
+      layer_id:
+        $ref: "#/$defs/layer_id"
+    required: [scope_kind, installation_id, stack_id, layer_id]
+    additionalProperties: false
+  governed_scope:
+    oneOf:
+      - $ref: "#/$defs/installation_scope"
+      - $ref: "#/$defs/installation_admin_scope"
+      - $ref: "#/$defs/stack_scope"
+      - $ref: "#/$defs/layer_scope"
+  scope:
+    $ref: "#/$defs/governed_scope"
+
+  identity_resource_type:
+    type: string
+    enum:
+      - layer_identity
+      - principal_identity
+      - policy_namespace
+  content_resource_type:
+    type: string
+    enum:
+      - policy
+      - contract
+      - artifact
+      - trust_anchor
+      - trust_anchor_event
+      - authority_grant
+      - database_principal_binding
+      - approval_request
+      - approval_decision
+      - cross_layer_binding
+      - operation_authorization
+      - trace_edge
+      - job
+      - job_run
+      - job_event
+      - lifecycle_event
+      - migration_mapping
+      - dataset
+  identity_resource_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      stack_id:
+        $ref: "#/$defs/stack_id"
+      layer_id:
+        $ref: "#/$defs/layer_id"
+      resource_type:
+        $ref: "#/$defs/identity_resource_type"
+      resource_id:
+        $ref: "#/$defs/resource_id"
+    required: [installation_id, resource_type, resource_id]
+    dependentRequired:
+      layer_id: [stack_id]
+    additionalProperties: false
+  content_resource_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      stack_id:
+        $ref: "#/$defs/stack_id"
+      layer_id:
+        $ref: "#/$defs/layer_id"
+      resource_type:
+        $ref: "#/$defs/content_resource_type"
+      resource_id:
+        $ref: "#/$defs/resource_id"
+      digest:
+        $ref: "#/$defs/sha256_digest"
+    required: [installation_id, resource_type, resource_id, digest]
+    dependentRequired:
+      layer_id: [stack_id]
+    additionalProperties: false
+  resource_reference:
+    oneOf:
+      - $ref: "#/$defs/identity_resource_reference"
+      - $ref: "#/$defs/content_resource_reference"
+
+  safe_extension_property_name:
+    type: string
+    pattern: "^[a-z][a-z0-9_-]{0,63}$"
+    not:
+      pattern: "(^|[_-])(role|template_role|customer_subject|authority|grant|permission|scope|action|binding|approval|policy|trust|principal|credential|secret|token)([_-]|$)"
+  extension_scalar:
+    type: [string, number, boolean, "null"]
+  extension_value:
+    oneOf:
+      - $ref: "#/$defs/extension_scalar"
+      - type: array
+        maxItems: 128
+        items:
+          $ref: "#/$defs/extension_value"
+      - type: object
+        maxProperties: 128
+        propertyNames:
+          $ref: "#/$defs/safe_extension_property_name"
+        additionalProperties:
+          $ref: "#/$defs/extension_value"
+  extension_payload:
+    type: object
+    maxProperties: 128
+    propertyNames:
+      $ref: "#/$defs/safe_extension_property_name"
+    additionalProperties:
+      $ref: "#/$defs/extension_value"
+  extensions:
+    type: object
+    description: >-
+      Namespaced descriptive data only. These values are never consulted for
+      role, subject, authority, scope, policy, approval, or credential meaning.
+    maxProperties: 32
+    propertyNames:
+      type: string
+      pattern: "^[a-z][a-z0-9-]{0,31}(?:\\.[a-z][a-z0-9_-]{0,31})+$"
+    additionalProperties:
+      $ref: "#/$defs/extension_payload"

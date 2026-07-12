@@ -1,0 +1,857 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-evidence-register
+feature: 005-customer-subject-runtime
+governed_change: add-hermes-customer-subject-runtime-contract
+authorization_effect: none
+expected_scenario_count: 85
+entries:
+- scenario_id: HCS-001-S01
+  requirement_id: HCS-001
+  scenario_title: One Customer template produces multiple runtime instances
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-001-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-001-S02
+  requirement_id: HCS-001
+  scenario_title: Duplicate static Customer role remains invalid
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-001-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-001-S03
+  requirement_id: HCS-001
+  scenario_title: Extension role is not used to evade the model
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-001-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-002-S01
+  requirement_id: HCS-002
+  scenario_title: codexFactory maps a Project Hermes instance
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-002-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-002-S02
+  requirement_id: HCS-002
+  scenario_title: MedxFactory maps a Patient Hermes instance
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-002-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-002-S03
+  requirement_id: HCS-002
+  scenario_title: LedgerxFactory maps a client-company instance
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-002-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-002-S04
+  requirement_id: HCS-002
+  scenario_title: Subject reference violates its governed profile
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-002-S04
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-002-S05
+  requirement_id: HCS-002
+  scenario_title: Subject reference is deterministically derived without a key
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-002-S05
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S01
+  requirement_id: HCS-003
+  scenario_title: Operational topology contains two Customer instances
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S02
+  requirement_id: HCS-003
+  scenario_title: Configuration precedes subject onboarding
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S03
+  requirement_id: HCS-003
+  scenario_title: Operational topology has no Customer
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S04
+  requirement_id: HCS-003
+  scenario_title: Singleton role cardinality is violated
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S04
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S05
+  requirement_id: HCS-003
+  scenario_title: Retired identity is reused
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S05
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-003-S06
+  requirement_id: HCS-003
+  scenario_title: Lifecycle history is bypassed or retirement is reversed
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-003-S06
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-004-S01
+  requirement_id: HCS-004
+  scenario_title: Exact assembly pin resolves
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-004-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-004-S02
+  requirement_id: HCS-004
+  scenario_title: Branch-only or tag-only pin is supplied
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-004-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-004-S03
+  requirement_id: HCS-004
+  scenario_title: Pinned content drifts
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-004-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-004-S04
+  requirement_id: HCS-004
+  scenario_title: Overlay manifest omits a runtime file
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-004-S04
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-005-S01
+  requirement_id: HCS-005
+  scenario_title: Provision request is retried
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-005-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-005-S02
+  requirement_id: HCS-005
+  scenario_title: Provision key is reused for another subject
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-005-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-005-S03
+  requirement_id: HCS-005
+  scenario_title: Customer subject is retired
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-005-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-006-S01
+  requirement_id: HCS-006
+  scenario_title: Two-subject positive fixture is checked
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-006-S01
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-006-S02
+  requirement_id: HCS-006
+  scenario_title: Domain-neutral mapping fixtures are checked
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-006-S02
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HCS-006-S03
+  requirement_id: HCS-006
+  scenario_title: Negative topology fixture is accidentally accepted
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HCS-006-S03
+  planned_owner_task: T030
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-001-S01
+  requirement_id: HGR-001
+  scenario_title: Job evidence is recorded
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-001-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-001-S02
+  requirement_id: HGR-001
+  scenario_title: Governed record omits layer scope
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-001-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-001-S03
+  requirement_id: HGR-001
+  scenario_title: Administrative record is installation-wide
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-001-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S01
+  requirement_id: HGR-002
+  scenario_title: Subject A queries Subject B
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S02
+  requirement_id: HGR-002
+  scenario_title: Subject A attempts a write into Subject B
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S03
+  requirement_id: HGR-002
+  scenario_title: Test runs as database owner
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S04
+  requirement_id: HGR-002
+  scenario_title: Runtime principal forges scope
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S04
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S05
+  requirement_id: HGR-002
+  scenario_title: Installation administrator queries subject data
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S05
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S06
+  requirement_id: HGR-002
+  scenario_title: Pooled connection is reused
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S06
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-002-S07
+  requirement_id: HGR-002
+  scenario_title: Principal scope grant is revoked
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-002-S07
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-003-S01
+  requirement_id: HGR-003
+  scenario_title: Principal acts under an exact active grant
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-003-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-003-S02
+  requirement_id: HGR-003
+  scenario_title: Wrong-layer reviewer attempts approval
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-003-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-003-S03
+  requirement_id: HGR-003
+  scenario_title: Grant is revoked during later use
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-003-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-003-S04
+  requirement_id: HGR-003
+  scenario_title: Grant chain is self-issued or cyclic
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-003-S04
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-003-S05
+  requirement_id: HGR-003
+  scenario_title: Root trust anchor rotates
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-003-S05
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S01
+  requirement_id: HGR-004
+  scenario_title: Exact active binding authorizes an operation
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S02
+  requirement_id: HGR-004
+  scenario_title: Binding direction is reversed
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S03
+  requirement_id: HGR-004
+  scenario_title: Transitive authority is attempted
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S04
+  requirement_id: HGR-004
+  scenario_title: Binding is expired or revoked
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S04
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S05
+  requirement_id: HGR-004
+  scenario_title: Source artifact is swapped under a binding
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S05
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-004-S06
+  requirement_id: HGR-004
+  scenario_title: Revocation races a projection
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-004-S06
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S01
+  requirement_id: HGR-005
+  scenario_title: Available artifact is verified
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S02
+  requirement_id: HGR-005
+  scenario_title: Artifact body or digest drifts
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S03
+  requirement_id: HGR-005
+  scenario_title: Artifact identity is rebound
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S04
+  requirement_id: HGR-005
+  scenario_title: Caller supplies a traversing path
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S04
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S05
+  requirement_id: HGR-005
+  scenario_title: Artifact body changes after approval
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S05
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-005-S06
+  requirement_id: HGR-005
+  scenario_title: Another layer probes a shared digest
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-005-S06
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S01
+  requirement_id: HGR-006
+  scenario_title: Matching decision approves an immutable target
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S02
+  requirement_id: HGR-006
+  scenario_title: Target changes after approval
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S03
+  requirement_id: HGR-006
+  scenario_title: Approval is revoked
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S04
+  requirement_id: HGR-006
+  scenario_title: Approval record is mutated
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S04
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S05
+  requirement_id: HGR-006
+  scenario_title: Conflicting terminal decisions exist
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S05
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-006-S06
+  requirement_id: HGR-006
+  scenario_title: Unauthorized actor supersedes approval
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-006-S06
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-007-S01
+  requirement_id: HGR-007
+  scenario_title: Cross-layer projection is traced
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-007-S01
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-007-S02
+  requirement_id: HGR-007
+  scenario_title: Cross-layer edge lacks binding proof
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-007-S02
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-007-S03
+  requirement_id: HGR-007
+  scenario_title: Endpoint digest mismatches
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-007-S03
+  planned_owner_task: T050
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S01
+  requirement_id: HGR-008
+  scenario_title: Clean v2 database is initialized twice
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S01
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S02
+  requirement_id: HGR-008
+  scenario_title: Same-named database object or security authority has drifted
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S02
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S03
+  requirement_id: HGR-008
+  scenario_title: Two-subject v1 database is migrated
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S03
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S04
+  requirement_id: HGR-008
+  scenario_title: Migration mapping is ambiguous
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S04
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S05
+  requirement_id: HGR-008
+  scenario_title: Source changes during cutover
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S05
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S06
+  requirement_id: HGR-008
+  scenario_title: Migration is retried with another map
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S06
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S07
+  requirement_id: HGR-008
+  scenario_title: Legacy approval lacks target digest
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S07
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-008-S08
+  requirement_id: HGR-008
+  scenario_title: Quarantined evidence is referenced
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-008-S08
+  planned_owner_task: T064
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-009-S01
+  requirement_id: HGR-009
+  scenario_title: Release candidate is realized
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-009-S01
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-009-S02
+  requirement_id: HGR-009
+  scenario_title: Tag is missing or movable evidence is used
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-009-S02
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-009-S03
+  requirement_id: HGR-009
+  scenario_title: Manifest contains a host-local path
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-009-S03
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-009-S04
+  requirement_id: HGR-009
+  scenario_title: Digest inventory membership is incomplete
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-009-S04
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: HGR-009-S05
+  requirement_id: HGR-009
+  scenario_title: Legacy local source path is removed
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-HGR-009-S05
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: NJE-004-S01
+  requirement_id: NJE-004
+  scenario_title: Customer-subject job is issued
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-NJE-004-S01
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: NJE-004-S02
+  requirement_id: NJE-004
+  scenario_title: Run and event correlate to a job
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-NJE-004-S02
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: NJE-004-S03
+  requirement_id: NJE-004
+  scenario_title: Cross-layer operation is requested
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-NJE-004-S03
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: NJE-004-S04
+  requirement_id: NJE-004
+  scenario_title: Engineering overlay requires Project data
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-NJE-004-S04
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: NJE-004-S05
+  requirement_id: NJE-004
+  scenario_title: Existing v1 consumer remains pinned
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-NJE-004-S05
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S01
+  requirement_id: SCO-002
+  scenario_title: Install repo consumes a contract
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S01
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S02
+  requirement_id: SCO-002
+  scenario_title: Published tag is verified
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S02
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S03
+  requirement_id: SCO-002
+  scenario_title: Pinned file drifts
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S03
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S04
+  requirement_id: SCO-002
+  scenario_title: Runtime verifies without a network connection
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S04
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S05
+  requirement_id: SCO-002
+  scenario_title: Compatibility manifest is modified
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S05
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S06
+  requirement_id: SCO-002
+  scenario_title: Contract changes incompatibly
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S06
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []
+- scenario_id: SCO-002-S07
+  requirement_id: SCO-002
+  scenario_title: Existing consumer retains an older pin
+  status: planned
+  authorizes: false
+  evidence_id: EVIDENCE-SCO-002-S07
+  planned_owner_task: T077
+  fixture_case_ids: []
+  test_node_ids: []
+  result_refs: []

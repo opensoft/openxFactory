@@ -1,0 +1,184 @@
+"""RED subprocess contracts for the Hermes runtime validator entrypoint."""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+from types import ModuleType
+
+import pytest
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+ENTRYPOINT = REPOSITORY_ROOT / "scripts/validate-hermes-runtime-contracts.py"
+
+
+def _git(repo: Path, *args: str) -> None:
+    result = subprocess.run(
+        ["git", *args], cwd=repo, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.fixture
+def empty_git_repo(tmp_path: Path) -> Path:
+    repo = tmp_path / "alternate-repo"
+    repo.mkdir()
+    _git(repo, "init", "--quiet")
+    _git(repo, "config", "user.name", "Hermes Contract Tests")
+    _git(repo, "config", "user.email", "hermes-contracts@example.invalid")
+    (repo / "README.md").write_text("temporary validator root\n", encoding="utf-8")
+    _git(repo, "add", "README.md")
+    _git(repo, "commit", "--quiet", "-m", "initial")
+    return repo
+
+
+def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
+    assert ENTRYPOINT.is_file(), f"planned validator CLI is missing: {ENTRYPOINT}"
+    return subprocess.run(
+        [sys.executable, ENTRYPOINT, *args],
+        cwd=REPOSITORY_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+
+
+def _json_result(result: subprocess.CompletedProcess[str]) -> dict[str, object]:
+    assert result.stderr == "", result.stderr
+    payload = json.loads(result.stdout)
+    assert isinstance(payload, dict)
+    assert isinstance(payload.get("findings"), list)
+    return payload
+
+
+def _load_entrypoint() -> ModuleType:
+    assert ENTRYPOINT.is_file(), f"planned validator CLI is missing: {ENTRYPOINT}"
+    spec = importlib.util.spec_from_file_location("hermes_runtime_validator_cli", ENTRYPOINT)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_help_lists_the_complete_selection_and_resolver_surface() -> None:
+    result = _run_cli("--help")
+    assert result.returncode == 0
+    for option in (
+        "--strict",
+        "--case",
+        "--phase",
+        "--json",
+        "--require-candidate",
+        "--require-realization",
+        "--repo",
+        "--domain-repo",
+        "--domain-repo-root",
+        "--handoff-receipt",
+        "--consumer-repo",
+        "--consumer-repo-root",
+    ):
+        assert option in result.stdout
+
+
+def test_case_selection_has_deterministic_machine_output(empty_git_repo: Path) -> None:
+    args = (
+        "--repo",
+        str(empty_git_repo),
+        "--case",
+        "not-an-indexed-case",
+        "--json",
+    )
+    first = _run_cli(*args)
+    second = _run_cli(*args)
+    assert first.returncode == second.returncode == 2
+    assert first.stdout == second.stdout
+    payload = _json_result(first)
+    finding = payload["findings"][0]  # type: ignore[index]
+    assert {"code", "severity", "case_id", "path", "message"} <= set(finding)
+    assert finding["case_id"] == "not-an-indexed-case"
+
+
+def test_human_output_is_deterministic_and_contains_a_stable_code(
+    empty_git_repo: Path,
+) -> None:
+    args = ("--repo", str(empty_git_repo), "--case", "not-an-indexed-case")
+    first = _run_cli(*args)
+    second = _run_cli(*args)
+    assert first.returncode == second.returncode == 2
+    assert (first.stdout, first.stderr) == (second.stdout, second.stderr)
+    assert re.search(r"\b[A-Z][A-Z0-9]+(?:-[A-Z0-9]+){2,}\b", first.stdout)
+    assert "Traceback" not in first.stdout + first.stderr
+
+
+@pytest.mark.parametrize(
+    ("mode_option", "expected_mode"),
+    [("--require-candidate", "candidate"), ("--require-realization", "realization")],
+)
+def test_candidate_and_realization_modes_are_explicit_in_json_results(
+    empty_git_repo: Path, mode_option: str, expected_mode: str
+) -> None:
+    result = _run_cli(mode_option, "--repo", str(empty_git_repo), "--json")
+    assert result.returncode == 2
+    assert _json_result(result)["mode"] == expected_mode
+
+
+def test_candidate_and_realization_modes_are_mutually_exclusive(
+    empty_git_repo: Path,
+) -> None:
+    result = _run_cli(
+        "--require-candidate",
+        "--require-realization",
+        "--repo",
+        str(empty_git_repo),
+        "--json",
+    )
+    assert result.returncode == 2
+    payload = _json_result(result)
+    assert "mutually exclusive" in payload["findings"][0]["message"].lower()  # type: ignore[index]
+
+
+def test_repeatable_resolver_options_reach_validation_not_argparse(
+    empty_git_repo: Path, tmp_path: Path
+) -> None:
+    mirror_root = tmp_path / "mirrors"
+    mirror_root.mkdir()
+    result = _run_cli(
+        "--repo",
+        str(empty_git_repo),
+        "--case",
+        "not-an-indexed-case",
+        "--domain-repo",
+        f"example/domain={empty_git_repo}",
+        "--domain-repo-root",
+        str(mirror_root),
+        "--consumer-repo",
+        f"opensoft/xFactory-Hermes-Install={empty_git_repo}",
+        "--consumer-repo-root",
+        str(mirror_root),
+        "--json",
+    )
+    assert result.returncode == 2
+    assert "unrecognized arguments" not in result.stderr
+    assert _json_result(result)["findings"][0]["case_id"] == "not-an-indexed-case"  # type: ignore[index]
+
+
+def test_warning_escalation_and_exit_code_precedence_are_stable() -> None:
+    cli = _load_entrypoint()
+    warning = [{"severity": "warning"}]
+    error = [{"severity": "error"}]
+    assert cli.classify_exit_code(warning, strict=False) == 0
+    assert cli.classify_exit_code(warning, strict=True) == 1
+    assert cli.classify_exit_code(error, strict=False) == 1
+    assert cli.classify_exit_code([], strict=False, dependency_error=True) == 2
+
+
+def test_invalid_phase_is_a_harness_error_without_a_traceback() -> None:
+    result = _run_cli("--phase", "database")
+    assert result.returncode == 2
+    assert "Traceback" not in result.stdout + result.stderr

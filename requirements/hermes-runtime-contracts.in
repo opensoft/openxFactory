@@ -1,0 +1,5 @@
+# Direct dependencies for the Python 3.12 Hermes runtime contract validator.
+pyyaml==6.0.3
+jsonschema==4.25.1
+referencing==0.37.0
+pytest==9.1.1

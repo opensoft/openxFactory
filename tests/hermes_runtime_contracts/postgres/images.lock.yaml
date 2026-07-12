@@ -1,0 +1,21 @@
+schema_version: 1
+kind: HermesRuntimePostgresImageLock
+images:
+  '15':
+    source_tag: postgres:15
+    resolved_image: postgres@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    platform: linux/amd64
+    update_evidence:
+      resolved_at: '2026-07-12T13:07:07Z'
+      registry: registry-1.docker.io/library/postgres
+      media_type: application/vnd.oci.image.index.v1+json
+      command: docker pull --platform linux/amd64 postgres:15
+  '16':
+    source_tag: postgres:16
+    resolved_image: postgres@sha256:be01cf82fc7dbba824acf0a82e150b4b360f3ff93c6631d7844af431e841a95c
+    platform: linux/amd64
+    update_evidence:
+      resolved_at: '2026-07-12T13:07:07Z'
+      registry: registry-1.docker.io/library/postgres
+      media_type: application/vnd.oci.image.index.v1+json
+      command: docker pull --platform linux/amd64 postgres:16

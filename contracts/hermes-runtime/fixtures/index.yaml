@@ -1,0 +1,7 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-fixture-index
+feature: 005-customer-subject-runtime
+governed_change: add-hermes-customer-subject-runtime-contract
+fixture_root: contracts/hermes-runtime/fixtures
+status: planned
+cases: []

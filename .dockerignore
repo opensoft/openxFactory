@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.dockerignore
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+coverage/
+*.log*
+.env
+.env.*
+!.env.example
+.specify/feature.json

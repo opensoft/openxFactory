@@ -1,0 +1,383 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-acceptance-map
+feature: 005-customer-subject-runtime
+governed_change: add-hermes-customer-subject-runtime-contract
+expected_openspec_requirement_count: 17
+expected_openspec_scenario_count: 85
+openspec_parity:
+- id: HCS-001
+  capability: hermes-customer-subject-runtime
+  title: Static role templates and runtime instances are distinct
+  scenario_ids:
+  - HCS-001-S01
+  - HCS-001-S02
+  - HCS-001-S03
+  scenario_titles:
+  - One Customer template produces multiple runtime instances
+  - Duplicate static Customer role remains invalid
+  - Extension role is not used to evade the model
+- id: HCS-002
+  capability: hermes-customer-subject-runtime
+  title: Customer-subject identity and aliases are domain-neutral
+  scenario_ids:
+  - HCS-002-S01
+  - HCS-002-S02
+  - HCS-002-S03
+  - HCS-002-S04
+  - HCS-002-S05
+  scenario_titles:
+  - codexFactory maps a Project Hermes instance
+  - MedxFactory maps a Patient Hermes instance
+  - LedgerxFactory maps a client-company instance
+  - Subject reference violates its governed profile
+  - Subject reference is deterministically derived without a key
+- id: HCS-003
+  capability: hermes-customer-subject-runtime
+  title: Runtime topology has durable identity and lifecycle cardinality
+  scenario_ids:
+  - HCS-003-S01
+  - HCS-003-S02
+  - HCS-003-S03
+  - HCS-003-S04
+  - HCS-003-S05
+  - HCS-003-S06
+  scenario_titles:
+  - Operational topology contains two Customer instances
+  - Configuration precedes subject onboarding
+  - Operational topology has no Customer
+  - Singleton role cardinality is violated
+  - Retired identity is reused
+  - Lifecycle history is bypassed or retirement is reversed
+- id: HCS-004
+  capability: hermes-customer-subject-runtime
+  title: Runtime assembly pins are content-addressed
+  scenario_ids:
+  - HCS-004-S01
+  - HCS-004-S02
+  - HCS-004-S03
+  - HCS-004-S04
+  scenario_titles:
+  - Exact assembly pin resolves
+  - Branch-only or tag-only pin is supplied
+  - Pinned content drifts
+  - Overlay manifest omits a runtime file
+- id: HCS-005
+  capability: hermes-customer-subject-runtime
+  title: Customer-subject lifecycle preserves identity and evidence
+  scenario_ids:
+  - HCS-005-S01
+  - HCS-005-S02
+  - HCS-005-S03
+  scenario_titles:
+  - Provision request is retried
+  - Provision key is reused for another subject
+  - Customer subject is retired
+- id: HCS-006
+  capability: hermes-customer-subject-runtime
+  title: Canonical validation proves cross-domain conformance
+  scenario_ids:
+  - HCS-006-S01
+  - HCS-006-S02
+  - HCS-006-S03
+  scenario_titles:
+  - Two-subject positive fixture is checked
+  - Domain-neutral mapping fixtures are checked
+  - Negative topology fixture is accidentally accepted
+- id: HGR-001
+  capability: hermes-governed-record-integrity
+  title: Governed records carry explicit scope
+  scenario_ids:
+  - HGR-001-S01
+  - HGR-001-S02
+  - HGR-001-S03
+  scenario_titles:
+  - Job evidence is recorded
+  - Governed record omits layer scope
+  - Administrative record is installation-wide
+- id: HGR-002
+  capability: hermes-governed-record-integrity
+  title: Customer-subject persistence is default-deny
+  scenario_ids:
+  - HGR-002-S01
+  - HGR-002-S02
+  - HGR-002-S03
+  - HGR-002-S04
+  - HGR-002-S05
+  - HGR-002-S06
+  - HGR-002-S07
+  scenario_titles:
+  - Subject A queries Subject B
+  - Subject A attempts a write into Subject B
+  - Test runs as database owner
+  - Runtime principal forges scope
+  - Installation administrator queries subject data
+  - Pooled connection is reused
+  - Principal scope grant is revoked
+- id: HGR-003
+  capability: hermes-governed-record-integrity
+  title: Principal authority is explicit, immutable, and revocable
+  scenario_ids:
+  - HGR-003-S01
+  - HGR-003-S02
+  - HGR-003-S03
+  - HGR-003-S04
+  - HGR-003-S05
+  scenario_titles:
+  - Principal acts under an exact active grant
+  - Wrong-layer reviewer attempts approval
+  - Grant is revoked during later use
+  - Grant chain is self-issued or cyclic
+  - Root trust anchor rotates
+- id: HGR-004
+  capability: hermes-governed-record-integrity
+  title: Cross-layer authority is exact, directional, and revocable
+  scenario_ids:
+  - HGR-004-S01
+  - HGR-004-S02
+  - HGR-004-S03
+  - HGR-004-S04
+  - HGR-004-S05
+  - HGR-004-S06
+  scenario_titles:
+  - Exact active binding authorizes an operation
+  - Binding direction is reversed
+  - Transitive authority is attempted
+  - Binding is expired or revoked
+  - Source artifact is swapped under a binding
+  - Revocation races a projection
+- id: HGR-005
+  capability: hermes-governed-record-integrity
+  title: Artifact records are content-addressed and immutable
+  scenario_ids:
+  - HGR-005-S01
+  - HGR-005-S02
+  - HGR-005-S03
+  - HGR-005-S04
+  - HGR-005-S05
+  - HGR-005-S06
+  scenario_titles:
+  - Available artifact is verified
+  - Artifact body or digest drifts
+  - Artifact identity is rebound
+  - Caller supplies a traversing path
+  - Artifact body changes after approval
+  - Another layer probes a shared digest
+- id: HGR-006
+  capability: hermes-governed-record-integrity
+  title: Approval authority is immutable and target-digest-bound
+  scenario_ids:
+  - HGR-006-S01
+  - HGR-006-S02
+  - HGR-006-S03
+  - HGR-006-S04
+  - HGR-006-S05
+  - HGR-006-S06
+  scenario_titles:
+  - Matching decision approves an immutable target
+  - Target changes after approval
+  - Approval is revoked
+  - Approval record is mutated
+  - Conflicting terminal decisions exist
+  - Unauthorized actor supersedes approval
+- id: HGR-007
+  capability: hermes-governed-record-integrity
+  title: Traceability is scoped, digest-bound, and backed by authority
+  scenario_ids:
+  - HGR-007-S01
+  - HGR-007-S02
+  - HGR-007-S03
+  scenario_titles:
+  - Cross-layer projection is traced
+  - Cross-layer edge lacks binding proof
+  - Endpoint digest mismatches
+- id: HGR-008
+  capability: hermes-governed-record-integrity
+  title: v2 persistence coexists with v1 and migrates atomically
+  scenario_ids:
+  - HGR-008-S01
+  - HGR-008-S02
+  - HGR-008-S03
+  - HGR-008-S04
+  - HGR-008-S05
+  - HGR-008-S06
+  - HGR-008-S07
+  - HGR-008-S08
+  scenario_titles:
+  - Clean v2 database is initialized twice
+  - Same-named database object or security authority has drifted
+  - Two-subject v1 database is migrated
+  - Migration mapping is ambiguous
+  - Source changes during cutover
+  - Migration is retried with another map
+  - Legacy approval lacks target digest
+  - Quarantined evidence is referenced
+- id: HGR-009
+  capability: hermes-governed-record-integrity
+  title: Published bundle identity is reproducible
+  scenario_ids:
+  - HGR-009-S01
+  - HGR-009-S02
+  - HGR-009-S03
+  - HGR-009-S04
+  - HGR-009-S05
+  scenario_titles:
+  - Release candidate is realized
+  - Tag is missing or movable evidence is used
+  - Manifest contains a host-local path
+  - Digest inventory membership is incomplete
+  - Legacy local source path is removed
+- id: NJE-004
+  capability: neutral-job-envelope
+  title: Scoped v2 Hermes job lifecycle records
+  scenario_ids:
+  - NJE-004-S01
+  - NJE-004-S02
+  - NJE-004-S03
+  - NJE-004-S04
+  - NJE-004-S05
+  scenario_titles:
+  - Customer-subject job is issued
+  - Run and event correlate to a job
+  - Cross-layer operation is requested
+  - Engineering overlay requires Project data
+  - Existing v1 consumer remains pinned
+- id: SCO-002
+  capability: shared-contract-ownership
+  title: Contract version pinning
+  scenario_ids:
+  - SCO-002-S01
+  - SCO-002-S02
+  - SCO-002-S03
+  - SCO-002-S04
+  - SCO-002-S05
+  - SCO-002-S06
+  - SCO-002-S07
+  scenario_titles:
+  - Install repo consumes a contract
+  - Published tag is verified
+  - Pinned file drifts
+  - Runtime verifies without a network connection
+  - Compatibility manifest is modified
+  - Contract changes incompatibly
+  - Existing consumer retains an older pin
+stories:
+- story_id: US1
+  title: Instantiate Customer Hermes per subject
+  requirements:
+  - FR-001
+  - FR-002
+  - FR-003
+  - FR-004
+  - FR-005
+  - FR-006
+  - FR-007
+  - FR-008
+  - FR-045
+  outcomes:
+  - SC-001
+  - SC-002
+  contract_groups:
+  - topology
+  - references
+  - overlays
+  - static-stack-compatibility
+- story_id: US2
+  title: Isolate subjects and govern cross-layer work
+  requirements:
+  - FR-009
+  - FR-010
+  - FR-011
+  - FR-012
+  - FR-013
+  - FR-014
+  - FR-015
+  - FR-016
+  - FR-017
+  - FR-018
+  - FR-019
+  - FR-020
+  - FR-021
+  - FR-022
+  - FR-023
+  - FR-040
+  - FR-044
+  outcomes:
+  - SC-004
+  - SC-005
+  - SC-015
+  contract_groups:
+  - scope
+  - trust
+  - authority
+  - binding
+  - artifact
+  - approval
+  - traceability
+- story_id: US3
+  title: Upgrade legacy operational evidence safely
+  requirements:
+  - FR-026
+  - FR-027
+  - FR-028
+  - FR-029
+  - FR-030
+  - FR-041
+  outcomes:
+  - SC-006
+  - SC-007
+  - SC-008
+  - SC-014
+  - SC-016
+  contract_groups:
+  - postgres-v2
+  - migration
+  - quarantine
+  - dataset-digest
+- story_id: US4
+  title: Publish and consume an exact contract bundle
+  requirements:
+  - FR-024
+  - FR-025
+  - FR-031
+  - FR-032
+  - FR-033
+  - FR-034
+  - FR-035
+  - FR-036
+  - FR-037
+  - FR-038
+  - FR-039
+  - FR-042
+  - FR-043
+  outcomes:
+  - SC-003
+  - SC-009
+  - SC-010
+  - SC-011
+  - SC-012
+  - SC-013
+  - SC-017
+  contract_groups:
+  - jobs-v2
+  - v1-compatibility
+  - fixtures
+  - release
+  - domain-regression
+  - downstream-handoff
+gates:
+- gate_id: G0-PROVIDER
+  owner: openxFactory
+  requires:
+  - US1
+  - US2
+  - US3
+  - US4
+  blocks_on_failure: true
+- gate_id: G0-CONSUMER
+  owner: Hermes-Install
+  external: true
+  requires:
+  - published-bundle
+  - exact-hermes-revision
+  - positive-negative-pin-evidence
+  blocks_on_failure: true

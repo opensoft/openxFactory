@@ -20,10 +20,10 @@ Status: draft
 
 **Purpose**: Establish the isolated validator/test surface without changing shared runtime behavior.
 
-- [ ] T001 Create validator package, semantic-module package, fixture directories, and test package markers in `scripts/hermes_runtime_validation/__init__.py`, `scripts/hermes_runtime_validation/semantics/__init__.py`, `tests/hermes_runtime_contracts/__init__.py`, and `tests/hermes_runtime_contracts/postgres/__init__.py`
-- [ ] T002 Define Python 3.12 validator/test dependencies and generate the reviewed hash-locked environment in `requirements/hermes-runtime-contracts.in` and `requirements/hermes-runtime-contracts.lock`
-- [ ] T003 [P] Create deterministic pytest fixtures, temporary Git-object helpers, and subprocess helpers in `tests/hermes_runtime_contracts/conftest.py` and `tests/hermes_runtime_contracts/support.py`
-- [ ] T004 [P] Create PostgreSQL subprocess, Compose-project, evidence-redaction, and cleanup helpers in `tests/hermes_runtime_contracts/postgres/conftest.py`
+- [x] T001 Create validator package, semantic-module package, fixture directories, test package markers, and Docker-context exclusions in `scripts/hermes_runtime_validation/__init__.py`, `scripts/hermes_runtime_validation/semantics/__init__.py`, `tests/hermes_runtime_contracts/__init__.py`, `tests/hermes_runtime_contracts/postgres/__init__.py`, and `.dockerignore`
+- [x] T002 Define Python 3.12 validator/test dependencies and generate the reviewed hash-locked environment in `requirements/hermes-runtime-contracts.in` and `requirements/hermes-runtime-contracts.lock`
+- [x] T003 [P] Create deterministic pytest fixtures, temporary Git-object helpers, and subprocess helpers in `tests/hermes_runtime_contracts/conftest.py` and `tests/hermes_runtime_contracts/support.py`
+- [x] T004 [P] Create PostgreSQL subprocess, Compose-project, evidence-redaction, and cleanup helpers in `tests/hermes_runtime_contracts/postgres/conftest.py`
 
 ---
 
@@ -33,21 +33,21 @@ Status: draft
 
 **Critical gate**: No user-story implementation starts until T019 passes.
 
-- [ ] T005 [P] Write failing duplicate-safe YAML, JSON-compatibility, schema-annotation, canonical-ID, alias-rejection, and offline-reference tests in `tests/hermes_runtime_contracts/test_catalog_and_schema.py`
-- [ ] T006 Implement strict YAML loading, canonical contract membership, and Draft 2020-12 offline registry behavior in `scripts/hermes_runtime_validation/loader.py`, `scripts/hermes_runtime_validation/catalog.py`, and `scripts/hermes_runtime_validation/schema_registry.py`
-- [ ] T007 [P] Write failing fixture-index tests for unique paths, dependency closure, fixed evaluation time, stable primary finding codes, and wrong-reason rejection in `tests/hermes_runtime_contracts/test_fixture_index.py`
-- [ ] T008 Implement self-describing fixture loading, dependency ordering, deterministic result sorting, and expected-finding evaluation in `scripts/hermes_runtime_validation/fixtures.py`
-- [ ] T009 [P] Write failing exact Git commit/tree/blob, normalized-path, file-mode, missing-object, symlink, submodule, and digest tests in `tests/hermes_runtime_contracts/test_content_resolution.py`
-- [ ] T010 Implement repository-relative fixture and exact Git-object content resolvers with fail-closed exit-2 dependency errors in `scripts/hermes_runtime_validation/content.py`
-- [ ] T011 [P] Write failing 17-requirement/85-scenario acceptance and evidence parity tests for missing, duplicate, dangling, and skipped mappings in `tests/hermes_runtime_contracts/test_acceptance_parity.py`
-- [ ] T012 Implement OpenSpec requirement/scenario extraction and exact acceptance/evidence parity evaluation in `scripts/hermes_runtime_validation/acceptance.py`
-- [ ] T013 [P] Implement canonical IDs, scopes, digests, Git pins, resource references, timestamps, and extension boundaries in `contracts/hermes-runtime/shared-definitions.schema.yaml`
-- [ ] T014 Create the initial canonical family catalogs and indexed harness metadata in `contracts/hermes-runtime/contract-index.yaml`, `contracts/hermes-runtime/acceptance-map.yaml`, `contracts/hermes-runtime/evidence-register.yaml`, and `contracts/hermes-runtime/fixtures/index.yaml`
-- [ ] T015 [P] Write failing CLI selection, deterministic human/JSON output, candidate/realization mode, resolver-option, warning escalation, and exit-code tests in `tests/hermes_runtime_contracts/test_validator_cli.py`
-- [ ] T016 Implement the thin structural/semantic CLI orchestration and stable finding shape in `scripts/validate-hermes-runtime-contracts.py`
-- [ ] T017 [P] Write failing PostgreSQL 15/16 image-lock, no-host-port, ephemeral-secret redaction, teardown, and JSON-evidence tests in `tests/hermes_runtime_contracts/postgres/test_runner_contract.py`
-- [ ] T018 Implement the digest-pinned PostgreSQL 15/16 Compose harness, explicit image-lock refresh, in-memory ephemeral authentication, and EXIT cleanup in `scripts/run-hermes-runtime-postgres-tests.sh`, `tests/hermes_runtime_contracts/postgres/compose.yaml`, and `tests/hermes_runtime_contracts/postgres/images.lock.yaml`
-- [ ] T019 Run the foundational red-to-green suite for loader/catalog/schema registry, fixture index, acceptance parity, content resolution, CLI, and PostgreSQL runner contracts in `tests/hermes_runtime_contracts/test_catalog_and_schema.py`, `tests/hermes_runtime_contracts/test_fixture_index.py`, `tests/hermes_runtime_contracts/test_acceptance_parity.py`, `tests/hermes_runtime_contracts/test_content_resolution.py`, `tests/hermes_runtime_contracts/test_validator_cli.py`, and `tests/hermes_runtime_contracts/postgres/test_runner_contract.py`
+- [x] T005 [P] Write failing duplicate-safe YAML, JSON-compatibility, schema-annotation, canonical-ID, alias-rejection, and offline-reference tests in `tests/hermes_runtime_contracts/test_catalog_and_schema.py`
+- [x] T006 Implement strict YAML loading, canonical contract membership, and Draft 2020-12 offline registry behavior in `scripts/hermes_runtime_validation/loader.py`, `scripts/hermes_runtime_validation/catalog.py`, and `scripts/hermes_runtime_validation/schema_registry.py`
+- [x] T007 [P] Write failing fixture-index tests for unique paths, dependency closure, fixed evaluation time, stable primary finding codes, and wrong-reason rejection in `tests/hermes_runtime_contracts/test_fixture_index.py`
+- [x] T008 Implement self-describing fixture loading, dependency ordering, deterministic result sorting, and expected-finding evaluation in `scripts/hermes_runtime_validation/fixtures.py`
+- [x] T009 [P] Write failing exact Git commit/tree/blob, normalized-path, file-mode, missing-object, symlink, submodule, and digest tests in `tests/hermes_runtime_contracts/test_content_resolution.py`
+- [x] T010 Implement repository-relative fixture and exact Git-object content resolvers with fail-closed exit-2 dependency errors in `scripts/hermes_runtime_validation/content.py`
+- [x] T011 [P] Write failing 17-requirement/85-scenario acceptance and evidence parity tests for missing, duplicate, dangling, and skipped mappings in `tests/hermes_runtime_contracts/test_acceptance_parity.py`
+- [x] T012 Implement OpenSpec requirement/scenario extraction and exact acceptance/evidence parity evaluation in `scripts/hermes_runtime_validation/acceptance.py`
+- [x] T013 [P] Implement canonical IDs, scopes, digests, Git pins, resource references, timestamps, and extension boundaries in `contracts/hermes-runtime/shared-definitions.schema.yaml`
+- [x] T014 Create the initial canonical family catalogs and indexed harness metadata in `contracts/hermes-runtime/contract-index.yaml`, `contracts/hermes-runtime/acceptance-map.yaml`, `contracts/hermes-runtime/evidence-register.yaml`, and `contracts/hermes-runtime/fixtures/index.yaml`
+- [x] T015 [P] Write failing CLI selection, deterministic human/JSON output, candidate/realization mode, resolver-option, warning escalation, and exit-code tests in `tests/hermes_runtime_contracts/test_validator_cli.py`
+- [x] T016 Implement the thin structural/semantic CLI orchestration and stable finding shape in `scripts/validate-hermes-runtime-contracts.py`
+- [x] T017 [P] Write failing PostgreSQL 15/16 image-lock, no-host-port, ephemeral-secret redaction, teardown, and JSON-evidence tests in `tests/hermes_runtime_contracts/postgres/test_runner_contract.py`
+- [x] T018 Implement the digest-pinned PostgreSQL 15/16 Compose harness, explicit image-lock refresh, in-memory ephemeral authentication, and EXIT cleanup in `scripts/run-hermes-runtime-postgres-tests.sh`, `tests/hermes_runtime_contracts/postgres/compose.yaml`, and `tests/hermes_runtime_contracts/postgres/images.lock.yaml`
+- [x] T019 Run the foundational red-to-green suite for loader/catalog/schema registry, fixture index, acceptance parity, content resolution, CLI, and PostgreSQL runner contracts in `tests/hermes_runtime_contracts/test_catalog_and_schema.py`, `tests/hermes_runtime_contracts/test_fixture_index.py`, `tests/hermes_runtime_contracts/test_acceptance_parity.py`, `tests/hermes_runtime_contracts/test_content_resolution.py`, `tests/hermes_runtime_contracts/test_validator_cli.py`, and `tests/hermes_runtime_contracts/postgres/test_runner_contract.py`
 
 **Checkpoint**: Shared validator and real-database harnesses are independently usable; canonical story contracts remain intentionally incomplete.
 
