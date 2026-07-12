@@ -22,6 +22,7 @@ MARKERS = (
     "t_first_input_sent",
     "t_first_output_playable",
     "t_revocation_request",
+    "t_media_leg_closed",     # client-side media stop (F0-D client-enforced revocation)
     "t_hangup_sent",
     "t_peer_terminal",
 )

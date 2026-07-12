@@ -57,10 +57,15 @@ first media as separate observations.
 ### Requirement: Readiness and revocation timing evidence
 F0 SHALL measure durations with a monotonic clock. Media readiness SHALL use a
 3,000-millisecond default and MUST NOT exceed the 5,000-millisecond neutral
-ceiling. A revocation trial SHALL request provider termination immediately and
-SHALL require observed termination within five seconds when the provider
-exposes an observable terminal signal. Request acceptance and observed
-termination SHALL remain separate evidence fields.
+ceiling. Revocation is client-enforced (ACR-005, clarified 2026-07-12): a
+revocation trial SHALL, on revoke, stop the client's own media leg within five
+seconds and verify that no media I/O flows after the stop, AND request provider
+termination whose acceptance SHALL land within five seconds. This client-side
+stop together with the accepted revocation request is the revocation guarantee.
+The provider-side authoritative termination confirmation MAY be
+eventually-consistent and lag the client-side stop, and MUST NOT be the sole
+gate. Client-side media-stop, revocation-request acceptance, and provider-side
+settle SHALL remain separate evidence fields.
 
 #### Scenario: Readiness completes within the selected deadline
 - **WHEN** sideband and xFactory control become ready within the selected 1,000-to-5,000-millisecond value
@@ -71,12 +76,16 @@ termination SHALL remain separate evidence fields.
 - **THEN** the trial MUST withhold media authorization, terminate the call, and fail if any media or answer application occurred
 
 #### Scenario: Revocation meets the bound
-- **WHEN** the harness revokes an authorized trial and observes provider termination within five seconds
-- **THEN** it MUST record separate revocation-request, hangup-request, and terminal-observation offsets
+- **WHEN** the harness revokes an authorized trial, stops its own media leg with no subsequent media I/O, and the provider revocation request is accepted, all within five seconds
+- **THEN** the revocation assertion MUST pass and the run MUST record separate client-media-stop, revocation-request-acceptance, and provider-side settle offsets
 
-#### Scenario: Termination cannot be confirmed
-- **WHEN** a mandatory terminal signal is absent or arrives after five seconds
-- **THEN** the revocation assertion MUST be `FAIL` or `INCONCLUSIVE` according to whether contrary behavior or missing evidence was observed
+#### Scenario: Provider settle lags but the client-side stop holds
+- **WHEN** the client-side media stop and the accepted revocation request both complete within five seconds but the provider's authoritative termination confirmation is absent or arrives after five seconds
+- **THEN** the revocation assertion MUST still pass, and the provider-side settle behavior MUST be recorded as informational evidence, not gated
+
+#### Scenario: Client-side stop is not met
+- **WHEN** the client fails to stop its media leg within five seconds, media I/O continues after the stop, or the provider revocation request is not accepted within five seconds
+- **THEN** the revocation assertion MUST be `FAIL` (contrary observation) or `INCONCLUSIVE` (missing evidence) according to what was observed
 
 ### Requirement: Redacted terminal evidence and variance handoff
 Each run SHALL emit schema-valid machine-readable results, a human-readable

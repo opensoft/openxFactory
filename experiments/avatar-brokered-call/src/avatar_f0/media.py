@@ -64,6 +64,8 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
         self._answer_applied = False
         self._first_output = asyncio.Event()
         self._terminal = asyncio.Event()
+        self._watch_late = False        # armed at revoke; a frame after that is "late I/O"
+        self._late_io = False
 
         @self._pc.on("track")
         def _on_track(track):  # noqa: ANN001
@@ -76,6 +78,8 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
                     self._first_output.set()
                     while True:
                         await track.recv()       # keep draining so the leg stays alive
+                        if self._watch_late:     # a frame after revoke = late media I/O
+                            self._late_io = True
                 except Exception:
                     return
 
@@ -132,6 +136,20 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
         # Recreate the event; the connectionstatechange handler resolves self._terminal
         # dynamically, so a fresh event only fires on the NEXT terminal transition.
         self._terminal = asyncio.Event()
+
+    def arm_no_late_io(self) -> None:
+        """Start watching for late media I/O: any inbound frame after this point is 'late'.
+
+        Called at revoke, immediately before the client-side stop (``close``), so
+        ``late_io_observed`` proves whether media kept flowing after the client stopped
+        (F0-D-NO_LATE_IO under client-enforced revocation).
+        """
+        self._late_io = False
+        self._watch_late = True
+
+    @property
+    def late_io_observed(self) -> bool:
+        return self._late_io
 
     async def wait_terminal(self, timeout_s: float) -> bool:
         import asyncio
