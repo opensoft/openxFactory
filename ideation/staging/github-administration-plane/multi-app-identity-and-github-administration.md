@@ -2,7 +2,12 @@
 
 Status: staged
 Kind: architecture
+Summary: Separates the content-only GitHub App identity from a new
+administration-tier App identity and locates GitHub administration in
+OpsxFactory as a managed platform; six open questions block proposal.
+Topics: github-administration, app-identity-tiers, roles-authority-model, opsxfactory, branch-protection
 Repository context: openxFactory (neutral) with an OpsxFactory-owned realization
+Staging ID: openxFactory:staging:github-administration-plane
 Source: xFactory family decision 2026-07-10 (review-lane first live run exposed
 the factory App holding org-wide Contents:write and bypassing branch protection)
 

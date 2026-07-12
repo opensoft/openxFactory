@@ -2,6 +2,10 @@
 
 Status: staged
 Kind: regulatory rationale
+Summary: Concludes the proposal-origin contract is a necessary first
+traceability edge but not sufficient for FDA SaMD compliance, and scopes the
+trace-graph, QMS, and validation work a regulated domain would still need.
+Topics: fda-samd, traceability, proposal-origin, regulatory-compliance, medxfactory
 Repository context: openxFactory
 Staging ID: openxFactory:staging:proposal-origin-contract
 Regulatory review date: 2026-07-09

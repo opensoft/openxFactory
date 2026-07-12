@@ -2,6 +2,11 @@
 
 Status: staged
 Kind: architecture
+Summary: Shapes the liaison as a named Client Hermes capability profile
+composed from existing roles, splitting coordination authority from execution
+authority across the customer-managed, managed-host, and OpsxFactory
+operating models.
+Topics: client-infrastructure-liaison, roles-authority-model, client-hermes, operating-models
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Target capabilities: `client-infrastructure-liaison` (ADDED) and

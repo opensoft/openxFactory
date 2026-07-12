@@ -2,6 +2,10 @@
 
 Status: staged
 Kind: architecture
+Summary: Defines the boundary where a neutral `client_infrastructure_request`
+hands off to an OpsxFactory service request, and the readiness contract each
+side owes the other.
+Topics: client-infrastructure-request, opsxfactory-handoff, readiness-contract
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Target capabilities: `client-infrastructure-request` (ADDED) and

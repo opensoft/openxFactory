@@ -2,6 +2,12 @@
 
 Status: staged
 Kind: architecture
+Summary: Defines a neutral Client Hermes coordination role (the client
+infrastructure liaison) and a structured `client_infrastructure_request`
+lifecycle for client-managed, managed-host, or OpsxFactory-executed
+infrastructure dependencies, without granting domain agents tenant
+administration authority.
+Topics: client-infrastructure-liaison, client-infrastructure-request, roles-authority-model, client-hermes, infrastructure-coordination
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Source: Southside Clinic MedxFactory and OpsxFactory operating-model review,

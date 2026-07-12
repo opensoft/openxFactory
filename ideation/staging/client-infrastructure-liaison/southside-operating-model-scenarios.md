@@ -2,6 +2,10 @@
 
 Status: staged
 Kind: reference
+Summary: Works the liaison request lifecycle through Southside Clinic's
+customer-managed, managed-host, and OpsxFactory-bound operating scenarios as
+concrete reference traces.
+Topics: client-infrastructure-liaison, southside-clinic, operating-model-scenarios, medxfactory
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Target capabilities: `client-infrastructure-liaison` (ADDED) and

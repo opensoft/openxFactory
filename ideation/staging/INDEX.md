@@ -53,6 +53,7 @@ Update this index in the same commit as any of:
 
 ## github-administration-plane
 
+- Staging ID: `openxFactory:staging:github-administration-plane`
 - Repository context: openxFactory (neutral) with an OpsxFactory-owned realization.
 - Source: xFactory family decision 2026-07-10 (review-lane first live run
   exposed the factory App holding org-wide `Contents: write` and bypassing

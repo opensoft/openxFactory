@@ -2,6 +2,9 @@
 
 Status: staged
 Kind: plan
+Summary: Records the locked liaison design decisions and maps the per-domain
+adoption impact of the client-infrastructure-liaison proposal.
+Topics: client-infrastructure-liaison, adoption-impact, locked-decisions
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Target capabilities: `client-infrastructure-liaison` (ADDED),

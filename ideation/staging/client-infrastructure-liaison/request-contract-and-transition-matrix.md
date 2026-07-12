@@ -2,6 +2,10 @@
 
 Status: staged
 Kind: architecture
+Summary: Specifies the `client_infrastructure_request` artifact boundary — a
+durable coordination record distinct from a worker job envelope — and its
+full state-transition matrix.
+Topics: client-infrastructure-request, state-transitions, coordination-artifact
 Repository context: openxFactory
 Staging ID: openxFactory:staging:client-infrastructure-liaison
 Target capability: `client-infrastructure-request` (ADDED)

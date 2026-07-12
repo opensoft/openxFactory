@@ -2,6 +2,10 @@
 
 Status: staged
 Kind: architecture
+Summary: Requires every OpenSpec proposal to declare exactly one durable
+origin — staged or explicitly approved ad-hoc — in `.openspec.yaml`, with
+proposal and archive gates plus doc-health checks enforcing it.
+Topics: proposal-origin, document-lifecycle, doc-health, release-realization, traceability
 Repository context: openxFactory
 Staging ID: openxFactory:staging:proposal-origin-contract
 Source: Brett review of the archived

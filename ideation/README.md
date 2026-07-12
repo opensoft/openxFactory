@@ -48,7 +48,7 @@ Rules while this convention is in draft:
 - Each DomainxFactory keeps its own `ideation/` area for domain-scoped topics;
   cross-factory and contract-level topics belong here in openxFactory.
 
-## Brainstorm Header Format
+## Ideation Header Format
 
 Every file under `brainstorm/` uses this title and header, in this order:
 
@@ -84,6 +84,17 @@ Every file under `brainstorm/` uses this title and header, in this order:
 - `Purpose:` — optional; use in place of a `Problem` section for
   evidence/reference-gathering brainstorms rather than design-exploration
   ones.
+
+Every file under `staging/<topic>/` carries the same `Status:` (always
+`staged`), `Kind:`, `Summary:`, and `Topics:` fields, in that order, before
+`Repository context:`, followed by the staging-specific fields: `Staging ID:`
+(`<repo>:staging:<topic-slug>`, durable after the folder moves or is
+compressed), `Source:`, and — wherever the doc declares deltas —
+`Target capabilities:` naming each target with its delta type
+(ADDED / MODIFIED / REMOVED). The topic's primary doc H1 uses the
+`# Staged: <Title>` prefix; supporting fragments use plain titles. `Topics:`
+complements `Target capabilities:` — free subject keywords versus declared
+deltas — so a subject grep spans both stages with one field name.
 
 ## Contents
 
