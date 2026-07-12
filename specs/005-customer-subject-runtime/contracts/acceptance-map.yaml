@@ -76,8 +76,8 @@ openspec_parity:
 stories:
   - story_id: US1
     title: Instantiate Customer Hermes per subject
-    requirements: [FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-039, FR-045]
-    outcomes: [SC-001, SC-002, SC-003, SC-013, SC-017]
+    requirements: [FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-045]
+    outcomes: [SC-001, SC-002]
     contract_groups: [topology, references, overlays, static-stack-compatibility]
   - story_id: US2
     title: Isolate subjects and govern cross-layer work
@@ -91,8 +91,8 @@ stories:
     contract_groups: [postgres-v2, migration, quarantine, dataset-digest]
   - story_id: US4
     title: Publish and consume an exact contract bundle
-    requirements: [FR-024, FR-025, FR-031, FR-032, FR-033, FR-034, FR-035, FR-036, FR-037, FR-038, FR-042, FR-043]
-    outcomes: [SC-009, SC-010, SC-011, SC-012]
+    requirements: [FR-024, FR-025, FR-031, FR-032, FR-033, FR-034, FR-035, FR-036, FR-037, FR-038, FR-039, FR-042, FR-043]
+    outcomes: [SC-003, SC-009, SC-010, SC-011, SC-012, SC-013, SC-017]
     contract_groups: [jobs-v2, v1-compatibility, fixtures, release, domain-regression, downstream-handoff]
 gates:
   - gate_id: G0-PROVIDER

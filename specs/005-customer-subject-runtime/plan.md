@@ -125,7 +125,17 @@ scripts/
     ├── fixtures.py
     ├── acceptance.py
     ├── content.py
+    ├── migration.py
+    ├── domain_regression.py
+    ├── release.py
+    ├── consumer_handoff.py
     └── semantics/
+        ├── topology.py
+        ├── references.py
+        ├── overlays.py
+        ├── authority.py
+        ├── evidence.py
+        └── jobs.py
 
 requirements/
 ├── hermes-runtime-contracts.in
@@ -137,6 +147,8 @@ tests/hermes_runtime_contracts/
 ├── test_catalog_and_schema.py
 ├── test_fixture_index.py
 ├── test_acceptance_parity.py
+├── test_content_resolution.py
+├── test_validator_cli.py
 ├── test_topology_and_identity.py
 ├── test_topology_lifecycle.py
 ├── test_overlay_and_pins.py
@@ -145,6 +157,7 @@ tests/hermes_runtime_contracts/
 ├── test_v2_jobs.py
 ├── test_release_inventory.py
 ├── test_domain_regression.py
+├── test_consumer_handoff.py
 └── postgres/
     ├── compose.yaml
     ├── images.lock.yaml
@@ -152,9 +165,12 @@ tests/hermes_runtime_contracts/
     ├── assertions/
     ├── evidence/
     ├── fixtures/
+    ├── test_runner_contract.py
     ├── test_clean_apply.py
+    ├── test_topology_lifecycle.py
     ├── test_roles_and_rls.py
     ├── test_scope_pooling.py
+    ├── test_governed_evidence.py
     ├── test_authorization_races.py
     ├── test_migration.py
     ├── test_migration_recovery.py
@@ -164,6 +180,12 @@ tests/hermes_runtime_contracts/
 openspec/changes/add-hermes-customer-subject-runtime-contract/
 ├── proposal.md
 ├── design.md
+├── evidence/
+│   ├── provider-verification.yaml
+│   ├── legacy-source-path-consumer-audit.md
+│   ├── release-candidate-review.md
+│   ├── release-publication.md
+│   └── hermes-install-g0-handoff.yaml
 ├── specs/
 └── tasks.md
 
