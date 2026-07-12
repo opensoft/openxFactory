@@ -60,19 +60,30 @@ clustering missed.
    gate action that pre-fills a `staging/<topic>/` packet skeleton for human
    review. An ad-hoc set matching no machine cluster is treated as signal —
    a human-seen pattern proposed back to the cross-reference index.
-5. **Boundary (permanent)**: non-mutating over source docs and never
-   executes a gate. In scope: assembling reference sets, launching analysis
-   tools, drafting gate artifacts. Out of scope forever: moving, editing,
-   promoting, or deleting source docs; executing any stage transition.
+5. **Boundary (permanent, per-actor)**: the dashboard never executes a
+   gate, and its automated machinery (generator, renderers, workbench
+   actions) is non-mutating over existing source docs. Mutation authority
+   splits by actor: **humans** create and edit corpus docs through the
+   dashboard — it scaffolds new header-compliant docs and opens existing
+   ones in the editor (the doc-picker surface); **agents** (any Hermes tier
+   or Omni worker) may create new corpus docs but never modify or delete
+   existing ones. In scope for everyone: reference sets, analysis tools,
+   drafting gate artifacts. Executing a stage transition: no one, ever.
 6. **Secondary views** from the same snapshot: pipeline board (stage columns
    with possibles badges), doc list (assembly surface), lineage, readiness
    heat (consumes the cross-reference index), health overlay, stats strip.
+7. **Notebook doc operations**: creating and editing notes in corpus-bound
+   NotebookLM surfaces is allowed (new notes come back as new corpus docs
+   only via the governed hybrid-import path); deleting a doc/source removes
+   it from that notebook's set only — the underlying corpus doc is never
+   deleted.
 
 ## Decision record
 
 Decisions marked **decided** were made by Brett in the 2026-07-12 session;
 rows R1–R14 were drafted as recommendations and **confirmed unchanged by
-Brett on 2026-07-12** at the proposal gate.
+Brett on 2026-07-12** at the proposal gate. Rows D7–D9 were decided by
+Brett in a follow-on session later the same day (authoring authority).
 
 | # | Question | Resolution | Status |
 | --- | --- | --- | --- |
@@ -82,6 +93,9 @@ Brett on 2026-07-12** at the proposal gate.
 | D4 | Workbench | Temp reference sets, cluster-seeded + ad-hoc, with notebook / readiness / doc-health / draft-organize actions | decided |
 | D5 | Interactivity boundary | Non-mutating over sources; drafts gate artifacts; never executes a gate | decided |
 | D6 | Change coverage | Snapshot spans ideation/ plus active and archived changes (the funnel's right columns require it) | decided by design |
+| D7 | Human authoring | The dashboard is the human authoring cockpit: create new corpus docs (header-compliant scaffold) and select-to-edit existing docs in the human's editor; lifecycle discipline still applies to edits | decided |
+| D8 | Agent authority | Agents (any Hermes tier or Omni worker) may create new corpus docs; they never modify or delete existing ones | decided |
+| D9 | Notebook doc ops | Creating and editing notes in corpus-bound notebooks is allowed; deleting a doc/source removes it from that set only — the underlying corpus doc is never deleted | decided |
 | R1 | Possibles register home | Authors seed a `Possible feats:` section in brainstorm docs at capture; the cross-reference index consolidates the canonical register (same bootstrap posture as the readiness index). No third standalone register file | confirmed |
 | R2 | Possible states | `latent / picked / rejected / superseded`; rejected and superseded require a recorded reason plus citation, mirroring contested-finding dispositions | confirmed |
 | R3 | Pick citation | A pick edge cites the staging ID, inheriting the change ID at the proposal gate — aligned with the proposal-origin-contract discipline | confirmed |

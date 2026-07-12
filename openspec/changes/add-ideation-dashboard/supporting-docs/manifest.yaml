@@ -8,12 +8,12 @@
   "files": [
     {
       "path": "ideation-dashboard.md",
-      "sha256": "50537f084a155b17b952b614da72f8c38808e346a897156ca167dc2701e3a428",
+      "sha256": "49ae296bae7476a75f0eed3c494e63a7a3f32c4b619c13375d2ebc6f66766b34",
       "source_path": "ideation/staging/ideation-dashboard/ideation-dashboard.md"
     },
     {
       "path": "dashboard-mockup.html",
-      "sha256": "9bfa22ae28c9a2feb0201330778198fa541182a90574f0d3e4bd6d7bced215d6",
+      "sha256": "6962b6345b14725f69427bd0de73bd82b843836f34367d13872694eef4aa4d62",
       "source_path": "ideation/staging/ideation-dashboard/dashboard-mockup.html"
     }
   ],
@@ -22,6 +22,6 @@
   "origin_path": "ideation/staging/ideation-dashboard",
   "remaining_paths": [],
   "source_revision": "ff3cb20977ecfed71ecb81cf125cc39549eca941",
-  "source_state": "Full promotion: both staged files selected and the emptied topic folder removed. The primary doc's hash reflects the proposal-stage copy (Status: draft, Proposed by:, rebased brainstorm source link) adjusted at transition from the committed source revision; the mockup is unmodified interactive design evidence.",
+  "source_state": "Full promotion: both staged files selected and the emptied topic folder removed. Hashes reflect the proposal-stage copies: the primary doc adjusted at transition (Status: draft, Proposed by:, rebased brainstorm source link) and both files amended 2026-07-12 with the per-actor authoring boundary (D7-D9: human create/edit cockpit, agent create-only, notebook set-removal semantics).",
   "transitioned_at": "2026-07-12"
 }

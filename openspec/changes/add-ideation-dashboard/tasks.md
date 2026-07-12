@@ -20,6 +20,8 @@
 - [ ] 3.3 Implement the local generate-and-open command.
 - [ ] 3.4 Implement workbench actions: scratch `xf-wb-*` notebook creation/deletion with the sync orphan sweep, on-demand readiness scoring, scoped doc-health, and the draft-organize action that pre-fills a `staging/<topic>/` packet skeleton for human review without writing into `ideation/staging/`.
 - [ ] 3.5 Implement human-seen-cluster submission under the full organizer/cataloger evidence contract with `pending_review` disposition.
+- [ ] 3.6 Implement human authoring: a create action scaffolding a header-compliant doc (H1, Status, Kind, Summary, Topics, Repository context, Captured pre-filled) into the chosen ideation area, and select-to-edit opening any listed doc in the human's editor; the dashboard itself never rewrites content.
+- [ ] 3.7 Enforce agent create-only authority: any agent write path can add new corpus docs with required headers but MUST reject and report edits or deletions of existing docs; notebook doc/source deletion drops the set reference only (workbench manifests) while lifecycle projections restore their sets on the next sync.
 
 ## 4. Nightly Lane (xFactory aggregation)
 
@@ -27,5 +29,5 @@
 
 ## 5. Tests And Records
 
-- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no writes to `ideation/staging/` or source docs); funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection.
+- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no automated writes to `ideation/staging/` or existing source docs); scaffold header compliance; agent edit/delete rejection and reporting; notebook set-removal leaves the corpus doc intact and projections restore on sync; funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection.
 - [ ] 5.2 Obtain realization evidence (green nightly snapshot lane plus a working local generate-and-open run) and keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.

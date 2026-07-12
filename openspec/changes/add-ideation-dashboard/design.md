@@ -36,6 +36,10 @@ itself), so it does not touch the contested check-family enumeration.
 - Give humans a bounded way to assemble doc sets and point existing tools
   (NotebookLM, readiness scoring, doc-health) at them, feeding human-seen
   patterns back into the machine queue as evidence-backed signal.
+- Make the dashboard the human's authoring cockpit over the ideation
+  corpus: scaffolded header-compliant creation and select-to-edit in the
+  human's own editor — the dashboard launches edits, it never rewrites
+  content itself.
 
 **Non-Goals:**
 
@@ -57,6 +61,14 @@ itself), so it does not touch the contested check-family enumeration.
 - **Workbench, not "temp staging"** (R5): the contract word avoids
   collision with the `staged` status and `ideation/staging/`; nothing is
   ever written under `ideation/staging/` except by the human organize gate.
+- **Per-actor mutation authority** (D7-D9): the automated machinery
+  (generator, renderers, workbench actions) stays non-mutating over
+  existing source docs; humans create and edit corpus docs through the
+  dashboard, with lifecycle discipline and doc-health applying to those
+  edits unchanged; agents — any Hermes tier or Omni worker — create new
+  corpus docs but never modify or delete existing ones; deleting a
+  doc/source in a corpus-bound notebook removes it from that set only, and
+  lifecycle projections restore their sets on the next sync.
 - **Gitignored workbench manifests** (R6): committed manifests are
   disallowed to prevent pseudo-staging; browser state may hold unsaved
   sets.

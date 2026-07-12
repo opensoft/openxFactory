@@ -31,9 +31,13 @@ confirmed unchanged by Brett on 2026-07-12.
   `ideation-workbench` manifests under `ideation/workbench/`; committed
   manifests disallowed; scratch notebooks deleted with their manifest via a
   sync orphan sweep.
-- Bind the permanent interactivity boundary as normative requirements: the
-  dashboard and workbench are non-mutating over source documents, draft
-  gate artifacts, and never execute a gate.
+- Bind the permanent interactivity boundary as normative requirements,
+  split by actor: the dashboard's automated machinery is non-mutating over
+  existing source documents and never executes a gate; humans create and
+  edit corpus docs through the dashboard (header-compliant scaffolded
+  creation, select-to-edit opening the human's editor); agents may create
+  new corpus docs but never modify or delete existing ones; deleting a
+  doc/source in a corpus-bound notebook removes it from that set only.
 - MODIFIED `document-lifecycle`: brainstorm docs seed candidate feats in a
   `Possible feats:` section at capture; no historical fabrication — only
   the worked examples backfill as renderer fixtures.
@@ -58,8 +62,9 @@ confirmed unchanged by Brett on 2026-07-12.
 
 - `ideation-dashboard`: Defines the snapshot projection contract, the
   realization funnel model, the workbench reference-set contract and
-  persistence rules, the permanent interactivity boundary, and delivery/
-  regeneration.
+  persistence rules, the permanent interactivity boundary, per-actor
+  authoring authority (human create/edit, agent create-only, notebook
+  set-removal semantics), and delivery/regeneration.
 
 ### Modified Capabilities
 
@@ -82,5 +87,7 @@ confirmed unchanged by Brett on 2026-07-12.
   reports.
 - **Compatibility:** v1 covers openxFactory only; the snapshot schema's
   `repository` field makes DomainxFactory instances and an aggregation
-  roll-up additive later. Source documents are never edited, moved, or
-  promoted by this capability.
+  roll-up additive later. Existing source documents are never modified by
+  the capability's automated machinery or by any agent; humans edit through
+  their own editor via select-to-edit, and all lifecycle gates remain
+  human-operated.

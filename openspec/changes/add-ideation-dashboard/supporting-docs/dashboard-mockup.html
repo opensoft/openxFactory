@@ -230,6 +230,17 @@
   .docrow .where { font-size: 11px; color: var(--muted); margin-top: 1px; }
   .docrow .chips { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
   .tchip { font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--faint); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+  .editbtn {
+    flex: none; font-family: var(--mono); font-size: 10.5px; font-weight: 600; cursor: pointer;
+    color: var(--st-realized); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 2px 8px;
+  }
+  .editbtn:hover { border-color: var(--st-realized); }
+  .newdoc {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; cursor: pointer;
+    color: var(--st-brainstorm); background: none; border: 1px solid var(--st-brainstorm); border-radius: 3px; padding: 3px 10px;
+  }
+  .newdoc:hover { background: var(--faint); }
+  .docstatus { font-family: var(--mono); font-size: 11px; color: var(--muted); min-height: 15px; margin: 0 0 10px; }
 
   .tray {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: none;
@@ -486,16 +497,20 @@
   <section class="view" id="view-docs" role="tabpanel" aria-labelledby="tab-docs" hidden>
     <div class="legend">
       <span class="g">tick docs to assemble an ad-hoc workbench — the clusters are suggestions, not the only valid grouping; maybe you see something the index does not</span>
+      <span class="g" style="margin-left:auto"><button class="newdoc" id="newdoc">+ new doc</button></span>
     </div>
+    <div class="docstatus" id="docstatus" aria-live="polite"></div>
     <div class="doclist" id="doclist"></div>
   </section>
 
   <p class="foot">
     Illustrative design mockup, populated by hand from the repo state at 2026-07-12.
-    The workbench tray is a mock: its actions describe what they would run
-    (scratch NotebookLM notebook, on-demand readiness, scoped doc-health, a
-    pre-filled organize-gate draft) — none execute here, and none would ever
-    move or edit a source doc.
+    The workbench tray and authoring buttons are mocks: they describe what
+    they would run (scratch NotebookLM notebook, on-demand readiness, scoped
+    doc-health, organize-gate draft, scaffolded doc creation, editor launch)
+    — none execute here. Authority split: humans create and edit docs;
+    agents only create; the dashboard's own machinery never modifies a
+    source doc, and no one executes a gate through it.
     Cluster↔possible links are many-to-many: one doc's <code>Topics:</code> list
     feeds several clusters, and one possible can be claimed by several clusters
     (dashed violet edges). Possibles are inferred from prose — no possibles
@@ -679,9 +694,22 @@
     row.className = "docrow";
     row.innerHTML = '<input type="checkbox" data-doc="' + id + '">'
       + '<span><span class="name">' + name + '</span><div class="where">' + where + ' · ' + badge + '</div></span>'
-      + '<span class="chips">' + topics.map(t => '<span class="tchip">' + t + '</span>').join("") + '</span>';
+      + '<span class="chips">' + topics.map(t => '<span class="tchip">' + t + '</span>').join("") + '</span>'
+      + '<button class="editbtn" data-edit="' + name + '">✎ edit</button>';
     doclistEl.appendChild(row);
   }
+
+  const docStatusEl = document.getElementById("docstatus");
+  document.getElementById("newdoc").addEventListener("click", () => {
+    docStatusEl.textContent = "mock — would scaffold a header-compliant doc (Status/Kind/Summary/Topics pre-filled) in ideation/brainstorm/ and open it in your editor; humans and agents can create, only humans edit";
+  });
+  doclistEl.addEventListener("click", e => {
+    const btn = e.target.closest(".editbtn");
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    docStatusEl.textContent = "mock — would open " + btn.dataset.edit + " in your editor (human-only; agents can never modify or delete existing docs)";
+  });
 
   const wb = new Set();
   const tray = document.getElementById("tray");
@@ -739,7 +767,7 @@
   });
 
   const ACT_MSG = {
-    nlm: n => "mock — would run: nlm notebook create xf-wb-" + n + ", add the set as sources, then interrogate / mind-map it; hybrid-imports return path brings notes back",
+    nlm: n => "mock — would run: nlm notebook create xf-wb-" + n + ", add the set as sources, then interrogate / mind-map it; new notes return as new docs via hybrid imports; deleting a source there removes it from the set only, never the repo doc",
     readiness: () => "mock — would run the three-tier Hermes panel over this set only (on-demand readiness, ahead of the nightly lane)",
     health: () => "mock — would run the codexFactory doc-health checker scoped to this set",
     organize: n => "mock — would pre-fill a staging/" + n + "/ packet skeleton for human review; the organize gate itself stays manual"

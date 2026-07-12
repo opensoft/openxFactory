@@ -76,20 +76,79 @@ cluster under the full evidence contract.
 - **AND** moving material into `ideation/staging/` remains a human gate action
 
 ### Requirement: Interactivity boundary
-The dashboard and workbench SHALL be non-mutating over source documents and
-SHALL never execute a lifecycle gate — permanently, not as a v1 limit. In
-scope: assembling reference sets, launching analysis tools, and drafting
-gate artifacts. Out of scope: editing, moving, promoting, or deleting
-source documents, and executing any stage transition. Generator and
-workbench actions MUST write only under their own declared output paths.
+The dashboard SHALL never execute a lifecycle gate — permanently, not as a
+v1 limit — and its automated machinery (generator, renderers, workbench
+actions) SHALL be non-mutating over existing source documents, writing only
+under declared output paths. Document mutation authority is split by actor:
+humans may create and edit corpus documents through the dashboard, agents
+may only create (see the authoring requirements below). In scope for all
+actors: assembling reference sets, launching analysis tools, and drafting
+gate artifacts. Out of scope for all actors: executing any stage
+transition, and moving or promoting source documents outside the
+human-operated gates.
 
 #### Scenario: A rendered card offers a stage transition
 - **WHEN** any dashboard control would move a document between lifecycle stages
 - **THEN** that control violates this capability — the strongest allowed concession is drafting the gate artifact for a human
 
-#### Scenario: An action attempts a source write
-- **WHEN** a generator or workbench action attempts to write outside its declared output paths
+#### Scenario: An automated action attempts a source write
+- **WHEN** the generator, a renderer, or a workbench action attempts to write outside its declared output paths
 - **THEN** the write MUST be rejected and the attempt reported
+
+### Requirement: Human document authoring
+The dashboard SHALL be the human's authoring cockpit over the ideation
+corpus: a create action that scaffolds a new header-compliant document
+(H1, `Status:`, `Kind:`, `Summary:`, `Topics:`, `Repository context:`,
+`Captured:` pre-filled) into the chosen ideation area and opens it for
+editing, and a select-to-edit action on any listed document that opens the
+document in the human's editor. The dashboard launches the edit; it never
+rewrites document content itself. Human edits remain subject to the
+existing lifecycle discipline — editing a promoted document through the
+dashboard grants no exemption from prose-delta rules or doc-health checks.
+
+#### Scenario: A human creates a new corpus doc from the UI
+- **WHEN** a human uses the create action
+- **THEN** a header-compliant skeleton is written into the chosen ideation area and opened for editing
+- **AND** the document appears in the next snapshot
+
+#### Scenario: A human selects a doc to edit
+- **WHEN** a human uses select-to-edit on a listed document
+- **THEN** the document opens in the human's editor and the dashboard itself modifies nothing
+
+#### Scenario: A human edits a promoted document
+- **WHEN** the edited document carries a promoted lifecycle status
+- **THEN** doc-health and prose-delta rules apply to the edit exactly as if it were made outside the dashboard
+
+### Requirement: Agent create-only capture
+Agents SHALL be able to add new documents to the ideation corpus but SHALL
+never modify or delete an existing document — no Hermes tier and no Omni
+worker holds edit or delete authority over corpus content. Agent-created
+documents carry the required ideation headers and enter the corpus as
+ordinary capture.
+
+#### Scenario: An agent captures a new document
+- **WHEN** an agent submits a new document to the corpus
+- **THEN** it is added as a new file with the required headers and appears in the next snapshot
+
+#### Scenario: An agent attempts to modify or delete an existing document
+- **WHEN** any agent attempts an edit or deletion of an existing corpus document
+- **THEN** the attempt MUST be rejected and reported
+
+### Requirement: Notebook set-removal semantics
+Deleting a doc/source in any corpus-bound NotebookLM surface SHALL only
+remove it from that notebook's set — never delete the underlying corpus
+document. Creating and editing notes in those surfaces (lifecycle
+projections and `xf-wb-*` scratch notebooks) is allowed; new notes return
+to the corpus only as new documents through the governed hybrid-import
+path.
+
+#### Scenario: A source is deleted from a workbench notebook
+- **WHEN** a user removes a doc/source from an `xf-wb-*` notebook
+- **THEN** the workbench manifest drops the reference and the corpus document is untouched
+
+#### Scenario: A source is deleted from a lifecycle projection notebook
+- **WHEN** a user removes a source from a lifecycle notebook
+- **THEN** the corpus document is untouched and the next projection sync restores the set from lifecycle state — removing a source is not a lifecycle exit
 
 ### Requirement: Delivery and regeneration
 The dashboard SHALL be delivered as a local generate-and-open command plus
