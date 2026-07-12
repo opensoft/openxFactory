@@ -45,13 +45,136 @@ class SimulatedMediaPeer:
         return self._answer_applied
 
 
-class AiortcMediaPeer:  # pragma: no cover - live path
-    """Live WebRTC peer (lazy aiortc). Deferred to the lab run (T058)."""
+class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a lab key
+    """Live WebRTC peer with the held-answer gate (FR-007).
+
+    The provider answer SDP is applied to the peer connection ONLY via ``apply_answer``,
+    and only when ``authorized`` is true — so the runner enforces "no media before both
+    control channels verify + control authorizes." First inbound audio frame ⇒ first
+    playable output. SDP is never logged. Constructed lazily so ``aiortc`` is imported
+    only on the live path.
+    """
 
     def __init__(self) -> None:
-        self._pc = None
+        import asyncio
 
-    def create_offer(self):
-        import aiortc  # lazy
+        from aiortc import RTCPeerConnection  # lazy
 
-        raise NotImplementedError("live media peer is enabled during the lab run (T058)")
+        self._pc = RTCPeerConnection()
+        self._answer_applied = False
+        self._first_output = asyncio.Event()
+        self._terminal = asyncio.Event()
+
+        @self._pc.on("track")
+        def _on_track(track):  # noqa: ANN001
+            if track.kind != "audio":
+                return
+
+            async def _drain():
+                try:
+                    await track.recv()          # first inbound frame = first playable output
+                    self._first_output.set()
+                    while True:
+                        await track.recv()       # keep draining so the leg stays alive
+                except Exception:
+                    return
+
+            asyncio.ensure_future(_drain())
+
+        @self._pc.on("connectionstatechange")
+        async def _on_state():
+            if self._pc.connectionState in ("failed", "closed", "disconnected"):
+                self._terminal.set()
+
+    async def create_offer(self, fixture_track) -> str:
+        """Attach the fixture track, create the offer, wait ICE gather, return offer SDP."""
+        import asyncio
+
+        from aiortc import RTCSessionDescription  # noqa: F401  (kept explicit for parity)
+
+        self._pc.addTrack(fixture_track)
+        offer = await self._pc.createOffer()
+        await self._pc.setLocalDescription(offer)
+        # Non-trickle: the full SDP (with candidates) is POSTed, so wait for gathering.
+        while self._pc.iceGatheringState != "complete":
+            await asyncio.sleep(0.02)
+        return self._pc.localDescription.sdp
+
+    async def apply_answer(self, answer_sdp: str, *, authorized: bool) -> None:
+        from aiortc import RTCSessionDescription
+
+        if not authorized:
+            raise MediaGateError("refusing to apply answer before media authorization")
+        if not answer_sdp:
+            raise MediaGateError("no answer sdp")
+        await self._pc.setRemoteDescription(RTCSessionDescription(sdp=answer_sdp, type="answer"))
+        self._answer_applied = True
+
+    async def wait_first_output(self, timeout_s: float) -> bool:
+        import asyncio
+
+        try:
+            await asyncio.wait_for(self._first_output.wait(), timeout=timeout_s)
+            return True
+        except Exception:
+            return False
+
+    async def wait_terminal(self, timeout_s: float) -> bool:
+        import asyncio
+
+        try:
+            await asyncio.wait_for(self._terminal.wait(), timeout=timeout_s)
+            return True
+        except Exception:
+            return False
+
+    @property
+    def answer_applied(self) -> bool:
+        return self._answer_applied
+
+    async def close(self) -> None:
+        try:
+            await self._pc.close()
+        except Exception:
+            pass
+
+
+def fixture_audio_track(pcm16: bytes, sample_rate_hz: int = 24_000):  # pragma: no cover - live path
+    """A ``MediaStreamTrack`` that plays the deterministic PCM16 fixture, then silence.
+
+    Frames are 20 ms of s16 mono at ``sample_rate_hz``; aiortc resamples/encodes to Opus.
+    After the fixture is exhausted the track yields silence so the leg stays open long
+    enough to observe the model's response (feeding the first-playable metric).
+    """
+    import asyncio
+    import fractions
+
+    import av
+    from aiortc import MediaStreamTrack
+
+    class _FixtureTrack(MediaStreamTrack):
+        kind = "audio"
+
+        def __init__(self) -> None:
+            super().__init__()
+            self._samples_per_frame = sample_rate_hz // 50  # 20 ms
+            self._bytes_per_frame = self._samples_per_frame * 2
+            self._pcm = pcm16
+            self._pos = 0
+            self._pts = 0
+
+        async def recv(self):
+            frame_bytes = self._pcm[self._pos:self._pos + self._bytes_per_frame]
+            self._pos += self._bytes_per_frame
+            if len(frame_bytes) < self._bytes_per_frame:
+                frame_bytes = frame_bytes + b"\x00" * (self._bytes_per_frame - len(frame_bytes))
+            frame = av.AudioFrame(format="s16", layout="mono", samples=self._samples_per_frame)
+            frame.planes[0].update(frame_bytes)
+            frame.sample_rate = sample_rate_hz
+            frame.pts = self._pts
+            frame.time_base = fractions.Fraction(1, sample_rate_hz)
+            self._pts += self._samples_per_frame
+            await asyncio.sleep(0.02)  # pace at real time (20 ms)
+            return frame
+
+    return _FixtureTrack()
