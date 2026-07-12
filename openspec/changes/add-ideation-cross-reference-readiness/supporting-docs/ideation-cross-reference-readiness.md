@@ -1,6 +1,7 @@
 # Staged: Ideation Cross-Reference Readiness Index
 
-Status: staged
+Status: draft
+Proposed by: add-ideation-cross-reference-readiness
 Kind: architecture
 Summary: Defines a topic-indexed cross-reference spanning brainstorm, staging,
 and archived material, scored 1-10 for staging readiness by three independent
@@ -10,7 +11,7 @@ where minimum score >= 8 triggers a "propose for authorization" recommendation
 Topics: ideation-cross-reference, readiness-scoring, hermes-review-panel, extension-fit, doc-health, staging-readiness
 Repository context: openxFactory (contract-level, cross-factory topic)
 Staging ID: openxFactory:staging:ideation-cross-reference-readiness
-Source: [Ideation Cross-Reference Readiness Index — Brainstorm](../../brainstorm/ideation-cross-reference-readiness.md),
+Source: [Ideation Cross-Reference Readiness Index — Brainstorm](../../../../ideation/brainstorm/ideation-cross-reference-readiness.md),
 design session 2026-07-12; all seven open questions decided by Brett
 2026-07-12 (decisions recorded below and inline in the brainstorm).
 Target capabilities: `ideation-cross-reference` (ADDED) and `doc-health`

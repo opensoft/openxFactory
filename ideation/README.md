@@ -117,13 +117,16 @@ proposal):
   change: release targets, delta-driven feat decomposition, and the archive
   gate binding to merge evidence.
 - [Ideation Cross-Reference Readiness Index](brainstorm/ideation-cross-reference-readiness.md)
-  — organized into the ideation-cross-reference-readiness staged topic after
-  all seven open questions were decided on 2026-07-12; kept as design history
-  with the decisions inline.
+  — organized 2026-07-12 after all seven open questions were decided, and
+  promoted the same day into the add-ideation-cross-reference-readiness
+  proposal; kept as design history with the decisions inline.
 
 Brainstorm (active):
 
-- none currently.
+- [Ideation Area Dashboard](brainstorm/ideation-dashboard.md) — read-only
+  generated dashboard GUI (pipeline board, topic clusters, lineage, readiness
+  heat) projecting the governance state of the ideation area; complements the
+  NotebookLM semantic surface; scope, capability home, and v0 cut undecided.
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a
@@ -150,6 +153,17 @@ Active proposals promoted from staging:
   — user-approved split from the former umbrella proposal; owns external
   controlled tagging, immutable catalog snapshots, deterministic catalog
   validation, and the bounded document cataloger.
+- [add-proposal-origin-contract](../openspec/changes/add-proposal-origin-contract/proposal.md)
+  — owns the former `proposal-origin-contract` primary doc under
+  `supporting-docs/` and proposes the mandatory staged/ad-hoc origin
+  declaration, gate rejections, archive retention, migration, and the
+  proposal-origin doc-health family; the FDA SaMD rationale deliberately
+  remains staged.
+- [add-ideation-cross-reference-readiness](../openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
+  — owns the former `ideation-cross-reference-readiness` staged packet under
+  `supporting-docs/` and proposes the unified cross-stage topic index,
+  three-tier Hermes readiness panel, minimum-score recommendation gate, and
+  nightly readiness lane.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or

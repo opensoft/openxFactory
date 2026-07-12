@@ -1,6 +1,7 @@
 # Staged: OpenSpec Proposal Origin Contract
 
-Status: staged
+Status: draft
+Proposed by: add-proposal-origin-contract
 Kind: architecture
 Summary: Requires every OpenSpec proposal to declare exactly one durable
 origin — staged or explicitly approved ad-hoc — in `.openspec.yaml`, with
@@ -12,7 +13,8 @@ Source: Brett review of the archived
 `add-proposal-supporting-doc-lifecycle` change, 2026-07-09.
 Target capabilities: `document-lifecycle` (MODIFIED), `doc-health` (MODIFIED),
 and `release-realization` (MODIFIED).
-Regulatory rationale: [FDA SaMD Traceability Rationale](fda-samd-traceability-rationale.md).
+Regulatory rationale: [FDA SaMD Traceability Rationale](../../../../ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md)
+(remains staged for a future regulated-traceability profile).
 
 ## Problem
 

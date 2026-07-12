@@ -10,11 +10,13 @@ action — to open an OpenSpec proposal.
 Topics: ideation-cross-reference, readiness-scoring, hermes-review-panel, extension-fit, staging-readiness
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
-Organized: 2026-07-12 into the
-[ideation-cross-reference-readiness](../staging/ideation-cross-reference-readiness/ideation-cross-reference-readiness.md)
-staged topic (staged) after Brett decided all seven open questions; decisions
-are recorded inline below and in the staged doc's Decision Record. Kept as
-design history. Nothing in this document is policy.
+Organized: 2026-07-12 into the ideation-cross-reference-readiness staged
+topic after Brett decided all seven open questions, and promoted the same day
+into
+[add-ideation-cross-reference-readiness](../../openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
+(proposed); decisions are recorded inline below and in that change's
+supporting Decision Record. Kept as design history. Nothing in this document
+is policy.
 Participants: Brett Heap, Claude (design session)
 
 ## Problem

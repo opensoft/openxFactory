@@ -29,8 +29,7 @@ Update this index in the same commit as any of:
 | --- | --- | --- | --- |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
-| [ideation-cross-reference-readiness](#ideation-cross-reference-readiness) | ADDED `ideation-cross-reference`; MODIFIED `doc-health` (nightly readiness lane) | 1 | Ready to propose — recommended ID `add-ideation-cross-reference-readiness` |
-| [proposal-origin-contract](#proposal-origin-contract) | MODIFIED `document-lifecycle`; MODIFIED `doc-health`; MODIFIED `release-realization` | 2 | Ready to propose — recommended ID `add-proposal-origin-contract` |
+| [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 
 ## client-infrastructure-liaison
 
@@ -79,39 +78,19 @@ Update this index in the same commit as any of:
   propose yet. (1) neutral: extend `roles-authority-model` with GitHub App
   identity tiers; (2) OpsxFactory: a new `github-administration` capability.
 
-## ideation-cross-reference-readiness
-
-- Staging ID: `openxFactory:staging:ideation-cross-reference-readiness`
-- Source: [brainstorm](../brainstorm/ideation-cross-reference-readiness.md)
-  design session 2026-07-12; all seven open questions decided by Brett
-  2026-07-12.
-- Claim: a unified cross-stage topic index (`ideation/`-level, stage column)
-  clustering brainstorm/staging/archive material by `Topics:`/`Target
-  capabilities:` tags, scored 1-10 by three Hermes-tier reviewers
-  (engineering-buildability, company/openxFactory, domain) with the full
-  organizer/cataloger evidence contract; minimum score >= 8 flags "propose
-  for authorization" as a recommendation only, run as a nightly doc-health
-  lane, non-mutating over source docs.
-- Files:
-  - [ideation-cross-reference-readiness.md](ideation-cross-reference-readiness/ideation-cross-reference-readiness.md) — primary: problem, decided contract, decision record, required deltas/tests, exit.
-- Exit: create `add-ideation-cross-reference-readiness` (openxFactory contract
-  change paired with a codexFactory worker delta, the ideation-routing /
-  document-cataloging two-repo split pattern); at the proposal gate move this
-  folder's file into that change's `supporting-docs/`, preserving the staging
-  origin.
-
 ## proposal-origin-contract
 
 - Staging ID: `openxFactory:staging:proposal-origin-contract`
 - Source: Brett review of the archived `add-proposal-supporting-doc-lifecycle` change, 2026-07-09.
-- Claim: every OpenSpec proposal must declare exactly one origin (staged or
-  approved ad-hoc) in `.openspec.yaml`, so a proposal can never bypass
-  brainstorm/staging without a machine-checkable exception.
+- Partial promotion 2026-07-12: the primary origin-contract doc crossed the
+  proposal gate (pointer in `ideation/README.md`'s "Active proposals promoted
+  from staging" list); this topic now holds only the regulatory rationale.
+- Claim (remaining file): origin provenance is a necessary first traceability
+  edge but is **not** by itself sufficient for FDA SaMD compliance; the
+  rationale scopes the additional trace graph/QMS/validation work a regulated
+  domain (e.g. MedxFactory) would still need.
 - Files:
-  - [origin-contract.md](proposal-origin-contract/origin-contract.md) — problem, proposed contract (staged/ad-hoc origin kinds), proposal/archive gates, doc-health enforcement, migration, required tests, exit.
-  - [fda-samd-traceability-rationale.md](proposal-origin-contract/fda-samd-traceability-rationale.md) — regulatory rationale: the origin contract is a necessary first traceability edge but is **not** by itself sufficient for FDA SaMD compliance; scopes the additional trace graph/QMS/validation work a domain (e.g. MedxFactory) would still need.
-- Exit: create `add-proposal-origin-contract`; at the proposal gate move
-  `origin-contract.md` into that change's `supporting-docs/`. The resulting
-  `.openspec.yaml` must declare this topic's staged ID and path as the
-  self-application acceptance proof. Must not claim FDA/SaMD compliance on its
-  own.
+  - [fda-samd-traceability-rationale.md](proposal-origin-contract/fda-samd-traceability-rationale.md) — read-only regulatory rationale retained for a future regulated-traceability profile.
+- Exit: the rationale exits with a future regulated-traceability-profile
+  topic when a regulated domain needs it; it does not exit with the origin
+  contract.

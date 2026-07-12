@@ -9,7 +9,9 @@ Topics: fda-samd, traceability, proposal-origin, regulatory-compliance, medxfact
 Repository context: openxFactory
 Staging ID: openxFactory:staging:proposal-origin-contract
 Regulatory review date: 2026-07-09
-Target: proposal-origin contract and a follow-up regulated-traceability profile
+Target: a future regulated-traceability profile; retained here as read-only
+rationale after the origin contract itself was promoted from this topic
+(2026-07-12)
 
 ## Conclusion
 
