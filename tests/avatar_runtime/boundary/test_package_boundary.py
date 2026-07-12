@@ -57,9 +57,21 @@ def test_scanner_flags_file_persistence():
 
 
 def test_scanner_ignores_read_open():
-    # Read-only open() is not a persistence surface.
-    kinds = {x.kind for x in scan_source("open('/tmp/x')\nopen('/tmp/x', 'r')\n", "x.py")}
-    assert "file-persistence" not in kinds
+    # Read-only open() is not a persistence surface — including the adversarial
+    # case where the FILENAME is spelled entirely with mode-alphabet chars
+    # (e.g. "x", "wa", "r+"). The filename positional must never be read as a
+    # mode; only open()'s 2nd positional / mode= kwarg is the mode.
+    for src in (
+        "open('/tmp/x')\n",
+        "open('/tmp/x', 'r')\n",
+        "open('x')\n",            # filename 'x' is a write-mode char but is a PATH here
+        "open('wa')\n",
+        "open('r+')\n",
+        "open('x', 'r')\n",
+        "open('x', mode='rb')\n",
+    ):
+        kinds = {x.kind for x in scan_source(src, "x.py")}
+        assert "file-persistence" not in kinds, f"false positive on read-only open:\n{src}"
 
 
 def test_scanner_flags_persistence_module_imports():

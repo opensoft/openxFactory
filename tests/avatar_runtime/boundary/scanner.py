@@ -70,15 +70,21 @@ def _top(name: str) -> str:
     return (name or "").split(".")[0]
 
 
-def _has_write_mode(call: ast.Call) -> bool:
+def _has_write_mode(call: ast.Call, mode_pos: int = 1) -> bool:
     """True if an ``open``/``Path.open`` call requests a write mode.
 
-    Inspects positional string args and a ``mode=`` keyword; a value is a file
-    mode iff every char is in the mode alphabet, and it is a write mode iff it
-    contains any of ``w``/``a``/``x``/``+``. Read-only (``'r'``/``'rb'``) and
+    Only the ARGUMENT that actually carries the mode is inspected — the mode is
+    positional index ``mode_pos`` (1 for builtin ``open(file, mode)``; 0 for a
+    bound ``Path.open(mode)``) or the ``mode=`` keyword. The filename positional
+    is never treated as a mode, so ``open("x")`` (read-only, even when the path
+    happens to be spelled with mode-alphabet chars) is not misflagged. A value is
+    a file mode iff every char is in the mode alphabet, and it is a write mode iff
+    it contains any of ``w``/``a``/``x``/``+``. Read-only (``'r'``/``'rb'``) and
     non-mode strings (paths) are ignored, keeping detection deterministic.
     """
-    candidates = list(call.args)
+    candidates = []
+    if len(call.args) > mode_pos:
+        candidates.append(call.args[mode_pos])
     candidates += [kw.value for kw in call.keywords if kw.arg == "mode"]
     for arg in candidates:
         if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
@@ -133,7 +139,7 @@ def scan_source(src: str, filename: str) -> list[Violation]:
                     )
                 if fn.attr in FILE_WRITE_ATTRS:
                     out.append(Violation(filename, "file-persistence", f"{base}.{fn.attr}()"))
-                elif fn.attr == "open" and (base == "os" or _has_write_mode(node)):
+                elif fn.attr == "open" and (base == "os" or _has_write_mode(node, mode_pos=0)):
                     out.append(Violation(filename, "file-persistence", f"{base}.open()"))
         # Forbidden entrypoint -------------------------------------------- #
         elif isinstance(node, ast.If):
