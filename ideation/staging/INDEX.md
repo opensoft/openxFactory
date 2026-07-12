@@ -29,7 +29,6 @@ Update this index in the same commit as any of:
 | --- | --- | --- | --- |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
-| [ideation-dashboard](#ideation-dashboard) | ADDED `ideation-dashboard`; MODIFIED `doc-health` (snapshot lane); MODIFIED `document-lifecycle` (`Possible feats:`); MODIFIED `ideation-cross-reference` (register + human-seen-cluster intake) | 2 | Ready to propose — R1–R14 confirmed 2026-07-12; recommended ID `add-ideation-dashboard` |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 
 ## client-infrastructure-liaison
@@ -78,30 +77,6 @@ Update this index in the same commit as any of:
 - Exit: two OpenSpec changes once the open questions are settled — do not
   propose yet. (1) neutral: extend `roles-authority-model` with GitHub App
   identity tiers; (2) OpsxFactory: a new `github-administration` capability.
-
-## ideation-dashboard
-
-- Staging ID: `openxFactory:staging:ideation-dashboard`
-- Source: [brainstorm](../brainstorm/ideation-dashboard.md) design session
-  2026-07-12 (Brett Heap, Claude); organized the same day with an
-  interactive mockup iterated live in session.
-- Claim: a generated, schema-versioned ideation-dashboard snapshot rendered
-  by a static GUI — six-column docs-first realization funnel (docs →
-  clusters → possibles → picks → proposals → realized, many-to-many on the
-  left hops) over a new possibles register, plus pipeline board, doc list,
-  and a non-mutating workbench for user-assembled temp doc sets with
-  notebook / readiness / doc-health / draft-organize actions; drafts gate
-  artifacts, never executes a gate.
-- Files:
-  - [ideation-dashboard.md](ideation-dashboard/ideation-dashboard.md) — primary: problem, decided contract, decision record (decided vs. recommended rows), required deltas/tests, evidence, exit.
-  - [dashboard-mockup.html](ideation-dashboard/dashboard-mockup.html) — interactive design mockup (evidence; hand-populated snapshot of 2026-07-12, actions mocked).
-- Gate note: decided rows D1–D6 locked in session; recommended rows R1–R14
-  confirmed unchanged by Brett 2026-07-12 — proposal gate satisfied.
-- Exit: create `add-ideation-dashboard` (openxFactory contract change)
-  paired with a codexFactory realization delta; at the proposal gate move
-  this folder's files into that change's `supporting-docs/`, preserving the
-  staging origin. Coordinate the `ideation-cross-reference` delta with the
-  active `add-ideation-cross-reference-readiness` change.
 
 ## proposal-origin-contract
 

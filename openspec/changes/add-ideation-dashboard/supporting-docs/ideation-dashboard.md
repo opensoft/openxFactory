@@ -1,6 +1,7 @@
 # Staged: Ideation Area Dashboard
 
-Status: staged
+Status: draft
+Proposed by: add-ideation-dashboard
 Kind: architecture
 Summary: Decided contract for a generated ideation dashboard — a six-column
 docs-first realization funnel over a new possibles register, a pipeline
@@ -11,7 +12,7 @@ never executes a gate.
 Topics: ideation-dashboard, possibles-register, workbench, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection
 Repository context: openxFactory (contract-level, cross-factory topic)
 Staging ID: `openxFactory:staging:ideation-dashboard`
-Source: [brainstorm](../../brainstorm/ideation-dashboard.md) design session
+Source: [brainstorm](../../../../ideation/brainstorm/ideation-dashboard.md) design session
 2026-07-12 (Brett Heap, Claude); the interactive mockup in this folder was
 iterated live during the session.
 Target capabilities: ADDED `ideation-dashboard`; MODIFIED `doc-health`

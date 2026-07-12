@@ -13,9 +13,10 @@ NotebookLM semantic interrogation surface.
 Topics: ideation-dashboard, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection, lifecycle-projection
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
-Organized: 2026-07-12 into the
-[ideation-dashboard staged topic](../staging/ideation-dashboard/ideation-dashboard.md)
-(staged) — all open questions carry decisions in that packet's decision
+Organized: 2026-07-12 into the ideation-dashboard staged topic and promoted
+the same day into
+[add-ideation-dashboard](../../openspec/changes/add-ideation-dashboard/proposal.md)
+(proposed) — all open questions carry decisions in that packet's decision
 record; Brett confirmed the drafted recommended rows R1–R14 unchanged on
 2026-07-12, satisfying the proposal gate.
 Participants: Brett Heap, Claude (design session)

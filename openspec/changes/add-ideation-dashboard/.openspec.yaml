@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-07-12
+origin:
+  kind: staged
+  id: openxFactory:staging:ideation-dashboard
+  path: ideation/staging/ideation-dashboard
