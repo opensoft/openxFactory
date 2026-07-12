@@ -197,6 +197,12 @@ Active changes:
 - [align-avatar-first-ui-standard](openspec/changes/align-avatar-first-ui-standard/proposal.md)
   — avatar-first standard, domain profile carrier, template, examples, and
   offline validator; Flutter implementation remains a successor
+- [define-human-escalation-contract](openspec/changes/define-human-escalation-contract/proposal.md)
+  — route/park/interrupt escalation ladder with a deliberately high interrupt
+  bar (containment failure only, cited classes), parked-decision packets at
+  existing gates, fail-closed silence, and the Merge Master low-risk
+  envelope; resolves the dangling `HR` consultation in the engineering
+  escalation table
 
 The four avatar-client changes use disjoint implementation surfaces and may be
 implemented in parallel; shared contract release metadata is serialized only
