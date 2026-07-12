@@ -529,12 +529,27 @@ def check_redaction(f: Findings) -> None:
     patterns = (load_yaml(denylist_path).get("patterns") or [])
     if not patterns:
         return
-    sentinels = {s["bounded_form"] for s in (load_yaml(sentinels_path).get("sentinels") or [])}
-    # structural sanity: sentinels must be obviously-fake bounded forms
-    for s in (load_yaml(sentinels_path).get("sentinels") or []):
+    sentinel_entries = (load_yaml(sentinels_path).get("sentinels") or [])
+    sentinels = {s["bounded_form"] for s in sentinel_entries}
+    # structural sanity: a sentinel must be an obviously-fake bounded form that
+    # cannot widen into a real secret — EITHER the reserved SENTINEL_ prefix
+    # (credential/SDP and prefix-compatible identifier forms) OR, for
+    # high-cardinality identifier classes whose pattern cannot carry that prefix,
+    # one of these documented reserved/invalid canonical values that can never be
+    # a real identifier (RFC 4122 nil UUID; an unassignable NANP number).
+    RESERVED_INVALID_IDS = {
+        "00000000-0000-0000-0000-000000000000",  # RFC 4122 nil UUID
+        "000-000-0000",                           # unassignable NANP number
+    }
+    for s in sentinel_entries:
         bf = s.get("bounded_form", "")
-        if not bf.startswith("SENTINEL_") or len(bf) > int(s.get("max_len", 0) or 0):
-            f.error("sentinel", f"sentinel {s.get('id')} is not a bounded SENTINEL_ form within max_len")
+        max_len = int(s.get("max_len", 0) or 0)
+        prefixed_ok = bf.startswith("SENTINEL_") and len(bf) <= max_len
+        reserved_ok = (s.get("form") == "reserved_invalid"
+                       and bf in RESERVED_INVALID_IDS and len(bf) <= max_len)
+        if not (prefixed_ok or reserved_ok):
+            f.error("sentinel", f"sentinel {s.get('id')} is not a bounded SENTINEL_ form "
+                    f"or documented reserved-invalid identifier within max_len")
     compiled = [(p["id"], re.compile(p["regex"])) for p in patterns]
     for path in sorted(AVC.rglob("*")):
         if not path.is_file():

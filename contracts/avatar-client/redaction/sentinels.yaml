@@ -23,3 +23,26 @@ sentinels:
     bounded_form: "SENTINEL_CTRLCRED_00000000"
     max_len: 32
     represents: credential
+  # --- high-cardinality identifier placeholders (FR-018 / SC-008) ---
+  # A fixture that must legitimately SHOW an identifier field (e.g. an example
+  # session email, a UUID id, a phone number) uses ONLY these bounded forms.
+  # The email form keeps the reserved SENTINEL_ prefix; the UUID and phone forms
+  # cannot carry that prefix and still match their class pattern, so they use
+  # documented reserved/invalid canonical values (RFC 4122 nil UUID; an
+  # unassignable NANP number) that can never be a real identifier.
+  # NOTE: us_ssn and jwt_token deliberately have NO allowlisted form — a fixture
+  # must never present an SSN or a JWT, so those classes always fail closed.
+  - id: fake_email
+    bounded_form: "SENTINEL_EMAIL_0@example.invalid"
+    max_len: 40
+    represents: identifier
+  - id: fake_uuid
+    bounded_form: "00000000-0000-0000-0000-000000000000"
+    max_len: 40
+    form: reserved_invalid
+    represents: identifier
+  - id: fake_phone
+    bounded_form: "000-000-0000"
+    max_len: 40
+    form: reserved_invalid
+    represents: identifier
