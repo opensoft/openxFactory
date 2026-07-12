@@ -67,6 +67,15 @@ def test_finalize_record_scans_emitted_logs(tmp_path):
     assert rec["overall"] == "FAIL"
 
 
+def test_cli_redacts_crash_and_diagnostic_output():
+    # FR-017: the CLI must never print raw crash/exception text that trips a
+    # redaction rule; clean diagnostics pass through unchanged.
+    from avatar_f0.cli import _redacted
+    assert _redacted("boundary-error: bad path") == "boundary-error: bad path"
+    assert _redacted("fatal: leaked sk-ABCDEF0123456789abcdef0123456789ABCD") == "[redacted: prohibited content]"
+    assert _redacted("crash near 550e8400-e29b-41d4-a716-446655440000") == "[redacted: prohibited content]"
+
+
 def test_prose_report_allows_length_but_rejects_secrets():
     assert scan_prose("A long narrative. " * 200) == []          # long prose is fine
     assert len(scan_prose("...contains sk-ABCDEF0123456789abcdef0123...")) == 1

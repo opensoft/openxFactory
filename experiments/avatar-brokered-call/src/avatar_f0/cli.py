@@ -18,7 +18,18 @@ from .config import PreflightError, RunConfig, VALID_GROUPS, validate_preflight
 from .credential import ENV_VAR, has_credential, reject_if_in_arguments
 from .evidence import (RedactionFailure, WritePathError, build_interface_impact,
                        finalize_record, write_evidence)
+from .redaction import scan_log
 from .run import build_inconclusive_record, inconclusive_report_md
+
+
+def _redacted(text: str) -> str:
+    """Never surface raw diagnostic/crash text that trips a redaction rule.
+
+    FR-017 requires prohibited content to be excluded from ALL logs, traces, and
+    crash output — including exception messages printed to stderr, which could
+    otherwise leak a credential or identifier captured in the raised error.
+    """
+    return str(text) if not scan_log(str(text)) else "[redacted: prohibited content]"
 
 RUN_TIMESTAMP = "2026-07-11T00:00:00Z"  # deterministic; keeps the committed record stable
 
@@ -73,7 +84,7 @@ def cmd_run(args, argv: List[str]) -> int:
     try:
         reject_if_in_arguments(argv)
     except Exception as exc:
-        print(f"preflight-reject: credential_in_arguments ({exc})", file=sys.stderr)
+        print(f"preflight-reject: credential_in_arguments ({_redacted(str(exc))})", file=sys.stderr)
         return 2
 
     cfg = RunConfig(
@@ -121,10 +132,18 @@ def cmd_run(args, argv: List[str]) -> int:
         acr_content_sha256=acr_content_sha256, variances=[])
     report_md = inconclusive_report_md(reason, acr_note)
 
+    # Feed the run's own diagnostic text through the redaction log-scan so FR-017's
+    # "all logs/traces/crash output" coverage is active on the live path, not latent.
+    emitted_logs = "\n".join([
+        f"reason={reason}",
+        acr_note,
+        f"lab_project_ref={cfg.lab_project_ref}",
+    ])
     try:
-        record = finalize_record(record_body, report_md, interface_impact)
+        record = finalize_record(record_body, report_md, interface_impact,
+                                 emitted_logs=emitted_logs)
     except Exception as exc:  # schema errors surface here
-        print(f"error: could not finalize record: {exc}", file=sys.stderr)
+        print(f"error: could not finalize record: {_redacted(str(exc))}", file=sys.stderr)
         return 1
 
     if record.get("redaction_scan", {}).get("status") == "FAIL":
@@ -137,7 +156,7 @@ def cmd_run(args, argv: List[str]) -> int:
         print("redaction-failure: evidence not written", file=sys.stderr)
         return 3
     except WritePathError as exc:
-        print(f"boundary-error: {exc}", file=sys.stderr)
+        print(f"boundary-error: {_redacted(str(exc))}", file=sys.stderr)
         return 1
 
     print(f"overall={record['overall']} groups=6 trials=70 "
