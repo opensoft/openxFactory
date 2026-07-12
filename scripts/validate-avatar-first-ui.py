@@ -44,6 +44,8 @@ ERR_PARITY_EXAMPLE = "AFUV-PARITY-EXAMPLE"
 ERR_PARITY_ACCEPTANCE = "AFUV-PARITY-ACCEPTANCE"
 ERR_EVIDENCE_UNKNOWN = "AFUV-EVIDENCE-UNKNOWN"
 ERR_FIXTURE_EXPECT = "AFUV-FIXTURE-EXPECT"
+ERR_ACCESSIBILITY_INVALID = "AFUV-ACCESSIBILITY-INVALID"
+ERR_DETERMINISM_SHAPE = "AFUV-DETERMINISM-SHAPE"
 # Nine enforced rule classes (Q6 eight + retention from the 2026-07-11 analyze gate)
 ERR_AUTHORITY_TRANSITION = "AFUV-AUTHORITY-TRANSITION"
 ERR_TIMING_OUT_OF_RANGE = "AFUV-TIMING-OUT-OF-RANGE"
@@ -222,29 +224,38 @@ def check_profile(candidate: dict[str, Any], ctx: str, baseline: dict[str, Any],
              f"{ctx}: presentation must not author an authoritative axis transition")
 
     # 2) Selected timing within kernel-owned ceilings (FR-013/026)
+    #    Fail closed on non-integer selected values: the schema declares these as
+    #    `type: integer`, so a float/string/null (e.g. `6000.0` or `"6000"`) must
+    #    NOT slip past the ceiling — it is rejected outright, not skipped. Absent
+    #    keys are "not selected" and remain optional (block-level closed default).
     timing = candidate.get("timing")
     if isinstance(timing, dict):
         tb = baseline["timing"]
-        r = timing.get("readiness_ms")
-        if isinstance(r, int) and (r < tb["readiness_ms"]["min"] or r > tb["readiness_ms"]["max"]):
-            emit(errors, ERR_TIMING_OUT_OF_RANGE,
-                 f"{ctx}: readiness_ms {r} outside kernel ceiling "
-                 f"[{tb['readiness_ms']['min']},{tb['readiness_ms']['max']}]")
-        h = timing.get("heartbeat_ms")
-        if isinstance(h, int) and (h < tb["heartbeat_ms"]["min"] or h > tb["heartbeat_ms"]["max"]):
-            emit(errors, ERR_TIMING_OUT_OF_RANGE,
-                 f"{ctx}: heartbeat_ms {h} outside kernel ceiling "
-                 f"[{tb['heartbeat_ms']['min']},{tb['heartbeat_ms']['max']}]")
-        lease = timing.get("lease_ms")
-        if isinstance(lease, int) and lease > tb["lease_ms"]["max"]:
-            emit(errors, ERR_TIMING_OUT_OF_RANGE,
-                 f"{ctx}: lease_ms {lease} exceeds kernel ceiling {tb['lease_ms']['max']}")
+        for field in ("readiness_ms", "heartbeat_ms", "lease_ms"):
+            if field not in timing:
+                continue
+            value = timing[field]
+            if not isinstance(value, int) or isinstance(value, bool):
+                emit(errors, ERR_TIMING_OUT_OF_RANGE,
+                     f"{ctx}: {field} {value!r} must be an integer (selected value "
+                     f"could not be resolved to a number — fail closed)")
+                continue
+            bounds = tb[field]
+            low = bounds.get("min")
+            high = bounds.get("max")
+            if (low is not None and value < low) or (high is not None and value > high):
+                lo_txt = low if low is not None else "-inf"
+                emit(errors, ERR_TIMING_OUT_OF_RANGE,
+                     f"{ctx}: {field} {value} outside kernel ceiling [{lo_txt},{high}]")
 
     # 3) Required-control fallback (FR-007)
+    #    A control that is not explicitly `required: true` must declare a fallback.
+    #    `required` is mandatory per schema; a control omitting it is treated as
+    #    fail-closed (not-guaranteed-required) so a missing fallback is still caught.
     for control in candidate.get("standard_controls", []) or []:
-        if isinstance(control, dict) and control.get("required") is False and not control.get("fallback"):
+        if isinstance(control, dict) and control.get("required") is not True and not control.get("fallback"):
             emit(errors, ERR_CONTROL_FALLBACK_MISSING,
-                 f"{ctx}: control {control.get('id')} is not required but declares no fallback")
+                 f"{ctx}: control {control.get('id')} is not required: true and declares no fallback")
 
     # 4) Persona reference resolvable + non-secret locator (FR-011)
     pr = candidate.get("persona_reference")
@@ -305,6 +316,25 @@ def check_profile(candidate: dict[str, Any], ctx: str, baseline: dict[str, Any],
                 emit(errors, ERR_RETENTION_UNRESOLVED,
                      f"{ctx}: retention_overlay must not carry inline {forbidden}")
 
+    # 10) Structured per-capability accessibility declarations (FR-010/020/028).
+    #     When present the block must be a mapping of KNOWN capabilities to booleans;
+    #     any unknown key or non-boolean value is malformed and fails closed. When
+    #     the block (or a capability) is omitted it resolves to its schema closed
+    #     default (false), which is valid — closed defaults need no declaration.
+    ab_cap = candidate.get("accessibility_baseline")
+    if ab_cap is not None:
+        if not isinstance(ab_cap, dict):
+            emit(errors, ERR_ACCESSIBILITY_INVALID,
+                 f"{ctx}: accessibility_baseline must be a mapping of per-capability booleans")
+        else:
+            for cap, decl in ab_cap.items():
+                if cap not in ACCESSIBILITY_CAPABILITIES:
+                    emit(errors, ERR_ACCESSIBILITY_INVALID,
+                         f"{ctx}: accessibility_baseline has unknown capability {cap!r}")
+                elif not isinstance(decl, bool):
+                    emit(errors, ERR_ACCESSIBILITY_INVALID,
+                         f"{ctx}: accessibility_baseline.{cap} must be a boolean, got {decl!r}")
+
 
 def check_closed_defaults(errors: list[str]) -> None:
     """SC-004 — confirm the schema's new-field defaults are closed (fail-closed)."""
@@ -352,9 +382,15 @@ def validate_fixtures(errors: list[str], baseline: dict[str, Any]) -> None:
         if expect not in fired:
             emit(errors, ERR_FIXTURE_EXPECT,
                  f"{rel(path)} expected {expect} but validator fired {sorted(fired) or 'nothing'}")
-        elif enforced_fired != {expect}:
+        elif expect in ENFORCED_RULE_IDS:
+            # Enforced-rule-class negative: must fire exactly its one primary rule class.
+            if enforced_fired != {expect}:
+                emit(errors, ERR_FIXTURE_EXPECT,
+                     f"{rel(path)} must fail exactly one primary rule {expect}, but fired {sorted(enforced_fired)}")
+        elif enforced_fired:
+            # Structural negative (e.g. accessibility/shape): must NOT trip an enforced rule class.
             emit(errors, ERR_FIXTURE_EXPECT,
-                 f"{rel(path)} must fail exactly one primary rule {expect}, but fired {sorted(enforced_fired)}")
+                 f"{rel(path)} expected structural {expect} only, but also fired enforced {sorted(enforced_fired)}")
 
     comp_dir = FIXTURES_DIR / "compatibility"
     for path in sorted(comp_dir.glob("*.yaml")) if comp_dir.is_dir() else []:
@@ -490,8 +526,8 @@ def load_acceptance_scenarios(errors: list[str]) -> set[str]:
 
 
 def validate_parity(errors: list[str]) -> None:
-    """AFUV-PARITY-ACCEPTANCE — every fixture's scenario evidence_ids resolve
-    against the acceptance map via evidence_id_template: TEST-{scenario_id}."""
+    """AFUV-PARITY-ACCEPTANCE — reverse parity: every fixture's scenario evidence_ids
+    resolve against the acceptance map via evidence_id_template: TEST-{scenario_id}."""
     scenarios = load_acceptance_scenarios(errors)
     if not scenarios:
         return
@@ -504,23 +540,110 @@ def validate_parity(errors: list[str]) -> None:
                      f"(its evidence id would be TEST-{eid})")
 
 
-def check_determinism(errors: list[str]) -> None:
-    """SC-006 — deterministic fixtures resolve to byte-stable expected shapes.
+def validate_forward_parity(errors: list[str]) -> None:
+    """AFUV-PARITY-ACCEPTANCE — forward parity (FR-022/SC-008): every requirement and
+    scenario declared in the acceptance map must be OWNED. Fail on any overclaimed item.
 
-    Fixtures carry their own fixed clock/IDs and use no live clock or RNG, so a
-    canonical serialization of `expected` is stable across repeated loads."""
-    import json
+    An item is owned when it resolves to at least one of:
+      - an owning fixture (a fixture whose `evidence_ids` reference one of its scenarios),
+      - declared offline standard/examples/validator evidence
+        (`evidence_types` containing `automated` or `manual`), or
+      - a named successor change (`owner_changes` non-empty).
+    A requirement (or scenario) declaring none of these is overclaimed and fails closed.
+    """
+    if not ACCEPTANCE_MAP.exists():
+        return  # absence already reported by load_acceptance_scenarios
+    data = load_yaml(ACCEPTANCE_MAP)
+    reqs = data.get("requirements", []) or []
+    fixture_scenarios: set[str] = set()
+    for path in sorted(FIXTURES_DIR.rglob("*.yaml")):
+        fixture = load_yaml(path)
+        for eid in fixture.get("evidence_ids", []) or []:
+            fixture_scenarios.add(eid)
+    for req in reqs:
+        rid = req.get("id")
+        has_successor = bool(req.get("owner_changes"))
+        offline_owned = bool(set(req.get("evidence_types") or []) & {"automated", "manual"})
+        scenario_ids = [s.get("id") for s in (req.get("scenarios") or [])]
+        fixture_owned = any(sid in fixture_scenarios for sid in scenario_ids)
+        if not (has_successor or offline_owned or fixture_owned):
+            emit(errors, ERR_PARITY_ACCEPTANCE,
+                 f"{rel(ACCEPTANCE_MAP)} requirement {rid} is overclaimed: no owning fixture, "
+                 f"declared offline evidence, or named successor change")
+        for sid in scenario_ids:
+            if sid not in fixture_scenarios and not (has_successor or offline_owned):
+                emit(errors, ERR_PARITY_ACCEPTANCE,
+                     f"{rel(ACCEPTANCE_MAP)} scenario {sid} is overclaimed: no owning fixture and "
+                     f"requirement {rid} declares no offline evidence or named successor")
+
+
+import re
+
+_AFU_SCENARIO_RE = re.compile(r"^AFU-\d{3}-S\d{2}$")
+
+
+def check_determinism(errors: list[str]) -> None:
+    """SC-006 / FR-023 — assert the determinism-relevant STRUCTURE each deterministic
+    fixture depends on, rather than re-parsing the same file twice.
+
+    A deterministic UI acceptance replay is byte-stable only if the fixture pins
+    every non-deterministic input (clock/ids/font/locale/platform), supplies the
+    canonical AVC command/event/snapshot inputs it derives from, carries AFU
+    evidence IDs, and declares a well-shaped `expected` view-state/record output.
+    Any missing determinism anchor fails closed."""
     det_dir = FIXTURES_DIR / "deterministic"
     for path in sorted(det_dir.glob("*.yaml")) if det_dir.is_dir() else []:
         fixture = load_yaml(path)
+        ctx = rel(path)
+
+        # (b) Fixed non-deterministic inputs — no live clock/RNG/locale/platform.
+        inputs = fixture.get("inputs")
+        if not isinstance(inputs, dict):
+            emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} deterministic fixture missing fixed `inputs` block")
+        else:
+            for key in ("clock", "font", "locale"):
+                if not isinstance(inputs.get(key), str) or not inputs.get(key).strip():
+                    emit(errors, ERR_DETERMINISM_SHAPE,
+                         f"{ctx} inputs.{key} must be a fixed non-empty string (deterministic clock/font/locale)")
+            ids = inputs.get("ids")
+            if not isinstance(ids, dict):
+                emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} inputs.ids must pin fixed session/workflow/persona IDs")
+            else:
+                for key in ("session_id", "workflow_id", "persona_id", "persona_version"):
+                    if ids.get(key) in (None, ""):
+                        emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} inputs.ids.{key} must be a fixed value")
+            if not isinstance(inputs.get("platform_capabilities"), dict):
+                emit(errors, ERR_DETERMINISM_SHAPE,
+                     f"{ctx} inputs.platform_capabilities must be a fixed capability mapping")
+
+        # (b) Canonical AVC command/event/snapshot inputs the expected shape derives from.
+        canonical = fixture.get("canonical")
+        if not isinstance(canonical, dict):
+            emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} deterministic fixture missing canonical AVC inputs")
+        else:
+            if not isinstance(canonical.get("commands"), list) or not canonical.get("commands"):
+                emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} canonical.commands must be a non-empty list")
+            if not isinstance(canonical.get("events"), list) or not canonical.get("events"):
+                emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} canonical.events must be a non-empty list")
+            if not isinstance(canonical.get("snapshot"), dict):
+                emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} canonical.snapshot must be a mapping")
+
+        # (b) AFU evidence IDs anchoring the fixture to the acceptance map.
+        evidence_ids = fixture.get("evidence_ids")
+        if not isinstance(evidence_ids, list) or not evidence_ids or not all(
+                isinstance(e, str) and _AFU_SCENARIO_RE.match(e) for e in evidence_ids):
+            emit(errors, ERR_DETERMINISM_SHAPE,
+                 f"{ctx} evidence_ids must be a non-empty list of AFU-<req>-S<nn> scenario IDs")
+
+        # (a) `expected` output shape — required determinism-derived keys present/typed.
         expected = fixture.get("expected")
-        if expected is None:
-            emit(errors, ERR_SCHEMA_SHAPE, f"{rel(path)} deterministic fixture missing expected shapes")
+        if not isinstance(expected, dict):
+            emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} deterministic fixture missing `expected` output shape")
             continue
-        first = json.dumps(expected, sort_keys=True)
-        second = json.dumps(load_yaml(path).get("expected"), sort_keys=True)
-        if first != second:
-            emit(errors, ERR_SCHEMA_SHAPE, f"{rel(path)} expected shape is not deterministic")
+        if not isinstance(expected.get("view_state"), dict) or not expected.get("view_state"):
+            emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} expected.view_state must be a non-empty mapping")
+        if not isinstance(expected.get("records"), list) or not expected.get("records"):
+            emit(errors, ERR_DETERMINISM_SHAPE, f"{ctx} expected.records must be a non-empty list")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -538,6 +661,7 @@ def main(argv: list[str] | None = None) -> int:
     validate_examples(errors, baseline)
     validate_fixtures(errors, baseline)
     validate_parity(errors)
+    validate_forward_parity(errors)
     check_determinism(errors)
     if errors:
         for error in errors:

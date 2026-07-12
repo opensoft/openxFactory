@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-timing-float-out-of-range
+evidence_ids: [AFU-004-S05]
+expect_error: AFUV-TIMING-OUT-OF-RANGE
+# readiness_ms is a float (6000.0), not the schema-declared integer. It must FAIL
+# CLOSED (a non-integer selected value cannot slip past the kernel ceiling), even
+# though a bare isinstance(int) check would have skipped it.
+candidate:
+  timing:
+    readiness_ms: 6000.0

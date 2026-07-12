@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-accessibility-invalid
+evidence_ids: [AFU-005-S01]
+expect_error: AFUV-ACCESSIBILITY-INVALID
+# A per-capability accessibility declaration is malformed: keyboard_operation is a
+# string, not a boolean (FR-010/020/028). Structured declarations must resolve to a
+# closed boolean default when omitted and be valid booleans when declared.
+candidate:
+  accessibility_baseline:
+    keyboard_operation: "yes"

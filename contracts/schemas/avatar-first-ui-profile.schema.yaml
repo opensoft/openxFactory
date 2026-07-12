@@ -1,3 +1,6 @@
+# Dialect-pinned to JSON Schema draft 2020-12 (FR-013 family / JSON-Schema
+# hygiene). Repo-local `schema_version`/`kind` meta coexist with the dialect anchor.
+$schema: "https://json-schema.org/draft/2020-12/schema"
 schema_version: 1
 kind: xfactory_avatar_first_ui_profile_schema
 name: avatar_first_ui_profile

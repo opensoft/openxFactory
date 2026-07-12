@@ -1,0 +1,12 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: neg-control-required-missing
+evidence_ids: [AFU-004-S04]
+expect_error: AFUV-CONTROL-FALLBACK-MISSING
+# A control omits BOTH the mandatory `required` flag AND `fallback`. It must not
+# pass: a control that is not explicitly required: true is treated fail-closed, so
+# the missing fallback is still caught (FR-007).
+candidate:
+  standard_controls:
+    - id: captions
+      action_class: accessibility
