@@ -156,15 +156,19 @@ def build_inconclusive_record(
 
 
 def inconclusive_report_md(reason: str, acr_ref_note: str) -> str:
+    # The persisted narrative is REASON-INVARIANT so the offline terminal record is
+    # byte-identical whether or not a key is present (the specific reason lives only in the
+    # stderr note). ``reason`` is accepted for call-site compatibility but not embedded.
     return (
         "# Avatar F0 Brokered-Call Feasibility — Results (INCONCLUSIVE)\n\n"
         f"Change: {CHANGE_ID}\n\n"
         "## Overall: INCONCLUSIVE\n\n"
-        f"Reason: `{reason}`. No lab credential (`OPENAI_API_KEY`) was present, so no "
-        "provider call was attempted and no measurements were fabricated. Per the feature "
-        "Definition of Done (SC-013), this is a valid terminal record and a valid completion "
-        "state; it does NOT qualify any provider profile and does NOT open the kernel "
-        "publication gate (only a live PASS does).\n\n"
+        "This is the terminal offline INCONCLUSIVE record: no live run was executed "
+        "(no `OPENAI_API_KEY` was present, or `--live` was not requested), so no provider "
+        "call was attempted and no measurements were fabricated. Per the feature Definition "
+        "of Done (SC-013), this is a valid terminal record and a valid completion state; it "
+        "does NOT qualify any provider profile and does NOT open the kernel publication gate "
+        "(only a live PASS does).\n\n"
         "## Trials\n\n"
         "All 70 mandatory trials across the six groups (F0-A…F0-F) are recorded as "
         "INCONCLUSIVE (not executed). The harness, offline self-tests, and redaction tests "

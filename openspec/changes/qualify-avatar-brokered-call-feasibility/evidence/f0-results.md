@@ -4,7 +4,7 @@ Change: qualify-avatar-brokered-call-feasibility
 
 ## Overall: INCONCLUSIVE
 
-Reason: `no_lab_credential`. No lab credential (`OPENAI_API_KEY`) was present, so no provider call was attempted and no measurements were fabricated. Per the feature Definition of Done (SC-013), this is a valid terminal record and a valid completion state; it does NOT qualify any provider profile and does NOT open the kernel publication gate (only a live PASS does).
+This is the terminal offline INCONCLUSIVE record: no live run was executed (no `OPENAI_API_KEY` was present, or `--live` was not requested), so no provider call was attempted and no measurements were fabricated. Per the feature Definition of Done (SC-013), this is a valid terminal record and a valid completion state; it does NOT qualify any provider profile and does NOT open the kernel publication gate (only a live PASS does).
 
 ## Trials
 

@@ -7,6 +7,7 @@ Exit codes: 0 = run completed (terminal record written), 2 = preflight rejection
 from __future__ import annotations
 
 import argparse
+import asyncio
 import subprocess
 import sys
 from pathlib import Path
@@ -15,7 +16,7 @@ from typing import List, Optional
 from . import __version__
 from .acceptance_map import AcceptanceMapError, load_acceptance_map
 from .config import PreflightError, RunConfig, VALID_GROUPS, validate_preflight
-from .credential import ENV_VAR, has_credential, reject_if_in_arguments
+from .credential import ENV_VAR, has_credential, load_credential, reject_if_in_arguments
 from .evidence import (RedactionFailure, WritePathError, build_interface_impact,
                        finalize_record, write_evidence)
 from .redaction import scan_log
@@ -74,8 +75,41 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--lab-project-ref", default="lab:f0-brokered-call")
     run.add_argument("--offline-selftest", action="store_true",
                      help="make no provider call; emit the INCONCLUSIVE terminal record")
+    run.add_argument("--live", action="store_true",
+                     help="execute the REAL provider matrix (billed). Requires OPENAI_API_KEY; "
+                          "without --live a run stays offline/INCONCLUSIVE even with a key present.")
     p.add_argument("--version", action="version", version=f"avatar-f0 {__version__}")
     return p
+
+
+def _run_live(root, cfg):
+    """Drive the real provider matrix and return (record_body, report_md)."""
+    from .candidate import CandidateProfile, dependency_lock_digest
+    from .fixture import generate_fixture
+    from .live_runner import (LiveEnv, build_session_config, live_report_md,
+                              real_live_components, run_live_matrix)
+
+    key = load_credential()
+    lock_path = root / "experiments/avatar-brokered-call/requirements.lock"
+    lock_text = lock_path.read_text() if lock_path.is_file() else ""
+    fixture = generate_fixture()
+    harness_rev = _git_file_commit(root, "experiments/avatar-brokered-call/src/avatar_f0")[:12]
+    candidate = CandidateProfile(
+        harness_revision=harness_rev,
+        dependency_lock_sha256=dependency_lock_digest(lock_text),
+        fixture_bytes_sha256=fixture.sha256,
+        fixture_params=fixture.params,
+    )
+    env = LiveEnv(components=real_live_components(key, fixture.pcm16),
+                  session_config=build_session_config(candidate),
+                  deadline_ms=cfg.readiness_deadline_ms)
+    record_body = asyncio.run(run_live_matrix(
+        env, candidate, groups=list(cfg.selected_groups),
+        lab_project_ref=cfg.lab_project_ref,
+        dependency_versions=_dependency_versions(root),
+        started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
+    ))
+    return record_body, live_report_md(record_body)
 
 
 def cmd_run(args, argv: List[str]) -> int:
@@ -119,18 +153,38 @@ def cmd_run(args, argv: List[str]) -> int:
         acr_note = f"Acceptance map unavailable ({exc.reason}); run is INCONCLUSIVE; no placeholder IDs minted."
 
     key_present = has_credential()
-    reason = "no_lab_credential" if not key_present else "live_path_deferred"
-
-    record_body = build_inconclusive_record(
-        started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
-        lab_project_ref=cfg.lab_project_ref,
-        dependency_versions=_dependency_versions(root),
-        reason=reason,
-    )
+    live_requested = bool(getattr(args, "live", False))
     interface_impact = build_interface_impact(
         acr_source_path=acr_source_path, acr_source_commit=acr_source_commit,
         acr_content_sha256=acr_content_sha256, variances=[])
-    report_md = inconclusive_report_md(reason, acr_note)
+
+    if key_present and live_requested:
+        # Supervised live run: drive the REAL provider matrix (billed). Any provider/network
+        # failure surfaces as INCONCLUSIVE (never a fabricated PASS). A raw traceback could
+        # carry SDP/provider text, so any escaping error is redacted and degraded to a
+        # terminal INCONCLUSIVE record here (FR-017 / FR-004) — never printed verbatim.
+        try:
+            record_body, report_md = _run_live(root, cfg)
+            reason = "live_run"
+        except Exception as exc:
+            print(f"live-run-error: {_redacted(str(exc))}", file=sys.stderr)
+            reason = "offline_inconclusive"
+            record_body = build_inconclusive_record(
+                started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
+                lab_project_ref=cfg.lab_project_ref,
+                dependency_versions=_dependency_versions(root), reason=reason)
+            report_md = inconclusive_report_md(reason, acr_note)
+    else:
+        # Offline INCONCLUSIVE. The persisted artifact is reason-invariant (byte-identical
+        # whether or not a key is present); key presence only affects the stderr note.
+        reason = "offline_inconclusive"
+        record_body = build_inconclusive_record(
+            started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
+            lab_project_ref=cfg.lab_project_ref,
+            dependency_versions=_dependency_versions(root),
+            reason=reason,
+        )
+        report_md = inconclusive_report_md(reason, acr_note)
 
     # Feed the run's own diagnostic text through the redaction log-scan so FR-017's
     # "all logs/traces/crash output" coverage is active on the live path, not latent.
@@ -162,8 +216,12 @@ def cmd_run(args, argv: List[str]) -> int:
     print(f"overall={record['overall']} groups=6 trials=70 "
           f"redaction={record['redaction_scan']['status']}")
     print(f"evidence: {paths['results']}")
-    if not key_present:
+    if reason == "live_run":
+        print(f"note: supervised LIVE provider run — terminal {record['overall']} record")
+    elif not key_present:
         print(f"note: no {ENV_VAR} present — terminal INCONCLUSIVE record (valid completion, SC-013)")
+    else:
+        print(f"note: {ENV_VAR} present but --live not passed — offline INCONCLUSIVE (safe default)")
     return 0
 
 
