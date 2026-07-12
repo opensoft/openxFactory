@@ -10,87 +10,6 @@ contracts:
   - openxfactory-release-verifier
   semantic_member: true
   release_member: true
-- contract_id: approval-decision-policy
-  path: approval-decision-policy.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: approval-decision
-  path: approval-decision.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: approval-request
-  path: approval-request.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: approval-supersession-event
-  path: approval-supersession-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: artifact-lifecycle-event
-  path: artifact-lifecycle-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: artifact-record
-  path: artifact-record.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: authority-grant-revocation
-  path: authority-grant-revocation.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: authority-grant
-  path: authority-grant.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: consumer-handoff-receipt
-  path: consumer-handoff-receipt.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
 - contract_id: hermes-runtime-contract-index
   path: contract-index.yaml
   type: contract-index
@@ -100,53 +19,8 @@ contracts:
   - openxfactory-release-verifier
   semantic_member: true
   release_member: true
-- contract_id: cross-layer-binding-revocation
-  path: cross-layer-binding-revocation.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: cross-layer-binding
-  path: cross-layer-binding.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
 - contract_id: customer-subject-reference-profile
   path: customer-subject-reference-profile.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: database-principal-binding-revocation
-  path: database-principal-binding-revocation.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: database-principal-binding
-  path: database-principal-binding.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: domain-regression-inventory
-  path: domain-regression-inventory.schema.yaml
   type: schema
   contract_schema_version: 2
   consumers:
@@ -163,6 +37,15 @@ contracts:
   - openxfactory-release-verifier
   semantic_member: true
   release_member: true
+- contract_id: hermes-runtime-contract-readme
+  path: README.md
+  type: documentation
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: false
+  release_member: true
 - contract_id: hermes-runtime-fixture-index
   path: fixtures/index.yaml
   type: fixture-index
@@ -172,62 +55,8 @@ contracts:
   - openxfactory-release-verifier
   semantic_member: true
   release_member: true
-- contract_id: hermes-job-envelope-v2
-  path: hermes-job-envelope-v2.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: hermes-job-event-v2
-  path: hermes-job-event-v2.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: hermes-job-run-v2
-  path: hermes-job-run-v2.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: hermes-operational-postgres-v2
-  path: hermes-operational-postgres-v2.sql
-  type: sql
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-postgres-conformance
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
 - contract_id: installation-lifecycle-event
   path: installation-lifecycle-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: installation-trust-anchor-event
-  path: installation-trust-anchor-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: installation-trust-anchor
-  path: installation-trust-anchor.schema.yaml
   type: schema
   contract_schema_version: 2
   consumers:
@@ -244,62 +73,8 @@ contracts:
   - xfactory-hermes-install
   semantic_member: true
   release_member: true
-- contract_id: legacy-quarantine-record
-  path: legacy-quarantine-record.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: v1-to-v2-mapping
-  path: migrations/v1-to-v2-mapping.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: hermes-v1-to-v2-migration
-  path: migrations/v1-to-v2.sql
-  type: migration
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-postgres-conformance
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: operation-authorization
-  path: operation-authorization.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
 - contract_id: overlay-manifest
   path: overlay-manifest.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: principal-lifecycle-event
-  path: principal-lifecycle-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: principal
-  path: principal.schema.yaml
   type: schema
   contract_schema_version: 2
   consumers:
@@ -327,15 +102,6 @@ contracts:
   release_member: true
 - contract_id: stack-lifecycle-event
   path: stack-lifecycle-event.schema.yaml
-  type: schema
-  contract_schema_version: 2
-  consumers:
-  - openxfactory-validator
-  - xfactory-hermes-install
-  semantic_member: true
-  release_member: true
-- contract_id: traceability-edge
-  path: traceability-edge.schema.yaml
   type: schema
   contract_schema_version: 2
   consumers:

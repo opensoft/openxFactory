@@ -1,0 +1,66 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/hermes-runtime/v2/overlay-manifest.schema.yaml"
+contract_id: overlay-manifest
+contract_schema_version: 2
+title: Hermes runtime directory overlay manifest
+description: >-
+  Content-only inventory of every regular file recursively below one
+  repository-relative overlay root. The external git_overlay_pin supplies the
+  canonical repository, exact commit, manifest path, and manifest digest.
+  Ordering and Git-tree completeness are enforced by the portable validator.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: HermesRuntimeOverlayManifest
+  overlay_root:
+    $ref: "shared-definitions.schema.yaml#/$defs/repository_relative_path"
+  files:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      properties:
+        path:
+          $ref: "shared-definitions.schema.yaml#/$defs/repository_relative_path"
+        digest:
+          $ref: "shared-definitions.schema.yaml#/$defs/sha256_digest"
+      required: [path, digest]
+      additionalProperties: false
+  exclusions:
+    type: array
+    uniqueItems: true
+    items:
+      oneOf:
+        - type: object
+          properties:
+            kind:
+              const: gitkeep
+            path:
+              allOf:
+                - $ref: "shared-definitions.schema.yaml#/$defs/repository_relative_path"
+                - pattern: "(^|/)\\.gitkeep$"
+          required: [kind, path]
+          additionalProperties: false
+        - type: object
+          properties:
+            kind:
+              const: generated_digest_inventory
+            path:
+              $ref: "shared-definitions.schema.yaml#/$defs/repository_relative_path"
+          required: [kind, path]
+          additionalProperties: false
+    contains:
+      type: object
+      properties:
+        kind:
+          const: generated_digest_inventory
+      required: [kind]
+    minContains: 0
+    maxContains: 1
+required: [schema_version, kind, overlay_root, files, exclusions]
+additionalProperties: false

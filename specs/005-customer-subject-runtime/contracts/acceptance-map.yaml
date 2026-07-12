@@ -76,8 +76,10 @@ openspec_parity:
 stories:
   - story_id: US1
     title: Instantiate Customer Hermes per subject
-    requirements: [FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-045]
-    outcomes: [SC-001, SC-002]
+    # FR-031, FR-039, and SC-013 are shared with US4: US1 proves the
+    # topology/provisioning slice; US4 completes job and release realization.
+    requirements: [FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-031, FR-039, FR-045]
+    outcomes: [SC-001, SC-002, SC-013]
     contract_groups: [topology, references, overlays, static-stack-compatibility]
   - story_id: US2
     title: Isolate subjects and govern cross-layer work

@@ -92,8 +92,8 @@ OpsxFactory
     + Managed System Hermes + Opsx Omnigent overlay
 
 LedgerxFactory
-  = xFactory + Ledger Domain Hermes + Firm Hermes + Ledger/Client Hermes
-    + LedgerX Omnigent overlay
+  = xFactory + Ledger Domain Hermes + Accounting Firm Hermes
+    + Client Company Hermes + LedgerX Omnigent overlay
 
 AdxFactory
   = xFactory + Marketing Domain Hermes + Marketing Company Hermes
@@ -232,6 +232,56 @@ workspaces, graph stores, vector indexes, playbook stores, or evaluation memory.
 The same base Hermes install can support many domain overlays. The same domain
 Hermes overlay can support many client Hermes overlays. The same client Hermes
 overlay can support many customer Hermes overlays.
+
+## Neutral Customer-Subject Runtime
+
+The DomainxFactory stack and the Hermes runtime topology describe different
+levels of the model. `stack.yaml` declares exactly one reusable template for
+each canonical Customer, Client, and Domain role. The runtime topology records
+the concrete layer registrations created from those templates. The static
+duplicate-role rule therefore remains in force even when one installation
+serves many Customer subjects.
+
+Once configured, one runtime installation has exactly one active Client layer,
+exactly one active Domain layer, and zero or more active Customer layers; the
+operational state requires at least one active Customer layer. The installing
+state permits only the bounded Client and Domain registrations and no Customer
+registration. Every Customer layer binds one neutral `customer_subject` and
+is allocated a distinct layer ID and policy namespace. Later governed-record
+contracts use that neutral identity to enforce distinct persistence, artifact,
+approval, and trace scopes; the topology contract alone does not prove those
+isolation controls. Client and Domain layers do not carry Customer-subject
+identity.
+
+Domain vocabulary specializes the neutral subject without changing the core
+contract:
+
+| Domain factory | Customer layer name | Neutral subject kind |
+| --- | --- | --- |
+| codexFactory | Project Hermes | `software_project` |
+| MedxFactory | Patient Hermes | `patient` |
+| LedgerxFactory | Client Company Hermes | `client_company` |
+
+`per_customer_subject` is the preferred neutral isolation declaration.
+Existing aliases such as `per_project`, `per_patient`, `per_ledger`,
+`per_campaign`, and `per_customer` remain compatibility spellings of that same
+boundary; they do not create domain-specific openxFactory fields.
+
+Runtime identity is durable. Installation, stack, and layer registrations are
+immutable, while lifecycle changes are append-only predecessor-linked events.
+Any materialized current state is only a derived projection and must reconcile
+to the event chain. Retirement is terminal and preserves tombstones for layer
+IDs, policy namespaces, and Customer-subject tuples so they cannot be reused.
+
+Contract and overlay provenance is content-addressed. Runtime assembly resolves
+exact commits and file digests, and directory overlays resolve through complete
+recursive manifests. Ratified OpenSpec and Speckit artifacts control change
+development but are not runtime inputs. Consumers may rely on this model only
+through a verified published openxFactory bundle pin containing its annotated
+tag, exact commit, manifest and inventory digests, schema versions, and member
+digests. See
+[Hermes Customer-Subject Runtime Contracts](../contracts/hermes-runtime/README.md)
+for the canonical contract surface and validation rules.
 
 ## Hermes Mixture Of Agents
 
@@ -604,7 +654,12 @@ schedule.
 | MedxFactory | Patient Hermes | Clinic, practice, hospital, pharmacy, imaging center, or IDTF Hermes | Medical Domain Hermes |
 | AdxFactory | Buyer Hermes for a buyer, prospect, audience member, or account | Marketing Company Hermes for the agency or marketing operator | Marketing Domain Hermes |
 | codexFactory | Project Hermes for a project, repo, product, or feature initiative | Software Company Hermes for the engineering organization | Software Engineering Domain Hermes |
-| LedgerxFactory | Ledger/Client Hermes for a company, ledger, tax matter, or engagement | Firm Hermes for the accounting or finance operator | Ledger Domain Hermes |
+| LedgerxFactory | Client Company Hermes for each accounting client company | Accounting Firm Hermes for the tenant/operator running the factory | Ledger Domain Hermes |
+
+In LedgerxFactory terminology, an accounting firm's “client company” maps to
+the neutral Customer role. The neutral Client role remains the accounting firm
+that operates the installation. Domain aliases must not reverse those two
+machine roles.
 
 ## Customer-Item Interaction Model
 

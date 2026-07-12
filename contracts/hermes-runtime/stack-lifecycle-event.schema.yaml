@@ -1,0 +1,85 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/stack-lifecycle-event.schema.yaml
+contract_id: stack-lifecycle-event
+contract_schema_version: 2
+title: Immutable predecessor-linked stack lifecycle event
+description: Append-only authority-bearing event; current state is derived from one linear predecessor chain.
+type: object
+$defs:
+  predecessor_ref:
+    type: object
+    properties:
+      kind:
+        type: string
+        enum:
+        - registration
+        - event
+      id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required:
+    - kind
+    - id
+    - digest
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-stack-lifecycle-event
+  event_id:
+    $ref: shared-definitions.schema.yaml#/$defs/event_id
+  event_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/installation_id
+  stack_id:
+    $ref: shared-definitions.schema.yaml#/$defs/stack_id
+  predecessor_ref:
+    $ref: '#/$defs/predecessor_ref'
+  from_state:
+    type: string
+    enum:
+    - installing
+    - configured
+    - operational
+    - suspended
+    - retired
+  to_state:
+    type: string
+    enum:
+    - installing
+    - configured
+    - operational
+    - suspended
+    - retired
+  authority_grant_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  authority_grant_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  occurred_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  reason:
+    type: string
+    minLength: 1
+    maxLength: 1024
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- event_id
+- event_digest
+- installation_id
+- stack_id
+- predecessor_ref
+- from_state
+- to_state
+- authority_grant_id
+- authority_grant_digest
+- occurred_at
+- reason
+additionalProperties: false

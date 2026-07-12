@@ -3,5 +3,437 @@ kind: openxfactory-hermes-runtime-fixture-index
 feature: 005-customer-subject-runtime
 governed_change: add-hermes-customer-subject-runtime-contract
 fixture_root: contracts/hermes-runtime/fixtures
-status: planned
-cases: []
+status: implemented
+cases:
+- case_id: reference-uuidv4-subject
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S01, HCS-006-S02]
+  inputs: [references/uuidv4-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UUIDV4-SUBJECT
+- case_id: reference-uuidv7-subject
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S02, HCS-006-S02]
+  inputs: [references/uuidv7-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UUIDV7-SUBJECT
+- case_id: reference-keyed-token-subject
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S03, HCS-006-S02]
+  inputs: [references/keyed-token-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-KEYED-TOKEN-SUBJECT
+- case_id: reference-missing-attestation
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S04, HCS-006-S03]
+  inputs: [references/missing-attestation.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-SUBJECT-ATTESTATION-REQUIRED
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-MISSING-ATTESTATION
+- case_id: reference-uuidv1-subject
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S05, HCS-006-S03]
+  inputs: [references/uuidv1-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-SUBJECT-DERIVATION-FORBIDDEN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UUIDV1-SUBJECT
+- case_id: reference-uuidv3-subject
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S05, HCS-006-S03]
+  inputs: [references/uuidv3-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-SUBJECT-DERIVATION-FORBIDDEN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UUIDV3-SUBJECT
+- case_id: reference-uuidv5-subject
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S05, HCS-006-S03]
+  inputs: [references/uuidv5-subject.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-SUBJECT-DERIVATION-FORBIDDEN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UUIDV5-SUBJECT
+- case_id: reference-unsafe-derivation
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S05, HCS-006-S03]
+  inputs: [references/unsafe-derivation.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-SUBJECT-DERIVATION-FORBIDDEN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REFERENCE-UNSAFE-DERIVATION
+- case_id: overlay-manifest-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-004]
+  scenario_ids: [HCS-004-S01]
+  inputs: [pins/overlay-manifest-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-MANIFEST-VALID
+- case_id: assembly-branch-only
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S02, HCS-006-S03]
+  inputs: [pins/assembly-branch-only.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-PIN-EXACT-COMMIT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ASSEMBLY-BRANCH-ONLY
+- case_id: assembly-tag-only
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S02, HCS-006-S03]
+  inputs: [pins/assembly-tag-only.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-PIN-EXACT-COMMIT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ASSEMBLY-TAG-ONLY
+- case_id: overlay-manifest-digest-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S03, HCS-006-S03]
+  inputs: [pins/overlay-manifest-digest-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-OVERLAY-DIGEST
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-MANIFEST-DIGEST-DRIFT
+- case_id: overlay-manifest-missing-member
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S04, HCS-006-S03]
+  inputs: [pins/overlay-manifest-missing-member.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-OVERLAY-MISSING-MEMBER
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-MANIFEST-MISSING-MEMBER
+- case_id: overlay-path-traversal
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S04, HCS-006-S03]
+  inputs: [pins/overlay-path-traversal.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-OVERLAY-PATH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-PATH-TRAVERSAL
+- case_id: overlay-tree-symlink
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S04, HCS-006-S03]
+  inputs: [pins/overlay-tree-symlink.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-OVERLAY-NONREGULAR
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-TREE-SYMLINK
+- case_id: overlay-tree-submodule
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-004, HCS-006]
+  scenario_ids: [HCS-004-S04, HCS-006-S03]
+  inputs: [pins/overlay-tree-submodule.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-OVERLAY-NONREGULAR
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-OVERLAY-TREE-SUBMODULE
+- case_id: topology-installing-no-customers
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S02, HCS-006-S01]
+  inputs: [topology/installing-no-customers.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-INSTALLING-NO-CUSTOMERS
+- case_id: topology-configured-no-customers
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S02, HCS-006-S01]
+  inputs: [topology/configured-no-customers.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-CONFIGURED-NO-CUSTOMERS
+- case_id: topology-operational-two-customers
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-001, HCS-003, HCS-006]
+  scenario_ids: [HCS-001-S01, HCS-003-S01, HCS-006-S01]
+  inputs: [topology/operational-two-customers.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-OPERATIONAL-TWO-CUSTOMERS
+- case_id: topology-suspended-preserves-registrations
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-006-S01]
+  inputs: [topology/suspended-preserves-registrations.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-SUSPENDED-PRESERVES-REGISTRATIONS
+- case_id: topology-failed-recovered-layer
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-006-S01]
+  inputs: [topology/failed-recovered-layer.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-FAILED-RECOVERED-LAYER
+- case_id: topology-retired-all-layers
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-003, HCS-005, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-005-S03, HCS-006-S01]
+  inputs: [topology/retired-all-layers.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-RETIRED-ALL-LAYERS
+- case_id: topology-provision-retry-same-key
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-005]
+  scenario_ids: [HCS-005-S01]
+  inputs: [topology/provision-retry-same-key.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-PROVISION-RETRY-SAME-KEY
+- case_id: topology-codex-project-hermes
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S01, HCS-006-S02]
+  inputs: [topology/codex-project-hermes.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-CODEX-PROJECT-HERMES
+- case_id: topology-medx-patient-hermes
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S02, HCS-006-S02]
+  inputs: [topology/medx-patient-hermes.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-MEDX-PATIENT-HERMES
+- case_id: topology-ledgerx-client-company-hermes
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-002, HCS-006]
+  scenario_ids: [HCS-002-S03, HCS-006-S02]
+  inputs: [topology/ledgerx-client-company-hermes.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-LEDGERX-CLIENT-COMPANY-HERMES
+- case_id: topology-operational-zero-customers
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S03, HCS-006-S03]
+  inputs: [topology/operational-zero-customers.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-TOPOLOGY-CUSTOMER-MIN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-OPERATIONAL-ZERO-CUSTOMERS
+- case_id: topology-duplicate-singleton
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S04, HCS-006-S03]
+  inputs: [topology/duplicate-singleton.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-TOPOLOGY-CLIENT-CARDINALITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-DUPLICATE-SINGLETON
+- case_id: topology-extension-customer-evasion
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-001, HCS-006]
+  scenario_ids: [HCS-001-S03, HCS-006-S03]
+  inputs: [topology/extension-customer-evasion.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-TOPOLOGY-EXTENSION-CUSTOMER-EVASION
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-EXTENSION-CUSTOMER-EVASION
+- case_id: topology-retired-identity-reuse
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-005, HCS-006]
+  scenario_ids: [HCS-003-S05, HCS-005-S03, HCS-006-S03]
+  inputs: [topology/retired-identity-reuse.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-TOPOLOGY-LAYER-ID-REUSE
+    allowed_secondary_codes:
+    - HCS-TOPOLOGY-POLICY-NAMESPACE-REUSE
+    - HCS-TOPOLOGY-SUBJECT-REUSE
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-RETIRED-IDENTITY-REUSE
+- case_id: topology-lifecycle-fork
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-006-S03]
+  inputs: [topology/lifecycle-fork.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-LIFECYCLE-PREDECESSOR-FORK
+    allowed_secondary_codes:
+    - HCS-LIFECYCLE-PREDECESSOR-MISMATCH
+    - HCS-LIFECYCLE-PROJECTION-DRIFT
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-LIFECYCLE-FORK
+- case_id: topology-current-state-mutation
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-006-S03]
+  inputs: [topology/current-state-mutation.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-LIFECYCLE-PROJECTION-DRIFT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-CURRENT-STATE-MUTATION
+- case_id: topology-retired-transition
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-003, HCS-005, HCS-006]
+  scenario_ids: [HCS-003-S06, HCS-005-S03, HCS-006-S03]
+  inputs: [topology/retired-transition.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-LIFECYCLE-RETIRED-TERMINAL
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-RETIRED-TRANSITION
+- case_id: topology-provision-key-subject-conflict
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-005, HCS-006]
+  scenario_ids: [HCS-005-S02, HCS-006-S03]
+  inputs: [topology/provision-key-subject-conflict.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HCS-PROVISION-IDEMPOTENCY-CONFLICT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-PROVISION-KEY-SUBJECT-CONFLICT

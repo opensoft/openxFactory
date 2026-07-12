@@ -1,0 +1,178 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/hermes-runtime/v2/customer-subject-reference-profile.schema.yaml"
+contract_id: customer-subject-reference-profile
+contract_schema_version: 2
+title: Customer-subject reference policy profile
+description: >-
+  Pins the issuer policy and attestation proving that a neutral Customer subject
+  surrogate was produced using independent UUIDv4/UUIDv7 generation or an
+  approved keyed tokenization process. No direct identity or secret is carried.
+$ref: "#/$defs/reference_profile"
+$defs:
+  neutral_token:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[a-z][a-z0-9._-]*$"
+  customer_subject:
+    type: object
+    properties:
+      kind:
+        $ref: "#/$defs/neutral_token"
+      issuer:
+        $ref: "#/$defs/neutral_token"
+      namespace:
+        $ref: "#/$defs/neutral_token"
+      ref:
+        $ref: "shared-definitions.schema.yaml#/$defs/customer_subject_ref"
+      reference_policy_pin:
+        $ref: "shared-definitions.schema.yaml#/$defs/git_file_pin"
+      issuer_attestation_digest:
+        $ref: "shared-definitions.schema.yaml#/$defs/sha256_digest"
+    required:
+      - kind
+      - issuer
+      - namespace
+      - ref
+      - reference_policy_pin
+      - issuer_attestation_digest
+    additionalProperties: false
+  attestation_claims:
+    type: object
+    properties:
+      surrogate_pseudonymous:
+        const: true
+      no_direct_identifier:
+        const: true
+      no_secret:
+        const: true
+      no_reversible_encoding:
+        const: true
+      no_unkeyed_derivation:
+        const: true
+      construction_authorized:
+        const: true
+    required:
+      - surrogate_pseudonymous
+      - no_direct_identifier
+      - no_secret
+      - no_reversible_encoding
+      - no_unkeyed_derivation
+      - construction_authorized
+    additionalProperties: false
+  issuer_attestation:
+    type: object
+    properties:
+      attestation_id:
+        $ref: "shared-definitions.schema.yaml#/$defs/canonical_id"
+      issuer:
+        $ref: "#/$defs/neutral_token"
+      policy_digest:
+        description: >-
+          Must equal both the evaluated profile policy_digest and the digest in
+          the Customer subject's exact reference_policy_pin.
+        $ref: "shared-definitions.schema.yaml#/$defs/sha256_digest"
+      attestation_digest:
+        description: >-
+          Content identity recorded by the Customer subject as
+          issuer_attestation_digest; semantic validation requires equality.
+        $ref: "shared-definitions.schema.yaml#/$defs/sha256_digest"
+      attested_at:
+        $ref: "shared-definitions.schema.yaml#/$defs/rfc3339_timestamp"
+      claims:
+        $ref: "#/$defs/attestation_claims"
+    required:
+      - attestation_id
+      - issuer
+      - policy_digest
+      - attestation_digest
+      - attested_at
+      - claims
+    additionalProperties: false
+  key_reference:
+    type: object
+    description: Opaque key reference only; key bytes and credentials are forbidden.
+    properties:
+      provider:
+        $ref: "#/$defs/neutral_token"
+      key_id:
+        $ref: "shared-definitions.schema.yaml#/$defs/canonical_id"
+      algorithm:
+        enum: [hmac-sha256]
+    required: [provider, key_id, algorithm]
+    additionalProperties: false
+  reference_profile:
+    type: object
+    $comment: >-
+      Cross-document semantics bind issuer and policy_digest to the Customer
+      subject pin and bind attestation issuer, policy_digest, digest, and closed
+      claims to this profile.
+    properties:
+      schema_version:
+        const: 1
+      kind:
+        const: openxfactory-hermes-runtime-customer-subject-reference-profile
+      profile_id:
+        $ref: "shared-definitions.schema.yaml#/$defs/canonical_id"
+      issuer:
+        $ref: "#/$defs/neutral_token"
+      namespace:
+        $ref: "#/$defs/neutral_token"
+      policy_digest:
+        $ref: "shared-definitions.schema.yaml#/$defs/sha256_digest"
+      construction:
+        description: >-
+          uuidv4 and uuidv7 identify independently random UUID constructions.
+          keyed_tokenization uses an opaque governed key and may use any RFC
+          UUID version accepted by customer_subject_ref, including UUIDv8.
+        enum: [uuidv4, uuidv7, keyed_tokenization]
+      keyed:
+        type: boolean
+      contains_direct_identifier:
+        const: false
+      contains_secret:
+        const: false
+      sentinel_hits:
+        type: array
+        maxItems: 0
+        items:
+          type: string
+      key_reference:
+        $ref: "#/$defs/key_reference"
+      attestation:
+        $ref: "#/$defs/issuer_attestation"
+      extensions:
+        $ref: "shared-definitions.schema.yaml#/$defs/extensions"
+    required:
+      - schema_version
+      - kind
+      - profile_id
+      - issuer
+      - namespace
+      - policy_digest
+      - construction
+      - keyed
+      - contains_direct_identifier
+      - contains_secret
+      - sentinel_hits
+      - attestation
+    allOf:
+      - if:
+          properties:
+            construction:
+              const: keyed_tokenization
+          required: [construction]
+        then:
+          properties:
+            keyed:
+              const: true
+          required: [key_reference]
+        else:
+          properties:
+            keyed:
+              const: false
+          not:
+            required: [key_reference]
+    additionalProperties: false

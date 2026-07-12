@@ -1,0 +1,286 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-topology
+installation_id: install-01
+stack_id: stack-01
+installation_registration:
+  entity_kind: installation
+  registration_id: registration-install-01
+  registration_digest: sha256:02af93837525c10c554372d17550ff9d61298f6ac2d66b7ba13e841f2e111f7f
+  installation_id: install-01
+  initial_lifecycle_state: installing
+  genesis_anchor_id: anchor-install-01
+  created_at: '2026-07-12T12:00:00Z'
+stack_registration:
+  entity_kind: stack
+  registration_id: registration-stack-01
+  registration_digest: sha256:f2def815b41a9fc8ef3cbbdd9e7b7d7781a5fbcbc075bd4c90a408fa162c4925
+  installation_id: install-01
+  stack_id: stack-01
+  domain_id: example-domain
+  domain_stack_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    path: stack.yaml
+    digest: sha256:0de01f189d384bfbe69e806ef70b1a425b27394dbe2a9d0e62ffd010dda86c03
+  contract_bundle_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    path: contracts/hermes-runtime.yaml
+    digest: sha256:3da5a134c45cccfa1e9341f94438825665322d663e789fabb44bfaa63f7573ac
+    contract_id: hermes-runtime-bundle
+    contract_schema_version: 2
+  initial_lifecycle_state: installing
+  created_at: '2026-07-12T12:00:00Z'
+derived_topology_state: operational
+role_templates:
+- role: customer
+  display_name: Customer Hermes
+  overlay: hermes/customer
+- role: client
+  display_name: Client Hermes
+  overlay: hermes/client
+- role: domain
+  display_name: Domain Hermes
+  overlay: hermes/domain
+layer_registrations:
+- entity_kind: layer
+  registration_id: registration-client-singleton
+  registration_digest: sha256:35ee5319c508f23a5fb7b72c96ead3644cd1504e48ad4a515878bfa9c4a78b83
+  installation_id: install-01
+  stack_id: stack-01
+  layer_id: client-singleton
+  role: client
+  template_role: client
+  display_name: Client Singleton Hermes
+  policy_namespace: stack-01.client.singleton
+  overlay_manifest_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    overlay_root: overlays/client-singleton
+    manifest_path: manifests/client-singleton.overlay.yaml
+    manifest_digest: sha256:dd322faf22fe0c0b065e91b8d5c882e35c737cc968ee8676a472fd8d67414dce
+    schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/overlay-manifest.schema.yaml
+    schema_version: 1
+  initial_lifecycle_state: provisioning
+  created_at: '2026-07-12T12:00:00Z'
+- entity_kind: layer
+  registration_id: registration-domain-singleton
+  registration_digest: sha256:ae6dd616c25e72286a75bb28607f797b68baa5dae6c512d6b2eb22a68fad9fe7
+  installation_id: install-01
+  stack_id: stack-01
+  layer_id: domain-singleton
+  role: domain
+  template_role: domain
+  display_name: Domain Singleton Hermes
+  policy_namespace: stack-01.domain.singleton
+  overlay_manifest_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    overlay_root: overlays/domain-singleton
+    manifest_path: manifests/domain-singleton.overlay.yaml
+    manifest_digest: sha256:deeee4b39b0cc75cb3b0ce184a49bac6c0de6357e5ea35346a8cec90f24aec14
+    schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/overlay-manifest.schema.yaml
+    schema_version: 1
+  initial_lifecycle_state: provisioning
+  created_at: '2026-07-12T12:00:00Z'
+- entity_kind: layer
+  registration_id: registration-customer-a
+  registration_digest: sha256:14866d4c52a1da5892661552ebbd856f278970f2eb0841338933248d4f7f04b7
+  installation_id: install-01
+  stack_id: stack-01
+  layer_id: customer-a
+  role: customer
+  template_role: customer
+  display_name: Customer A Hermes
+  policy_namespace: stack-01.customer.a
+  overlay_manifest_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    overlay_root: overlays/customer-a
+    manifest_path: manifests/customer-a.overlay.yaml
+    manifest_digest: sha256:3bfc8c12e2b4187e281b3ccfeb53dd382b8fa24dfb6d4ec5ee1facc645d8b889
+    schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/overlay-manifest.schema.yaml
+    schema_version: 1
+  initial_lifecycle_state: provisioning
+  created_at: '2026-07-12T12:00:00Z'
+  customer_subject:
+    kind: software_project
+    issuer: example-domain
+    namespace: customer-subjects
+    ref: urn:xfactory:subject:9f32f1de-82a7-4e38-a83d-9e5dd9189a11
+    reference_policy_pin:
+      repository: opensoft/exampleFactory
+      commit: cccccccccccccccccccccccccccccccccccccccc
+      path: policies/customer-subject.yaml
+      digest: sha256:79e60596526c5a4e766d016a9a2129804d4097da5ecd28678050f20f0f70e545
+    issuer_attestation_digest: sha256:fa463ad3becd5a8c2c8de09cc15086c09e864f818265789d5f16e4f1d78bde33
+installation_lifecycle_events:
+- schema_version: 1
+  kind: openxfactory-installation-lifecycle-event
+  event_id: registration-install-01-event-1
+  event_digest: sha256:cd767b05306b60b38cea46ae98577bbf7e084a824a4368c61acab1e3b7f8211d
+  installation_id: install-01
+  predecessor_ref:
+    kind: registration
+    id: registration-install-01
+    digest: sha256:02af93837525c10c554372d17550ff9d61298f6ac2d66b7ba13e841f2e111f7f
+  from_state: installing
+  to_state: configured
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:01:00Z'
+  reason: governed-installing-to-configured
+- schema_version: 1
+  kind: openxfactory-installation-lifecycle-event
+  event_id: registration-install-01-event-2
+  event_digest: sha256:d0bcfee279d8ae6c299972bfe5aca444a8316de1ead4ab14d35d1f27cb0c2b0a
+  installation_id: install-01
+  predecessor_ref:
+    kind: event
+    id: registration-install-01-event-1
+    digest: sha256:cd767b05306b60b38cea46ae98577bbf7e084a824a4368c61acab1e3b7f8211d
+  from_state: configured
+  to_state: operational
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:02:00Z'
+  reason: governed-configured-to-operational
+stack_lifecycle_events:
+- schema_version: 1
+  kind: openxfactory-stack-lifecycle-event
+  event_id: registration-stack-01-event-1
+  event_digest: sha256:83518460130e9a8153060e93df894611f665559721ec6f02e94a005e84f73121
+  installation_id: install-01
+  predecessor_ref:
+    kind: registration
+    id: registration-stack-01
+    digest: sha256:f2def815b41a9fc8ef3cbbdd9e7b7d7781a5fbcbc075bd4c90a408fa162c4925
+  from_state: installing
+  to_state: configured
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:01:00Z'
+  reason: governed-installing-to-configured
+  stack_id: stack-01
+- schema_version: 1
+  kind: openxfactory-stack-lifecycle-event
+  event_id: registration-stack-01-event-2
+  event_digest: sha256:453fe1aa419df180c14f52088eb002dfcb84aeaa0f0deda732da172096f109a4
+  installation_id: install-01
+  predecessor_ref:
+    kind: event
+    id: registration-stack-01-event-1
+    digest: sha256:83518460130e9a8153060e93df894611f665559721ec6f02e94a005e84f73121
+  from_state: configured
+  to_state: operational
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:02:00Z'
+  reason: governed-configured-to-operational
+  stack_id: stack-01
+layer_lifecycle_events:
+- schema_version: 1
+  kind: openxfactory-layer-lifecycle-event
+  event_id: registration-client-singleton-event-1
+  event_digest: sha256:a97ed117d766bc6f1f784d86259552771b6cf317082e9ebd6f748b6caf9f6376
+  installation_id: install-01
+  predecessor_ref:
+    kind: registration
+    id: registration-client-singleton
+    digest: sha256:35ee5319c508f23a5fb7b72c96ead3644cd1504e48ad4a515878bfa9c4a78b83
+  from_state: provisioning
+  to_state: active
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:01:00Z'
+  reason: governed-provisioning-to-active
+  stack_id: stack-01
+  layer_id: client-singleton
+- schema_version: 1
+  kind: openxfactory-layer-lifecycle-event
+  event_id: registration-domain-singleton-event-1
+  event_digest: sha256:f57f557eb0ff67d9f32a2c2b9d2d9eb80b70532a43c6f882db1779eb261d6741
+  installation_id: install-01
+  predecessor_ref:
+    kind: registration
+    id: registration-domain-singleton
+    digest: sha256:ae6dd616c25e72286a75bb28607f797b68baa5dae6c512d6b2eb22a68fad9fe7
+  from_state: provisioning
+  to_state: active
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:01:00Z'
+  reason: governed-provisioning-to-active
+  stack_id: stack-01
+  layer_id: domain-singleton
+- schema_version: 1
+  kind: openxfactory-layer-lifecycle-event
+  event_id: registration-customer-a-event-1
+  event_digest: sha256:73e80bc0fbe5d92776e36d9a311d636bbf5d3526fd7840761d5dfef90394c345
+  installation_id: install-01
+  predecessor_ref:
+    kind: registration
+    id: registration-customer-a
+    digest: sha256:14866d4c52a1da5892661552ebbd856f278970f2eb0841338933248d4f7f04b7
+  from_state: provisioning
+  to_state: active
+  authority_grant_id: grant-lifecycle
+  authority_grant_digest: sha256:12476d71eab087c8a30445daddadbfcd0f46aceab65e6c6e63a5766f5843555c
+  occurred_at: '2026-07-12T12:01:00Z'
+  reason: governed-provisioning-to-active
+  stack_id: stack-01
+  layer_id: customer-a
+lifecycle_projections:
+- entity_kind: installation
+  installation_id: install-01
+  latest_event_id: registration-install-01-event-2
+  latest_event_digest: sha256:d0bcfee279d8ae6c299972bfe5aca444a8316de1ead4ab14d35d1f27cb0c2b0a
+  state: operational
+  terminal_time: null
+- entity_kind: stack
+  installation_id: install-01
+  latest_event_id: registration-stack-01-event-2
+  latest_event_digest: sha256:453fe1aa419df180c14f52088eb002dfcb84aeaa0f0deda732da172096f109a4
+  state: operational
+  terminal_time: null
+  stack_id: stack-01
+- entity_kind: layer
+  installation_id: install-01
+  latest_event_id: registration-client-singleton-event-1
+  latest_event_digest: sha256:a97ed117d766bc6f1f784d86259552771b6cf317082e9ebd6f748b6caf9f6376
+  state: active
+  terminal_time: null
+  stack_id: stack-01
+  layer_id: client-singleton
+- entity_kind: layer
+  installation_id: install-01
+  latest_event_id: registration-domain-singleton-event-1
+  latest_event_digest: sha256:f57f557eb0ff67d9f32a2c2b9d2d9eb80b70532a43c6f882db1779eb261d6741
+  state: active
+  terminal_time: null
+  stack_id: stack-01
+  layer_id: domain-singleton
+- entity_kind: layer
+  installation_id: install-01
+  latest_event_id: registration-customer-a-event-1
+  latest_event_digest: sha256:73e80bc0fbe5d92776e36d9a311d636bbf5d3526fd7840761d5dfef90394c345
+  state: active
+  terminal_time: null
+  stack_id: stack-01
+  layer_id: customer-a
+retired_layer_tombstones:
+- layer_id: customer-a
+  policy_namespace: stack-01.customer.a
+  customer_subject:
+    kind: software_project
+    issuer: example-domain
+    namespace: customer-subjects
+    ref: urn:xfactory:subject:9f32f1de-82a7-4e38-a83d-9e5dd9189a11
+    reference_policy_pin:
+      repository: opensoft/exampleFactory
+      commit: cccccccccccccccccccccccccccccccccccccccc
+      path: policies/customer-subject.yaml
+      digest: sha256:79e60596526c5a4e766d016a9a2129804d4097da5ecd28678050f20f0f70e545
+    issuer_attestation_digest: sha256:fa463ad3becd5a8c2c8de09cc15086c09e864f818265789d5f16e4f1d78bde33
+  retired_event_id: retired-customer-a-event
+  retired_event_digest: sha256:600500bb0de062ca3789293da9c958584b4c95704d1f53cc1430989bbc766a6b

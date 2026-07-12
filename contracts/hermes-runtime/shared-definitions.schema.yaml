@@ -35,6 +35,14 @@ $defs:
   contract_schema_version:
     type: integer
     minimum: 1
+  schema_id:
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: "^[A-Za-z0-9][A-Za-z0-9+._:/-]*$"
+  schema_version:
+    type: integer
+    minimum: 1
 
   lowercase_uuid:
     type: string
@@ -84,14 +92,14 @@ $defs:
         $ref: "#/$defs/repository_relative_path"
       digest:
         $ref: "#/$defs/sha256_digest"
-      contract_id:
-        $ref: "#/$defs/contract_id"
-      contract_schema_version:
-        $ref: "#/$defs/contract_schema_version"
+      schema_id:
+        $ref: "#/$defs/schema_id"
+      schema_version:
+        $ref: "#/$defs/schema_version"
     required: [repository, commit, path, digest]
     dependentRequired:
-      contract_id: [contract_schema_version]
-      contract_schema_version: [contract_id]
+      schema_id: [schema_version]
+      schema_version: [schema_id]
     additionalProperties: false
   git_overlay_pin:
     type: object
@@ -106,7 +114,18 @@ $defs:
         $ref: "#/$defs/repository_relative_path"
       manifest_digest:
         $ref: "#/$defs/sha256_digest"
-    required: [repository, commit, overlay_root, manifest_path, manifest_digest]
+      schema_id:
+        $ref: "#/$defs/schema_id"
+      schema_version:
+        $ref: "#/$defs/schema_version"
+    required:
+      - repository
+      - commit
+      - overlay_root
+      - manifest_path
+      - manifest_digest
+      - schema_id
+      - schema_version
     additionalProperties: false
   contract_pin:
     type: object

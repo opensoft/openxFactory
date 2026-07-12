@@ -1,0 +1,38 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-pin-fixture
+case_id: overlay-manifest-valid
+git_tree:
+  repository: opensoft/example-domain
+  commit: "1111111111111111111111111111111111111111"
+  entries:
+    - path: overlays/customer/.generated-digests.yaml
+      git_mode: "100644"
+      content_utf8: "schema_version: 1\n"
+    - path: overlays/customer/nested/.gitkeep
+      git_mode: "100644"
+      content_utf8: ""
+    - path: overlays/customer/policy.yaml
+      git_mode: "100644"
+      content_utf8: "policy: governed\n"
+    - path: overlays/customer/role.yaml
+      git_mode: "100644"
+      content_utf8: "role: customer\n"
+input:
+  type: overlay_manifest
+  value:
+    schema_version: 1
+    kind: HermesRuntimeOverlayManifest
+    overlay_root: overlays/customer
+    files:
+      - path: overlays/customer/policy.yaml
+        digest: sha256:5712563255d942da4a3bd2c1de08642cbee64e6a958f21fb8b7a4fd0740690b0
+      - path: overlays/customer/role.yaml
+        digest: sha256:0077d18aa21b48729d55dad34d59e22d2984c39f851a92486db065aee71e0ec6
+    exclusions:
+      - kind: gitkeep
+        path: overlays/customer/nested/.gitkeep
+      - kind: generated_digest_inventory
+        path: overlays/customer/.generated-digests.yaml
+expected:
+  outcome: pass
+  primary_code: null

@@ -10,10 +10,11 @@ Usage:
 Checks (errors fail the run; warnings fail only with --strict):
   1.  stack.yaml exists, parses, has canonical top-level shape.
   2.  xfactory contract pin is well-formed (commit SHA or tag).
-  3.  hermes.layers declares exactly one customer, one client, one domain
-      role (extensions allowed with authority_scope); overlay dirs exist
-      and contain at least one YAML file. Legacy flat keys are accepted
-      with deprecation warnings.
+  3.  hermes.layers declares exactly one static customer, client, and domain
+      template (extensions allowed with authority_scope); the one Customer
+      template may realize zero or more runtime customer_subject instances.
+      Overlay dirs exist and contain at least one YAML file. Legacy flat keys
+      are accepted with deprecation warnings.
   4.  omnigent.domain_overlay dir exists.
   5.  tenancy declares kinds + isolation; isolation values are from the
       recognized scope vocabulary.
@@ -53,7 +54,7 @@ DOMAIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 CANONICAL_ROLES = ("customer", "client", "domain")
 ISOLATION_SCOPES = {
-    "per_tenant", "per_client", "per_customer", "per_patient",
+    "per_tenant", "per_client", "per_customer", "per_customer_subject", "per_patient",
     "per_campaign", "per_project", "per_ledger", "shared_with_review",
 }
 LEGACY_HERMES_KEYS = {
@@ -143,7 +144,12 @@ def check_pin(stack: dict, rpt: Report) -> None:
 
 
 def resolve_layers(root: Path, stack: dict, rpt: Report) -> dict[str, dict]:
-    """Return {role: {display_name, overlay}} from canonical or legacy shape."""
+    """Return the unique static template for each canonical role.
+
+    Runtime Customer Hermes cardinality is governed by the neutral runtime
+    topology contract. This static declaration remains singular so duplicate
+    role templates cannot create an alternate authority path.
+    """
     hermes = stack.get("hermes")
     if not isinstance(hermes, dict):
         rpt.error("stack.yaml: missing hermes block")

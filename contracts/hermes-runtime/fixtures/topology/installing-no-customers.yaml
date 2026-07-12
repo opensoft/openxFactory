@@ -1,0 +1,62 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-topology
+installation_id: install-01
+stack_id: stack-01
+installation_registration:
+  entity_kind: installation
+  registration_id: registration-install-01
+  registration_digest: sha256:02af93837525c10c554372d17550ff9d61298f6ac2d66b7ba13e841f2e111f7f
+  installation_id: install-01
+  initial_lifecycle_state: installing
+  genesis_anchor_id: anchor-install-01
+  created_at: '2026-07-12T12:00:00Z'
+stack_registration:
+  entity_kind: stack
+  registration_id: registration-stack-01
+  registration_digest: sha256:f2def815b41a9fc8ef3cbbdd9e7b7d7781a5fbcbc075bd4c90a408fa162c4925
+  installation_id: install-01
+  stack_id: stack-01
+  domain_id: example-domain
+  domain_stack_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    path: stack.yaml
+    digest: sha256:0de01f189d384bfbe69e806ef70b1a425b27394dbe2a9d0e62ffd010dda86c03
+  contract_bundle_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    path: contracts/hermes-runtime.yaml
+    digest: sha256:3da5a134c45cccfa1e9341f94438825665322d663e789fabb44bfaa63f7573ac
+    contract_id: hermes-runtime-bundle
+    contract_schema_version: 2
+  initial_lifecycle_state: installing
+  created_at: '2026-07-12T12:00:00Z'
+derived_topology_state: installing
+role_templates:
+- role: customer
+  display_name: Customer Hermes
+  overlay: hermes/customer
+- role: client
+  display_name: Client Hermes
+  overlay: hermes/client
+- role: domain
+  display_name: Domain Hermes
+  overlay: hermes/domain
+layer_registrations: []
+installation_lifecycle_events: []
+stack_lifecycle_events: []
+layer_lifecycle_events: []
+lifecycle_projections:
+- entity_kind: installation
+  installation_id: install-01
+  latest_event_id: null
+  latest_event_digest: null
+  state: installing
+  terminal_time: null
+- entity_kind: stack
+  installation_id: install-01
+  latest_event_id: null
+  latest_event_digest: null
+  state: installing
+  terminal_time: null
+  stack_id: stack-01

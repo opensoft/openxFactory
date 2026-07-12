@@ -119,10 +119,14 @@ properties:
       layers:
         type: array
         description: >-
-          Ordered top (served subject) to bottom (reusable domain). Must
-          contain exactly one layer per canonical role customer, client,
-          and domain. Additional intermediate layers are allowed with
-          role: extension and an authority_scope note.
+          Ordered static assembly templates from top (served subject) to
+          bottom (reusable domain). Must contain exactly one template per
+          canonical role customer, client, and domain; declaring the Customer
+          template once does not limit runtime cardinality. A conforming
+          installation may instantiate zero or more isolated Customer Hermes
+          layers from that template, each bound to one neutral
+          customer_subject. Additional intermediate templates are allowed
+          with role: extension and an authority_scope note.
         minItems: 3
         items:
           type: object
@@ -320,7 +324,10 @@ properties:
       Must declare tenant_kinds (or client_kinds for operator-tenant domains)
       and an isolation map. Every isolation value must be one of the
       recognized isolation scopes so isolation is a checkable claim rather
-      than free text.
+      than free text. New domain-neutral contracts use
+      per_customer_subject; the retained domain aliases (for example
+      per_project, per_patient, and per_ledger) express the same isolation
+      boundary for existing specializations.
     properties:
       tenant_kinds:
         type: array
@@ -341,6 +348,7 @@ properties:
             - per_tenant
             - per_client
             - per_customer
+            - per_customer_subject
             - per_patient
             - per_campaign
             - per_project

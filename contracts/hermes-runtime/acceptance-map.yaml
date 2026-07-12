@@ -2,12 +2,19 @@ schema_version: 1
 kind: openxfactory-hermes-runtime-acceptance-map
 feature: 005-customer-subject-runtime
 governed_change: add-hermes-customer-subject-runtime-contract
+fixture_index: fixtures/index.yaml
+evidence_register: evidence-register.yaml
+us1_binding_status: partial
 expected_openspec_requirement_count: 17
 expected_openspec_scenario_count: 85
 openspec_parity:
 - id: HCS-001
   capability: hermes-customer-subject-runtime
   title: Static role templates and runtime instances are distinct
+  feature_requirement_ids:
+  - FR-001
+  - FR-002
+  - FR-045
   scenario_ids:
   - HCS-001-S01
   - HCS-001-S02
@@ -19,6 +26,9 @@ openspec_parity:
 - id: HCS-002
   capability: hermes-customer-subject-runtime
   title: Customer-subject identity and aliases are domain-neutral
+  feature_requirement_ids:
+  - FR-003
+  - FR-004
   scenario_ids:
   - HCS-002-S01
   - HCS-002-S02
@@ -34,6 +44,10 @@ openspec_parity:
 - id: HCS-003
   capability: hermes-customer-subject-runtime
   title: Runtime topology has durable identity and lifecycle cardinality
+  feature_requirement_ids:
+  - FR-005
+  - FR-006
+  - FR-007
   scenario_ids:
   - HCS-003-S01
   - HCS-003-S02
@@ -51,6 +65,8 @@ openspec_parity:
 - id: HCS-004
   capability: hermes-customer-subject-runtime
   title: Runtime assembly pins are content-addressed
+  feature_requirement_ids:
+  - FR-008
   scenario_ids:
   - HCS-004-S01
   - HCS-004-S02
@@ -64,6 +80,9 @@ openspec_parity:
 - id: HCS-005
   capability: hermes-customer-subject-runtime
   title: Customer-subject lifecycle preserves identity and evidence
+  feature_requirement_ids:
+  - FR-007
+  - FR-039
   scenario_ids:
   - HCS-005-S01
   - HCS-005-S02
@@ -75,6 +94,8 @@ openspec_parity:
 - id: HCS-006
   capability: hermes-customer-subject-runtime
   title: Canonical validation proves cross-domain conformance
+  feature_requirement_ids:
+  - FR-031
   scenario_ids:
   - HCS-006-S01
   - HCS-006-S02
@@ -272,10 +293,15 @@ stories:
   - FR-006
   - FR-007
   - FR-008
+  # Shared with US4: US1 proves the fixture/provisioning topology slice;
+  # US4 completes job, release, and consumer realization evidence.
+  - FR-031
+  - FR-039
   - FR-045
   outcomes:
   - SC-001
   - SC-002
+  - SC-013
   contract_groups:
   - topology
   - references

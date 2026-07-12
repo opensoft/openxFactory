@@ -11,6 +11,9 @@ import subprocess
 
 
 _OBJECT_ID = re.compile(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}")
+_CLOSED_REPOSITORY_PATH = re.compile(
+    r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*"
+)
 
 
 class ContentResolutionError(RuntimeError):
@@ -48,19 +51,32 @@ def normalize_repository_path(path: str | os.PathLike[str]) -> str:
     if any(part in {"", ".", ".."} for part in parts):
         raise ContentResolutionError("repository path contains a forbidden segment")
     normalized = PurePosixPath(*parts).as_posix()
-    if normalized != raw:
+    if normalized != raw or _CLOSED_REPOSITORY_PATH.fullmatch(normalized) is None:
         raise ContentResolutionError("repository path is not canonical")
     return normalized
 
 
 def _git(repo: Path, *arguments: str, binary: bool = False) -> str | bytes:
+    environment = os.environ.copy()
+    # A caller-controlled Git environment must not redirect this exact-object
+    # lookup to another repository or activate replacement-object semantics.
+    for name in (
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_REPLACE_REF_BASE",
+    ):
+        environment.pop(name, None)
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
-            ["git", "-C", str(repo), *arguments],
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
             capture_output=True,
             text=not binary,
             check=False,
             timeout=30,
+            env=environment,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ContentResolutionError("Git content dependency is unavailable") from exc

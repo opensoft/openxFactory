@@ -1,0 +1,42 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-reference-fixture
+case_id: reference-uuidv7-subject
+customer_subject:
+  kind: patient
+  issuer: example-domain
+  namespace: customer-subjects
+  ref: "urn:xfactory:subject:018f47a0-7b2c-7abc-8def-0123456789ab"
+  reference_policy_pin:
+    repository: opensoft/exampleFactory
+    commit: cccccccccccccccccccccccccccccccccccccccc
+    path: policies/customer-subject.yaml
+    digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  issuer_attestation_digest: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+reference_profile:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-customer-subject-reference-profile
+  profile_id: example-domain-customer-subjects-v1
+  issuer: example-domain
+  namespace: customer-subjects
+  policy_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  construction: uuidv7
+  keyed: false
+  contains_direct_identifier: false
+  contains_secret: false
+  sentinel_hits: []
+  attestation:
+    attestation_id: attestation-uuidv7
+    issuer: example-domain
+    policy_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    attestation_digest: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    attested_at: "2026-07-12T12:00:00Z"
+    claims:
+      surrogate_pseudonymous: true
+      no_direct_identifier: true
+      no_secret: true
+      no_reversible_encoding: true
+      no_unkeyed_derivation: true
+      construction_authorized: true
+expected:
+  outcome: pass
+

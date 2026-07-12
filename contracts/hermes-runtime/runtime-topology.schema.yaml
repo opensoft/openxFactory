@@ -1,0 +1,411 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/runtime-topology.schema.yaml
+contract_id: runtime-topology
+contract_schema_version: 2
+title: Neutral Hermes runtime topology
+description: One immutable Installation and Stack registration, one Client and Domain instance, and repeatable Customer instances
+  selected by pseudonymous domain-owned subjects.
+type: object
+$defs:
+  role_template:
+    type: object
+    properties:
+      role:
+        type: string
+        enum:
+        - customer
+        - client
+        - domain
+        - extension
+      display_name:
+        type: string
+        minLength: 1
+        maxLength: 200
+      overlay:
+        $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+      authority_scope:
+        type: string
+        minLength: 1
+        maxLength: 512
+      extensions:
+        $ref: shared-definitions.schema.yaml#/$defs/extensions
+    required:
+    - role
+    - display_name
+    - overlay
+    allOf:
+    - if:
+        properties:
+          role:
+            const: extension
+        required:
+        - role
+      then:
+        required:
+        - authority_scope
+    additionalProperties: false
+  installation_registration:
+    type: object
+    properties:
+      entity_kind:
+        const: installation
+      registration_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      registration_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+      installation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/installation_id
+      initial_lifecycle_state:
+        const: installing
+      genesis_anchor_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      created_at:
+        $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+      extensions:
+        $ref: shared-definitions.schema.yaml#/$defs/extensions
+    required:
+    - entity_kind
+    - registration_id
+    - registration_digest
+    - installation_id
+    - initial_lifecycle_state
+    - genesis_anchor_id
+    - created_at
+    additionalProperties: false
+  stack_registration:
+    type: object
+    properties:
+      entity_kind:
+        const: stack
+      registration_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      registration_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+      installation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/installation_id
+      stack_id:
+        $ref: shared-definitions.schema.yaml#/$defs/stack_id
+      domain_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      domain_stack_pin:
+        $ref: shared-definitions.schema.yaml#/$defs/git_file_pin
+      contract_bundle_pin:
+        $ref: shared-definitions.schema.yaml#/$defs/contract_pin
+      initial_lifecycle_state:
+        const: installing
+      created_at:
+        $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+      extensions:
+        $ref: shared-definitions.schema.yaml#/$defs/extensions
+    required:
+    - entity_kind
+    - registration_id
+    - registration_digest
+    - installation_id
+    - stack_id
+    - domain_id
+    - domain_stack_pin
+    - contract_bundle_pin
+    - initial_lifecycle_state
+    - created_at
+    additionalProperties: false
+  layer_registration:
+    type: object
+    properties:
+      entity_kind:
+        const: layer
+      registration_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      registration_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+      installation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/installation_id
+      stack_id:
+        $ref: shared-definitions.schema.yaml#/$defs/stack_id
+      layer_id:
+        $ref: shared-definitions.schema.yaml#/$defs/layer_id
+      role:
+        type: string
+        enum:
+        - customer
+        - client
+        - domain
+        - extension
+      template_role:
+        type: string
+        enum:
+        - customer
+        - client
+        - domain
+        - extension
+      display_name:
+        type: string
+        minLength: 1
+        maxLength: 200
+      policy_namespace:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      overlay_manifest_pin:
+        $ref: shared-definitions.schema.yaml#/$defs/git_overlay_pin
+      initial_lifecycle_state:
+        const: provisioning
+      customer_subject:
+        $ref: customer-subject-reference-profile.schema.yaml#/$defs/customer_subject
+      created_at:
+        $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+      extensions:
+        $ref: shared-definitions.schema.yaml#/$defs/extensions
+    required:
+    - entity_kind
+    - registration_id
+    - registration_digest
+    - installation_id
+    - stack_id
+    - layer_id
+    - role
+    - template_role
+    - display_name
+    - policy_namespace
+    - overlay_manifest_pin
+    - initial_lifecycle_state
+    - created_at
+    allOf:
+    - if:
+        properties:
+          role:
+            const: customer
+        required:
+        - role
+      then:
+        required:
+        - customer_subject
+    - if:
+        properties:
+          role:
+            enum:
+            - client
+            - domain
+        required:
+        - role
+      then:
+        not:
+          required:
+          - customer_subject
+    additionalProperties: false
+  lifecycle_projection:
+    type: object
+    properties:
+      entity_kind:
+        type: string
+        enum:
+        - installation
+        - stack
+        - layer
+      installation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/installation_id
+      stack_id:
+        $ref: shared-definitions.schema.yaml#/$defs/stack_id
+      layer_id:
+        $ref: shared-definitions.schema.yaml#/$defs/layer_id
+      latest_event_id:
+        oneOf:
+        - $ref: shared-definitions.schema.yaml#/$defs/event_id
+        - type: 'null'
+      latest_event_digest:
+        oneOf:
+        - $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+        - type: 'null'
+      state:
+        type: string
+        enum:
+        - active
+        - configured
+        - failed
+        - installing
+        - operational
+        - provisioning
+        - retired
+        - suspended
+      terminal_time:
+        oneOf:
+        - $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+        - type: 'null'
+    required:
+    - entity_kind
+    - installation_id
+    - latest_event_id
+    - latest_event_digest
+    - state
+    - terminal_time
+    dependentRequired:
+      layer_id:
+      - stack_id
+    allOf:
+    - if:
+        properties:
+          entity_kind:
+            const: installation
+        required:
+        - entity_kind
+      then:
+        properties:
+          state:
+            enum:
+            - installing
+            - configured
+            - operational
+            - suspended
+            - retired
+        not:
+          anyOf:
+          - required:
+            - stack_id
+          - required:
+            - layer_id
+    - if:
+        properties:
+          entity_kind:
+            const: stack
+        required:
+        - entity_kind
+      then:
+        required:
+        - stack_id
+        properties:
+          state:
+            enum:
+            - installing
+            - configured
+            - operational
+            - suspended
+            - retired
+        not:
+          required:
+          - layer_id
+    - if:
+        properties:
+          entity_kind:
+            const: layer
+        required:
+        - entity_kind
+      then:
+        required:
+        - stack_id
+        - layer_id
+        properties:
+          state:
+            enum:
+            - provisioning
+            - active
+            - suspended
+            - failed
+            - retired
+    additionalProperties: false
+  layer_tombstone:
+    type: object
+    properties:
+      layer_id:
+        $ref: shared-definitions.schema.yaml#/$defs/layer_id
+      policy_namespace:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      customer_subject:
+        $ref: customer-subject-reference-profile.schema.yaml#/$defs/customer_subject
+      retired_event_id:
+        $ref: shared-definitions.schema.yaml#/$defs/event_id
+      retired_event_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required:
+    - layer_id
+    - policy_namespace
+    - retired_event_id
+    - retired_event_digest
+    additionalProperties: false
+  provisioning_request:
+    type: object
+    properties:
+      idempotency_key:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      customer_subject:
+        $ref: customer-subject-reference-profile.schema.yaml#/$defs/customer_subject
+      layer_id:
+        $ref: shared-definitions.schema.yaml#/$defs/layer_id
+      lifecycle_record_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+    required:
+    - idempotency_key
+    - customer_subject
+    - layer_id
+    - lifecycle_record_id
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-topology
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/installation_id
+  stack_id:
+    $ref: shared-definitions.schema.yaml#/$defs/stack_id
+  installation_registration:
+    $ref: '#/$defs/installation_registration'
+  stack_registration:
+    $ref: '#/$defs/stack_registration'
+  derived_topology_state:
+    type: string
+    enum:
+    - installing
+    - configured
+    - operational
+    - suspended
+    - retired
+  role_templates:
+    type: array
+    minItems: 3
+    items:
+      $ref: '#/$defs/role_template'
+  layer_registrations:
+    type: array
+    items:
+      $ref: '#/$defs/layer_registration'
+  installation_lifecycle_events:
+    type: array
+    items:
+      $ref: installation-lifecycle-event.schema.yaml
+  stack_lifecycle_events:
+    type: array
+    items:
+      $ref: stack-lifecycle-event.schema.yaml
+  layer_lifecycle_events:
+    type: array
+    items:
+      $ref: layer-lifecycle-event.schema.yaml
+  lifecycle_projections:
+    type: array
+    items:
+      $ref: '#/$defs/lifecycle_projection'
+  retired_layer_tombstones:
+    type: array
+    items:
+      $ref: '#/$defs/layer_tombstone'
+  provisioning_requests:
+    type: array
+    items:
+      $ref: '#/$defs/provisioning_request'
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- installation_id
+- stack_id
+- installation_registration
+- stack_registration
+- derived_topology_state
+- role_templates
+- layer_registrations
+- installation_lifecycle_events
+- stack_lifecycle_events
+- layer_lifecycle_events
+- lifecycle_projections
+additionalProperties: false

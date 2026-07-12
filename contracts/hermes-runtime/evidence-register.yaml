@@ -3,207 +3,308 @@ kind: openxfactory-hermes-runtime-evidence-register
 feature: 005-customer-subject-runtime
 governed_change: add-hermes-customer-subject-runtime-contract
 authorization_effect: none
+us1_binding_status: partial
 expected_scenario_count: 85
 entries:
 - scenario_id: HCS-001-S01
   requirement_id: HCS-001
   scenario_title: One Customer template produces multiple runtime instances
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-001-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-operational-two-customers
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_one_customer_template_supports_two_runtime_instances
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-operational-two-customers]
   result_refs: []
 - scenario_id: HCS-001-S02
   requirement_id: HCS-001
   scenario_title: Duplicate static Customer role remains invalid
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-001-S02
   planned_owner_task: T030
   fixture_case_ids: []
-  test_node_ids: []
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_duplicate_static_role_and_unknown_alias_have_stable_reasons
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_canonical_domain_validator_rejects_duplicate_customer_template
   result_refs: []
 - scenario_id: HCS-001-S03
   requirement_id: HCS-001
   scenario_title: Extension role is not used to evade the model
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-001-S03
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-extension-customer-evasion
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_extension_layer_cannot_evasively_represent_customer_subject
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-extension-customer-evasion]
   result_refs: []
 - scenario_id: HCS-002-S01
   requirement_id: HCS-002
   scenario_title: codexFactory maps a Project Hermes instance
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-002-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-codex-project-hermes
+  - reference-uuidv4-subject
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_domain_aliases_use_the_same_neutral_subject_shape[software_project]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-codex-project-hermes]
   result_refs: []
 - scenario_id: HCS-002-S02
   requirement_id: HCS-002
   scenario_title: MedxFactory maps a Patient Hermes instance
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-002-S02
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-medx-patient-hermes
+  - reference-uuidv7-subject
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_domain_aliases_use_the_same_neutral_subject_shape[patient]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-medx-patient-hermes]
   result_refs: []
 - scenario_id: HCS-002-S03
   requirement_id: HCS-002
   scenario_title: LedgerxFactory maps a client-company instance
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-002-S03
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-ledgerx-client-company-hermes
+  - reference-keyed-token-subject
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_domain_aliases_use_the_same_neutral_subject_shape[client_company]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-ledgerx-client-company-hermes]
   result_refs: []
 - scenario_id: HCS-002-S04
   requirement_id: HCS-002
   scenario_title: Subject reference violates its governed profile
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-002-S04
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - reference-missing-attestation
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_reference_syntax_attestation_and_sentinel_fail_for_exact_reasons
+  - tests/hermes_runtime_contracts/test_reference_policy_hardening.py::test_negative_reference_fixtures_have_complete_unrelated_evidence
   result_refs: []
 - scenario_id: HCS-002-S05
   requirement_id: HCS-002
   scenario_title: Subject reference is deterministically derived without a key
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-002-S05
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - reference-uuidv1-subject
+  - reference-uuidv3-subject
+  - reference-uuidv5-subject
+  - reference-unsafe-derivation
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_unsafe_uuid_derivations_fail_closed[uuidv1]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_unsafe_uuid_derivations_fail_closed[uuidv3]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_unsafe_uuid_derivations_fail_closed[uuidv5]
+  - tests/hermes_runtime_contracts/test_reference_policy_hardening.py::test_negative_reference_fixtures_have_complete_unrelated_evidence
   result_refs: []
 - scenario_id: HCS-003-S01
   requirement_id: HCS-003
   scenario_title: Operational topology contains two Customer instances
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-operational-two-customers
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-operational-two-customers]
   result_refs: []
 - scenario_id: HCS-003-S02
   requirement_id: HCS-003
   scenario_title: Configuration precedes subject onboarding
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S02
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-installing-no-customers
+  - topology-configured-no-customers
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_configured_topology_allows_subject_onboarding_later
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-installing-no-customers]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-configured-no-customers]
   result_refs: []
 - scenario_id: HCS-003-S03
   requirement_id: HCS-003
   scenario_title: Operational topology has no Customer
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S03
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-operational-zero-customers
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_operational_topology_requires_an_active_customer
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-operational-zero-customers]
   result_refs: []
 - scenario_id: HCS-003-S04
   requirement_id: HCS-003
   scenario_title: Singleton role cardinality is violated
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S04
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-duplicate-singleton
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_singleton_runtime_role_cardinality_is_exact[client-2-HCS-TOPOLOGY-CLIENT-CARDINALITY]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_singleton_role_rejects_active_plus_failed_lifetime_registration[client-HCS-TOPOLOGY-CLIENT-CARDINALITY]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_singleton_role_rejects_active_plus_failed_lifetime_registration[domain-HCS-TOPOLOGY-DOMAIN-CARDINALITY]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-duplicate-singleton]
   result_refs: []
 - scenario_id: HCS-003-S05
   requirement_id: HCS-003
   scenario_title: Retired identity is reused
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S05
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-retired-identity-reuse
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_retired_tombstones_forbid_identity_reuse[layer_id-HCS-TOPOLOGY-LAYER-ID-REUSE]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-identity-reuse]
   result_refs: []
 - scenario_id: HCS-003-S06
   requirement_id: HCS-003
   scenario_title: Lifecycle history is bypassed or retirement is reversed
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-003-S06
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-suspended-preserves-registrations
+  - topology-failed-recovered-layer
+  - topology-lifecycle-fork
+  - topology-current-state-mutation
+  - topology-retired-transition
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-suspended-preserves-registrations]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-failed-recovered-layer]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-lifecycle-fork]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-current-state-mutation]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-transition]
+  - tests/hermes_runtime_contracts/test_topology_lifecycle.py::test_predecessor_fork_is_rejected
+  - tests/hermes_runtime_contracts/test_topology_lifecycle.py::test_projection_must_reconcile_to_event_chain
+  - tests/hermes_runtime_contracts/test_topology_lifecycle.py::test_retired_is_terminal_for_topology_and_layer_lifecycles
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_closed_topology_graph_rejects_installing_direct_retirement
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_suspended_snapshot_requires_preserved_customer_registration
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_retired_snapshot_requires_preserved_singleton_registrations
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_topology_append_only_rejects_suspended_customer_deletion
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_topology_append_only_rejects_retired_evidence_erasure
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_topology_append_only_rejects_registration_and_event_rewrites
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_orphan_layer_projection_is_rejected
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_orphan_retirement_tombstone_is_rejected
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_new_job_admission_rejects_nonworking_topology_states[suspended]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_new_job_admission_rejects_nonworking_topology_states[retired]
   result_refs: []
 - scenario_id: HCS-004-S01
   requirement_id: HCS-004
   scenario_title: Exact assembly pin resolves
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-004-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - overlay-manifest-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_recursive_overlay_inventory_byte_order_and_closed_exclusions_pass
+  - tests/hermes_runtime_contracts/test_overlay_and_pins_hardening.py::test_full_pinned_overlay_reads_exact_manifest_blob_not_worktree
   result_refs: []
 - scenario_id: HCS-004-S02
   requirement_id: HCS-004
   scenario_title: Branch-only or tag-only pin is supplied
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-004-S02
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - assembly-branch-only
+  - assembly-tag-only
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_branch_or_tag_without_exact_commit_is_rejected[main]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_branch_or_tag_without_exact_commit_is_rejected[v1.0.0]
   result_refs: []
 - scenario_id: HCS-004-S03
   requirement_id: HCS-004
   scenario_title: Pinned content drifts
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-004-S03
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - overlay-manifest-digest-drift
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_single_file_and_overlay_digest_drift_are_distinct_findings
+  - tests/hermes_runtime_contracts/test_overlay_and_pins_hardening.py::test_git_replace_cannot_substitute_bytes_under_pinned_commit
   result_refs: []
 - scenario_id: HCS-004-S04
   requirement_id: HCS-004
   scenario_title: Overlay manifest omits a runtime file
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-004-S04
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - overlay-manifest-missing-member
+  - overlay-path-traversal
+  - overlay-tree-symlink
+  - overlay-tree-submodule
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_membership_order_and_exclusions_fail_for_exact_reason[missing-HCS-OVERLAY-MISSING-MEMBER]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_traversal_and_absolute_paths_fail_closed[overlay_root-../outside]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_rejects_symlink_and_submodule_tree_entries[symlink]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_rejects_symlink_and_submodule_tree_entries[submodule]
   result_refs: []
 - scenario_id: HCS-005-S01
   requirement_id: HCS-005
   scenario_title: Provision request is retried
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-005-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-provision-retry-same-key
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_provisioning_retries_converge_and_conflicting_key_reuse_fails
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_provision_result_binds_exact_customer_registration[layer_id]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_provision_result_binds_exact_customer_registration[lifecycle_record_id]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_provision_result_binds_exact_customer_registration[customer_subject]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-provision-retry-same-key]
   result_refs: []
 - scenario_id: HCS-005-S02
   requirement_id: HCS-005
   scenario_title: Provision key is reused for another subject
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-005-S02
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-provision-key-subject-conflict
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_provisioning_retries_converge_and_conflicting_key_reuse_fails
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_conflicted_provision_key_retains_one_primary_reason
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-provision-key-subject-conflict]
   result_refs: []
 - scenario_id: HCS-005-S03
   requirement_id: HCS-005
@@ -211,39 +312,94 @@ entries:
   status: planned
   authorizes: false
   evidence_id: EVIDENCE-HCS-005-S03
-  planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  planned_owner_task: T077
+  fixture_case_ids:
+  - topology-retired-all-layers
+  - topology-retired-identity-reuse
+  - topology-retired-transition
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_retired_layers_require_exact_unique_terminal_tombstones
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-all-layers]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-identity-reuse]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-transition]
+  - tests/hermes_runtime_contracts/test_topology_lifecycle.py::test_retirement_projection_preserves_terminal_event_time
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_topology_append_only_rejects_retired_evidence_erasure
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_new_job_admission_rejects_nonworking_topology_states[retired]
   result_refs: []
 - scenario_id: HCS-006-S01
   requirement_id: HCS-006
   scenario_title: Two-subject positive fixture is checked
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-006-S01
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-operational-two-customers
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-operational-two-customers]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_all_indexed_topology_fixtures_close_against_offline_schema_family
   result_refs: []
 - scenario_id: HCS-006-S02
   requirement_id: HCS-006
   scenario_title: Domain-neutral mapping fixtures are checked
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-006-S02
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-codex-project-hermes
+  - topology-medx-patient-hermes
+  - topology-ledgerx-client-company-hermes
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-codex-project-hermes]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-medx-patient-hermes]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-ledgerx-client-company-hermes]
   result_refs: []
 - scenario_id: HCS-006-S03
   requirement_id: HCS-006
   scenario_title: Negative topology fixture is accidentally accepted
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-006-S03
   planned_owner_task: T030
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - topology-operational-zero-customers
+  - topology-duplicate-singleton
+  - topology-extension-customer-evasion
+  - topology-retired-identity-reuse
+  - topology-lifecycle-fork
+  - topology-current-state-mutation
+  - topology-retired-transition
+  - topology-provision-key-subject-conflict
+  - reference-missing-attestation
+  - reference-uuidv1-subject
+  - reference-uuidv3-subject
+  - reference-uuidv5-subject
+  - reference-unsafe-derivation
+  - assembly-branch-only
+  - assembly-tag-only
+  - overlay-manifest-digest-drift
+  - overlay-manifest-missing-member
+  - overlay-path-traversal
+  - overlay-tree-symlink
+  - overlay-tree-submodule
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-operational-zero-customers]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-duplicate-singleton]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-extension-customer-evasion]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-identity-reuse]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-lifecycle-fork]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-current-state-mutation]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-transition]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-provision-key-subject-conflict]
+  - tests/hermes_runtime_contracts/test_reference_policy_hardening.py::test_negative_reference_fixtures_have_complete_unrelated_evidence
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_branch_or_tag_without_exact_commit_is_rejected[main]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_branch_or_tag_without_exact_commit_is_rejected[v1.0.0]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_single_file_and_overlay_digest_drift_are_distinct_findings
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_membership_order_and_exclusions_fail_for_exact_reason[missing-HCS-OVERLAY-MISSING-MEMBER]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_traversal_and_absolute_paths_fail_closed[overlay_root-../outside]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_rejects_symlink_and_submodule_tree_entries[symlink]
+  - tests/hermes_runtime_contracts/test_overlay_and_pins.py::test_overlay_rejects_symlink_and_submodule_tree_entries[submodule]
   result_refs: []
 - scenario_id: HGR-001-S01
   requirement_id: HGR-001

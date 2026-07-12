@@ -1,0 +1,25 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-pin-fixture
+case_id: assembly-branch-only
+git_tree:
+  repository: opensoft/example-domain
+  commit: "1111111111111111111111111111111111111111"
+  refs:
+    branches:
+      main: "1111111111111111111111111111111111111111"
+  entries:
+    - path: templates/customer.yaml
+      git_mode: "100644"
+      content_utf8: "role: customer\n"
+input:
+  type: single_file_pin
+  value:
+    repository: opensoft/example-domain
+    commit: main
+    path: templates/customer.yaml
+    schema_id: https://xforge.us/schemas/example/customer-template
+    schema_version: 1
+    digest: sha256:0077d18aa21b48729d55dad34d59e22d2984c39f851a92486db065aee71e0ec6
+expected:
+  outcome: fail
+  primary_code: HCS-PIN-EXACT-COMMIT

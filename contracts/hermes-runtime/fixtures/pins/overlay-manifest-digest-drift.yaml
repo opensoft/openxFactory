@@ -1,0 +1,23 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-pin-fixture
+case_id: overlay-manifest-digest-drift
+git_tree:
+  repository: opensoft/example-domain
+  commit: "1111111111111111111111111111111111111111"
+  entries:
+    - path: overlays/customer/role.yaml
+      git_mode: "100644"
+      content_utf8: "role: customer\n"
+input:
+  type: overlay_manifest
+  value:
+    schema_version: 1
+    kind: HermesRuntimeOverlayManifest
+    overlay_root: overlays/customer
+    files:
+      - path: overlays/customer/role.yaml
+        digest: sha256:3c74cce48067a8670538aecd726ac41a189dbb564745fd16676b00101ff7692c
+    exclusions: []
+expected:
+  outcome: fail
+  primary_code: HCS-OVERLAY-DIGEST
