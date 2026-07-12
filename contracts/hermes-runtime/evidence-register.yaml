@@ -183,6 +183,7 @@ entries:
   - topology-retired-identity-reuse
   test_node_ids:
   - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_retired_tombstones_forbid_identity_reuse[layer_id-HCS-TOPOLOGY-LAYER-ID-REUSE]
+  - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_retirement_tombstone_cannot_alias_a_registered_namespace
   - tests/hermes_runtime_contracts/test_topology_and_identity.py::test_indexed_topology_fixture_matches_exact_expected_reason[topology-retired-identity-reuse]
   result_refs: []
 - scenario_id: HCS-003-S06

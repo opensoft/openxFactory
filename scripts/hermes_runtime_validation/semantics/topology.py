@@ -522,26 +522,8 @@ def validate_topology(
     registered_layer_ids = {
         str(layer.get("layer_id", "")) for layer in typed_layers
     }
-    registered_policy_namespaces = {
-        str(layer.get("policy_namespace", "")) for layer in typed_layers
-    }
-    registered_subjects = {
-        key
-        for key in (
-            _subject_key(layer.get("customer_subject")) for layer in typed_layers
-        )
-        if key is not None
-    }
     for layer_id, matches in sorted(tombstones_by_layer.items()):
-        tombstone = matches[0]
-        preserves_known_identity = (
-            layer_id in registered_layer_ids
-            or str(tombstone.get("policy_namespace", ""))
-            in registered_policy_namespaces
-            or _subject_key(tombstone.get("customer_subject"))
-            in registered_subjects
-        )
-        if not preserves_known_identity:
+        if layer_id not in registered_layer_ids:
             findings.append(
                 _finding(
                     "HCS-TOPOLOGY-TOMBSTONE-ORPHAN",

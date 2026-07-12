@@ -14,6 +14,7 @@ Status: draft
 - Customer-layer local IDs are not globally unique across layers; constraints and FKs retain the full scope to avoid existence oracles.
 - Immutable records are inserted once. Lifecycle, revocation, cancellation, and correction are new append-only events.
 - Content-bearing references use lowercase `sha256:<64hex>` digests and immutable scoped resource coordinates.
+- Authority-record digests use `xfactory-canonical-json-v1`: SHA-256 over UTF-8 compact sorted-key JSON of the complete closed record with its own `record_digest` omitted; floats and non-JSON values are forbidden.
 - Real-world subject identity is never present. Resolution of `urn:xfactory:subject:<uuid>` stays with the domain issuer.
 - Quarantine records have no authoritative FK/view path and cannot be promoted in place.
 
@@ -150,13 +151,16 @@ linear lifecycle-event chain; it is not updated on the identity record.
 
 ```text
 installing ──▶ configured ──▶ operational ──▶ suspended
-    │              │              │              │
-    │              └──────────────┴──────────────┤
-    └────────────────────────────────────────────▶ retired
+                   │              │              │
+                   └──────────────┴──────────────┴──▶ retired
 
 suspended ──▶ operational
 retired: terminal
 ```
+
+`installing` may transition only to `configured`; cancellation or retirement
+must first establish the configured singleton boundary. `configured`,
+`operational`, and `suspended` may transition to `retired`.
 
 - `installing`: at most one non-retired Client and Domain; no Customer registration.
 - `configured`: exactly one active Client and Domain; zero or more active Customers.
@@ -197,11 +201,14 @@ Out-of-band-approved genesis authority.
 
 ### TrustAnchorEvent
 
-Append-only `rotated` or `revoked` event authorized under the then-current anchor policy. Historical operation evidence retains the anchor chain valid at its `authorized_at` time.
+Append-only `rotated` or `revoked` event authorized under the then-current anchor policy. One immutable genesis anchor exists per installation; replacement anchors are immutable records linked by one linear event chain. Rotation atomically activates the replacement and deactivates its predecessor, so at most one root is active at an evaluation time. Revocation may leave no active root, which rejects all new authorization. Historical operation evidence retains the anchor active at its `authorized_at` time.
 
 ### Principal
 
-Neutral actor identity used by authority and database mappings.
+Neutral actor identity used by authority and database mappings. Principal type
+is one of `human`, `agent`, `service`, or `group`. Lifecycle transitions are
+`provisioning -> active|retired`, `active -> suspended|retired`, and
+`suspended -> active|retired`; retirement is terminal.
 
 Fields: scoped `principal_id`, `principal_type`, lifecycle, owning scope, and optional external reference. No credential material.
 
@@ -217,9 +224,11 @@ Immutable scope/action/resource authority link.
 |---|---:|---|
 | `grant_id` | yes | Installation-scoped durable ID |
 | `principal_ref` | yes | Grantee |
-| `issuer_grant_ref` | non-genesis | Must authorize `issue_grant` |
+| `grant_kind` | yes | `root` or `delegated` |
+| `trust_anchor_ref` | root only | Active as-of anchor; root has no issuer grant |
+| `issuer_grant_ref` | delegated only | Must authorize `issue_grant` |
 | `scope` | yes | Installation/stack/layer or explicit admin scope |
-| `action` | yes | One closed action |
+| `action` | yes | One G0 action: `assume_scope`, `issue_grant`, `revoke_grant`, `rotate_trust_anchor`, `revoke_trust_anchor`, `create_binding`, `revoke_binding`, `accept_cross_layer`, `project_resource`, `create_artifact`, `decide_approval`, `supersede_approval`, `transition_lifecycle`, `run_migration`, or `publish_contract` |
 | `resource_constraint` | yes | Exact type/ID and digest where content-bearing |
 | `policy_ref`, `policy_digest` | yes | Immutable governing policy |
 | `starts_at`, `expires_at` | yes | Database-derived evaluation |
@@ -230,7 +239,7 @@ Validation walks an acyclic, scope-narrowing chain to an active as-of trust anch
 
 Immutable one-action authorization from exact source to target.
 
-Fields: binding ID, source/target layer scopes, exact source resource, exact target resource, action, purpose, creator grant, optional target-acceptance grant, starts/expires. Content resources require digests. Identity-level digest omission is limited to the closed allowed types.
+Fields: binding ID, source/target layer scopes, exact source resource, exact target resource, action, purpose, creator grant, target-acceptance grant, starts/expires. G0 always requires exact target acceptance. Content resources require digests and the target must already exist as an immutable draft with a known ID/digest before binding; nondeterministic unknown-target creation is outside G0. Identity-level digest omission is limited to the closed allowed types. Binding revocation requires exact source `revoke_binding` authority plus target acceptance.
 
 ### OperationAuthorization
 

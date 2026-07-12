@@ -525,7 +525,10 @@ def test_retired_tombstones_forbid_identity_reuse(api, field: str, code: str) ->
     tombstone[field] = deepcopy(customer[field])
 
     document["retired_layer_tombstones"] = [tombstone]
-    assert _codes(topology.validate_topology(document)) == [code]
+    codes = _codes(topology.validate_topology(document))
+    assert code in codes
+    if field != "layer_id":
+        assert "HCS-TOPOLOGY-TOMBSTONE-ORPHAN" in codes
 
 
 def _retired_topology_with_tombstones() -> dict:
@@ -764,6 +767,22 @@ def test_orphan_retirement_tombstone_is_rejected(api) -> None:
             "retired_event_digest": SHA_A,
         }
     ]
+
+    assert "HCS-TOPOLOGY-TOMBSTONE-ORPHAN" in _codes(
+        topology.validate_topology_document(document)
+    )
+
+
+def test_retirement_tombstone_cannot_alias_a_registered_namespace(api) -> None:
+    topology, _ = api
+    document = _topology_fixture("retired-all-layers.yaml")
+    aliased = deepcopy(document["retired_layer_tombstones"][0])
+    aliased.update(
+        layer_id="fabricated-layer",
+        retired_event_id="fabricated-retirement",
+        retired_event_digest=SHA_B,
+    )
+    document["retired_layer_tombstones"].append(aliased)
 
     assert "HCS-TOPOLOGY-TOMBSTONE-ORPHAN" in _codes(
         topology.validate_topology_document(document)

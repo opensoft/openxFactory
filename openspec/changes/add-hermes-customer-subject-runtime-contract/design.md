@@ -110,7 +110,34 @@ Each Customer layer has a unique policy namespace and persistence scope. The v2 
 
 Each installation begins with one immutable, out-of-band-approved trust-anchor record whose key/principal and policy digest may issue only root-scoped grants. Every non-genesis authority grant cites an issuer grant authorized for `issue_grant`; validation walks to the active trusted anchor, rejects self-issuance and cycles, and enforces scope narrowing. Anchor rotation/revocation is an append-only event requiring the current anchor policy and does not rewrite historical evidence. Source-layer authority is required for disclosing a source resource.
 
+For the G0 realization, there is exactly one genesis anchor and at most one
+active root at any evaluation time. Each replacement anchor is another
+immutable record; one linear `rotate` event activates it and deactivates its
+predecessor, while a `revoke` event may leave no active root and therefore
+fails all new authorization closed. A root grant cites the active anchor and
+has no issuer grant; every delegated grant cites an `issue_grant` grant.
+Historical evidence resolves the anchor active at its recorded authorization
+time. Principal types are the closed set `human`, `agent`, `service`, and
+`group`; their closed lifecycle is `provisioning -> active|retired`,
+`active -> suspended|retired`, `suspended -> active|retired`, with terminal
+retirement.
+
 Authority grants are immutable records containing principal, issuer grant, source scope, allowed action, exact resource constraints, policy digest, effective time, and expiry; revocation is append-only. Cross-layer bindings cite the creator's active authority grant and contain exact source/target layers, exact `source_resource` and `target_resource` coordinates, one allowed action, purpose, start time, and expiry. Both resources require digests for content-bearing types; digest omission is permitted only for the closed identity types `layer_identity`, `principal_identity`, and `policy_namespace`. Target acceptance authority is also required when the pinned target policy demands it. Wildcards, inheritance, self-bindings, cycles, and transitive authority are invalid.
+
+G0 uses the closed action vocabulary `assume_scope`, `issue_grant`,
+`revoke_grant`, `rotate_trust_anchor`, `revoke_trust_anchor`,
+`create_binding`, `revoke_binding`, `accept_cross_layer`,
+`project_resource`, `create_artifact`, `decide_approval`,
+`supersede_approval`, `transition_lifecycle`, `run_migration`, and
+`publish_contract`. Every authority record uses
+`xfactory-canonical-json-v1`: SHA-256 over UTF-8 compact, sorted-key JSON of
+the complete closed record with its own `record_digest` omitted; floating
+point and non-JSON values are forbidden. G0 requires an exact target-acceptance
+grant for every cross-layer binding. A content-bearing target must therefore
+exist as an immutable draft with a known ID and digest before binding;
+nondeterministic unknown-target creation is outside G0. Anchor/grant
+revocation requires current-root `revoke_*` authority; binding revocation
+requires exact source `revoke_binding` authority plus target acceptance.
 
 A binding does not relax SQL row visibility. It authorizes a controlled service operation that creates a content-addressed projection or governed record in the receiving layer with a trace edge back to the source. Binding/grant validation, database-derived time evaluation, required row locks, the governed write, and an immutable operation-authorization record occur in one transaction. A concurrent expiry or revocation wins unless the authorization transaction has already serialized and committed; no check-then-write window is allowed.
 

@@ -117,6 +117,15 @@ Every governed layer table has `ENABLE ROW LEVEL SECURITY`, `FORCE ROW LEVEL SEC
 
 **Decision**: Grants, bindings, decisions, traces, and authorization evidence are insert-only with privilege denial plus defensive update/delete rejection triggers. Trust-anchor and grant validation is as-of-time, acyclic, and scope-narrowing.
 
+The portable and SQL contracts share a closed G0 authority-action vocabulary
+and the `xfactory-canonical-json-v1` record-digest profile. One immutable
+genesis anchor begins the linear rotation history; rotation replaces the one
+active root, while revocation may leave none. Root grants cite that active
+anchor, delegated grants cite an `issue_grant` chain, and historical evidence
+uses the root active at its recorded time. Every G0 cross-layer binding also
+requires exact target acceptance and, for content-bearing targets, a
+pre-existing immutable target draft with a known digest.
+
 One governed cross-layer API takes advisory transaction locks in canonical anchor/grant/binding/resource order, locks authority rows, evaluates grants/revocations/expiry with `transaction_timestamp()`, verifies exact source/target IDs and digests plus target acceptance, and inserts the projection/artifact, operation authorization, and trace edge together. Revocation uses the same lock keys/order. Either the operation commits first with immutable evidence or revocation wins.
 
 **Rationale**: This removes the authorization check/write race while allowing unrelated Customer subjects to proceed concurrently.
