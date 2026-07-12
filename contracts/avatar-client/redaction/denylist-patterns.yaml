@@ -1,0 +1,27 @@
+schema_version: 1
+kind: avatar-client-redaction-denylist
+# Content-scan denylist (spec FR-018 layer 2). The validator scans every
+# committed file under contracts/avatar-client/ against these patterns; any match
+# that is not an EXACT bounded sentinel (redaction/sentinels.yaml) fails
+# validation (SC-008). Patterns target real secret/SDP markers only — they must
+# NOT match the SENTINEL_-prefixed bounded forms or the hex offer fingerprint.
+patterns:
+  - {id: provider_api_key, class: credential, regex: "sk-[A-Za-z0-9]{16,}"}
+  - {id: bearer_token, class: credential, regex: "(?i)bearer[ ]+[A-Za-z0-9._-]{16,}"}
+  - {id: private_key_block, class: credential, regex: "-----BEGIN [A-Z ]*PRIVATE KEY-----"}
+  - {id: sdp_version_line, class: sdp, regex: "(?im)^[ ]*v=0[ ]*$"}
+  - {id: sdp_candidate, class: sdp, regex: "(?i)a=candidate:"}
+  - {id: sdp_media_audio, class: sdp, regex: "(?im)^[ ]*m=audio[ ]"}
+  # --- raw transcript / media / provider-payload content (FR-018 / SC-008) ---
+  # Field markers that would carry raw transcript text or a raw provider payload
+  # (the schemas exclude these structurally; the scan catches literal leakage).
+  - {id: raw_transcript_field, class: transcript, regex: "(?im)^[ -]*(raw_transcript|transcript_text|raw_transcript_text|full_transcript_text)[ ]*:"}
+  - {id: raw_provider_payload_field, class: raw_payload, regex: "(?im)^[ -]*(raw_provider_payload|provider_raw_payload|raw_payload|provider_error_text)[ ]*:"}
+  # Raw media/audio blob carried inline as a base64 data URI.
+  - {id: raw_media_blob, class: media, regex: "data:(audio|video|image)/[A-Za-z0-9.+-]+;base64,[A-Za-z0-9+/=]{16,}"}
+  # --- prohibited high-cardinality identifiers (FR-018 / SC-008) ---
+  - {id: jwt_token, class: identifier, regex: "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{6,}"}
+  - {id: email_address, class: identifier, regex: "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"}
+  - {id: us_ssn, class: identifier, regex: "(?<![0-9-])[0-9]{3}-[0-9]{2}-[0-9]{4}(?![0-9])"}
+  - {id: phone_number, class: identifier, regex: "(?<![0-9])\\+?1?[ .-]?\\(?[0-9]{3}\\)?[ .-][0-9]{3}[ .-][0-9]{4}(?![0-9])"}
+  - {id: uuid, class: identifier, regex: "(?i)\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b"}

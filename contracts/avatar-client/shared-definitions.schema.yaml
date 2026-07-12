@@ -1,0 +1,128 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "shared-definitions.schema.yaml"
+title: "AVC shared definitions"
+description: >-
+  Common $defs shared by every AVC contract via relative $ref (spec FR-003).
+  Neutral shapes only: no provider DTO, model identifier, client widget state,
+  or secret may be a required field (FR-006).
+$defs:
+  # --- authenticated reference shapes (body fields are references, not proof) ---
+  actor_ref:
+    type: object
+    properties:
+      actor_id: {type: string, minLength: 1}
+    required: [actor_id]
+    additionalProperties: false
+  client_ref:
+    type: object
+    properties:
+      client_id: {type: string, minLength: 1}
+      client_instance_id: {type: string, minLength: 1}
+    required: [client_id, client_instance_id]
+    additionalProperties: false
+  subject_ref:
+    type: object
+    properties:
+      subject_id: {type: string, minLength: 1}
+    required: [subject_id]
+    additionalProperties: false
+  workflow_purpose:
+    type: object
+    properties:
+      workflow_id: {type: string, minLength: 1}
+      purpose_id: {type: string, minLength: 1}
+    required: [workflow_id, purpose_id]
+    additionalProperties: false
+  # --- consent (references only; evidence stays in the owning authority) ---
+  consent_purpose:
+    type: string
+    x-vocab: consent_purpose
+    enum:
+      - avatar.media_capture
+      - avatar.provider_processing
+      - avatar.structured_record
+  consent_ref:
+    type: object
+    properties:
+      consent_record_ref: {type: string, minLength: 1}
+      consent_version: {type: integer, minimum: 0}
+      required_purpose_ids:
+        type: array
+        items: {$ref: "shared-definitions.schema.yaml#/$defs/consent_purpose"}
+        minItems: 1
+    required: [consent_record_ref, consent_version, required_purpose_ids]
+    additionalProperties: false
+  # --- session / media identity ---
+  trace:
+    type: object
+    properties:
+      trace_id: {type: string, minLength: 1}
+    required: [trace_id]
+    additionalProperties: false
+  session_epoch: {type: integer, minimum: 0}
+  media_leg:
+    type: object
+    properties:
+      media_leg_id: {type: string, minLength: 1}
+    required: [media_leg_id]
+    additionalProperties: false
+  media_attempt:
+    type: object
+    properties:
+      request_id: {type: string, minLength: 1}
+      sdp_offer_sha256: {$ref: "shared-definitions.schema.yaml#/$defs/sdp_offer_sha256"}
+    required: [request_id, sdp_offer_sha256]
+    additionalProperties: false
+  sdp_offer_sha256:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  state_revision: {type: integer, minimum: 0}
+  last_event_sequence: {type: integer, minimum: 0}
+  media_authorization_state:
+    type: string
+    enum: [pending, authorized, revoked]
+  # --- closed cross-schema vocabularies (parity-checked against registry files) ---
+  session_outcome:
+    type: string
+    x-vocab: session_outcome
+    enum:
+      - granted
+      - denied
+      - completed
+      - abandoned
+      - expired
+      - revoked
+      - session_limit_reached
+  # --- speech-gate closed enum (analyze A3; FR-015 / design Decision 11) ---
+  # Encoded here as a closed enum, NOT a registry file. Selecting the reserved
+  # pre_speech_review value fails preflight into text/human fallback.
+  speech_gate:
+    type: string
+    x-vocab: speech_gate
+    enum:
+      - confirmation_before_action
+      - streaming_monitor
+      - pre_speech_review
+  # --- retention + redaction markers ---
+  retention_marker:
+    type: string
+    enum: [ephemeral_presentation, operational_telemetry, structured_record]
+  redaction_marker:
+    type: object
+    description: "Marks a field as redaction-controlled; carries no raw content."
+    properties:
+      redacted: {type: boolean}
+    required: [redacted]
+    additionalProperties: false
+  # --- retry-equivalence rule (canonical-form equality over non-volatile fields) ---
+  retry_equivalence:
+    type: object
+    description: >-
+      Retry equivalence is canonical-form equality across every non-volatile
+      request field plus the exact offer fingerprint; only declared
+      client-observed timestamps MAY be volatile (spec FR-009).
+    properties:
+      volatile_fields:
+        type: array
+        items: {type: string}
+    additionalProperties: false

@@ -1,0 +1,15 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: commands
+registry_version: 1
+# Registered AVC-11 command types with the revision-guarded flag. Parity-checked
+# set-equal against the AVC-11 `command_type` enum. Revision-guarded commands
+# require `expected_state_revision`; media/presentation commands omit it.
+members:
+  - {id: submit_confirmation_decision, revision_guarded: false, description: "Bind an AVC-06 decision (confirmation id + version)"}
+  - {id: submit_user_text, revision_guarded: false, description: "User text over the control channel"}
+  - {id: submit_workflow_value, revision_guarded: true, description: "Revision-guarded value edit / workflow submission"}
+  - {id: pause_session, revision_guarded: false, description: "Pause capture/playback"}
+  - {id: resume_session, revision_guarded: false, description: "Resume within policy limits"}
+  - {id: end_session, revision_guarded: false, description: "End the logical session"}
+  - {id: set_presentation_mode, revision_guarded: false, description: "Client-local presentation mode hint"}

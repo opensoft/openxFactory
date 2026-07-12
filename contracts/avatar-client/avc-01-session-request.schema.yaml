@@ -1,0 +1,59 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-01-session-request.schema.yaml"
+contract_id: "AVC-01"
+contract_schema_version: 1
+title: "AVC-01 avatar session request"
+description: >-
+  Client-authored session request. Body fields are references checked against
+  server-derived transport identity, never proof (spec FR-009). `sdp_offer` is
+  transient and never persisted; the broker computes sdp_offer_sha256 and
+  discards the body.
+type: object
+# Open object: additive optional fields on the same major are preserved
+# (compatibility policy; ACR-001-S01). Vocabularies stay closed via enums.
+$defs:
+  capability:
+    type: string
+    x-vocab: capability
+    enum: [live_voice, captions, text_chat, attachments]
+  interaction_mode:
+    type: string
+    x-vocab: interaction_mode
+    enum: [provider_vad, text_only]
+properties:
+  request_id: {type: string, minLength: 1}
+  client: {$ref: "shared-definitions.schema.yaml#/$defs/client_ref"}
+  actor: {$ref: "shared-definitions.schema.yaml#/$defs/actor_ref"}
+  subject: {$ref: "shared-definitions.schema.yaml#/$defs/subject_ref"}
+  workflow_purpose: {$ref: "shared-definitions.schema.yaml#/$defs/workflow_purpose"}
+  consent: {$ref: "shared-definitions.schema.yaml#/$defs/consent_ref"}
+  requested_capabilities:
+    type: array
+    items: {$ref: "#/$defs/capability"}
+    minItems: 1
+  interaction_mode: {$ref: "#/$defs/interaction_mode"}
+  contract_major: {type: integer, minimum: 1}
+  app_version: {type: string}
+  persona_id: {type: string, minLength: 1}
+  language: {type: string}
+  profile_version: {type: integer, minimum: 0}
+  sdp_offer:
+    type: string
+    description: "Transient SDP offer; never persisted."
+  resume:
+    type: object
+    additionalProperties: false
+    properties:
+      logical_session_id: {type: string, minLength: 1}
+      session_epoch: {$ref: "shared-definitions.schema.yaml#/$defs/session_epoch"}
+      last_applied_sequence: {$ref: "shared-definitions.schema.yaml#/$defs/last_event_sequence"}
+    required: [logical_session_id, session_epoch, last_applied_sequence]
+required:
+  - request_id
+  - client
+  - actor
+  - workflow_purpose
+  - consent
+  - requested_capabilities
+  - interaction_mode
+  - contract_major

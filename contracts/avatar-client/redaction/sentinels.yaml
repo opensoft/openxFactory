@@ -1,0 +1,48 @@
+schema_version: 1
+kind: avatar-client-redaction-sentinels
+# Bounded synthetic sentinels (analyze A3 / spec FR-018 Q3). Adversarial and
+# redaction fixtures MUST use ONLY these exact bounded forms to represent a
+# "secret present" case. Each sentinel is an obviously-fake, fixed-length token
+# with the reserved SENTINEL_ prefix so it can never collide with, or widen
+# into, a real credential/SDP pattern. The content scan permits these exact
+# strings and flags anything else that matches a real secret pattern.
+sentinels:
+  - id: fake_bearer_token
+    bounded_form: "SENTINEL_BEARER_000000000000"
+    max_len: 32
+    represents: credential
+  - id: fake_provider_key
+    bounded_form: "SENTINEL_PROVKEY_0000000000"
+    max_len: 32
+    represents: credential
+  - id: fake_sdp_answer
+    bounded_form: "SENTINEL_SDP_ANSWER_000000"
+    max_len: 32
+    represents: sdp
+  - id: fake_control_credential
+    bounded_form: "SENTINEL_CTRLCRED_00000000"
+    max_len: 32
+    represents: credential
+  # --- high-cardinality identifier placeholders (FR-018 / SC-008) ---
+  # A fixture that must legitimately SHOW an identifier field (e.g. an example
+  # session email, a UUID id, a phone number) uses ONLY these bounded forms.
+  # The email form keeps the reserved SENTINEL_ prefix; the UUID and phone forms
+  # cannot carry that prefix and still match their class pattern, so they use
+  # documented reserved/invalid canonical values (RFC 4122 nil UUID; an
+  # unassignable NANP number) that can never be a real identifier.
+  # NOTE: us_ssn and jwt_token deliberately have NO allowlisted form — a fixture
+  # must never present an SSN or a JWT, so those classes always fail closed.
+  - id: fake_email
+    bounded_form: "SENTINEL_EMAIL_0@example.invalid"
+    max_len: 40
+    represents: identifier
+  - id: fake_uuid
+    bounded_form: "00000000-0000-0000-0000-000000000000"
+    max_len: 40
+    form: reserved_invalid
+    represents: identifier
+  - id: fake_phone
+    bounded_form: "000-000-0000"
+    max_len: 40
+    form: reserved_invalid
+    represents: identifier

@@ -1,0 +1,23 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-07-retention-profile.schema.yaml"
+contract_id: "AVC-07"
+contract_schema_version: 1
+title: "AVC-07 avatar retention profile"
+description: >-
+  Distinguishes ephemeral presentation, operational telemetry, and structured
+  workflow record classes. Full transcript, audio, video, and independent
+  transcription are RESERVED and forbidden in this kernel (spec FR-017;
+  ACR-010-S02). Schema + fixtures only — no live retention instances (Q2).
+type: object
+# Open object for additive fields; retention_class vocabulary stays closed.
+$defs:
+  retention_class:
+    type: string
+    x-vocab: retention_class
+    enum: [ephemeral_presentation, operational_telemetry, structured_record]
+properties:
+  retention_class: {$ref: "#/$defs/retention_class"}
+  applies_to: {type: string, description: "Logical category the class governs"}
+  local_persistence: {const: false, description: "No local persistence of sensitive session data"}
+required:
+  - retention_class

@@ -1,0 +1,71 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-04-session-event.schema.yaml"
+contract_id: "AVC-04"
+contract_schema_version: 1
+title: "AVC-04 avatar session event"
+description: >-
+  Immutable event on the single authoritative log. Each event is classified
+  observation or authoritative with a registered producer (spec FR-011). Only
+  the broker, authority stub, or an accountable human may emit authoritative
+  results; client/provider sources may emit only registered observations.
+type: object
+# Open object for additive fields; event_type vocabulary stays closed.
+$defs:
+  event_type:
+    type: string
+    x-vocab: event_type
+    enum:
+      - media_authorized
+      - revocation
+      - command_accepted
+      - command_rejected
+      - command_conflict
+      - snapshot_delivered
+      - transcript_segment
+      - lifecycle_transition
+      - workflow_result
+properties:
+  event_id: {type: string, minLength: 1}
+  sequence: {$ref: "shared-definitions.schema.yaml#/$defs/last_event_sequence"}
+  event_type: {$ref: "#/$defs/event_type"}
+  event_class: {type: string, enum: [observation, authoritative]}
+  producer: {type: string, minLength: 1}
+  session_epoch: {$ref: "shared-definitions.schema.yaml#/$defs/session_epoch"}
+  logical_session_id: {type: string, minLength: 1}
+  # Open object for additive fields, BUT structurally incapable of carrying a
+  # credential, SDP, or raw media/provider payload wherever prohibited (spec
+  # FR-018). The `not` forbids those exact keys regardless of additive evolution.
+  payload:
+    type: object
+    not:
+      anyOf:
+        - {required: [sdp]}
+        - {required: [sdp_offer]}
+        - {required: [sdp_answer]}
+        - {required: [control_credential]}
+        - {required: [provider_credential]}
+        - {required: [credential]}
+        - {required: [raw_media]}
+        - {required: [audio_blob]}
+        - {required: [raw_transcript]}
+        - {required: [raw_provider_payload]}
+required:
+  - event_id
+  - sequence
+  - event_type
+  - event_class
+  - producer
+# Producer authority by class (spec FR-011; ACR-004-S06): only broker, the
+# control API, the authority stub, or an accountable human may emit
+# authoritative results; client/provider sources may emit only observations.
+allOf:
+  - if:
+      properties: {event_class: {const: authoritative}}
+      required: [event_class]
+    then:
+      properties: {producer: {enum: [broker, control_api, authority_stub, human]}}
+  - if:
+      properties: {event_class: {const: observation}}
+      required: [event_class]
+    then:
+      properties: {producer: {enum: [client, provider]}}

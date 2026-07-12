@@ -1,0 +1,12 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: consent-purposes
+registry_version: 1
+# Neutral consent-purpose registry — exactly the 3 ratified purposes (spec
+# FR-005). Parity-checked set-equal against the shared-definitions
+# `consent_purpose` enum. AVC carries only the consent record reference,
+# version, and required purpose ids; domains own evidence/legal-basis/withdrawal.
+members:
+  - {id: avatar.media_capture, description: "Local microphone capture"}
+  - {id: avatar.provider_processing, description: "Provider session creation/processing"}
+  - {id: avatar.structured_record, description: "Retention of a structured workflow record"}

@@ -1,0 +1,33 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-06-structured-confirmation.schema.yaml"
+contract_id: "AVC-06"
+contract_schema_version: 1
+title: "AVC-06 structured confirmation"
+description: >-
+  Server-issued confirmation challenge bound to the exact proposed effect. The
+  AVC-11 decision carries only confirmation_id, version, decision, and
+  command_id; actor identity comes from authenticated context. No binding
+  digest is required (spec FR-013).
+type: object
+# Open object for additive fields; risk_class vocabulary stays closed.
+properties:
+  confirmation_id: {type: string, minLength: 1}
+  confirmation_version: {type: integer, minimum: 0}
+  scope:
+    type: object
+    properties:
+      action: {type: string}
+      field: {type: string}
+  display_safe_fields: {type: object}
+  effect_summary: {type: string, minLength: 1}
+  risk_class: {type: string, enum: [low, medium, high]}
+  policy_version: {type: integer, minimum: 0}
+  consent_version: {type: integer, minimum: 0}
+  expires_at_ms: {type: integer, minimum: 0}
+  issuing_state_revision: {$ref: "shared-definitions.schema.yaml#/$defs/state_revision"}
+required:
+  - confirmation_id
+  - confirmation_version
+  - effect_summary
+  - risk_class
+  - issuing_state_revision

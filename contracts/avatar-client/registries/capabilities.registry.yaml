@@ -1,0 +1,12 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: capabilities
+registry_version: 1
+# Logical capability identifiers a client REQUESTS and the grant RESOLVES.
+# Parity-checked set-equal against the AVC-01 `capability` enum. Clients branch
+# only on resolved capabilities + canonical state, never on model/provider ids.
+members:
+  - {id: live_voice, description: "Live realtime voice interaction"}
+  - {id: captions, description: "Live captions (ephemeral presentation)"}
+  - {id: text_chat, description: "Text interaction over the control channel"}
+  - {id: attachments, description: "Opaque authorized attachment references"}

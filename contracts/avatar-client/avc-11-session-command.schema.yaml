@@ -1,0 +1,38 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-11-session-command.schema.yaml"
+contract_id: "AVC-11"
+contract_schema_version: 1
+title: "AVC-11 avatar session command"
+description: >-
+  Sole neutral client-to-control mutation envelope. command_id is the
+  idempotency key. expected_state_revision is required only on revision-guarded
+  command types; media/presentation commands omit it (spec FR-011). May carry
+  only an opaque authorized attachment reference (spec FR-016).
+type: object
+# Open object for additive fields; command_type vocabulary stays closed.
+$defs:
+  command_type:
+    type: string
+    x-vocab: command_type
+    enum:
+      - submit_confirmation_decision
+      - submit_user_text
+      - submit_workflow_value
+      - pause_session
+      - resume_session
+      - end_session
+      - set_presentation_mode
+properties:
+  command_id: {type: string, minLength: 1}
+  command_type: {$ref: "#/$defs/command_type"}
+  logical_session_id: {type: string, minLength: 1}
+  session_epoch: {$ref: "shared-definitions.schema.yaml#/$defs/session_epoch"}
+  expected_state_revision: {$ref: "shared-definitions.schema.yaml#/$defs/state_revision"}
+  client_observed_time: {type: string}
+  attachment_reference: {type: string, description: "Opaque authorized reference; never file bytes"}
+  payload: {type: object}
+required:
+  - command_id
+  - command_type
+  - logical_session_id
+  - session_epoch

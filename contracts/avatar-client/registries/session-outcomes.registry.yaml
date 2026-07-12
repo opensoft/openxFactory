@@ -1,0 +1,14 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: session-outcomes
+registry_version: 1
+# Terminal/lifecycle session outcomes. Parity-checked set-equal against the
+# shared-definitions `session_outcome` enum.
+members:
+  - {id: granted, description: "Session authorized"}
+  - {id: denied, description: "Session denied at preflight"}
+  - {id: completed, description: "Logical session completed"}
+  - {id: abandoned, description: "Attempt/leg abandoned"}
+  - {id: expired, description: "Lease/attempt expired"}
+  - {id: revoked, description: "Lease/consent revoked"}
+  - {id: session_limit_reached, description: "Duration/context limit reached; resume state"}

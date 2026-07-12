@@ -1,0 +1,22 @@
+schema_version: 1
+kind: avatar-client-registry
+registry_id: session-result-reasons
+registry_version: 1
+# Closed, versioned. Exactly the 15 ratified AVC-02 denial/terminal reasons
+# (spec FR-004). Parity-checked set-equal against the AVC-02 `reason` enum.
+members:
+  - {id: identity_denied, description: "Body identity not authorized by transport context"}
+  - {id: consent_missing, description: "Required disclosure/consent absent, stale, or out of purpose"}
+  - {id: policy_denied, description: "Resolved policy denies the session"}
+  - {id: contract_incompatible, description: "Consumer cannot satisfy the required contract major"}
+  - {id: profile_disabled, description: "Requested model/profile is disabled"}
+  - {id: interaction_mode_unsupported, description: "Requested interaction mode is unsupported"}
+  - {id: quota_blocked, description: "Per-tenant cap or provider capacity/budget limit reached"}
+  - {id: second_instance_denied, description: "Another client instance holds the active lease"}
+  - {id: idempotency_conflict, description: "Request id reused with a changed non-volatile field"}
+  - {id: media_readiness_timeout, description: "Sideband/WSS acknowledgement missed the readiness deadline"}
+  - {id: provider_unavailable, description: "Provider create/connection failed"}
+  - {id: grant_consumed, description: "Grant already consumed by a successful media connection"}
+  - {id: attempt_expired, description: "Pending attempt expired"}
+  - {id: attempt_abandoned, description: "Pending attempt superseded/abandoned"}
+  - {id: attempt_revoked, description: "Attempt revoked (e.g., consent withdrawal)"}

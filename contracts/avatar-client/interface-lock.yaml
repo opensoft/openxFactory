@@ -1,0 +1,52 @@
+schema_version: 1
+kind: avatar-client-interface-lock
+change_id: define-avatar-client-contract-kernel
+interface_baseline: avatar-client-parallel-v1
+# Frozen realized field/registry/ordering/timeout/lease/closed-default decisions
+# (spec FR-030). A baseline correction is made ONLY in this change and published
+# to siblings through the variance protocol.
+frozen:
+  contracts: [AVC-01, AVC-02, AVC-04, AVC-06, AVC-07, AVC-08, AVC-11, AVC-12]
+  reserved_identifiers: [AVC-03, AVC-05, AVC-09, AVC-10]
+  result_kinds: [grant, denial, terminal]
+  registries:
+    session-result-reasons: 15
+    consent-purposes: 3
+    fallback-modes: 5
+    interaction-modes: [provider_vad, text_only]
+  timeouts_ms:
+    media_readiness: {min: 1000, default: 3000, max: 5000}
+    heartbeat_interval: {min: 1, max: 5000}
+    lease_after_grant: {max: 10000}
+    lease_after_heartbeat: {max: 10000}
+    revocation_ceiling: {max: 5000}
+  ordering:
+    - "sideband verified before AVC-02 grant answer is released"
+    - "authoritative media_authorized before answer application / provider-bound audio"
+  closed_defaults:
+    push_to_talk: preflight_fails_to_text_or_handoff
+    pre_speech_review: reserved_fails_preflight
+    offline_drafts: disabled
+    attachments: reference_only
+    second_instance: denied
+    reserved_retention_classes: forbidden
+# F0 publication-gate pin (analyze A6/Q6). The F0 sibling OWNS and versions the
+# evidence schemas; the kernel PINS them and validates against them, failing
+# closed on any mismatch. Values are recorded at realization when F0 publishes.
+f0_evidence_pin:
+  status: pending            # pending -> ready (recorded when F0 PASS lands)
+  f0_change_path: openspec/changes/qualify-avatar-brokered-call-feasibility
+  f0_results_schema: schemas/f0-results.schema.yaml
+  f0_interface_impact_schema: schemas/f0-interface-impact.schema.yaml
+  f0_source_commit: null
+  f0_results_schema_sha256: null
+  f0_interface_impact_schema_sha256: null
+# Two completion states (spec FR-034 / Q7). The OpenSpec change stays active
+# until `realized`.
+completion_states:
+  current: implementation_complete_publication_pending_f0
+  definitions:
+    implementation_complete_publication_pending_f0:
+      description: "All kernel artifacts + validator merged and green; publication gate enforced."
+    realized:
+      description: "F0 PASS, all variances dispositioned, threat model accepted, annotated tag published, per-file digests recorded."

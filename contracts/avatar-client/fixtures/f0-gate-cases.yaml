@@ -1,0 +1,38 @@
+schema_version: 1
+kind: avatar-client-f0-gate-cases
+# Adverse-condition table for the fail-closed F0 publication gate (spec FR-033;
+# SC-007/SC-010). Each case feeds a synthetic gate state to the pure decision
+# function f0_gate_decision(); the validator asserts the gate blocks in every
+# adverse case and only unblocks on a fully-satisfied PASS. This proves the
+# fail-closed table without the kernel owning the F0 evidence schemas (Q6).
+cases:
+  - id: fully_satisfied_pass
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: PASS, variances_dispositioned: true}
+    expect_blocked: false
+  - id: pinned_schema_absent
+    state: {schema_present: false, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: PASS, variances_dispositioned: true}
+    expect_blocked: true
+  - id: schema_digest_mismatch
+    state: {schema_present: true, digest_match: false, commit_match: true, instance_valid: true, unknown_variance_field: false, status: PASS, variances_dispositioned: true}
+    expect_blocked: true
+  - id: source_commit_mismatch
+    state: {schema_present: true, digest_match: true, commit_match: false, instance_valid: true, unknown_variance_field: false, status: PASS, variances_dispositioned: true}
+    expect_blocked: true
+  - id: evidence_instance_invalid
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: false, unknown_variance_field: false, status: PASS, variances_dispositioned: true}
+    expect_blocked: true
+  - id: status_fail
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: FAIL, variances_dispositioned: true}
+    expect_blocked: true
+  - id: status_inconclusive
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: INCONCLUSIVE, variances_dispositioned: true}
+    expect_blocked: true
+  - id: unknown_status_value
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: MAYBE, variances_dispositioned: true}
+    expect_blocked: true
+  - id: unknown_variance_field
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: true, status: PASS, variances_dispositioned: true}
+    expect_blocked: true
+  - id: variance_undispositioned
+    state: {schema_present: true, digest_match: true, commit_match: true, instance_valid: true, unknown_variance_field: false, status: PASS, variances_dispositioned: false}
+    expect_blocked: true
