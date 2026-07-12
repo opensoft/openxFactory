@@ -1,8 +1,8 @@
 ## 1. Dependency And Contract Baseline
 
-- [ ] 1.1 Complete, realize, and archive `add-doc-health-semantic-sweep` without adding catalog scope, then verify the promoted doc-health spec contains twelve deterministic families plus its separate semantic pass.
-- [ ] 1.2 Rebase this change's doc-health delta onto that promoted wording, preserve `document-catalog` as the thirteenth deterministic family, and run strict OpenSpec validation.
-- [ ] 1.3 Verify the proposal supporting-document manifest and hashes and keep proposal-origin policy out of this change pending `add-proposal-origin-contract`.
+- [x] 1.1 Complete, realize, and archive `add-doc-health-semantic-sweep` without adding catalog scope, then verify the promoted doc-health spec contains twelve deterministic families plus its separate semantic pass. (Archived 2026-07-12 as `2026-07-12-add-doc-health-semantic-sweep`; promoted spec verified: "twelve check families" enumeration plus the eight promoted sweep requirements, no catalog scope added.)
+- [x] 1.2 Rebase this change's doc-health delta onto that promoted wording, preserve `document-catalog` as the thirteenth deterministic family, and run strict OpenSpec validation. (Verified 2026-07-12: the delta's MODIFIED requirements restate the promoted sweep-outcome wording exactly, changing only the thirteenth-family addition and the semantic-analysis clause; `openspec validate add-document-cataloging --strict` passes.)
+- [x] 1.3 Verify the proposal supporting-document manifest and hashes and keep proposal-origin policy out of this change pending `add-proposal-origin-contract`. (proposal-support verify ok 2026-07-12; origin policy untouched — the ratified origin contract's migration backfills this change's packet itself.)
 
 ## 2. Catalog Contracts And Validation
 
