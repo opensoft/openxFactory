@@ -297,11 +297,17 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                 # ACTIVE terminal probe on the control channel (passive media teardown is not
                 # observable within the bound). Inverted polarity: "terminated" = revocation
                 # observed; "alive" = call still live = revocation FAILED; "inconclusive" =
-                # no attributable signal. Only a POSITIVE termination signal passes.
+                # no attributable signal. Only a POSITIVE termination signal passes. The REST
+                # confirmer resolves the empirically-observed ambiguous teardown (abnormal
+                # close 1006 at ~2.2 s): re-hangup 404 → gone, 200 → survived (alive).
                 verdict = "inconclusive"
                 if hs.sideband is not None:
                     try:
-                        verdict = await hs.sideband.probe_terminated(env.revocation_bound_ms / 1000.0)
+                        verdict = await hs.sideband.probe_terminated(
+                            env.revocation_bound_ms / 1000.0,
+                            confirm_gone=(lambda cid=hs.call_id: broker.call_gone(cid))
+                            if hasattr(broker, "call_gone") else None,
+                        )
                     except Exception:
                         verdict = "inconclusive"
                 if verdict == "terminated":

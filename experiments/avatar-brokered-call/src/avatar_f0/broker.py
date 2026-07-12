@@ -184,3 +184,28 @@ class HttpBroker:  # pragma: no cover - live path, exercised only with a lab key
             return resp.status_code == 200
         except Exception:
             return False
+
+    async def call_gone(self, call_id: str):
+        """Out-of-band termination confirmation for the F0-D probe (re-POST hangup).
+
+        Empirical (lab, 2026-07-12): hangup on a torn-down call returns 404; on a live
+        call it returns 200 (and terminates it — acceptable for F0-D, whose purpose at
+        this point is precisely to kill the call; the 200 still proves the ORIGINAL
+        hangup did not terminate it). Returns True (gone), False (was still alive), or
+        None (unknown — transport failure or an unexpected status; never guessed).
+        """
+        import httpx  # lazy
+
+        if not call_id:
+            return None
+        url = f"{self._base_url}/v1/realtime/calls/{call_id}/hangup"
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout_s) as client:
+                resp = await client.post(url, headers=self._headers())
+        except Exception:
+            return None
+        if resp.status_code == 404:
+            return True
+        if resp.status_code == 200:
+            return False
+        return None

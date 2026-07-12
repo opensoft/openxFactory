@@ -67,7 +67,7 @@ class FakeSideband:
     async def verify(self, timeout_s):
         return True
 
-    async def probe_terminated(self, timeout_s):
+    async def probe_terminated(self, timeout_s, confirm_gone=None):
         return self.probe_verdict
 
     async def close(self):
@@ -262,12 +262,24 @@ def test_probe_terminated_drain_loop_polarity():
                 return self._frames.pop(0)
             raise self._end
 
-    def probe(frames, end=None):
+    def probe(frames, end=None, confirm=None):
         if end is None:
             end = asyncio.TimeoutError()
         sb = WssSideband("rtc_x", "sk-fake")
         sb._ws = _FakeWs(frames, end)
-        return asyncio.run(sb.probe_terminated(5.0))
+        return asyncio.run(sb.probe_terminated(5.0, confirm_gone=confirm))
+
+    def confirm_returning(value):
+        calls = []
+
+        async def _confirm():
+            calls.append(1)
+            return value
+        _confirm.calls = calls
+        return _confirm
+
+    async def confirm_raising():
+        raise RuntimeError("rest surface unavailable")
 
     upd = _json.dumps({"type": "session.updated", "event_id": "x"})
     gone = _json.dumps({"type": "error", "error": {"code": "call_not_found"}})
@@ -279,12 +291,30 @@ def test_probe_terminated_drain_loop_polarity():
     # terminated: a confirmed call-gone error, or a CLEAN close, after draining events
     assert probe([RESP, gone]) == "terminated"
     assert probe([RESP], end=ConnectionClosedOK(1000)) == "terminated"
-    # NOT terminated: abnormal close (network blip) → inconclusive
+    # NOT terminated: abnormal close (network blip) with no confirmer → inconclusive
     assert probe([RESP], end=ConnectionClosedError(1006)) == "inconclusive"
     # NOT terminated: a non-call-gone error is drained, then no signal → inconclusive
     assert probe([generic]) == "inconclusive"
     # NOT terminated: only unrelated events until the socket times out → inconclusive
     assert probe([RESP, ITEM]) == "inconclusive"
+
+    # Out-of-band confirmation (empirical teardown: abnormal close 1006 → REST re-hangup).
+    # Ambiguous close + confirmed gone → terminated; still-alive → alive; unknown → inconclusive.
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(True)) == "terminated"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(False)) == "alive"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_returning(None)) == "inconclusive"
+    assert probe([RESP], end=ConnectionClosedError(1006), confirm=confirm_raising) == "inconclusive"
+    # Silence (timeout) is equally ambiguous → same confirmation matrix applies.
+    assert probe([RESP, ITEM], confirm=confirm_returning(True)) == "terminated"
+    assert probe([generic], confirm=confirm_returning(False)) == "alive"
+    # DEFINITIVE in-band signals must NOT consult the confirmer (no verdict override,
+    # no extra REST call): clean close and session.updated classify on their own.
+    c = confirm_returning(False)
+    assert probe([RESP], end=ConnectionClosedOK(1000), confirm=c) == "terminated"
+    assert not c.calls
+    c2 = confirm_returning(True)
+    assert probe([upd], confirm=c2) == "alive"
+    assert not c2.calls
     # non-JSON frames are ignored (drained), not misclassified
     assert probe(["<<not json>>", upd]) == "alive"
 

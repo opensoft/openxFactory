@@ -88,6 +88,26 @@ the F0-D group counts and the per-trial notes.
   5. A change to the probe's classification logic is **ACR-005-affecting** — commit it with
      the empirical basis in the message, note it needs kernel-owner review, and re-run step 2.
 
+### Observed on the 2026-07-12 lab re-run (disposition pending)
+
+Post-hangup control-channel behavior, consistent across 3 instrumented calls + 20 slice
+trials (bounded data only):
+
+- The provider sends NO clean close and NO error frame. It drops the socket with an
+  **abnormal close 1006 at ~2.2 s** after hangup (2199 / 2201 / 2227 ms observed).
+- A REST re-hangup fired **at** the close blocks while teardown settles and returns
+  **404 ~5.9 s later** (~8.1 s post-hangup). Fired well after teardown, it returns 404
+  immediately. A WSS re-attach is rejected 404 at ~6 s. On a live call it returns 200.
+- The probe therefore now confirms termination out-of-band (`confirm_gone` → REST
+  re-hangup: 404 → terminated, 200 → alive, else inconclusive; consulted only for
+  ambiguous in-band signals), and F0-D classifies as
+  **`FAIL: termination confirmed but exceeded the 5s bound`** — the call dies at
+  ~2.2 s, but no channel POSITIVELY confirms it inside 5 s.
+- **ACR-005 disposition required (kernel owner):** does the bound measure death time
+  (in-band terminal signal at ~2.2 s, attribution allowed to settle late → PASS-able)
+  or confirmation time (~8.1 s on this provider → FAIL stands)? Do not re-stamp
+  `t_peer_terminal` to force a green before that decision.
+
 ### 4. Full matrix + handoff (once F0-D passes)
 
 ```bash
