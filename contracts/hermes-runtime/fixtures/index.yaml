@@ -437,3 +437,590 @@ cases:
     primary_finding_code: HCS-PROVISION-IDEMPOTENCY-CONFLICT
     allowed_secondary_codes: []
   evidence_id: EVIDENCE-FIXTURE-TOPOLOGY-PROVISION-KEY-SUBJECT-CONFLICT
+- case_id: authority-active-exact-operation
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-003, HGR-004]
+  scenario_ids: [HGR-003-S01, HGR-004-S01]
+  inputs: [authority/active-authority.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: pass}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-ACTIVE-EXACT-OPERATION
+- case_id: authority-anchor-rotation-historical-as-of
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S05]
+  inputs: [authority/anchor-rotation-as-of.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: pass}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-ANCHOR-ROTATION-HISTORICAL-AS-OF
+- case_id: authority-anchor-rotation-unauthorized
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S05]
+  inputs: [authority/anchor-rotation-unauthorized.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-ANCHOR-AUTHORITY}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-ANCHOR-ROTATION-UNAUTHORIZED
+- case_id: authority-binding-direction-reversed
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-004]
+  scenario_ids: [HGR-004-S02]
+  inputs: [authority/binding-reversed.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-OPERATION-BINDING-MISMATCH}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-BINDING-DIRECTION-REVERSED
+- case_id: authority-binding-revoked-as-of
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-004]
+  scenario_ids: [HGR-004-S04]
+  inputs: [authority/binding-revoked.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-BINDING-REVOKED}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-BINDING-REVOKED-AS-OF
+- case_id: authority-binding-source-resource-swapped
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-004]
+  scenario_ids: [HGR-004-S05]
+  inputs: [authority/binding-source-swapped.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-OPERATION-BINDING-MISMATCH}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-BINDING-SOURCE-RESOURCE-SWAPPED
+- case_id: authority-binding-transitive-denied
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-004]
+  scenario_ids: [HGR-004-S03]
+  inputs: [authority/binding-transitive.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-BINDING-REFERENCE}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-BINDING-TRANSITIVE-DENIED
+- case_id: authority-grant-cycle
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S04]
+  inputs: [authority/grant-cycle.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-GRANT-CYCLE}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-GRANT-CYCLE
+- case_id: authority-grant-revoked-as-of
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S03]
+  inputs: [authority/grant-revoked.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-GRANT-REVOKED}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-GRANT-REVOKED-AS-OF
+- case_id: authority-grant-scope-widening
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S01]
+  inputs: [authority/grant-scope-widening.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-GRANT-SCOPE-WIDENING}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-GRANT-SCOPE-WIDENING
+- case_id: authority-grant-self-issued
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003]
+  scenario_ids: [HGR-003-S04]
+  inputs: [authority/grant-self-issued.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-GRANT-SELF-ISSUED}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-GRANT-SELF-ISSUED
+- case_id: authority-operation-evidence-target-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-004]
+  scenario_ids: [HGR-004-S01]
+  inputs: [authority/operation-evidence-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-OPERATION-EVIDENCE-DRIFT}
+  evidence_id: EVIDENCE-FIXTURE-AUTHORITY-OPERATION-EVIDENCE-TARGET-DRIFT
+- case_id: isolation-database-binding-revoked
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-002]
+  scenario_ids: [HGR-002-S04]
+  inputs: [isolation/database-binding-revoked.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-DATABASE-BINDING-REVOKED}
+  evidence_id: EVIDENCE-FIXTURE-ISOLATION-DATABASE-BINDING-REVOKED
+- case_id: isolation-assume-scope-grant-revoked
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-002, HGR-003]
+  scenario_ids: [HGR-002-S07, HGR-003-S03]
+  inputs: [isolation/assume-scope-grant-revoked.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-GRANT-REVOKED}
+  evidence_id: EVIDENCE-FIXTURE-ISOLATION-ASSUME-SCOPE-GRANT-REVOKED
+- case_id: isolation-database-session-user-conflict
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-002]
+  scenario_ids: [HGR-002-S04]
+  inputs: [isolation/database-session-user-conflict.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:30:00Z"
+  expected: {outcome: fail, primary_finding_code: HGR-DATABASE-SESSION-USER-CONFLICT}
+  evidence_id: EVIDENCE-FIXTURE-ISOLATION-DATABASE-SESSION-USER-CONFLICT
+- case_id: artifact-cross-layer-probe
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-002, HGR-005]
+  scenario_ids: [HGR-002-S01, HGR-005-S06]
+  inputs: [artifacts/artifact-cross-layer-probe.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-ARTIFACT-NOT-AVAILABLE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-CROSS-LAYER-PROBE
+- case_id: artifact-digest-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-005]
+  scenario_ids: [HGR-005-S02, HGR-005-S05]
+  inputs: [artifacts/artifact-digest-drift.yaml]
+  depends_on: [artifact-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-ARTIFACT-DIGEST-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-DIGEST-DRIFT
+- case_id: artifact-record-mutation
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-005]
+  scenario_ids: [HGR-005-S03]
+  inputs: [artifacts/artifact-record-mutation.yaml]
+  depends_on: [artifact-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-ARTIFACT-IMMUTABLE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-RECORD-MUTATION
+- case_id: artifact-size-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-005]
+  scenario_ids: [HGR-005-S02]
+  inputs: [artifacts/artifact-size-drift.yaml]
+  depends_on: [artifact-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-ARTIFACT-SIZE-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-SIZE-DRIFT
+- case_id: artifact-storage-traversal
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-005]
+  scenario_ids: [HGR-005-S04]
+  inputs: [artifacts/artifact-storage-traversal.yaml]
+  depends_on: [artifact-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-ARTIFACT-STORAGE-KEY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-STORAGE-TRAVERSAL
+- case_id: artifact-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-005]
+  scenario_ids: [HGR-005-S01]
+  inputs: [artifacts/artifact-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-ARTIFACT-VALID
+- case_id: approval-authority-chain-unreachable
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S04, HGR-006-S01]
+  inputs: [approvals/approval-authority-chain-unreachable.yaml]
+  depends_on: [approval-authority-chain-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-GRANT-REFERENCE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-AUTHORITY-CHAIN-UNREACHABLE
+- case_id: approval-authority-chain-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S01, HGR-006-S01]
+  inputs: [approvals/approval-authority-chain-valid.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-AUTHORITY-CHAIN-VALID
+- case_id: approval-authorized-supersessions
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S03]
+  inputs: [approvals/approval-authorized-supersessions.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-AUTHORIZED-SUPERSESSIONS
+- case_id: approval-conflict-contested
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S05]
+  inputs: [approvals/approval-conflict-contested.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-CONTESTED
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-CONFLICT-CONTESTED
+- case_id: approval-conflict-reject-overrides
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S05]
+  inputs: [approvals/approval-conflict-reject-overrides.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-CONFLICT-REJECT-OVERRIDES
+- case_id: approval-duplicate-supersession-policy
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S05]
+  inputs: [approvals/approval-duplicate-supersession-policy.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-POLICY-SUPERSESSION
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-DUPLICATE-SUPERSESSION-POLICY
+- case_id: approval-policy-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S01]
+  inputs: [approvals/approval-policy-drift.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-POLICY-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-POLICY-DRIFT
+- case_id: approval-requester-authority-mismatch
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S01, HGR-006-S01]
+  inputs: [approvals/approval-requester-authority-mismatch.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-REQUESTER-AUTHORITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-REQUESTER-AUTHORITY-MISMATCH
+- case_id: approval-record-mutation
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S04]
+  inputs: [approvals/approval-record-mutation.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-IMMUTABLE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-RECORD-MUTATION
+- case_id: approval-reviewer-authority-mismatch
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S02, HGR-006-S01]
+  inputs: [approvals/approval-reviewer-authority-mismatch.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-REVIEWER-AUTHORITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-REVIEWER-AUTHORITY-MISMATCH
+- case_id: approval-reviewer-grant-revoked
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S03, HGR-006-S01]
+  inputs: [approvals/approval-reviewer-grant-revoked.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-REVIEWER-AUTHORITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-REVIEWER-GRANT-REVOKED
+- case_id: approval-self-asserted-role
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S02, HGR-006-S01]
+  inputs: [approvals/approval-self-asserted-role.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-REVIEWER-SELECTOR
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-SELF-ASSERTED-ROLE
+- case_id: approval-target-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-005, HGR-006]
+  scenario_ids: [HGR-005-S05, HGR-006-S02]
+  inputs: [approvals/approval-target-drift.yaml]
+  depends_on: [approval-valid-quorum]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-TARGET-DRIFT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-TARGET-DRIFT
+- case_id: approval-unauthorized-supersession
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-006]
+  scenario_ids: [HGR-006-S06]
+  inputs: [approvals/approval-unauthorized-supersession.yaml]
+  depends_on: [approval-authorized-supersessions]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-APPROVAL-SUPERSESSION-AUTHORITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-UNAUTHORIZED-SUPERSESSION
+- case_id: approval-valid-quorum
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-003, HGR-006]
+  scenario_ids: [HGR-003-S01, HGR-006-S01]
+  inputs: [approvals/approval-valid-quorum.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-APPROVAL-VALID-QUORUM
+- case_id: trace-cross-layer-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-004, HGR-007]
+  scenario_ids: [HGR-004-S01, HGR-007-S01]
+  inputs: [traceability/trace-cross-layer-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TRACE-CROSS-LAYER-VALID
+- case_id: trace-endpoint-digest-mismatch
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-007]
+  scenario_ids: [HGR-007-S03]
+  inputs: [traceability/trace-endpoint-digest-mismatch.yaml]
+  depends_on: [trace-cross-layer-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-TRACE-ENDPOINT-DIGEST
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TRACE-ENDPOINT-DIGEST-MISMATCH
+- case_id: trace-missing-authority
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-007]
+  scenario_ids: [HGR-007-S02]
+  inputs: [traceability/trace-missing-authority.yaml]
+  depends_on: [trace-cross-layer-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-TRACE-AUTHORITY-REQUIRED
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TRACE-MISSING-AUTHORITY
+- case_id: trace-same-layer-unrelated-authority
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-007]
+  scenario_ids: [HGR-007-S01]
+  inputs: [traceability/trace-same-layer-unrelated-authority.yaml]
+  depends_on: [trace-cross-layer-valid]
+  evaluation_time: "2026-07-12T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-TRACE-UNRELATED-AUTHORITY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-TRACE-SAME-LAYER-UNRELATED-AUTHORITY
+- case_id: postgres-us2-governed-isolation-matrix
+  phase: database
+  class: valid
+  requirement_ids: [HGR-001, HGR-002, HGR-003, HGR-004, HGR-005, HGR-006, HGR-007]
+  scenario_ids:
+  - HGR-001-S01
+  - HGR-001-S03
+  - HGR-002-S01
+  - HGR-002-S02
+  - HGR-002-S03
+  - HGR-002-S04
+  - HGR-002-S05
+  - HGR-002-S06
+  - HGR-002-S07
+  - HGR-003-S01
+  - HGR-003-S03
+  - HGR-004-S01
+  - HGR-004-S04
+  - HGR-004-S05
+  - HGR-004-S06
+  - HGR-005-S01
+  - HGR-005-S03
+  - HGR-005-S05
+  - HGR-005-S06
+  - HGR-006-S01
+  - HGR-006-S02
+  - HGR-006-S03
+  - HGR-006-S04
+  - HGR-006-S05
+  - HGR-006-S06
+  - HGR-007-S01
+  inputs: []
+  depends_on: []
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-POSTGRES-US2-GOVERNED-ISOLATION-MATRIX
+  database:
+    engine: postgresql
+    supported_majors: [15, 16]
+    source_paths:
+    - contracts/hermes-runtime/approval-decision-policy.schema.yaml
+    - contracts/hermes-runtime/approval-decision.schema.yaml
+    - contracts/hermes-runtime/approval-request.schema.yaml
+    - contracts/hermes-runtime/approval-supersession-event.schema.yaml
+    - contracts/hermes-runtime/artifact-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/artifact-record.schema.yaml
+    - contracts/hermes-runtime/authority-grant-revocation.schema.yaml
+    - contracts/hermes-runtime/authority-grant.schema.yaml
+    - contracts/hermes-runtime/cross-layer-binding-revocation.schema.yaml
+    - contracts/hermes-runtime/cross-layer-binding.schema.yaml
+    - contracts/hermes-runtime/customer-subject-reference-profile.schema.yaml
+    - contracts/hermes-runtime/database-principal-binding-revocation.schema.yaml
+    - contracts/hermes-runtime/database-principal-binding.schema.yaml
+    - contracts/hermes-runtime/hermes-operational-postgres-v2.sql
+    - contracts/hermes-runtime/installation-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/installation-trust-anchor-event.schema.yaml
+    - contracts/hermes-runtime/installation-trust-anchor.schema.yaml
+    - contracts/hermes-runtime/layer-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/operation-authorization.schema.yaml
+    - contracts/hermes-runtime/overlay-manifest.schema.yaml
+    - contracts/hermes-runtime/principal-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/principal.schema.yaml
+    - contracts/hermes-runtime/runtime-topology.schema.yaml
+    - contracts/hermes-runtime/shared-definitions.schema.yaml
+    - contracts/hermes-runtime/stack-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/traceability-edge.schema.yaml
+    - scripts/hermes_runtime_validation/fixtures.py
+    - scripts/hermes_runtime_validation/loader.py
+    - scripts/hermes_runtime_validation/semantics/authority.py
+    - scripts/hermes_runtime_validation/semantics/evidence.py
+    - scripts/run-hermes-runtime-postgres-tests.sh
+    - tests/hermes_runtime_contracts/postgres/compose.yaml
+    - tests/hermes_runtime_contracts/postgres/conftest.py
+    - tests/hermes_runtime_contracts/postgres/images.lock.yaml
+    test_modules:
+    - tests/hermes_runtime_contracts/postgres/test_topology_lifecycle.py
+    - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py
+    - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py
+    - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py
+    - tests/hermes_runtime_contracts/postgres/test_authorization_races.py
+    - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py
+    seed_scripts:
+    - tests/hermes_runtime_contracts/postgres/fixtures/isolation/00-cluster-roles.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/isolation/10-two-customer-topology.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/isolation/20-authority.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/isolation/30-governed-evidence.sql
+    assertion_scripts:
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/evidence-immutability-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/project-race.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/race-operation-invariant.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/revoke-binding-race.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/revoke-grant-race.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/rls-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/role-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/security-definer-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/isolation/topology-catalog.sql
+    row_expectations:
+      active_customer_layers: 2
+      successful_projection_target_artifacts: 1
+      successful_projection_operation_authorizations: 1
+      successful_projection_trace_edges: 1
+      failed_projection_authoritative_rows: 0
+    digest_expectations:
+      artifact_body_reverified_at_admission: true
+      artifact_body_reverified_at_authorization: true
+      operation_and_trace_endpoints_digest_bound: true
+    authoritative_deltas:
+    - successful projection atomically appends one target artifact, one operation authorization, and one trace edge
+    - rejected or rolled-back projection appends no authoritative row
+    - committed revocation prevents every later governed use
+    result_refs:
+    - major: 15
+      path: tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+      expected_outcome: pass
+    - major: 16
+      path: tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
+      expected_outcome: pass

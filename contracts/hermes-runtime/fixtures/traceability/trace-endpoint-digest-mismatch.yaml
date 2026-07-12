@@ -1,0 +1,18 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: trace-endpoint-digest-mismatch
+phase: semantic
+class: invalid
+requirement_ids: [HGR-007]
+scenario_ids: [HGR-007-S03]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_trace_edge
+base_case_id: trace-cross-layer-valid
+mutation:
+  path: input.edge.source.digest
+  from: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  to: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+expected:
+  outcome: fail
+  primary_finding_code: HGR-TRACE-ENDPOINT-DIGEST
+  allowed_secondary_codes: []

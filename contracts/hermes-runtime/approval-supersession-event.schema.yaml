@@ -1,0 +1,60 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/approval-supersession-event.schema.yaml
+contract_id: approval-supersession-event
+contract_schema_version: 2
+title: Append-only authority-bound approval supersession event
+description: >-
+  Expiry, cancellation, and revocation never mutate prior records. Each event
+  binds its exact target, issuer principal, active grant and effective time.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-approval-supersession-event
+  event_id:
+    $ref: shared-definitions.schema.yaml#/$defs/event_id
+  event_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  event_type:
+    enum: [expired, cancelled, revoked]
+  target_kind:
+    enum: [request, decision]
+  target_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  target_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  owning_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  authority_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/governed_scope
+  issuer_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  issuer_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  effective_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  reason:
+    type: string
+    minLength: 1
+    maxLength: 1024
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- event_id
+- event_digest
+- event_type
+- target_kind
+- target_id
+- target_digest
+- owning_scope
+- authority_scope
+- issuer_principal_ref
+- issuer_grant_ref
+- effective_at
+- reason
+additionalProperties: false

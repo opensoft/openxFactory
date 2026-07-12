@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-grant-self-issued
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003]
+scenario_ids: [HGR-003-S04]
+scenario: grant_self_issued
+operation: validate_grant_authority
+mutation: replace issuer_grant_ref with the grant's own exact ID
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-GRANT-SELF-ISSUED

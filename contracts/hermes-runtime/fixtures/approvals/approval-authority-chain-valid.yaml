@@ -1,0 +1,377 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-authority-chain-valid
+phase: semantic
+class: valid
+requirement_ids: [HGR-003, HGR-006]
+scenario_ids: [HGR-003-S01, HGR-006-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_evidence_document
+base_case_id: approval-valid-quorum
+document:
+  operation: evaluate_approval
+  evaluation_time: "2026-07-12T12:00:00Z"
+  input_case_id: approval-valid-quorum
+  authority_document:
+    evaluation_time: "2026-07-12T12:00:00Z"
+    principals:
+      - schema_version: 1
+        kind: openxfactory-principal
+        principal_id: root-authority
+        principal_type: agent
+        scope: {scope_kind: installation, installation_id: install-01}
+        initial_lifecycle_state: provisioning
+        created_at: "2026-07-12T11:00:00Z"
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+      - schema_version: 1
+        kind: openxfactory-principal
+        principal_id: requester-a
+        principal_type: human
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        initial_lifecycle_state: provisioning
+        created_at: "2026-07-12T11:00:00Z"
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:3cfa1d401fa9e5fdcdb0158ee6615ae000346cea4bcd1478c467d5c1dc0c9d66
+      - schema_version: 1
+        kind: openxfactory-principal
+        principal_id: manager-a
+        principal_type: agent
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        initial_lifecycle_state: provisioning
+        created_at: "2026-07-12T11:00:00Z"
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:0395e8204c7045ec267b11f7b7768c2569794652ab3102b158dab9a1e4a05e18
+      - schema_version: 1
+        kind: openxfactory-principal
+        principal_id: security-a
+        principal_type: agent
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        initial_lifecycle_state: provisioning
+        created_at: "2026-07-12T11:00:00Z"
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:40115c6e141d564cdca09e30ff56da5b82470a8f391902944ea3859b5a0e630f
+    principal_lifecycle_events:
+      - schema_version: 1
+        kind: openxfactory-principal-lifecycle-event
+        event_id: activate-root-authority
+        principal_ref:
+          scope: {scope_kind: installation, installation_id: install-01}
+          principal_id: root-authority
+          record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+        predecessor_ref:
+          kind: registration
+          id: root-authority
+          record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+        from_state: provisioning
+        to_state: active
+        authorizing_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-transition
+          record_digest: sha256:e3af7f727dec6745fa6a200f0e86e765bfeef03ecf3cd11dfe7bfc38fdd28075
+        occurred_at: "2026-07-12T11:00:00Z"
+        reason: activate governed principal
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:612e0f3113b1ddd56a3ca2d52c2a91d20bdb228bef2a7787fd1e3891d7efaf41
+      - schema_version: 1
+        kind: openxfactory-principal-lifecycle-event
+        event_id: activate-requester-a
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: requester-a
+          record_digest: sha256:3cfa1d401fa9e5fdcdb0158ee6615ae000346cea4bcd1478c467d5c1dc0c9d66
+        predecessor_ref:
+          kind: registration
+          id: requester-a
+          record_digest: sha256:3cfa1d401fa9e5fdcdb0158ee6615ae000346cea4bcd1478c467d5c1dc0c9d66
+        from_state: provisioning
+        to_state: active
+        authorizing_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-transition
+          record_digest: sha256:e3af7f727dec6745fa6a200f0e86e765bfeef03ecf3cd11dfe7bfc38fdd28075
+        occurred_at: "2026-07-12T11:00:00Z"
+        reason: activate governed principal
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:da6141446fe45120769d74d73293121e458be494a449a66ea62867b369af1cee
+      - schema_version: 1
+        kind: openxfactory-principal-lifecycle-event
+        event_id: activate-manager-a
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: manager-a
+          record_digest: sha256:0395e8204c7045ec267b11f7b7768c2569794652ab3102b158dab9a1e4a05e18
+        predecessor_ref:
+          kind: registration
+          id: manager-a
+          record_digest: sha256:0395e8204c7045ec267b11f7b7768c2569794652ab3102b158dab9a1e4a05e18
+        from_state: provisioning
+        to_state: active
+        authorizing_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-transition
+          record_digest: sha256:e3af7f727dec6745fa6a200f0e86e765bfeef03ecf3cd11dfe7bfc38fdd28075
+        occurred_at: "2026-07-12T11:00:00Z"
+        reason: activate governed principal
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:e77b97e617d0cdffea9ce2fbc959884dce379d61fd595dcdd6b417cf56d54b49
+      - schema_version: 1
+        kind: openxfactory-principal-lifecycle-event
+        event_id: activate-security-a
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: security-a
+          record_digest: sha256:40115c6e141d564cdca09e30ff56da5b82470a8f391902944ea3859b5a0e630f
+        predecessor_ref:
+          kind: registration
+          id: security-a
+          record_digest: sha256:40115c6e141d564cdca09e30ff56da5b82470a8f391902944ea3859b5a0e630f
+        from_state: provisioning
+        to_state: active
+        authorizing_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-transition
+          record_digest: sha256:e3af7f727dec6745fa6a200f0e86e765bfeef03ecf3cd11dfe7bfc38fdd28075
+        occurred_at: "2026-07-12T11:00:00Z"
+        reason: activate governed principal
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:54fa9f91113b07f20291bb24e75645633791c97480598d6fc8af288623edb97a
+    trust_anchors:
+      - schema_version: 1
+        kind: openxfactory-installation-trust-anchor
+        anchor_id: anchor-genesis
+        installation_id: install-01
+        anchor_kind: genesis
+        principal_ref:
+          scope: {scope_kind: installation, installation_id: install-01}
+          principal_id: root-authority
+          record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+        key_ref: {provider: test-keyring, key_id: root-key, algorithm: ed25519}
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        effective_at: "2026-07-12T11:00:00Z"
+        authorized_evidence_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        created_at: "2026-07-12T11:00:00Z"
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:dde69fa2a9916100facfb0f2cb58cb25314e10ea1a4b72264918fc1f79c1eda8
+    authority_grants:
+      - schema_version: 1
+        kind: openxfactory-authority-grant
+        grant_id: grant-root-issue
+        installation_id: install-01
+        grant_kind: root
+        principal_ref:
+          scope: {scope_kind: installation, installation_id: install-01}
+          principal_id: root-authority
+          record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+        scope: {scope_kind: installation, installation_id: install-01}
+        action: issue_grant
+        resource_constraint:
+          installation_id: install-01
+          resource_type: policy_namespace
+          resource_id: authority-issuance
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        starts_at: "2026-07-12T11:00:00Z"
+        expires_at: "2026-07-12T13:00:00Z"
+        issued_at: "2026-07-12T11:00:00Z"
+        root_anchor_ref:
+          installation_id: install-01
+          anchor_id: anchor-genesis
+          record_digest: sha256:dde69fa2a9916100facfb0f2cb58cb25314e10ea1a4b72264918fc1f79c1eda8
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:4d67f65bd1af2307a8e9552982bc43b9e1f31fcd9e8ae393552425490e573f06
+      - schema_version: 1
+        kind: openxfactory-authority-grant
+        grant_id: grant-root-transition
+        installation_id: install-01
+        grant_kind: root
+        principal_ref:
+          scope: {scope_kind: installation, installation_id: install-01}
+          principal_id: root-authority
+          record_digest: sha256:af4cad148cb41d81c2eeecd3eaaaa0755f1740cf983a4ce0cd92a641a2c7b273
+        scope: {scope_kind: installation, installation_id: install-01}
+        action: transition_lifecycle
+        resource_constraint:
+          installation_id: install-01
+          resource_type: policy_namespace
+          resource_id: principal-lifecycle
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        starts_at: "2026-07-12T11:00:00Z"
+        expires_at: "2026-07-12T13:00:00Z"
+        issued_at: "2026-07-12T11:00:00Z"
+        root_anchor_ref:
+          installation_id: install-01
+          anchor_id: anchor-genesis
+          record_digest: sha256:dde69fa2a9916100facfb0f2cb58cb25314e10ea1a4b72264918fc1f79c1eda8
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:e3af7f727dec6745fa6a200f0e86e765bfeef03ecf3cd11dfe7bfc38fdd28075
+      - schema_version: 1
+        kind: openxfactory-authority-grant
+        grant_id: grant-request-a
+        installation_id: install-01
+        grant_kind: delegated
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: requester-a
+          record_digest: sha256:3cfa1d401fa9e5fdcdb0158ee6615ae000346cea4bcd1478c467d5c1dc0c9d66
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        action: request_approval
+        resource_constraint:
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+          resource_type: artifact
+          resource_id: artifact-01
+          digest: sha256:95d7acafb162542dfb111509bce2fdfe3d5964431ff82b6489b075f942b51a6d
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        starts_at: "2026-07-12T11:00:00Z"
+        expires_at: "2026-07-12T13:00:00Z"
+        issued_at: "2026-07-12T11:00:00Z"
+        issuer_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-issue
+          record_digest: sha256:4d67f65bd1af2307a8e9552982bc43b9e1f31fcd9e8ae393552425490e573f06
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:4ce11d1d56df85e3024584d6edc3eee3d32dd88a92ba92be69313733085b0c22
+      - schema_version: 1
+        kind: openxfactory-authority-grant
+        grant_id: grant-manager-a
+        installation_id: install-01
+        grant_kind: delegated
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: manager-a
+          record_digest: sha256:0395e8204c7045ec267b11f7b7768c2569794652ab3102b158dab9a1e4a05e18
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        action: decide_approval
+        resource_constraint:
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+          resource_type: approval_request
+          resource_id: approval-request-01
+          digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        starts_at: "2026-07-12T11:00:00Z"
+        expires_at: "2026-07-12T13:00:00Z"
+        issued_at: "2026-07-12T11:00:00Z"
+        issuer_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-issue
+          record_digest: sha256:4d67f65bd1af2307a8e9552982bc43b9e1f31fcd9e8ae393552425490e573f06
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:0e0e1f8a4dbc489465d54b8edb9495a0a134b644260fa549ceac56af7e478a2f
+      - schema_version: 1
+        kind: openxfactory-authority-grant
+        grant_id: grant-security-a
+        installation_id: install-01
+        grant_kind: delegated
+        principal_ref:
+          scope:
+            scope_kind: layer
+            installation_id: install-01
+            stack_id: stack-01
+            layer_id: customer-a
+          principal_id: security-a
+          record_digest: sha256:40115c6e141d564cdca09e30ff56da5b82470a8f391902944ea3859b5a0e630f
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        action: decide_approval
+        resource_constraint:
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+          resource_type: approval_request
+          resource_id: approval-request-01
+          digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        policy_pin:
+          repository: opensoft/exampleFactory
+          commit: dddddddddddddddddddddddddddddddddddddddd
+          path: policies/authority.yaml
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant.schema.yaml
+          schema_version: 1
+        starts_at: "2026-07-12T11:00:00Z"
+        expires_at: "2026-07-12T13:00:00Z"
+        issued_at: "2026-07-12T11:00:00Z"
+        issuer_grant_ref:
+          installation_id: install-01
+          grant_id: grant-root-issue
+          record_digest: sha256:4d67f65bd1af2307a8e9552982bc43b9e1f31fcd9e8ae393552425490e573f06
+        record_digest_profile: xfactory-canonical-json-v1
+        record_digest: sha256:fc3b4de9eb3971dc5ec73d62e1645296ae8da2e115229e255b555d877dfec0cc
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

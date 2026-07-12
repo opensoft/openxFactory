@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-grant-scope-widening
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003]
+scenario_ids: [HGR-003-S01]
+scenario: grant_scope_widening
+operation: validate_grant_authority
+mutation: widen a delegated layer grant to installation scope
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-GRANT-SCOPE-WIDENING

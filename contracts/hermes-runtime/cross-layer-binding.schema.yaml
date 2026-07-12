@@ -1,0 +1,64 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/cross-layer-binding.schema.yaml
+contract_id: cross-layer-binding
+contract_schema_version: 2
+title: Immutable exact cross-layer authority binding
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-cross-layer-binding}
+  binding_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  source_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  target_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  source_resource:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_reference
+  target_resource:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_reference
+  action:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_action
+  purpose:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  creator_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  creator_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  target_acceptance_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  target_acceptance_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  starts_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  expires_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  created_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - binding_id
+  - record_digest_profile
+  - record_digest
+  - source_scope
+  - target_scope
+  - source_resource
+  - target_resource
+  - action
+  - purpose
+  - creator_principal_ref
+  - creator_grant_ref
+  - target_acceptance_principal_ref
+  - target_acceptance_grant_ref
+  - starts_at
+  - created_at
+additionalProperties: false

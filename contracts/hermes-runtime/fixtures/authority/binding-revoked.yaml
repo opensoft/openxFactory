@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-binding-revoked-as-of
+phase: semantic
+class: invalid
+requirement_ids: [HGR-004]
+scenario_ids: [HGR-004-S04]
+scenario: binding_revoked
+operation: validate_operation_authorization
+mutation: append mutually accepted revocation effective before authorization
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-BINDING-REVOKED

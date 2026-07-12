@@ -1,0 +1,49 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/cross-layer-binding-revocation.schema.yaml
+contract_id: cross-layer-binding-revocation
+contract_schema_version: 2
+title: Append-only mutually accepted cross-layer binding revocation
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-cross-layer-binding-revocation}
+  revocation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  binding_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/cross_layer_binding_reference
+  source_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  source_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  target_acceptance_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  target_acceptance_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  effective_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  reason:
+    type: string
+    minLength: 1
+    maxLength: 1024
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - revocation_id
+  - record_digest_profile
+  - record_digest
+  - binding_ref
+  - source_principal_ref
+  - source_grant_ref
+  - target_acceptance_principal_ref
+  - target_acceptance_grant_ref
+  - effective_at
+  - reason
+additionalProperties: false

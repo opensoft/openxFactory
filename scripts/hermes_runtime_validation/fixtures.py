@@ -2,12 +2,25 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import re
+import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Iterable, Mapping, Sequence
 
+from .loader import YamlLoadError, load_yaml_document
+
 _CODE = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$")
+_POSTGRES_IMAGE = re.compile(r"^postgres@sha256:[0-9a-f]{64}$")
+_POSTGRES_EVIDENCE_KIND = "HermesRuntimePostgresEvidence"
+_POSTGRES_IMAGE_LOCK = Path("tests/hermes_runtime_contracts/postgres/images.lock.yaml")
+_POSTGRES_MATRIX_PROFILE = "xfactory-postgres-matrix-v1"
+_POSTGRES_SOURCE_PROFILE = "xfactory-postgres-source-inputs-v1"
+_POSTGRES_SUITE_ID = "hermes-runtime-postgres"
 
 
 def _finding(code: str, message: str, *, case_id: str = "", path: str = "") -> dict:
@@ -48,17 +61,657 @@ def _case_map(index: Mapping[str, object]) -> dict[str, Mapping[str, object]]:
     return result
 
 
-def validate_index(index: Mapping[str, object], *, fixture_root: Path) -> list[dict]:
+def _canonical_digest(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def database_matrix_identity(case: Mapping[str, object]) -> dict[str, str]:
+    """Return the content identity for one indexed PostgreSQL matrix."""
+
+    database = case.get("database")
+    if not isinstance(database, Mapping):
+        raise ValueError("database metadata is required")
+    governed_database = {
+        str(key): value for key, value in database.items() if key != "result_refs"
+    }
+    payload = {
+        "case_id": case.get("case_id"),
+        "requirement_ids": case.get("requirement_ids"),
+        "scenario_ids": case.get("scenario_ids"),
+        "database": governed_database,
+    }
+    return {
+        "profile": _POSTGRES_MATRIX_PROFILE,
+        "case_id": str(case.get("case_id", "")),
+        "digest": _canonical_digest(payload),
+    }
+
+
+def repository_source_identity(
+    repository_root: Path, case: Mapping[str, object]
+) -> dict[str, object]:
+    """Bind evidence to canonical content of the indexed PostgreSQL inputs.
+
+    The identity deliberately does not depend on Git state.  It therefore
+    survives committing the result record and validates identically in a clean
+    clone, while any change to an indexed test, seed, assertion, or authoritative
+    matrix metadata invalidates the prior evidence.
+    """
+
+    database = case.get("database")
+    if not isinstance(database, Mapping):
+        raise ValueError("database metadata is required")
+    members: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for field in (
+        "source_paths",
+        "test_modules",
+        "seed_scripts",
+        "assertion_scripts",
+    ):
+        paths = database.get(field)
+        if not isinstance(paths, list) or not paths:
+            raise ValueError(f"database.{field} must index at least one source input")
+        for raw_path in paths:
+            normalized = _normalized_fixture_path(raw_path)
+            if normalized is None:
+                raise ValueError(f"database.{field} contains an invalid source path")
+            if normalized in seen:
+                raise ValueError(
+                    f"database source input is indexed twice: {normalized}"
+                )
+            seen.add(normalized)
+            candidate = repository_root / normalized
+            if not candidate.is_file() or candidate.is_symlink():
+                raise ValueError(f"database source input is unavailable: {normalized}")
+            members.append(
+                {
+                    "path": normalized,
+                    "digest": "sha256:"
+                    + hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                }
+            )
+    members.sort(key=lambda member: member["path"].encode("utf-8"))
+    payload = {
+        "profile": _POSTGRES_SOURCE_PROFILE,
+        "matrix": database_matrix_identity(case),
+        "members": members,
+    }
+    return {
+        "identity_kind": "canonical_content",
+        "profile": _POSTGRES_SOURCE_PROFILE,
+        "member_count": len(members),
+        "digest": _canonical_digest(payload),
+    }
+
+
+def collect_database_test_count(
+    repository_root: Path,
+    database: Mapping[str, object],
+    major: int,
+) -> int:
+    """Collect the exact indexed PostgreSQL suite count without running it."""
+
+    modules = database.get("test_modules")
+    if not isinstance(modules, list) or not modules:
+        raise ValueError("indexed PostgreSQL test modules are required")
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "HERMES_RUNTIME_POSTGRES_MAJOR": str(major),
+            "LANG": "C.UTF-8",
+            "LC_ALL": "C.UTF-8",
+            "PYTEST_ADDOPTS": "",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONHASHSEED": "0",
+            "TZ": "UTC",
+        }
+    )
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "-p",
+                "no:cacheprovider",
+                "--collect-only",
+                "--color=no",
+                "-q",
+                *[str(module) for module in modules],
+                "-m",
+                "postgres",
+            ],
+            cwd=repository_root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise ValueError(
+            "PostgreSQL suite collection dependency is unavailable"
+        ) from error
+    if completed.returncode != 0:
+        raise ValueError(
+            f"PostgreSQL suite collection failed with exit {completed.returncode}"
+        )
+    nodes = {
+        line.strip()
+        for line in completed.stdout.splitlines()
+        if line.startswith("tests/") and "::" in line
+    }
+    if not nodes:
+        raise ValueError("PostgreSQL suite collection returned zero tests")
+    return len(nodes)
+
+
+def _database_result_findings(
+    result: object,
+    *,
+    case_id: str,
+    path: str,
+    major: int,
+    expected_outcome: str,
+    expected_image: str,
+    expected_source: Mapping[str, object],
+    expected_matrix: Mapping[str, str],
+    expected_test_count: int,
+) -> list[dict]:
+    findings: list[dict] = []
+    if not isinstance(result, Mapping):
+        return [
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-SHAPE",
+                "database result must be a closed JSON object",
+                case_id=case_id,
+                path=path,
+            )
+        ]
+    expected_fields = {
+        "schema_version",
+        "kind",
+        "major",
+        "outcome",
+        "image",
+        "source_identity",
+        "suite",
+        "matrix",
+    }
+    if set(result) != expected_fields:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-SHAPE",
+                f"result fields must be exactly {sorted(expected_fields)}",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if (
+        result.get("schema_version") != 1
+        or result.get("kind") != _POSTGRES_EVIDENCE_KIND
+    ):
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-IDENTITY",
+                "result requires schema_version 1 and canonical evidence kind",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if result.get("major") != major:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-MAJOR",
+                f"result must bind PostgreSQL major {major}",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if result.get("outcome") != expected_outcome or expected_outcome != "pass":
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-OUTCOME",
+                "indexed database acceptance requires an exact pass outcome",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if result.get("image") != expected_image:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-IMAGE",
+                "result image must exactly match the selected major's image lock",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if result.get("source_identity") != expected_source:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-SOURCE",
+                "result source identity is stale or does not match the indexed PostgreSQL inputs",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    expected_suite = {"id": _POSTGRES_SUITE_ID, "test_count": expected_test_count}
+    if result.get("suite") != expected_suite:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-SUITE",
+                "result suite identity and executed test count must exactly match collection",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    if result.get("matrix") != expected_matrix:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-MATRIX",
+                "result matrix identity does not match indexed authoritative metadata",
+                case_id=case_id,
+                path=path,
+            )
+        )
+    return findings
+
+
+def _database_case_findings(
+    case: Mapping[str, object],
+    *,
+    case_id: str,
+    repository_root: Path,
+) -> list[dict]:
+    findings: list[dict] = []
+    database = case.get("database")
+    if not isinstance(database, Mapping):
+        return [
+            _finding(
+                "HGR-FIXTURE-DATABASE-METADATA-REQUIRED",
+                "database cases require database metadata",
+                case_id=case_id,
+                path="database",
+            )
+        ]
+
+    expected_fields = {
+        "engine",
+        "supported_majors",
+        "source_paths",
+        "test_modules",
+        "seed_scripts",
+        "assertion_scripts",
+        "row_expectations",
+        "digest_expectations",
+        "authoritative_deltas",
+        "result_refs",
+    }
+    missing = expected_fields - database.keys()
+    unknown = database.keys() - expected_fields
+    if missing:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-METADATA-MISSING",
+                f"database metadata is missing {sorted(missing)}",
+                case_id=case_id,
+                path="database",
+            )
+        )
+    if unknown:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-METADATA-UNKNOWN",
+                f"database metadata has unknown fields {sorted(unknown)}",
+                case_id=case_id,
+                path="database",
+            )
+        )
+    if database.get("engine") != "postgresql":
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-ENGINE",
+                "database engine must be postgresql",
+                case_id=case_id,
+                path="database.engine",
+            )
+        )
+
+    majors = database.get("supported_majors")
+    if (
+        not isinstance(majors, list)
+        or not majors
+        or any(type(major) is not int or major not in {15, 16} for major in majors)
+        or len(majors) != len(set(majors))
+        or majors != sorted(majors)
+    ):
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-MAJORS",
+                "supported majors must be a unique sorted subset of [15, 16]",
+                case_id=case_id,
+                path="database.supported_majors",
+            )
+        )
+        majors = []
+
+    path_fields = {
+        "source_paths": None,
+        "test_modules": ".py",
+        "seed_scripts": ".sql",
+        "assertion_scripts": ".sql",
+    }
+    indexed_source_paths: dict[str, str] = {}
+    for field, suffix in path_fields.items():
+        values = database.get(field)
+        if not isinstance(values, list) or not values:
+            findings.append(
+                _finding(
+                    "HGR-FIXTURE-DATABASE-PATHS-REQUIRED",
+                    f"{field} must be a non-empty list",
+                    case_id=case_id,
+                    path=f"database.{field}",
+                )
+            )
+            continue
+        for position, value in enumerate(values):
+            normalized = _normalized_fixture_path(value)
+            path = f"database.{field}[{position}]"
+            if normalized is None or (
+                suffix is not None and not normalized.endswith(suffix)
+            ):
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-PATH-INVALID",
+                        "normalized repository-relative regular-file path required"
+                        + (f" with suffix {suffix}" if suffix else ""),
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            prior_field = indexed_source_paths.get(normalized)
+            if prior_field is not None:
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-PATH-DUPLICATE",
+                        f"database source path is already indexed by {prior_field}: {normalized}",
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            indexed_source_paths[normalized] = field
+            candidate = repository_root / normalized
+            if not candidate.is_file() or candidate.is_symlink():
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-PATH-UNAVAILABLE",
+                        f"database input is not an indexed regular file: {normalized}",
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+
+    for field in ("row_expectations", "digest_expectations"):
+        value = database.get(field)
+        if not isinstance(value, Mapping) or not value:
+            findings.append(
+                _finding(
+                    "HGR-FIXTURE-DATABASE-EXPECTATION-REQUIRED",
+                    f"{field} must be a non-empty mapping",
+                    case_id=case_id,
+                    path=f"database.{field}",
+                )
+            )
+    deltas = database.get("authoritative_deltas")
+    if (
+        not isinstance(deltas, list)
+        or not deltas
+        or any(not isinstance(delta, str) or not delta for delta in deltas)
+    ):
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-DELTAS-REQUIRED",
+                "authoritative_deltas must be a non-empty string list",
+                case_id=case_id,
+                path="database.authoritative_deltas",
+            )
+        )
+
+    locked_images: dict[int, str] = {}
+    lock_path = repository_root / _POSTGRES_IMAGE_LOCK
+    try:
+        lock = load_yaml_document(lock_path)
+    except YamlLoadError as error:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-IMAGE-LOCK",
+                str(error),
+                case_id=case_id,
+                path=_POSTGRES_IMAGE_LOCK.as_posix(),
+            )
+        )
+        lock = None
+    if isinstance(lock, Mapping):
+        images = lock.get("images")
+        if (
+            lock.get("schema_version") != 1
+            or lock.get("kind") != "HermesRuntimePostgresImageLock"
+            or not isinstance(images, Mapping)
+        ):
+            findings.append(
+                _finding(
+                    "HGR-FIXTURE-DATABASE-IMAGE-LOCK",
+                    "canonical PostgreSQL image lock shape is required",
+                    case_id=case_id,
+                    path=_POSTGRES_IMAGE_LOCK.as_posix(),
+                )
+            )
+        else:
+            for locked_major in majors:
+                entry = images.get(str(locked_major))
+                image = (
+                    entry.get("resolved_image") if isinstance(entry, Mapping) else None
+                )
+                if not isinstance(image, str) or not _POSTGRES_IMAGE.fullmatch(image):
+                    findings.append(
+                        _finding(
+                            "HGR-FIXTURE-DATABASE-IMAGE-LOCK",
+                            f"major {locked_major} lacks one canonical digest pin",
+                            case_id=case_id,
+                            path=_POSTGRES_IMAGE_LOCK.as_posix(),
+                        )
+                    )
+                else:
+                    locked_images[locked_major] = image
+    elif lock is not None:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-IMAGE-LOCK",
+                "canonical PostgreSQL image lock must be an object",
+                case_id=case_id,
+                path=_POSTGRES_IMAGE_LOCK.as_posix(),
+            )
+        )
+
+    try:
+        expected_source = repository_source_identity(repository_root, case)
+    except ValueError as error:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-SOURCE",
+                str(error),
+                case_id=case_id,
+                path="database.result_refs",
+            )
+        )
+        expected_source = None
+    try:
+        expected_matrix = database_matrix_identity(case)
+    except (TypeError, ValueError) as error:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULT-MATRIX",
+                str(error),
+                case_id=case_id,
+                path="database",
+            )
+        )
+        expected_matrix = None
+
+    refs = database.get("result_refs")
+    seen_ref_majors: set[int] = set()
+    collected_counts: dict[int, int] = {}
+    if not isinstance(refs, list) or not refs:
+        findings.append(
+            _finding(
+                "HGR-FIXTURE-DATABASE-RESULTS-REQUIRED",
+                "one result reference per supported major is required",
+                case_id=case_id,
+                path="database.result_refs",
+            )
+        )
+    else:
+        for position, ref in enumerate(refs):
+            path = f"database.result_refs[{position}]"
+            if not isinstance(ref, Mapping) or set(ref) != {
+                "major",
+                "path",
+                "expected_outcome",
+            }:
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-RESULT-INVALID",
+                        "result reference requires only major, path, and expected_outcome",
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            major = ref.get("major")
+            normalized = _normalized_fixture_path(ref.get("path"))
+            if (
+                type(major) is not int
+                or major in seen_ref_majors
+                or major not in majors
+                or normalized is None
+                or not normalized.endswith(".json")
+                or ref.get("expected_outcome") != "pass"
+            ):
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-RESULT-INVALID",
+                        "result must uniquely bind a supported major to a passing JSON record",
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            seen_ref_majors.add(major)
+            candidate = repository_root / normalized
+            if not candidate.is_file() or candidate.is_symlink():
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-RESULT-UNAVAILABLE",
+                        f"database result is unavailable: {normalized}",
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            try:
+                result_document = load_yaml_document(candidate)
+            except YamlLoadError as error:
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-DATABASE-RESULT-DOCUMENT",
+                        str(error),
+                        case_id=case_id,
+                        path=path,
+                    )
+                )
+                continue
+            if major not in collected_counts:
+                try:
+                    collected_counts[major] = collect_database_test_count(
+                        repository_root, database, major
+                    )
+                except ValueError as error:
+                    findings.append(
+                        _finding(
+                            "HGR-FIXTURE-DATABASE-SUITE-COLLECTION",
+                            str(error),
+                            case_id=case_id,
+                            path=path,
+                        )
+                    )
+                    continue
+            expected_image = locked_images.get(major)
+            if (
+                expected_image is None
+                or expected_source is None
+                or expected_matrix is None
+            ):
+                continue
+            findings.extend(
+                _database_result_findings(
+                    result_document,
+                    case_id=case_id,
+                    path=path,
+                    major=major,
+                    expected_outcome=str(ref.get("expected_outcome", "")),
+                    expected_image=expected_image,
+                    expected_source=expected_source,
+                    expected_matrix=expected_matrix,
+                    expected_test_count=collected_counts[major],
+                )
+            )
+        if seen_ref_majors != set(majors):
+            findings.append(
+                _finding(
+                    "HGR-FIXTURE-DATABASE-RESULT-COVERAGE",
+                    "result references must cover every supported major exactly once",
+                    case_id=case_id,
+                    path="database.result_refs",
+                )
+            )
+    return findings
+
+
+def validate_index(
+    index: Mapping[str, object],
+    *,
+    fixture_root: Path,
+    repository_root: Path | None = None,
+) -> list[dict]:
     """Return deterministic findings for a portable fixture index."""
 
     findings: list[dict] = []
     cases = index.get("cases", []) if isinstance(index, Mapping) else []
     if not isinstance(cases, list):
-        return [_finding("HGR-FIXTURE-CASES-TYPE", "cases must be a list", path="cases")]
+        return [
+            _finding("HGR-FIXTURE-CASES-TYPE", "cases must be a list", path="cases")
+        ]
 
+    repo_root = (
+        repository_root.resolve()
+        if repository_root is not None
+        else fixture_root.resolve().parents[2]
+    )
     case_ids: set[str] = set()
     paths: dict[str, str] = {}
     dependencies: dict[str, tuple[str, ...]] = {}
+    indexed_documents: list[tuple[str, str, Path, Mapping[str, object]]] = []
 
     for position, case in enumerate(cases):
         if not isinstance(case, Mapping):
@@ -151,6 +804,23 @@ def validate_index(index: Mapping[str, object], *, fixture_root: Path) -> list[d
                         path=fixture_path,
                     )
                 )
+            elif resolved.suffix in {".yaml", ".yml"}:
+                try:
+                    fixture_document = load_yaml_document(resolved)
+                except YamlLoadError as error:
+                    findings.append(
+                        _finding(
+                            "HGR-FIXTURE-DOCUMENT-INVALID",
+                            str(error),
+                            case_id=case_id,
+                            path=fixture_path,
+                        )
+                    )
+                else:
+                    if isinstance(fixture_document, Mapping):
+                        indexed_documents.append(
+                            (case_id, fixture_path, resolved, fixture_document)
+                        )
 
         if case.get("phase") == "semantic":
             evaluation_time = case.get("evaluation_time")
@@ -172,13 +842,23 @@ def validate_index(index: Mapping[str, object], *, fixture_root: Path) -> list[d
                         path="evaluation_time",
                     )
                 )
+        elif case.get("phase") == "database":
+            findings.extend(
+                _database_case_findings(
+                    case,
+                    case_id=case_id,
+                    repository_root=repo_root,
+                )
+            )
 
         expected = case.get("expected", {}) or {}
         if not isinstance(expected, Mapping):
             expected = {}
         outcome = expected.get("outcome")
         primary = expected.get("primary_finding_code")
-        if outcome == "fail" and (not isinstance(primary, str) or not _CODE.fullmatch(primary)):
+        if outcome == "fail" and (
+            not isinstance(primary, str) or not _CODE.fullmatch(primary)
+        ):
             findings.append(
                 _finding(
                     "HGR-FIXTURE-PRIMARY-CODE-REQUIRED",
@@ -188,6 +868,29 @@ def validate_index(index: Mapping[str, object], *, fixture_root: Path) -> list[d
                 )
             )
 
+    for case_id, fixture_path, _, fixture_document in indexed_documents:
+        case = next(
+            item
+            for item in cases
+            if isinstance(item, Mapping) and item.get("case_id") == case_id
+        )
+        for field in (
+            "case_id",
+            "phase",
+            "class",
+            "requirement_ids",
+            "scenario_ids",
+            "evaluation_time",
+        ):
+            if field in fixture_document and fixture_document[field] != case.get(field):
+                findings.append(
+                    _finding(
+                        "HGR-FIXTURE-SELF-DESCRIPTION-MISMATCH",
+                        f"fixture {field} does not match its index entry",
+                        case_id=case_id,
+                        path=f"{fixture_path}.{field}",
+                    )
+                )
     known_ids = set(dependencies)
     dependency_missing = False
     for case_id, required in dependencies.items():
@@ -230,7 +933,9 @@ def dependency_order(
     """Return dependencies before dependents using deterministic bytewise IDs."""
 
     cases = _case_map(index)
-    requested = tuple(selected_case_ids) if selected_case_ids is not None else tuple(cases)
+    requested = (
+        tuple(selected_case_ids) if selected_case_ids is not None else tuple(cases)
+    )
     ordered: list[str] = []
     permanent: set[str] = set()
     visiting: set[str] = set()
@@ -273,7 +978,11 @@ def evaluate_expected_findings(
     missing_primary = outcome == "fail" and primary not in actual_codes
     allowed = {str(primary), *allowed_secondary} if primary is not None else set()
     unexpected = tuple(code for code in actual_codes if code not in allowed)
-    passed = not actual_codes if outcome == "pass" else not missing_primary and not unexpected
+    passed = (
+        not actual_codes
+        if outcome == "pass"
+        else not missing_primary and not unexpected
+    )
     return {
         "passed": passed,
         "expected_outcome": outcome,

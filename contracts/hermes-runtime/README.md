@@ -1,18 +1,19 @@
 # Hermes Customer-Subject Runtime Contracts
 
-Status: implementation candidate
+Status: draft
 
 This directory is the domain-neutral contract surface for running multiple
 Customer Hermes instances in one xFactory installation. It separates the
 three static Hermes role templates declared by a DomainxFactory from the
 concrete layer instances registered at runtime.
 
-The current implementation candidate realizes the topology, identity,
-lifecycle, and exact-assembly-pin slice. Persistence isolation, cross-layer
-authority, artifacts, approvals, traces, migration, job envelopes, release
-publication, and consumer-pin evidence remain required later slices of the
-same ratified change; this topology slice alone does not authorize deployment
-or Gate G0 closure.
+This draft implementation realizes the topology, identity, lifecycle, and
+exact-assembly-pin slice plus the governed persistence, authority, binding,
+artifact, approval, and trace slice. Those contracts are directly tested by
+portable validators and by a digest-pinned PostgreSQL 15/16 matrix. Migration,
+quarantine, v2 job envelopes, release publication, and consumer-pin evidence
+remain required later slices of the same ratified change. The implemented
+slices do not authorize deployment or Gate G0 closure.
 
 ## Neutral Model
 
@@ -28,9 +29,10 @@ Once configured, one installation has one active Client layer, one active
 Domain layer, and zero or more active Customer layers; an operational
 installation requires at least one active Customer layer. Each Customer layer
 is bound to exactly one governed `customer_subject` and receives a distinct
-installation, stack, layer, and policy namespace. The later governed-record
-and job-contract slices must enforce that scope across persistence, artifacts,
-approvals, traces, and work admission before the isolation claim is evidenced.
+installation, stack, layer, and policy namespace. The governed-record slice
+enforces that scope across persistence, artifacts, approvals, and traces. The
+later v2 job-contract slice must extend the same scope to work admission before
+the full runtime claim is evidenced.
 
 Domain repositories supply names and stricter overlays without changing the
 neutral identity shape:
@@ -88,9 +90,11 @@ drift fail closed.
 `contract-index.yaml` is the canonical member catalog. `fixtures/index.yaml`
 indexes positive and negative cases, `acceptance-map.yaml` maps every ratified
 OpenSpec scenario to deterministic evidence, and `evidence-register.yaml`
-records non-authorizing test bindings and planned evidence state. Empty
-`result_refs` remain explicitly unrealized; only later recorded, passing
-realization evidence may participate in release authorization.
+records non-authorizing test bindings and planned evidence state. PostgreSQL
+bindings point to deterministic development-matrix results for both supported
+majors; empty `result_refs` remain explicitly unrealized. Neither form is
+release authority. Only later recorded, exact-commit realization evidence may
+participate in release authorization.
 
 The canonical validator must prove at least one operational installation with
 two distinct Customer layers and must validate the codexFactory, MedxFactory,

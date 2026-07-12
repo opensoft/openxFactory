@@ -1,0 +1,147 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-valid-quorum
+phase: semantic
+class: valid
+requirement_ids: [HGR-003, HGR-006]
+scenario_ids: [HGR-003-S01, HGR-006-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+input:
+  target:
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+    resource_type: artifact
+    resource_id: artifact-01
+    digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  policy:
+    schema_version: 1
+    kind: openxfactory-hermes-runtime-approval-decision-policy
+    policy_id: policy-pr-admission
+    policy_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    authority_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    aggregation: all_required_selectors
+    conflict_resolution: contested
+    reviewer_selectors:
+    - selector_id: manager
+      principal_ids: [manager-a]
+      minimum_count: 1
+      distinct_principals: true
+    - selector_id: security
+      principal_ids: [security-a]
+      minimum_count: 1
+      distinct_principals: true
+    supersession_authorities:
+    - event_type: expired
+      principal_ids: [manager-a]
+    - event_type: cancelled
+      principal_ids: [manager-a]
+    - event_type: revoked
+      principal_ids: [manager-a]
+    created_at: "2026-07-12T12:00:00Z"
+  request:
+    schema_version: 1
+    kind: openxfactory-hermes-runtime-approval-request
+    request_id: approval-request-01
+    request_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    owning_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    target:
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+      resource_type: artifact
+      resource_id: artifact-01
+      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    authority_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    requester_principal_ref:
+      scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      principal_id: requester-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    requester_grant_ref:
+      installation_id: install-01
+      grant_id: grant-request-a
+      record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    reviewer_selector_ids: [manager, security]
+    decision_policy_id: policy-pr-admission
+    decision_policy_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    decision_policy_pin:
+      repository: opensoft/exampleFactory
+      commit: dddddddddddddddddddddddddddddddddddddddd
+      path: policies/pr-admission.yaml
+      digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/approval-decision-policy.schema.yaml
+      schema_version: 1
+    requested_action: execute
+    created_at: "2026-07-12T12:00:00Z"
+    expires_at: "2026-07-12T13:00:00Z"
+  decisions:
+  - decision_id: decision-manager-approve
+    decision_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    owning_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    reviewer_selector_id: manager
+    actual_reviewer_principal_ref:
+      scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      principal_id: manager-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    reviewer_grant_ref:
+      installation_id: install-01
+      grant_id: grant-manager-a
+      record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    decision: approve
+  - decision_id: decision-security-approve
+    decision_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    owning_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    reviewer_selector_id: security
+    actual_reviewer_principal_ref:
+      scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      principal_id: security-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    reviewer_grant_ref:
+      installation_id: install-01
+      grant_id: grant-security-a
+      record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    decision: approve
+  authority_expectation:
+    requester_action: request_approval
+    reviewer_action: decide_approval
+    requester_resource: exact-target-id-and-digest
+    reviewer_resource: exact-request-id-and-digest
+    grant_revocations: []
+  expected_state: approved
+  expected_authorizes: true
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

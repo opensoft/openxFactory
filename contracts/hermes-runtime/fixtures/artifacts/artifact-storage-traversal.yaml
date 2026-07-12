@@ -1,0 +1,17 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: artifact-storage-traversal
+phase: semantic
+class: invalid
+requirement_ids: [HGR-005]
+scenario_ids: [HGR-005-S04]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_artifact_record
+base_case_id: artifact-valid
+mutation:
+  path: input.record.storage_key
+  to: ../customer-b/artifact
+expected:
+  outcome: fail
+  primary_finding_code: HGR-ARTIFACT-STORAGE-KEY
+  allowed_secondary_codes: []

@@ -1,0 +1,18 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: artifact-record-mutation
+phase: semantic
+class: invalid
+requirement_ids: [HGR-005]
+scenario_ids: [HGR-005-S03]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_artifact_immutability
+base_case_id: artifact-valid
+mutation:
+  path: input.record.media_type
+  from: application/octet-stream
+  to: text/plain
+expected:
+  outcome: fail
+  primary_finding_code: HGR-ARTIFACT-IMMUTABLE
+  allowed_secondary_codes: []

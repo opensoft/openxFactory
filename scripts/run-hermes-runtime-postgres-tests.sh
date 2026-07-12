@@ -1,10 +1,11 @@
 #!/bin/sh
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo_root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 compose_file="$repo_root/tests/hermes_runtime_contracts/postgres/compose.yaml"
 lock_file="$repo_root/tests/hermes_runtime_contracts/postgres/images.lock.yaml"
 evidence_dir="$repo_root/tests/hermes_runtime_contracts/postgres/evidence"
+fixture_index="$repo_root/contracts/hermes-runtime/fixtures/index.yaml"
 
 major=""
 json_output=false
@@ -46,10 +47,25 @@ if [ -n "$major" ] && [ "$major" != 15 ] && [ "$major" != 16 ]; then
   exit 2
 fi
 
-[ -f "$compose_file" ] && [ -f "$lock_file" ] || {
+if [ "$update_lock" = true ] && { [ -n "$major" ] || [ "$json_output" = true ]; }; then
+  printf '%s\n' '--update-image-lock cannot be combined with run options' >&2
+  exit 2
+fi
+
+# A prior pass must never survive a new attempt.  Invalidate selected evidence
+# before checking local dependencies, image availability, or Docker health.
+if [ "$update_lock" = false ]; then
+  if [ -n "$major" ]; then
+    rm -f -- "$evidence_dir/postgres-$major.json"
+  else
+    rm -f -- "$evidence_dir/postgres-15.json" "$evidence_dir/postgres-16.json"
+  fi
+fi
+
+if ! { [ -f "$compose_file" ] && [ -f "$lock_file" ] && [ -f "$fixture_index" ]; }; then
   printf '%s\n' 'PostgreSQL Compose definition or image lock is unavailable' >&2
   exit 2
-}
+fi
 
 python_bin=python3
 command -v "$python_bin" >/dev/null 2>&1 || {
@@ -78,10 +94,6 @@ lookup_image() {
 }
 
 if [ "$update_lock" = true ]; then
-  if [ -n "$major" ] || [ "$json_output" = true ]; then
-    printf '%s\n' '--update-image-lock cannot be combined with run options' >&2
-    exit 2
-  fi
   if [ "${HERMES_RUNTIME_CANDIDATE_FROZEN:-}" = 1 ]; then
     printf '%s\n' 'image-lock refresh is forbidden after candidate freeze' >&2
     exit 2
@@ -153,13 +165,18 @@ run_one() {
   COMPOSE_PROJECT_NAME="hcs-$run_major-$$-$($python_bin -c 'import secrets; print(secrets.token_hex(5))')"
   export POSTGRES_IMAGE POSTGRES_PASSWORD COMPOSE_PROJECT_NAME
   raw_log=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres.XXXXXX")
+  junit_file=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres-junit.XXXXXX")
+  evidence_temporary=""
 
   cleanup() {
     if [ -n "${COMPOSE_PROJECT_NAME:-}" ]; then
       docker compose --file "$compose_file" --project-name "$COMPOSE_PROJECT_NAME" \
         down --volumes --remove-orphans >"$raw_log" 2>&1 || true
     fi
-    rm -f -- "$raw_log"
+    rm -f -- "$raw_log" "$junit_file"
+    if [ -n "${evidence_temporary:-}" ]; then
+      rm -f -- "$evidence_temporary"
+    fi
     unset POSTGRES_PASSWORD POSTGRES_IMAGE COMPOSE_PROJECT_NAME
   }
   trap cleanup EXIT HUP INT TERM
@@ -179,13 +196,82 @@ run_one() {
     return 1
   fi
 
+  if [ -x "$repo_root/.venv/bin/pytest" ]; then
+    pytest_bin=$repo_root/.venv/bin/pytest
+  elif command -v pytest >/dev/null 2>&1; then
+    pytest_bin=$(command -v pytest)
+  else
+    printf '%s\n' 'pytest is required for PostgreSQL conformance' >&2
+    return 2
+  fi
+  if ! HERMES_RUNTIME_POSTGRES_MAJOR=$run_major \
+    PYTEST_ADDOPTS='' \
+    PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=0 \
+    PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
+    "$pytest_bin" -p no:cacheprovider --color=no -q \
+      "$repo_root/tests/hermes_runtime_contracts/postgres" \
+      -m postgres --junitxml="$junit_file" >"$raw_log" 2>&1; then
+    redact_log "$raw_log" >&2
+    return 1
+  fi
+
+  if ! test_count=$(
+    "$python_bin" -c 'import pathlib, sys, xml.etree.ElementTree as ET
+path = pathlib.Path(sys.argv[1])
+root = ET.parse(path).getroot()
+suites = [root] if root.tag == "testsuite" else list(root.findall("testsuite"))
+tests = int(root.attrib.get("tests", sum(int(item.attrib.get("tests", 0)) for item in suites)))
+failures = int(root.attrib.get("failures", sum(int(item.attrib.get("failures", 0)) for item in suites)))
+errors = int(root.attrib.get("errors", sum(int(item.attrib.get("errors", 0)) for item in suites)))
+skipped = int(root.attrib.get("skipped", sum(int(item.attrib.get("skipped", 0)) for item in suites)))
+if tests < 1 or failures or errors or skipped:
+    raise SystemExit(1)
+print(tests)' "$junit_file"
+  ); then
+    printf '%s\n' 'pytest JUnit evidence is missing, empty, failed, or skipped' >&2
+    return 1
+  fi
+
   mkdir -p -- "$evidence_dir"
   evidence_file="$evidence_dir/postgres-$run_major.json"
-  printf '{"image":"%s","kind":"HermesRuntimePostgresEvidence","major":%s,"outcome":"pass","schema_version":1}\n' \
-    "$POSTGRES_IMAGE" "$run_major" >"$evidence_file"
+  if ! evidence_json=$(
+    PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
+    "$python_bin" -c 'import json, pathlib, sys
+from scripts.hermes_runtime_validation.fixtures import database_matrix_identity, repository_source_identity
+from scripts.hermes_runtime_validation.loader import load_yaml_document
+repo = pathlib.Path(sys.argv[1])
+index = load_yaml_document(sys.argv[2])
+major = int(sys.argv[3])
+image = sys.argv[4]
+test_count = int(sys.argv[5])
+cases = [case for case in index["cases"] if case.get("phase") == "database" and major in case.get("database", {}).get("supported_majors", [])]
+if len(cases) != 1:
+    raise SystemExit(1)
+case = cases[0]
+record = {
+    "schema_version": 1,
+    "kind": "HermesRuntimePostgresEvidence",
+    "major": major,
+    "outcome": "pass",
+    "image": image,
+    "source_identity": repository_source_identity(repo, case),
+    "suite": {"id": "hermes-runtime-postgres", "test_count": test_count},
+    "matrix": database_matrix_identity(case),
+}
+print(json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")))' \
+      "$repo_root" "$fixture_index" "$run_major" "$POSTGRES_IMAGE" "$test_count"
+  ); then
+    printf '%s\n' 'failed to derive deterministic PostgreSQL evidence identity' >&2
+    return 1
+  fi
+  evidence_temporary=$(mktemp "$evidence_dir/.postgres-$run_major.XXXXXX")
+  printf '%s\n' "$evidence_json" >"$evidence_temporary"
+  mv -f -- "$evidence_temporary" "$evidence_file"
+  evidence_temporary=""
   if [ "$json_output" = true ]; then
-    printf '{"image":"%s","kind":"HermesRuntimePostgresResult","major":%s,"outcome":"pass","schema_version":1}\n' \
-      "$POSTGRES_IMAGE" "$run_major"
+    printf '%s\n' "$evidence_json"
   else
     printf 'PostgreSQL %s conformance: pass (%s)\n' "$run_major" "$POSTGRES_IMAGE"
   fi

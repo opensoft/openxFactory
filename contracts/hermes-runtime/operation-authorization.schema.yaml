@@ -1,0 +1,68 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/operation-authorization.schema.yaml
+contract_id: operation-authorization
+contract_schema_version: 2
+title: Immutable evidence packet for one authorized cross-layer operation
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-operation-authorization}
+  operation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  source_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  target_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  source_resource:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_reference
+  target_resource:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_reference
+  action:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_action
+  purpose:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  actor_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  source_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  target_acceptance_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  binding_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/cross_layer_binding_reference
+  anchor_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/trust_anchor_reference
+  authorized_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  target_result:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_reference
+  transaction_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - operation_id
+  - record_digest_profile
+  - record_digest
+  - source_scope
+  - target_scope
+  - source_resource
+  - target_resource
+  - action
+  - purpose
+  - actor_principal_ref
+  - source_grant_ref
+  - target_acceptance_grant_ref
+  - binding_ref
+  - anchor_ref
+  - authorized_at
+  - target_result
+  - transaction_id
+additionalProperties: false

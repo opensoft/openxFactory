@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-grant-revoked-as-of
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003]
+scenario_ids: [HGR-003-S03]
+scenario: grant_revoked
+operation: validate_grant_authority
+mutation: append an authorized revocation effective before evaluation
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-GRANT-REVOKED

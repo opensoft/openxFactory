@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: isolation-database-session-user-conflict
+phase: semantic
+class: invalid
+requirement_ids: [HGR-002]
+scenario_ids: [HGR-002-S04]
+scenario: database_session_user_conflict
+operation: validate_complete_authority_document
+mutation: bind one authenticated session_user through two active records
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-DATABASE-SESSION-USER-CONFLICT

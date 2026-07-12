@@ -1,0 +1,12 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-anchor-rotation-historical-as-of
+phase: semantic
+class: valid
+requirement_ids: [HGR-003]
+scenario_ids: [HGR-003-S05]
+scenario: anchor_rotation_as_of
+operation: validate_historical_and_current_anchor_authority
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: pass

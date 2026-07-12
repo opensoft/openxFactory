@@ -1,0 +1,12 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-active-exact-operation
+phase: semantic
+class: valid
+requirement_ids: [HGR-003, HGR-004]
+scenario_ids: [HGR-003-S01, HGR-004-S01]
+scenario: active_authority
+operation: validate_complete_authority_document
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: pass

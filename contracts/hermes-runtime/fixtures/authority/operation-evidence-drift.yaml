@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-operation-evidence-target-drift
+phase: semantic
+class: invalid
+requirement_ids: [HGR-004]
+scenario_ids: [HGR-004-S01]
+scenario: operation_evidence_drift
+operation: validate_operation_authorization
+mutation: replace the recorded target-result digest after authorization
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-OPERATION-EVIDENCE-DRIFT

@@ -1,0 +1,50 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/installation-trust-anchor.schema.yaml
+contract_id: installation-trust-anchor
+contract_schema_version: 2
+title: Immutable installation trust anchor
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-installation-trust-anchor}
+  anchor_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  anchor_kind:
+    enum: [genesis, rotated]
+  principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  key_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/key_reference
+  policy_pin:
+    $ref: shared-definitions.schema.yaml#/$defs/git_file_pin
+  effective_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  authorized_evidence_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  created_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - anchor_id
+  - record_digest_profile
+  - record_digest
+  - installation_id
+  - anchor_kind
+  - principal_ref
+  - key_ref
+  - policy_pin
+  - effective_at
+  - authorized_evidence_digest
+  - created_at
+additionalProperties: false

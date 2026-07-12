@@ -5,6 +5,7 @@ governed_change: add-hermes-customer-subject-runtime-contract
 fixture_index: fixtures/index.yaml
 evidence_register: evidence-register.yaml
 us1_binding_status: partial
+us2_binding_status: partial
 expected_openspec_requirement_count: 17
 expected_openspec_scenario_count: 85
 openspec_parity:

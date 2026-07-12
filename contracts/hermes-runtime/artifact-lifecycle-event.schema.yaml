@@ -1,0 +1,75 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/artifact-lifecycle-event.schema.yaml
+contract_id: artifact-lifecycle-event
+contract_schema_version: 2
+title: Append-only artifact lifecycle event
+description: >-
+  An immutable event bound to one exact artifact record and predecessor. It
+  never rewrites artifact metadata or grants cross-layer visibility.
+type: object
+$defs:
+  predecessor_ref:
+    type: object
+    properties:
+      kind:
+        enum: [artifact_record, event]
+      id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required: [kind, id, digest]
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-artifact-lifecycle-event
+  event_id:
+    $ref: shared-definitions.schema.yaml#/$defs/event_id
+  event_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/installation_id
+  stack_id:
+    $ref: shared-definitions.schema.yaml#/$defs/stack_id
+  layer_id:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_id
+  artifact_id:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_id
+  artifact_record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  predecessor_ref:
+    $ref: '#/$defs/predecessor_ref'
+  event_type:
+    enum: [available, retired, tombstoned]
+  actor_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  actor_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  occurred_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  reason:
+    type: string
+    minLength: 1
+    maxLength: 1024
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- event_id
+- event_digest
+- installation_id
+- stack_id
+- layer_id
+- artifact_id
+- artifact_record_digest
+- predecessor_ref
+- event_type
+- actor_principal_ref
+- actor_grant_ref
+- occurred_at
+- reason
+additionalProperties: false

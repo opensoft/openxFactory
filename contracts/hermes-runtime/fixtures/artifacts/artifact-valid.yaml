@@ -1,0 +1,39 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: artifact-valid
+phase: semantic
+class: valid
+requirement_ids: [HGR-005]
+scenario_ids: [HGR-005-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_artifact_body
+input:
+  stage: admission
+  body_utf8: "portable artifact body\n"
+  record:
+    schema_version: 1
+    kind: openxfactory-hermes-runtime-artifact-record
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+    artifact_id: artifact-01
+    content_digest: sha256:95d7acafb162542dfb111509bce2fdfe3d5964431ff82b6489b075f942b51a6d
+    byte_size: 23
+    media_type: application/octet-stream
+    producer_principal_ref:
+      scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      principal_id: worker-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    producer_grant_ref:
+      installation_id: install-01
+      grant_id: grant-produce-a
+      record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    storage_key: install-01/customer-a/sha256/95d7acafb162542dfb111509bce2fdfe3d5964431ff82b6489b075f942b51a6d
+    created_at: "2026-07-12T12:00:00Z"
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

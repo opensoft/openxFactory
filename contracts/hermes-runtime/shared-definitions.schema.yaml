@@ -264,6 +264,116 @@ $defs:
       - $ref: "#/$defs/identity_resource_reference"
       - $ref: "#/$defs/content_resource_reference"
 
+  authority_action:
+    type: string
+    enum:
+      - assume_scope
+      - issue_grant
+      - revoke_grant
+      - rotate_trust_anchor
+      - revoke_trust_anchor
+      - create_binding
+      - revoke_binding
+      - accept_cross_layer
+      - project_resource
+      - create_artifact
+      - request_approval
+      - decide_approval
+      - supersede_approval
+      - transition_lifecycle
+      - run_migration
+      - publish_contract
+  record_digest_profile:
+    type: string
+    const: xfactory-canonical-json-v1
+  record_digest:
+    $ref: "#/$defs/sha256_digest"
+  principal_type:
+    type: string
+    enum: [human, agent, service, group]
+  database_role_class:
+    type: string
+    enum: [runtime, control, audit]
+  key_reference:
+    type: object
+    properties:
+      provider:
+        $ref: "#/$defs/canonical_id"
+      key_id:
+        $ref: "#/$defs/canonical_id"
+      algorithm:
+        type: string
+        enum: [ed25519, rsa-pss-sha256]
+    required: [provider, key_id, algorithm]
+    additionalProperties: false
+  authority_predecessor_reference:
+    type: object
+    properties:
+      kind:
+        type: string
+        enum: [registration, event]
+      id:
+        $ref: "#/$defs/canonical_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [kind, id, record_digest]
+    additionalProperties: false
+  principal_reference:
+    type: object
+    properties:
+      scope:
+        $ref: "#/$defs/governed_scope"
+      principal_id:
+        $ref: "#/$defs/principal_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [scope, principal_id, record_digest]
+    additionalProperties: false
+  trust_anchor_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      anchor_id:
+        $ref: "#/$defs/canonical_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [installation_id, anchor_id, record_digest]
+    additionalProperties: false
+  authority_grant_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      grant_id:
+        $ref: "#/$defs/canonical_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [installation_id, grant_id, record_digest]
+    additionalProperties: false
+  database_principal_binding_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      binding_id:
+        $ref: "#/$defs/canonical_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [installation_id, binding_id, record_digest]
+    additionalProperties: false
+  cross_layer_binding_reference:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/installation_id"
+      binding_id:
+        $ref: "#/$defs/canonical_id"
+      record_digest:
+        $ref: "#/$defs/record_digest"
+    required: [installation_id, binding_id, record_digest]
+    additionalProperties: false
+
   safe_extension_property_name:
     type: string
     pattern: "^[a-z][a-z0-9_-]{0,63}$"

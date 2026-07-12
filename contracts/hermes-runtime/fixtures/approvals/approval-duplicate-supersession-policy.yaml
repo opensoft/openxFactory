@@ -1,0 +1,19 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-duplicate-supersession-policy
+phase: semantic
+class: invalid
+requirement_ids: [HGR-006]
+scenario_ids: [HGR-006-S05]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-valid-quorum
+mutation:
+  path: input.policy.supersession_authorities[1].event_type
+  from: cancelled
+  to: expired
+  invariant: duplicate-event-authority-would-otherwise-shadow-policy
+expected:
+  outcome: fail
+  primary_finding_code: HGR-APPROVAL-POLICY-SUPERSESSION
+  allowed_secondary_codes: []

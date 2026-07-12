@@ -40,27 +40,34 @@ One governed API transaction locks trust/grant/binding/resource identities in ca
 
 ## Migration
 
-1. Validate and content-address the mapping outside SQL.
-2. Begin SERIALIZABLE and acquire fixed v1 table locks before the first query.
-3. Capture snapshot/WAL identity, counts, and deterministic dataset digest.
-4. Migrate authoritative rows and quarantine unverifiable evidence.
-5. Reconcile IDs/counts/digests and append success ledger evidence.
-6. Commit atomically.
+1. Validate the detached mapping payload outside SQL, compute `mapping_payload_digest`, bind it through an exact active `run_migration` authority envelope, compute `authority_envelope_digest`, and load only canonical staging.
+2. Acquire one session advisory lock derived from installation plus migration ID and retain it across attempt, authoritative, and failure/recovery transactions.
+3. Commit `STARTED`; then begin `SERIALIZABLE` and acquire the exact twelve v1 table locks in bytewise order before reading governed source rows.
+4. Recompute source identity, catalog digest, per-table counts, and the exact binary dataset digest; derive the logical boundary and abort unless it equals the approved payload.
+5. Record a physical cutover observation containing the actual snapshot/WAL position, database-derived time, payload/authority/logical-boundary digests, active authority, and target contract identity.
+6. Preserve jobs/runs/events and administrative rows as scoped immutable non-authorizing compatibility history; quarantine only unverifiable artifact, approval-request, approval, and trace rows; classify every source row and ID from all twelve tables exactly once.
+7. Reconcile per-table IDs/counts/digests, install the durable v1 governed-write freeze, append `SUCCEEDED`, and commit atomically.
 
-Attempt events survive outside the authoritative transaction so crashes/rollbacks can be recorded. Identical `(migration_id, snapshot, mapping_digest)` retry converges; changed input fails.
+Dataset profile `xfactory-v1-dataset-binary-v1` begins `XFV1DS || 00 01`; frames are `tag:u8 || length:u64be || payload`; structural tags are `10` through `17`, `20`, and `21`; and value tags null/text/integer/boolean/timestamp/binary/JSON are `30` through `36`. It fixes UTF-8 without normalization, raw UTF-8 schema/table ordering, framed-primary-key row ordering independent of collation, schema-ordinal columns, exact typed encodings and canonical JSON from the ratified governed-record requirement, complete table metadata/count frames, and SHA-256 over the magic plus complete ordered table stream.
 
-Before attempt-state evaluation, every runner takes a transaction advisory lock derived from the canonical migration tuple. Allowed latest-event transitions are `started -> succeeded|failed|abandoned`, `failed|abandoned -> started` for an identical retry, and `succeeded` terminal. Concurrent identical runners serialize; the winner executes once and the observer returns the same succeeded result without reapplying rows.
+Attempt events survive outside the authoritative transaction so crashes/rollbacks can be recorded. Retry identity is `(installation_id, migration_id, mapping_payload_digest, logical_boundary_id)`. An identical retry may observe another physical snapshot/WAL after rollback but converges only when its payload, authority envelope, and logical boundary remain unchanged; changed input fails.
+
+The dedicated psql migration runner holds the session lock before attempt-state evaluation. Allowed latest-event transitions are `started -> succeeded|failed|abandoned`, `failed|abandoned -> started` for an identical retry, and `succeeded` terminal. Ordinary error rolls back before `FAILED` is appended while the lock remains held. Process death releases the lock; the next runner records `ABANDONED`. Concurrent identical runners serialize; the winner executes once and the observer returns the same succeeded result without reapplying rows.
 
 ## Runner And Image Contract
 
 ```text
 scripts/run-hermes-runtime-postgres-tests.sh [--major 15|16] [--json]
 scripts/run-hermes-runtime-postgres-tests.sh --update-image-lock
+scripts/run-hermes-v1-to-v2-migration.sh --mapping <validated-envelope.json>
+scripts/apply-hermes-runtime-postgres-v2.py --profile fresh-v2|v1-cutover
 ```
 
 - Compose definition: `tests/hermes_runtime_contracts/postgres/compose.yaml`.
 - Image lock: `tests/hermes_runtime_contracts/postgres/images.lock.yaml`, with `schema_version`, `kind`, source tag, resolved `postgres@sha256:...`, platform, and update evidence for majors 15/16.
 - Normal and release runs use only digest-pinned image references from the lock; `--update-image-lock` is an explicit pre-candidate action and is forbidden after candidate freeze.
+- The apply boundary acquires one application session lock, compares the selected canonical catalog profile before mutation, applies the DDL as one transaction only for empty or exact state, and verifies postflight before success. It never repairs drift before reporting it.
+- The migration runner uses one persistent psql session rather than a database driver so its advisory lock spans the committed attempt event, authoritative transaction, and failure/recovery event.
 - Each run uses a unique Compose project, isolated internal network, no published host port, throwaway named volume, read-only repo mount, healthcheck, and a same-image psql client.
 - The runner generates a cryptographically random ephemeral password in memory, passes it without printing, redacts environment/evidence, unsets it, and removes containers/volume/network through an EXIT trap. No fixed password or trust-auth exception is committed.
 - Evidence under `tests/hermes_runtime_contracts/postgres/evidence/` records image digests, cases, outcomes, and redacted command metadata; it contains no password or raw database rows.
@@ -76,6 +83,8 @@ and fixed `search_path`; PUBLIC `EXECUTE`/`USAGE`/`CREATE`; and every grant on
 authoritative, API, and quarantine namespaces. Canonicalization fixes catalog
 query ordering and normalizes only server-generated syntax proven equivalent on
 PostgreSQL 15/16. A missing, extra, or altered record fails readiness.
+
+The `fresh-v2` profile covers clean initialization and exact reapplication. The `v1-cutover` profile additionally covers the fixed source tables, migration staging/attempt/reconciliation objects, immutable compatibility-history and quarantine structures, source-freeze functions/triggers, and quarantine dependency guard. Preflight rejects incompatible existing roles or objects before `IF NOT EXISTS`, `ALTER ROLE`, grants, or other DDL can mutate them.
 
 ## Required Matrix
 

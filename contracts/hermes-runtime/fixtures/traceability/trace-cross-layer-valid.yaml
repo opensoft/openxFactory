@@ -1,0 +1,73 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: trace-cross-layer-valid
+phase: semantic
+class: valid
+requirement_ids: [HGR-004, HGR-007]
+scenario_ids: [HGR-004-S01, HGR-007-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_trace_edge
+input:
+  edge:
+    schema_version: 1
+    kind: openxfactory-hermes-runtime-traceability-edge
+    edge_id: trace-edge-01
+    edge_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    owning_scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-b
+    relation: project_resource
+    source:
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+      resource_type: artifact
+      resource_id: artifact-source
+      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    target:
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-b
+      resource_type: artifact
+      resource_id: artifact-target
+      digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    creator_principal_ref:
+      scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      principal_id: trace-writer-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    creator_grant_ref:
+      installation_id: install-01
+      grant_id: grant-trace-a
+      record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    cross_layer_authority:
+      operation_authorization_ref:
+        installation_id: install-01
+        operation_id: operation-01
+        record_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      binding_ref:
+        installation_id: install-01
+        binding_id: binding-a-b
+        record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      grant_refs:
+      - installation_id: install-01
+        grant_id: grant-trace-a
+        record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - installation_id: install-01
+        grant_id: grant-accept-b
+        record_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    created_at: "2026-07-12T12:00:00Z"
+  authority_expectation:
+    operation_authorization_ref: [install-01, operation-01, sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc]
+    binding_ref: [install-01, binding-a-b, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb]
+    grant_ids: [grant-trace-a, grant-accept-b]
+    operation_action: project_resource
+    endpoints_must_match: true
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

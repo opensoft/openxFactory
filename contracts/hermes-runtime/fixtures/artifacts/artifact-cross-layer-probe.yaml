@@ -1,0 +1,30 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: artifact-cross-layer-probe
+phase: semantic
+class: invalid
+requirement_ids: [HGR-002, HGR-005]
+scenario_ids: [HGR-002-S01, HGR-005-S06]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: admit_artifact_access
+input:
+  request_scope:
+    scope_kind: layer
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+  artifact_scope:
+    scope_kind: layer
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-b
+  body_lookup_must_run: false
+  expected_response:
+    allowed: false
+    status: 404
+    code: HGR-ARTIFACT-NOT-AVAILABLE
+    body: null
+expected:
+  outcome: fail
+  primary_finding_code: HGR-ARTIFACT-NOT-AVAILABLE
+  allowed_secondary_codes: []

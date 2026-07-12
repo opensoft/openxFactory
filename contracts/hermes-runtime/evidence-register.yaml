@@ -4,6 +4,7 @@ feature: 005-customer-subject-runtime
 governed_change: add-hermes-customer-subject-runtime-contract
 authorization_effect: none
 us1_binding_status: partial
+us2_binding_status: partial
 expected_scenario_count: 85
 entries:
 - scenario_id: HCS-001-S01
@@ -408,7 +409,7 @@ entries:
   status: planned
   authorizes: false
   evidence_id: EVIDENCE-HGR-001-S01
-  planned_owner_task: T050
+  planned_owner_task: T077
   fixture_case_ids: []
   test_node_ids: []
   result_refs: []
@@ -418,349 +419,635 @@ entries:
   status: planned
   authorizes: false
   evidence_id: EVIDENCE-HGR-001-S02
-  planned_owner_task: T050
+  planned_owner_task: T077
   fixture_case_ids: []
   test_node_ids: []
   result_refs: []
 - scenario_id: HGR-001-S03
   requirement_id: HGR-001
   scenario_title: Administrative record is installation-wide
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-001-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_active_authority_records_validate_against_all_eleven_schemas
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[15-hcs_install_admin]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[16-hcs_install_admin]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S01
   requirement_id: HGR-002
   scenario_title: Subject A queries Subject B
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - artifact-cross-layer-probe
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_anti_oracle_rejects_before_body_lookup_with_one_response
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_enumerate_or_read_customer_b[15]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_enumerate_or_read_customer_b[16]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_artifact_probe_is_indistinguishable_from_missing[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_artifact_probe_is_indistinguishable_from_missing[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S02
   requirement_id: HGR-002
   scenario_title: Subject A attempts a write into Subject B
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[15-insert]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[15-update]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[15-delete]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[16-insert]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[16-update]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_customer_a_cannot_write_or_delete_customer_b[16-delete]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S03
   requirement_id: HGR-002
   scenario_title: Test runs as database owner
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_runtime_control_and_audit_roles_are_non_owner_non_bypass_identities[15]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_runtime_control_and_audit_roles_are_non_owner_non_bypass_identities[16]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_runtime_login_cannot_assume_owner_or_migrator[15]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_runtime_login_cannot_assume_owner_or_migrator[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S04
   requirement_id: HGR-002
   scenario_title: Runtime principal forges scope
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S04
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - isolation-database-binding-revoked
+  - isolation-database-session-user-conflict
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_forged_custom_gucs_do_not_establish_scope[15]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_forged_custom_gucs_do_not_establish_scope[16]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[15-install-02-stack-01-customer-a-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[15-install-01-stack-02-customer-a-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[15-install-01-stack-01-customer-b-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[15-install-01-stack-01-customer-b-grant-b-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[16-install-02-stack-01-customer-a-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[16-install-01-stack-02-customer-a-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[16-install-01-stack-01-customer-b-grant-a-scope]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant[16-install-01-stack-01-customer-b-grant-b-scope]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_same_session_cannot_switch_to_another_principals_scope[15]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_same_session_cannot_switch_to_another_principals_scope[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S05
   requirement_id: HGR-002
   scenario_title: Installation administrator queries subject data
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S05
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[15-hcs_install_admin]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[15-hcs_control_plane]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[16-hcs_install_admin]
+  - tests/hermes_runtime_contracts/postgres/test_roles_and_rls.py::test_install_admin_and_control_plane_have_no_direct_subject_visibility[16-hcs_control_plane]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S06
   requirement_id: HGR-002
   scenario_title: Pooled connection is reused
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S06
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_assumed_scope_is_transaction_local_and_absent_after_commit[15]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_assumed_scope_is_transaction_local_and_absent_after_commit[16]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_clear_scope_removes_all_authoritative_context_before_pool_return[15]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_clear_scope_removes_all_authoritative_context_before_pool_return[16]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_same_session_second_transaction_never_reuses_prior_customer_scope[15]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_same_session_second_transaction_never_reuses_prior_customer_scope[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-002-S07
   requirement_id: HGR-002
   scenario_title: Principal scope grant is revoked
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-002-S07
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - isolation-assume-scope-grant-revoked
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_revocation_invalidates_next_transaction_on_same_physical_session[15]
+  - tests/hermes_runtime_contracts/postgres/test_scope_pooling.py::test_revocation_invalidates_next_transaction_on_same_physical_session[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-003-S01
   requirement_id: HGR-003
   scenario_title: Principal acts under an exact active grant
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-003-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-active-exact-operation
+  - approval-valid-quorum
+  - approval-authority-chain-valid
+  - approval-requester-authority-mismatch
+  - approval-policy-drift
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_matching_requester_reviewers_policy_and_quorum_authorize
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_high_level_evidence_gate_validates_authority_once_before_approval
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_matching_two_reviewer_decisions_authorize_exact_target_digest[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_matching_two_reviewer_decisions_authorize_exact_target_digest[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_static_authority_records_are_database_computed_canonical_content[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_static_authority_records_are_database_computed_canonical_content[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_sql_and_python_share_one_canonical_record_digest[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_sql_and_python_share_one_canonical_record_digest[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-003-S02
   requirement_id: HGR-003
   scenario_title: Wrong-layer reviewer attempts approval
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-003-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - approval-reviewer-authority-mismatch
+  - approval-self-asserted-role
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_requester_and_actual_reviewer_authority_are_distinct_and_exact
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_reviewer_selector_uses_closed_principal_identity_not_asserted_role
   result_refs: []
 - scenario_id: HGR-003-S03
   requirement_id: HGR-003
   scenario_title: Grant is revoked during later use
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-003-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-grant-revoked-as-of
+  - approval-reviewer-grant-revoked
+  - isolation-assume-scope-grant-revoked
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_append_only_grant_revocation_invalidates_later_approval_use[grant-request-a-HGR-APPROVAL-REQUESTER-AUTHORITY]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_append_only_grant_revocation_invalidates_later_approval_use[grant-manager-a-HGR-APPROVAL-REVIEWER-AUTHORITY]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_grant_revocation_has_only_two_atomic_outcomes[15]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_grant_revocation_has_only_two_atomic_outcomes[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-003-S04
   requirement_id: HGR-003
   scenario_title: Grant chain is self-issued or cyclic
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-003-S04
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - authority-grant-self-issued
+  - authority-grant-cycle
+  - approval-authority-chain-unreachable
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_unreachable_locally_matching_grant_cannot_pass_high_level_gate
   result_refs: []
 - scenario_id: HGR-003-S05
   requirement_id: HGR-003
   scenario_title: Root trust anchor rotates
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-003-S05
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-anchor-rotation-historical-as-of
+  - authority-anchor-rotation-unauthorized
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_root_grant_must_match_the_exact_anchor_digest[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_root_grant_must_match_the_exact_anchor_digest[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_malformed_anchor_rotation_cannot_activate_a_new_root[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_malformed_anchor_rotation_cannot_activate_a_new_root[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-004-S01
   requirement_id: HGR-004
   scenario_title: Exact active binding authorizes an operation
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-active-exact-operation
+  - authority-operation-evidence-target-drift
+  - trace-cross-layer-valid
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_cross_layer_trace_binds_endpoints_operation_binding_and_grants
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_operation_commits_target_authorization_and_trace_atomically[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_operation_commits_target_authorization_and_trace_atomically[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_binding_creation_and_operation_authority_are_distinct[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_binding_creation_and_operation_authority_are_distinct[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_static_authority_records_are_database_computed_canonical_content[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_static_authority_records_are_database_computed_canonical_content[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-004-S02
   requirement_id: HGR-004
   scenario_title: Binding direction is reversed
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - authority-binding-direction-reversed
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
   result_refs: []
 - scenario_id: HGR-004-S03
   requirement_id: HGR-004
   scenario_title: Transitive authority is attempted
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - authority-binding-transitive-denied
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
   result_refs: []
 - scenario_id: HGR-004-S04
   requirement_id: HGR-004
   scenario_title: Binding is expired or revoked
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S04
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-binding-revoked-as-of
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_binding_revocation_has_only_two_atomic_outcomes[15]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_binding_revocation_has_only_two_atomic_outcomes[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-004-S05
   requirement_id: HGR-004
   scenario_title: Source artifact is swapped under a binding
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S05
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - authority-binding-source-resource-swapped
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_authority_and_bindings.py::test_self_describing_authority_fixture_matrix_has_exact_counts_and_reasons
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_failed_cross_layer_operation_rolls_back_every_authoritative_effect[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_failed_cross_layer_operation_rolls_back_every_authoritative_effect[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-004-S06
   requirement_id: HGR-004
   scenario_title: Revocation races a projection
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-004-S06
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_binding_revocation_has_only_two_atomic_outcomes[15]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_operation_vs_binding_revocation_has_only_two_atomic_outcomes[16]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_grant_and_binding_revocations_share_canonical_deadlock_free_lock_order[15]
+  - tests/hermes_runtime_contracts/postgres/test_authorization_races.py::test_grant_and_binding_revocations_share_canonical_deadlock_free_lock_order[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-005-S01
   requirement_id: HGR-005
   scenario_title: Available artifact is verified
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - artifact-valid
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_body_digest_and_size_are_reverified_at_every_gate[admission]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_admission_derives_digest_size_and_scoped_storage_key[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_admission_derives_digest_size_and_scoped_storage_key[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-005-S02
   requirement_id: HGR-005
   scenario_title: Artifact body or digest drifts
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - artifact-digest-drift
+  - artifact-size-drift
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_body_digest_and_size_are_reverified_at_every_gate[approval]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_size_missing_body_and_storage_key_have_stable_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
   result_refs: []
 - scenario_id: HGR-005-S03
   requirement_id: HGR-005
   scenario_title: Artifact identity is rebound
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - artifact-record-mutation
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_record_and_lifecycle_history_are_append_only
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_approval_and_trace_records_are_immutable_even_to_bootstrap[15-artifact]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_approval_and_trace_records_are_immutable_even_to_bootstrap[16-artifact]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-005-S04
   requirement_id: HGR-005
   scenario_title: Caller supplies a traversing path
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S04
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - artifact-storage-traversal
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_size_missing_body_and_storage_key_have_stable_reasons
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
   result_refs: []
 - scenario_id: HGR-005-S05
   requirement_id: HGR-005
   scenario_title: Artifact body changes after approval
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S05
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - artifact-digest-drift
+  - approval-target-drift
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_body_digest_and_size_are_reverified_at_every_gate[execution]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_policy_and_target_drift_fail_before_aggregation
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_body_is_reverified_after_approval_before_authorization[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_body_is_reverified_after_approval_before_authorization[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-005-S06
   requirement_id: HGR-005
   scenario_title: Another layer probes a shared digest
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-005-S06
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - artifact-cross-layer-probe
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_artifact_anti_oracle_rejects_before_body_lookup_with_one_response
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_artifact_probe_is_indistinguishable_from_missing[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_artifact_probe_is_indistinguishable_from_missing[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S01
   requirement_id: HGR-006
   scenario_title: Matching decision approves an immutable target
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-valid-quorum
+  - approval-authority-chain-valid
+  - approval-policy-drift
+  - approval-requester-authority-mismatch
+  - approval-reviewer-authority-mismatch
+  - approval-reviewer-grant-revoked
+  - approval-self-asserted-role
+  - approval-authority-chain-unreachable
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_matching_requester_reviewers_policy_and_quorum_authorize
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_high_level_evidence_gate_validates_authority_once_before_approval
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_matching_two_reviewer_decisions_authorize_exact_target_digest[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_matching_two_reviewer_decisions_authorize_exact_target_digest[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_approval_storage_can_represent_canonical_selector_policy[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_approval_storage_can_represent_canonical_selector_policy[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S02
   requirement_id: HGR-006
   scenario_title: Target changes after approval
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-target-drift
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_policy_and_target_drift_fail_before_aggregation
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_body_is_reverified_after_approval_before_authorization[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_body_is_reverified_after_approval_before_authorization[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S03
   requirement_id: HGR-006
   scenario_title: Approval is revoked
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-authorized-supersessions
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_authorized_expiry_cancellation_and_revocation_are_non_authorizing[revoked]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_decision_supersession_removes_only_the_exact_decision
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_supersession_requires_exact_active_issuer_authority[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_supersession_requires_exact_active_issuer_authority[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_supersession_storage_and_gate_bind_the_exact_policy_target[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_supersession_storage_and_gate_bind_the_exact_policy_target[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S04
   requirement_id: HGR-006
   scenario_title: Approval record is mutated
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S04
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-record-mutation
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_approval_records_are_wholly_immutable
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_approval_and_trace_records_are_immutable_even_to_bootstrap[15-approval-request]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_artifact_approval_and_trace_records_are_immutable_even_to_bootstrap[16-approval-request]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_decision_is_append_only_after_governed_insert[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_decision_is_append_only_after_governed_insert[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S05
   requirement_id: HGR-006
   scenario_title: Conflicting terminal decisions exist
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S05
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-conflict-contested
+  - approval-conflict-reject-overrides
+  - approval-duplicate-supersession-policy
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_conflicting_terminal_decisions_follow_only_the_pinned_policy[contested-contested-HGR-APPROVAL-CONTESTED]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_conflicting_terminal_decisions_follow_only_the_pinned_policy[reject_overrides-rejected-None]
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_conflicting_terminal_decisions_remain_contested_and_nonauthorizing[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_conflicting_terminal_decisions_remain_contested_and_nonauthorizing[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-006-S06
   requirement_id: HGR-006
   scenario_title: Unauthorized actor supersedes approval
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-006-S06
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - approval-unauthorized-supersession
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_unauthorized_supersession_fails_closed_and_cannot_be_ignored
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_valid_supersession_cannot_hide_a_later_unauthorized_event
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_supersession_requires_exact_active_issuer_authority[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_approval_supersession_requires_exact_active_issuer_authority[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-007-S01
   requirement_id: HGR-007
   scenario_title: Cross-layer projection is traced
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-007-S01
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - trace-cross-layer-valid
+  - trace-same-layer-unrelated-authority
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_cross_layer_trace_binds_endpoints_operation_binding_and_grants
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_same_layer_trace_cannot_claim_unrelated_cross_layer_authority
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_operation_commits_target_authorization_and_trace_atomically[15]
+  - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py::test_cross_layer_operation_commits_target_authorization_and_trace_atomically[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_trace_storage_retains_creator_and_complete_cross_layer_grant_refs[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_trace_storage_retains_creator_and_complete_cross_layer_grant_refs[16]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_sql_and_python_share_one_canonical_record_digest[15]
+  - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py::test_sql_and_python_share_one_canonical_record_digest[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-007-S02
   requirement_id: HGR-007
   scenario_title: Cross-layer edge lacks binding proof
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-007-S02
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - trace-missing-authority
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_cross_layer_trace_without_authority_fails_closed
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
   result_refs: []
 - scenario_id: HGR-007-S03
   requirement_id: HGR-007
   scenario_title: Endpoint digest mismatches
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-007-S03
   planned_owner_task: T050
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - trace-endpoint-digest-mismatch
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_trace_endpoint_digest_drift_is_one_primary_reason
+  - tests/hermes_runtime_contracts/test_artifact_approval_trace.py::test_portable_fixture_matrix_is_self_describing_and_reason_specific
   result_refs: []
 - scenario_id: HGR-008-S01
   requirement_id: HGR-008

@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: isolation-database-binding-revoked
+phase: semantic
+class: invalid
+requirement_ids: [HGR-002]
+scenario_ids: [HGR-002-S04]
+scenario: database_binding_revoked
+operation: validate_database_principal_binding
+mutation: append an authorized database-binding revocation before checkout
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-DATABASE-BINDING-REVOKED

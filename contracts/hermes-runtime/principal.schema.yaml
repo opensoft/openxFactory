@@ -1,0 +1,39 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/principal.schema.yaml
+contract_id: principal
+contract_schema_version: 2
+title: Immutable neutral authority principal
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-principal}
+  principal_id:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  principal_type:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_type
+  scope:
+    $ref: shared-definitions.schema.yaml#/$defs/governed_scope
+  initial_lifecycle_state: {const: provisioning}
+  external_reference:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  created_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - principal_id
+  - record_digest_profile
+  - record_digest
+  - principal_type
+  - scope
+  - initial_lifecycle_state
+  - created_at
+additionalProperties: false

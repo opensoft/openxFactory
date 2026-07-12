@@ -1,0 +1,18 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-unauthorized-supersession
+phase: semantic
+class: invalid
+requirement_ids: [HGR-006]
+scenario_ids: [HGR-006-S06]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-authorized-supersessions
+mutation:
+  path: input.issuer_principal_ref.principal_id
+  from: manager-a
+  to: intruder
+expected:
+  outcome: fail
+  primary_finding_code: HGR-APPROVAL-SUPERSESSION-AUTHORITY
+  allowed_secondary_codes: []

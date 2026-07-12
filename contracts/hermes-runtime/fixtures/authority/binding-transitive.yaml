@@ -1,0 +1,14 @@
+schema_version: 1
+kind: openxfactory-authority-fixture
+case_id: authority-binding-transitive-denied
+phase: semantic
+class: invalid
+requirement_ids: [HGR-004]
+scenario_ids: [HGR-004-S03]
+scenario: binding_transitive
+operation: validate_operation_authorization
+mutation: cite a nonexistent inferred A-to-C binding
+evaluation_time: "2026-07-12T12:30:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-BINDING-REFERENCE

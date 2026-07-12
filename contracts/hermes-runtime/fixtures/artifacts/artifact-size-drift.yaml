@@ -1,0 +1,19 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: artifact-size-drift
+phase: semantic
+class: invalid
+requirement_ids: [HGR-005]
+scenario_ids: [HGR-005-S02]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_artifact_body
+base_case_id: artifact-valid
+mutation:
+  path: input.record.byte_size
+  from: 23
+  to: 24
+  invariant: content-digest-remains-correct
+expected:
+  outcome: fail
+  primary_finding_code: HGR-ARTIFACT-SIZE-MISMATCH
+  allowed_secondary_codes: []

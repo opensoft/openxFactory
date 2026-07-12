@@ -1,0 +1,37 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-authorized-supersessions
+phase: semantic
+class: valid
+requirement_ids: [HGR-006]
+scenario_ids: [HGR-006-S03]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-valid-quorum
+input:
+  event_types: [expired, cancelled, revoked]
+  target_kind: request
+  target_id: approval-request-01
+  target_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  owning_scope:
+    scope_kind: layer
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+  issuer_principal_ref:
+    scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    principal_id: manager-a
+    record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  issuer_grant_ref:
+    installation_id: install-01
+    grant_id: grant-manager-supersede
+    record_digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  effective_at: "2026-07-12T12:00:00Z"
+  expected_authorizes: false
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

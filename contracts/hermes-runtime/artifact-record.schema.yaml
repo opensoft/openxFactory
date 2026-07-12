@@ -1,0 +1,69 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/artifact-record.schema.yaml
+contract_id: artifact-record
+contract_schema_version: 2
+title: Immutable scoped content-addressed artifact record
+description: >-
+  Metadata is admitted only after content is finalized. The complete record is
+  immutable; availability and retirement are represented by append-only
+  artifact lifecycle events.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-artifact-record
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/installation_id
+  stack_id:
+    $ref: shared-definitions.schema.yaml#/$defs/stack_id
+  layer_id:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_id
+  artifact_id:
+    $ref: shared-definitions.schema.yaml#/$defs/resource_id
+  content_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  byte_size:
+    type: integer
+    minimum: 0
+  media_type:
+    type: string
+    minLength: 3
+    maxLength: 255
+    pattern: ^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$
+  producer_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  producer_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  storage_key:
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: ^[a-z0-9](?:[a-z0-9._:-]{0,126}[a-z0-9])?/[a-z0-9](?:[a-z0-9._:-]{0,126}[a-z0-9])?/sha256/[0-9a-f]{64}$
+  created_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  job_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  run_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- installation_id
+- stack_id
+- layer_id
+- artifact_id
+- content_digest
+- byte_size
+- media_type
+- producer_principal_ref
+- producer_grant_ref
+- storage_key
+- created_at
+dependentRequired:
+  run_id: [job_id]
+additionalProperties: false

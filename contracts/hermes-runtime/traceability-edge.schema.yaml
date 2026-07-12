@@ -1,0 +1,84 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/traceability-edge.schema.yaml
+contract_id: traceability-edge
+contract_schema_version: 2
+title: Immutable digest and authority bound traceability edge
+description: >-
+  Trace edges are append-only evidence, never grants. Cross-layer edges bind
+  an exact operation authorization, binding, and grant set; same-layer edges
+  cannot claim unrelated cross-layer authority.
+type: object
+$defs:
+  layer_content_resource_reference:
+    allOf:
+    - $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+    - required: [stack_id, layer_id]
+  operation_authorization_ref:
+    type: object
+    properties:
+      installation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/installation_id
+      operation_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      record_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/record_digest
+    required: [installation_id, operation_id, record_digest]
+    additionalProperties: false
+  cross_layer_authority:
+    type: object
+    properties:
+      operation_authorization_ref:
+        $ref: '#/$defs/operation_authorization_ref'
+      binding_ref:
+        $ref: shared-definitions.schema.yaml#/$defs/cross_layer_binding_reference
+      grant_refs:
+        type: array
+        minItems: 1
+        maxItems: 64
+        uniqueItems: true
+        items:
+          $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+    required: [operation_authorization_ref, binding_ref, grant_refs]
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-traceability-edge
+  edge_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  edge_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  owning_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  relation:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  source:
+    $ref: '#/$defs/layer_content_resource_reference'
+  target:
+    $ref: '#/$defs/layer_content_resource_reference'
+  creator_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  creator_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  cross_layer_authority:
+    $ref: '#/$defs/cross_layer_authority'
+  created_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- edge_id
+- edge_digest
+- owning_scope
+- relation
+- source
+- target
+- creator_principal_ref
+- creator_grant_ref
+- created_at
+additionalProperties: false

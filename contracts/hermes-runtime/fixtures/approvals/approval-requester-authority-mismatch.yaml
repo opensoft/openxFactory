@@ -1,0 +1,18 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-requester-authority-mismatch
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003, HGR-006]
+scenario_ids: [HGR-003-S01, HGR-006-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-valid-quorum
+mutation:
+  path: input.request.requester_principal_ref.principal_id
+  from: requester-a
+  to: another-requester
+expected:
+  outcome: fail
+  primary_finding_code: HGR-APPROVAL-REQUESTER-AUTHORITY
+  allowed_secondary_codes: []

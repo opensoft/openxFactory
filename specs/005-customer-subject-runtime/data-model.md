@@ -228,7 +228,7 @@ Immutable scope/action/resource authority link.
 | `trust_anchor_ref` | root only | Active as-of anchor; root has no issuer grant |
 | `issuer_grant_ref` | delegated only | Must authorize `issue_grant` |
 | `scope` | yes | Installation/stack/layer or explicit admin scope |
-| `action` | yes | One G0 action: `assume_scope`, `issue_grant`, `revoke_grant`, `rotate_trust_anchor`, `revoke_trust_anchor`, `create_binding`, `revoke_binding`, `accept_cross_layer`, `project_resource`, `create_artifact`, `decide_approval`, `supersede_approval`, `transition_lifecycle`, `run_migration`, or `publish_contract` |
+| `action` | yes | One G0 action: `assume_scope`, `issue_grant`, `revoke_grant`, `rotate_trust_anchor`, `revoke_trust_anchor`, `create_binding`, `revoke_binding`, `accept_cross_layer`, `project_resource`, `create_artifact`, `request_approval`, `decide_approval`, `supersede_approval`, `transition_lifecycle`, `run_migration`, or `publish_contract` |
 | `resource_constraint` | yes | Exact type/ID and digest where content-bearing |
 | `policy_ref`, `policy_digest` | yes | Immutable governing policy |
 | `starts_at`, `expires_at` | yes | Database-derived evaluation |
@@ -261,7 +261,12 @@ Immutable policy defining reviewer selectors, required counts/roles, aggregation
 
 ### ApprovalRequest
 
-Immutable target/action request containing exact target type/ID/digest/scope, requester principal/grant, reviewer selector, decision-policy pin, authority scope, created/expiry time.
+Immutable target/action request containing exact target type/ID/digest/scope,
+requester principal plus an active exact `request_approval` grant, reviewer
+selector, decision-policy pin, authority scope, and created/expiry time.
+Reviewer and supersession selectors may name only exact principal IDs,
+principal types, or group-principal IDs; self-asserted/free-text roles are not
+authority.
 
 ### ApprovalDecision
 
@@ -291,21 +296,33 @@ Append-only event bound to exact job/run scope, monotonic sequence, actor princi
 
 ## Migration
 
-### MigrationMapping
+### MigrationMappingPayload
 
-Typed, content-addressed, authority-approved cutover input.
+Detached, typed expected-content input. Fields include installation and migration IDs, source DB/schema identity, the exact twelve-table v1 catalog profile, expected per-table counts and dataset digest, legacy subject-to-layer mappings, explicit group/profile/worker layer or installation-admin mappings, single-default proof where applicable, target topology identity, migration policy, and exact binary digest-profile version. `mapping_payload_digest` covers only this closed payload.
 
-Fields include migration ID, source DB/schema identity, fixed v1 table definitions, snapshot/WAL identity, row-count/dataset-digest evidence, legacy subject-to-layer mappings, explicit group/profile/worker admin mappings, single-default proof where applicable, target topology pin, mapping digest, approver grant/policy digest, and deterministic digest-profile version.
+Profile `xfactory-v1-dataset-binary-v1` begins `XFV1DS || 00 01`; frames are `tag:u8 || length:u64be || payload`; structural tags are `10` through `17`, `20`, and `21`, and value tags null/text/integer/boolean/timestamp/binary/JSON are `30` through `36`. It fixes UTF-8 without Unicode normalization, raw UTF-8 schema/table order, framed-primary-key row order independent of collation, schema-ordinal columns, the exact typed encodings and canonical JSON rules in the ratified governed-record requirement, complete table metadata/count frames, and SHA-256 over the magic plus complete ordered table stream.
 
-### MigrationAttempt / MigrationAttemptEvent
+### MigrationAuthorityEnvelope
 
-Append-only attempt identity and lifecycle events. The latest-event graph is `started -> succeeded|failed|abandoned`, `failed|abandoned -> started` for identical retry, and `succeeded` terminal. A transaction advisory lock derived from `(migration_id, source_snapshot, mapping_digest)` is acquired before state evaluation, so concurrent identical retries yield one executor and one convergent observer. Unique tuple identity makes exact retry converge; changed snapshot/map fails. Success records input/output counts/digests and target contract identity.
+Detached authority over one mapping payload. Fields include payload ID/digest, approver principal, exact active `run_migration` grant/digest, installation scope, policy reference/digest, trust-anchor reference/digest, approval time, and `authority_envelope_digest`. The grant resource is exactly `migration_mapping`, migration ID, and payload digest, so the payload never includes the digest that approves it.
+
+### MigrationLogicalBoundary / PhysicalCutoverObservation
+
+The logical boundary is content-derived under the fixed v1 locks from source identity, catalog digest, per-table counts, and dataset digest; it must equal the approved payload. Each physical cutover observation separately records the actual transaction snapshot, WAL position, database-derived time, active authority, payload/envelope/logical-boundary digests, target contract identity, and reconciliation digest. A post-rollback retry may have another physical observation only when its logical boundary is identical.
+
+### MigrationAttempt / MigrationAttemptEvent / Reconciliation
+
+Append-only attempt identity and lifecycle events. The latest-event graph is `started -> succeeded|failed|abandoned`, `failed|abandoned -> started` for identical retry, and `succeeded` terminal. One session advisory lock derived from `(installation_id, migration_id)` is held across state evaluation plus the separate attempt, authoritative, and failure/recovery transactions, so concurrent identical retries yield one executor and one convergent observer. Retry identity is `(installation_id, migration_id, mapping_payload_digest, logical_boundary_id)`; changed payload, authority envelope, logical boundary, or reconciliation fails. Success records all twelve v1 per-table input counts/digests, compatibility-history and quarantine counts, target contract identity, durable v1 write-freeze identity, and one exactly-once classification for every source row/ID.
+
+### LegacyCompatibilityHistory
+
+Immutable, scoped, explicitly non-authorizing preservation for v1 jobs, runs, events, workers, groups, profiles, group memberships, and GitHub-team mappings. Each record carries migration ID, source schema/table, canonical source PK, source-row digest, canonical raw row, mapped layer or installation-administration scope, and capture time. It cannot admit an executable v2 job, grant authority, or satisfy a v2 approval gate.
 
 ### LegacyQuarantineRecord
 
 Non-authoritative preserved source evidence.
 
-Fields: migration ID, source schema/table, canonical source PK, source-row digest, closed reason code, raw-row JSON, captured time. Quarantine has no runtime/control USAGE, no outward authoritative FK/view, and no in-place promotion.
+Fields: migration ID, source schema/table, canonical source PK, source-row digest, closed reason code, raw-row JSON, and database-derived captured time. Only unverifiable v1 artifact, approval-request, approval, and trace rows may enter it. Quarantine has no runtime/control/audit direct access, no outward authoritative FK/view/materialized-view/function/gate dependency, and no in-place promotion; a DDL guard rejects such dependencies.
 
 ## Contract And Release Evidence
 

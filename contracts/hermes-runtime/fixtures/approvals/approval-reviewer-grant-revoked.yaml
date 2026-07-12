@@ -1,0 +1,20 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-reviewer-grant-revoked
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003, HGR-006]
+scenario_ids: [HGR-003-S03, HGR-006-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-valid-quorum
+authority_case_id: authority-grant-revoked
+mutation:
+  path: input.authority_document.grant_revocations
+  operation: append-authorized-revocation
+  grant_id: grant-manager-a
+  effective_at: "2026-07-12T12:00:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-APPROVAL-REVIEWER-AUTHORITY
+  allowed_secondary_codes: []

@@ -1,0 +1,46 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/authority-grant-revocation.schema.yaml
+contract_id: authority-grant-revocation
+contract_schema_version: 2
+title: Append-only authority grant revocation
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-authority-grant-revocation}
+  revocation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  installation_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  issuer_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  issuer_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  effective_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  reason:
+    type: string
+    minLength: 1
+    maxLength: 1024
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - revocation_id
+  - record_digest_profile
+  - record_digest
+  - installation_id
+  - grant_ref
+  - issuer_principal_ref
+  - issuer_grant_ref
+  - effective_at
+  - reason
+additionalProperties: false

@@ -1,0 +1,21 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-authority-chain-unreachable
+phase: semantic
+class: invalid
+requirement_ids: [HGR-003, HGR-006]
+scenario_ids: [HGR-003-S04, HGR-006-S01]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: validate_evidence_document
+base_case_id: approval-authority-chain-valid
+mutation:
+  path: document.authority_document.authority_grants[3].issuer_grant_ref
+  from: grant-root-issue
+  to: unreachable-issuer
+  reseal_record_digest: true
+  rebind_decision_grant_digest: true
+  invariant: local-principal-scope-action-resource-and-time-still-match
+expected:
+  outcome: fail
+  primary_finding_code: HGR-GRANT-REFERENCE
+  allowed_secondary_codes: []

@@ -1,0 +1,47 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/database-principal-binding.schema.yaml
+contract_id: database-principal-binding
+contract_schema_version: 2
+title: Immutable authenticated database principal binding
+type: object
+properties:
+  schema_version: {const: 1}
+  kind: {const: openxfactory-database-principal-binding}
+  binding_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  record_digest_profile:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest_profile
+  record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/record_digest
+  scope:
+    $ref: shared-definitions.schema.yaml#/$defs/governed_scope
+  session_user:
+    type: string
+    minLength: 1
+    maxLength: 63
+    pattern: ^[a-z_][a-z0-9_.-]{0,62}$
+  role_class:
+    $ref: shared-definitions.schema.yaml#/$defs/database_role_class
+  principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  creator_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  bound_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+  - schema_version
+  - kind
+  - binding_id
+  - record_digest_profile
+  - record_digest
+  - scope
+  - session_user
+  - role_class
+  - principal_ref
+  - creator_grant_ref
+  - bound_at
+additionalProperties: false

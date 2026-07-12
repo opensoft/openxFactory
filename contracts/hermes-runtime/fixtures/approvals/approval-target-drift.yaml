@@ -1,0 +1,18 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: approval-target-drift
+phase: semantic
+class: invalid
+requirement_ids: [HGR-005, HGR-006]
+scenario_ids: [HGR-005-S05, HGR-006-S02]
+evaluation_time: "2026-07-12T12:00:00Z"
+operation: evaluate_approval
+base_case_id: approval-valid-quorum
+mutation:
+  path: input.target.digest
+  from: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  to: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+expected:
+  outcome: fail
+  primary_finding_code: HGR-APPROVAL-TARGET-DRIFT
+  allowed_secondary_codes: []
