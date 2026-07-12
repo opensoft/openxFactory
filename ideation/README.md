@@ -105,13 +105,14 @@ proposal):
   [add-release-realization-flow](../openspec/changes/archive/2026-07-09-add-release-realization-flow/proposal.md)
   change: release targets, delta-driven feat decomposition, and the archive
   gate binding to merge evidence.
+- [Ideation Cross-Reference Readiness Index](brainstorm/ideation-cross-reference-readiness.md)
+  — organized into the ideation-cross-reference-readiness staged topic after
+  all seven open questions were decided on 2026-07-12; kept as design history
+  with the decisions inline.
 
 Brainstorm (active):
 
-- [Ideation Cross-Reference Readiness Index](brainstorm/ideation-cross-reference-readiness.md)
-  — topic-indexed cross-reference across brainstorm/staging/archive, scored
-  1-10 for staging readiness by three Hermes-tier reviewers; open questions on
-  the project-layer definition and score-combination rule remain unresolved.
+- none currently.
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a

@@ -1,6 +1,6 @@
 # Ideation Cross-Reference Readiness Index — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Proposes a topic/tag-indexed cross-reference file spanning
 brainstorm, staging, and archived material, scored 1-10 for staging readiness
@@ -10,6 +10,11 @@ action — to open an OpenSpec proposal.
 Topics: ideation-cross-reference, readiness-scoring, hermes-review-panel, extension-fit, staging-readiness
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
+Organized: 2026-07-12 into the
+[ideation-cross-reference-readiness](../staging/ideation-cross-reference-readiness/ideation-cross-reference-readiness.md)
+staged topic (staged) after Brett decided all seven open questions; decisions
+are recorded inline below and in the staged doc's Decision Record. Kept as
+design history. Nothing in this document is policy.
 Participants: Brett Heap, Claude (design session)
 
 ## Problem
@@ -105,29 +110,46 @@ something to merge or rewrite.
 
 ## Open questions
 
+All seven decided by Brett on 2026-07-12; kept with their decisions as design
+history.
+
 - **Project-layer definition**: an engineering-buildability lens (could
   codexFactory's `feature-decomposition` turn this into a Spec Kit feature
   DAG), the xFactory aggregation-repo composition/pinning/release-assembly
   lens, or something else entirely?
+  **Decided:** engineering-buildability lens; aggregation/composition
+  concerns stay with the company tier.
 - **Score-combination rule**: is "minimum of the three >= 8" the right gate,
   or should scores combine differently (average, majority, all-must-agree-
   within-N-points)?
+  **Decided:** minimum of the three >= 8, as designed; the spread-conflict
+  flag applies regardless.
 - **Index placement**: a peer file `ideation/brainstorm/INDEX.md` alongside
   `ideation/staging/INDEX.md`, or one unified index spanning both stages with
   a stage column?
+  **Decided:** one unified cross-stage file at the `ideation/` level with a
+  stage column; `staging/INDEX.md` remains the separate staged-file
+  inventory.
 - **Re-run trigger**: scheduled nightly like doc-health, or on every new or
   materially-changed brainstorm commit like the ideation-organizer's
   selection rule?
+  **Decided:** nightly, as a new doc-health pipeline lane.
 - **Tag source of truth**: bootstrap from the `Topics:`/`Target capabilities:`
   header fields already in place today, with `document-cataloging` tags
   folded in once that capability lands, or wait for the catalog first?
+  **Decided:** bootstrap from the header fields now; fold in catalog tags
+  when `document-cataloging` lands.
 - **Per-tier rationale format**: the same full evidence contract shape as the
   existing organizer/cataloger (source revision, passage hash, confidence,
   alternatives, `pending_review`), or a lighter-weight version scoped to this
   index?
+  **Decided:** the full existing evidence contract — reuse, not a second
+  divergent format.
 - **Extension-fit citation strictness**: must a fit note name a specific
   promoted spec/capability, or is a pointer to the archived change folder
   sufficient?
+  **Decided:** must name the specific promoted spec/capability; an
+  archive-folder pointer alone is a doc-health finding.
 
 ## Exit
 

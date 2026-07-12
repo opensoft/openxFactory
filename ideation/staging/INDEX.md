@@ -29,6 +29,7 @@ Update this index in the same commit as any of:
 | --- | --- | --- | --- |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
+| [ideation-cross-reference-readiness](#ideation-cross-reference-readiness) | ADDED `ideation-cross-reference`; MODIFIED `doc-health` (nightly readiness lane) | 1 | Ready to propose — recommended ID `add-ideation-cross-reference-readiness` |
 | [proposal-origin-contract](#proposal-origin-contract) | MODIFIED `document-lifecycle`; MODIFIED `doc-health`; MODIFIED `release-realization` | 2 | Ready to propose — recommended ID `add-proposal-origin-contract` |
 
 ## client-infrastructure-liaison
@@ -76,6 +77,27 @@ Update this index in the same commit as any of:
 - Exit: two OpenSpec changes once the open questions are settled — do not
   propose yet. (1) neutral: extend `roles-authority-model` with GitHub App
   identity tiers; (2) OpsxFactory: a new `github-administration` capability.
+
+## ideation-cross-reference-readiness
+
+- Staging ID: `openxFactory:staging:ideation-cross-reference-readiness`
+- Source: [brainstorm](../brainstorm/ideation-cross-reference-readiness.md)
+  design session 2026-07-12; all seven open questions decided by Brett
+  2026-07-12.
+- Claim: a unified cross-stage topic index (`ideation/`-level, stage column)
+  clustering brainstorm/staging/archive material by `Topics:`/`Target
+  capabilities:` tags, scored 1-10 by three Hermes-tier reviewers
+  (engineering-buildability, company/openxFactory, domain) with the full
+  organizer/cataloger evidence contract; minimum score >= 8 flags "propose
+  for authorization" as a recommendation only, run as a nightly doc-health
+  lane, non-mutating over source docs.
+- Files:
+  - [ideation-cross-reference-readiness.md](ideation-cross-reference-readiness/ideation-cross-reference-readiness.md) — primary: problem, decided contract, decision record, required deltas/tests, exit.
+- Exit: create `add-ideation-cross-reference-readiness` (openxFactory contract
+  change paired with a codexFactory worker delta, the ideation-routing /
+  document-cataloging two-repo split pattern); at the proposal gate move this
+  folder's file into that change's `supporting-docs/`, preserving the staging
+  origin.
 
 ## proposal-origin-contract
 
