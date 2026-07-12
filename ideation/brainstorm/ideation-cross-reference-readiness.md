@@ -14,7 +14,7 @@ Organized: 2026-07-12 into the ideation-cross-reference-readiness staged
 topic after Brett decided all seven open questions, and promoted the same day
 into
 [add-ideation-cross-reference-readiness](../../openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
-(proposed); decisions are recorded inline below and in that change's
+(ratified 2026-07-12, active); decisions are recorded inline below and in that change's
 supporting Decision Record. Kept as design history. Nothing in this document
 is policy.
 Participants: Brett Heap, Claude (design session)

@@ -170,20 +170,20 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [exclude-worktrees-from-notebook-projection](openspec/changes/exclude-worktrees-from-notebook-projection/proposal.md)
-  — ad-hoc-origin defect fix adding the corpus scan scope requirement to the
-  notebook projection (nested worktree checkouts must never project);
-  codexFactory scan fix and tests implemented, backlog reconciliation pending
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
   durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate
   rejections, archive retention, history migration, and the fifteenth
-  deterministic doc-health family; implementation follows ideation routing
+  deterministic doc-health family (code surface: codexFactory; ratified
+  2026-07-12 — admitted intent, active until realization evidence lands;
+  implementation follows ideation routing)
 - [add-ideation-cross-reference-readiness](openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
   — staged-origin proposal for the unified cross-stage ideation topic index,
   three-tier Hermes readiness panel (min >= 8 recommendation gate), and the
   nightly ideation-readiness doc-health lane; deltas declared relative to the
-  proposal-origin change's outcome
+  proposal-origin change's outcome (code surface: openxFactory, codexFactory,
+  xFactory, omnigent-install; ratified 2026-07-12 — admitted intent, active
+  until realization evidence lands)
 - [add-document-cataloging](openspec/changes/add-document-cataloging/proposal.md)
   — external governed-document catalog, controlled discovery taxonomy,
   immutable snapshots, thirteenth deterministic doc-health family, and bounded
