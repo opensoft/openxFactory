@@ -197,12 +197,6 @@ Active changes:
 - [align-avatar-first-ui-standard](openspec/changes/align-avatar-first-ui-standard/proposal.md)
   — avatar-first standard, domain profile carrier, template, examples, and
   offline validator; Flutter implementation remains a successor
-- [define-human-escalation-contract](openspec/changes/define-human-escalation-contract/proposal.md)
-  — route/park/interrupt escalation ladder with a deliberately high interrupt
-  bar (containment failure only, cited classes), parked-decision packets at
-  existing gates, fail-closed silence, and the Merge Master low-risk
-  envelope; resolves the dangling `HR` consultation in the engineering
-  escalation table
 
 The four avatar-client changes use disjoint implementation surfaces and may be
 implemented in parallel; shared contract release metadata is serialized only
@@ -214,6 +208,13 @@ implementation, live provider qualification, and pilot hardening remain in
 
 Archived changes:
 
+- [define-human-escalation-contract](openspec/changes/archive/2026-07-12-define-human-escalation-contract/proposal.md)
+  — route/park/interrupt escalation ladder with a deliberately high interrupt
+  bar (containment failure only, cited classes), parked-decision packets at
+  existing gates, fail-closed silence, the Merge Master low-risk envelope,
+  and structural parking in external enforcement; ratified 2026-07-12,
+  archived on landing (`code_surface: none`); resolves the dangling `HR`
+  consultation in the engineering escalation table
 - [add-proposal-supporting-doc-lifecycle](openspec/changes/archive/2026-07-09-add-proposal-supporting-doc-lifecycle/proposal.md)
   — proposal-owned supporting documents, deterministic archive bundles, and
   proposal-stage NotebookLM returns (ratified and realized 2026-07-09)
