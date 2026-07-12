@@ -145,11 +145,16 @@ class HttpBroker:  # pragma: no cover - live path, exercised only with a lab key
             raise IdempotencyConflict("idempotency_conflict")
 
         url = f"{self._base_url}/v1/realtime/calls"
-        async with httpx.AsyncClient(timeout=self._timeout_s) as client:
-            resp = await client.post(
-                url, headers=self._headers(),
-                files={"sdp": (None, offer_sdp), "session": (None, json.dumps(session_config))},
-            )
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout_s) as client:
+                resp = await client.post(
+                    url, headers=self._headers(),
+                    files={"sdp": (None, offer_sdp), "session": (None, json.dumps(session_config))},
+                )
+        except httpx.HTTPError:
+            # Connect/read/timeout — a transport failure, not a fabricated result. status=0
+            # carries NO response text (which could hold SDP/provider detail). → INCONCLUSIVE.
+            raise BrokerHttpError(0, "create")
         if resp.status_code not in (200, 201):
             # Do NOT include resp.text (may carry SDP/provider detail). API-shape → INCONCLUSIVE.
             raise BrokerHttpError(resp.status_code, "create")

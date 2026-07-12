@@ -130,7 +130,7 @@
     "prohibited_findings": 0,
     "status": "PASS"
   },
-  "report_sha256": "fdf87553eefa31a7a35182ee1b9d11db61826c50fbdb415cf2028382ccd8e38d",
+  "report_sha256": "1b2dab5b357228a10ff3c858b66bb24767ac80e58617958c06135b8f97fdb417",
   "started_at": "2026-07-11T00:00:00Z",
   "trial_groups": [
     {

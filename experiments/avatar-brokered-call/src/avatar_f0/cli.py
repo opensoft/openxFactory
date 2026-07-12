@@ -16,7 +16,7 @@ from typing import List, Optional
 from . import __version__
 from .acceptance_map import AcceptanceMapError, load_acceptance_map
 from .config import PreflightError, RunConfig, VALID_GROUPS, validate_preflight
-from .credential import ENV_VAR, has_credential, reject_if_in_arguments
+from .credential import ENV_VAR, has_credential, load_credential, reject_if_in_arguments
 from .evidence import (RedactionFailure, WritePathError, build_interface_impact,
                        finalize_record, write_evidence)
 from .redaction import scan_log
@@ -160,12 +160,24 @@ def cmd_run(args, argv: List[str]) -> int:
 
     if key_present and live_requested:
         # Supervised live run: drive the REAL provider matrix (billed). Any provider/network
-        # failure surfaces as INCONCLUSIVE (never a fabricated PASS); evidence is re-scanned
-        # before writing and fails closed on any finding.
-        record_body, report_md = _run_live(root, cfg)
-        reason = "live_run"
+        # failure surfaces as INCONCLUSIVE (never a fabricated PASS). A raw traceback could
+        # carry SDP/provider text, so any escaping error is redacted and degraded to a
+        # terminal INCONCLUSIVE record here (FR-017 / FR-004) — never printed verbatim.
+        try:
+            record_body, report_md = _run_live(root, cfg)
+            reason = "live_run"
+        except Exception as exc:
+            print(f"live-run-error: {_redacted(str(exc))}", file=sys.stderr)
+            reason = "offline_inconclusive"
+            record_body = build_inconclusive_record(
+                started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
+                lab_project_ref=cfg.lab_project_ref,
+                dependency_versions=_dependency_versions(root), reason=reason)
+            report_md = inconclusive_report_md(reason, acr_note)
     else:
-        reason = "no_lab_credential" if not key_present else "live_not_requested"
+        # Offline INCONCLUSIVE. The persisted artifact is reason-invariant (byte-identical
+        # whether or not a key is present); key presence only affects the stderr note.
+        reason = "offline_inconclusive"
         record_body = build_inconclusive_record(
             started_at=RUN_TIMESTAMP, completed_at=RUN_TIMESTAMP,
             lab_project_ref=cfg.lab_project_ref,

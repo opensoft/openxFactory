@@ -119,6 +119,20 @@ class AiortcMediaPeer:  # pragma: no cover - live path, exercised only with a la
         except Exception:
             return False
 
+    def arm_terminal(self) -> None:
+        """Reset terminal watching so a transient earlier ICE blip cannot pre-latch it.
+
+        Called at revocation, so ``wait_terminal`` only reports a transition observed AFTER
+        the hangup was requested — never a stale terminal state from during the handshake.
+        """
+        import asyncio
+
+        if not self._terminal.is_set():
+            return
+        # Recreate the event; the connectionstatechange handler resolves self._terminal
+        # dynamically, so a fresh event only fires on the NEXT terminal transition.
+        self._terminal = asyncio.Event()
+
     async def wait_terminal(self, timeout_s: float) -> bool:
         import asyncio
 

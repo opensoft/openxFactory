@@ -86,6 +86,9 @@ class FakeMedia:
     async def wait_first_output(self, timeout_s):
         return True
 
+    def arm_terminal(self):
+        pass
+
     async def wait_terminal(self, timeout_s):
         return True
 
@@ -167,3 +170,70 @@ def test_unauthorized_answer_apply_is_rejected():
     media = FakeMedia()
     with pytest.raises(MediaGateError):
         asyncio.run(media.apply_answer("v=0", authorized=False))
+
+
+def test_transport_exception_is_inconclusive_and_leaks_no_text():
+    # A raw transport/library error (which may carry SDP) must degrade to INCONCLUSIVE and
+    # its message must never reach the evidence — only a bounded reason code survives.
+    class ThrowBroker(FakeBroker):
+        async def create_call(self, *a, **k):
+            raise ConnectionError("boom while parsing v=0 SECRET-SDP-FRAGMENT")
+
+    rec = _run(make_env(broker=lambda: ThrowBroker()), groups=["F0-A"])
+    assert rec["overall"] == "INCONCLUSIVE"
+    assert all(t["status"] == "INCONCLUSIVE" for t in rec["trials"])
+    assert "SECRET-SDP-FRAGMENT" not in json.dumps(rec)
+
+
+def test_f0d_stale_terminal_latch_does_not_false_pass():
+    # A terminal state latched during the handshake (transient ICE blip) must NOT satisfy
+    # the post-hangup revocation bound: arm_terminal() clears it, and with no NEW terminal
+    # signal F0-D is INCONCLUSIVE (never a false PASS).
+    class StaleLatchMedia(FakeMedia):
+        def __init__(self):
+            super().__init__()
+            self._stale = True
+
+        def arm_terminal(self):
+            self._stale = False          # arming clears the stale pre-hangup latch
+
+        async def wait_terminal(self, timeout_s):
+            return self._stale           # no new terminal after arming → False
+
+    rec = _run(make_env(media=lambda: StaleLatchMedia()), groups=["F0-D"])
+    assert rec["overall"] == "INCONCLUSIVE"
+    d = next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
+    assert d["passed"] == 0
+
+
+def test_cli_live_wiring_runs_with_fakes_no_nameerror(monkeypatch):
+    # Exercises the CLI --live path end to end with stubbed components (proves load_credential
+    # is wired and _run_live does not NameError). Evidence write is stubbed so the committed
+    # artifact is untouched.
+    import avatar_f0.cli as cli
+    import avatar_f0.live_runner as lr
+    from avatar_f0.credential import ENV_VAR
+
+    monkeypatch.setenv(ENV_VAR, "sk-FAKELABKEY000000000000000000000000")
+    monkeypatch.setattr(lr, "real_live_components", lambda key, pcm16: LiveComponents(
+        make_broker=lambda: FakeBroker(), make_sideband=lambda cid: FakeSideband(cid),
+        make_media=lambda: FakeMedia(), make_track=lambda: object()))
+    captured = {}
+    monkeypatch.setattr(cli, "write_evidence",
+                        lambda record, report, ii, root: captured.update(record=record) or
+                        {"results": "/tmp/f0-results.json"})
+    argv = ["run", "--live", "--groups", "F0-A"]
+    rc = cli.cmd_run(cli.build_parser().parse_args(argv), argv)
+    assert rc == 0
+    # A partial run (only F0-A) can never be a full PASS — the other five groups are
+    # un-run/incomplete, so a schema-valid INCONCLUSIVE record is written (no NameError).
+    assert captured["record"]["overall"] == "INCONCLUSIVE"
+
+
+def test_offline_report_is_reason_invariant():
+    # Byte-identical guarantee: the persisted offline report does not vary with the reason
+    # (so a run with a key but no --live writes the same bytes as a no-key run).
+    from avatar_f0.run import inconclusive_report_md
+    assert inconclusive_report_md("no_lab_credential", "note") == \
+        inconclusive_report_md("live_not_requested", "note") == \
+        inconclusive_report_md("offline_inconclusive", "note")
