@@ -112,12 +112,43 @@ def collect_test_nodes(root: Path = ROOT) -> set[str]:
     return nodes
 
 
+def collect_skipped_nodes(root: Path = ROOT) -> set[str]:
+    """Runtime-skipped required tests must FAIL conformance (FR-034/SC-001).
+
+    ``--collect-only`` cannot see ``@pytest.mark.skip`` (skips resolve at call
+    time), so we actually run the suite once (deterministic order, no tracebacks)
+    and parse the verbose ``... SKIPPED`` lines for their node ids.
+    """
+    proc = subprocess.run(
+        [
+            sys.executable, "-m", "pytest", str(root / "tests" / "avatar_runtime"),
+            "-v", "-rs", "--tb=no", "-p", "no:randomly", "--color=no",
+        ],
+        capture_output=True, text=True, cwd=str(root),
+    )
+    skipped: set[str] = set()
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("tests/") and " SKIPPED" in line:
+            node = line.split(" SKIPPED", 1)[0].strip()
+            skipped.add(node)
+            skipped.add(node.split("[", 1)[0])
+    return skipped
+
+
 def main(argv: list[str]) -> int:
     final = "--final" in argv
-    required = acceptance_source.required_scenarios(final=final)
+    try:
+        required = acceptance_source.required_scenarios(final=final)
+    except FileNotFoundError:
+        # --final before realization: the released acceptance map does not exist
+        # yet. Report a controlled failure instead of a raw traceback (SC pre-release).
+        print("FAIL: released acceptance map not present; realization not yet available")
+        return 2
     entries = load_entries()
     collected = collect_test_nodes()
-    failures = check(required, entries, collected)
+    skipped = collect_skipped_nodes()
+    failures = check(required, entries, collected, skipped=skipped)
 
     total = sum(len(v) for v in failures.values())
     print(f"conformance: {len(required)} required scenarios, {len(entries)} map entries, "

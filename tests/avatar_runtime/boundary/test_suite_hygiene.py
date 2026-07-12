@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from boundary.scanner import scan_test_hygiene
+from boundary.scanner import scan_hygiene_source, scan_test_hygiene
 
 TESTS_DIR = Path(__file__).resolve().parents[1]  # tests/avatar_runtime/
 
@@ -17,17 +17,21 @@ def test_behavioral_tests_are_hermetic():
 
 
 def test_hygiene_scanner_flags_forbidden_usage():
-    # Negative control: prove the scanner detects a forbidden pattern.
-    from boundary import scanner
+    # Negative control: prove the scanner detects a forbidden import.
+    v = scan_hygiene_source("import random\nx = random.random()\n", "x.py")
+    assert any(x.kind == "test-hygiene" for x in v)
 
-    import ast as _ast
 
-    tree = _ast.parse("import random\nx = random.random()\n")
-    # scan a synthetic file by writing/inspecting nodes directly:
-    found = []
-    for node in _ast.walk(tree):
-        if isinstance(node, _ast.Import) and any(
-            scanner._top(a.name) in scanner.HYGIENE_IMPORTS for a in node.names
-        ):
-            found.append("random")
-    assert "random" in found
+def test_hygiene_scanner_flags_wall_clock_idioms():
+    # Negative control: every wall-clock idiom the scanner learned must be caught.
+    cases = [
+        "import datetime\nx = datetime.datetime.now()\n",  # Attribute base is Attribute
+        "import datetime\nx = datetime.now()\n",
+        "import time\nx = time.monotonic()\n",
+        "import time\nx = time.perf_counter()\n",
+        "import time\nx = time.time()\n",
+        "from time import time\nx = time()\n",  # bare Name call
+    ]
+    for src in cases:
+        v = scan_hygiene_source(src, "x.py")
+        assert any(x.kind == "test-hygiene" for x in v), f"missed idiom:\n{src}"

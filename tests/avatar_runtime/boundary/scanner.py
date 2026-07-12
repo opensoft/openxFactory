@@ -22,6 +22,9 @@ FORBIDDEN_STDLIB = frozenset(
         "wsgiref", "xmlrpc", "cgi", "cgitb",
         "sqlite3", "dbm", "shelve", "pickle", "shove",
         "subprocess", "multiprocessing",
+        # Filesystem persistence surfaces: a reference package holds no state on
+        # disk, so directory/temp/file-tree modules are forbidden (FR-001, SC-009).
+        "pathlib", "tempfile", "shutil",
     }
 )
 
@@ -43,6 +46,12 @@ FORBIDDEN_CALL_ATTRS = frozenset(
     }
 )
 
+# Attribute call surfaces that write to disk (file persistence, FR-001/SC-009).
+FILE_WRITE_ATTRS = frozenset({"write_text", "write_bytes", "mkdir", "makedirs"})
+# File-mode strings are drawn from this alphabet; any of these chars means write.
+_MODE_ALPHABET = frozenset("rwxabt+U")
+_WRITE_MODE_CHARS = frozenset("wax+")
+
 PROVISIONAL_TOKENS = ("provisional",)
 STDLIB = set(sys.stdlib_module_names)
 
@@ -61,6 +70,24 @@ def _top(name: str) -> str:
     return (name or "").split(".")[0]
 
 
+def _has_write_mode(call: ast.Call) -> bool:
+    """True if an ``open``/``Path.open`` call requests a write mode.
+
+    Inspects positional string args and a ``mode=`` keyword; a value is a file
+    mode iff every char is in the mode alphabet, and it is a write mode iff it
+    contains any of ``w``/``a``/``x``/``+``. Read-only (``'r'``/``'rb'``) and
+    non-mode strings (paths) are ignored, keeping detection deterministic.
+    """
+    candidates = list(call.args)
+    candidates += [kw.value for kw in call.keywords if kw.arg == "mode"]
+    for arg in candidates:
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            chars = set(arg.value)
+            if arg.value and chars <= _MODE_ALPHABET and chars & _WRITE_MODE_CHARS:
+                return True
+    return False
+
+
 def scan_source(src: str, filename: str) -> list[Violation]:
     out: list[Violation] = []
     tree = ast.parse(src, filename=filename)
@@ -72,25 +99,42 @@ def scan_source(src: str, filename: str) -> list[Violation]:
                 out += _classify_import(alias.name, filename)
         elif isinstance(node, ast.ImportFrom):
             if node.level and node.level > 0:
-                # Relative (internal package) import — allowed.
+                # Relative (internal package) import — allowed, except the
+                # provisional seam. The name may live in ``node.module``
+                # (``from .provisional import x``) OR in the imported aliases
+                # (``from . import provisional``, where ``node.module`` is None).
                 if node.module and "provisional" in node.module:
                     out.append(Violation(filename, "provisional-import", node.module))
+                else:
+                    for alias in node.names:
+                        if "provisional" in alias.name:
+                            out.append(
+                                Violation(filename, "provisional-import", f".{alias.name}")
+                            )
+                            break
                 continue
             module = node.module or ""
             out += _classify_import(module, filename)
-        # Dynamic import --------------------------------------------------- #
+        # Dynamic import + persistence surfaces ---------------------------- #
         elif isinstance(node, ast.Call):
             fn = node.func
-            if isinstance(fn, ast.Name) and fn.id == "__import__":
-                out.append(Violation(filename, "dynamic-import", "__import__()"))
+            if isinstance(fn, ast.Name):
+                if fn.id == "__import__":
+                    out.append(Violation(filename, "dynamic-import", "__import__()"))
+                elif fn.id == "open" and _has_write_mode(node):
+                    out.append(Violation(filename, "file-persistence", "open(..., write mode)"))
             if isinstance(fn, ast.Attribute):
+                base = getattr(fn.value, "id", getattr(fn.value, "attr", "?"))
                 if fn.attr == "import_module":
                     out.append(Violation(filename, "dynamic-import", "importlib.import_module()"))
                 if fn.attr in FORBIDDEN_CALL_ATTRS:
-                    base = getattr(fn.value, "id", getattr(fn.value, "attr", "?"))
                     out.append(
                         Violation(filename, "deployment-surface", f"{base}.{fn.attr}()")
                     )
+                if fn.attr in FILE_WRITE_ATTRS:
+                    out.append(Violation(filename, "file-persistence", f"{base}.{fn.attr}()"))
+                elif fn.attr == "open" and (base == "os" or _has_write_mode(node)):
+                    out.append(Violation(filename, "file-persistence", f"{base}.open()"))
         # Forbidden entrypoint -------------------------------------------- #
         elif isinstance(node, ast.If):
             test = node.test
@@ -142,23 +186,52 @@ def find_provisional_imports(pkg_dir: Path) -> list[Violation]:
 # Test-suite hygiene (SC-004): tests must not use wall-time/randomness/network.
 # --------------------------------------------------------------------------- #
 HYGIENE_IMPORTS = frozenset({"random", "socket", "requests", "urllib", "secrets"})
-HYGIENE_ATTRS = {("time", "time"), ("time", "sleep"), ("datetime", "now"), ("os", "urandom")}
+# (base, attr) wall-clock/nondeterminism surfaces. ``base`` may be a bare module
+# name (``time.time``) or the leaf of a dotted base (``datetime.datetime.now``).
+HYGIENE_ATTRS = {
+    ("time", "time"), ("time", "sleep"),
+    ("time", "monotonic"), ("time", "perf_counter"),
+    ("datetime", "now"), ("datetime", "utcnow"), ("datetime", "today"),
+    ("os", "urandom"),
+}
+# Bare-name calls that read wall-clock time (e.g. ``from time import time``).
+HYGIENE_NAMES = frozenset({"time", "monotonic", "perf_counter"})
+
+
+def scan_hygiene_source(src: str, filename: str) -> list[Violation]:
+    """Flag wall-time / randomness / network idioms in one test source string."""
+    out: list[Violation] = []
+    tree = ast.parse(src, filename=filename)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                if _top(a.name) in HYGIENE_IMPORTS:
+                    out.append(Violation(filename, "test-hygiene", f"import {a.name}"))
+        elif isinstance(node, ast.ImportFrom) and not (node.level or 0):
+            if _top(node.module or "") in HYGIENE_IMPORTS:
+                out.append(Violation(filename, "test-hygiene", f"from {node.module}"))
+        elif isinstance(node, ast.Attribute):
+            # ``time.time`` -> base is a Name; ``datetime.datetime.now`` -> the
+            # base is itself an Attribute (use its leaf ``attr``).
+            val = node.value
+            base = getattr(val, "id", None)
+            if base is None and isinstance(val, ast.Attribute):
+                base = val.attr
+            if base and (base, node.attr) in HYGIENE_ATTRS:
+                out.append(Violation(filename, "test-hygiene", f"{base}.{node.attr}"))
+        elif isinstance(node, ast.Call):
+            fn = node.func
+            if isinstance(fn, ast.Name) and fn.id in HYGIENE_NAMES:
+                out.append(Violation(filename, "test-hygiene", f"{fn.id}()"))
+    return out
 
 
 def scan_test_hygiene(tests_dir: Path) -> list[Violation]:
+    """Scan ALL test sources recursively — conftest, _support, fakes, boundary,
+    conformance, and every ``*.py`` — not just top-level ``test_*.py``."""
     out: list[Violation] = []
-    for path in sorted(Path(tests_dir).glob("test_*.py")):
-        tree = ast.parse(path.read_text(), filename=path.name)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                for a in node.names:
-                    if _top(a.name) in HYGIENE_IMPORTS:
-                        out.append(Violation(path.name, "test-hygiene", f"import {a.name}"))
-            elif isinstance(node, ast.ImportFrom) and not (node.level or 0):
-                if _top(node.module or "") in HYGIENE_IMPORTS:
-                    out.append(Violation(path.name, "test-hygiene", f"from {node.module}"))
-            elif isinstance(node, ast.Attribute):
-                base = getattr(node.value, "id", None)
-                if base and (base, node.attr) in HYGIENE_ATTRS:
-                    out.append(Violation(path.name, "test-hygiene", f"{base}.{node.attr}"))
+    root = Path(tests_dir)
+    for path in sorted(root.rglob("*.py")):
+        rel = str(path.relative_to(root))
+        out += scan_hygiene_source(path.read_text(), rel)
     return out

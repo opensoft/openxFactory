@@ -34,6 +34,39 @@ def test_scanner_flags_provisional_import():
     assert any(x.kind == "provisional-import" for x in v)
 
 
+def test_scanner_flags_bare_relative_provisional_import():
+    # ``from . import provisional`` — node.module is None; the seam name lives in
+    # the imported aliases, which the scanner must still inspect.
+    v = scan_source("from . import provisional\n", "x.py")
+    assert any(x.kind == "provisional-import" for x in v)
+
+
+def test_scanner_flags_file_persistence():
+    for src in (
+        "open('/tmp/x', 'w')\n",
+        "open('/tmp/x', mode='ab')\n",
+        "import pathlib\npathlib.Path('x').write_text('y')\n",
+        "import pathlib\npathlib.Path('x').write_bytes(b'y')\n",
+        "import pathlib\npathlib.Path('x').open('w')\n",
+        "import os\nos.mkdir('d')\n",
+        "import os\nos.makedirs('d')\n",
+        "import os\nos.open('f', 0)\n",
+    ):
+        kinds = {x.kind for x in scan_source(src, "x.py")}
+        assert "file-persistence" in kinds, f"missed persistence:\n{src}"
+
+
+def test_scanner_ignores_read_open():
+    # Read-only open() is not a persistence surface.
+    kinds = {x.kind for x in scan_source("open('/tmp/x')\nopen('/tmp/x', 'r')\n", "x.py")}
+    assert "file-persistence" not in kinds
+
+
+def test_scanner_flags_persistence_module_imports():
+    kinds = {x.kind for x in scan_source("import pathlib\nimport tempfile\nimport shutil\n", "x.py")}
+    assert kinds == {"forbidden-stdlib"}
+
+
 def test_scanner_flags_network_and_provider_sdk():
     v = scan_source("import socket\nimport openai\n", "x.py")
     kinds = {x.kind for x in v}
