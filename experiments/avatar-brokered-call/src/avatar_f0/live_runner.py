@@ -309,8 +309,10 @@ async def _run_trial(env: LiveEnv, registry: CallRegistry, trial_id: str, group_
                     registry.mark_terminated(hs.call_id_hash)
                     hs.terminated = True
                 offs = clock.offsets_ms()
-                within = ("t_peer_terminal" in offs
-                          and (offs["t_peer_terminal"] - offs["t_hangup_sent"]) <= env.revocation_bound_ms)
+                # Bound the FULL revocation: from the kill request (t_revocation_request) to
+                # observed termination — hangup-dispatch latency counts against the 5s bound.
+                within = ("t_peer_terminal" in offs and "t_revocation_request" in offs
+                          and (offs["t_peer_terminal"] - offs["t_revocation_request"]) <= env.revocation_bound_ms)
                 if not accepted:
                     status, note = INCONCLUSIVE, "provider did not accept hangup"
                 elif verdict == "alive":

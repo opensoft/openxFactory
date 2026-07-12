@@ -229,45 +229,64 @@ def test_f0d_inconclusive_probe_never_false_passes():
     assert d["passed"] == 0 and d["failed"] == 0
 
 
-def test_probe_terminated_classification_polarity():
-    # Directly exercise WssSideband.probe_terminated's tri-state polarity (no network).
+def test_probe_terminated_drain_loop_polarity():
+    # Directly exercise WssSideband.probe_terminated's drain loop + tri-state polarity, with
+    # queued server events ahead of the definitive signal (no network).
     import json as _json
 
     from avatar_f0.sideband import WssSideband
 
-    class ConnectionClosed(Exception):   # name matches sideband._is_connection_closed
-        pass
+    # Close exceptions carry a code; names match sideband._close_verdict.
+    class ConnectionClosedOK(Exception):
+        def __init__(self, code=1000):
+            self.code = code
+
+    class ConnectionClosedError(Exception):
+        def __init__(self, code=1006):
+            self.code = code
+
+    RESP = _json.dumps({"type": "response.output_audio.delta"})   # unrelated queued event
+    ITEM = _json.dumps({"type": "conversation.item.created"})     # unrelated queued event
 
     class _FakeWs:
-        def __init__(self, reply=None, raise_exc=None):
-            self._reply, self._raise = reply, raise_exc
+        # Returns queued frames in order; when exhausted raises ``end`` (a close or TimeoutError).
+        def __init__(self, frames, end):
+            self._frames = list(frames)
+            self._end = end
 
         async def send(self, data):
             pass
 
         async def recv(self):
-            if self._raise is not None:
-                raise self._raise
-            return self._reply
+            if self._frames:
+                return self._frames.pop(0)
+            raise self._end
 
-    async def _probe(reply=None, raise_exc=None):
+    def probe(frames, end=None):
+        if end is None:
+            end = asyncio.TimeoutError()
         sb = WssSideband("rtc_x", "sk-fake")
-        sb._ws = _FakeWs(reply, raise_exc)
-        return await sb.probe_terminated(1.0)
+        sb._ws = _FakeWs(frames, end)
+        return asyncio.run(sb.probe_terminated(5.0))
 
-    run = asyncio.run
-    # still-alive ack → alive (revocation FAILED)
-    assert run(_probe(reply=_json.dumps({"type": "session.updated"}))) == "alive"
-    # error naming a call-gone marker → terminated
-    assert run(_probe(reply=_json.dumps({"type": "error", "error": {"code": "call_not_found"}}))) == "terminated"
-    # generic error → inconclusive (NOT a false terminated)
-    assert run(_probe(reply=_json.dumps({"type": "error", "error": {"code": "rate_limited"}}))) == "inconclusive"
-    # non-JSON / unexpected frame → inconclusive
-    assert run(_probe(reply="<<not json>>")) == "inconclusive"
-    assert run(_probe(reply=_json.dumps({"type": "something.else"}))) == "inconclusive"
-    # socket closed → terminated (strong signal); generic transport error → inconclusive
-    assert run(_probe(raise_exc=ConnectionClosed("gone"))) == "terminated"
-    assert run(_probe(raise_exc=RuntimeError("blip"))) == "inconclusive"
+    upd = _json.dumps({"type": "session.updated", "event_id": "x"})
+    gone = _json.dumps({"type": "error", "error": {"code": "call_not_found"}})
+    generic = _json.dumps({"type": "error", "error": {"code": "rate_limited"}})
+
+    # alive: our ack arrives, possibly behind queued events → drain then "alive"
+    assert probe([upd]) == "alive"
+    assert probe([RESP, ITEM, upd]) == "alive"
+    # terminated: a confirmed call-gone error, or a CLEAN close, after draining events
+    assert probe([RESP, gone]) == "terminated"
+    assert probe([RESP], end=ConnectionClosedOK(1000)) == "terminated"
+    # NOT terminated: abnormal close (network blip) → inconclusive
+    assert probe([RESP], end=ConnectionClosedError(1006)) == "inconclusive"
+    # NOT terminated: a non-call-gone error is drained, then no signal → inconclusive
+    assert probe([generic]) == "inconclusive"
+    # NOT terminated: only unrelated events until the socket times out → inconclusive
+    assert probe([RESP, ITEM]) == "inconclusive"
+    # non-JSON frames are ignored (drained), not misclassified
+    assert probe(["<<not json>>", upd]) == "alive"
 
 
 def test_cli_live_wiring_runs_with_fakes_no_nameerror(monkeypatch):
