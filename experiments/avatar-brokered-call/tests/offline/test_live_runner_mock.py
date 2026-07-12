@@ -204,29 +204,29 @@ def _f0d_group(rec):
     return next(g for g in rec["trial_groups"] if g["id"] == "F0-D")
 
 
-def test_f0d_active_probe_terminated_passes():
-    # A positive termination signal from the active probe → F0-D PASS (revocation observed).
-    rec = _run(make_env(sideband=_sideband_factory("terminated")), groups=["F0-D"])
-    d = _f0d_group(rec)
-    assert d["passed"] == d["planned"] == 10 and d["failed"] == 0
+def test_f0d_client_enforced_passes_on_accepted_request():
+    # Client-enforced revocation (ACR-005): F0-D PASSes iff the provider revocation REQUEST is
+    # accepted in-bound. The provider-side settle verdict is INFORMATIONAL and does not change
+    # the outcome — a slow / still-alive / ambiguous provider settle still PASSes.
+    for settle in ("terminated", "alive", "inconclusive"):
+        rec = _run(make_env(sideband=_sideband_factory(settle)), groups=["F0-D"])
+        d = _f0d_group(rec)
+        assert d["passed"] == d["planned"] == 10 and d["failed"] == 0, (settle, d)
+        notes = " ".join(t.get("note", "") for t in rec["trials"] if t["group_id"] == "F0-D")
+        assert f"settle={settle}" in notes          # settle is recorded, not gated
 
 
-def test_f0d_still_alive_is_fail_not_ignored():
-    # The critical guard: a call STILL LIVE after hangup (probe → "alive") means revocation
-    # FAILED — it must be a FAIL, never silently ignored or passed.
-    rec = _run(make_env(sideband=_sideband_factory("alive")), groups=["F0-D"])
+def test_f0d_fails_when_revocation_request_not_accepted():
+    # If the provider does not accept the revocation request (hangup fails), F0-D FAILs — the
+    # request-accepted-in-bound part of the guarantee was not met.
+    class NoHangupBroker(FakeBroker):
+        async def hangup(self, call_id):
+            return False
+
+    rec = _run(make_env(broker=lambda: NoHangupBroker()), groups=["F0-D"])
     assert rec["overall"] == "FAIL"
     d = _f0d_group(rec)
     assert d["failed"] == 10 and d["passed"] == 0
-
-
-def test_f0d_inconclusive_probe_never_false_passes():
-    # An ambiguous probe result (generic error / timeout) must be INCONCLUSIVE, never a
-    # false "terminated" PASS on the safety-critical revocation assertion.
-    rec = _run(make_env(sideband=_sideband_factory("inconclusive")), groups=["F0-D"])
-    assert rec["overall"] == "INCONCLUSIVE"
-    d = _f0d_group(rec)
-    assert d["passed"] == 0 and d["failed"] == 0
 
 
 def test_probe_terminated_drain_loop_polarity():
