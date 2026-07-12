@@ -1,32 +1,27 @@
-# F0-D Revocation Re-Run — Confirm the Active Terminal Probe
+# F0-D Revocation Re-Run — Confirm Client-Enforced Revocation
 
-This runbook covers the supervised live re-run of the **F0-D revocation slice** to confirm
-(and, if needed, tune) the active control-channel terminal probe against the real provider.
-It is the last gap to a green F0. Read `RUN.md` first for the general live-run setup; this
-doc only covers what is specific to F0-D.
+This runbook covers the supervised live re-run of the **F0-D revocation slice**. Its purpose
+is now to **confirm F0-D PASSes under the ratified client-enforced revocation model** — not to
+diagnose or tune the provider's teardown (that was the first re-run; see the record below).
+Read `RUN.md` first for the general live-run setup; this doc covers only what is specific to
+F0-D.
 
-> **F0-D is safety-critical.** It proves the harness can actually KILL a live call within a
-> 5 s bound. Do **not** game it to green. Only tune the probe to match *observed* provider
-> behavior, and keep the conservative posture (exact-code match, clean-close-only,
-> `alive → FAIL`, ambiguous → `INCONCLUSIVE`). A false PASS on F0-D is the worst possible
-> outcome.
+> **F0-D is safety-critical** — it proves revocation actually works within a 5 s bound. Do
+> **not** game it to green. If it FAILs, capture and report; do not weaken the assertion.
 
-## Why a re-run
+## What F0-D now verifies (ACR-005, clarified + ratified 2026-07-12)
 
-The first live run was an honest `INCONCLUSIVE`: feasibility was proven (40/40 handshake
-assertions across F0-A/B/C/E/F), but F0-D could not observe termination — passive WebRTC
-teardown is not visible within 5 s (the provider emits no prompt terminal signal; aiortc's
-ICE-consent teardown is ~30 s). This branch (`fix/f0d-active-terminal-probe`) replaces the
-passive wait with an **active control-channel probe after hangup**
-(`WssSideband.probe_terminated`).
+Revocation is **client-enforced**. On revoke, within 5 s, F0-D requires BOTH halves, verified
+against the real aiortc media leg:
 
-Two things only the live provider can resolve — both conservative (they can only cause a
-false `INCONCLUSIVE`, never a false `PASS`):
+- **(a) client-side stop:** the client closes its own media leg and **no media I/O flows after
+  the stop** (`F0-D-TERMINAL_5S` + `F0-D-NO_LATE_IO`);
+- **(b) provider request accepted:** the provider revocation request (`hangup`) is accepted
+  (200) within 5 s.
 
-1. Does the provider **cleanly close** the `?call_id=` control socket (code `1000/1001`) on
-   hangup? → clean PASS.
-2. If it **errors** instead, what is the exact call-gone error code? → add it to
-   `TERMINATION_ERROR_CODES`.
+The provider-side authoritative termination confirmation MAY lag (measured ~8.1 s on the OpenAI
+profile) and is **recorded informationally, not gated**. So F0-D PASSes even though the
+provider's server-side settle is slow, as long as (a) and (b) hold in-bound.
 
 ## Steps
 
@@ -59,54 +54,28 @@ Confirm it is the dedicated lab project with a spend cap set. If unsure, STOP an
 ```
 
 Read `openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/f0-results.json` —
-the F0-D group counts and the per-trial notes.
+the F0-D group counts and the per-trial notes (each PASS note records the informational
+`provider settle=…`).
 
 ### 3. Interpret and act
 
-- **F0-D PASS (all 10)** → the probe works. Go to step 4.
-- **F0-D FAIL** (`revocation failed: call still live after hangup`) → the provider did NOT
-  terminate the call within 5 s. That is a real feasibility finding, **not** a probe bug —
-  do not tune around it. Capture and report to Brett + the kernel owner.
-- **F0-D INCONCLUSIVE** (`no conclusive termination signal within bound`) → the probe could
-  not attribute the provider's post-hangup behavior. **Diagnose:**
-  1. Add a **temporary, redaction-safe** diagnostic in `WssSideband.probe_terminated`
-     (`src/avatar_f0/sideband.py`) that records ONLY: each drained frame's `type`, any error
-     frame's `error.code`/`error.type`, and any close code (`exc.code` / `exc.rcvd.code`).
-     **Never** log frame content, SDP, tokens, or the key.
-  2. Run one trial and observe what the control socket actually does after hangup — a clean
-     close (which code?), an error (which code?), or silence.
-  3. Make the **minimal correct** change:
-     - Cleanly closes with `1000/1001` → already handled (re-check why it read otherwise;
-       if the real teardown is an abnormal close code, confirm that is genuinely the
-       termination signal before treating it as terminated).
-     - Returns an error → add the **exact** observed code to `TERMINATION_ERROR_CODES`
-       (exact match only — never a broad substring).
-  4. Keep every safety invariant (exact-code match, clean-close-only, drain loop,
-     `alive → FAIL`, ambiguous → `INCONCLUSIVE`). Update the offline unit test
-     `tests/offline/test_live_runner_mock.py::test_probe_terminated_drain_loop_polarity` to
-     cover the newly-confirmed code. **Remove the temporary diagnostic before committing.**
-  5. A change to the probe's classification logic is **ACR-005-affecting** — commit it with
-     the empirical basis in the message, note it needs kernel-owner review, and re-run step 2.
+- **F0-D PASS (all 10)** → client-enforced revocation confirmed live. Go to step 4.
+- **F0-D FAIL** — read the note:
+  - `media I/O continued after the client-side stop` → the client leg did not actually stop
+    (a real defect in the client media teardown — report; do not tune around it).
+  - `client did not stop its media leg within the 5s bound` → the local `close()` exceeded the
+    bound (investigate the aiortc teardown timing on this host).
+  - `revocation request not accepted …` → the provider `hangup` did not return 200 in-bound
+    (a provider/API finding — capture the status).
+- **Note the informational provider settle** in the PASS notes (`provider settle=terminated/
+  alive/inconclusive`) for the evidence packet — it does not change the outcome.
 
-### Observed on the 2026-07-12 lab re-run (disposition pending)
-
-Post-hangup control-channel behavior, consistent across 3 instrumented calls + 20 slice
-trials (bounded data only):
-
-- The provider sends NO clean close and NO error frame. It drops the socket with an
-  **abnormal close 1006 at ~2.2 s** after hangup (2199 / 2201 / 2227 ms observed).
-- A REST re-hangup fired **at** the close blocks while teardown settles and returns
-  **404 ~5.9 s later** (~8.1 s post-hangup). Fired well after teardown, it returns 404
-  immediately. A WSS re-attach is rejected 404 at ~6 s. On a live call it returns 200.
-- The probe therefore now confirms termination out-of-band (`confirm_gone` → REST
-  re-hangup: 404 → terminated, 200 → alive, else inconclusive; consulted only for
-  ambiguous in-band signals), and F0-D classifies as
-  **`FAIL: termination confirmed but exceeded the 5s bound`** — the call dies at
-  ~2.2 s, but no channel POSITIVELY confirms it inside 5 s.
-- **ACR-005 disposition required (kernel owner):** does the bound measure death time
-  (in-band terminal signal at ~2.2 s, attribution allowed to settle late → PASS-able)
-  or confirmation time (~8.1 s on this provider → FAIL stands)? Do not re-stamp
-  `t_peer_terminal` to force a green before that decision.
+One caveat to confirm on this run: the client-stop mechanism (`arm_no_late_io` → `close` →
+observation window) is offline-mock-tested; its real timing against a live aiortc peer at
+24 kHz / 20 ms frames is validated here. If a **healthy** stop spuriously trips
+`media I/O continued after the client-side stop`, widen the arm→close ordering or the
+observation window — that is a mechanism-timing fix (commit with the empirical basis; it is
+ACR-005-adjacent, so flag for review), NOT a weakening of the assertion.
 
 ### 4. Full matrix + handoff (once F0-D passes)
 
@@ -114,17 +83,32 @@ trials (bounded data only):
 .venv/bin/python -m avatar_f0.cli run --live      # full 70-trial matrix for the complete green
 ```
 
-Confirm `overall == PASS`, `redaction_scan` PASS, and that `f0-results.json` now carries
+Confirm `overall == PASS`, `redaction_scan` PASS, and that `f0-results.json` carries
 `source_commit`. Hand the three evidence files to the AVC contract-kernel owner; they run
-`scripts/validate-avatar-client.py` with the F0 gate active — it validates the evidence
-against the pinned F0 schemas, matches `source_commit` against the pinned `f0_source_commit`,
-reads `PASS`, and disposes any variances — to permit the `contract-v1.7` tag.
+`scripts/validate-avatar-client.py` with the F0 gate active — it validates the evidence against
+the pinned F0 schemas, matches `source_commit` against the pinned `f0_source_commit`, reads
+`PASS`, and disposes any variances — to permit the `contract-v1.7` tag.
+
+## Record — first re-run, 2026-07-12 (disposition RULED)
+
+The first F0-D re-run measured the provider's post-hangup teardown (durable record in
+`openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/f0d-revocation-rerun-notes-2026-07-12.md`):
+
+- After an accepted hangup the provider sends NO clean close and NO error frame — it drops the
+  `?call_id=` socket with an **abnormal close 1006 at ~2.2 s**; the earliest authoritative
+  "call gone" (REST 404) settles at **~8.1 s**. No channel positively confirms termination
+  inside 5 s.
+- **Ruling (kernel owner, 2026-07-12): client-enforced revocation.** The ≤5 s guarantee is the
+  client-side stop + accepted revocation request; provider-side settle is informational. ACR-005
+  was clarified (`change/clarify-avatar-revocation-client-enforced`), F0-D redefined to the model
+  above, and the F0 change spec/design aligned. The reference runtime already conforms
+  (`ARR-005-S05`). This re-run confirms the redefined F0-D PASSes live.
 
 ## Safety (hard stops)
 
 - Dedicated lab project only; never print/log/commit the key; never widen to production.
-- Do **not** weaken the probe's safety guard to force a PASS — only tune to what you observe.
+- Do **not** weaken F0-D to force a PASS. A FAIL is a real finding — capture and report.
 - A PASS does **not** qualify the provider for live/production media — that is
   `qualify-avatar-live-voice`.
-- Report back: F0-D outcome, the observed post-hangup control-channel behavior (close/error
-  code), any probe change made, and total call spend. Never include the key or SDP.
+- Report back: F0-D outcome + notes, the informational provider settle, any mechanism-timing
+  change made, and total call spend. Never include the key or SDP.
