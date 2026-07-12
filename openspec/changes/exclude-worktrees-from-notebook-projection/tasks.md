@@ -13,5 +13,5 @@
 ## 3. Reconciliation And Evidence
 
 - [x] 3.1 Verify the workspace dry-run reports zero worktree-derived operations (backlog dropped 230 -> 194 legitimate operations).
-- [ ] 3.2 Apply the accumulated reconciliation backlog and confirm a clean follow-up dry-run.
-- [ ] 3.3 Sync the aggregation repo's codexFactory (and openxFactory) submodule pointers.
+- [x] 3.2 Apply the accumulated reconciliation backlog and confirm a clean follow-up dry-run (194 + 1 rolling-drift operations applied 2026-07-12, zero errors, follow-up dry-run reports zero pending; canon 34 / drafts 114 / ideation 32 desired sources).
+- [x] 3.3 Sync the aggregation repo's codexFactory and openxFactory submodule pointers (xFactory 2bc34dd).
