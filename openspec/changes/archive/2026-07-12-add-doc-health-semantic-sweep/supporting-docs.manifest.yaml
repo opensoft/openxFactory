@@ -1,0 +1,28 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "bc201725829eb741655d0d994dbd7819534820ee6bc10909360d9601299bdd26"
+  },
+  "change_id": "add-doc-health-semantic-sweep",
+  "files": [
+    {
+      "path": "agentic-pass.md",
+      "sha256": "451e4328142a676b18d5dc35b707d444e13642d045d9c7cafbf486449b22164c"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "f0574a79162b82ce4240e36cc2303f42a91987168d2ca9baaaf77114347092fa"
+    },
+    {
+      "path": "omnigent-worker-dispatch.md",
+      "sha256": "6e91c7bdc498abd7cef2062f846eb1165f525ee3a2f6adc4d536f7813fdd67be"
+    }
+  ],
+  "final_notebook_import_complete": true,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/semantic-health-sweep",
+  "packaged_at": "2026-07-12",
+  "source_revision": "18fcf803470ba4e43aace476cda43eda1ac9ddf0",
+  "transitioned_at": "2026-07-09"
+}

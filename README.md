@@ -187,15 +187,11 @@ Active changes:
 - [add-document-cataloging](openspec/changes/add-document-cataloging/proposal.md)
   — external governed-document catalog, controlled discovery taxonomy,
   immutable snapshots, thirteenth deterministic doc-health family, and bounded
-  document-cataloger lane; implementation follows the semantic-sweep archive
+  document-cataloger lane; unblocked — the semantic sweep archived 2026-07-12
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
   bounded ideation-organizer lane; implementation follows document cataloging
-- [add-doc-health-semantic-sweep](openspec/changes/add-doc-health-semantic-sweep/proposal.md)
-  — agentic semantic sweep extending `doc-health` (code surface:
-  codexFactory, xFactory; ratified 2026-07-09 — admitted intent, active
-  until realization evidence lands)
 - [define-avatar-client-contract-kernel](openspec/changes/define-avatar-client-contract-kernel/proposal.md)
   — staged-origin owner of the reviewed avatar packet and canonical
   eight-contract AVC kernel, registries, fixtures, validation, release, and

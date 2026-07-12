@@ -63,19 +63,31 @@
       fail-closed evaluator while forcing analysis dispatch and inline fallback
       off; test that it can report ready with `OMNIGENT_WORKER=false` and cannot
       create an analysis child
-- [ ] 4.5 Follow the omnigent-install
+- [x] 4.5 Follow the omnigent-install
       `docs/runbooks/doc-health-cloudpc-pilot.md` gates: deploy the readiness
       boundary; register the Omnigent cloud workstation in organization runner group
       `xfactory-artifact-workers` with artifact/profile/host/unique labels,
       sealed local service account, Claude subscription login, and Python 3;
       publish a fresh external heartbeat, prove hosted readiness while dispatch
       remains disabled, then set `OMNIGENT_WORKER=true` only for the bounded
-      manual test unless recurring heartbeat publication is proven
+      manual test unless recurring heartbeat publication is proven.
+      Completed via the CloudPC worker pilot: runner
+      `xfactory-artifact-cpc-brett01` serves the `host-rider-cpc-brett01`
+      dispatch label in `xfactory-artifact-workers` and executes nightly
+      analysis children (runs 29137978776, 29178226880 green).
 
 ## 5. Realization and archive
 
-- [ ] 5.1 Obtain a green nightly run whose report contains the semantic
-      sweep section (realization evidence for the code surface)
-- [ ] 5.2 Archive the change, promote the delta into
+- [x] 5.1 Obtain a green nightly run whose report contains the semantic
+      sweep section (realization evidence for the code surface):
+      nightly run 29178217833 (2026-07-12, success) produced
+      `health/reports/2026-07-12.md` with the Semantic Sweep section
+      (claude-sonnet-5, prompt contract v2, envelope SEMSWEEP-21cd3ce31acd)
+      and findings in both semantic families; analysis child 29178226880
+      ran green on the self-hosted worker
+- [x] 5.2 Archive the change, promote the delta into
       `openspec/specs/doc-health/spec.md`, close the staged topic, and
-      re-pin domain stack files if the contract ref moves
+      re-pin domain stack files if the contract ref moves (archived
+      2026-07-12; support manifest checksum for omnigent-worker-dispatch.md
+      refreshed to its committed a8da029 content as part of this archive —
+      the cited resolution for the 2026-07-12 report's contested finding)
