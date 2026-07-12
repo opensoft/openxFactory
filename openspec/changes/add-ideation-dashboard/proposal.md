@@ -12,8 +12,10 @@ folders. Two structural gaps surfaced in the 2026-07-12 design session:
 candidate feats a cluster could spawn but has not yet ("possibles")
 evaporate into prose, and nothing lets a human assemble an arbitrary doc set
 and point tools at it when they see a pattern the machine clustering
-missed. All design questions are decided: D1-D6 locked in session, R1-R14
-confirmed unchanged by Brett on 2026-07-12.
+missed. All design questions are decided: D1–D9 locked in session (D7–D9,
+authoring authority, added in a follow-on session), R1–R14 confirmed
+unchanged by Brett on 2026-07-12. **Ratified by Brett on 2026-07-12**;
+active until realization evidence lands per the release-realization flow.
 
 ## What Changes
 

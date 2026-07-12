@@ -16,9 +16,11 @@ Captured: 2026-07-12
 Organized: 2026-07-12 into the ideation-dashboard staged topic and promoted
 the same day into
 [add-ideation-dashboard](../../openspec/changes/add-ideation-dashboard/proposal.md)
-(proposed) — all open questions carry decisions in that packet's decision
-record; Brett confirmed the drafted recommended rows R1–R14 unchanged on
-2026-07-12, satisfying the proposal gate.
+(ratified) — all open questions carry decisions in that packet's decision
+record; Brett confirmed R1–R14 unchanged, decided D7–D9 (authoring
+authority) in a follow-on session, and ratified the proposal on 2026-07-12.
+The change stays active until realization evidence lands (code surface
+declared), then archives.
 Participants: Brett Heap, Claude (design session)
 
 ## Problem

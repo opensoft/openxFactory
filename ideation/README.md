@@ -168,10 +168,11 @@ Active proposals promoted from staging:
   three-tier Hermes readiness panel, minimum-score recommendation gate, and
   nightly readiness lane.
 - [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
-  — owns the former `ideation-dashboard` staged packet (primary doc plus the
-  interactive mockup) under `supporting-docs/` and proposes the realization
-  funnel snapshot, possibles register, workbench, interactivity boundary,
-  and nightly snapshot lane.
+  — ratified 2026-07-12; owns the former `ideation-dashboard` staged packet
+  (primary doc plus the interactive mockup) under `supporting-docs/` and
+  defines the realization funnel snapshot, possibles register, per-actor
+  authoring authority, workbench, interactivity boundary, and nightly
+  snapshot lane; active until realization evidence lands.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or
