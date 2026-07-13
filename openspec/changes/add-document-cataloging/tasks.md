@@ -6,8 +6,8 @@
 
 ## 2. Catalog Contracts And Validation
 
-- [ ] 2.1 Add document-catalog snapshot, cataloger-recommendation, tag-registry, owner-override, opaque-locator, and handling-gate schemas with controlled vocabularies and transition rules.
-- [ ] 2.2 Add valid and invalid examples for complete snapshots, suggested classifications, owner overrides, protected evidence, deletions, and pending-state transitions.
+- [x] 2.1 Add document-catalog snapshot, cataloger-recommendation, tag-registry, owner-override, opaque-locator, and handling-gate schemas with controlled vocabularies and transition rules. (Added 2026-07-13 as six `contracts/schemas/xfactory-document-*.schema.yaml` files, draft 2020-12, cross-referenced via `$ref`/`referencing.Registry` per the `avatar-client` kernel precedent; field names follow the realized codexFactory mechanical catalog, not the change packet's illustrative template — see this task's completion note in the change's final report for the exact discrepancy.)
+- [x] 2.2 Add valid and invalid examples for complete snapshots, suggested classifications, owner overrides, protected evidence, deletions, and pending-state transitions. (Added 2026-07-13 under `examples/document-cataloging/` — 12 valid + 11 invalid fixtures, one violation per negative file; proved against the six schemas with a scratch `jsonschema`/`referencing` harness, all accept/reject as expected — deterministic validators remain task 2.3.)
 - [ ] 2.3 Implement strict openxFactory validators for catalog schema, complete coverage, unique identity, source freshness, taxonomy resolution, override standing, immutable paths, and baseline-mode exceptions.
 - [ ] 2.4 Register every schema, template, and taxonomy in `contracts/manifest.yaml`, reconcile versions with `contracts/CHANGELOG.md`, update `contracts/README.md`, and add validator tests.
 - [ ] 2.5 Update openxFactory document-lifecycle and doc-health guidance to reference the promoted catalog requirements without granting catalog values lifecycle or ownership authority.

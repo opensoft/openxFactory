@@ -1,0 +1,43 @@
+# Valid xfactory_document_catalog snapshot: successor to
+# document-catalog-snapshot-deletion-before.example.yaml. docs/legacy-
+# runbook.md's document was removed from the governed corpus between runs
+# (deleted or moved outside the governed roots); this new full snapshot
+# carries forward the unaffected entry and simply has no entry for the
+# removed locator key. A rename would look identical to a delete-plus-add
+# unless reviewed lineage evidence links the two paths (spec scenario
+# "Document is deleted or renamed") — no such evidence exists here, so
+# this is a plain deletion.
+schema_version: 1
+kind: xfactory_document_catalog
+status: record
+run:
+  run_id: 3975f7d409b55ffe8031539f249957156522b486dc07fe5a661489129d239575
+  repository: xFactories/MedxFactory
+  repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+  inventory_snapshot_id: 09b98fca4fa653a01f485c772f3bbf8f9b0a7eea40d980c7488405cc0e53df50
+taxonomy:
+  digest: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+  inputs:
+    - repository: openxFactory
+      path: contracts/document-tag-registry.yaml
+      content_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+      registry_version: "1"
+      repository_revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+      registry_revision: 3936c6dff1417735d56ce3973cfe6c29a09c7541
+    - repository: xFactories/MedxFactory
+      path: catalog/document-tag-registry.yaml
+      content_sha256: c4c813bada6af84cd358636770773a702f6a23cf4aab93a1c59d49aec3a9f2ce
+      registry_version: "1"
+      repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      registry_revision: 0e01e898f649e7ba3bc3938a076931186197af48
+entries:
+  - repo: xFactories/MedxFactory
+    path: docs/clinical-intake-overview.md
+    status: draft
+    kind: process
+    repository_context: MedxFactory
+    handling: null
+    artifact_type: governance_markdown
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    content_hash: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    snapshot_id: 09b98fca4fa653a01f485c772f3bbf8f9b0a7eea40d980c7488405cc0e53df50

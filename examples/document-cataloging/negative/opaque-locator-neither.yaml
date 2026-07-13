@@ -1,0 +1,5 @@
+# INVALID standalone locator fragment: neither `path` nor the opaque
+# `document_ref`/`path_sha256` pair is present. Contract scenario "Locator
+# is ambiguous" ("... or supplies neither"). Must be rejected by
+# xfactory-document-opaque-locator.schema.yaml `#/$defs/document_locator`.
+repo: xFactories/MedxFactory

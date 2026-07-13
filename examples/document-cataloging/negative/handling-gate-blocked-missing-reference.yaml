@@ -1,0 +1,7 @@
+# INVALID standalone dispatch-decision fragment: state is `blocked` but no
+# `blocked_reference` is supplied. Contract scenario "Host is not
+# authorized for protected content" requires an opaque blocker reference.
+# Must be rejected by xfactory-document-handling-gate.schema.yaml
+# `#/$defs/dispatch_decision`.
+state: blocked
+source_policy_ref: opsx-source-policy://medx/patient-consent-protocol

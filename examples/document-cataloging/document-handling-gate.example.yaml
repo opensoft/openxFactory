@@ -1,0 +1,14 @@
+# Valid dispatch/handling-gate decision fragments: each list item validates
+# independently against
+# contracts/schemas/xfactory-document-handling-gate.schema.yaml
+# `#/$defs/dispatch_decision`. Reusable $defs kernel embedded as a catalog
+# entry's `dispatch_policy`; no standalone schema_version/kind envelope.
+decisions:
+  - state: allowed
+    source_policy_ref: opsx-source-policy://medx/docs/clinical-intake-overview.md
+    host_attestation_ref: cloudpc-attestation://document-analysis-host/2026-07-12
+  - state: blocked
+    source_policy_ref: opsx-source-policy://medx/patient-consent-protocol
+    blocked_reference:
+      blocker_ref: 5a8862dfc7a105d33541422c31b14b4d75ef90fb2500fa664ab54c0bdc7343b1
+      reason_code: handling_authorization_missing

@@ -1,0 +1,16 @@
+# Valid document locator fragments: each list item validates independently
+# against contracts/schemas/xfactory-document-opaque-locator.schema.yaml
+# `#/$defs/document_locator`. This is a reusable $defs kernel embedded by
+# the other schemas (never a standalone top-level record), so this file
+# carries no schema_version/kind envelope of its own — see that schema's
+# description and this directory's README.
+locators:
+  # Path-persisted variant (source handling policy permits it).
+  - repo: xFactories/MedxFactory
+    path: docs/clinical-intake-overview.md
+  # Policy-opaque variant (source handling policy prohibits persisting the
+  # path) — the same document as
+  # document-catalog-protected-evidence.example.yaml's entry.
+  - repo: xFactories/MedxFactory
+    document_ref: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+    path_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74

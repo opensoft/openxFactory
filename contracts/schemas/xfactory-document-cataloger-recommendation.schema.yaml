@@ -1,0 +1,74 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-cataloger-recommendation.schema.yaml"
+title: "Document-cataloger immutable recommendation evidence"
+contract_schema_version: 1
+description: >-
+  Immutable evidence artifact returned by the bounded, read-only
+  `document-cataloger` Omnigent job (spec requirement "Bounded cataloger
+  execution and protected evidence"). Persisted at
+  `health/document-catalog/recommendations/YYYY-MM-DD/<job-id>.yaml` with
+  `status: record`; a later main run validates and merges eligible records
+  into a new `xfactory-document-catalog-snapshot.schema.yaml` document
+  (spec scenario "Recommendation arrives asynchronously") — this file is
+  never itself the merged catalog. Every facet is unconditionally
+  `state: suggested` (spec: "Model output SHALL be suggested, never
+  approved"); the shared `facet_assignment` shape is reused from the
+  snapshot schema and narrowed here rather than restated, so a merge can
+  carry a record's facets forward byte-for-byte.
+type: object
+required: [schema_version, kind, status, job, target, facet_assignments]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_document_cataloger_recommendation}
+  status: {const: record}
+  job:
+    type: object
+    additionalProperties: false
+    description: >-
+      Bounded-worker job identity (data model "Recommendation record":
+      classifier id, model id, prompt-contract version, and job envelope
+      reference; the envelope contract itself is owned by the neutral job
+      envelope capability and only referenced here).
+    required: [job_id, as_of, worker_profile, classifier_version, model, prompt_contract_version, envelope_ref]
+    properties:
+      job_id: {type: string, minLength: 1}
+      as_of: {type: string, format: date}
+      worker_profile: {const: document-cataloger}
+      classifier_version: {type: string, minLength: 1}
+      model: {type: string, minLength: 1}
+      prompt_contract_version: {type: integer, minimum: 1}
+      envelope_ref: {type: string, minLength: 1}
+  target:
+    type: object
+    description: >-
+      The document this recommendation targets, bound to one content
+      state (data model "Recommendation record": mismatch at merge time
+      discards the record as stale).
+    required: [repo, content_hash]
+    properties:
+      repo: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+      document_ref: {type: string, pattern: "^[0-9a-f]{64}$"}
+      path_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      content_hash: {type: string, pattern: "^[0-9a-f]{64}$"}
+    allOf:
+      - $ref: "xfactory-document-opaque-locator.schema.yaml#/$defs/document_locator"
+  facet_assignments:
+    type: array
+    minItems: 1
+    description: >-
+      Suggested-only facet output. Each item satisfies the snapshot
+      schema's shared `facet_assignment` shape (vocabularies, provenance,
+      transitions) with two additional narrowings that shape alone cannot
+      express by reuse: `state` is fixed to `suggested`, and `review` is
+      forbidden outright (spec: model output is never `reviewed` or
+      `overridden` directly; that requires a separate authorized
+      disposition step downstream of this record).
+    items:
+      allOf:
+        - $ref: "xfactory-document-catalog-snapshot.schema.yaml#/$defs/facet_assignment"
+        - required: [state]
+          properties:
+            state: {const: suggested}
+        - not:
+            required: [review]

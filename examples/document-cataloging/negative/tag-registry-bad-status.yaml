@@ -1,0 +1,17 @@
+# INVALID: tag `status` is "approved", outside the closed
+# {active, proposed, retired} vocabulary. Must be rejected by
+# xfactory-document-tag-registry.schema.yaml.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces:
+  - id: xfactory
+    owner: openxFactory
+    description: Neutral tags reusable across factory domains.
+tags:
+  - id: xfactory.document-governance
+    namespace: xfactory
+    label: Document governance
+    description: Lifecycle, catalog, health, and promotion governance.
+    aliases: []
+    status: approved

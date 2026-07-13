@@ -1,0 +1,62 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-handling-gate.schema.yaml"
+title: "Document-cataloging dispatch/handling-gate decision"
+contract_schema_version: 1
+description: >-
+  Reusable dispatch/handling-gate decision for the `document-cataloging`
+  capability. Pure $defs kernel, never validated as a whole document on
+  its own; embedded as a catalog entry's `dispatch_policy` in
+  `xfactory-document-catalog-snapshot.schema.yaml`. Orchestration compares
+  source-declared handling and source-domain policy against the target
+  host's attested tenant/data boundary and handling authorizations before
+  a shard is ever built (spec requirement "Bounded cataloger execution and
+  protected evidence"; spec scenarios "Host is not authorized for
+  protected content", "Redaction is not authorized"). One decision governs
+  every facet on its entry: dispatch is a per-document gate, not a
+  per-facet one, so a `policy_blocked` facet_assignment on a blocked entry
+  carries no provenance of its own (it was never dispatched) and cites this
+  decision's `blocked_reference` instead.
+$defs:
+  dispatch_decision:
+    type: object
+    additionalProperties: false
+    required: [state, source_policy_ref]
+    properties:
+      state:
+        type: string
+        description: >-
+          `allowed`: full content and identifying metadata may be
+          dispatched. `redacted_allowed`: only source-policy-authorized
+          redacted content may be dispatched (spec scenario "Redaction is
+          not authorized" — this state must never be chosen unless source
+          policy explicitly authorizes the derived view). `blocked`: no
+          content or identifying metadata may leave the source boundary.
+        enum: [allowed, redacted_allowed, blocked]
+      source_policy_ref:
+        type: string
+        minLength: 1
+        description: >-
+          Evidence identifying the source-declared handling and
+          source-domain policy orchestration consulted.
+      host_attestation_ref:
+        type: string
+        minLength: 1
+        description: >-
+          Evidence of the target host's attested tenant/data boundary and
+          handling authorization; required whenever dispatch is not
+          blocked.
+      blocked_reference:
+        $ref: "xfactory-document-opaque-locator.schema.yaml#/$defs/blocker_reference"
+    allOf:
+      - if:
+          properties: {state: {const: blocked}}
+        then:
+          required: [blocked_reference]
+          not:
+            required: [host_attestation_ref]
+      - if:
+          properties: {state: {enum: [allowed, redacted_allowed]}}
+        then:
+          required: [host_attestation_ref]
+          not:
+            required: [blocked_reference]

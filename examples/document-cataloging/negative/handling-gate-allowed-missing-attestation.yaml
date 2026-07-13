@@ -1,0 +1,7 @@
+# INVALID standalone dispatch-decision fragment: state is `allowed` but no
+# `host_attestation_ref` is supplied. Contract requires attestation of the
+# target host's tenant/data boundary and handling authorization before any
+# non-blocked dispatch. Must be rejected by
+# xfactory-document-handling-gate.schema.yaml `#/$defs/dispatch_decision`.
+state: allowed
+source_policy_ref: opsx-source-policy://medx/docs/clinical-intake-overview.md

@@ -1,0 +1,88 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-opaque-locator.schema.yaml"
+title: "Document-cataloging canonical document locator"
+contract_schema_version: 1
+description: >-
+  Reusable canonical document locator for the `document-cataloging`
+  capability (`add-document-cataloging`). Pure $defs kernel, mirroring
+  `shared-definitions.schema.yaml`'s pattern: never validated as a whole
+  document on its own, only $ref'd from the entry/target shapes in the
+  other five schemas in this family ("Governed document catalog
+  coverage", "Controlled classification facets and provenance").
+  Every catalog entry, cataloger-recommendation target, and owner-override
+  target carries exactly one locator: a persisted POSIX repository-relative
+  path when source handling policy permits persistence, or a policy-opaque
+  reference pair when it does not (spec scenario "Path persistence is
+  prohibited"). Supplying both, or supplying neither, is an ambiguous
+  locator and MUST be rejected (spec scenario "Locator is ambiguous").
+  Field names (`repo`, `document_ref`, `path_sha256`) follow the realized
+  codexFactory `catalog.py`/`inventory.py` mechanical-entry convention, not
+  the illustrative nesting in the change packet's
+  `supporting-docs/document-catalog.template.yaml` (see this change's
+  final report for the noted discrepancy).
+$defs:
+  path_locator:
+    type: object
+    description: >-
+      Locator variant used when source handling policy permits persisting
+      the repository-relative path. Deliberately open (no
+      `additionalProperties: false`): every consumer of this $def merges
+      it via `allOf` into a larger entry/target/override object that
+      carries many sibling fields beyond the locator itself, and a closed
+      object here would reject those siblings as unrecognized.
+    required: [repo, path]
+    properties:
+      repo: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+    not:
+      anyOf:
+        - required: [document_ref]
+        - required: [path_sha256]
+  opaque_locator:
+    type: object
+    description: >-
+      Locator variant used when source handling policy prohibits persisting
+      the path: a deterministic opaque document reference plus the path's
+      own SHA-256, neither of which reveals the path (spec scenario "Path
+      persistence is prohibited"). Deliberately open for the same reason as
+      `path_locator` above.
+    required: [repo, document_ref, path_sha256]
+    properties:
+      repo: {type: string, minLength: 1}
+      document_ref:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      path_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+    not:
+      required: [path]
+  document_locator:
+    description: >-
+      Exactly one canonical shape: a persisted path locator, or the
+      complete opaque reference pair. An instance satisfying both, or
+      neither, branch is an ambiguous locator (spec scenario "Locator is
+      ambiguous") and fails this `oneOf`.
+    oneOf:
+      - $ref: "#/$defs/path_locator"
+      - $ref: "#/$defs/opaque_locator"
+  blocker_reference:
+    type: object
+    description: >-
+      Authorized opaque blocker reference recorded when orchestration
+      cannot dispatch a document because the target host is not
+      authorized for its handling class (spec scenario "Host is not
+      authorized for protected content"). Never a raw path, passage, or
+      revealing identifier.
+    additionalProperties: false
+    required: [blocker_ref]
+    properties:
+      blocker_ref:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      reason_code:
+        type: string
+        enum:
+          - handling_authorization_missing
+          - tenant_boundary_mismatch
+          - redaction_not_authorized

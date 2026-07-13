@@ -1,0 +1,77 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-tag-registry.schema.yaml"
+title: "Document-cataloging namespaced topic-tag registry"
+contract_schema_version: 1
+description: >-
+  Namespaced document-catalog topic-tag registry (spec requirement
+  "Taxonomy registries remain owner-scoped"). openxFactory publishes
+  `contracts/document-tag-registry.yaml` for neutral namespaces; each
+  DomainxFactory publishes `catalog/document-tag-registry.yaml` for its
+  own registered namespaces. The effective registry is the deterministic
+  merge of every pinned registry file; a duplicate namespace id, tag id,
+  or alias claimed by more than one owner across the merged set is
+  invalid (spec scenario "Namespace ownership collides") — that
+  cross-file merge check is a deterministic-validator concern (change
+  task 2.3), since a single registry file validates independently of
+  every other pinned repository's registry. This schema enforces only
+  within-file shape: each namespace/tag id is well-formed, every tag
+  declares the namespace it belongs to, and `status` stays within the
+  three lifecycle values a tag can hold.
+type: object
+required: [schema_version, kind, registry_version, namespaces, tags]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_document_tag_registry}
+  registry_version:
+    type: integer
+    minimum: 1
+    description: >-
+      Declared registry content version; feeds the effective-taxonomy
+      digest as a string (`registry_input`/`taxonomy_digest`) but is
+      authored here as an integer, matching
+      `document-tag-registry.template.yaml`.
+  namespaces:
+    type: array
+    minItems: 1
+    items: {$ref: "#/$defs/namespace"}
+  tags:
+    type: array
+    items: {$ref: "#/$defs/tag"}
+  proposed_tags:
+    type: array
+    description: >-
+      Tags suggested by the cataloger but not yet accepted into `tags`
+      (spec scenario "Topic tag is unknown"); never effective until the
+      owning registry promotes them.
+    items: {$ref: "#/$defs/tag"}
+  retired_tags:
+    type: array
+    items: {$ref: "#/$defs/tag"}
+$defs:
+  namespace:
+    type: object
+    additionalProperties: false
+    required: [id, owner, description]
+    properties:
+      id:
+        type: string
+        pattern: "^[a-z][a-z0-9_-]*$"
+      owner:
+        type: string
+        minLength: 1
+        description: Canonical repository ID that owns this namespace.
+      description: {type: string, minLength: 1}
+  tag:
+    type: object
+    additionalProperties: false
+    required: [id, namespace, label, description, aliases, status]
+    properties:
+      id:
+        type: string
+        pattern: "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$"
+        description: "`<namespace>.<tag>`; the namespace segment must equal `namespace` below."
+      namespace: {type: string, pattern: "^[a-z][a-z0-9_-]*$"}
+      label: {type: string, minLength: 1}
+      description: {type: string, minLength: 1}
+      aliases: {type: array, items: {type: string, minLength: 1}}
+      status: {type: string, enum: [active, proposed, retired]}

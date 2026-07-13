@@ -1,0 +1,28 @@
+# Valid xfactory_document_tag_overrides: add-document-cataloging task 2.2
+# "owner override" example. Lives at catalog/document-tag-overrides.yaml in
+# the owning DomainxFactory repository. The `reviewed` entry corresponds to
+# document-catalog-snapshot-complete.example.yaml's document_role
+# disposition; the `overridden` entry replaces a suggested factory_scope
+# value the domain authority judged wrong.
+schema_version: 1
+kind: xfactory_document_tag_overrides
+overrides:
+  - repo: xFactories/MedxFactory
+    path: docs/clinical-intake-overview.md
+    source_content_hash: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    facet: document_role
+    decision: reviewed
+    actor: "xFactories/MedxFactory authority (Domain Hermes)"
+    occurred_at: "2026-07-12T09:00:00Z"
+    rationale: "Confirms the classifier's document_role suggestion matches editorial intent."
+    evidence_refs: ["catalog/document-tag-overrides.yaml#entry-1"]
+  - repo: xFactories/MedxFactory
+    path: docs/patient-safety-checklist.md
+    source_content_hash: 88d1d9af14b9d97d86a21aa10b804e12c52b6b1bb5fadbc69141bb81cf2fc663
+    facet: factory_scope
+    decision: overridden
+    values: [cross_domain]
+    actor: "xFactories/MedxFactory authority (Domain Hermes)"
+    occurred_at: "2026-07-12T10:15:00Z"
+    rationale: "The checklist is jointly maintained with OpsxFactory on-call rotation; classifier suggested domain-only scope."
+    evidence_refs: ["catalog/document-tag-overrides.yaml#entry-2"]

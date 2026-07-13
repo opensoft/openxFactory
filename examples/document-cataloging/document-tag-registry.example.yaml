@@ -1,0 +1,26 @@
+# Valid xfactory_document_tag_registry: openxFactory's neutral registry at
+# contracts/document-tag-registry.yaml, mirroring the change packet's
+# document-tag-registry.template.yaml shape. Validates against
+# contracts/schemas/xfactory-document-tag-registry.schema.yaml.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces:
+  - id: xfactory
+    owner: openxFactory
+    description: Neutral tags reusable across factory domains.
+tags:
+  - id: xfactory.document-governance
+    namespace: xfactory
+    label: Document governance
+    description: Lifecycle, catalog, health, and promotion governance.
+    aliases: []
+    status: active
+proposed_tags: []
+retired_tags:
+  - id: xfactory.legacy-inventory
+    namespace: xfactory
+    label: Legacy inventory (retired)
+    description: Superseded by xfactory.document-governance.
+    aliases: [xfactory.old-inventory]
+    status: retired

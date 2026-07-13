@@ -1,0 +1,15 @@
+# INVALID: decision is `overridden` (a replacement disposition) but no
+# `values` are supplied. Must be rejected by the override `allOf`/`if`
+# rule in xfactory-document-tag-overrides.schema.yaml.
+schema_version: 1
+kind: xfactory_document_tag_overrides
+overrides:
+  - repo: xFactories/MedxFactory
+    path: docs/patient-safety-checklist.md
+    source_content_hash: 88d1d9af14b9d97d86a21aa10b804e12c52b6b1bb5fadbc69141bb81cf2fc663
+    facet: factory_scope
+    decision: overridden
+    actor: "xFactories/MedxFactory authority (Domain Hermes)"
+    occurred_at: "2026-07-12T10:15:00Z"
+    rationale: "Missing replacement values — this fixture is deliberately invalid."
+    evidence_refs: ["catalog/document-tag-overrides.yaml#entry-2"]

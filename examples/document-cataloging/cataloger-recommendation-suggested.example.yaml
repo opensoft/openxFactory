@@ -1,0 +1,64 @@
+# Valid xfactory_document_cataloger_recommendation: add-document-cataloging
+# task 2.2 "suggested classification" example. Validates against
+# contracts/schemas/xfactory-document-cataloger-recommendation.schema.yaml.
+# Every facet is unconditionally `state: suggested` with no `review` block
+# (spec: "Model output SHALL be suggested, never approved") — a later main
+# run may merge this, byte-for-byte, into a new catalog snapshot entry's
+# facet_assignments.
+schema_version: 1
+kind: xfactory_document_cataloger_recommendation
+status: record
+job:
+  job_id: job-2026-07-12-001
+  as_of: "2026-07-12"
+  worker_profile: document-cataloger
+  classifier_version: "1.0.0"
+  model: xfactory-doc-cataloger-2026-06
+  prompt_contract_version: 1
+  envelope_ref: 8166b0526345f00b1d2e9abd18a21c5a8a7d7618b41de96444e0e8ac390bec77
+target:
+  repo: xFactories/MedxFactory
+  path: docs/clinical-intake-overview.md
+  content_hash: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+facet_assignments:
+  - facet: topic_tags
+    values: [medx.clinical-operations]
+    proposed_values: []
+    state: suggested
+    state_since: "2026-07-12"
+    provenance:
+      taxonomy_sha256: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+      method: classifier
+      classifier_version: "1.0.0"
+      model: xfactory-doc-cataloger-2026-06
+      prompt_contract_version: 1
+      confidence: 0.83
+      section: front-matter
+      passage_sha256: 8d74f18003c9213b6fc3b38d3c753be57c0aac2270702654c250b7e9328982af
+      evidence_refs: []
+    transitions:
+      - from: pending
+        to: suggested
+        occurred_at: "2026-07-12T02:00:00Z"
+        evidence_refs: []
+  - facet: capability_refs
+    values:
+      - repository: openxFactory
+        capability: document-lifecycle
+    state: suggested
+    state_since: "2026-07-12"
+    provenance:
+      taxonomy_sha256: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+      method: classifier
+      classifier_version: "1.0.0"
+      model: xfactory-doc-cataloger-2026-06
+      prompt_contract_version: 1
+      confidence: 0.86
+      section: front-matter
+      passage_sha256: 7f3332280e8978d4322b61084280ed0c957ea7c0e99daca41497cfdadc7b5300
+      evidence_refs: []
+    transitions:
+      - from: pending
+        to: suggested
+        occurred_at: "2026-07-12T02:00:00Z"
+        evidence_refs: []

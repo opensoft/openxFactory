@@ -1,0 +1,38 @@
+# INVALID: entry supplies both a persisted `path` and the opaque
+# `document_ref`/`path_sha256` pair. Contract scenario "Locator is
+# ambiguous" — must be rejected by
+# xfactory-document-catalog-snapshot.schema.yaml (via the embedded
+# xfactory-document-opaque-locator.schema.yaml `document_locator` oneOf).
+schema_version: 1
+kind: xfactory_document_catalog
+status: record
+run:
+  run_id: e428f1614835d9a48639cc65f4f223855d1949c55e5cabeb00fa0167bf0032f0
+  repository: xFactories/MedxFactory
+  repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+  inventory_snapshot_id: c5f2ecc6360c9166afe460b40e59488ccfe83155c1f7bbe13e0561797795d639
+taxonomy:
+  digest: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+  inputs:
+    - repository: openxFactory
+      path: contracts/document-tag-registry.yaml
+      content_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+      registry_version: "1"
+      repository_revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+      registry_revision: 3936c6dff1417735d56ce3973cfe6c29a09c7541
+    - repository: xFactories/MedxFactory
+      path: catalog/document-tag-registry.yaml
+      content_sha256: c4c813bada6af84cd358636770773a702f6a23cf4aab93a1c59d49aec3a9f2ce
+      registry_version: "1"
+      repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      registry_revision: 0e01e898f649e7ba3bc3938a076931186197af48
+entries:
+  - repo: xFactories/MedxFactory
+    path: docs/clinical-intake-overview.md
+    document_ref: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+    path_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    status: draft
+    artifact_type: governance_markdown
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    content_hash: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    snapshot_id: c5f2ecc6360c9166afe460b40e59488ccfe83155c1f7bbe13e0561797795d639

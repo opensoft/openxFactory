@@ -1,0 +1,8 @@
+# INVALID standalone locator fragment: both `path` and the opaque
+# `document_ref`/`path_sha256` pair are present. Contract scenario
+# "Locator is ambiguous". Must be rejected by
+# xfactory-document-opaque-locator.schema.yaml `#/$defs/document_locator`.
+repo: xFactories/MedxFactory
+path: docs/clinical-intake-overview.md
+document_ref: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+path_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74

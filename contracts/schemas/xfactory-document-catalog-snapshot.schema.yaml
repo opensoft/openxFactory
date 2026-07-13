@@ -1,0 +1,319 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-catalog-snapshot.schema.yaml"
+title: "Document-catalog immutable per-repository snapshot"
+contract_schema_version: 1
+description: >-
+  Immutable per-repository document-catalog snapshot for the
+  `document-cataloging` capability (`add-document-cataloging`; promoted
+  spec requirements "Governed document catalog coverage" and "Controlled
+  classification facets and provenance"). One file per repository under
+  `health/document-catalog/runs/YYYY-MM-DD/<run-id>/`; a later run creates
+  a new snapshot and never edits a closed one (spec scenario "Historical
+  record is closed"). Deletion is expressed structurally by a successor
+  snapshot simply omitting the removed entry's locator key (spec scenario
+  "Document is deleted or renamed") — there is no tombstone field.
+
+  Field names follow the realized codexFactory mechanical catalog
+  (`scripts/doc_health/inventory.py` / `catalog.py`): flat entry fields
+  (`repo`, `content_hash`, `handling`, ...) and a snapshot-level `taxonomy`
+  block (`digest` + ordered `inputs`) that sits beside `run`, not nested
+  inside it. This diverges from the change packet's illustrative
+  `supporting-docs/document-catalog.template.yaml` (which nests entry
+  identity under a `locator` object with `content_sha256`, wraps source
+  headers under `extracted_metadata`, and nests `taxonomy` — as
+  `effective_sha256` plus a literal `digest_fields` echo — inside `run`,
+  alongside a run-level `classifier` block). This schema follows the
+  realized shape because it is what the thirteenth deterministic family
+  actually reads and writes today, and because a run-level `classifier`
+  block would misrepresent incremental runs where carried-forward
+  facet_assignments legitimately keep older, still-valid provenance
+  alongside freshly classified ones; see this change's final report for
+  the full discrepancy note.
+type: object
+required: [schema_version, kind, status, run, taxonomy, entries]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_document_catalog}
+  status: {const: record}
+  run:
+    type: object
+    additionalProperties: false
+    required: [run_id, repository, repository_revision, inventory_snapshot_id]
+    properties:
+      run_id: {type: string, minLength: 1}
+      repository: {type: string, minLength: 1}
+      repository_revision: {type: [string, "null"]}
+      inventory_snapshot_id: {type: [string, "null"]}
+  taxonomy: {$ref: "#/$defs/taxonomy"}
+  entries:
+    type: array
+    items: {$ref: "#/$defs/entry"}
+$defs:
+  # --- effective taxonomy provenance ("Controlled classification facets and provenance") ---
+  taxonomy_input:
+    type: object
+    additionalProperties: false
+    description: >-
+      One ordered pinned-registry input. `repository`, `path`,
+      `content_sha256`, and `registry_version` feed the digest;
+      `repository_revision` and `registry_revision` are provenance only
+      and never alter it (spec scenario "Registry repository changes
+      elsewhere").
+    required:
+      - repository
+      - path
+      - content_sha256
+      - registry_version
+      - repository_revision
+      - registry_revision
+    properties:
+      repository: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+      content_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      registry_version: {type: string, minLength: 1}
+      repository_revision: {type: string, minLength: 1}
+      registry_revision: {type: string, minLength: 1}
+  taxonomy:
+    type: object
+    additionalProperties: false
+    description: >-
+      Effective-taxonomy digest plus its ordered registry inputs. A
+      snapshot lacking the digest or at least one ordered input is
+      rejected (spec scenario "Taxonomy inputs are incomplete").
+    required: [digest, inputs]
+    properties:
+      digest: {type: string, pattern: "^[0-9a-f]{64}$"}
+      inputs:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/taxonomy_input"}
+  # --- controlled classification facets ("Controlled classification facets and provenance") ---
+  facet_name:
+    type: string
+    enum:
+      - factory_scope
+      - domain_contexts
+      - capability_refs
+      - topic_tags
+      - document_role
+      - sensitivity_signal
+  facet_state:
+    type: string
+    description: >-
+      The six controlled facet states. Model output is always `suggested`
+      (spec: "Model output SHALL be suggested, never approved") — a
+      `reviewed`/`overridden` state requires a `review` disposition from an
+      authority with ownership standing; `pending`, `unclassified`, and
+      `policy_blocked` carry no classifier output at all.
+    enum: [pending, suggested, reviewed, overridden, unclassified, policy_blocked]
+  provenance:
+    type: object
+    additionalProperties: false
+    description: >-
+      Per-facet classification provenance. Field names follow the
+      promoted `document-catalog.template.yaml` exactly so a validated
+      cataloger-recommendation record can be merged unchanged.
+    required:
+      - taxonomy_sha256
+      - method
+      - classifier_version
+      - model
+      - prompt_contract_version
+      - confidence
+      - section
+      - passage_sha256
+      - evidence_refs
+    properties:
+      taxonomy_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      method: {type: string, enum: [classifier, declared, override]}
+      classifier_version: {type: string, minLength: 1}
+      model: {type: string, minLength: 1}
+      prompt_contract_version: {type: integer, minimum: 1}
+      confidence: {type: number, minimum: 0, maximum: 1}
+      section: {type: string, minLength: 1}
+      passage_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      evidence_refs: {type: array, items: {type: string, minLength: 1}}
+  transition:
+    type: object
+    additionalProperties: false
+    description: >-
+      One state-transition record. `state_since` resets on every
+      validated transition (spec: "state_since ... transitions"); an
+      already-pending facet invalidated again records a `pending` to
+      `pending` event rather than being silently overwritten (spec
+      scenario "Pending input changes again").
+    required: [from, to, occurred_at, evidence_refs]
+    properties:
+      from: {$ref: "#/$defs/facet_state"}
+      to: {$ref: "#/$defs/facet_state"}
+      occurred_at: {type: string, format: date-time}
+      evidence_refs: {type: array, items: {type: string, minLength: 1}}
+  review:
+    type: object
+    additionalProperties: false
+    description: >-
+      Authorized disposition backing a `reviewed`/`overridden` facet
+      state. `authority` must hold ownership standing for the entry's
+      repository (Domain Hermes for a domain-owned document, openxFactory
+      ratify authority for neutral/cross-repository documents) — standing
+      itself is a deterministic-validator concern (change task 2.3), not a
+      shape this schema can check (spec scenario "Unauthorized override is
+      supplied").
+    required: [decision, authority, occurred_at, rationale, evidence_refs]
+    properties:
+      decision: {type: string, enum: [reviewed, overridden]}
+      authority: {type: string, minLength: 1}
+      occurred_at: {type: string, format: date-time}
+      rationale: {type: string, minLength: 1}
+      evidence_refs: {type: array, items: {type: string, minLength: 1}}
+  facet_assignment:
+    type: object
+    description: >-
+      One controlled-facet assignment. `facet_assignments` on an entry is
+      always a LIST of these — never a mapping keyed by facet name (data
+      model "Catalog entry"). Per-facet value shape is restricted by
+      `facet` below: `factory_scope`, `document_role`, and
+      `sensitivity_signal` are closed enums; `capability_refs` values are
+      `{repository, capability}` pairs (resolution against a promoted or
+      active OpenSpec capability is a deterministic-validator concern,
+      spec scenario "Capability cannot resolve"); `domain_contexts` and
+      `topic_tags` are non-empty strings (topic-tag registry resolution is
+      likewise a deterministic-validator concern, spec scenario "Topic tag
+      is unknown").
+    required: [facet, values, state, state_since, transitions]
+    properties:
+      facet: {$ref: "#/$defs/facet_name"}
+      values: {type: array}
+      proposed_values:
+        type: array
+        description: >-
+          Tags proposed but not yet accepted by the owning registry (spec
+          scenario "Topic tag is unknown"); never merged into `values`.
+        items: {type: string, minLength: 1}
+      state: {$ref: "#/$defs/facet_state"}
+      state_since: {type: string, format: date}
+      provenance: {$ref: "#/$defs/provenance"}
+      transitions:
+        type: array
+        items: {$ref: "#/$defs/transition"}
+      review:
+        oneOf:
+          - type: "null"
+          - $ref: "#/$defs/review"
+    allOf:
+      - if:
+          properties: {facet: {const: factory_scope}}
+        then:
+          properties:
+            values:
+              type: array
+              items:
+                type: string
+                enum: [neutral, domain, cross_domain, aggregation, install_runtime, unknown]
+      - if:
+          properties: {facet: {const: document_role}}
+        then:
+          properties:
+            values:
+              type: array
+              items:
+                type: string
+                enum:
+                  - policy
+                  - contract
+                  - architecture
+                  - process
+                  - runbook
+                  - template
+                  - example
+                  - evidence
+                  - register
+                  - idea
+                  - specification
+                  - other
+      - if:
+          properties: {facet: {const: sensitivity_signal}}
+        then:
+          properties:
+            values:
+              type: array
+              # Never `safe`/`public`/etc: the vocabulary itself has no
+              # value below `unspecified` (spec scenario "Sensitivity
+              # inference lowers caution" — semantic classification may
+              # only raise caution, and this closed enum makes lowering it
+              # structurally impossible).
+              items: {type: string, enum: [unspecified, potentially_sensitive]}
+      - if:
+          properties: {facet: {const: capability_refs}}
+        then:
+          properties:
+            values:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [repository, capability]
+                properties:
+                  repository: {type: string, minLength: 1}
+                  capability: {type: string, minLength: 1}
+      - if:
+          properties: {facet: {enum: [domain_contexts, topic_tags]}}
+        then:
+          properties:
+            values:
+              type: array
+              items: {type: string, minLength: 1}
+      # Provenance required for every inferred state; absent for the three
+      # states that never carry classifier output (document_catalog.py
+      # NO_CLASSIFIER_OUTPUT_STATES: pending, unclassified, policy_blocked).
+      - if:
+          not:
+            properties: {state: {enum: [pending, unclassified, policy_blocked]}}
+        then:
+          required: [provenance]
+      # A reviewed/overridden state requires a disposition; any other
+      # state must not carry one (spec: "Model output SHALL be suggested,
+      # never approved" — reviewed/overridden only ever layers onto a
+      # validated cataloger suggestion or a declared value, never appears
+      # bare from a classifier).
+      - if:
+          properties: {state: {enum: [reviewed, overridden]}}
+        then:
+          required: [review]
+          properties:
+            review: {$ref: "#/$defs/review"}
+      - if:
+          not:
+            properties: {state: {enum: [reviewed, overridden]}}
+        then:
+          properties:
+            review: {not: {type: object}}
+  # --- mechanical entry ("Governed document catalog coverage") ---
+  entry:
+    type: object
+    description: >-
+      One governed document's mechanical identity, freshness, and
+      (once classified) controlled facet assignments. Source-derived
+      `status`/`kind`/`repository_context`/`handling` are copied verbatim
+      from the shared inventory and MUST NOT be semantically rewritten.
+    required: [repo, status, artifact_type, revision, content_hash, snapshot_id]
+    properties:
+      repo: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+      document_ref: {type: string, pattern: "^[0-9a-f]{64}$"}
+      path_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      status: {type: string, minLength: 1}
+      kind: {type: [string, "null"]}
+      repository_context: {type: [string, "null"]}
+      handling: {type: [string, "null"]}
+      artifact_type: {type: string, enum: [governance_markdown, promoted_spec]}
+      revision: {type: string, minLength: 1}
+      content_hash: {type: string, pattern: "^[0-9a-f]{64}$"}
+      snapshot_id: {type: string, minLength: 1}
+      dispatch_policy:
+        $ref: "xfactory-document-handling-gate.schema.yaml#/$defs/dispatch_decision"
+      facet_assignments:
+        type: array
+        items: {$ref: "#/$defs/facet_assignment"}
+    allOf:
+      - $ref: "xfactory-document-opaque-locator.schema.yaml#/$defs/document_locator"

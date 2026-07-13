@@ -1,0 +1,50 @@
+# Valid xfactory_document_catalog snapshot: add-document-cataloging task
+# 2.2 "deletion" example, PRIOR run. Pair with
+# document-catalog-snapshot-deletion-after.example.yaml: the successor
+# snapshot simply omits docs/legacy-runbook.md's locator key (spec
+# scenario "Document is deleted or renamed") rather than carrying a
+# tombstone field — this snapshot itself remains immutable and unedited.
+schema_version: 1
+kind: xfactory_document_catalog
+status: record
+run:
+  run_id: 2f5569707ce8766855e2c5703d722834b33afb5636bcbba52ded750e41cb465e
+  repository: xFactories/MedxFactory
+  repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+  inventory_snapshot_id: b2d3cb4bb4064b808e72e276cb1588f57a57d118579136038a0a17416e62679d
+taxonomy:
+  digest: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+  inputs:
+    - repository: openxFactory
+      path: contracts/document-tag-registry.yaml
+      content_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+      registry_version: "1"
+      repository_revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+      registry_revision: 3936c6dff1417735d56ce3973cfe6c29a09c7541
+    - repository: xFactories/MedxFactory
+      path: catalog/document-tag-registry.yaml
+      content_sha256: c4c813bada6af84cd358636770773a702f6a23cf4aab93a1c59d49aec3a9f2ce
+      registry_version: "1"
+      repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      registry_revision: 0e01e898f649e7ba3bc3938a076931186197af48
+entries:
+  - repo: xFactories/MedxFactory
+    path: docs/clinical-intake-overview.md
+    status: draft
+    kind: process
+    repository_context: MedxFactory
+    handling: null
+    artifact_type: governance_markdown
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    content_hash: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    snapshot_id: b2d3cb4bb4064b808e72e276cb1588f57a57d118579136038a0a17416e62679d
+  - repo: xFactories/MedxFactory
+    path: docs/legacy-runbook.md
+    status: retired
+    kind: runbook
+    repository_context: MedxFactory
+    handling: null
+    artifact_type: governance_markdown
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    content_hash: 5b13e7f4a974571c64a13f9803eae778790e7f66a19ebb13ab4d4ce5ac06e501
+    snapshot_id: b2d3cb4bb4064b808e72e276cb1588f57a57d118579136038a0a17416e62679d

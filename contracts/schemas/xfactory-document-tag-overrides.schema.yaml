@@ -1,0 +1,79 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-document-tag-overrides.schema.yaml"
+title: "Document-catalog owner override / disposition file"
+contract_schema_version: 1
+description: >-
+  Owner-authored catalog override/disposition file (spec requirement
+  "External catalog application and disposition authority"; spec
+  scenario "Domain classification is reviewed"). Stored at
+  `catalog/document-tag-overrides.yaml` in the owning repository and
+  consumed from that repository's pinned revision; an aggregation-side
+  edit, or an edit from an actor without ownership standing for the
+  target repository, has no standing and MUST be ignored (spec scenario
+  "Unauthorized override is supplied") — verifying that standing against
+  the repository's actual owning authority (Domain Hermes vs. the
+  openxFactory ratify authority) is a deterministic-validator concern
+  (change task 2.3), not a shape this schema can check. A later main run
+  applies an override by writing a `review` block (this file's `actor`
+  becomes that block's `authority`) onto the matching entry's
+  facet_assignment in a new
+  `xfactory-document-catalog-snapshot.schema.yaml` document; this file is
+  never itself the catalog.
+type: object
+required: [schema_version, kind, overrides]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_document_tag_overrides}
+  overrides:
+    type: array
+    items: {$ref: "#/$defs/override"}
+$defs:
+  override:
+    type: object
+    description: >-
+      One disposition targeting a specific facet of a specific document
+      at a specific content state. `source_content_hash` binds the
+      override to that state: a later content-hash change marks the
+      disposition stale until renewed (spec scenario "Source content
+      changes after review").
+    required:
+      - repo
+      - source_content_hash
+      - facet
+      - decision
+      - actor
+      - occurred_at
+      - rationale
+      - evidence_refs
+    properties:
+      repo: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+      document_ref: {type: string, pattern: "^[0-9a-f]{64}$"}
+      path_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+      source_content_hash: {type: string, pattern: "^[0-9a-f]{64}$"}
+      facet:
+        $ref: "xfactory-document-catalog-snapshot.schema.yaml#/$defs/facet_name"
+      decision: {type: string, enum: [reviewed, overridden]}
+      values:
+        type: array
+        description: >-
+          Replacement facet values; required only when `decision` is
+          `overridden` (a `reviewed` disposition endorses the existing
+          suggested values without replacing them).
+      actor:
+        type: string
+        minLength: 1
+        description: >-
+          The disposing authority (Domain Hermes for a domain-owned
+          document, the openxFactory ratify authority for neutral or
+          cross-repository documents); becomes the merged entry's
+          `review.authority`.
+      occurred_at: {type: string, format: date-time}
+      rationale: {type: string, minLength: 1}
+      evidence_refs: {type: array, items: {type: string, minLength: 1}}
+    allOf:
+      - $ref: "xfactory-document-opaque-locator.schema.yaml#/$defs/document_locator"
+      - if:
+          properties: {decision: {const: overridden}}
+        then:
+          required: [values]
