@@ -56,6 +56,37 @@ Planned contracts:
 | `merge-readiness-report.schema.yaml` | Merge council readiness report contract | To define |
 | `repo-boundary-release-map.schema.yaml` | Mapping between `openxFactory` release and install repo commits | To define |
 
+### Contracts Pending Realization
+
+Schemas already committed under `contracts/schemas/` for an **active, not yet
+archived** OpenSpec change. Following the avatar-client kernel precedent
+(`contracts/avatar-client/` existed for the whole `define-avatar-client-
+contract-kernel` change before its `contracts/manifest.yaml` entries and
+`contract-v1.7` tag were cut at realization), and the
+[Contract Versioning Policy](../docs/contract-versioning-policy.md)'s rule
+that `contract_bundle_version` is "allocated at realization after merge order
+is known" and "a bundle is not published until its tag exists," these files
+are **not yet** registered in `contracts/manifest.yaml` or
+`contracts/CHANGELOG.md`. Registration happens when the owning change
+archives (its task 8.7).
+
+| Contract | Purpose | Owning change |
+|---|---|---|
+| `schemas/xfactory-document-catalog-snapshot.schema.yaml` | Immutable per-repository document-catalog snapshot | `add-document-cataloging` |
+| `schemas/xfactory-document-cataloger-recommendation.schema.yaml` | Immutable non-authoritative cataloger-recommendation evidence | `add-document-cataloging` |
+| `schemas/xfactory-document-tag-registry.schema.yaml` | Namespaced document-catalog topic-tag registry | `add-document-cataloging` |
+| `schemas/xfactory-document-tag-overrides.schema.yaml` | Owner override/disposition file | `add-document-cataloging` |
+| `schemas/xfactory-document-opaque-locator.schema.yaml` | Reusable canonical/opaque document-locator `$defs` kernel | `add-document-cataloging` |
+| `schemas/xfactory-document-handling-gate.schema.yaml` | Reusable dispatch/handling-gate decision `$defs` kernel | `add-document-cataloging` |
+| `scripts/validate-document-catalog.py` | Strict validator: schema conformance, coverage, unique identity, source freshness, taxonomy resolution, override standing, immutable path layout, baseline-mode exceptions | `add-document-cataloging` |
+
+Reference examples exercising every schema (12 valid + 11 invalid fixtures,
+one violation per negative file) live at `examples/document-cataloging/`. See
+`openspec/changes/add-document-cataloging/specs/document-cataloging/spec.md`
+for the requirements these schemas realize, and that change's `tasks.md`
+task 2.1 completion note for the one documented shape discrepancy against
+its own illustrative `supporting-docs/document-catalog.template.yaml`.
+
 ## Contract Manifest
 
 The machine-readable inventory is:

@@ -149,6 +149,19 @@ compressed bundle. Proposal, design, and spec artifacts must carry every
 accepted normative claim before compression; the bundle is provenance, not
 canonical policy.
 
+## Catalog Tags Are Not Lifecycle State
+
+The active `add-document-cataloging` change defines an external,
+aggregation-hosted document catalog with controlled classification facets
+(see its
+[document-cataloging spec](../openspec/changes/add-document-cataloging/specs/document-cataloging/spec.md)
+for the owned vocabulary, provenance, and disposition-authority rules). Those
+facets are descriptive discovery metadata: they never set or infer this
+document's `Status:`/`Kind:` header, never assign ownership or destination,
+and never move a document through the lifecycle spine above. Once that
+change promotes, its own capability continues to own those rules; this
+section only draws the boundary for readers of this spine.
+
 ## Related Documents
 
 - [Ideation Work Area](../ideation/README.md) — the captured/organized areas.

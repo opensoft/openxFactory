@@ -43,6 +43,17 @@ family that cannot run is reported as skipped, never silently omitted.
 | 11 | Contract-copy drift | Domain-local copies vs their canonical openxFactory sources |
 | 12 | Notebook projection drift | The lifecycle notebook sync dry-run reports zero add/update/delete operations |
 
+The active `add-document-cataloging` change proposes a thirteenth
+deterministic family, `document-catalog`, plus a separate, non-deterministic
+`document-cataloger` worker lane that never participates in this pass; see
+its
+[doc-health spec delta](../openspec/changes/add-document-cataloging/specs/doc-health/spec.md)
+for the owned check scope. Until that change promotes, this contract remains
+the twelve-family baseline above, and any catalog classification stays
+descriptive discovery metadata — never lifecycle, ownership, or approval
+authority (see
+[Document Lifecycle](document-lifecycle.md#catalog-tags-are-not-lifecycle-state)).
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |
