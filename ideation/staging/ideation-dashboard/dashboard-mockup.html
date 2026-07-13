@@ -248,6 +248,40 @@
   .newdoc:hover { background: var(--faint); }
   .docstatus { font-family: var(--mono); font-size: 11px; color: var(--muted); min-height: 15px; margin: 0 0 10px; }
 
+  /* ---- cluster canvas (design sketch) ---- */
+  .canvas-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .canvas-head .cname { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+  .canvas-note { font-size: 11.5px; color: var(--muted); max-width: 64ch; }
+  .canvas { display: grid; grid-template-columns: 1fr 1.15fr 1.15fr; gap: 18px; min-width: 1080px; align-items: start; }
+  .pane { display: flex; flex-direction: column; gap: 8px; }
+  .pane-h { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; gap: 7px; }
+  .pane-h .n { background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; font-variant-numeric: tabular-nums; }
+  .member .summ { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .passage { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--st-brainstorm); border-radius: 5px; padding: 7px 10px; }
+  .passage q { font-size: 12.5px; font-style: italic; }
+  .passage .src { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+  .gapslot { border: 1.5px dashed var(--blocked); border-radius: 5px; padding: 8px 10px; }
+  .gapslot .title { color: var(--blocked); font-weight: 600; font-size: 12.5px; }
+  .gapslot .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .optset { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--faint); }
+  .optset .oh { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .optset .card { margin-top: 6px; }
+  .composer { border: 1px solid var(--st-staged); border-radius: 6px; padding: 9px 11px; background: var(--panel); display: flex; flex-direction: column; gap: 6px; }
+  .composer .ch { font-family: var(--mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--st-staged); }
+  .composer input, .composer textarea { font-family: var(--sans); font-size: 12px; color: var(--ink); background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; width: 100%; resize: vertical; }
+  .pending { border: 1.5px dashed var(--st-realized); border-radius: 5px; padding: 7px 10px; }
+  .pending .title { font-size: 12.5px; font-weight: 600; }
+  .pending .meta { font-size: 11px; color: var(--muted); margin: 2px 0 6px; }
+  .cbtn { font-family: var(--mono); font-size: 10.5px; font-weight: 600; cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 3px; padding: 2px 8px; color: var(--muted); text-align: left; }
+  .cbtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
+  .canvasbtn {
+    margin-top: 6px; margin-left: 6px; font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    color: var(--st-realized); background: none; border: 1px solid var(--st-realized);
+    border-radius: 3px; padding: 2px 7px; cursor: pointer;
+  }
+  .canvasbtn:hover { background: var(--faint); }
+  .canvas-status { font-family: var(--mono); font-size: 11px; color: var(--muted); min-height: 15px; margin: 8px 0 0; }
+
   .tray {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: none;
     background: var(--panel); border-top: 2px solid var(--st-staged);
@@ -301,6 +335,7 @@
     <button class="tab" role="tab" id="tab-funnel" aria-selected="true" aria-controls="view-funnel">realization funnel</button>
     <button class="tab" role="tab" id="tab-board" aria-selected="false" aria-controls="view-board">pipeline board</button>
     <button class="tab" role="tab" id="tab-docs" aria-selected="false" aria-controls="view-docs">doc list</button>
+    <button class="tab" role="tab" id="tab-canvas" aria-selected="false" aria-controls="view-canvas">cluster canvas · sketch</button>
   </div>
 
   <!-- ============ FUNNEL VIEW ============ -->
@@ -499,6 +534,56 @@
     </div>
   </section>
 
+  <!-- ============ CLUSTER CANVAS (design sketch; D11 working surface) ============ -->
+  <section class="view" id="view-canvas" role="tabpanel" aria-labelledby="tab-canvas" hidden>
+    <div class="canvas-head">
+      <span class="cname">ideation-governance</span>
+      <span class="pill stage">cluster canvas · design sketch</span>
+      <span class="canvas-note">populated for this one cluster; in the real renderer every cluster card opens its own canvas. All actions are mocks honoring the boundary: machinery assembles, humans commit, agents suggest into review.</span>
+    </div>
+    <div class="scroller">
+      <div class="canvas">
+        <div class="pane">
+          <div class="pane-h">member docs <span class="n">3</span></div>
+          <div class="card member"><div class="id">ideation-dashboard.md</div><div class="summ">Six-column realization funnel over a possibles register, pipeline board, workbench for temp doc sets.</div><span class="pill stage">active brainstorm</span></div>
+          <div class="card member"><div class="id">ideation-cross-reference-readiness.md</div><div class="summ">Topic-indexed cross-reference scored 1–10 by three Hermes tiers; ≥8 recommends a proposal.</div><span class="pill neutral">design history</span></div>
+          <div class="card member"><div class="id">fda-samd-traceability-rationale.md</div><div class="summ">Origin provenance is necessary but not sufficient for FDA SaMD compliance.</div><span class="pill blocked">unclaimed by any possible</span></div>
+          <button class="cbtn" data-mock="member">＋ propose membership (drop a doc here) — scaffolds a Topics: edit in your editor</button>
+        </div>
+        <div class="pane">
+          <div class="pane-h">evidence board <span class="n">3 pinned</span></div>
+          <div class="passage"><q>Unpicked possibles evaporate into prose — nothing records the candidate feats a topic cluster could spawn but has not yet.</q><div class="src">ideation-dashboard.md · §Problem · passage 4c1a…</div></div>
+          <div class="passage"><q>Scored 1–10 for staging readiness by three independent Hermes-tier reviewers … a minimum-score ≥8 gate triggering a recommendation — not an action.</q><div class="src">ideation-cross-reference-readiness.md · §Summary · passage 9e77…</div></div>
+          <div class="passage"><q>Origin provenance is a necessary first traceability edge but is not by itself sufficient for FDA SaMD compliance.</q><div class="src">fda-samd-traceability-rationale.md · §Claim · passage b2d3…</div></div>
+          <button class="cbtn" data-mock="pin">＋ pin passage from a member doc</button>
+          <div class="gapslot"><div class="title">gap: 1 doc unclaimed by any possible</div><div class="meta">fda-samd-traceability-rationale.md supports nothing yet — a "regulated-traceability profile" is a latent feat waiting to be named. Compose it →</div></div>
+        </div>
+        <div class="pane">
+          <div class="pane-h">possibles — this cluster <span class="n">6</span></div>
+          <div class="card possible picked"><span class="dot"></span><div><div class="title">Claim routing + destination acceptance</div><div class="meta">picked → ideation-routing</div></div></div>
+          <div class="card possible picked"><span class="dot"></span><div><div class="title">Controlled tagging + catalog snapshots</div><div class="meta">picked → document-cataloging</div></div></div>
+          <div class="card possible picked"><span class="dot"></span><div><div class="title">Cross-reference readiness index</div><div class="meta">picked → readiness change · evidence: passage 9e77…</div></div></div>
+          <div class="card possible picked"><span class="dot"></span><div><div class="title">Proposal origin contract</div><div class="meta">picked → proposal-origin-contract · evidence: passage b2d3…</div></div></div>
+          <div class="optset">
+            <div class="oh">option set · governance proposal shape — resolved</div>
+            <div class="card possible superseded"><span class="dot"></span><div><div class="title">Single umbrella governance proposal</div><div class="meta">superseded — reason: user-approved split (citation recorded)</div></div></div>
+            <div class="card possible picked"><span class="dot"></span><div><div class="title">Four-way split: routing / cataloging / readiness / origin</div><div class="meta">chosen option — one gesture marks the sibling superseded (R2)</div></div></div>
+          </div>
+          <div class="card possible latent shared"><span class="dot"></span><div><div class="title">Ideation dashboard GUI</div><div class="meta">latent — claimed by 2 clusters (governance + visualization)</div></div></div>
+          <div class="pending"><div class="title">✨ suggested: Regulated-traceability profile</div><div class="meta">pending review · agent create-only · cites passage b2d3… </div><button class="cbtn" data-mock="accept">accept → latent</button> <button class="cbtn" data-mock="dismiss">dismiss…</button></div>
+          <div class="composer">
+            <span class="ch">compose possible</span>
+            <input placeholder="name — e.g. regulated-traceability-profile" aria-label="Possible name">
+            <textarea rows="2" placeholder="one-line claim…" aria-label="Possible claim"></textarea>
+            <div><button class="cbtn" data-mock="evidence">＋ attach pinned evidence</button> <button class="cbtn" data-mock="compose">draft register entry (human commits)</button></div>
+          </div>
+          <button class="cbtn" data-mock="derive">✨ derive possibles from this cluster (agent → pending review)</button>
+        </div>
+      </div>
+    </div>
+    <div class="canvas-status" id="canvasstatus" aria-live="polite"></div>
+  </section>
+
   <!-- ============ DOC LIST VIEW ============ -->
   <section class="view" id="view-docs" role="tabpanel" aria-labelledby="tab-docs" hidden>
     <div class="legend">
@@ -541,6 +626,8 @@
         <button class="tact" data-act="readiness">score readiness</button>
         <button class="tact" data-act="health">run doc-health</button>
         <button class="tact" data-act="organize">draft organize gate…</button>
+        <button class="tact" data-act="compose">compose possible</button>
+        <button class="tact" data-act="derive">derive possibles ✨</button>
         <button class="tact clear" data-act="clear">clear</button>
       </span>
     </div>
@@ -779,6 +866,36 @@
     card.appendChild(btn);
   }
 
+  // cluster canvas sketch: every cluster card opens the canvas (populated for ideation-governance)
+  const canvasStatus = document.getElementById("canvasstatus");
+  Object.keys(CLUSTER_NAMES).forEach(cid => {
+    const card = document.getElementById(cid);
+    if (!card) return;
+    const btn = document.createElement("button");
+    btn.className = "canvasbtn";
+    btn.textContent = "⊞ open canvas";
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      document.getElementById("tab-canvas").click();
+      canvasStatus.textContent = cid === "c-idgov" ? ""
+        : "sketch is populated for ideation-governance; in the real renderer this opens the " + CLUSTER_NAMES[cid] + " canvas";
+    });
+    card.appendChild(btn);
+  });
+  const MOCK_MSG = {
+    member: "mock — would scaffold adding this cluster's topic to the doc's Topics: header and open it in your editor (human edit, never a silent write)",
+    pin: "mock — would open a member doc's outline to select a passage; pins carry section ref + passage hash (cataloging-contract provenance)",
+    accept: "mock — accepted suggestion becomes a latent possible in the drafted register entry, citing its passages; a human commits it",
+    dismiss: "mock — dismissal requires a recorded reason, mirroring contested-finding dispositions",
+    evidence: "mock — attaches pinned passages so the possible cites its evidence from birth",
+    compose: "mock — drafts a possibles-register entry (state: latent) for human review and commit; nothing auto-enters the register",
+    derive: "mock — bounded agent reads the member docs and emits candidate possibles with cited passages into the pending-review tray (agent create-only)"
+  };
+  document.querySelectorAll("[data-mock]").forEach(b => b.addEventListener("click", e => {
+    e.preventDefault(); e.stopPropagation();
+    canvasStatus.textContent = MOCK_MSG[b.dataset.mock] || "mock";
+  }));
+
   document.addEventListener("change", e => {
     const cb = e.target.closest ? e.target.closest("input[data-doc]") : null;
     if (!cb) return;
@@ -790,7 +907,9 @@
     nlm: n => "mock — would run: nlm notebook create xf-wb-" + n + ", add the set as sources, then interrogate / mind-map it; new notes return as new docs via hybrid imports; deleting a source there removes it from the set only, never the repo doc",
     readiness: () => "mock — would run the three-tier Hermes panel over this set only (on-demand readiness, ahead of the nightly lane)",
     health: () => "mock — would run the codexFactory doc-health checker scoped to this set",
-    organize: n => "mock — would pre-fill a staging/" + n + "/ packet skeleton for human review; the organize gate itself stays manual"
+    organize: n => "mock — would pre-fill a staging/" + n + "/ packet skeleton for human review; the organize gate itself stays manual",
+    compose: () => "mock — would open the possible composer over this set's docs; the drafted register entry cites pinned evidence and a human commits it",
+    derive: () => "mock — bounded agent over this set emits candidate possibles with cited passages into the pending-review tray (agent create-only)"
   };
   document.querySelectorAll(".tact").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.act === "clear") { wb.clear(); nameEl.value = ""; renderWb(); syncChecks(); return; }
@@ -809,7 +928,7 @@
   v5.addEventListener("click", () => setVariant(true));
   v6.addEventListener("click", () => setVariant(false));
 
-  const tabs = [["tab-funnel", "view-funnel"], ["tab-board", "view-board"], ["tab-docs", "view-docs"]];
+  const tabs = [["tab-funnel", "view-funnel"], ["tab-board", "view-board"], ["tab-docs", "view-docs"], ["tab-canvas", "view-canvas"]];
   tabs.forEach(([tabId, viewId]) => {
     document.getElementById(tabId).addEventListener("click", () => {
       tabs.forEach(([t, v]) => {
