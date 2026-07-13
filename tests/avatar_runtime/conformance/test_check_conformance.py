@@ -107,3 +107,101 @@ def test_kernel_variance_reopens_only_mapped():
         "ARR-004-S01",
         "ARR-005-S03",
     }
+
+
+def test_pin_missing_required_scenarios_flagged():
+    # A realized pin MUST carry the content-addressed required-set (FR-034a).
+    pin = {
+        "released_kernel": {
+            "tag": "t", "commit": "c", "file_digests": {"f": "d"},
+            "interface_lock_digest": "i", "acceptance_map_digest": "a",
+        },
+        "conformance": {
+            "provisional_adapter_disabled": True,
+            "canonical_matches_provisional": True,
+        },
+    }
+    assert any("required_scenarios" in p for p in cc.validate_realization_pin(pin))
+
+
+# --- pin-authoritative acceptance sourcing (FR-034a; fail-closed cross-check) --- #
+import yaml  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from conformance import acceptance_source as asrc  # noqa: E402
+
+
+def _write_map(root: Path, rel: str, ids: list[str]) -> None:
+    p = root / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(yaml.safe_dump({"requirements": [{"scenarios": [{"id": i} for i in ids]}]}))
+
+
+def _pin(root: Path, arr, acr, archived=False, arr_digest=None):
+    return {
+        "required_scenarios": {"arr": list(arr), "acr": list(acr)},
+        "conformance": {
+            "sources_archived": archived,
+            "acceptance_source_digests": {
+                "arr": arr_digest or asrc.content_digest(asrc.ARR_MAP, root),
+                "acr": asrc.content_digest(asrc.ACR_RELEASED_MAP, root),
+            },
+        },
+    }
+
+
+def test_pinned_required_scenarios_union():
+    assert asrc.pinned_required_scenarios({}) == set()
+    pin = {"required_scenarios": {"arr": ["ARR-1"], "acr": ["ACR-1", "ACR-2"]}}
+    assert asrc.pinned_required_scenarios(pin) == {"ARR-1", "ACR-1", "ACR-2"}
+
+
+def test_verify_sources_clean_pass(tmp_path):
+    _write_map(tmp_path, asrc.ARR_MAP, ["ARR-1", "ARR-2"])
+    _write_map(tmp_path, asrc.ACR_RELEASED_MAP, ["ACR-1"])
+    pin = _pin(tmp_path, ["ARR-1", "ARR-2"], ["ACR-1"])
+    assert asrc.verify_sources_against_pin(pin, root=tmp_path) == []
+
+
+def test_verify_sources_digest_drift_only(tmp_path):
+    _write_map(tmp_path, asrc.ARR_MAP, ["ARR-1"])
+    _write_map(tmp_path, asrc.ACR_RELEASED_MAP, ["ACR-1"])
+    pin = _pin(tmp_path, ["ARR-1"], ["ACR-1"])
+    # same scenario set, different bytes -> only the digest leg fires
+    (tmp_path / asrc.ARR_MAP).write_text(
+        (tmp_path / asrc.ARR_MAP).read_text() + "\n# noise\n")
+    probs = asrc.verify_sources_against_pin(pin, root=tmp_path)
+    assert any(p.startswith("arr") and "digest drift" in p for p in probs)
+    assert not any("set drift" in p for p in probs)
+
+
+def test_verify_sources_set_drift_only(tmp_path):
+    _write_map(tmp_path, asrc.ARR_MAP, ["ARR-1"])
+    _write_map(tmp_path, asrc.ACR_RELEASED_MAP, ["ACR-1", "ACR-2"])
+    # digests match the live files, but the pinned ACR set omits ACR-2 -> set drift only
+    pin = _pin(tmp_path, ["ARR-1"], ["ACR-1"])
+    probs = asrc.verify_sources_against_pin(pin, root=tmp_path)
+    assert any(p.startswith("acr") and "set drift" in p for p in probs)
+    assert not any("digest drift" in p for p in probs)
+
+
+def test_verify_sources_absent_map_fails_closed(tmp_path):
+    # ARR map absent, pin records an arr digest, sources_archived not set -> drift.
+    _write_map(tmp_path, asrc.ACR_RELEASED_MAP, ["ACR-1"])
+    pin = _pin(tmp_path, ["ARR-1"], ["ACR-1"], arr_digest="sha256:deadbeef")
+    probs = asrc.verify_sources_against_pin(pin, root=tmp_path)
+    assert any(p.startswith("arr") and "absent" in p for p in probs)
+
+
+def test_verify_sources_absent_map_archived_skips(tmp_path):
+    # Deliberate archival: absent ARR is permitted; present ACR still verified.
+    _write_map(tmp_path, asrc.ACR_RELEASED_MAP, ["ACR-1"])
+    pin = _pin(tmp_path, ["ARR-1"], ["ACR-1"], archived=True, arr_digest="sha256:x")
+    assert asrc.verify_sources_against_pin(pin, root=tmp_path) == []
+
+
+def test_verify_sources_null_conformance_no_crash():
+    # conformance present but null must not raise (controlled behavior, not a traceback).
+    pin = {"required_scenarios": {"arr": ["X"], "acr": ["Y"]}, "conformance": None}
+    out = asrc.verify_sources_against_pin(pin, root=Path("/nonexistent-root-xyz"))
+    assert isinstance(out, list)

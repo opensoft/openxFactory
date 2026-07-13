@@ -47,6 +47,120 @@ conformance:
   scenario_test_map_result: pass        # 106/106 scenarios mapped/dispositioned (34 ARR + 72 ACR)
   boundary_gate_result: pass            # scripts/validate-avatar-runtime.py
   canonical_matches_provisional: true   # released ACR set == provisional baseline set (72/72, zero diff); mapped suite green under --final
+  sources_archived: false               # both acceptance maps live at stable paths (ARR in the runtime tree, ACR the released contract); NOT removed by change-dir archiving. Set true ONLY on a deliberate future removal — absence otherwise fails --final closed.
   acceptance_source_digests:            # C2: content-addresses the required-set sources in effect at --final
     arr: sha256:d0036814d47afa4c17d7f8620fba5b8e949b71ad5950918215294b52e436196b
     acr: sha256:23a5176015ab8f05d334262a6af430b0ca8e8b84ff1d335268c1b5d86ae8210f
+
+# Frozen content-addressed required-set (FR-034a): check_conformance.py --final
+# sources this AUTHORITATIVELY (so it survives the change dirs archiving) and
+# cross-verifies the live maps against it by digest + set-equality when present.
+required_scenarios:
+  arr:  # 34 runtime ARR scenarios (tests/avatar_runtime/conformance/avatar-reference-runtime-acceptance-map.yaml)
+    - ARR-001-S01
+    - ARR-001-S02
+    - ARR-001-S03
+    - ARR-002-S01
+    - ARR-002-S02
+    - ARR-002-S03
+    - ARR-002-S04
+    - ARR-003-S01
+    - ARR-003-S02
+    - ARR-003-S03
+    - ARR-004-S01
+    - ARR-004-S02
+    - ARR-004-S03
+    - ARR-004-S04
+    - ARR-004-S05
+    - ARR-005-S01
+    - ARR-005-S02
+    - ARR-005-S03
+    - ARR-005-S04
+    - ARR-005-S05
+    - ARR-006-S01
+    - ARR-006-S02
+    - ARR-006-S03
+    - ARR-006-S04
+    - ARR-006-S05
+    - ARR-007-S01
+    - ARR-007-S02
+    - ARR-007-S03
+    - ARR-007-S04
+    - ARR-007-S05
+    - ARR-008-S01
+    - ARR-008-S02
+    - ARR-008-S03
+    - ARR-008-S04
+  acr:  # 72 applicable kernel ACR scenarios (contracts/avatar-client/acceptance-map.yaml)
+    - ACR-001-S01
+    - ACR-001-S02
+    - ACR-001-S03
+    - ACR-002-S01
+    - ACR-002-S02
+    - ACR-002-S03
+    - ACR-002-S04
+    - ACR-002-S05
+    - ACR-002-S06
+    - ACR-002-S07
+    - ACR-002-S08
+    - ACR-002-S09
+    - ACR-003-S01
+    - ACR-003-S02
+    - ACR-003-S03
+    - ACR-003-S04
+    - ACR-003-S05
+    - ACR-003-S06
+    - ACR-003-S07
+    - ACR-003-S08
+    - ACR-003-S09
+    - ACR-004-S01
+    - ACR-004-S02
+    - ACR-004-S03
+    - ACR-004-S04
+    - ACR-004-S05
+    - ACR-004-S06
+    - ACR-005-S01
+    - ACR-005-S02
+    - ACR-005-S03
+    - ACR-005-S04
+    - ACR-005-S05
+    - ACR-006-S01
+    - ACR-006-S02
+    - ACR-006-S03
+    - ACR-006-S04
+    - ACR-007-S01
+    - ACR-007-S02
+    - ACR-007-S03
+    - ACR-007-S04
+    - ACR-008-S01
+    - ACR-008-S02
+    - ACR-008-S03
+    - ACR-008-S04
+    - ACR-008-S05
+    - ACR-008-S06
+    - ACR-009-S01
+    - ACR-009-S02
+    - ACR-009-S03
+    - ACR-010-S01
+    - ACR-010-S02
+    - ACR-010-S03
+    - ACR-011-S01
+    - ACR-011-S02
+    - ACR-012-S01
+    - ACR-012-S02
+    - ACR-012-S03
+    - ACR-012-S04
+    - RBG-001-S01
+    - RBG-001-S02
+    - RBG-002-S01
+    - RBG-002-S02
+    - RBG-002-S03
+    - RBG-003-S01
+    - RBG-003-S02
+    - SCO-001-S01
+    - SCO-001-S02
+    - SCO-001-S03
+    - SCO-001-S04
+    - SCO-001-S05
+    - SCO-002-S01
+    - SCO-002-S02

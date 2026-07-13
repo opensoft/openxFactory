@@ -402,13 +402,20 @@ telemetry.
   non-applicability disposition with rationale; the conformance checker MUST compare
   it against the acceptance map(s) and the collected test set and MUST fail on missing,
   duplicate, dangling, skipped-required, or unknown mappings. (ARR-008-S01, ARR-008-S02)
-- **FR-034a**: The applicable `ACR-*` set MUST be derived from an acceptance map rather
-  than a second hand-maintained enumeration: during parallel work the checker consumes
-  the versioned shared baseline map
-  `openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml`
-  (`avatar-client-parallel-v1`) with source-commit and digest verification, and at
-  realization it switches to the digest-pinned released
-  `contracts/avatar-client/acceptance-map.yaml`. (ARR-002-S01, ARR-008-S01)
+- **FR-034a**: The required `ARR-*`/`ACR-*` set MUST be content-addressed rather than a
+  second hand-maintained enumeration. The runtime-owned ARR map lives in the runtime
+  test tree (`tests/avatar_runtime/conformance/avatar-reference-runtime-acceptance-map.yaml`,
+  relocated at realization from the change supporting-docs so it is not archived away),
+  and the applicable `ACR-*` set is derived from the released kernel map
+  `contracts/avatar-client/acceptance-map.yaml`. At realization the enumerated
+  required-set and both source digests MUST be frozen into
+  `tests/avatar_runtime/conformance/realization-pin.yaml`; the `--final` checker sources
+  the required-set authoritatively from the pin and cross-verifies each live map (when
+  present) against its pinned digest and enumerated set, failing closed on drift. Because
+  the required-set is pinned, it stays content-addressed and checkable after the sibling
+  change directories archive. (During parallel work the checker consumed the
+  `avatar-client-parallel-v1` baseline map from the kernel change supporting-docs; that
+  source is retired at realization.) (ARR-002-S01, ARR-008-S01)
 - **FR-035**: Final evidence MUST run with the provisional adapter disabled against
   canonical fixtures from the released acceptance map; if canonical execution disagrees
   with provisional behavior, realization MUST fail and the mapped behavior MUST be

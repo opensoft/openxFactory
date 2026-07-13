@@ -81,6 +81,9 @@ def validate_realization_pin(pin: dict) -> list[str]:
         problems.append("provisional_adapter_disabled must be true for final conformance")
     if conf.get("canonical_matches_provisional") is not True:
         problems.append("canonical execution diverged from provisional behavior")
+    rs = pin.get("required_scenarios") or {}
+    if not (rs.get("arr") and rs.get("acr")):
+        problems.append("required_scenarios (content-addressed arr+acr set) missing or empty")
     return problems
 
 
@@ -138,13 +141,28 @@ def collect_skipped_nodes(root: Path = ROOT) -> set[str]:
 
 def main(argv: list[str]) -> int:
     final = "--final" in argv
-    try:
-        required = acceptance_source.required_scenarios(final=final)
-    except FileNotFoundError:
-        # --final before realization: the released acceptance map does not exist
-        # yet. Report a controlled failure instead of a raw traceback (SC pre-release).
-        print("FAIL: released acceptance map not present; realization not yet available")
-        return 2
+    pin: dict = {}
+    source_problems: list[str] = []
+    if final:
+        # Realization: the required-set is sourced AUTHORITATIVELY from the frozen,
+        # content-addressed pin (so it survives the change dirs archiving), and the
+        # live maps are cross-verified against it when present (FR-034a).
+        if not PIN_PATH.exists():
+            print("FAIL: --final requires realization-pin.yaml")
+            return 2
+        pin = yaml.safe_load(PIN_PATH.read_text()) or {}
+        required = acceptance_source.pinned_required_scenarios(pin)
+        if not required:
+            print("FAIL: realization-pin.yaml carries no content-addressed required_scenarios")
+            return 2
+        source_problems = acceptance_source.verify_sources_against_pin(pin)
+    else:
+        try:
+            required = acceptance_source.required_scenarios(final=False)
+        except FileNotFoundError:
+            # Pre-realization / map absent: controlled failure, not a raw traceback.
+            print("FAIL: acceptance map not present; realization not yet available")
+            return 2
     entries = load_entries()
     collected = collect_test_nodes()
     skipped = collect_skipped_nodes()
@@ -154,14 +172,12 @@ def main(argv: list[str]) -> int:
     print(f"conformance: {len(required)} required scenarios, {len(entries)} map entries, "
           f"{len(collected)} collected test nodes")
     if final:
-        if not PIN_PATH.exists():
-            print("FAIL: --final requires realization-pin.yaml")
+        for p in validate_realization_pin(pin):
+            print(f"  realization-pin: {p}")
             total += 1
-        else:
-            pin = yaml.safe_load(PIN_PATH.read_text()) or {}
-            for p in validate_realization_pin(pin):
-                print(f"  realization-pin: {p}")
-                total += 1
+        for p in source_problems:
+            print(f"  source-drift: {p}")
+            total += 1
     for cls, items in failures.items():
         if items:
             print(f"  {cls}: {len(items)}")

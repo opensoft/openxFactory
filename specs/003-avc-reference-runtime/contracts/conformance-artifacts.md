@@ -25,7 +25,7 @@ acceptance_sources:
   # (a) runtime-owned ARR required-set source (34 ARR scenarios)
   - id: avatar-reference-runtime
     role: arr
-    path: openspec/changes/implement-avatar-reference-runtime/supporting-docs/avatar-reference-runtime-acceptance-map.yaml
+    path: tests/avatar_runtime/conformance/avatar-reference-runtime-acceptance-map.yaml
     source_commit: <commit>                 # verified
     digest: <sha256>                        # verified — recorded in realization-pin.yaml (survives change-dir archival)
   # (b) client ACR baseline source during parallel work (applicable ACR subset)
