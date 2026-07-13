@@ -30,6 +30,7 @@ description: >-
   alongside freshly classified ones; see this change's final report for
   the full discrepancy note.
 type: object
+additionalProperties: false
 required: [schema_version, kind, status, run, taxonomy, entries]
 properties:
   schema_version: {const: 1}
@@ -168,6 +169,7 @@ $defs:
       evidence_refs: {type: array, items: {type: string, minLength: 1}}
   facet_assignment:
     type: object
+    additionalProperties: false
     description: >-
       One controlled-facet assignment. `facet_assignments` on an entry is
       always a LIST of these — never a mapping keyed by facet name (data
@@ -291,6 +293,7 @@ $defs:
   # --- mechanical entry ("Governed document catalog coverage") ---
   entry:
     type: object
+    additionalProperties: false
     description: >-
       One governed document's mechanical identity, freshness, and
       (once classified) controlled facet assignments. Source-derived

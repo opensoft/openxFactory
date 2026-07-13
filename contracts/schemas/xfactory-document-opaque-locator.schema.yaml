@@ -9,7 +9,7 @@ description: >-
   document on its own, only $ref'd from the entry/target shapes in the
   other five schemas in this family ("Governed document catalog
   coverage", "Controlled classification facets and provenance").
-  Every catalog entry, cataloger-recommendation target, and owner-override
+  Every catalog entry, cataloger-recommendation entry, and owner-override
   target carries exactly one locator: a persisted POSIX repository-relative
   path when source handling policy permits persistence, or a policy-opaque
   reference pair when it does not (spec scenario "Path persistence is

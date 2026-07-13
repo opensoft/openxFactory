@@ -4,6 +4,7 @@ title: "Document-cataloging namespaced topic-tag registry"
 contract_schema_version: 1
 description: >-
   Namespaced document-catalog topic-tag registry (spec requirement
+  "Controlled classification facets and provenance"; design decision
   "Taxonomy registries remain owner-scoped"). openxFactory publishes
   `contracts/document-tag-registry.yaml` for neutral namespaces; each
   DomainxFactory publishes `catalog/document-tag-registry.yaml` for its
@@ -18,6 +19,7 @@ description: >-
   declares the namespace it belongs to, and `status` stays within the
   three lifecycle values a tag can hold.
 type: object
+additionalProperties: false
 required: [schema_version, kind, registry_version, namespaces, tags]
 properties:
   schema_version: {const: 1}

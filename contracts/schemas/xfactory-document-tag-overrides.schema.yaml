@@ -20,6 +20,7 @@ description: >-
   `xfactory-document-catalog-snapshot.schema.yaml` document; this file is
   never itself the catalog.
 type: object
+additionalProperties: false
 required: [schema_version, kind, overrides]
 properties:
   schema_version: {const: 1}
@@ -30,6 +31,7 @@ properties:
 $defs:
   override:
     type: object
+    additionalProperties: false
     description: >-
       One disposition targeting a specific facet of a specific document
       at a specific content state. `source_content_hash` binds the
