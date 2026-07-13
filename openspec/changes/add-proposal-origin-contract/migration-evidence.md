@@ -57,10 +57,14 @@ through a rename (`enable-live-openworkflow-factory` →
 OpenSpec change (#19)" by Brett Heap, 2026-06-25/26 — the second OpenSpec
 proposal ever created in this repo (only `restructure-factory-repo-boundaries`
 predates it), authored and merged directly by the repo owner.
-`ideation/staging` did not exist until commit `cf96b14` "Organize all
-brainstorm material into orthogonal staged topics" on 2026-07-08
-(`git log --diff-filter=A -- 'ideation/staging/*'` shows no earlier entries)
-— the staging pipeline could not have existed at creation.
+`ideation/staging` did not exist until 2026-07-08: the earliest entry in
+`git log --diff-filter=A --reverse -- 'ideation/staging/*'` is commit
+`888030e` "Complete document lifecycle implementation tasks", 2026-07-08
+19:26:34 UTC (adds `ideation/staging/doc-health-pipeline/status-check-rules.md`);
+the broader topic reorganization `cf96b14` "Organize all brainstorm material
+into orthogonal staged topics" followed at 23:10:54 UTC the same day. The
+staging pipeline therefore postdates this change's 2026-06-25/26 creation by
+almost two weeks — it could not have existed at creation.
 
 **`archive/2026-06-26-migrate-canonical-policy-to-openxfactory`** —
 classification: `ad_hoc`. Applied.
@@ -137,11 +141,17 @@ classification: `ad_hoc`. Applied (created `.openspec.yaml`; none existed).
 
 Evidence: no `.openspec.yaml` and no supporting-docs manifest at all.
 `git log` traces creation to commit `52fd6aa` "Propose lifecycle notebook
-projection OpenSpec change", Brett Heap, 2026-07-08 20:04:39 UTC — one hour
-after the document-lifecycle-vocabulary proposal that itself created the
-staging convention (`eb640dc`, 19:03:53 UTC same day). No staged topic
-could have existed for this in the intervening hour, and none is
-referenced in `proposal.md`.
+projection OpenSpec change", Brett Heap, 2026-07-08 20:04:39 UTC — about an
+hour after the document-lifecycle-vocabulary proposal that created the
+staging convention (`eb640dc`, 19:03:53 UTC same day). At that moment the
+only staging content in existence was the unrelated
+`ideation/staging/doc-health-pipeline/` topic (first-ever staging commit
+`888030e`, 19:26:34 UTC); the earliest addition under
+`ideation/staging/lifecycle-notebook-hybrids/` is `049a220`, 2026-07-09
+05:02:14 UTC, nine hours after this proposal — and that topic belongs to
+`add-lifecycle-notebook-hybrid-imports`, not this change. No staged topic
+for this change existed at creation, and none is referenced in the packet
+(`proposal.md`/`tasks.md`; the packet contains no `design.md`).
 
 **`archive/2026-07-09-add-release-realization-flow`** — classification:
 `staged`. Applied (created `.openspec.yaml`; none existed).
