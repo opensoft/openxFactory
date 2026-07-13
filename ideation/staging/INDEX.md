@@ -27,9 +27,23 @@ Update this index in the same commit as any of:
 
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
+| [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 3 | Blocked — 6 open decisions unresolved (see topic); design direction settled |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
+
+## avatar-client-lab
+
+- Staging ID: `openxFactory:staging:avatar-client-lab`
+- Repository context: openxFactory (neutral acceptance + fixtures); Flutter application realized in the private `xfactory-avatar-client` repository.
+- Source: v1 brainstorm 2026-07-13 (six-dimension synthesis); named successor in the avatar-client parallel-workstream plan; supersedes the historical `flutter-avatar-client-ui-lab` exploration.
+- Claim: an offline, deterministic Flutter avatar client UI lab (F1-F4) rendering the full avatar-first interaction and authority model from replayed fixtures — no live model/voice/WebRTC/broker; a pure reducer mirroring the reference-runtime invariants, ports so voice is a later adapter swap, and a replaceable six-state avatar. openxFactory owns the neutral acceptance; the Flutter app lives in a private repo.
+- Files:
+  - [avatar-client-lab.md](avatar-client-lab/avatar-client-lab.md) — primary: problem, capability + `avatar-client-lab` (ADDED) delta, scope in/out, acceptance summary, exit.
+  - [architecture-and-stack.md](avatar-client-lab/architecture-and-stack.md) — the v1 architecture and recommended stack (pure reducer, Riverpod-over-core, ports/adapters, CustomPainter avatar, hybrid contracts, monorepo, M0).
+  - [open-decisions.md](avatar-client-lab/open-decisions.md) — the six blocking open decisions with recommended resolutions.
+- Open questions (blocking — this is why the topic is not yet ready to propose): Dart 2020-12 schema validator (Workiva vs port the subset); web accessibility conformance claim; fixture-format duality; plus state-binding, contract-pin, and golden-platform forks with strong recommendations.
+- Exit: create `implement-avatar-client-lab` (`code_surface: openxFactory, xfactory-avatar-client`); at the proposal gate move this folder's files into that change's `supporting-docs/`, preserving the staging origin, and author the full `avatar-client-lab` spec deltas + F1-F4 tasks in the change.
 
 ## client-infrastructure-liaison
 

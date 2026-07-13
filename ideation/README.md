@@ -137,17 +137,13 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [define-avatar-client-contract-kernel](../openspec/changes/define-avatar-client-contract-kernel/proposal.md)
-  — owns the historical staged avatar packet and proposes only the canonical
-  eight-contract AVC kernel, registries, fixtures, validator, and release.
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
-  — approved split owning the isolated F0 harness and empirical evidence.
-- [implement-avatar-reference-runtime](../openspec/changes/implement-avatar-reference-runtime/proposal.md)
-  — approved split owning the non-deployable deterministic broker reference.
-- [align-avatar-first-ui-standard](../openspec/changes/align-avatar-first-ui-standard/proposal.md)
-  — approved split owning the avatar-first standard, profile, examples, and
-  validator. All four workstreams may start in parallel; publication and final
-  conformance pins remain ordered.
+  — approved split owning the isolated F0 harness and empirical evidence; still
+  active. Its sibling avatar changes promoted from the same staged packet — the
+  AVC kernel (`define-avatar-client-contract-kernel`, realized `contract-v1.7`),
+  the reference runtime (`implement-avatar-reference-runtime`), and the UI standard
+  (`align-avatar-first-ui-standard`, realized `contract-v1.8`) — were realized and
+  archived 2026-07-13 (see the root README's Archived changes).
 - [add-cross-factory-ideation-routing](../openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — owns the former `ideation-routing` staged packet under
   `supporting-docs/` and proposes capture-first claim routing, destination
