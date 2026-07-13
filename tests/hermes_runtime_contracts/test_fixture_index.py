@@ -461,10 +461,11 @@ def test_database_source_identity_ignores_unindexed_repository_changes(
 
 
 def test_current_fixture_index_preserves_75_cases() -> None:
+    # 75 US1/US2 cases plus the four T064 migration semantic cases.
     index = load_yaml_document(
         REPOSITORY_ROOT / "contracts/hermes-runtime/fixtures/index.yaml"
     )
-    assert len(index["cases"]) == 75
+    assert len(index["cases"]) == 79
 
 
 def test_fixture_self_description_must_match_index_metadata(tmp_path: Path) -> None:

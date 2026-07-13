@@ -1052,83 +1052,295 @@ entries:
 - scenario_id: HGR-008-S01
   requirement_id: HGR-008
   scenario_title: Clean v2 database is initialized twice
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S01
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_apply_script_pins_the_apply_boundary_advisory_lock
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_clean_apply_to_empty_database_passes_the_locked_boundary[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_clean_apply_to_empty_database_passes_the_locked_boundary[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_verified_reapply_over_exact_state_verifies_without_mutation[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_verified_reapply_over_exact_state_verifies_without_mutation[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_concurrent_applies_serialize_on_the_apply_boundary_lock[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_concurrent_applies_serialize_on_the_apply_boundary_lock[16]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_freshly_applied_database_reports_fresh_v2_ready[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_freshly_applied_database_reports_fresh_v2_ready[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S02
   requirement_id: HGR-008
   scenario_title: Same-named database object or security authority has drifted
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S02
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-table-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-table-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-column-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-column-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-column-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-constraint-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-constraint-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-index-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-index-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-policy-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-policy-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-function-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-function-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-security-definer-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-search-path-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-trigger-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-trigger-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-ownership-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-acl-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-row-security-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-public-privilege-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-trusted-schema-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-quarantine-grant-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-schema-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-schema-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[15-dependency-guard-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-table-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-table-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-column-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-column-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-column-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-constraint-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-constraint-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-index-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-index-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-policy-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-policy-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-function-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-function-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-security-definer-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-search-path-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-trigger-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-trigger-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-ownership-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-acl-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-row-security-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-public-privilege-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-trusted-schema-altered]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-quarantine-grant-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-schema-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-schema-missing]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_each_drift_dimension_reports_its_stable_finding_code[16-dependency-guard-extra]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_role_attribute_drift_reports_stable_finding_code[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_role_attribute_drift_reports_stable_finding_code[16]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_role_membership_drift_reports_stable_finding_code[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_role_membership_drift_reports_stable_finding_code[16]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_rogue_trigger_on_v1_surface_reports_freeze_extra[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_rogue_trigger_on_v1_surface_reports_freeze_extra[16]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_missing_freeze_trigger_after_cutover_reports_freeze_missing[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_missing_freeze_trigger_after_cutover_reports_freeze_missing[16]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_missing_dependency_guard_reports_guard_missing[15]
+  - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py::test_missing_dependency_guard_reports_guard_missing[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_refuses_drifted_state_without_repairing_it[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_refuses_drifted_state_without_repairing_it[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_refuses_drifted_role_attributes_at_the_boundary[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_refuses_drifted_role_attributes_at_the_boundary[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_downgrades_verified_state_on_rogue_owner_membership[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_reapply_downgrades_verified_state_on_rogue_owner_membership[16]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_refused_apply_leaves_zero_objects[15]
+  - tests/hermes_runtime_contracts/postgres/test_clean_apply.py::test_refused_apply_leaves_zero_objects[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S03
   requirement_id: HGR-008
   scenario_title: Two-subject v1 database is migrated
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S03
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  - mapping-payload-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_two_subject_migration_classifies_every_row_exactly_once[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_two_subject_migration_classifies_every_row_exactly_once[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_one_subject_default_map_migration_succeeds[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_one_subject_default_map_migration_succeeds[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_stage_migration_recomputes_and_matches_python_digests[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_stage_migration_recomputes_and_matches_python_digests[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDetachedSchemaAndDigests::test_detached_payload_and_envelope_validate_and_digest_bind
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_valid_payload_passes
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestAuthorityEnvelopeValidation::test_valid_envelope_passes
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestSchemaContracts::test_schema_closes_valid_payload_envelope_and_staging
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestStagingDocument::test_staging_document_is_family_canonical_json
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S04
   requirement_id: HGR-008
   scenario_title: Migration mapping is ambiguous
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S04
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  - mapping-payload-invalid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_default_map_with_two_observed_projects_aborts_without_partial_state[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_default_map_with_two_observed_projects_aborts_without_partial_state[16]
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_ambiguous_subject_mapping_fails
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_subject_mapping_layer_must_be_declared_customer_layer
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_single_default_mapping_requires_a_mapped_project
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_admin_source_pk_must_be_canonical_json_array
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S05
   requirement_id: HGR-008
   scenario_title: Source changes during cutover
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S05
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestConcurrentV1Writes::test_pre_lock_write_aborts_cleanly_and_unchanged_boundary_retry_converges[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestConcurrentV1Writes::test_pre_lock_write_aborts_cleanly_and_unchanged_boundary_retry_converges[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestConcurrentV1Writes::test_post_lock_write_is_excluded_by_cutover_locks_and_durable_freeze[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestConcurrentV1Writes::test_post_lock_write_is_excluded_by_cutover_locks_and_durable_freeze[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDigestParityAcrossEngines::test_live_observation_matches_python_digest_of_the_yaml_mirror[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDigestParityAcrossEngines::test_live_observation_matches_python_digest_of_the_yaml_mirror[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDigestParityAcrossEngines::test_sql_stream_from_matches_python_for_every_golden_vector[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDigestParityAcrossEngines::test_sql_stream_from_matches_python_for_every_golden_vector[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestGoldenVectorFraming::test_every_golden_vector_reproduces_exactly
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestGoldenVectors::test_hand_derived_smallest_vector_bytes_are_pinned
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S06
   requirement_id: HGR-008
   scenario_title: Migration is retried with another map
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S06
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestReplayRejection::test_changed_payload_or_envelope_replay_after_success_fails_closed[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestReplayRejection::test_changed_payload_or_envelope_replay_after_success_fails_closed[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestReplayRejection::test_authority_revoked_between_staging_and_cutover_fails_the_attempt[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestReplayRejection::test_authority_revoked_between_staging_and_cutover_fails_the_attempt[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestCrashRecovery::test_crash_mid_cutover_abandons_and_retry_converges_exactly_once[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestCrashRecovery::test_crash_mid_cutover_abandons_and_retry_converges_exactly_once[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestCrashRecovery::test_committed_success_before_client_ack_converges_to_stored_result[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestCrashRecovery::test_committed_success_before_client_ack_converges_to_stored_result[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_session_lock_is_exclusive_per_installation_and_migration_id[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_session_lock_is_exclusive_per_installation_and_migration_id[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_attempt_and_recovery_apis_require_the_session_lock[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_attempt_and_recovery_apis_require_the_session_lock[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_migration_ledger_catalog_holds[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py::TestSessionLock::test_migration_ledger_catalog_holds[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestLogicalVersusPhysicalBoundary::test_logical_boundary_is_content_derived_across_transactions[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestLogicalVersusPhysicalBoundary::test_logical_boundary_is_content_derived_across_transactions[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_identical_restage_is_idempotent_and_conflicting_restage_fails[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_identical_restage_is_idempotent_and_conflicting_restage_fails[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_non_canonical_staging_with_broken_digest_binding_fails[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_non_canonical_staging_with_broken_digest_binding_fails[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_control_characters_are_rejected_at_the_sql_staging_boundary[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestCanonicalStagingHandoff::test_control_characters_are_rejected_at_the_sql_staging_boundary[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_forged_grant_digest_is_rejected[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_forged_grant_digest_is_rejected[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_revoked_grant_is_rejected[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_revoked_grant_is_rejected[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_nonexistent_grant_is_rejected[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_nonexistent_grant_is_rejected[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_wrong_scope_or_action_grant_is_rejected[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_wrong_scope_or_action_grant_is_rejected[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_inactive_trust_chain_is_rejected[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestStagingAuthorityRejections::test_inactive_trust_chain_is_rejected[16]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestDetachedSchemaAndDigests::test_tampered_payload_or_envelope_fails_digest_validation
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestMappingPayloadValidation::test_tampered_payload_fails_digest_binding
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestAuthorityEnvelopeValidation::test_envelope_must_bind_the_exact_payload_digest
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestAuthorityEnvelopeValidation::test_envelope_identity_must_match_payload
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestAuthorityEnvelopeValidation::test_tampered_envelope_fails_self_digest
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S07
   requirement_id: HGR-008
   scenario_title: Legacy approval lacks target digest
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S07
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  - quarantine-record-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_two_subject_migration_classifies_every_row_exactly_once[15]
+  - tests/hermes_runtime_contracts/postgres/test_migration.py::TestExecutedMigrations::test_two_subject_migration_classifies_every_row_exactly_once[16]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[15-promote-in-place]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[16-promote-in-place]
+  - tests/hermes_runtime_contracts/test_migration_contracts.py::TestSchemaContracts::test_quarantine_schema_closes_the_record
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-008-S08
   requirement_id: HGR-008
   scenario_title: Quarantined evidence is referenced
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-008-S08
   planned_owner_task: T064
-  fixture_case_ids: []
-  test_node_ids: []
-  result_refs: []
+  fixture_case_ids:
+  - postgres-us2-governed-isolation-matrix
+  - quarantine-record-invalid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[15-hcs_audit]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[15-hcs_control_plane]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[15-hcs_customer_a]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[15-hcs_migrator]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[15-hcs_unbound]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[16-hcs_audit]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[16-hcs_control_plane]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[16-hcs_customer_a]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[16-hcs_migrator]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_role_class_reads_quarantine_directly[16-hcs_unbound]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[15-foreign-key]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[15-materialized-view]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[15-sql-function]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[15-view]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[16-foreign-key]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[16-materialized-view]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[16-sql-function]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_no_object_may_take_a_dependency_on_quarantine[16-view]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[15-insert]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[15-update]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[15-delete]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[16-insert]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[16-update]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_login_cannot_write_quarantine[16-delete]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_scope_cannot_reach_quarantine_even_after_assume_scope[15]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_runtime_scope_cannot_reach_quarantine_even_after_assume_scope[16]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[15-delete]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[15-reclassify]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[16-delete]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_rows_are_immutable_even_to_bootstrap[16-reclassify]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_exit_is_a_new_governed_record_under_current_authority[15]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_exit_is_a_new_governed_record_under_current_authority[16]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_dependency_guard_does_not_reject_unrelated_ddl[15]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_dependency_guard_does_not_reject_unrelated_ddl[16]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_boundary_catalog_holds[15]
+  - tests/hermes_runtime_contracts/postgres/test_quarantine.py::test_quarantine_boundary_catalog_holds[16]
+  result_refs:
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-15.json
+  - tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
 - scenario_id: HGR-009-S01
   requirement_id: HGR-009
   scenario_title: Release candidate is realized

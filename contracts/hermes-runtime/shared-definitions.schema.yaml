@@ -293,7 +293,7 @@ $defs:
     enum: [human, agent, service, group]
   database_role_class:
     type: string
-    enum: [runtime, control, audit]
+    enum: [runtime, control, audit, migrator]
   key_reference:
     type: object
     properties:

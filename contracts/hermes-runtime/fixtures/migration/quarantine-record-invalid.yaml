@@ -1,0 +1,43 @@
+# US3 migration semantic fixture (T064).
+# Instances are generated from scripts/hermes_runtime_validation/migration.py
+# so every digest field is real; regenerate them with that library rather
+# than editing digests by hand.
+#
+# The record claims an in-place promotion and an authoritative
+# operation-authorization reference; the closed record contract
+# rejects both fields, and persistence rejects every authoritative
+# dependency on the sealed quarantine schema (HGR-008-S08:
+# quarantined evidence is referenced -> reject; later governed
+# evidence must be created anew under current authority).
+schema_version: 1
+kind: openxfactory-hermes-runtime-migration-fixture
+case_id: quarantine-record-invalid
+phase: semantic
+class: invalid
+requirement_ids:
+- HGR-008
+scenario_ids:
+- HGR-008-S08
+evaluation_time: '2026-07-13T12:00:00Z'
+expected:
+  outcome: fail
+  primary_finding_code: HGR-QUARANTINE-DEPENDENCY
+  allowed_secondary_codes: []
+quarantine_record:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-legacy-quarantine-record
+  migration_id: migration-01
+  source_schema: public
+  source_table: hermes_approval_requests
+  source_pk: '["approval-request-01"]'
+  source_row_digest: sha256:abababababababababababababababababababababababababababababababab
+  reason_code: missing_target_digest
+  source_row:
+    id: approval-request-01
+    project: project-alfa
+    target_digest: null
+    requested_by: user-legacy
+    created_at: '2026-07-01T00:00:00.000000Z'
+  captured_at: '2026-07-12T12:00:00Z'
+  promoted: true
+  promoted_operation_authorization_id: operation-authorization-01

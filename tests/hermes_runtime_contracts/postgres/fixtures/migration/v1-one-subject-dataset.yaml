@@ -1,0 +1,846 @@
+# Value-for-value mirror of 11-v1-one-subject-seed.sql (xfactory-v1
+# dataset description, SIC §7 shape). Row order matches the SQL seed
+# insert order; the digest profile sorts rows by framed primary key.
+schema_version: 1
+kind: xfactory-v1-dataset-description
+source_schema: public
+tables:
+- schema_name: public
+  table_name: hermes_approval_requests
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: job_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: run_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: requested_by
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: approval_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: status
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: artifact_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: resolved_at
+    normalized_type: timestamptz
+    nullable: true
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: request-01
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: run-alfa-01-a
+    - type: text
+      value: agent-a
+    - type: text
+      value: artifact_release
+    - type: text
+      value: approved
+    - type: text
+      value: artifact-01
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:02.000000Z'
+- schema_name: public
+  table_name: hermes_approvals
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: approval_request_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: job_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: actor_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: actor_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: decision
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: authority_scope
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: rationale
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: approval-01
+    - type: text
+      value: request-01
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: human
+    - type: text
+      value: reviewer-lead
+    - type: text
+      value: approved
+    - type: text
+      value: project-lead
+    - type: text
+      value: looks good
+    - type: timestamp
+      value: '2026-07-01T00:00:02.000000Z'
+- schema_name: public
+  table_name: hermes_github_team_mappings
+  columns:
+  - name: group_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: github_team
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: updated_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: group-core
+    - type: text
+      value: opensoft/team-core
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+- schema_name: public
+  table_name: hermes_group_memberships
+  columns:
+  - name: profile_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: group_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 2
+  - name: membership_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: profile-anna
+    - type: text
+      value: group-core
+    - type: text
+      value: member
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+  - - type: text
+      value: profile-bob
+    - type: text
+      value: group-ops
+    - type: text
+      value: owner
+    - type: timestamp
+      value: '2026-07-01T00:00:02.000000Z'
+- schema_name: public
+  table_name: hermes_groups
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: purpose
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: agents
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: metadata
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: updated_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: group-ops
+    - type: text
+      value: operations
+    - type: json
+      value: []
+    - type: json
+      value:
+        note: 'line1
+
+          line2'
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+  - - type: text
+      value: group-core
+    - type: text
+      value: orchestration
+    - type: json
+      value:
+      - agent-a
+      - agent-b
+    - type: json
+      value:
+        labels:
+          a: alpha
+          β: beta
+        tier: 1
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+- schema_name: public
+  table_name: hermes_job_artifacts
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: job_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: run_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: artifact_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: path
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: sha256
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: produced_by
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: approval_state
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: artifact-01
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: run-alfa-01-a
+    - type: text
+      value: report
+    - type: text
+      value: artifacts/report.md
+    - type: text
+      value: 1f2e3d4c5b6a79880123456789abcdef0123456789abcdef0123456789abcdef
+    - type: text
+      value: agent-a
+    - type: text
+      value: approved
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+- schema_name: public
+  table_name: hermes_job_events
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: job_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: run_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: occurred_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: event_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: actor_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: actor_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: stage
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: payload
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: event-02
+    - type: text
+      value: job-alfa-01
+    - type: null
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+    - type: text
+      value: job_completed
+    - type: text
+      value: system
+    - type: text
+      value: hermes
+    - type: null
+    - type: json
+      value: {}
+  - - type: text
+      value: event-01
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: run-alfa-01-a
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: text
+      value: stage_completed
+    - type: text
+      value: agent
+    - type: text
+      value: agent-a
+    - type: text
+      value: build
+    - type: json
+      value:
+        ok: true
+- schema_name: public
+  table_name: hermes_job_runs
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: job_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: project
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: feature_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: status
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: current_stage
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: worker_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: worker_pool
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: host_class
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: container_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: auth_profile_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: auth_mode
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: provider_keys_used
+    normalized_type: bool
+    nullable: false
+    primary_key_position: 0
+  - name: run_record
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: started_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: completed_at
+    normalized_type: timestamptz
+    nullable: true
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: run-alfa-01-a
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: project-alfa
+    - type: text
+      value: feat-α-1
+    - type: text
+      value: complete
+    - type: text
+      value: done
+    - type: text
+      value: worker-01
+    - type: text
+      value: pool-alpha
+    - type: text
+      value: standard
+    - type: text
+      value: container-01
+    - type: text
+      value: auth-profile-01
+    - type: text
+      value: subscription
+    - type: boolean
+      value: false
+    - type: json
+      value:
+        exit: 0
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+  - - type: text
+      value: run-alfa-02-a
+    - type: text
+      value: job-alfa-02
+    - type: text
+      value: project-alfa
+    - type: null
+    - type: text
+      value: queued
+    - type: text
+      value: pending
+    - type: text
+      value: worker-01
+    - type: text
+      value: pool-alpha
+    - type: text
+      value: standard
+    - type: null
+    - type: text
+      value: auth-profile-01
+    - type: text
+      value: api
+    - type: boolean
+      value: false
+    - type: json
+      value: {}
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+    - type: null
+- schema_name: public
+  table_name: hermes_jobs
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: schema_version
+    normalized_type: int4
+    nullable: false
+    primary_key_position: 0
+  - name: issued_by
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: job_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: project
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: feature_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: epic_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: repository_org
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: repository_name
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: repository_default_branch
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: orchestrator_path
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: routing_policy_path
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: auth_profile_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: auth_mode
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: status
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: envelope
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: updated_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: job-alfa-01
+    - type: integer
+      value: '1'
+    - type: text
+      value: Hermes
+    - type: text
+      value: build
+    - type: text
+      value: project-alfa
+    - type: text
+      value: feat-α-1
+    - type: null
+    - type: text
+      value: opensoft
+    - type: text
+      value: repo-alfa
+    - type: text
+      value: main
+    - type: text
+      value: orchestrators/build.yaml
+    - type: text
+      value: policies/routing.yaml
+    - type: text
+      value: auth-profile-01
+    - type: text
+      value: subscription
+    - type: text
+      value: complete
+    - type: json
+      value:
+        labels:
+          tier: gold
+          α: one
+        steps:
+        - plan
+        - build
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+  - - type: text
+      value: job-alfa-02
+    - type: integer
+      value: '1'
+    - type: text
+      value: Hermes
+    - type: text
+      value: test
+    - type: text
+      value: project-alfa
+    - type: null
+    - type: text
+      value: epic-9
+    - type: text
+      value: opensoft
+    - type: text
+      value: repo-alfa
+    - type: text
+      value: main
+    - type: text
+      value: orchestrators/test.yaml
+    - type: text
+      value: policies/routing.yaml
+    - type: text
+      value: auth-profile-01
+    - type: text
+      value: api
+    - type: text
+      value: queued
+    - type: json
+      value: {}
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+- schema_name: public
+  table_name: hermes_profiles
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: role
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: home_group
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: metadata
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: updated_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: profile-bob
+    - type: text
+      value: reviewer
+    - type: text
+      value: group-ops
+    - type: json
+      value: {}
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+  - - type: text
+      value: profile-anna
+    - type: text
+      value: engineer
+    - type: text
+      value: group-core
+    - type: json
+      value:
+        quote: she said "hi"
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+- schema_name: public
+  table_name: hermes_traceability_edges
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: job_id
+    normalized_type: text
+    nullable: true
+    primary_key_position: 0
+  - name: from_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: from_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: to_type
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: to_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: relation
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: created_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: edge-01
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: job
+    - type: text
+      value: job-alfa-01
+    - type: text
+      value: artifact
+    - type: text
+      value: artifact-01
+    - type: text
+      value: produced
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'
+- schema_name: public
+  table_name: hermes_workers
+  columns:
+  - name: id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 1
+  - name: worker_pool
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: host_class
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: status
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: auth_profile_id
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: auth_mode
+    normalized_type: text
+    nullable: false
+    primary_key_position: 0
+  - name: max_concurrent_jobs
+    normalized_type: int4
+    nullable: false
+    primary_key_position: 0
+  - name: current_jobs
+    normalized_type: int4
+    nullable: false
+    primary_key_position: 0
+  - name: capabilities
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: metadata
+    normalized_type: jsonb
+    nullable: false
+    primary_key_position: 0
+  - name: registered_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  - name: last_seen_at
+    normalized_type: timestamptz
+    nullable: false
+    primary_key_position: 0
+  rows:
+  - - type: text
+      value: worker-01
+    - type: text
+      value: pool-alpha
+    - type: text
+      value: standard
+    - type: text
+      value: idle
+    - type: text
+      value: auth-profile-01
+    - type: text
+      value: subscription
+    - type: integer
+      value: '3'
+    - type: integer
+      value: '0'
+    - type: json
+      value:
+      - build
+      - test
+    - type: json
+      value: {}
+    - type: timestamp
+      value: '2026-07-01T00:00:00.000000Z'
+    - type: timestamp
+      value: '2026-07-01T00:00:01.000000Z'

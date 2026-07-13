@@ -280,3 +280,30 @@ contracts:
   - xfactory-hermes-install
   semantic_member: true
   release_member: true
+- contract_id: legacy-quarantine-record
+  path: legacy-quarantine-record.schema.yaml
+  type: schema
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true
+- contract_id: v1-to-v2-mapping
+  path: migrations/v1-to-v2-mapping.schema.yaml
+  type: schema
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true
+- contract_id: v1-to-v2
+  path: migrations/v1-to-v2.sql
+  type: sql
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-release-verifier
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true

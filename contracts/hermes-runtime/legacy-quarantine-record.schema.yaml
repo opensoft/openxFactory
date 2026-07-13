@@ -1,0 +1,88 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/hermes-runtime/v2/legacy-quarantine-record.schema.yaml"
+contract_id: legacy-quarantine-record
+contract_schema_version: 2
+title: Closed non-authoritative legacy quarantine record
+description: >-
+  Preserved source evidence for exactly the unverifiable legacy v1 artifact,
+  approval-request, approval, and traceability rows that cannot prove
+  finalized content, immutable targets, reviewer authority, or binding
+  evidence. A quarantine record is immutable, closed, and non-authoritative:
+  it grants nothing, satisfies no v2 gate, and admits no authoritative
+  foreign key, view, function, or promotion path. Any later governed
+  evidence is created anew under current authority.
+type: object
+$defs:
+  postgres_name:
+    type: string
+    minLength: 1
+    maxLength: 63
+    pattern: "^[a-z_][a-z0-9_]*$"
+  source_pk_text:
+    description: >-
+      Canonical JSON array of the primary-key column values in
+      primary-key-position order, encoded as their dataset-profile text
+      forms.
+    type: string
+    minLength: 4
+    maxLength: 4096
+    pattern: "^\\[.+\\]$"
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-legacy-quarantine-record
+  migration_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  source_schema:
+    $ref: '#/$defs/postgres_name'
+  source_table:
+    description: >-
+      Only the four unverifiable legacy surfaces may enter quarantine; every
+      other canonical v1 table reconciles into scoped compatibility history.
+    type: string
+    enum:
+    - hermes_job_artifacts
+    - hermes_approval_requests
+    - hermes_approvals
+    - hermes_traceability_edges
+  source_pk:
+    $ref: '#/$defs/source_pk_text'
+  source_row_digest:
+    description: >-
+      SHA-256 over the row's complete dataset-profile row frame bytes
+      (xfactory-v1-dataset-binary-v1 tag-20 frame).
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  reason_code:
+    type: string
+    enum:
+    - missing_content_digest
+    - missing_target_digest
+    - missing_reviewer_authority
+    - missing_binding_evidence
+    - unverifiable_ancestry
+  source_row:
+    description: >-
+      Raw preserved row as a JSON object from source column name to the
+      dataset-profile text encoding of the value; SQL null stays JSON null
+      and jsonb values embed as-is.
+    type: object
+    minProperties: 1
+    propertyNames:
+      pattern: "^[a-z_][a-z0-9_]*$"
+  captured_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+required:
+- schema_version
+- kind
+- migration_id
+- source_schema
+- source_table
+- source_pk
+- source_row_digest
+- reason_code
+- source_row
+- captured_at
+additionalProperties: false

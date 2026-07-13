@@ -1,0 +1,421 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/hermes-runtime/v2/migrations/v1-to-v2-mapping.schema.yaml"
+contract_id: v1-to-v2-mapping
+contract_schema_version: 2
+title: Detached v1-to-v2 migration mapping payload and authority envelope
+description: >-
+  Typed detached expected-content input for the atomic v1-to-v2 migration.
+  The root record is the closed mapping payload: source identity, the exact
+  twelve-table v1 catalog profile in raw UTF-8 (schema, table) order,
+  expected per-table row counts and dataset digest under the exact binary
+  profile xfactory-v1-dataset-binary-v1, legacy subject-to-layer mappings,
+  explicit administrative mappings, single-default proof, target topology,
+  and migration policy. mapping_payload_digest covers only this closed
+  payload. The separately digest-bound run_migration authority envelope and
+  the canonical staging handoff document are published under $defs
+  (authority_envelope, staging_document). This schema is deliberately
+  self-contained: a schema catalogued under migrations/ cannot reference the
+  root-level shared definitions, so the needed primitives are duplicated
+  under its own $defs.
+type: object
+$defs:
+  canonical_id:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[a-z0-9](?:[a-z0-9._:-]{0,126}[a-z0-9])?$"
+  neutral_token:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[a-z][a-z0-9._-]*$"
+  sha256_digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  rfc3339_timestamp:
+    type: string
+    format: date-time
+    pattern: "^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$"
+  customer_subject_ref:
+    type: string
+    pattern: "^urn:xfactory:subject:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+  postgres_name:
+    type: string
+    minLength: 1
+    maxLength: 63
+    pattern: "^[a-z_][a-z0-9_]*$"
+  normalized_type:
+    type: string
+    enum: [text, int4, int8, bool, timestamptz, jsonb, bytea]
+  source_pk_text:
+    description: >-
+      Canonical JSON array of the primary-key column values in
+      primary-key-position order, encoded as their dataset-profile text
+      forms.
+    type: string
+    minLength: 4
+    maxLength: 4096
+    pattern: "^\\[.+\\]$"
+  catalog_column:
+    type: object
+    properties:
+      ordinal:
+        type: integer
+        minimum: 1
+      name:
+        $ref: "#/$defs/postgres_name"
+      normalized_type:
+        $ref: "#/$defs/normalized_type"
+      nullable:
+        type: boolean
+      primary_key_position:
+        type: integer
+        minimum: 0
+    required: [ordinal, name, normalized_type, nullable, primary_key_position]
+    additionalProperties: false
+  catalog_table:
+    type: object
+    properties:
+      schema_name:
+        $ref: "#/$defs/postgres_name"
+      table_name:
+        $ref: "#/$defs/postgres_name"
+      columns:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/catalog_column"
+    required: [schema_name, table_name, columns]
+    additionalProperties: false
+  customer_subject:
+    type: object
+    properties:
+      kind:
+        $ref: "#/$defs/neutral_token"
+      issuer:
+        $ref: "#/$defs/neutral_token"
+      namespace:
+        $ref: "#/$defs/neutral_token"
+      ref:
+        $ref: "#/$defs/customer_subject_ref"
+    required: [kind, issuer, namespace, ref]
+    additionalProperties: false
+  subject_mapping:
+    type: object
+    properties:
+      legacy_project:
+        type: string
+        minLength: 1
+        maxLength: 512
+      layer_id:
+        $ref: "#/$defs/canonical_id"
+      customer_subject:
+        $ref: "#/$defs/customer_subject"
+    required: [legacy_project, layer_id, customer_subject]
+    additionalProperties: false
+  admin_mapping_entry:
+    oneOf:
+    - type: object
+      properties:
+        source_pk:
+          $ref: "#/$defs/source_pk_text"
+        scope_kind:
+          const: layer
+        layer_id:
+          $ref: "#/$defs/canonical_id"
+      required: [source_pk, scope_kind, layer_id]
+      additionalProperties: false
+    - type: object
+      properties:
+        source_pk:
+          $ref: "#/$defs/source_pk_text"
+        scope_kind:
+          const: installation_admin
+      required: [source_pk, scope_kind]
+      additionalProperties: false
+  admin_mappings:
+    type: object
+    properties:
+      workers:
+        type: array
+        items:
+          $ref: "#/$defs/admin_mapping_entry"
+      groups:
+        type: array
+        items:
+          $ref: "#/$defs/admin_mapping_entry"
+      profiles:
+        type: array
+        items:
+          $ref: "#/$defs/admin_mapping_entry"
+    required: [workers, groups, profiles]
+    additionalProperties: false
+  single_default_mapping:
+    oneOf:
+    - type: "null"
+    - type: object
+      properties:
+        enabled:
+          const: false
+      required: [enabled]
+      additionalProperties: false
+    - type: object
+      properties:
+        enabled:
+          const: true
+        legacy_project:
+          type: string
+          minLength: 1
+          maxLength: 512
+      required: [enabled, legacy_project]
+      additionalProperties: false
+  target_topology:
+    type: object
+    properties:
+      installation_id:
+        $ref: "#/$defs/canonical_id"
+      stack_id:
+        $ref: "#/$defs/canonical_id"
+      client_layer_id:
+        $ref: "#/$defs/canonical_id"
+      domain_layer_id:
+        $ref: "#/$defs/canonical_id"
+      customer_layer_ids:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/canonical_id"
+    required:
+    - installation_id
+    - stack_id
+    - client_layer_id
+    - domain_layer_id
+    - customer_layer_ids
+    additionalProperties: false
+  migration_policy:
+    type: object
+    properties:
+      policy_ref:
+        type: string
+        minLength: 1
+        maxLength: 512
+      policy_digest:
+        $ref: "#/$defs/sha256_digest"
+    required: [policy_ref, policy_digest]
+    additionalProperties: false
+  source_identity:
+    type: object
+    properties:
+      source_database:
+        $ref: "#/$defs/postgres_name"
+      source_schema:
+        $ref: "#/$defs/postgres_name"
+    required: [source_database, source_schema]
+    additionalProperties: false
+  authority_envelope:
+    description: >-
+      Detached authority over exactly one mapping payload. Repeats the
+      payload digest and binds it to the exact approver principal, active
+      run_migration grant, policy digest, installation scope, and
+      trust-anchor chain; authority_envelope_digest omits only itself, so
+      approval never depends on a digest cycle.
+    type: object
+    properties:
+      schema_version:
+        const: 1
+      kind:
+        const: openxfactory-hermes-runtime-migration-authority-envelope
+      migration_id:
+        $ref: "#/$defs/canonical_id"
+      installation_id:
+        $ref: "#/$defs/canonical_id"
+      mapping_payload_digest:
+        $ref: "#/$defs/sha256_digest"
+      approver_principal_id:
+        $ref: "#/$defs/canonical_id"
+      run_migration_grant_id:
+        $ref: "#/$defs/canonical_id"
+      run_migration_grant_digest:
+        $ref: "#/$defs/sha256_digest"
+      policy_ref:
+        type: string
+        minLength: 1
+        maxLength: 512
+      policy_digest:
+        $ref: "#/$defs/sha256_digest"
+      scope:
+        type: object
+        properties:
+          installation_id:
+            $ref: "#/$defs/canonical_id"
+        required: [installation_id]
+        additionalProperties: false
+      trust_anchor_id:
+        $ref: "#/$defs/canonical_id"
+      trust_anchor_digest:
+        $ref: "#/$defs/sha256_digest"
+      approved_at:
+        $ref: "#/$defs/rfc3339_timestamp"
+      authority_envelope_digest:
+        $ref: "#/$defs/sha256_digest"
+    required:
+    - schema_version
+    - kind
+    - migration_id
+    - installation_id
+    - mapping_payload_digest
+    - approver_principal_id
+    - run_migration_grant_id
+    - run_migration_grant_digest
+    - policy_ref
+    - policy_digest
+    - scope
+    - trust_anchor_id
+    - trust_anchor_digest
+    - approved_at
+    - authority_envelope_digest
+    additionalProperties: false
+  staging_document:
+    description: >-
+      Canonical staging handoff: the closed mapping payload plus its
+      detached authority envelope, rendered as one canonical JSON document
+      whose digests PostgreSQL independently recomputes before staging.
+    type: object
+    properties:
+      schema_version:
+        const: 1
+      kind:
+        const: openxfactory-hermes-runtime-migration-staging
+      payload:
+        $ref: "#"
+      authority_envelope:
+        $ref: "#/$defs/authority_envelope"
+    required: [schema_version, kind, payload, authority_envelope]
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-migration-mapping-payload
+  migration_id:
+    $ref: "#/$defs/canonical_id"
+  installation_id:
+    $ref: "#/$defs/canonical_id"
+  source_identity:
+    $ref: "#/$defs/source_identity"
+  source_catalog:
+    description: >-
+      Exactly the twelve canonical v1 tables in raw UTF-8 (schema, table)
+      byte order with complete schema-ordinal column metadata.
+    type: array
+    minItems: 12
+    maxItems: 12
+    prefixItems:
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_approval_requests
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_approvals
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_github_team_mappings
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_group_memberships
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_groups
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_job_artifacts
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_job_events
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_job_runs
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_jobs
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_profiles
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_traceability_edges
+    - allOf:
+      - $ref: "#/$defs/catalog_table"
+      - properties:
+          table_name:
+            const: hermes_workers
+    items: false
+  expected_table_row_counts:
+    type: object
+    minProperties: 12
+    maxProperties: 12
+    propertyNames:
+      pattern: "^[a-z_][a-z0-9_]*\\.[a-z_][a-z0-9_]*$"
+    additionalProperties:
+      type: integer
+      minimum: 0
+  expected_dataset_digest:
+    $ref: "#/$defs/sha256_digest"
+  digest_profile:
+    const: xfactory-v1-dataset-binary-v1
+  subject_mappings:
+    type: array
+    items:
+      $ref: "#/$defs/subject_mapping"
+  admin_mappings:
+    $ref: "#/$defs/admin_mappings"
+  single_default_mapping:
+    $ref: "#/$defs/single_default_mapping"
+  target_topology:
+    $ref: "#/$defs/target_topology"
+  migration_policy:
+    $ref: "#/$defs/migration_policy"
+  mapping_payload_digest:
+    $ref: "#/$defs/sha256_digest"
+required:
+- schema_version
+- kind
+- migration_id
+- installation_id
+- source_identity
+- source_catalog
+- expected_table_row_counts
+- expected_dataset_digest
+- digest_profile
+- subject_mappings
+- admin_mappings
+- single_default_mapping
+- target_topology
+- migration_policy
+- mapping_payload_digest
+additionalProperties: false

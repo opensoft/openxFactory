@@ -63,6 +63,19 @@ def repository_snapshot(tmp_path: Path) -> Path:
         REPOSITORY_ROOT / "scripts/run-hermes-runtime-postgres-tests.sh",
         snapshot / "scripts/run-hermes-runtime-postgres-tests.sh",
     )
+    # The database-case source_paths pin standalone files outside the copied
+    # trees; the strict gate reports HGR-FIXTURE-DATABASE-PATH-UNAVAILABLE
+    # for each one it cannot resolve inside the snapshot.
+    for pinned in (
+        Path("contracts/schemas/hermes-operational-postgres.sql"),
+        Path("scripts/apply-hermes-runtime-postgres-v2.py"),
+        Path("scripts/hermes-runtime-dataset-digest.py"),
+        Path("scripts/run-hermes-v1-to-v2-migration.sh"),
+        Path("scripts/validate-hermes-runtime-postgres.py"),
+    ):
+        pinned_destination = snapshot / pinned
+        pinned_destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(REPOSITORY_ROOT / pinned, pinned_destination)
     _git(snapshot, "init", "--quiet")
     _git(snapshot, "config", "user.name", "Hermes Contract Tests")
     _git(snapshot, "config", "user.email", "hermes-contracts@example.invalid")

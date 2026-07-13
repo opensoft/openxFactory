@@ -12,7 +12,8 @@ BEGIN
     'hcs_reviewer_a',
     'hcs_reviewer_b',
     'hcs_unbound',
-    'hcs_audit'
+    'hcs_audit',
+    'hcs_migrator'
   ]
   LOOP
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
@@ -33,6 +34,7 @@ GRANT xfactory_v2_runtime TO hcs_reviewer_b;
 GRANT xfactory_v2_runtime TO hcs_unbound;
 GRANT xfactory_v2_control TO hcs_control_plane;
 GRANT xfactory_v2_audit TO hcs_audit;
+GRANT xfactory_v2_migrator TO hcs_migrator;
 
 ALTER ROLE hcs_customer_a PASSWORD :'hcs_test_password';
 ALTER ROLE hcs_customer_b PASSWORD :'hcs_test_password';
@@ -42,3 +44,4 @@ ALTER ROLE hcs_reviewer_a PASSWORD :'hcs_test_password';
 ALTER ROLE hcs_reviewer_b PASSWORD :'hcs_test_password';
 ALTER ROLE hcs_unbound PASSWORD :'hcs_test_password';
 ALTER ROLE hcs_audit PASSWORD :'hcs_test_password';
+ALTER ROLE hcs_migrator PASSWORD :'hcs_test_password';

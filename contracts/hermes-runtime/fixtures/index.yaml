@@ -906,10 +906,60 @@ cases:
     primary_finding_code: HGR-TRACE-UNRELATED-AUTHORITY
     allowed_secondary_codes: []
   evidence_id: EVIDENCE-FIXTURE-TRACE-SAME-LAYER-UNRELATED-AUTHORITY
+- case_id: mapping-payload-invalid
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-008]
+  scenario_ids: [HGR-008-S04]
+  inputs: [migration/mapping-payload-invalid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-MIGRATION-PAYLOAD-MAPPING
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-MAPPING-PAYLOAD-INVALID
+- case_id: mapping-payload-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-008]
+  scenario_ids: [HGR-008-S03]
+  inputs: [migration/mapping-payload-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-MAPPING-PAYLOAD-VALID
+- case_id: quarantine-record-invalid
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-008]
+  scenario_ids: [HGR-008-S08]
+  inputs: [migration/quarantine-record-invalid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-QUARANTINE-DEPENDENCY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-QUARANTINE-RECORD-INVALID
+- case_id: quarantine-record-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-008]
+  scenario_ids: [HGR-008-S07]
+  inputs: [migration/quarantine-record-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-QUARANTINE-RECORD-VALID
 - case_id: postgres-us2-governed-isolation-matrix
   phase: database
   class: valid
-  requirement_ids: [HGR-001, HGR-002, HGR-003, HGR-004, HGR-005, HGR-006, HGR-007]
+  requirement_ids: [HGR-001, HGR-002, HGR-003, HGR-004, HGR-005, HGR-006, HGR-007, HGR-008]
   scenario_ids:
   - HGR-001-S01
   - HGR-001-S03
@@ -937,6 +987,14 @@ cases:
   - HGR-006-S05
   - HGR-006-S06
   - HGR-007-S01
+  - HGR-008-S01
+  - HGR-008-S02
+  - HGR-008-S03
+  - HGR-008-S04
+  - HGR-008-S05
+  - HGR-008-S06
+  - HGR-008-S07
+  - HGR-008-S08
   inputs: []
   depends_on: []
   expected:
@@ -965,6 +1023,9 @@ cases:
     - contracts/hermes-runtime/installation-trust-anchor-event.schema.yaml
     - contracts/hermes-runtime/installation-trust-anchor.schema.yaml
     - contracts/hermes-runtime/layer-lifecycle-event.schema.yaml
+    - contracts/hermes-runtime/legacy-quarantine-record.schema.yaml
+    - contracts/hermes-runtime/migrations/v1-to-v2-mapping.schema.yaml
+    - contracts/hermes-runtime/migrations/v1-to-v2.sql
     - contracts/hermes-runtime/operation-authorization.schema.yaml
     - contracts/hermes-runtime/overlay-manifest.schema.yaml
     - contracts/hermes-runtime/principal-lifecycle-event.schema.yaml
@@ -973,13 +1034,22 @@ cases:
     - contracts/hermes-runtime/shared-definitions.schema.yaml
     - contracts/hermes-runtime/stack-lifecycle-event.schema.yaml
     - contracts/hermes-runtime/traceability-edge.schema.yaml
+    - contracts/schemas/hermes-operational-postgres.sql
+    - scripts/apply-hermes-runtime-postgres-v2.py
+    - scripts/hermes-runtime-dataset-digest.py
     - scripts/hermes_runtime_validation/fixtures.py
     - scripts/hermes_runtime_validation/loader.py
+    - scripts/hermes_runtime_validation/migration.py
     - scripts/hermes_runtime_validation/semantics/authority.py
     - scripts/hermes_runtime_validation/semantics/evidence.py
     - scripts/run-hermes-runtime-postgres-tests.sh
+    - scripts/run-hermes-v1-to-v2-migration.sh
+    - scripts/validate-hermes-runtime-postgres.py
     - tests/hermes_runtime_contracts/postgres/compose.yaml
     - tests/hermes_runtime_contracts/postgres/conftest.py
+    - tests/hermes_runtime_contracts/postgres/fixtures/digest-golden-vectors.yaml
+    - tests/hermes_runtime_contracts/postgres/fixtures/migration/v1-one-subject-dataset.yaml
+    - tests/hermes_runtime_contracts/postgres/fixtures/migration/v1-two-subject-dataset.yaml
     - tests/hermes_runtime_contracts/postgres/images.lock.yaml
     test_modules:
     - tests/hermes_runtime_contracts/postgres/test_topology_lifecycle.py
@@ -988,11 +1058,19 @@ cases:
     - tests/hermes_runtime_contracts/postgres/test_governed_evidence.py
     - tests/hermes_runtime_contracts/postgres/test_authorization_races.py
     - tests/hermes_runtime_contracts/postgres/test_contract_alignment.py
+    - tests/hermes_runtime_contracts/postgres/test_clean_apply.py
+    - tests/hermes_runtime_contracts/postgres/test_ddl_drift.py
+    - tests/hermes_runtime_contracts/postgres/test_migration.py
+    - tests/hermes_runtime_contracts/postgres/test_migration_recovery.py
+    - tests/hermes_runtime_contracts/postgres/test_quarantine.py
     seed_scripts:
     - tests/hermes_runtime_contracts/postgres/fixtures/isolation/00-cluster-roles.sql
     - tests/hermes_runtime_contracts/postgres/fixtures/isolation/10-two-customer-topology.sql
     - tests/hermes_runtime_contracts/postgres/fixtures/isolation/20-authority.sql
     - tests/hermes_runtime_contracts/postgres/fixtures/isolation/30-governed-evidence.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/migration/10-v1-two-subject-seed.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/migration/11-v1-one-subject-seed.sql
+    - tests/hermes_runtime_contracts/postgres/fixtures/migration/30-migration-authority.sql
     assertion_scripts:
     - tests/hermes_runtime_contracts/postgres/assertions/isolation/evidence-immutability-catalog.sql
     - tests/hermes_runtime_contracts/postgres/assertions/isolation/project-race.sql
@@ -1003,6 +1081,11 @@ cases:
     - tests/hermes_runtime_contracts/postgres/assertions/isolation/role-catalog.sql
     - tests/hermes_runtime_contracts/postgres/assertions/isolation/security-definer-catalog.sql
     - tests/hermes_runtime_contracts/postgres/assertions/isolation/topology-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/migration/migration-event-chain-invariant.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/migration/migration-freeze-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/migration/migration-ledger-catalog.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/migration/migration-reconciliation-invariant.sql
+    - tests/hermes_runtime_contracts/postgres/assertions/migration/quarantine-boundary-catalog.sql
     row_expectations:
       active_customer_layers: 2
       successful_projection_target_artifacts: 1

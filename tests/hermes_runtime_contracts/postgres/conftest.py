@@ -32,8 +32,12 @@ IMAGE_LOCK_FILE = POSTGRES_ROOT / "images.lock.yaml"
 CANONICAL_DDL = (
     REPOSITORY_ROOT / "contracts/hermes-runtime/hermes-operational-postgres-v2.sql"
 )
+CANONICAL_DDL_V1 = REPOSITORY_ROOT / "contracts/schemas/hermes-operational-postgres.sql"
+MIGRATION_SQL = REPOSITORY_ROOT / "contracts/hermes-runtime/migrations/v1-to-v2.sql"
 ISOLATION_FIXTURE_ROOT = POSTGRES_ROOT / "fixtures/isolation"
 ISOLATION_ASSERTION_ROOT = POSTGRES_ROOT / "assertions/isolation"
+MIGRATION_FIXTURE_ROOT = POSTGRES_ROOT / "fixtures/migration"
+MIGRATION_ASSERTION_ROOT = POSTGRES_ROOT / "assertions/migration"
 BASE_DATABASE = "hermes_runtime_contracts"
 BOOTSTRAP_USER = "hermes_runtime"
 
@@ -459,3 +463,142 @@ def postgres_database(
         )
         dropped = postgres_cluster.psql("postgres", cleanup_sql)
         assert dropped.returncode == 0, _render_process(dropped)
+
+
+@pytest.fixture
+def postgres_empty_database(
+    request: pytest.FixtureRequest, postgres_cluster: PostgresCluster
+) -> Iterator[PostgresDatabase]:
+    """One empty per-test database with no canonical DDL applied.
+
+    The apply-boundary tests own DDL application themselves; cloning the v2
+    template here would hide preflight/apply/postflight behavior.
+    """
+
+    digest = hashlib.sha256(request.node.nodeid.encode("utf-8")).hexdigest()[:12]
+    database_name = f"hcs_e_{postgres_cluster.major}_{digest}"
+    create_sql = (
+        "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+        f"WHERE datname = '{database_name}' AND pid <> pg_backend_pid();\n"
+        f'DROP DATABASE IF EXISTS "{database_name}";\n'
+        f'CREATE DATABASE "{database_name}";\n'
+    )
+    created = postgres_cluster.psql("postgres", create_sql)
+    assert created.returncode == 0, _render_process(created)
+    try:
+        yield PostgresDatabase(postgres_cluster, database_name)
+    finally:
+        cleanup_sql = (
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+            f"WHERE datname = '{database_name}' AND pid <> pg_backend_pid();\n"
+            f'DROP DATABASE IF EXISTS "{database_name}";\n'
+        )
+        dropped = postgres_cluster.psql("postgres", cleanup_sql)
+        assert dropped.returncode == 0, _render_process(dropped)
+
+
+@pytest.fixture
+def postgres_v1_database(
+    request: pytest.FixtureRequest, postgres_cluster: PostgresCluster
+) -> Iterator[PostgresDatabase]:
+    """v2-cloned per-test database carrying the pinned v1 surface, unseeded.
+
+    Migration tests seed deterministic v1 rows themselves from
+    ``fixtures/migration/``; this fixture only guarantees that the twelve
+    canonical ``public.hermes_*`` tables from the pinned v1 contract coexist
+    with the applied v2 namespaces.
+    """
+
+    assert CANONICAL_DDL_V1.is_file(), (
+        "pinned v1 DDL unavailable; RED boundary: " f"{CANONICAL_DDL_V1}"
+    )
+    digest = hashlib.sha256(request.node.nodeid.encode("utf-8")).hexdigest()[:12]
+    database_name = f"hcs_v1_{postgres_cluster.major}_{digest}"
+    create_sql = (
+        "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+        f"WHERE datname = '{database_name}' AND pid <> pg_backend_pid();\n"
+        f'DROP DATABASE IF EXISTS "{database_name}";\n'
+        f'CREATE DATABASE "{database_name}" TEMPLATE "{BASE_DATABASE}";\n'
+    )
+    created = postgres_cluster.psql("postgres", create_sql)
+    assert created.returncode == 0, _render_process(created)
+
+    database = PostgresDatabase(postgres_cluster, database_name)
+    try:
+        applied = database.file(CANONICAL_DDL_V1, timeout=60)
+        assert applied.returncode == 0, (
+            f"pinned v1 DDL failed on major {postgres_cluster.major}: "
+            f"{_render_process(applied)}"
+        )
+        yield database
+    finally:
+        cleanup_sql = (
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+            f"WHERE datname = '{database_name}' AND pid <> pg_backend_pid();\n"
+            f'DROP DATABASE IF EXISTS "{database_name}";\n'
+        )
+        dropped = postgres_cluster.psql("postgres", cleanup_sql)
+        assert dropped.returncode == 0, _render_process(dropped)
+
+
+@pytest.fixture
+def private_postgres_cluster(
+    postgres_cluster: PostgresCluster,
+    run_postgres_subprocess: Callable[..., subprocess.CompletedProcess[str]],
+    compose_project_name: str,
+) -> Iterator[PostgresCluster]:
+    """Function-scoped disposable cluster for crash and recovery scenarios.
+
+    Shares the session cluster's digest-pinned image and major but runs as a
+    separate Compose project, so tests may ``compose("kill", "postgres")`` and
+    restart it without harming the shared session cluster.  ``BASE_DATABASE``
+    carries the v2 and pinned v1 surfaces plus the cluster login roles; its
+    named volume persists across restarts within this project.
+    """
+
+    credential = EphemeralCredential("POSTGRES_PASSWORD", secrets.token_urlsafe(36))
+    cluster = PostgresCluster(
+        major=postgres_cluster.major,
+        image=postgres_cluster.image,
+        project_name=compose_project_name,
+        credential=credential,
+        run_subprocess=run_postgres_subprocess,
+    )
+    started = False
+    try:
+        up = cluster.compose("up", "--detach", "--wait", "postgres", timeout=90)
+        assert_sql_succeeds(up)
+        started = True
+
+        readiness: subprocess.CompletedProcess[str] | None = None
+        for _ in range(30):
+            readiness = cluster.psql(BASE_DATABASE, "SELECT 1;")
+            if readiness.returncode == 0:
+                break
+            time.sleep(0.2)
+        else:
+            assert readiness is not None
+            pytest.fail(
+                "private PostgreSQL cluster TCP readiness failed after Compose "
+                f"reported healthy: {_render_process(readiness)}"
+            )
+
+        applied = cluster.psql(
+            BASE_DATABASE, CANONICAL_DDL.read_text(encoding="utf-8"), timeout=90
+        )
+        assert applied.returncode == 0, (
+            "canonical PostgreSQL v2 DDL failed on private cluster "
+            f"major {cluster.major}: {_render_process(applied)}"
+        )
+        applied_v1 = cluster.psql_file(BASE_DATABASE, CANONICAL_DDL_V1, timeout=60)
+        assert applied_v1.returncode == 0, _render_process(applied_v1)
+        roles = cluster.psql_file(
+            BASE_DATABASE,
+            ISOLATION_FIXTURE_ROOT / "00-cluster-roles.sql",
+        )
+        assert roles.returncode == 0, _render_process(roles)
+        yield cluster
+    finally:
+        if started:
+            down = cluster.compose("down", "--volumes", "--remove-orphans", timeout=90)
+            assert down.returncode == 0, _render_process(down)

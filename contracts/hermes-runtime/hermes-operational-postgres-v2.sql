@@ -258,7 +258,8 @@ create table if not exists xfactory_runtime_v2.database_principal_bindings (
   session_user_name text not null unique,
   principal_id text not null,
   principal_digest text not null check (principal_digest ~ '^sha256:[0-9a-f]{64}$'),
-  role_class text not null check (role_class in ('runtime', 'control', 'audit')),
+  role_class text not null
+    check (role_class in ('runtime', 'control', 'audit', 'migrator')),
   creator_grant_id text not null,
   creator_grant_digest text not null
     check (creator_grant_digest ~ '^sha256:[0-9a-f]{64}$'),
@@ -4468,4 +4469,2625 @@ grant execute on function
   xfactory_runtime_api_v2.approval_authorizes(text)
 to xfactory_v2_audit;
 
+-- v1-to-v2 migration surface (US3): append-only evolution of this contract.
+-- Adds the migration staging/attempt/event/observation/reconciliation ledger,
+-- the eight scoped legacy_* compatibility-history tables, the sealed legacy
+-- quarantine record table, the exact xfactory-v1-dataset-binary-v1 framing
+-- and canonical-JSON derivation functions, the durable v1 write freeze, and
+-- the governed migrator-only API entrypoints.
+
+create table if not exists xfactory_runtime_v2.migration_staging (
+  installation_id text not null,
+  migration_id text not null,
+  payload jsonb not null,
+  authority_envelope jsonb not null,
+  mapping_payload_digest text not null
+    check (mapping_payload_digest ~ '^sha256:[0-9a-f]{64}$'),
+  authority_envelope_digest text not null
+    check (authority_envelope_digest ~ '^sha256:[0-9a-f]{64}$'),
+  staged_at timestamptz not null,
+  primary key (installation_id, migration_id),
+  foreign key (installation_id)
+    references xfactory_runtime_v2.installation_registrations(installation_id)
+);
+
+create table if not exists xfactory_runtime_v2.migration_attempts (
+  attempt_id text not null,
+  installation_id text not null,
+  migration_id text not null,
+  mapping_payload_digest text not null
+    check (mapping_payload_digest ~ '^sha256:[0-9a-f]{64}$'),
+  created_at timestamptz not null,
+  primary key (installation_id, migration_id, attempt_id),
+  foreign key (installation_id, migration_id)
+    references xfactory_runtime_v2.migration_staging
+      (installation_id, migration_id)
+);
+
+create unique index if not exists migration_attempt_identity_uq
+  on xfactory_runtime_v2.migration_attempts (attempt_id);
+
+create table if not exists xfactory_runtime_v2.migration_attempt_events (
+  event_id text not null,
+  attempt_id text not null,
+  installation_id text not null,
+  migration_id text not null,
+  event_type text not null
+    check (event_type in ('started', 'succeeded', 'failed', 'abandoned')),
+  predecessor_event_id text,
+  reason text,
+  occurred_at timestamptz not null,
+  primary key (installation_id, migration_id, event_id),
+  foreign key (attempt_id)
+    references xfactory_runtime_v2.migration_attempts(attempt_id)
+);
+
+create unique index if not exists migration_event_predecessor_uq
+  on xfactory_runtime_v2.migration_attempt_events
+    (installation_id, migration_id, predecessor_event_id);
+
+create unique index if not exists migration_event_one_root_uq
+  on xfactory_runtime_v2.migration_attempt_events
+    (installation_id, migration_id)
+  where predecessor_event_id is null;
+
+create table if not exists xfactory_runtime_v2.migration_cutover_observations (
+  observation_id text not null,
+  attempt_id text not null,
+  mapping_payload_digest text not null
+    check (mapping_payload_digest ~ '^sha256:[0-9a-f]{64}$'),
+  authority_envelope_digest text not null
+    check (authority_envelope_digest ~ '^sha256:[0-9a-f]{64}$'),
+  logical_boundary_id text not null
+    check (logical_boundary_id ~ '^sha256:[0-9a-f]{64}$'),
+  transaction_snapshot text not null,
+  wal_position text not null,
+  authorized_at timestamptz not null,
+  run_migration_grant_id text not null,
+  run_migration_grant_digest text not null
+    check (run_migration_grant_digest ~ '^sha256:[0-9a-f]{64}$'),
+  target_contract_identity jsonb not null,
+  reconciliation_digest text not null
+    check (reconciliation_digest ~ '^sha256:[0-9a-f]{64}$'),
+  primary key (observation_id),
+  foreign key (attempt_id)
+    references xfactory_runtime_v2.migration_attempts(attempt_id)
+);
+
+create unique index if not exists migration_observation_one_per_attempt_uq
+  on xfactory_runtime_v2.migration_cutover_observations (attempt_id);
+
+create table if not exists xfactory_runtime_v2.migration_reconciliations (
+  reconciliation_id text not null,
+  attempt_id text not null,
+  per_table jsonb not null,
+  compatibility_history_count bigint not null
+    check (compatibility_history_count >= 0),
+  quarantine_count bigint not null check (quarantine_count >= 0),
+  "freeze" jsonb not null,
+  reconciliation_digest text not null
+    check (reconciliation_digest ~ '^sha256:[0-9a-f]{64}$'),
+  primary key (reconciliation_id),
+  foreign key (attempt_id)
+    references xfactory_runtime_v2.migration_attempts(attempt_id)
+);
+
+create unique index if not exists migration_reconciliation_one_per_attempt_uq
+  on xfactory_runtime_v2.migration_reconciliations (attempt_id);
+
+create table if not exists xfactory_runtime_v2.legacy_jobs (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_job_runs (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_job_events (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_workers (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_groups (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_profiles (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_group_memberships (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_runtime_v2.legacy_github_team_mappings (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_row jsonb not null,
+  scope_kind text not null check (scope_kind in ('layer', 'installation_admin')),
+  installation_id text not null,
+  stack_id text,
+  layer_id text,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk),
+  check (
+    (scope_kind = 'layer' and stack_id is not null and layer_id is not null)
+    or (scope_kind = 'installation_admin'
+        and stack_id is null and layer_id is null)
+  ),
+  foreign key (installation_id, stack_id, layer_id)
+    references xfactory_runtime_v2.layer_registrations
+      (installation_id, stack_id, layer_id)
+);
+
+create table if not exists xfactory_legacy_quarantine_v2.legacy_quarantine_records (
+  migration_id text not null,
+  source_schema text not null,
+  source_table text not null,
+  source_pk text not null,
+  source_row_digest text not null
+    check (source_row_digest ~ '^sha256:[0-9a-f]{64}$'),
+  reason_code text not null check (reason_code in (
+    'missing_content_digest', 'missing_target_digest',
+    'missing_reviewer_authority', 'missing_binding_evidence',
+    'unverifiable_ancestry'
+  )),
+  source_row jsonb not null,
+  captured_at timestamptz not null,
+  primary key (migration_id, source_schema, source_table, source_pk)
+);
+
+create or replace function xfactory_runtime_v2.migration_u64be(
+  value bigint
+)
+returns bytea
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog
+as $function$
+begin
+  if value < 0 then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-FRAME: u64be values must be non-negative';
+  end if;
+  return decode(lpad(to_hex(value), 16, '0'), 'hex');
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_frame(
+  tag integer,
+  payload bytea
+)
+returns bytea
+language sql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select decode(lpad(to_hex(tag), 2, '0'), 'hex')
+    || xfactory_runtime_v2.migration_u64be(length(payload)::bigint)
+    || payload
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_canonical_json_string(
+  value text
+)
+returns text
+language sql
+immutable
+strict
+set search_path = pg_catalog
+as $function$
+  select '"' || coalesce(string_agg(
+    case
+      when part.character = '"' then '\"'
+      when part.character = '\' then '\\'
+      when ascii(part.character) < 32
+        then '\u00' || lpad(to_hex(ascii(part.character)), 2, '0')
+      else part.character
+    end,
+    '' order by idx.char_index
+  ), '') || '"'
+  from generate_series(1, length(value)) as idx(char_index),
+    lateral (select substr(value, idx.char_index, 1) as character) part
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_canonical_json_value(
+  value jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog
+as $function$
+declare
+  rendered text;
+  numeric_text text;
+begin
+  case jsonb_typeof(value)
+    when 'object' then
+      select coalesce(
+        '{' || string_agg(
+          xfactory_runtime_v2.migration_canonical_json_string(member.key)
+            || ':'
+            || xfactory_runtime_v2.migration_canonical_json_value(member.value),
+          ',' order by convert_to(member.key, 'UTF8')
+        ) || '}',
+        '{}'
+      )
+      into rendered
+      from jsonb_each(value) member;
+      return rendered;
+    when 'array' then
+      select coalesce(
+        '[' || string_agg(
+          xfactory_runtime_v2.migration_canonical_json_value(member.value),
+          ',' order by member.ordinality
+        ) || ']',
+        '[]'
+      )
+      into rendered
+      from jsonb_array_elements(value) with ordinality member(value, ordinality);
+      return rendered;
+    when 'string' then
+      return xfactory_runtime_v2.migration_canonical_json_string(value #>> '{}');
+    when 'number' then
+      numeric_text := value::text;
+      if numeric_text ~ '[eE]' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-JSON-VALUE: exponent number forms are forbidden';
+      end if;
+      if position('.' in numeric_text) > 0 then
+        numeric_text := regexp_replace(numeric_text, '0+$', '');
+        numeric_text := regexp_replace(numeric_text, '\.$', '');
+      end if;
+      if numeric_text in ('-0', '') then
+        numeric_text := '0';
+      end if;
+      return numeric_text;
+    else
+      return value::text;
+  end case;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_reject_control_characters(
+  value jsonb
+)
+returns void
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog
+as $function$
+declare
+  member record;
+begin
+  case jsonb_typeof(value)
+    when 'string' then
+      if (value #>> '{}') ~ '[\x01-\x1f]' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-CONTROL-CHARACTER: control characters are '
+            'forbidden in payload and envelope strings';
+      end if;
+    when 'object' then
+      for member in select entry.key, entry.value from jsonb_each(value) entry
+      loop
+        if member.key ~ '[\x01-\x1f]' then
+          raise exception using
+            errcode = '22023',
+            message = 'HGR-MIGRATION-CONTROL-CHARACTER: control characters are '
+              'forbidden in payload and envelope field names';
+        end if;
+        perform xfactory_runtime_v2.migration_reject_control_characters(
+          member.value
+        );
+      end loop;
+    when 'array' then
+      for member in
+        select entry.value from jsonb_array_elements(value) entry
+      loop
+        perform xfactory_runtime_v2.migration_reject_control_characters(
+          member.value
+        );
+      end loop;
+    else
+      null;
+  end case;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_value_frame(
+  cell jsonb
+)
+returns bytea
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  cell_kind text;
+  cell_value jsonb;
+  value_text text;
+begin
+  if jsonb_typeof(cell) <> 'object' or not cell ? 'type' then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-VALUE: cells must carry a type field';
+  end if;
+  if jsonb_typeof(cell->'type') = 'null' then
+    return xfactory_runtime_v2.migration_frame(x'30'::int, ''::bytea);
+  end if;
+  cell_kind := cell #>> '{type}';
+  if cell_kind = 'null' then
+    return xfactory_runtime_v2.migration_frame(x'30'::int, ''::bytea);
+  end if;
+  if not cell ? 'value' then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-VALUE: non-null cells must carry a value';
+  end if;
+  cell_value := cell->'value';
+  case cell_kind
+    when 'text' then
+      if jsonb_typeof(cell_value) <> 'string' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: text cells must be strings';
+      end if;
+      return xfactory_runtime_v2.migration_frame(
+        x'31'::int, convert_to(cell_value #>> '{}', 'UTF8')
+      );
+    when 'integer' then
+      value_text := cell_value #>> '{}';
+      if jsonb_typeof(cell_value) <> 'string'
+         or value_text !~ '^(0|-?[1-9][0-9]*)$' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: integer cells must be '
+            'minimal base-10 strings';
+      end if;
+      return xfactory_runtime_v2.migration_frame(
+        x'32'::int, convert_to(value_text, 'UTF8')
+      );
+    when 'boolean' then
+      if jsonb_typeof(cell_value) <> 'boolean' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: boolean cells must be '
+            'true or false';
+      end if;
+      return xfactory_runtime_v2.migration_frame(
+        x'33'::int,
+        case when cell_value = 'true'::jsonb
+          then decode('01', 'hex') else decode('00', 'hex') end
+      );
+    when 'timestamp' then
+      value_text := cell_value #>> '{}';
+      if jsonb_typeof(cell_value) <> 'string'
+         or value_text !~
+           '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z$'
+      then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: timestamp cells must be UTC '
+            'RFC 3339 with exactly six fractional digits and Z';
+      end if;
+      return xfactory_runtime_v2.migration_frame(
+        x'34'::int, convert_to(value_text, 'UTF8')
+      );
+    when 'binary' then
+      value_text := cell_value #>> '{}';
+      if jsonb_typeof(cell_value) <> 'string'
+         or value_text !~ '^([0-9a-f]{2})*$' then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: binary cells must be '
+            'even-length lowercase hex';
+      end if;
+      return xfactory_runtime_v2.migration_frame(
+        x'35'::int, convert_to(value_text, 'UTF8')
+      );
+    when 'json' then
+      return xfactory_runtime_v2.migration_frame(
+        x'36'::int,
+        convert_to(
+          xfactory_runtime_v2.migration_canonical_json_value(cell_value),
+          'UTF8'
+        )
+      );
+    else
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-VALUE: unknown cell type';
+  end case;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_row_frame(
+  cells jsonb
+)
+returns bytea
+language sql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select xfactory_runtime_v2.migration_frame(
+    x'20'::int,
+    coalesce(
+      (
+        select string_agg(
+          xfactory_runtime_v2.migration_frame(
+            x'21'::int,
+            xfactory_runtime_v2.migration_u64be(cell.ordinality)
+              || xfactory_runtime_v2.migration_value_frame(cell.value)
+          ),
+          ''::bytea order by cell.ordinality
+        )
+        from jsonb_array_elements(cells) with ordinality
+          cell(value, ordinality)
+      ),
+      ''::bytea
+    )
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_row_digest(
+  cells jsonb
+)
+returns text
+language sql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select 'sha256:' || encode(
+    sha256(xfactory_runtime_v2.migration_row_frame(cells)), 'hex'
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_key_frames(
+  cells jsonb
+)
+returns bytea
+language sql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select coalesce(
+    (
+      select string_agg(
+        xfactory_runtime_v2.migration_value_frame(cell.value),
+        ''::bytea order by cell.ordinality
+      )
+      from jsonb_array_elements(cells) with ordinality cell(value, ordinality)
+    ),
+    ''::bytea
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_canonical_v1_tables()
+returns text[]
+language sql
+immutable
+set search_path = pg_catalog
+as $function$
+  select array[
+    'hermes_approval_requests',
+    'hermes_approvals',
+    'hermes_github_team_mappings',
+    'hermes_group_memberships',
+    'hermes_groups',
+    'hermes_job_artifacts',
+    'hermes_job_events',
+    'hermes_job_runs',
+    'hermes_jobs',
+    'hermes_profiles',
+    'hermes_traceability_edges',
+    'hermes_workers'
+  ]
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_source_catalog(
+  source_schema text
+)
+returns jsonb
+language plpgsql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  table_name text;
+  relation_oid oid;
+  relation_kind "char";
+  columns_json jsonb;
+  catalog_json jsonb := '[]'::jsonb;
+begin
+  foreach table_name in array
+    xfactory_runtime_v2.migration_canonical_v1_tables()
+  loop
+    select cls.oid, cls.relkind
+    into relation_oid, relation_kind
+    from pg_class cls
+    join pg_namespace ns on ns.oid = cls.relnamespace
+    where ns.nspname = source_schema
+      and cls.relname = table_name;
+    if relation_oid is null or relation_kind <> 'r' then
+      raise exception using
+        errcode = '55000',
+        message = format(
+          'HGR-MIGRATION-CATALOG: canonical v1 table %I.%I is missing',
+          source_schema, table_name
+        );
+    end if;
+    if not exists (
+      select 1 from pg_index idx
+      where idx.indrelid = relation_oid and idx.indisprimary
+    ) then
+      raise exception using
+        errcode = '55000',
+        message = format(
+          'HGR-MIGRATION-CATALOG: canonical v1 table %I.%I has no primary key',
+          source_schema, table_name
+        );
+    end if;
+    select jsonb_agg(
+      jsonb_build_object(
+        'ordinal', column_row.ordinal,
+        'name', column_row.column_name,
+        'normalized_type', column_row.normalized_type,
+        'nullable', column_row.nullable,
+        'primary_key_position', column_row.primary_key_position
+      )
+      order by column_row.ordinal
+    )
+    into columns_json
+    from (
+      select
+        row_number() over (order by attr.attnum) as ordinal,
+        attr.attname::text as column_name,
+        case typ.typname
+          when 'int4' then 'int4'
+          when 'int8' then 'int8'
+          when 'bool' then 'bool'
+          when 'text' then 'text'
+          when 'timestamptz' then 'timestamptz'
+          when 'jsonb' then 'jsonb'
+          when 'bytea' then 'bytea'
+        end as normalized_type,
+        not attr.attnotnull as nullable,
+        coalesce(
+          (
+            select key_column.position
+            from pg_index idx,
+              unnest(idx.indkey::int2[]) with ordinality
+                as key_column(key_attnum, position)
+            where idx.indrelid = relation_oid
+              and idx.indisprimary
+              and key_column.key_attnum = attr.attnum
+          ),
+          0
+        ) as primary_key_position
+      from pg_attribute attr
+      join pg_type typ on typ.oid = attr.atttypid
+      where attr.attrelid = relation_oid
+        and attr.attnum > 0
+        and not attr.attisdropped
+    ) column_row;
+    if columns_json is null
+       or exists (
+         select 1
+         from jsonb_array_elements(columns_json) entry
+         where entry.value->>'normalized_type' is null
+       ) then
+      raise exception using
+        errcode = '55000',
+        message = format(
+          'HGR-MIGRATION-CATALOG: %I.%I carries an unsupported column type',
+          source_schema, table_name
+        );
+    end if;
+    catalog_json := catalog_json || jsonb_build_array(
+      jsonb_build_object(
+        'schema_name', source_schema,
+        'table_name', table_name,
+        'columns', columns_json
+      )
+    );
+  end loop;
+  return catalog_json;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_catalog_digest(
+  catalog jsonb
+)
+returns text
+language sql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select xfactory_runtime_v2.canonical_record_digest(
+    jsonb_build_object(
+      'profile', 'xfactory-v1-catalog-v1',
+      'tables', catalog
+    )
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_live_cells_expression(
+  table_entry jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_entry jsonb;
+  cell_expressions text[] := array[]::text[];
+  column_reference text;
+  cell_expression text;
+begin
+  for column_entry in
+    select entry.value
+    from jsonb_array_elements(table_entry->'columns') entry
+    order by (entry.value->>'ordinal')::int
+  loop
+    column_reference := format('t.%I', column_entry->>'name');
+    case column_entry->>'normalized_type'
+      when 'text' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'text', 'value', %1$s) end$cell$,
+          column_reference
+        );
+      when 'int4' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'integer', 'value', %1$s::text)
+            end$cell$,
+          column_reference
+        );
+      when 'int8' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'integer', 'value', %1$s::text)
+            end$cell$,
+          column_reference
+        );
+      when 'bool' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'boolean', 'value', %1$s) end$cell$,
+          column_reference
+        );
+      when 'timestamptz' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'timestamp', 'value',
+              to_char(%1$s at time zone 'UTC',
+                'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')) end$cell$,
+          column_reference
+        );
+      when 'jsonb' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'json', 'value', %1$s) end$cell$,
+          column_reference
+        );
+      when 'bytea' then
+        cell_expression := format(
+          $cell$case when %1$s is null then jsonb_build_object('type', null)
+            else jsonb_build_object('type', 'binary', 'value',
+              encode(%1$s, 'hex')) end$cell$,
+          column_reference
+        );
+      else
+        raise exception using
+          errcode = '55000',
+          message = 'HGR-MIGRATION-CATALOG: unsupported normalized type';
+    end case;
+    cell_expressions := cell_expressions || cell_expression;
+  end loop;
+  return format('jsonb_build_array(%s)', array_to_string(cell_expressions, ', '));
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_pk_cells_expression(
+  table_entry jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_entry jsonb;
+  cell_expressions text[] := array[]::text[];
+begin
+  for column_entry in
+    select entry.value
+    from jsonb_array_elements(table_entry->'columns') entry
+    where (entry.value->>'primary_key_position')::int > 0
+    order by (entry.value->>'primary_key_position')::int
+  loop
+    case column_entry->>'normalized_type'
+      when 'text' then
+        cell_expressions := cell_expressions || format(
+          $cell$jsonb_build_object('type', 'text', 'value', t.%I)$cell$,
+          column_entry->>'name'
+        );
+      when 'int4' then
+        cell_expressions := cell_expressions || format(
+          $cell$jsonb_build_object('type', 'integer', 'value', t.%I::text)$cell$,
+          column_entry->>'name'
+        );
+      when 'int8' then
+        cell_expressions := cell_expressions || format(
+          $cell$jsonb_build_object('type', 'integer', 'value', t.%I::text)$cell$,
+          column_entry->>'name'
+        );
+      else
+        raise exception using
+          errcode = '55000',
+          message = 'HGR-MIGRATION-CATALOG: unsupported primary-key column type';
+    end case;
+  end loop;
+  if cardinality(cell_expressions) = 0 then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-CATALOG: primary-key columns are required';
+  end if;
+  return format('jsonb_build_array(%s)', array_to_string(cell_expressions, ', '));
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_live_row_json_expression(
+  table_entry jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_entry jsonb;
+  member_expressions text[] := array[]::text[];
+  column_reference text;
+  value_expression text;
+begin
+  for column_entry in
+    select entry.value
+    from jsonb_array_elements(table_entry->'columns') entry
+    order by (entry.value->>'ordinal')::int
+  loop
+    column_reference := format('t.%I', column_entry->>'name');
+    case column_entry->>'normalized_type'
+      when 'timestamptz' then
+        value_expression := format(
+          $value$case when %1$s is null then 'null'::jsonb
+            else to_jsonb(to_char(%1$s at time zone 'UTC',
+              'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')) end$value$,
+          column_reference
+        );
+      when 'bytea' then
+        value_expression := format(
+          $value$case when %1$s is null then 'null'::jsonb
+            else to_jsonb(encode(%1$s, 'hex')) end$value$,
+          column_reference
+        );
+      when 'jsonb' then
+        value_expression := format(
+          $value$coalesce(%1$s, 'null'::jsonb)$value$,
+          column_reference
+        );
+      else
+        value_expression := format(
+          $value$case when %1$s is null then 'null'::jsonb
+            else to_jsonb(%1$s) end$value$,
+          column_reference
+        );
+    end case;
+    member_expressions := member_expressions || format(
+      '%L, %s', column_entry->>'name', value_expression
+    );
+  end loop;
+  return format(
+    'jsonb_build_object(%s)', array_to_string(member_expressions, ', ')
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_pk_values_expression(
+  table_entry jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_entry jsonb;
+  value_expressions text[] := array[]::text[];
+begin
+  for column_entry in
+    select entry.value
+    from jsonb_array_elements(table_entry->'columns') entry
+    where (entry.value->>'primary_key_position')::int > 0
+    order by (entry.value->>'primary_key_position')::int
+  loop
+    value_expressions := value_expressions || format(
+      't.%I::text', column_entry->>'name'
+    );
+  end loop;
+  if cardinality(value_expressions) = 0 then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-CATALOG: primary-key columns are required';
+  end if;
+  return format('array[%s]', array_to_string(value_expressions, ', '));
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_source_rows(
+  source_schema text,
+  table_entry jsonb
+)
+returns table (
+  source_pk text,
+  source_row_digest text,
+  source_row jsonb,
+  pk_values text[]
+)
+language plpgsql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+begin
+  return query execute format(
+    $query$
+    select
+      xfactory_runtime_v2.migration_canonical_json_value(
+        to_jsonb(%s)
+      ) as source_pk,
+      xfactory_runtime_v2.migration_row_digest(%s) as source_row_digest,
+      %s as source_row,
+      %s as pk_values
+    from %I.%I t
+    $query$,
+    xfactory_runtime_v2.migration_pk_values_expression(table_entry),
+    xfactory_runtime_v2.migration_live_cells_expression(table_entry),
+    xfactory_runtime_v2.migration_live_row_json_expression(table_entry),
+    xfactory_runtime_v2.migration_pk_values_expression(table_entry),
+    source_schema,
+    table_entry->>'table_name'
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_table_frame(
+  in source_schema text,
+  in table_entry jsonb,
+  out table_frame bytea,
+  out row_count bigint
+)
+language plpgsql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_frames bytea;
+  column_count bigint;
+  row_frames bytea;
+begin
+  select
+    coalesce(
+      string_agg(
+        xfactory_runtime_v2.migration_frame(
+          x'14'::int,
+          xfactory_runtime_v2.migration_u64be(
+            (entry.value->>'ordinal')::bigint
+          )
+          || case when (entry.value->>'nullable')::boolean
+               then decode('01', 'hex') else decode('00', 'hex') end
+          || xfactory_runtime_v2.migration_u64be(
+               (entry.value->>'primary_key_position')::bigint
+             )
+          || xfactory_runtime_v2.migration_frame(
+               x'15'::int, convert_to(entry.value->>'name', 'UTF8')
+             )
+          || xfactory_runtime_v2.migration_frame(
+               x'16'::int, convert_to(entry.value->>'normalized_type', 'UTF8')
+             )
+        ),
+        ''::bytea order by (entry.value->>'ordinal')::int
+      ),
+      ''::bytea
+    ),
+    count(*)::bigint
+  into column_frames, column_count
+  from jsonb_array_elements(table_entry->'columns') entry;
+
+  execute format(
+    $query$
+    select
+      coalesce(
+        string_agg(framed.row_frame, ''::bytea order by framed.sort_key),
+        ''::bytea
+      ),
+      count(*)::bigint
+    from (
+      select
+        xfactory_runtime_v2.migration_row_frame(%s) as row_frame,
+        xfactory_runtime_v2.migration_key_frames(%s) as sort_key
+      from %I.%I t
+    ) framed
+    $query$,
+    xfactory_runtime_v2.migration_live_cells_expression(table_entry),
+    xfactory_runtime_v2.migration_pk_cells_expression(table_entry),
+    source_schema,
+    table_entry->>'table_name'
+  )
+  into row_frames, row_count;
+
+  table_frame := xfactory_runtime_v2.migration_frame(
+    x'10'::int,
+    xfactory_runtime_v2.migration_frame(
+      x'11'::int, convert_to(table_entry->>'schema_name', 'UTF8')
+    )
+    || xfactory_runtime_v2.migration_frame(
+         x'12'::int, convert_to(table_entry->>'table_name', 'UTF8')
+       )
+    || xfactory_runtime_v2.migration_frame(
+         x'13'::int, xfactory_runtime_v2.migration_u64be(column_count)
+       )
+    || column_frames
+    || xfactory_runtime_v2.migration_frame(
+         x'17'::int, xfactory_runtime_v2.migration_u64be(row_count)
+       )
+    || row_frames
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_dataset_stream(
+  source_schema text
+)
+returns bytea
+language plpgsql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  catalog_json jsonb;
+  table_entry jsonb;
+  stream bytea := '\x584656314453'::bytea || decode('0001', 'hex');
+  framed record;
+begin
+  catalog_json := xfactory_runtime_v2.migration_source_catalog(source_schema);
+  for table_entry in
+    select entry.value
+    from jsonb_array_elements(catalog_json) entry
+    order by convert_to(entry.value->>'schema_name', 'UTF8'),
+      convert_to(entry.value->>'table_name', 'UTF8')
+  loop
+    select frame.table_frame
+    into framed
+    from xfactory_runtime_v2.migration_table_frame(
+      source_schema, table_entry
+    ) frame;
+    stream := stream || framed.table_frame;
+  end loop;
+  return stream;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_dataset_digest(
+  source_schema text
+)
+returns text
+language sql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select 'sha256:' || encode(
+    sha256(xfactory_runtime_v2.migration_dataset_stream(source_schema)), 'hex'
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_observe_source(
+  source_schema text
+)
+returns jsonb
+language plpgsql
+stable
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  catalog_json jsonb;
+  table_entry jsonb;
+  stream bytea := '\x584656314453'::bytea || decode('0001', 'hex');
+  framed record;
+  table_row_counts jsonb := '{}'::jsonb;
+  per_table_digests jsonb := '{}'::jsonb;
+  table_key text;
+begin
+  catalog_json := xfactory_runtime_v2.migration_source_catalog(source_schema);
+  for table_entry in
+    select entry.value
+    from jsonb_array_elements(catalog_json) entry
+    order by convert_to(entry.value->>'schema_name', 'UTF8'),
+      convert_to(entry.value->>'table_name', 'UTF8')
+  loop
+    select frame.table_frame, frame.row_count
+    into framed
+    from xfactory_runtime_v2.migration_table_frame(
+      source_schema, table_entry
+    ) frame;
+    table_key := (table_entry->>'schema_name') || '.'
+      || (table_entry->>'table_name');
+    table_row_counts := table_row_counts
+      || jsonb_build_object(table_key, framed.row_count);
+    per_table_digests := per_table_digests || jsonb_build_object(
+      table_key,
+      'sha256:' || encode(sha256(framed.table_frame), 'hex')
+    );
+    stream := stream || framed.table_frame;
+  end loop;
+  return jsonb_build_object(
+    'catalog', catalog_json,
+    'catalog_digest', xfactory_runtime_v2.migration_catalog_digest(catalog_json),
+    'table_row_counts', table_row_counts,
+    'per_table_digests', per_table_digests,
+    'dataset_digest', 'sha256:' || encode(sha256(stream), 'hex')
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_dataset_stream_from(
+  dataset jsonb
+)
+returns bytea
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  table_entry jsonb;
+  column_entry jsonb;
+  stream bytea := '\x584656314453'::bytea || decode('0001', 'hex');
+  column_frames bytea;
+  column_count bigint;
+  row_frames bytea;
+  row_count bigint;
+  seen_tables text[] := array[]::text[];
+  table_key text;
+begin
+  if jsonb_typeof(dataset) <> 'object'
+     or dataset->>'kind' is distinct from 'xfactory-v1-dataset-description'
+     or dataset->'schema_version' is distinct from '1'::jsonb
+     or jsonb_typeof(dataset->'tables') <> 'array' then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-SHAPE: dataset descriptions must carry '
+        'schema_version 1, the dataset-description kind, and a tables list';
+  end if;
+  for table_entry in
+    select entry.value
+    from jsonb_array_elements(dataset->'tables') entry
+    order by convert_to(entry.value->>'schema_name', 'UTF8'),
+      convert_to(entry.value->>'table_name', 'UTF8')
+  loop
+    if table_entry->>'schema_name' is null
+       or table_entry->>'table_name' is null
+       or jsonb_typeof(table_entry->'columns') <> 'array'
+       or jsonb_typeof(table_entry->'rows') <> 'array' then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-SHAPE: table entries must carry '
+          'schema_name, table_name, columns, and rows';
+    end if;
+    table_key := (table_entry->>'schema_name') || '.'
+      || (table_entry->>'table_name');
+    if table_key = any(seen_tables) then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-SHAPE: duplicate dataset table entry';
+    end if;
+    seen_tables := seen_tables || table_key;
+
+    if exists (
+      select 1
+      from jsonb_array_elements(table_entry->'columns') entry
+      where jsonb_typeof(entry.value) <> 'object'
+        or entry.value->>'name' is null
+        or entry.value->>'normalized_type' is null
+        or entry.value->>'normalized_type' not in
+          ('text', 'int4', 'int8', 'bool', 'timestamptz', 'jsonb', 'bytea')
+        or jsonb_typeof(entry.value->'nullable') <> 'boolean'
+        or jsonb_typeof(entry.value->'primary_key_position') <> 'number'
+    ) then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-COLUMN: dataset columns must carry '
+          'name, normalized_type, nullable, and primary_key_position';
+    end if;
+
+    select
+      coalesce(
+        string_agg(
+          xfactory_runtime_v2.migration_frame(
+            x'14'::int,
+            xfactory_runtime_v2.migration_u64be(entry.ordinality)
+            || case when (entry.value->>'nullable')::boolean
+                 then decode('01', 'hex') else decode('00', 'hex') end
+            || xfactory_runtime_v2.migration_u64be(
+                 (entry.value->>'primary_key_position')::bigint
+               )
+            || xfactory_runtime_v2.migration_frame(
+                 x'15'::int, convert_to(entry.value->>'name', 'UTF8')
+               )
+            || xfactory_runtime_v2.migration_frame(
+                 x'16'::int,
+                 convert_to(entry.value->>'normalized_type', 'UTF8')
+               )
+          ),
+          ''::bytea order by entry.ordinality
+        ),
+        ''::bytea
+      ),
+      count(*)::bigint
+    into column_frames, column_count
+    from jsonb_array_elements(table_entry->'columns') with ordinality
+      entry(value, ordinality);
+
+    select
+      coalesce(
+        string_agg(framed.row_frame, ''::bytea order by framed.sort_key),
+        ''::bytea
+      ),
+      count(*)::bigint
+    into row_frames, row_count
+    from (
+      select
+        xfactory_runtime_v2.migration_row_frame(
+          xfactory_runtime_v2.migration_dataset_row_cells(
+            table_entry->'columns', row_entry.value
+          )
+        ) as row_frame,
+        xfactory_runtime_v2.migration_key_frames(
+          xfactory_runtime_v2.migration_dataset_key_cells(
+            table_entry->'columns', row_entry.value
+          )
+        ) as sort_key
+      from jsonb_array_elements(table_entry->'rows') row_entry
+    ) framed;
+
+    stream := stream || xfactory_runtime_v2.migration_frame(
+      x'10'::int,
+      xfactory_runtime_v2.migration_frame(
+        x'11'::int, convert_to(table_entry->>'schema_name', 'UTF8')
+      )
+      || xfactory_runtime_v2.migration_frame(
+           x'12'::int, convert_to(table_entry->>'table_name', 'UTF8')
+         )
+      || xfactory_runtime_v2.migration_frame(
+           x'13'::int, xfactory_runtime_v2.migration_u64be(column_count)
+         )
+      || column_frames
+      || xfactory_runtime_v2.migration_frame(
+           x'17'::int, xfactory_runtime_v2.migration_u64be(row_count)
+         )
+      || row_frames
+    );
+  end loop;
+  return stream;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_dataset_row_cells(
+  columns jsonb,
+  row_cells jsonb
+)
+returns jsonb
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  column_count int;
+  cell_count int;
+  position int;
+  column_entry jsonb;
+  cell jsonb;
+  expected_kind text;
+  cell_kind text;
+begin
+  if jsonb_typeof(row_cells) <> 'array' then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-ROW: rows must be cell arrays';
+  end if;
+  column_count := jsonb_array_length(columns);
+  cell_count := jsonb_array_length(row_cells);
+  if cell_count <> column_count then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-ROW: rows must carry exactly one cell '
+        'per schema-ordinal column';
+  end if;
+  for position in 1..column_count loop
+    column_entry := columns->(position - 1);
+    cell := row_cells->(position - 1);
+    if jsonb_typeof(cell->'type') = 'null' or cell #>> '{type}' = 'null' then
+      if not (column_entry->>'nullable')::boolean then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: null cell in a non-nullable '
+            'column';
+      end if;
+      continue;
+    end if;
+    expected_kind := case column_entry->>'normalized_type'
+      when 'text' then 'text'
+      when 'int4' then 'integer'
+      when 'int8' then 'integer'
+      when 'bool' then 'boolean'
+      when 'timestamptz' then 'timestamp'
+      when 'jsonb' then 'json'
+      when 'bytea' then 'binary'
+    end;
+    cell_kind := cell #>> '{type}';
+    if cell_kind is distinct from expected_kind then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-VALUE: cell type does not match the '
+          'column normalized type';
+    end if;
+    if cell_kind = 'integer' then
+      if column_entry->>'normalized_type' = 'int4'
+         and ((cell #>> '{value}')::numeric > 2147483647
+           or (cell #>> '{value}')::numeric < -2147483648) then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: integer value out of range';
+      end if;
+      if (cell #>> '{value}')::numeric > 9223372036854775807
+         or (cell #>> '{value}')::numeric < -9223372036854775808 then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: integer value out of range';
+      end if;
+    end if;
+  end loop;
+  return row_cells;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_dataset_key_cells(
+  columns jsonb,
+  row_cells jsonb
+)
+returns jsonb
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  key_cells jsonb;
+begin
+  select coalesce(
+    jsonb_agg(
+      row_cells->((column_entry.ordinality - 1)::int)
+      order by (column_entry.value->>'primary_key_position')::int
+    ),
+    '[]'::jsonb
+  )
+  into key_cells
+  from jsonb_array_elements(columns) with ordinality
+    column_entry(value, ordinality)
+  where (column_entry.value->>'primary_key_position')::int > 0;
+  if key_cells = '[]'::jsonb then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-ROW: primary-key cells are required';
+  end if;
+  if exists (
+    select 1
+    from jsonb_array_elements(key_cells) cell
+    where jsonb_typeof(cell.value->'type') = 'null'
+      or cell.value #>> '{type}' = 'null'
+  ) then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-DATASET-ROW: primary-key cells must not be null';
+  end if;
+  return key_cells;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_logical_boundary(
+  source_identity jsonb,
+  observation jsonb
+)
+returns text
+language plpgsql
+immutable
+strict
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+begin
+  if jsonb_typeof(source_identity) <> 'object'
+     or source_identity->>'source_database' is null
+     or source_identity->>'source_schema' is null
+     or (select count(*) from jsonb_object_keys(source_identity)) <> 2 then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-BOUNDARY-SHAPE: source identity must carry '
+        'exactly source_database and source_schema';
+  end if;
+  if observation->>'catalog_digest' is null
+     or jsonb_typeof(observation->'table_row_counts') <> 'object'
+     or observation->>'dataset_digest' is null then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-BOUNDARY-SHAPE: observations must carry '
+        'catalog_digest, table_row_counts, and dataset_digest';
+  end if;
+  return xfactory_runtime_v2.canonical_record_digest(
+    jsonb_build_object(
+      'profile', 'xfactory-v1-logical-boundary-v1',
+      'source_identity', source_identity,
+      'catalog_digest', observation->>'catalog_digest',
+      'table_row_counts', observation->'table_row_counts',
+      'dataset_digest', observation->>'dataset_digest'
+    )
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_session_lock_key(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns bigint
+language sql
+immutable
+strict
+set search_path = pg_catalog
+as $function$
+  select hashtextextended(
+    'xfactory-v1-to-v2-migration:' || requested_installation_id || E'\n'
+      || requested_migration_id,
+    0
+  )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_assert_session_lock(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns void
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  lock_key bigint := xfactory_runtime_v2.migration_session_lock_key(
+    requested_installation_id, requested_migration_id
+  );
+begin
+  if not exists (
+    select 1
+    from pg_locks held
+    where held.locktype = 'advisory'
+      and held.pid = pg_backend_pid()
+      and held.granted
+      and held.classid::bigint = ((lock_key >> 32) & 4294967295)
+      and held.objid::bigint = (lock_key & 4294967295)
+      and held.objsubid = 1
+  ) then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-LOCK-NOT-HELD: the migration session advisory '
+        'lock on installation plus migration id must be held';
+  end if;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_latest_event(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns xfactory_runtime_v2.migration_attempt_events
+language sql
+stable
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select tip.*
+  from xfactory_runtime_v2.migration_attempt_events tip
+  where tip.installation_id = requested_installation_id
+    and tip.migration_id = requested_migration_id
+    and not exists (
+      select 1
+      from xfactory_runtime_v2.migration_attempt_events successor
+      where successor.installation_id = tip.installation_id
+        and successor.migration_id = tip.migration_id
+        and successor.predecessor_event_id = tip.event_id
+    )
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_verify_authority(
+  requested_installation_id text,
+  requested_migration_id text,
+  authority_envelope jsonb,
+  payload_digest text
+)
+returns void
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  grant_record xfactory_runtime_v2.authority_grants%rowtype;
+  chain_record record;
+begin
+  select grant_row.*
+  into grant_record
+  from xfactory_runtime_v2.authority_grants grant_row
+  where grant_row.installation_id = requested_installation_id
+    and grant_row.grant_id = authority_envelope->>'run_migration_grant_id';
+  if not found
+     or grant_record.record_digest is distinct from
+       authority_envelope->>'run_migration_grant_digest'
+     or grant_record.action <> 'run_migration'
+     or grant_record.resource_type <> 'migration_mapping'
+     or grant_record.resource_id <> requested_migration_id
+     or grant_record.resource_digest is distinct from payload_digest then
+    raise exception using
+      errcode = '42501',
+      message = 'HGR-MIGRATION-AUTHORITY: the authority envelope must cite an '
+        'exact run_migration grant over resource type migration_mapping, this '
+        'migration id, and this mapping payload digest';
+  end if;
+  select chain.*
+  into chain_record
+  from xfactory_runtime_v2.active_authority_chain(
+    requested_installation_id,
+    authority_envelope->>'run_migration_grant_id',
+    'run_migration',
+    'installation',
+    '',
+    '',
+    authority_envelope->>'approver_principal_id',
+    transaction_timestamp()
+  ) chain;
+  if not found then
+    raise exception using
+      errcode = '42501',
+      message = 'HGR-MIGRATION-AUTHORITY: no active run_migration authority '
+        'chain reaches an active trust anchor for the approver principal';
+  end if;
+  if chain_record.root_anchor_id is distinct from
+       authority_envelope->>'trust_anchor_id'
+     or chain_record.root_anchor_digest is distinct from
+       authority_envelope->>'trust_anchor_digest' then
+    raise exception using
+      errcode = '42501',
+      message = 'HGR-MIGRATION-AUTHORITY: the authority envelope trust anchor '
+        'does not match the active trust-anchor chain';
+  end if;
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.reject_frozen_v1_write()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+begin
+  raise exception using
+    errcode = '55000',
+    message = format(
+      'HGR-MIGRATION-V1-FROZEN: %I.%I is frozen by migration %s; governed '
+      'writes require a later governed dual-write contract',
+      tg_table_schema, tg_table_name, coalesce(tg_argv[0], 'unknown')
+    );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.install_v1_freeze(
+  requested_migration_id text
+)
+returns jsonb
+language plpgsql
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  table_name text;
+  relation_oid oid;
+  frozen_tables jsonb := '[]'::jsonb;
+  freeze_record jsonb;
+  message_level text := current_setting('client_min_messages');
+  freeze_time text := to_char(
+    transaction_timestamp() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'
+  );
+begin
+  foreach table_name in array
+    xfactory_runtime_v2.migration_canonical_v1_tables()
+  loop
+    relation_oid := to_regclass(format('%I.%I', 'public', table_name));
+    if relation_oid is null then
+      raise exception using
+        errcode = '55000',
+        message = format(
+          'HGR-MIGRATION-V1-FROZEN: canonical v1 table public.%I is missing',
+          table_name
+        );
+    end if;
+    if not exists (
+      select 1
+      from pg_trigger existing
+      where existing.tgrelid = relation_oid
+        and existing.tgname = 'hermes_v1_freeze_write'
+        and not existing.tgisinternal
+    ) then
+      execute format(
+        'create trigger hermes_v1_freeze_write '
+        'before insert or update or delete or truncate on public.%I '
+        'for each statement execute function '
+        'xfactory_runtime_v2.reject_frozen_v1_write(%L)',
+        table_name,
+        requested_migration_id
+      );
+    end if;
+    -- the durable enforcement is the trigger; the accompanying write revoke
+    -- is best-effort acl hygiene and stays silent when there is nothing the
+    -- executing role can revoke (postgres warns per irrevocable privilege).
+    perform set_config('client_min_messages', 'error', true);
+    execute format(
+      'revoke insert, update, delete, truncate on public.%I from public',
+      table_name
+    );
+    perform set_config('client_min_messages', message_level, true);
+    frozen_tables := frozen_tables || to_jsonb(table_name);
+  end loop;
+  freeze_record := jsonb_build_object(
+    'schema_version', 1,
+    'kind', 'openxfactory-hermes-runtime-v1-write-freeze',
+    'migration_id', requested_migration_id,
+    'source_schema', 'public',
+    'trigger_name', 'hermes_v1_freeze_write',
+    'frozen_tables', frozen_tables,
+    'frozen_at', freeze_time
+  );
+  return freeze_record || jsonb_build_object(
+    'freeze_digest',
+    xfactory_runtime_v2.canonical_record_digest(freeze_record)
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_v2.migration_result_document(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  staging_record xfactory_runtime_v2.migration_staging%rowtype;
+  tip xfactory_runtime_v2.migration_attempt_events;
+  result_document jsonb;
+begin
+  select staging.*
+  into staging_record
+  from xfactory_runtime_v2.migration_staging staging
+  where staging.installation_id = requested_installation_id
+    and staging.migration_id = requested_migration_id;
+  tip := xfactory_runtime_v2.migration_latest_event(
+    requested_installation_id, requested_migration_id
+  );
+  result_document := jsonb_build_object(
+    'schema_version', 1,
+    'kind', 'openxfactory-hermes-runtime-migration-result',
+    'installation_id', requested_installation_id,
+    'migration_id', requested_migration_id,
+    'staged', staging_record.installation_id is not null,
+    'status', coalesce(tip.event_type, 'unstarted'),
+    'terminal', coalesce(tip.event_type, '') = 'succeeded',
+    'attempt_id', tip.attempt_id,
+    'mapping_payload_digest', staging_record.mapping_payload_digest,
+    'authority_envelope_digest', staging_record.authority_envelope_digest
+  );
+  if coalesce(tip.event_type, '') = 'succeeded' then
+    result_document := result_document || (
+      select jsonb_build_object(
+        'logical_boundary_id', observation.logical_boundary_id,
+        'observation', jsonb_build_object(
+          'observation_id', observation.observation_id,
+          'transaction_snapshot', observation.transaction_snapshot,
+          'wal_position', observation.wal_position,
+          'authorized_at', to_char(
+            observation.authorized_at at time zone 'UTC',
+            'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'
+          ),
+          'run_migration_grant_id', observation.run_migration_grant_id,
+          'run_migration_grant_digest', observation.run_migration_grant_digest,
+          'target_contract_identity', observation.target_contract_identity
+        ),
+        'reconciliation', jsonb_build_object(
+          'reconciliation_id', reconciliation.reconciliation_id,
+          'per_table', reconciliation.per_table,
+          'compatibility_history_count',
+            reconciliation.compatibility_history_count,
+          'quarantine_count', reconciliation.quarantine_count,
+          'freeze', reconciliation."freeze",
+          'reconciliation_digest', reconciliation.reconciliation_digest
+        )
+      )
+      from xfactory_runtime_v2.migration_cutover_observations observation
+      join xfactory_runtime_v2.migration_reconciliations reconciliation
+        on reconciliation.attempt_id = observation.attempt_id
+      where observation.attempt_id = tip.attempt_id
+    );
+  end if;
+  return result_document;
+end
+$function$;
+
+create or replace function xfactory_runtime_api_v2.stage_migration(
+  staging jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  payload jsonb;
+  authority_envelope jsonb;
+  requested_installation_id text;
+  requested_migration_id text;
+  payload_digest text;
+  envelope_digest text;
+  existing_record xfactory_runtime_v2.migration_staging%rowtype;
+  staging_time timestamptz := transaction_timestamp();
+begin
+  if jsonb_typeof(staging) <> 'object'
+     or staging->'schema_version' is distinct from '1'::jsonb
+     or staging->>'kind' is distinct from
+       'openxfactory-hermes-runtime-migration-staging'
+     or jsonb_typeof(staging->'payload') <> 'object'
+     or jsonb_typeof(staging->'authority_envelope') <> 'object'
+     or (select count(*) from jsonb_object_keys(staging)) <> 4 then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-STAGING-SHAPE: staging documents must carry '
+        'exactly schema_version 1, the staging kind, payload, and '
+        'authority_envelope';
+  end if;
+  payload := staging->'payload';
+  authority_envelope := staging->'authority_envelope';
+  perform xfactory_runtime_v2.migration_reject_control_characters(payload);
+  perform xfactory_runtime_v2.migration_reject_control_characters(
+    authority_envelope
+  );
+
+  if not (payload ?& array[
+       'schema_version', 'kind', 'migration_id', 'installation_id',
+       'source_identity', 'source_catalog', 'expected_table_row_counts',
+       'expected_dataset_digest', 'digest_profile', 'subject_mappings',
+       'admin_mappings', 'single_default_mapping', 'target_topology',
+       'migration_policy', 'mapping_payload_digest'
+     ])
+     or (select count(*) from jsonb_object_keys(payload)) <> 15
+     or payload->'schema_version' is distinct from '1'::jsonb
+     or payload->>'kind' is distinct from
+       'openxfactory-hermes-runtime-migration-mapping-payload'
+     or payload->>'digest_profile' is distinct from
+       'xfactory-v1-dataset-binary-v1'
+     or coalesce(payload->>'migration_id', '') = ''
+     or coalesce(payload->>'installation_id', '') = ''
+     or jsonb_typeof(payload->'source_identity') <> 'object'
+     or payload #>> '{source_identity,source_database}' is null
+     or payload #>> '{source_identity,source_schema}' is null then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-STAGING-SHAPE: the mapping payload must be the '
+        'closed schema_version 1 detached payload with the pinned digest '
+        'profile';
+  end if;
+  if not (authority_envelope ?& array[
+       'schema_version', 'kind', 'migration_id', 'installation_id',
+       'mapping_payload_digest', 'approver_principal_id',
+       'run_migration_grant_id', 'run_migration_grant_digest', 'policy_ref',
+       'policy_digest', 'scope', 'trust_anchor_id', 'trust_anchor_digest',
+       'approved_at', 'authority_envelope_digest'
+     ])
+     or (select count(*) from jsonb_object_keys(authority_envelope)) <> 15
+     or authority_envelope->'schema_version' is distinct from '1'::jsonb
+     or authority_envelope->>'kind' is distinct from
+       'openxfactory-hermes-runtime-migration-authority-envelope'
+     or jsonb_typeof(authority_envelope->'scope') <> 'object'
+     or (
+       select count(*) from jsonb_object_keys(authority_envelope->'scope')
+     ) <> 1 then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-STAGING-SHAPE: the authority envelope must be '
+        'the closed schema_version 1 detached envelope';
+  end if;
+
+  requested_installation_id := payload->>'installation_id';
+  requested_migration_id := payload->>'migration_id';
+  if authority_envelope->>'installation_id' is distinct from
+       requested_installation_id
+     or authority_envelope->>'migration_id' is distinct from
+       requested_migration_id
+     or authority_envelope #>> '{scope,installation_id}' is distinct from
+       requested_installation_id then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-STAGING-SHAPE: the authority envelope must bind '
+        'the exact payload installation and migration identity';
+  end if;
+
+  payload_digest := xfactory_runtime_v2.canonical_record_digest(
+    payload - 'mapping_payload_digest'
+  );
+  if payload->>'mapping_payload_digest' is distinct from payload_digest then
+    raise exception using
+      errcode = '22023',
+      message = format(
+        'HGR-MIGRATION-STAGING-DIGEST: the declared mapping payload digest '
+        'does not match the database-recomputed digest %s',
+        payload_digest
+      );
+  end if;
+  if authority_envelope->>'mapping_payload_digest' is distinct from
+       payload_digest then
+    raise exception using
+      errcode = '22023',
+      message = 'HGR-MIGRATION-STAGING-DIGEST: the authority envelope does not '
+        'bind the database-recomputed mapping payload digest';
+  end if;
+  envelope_digest := xfactory_runtime_v2.canonical_record_digest(
+    authority_envelope - 'authority_envelope_digest'
+  );
+  if authority_envelope->>'authority_envelope_digest' is distinct from
+       envelope_digest then
+    raise exception using
+      errcode = '22023',
+      message = format(
+        'HGR-MIGRATION-STAGING-DIGEST: the declared authority envelope digest '
+        'does not match the database-recomputed digest %s',
+        envelope_digest
+      );
+  end if;
+
+  perform xfactory_runtime_v2.migration_verify_authority(
+    requested_installation_id,
+    requested_migration_id,
+    authority_envelope,
+    payload_digest
+  );
+
+  select existing.*
+  into existing_record
+  from xfactory_runtime_v2.migration_staging existing
+  where existing.installation_id = requested_installation_id
+    and existing.migration_id = requested_migration_id
+  for share;
+  if found then
+    if existing_record.mapping_payload_digest = payload_digest
+       and existing_record.authority_envelope_digest = envelope_digest then
+      return jsonb_build_object(
+        'installation_id', requested_installation_id,
+        'migration_id', requested_migration_id,
+        'mapping_payload_digest', payload_digest,
+        'authority_envelope_digest', envelope_digest,
+        'restaged', true
+      );
+    end if;
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-STAGING-CONFLICT: a different mapping payload '
+        'or authority envelope is already staged for this migration id';
+  end if;
+
+  insert into xfactory_runtime_v2.migration_staging (
+    installation_id, migration_id, payload, authority_envelope,
+    mapping_payload_digest, authority_envelope_digest, staged_at
+  ) values (
+    requested_installation_id, requested_migration_id, payload,
+    authority_envelope, payload_digest, envelope_digest, staging_time
+  );
+  return jsonb_build_object(
+    'installation_id', requested_installation_id,
+    'migration_id', requested_migration_id,
+    'mapping_payload_digest', payload_digest,
+    'authority_envelope_digest', envelope_digest,
+    'restaged', false
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_api_v2.begin_migration_attempt(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  staging_record xfactory_runtime_v2.migration_staging%rowtype;
+  tip xfactory_runtime_v2.migration_attempt_events;
+  attempt_number bigint;
+  new_attempt_id text;
+  predecessor_id text;
+  event_time timestamptz := transaction_timestamp();
+begin
+  perform xfactory_runtime_v2.migration_assert_session_lock(
+    requested_installation_id, requested_migration_id
+  );
+  select staging.*
+  into staging_record
+  from xfactory_runtime_v2.migration_staging staging
+  where staging.installation_id = requested_installation_id
+    and staging.migration_id = requested_migration_id
+  for share;
+  if not found then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-NOT-STAGED: a validated canonical staging '
+        'document is required before an attempt may begin';
+  end if;
+
+  tip := xfactory_runtime_v2.migration_latest_event(
+    requested_installation_id, requested_migration_id
+  );
+  if tip.event_type = 'succeeded' then
+    return xfactory_runtime_v2.migration_result_document(
+      requested_installation_id, requested_migration_id
+    );
+  end if;
+  predecessor_id := tip.event_id;
+  if tip.event_type = 'started' then
+    insert into xfactory_runtime_v2.migration_attempt_events (
+      event_id, attempt_id, installation_id, migration_id, event_type,
+      predecessor_event_id, reason, occurred_at
+    ) values (
+      tip.attempt_id || ':abandoned', tip.attempt_id,
+      requested_installation_id, requested_migration_id, 'abandoned',
+      tip.event_id,
+      'prior attempt abandoned after interruption or crash recovery',
+      event_time
+    );
+    predecessor_id := tip.attempt_id || ':abandoned';
+  end if;
+
+  select count(*) + 1
+  into attempt_number
+  from xfactory_runtime_v2.migration_attempts attempts
+  where attempts.installation_id = requested_installation_id
+    and attempts.migration_id = requested_migration_id;
+  new_attempt_id := requested_migration_id || '-attempt-'
+    || attempt_number::text;
+  insert into xfactory_runtime_v2.migration_attempts (
+    attempt_id, installation_id, migration_id, mapping_payload_digest,
+    created_at
+  ) values (
+    new_attempt_id, requested_installation_id, requested_migration_id,
+    staging_record.mapping_payload_digest, event_time
+  );
+  insert into xfactory_runtime_v2.migration_attempt_events (
+    event_id, attempt_id, installation_id, migration_id, event_type,
+    predecessor_event_id, reason, occurred_at
+  ) values (
+    new_attempt_id || ':started', new_attempt_id, requested_installation_id,
+    requested_migration_id, 'started', predecessor_id, null, event_time
+  );
+  return jsonb_build_object(
+    'status', 'started',
+    'terminal', false,
+    'installation_id', requested_installation_id,
+    'migration_id', requested_migration_id,
+    'attempt_id', new_attempt_id,
+    'mapping_payload_digest', staging_record.mapping_payload_digest
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_api_v2.execute_v1_cutover(
+  requested_installation_id text,
+  requested_migration_id text,
+  requested_attempt_id text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  staging_record xfactory_runtime_v2.migration_staging%rowtype;
+  attempt_record xfactory_runtime_v2.migration_attempts%rowtype;
+  tip xfactory_runtime_v2.migration_attempt_events;
+  payload jsonb;
+  source_schema text;
+  missing_locks text[];
+  observation jsonb;
+  observed_boundary text;
+  approved_boundary text;
+  reconciliation jsonb;
+  freeze_record jsonb;
+  reconciliation_payload jsonb;
+  reconciliation_digest text;
+  compatibility_count bigint;
+  quarantine_count bigint;
+  cutover_time timestamptz := transaction_timestamp();
+begin
+  perform xfactory_runtime_v2.migration_assert_session_lock(
+    requested_installation_id, requested_migration_id
+  );
+  if current_setting('transaction_isolation') <> 'serializable' then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-NOT-SERIALIZABLE: the authoritative cutover '
+        'transaction must run at serializable isolation';
+  end if;
+
+  select staging.*
+  into staging_record
+  from xfactory_runtime_v2.migration_staging staging
+  where staging.installation_id = requested_installation_id
+    and staging.migration_id = requested_migration_id
+  for share;
+  if not found then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-NOT-STAGED: no validated staging document '
+        'exists for this migration id';
+  end if;
+  select attempts.*
+  into attempt_record
+  from xfactory_runtime_v2.migration_attempts attempts
+  where attempts.installation_id = requested_installation_id
+    and attempts.migration_id = requested_migration_id
+    and attempts.attempt_id = requested_attempt_id;
+  if not found
+     or attempt_record.mapping_payload_digest is distinct from
+       staging_record.mapping_payload_digest then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-ATTEMPT-STATE: the cutover attempt must exist '
+        'and bind the staged mapping payload digest';
+  end if;
+  tip := xfactory_runtime_v2.migration_latest_event(
+    requested_installation_id, requested_migration_id
+  );
+  if tip.event_type is distinct from 'started'
+     or tip.attempt_id is distinct from requested_attempt_id then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-ATTEMPT-STATE: cutover requires this attempt '
+        'to hold the open started event';
+  end if;
+
+  payload := staging_record.payload;
+  perform xfactory_runtime_v2.migration_verify_authority(
+    requested_installation_id,
+    requested_migration_id,
+    staging_record.authority_envelope,
+    staging_record.mapping_payload_digest
+  );
+
+  source_schema := payload #>> '{source_identity,source_schema}';
+  if payload #>> '{source_identity,source_database}' is distinct from
+       current_database() then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-SOURCE-IDENTITY: the approved source_database '
+        'does not match the connected database';
+  end if;
+  if source_schema is distinct from 'public' then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-SOURCE-IDENTITY: the pinned v1 contract lives '
+        'in schema public';
+  end if;
+
+  -- the twelve v1 table locks must already be held by this session, taken as
+  -- top-level lock statements before the serializable snapshot was
+  -- established. a lock acquired here would follow the snapshot (taken at the
+  -- first statement of this transaction), so a v1 write committing while the
+  -- lock waited would be committed in the table yet invisible to the observed
+  -- boundary and stranded by the freeze.
+  select array_agg(required.table_name order by required.table_name)
+  into missing_locks
+  from unnest(xfactory_runtime_v2.migration_canonical_v1_tables())
+    as required(table_name)
+  where not exists (
+    select 1
+    from pg_locks held
+    where held.locktype = 'relation'
+      and held.pid = pg_backend_pid()
+      and held.granted
+      and held.relation = to_regclass(
+        format('%I.%I', source_schema, required.table_name)
+      )
+      and held.mode in (
+        'ShareRowExclusiveLock', 'ExclusiveLock', 'AccessExclusiveLock'
+      )
+  );
+  if missing_locks is not null then
+    raise exception using
+      errcode = '55000',
+      message = format(
+        'HGR-MIGRATION-V1-LOCKS-NOT-PREHELD: the cutover session must hold '
+        'share row exclusive locks on every canonical v1 table before the '
+        'serializable snapshot is taken; missing: %s',
+        array_to_string(missing_locks, ', ')
+      );
+  end if;
+
+  observation := xfactory_runtime_v2.migration_observe_source(source_schema);
+  observed_boundary := xfactory_runtime_v2.migration_logical_boundary(
+    payload->'source_identity', observation
+  );
+  approved_boundary := xfactory_runtime_v2.migration_logical_boundary(
+    payload->'source_identity',
+    jsonb_build_object(
+      'catalog_digest',
+      xfactory_runtime_v2.migration_catalog_digest(payload->'source_catalog'),
+      'table_row_counts', payload->'expected_table_row_counts',
+      'dataset_digest', payload->>'expected_dataset_digest'
+    )
+  );
+  if observed_boundary is distinct from approved_boundary then
+    raise exception using
+      errcode = '55000',
+      message = format(
+        'HGR-MIGRATION-BOUNDARY-MISMATCH: observed logical source boundary %s '
+        'does not equal the approved boundary %s',
+        observed_boundary, approved_boundary
+      );
+  end if;
+
+  reconciliation := xfactory_runtime_v2.migration_run_source_transforms(
+    requested_installation_id, requested_migration_id, payload, observation
+  );
+  compatibility_count := (reconciliation->>'compatibility_history_count')::bigint;
+  quarantine_count := (reconciliation->>'quarantine_count')::bigint;
+
+  freeze_record := xfactory_runtime_v2.migration_attach_v1_freeze(
+    requested_migration_id
+  );
+
+  reconciliation_payload := jsonb_build_object(
+    'schema_version', 1,
+    'kind', 'openxfactory-hermes-runtime-migration-reconciliation',
+    'installation_id', requested_installation_id,
+    'migration_id', requested_migration_id,
+    'attempt_id', requested_attempt_id,
+    'logical_boundary_id', observed_boundary,
+    'per_table', reconciliation->'per_table',
+    'compatibility_history_count', compatibility_count,
+    'quarantine_count', quarantine_count,
+    'freeze', freeze_record
+  );
+  reconciliation_digest := xfactory_runtime_v2.canonical_record_digest(
+    reconciliation_payload
+  );
+  insert into xfactory_runtime_v2.migration_reconciliations (
+    reconciliation_id, attempt_id, per_table, compatibility_history_count,
+    quarantine_count, "freeze", reconciliation_digest
+  ) values (
+    requested_attempt_id || ':reconciliation', requested_attempt_id,
+    reconciliation->'per_table', compatibility_count, quarantine_count,
+    freeze_record, reconciliation_digest
+  );
+  insert into xfactory_runtime_v2.migration_cutover_observations (
+    observation_id, attempt_id, mapping_payload_digest,
+    authority_envelope_digest, logical_boundary_id, transaction_snapshot,
+    wal_position, authorized_at, run_migration_grant_id,
+    run_migration_grant_digest, target_contract_identity,
+    reconciliation_digest
+  ) values (
+    requested_attempt_id || ':observation', requested_attempt_id,
+    staging_record.mapping_payload_digest,
+    staging_record.authority_envelope_digest, observed_boundary,
+    pg_current_snapshot()::text, pg_current_wal_lsn()::text, cutover_time,
+    staging_record.authority_envelope->>'run_migration_grant_id',
+    staging_record.authority_envelope->>'run_migration_grant_digest',
+    jsonb_build_object(
+      'contract', 'hermes-operational-postgres-v2',
+      'schema_version', 1,
+      'target_topology', payload->'target_topology'
+    ),
+    reconciliation_digest
+  );
+  insert into xfactory_runtime_v2.migration_attempt_events (
+    event_id, attempt_id, installation_id, migration_id, event_type,
+    predecessor_event_id, reason, occurred_at
+  ) values (
+    requested_attempt_id || ':succeeded', requested_attempt_id,
+    requested_installation_id, requested_migration_id, 'succeeded',
+    tip.event_id, null, cutover_time
+  );
+  return jsonb_build_object(
+    'status', 'succeeded',
+    'terminal', true,
+    'installation_id', requested_installation_id,
+    'migration_id', requested_migration_id,
+    'attempt_id', requested_attempt_id,
+    'logical_boundary_id', observed_boundary,
+    'per_table', reconciliation->'per_table',
+    'compatibility_history_count', compatibility_count,
+    'quarantine_count', quarantine_count,
+    'freeze', freeze_record,
+    'reconciliation_digest', reconciliation_digest
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_api_v2.fail_migration_attempt(
+  requested_installation_id text,
+  requested_migration_id text,
+  requested_attempt_id text,
+  reason text
+)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+declare
+  tip xfactory_runtime_v2.migration_attempt_events;
+begin
+  perform xfactory_runtime_v2.migration_assert_session_lock(
+    requested_installation_id, requested_migration_id
+  );
+  tip := xfactory_runtime_v2.migration_latest_event(
+    requested_installation_id, requested_migration_id
+  );
+  if tip.event_type is distinct from 'started'
+     or tip.attempt_id is distinct from requested_attempt_id then
+    raise exception using
+      errcode = '55000',
+      message = 'HGR-MIGRATION-ATTEMPT-STATE: only the open started attempt '
+        'may append its failure event';
+  end if;
+  insert into xfactory_runtime_v2.migration_attempt_events (
+    event_id, attempt_id, installation_id, migration_id, event_type,
+    predecessor_event_id, reason, occurred_at
+  ) values (
+    requested_attempt_id || ':failed', requested_attempt_id,
+    requested_installation_id, requested_migration_id, 'failed', tip.event_id,
+    coalesce(nullif(reason, ''), 'migration attempt failed'),
+    transaction_timestamp()
+  );
+end
+$function$;
+
+create or replace function xfactory_runtime_api_v2.migration_result(
+  requested_installation_id text,
+  requested_migration_id text
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = pg_catalog, xfactory_runtime_v2
+as $function$
+  select xfactory_runtime_v2.migration_result_document(
+    requested_installation_id, requested_migration_id
+  )
+$function$;
+
+do $migration_immutable_triggers$
+declare
+  relation_name text;
+  trigger_name text;
+begin
+  foreach relation_name in array array[
+    'migration_staging',
+    'migration_attempts',
+    'migration_attempt_events',
+    'migration_cutover_observations',
+    'migration_reconciliations',
+    'legacy_jobs',
+    'legacy_job_runs',
+    'legacy_job_events',
+    'legacy_workers',
+    'legacy_groups',
+    'legacy_profiles',
+    'legacy_group_memberships',
+    'legacy_github_team_mappings'
+  ]
+  loop
+    trigger_name := relation_name || '_immutable';
+    if not exists (
+      select 1
+      from pg_trigger
+      where tgrelid = format('xfactory_runtime_v2.%I', relation_name)::regclass
+        and tgname = trigger_name
+        and not tgisinternal
+    ) then
+      execute format(
+        'create trigger %I before update or delete on xfactory_runtime_v2.%I '
+        'for each row execute function xfactory_runtime_v2.reject_immutable_mutation()',
+        trigger_name,
+        relation_name
+      );
+    end if;
+  end loop;
+  if not exists (
+    select 1
+    from pg_trigger
+    where tgrelid =
+        'xfactory_legacy_quarantine_v2.legacy_quarantine_records'::regclass
+      and tgname = 'legacy_quarantine_records_immutable'
+      and not tgisinternal
+  ) then
+    create trigger legacy_quarantine_records_immutable
+    before update or delete
+      on xfactory_legacy_quarantine_v2.legacy_quarantine_records
+    for each row execute function
+      xfactory_runtime_v2.reject_immutable_mutation();
+  end if;
+end
+$migration_immutable_triggers$;
+
+do $migration_row_security$
+declare
+  relation_name text;
+  policy_name text;
+begin
+  foreach relation_name in array array[
+    'legacy_jobs',
+    'legacy_job_runs',
+    'legacy_job_events',
+    'legacy_workers',
+    'legacy_groups',
+    'legacy_profiles',
+    'legacy_group_memberships',
+    'legacy_github_team_mappings'
+  ]
+  loop
+    execute format(
+      'alter table xfactory_runtime_v2.%I enable row level security',
+      relation_name
+    );
+    execute format(
+      'alter table xfactory_runtime_v2.%I force row level security',
+      relation_name
+    );
+    policy_name := relation_name || '_exact_scope';
+    execute format(
+      'drop policy if exists %I on xfactory_runtime_v2.%I',
+      policy_name,
+      relation_name
+    );
+    execute format(
+      'create policy %I on xfactory_runtime_v2.%I '
+      'using (current_user = %L or '
+      'xfactory_runtime_api_v2.current_scope_matches('
+      'installation_id, stack_id, layer_id)) '
+      'with check (current_user = %L or '
+      'xfactory_runtime_api_v2.current_scope_matches('
+      'installation_id, stack_id, layer_id))',
+      policy_name,
+      relation_name,
+      'xfactory_v2_owner',
+      'xfactory_v2_owner'
+    );
+  end loop;
+end
+$migration_row_security$;
+
+create or replace function xfactory_runtime_v2.reject_quarantine_dependency()
+returns event_trigger
+language plpgsql
+set search_path = pg_catalog
+as $function$
+declare
+  quarantine_namespace oid;
+  offending record;
+begin
+  select ns.oid into quarantine_namespace
+  from pg_namespace ns
+  where ns.nspname = 'xfactory_legacy_quarantine_v2';
+  if quarantine_namespace is null then
+    return;
+  end if;
+  select
+    dep.classid,
+    dep.objid,
+    dep.objsubid
+  into offending
+  from pg_depend dep
+  where dep.deptype in ('n', 'a')
+    and (
+      (
+        dep.refclassid = 'pg_class'::regclass
+        and dep.refobjid in (
+          select cls.oid from pg_class cls
+          where cls.relnamespace = quarantine_namespace
+        )
+      )
+      or (
+        dep.refclassid = 'pg_type'::regclass
+        and dep.refobjid in (
+          select typ.oid from pg_type typ
+          where typ.typnamespace = quarantine_namespace
+        )
+      )
+    )
+    and coalesce(
+      case dep.classid
+        when 'pg_class'::regclass then (
+          select cls.relnamespace from pg_class cls where cls.oid = dep.objid
+        )
+        when 'pg_constraint'::regclass then (
+          select coalesce(rel.relnamespace, con.connamespace)
+          from pg_constraint con
+          left join pg_class rel on rel.oid = con.conrelid
+          where con.oid = dep.objid
+        )
+        when 'pg_proc'::regclass then (
+          select proc.pronamespace from pg_proc proc
+          where proc.oid = dep.objid
+        )
+        when 'pg_rewrite'::regclass then (
+          select rel.relnamespace
+          from pg_rewrite rewrite
+          join pg_class rel on rel.oid = rewrite.ev_class
+          where rewrite.oid = dep.objid
+        )
+        when 'pg_trigger'::regclass then (
+          select rel.relnamespace
+          from pg_trigger trig
+          join pg_class rel on rel.oid = trig.tgrelid
+          where trig.oid = dep.objid
+        )
+        when 'pg_attrdef'::regclass then (
+          select rel.relnamespace
+          from pg_attrdef attrdef
+          join pg_class rel on rel.oid = attrdef.adrelid
+          where attrdef.oid = dep.objid
+        )
+        else null
+      end,
+      0
+    ) <> quarantine_namespace
+  limit 1;
+  if found then
+    raise exception using
+      errcode = '55000',
+      message = format(
+        'HGR-QUARANTINE-DEPENDENCY: %s may not depend on the sealed legacy '
+        'quarantine schema; later governed evidence must be created anew '
+        'under current authority',
+        pg_describe_object(offending.classid, offending.objid,
+          offending.objsubid)
+      );
+  end if;
+end
+$function$;
+
+revoke all on all tables in schema xfactory_runtime_v2 from public;
+revoke all on all functions in schema xfactory_runtime_v2 from public;
+revoke all on all functions in schema xfactory_runtime_api_v2 from public;
+revoke all on all tables in schema xfactory_legacy_quarantine_v2 from public;
+
+grant select on
+  xfactory_runtime_v2.legacy_jobs,
+  xfactory_runtime_v2.legacy_job_runs,
+  xfactory_runtime_v2.legacy_job_events,
+  xfactory_runtime_v2.legacy_workers,
+  xfactory_runtime_v2.legacy_groups,
+  xfactory_runtime_v2.legacy_profiles,
+  xfactory_runtime_v2.legacy_group_memberships,
+  xfactory_runtime_v2.legacy_github_team_mappings
+to xfactory_v2_runtime, xfactory_v2_audit;
+
+grant usage on schema xfactory_runtime_api_v2 to xfactory_v2_migrator;
+
+grant execute on function
+  xfactory_runtime_api_v2.stage_migration(jsonb),
+  xfactory_runtime_api_v2.begin_migration_attempt(text, text),
+  xfactory_runtime_api_v2.execute_v1_cutover(text, text, text),
+  xfactory_runtime_api_v2.fail_migration_attempt(text, text, text, text),
+  xfactory_runtime_api_v2.migration_result(text, text)
+to xfactory_v2_migrator;
+
 reset role;
+
+-- the quarantine dependency guard is an event trigger and therefore requires
+-- superuser context: it is created outside the owner section, after reset.
+do $quarantine_guard$
+begin
+  if not exists (
+    select 1
+    from pg_event_trigger
+    where evtname = 'xfactory_quarantine_dependency_guard'
+  ) then
+    create event trigger xfactory_quarantine_dependency_guard
+      on ddl_command_end
+      execute function xfactory_runtime_v2.reject_quarantine_dependency();
+  end if;
+end
+$quarantine_guard$;

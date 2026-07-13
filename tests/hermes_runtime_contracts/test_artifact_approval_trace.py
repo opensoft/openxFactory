@@ -12,6 +12,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
+from scripts.hermes_runtime_validation import migration
 from scripts.hermes_runtime_validation.loader import load_yaml_document
 from scripts.hermes_runtime_validation.semantics.authority import (
     canonical_record_digest,
@@ -39,6 +40,19 @@ COMMIT = "d" * 40
 NOW = "2026-07-12T12:00:00Z"
 LATER = "2026-07-12T13:00:00Z"
 EXPIRED = "2026-07-12T11:00:00Z"
+
+# The US3 migration semantic family carries its own fixture kind and
+# evaluation time; the Lane D registration record pins the primary
+# finding code for each *-invalid case.
+MIGRATION_FIXTURE_KIND = "openxfactory-hermes-runtime-migration-fixture"
+MIGRATION_NOW = "2026-07-13T12:00:00Z"
+MIGRATION_PRIMARY_CODES = {
+    "mapping-payload-invalid": "HGR-MIGRATION-PAYLOAD-MAPPING",
+    "quarantine-record-invalid": "HGR-QUARANTINE-DEPENDENCY",
+}
+QUARANTINE_DEPENDENCY_FIELDS = frozenset(
+    {"promoted", "promoted_operation_authorization_id"}
+)
 
 
 def _scope(layer_id: str = "customer-a") -> dict:
@@ -1550,6 +1564,79 @@ def test_trace_edges_are_append_only_and_never_authority(api) -> None:
     ]
 
 
+def _migration_validators() -> (
+    tuple[Draft202012Validator, Draft202012Validator, Draft202012Validator]
+):
+    documents = [
+        load_yaml_document(CONTRACT_ROOT / name)
+        for name in (
+            "migrations/v1-to-v2-mapping.schema.yaml",
+            "legacy-quarantine-record.schema.yaml",
+            "shared-definitions.schema.yaml",
+        )
+    ]
+    registry = Registry().with_resources(
+        (
+            document["$id"],
+            Resource.from_contents(document, default_specification=DRAFT202012),
+        )
+        for document in documents
+    )
+    mapping_schema, quarantine_schema, _ = documents
+    for schema in (mapping_schema, quarantine_schema):
+        Draft202012Validator.check_schema(schema)
+
+    def _validator(target: dict | str) -> Draft202012Validator:
+        schema = target if isinstance(target, dict) else {"$ref": target}
+        return Draft202012Validator(
+            schema, registry=registry, format_checker=FormatChecker()
+        )
+
+    return (
+        _validator(mapping_schema),
+        _validator(mapping_schema["$id"] + "#/$defs/authority_envelope"),
+        _validator(quarantine_schema),
+    )
+
+
+def _assert_migration_mapping_case(
+    fixture: dict,
+    path: Path,
+    mapping_validator: Draft202012Validator,
+    envelope_validator: Draft202012Validator,
+) -> None:
+    payload = fixture["mapping_payload"]
+    assert not _errors(mapping_validator, payload), path
+    if fixture["expected"]["outcome"] == "pass":
+        migration.validate_mapping_payload(payload)
+        envelope = fixture["authority_envelope"]
+        assert not _errors(envelope_validator, envelope), path
+        migration.validate_authority_envelope(envelope, payload=payload)
+    else:
+        with pytest.raises(migration.MigrationContractError) as excinfo:
+            migration.validate_mapping_payload(payload)
+        assert excinfo.value.code == fixture["expected"]["primary_finding_code"], path
+
+
+def _assert_migration_quarantine_case(
+    fixture: dict, path: Path, quarantine_validator: Draft202012Validator
+) -> None:
+    record = fixture["quarantine_record"]
+    if fixture["expected"]["outcome"] == "pass":
+        assert not _errors(quarantine_validator, record), path
+    else:
+        # The closed record contract must reject the promotion /
+        # authoritative-dependency fields — and only those fields.
+        assert _errors(quarantine_validator, record), path
+        assert QUARANTINE_DEPENDENCY_FIELDS <= set(record), path
+        trimmed = {
+            key: value
+            for key, value in record.items()
+            if key not in QUARANTINE_DEPENDENCY_FIELDS
+        }
+        assert not _errors(quarantine_validator, trimmed), path
+
+
 def test_portable_fixture_matrix_is_self_describing_and_reason_specific() -> None:
     proven_primary_codes = {
         "HGR-ARTIFACT-IMMUTABLE",
@@ -1602,7 +1689,38 @@ def test_portable_fixture_matrix_is_self_describing_and_reason_specific() -> Non
                     )
                     == []
                 )
-    assert counts == {"artifacts": 6, "approvals": 15, "traceability": 4}
+    mapping_validator, envelope_validator, quarantine_validator = (
+        _migration_validators()
+    )
+    migration_paths = sorted((FIXTURE_ROOT / "migration").glob("*.yaml"))
+    counts["migration"] = len(migration_paths)
+    for path in migration_paths:
+        fixture = load_yaml_document(path)
+        fixtures.append(fixture)
+        assert fixture["kind"] == MIGRATION_FIXTURE_KIND, path
+        assert fixture["case_id"], path
+        assert fixture["requirement_ids"], path
+        assert fixture["scenario_ids"], path
+        assert fixture["evaluation_time"] == MIGRATION_NOW, path
+        expected = fixture["expected"]
+        assert expected["outcome"] in {"pass", "fail"}, path
+        if expected["outcome"] == "fail":
+            assert expected["primary_finding_code"] == (
+                MIGRATION_PRIMARY_CODES[fixture["case_id"]]
+            ), path
+            assert expected.get("allowed_secondary_codes", []) == [], path
+        if "mapping_payload" in fixture:
+            _assert_migration_mapping_case(
+                fixture, path, mapping_validator, envelope_validator
+            )
+        else:
+            _assert_migration_quarantine_case(fixture, path, quarantine_validator)
+    assert counts == {
+        "artifacts": 6,
+        "approvals": 15,
+        "traceability": 4,
+        "migration": 4,
+    }
     case_ids = {fixture["case_id"] for fixture in fixtures}
     assert len(case_ids) == len(fixtures)
     for fixture in fixtures:

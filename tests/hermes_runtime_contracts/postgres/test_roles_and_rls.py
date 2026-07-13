@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 import subprocess
 
 import pytest
+
+from scripts.hermes_runtime_validation import migration
 
 from .conftest import (
     ISOLATION_ASSERTION_ROOT,
@@ -13,8 +16,33 @@ from .conftest import (
     assert_sql_fails,
     assert_sql_succeeds,
 )
+from .test_migration import (
+    SUBJECT_ALFA,
+    SUBJECT_BETA,
+    TWO_SUBJECT_DATASET,
+    TWO_SUBJECT_SEED,
+    _run_migration_runner,
+    _seed_migration_base,
+    _staged_payload,
+    _write_staging,
+)
 
 pytestmark = pytest.mark.postgres
+
+# The eight compatibility-history tables carrying migrated v1 rows; their
+# layer-scoped rows must be reachable ONLY through the exact assumed scope.
+LEGACY_HISTORY_TABLES = (
+    "legacy_jobs",
+    "legacy_job_runs",
+    "legacy_job_events",
+    "legacy_workers",
+    "legacy_groups",
+    "legacy_profiles",
+    "legacy_group_memberships",
+    "legacy_github_team_mappings",
+)
+
+_LEGACY_COUNT_LINE = re.compile(r"^(legacy_\w+)=(own|foreign)=(\d+)$")
 
 
 def _assertion(name: str) -> Path:
@@ -226,3 +254,101 @@ def test_assume_scope_rejects_cross_install_stack_layer_or_foreign_grant(
         user="hcs_customer_a",
     )
     assert_sql_fails(result, "session_user", "principal", "scope", "grant", "authority")
+
+
+def test_customer_logins_see_exactly_their_own_layer_legacy_history(
+    postgres_v1_database: PostgresDatabase, tmp_path: Path
+) -> None:
+    """Behavioral RLS on the eight ``legacy_*`` history tables (F-3).
+
+    A migrated two-subject database is read through real ``hcs_customer_*``
+    logins under their assumed scopes: each login must see EXACTLY its own
+    layer's migrated rows — non-zero where the seed put rows in its layer —
+    and zero rows of the other layer. A deny-all policy (which satisfies any
+    ``count == 0`` read) and a cross-layer leak must both fail here."""
+
+    database = postgres_v1_database
+    _seed_migration_base(database)
+    assert_sql_succeeds(database.file(TWO_SUBJECT_SEED))
+    dataset = migration.load_dataset_description(TWO_SUBJECT_DATASET)
+    migration_id = "migration-rls-behavior-01"
+    _, _, staging_text = _staged_payload(
+        database,
+        migration_id=migration_id,
+        dataset=dataset,
+        subject_mappings=[
+            {
+                "legacy_project": "project-alfa",
+                "layer_id": "customer-a",
+                "customer_subject": SUBJECT_ALFA,
+            },
+            {
+                "legacy_project": "project-beta",
+                "layer_id": "customer-b",
+                "customer_subject": SUBJECT_BETA,
+            },
+        ],
+    )
+    staging_path = _write_staging(tmp_path, staging_text)
+    run = _run_migration_runner(database, staging_path, migration_id=migration_id)
+    assert run.returncode == 0, f"{run.stdout}\n{run.stderr}"
+
+    # Ground truth per layer, read outside RLS: what an exact-scope policy
+    # must reveal to the matching customer and hide from the other one.
+    expected = {
+        layer: {
+            table: int(
+                database.scalar(
+                    f"SELECT count(*) FROM xfactory_runtime_v2.{table} "
+                    f"WHERE migration_id = '{migration_id}' "
+                    f"AND scope_kind = 'layer' AND layer_id = '{layer}';"
+                )
+            )
+            for table in LEGACY_HISTORY_TABLES
+        }
+        for layer in ("customer-a", "customer-b")
+    }
+    for layer in ("customer-a", "customer-b"):
+        for table in ("legacy_jobs", "legacy_job_runs", "legacy_job_events"):
+            assert expected[layer][table] > 0, (
+                f"the two-subject seed must migrate {table} rows into {layer}; "
+                "a zero here would let a deny-all policy pass the scoped reads"
+            )
+
+    for login, own_layer, foreign_layer, grant_id in (
+        ("hcs_customer_a", "customer-a", "customer-b", "grant-a-scope"),
+        ("hcs_customer_b", "customer-b", "customer-a", "grant-b-scope"),
+    ):
+        statements = [
+            "BEGIN;",
+            "SELECT xfactory_runtime_api_v2.assume_scope("
+            f"'install-01', 'stack-01', '{own_layer}', '{grant_id}');",
+        ]
+        for table in LEGACY_HISTORY_TABLES:
+            statements.append(
+                f"SELECT '{table}=own=' || count(*) "
+                f"FROM xfactory_runtime_v2.{table};"
+            )
+            statements.append(
+                f"SELECT '{table}=foreign=' || count(*) "
+                f"FROM xfactory_runtime_v2.{table} "
+                f"WHERE layer_id = '{foreign_layer}';"
+            )
+        statements.append("ROLLBACK;")
+        result = database.sql("\n".join(statements), user=login)
+        assert_sql_succeeds(result)
+        observed: dict[tuple[str, str], int] = {}
+        for line in result.stdout.splitlines():
+            matched = _LEGACY_COUNT_LINE.match(line.strip())
+            if matched:
+                observed[(matched.group(1), matched.group(2))] = int(matched.group(3))
+        for table in LEGACY_HISTORY_TABLES:
+            assert observed[(table, "own")] == expected[own_layer][table], (
+                f"{login} must see exactly its {expected[own_layer][table]} "
+                f"own-layer rows in {table}, saw {observed[(table, 'own')]} "
+                "(deny-all policy or scope mismatch)"
+            )
+            assert observed[(table, "foreign")] == 0, (
+                f"{login} must see zero {foreign_layer} rows in {table}, saw "
+                f"{observed[(table, 'foreign')]} (cross-layer leak)"
+            )

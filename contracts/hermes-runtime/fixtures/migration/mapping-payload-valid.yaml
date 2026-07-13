@@ -1,0 +1,685 @@
+# US3 migration semantic fixture (T064).
+# Instances are generated from scripts/hermes_runtime_validation/migration.py
+# so every digest field is real; regenerate them with that library rather
+# than editing digests by hand.
+#
+# Complete detached expected-content mapping payload for the seeded
+# two-subject v1 source plus its separately digest-bound run_migration
+# authority envelope (HGR-008-S03: two-subject migration).
+schema_version: 1
+kind: openxfactory-hermes-runtime-migration-fixture
+case_id: mapping-payload-valid
+phase: semantic
+class: valid
+requirement_ids:
+- HGR-008
+scenario_ids:
+- HGR-008-S03
+evaluation_time: '2026-07-13T12:00:00Z'
+expected:
+  outcome: pass
+  allowed_secondary_codes: []
+mapping_payload:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-migration-mapping-payload
+  migration_id: migration-01
+  installation_id: install-01
+  source_identity:
+    source_database: hcs_v1_source
+    source_schema: public
+  source_catalog:
+  - schema_name: public
+    table_name: hermes_approval_requests
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: job_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: run_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 4
+      name: requested_by
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: approval_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: status
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: artifact_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 8
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 9
+      name: resolved_at
+      normalized_type: timestamptz
+      nullable: true
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_approvals
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: approval_request_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: job_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: actor_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: actor_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: decision
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: authority_scope
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 8
+      name: rationale
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 9
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_github_team_mappings
+    columns:
+    - ordinal: 1
+      name: group_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: github_team
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: updated_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_group_memberships
+    columns:
+    - ordinal: 1
+      name: profile_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: group_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 2
+    - ordinal: 3
+      name: membership_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_groups
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: purpose
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: agents
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: metadata
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: updated_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_job_artifacts
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: job_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: run_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 4
+      name: artifact_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: path
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: sha256
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 7
+      name: produced_by
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 8
+      name: approval_state
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 9
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_job_events
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: job_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: run_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 4
+      name: occurred_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: event_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: actor_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: actor_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 8
+      name: stage
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 9
+      name: payload
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_job_runs
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: job_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: project
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: feature_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 5
+      name: status
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: current_stage
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: worker_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 8
+      name: worker_pool
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 9
+      name: host_class
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 10
+      name: container_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 11
+      name: auth_profile_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 12
+      name: auth_mode
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 13
+      name: provider_keys_used
+      normalized_type: bool
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 14
+      name: run_record
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 15
+      name: started_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 16
+      name: completed_at
+      normalized_type: timestamptz
+      nullable: true
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_jobs
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: schema_version
+      normalized_type: int4
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: issued_by
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: job_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: project
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: feature_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 7
+      name: epic_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 8
+      name: repository_org
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 9
+      name: repository_name
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 10
+      name: repository_default_branch
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 11
+      name: orchestrator_path
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 12
+      name: routing_policy_path
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 13
+      name: auth_profile_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 14
+      name: auth_mode
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 15
+      name: status
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 16
+      name: envelope
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 17
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 18
+      name: updated_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_profiles
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: role
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: home_group
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: metadata
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: updated_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_traceability_edges
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: job_id
+      normalized_type: text
+      nullable: true
+      primary_key_position: 0
+    - ordinal: 3
+      name: from_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: from_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: to_type
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: to_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: relation
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 8
+      name: created_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  - schema_name: public
+    table_name: hermes_workers
+    columns:
+    - ordinal: 1
+      name: id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 1
+    - ordinal: 2
+      name: worker_pool
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 3
+      name: host_class
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 4
+      name: status
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 5
+      name: auth_profile_id
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 6
+      name: auth_mode
+      normalized_type: text
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 7
+      name: max_concurrent_jobs
+      normalized_type: int4
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 8
+      name: current_jobs
+      normalized_type: int4
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 9
+      name: capabilities
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 10
+      name: metadata
+      normalized_type: jsonb
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 11
+      name: registered_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+    - ordinal: 12
+      name: last_seen_at
+      normalized_type: timestamptz
+      nullable: false
+      primary_key_position: 0
+  expected_table_row_counts:
+    public.hermes_approval_requests: 0
+    public.hermes_approvals: 0
+    public.hermes_github_team_mappings: 0
+    public.hermes_group_memberships: 0
+    public.hermes_groups: 0
+    public.hermes_job_artifacts: 0
+    public.hermes_job_events: 0
+    public.hermes_job_runs: 0
+    public.hermes_jobs: 0
+    public.hermes_profiles: 0
+    public.hermes_traceability_edges: 0
+    public.hermes_workers: 0
+  expected_dataset_digest: sha256:e8538834b2eaebd4d8d11de0c2955b42b01422320eb13a1ce7ce882cf427eaab
+  digest_profile: xfactory-v1-dataset-binary-v1
+  subject_mappings:
+  - legacy_project: project-alfa
+    layer_id: customer-a
+    customer_subject:
+      kind: software_project
+      issuer: example-domain
+      namespace: subjects
+      ref: urn:xfactory:subject:9f32f1de-82a7-4e38-a83d-9e5dd9189a11
+  - legacy_project: project-beta
+    layer_id: customer-b
+    customer_subject:
+      kind: software_project
+      issuer: example-domain
+      namespace: subjects
+      ref: urn:xfactory:subject:018f47a0-7b2c-7abc-8def-0123456789ab
+  admin_mappings:
+    workers:
+    - source_pk: '["worker-01"]'
+      scope_kind: installation_admin
+    - source_pk: '["worker-02"]'
+      scope_kind: layer
+      layer_id: customer-a
+    groups: []
+    profiles: []
+  single_default_mapping: null
+  target_topology:
+    installation_id: install-01
+    stack_id: stack-01
+    client_layer_id: client-01
+    domain_layer_id: domain-01
+    customer_layer_ids:
+    - customer-a
+    - customer-b
+  migration_policy:
+    policy_ref: policies/delegated.yaml
+    policy_digest: sha256:d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0
+  mapping_payload_digest: sha256:2fbc6f71a60d74f7710fdaa0dbf2e687019e2322557fbc881dedddfa6513e8d5
+authority_envelope:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-migration-authority-envelope
+  migration_id: migration-01
+  installation_id: install-01
+  mapping_payload_digest: sha256:2fbc6f71a60d74f7710fdaa0dbf2e687019e2322557fbc881dedddfa6513e8d5
+  approver_principal_id: principal-migrator
+  run_migration_grant_id: grant-run-migration-01
+  run_migration_grant_digest: sha256:e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1
+  policy_ref: policies/delegated.yaml
+  policy_digest: sha256:d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0
+  scope:
+    installation_id: install-01
+  trust_anchor_id: anchor-01
+  trust_anchor_digest: sha256:a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0
+  approved_at: '2026-07-12T12:00:00Z'
+  authority_envelope_digest: sha256:8aa6e5e6d1bc41fc9d8bd5ffb232dc81ea7206875b3ff441b0e25169b4bab7bb
