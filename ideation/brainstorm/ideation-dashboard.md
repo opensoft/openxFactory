@@ -10,7 +10,7 @@ indexes that already exist, plus a non-mutating "workbench" for assembling
 temp doc sets (cluster-seeded or ad-hoc) and pointing NotebookLM, readiness
 scoring, and doc-health at them — complementing (not duplicating) the
 NotebookLM semantic interrogation surface.
-Topics: ideation-dashboard, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection, lifecycle-projection
+Topics: ideation-dashboard, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection, lifecycle-projection, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
 Organized: 2026-07-12 into the ideation-dashboard staged topic and promoted

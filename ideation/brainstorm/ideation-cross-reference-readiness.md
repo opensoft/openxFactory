@@ -7,7 +7,7 @@ brainstorm, staging, and archived material, scored 1-10 for staging readiness
 by three independent Hermes-tier reviewers (project, company/openxFactory,
 domain), with a minimum-score->=8 gate triggering a recommendation — not an
 action — to open an OpenSpec proposal.
-Topics: ideation-cross-reference, readiness-scoring, hermes-review-panel, extension-fit, staging-readiness
+Topics: ideation-cross-reference, readiness-scoring, hermes-review-panel, extension-fit, staging-readiness, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-12
 Organized: 2026-07-12 into the ideation-cross-reference-readiness staged

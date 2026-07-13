@@ -5,7 +5,7 @@ Kind: architecture
 Summary: Proposes a two-axis (spec status x realization) model for brownfield
 OpenSpec changes with a code surface, binding the archive gate to Spec Kit
 merge evidence instead of doc-landing.
-Topics: release-realization, openspec-speckit-integration, archive-gate, brownfield-tracking
+Topics: release-realization, openspec-speckit-integration, archive-gate, brownfield-tracking, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-09
 Organized: 2026-07-09 into

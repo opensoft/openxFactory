@@ -6,7 +6,7 @@ Summary: Sketches the trigger signals and lifecycle for promoting a
 domain-born concept into a neutral openxFactory contract (and devolving it
 back), so promotions can't half-neutralize a contract or orphan domain
 copies.
-Topics: domain-to-neutral-promotion, contract-ownership, roles-authority-model
+Topics: domain-to-neutral-promotion, contract-ownership, roles-authority-model, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-08
 Organized: 2026-07-08 into

@@ -6,7 +6,7 @@ Summary: Designs a two-layer doc-health pipeline — deterministic tag/validator
 checks plus a nightly agentic sweep — that makes the family's prose-vs-spec
 discipline machine-checkable, with openxFactory owning the contract and
 codexFactory owning execution.
-Topics: doc-health, prose-tagging, ideation-lifecycle, nightly-ci
+Topics: doc-health, prose-tagging, ideation-lifecycle, nightly-ci, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Captured: 2026-07-08
 Organized: 2026-07-09 — lifecycle vocabulary + ideation convention ->
