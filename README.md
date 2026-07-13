@@ -217,10 +217,12 @@ clarification, the reference runtime, and the avatar-first UI standard all archi
 2026-07-13 (below); **only F0 feasibility remains active** — its evidence is resolved
 by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it would break the
 fail-closed F0 gate or force a `contract-v1.7` re-tag. The avatar client itself is a
-**staged topic** (`ideation/staging/avatar-client-lab`, exit
-`implement-avatar-client-lab`; six open decisions to resolve before it proposes — see
-the [Staging Index](ideation/staging/INDEX.md)). Live provider qualification and pilot
-hardening remain named in `qualify-avatar-live-voice` and `avatar-pilot-hardening`.
+**staged topic ready to propose** (`ideation/staging/avatar-client-lab`, six decisions
+locked 2026-07-13; exit `implement-avatar-client-lab`), and its successors are now
+staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
+blocked on open questions + a released client) and `avatar-pilot-hardening` (real
+Hermes/domains/audits + pilot; structurally last) — see the
+[Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
 

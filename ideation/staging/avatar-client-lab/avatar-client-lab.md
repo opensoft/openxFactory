@@ -40,11 +40,14 @@ This topic scopes only the first: an offline, deterministic Flutter UI lab.
 
 ## Scope — in vs out
 
-**IN (F1-F4, offline, deterministic):** adaptive shell with five persistent
-regions + an always-on authoritative status strip; three client-local
-presentation modes (conversation/work/review); a generic service-intake
-workflow; governed-action cards rendering only canonical intent and approval
-state; a lightly-animated non-photorealistic six-state avatar (no lip-sync);
+**IN (F1-F4, offline, deterministic — the four acceptance foci are enumerated
+in [acceptance-and-tests.md](acceptance-and-tests.md)):** adaptive shell with
+five persistent regions + an always-on authoritative status strip; three
+client-local presentation modes (conversation/work/review); a generic
+service-intake workflow; governed-action cards rendering only canonical intent
+and approval state — an authoritative denial rendered as a governed outcome,
+distinct from a fail-closed failure; a lightly-animated non-photorealistic
+six-state avatar (no lip-sync);
 accessibility first-class (the eleven avatar-first UI baseline capabilities,
 keyboard-only F1-F4, non-color cues, text-only peer renderer); a developer lab
 harness compiled out of production.
@@ -76,22 +79,32 @@ The successors that lift these deferrals are separate topics/changes:
 - Repository boundary enforced (neutral contracts stay in openxFactory).
 - Deferred live capabilities are port interfaces with fixture adapters + a
   fail-closed default.
+- The lab also discharges named deferred/co-owned scenarios across four
+  released capabilities (`avatar-client-runtime` ACR-*, `shared-contract-ownership`
+  SCO-*, `repo-boundary-governance` RBG-*, and `avatar-first-ui` AFU-*) whose
+  released acceptance maps already name `implement-avatar-client-lab` as an
+  owner change — the topic is not greenfield; the exact inherited scenario set
+  is enumerated in [acceptance-and-tests.md](acceptance-and-tests.md).
 
 See [architecture-and-stack.md](architecture-and-stack.md) for the design
-decisions and [open-decisions.md](open-decisions.md) for the forks that must be
-resolved before this topic is ready to propose.
+decisions, [open-decisions.md](open-decisions.md) for the six locked decision
+records, and [acceptance-and-tests.md](acceptance-and-tests.md) for the F1-F4
+acceptance foci, inherited scenario map, and CI gate set.
 
 ## Readiness
 
-**Not yet ready to propose** — six open decisions block it (see
-[open-decisions.md](open-decisions.md)). The design direction is settled; the
-open items are the contested implementation forks (Dart schema validator, web
-a11y conformance claim, golden platform, and three others).
+**Ready to propose** — the six previously blocking decisions were locked
+2026-07-13 (see [open-decisions.md](open-decisions.md)); the design direction
+and the acceptance surface are settled. Remaining pre-proposal work is
+mechanical (author the spec deltas and tasks from these fragments).
 
 ## Exit
 
 Create `implement-avatar-client-lab` (`code_surface: openxFactory,
 xfactory-avatar-client`; `target_release: implemented`). At the proposal gate,
-move this folder's files into that change's `supporting-docs/`, preserving the
-staging origin; author the full `avatar-client-lab` spec deltas and the F1-F4
-task list in the change.
+move this folder's files (including
+[acceptance-and-tests.md](acceptance-and-tests.md)) into that change's
+`supporting-docs/`, preserving the staging origin; author the full
+`avatar-client-lab` spec deltas and the F1-F4 task list in the change,
+including the acceptance/evidence map (inherited + new scenario IDs) and the
+nine CI gates from acceptance-and-tests.md.

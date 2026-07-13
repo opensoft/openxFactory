@@ -49,7 +49,11 @@ identical view-state**. Goldens and conformance then run in CI with no network.
    authority. Control-lost ⇒ `blocked`, never `speaking`. Rive is rejected for v1
    because it owns its own animation clock (fragile goldens) and drags a
    CanvasKit-bound native dependency into a deterministic offline lab; its swap
-   stays interface-compatible.
+   stays interface-compatible. The full media/control → six-state derivation
+   table (the released schema's ten `media.states` plus AVC-12
+   `control_health`/`session_outcome`, mapped down to the six avatar states) is
+   an acceptance artifact authored in
+   [acceptance-and-tests.md](acceptance-and-tests.md).
 
 5. **Contracts → Dart is hybrid.** Generate the volatile closed enums from the
    pinned registry YAML; hand-write the ~8 stable sealed AVC envelopes; prove
@@ -62,7 +66,12 @@ identical view-state**. Goldens and conformance then run in CI with no network.
    Record `contract-v1.7` and `contract-v1.8` refs (exact commit + per-file
    SHA-256) in one `contract_pin.yaml`, gated in CI; they evolve on different
    cadences so a partial bump could mix incompatible minors. No submodule; a
-   tag-only pin fails.
+   tag-only pin fails. `contracts/manifest.yaml` is the authoritative published
+   per-file-digest index for BOTH bundles — the pin verifies against it rather
+   than maintaining a divergent list. (Note: the v1.7 kernel's digested set is
+   enumerated in the avatar-client README, but the v1.8 UI-profile set — the
+   profile schema plus its fixtures and acceptance map — has no equivalent
+   published enumeration beyond the manifest; the pin must enumerate it.)
 
 7. **Repository boundary.** The Flutter app + generated Dart bindings live in the
    private `xfactory-avatar-client` repo; openxFactory owns the neutral contracts,
@@ -105,7 +114,13 @@ live adapter.
 
 ## First runnable milestone (M0)
 
-A tracer bullet through F1+F2: one released fixture wired end-to-end (reducer +
-static avatar on `listening -> thinking -> speaking` + two of five regions +
-three harness controls), green on three gates — `fixtures/index.yaml`
-conformance, replay determinism, one golden. After M0, F1-F4 is pure breadth.
+A tracer bullet through F1+F2: one fixture wired end-to-end (reducer + static
+avatar + two of five regions + three harness controls), green on three gates —
+`fixtures/index.yaml` conformance, replay determinism, one golden. Seed with the
+released `examples/avatar-first-ui/fixtures/deterministic/offline-acceptance.yaml`
+(fixed clock `2026-07-11T00:00:00Z`, session `sess-0001`, `session_started` →
+`media_authorized` → `capture_authorized`) — note it proves only the `listening`
+baseline; it emits no thinking/speaking events. M0 therefore also contributes a
+small neutral extension fixture upstream (per claim 7) carrying the
+`listening -> thinking -> speaking` arc, so the six-state selector has a
+replayable proof path. After M0, F1-F4 is pure breadth.

@@ -27,10 +27,12 @@ Update this index in the same commit as any of:
 
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
-| [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 3 | Blocked — 6 open decisions unresolved (see topic); design direction settled |
+| [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 4 | Ready to propose — 6 decisions locked 2026-07-13; recommended ID `implement-avatar-client-lab` |
+| [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
+| [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## avatar-client-lab
 
@@ -41,9 +43,21 @@ Update this index in the same commit as any of:
 - Files:
   - [avatar-client-lab.md](avatar-client-lab/avatar-client-lab.md) — primary: problem, capability + `avatar-client-lab` (ADDED) delta, scope in/out, acceptance summary, exit.
   - [architecture-and-stack.md](avatar-client-lab/architecture-and-stack.md) — the v1 architecture and recommended stack (pure reducer, Riverpod-over-core, ports/adapters, CustomPainter avatar, hybrid contracts, monorepo, M0).
-  - [open-decisions.md](avatar-client-lab/open-decisions.md) — the six blocking open decisions with recommended resolutions.
-- Open questions (blocking — this is why the topic is not yet ready to propose): Dart 2020-12 schema validator (Workiva vs port the subset); web accessibility conformance claim; fixture-format duality; plus state-binding, contract-pin, and golden-platform forks with strong recommendations.
-- Exit: create `implement-avatar-client-lab` (`code_surface: openxFactory, xfactory-avatar-client`); at the proposal gate move this folder's files into that change's `supporting-docs/`, preserving the staging origin, and author the full `avatar-client-lab` spec deltas + F1-F4 tasks in the change.
+  - [open-decisions.md](avatar-client-lab/open-decisions.md) — the six formerly blocking forks, locked 2026-07-13 with rationale (schema validator with fallback trigger, Riverpod binding, contract pin, web a11y claim, golden platform, fixture-duality loader).
+  - [acceptance-and-tests.md](avatar-client-lab/acceptance-and-tests.md) — the F1-F4 acceptance foci, the inherited scenario map (released acceptance maps already name `implement-avatar-client-lab` as an owner change), and the CI gate set.
+- Readiness: the six decisions are locked; the topic is ready to promote.
+- Exit: create `implement-avatar-client-lab` (`code_surface: openxFactory, xfactory-avatar-client`); at the proposal gate move this folder's files into that change's `supporting-docs/`, preserving the staging origin, and author the full `avatar-client-lab` spec deltas + F1-F4 tasks (including the acceptance/evidence map and CI gates from acceptance-and-tests.md).
+
+## avatar-pilot-hardening
+
+- Staging ID: `openxFactory:staging:avatar-pilot-hardening`
+- Repository context: openxFactory (neutral capability + pilot-gate acceptance); real Hermes adapters in `installs/hermes-install`; domain overlays/personas in the DomainxFactory repos; the live client in the private `xfactory-avatar-client` repo.
+- Source: named the last successor in the avatar-client parallel-workstream plan; the threat model's deferred-to-pilot items; the reference authority stub in `xfactory/avatar_runtime/`.
+- Claim: replace the reference runtime's static fail-closed authority stub with real Hermes control + delegation behind the frozen ports ("tightens rather than changes the protocol"); add per-domain overlays/personas; commission the formal WCAG audit; stand up operations/telemetry; run a staged live pilot with rollback — closing the threat-model items the kernel deferred to pilot (client-integrity TM-03, privacy review, penetration test, production authorization).
+- Files:
+  - [avatar-pilot-hardening.md](avatar-pilot-hardening/avatar-pilot-hardening.md) — primary: scope, claims, gates (qualified live profile + SBOM + license review + formal a11y audit), open questions, exit.
+- Open questions (blocking): see the fragment — plus it is structurally last: it cannot propose until `qualify-avatar-live-voice` publishes a qualified live profile and the client lab lands.
+- Exit: create `avatar-pilot-hardening` (`code_surface: openxFactory, xfactory-avatar-client, installs/hermes-install, xFactories/*`); archives only on merged + green + recorded pilot-gate evidence.
 
 ## client-infrastructure-liaison
 
@@ -108,3 +122,14 @@ Update this index in the same commit as any of:
 - Exit: the rationale exits with a future regulated-traceability-profile
   topic when a regulated domain needs it; it does not exit with the origin
   contract.
+
+## qualify-avatar-live-voice
+
+- Staging ID: `openxFactory:staging:qualify-avatar-live-voice`
+- Repository context: openxFactory owns the neutral live-voice acceptance, the ADDED AVC-09/AVC-10 contract schemas, the `interface-lock.yaml` unreservation, and the acceptance-map/validator updates; the live transport (`avc_adapters_live`) is realized in the private `xfactory-avatar-client` repo.
+- Source: named successor in the avatar-client-lab staging topic and the F0 feasibility spec; draws the live-voice baseline, GPT-Live-1 activation gate, latency requirement, and voice-session topology from the archived `flutter-avatar-client-ui-lab` exploration.
+- Claim: internal-live provider qualification — the live WebRTC/broker/media plane behind the existing `SessionTransport` port (brokered SDP, direct Flutter↔provider media, `gpt-realtime-2.1` candidate), adding AVC-09 (adapter descriptor) and AVC-10 (latency sample) as the ADDED live contracts, with a latency-instrumented activation gate, canary, and rollback. F0 proved feasibility; this change qualifies live use.
+- Files:
+  - [qualify-avatar-live-voice.md](qualify-avatar-live-voice/qualify-avatar-live-voice.md) — primary: scope, claims (AVC-09/AVC-10, activation gate, latency budgets), open questions, exit.
+- Open questions (blocking): credential custody + spend cap; latency-budget derivation; the activation-gate scope; data-control/consent for evaluation audio; canary/rollback shape. Also gated on a released, code-signed client from the lab.
+- Exit: create `qualify-avatar-live-voice` (`code_surface: openxFactory, xfactory-avatar-client`); archives only on merged + green internal-live realization evidence.
