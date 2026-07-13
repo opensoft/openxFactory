@@ -6,9 +6,13 @@ strict validation for the six schemas under
 `contracts/schemas/xfactory-document-*.schema.yaml` plus the cross-cutting
 deterministic invariants that JSON Schema alone cannot express — complete
 coverage, unique per-snapshot identity, source freshness against the
-issuing run, taxonomy resolution against the merged tag registries, owner
-override standing, immutable run/evidence path layout, and the spec's
-disclosed baseline-mode coverage exception. It never decides whether a
+issuing run, review-binding freshness against the owner override file
+(spec scenario "Source content changes after review"), taxonomy resolution
+against the merged tag registries, owner override standing (checked on the
+override file AND on every snapshot entry's `review.authority`, the merged
+surface where reviewed/overridden state actually lives), immutable
+run/evidence path layout, and the spec's disclosed baseline-mode coverage
+exception. It never decides whether a
 suggested classification is semantically correct (that judgment belongs to
 `document-cataloging`'s reviewing authority) and never edits a source
 document, lifecycle header, or `xspec:` marker.
@@ -202,6 +206,8 @@ def check_examples(f: Findings, registry: Registry, docs: dict[str, dict]) -> No
         check_source_freshness(f, label, doc)
         check_complete_coverage(f, label, doc, inventory=None, baseline=False)
         check_capability_resolution(f, label, doc)
+        check_snapshot_review_standing(f, label, doc)
+        check_review_source_freshness(f, label, doc, overrides_doc)
     if snapshot_docs:
         check_taxonomy_digest_consistency(f, snapshot_docs)
     if overrides_doc is not None:
@@ -334,6 +340,53 @@ def check_source_freshness(f: Findings, label: str, doc: dict) -> None:
             )
 
 
+def check_review_source_freshness(
+    f: Findings, label: str, doc: dict, overrides_doc: dict | None,
+) -> None:
+    """Spec scenario "Source content changes after review": an override's
+    `source_content_hash` binds the disposition to one content state, so a
+    snapshot facet still `reviewed`/`overridden` on an entry whose live
+    `content_hash` no longer matches any matching override's bound hash has
+    silently retained stale standing — it must re-enter classification
+    instead. The one binding this validator can prove is against the
+    override file it is given (the packaged example pair, or the scanned
+    repo's `catalog/document-tag-overrides.yaml`); a reviewed facet with no
+    matching override in that file is disclosed as unverifiable here, not
+    silently accepted — the owning repository's own overrides pass holds
+    that ground truth (same disclosure pattern as capability_refs above)."""
+    overrides = (overrides_doc or {}).get("overrides") or []
+    by_target: dict[tuple, list[dict]] = {}
+    for ov in overrides:
+        by_target.setdefault((_entry_key(ov), ov.get("facet")), []).append(ov)
+
+    unverifiable = 0
+    for entry in doc.get("entries") or []:
+        key = _entry_key(entry)
+        content_hash = entry.get("content_hash")
+        for fa in entry.get("facet_assignments") or []:
+            if fa.get("state") not in ("reviewed", "overridden"):
+                continue
+            candidates = by_target.get((key, fa.get("facet")), [])
+            if not candidates:
+                unverifiable += 1
+                continue
+            bound = sorted({ov.get("source_content_hash") for ov in candidates})
+            if content_hash not in bound:
+                f.error(
+                    "stale-review",
+                    f"{label}: entry {key} facet {fa.get('facet')!r} is {fa.get('state')} but no "
+                    f"override binds the current content_hash {content_hash!r} (bound: {bound!r}) "
+                    f"— source content changed after review, so the entry must re-enter "
+                    f"classification, not retain reviewed standing",
+                )
+    if unverifiable:
+        f.note(
+            f"{label}: {unverifiable} reviewed/overridden facet(s) have no matching override in "
+            f"the supplied override file; their hash binding is checked by the owning "
+            f"repository's own catalog/document-tag-overrides.yaml pass, not here"
+        )
+
+
 # --------------------- 5. taxonomy resolution against registries ---------------------
 
 def check_taxonomy_registries(f: Findings, registries: dict[str, dict]) -> None:
@@ -460,12 +513,11 @@ def _repo_domain_name(repo: str) -> str | None:
     return None
 
 
-def check_override_standing(f: Findings, label: str, doc: dict) -> None:
-    """Spec requirement "External catalog application and disposition
-    authority", scenario "Unauthorized override is supplied": the disposing
-    actor must hold ownership standing for the target repository — Domain
-    Hermes for a domain-owned document, the openxFactory ratify authority
-    for neutral or cross-repository documents.
+def _standing_violation(repo: str, actor: str) -> str | None:
+    """Reason `actor` lacks ownership standing for `repo`, or None if it
+    holds standing (spec requirement "External catalog application and
+    disposition authority": Domain Hermes for a domain-owned document, the
+    openxFactory ratify authority for neutral/cross-repository documents).
 
     Neither the spec nor the schema mandates one literal actor string, so
     this checks the correct owning-authority CLASS for the correct
@@ -477,23 +529,54 @@ def check_override_standing(f: Findings, label: str, doc: dict) -> None:
     reword without becoming a contract violation. Verifying the actor's
     real-world identity against a live authority directory is outside a
     static contract check."""
+    lowered = (actor or "").lower()
+    domain = _repo_domain_name(repo)
+    if domain is None:
+        if "openxfactory" not in lowered or "ratify" not in lowered:
+            return (f"repo {repo!r} is neutral/cross-repository; "
+                    f"does not name the openxFactory ratify authority")
+        return None
+    if domain.lower() not in lowered:
+        return (f"repo {repo!r} is domain-owned; "
+                f"does not name {domain}'s Domain Hermes authority")
+    return None
+
+
+def check_override_standing(f: Findings, label: str, doc: dict) -> None:
+    """Spec scenario "Unauthorized override is supplied", applied to the
+    owner override file: each override's `actor` must hold ownership
+    standing for its target repository (see `_standing_violation`)."""
     for i, ov in enumerate(doc.get("overrides") or []):
-        repo = ov.get("repo") or ""
-        actor = (ov.get("actor") or "").lower()
-        domain = _repo_domain_name(repo)
-        if domain is None:
-            if "openxfactory" not in actor or "ratify" not in actor:
+        reason = _standing_violation(ov.get("repo") or "", ov.get("actor") or "")
+        if reason is not None:
+            f.error("override-standing", f"{label}[{i}]: actor {ov.get('actor')!r}: {reason}")
+
+
+def check_snapshot_review_standing(f: Findings, label: str, doc: dict) -> None:
+    """Spec scenario "Unauthorized override is supplied", applied to the
+    artifact where reviewed/overridden state actually lives: a catalog
+    snapshot entry's `facet_assignments[].review.authority` must hold
+    ownership standing for that entry's `repo` (see `_standing_violation`)
+    — the spec's "aggregation-side edits or actors without standing MUST
+    NOT create reviewed or overridden state" is otherwise unenforceable on
+    a committed `status: record` snapshot. The codexFactory realization's
+    `_override_standing_findings` checks this same merged surface."""
+    for entry in doc.get("entries") or []:
+        key = _entry_key(entry)
+        repo = entry.get("repo") or ""
+        for fa in entry.get("facet_assignments") or []:
+            review = fa.get("review")
+            if not isinstance(review, dict):
+                # reviewed/overridden without a review block is a schema
+                # violation caught before this check runs.
+                continue
+            reason = _standing_violation(repo, review.get("authority") or "")
+            if reason is not None:
                 f.error(
                     "override-standing",
-                    f"{label}[{i}]: repo {repo!r} is neutral/cross-repository; actor "
-                    f"{ov.get('actor')!r} does not name the openxFactory ratify authority",
+                    f"{label}: entry {key} facet {fa.get('facet')!r} review.authority "
+                    f"{review.get('authority')!r}: {reason}",
                 )
-        elif domain.lower() not in actor:
-            f.error(
-                "override-standing",
-                f"{label}[{i}]: repo {repo!r} is domain-owned; actor {ov.get('actor')!r} "
-                f"does not name {domain}'s Domain Hermes authority",
-            )
 
 
 # --------------------------- 7. immutable path layout ---------------------------
@@ -572,6 +655,7 @@ def check_repo_tree(
     else:
         f.note("no document-tag-registry.yaml files present; taxonomy cross-registry checks skipped")
 
+    overrides_doc: dict | None = None
     overrides_path = repo / "catalog" / "document-tag-overrides.yaml"
     if overrides_path.is_file():
         doc = load_yaml(overrides_path)
@@ -582,8 +666,10 @@ def check_repo_tree(
         else:
             checked += 1
             check_override_standing(f, str(overrides_path.relative_to(repo)), doc)
+            overrides_doc = doc
     else:
-        f.note(f"{overrides_path.relative_to(repo)} not present; override-standing checks skipped")
+        f.note(f"{overrides_path.relative_to(repo)} not present; override-file standing checks skipped "
+               f"(snapshot review.authority standing is still checked per snapshot)")
 
     runs_dir = repo / "health" / "document-catalog" / "runs"
     snapshot_files = sorted(runs_dir.rglob("*.yaml")) if runs_dir.is_dir() else []
@@ -608,6 +694,8 @@ def check_repo_tree(
         if registries:
             check_topic_tag_resolution(f, rel, doc, registries)
         check_capability_resolution(f, rel, doc)
+        check_snapshot_review_standing(f, rel, doc)
+        check_review_source_freshness(f, rel, doc, overrides_doc)
         snapshot_docs.append((rel, doc))
     if snapshot_docs:
         check_taxonomy_digest_consistency(f, snapshot_docs)

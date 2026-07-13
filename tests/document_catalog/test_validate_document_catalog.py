@@ -5,10 +5,12 @@ The script's own `main()` self-tests schema conformance over every packaged
 example under `examples/document-cataloging/` on every invocation (see the
 script's `check_examples`). This suite instead targets the cross-cutting
 deterministic checks that JSON Schema alone cannot express — complete
-coverage, unique identity, source freshness, taxonomy resolution, override
-standing, immutable path layout, and the disclosed baseline-mode exception —
-with small synthetic fixtures, proving each one both accepts the shape it
-should and rejects the violation it is named for. It also runs the packaged
+coverage, unique identity, source freshness, review-binding freshness
+against the owner override file, taxonomy resolution, override standing (on
+the override file and on snapshot review blocks), immutable path layout,
+and the disclosed baseline-mode exception — with small synthetic fixtures,
+proving each one both accepts the shape it should and rejects the violation
+it is named for. It also runs the packaged
 script end-to-end (subprocess) to prove the documented GATES behavior: valid
 examples pass, every negative example fails for its own reason.
 
@@ -120,6 +122,73 @@ def _base_snapshot() -> dict:
     }
 
 
+def _reviewed_entry_snapshot(
+    state: str = "reviewed",
+    authority: str = "xFactories/MedxFactory authority (Domain Hermes)",
+) -> dict:
+    """_base_snapshot with a reviewed/overridden document_role facet (and
+    its schema-required review block) on the first entry."""
+    doc = _base_snapshot()
+    doc["entries"][0]["facet_assignments"] = [
+        {
+            "facet": "document_role",
+            "values": ["process"],
+            "state": state,
+            "state_since": "2026-07-13",
+            "provenance": {
+                "taxonomy_sha256": "1" * 64,
+                "method": "classifier",
+                "classifier_version": "1.0.0",
+                "model": "xfactory-doc-cataloger-2026-06",
+                "prompt_contract_version": 1,
+                "confidence": 0.95,
+                "section": "front-matter",
+                "passage_sha256": "2" * 64,
+                "evidence_refs": [],
+            },
+            "transitions": [
+                {
+                    "from": "suggested",
+                    "to": state,
+                    "occurred_at": "2026-07-13T09:00:00Z",
+                    "evidence_refs": ["catalog/document-tag-overrides.yaml#entry-1"],
+                },
+            ],
+            "review": {
+                "decision": state,
+                "authority": authority,
+                "occurred_at": "2026-07-13T09:00:00Z",
+                "rationale": "test disposition",
+                "evidence_refs": ["catalog/document-tag-overrides.yaml#entry-1"],
+            },
+        },
+    ]
+    return doc
+
+
+def _matching_overrides(source_content_hash: str = "3" * 64) -> dict:
+    """An override file whose single entry targets _reviewed_entry_snapshot's
+    first entry (docs/one.md, facet document_role); by default it binds that
+    entry's current content_hash."""
+    return {
+        "schema_version": 1,
+        "kind": "xfactory_document_tag_overrides",
+        "overrides": [
+            {
+                "repo": "xFactories/MedxFactory",
+                "path": "docs/one.md",
+                "source_content_hash": source_content_hash,
+                "facet": "document_role",
+                "decision": "reviewed",
+                "actor": "xFactories/MedxFactory authority (Domain Hermes)",
+                "occurred_at": "2026-07-13T00:00:00Z",
+                "rationale": "test",
+                "evidence_refs": ["e1"],
+            },
+        ],
+    }
+
+
 # --------------------------- 1. schema conformance (GATES) ---------------------------
 
 def test_gates_valid_examples_pass_and_negative_examples_fail():
@@ -226,6 +295,57 @@ def test_source_freshness_rejects_stale_snapshot_id():
     f = RecordingFindings()
     vdc.check_source_freshness(f, "t", doc)
     assert "stale-snapshot" in f.error_codes()
+
+
+# ------------------ 4b. review-binding freshness (override source hash) ------------------
+
+def test_review_source_freshness_accepts_override_bound_to_current_hash():
+    doc = _reviewed_entry_snapshot()
+    f = RecordingFindings()
+    vdc.check_review_source_freshness(f, "t", doc, _matching_overrides())
+    assert not f.errors
+
+
+def test_review_source_freshness_rejects_retained_standing_after_content_change():
+    """spec scenario "Source content changes after review": the entry's
+    content_hash moved past the override's bound source_content_hash while
+    the facet silently stayed reviewed — must be rejected, never retained."""
+    doc = _reviewed_entry_snapshot()
+    doc["entries"][0]["content_hash"] = "5" * 64  # content changed after review
+    f = RecordingFindings()
+    vdc.check_review_source_freshness(f, "t", doc, _matching_overrides())
+    assert "stale-review" in f.error_codes()
+
+
+def test_review_source_freshness_allows_reclassified_entry_after_content_change():
+    """The compliant half of the same scenario: after the content change the
+    entry re-entered classification (state back to suggested), so the stale
+    override alone is no violation."""
+    doc = _base_snapshot()
+    doc["entries"][0]["content_hash"] = "5" * 64
+    doc["entries"][0]["facet_assignments"] = [
+        {
+            "facet": "document_role",
+            "values": ["process"],
+            "state": "suggested",
+            "state_since": "2026-07-13",
+            "transitions": [],
+        },
+    ]
+    f = RecordingFindings()
+    vdc.check_review_source_freshness(f, "t", doc, _matching_overrides())
+    assert not f.errors
+
+
+def test_review_source_freshness_discloses_unmatched_review_instead_of_guessing():
+    """A reviewed facet with no matching override in the supplied file is
+    disclosed as unverifiable (note), never silently accepted or fabricated
+    into an error — the owning repo's own overrides pass holds that truth."""
+    doc = _reviewed_entry_snapshot()
+    f = RecordingFindings()
+    vdc.check_review_source_freshness(f, "t", doc, overrides_doc=None)
+    assert not f.errors
+    assert any("no matching override" in n for n in f.notes)
 
 
 # --------------------------- 5. taxonomy resolution ---------------------------
@@ -404,6 +524,41 @@ def test_override_standing_rejects_domain_authority_on_neutral_repo():
     assert "override-standing" in f.error_codes()
 
 
+# ------------------ 6b. override standing on snapshot review blocks ------------------
+
+def test_snapshot_review_standing_accepts_owning_domain_authority():
+    doc = _reviewed_entry_snapshot()
+    f = RecordingFindings()
+    vdc.check_snapshot_review_standing(f, "t", doc)
+    assert not f.errors
+
+
+def test_snapshot_review_standing_rejects_unauthorized_actor():
+    """Review-finding repro: a committed snapshot whose review.authority is
+    an arbitrary unauthorized string must fail standing (spec scenario
+    "Unauthorized override is supplied", enforced on the merged artifact
+    where reviewed/overridden state actually lives)."""
+    doc = _reviewed_entry_snapshot(authority="random-unauthorized-actor")
+    f = RecordingFindings()
+    vdc.check_snapshot_review_standing(f, "t", doc)
+    assert "override-standing" in f.error_codes()
+
+
+def test_snapshot_review_standing_rejects_neutral_authority_on_domain_entry():
+    doc = _reviewed_entry_snapshot(authority="openxFactory ratify authority")
+    f = RecordingFindings()
+    vdc.check_snapshot_review_standing(f, "t", doc)
+    assert "override-standing" in f.error_codes()
+
+
+def test_snapshot_review_standing_rejects_domain_authority_on_neutral_entry():
+    doc = _reviewed_entry_snapshot()  # authority stays MedxFactory Domain Hermes
+    doc["entries"][0]["repo"] = "openxFactory"
+    f = RecordingFindings()
+    vdc.check_snapshot_review_standing(f, "t", doc)
+    assert "override-standing" in f.error_codes()
+
+
 # --------------------------- 7. immutable path layout ---------------------------
 
 def test_immutable_path_layout_accepts_conformant_snapshot_path(tmp_path):
@@ -492,10 +647,10 @@ def test_non_baseline_mode_keeps_missing_coverage_as_error():
 
 # --------------------------- repo-tree integration (end to end) ---------------------------
 
-def test_repo_tree_end_to_end_against_a_synthetic_repo(tmp_path):
-    """Wires a small synthetic repo tree through check_repo_tree end to end:
-    a registry pair, an authorized override, and one conformant snapshot,
-    proving the real-artifact layer (not just the packaged examples)."""
+def _write_synthetic_repo_tree(tmp_path, snapshot_doc: dict) -> None:
+    """A small synthetic repo tree: a neutral registry, an authorized
+    override binding docs/one.md's content hash, and one snapshot at the
+    conformant immutable path."""
     (tmp_path / "contracts").mkdir()
     (tmp_path / "contracts" / "document-tag-registry.yaml").write_text(
         "schema_version: 1\n"
@@ -509,30 +664,39 @@ def test_repo_tree_end_to_end_against_a_synthetic_repo(tmp_path):
         "retired_tags: []\n"
     )
     (tmp_path / "catalog").mkdir()
-    (tmp_path / "catalog" / "document-tag-overrides.yaml").write_text(
-        "schema_version: 1\n"
-        "kind: xfactory_document_tag_overrides\n"
-        "overrides:\n"
-        "  - repo: xFactories/MedxFactory\n"
-        "    path: docs/one.md\n"
-        "    source_content_hash: '" + "3" * 64 + "'\n"
-        "    facet: document_role\n"
-        "    decision: reviewed\n"
-        "    actor: \"xFactories/MedxFactory authority (Domain Hermes)\"\n"
-        "    occurred_at: '2026-07-13T00:00:00Z'\n"
-        "    rationale: test\n"
-        "    evidence_refs: ['e1']\n"
-    )
+    (tmp_path / "catalog" / "document-tag-overrides.yaml").write_text(_dump_yaml(_matching_overrides()))
     run_dir = tmp_path / "health" / "document-catalog" / "runs" / "2026-07-13" / "RUN-1" / "xFactories"
     run_dir.mkdir(parents=True)
-    doc = _base_snapshot()
-    (run_dir / "MedxFactory.yaml").write_text(_dump_yaml(doc))
+    (run_dir / "MedxFactory.yaml").write_text(_dump_yaml(snapshot_doc))
 
-    vdc_mod = vdc
-    registry, docs = vdc_mod.build_registry()
+
+def test_repo_tree_end_to_end_against_a_synthetic_repo(tmp_path):
+    """Wires a small synthetic repo tree through check_repo_tree end to end:
+    a registry pair, an authorized override, and one conformant snapshot
+    whose reviewed facet is disposed by the owning authority against the
+    current content hash, proving the real-artifact layer (not just the
+    packaged examples)."""
+    _write_synthetic_repo_tree(tmp_path, _reviewed_entry_snapshot())
+    registry, docs = vdc.build_registry()
     f = RecordingFindings()
-    vdc_mod.check_repo_tree(f, registry, docs, tmp_path, baseline=False, inventory=None)
+    vdc.check_repo_tree(f, registry, docs, tmp_path, baseline=False, inventory=None)
     assert not f.errors, f.errors
+
+
+def test_repo_tree_rejects_unauthorized_review_and_stale_binding_in_snapshot(tmp_path):
+    """Review-finding repro on the real-artifact layer: a committed
+    `status: record` snapshot carrying an unauthorized review.authority AND
+    a reviewed facet whose entry content_hash moved past the override's
+    bound source_content_hash must fail check_repo_tree — it previously
+    passed every check cleanly."""
+    doc = _reviewed_entry_snapshot(authority="random-unauthorized-actor")
+    doc["entries"][0]["content_hash"] = "5" * 64  # != override's bound "3"*64
+    _write_synthetic_repo_tree(tmp_path, doc)
+    registry, docs = vdc.build_registry()
+    f = RecordingFindings()
+    vdc.check_repo_tree(f, registry, docs, tmp_path, baseline=False, inventory=None)
+    assert "override-standing" in f.error_codes()
+    assert "stale-review" in f.error_codes()
 
 
 def _dump_yaml(doc: dict) -> str:
