@@ -135,6 +135,8 @@
   .funnel-inner.focused svg.edges path.hot { opacity: 1; stroke-width: 2.4; }
   .funnel-inner.focused .card { opacity: 0.3; }
   .funnel-inner.focused .card.hot { opacity: 1; }
+  .card.pinned { outline: 2px solid var(--st-staged); outline-offset: 1px; }
+  .funnel-inner.focused .card.pinned { opacity: 1; }
   @media (prefers-reduced-motion: reduce) {
     svg.edges path, .card { transition: none; }
   }
@@ -314,7 +316,7 @@
       <span class="g"><span class="edge-key dashed"></span> topic claim (many-to-many)</span>
       <span class="g"><span class="edge-key" style="background:var(--edge-pick)"></span> pick edge</span>
       <span class="g"><span class="edge-key" style="background:var(--edge-flow)"></span> gate flow</span>
-      <span class="g" style="margin-left:auto">hover a card to trace its thread</span>
+      <span class="g" style="margin-left:auto">hover to trace · click to pin the thread (click again or another card to release)</span>
     </div>
 
     <div class="scroller">
@@ -631,22 +633,36 @@
   }
 
   const nodes = document.querySelectorAll("[data-node]");
+  let pinned = null; // click-to-pin: a pinned card holds its trace until re-clicked or another card is clicked
+  function applyTrace(id) {
+    const hot = reach(id);
+    funnel.classList.add("focused");
+    paths.forEach(p => p.classList.toggle("hot", hot.has(p.dataset.from) && hot.has(p.dataset.to)));
+    nodes.forEach(n => n.classList.toggle("hot", hot.has(n.id)));
+  }
+  function clearTrace() {
+    funnel.classList.remove("focused");
+    paths.forEach(p => p.classList.remove("hot"));
+    nodes.forEach(n => n.classList.remove("hot"));
+  }
+  function setPinned(id) {
+    pinned = id;
+    nodes.forEach(n => n.classList.toggle("pinned", n.id === pinned));
+    if (pinned) applyTrace(pinned); else clearTrace();
+  }
   nodes.forEach(el => {
-    const on = () => {
-      const hot = reach(el.id);
-      funnel.classList.add("focused");
-      paths.forEach(p => p.classList.toggle("hot", hot.has(p.dataset.from) && hot.has(p.dataset.to)));
-      nodes.forEach(n => n.classList.toggle("hot", hot.has(n.id)));
-    };
-    const off = () => {
-      funnel.classList.remove("focused");
-      paths.forEach(p => p.classList.remove("hot"));
-      nodes.forEach(n => n.classList.remove("hot"));
-    };
-    el.addEventListener("mouseenter", on);
-    el.addEventListener("mouseleave", off);
-    el.addEventListener("focus", on);
-    el.addEventListener("blur", off);
+    el.addEventListener("mouseenter", () => applyTrace(el.id));
+    el.addEventListener("mouseleave", () => { pinned ? applyTrace(pinned) : clearTrace(); });
+    el.addEventListener("focus", () => applyTrace(el.id));
+    el.addEventListener("blur", () => { pinned ? applyTrace(pinned) : clearTrace(); });
+    el.addEventListener("click", () => {
+      const next = pinned === el.id ? null : el.id;
+      setPinned(next);
+      if (!next) applyTrace(el.id); // still hovering: keep the hover trace live after release
+    });
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPinned(pinned === el.id ? null : el.id); }
+    });
   });
 
   // ---- workbench: temp doc sets ----
