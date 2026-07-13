@@ -120,6 +120,47 @@ Brett in a follow-on session later the same day (authoring authority).
 | R13 | Snapshot contract | Snapshot and workbench manifests are promoted, schema-versioned contracts (`kind` + `schema_version`), not internal artifacts | confirmed |
 | R14 | Regeneration triggers | Nightly with doc-health plus on-demand via the local command; no per-commit regeneration in v1 | confirmed |
 
+## Cluster-column integration candidates (D11 follow-through)
+
+Documented elsewhere in the family corpus and integrable here as feats —
+each assists the cluster column (the working surface where feat quality is
+decided). Candidates for the re-proposal, not commitments; every AI-driven
+one enters under the agent create-only / pending-review boundary.
+
+1. **AI tag suggester** — codexFactory
+   `ideation/brainstorm/ai-spec-doc-editor.md` (Possible feats; written
+   explicitly as feeding this dashboard's Topics:/possibles register).
+   Better `Topics:` headers → better doc→cluster edges; suggestions land
+   pending-review.
+2. **Seed-to-spec expansion lane** — codexFactory staged
+   `generation-engine-lane` (claim 2). Powers the workbench
+   "draft organize gate" action: expand a picked possible into a staged
+   fragment skeleton, and later into `openspec/` proposal drafts per the
+   draft-proposal workspace convention.
+3. **Three-tier readiness panel** — active
+   `add-ideation-cross-reference-readiness`. Cluster readiness heat +
+   ≥8-score recommendation gate; already contracted (R10) — D11 argues the
+   score renders inline on the cluster card.
+4. **Semantic cataloger tag recommendations** — active
+   `add-document-cataloging`. Reviewed machine `topic_tags` refine
+   doc→cluster edges; catalog signals (unknown scope, multi-domain,
+   conflicts) may enqueue organizer review.
+5. **Bounded semantic ideation organizer** — active
+   `add-cross-factory-ideation-routing`. Machine-proposed clusters and
+   destinations meet the workbench's human-seen clusters in one
+   pending-review queue (R8 alignment).
+6. **Scratch notebooks + hybrid imports** — lifecycle-notebook-projection
+   capability plus the `add-lifecycle-notebook-hybrid-imports` branch
+   (awaiting ratify). Semantic interrogation of a cluster's doc set;
+   insights return as new corpus docs feeding the cluster.
+7. **Semantic-sweep conflict flags** — doc-health semantic sweep (realized
+   07-12). Contradictions between a cluster's docs surface as conflict
+   signals on the cluster card, feeding the cross-reference index's flags.
+
+Native to the dashboard itself (no external dependency): gap signals on
+the cluster card — docs no possible claims, possibles no doc supports,
+options-of-one-feat groupings.
+
 ## Required deltas and tests
 
 - openxFactory contract change (`add-ideation-dashboard`):
