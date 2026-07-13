@@ -1,12 +1,5 @@
 # ideation-dashboard Delta: Realization Funnel, Snapshot, Workbench
 
-Status: draft
-Kind: architecture
-Summary: Draft spec-delta slice (ADDED ideation-dashboard capability requirements) for the add-ideation-dashboard re-proposal, iterating in staging.
-Topics: ideation-dashboard, doc-management, doc-workflow
-Repository context: openxFactory
-Draft slice of: [ideation-dashboard staged topic](../../../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
-
 ## ADDED Requirements
 
 ### Requirement: Snapshot projection contract
@@ -74,6 +67,49 @@ The dashboard SHALL support a two-level grouping hierarchy over repositories —
 #### Scenario: The register changes
 - **WHEN** the project register is edited
 - **THEN** grouping updates only through snapshot regeneration — rendered grouping is never hand-edited
+
+### Requirement: Cluster canvas working surface
+Each cluster SHALL open a canvas working surface rendered from the snapshot: a member pane listing exactly the cluster's `Topics:`-derived document edges (downstream artifacts — staged picks, proposals, realizations — render in a lineage strip, never as members), an evidence board whose pinned passages carry section reference and passage hash, gap prompts rendered as actionable slots (member documents unclaimed by any possible; possibles without document support), and a possibles rail with option-set grouping and a composer that drafts possibles-register entries for human commit; canvas machinery mutates no source document and AI-derived suggestions enter only as pending-review items.
+
+#### Scenario: Member pane derivation
+- **WHEN** a cluster canvas opens
+- **THEN** its member pane MUST contain exactly the snapshot's Topics-derived document edges for that cluster
+- **AND** downstream artifacts appear only in the lineage strip
+
+#### Scenario: A member document supports no possible
+- **WHEN** a member document is unclaimed by any possible
+- **THEN** the canvas MUST render an actionable gap prompt for it
+
+#### Scenario: An option set resolves
+- **WHEN** a human chooses one option from an option set
+- **THEN** the sibling possibles' superseded transitions MUST be drafted with the required reason and citation for human commit
+
+#### Scenario: A possible is composed
+- **WHEN** the composer produces a possible
+- **THEN** a possibles-register entry draft is created and nothing enters the register without a human commit
+
+### Requirement: Keyword lens set-builder
+The dashboard SHALL provide a keyword lens over the controlled keyword vocabulary: per-keyword document counts with deterministic co-occurrence hints; a match-count bullseye whose rings index how many checked keywords a document matches (innermost = all), sectored by matched subset, paired with an always-present flat matrix view of the same membership; check-to-stratify and pin-to-require gestures; declared tags rendered distinctly from inferred tags; manual include/exclude overrides that REQUIRE a recorded reason and are captured as evidence; and cluster-as-recipe persistence — the workbench manifest stores the query (checked, pinned, overrides with reasons) so the set re-runs as the corpus grows, and cluster submission follows the human-seen evidence path.
+
+#### Scenario: Intersection and union are both visible
+- **WHEN** k keywords are checked
+- **THEN** documents matching all k MUST render in the innermost zone and every partial match renders in the ring for its match count, sectored by which subset matched
+
+#### Scenario: The matrix fallback exists
+- **WHEN** the lens renders
+- **THEN** a flat matrix or list view of the same membership MUST be available
+
+#### Scenario: A manual override is recorded
+- **WHEN** a document is manually included or excluded from the forming set
+- **THEN** a reason MUST be recorded and the override captured as evidence (a scaffolded Topics: edit, a human-seen signal, or negative evidence) — never a silent set edit
+
+#### Scenario: A recipe re-runs after corpus growth
+- **WHEN** a saved recipe re-runs after new documents enter the corpus
+- **THEN** newly matching documents MUST surface as new candidates without altering recorded overrides
+
+#### Scenario: The forming set becomes a cluster
+- **WHEN** the user adds the forming set as a cluster
+- **THEN** a workbench reference set is created and a human-seen cluster proposal enters the cross-reference queue citing the recipe as rationale
 
 ### Requirement: Workbench reference sets
 The dashboard SHALL provide a workbench: user-assembled temporary reference

@@ -1,6 +1,7 @@
 # Staged: Ideation Area Dashboard
 
-Status: staged
+Status: draft
+Proposed by: add-ideation-dashboard
 Kind: architecture
 Summary: Decided contract for a generated ideation dashboard — a six-column
 docs-first realization funnel over a new possibles register, a pipeline
@@ -11,17 +12,17 @@ never executes a gate.
 Topics: ideation-dashboard, possibles-register, workbench, workflow-visualization, ideation-cross-reference, doc-health, notebooklm-projection, doc-management, doc-workflow
 Repository context: openxFactory (contract-level, cross-factory topic)
 Staging ID: `openxFactory:staging:ideation-dashboard`
-Source: [brainstorm](../../brainstorm/ideation-dashboard.md) design session
+Source: [brainstorm](../../../../ideation/brainstorm/ideation-dashboard.md) design session
 2026-07-12 (Brett Heap, Claude); the interactive mockup in this folder was
 iterated live during the session.
 History: staged 2026-07-12 → proposed and ratified as add-ideation-dashboard
 2026-07-12 (amended in place: D7–D9 authoring authority, six-column mockup
-hardening, Option-C hosting, D10 project grouping) → **demoted back to
-staging 2026-07-13 by Brett** — the dashboard is still under active design
-and is not ready for proposal form; the ratification is set aside and
-re-ratification is required at the next proposal gate. The working proposal
-drafts (proposal, design, tasks, spec-delta slices) continue in
-[openspec/](openspec/) per the draft-proposal workspace convention.
+hardening, Option-C hosting, D10 project grouping) → demoted back to
+staging 2026-07-13 by Brett for continued design (D11 two-zone funnel, D12
+cluster canvas, D13 keyword lens added; drafts iterated in the topic's
+openspec/ workspace per the draft-proposal convention) → **re-proposed
+2026-07-13 (this second transition); re-ratification pending** — the 07-12
+ratification was set aside at demotion.
 Target capabilities: ADDED `ideation-dashboard`; MODIFIED `doc-health`
 (nightly snapshot-generation lane); MODIFIED `document-lifecycle`
 (`Possible feats:` declaration in the brainstorm format); MODIFIED
@@ -105,6 +106,8 @@ Brett in a follow-on session later the same day (authoring authority).
 | D9 | Notebook doc ops | Creating and editing notes in corpus-bound notebooks is allowed; deleting a doc/source removes it from that set only — the underlying corpus doc is never deleted | decided |
 | D10 | Project grouping | Repos → projects → project groups via a schema-versioned project register (instance owned by the aggregation layer); resolved into snapshot fields; repo/project/group roll-ups on funnel, board, stats | decided 07-13 |
 | D11 | Funnel zones | Right of the pick is one identity promoted through gates (render state faithfully; gates may bundle/split); left of the pick is the generative many-to-many zone, and the cluster column — many docs in, many candidate feats out — is where feat quality is decided, so dashboard assistance concentrates there | decided 07-13 |
+| D12 | Cluster canvas | Per-cluster three-pane workspace: Topics-derived members only (downstream in a lineage strip), evidence board with passage provenance, gap prompts as actionable slots, possibles rail with option sets, composer drafting register entries; AI assists follow as pending-review deltas | decided 07-13 |
+| D13 | Keyword lens | Bullseye set-builder: keyword rail with counts + co-occurrence hints, match-count rings sectored by subset + matrix fallback, check=stratify/pin=require, declared vs inferred strengths distinct, +/− overrides with recorded reasons as evidence, clusters saved as re-runnable recipes in the workbench manifest | decided 07-13 |
 | R1 | Possibles register home | Authors seed a `Possible feats:` section in brainstorm docs at capture; the cross-reference index consolidates the canonical register (same bootstrap posture as the readiness index). No third standalone register file | confirmed |
 | R2 | Possible states | `latent / picked / rejected / superseded`; rejected and superseded require a recorded reason plus citation, mirroring contested-finding dispositions | confirmed |
 | R3 | Pick citation | A pick edge cites the staging ID, inheriting the change ID at the proposal gate — aligned with the proposal-origin-contract discipline | confirmed |
@@ -196,12 +199,13 @@ options-of-one-feat groupings.
 
 ## Exit
 
-Re-create `add-ideation-dashboard` (openxFactory contract change paired
-with a codexFactory realization delta) when the design settles: the working
-drafts under `openspec/` move to `openspec/changes/add-ideation-dashboard/`
-(front-matter restored, draft headers stripped) and this folder's primary
-doc + mockup move into its `supporting-docs/`, preserving this staging
-origin; the proposal declares origin
+Satisfied 2026-07-13 (second transition): the working drafts moved back to
+`openspec/changes/add-ideation-dashboard/` (front-matter restored, draft
+headers stripped) and this doc + the mockup returned to its
+`supporting-docs/`, preserving the staging origin
 `openxFactory:staging:ideation-dashboard` per the proposal-origin contract.
-Brett re-ratifies at that gate — the 2026-07-12 ratification (R1–R14
-confirmed unchanged) was set aside by the 2026-07-13 demotion.
+Reworked at re-proposal: D11–D13 (two-zone funnel, cluster canvas, keyword
+lens), explicit web-based v1, Option-C hosting alongside the Hermes-stack
+surfaces on the internal xForge host. Awaiting Brett's re-ratification —
+the 2026-07-12 ratification (R1–R14 confirmed unchanged) was set aside by
+the 2026-07-13 demotion.

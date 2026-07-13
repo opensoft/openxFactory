@@ -125,16 +125,16 @@ proposal):
   realization funnel over a possibles register, pipeline board, doc list,
   and non-mutating workbench; drafts gate artifacts, never executes gates),
   promoted the same day into the add-ideation-dashboard proposal (ratified
-  2026-07-12), then demoted back to the staged topic 2026-07-13 for
-  continued design — the proposal drafts iterate in the topic's `openspec/`
-  folder; kept as design history with the in-session decisions inline.
+  2026-07-12), demoted back to the staged topic 2026-07-13 for continued
+  design (D11–D13 added there), and re-proposed later that day; kept as
+  design history with the in-session decisions inline.
+- [Cluster Combining GUI](brainstorm/cluster-combining-gui.md) — organized
+  2026-07-13: the cluster canvas and keyword lens entered the
+  add-ideation-dashboard re-proposal as D12/D13; kept as design history
+  with the full option space inline.
 
 Brainstorm (active):
 
-- [Cluster Combining GUI](brainstorm/cluster-combining-gui.md) — GUI
-  concepts for the funnel's generative zone (cluster canvas, evidence
-  board, possible composer, option sets, AI suggestion trays); D11
-  follow-through feeding the ideation-dashboard staged topic.
 - [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
   — three upstream gaps from the codexFactory conformance-gate hardening;
   seeds a future openxFactory proposal.
@@ -144,6 +144,16 @@ inventory of every topic under `staging/` — update it, not this list, when a
 staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
+
+- [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
+  — re-proposed 2026-07-13 after a design-round demotion (second
+  transition); owns the former `ideation-dashboard` staged packet (primary
+  doc plus the interactive mockup) under `supporting-docs/` and defines
+  the realization funnel snapshot, possibles register, cluster canvas
+  (D12), keyword lens with cluster-as-recipe persistence (D13), project
+  grouping (D10), per-actor authoring authority, workbench, interactivity
+  boundary, and nightly snapshot lane; web-based v1 served per Option C
+  alongside the Hermes-stack surfaces; **re-ratification pending**.
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

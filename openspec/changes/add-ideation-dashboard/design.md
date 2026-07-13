@@ -1,12 +1,5 @@
 # Design: Ideation Area Dashboard
 
-Status: draft
-Kind: architecture
-Summary: Working design draft (decision record D1–D10 and hosting) for the add-ideation-dashboard re-proposal, iterating in staging.
-Topics: ideation-dashboard, doc-management, doc-workflow
-Repository context: openxFactory
-Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
-
 ## Context
 
 The 2026-07-12 design session (Brett + Claude, with an interactive mockup
@@ -115,6 +108,39 @@ itself), so it does not touch the contested check-family enumeration.
   possibles register, readiness scores, human-seen-cluster intake, and
   any future AI suggestion queues under the agent create-only boundary)
   concentrates on the cluster column.
+- **Cluster canvas is the working-surface view** (D12, added 2026-07-13
+  by Brett; sketched in the mockup's fourth tab): each cluster opens a
+  three-pane workspace — member docs, evidence board, possibles rail.
+  Members are strictly the `Topics:`-derived doc edges; downstream
+  artifacts (staged picks, proposals) render in a lineage strip, never as
+  members. Evidence pins carry section reference + passage hash
+  (cataloging-contract provenance). Gap signals render as actionable
+  prompts (member doc unclaimed by any possible; possible without doc
+  support). Option sets group alternative shapes of one feat; choosing
+  one drafts the siblings' superseded transitions with reason + citation.
+  The composer drafts register entries — a human commits them. AI assists
+  (suggestion tray, derive-possibles) are follow-on deltas gated on the
+  generation-engine / organizer / cataloging integrations and enter
+  pending-review only.
+- **Keyword lens set-builder** (D13, added 2026-07-13 by Brett; sketched
+  in the demo run's fifth tab): the front door of the canvas. Keyword
+  rail from the controlled vocabulary (Topics: headers now; registered
+  tags when cataloging lands) with doc counts and deterministic
+  co-occurrence hints; a match-count bullseye — rings by number of
+  checked keywords matched, innermost = matches all, sectored by matched
+  subset so partial overlaps are readable past the 3-set Venn limit —
+  with an always-present flat matrix view; check = stratify, pin =
+  require; declared tags (solid) never render like inferred tags (hollow,
+  confidence 0–1, arriving with document-cataloging); manual +/−
+  overrides require a recorded reason and emit evidence (Topics-edit
+  scaffold, human-seen signal, or negative evidence). The saved artifact
+  is the recipe — checked + pinned + overrides — in the workbench
+  manifest, re-runnable as the corpus grows; "add as cluster" creates the
+  workbench set and submits a human-seen cluster proposal (R8).
+- **v1 is web-based** (Brett, 2026-07-13): the renderer is a static
+  repo-tracked web GUI (browser-only; no desktop/native surface in v1),
+  served per Option C below — alongside the Hermes-stack surfaces on the
+  internal xForge host.
 - **Hosting = the internal xForge host** (Option C, decided 2026-07-13):
   the static renderer and the nightly-committed snapshot are served from
   the existing access-controlled internal host behind `*.xforge.us` — the

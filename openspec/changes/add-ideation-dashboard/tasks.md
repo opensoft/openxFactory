@@ -1,12 +1,5 @@
 # Tasks: Ideation Area Dashboard
 
-Status: draft
-Kind: plan
-Summary: Working task breakdown (20 tasks) for the add-ideation-dashboard re-proposal, iterating in staging.
-Topics: ideation-dashboard, doc-management, doc-workflow
-Repository context: openxFactory
-Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
-
 ## 1. Sequencing And Contract Baseline
 
 - [ ] 1.1 Sequence the `ideation-cross-reference` delta with the active `add-ideation-cross-reference-readiness` change: verify at realization that the promoted (or pending) wording matches what this change's delta was declared against, rebase if needed, and re-run strict OpenSpec validation.
@@ -20,6 +13,7 @@ Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — 
 - [ ] 2.4 Add valid and invalid examples (multi-cluster possible, cited rejection, uncited rejection failing, pick edge inheritance, ad-hoc human-seen cluster submission) and a strict validator for snapshot, workbench manifest, and register transitions wired into the per-repo validator preflight; add `ideation/workbench/` to the repo gitignore with committed-manifest detection.
 - [ ] 2.5 Register the schemas in `contracts/manifest.yaml`, reconcile `contracts/CHANGELOG.md`, and update ideation guidance (`Possible feats:` seeding in the README header-format section) referencing promoted requirements without duplicating them.
 - [ ] 2.6 Define the `project-register` schema (kind + schema_version; D10): named projects with repository membership, project groups with project membership; valid/invalid examples (multi-repo project, ungrouped repository, empty group rejected) and validator wiring alongside 2.4; the register instance lands in the aggregation/workspace repo, not openxFactory.
+- [ ] 2.7 Extend the `ideation-workbench` manifest schema with recipe fields (D13): checked and pinned keywords, manual include/exclude overrides each carrying a recorded reason; valid/invalid examples (override without reason rejected) so an intensional cluster definition is re-runnable and auditable.
 
 ## 3. Generator And Renderers (codexFactory)
 
@@ -31,6 +25,8 @@ Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — 
 - [ ] 3.6 Implement human authoring: a create action scaffolding a header-compliant doc (H1, Status, Kind, Summary, Topics, Repository context, Captured pre-filled) into the chosen ideation area, and select-to-edit opening any listed doc in the human's editor; the dashboard itself never rewrites content.
 - [ ] 3.7 Enforce agent create-only authority: any agent write path can add new corpus docs with required headers but MUST reject and report edits or deletions of existing docs; notebook doc/source deletion drops the set reference only (workbench manifests) while lifecycle projections restore their sets on the next sync.
 - [ ] 3.8 Implement project grouping (D10): generator resolves `repository` → `project` → `project_group` from the project register into the snapshot; renderer adds repo/project/group roll-up controls to the funnel, pipeline board, and stats strip, with ungrouped repositories rendering as their own implicit project.
+- [ ] 3.9 Implement the cluster canvas (D12) from the mockup's fourth-tab sketch: three-pane per-cluster workspace — members strictly from `Topics:`-derived snapshot edges with a lineage strip for downstream artifacts, evidence board with section-ref + passage-hash pins, gap prompts as actionable slots, possibles rail with option sets (choose-one drafts sibling superseded transitions with reason + citation), and the composer drafting register entries for human commit. AI assists (suggestion tray, derive-possibles) are explicitly out of this task — follow-on deltas gated on their source changes.
+- [ ] 3.10 Implement the keyword lens (D13) from the demo-run fifth-tab sketch: keyword rail with counts and deterministic co-occurrence hints; match-count bullseye with subset sectors plus the always-present matrix view; check/pin gestures; declared-vs-inferred strength rendering (inferred deferred until cataloging lands); override capture with required reasons emitting Topics-edit scaffolds / human-seen signals / negative evidence; recipe save + re-run surfacing new matches; "add as cluster" creating the workbench set and submitting the human-seen proposal with the recipe as rationale.
 
 ## 4. Nightly Lane (xFactory aggregation)
 
@@ -39,5 +35,5 @@ Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — 
 
 ## 5. Tests And Records
 
-- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no automated writes to `ideation/staging/` or existing source docs); scaffold header compliance; agent edit/delete rejection and reporting; notebook set-removal leaves the corpus doc intact and projections restore on sync; funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection; project-register validation and grouping roll-up (multi-repo project aggregation, ungrouped repository fallback, group tallies).
+- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no automated writes to `ideation/staging/` or existing source docs); scaffold header compliance; agent edit/delete rejection and reporting; notebook set-removal leaves the corpus doc intact and projections restore on sync; funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection; project-register validation and grouping roll-up (multi-repo project aggregation, ungrouped repository fallback, group tallies); canvas membership derivation (Topics-only members, downstream in lineage strip), gap-prompt derivation, option-set supersede drafting; lens ring/sector computation against a fixture corpus, matrix-view parity with the bullseye, override-without-reason rejection, recipe re-run surfacing newly matching docs.
 - [ ] 5.2 Obtain realization evidence (green nightly snapshot lane plus a working local generate-and-open run) and keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.

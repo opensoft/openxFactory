@@ -1,11 +1,15 @@
 # Cluster Combining GUI — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: GUI concepts that make the funnel's generative zone (docs → clusters → possibles) an active working surface instead of a rendering — a cluster canvas with an evidence board and gap prompts, a possible composer with option-set comparison, drag/lasso combining gestures, topic-chip faceting, and pending-review AI suggestion trays — all inside the dashboard's non-mutating / human-edit / agent-create-only boundary.
 Topics: ideation-dashboard, workbench, possibles-register, gui-design, ideation-tooling, doc-management, doc-workflow
 Repository context: openxFactory (feeds the ideation-dashboard staged topic)
 Captured: 2026-07-13
+Organized: 2026-07-13 — the cluster canvas and keyword lens entered the
+add-ideation-dashboard re-proposal as decisions D12/D13 with spec
+requirements and tasks; kept as design history with the full option space
+inline.
 Origin: D11 follow-through session (Brett + Claude, 2026-07-13). Brett: the
 first three funnel columns are where feats are made — "make tools to make
 this combining process easy for the user."

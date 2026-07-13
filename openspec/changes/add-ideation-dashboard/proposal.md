@@ -1,15 +1,6 @@
 code_surface: openxFactory, codexFactory, xFactory
 target_release: implemented
 
-# Draft Proposal — ideation dashboard
-
-Status: draft
-Kind: architecture
-Summary: Working draft of the add-ideation-dashboard re-proposal, iterating in staging per the draft-proposal workspace convention; front-matter restored and this header stripped when it moves to openspec/changes/ at the proposal gate.
-Topics: ideation-dashboard, doc-management, doc-workflow
-Repository context: openxFactory
-Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
-
 ## Why
 
 The family has a semantic surface over ideation content (the NotebookLM
@@ -21,11 +12,17 @@ folders. Two structural gaps surfaced in the 2026-07-12 design session:
 candidate feats a cluster could spawn but has not yet ("possibles")
 evaporate into prose, and nothing lets a human assemble an arbitrary doc set
 and point tools at it when they see a pattern the machine clustering
-missed. All design questions are decided: D1–D10 locked (D7–D9, authoring
-authority, added in a follow-on session; D10, the project grouping
-hierarchy, added 2026-07-13 by Brett), R1–R14 confirmed unchanged by Brett
-on 2026-07-12. **Ratified by Brett on 2026-07-12**; active until
-realization evidence lands per the release-realization flow.
+missed. All design questions are decided: D1–D13 locked (D7–D9 authoring
+authority; D10 project grouping; D11 two-zone funnel with the cluster
+column as the working surface; D12 cluster canvas; D13 keyword lens — the
+last four added 2026-07-13 by Brett), R1–R14 confirmed unchanged by Brett
+on 2026-07-12. History: first proposed and ratified 2026-07-12; demoted to
+staging 2026-07-13 for continued design (drafts iterated in the topic's
+`openspec/` workspace per the draft-proposal convention); **re-proposed
+2026-07-13 — re-ratification pending** (the 07-12 ratification was set
+aside at demotion). v1 is explicitly web-based: a static repo-tracked web
+GUI served per Option C alongside the Hermes-stack surfaces on the internal
+xForge host.
 
 ## What Changes
 
@@ -64,6 +61,24 @@ realization evidence lands per the release-realization flow.
   committing the snapshot beside the dated reports; no new check family —
   strict snapshot/manifest validation runs in the per-repo validator
   preflight.
+- Add the cluster canvas working surface (D11/D12): each cluster opens a
+  per-cluster workspace — member docs strictly from `Topics:`-derived
+  edges (downstream artifacts in a lineage strip, never as members), an
+  evidence board whose pins carry section-reference + passage-hash
+  provenance, gap prompts rendered as actionable slots, and a possibles
+  rail with option sets (choosing one marks siblings superseded with the
+  required reason + citation) plus a composer that drafts
+  possibles-register entries for human commit.
+- Add the keyword lens set-builder (D13): the controlled keyword
+  vocabulary with doc counts and co-occurrence hints; a match-count
+  bullseye (rings by matched-keyword count, sectored by matched subset)
+  with an always-present flat matrix view; check-to-stratify /
+  pin-to-require gestures; declared vs inferred tag strengths rendered
+  distinctly; manual include/exclude overrides that require a recorded
+  reason and are captured as evidence; and cluster-as-recipe persistence —
+  the workbench manifest stores the query (checked, pinned, overrides) so
+  a cluster re-runs as the corpus grows, and "add as cluster" creates a
+  workbench set plus a human-seen proposal under the evidence contract.
 - Add the project grouping hierarchy (D10): a schema-versioned
   `project-register` (neutral schema; instance owned by the
   aggregation/workspace layer) maps repositories → projects (a project is
@@ -80,12 +95,13 @@ realization evidence lands per the release-realization flow.
 ### New Capabilities
 
 - `ideation-dashboard`: Defines the snapshot projection contract, the
-  realization funnel model, the project grouping hierarchy
-  (repos → projects → project groups via the project register), the
-  workbench reference-set contract and persistence rules, the permanent
-  interactivity boundary, per-actor authoring authority (human
-  create/edit, agent create-only, notebook set-removal semantics), and
-  delivery/regeneration.
+  realization funnel model, the cluster canvas working surface, the
+  keyword lens set-builder with cluster-as-recipe persistence, the project
+  grouping hierarchy (repos → projects → project groups via the project
+  register), the workbench reference-set contract and persistence rules,
+  the permanent interactivity boundary, per-actor authoring authority
+  (human create/edit, agent create-only, notebook set-removal semantics),
+  and delivery/regeneration.
 
 ### Modified Capabilities
 
