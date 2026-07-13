@@ -101,6 +101,20 @@ itself), so it does not touch the contested check-family enumeration.
   authority semantics, and a repository absent from the register renders
   ungrouped rather than failing. This concretizes the "aggregation
   roll-up" the snapshot contract already kept additive.
+- **Two-zone funnel; the cluster column is the working surface** (D11,
+  added 2026-07-13 by Brett): right of the pick, the funnel is one
+  identity promoted through gates — possible → staged topic → proposal →
+  realized are the same core in successive roles (gates may bundle or
+  split threads, as the avatar packet did), and the dashboard's job there
+  is faithful state rendering. Left of the pick is the generative zone:
+  many docs organize around a cluster (many-to-many via `Topics:`;
+  many-to-one seen from any cluster card) and a cluster spawns many
+  candidate feats or options of one feat — one possible may be claimed by
+  several clusters. Deriving good feats from the topic groupings is where
+  feat quality is decided, so the dashboard's assistance (workbench,
+  possibles register, readiness scores, human-seen-cluster intake, and
+  any future AI suggestion queues under the agent create-only boundary)
+  concentrates on the cluster column.
 - **Hosting = the internal xForge host** (Option C, decided 2026-07-13):
   the static renderer and the nightly-committed snapshot are served from
   the existing access-controlled internal host behind `*.xforge.us` — the
