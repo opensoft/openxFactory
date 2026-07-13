@@ -1,7 +1,11 @@
-# Contract release identity and stack-surface gaps
+# Contract Release Identity and Stack-Surface Gaps — Brainstorm
 
 Status: brainstorm
 Kind: note
+Summary: Three upstream openxFactory gaps found while hardening codexFactory's conformance gate — no `contract-v*` release tags (tag-form pins unsatisfiable), inconsistent bundle version identity between contracts manifest and CHANGELOG, and a missing `credentials:` slot in the domain-stack schema — with a candidate single-proposal shape covering release tagging discipline and a `credentials.required` manifest slot.
+Topics: contract-release, stack-surface, credential-contracts, conformance-gate, release-tagging
+Repository context: openxFactory
+Captured: 2026-07-12
 Origin: codexFactory changes harden-conformance-gate and
 realize-credential-contracts (both ratified 2026-07-12); seeds a future
 openxFactory-side proposal.
