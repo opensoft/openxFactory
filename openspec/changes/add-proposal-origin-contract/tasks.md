@@ -13,9 +13,9 @@
 
 ## 3. Migration (openxFactory)
 
-- [ ] 3.1 Amend the archived `add-proposal-supporting-doc-lifecycle` packet with its explicit ad-hoc origin (`openxFactory:adhoc:2026-07-09-proposal-support-lifecycle-bootstrap`, recorded reason and approval).
-- [ ] 3.2 Backfill changes carrying staged support manifests as `staged`, deriving durable ids from the recorded repository and staging topic; classify changes with no historical staging source as `ad_hoc` without fabricating folders or history.
-- [ ] 3.3 Record migration provenance in a reviewable evidence file so every backfilled origin cites the record it was derived from.
+- [x] 3.1 Amend the archived `add-proposal-supporting-doc-lifecycle` packet with its explicit ad-hoc origin (`openxFactory:adhoc:2026-07-09-proposal-support-lifecycle-bootstrap`, recorded reason and approval). Evidence: applied verbatim from `supporting-docs/origin-contract.md` Migration item 1; see `migration-evidence.md`.
+- [x] 3.2 Backfill changes carrying staged support manifests as `staged`, deriving durable ids from the recorded repository and staging topic; classify changes with no historical staging source as `ad_hoc` without fabricating folders or history. Evidence: 22 archived changes backfilled (12 `staged` from `supporting-docs.manifest.yaml` `origin_path`, 10 `ad_hoc` from packet/README/git-history evidence); 4 already-compliant changes left untouched; see `migration-evidence.md`.
+- [x] 3.3 Record migration provenance in a reviewable evidence file so every backfilled origin cites the record it was derived from. Evidence: `openspec/changes/add-proposal-origin-contract/migration-evidence.md` (Status: record, Kind: report) cites, per change, the quoted manifest field or git commit each origin derives from.
 
 ## 4. Fifteenth Deterministic Family (codexFactory)
 

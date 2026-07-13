@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-07-09
+origin:
+  kind: staged
+  id: openxFactory:staging:credential-contracts
+  path: ideation/staging/credential-contracts

@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-07-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-08-document-lifecycle-vocabulary
+  reason: This change itself ratifies the ideation/brainstorm and ideation/staging convention (commit eb640dc, "Propose document lifecycle vocabulary OpenSpec change"); no staging pipeline could have existed before the change that creates it.
+  approved_by: Brett
+  approved_on: 2026-07-08

@@ -1,2 +1,8 @@
 schema: spec-driven
 created: 2026-07-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-08-reconcile-domain-neutral-and-engineering-spec-ownership
+  reason: Direct reconciliation of a documentation/spec mismatch discovered during review (commit d5ada44, "Reconcile domain-neutral spec ownership"); no staged topic existed for this fix.
+  approved_by: Brett
+  approved_on: 2026-07-08

@@ -4,3 +4,9 @@ goal: Turn the documented openxFactory factory into a repeatable live pilot
   stack by pinning contracts, hardening Hermes/Omnigent runtime integration,
   running a real Project Alfa pilot, and preserving GitHub as final merge
   enforcement.
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-06-26-enable-live-openxfactory
+  reason: Authored directly by Brett Heap (PR #19, "Add live factory runtime OpenSpec change") as one of the repo's earliest proposals; the ideation/staging pipeline did not exist until 2026-07-08, so no staged source could have existed.
+  approved_by: Brett
+  approved_on: 2026-06-26

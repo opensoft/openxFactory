@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-07-08
+origin:
+  kind: staged
+  id: openxFactory:staging:doc-health-checks
+  path: ideation/staging/doc-health-checks

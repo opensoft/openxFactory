@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-07-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-08-lifecycle-notebook-projection
+  reason: Proposed directly (commit 52fd6aa, "Propose lifecycle notebook projection OpenSpec change") to regularize an existing NotebookLM pilot, roughly one hour after the sibling change that itself created the ideation/staging convention; no staged topic existed for it.
+  approved_by: Brett
+  approved_on: 2026-07-08

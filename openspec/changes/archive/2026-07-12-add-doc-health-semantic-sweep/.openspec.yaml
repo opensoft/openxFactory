@@ -1,2 +1,6 @@
 schema: spec-driven
 created: 2026-07-09
+origin:
+  kind: staged
+  id: openxFactory:staging:semantic-health-sweep
+  path: ideation/staging/semantic-health-sweep

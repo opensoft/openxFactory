@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-07-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-12-clarify-avatar-revocation-client-enforced
+  reason: Contract-first governance change disposing the F0-D revocation finding directly from qualify-avatar-brokered-call-feasibility evidence (kernel-owner ruling 2026-07-12); no staged topic existed for this narrow clarification.
+  approved_by: Brett
+  approved_on: 2026-07-12

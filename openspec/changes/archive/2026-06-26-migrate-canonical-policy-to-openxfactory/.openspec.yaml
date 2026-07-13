@@ -3,3 +3,9 @@ created: 2026-06-26
 goal: Use OpenSpec, Hermes governance, Omnigent/Polly orchestration, Spec Kit
   slices, PR admission, merge council, and GitHub PRs to migrate canonical
   material into openxFactory without bulk direct reshuffling.
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-06-26-migrate-canonical-policy-to-openxfactory
+  reason: Authored directly by Brett Heap ("Add OpenSpec content migration proposal") as one of the repo's earliest proposals, before the ideation/staging pipeline existed (introduced 2026-07-08).
+  approved_by: Brett
+  approved_on: 2026-06-26

@@ -3,3 +3,9 @@ created: 2026-06-26
 goal: Use the repo boundary audit and pilot plan to govern a low-risk, doc-first
   migration of canonical policy, contracts, install repo scope links, and future
   submodule pins.
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-06-26-restructure-factory-repo-boundaries
+  reason: This is the repository's first-ever OpenSpec change (commit ffded73, "Add OpenSpec repo boundary proposal"), which introduced the OpenSpec tooling itself; no staging pipeline could have existed yet.
+  approved_by: Brett
+  approved_on: 2026-06-26

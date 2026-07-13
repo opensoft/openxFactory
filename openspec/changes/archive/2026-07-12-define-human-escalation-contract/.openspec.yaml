@@ -1,2 +1,8 @@
 schema: spec-driven
 created: 2026-07-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-12-define-human-escalation-contract
+  reason: Direct fix of a dangling gap in the canonical roles doc (undefined HR consultation reference), authored directly (commit aacd932, "Propose define-human-escalation-contract"); no staged topic existed for it.
+  approved_by: Brett
+  approved_on: 2026-07-12

@@ -1,2 +1,8 @@
 schema: spec-driven
 created: 2026-07-09
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-09-proposal-support-lifecycle-bootstrap
+  reason: The origin contract did not exist when this bootstrap change was created
+  approved_by: Brett
+  approved_on: 2026-07-09

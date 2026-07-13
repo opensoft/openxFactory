@@ -1,2 +1,8 @@
 schema: spec-driven
 created: 2026-07-02
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-02-customer-memory-gateway-architecture
+  reason: Architecture proposal authored directly (git history traces to "Define xFactory memory gateway taxonomy", 2026-07-03), before the ideation/staging pipeline existed (introduced 2026-07-08); tasks.md records retrospective approval of tasks completed ahead of archive.
+  approved_by: Brett
+  approved_on: 2026-07-02
