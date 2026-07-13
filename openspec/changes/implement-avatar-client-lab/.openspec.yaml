@@ -1,0 +1,12 @@
+schema: spec-driven
+created: 2026-07-13
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-13-implement-avatar-client-lab
+  reason: >-
+    Successor to the avatar-client kernel/runtime/UI realization. Creates the
+    private Flutter avatar client as an offline, deterministic UI lab (F1-F4).
+    Named in the avatar-client parallel-workstream plan; scoped in the v1
+    brainstorm.
+  approved_by: Brett
+  approved_on: 2026-07-13

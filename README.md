@@ -210,14 +210,21 @@ Active changes:
   F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
   realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
   archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
+- [implement-avatar-client-lab](openspec/changes/implement-avatar-client-lab/proposal.md)
+  — the offline, deterministic **Flutter avatar client UI lab** (slices F1–F4):
+  adaptive shell, deterministic session states, service intake, and governed-action
+  cards, driven entirely by replayed fixtures with no live model/voice/WebRTC/broker.
+  Consumes `contract-v1.7` + `contract-v1.8` by content address; the Flutter app lives
+  in the private `xfactory-avatar-client` repo. Awaiting ratify gate
+
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
-2026-07-13 (below); **only F0 feasibility remains active** — its evidence is
-resolved by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it
-would break the fail-closed F0 gate or force a `contract-v1.7` re-tag. Client
-implementation, live provider qualification, and pilot hardening remain in
-`implement-avatar-client-lab`, `qualify-avatar-live-voice`, and
+2026-07-13 (below); **F0 feasibility and the client lab are active** — F0's evidence
+is resolved by the realized kernel's `interface-lock.yaml` F0 pin (archiving it would
+break the fail-closed F0 gate or force a `contract-v1.7` re-tag), and the client lab
+awaits its ratify gate. Live provider qualification and pilot hardening remain in
+`qualify-avatar-live-voice` and
 `avatar-pilot-hardening`.
 
 Archived changes:
