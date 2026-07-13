@@ -204,32 +204,37 @@ Active changes:
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
   bounded ideation-organizer lane; implementation follows document cataloging
-- [define-avatar-client-contract-kernel](openspec/changes/define-avatar-client-contract-kernel/proposal.md)
-  — staged-origin owner of the reviewed avatar packet and canonical
-  eight-contract AVC kernel, registries, fixtures, validation, release, and
-  repository-boundary rules
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
   readiness, revocation, redacted evidence, and contract interface impacts;
-  F0 does not qualify live use
-- [implement-avatar-reference-runtime](openspec/changes/implement-avatar-reference-runtime/proposal.md)
-  — non-deployable deterministic broker/control reference with injected ports,
-  fail-closed authority fixtures, race/recovery tests, and exact-kernel
-  conformance
+  F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
+  realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
+  archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
 - [align-avatar-first-ui-standard](openspec/changes/align-avatar-first-ui-standard/proposal.md)
   — avatar-first standard, domain profile carrier, template, examples, and
-  offline validator; Flutter implementation remains a successor
+  offline validator; Flutter implementation remains a successor. **Realized
+  (`contract-v1.8`); pending archive** until its acceptance map is relocated out of
+  the change supporting-docs (`validate-avatar-first-ui.py` reads it live)
 
-The four avatar-client changes use disjoint implementation surfaces and may be
-implemented in parallel; shared contract release metadata is serialized only
-at final integration. Contract publication requires F0 `PASS`; runtime and UI
-realization require final content-addressed kernel pins. Client
+The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
+standard (`contract-v1.8`) are realized. The contract kernel, the revocation
+clarification, and the reference runtime archived 2026-07-13 (below). Client
 implementation, live provider qualification, and pilot hardening remain in
 `implement-avatar-client-lab`, `qualify-avatar-live-voice`, and
 `avatar-pilot-hardening`.
 
 Archived changes:
 
+- [define-avatar-client-contract-kernel](openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/proposal.md)
+  — canonical eight-contract AVC kernel, registries, fixtures, validator, and
+  repository-boundary rules; realized as `contract-v1.7`, archived 2026-07-13
+- [clarify-avatar-revocation-client-enforced](openspec/changes/archive/2026-07-13-clarify-avatar-revocation-client-enforced/proposal.md)
+  — ACR-005 disposition: revocation is client-enforced within the 5 s bound;
+  archived 2026-07-13
+- [implement-avatar-reference-runtime](openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/proposal.md)
+  — non-deployable deterministic broker/control reference realized against
+  `contract-v1.7`, with archive-safe content-addressed conformance (FR-034a);
+  archived 2026-07-13
 - [define-human-escalation-contract](openspec/changes/archive/2026-07-12-define-human-escalation-contract/proposal.md)
   — route/park/interrupt escalation ladder with a deliberately high interrupt
   bar (containment failure only, cited classes), parked-decision packets at

@@ -17,11 +17,14 @@ from pathlib import Path
 
 import yaml
 
-# Provisional baseline acceptance source (read-only, sibling-owned).
+# Parallel-work baseline acceptance source (read-only, sibling-owned). The
+# avatar-client-parallel-v1 baseline map lived in the kernel change supporting-docs;
+# at realization the seam was disabled (ENABLED=False) and that source retired, so
+# this reads the released kernel acceptance map (same applicable ACR set), which is
+# stable across the change dirs archiving.
 _BASELINE = (
     Path(__file__).resolve().parents[3]
-    / "openspec/changes/define-avatar-client-contract-kernel"
-    / "supporting-docs/avatar-client-acceptance-map.yaml"
+    / "contracts/avatar-client/acceptance-map.yaml"
 )
 
 ENABLED = False  # disabled at contract-v1.7 realization (final conformance uses the released map)
