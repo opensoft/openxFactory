@@ -12,10 +12,11 @@ folders. Two structural gaps surfaced in the 2026-07-12 design session:
 candidate feats a cluster could spawn but has not yet ("possibles")
 evaporate into prose, and nothing lets a human assemble an arbitrary doc set
 and point tools at it when they see a pattern the machine clustering
-missed. All design questions are decided: D1–D9 locked in session (D7–D9,
-authoring authority, added in a follow-on session), R1–R14 confirmed
-unchanged by Brett on 2026-07-12. **Ratified by Brett on 2026-07-12**;
-active until realization evidence lands per the release-realization flow.
+missed. All design questions are decided: D1–D10 locked (D7–D9, authoring
+authority, added in a follow-on session; D10, the project grouping
+hierarchy, added 2026-07-13 by Brett), R1–R14 confirmed unchanged by Brett
+on 2026-07-12. **Ratified by Brett on 2026-07-12**; active until
+realization evidence lands per the release-realization flow.
 
 ## What Changes
 
@@ -54,6 +55,13 @@ active until realization evidence lands per the release-realization flow.
   committing the snapshot beside the dated reports; no new check family —
   strict snapshot/manifest validation runs in the per-repo validator
   preflight.
+- Add the project grouping hierarchy (D10): a schema-versioned
+  `project-register` (neutral schema; instance owned by the
+  aggregation/workspace layer) maps repositories → projects (a project is
+  a set of repos) → project groups; the generator resolves the mapping
+  into `project`/`project_group` snapshot fields and renderers offer
+  repo/project/group roll-ups. Descriptive navigation only — no lifecycle
+  or authority semantics; unregistered repositories render ungrouped.
 - Delivery per the confirmed rows: local generate-and-open command plus the
   nightly lane; v0 is the HTML funnel/board grown from the staged mockup
   skeleton; nightly + on-demand regeneration only.
@@ -63,10 +71,12 @@ active until realization evidence lands per the release-realization flow.
 ### New Capabilities
 
 - `ideation-dashboard`: Defines the snapshot projection contract, the
-  realization funnel model, the workbench reference-set contract and
-  persistence rules, the permanent interactivity boundary, per-actor
-  authoring authority (human create/edit, agent create-only, notebook
-  set-removal semantics), and delivery/regeneration.
+  realization funnel model, the project grouping hierarchy
+  (repos → projects → project groups via the project register), the
+  workbench reference-set contract and persistence rules, the permanent
+  interactivity boundary, per-actor authoring authority (human
+  create/edit, agent create-only, notebook set-removal semantics), and
+  delivery/regeneration.
 
 ### Modified Capabilities
 

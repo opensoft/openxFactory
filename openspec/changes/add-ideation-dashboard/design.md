@@ -79,6 +79,21 @@ itself), so it does not touch the contested check-family enumeration.
   byproduct.
 - **Nightly + on-demand regeneration only** (R14): no per-commit
   regeneration in v1.
+- **Project grouping hierarchy** (D10, added 2026-07-13 by Brett): the
+  family's navigation concept is repos → **projects** → **project groups**
+  — a project is a named set of repositories (roughly tying to repos, e.g.
+  the xFactory project spans the nine family repos), and project groups
+  group projects. The mapping lives in one small schema-versioned
+  **project register** (`kind: project-register`; schema neutral in
+  openxFactory, the instance owned by the aggregation/workspace layer —
+  the layer that already owns which repos assemble together). The
+  generator resolves each snapshot's `repository` through the register
+  into `project` and `project_group` fields; renderers offer
+  repo/project/group roll-up on the funnel, pipeline, and stats views.
+  Grouping is descriptive navigation only — it carries no lifecycle or
+  authority semantics, and a repository absent from the register renders
+  ungrouped rather than failing. This concretizes the "aggregation
+  roll-up" the snapshot contract already kept additive.
 - **Hosting = the internal xForge host** (Option C, decided 2026-07-13):
   the static renderer and the nightly-committed snapshot are served from
   the existing access-controlled internal host behind `*.xforge.us` — the

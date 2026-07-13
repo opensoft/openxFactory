@@ -12,6 +12,7 @@
 - [ ] 2.3 Define the possibles-register consolidation contract in the cross-reference index: `Possible feats:` ingestion, states `latent/picked/rejected/superseded`, reason + citation requirements, pick edges citing staging IDs and inheriting change IDs at the proposal gate.
 - [ ] 2.4 Add valid and invalid examples (multi-cluster possible, cited rejection, uncited rejection failing, pick edge inheritance, ad-hoc human-seen cluster submission) and a strict validator for snapshot, workbench manifest, and register transitions wired into the per-repo validator preflight; add `ideation/workbench/` to the repo gitignore with committed-manifest detection.
 - [ ] 2.5 Register the schemas in `contracts/manifest.yaml`, reconcile `contracts/CHANGELOG.md`, and update ideation guidance (`Possible feats:` seeding in the README header-format section) referencing promoted requirements without duplicating them.
+- [ ] 2.6 Define the `project-register` schema (kind + schema_version; D10): named projects with repository membership, project groups with project membership; valid/invalid examples (multi-repo project, ungrouped repository, empty group rejected) and validator wiring alongside 2.4; the register instance lands in the aggregation/workspace repo, not openxFactory.
 
 ## 3. Generator And Renderers (codexFactory)
 
@@ -22,6 +23,7 @@
 - [ ] 3.5 Implement human-seen-cluster submission under the full organizer/cataloger evidence contract with `pending_review` disposition.
 - [ ] 3.6 Implement human authoring: a create action scaffolding a header-compliant doc (H1, Status, Kind, Summary, Topics, Repository context, Captured pre-filled) into the chosen ideation area, and select-to-edit opening any listed doc in the human's editor; the dashboard itself never rewrites content.
 - [ ] 3.7 Enforce agent create-only authority: any agent write path can add new corpus docs with required headers but MUST reject and report edits or deletions of existing docs; notebook doc/source deletion drops the set reference only (workbench manifests) while lifecycle projections restore their sets on the next sync.
+- [ ] 3.8 Implement project grouping (D10): generator resolves `repository` → `project` → `project_group` from the project register into the snapshot; renderer adds repo/project/group roll-up controls to the funnel, pipeline board, and stats strip, with ungrouped repositories rendering as their own implicit project.
 
 ## 4. Nightly Lane (xFactory aggregation)
 
@@ -30,5 +32,5 @@
 
 ## 5. Tests And Records
 
-- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no automated writes to `ideation/staging/` or existing source docs); scaffold header compliance; agent edit/delete rejection and reporting; notebook set-removal leaves the corpus doc intact and projections restore on sync; funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection.
+- [ ] 5.1 Tests: snapshot and manifest schema validation; determinism; register transitions (uncited rejected/superseded fails); boundary (generator and workbench actions write only under their own output paths; no automated writes to `ideation/staging/` or existing source docs); scaffold header compliance; agent edit/delete rejection and reporting; notebook set-removal leaves the corpus doc intact and projections restore on sync; funnel fixtures from the R4 backfill; orphan-sweep removal of unbound `xf-wb-*` notebooks; committed workbench manifest detection; project-register validation and grouping roll-up (multi-repo project aggregation, ungrouped repository fallback, group tallies).
 - [ ] 5.2 Obtain realization evidence (green nightly snapshot lane plus a working local generate-and-open run) and keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.

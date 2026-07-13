@@ -48,6 +48,26 @@ from the same snapshot.
 - **WHEN** the cross-reference index carries tier scores or conflict flags for a topic
 - **THEN** the readiness heat view MUST render them from the snapshot verbatim, without re-scoring
 
+### Requirement: Project grouping hierarchy
+The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and rendered as repo/project/group roll-ups on the funnel, pipeline, and stats views. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
+
+#### Scenario: A project spans several repositories
+- **WHEN** the project register maps more than one repository to a project
+- **THEN** the project roll-up MUST aggregate those repositories' snapshot entries under one project heading
+- **AND** per-repository detail remains reachable beneath it
+
+#### Scenario: Projects roll up into a project group
+- **WHEN** the register assigns projects to a project group
+- **THEN** the group view MUST aggregate its member projects' tallies from the snapshot
+
+#### Scenario: A repository is absent from the register
+- **WHEN** a snapshot's `repository` has no register entry
+- **THEN** it MUST render ungrouped (its own implicit project) without failing the dashboard
+
+#### Scenario: The register changes
+- **WHEN** the project register is edited
+- **THEN** grouping updates only through snapshot regeneration — rendered grouping is never hand-edited
+
 ### Requirement: Workbench reference sets
 The dashboard SHALL provide a workbench: user-assembled temporary reference
 sets of documents, seeded from a cluster card or ad-hoc from the doc list,
