@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.7
+contract_bundle_version: contract-v1.8
 source_compatibility_ref:
   repo: opensoft/Omnigent-Install
   local_source_path: /home/brett/projects/Agents/Omnigent-Install
@@ -117,6 +117,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/avatar-first-ui-profile.schema.yaml
     type: schema
     schema_version: 1
+    sha256: fcf0c08fcaebe0539d05b23986e899cfb2180e1c19ee0ad18725c7d28bb88362  # contract-v1.8 (AVC-kernel-aligned)
     intended_consumers:
       - domain factory frontends
       - domain starter generator

@@ -131,7 +131,9 @@ class and a negative fixture (D10; final list in
 `AFUV-CONTROL-FALLBACK-MISSING`, `AFUV-PERSONA-UNRESOLVED`, `AFUV-MODE-RESERVED`,
 `AFUV-UNSAFE-RENDER`, `AFUV-PURPOSE-INVALID`, `AFUV-HELD-ANSWER-ACTIVE`,
 `AFUV-RETENTION-UNRESOLVED` (nine enforced rule classes), plus
-parity/structure IDs (`AFUV-PARITY-*`, `AFUV-SCHEMA-*`).
+parity/structure IDs (`AFUV-PARITY-*`, `AFUV-SCHEMA-*`) and the
+realization-drift ID `AFUV-RUNTIME-DRIFT` (`--mode realization`: released kernel
+drift or a profile `runtime_compatibility` content-addressing failure).
 
 ## State note
 

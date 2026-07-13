@@ -1,6 +1,7 @@
 # Avatar-First UI Standard
 
-Status: draft
+Status: ratified
+Ratified by: align-avatar-first-ui-standard
 Kind: architecture
 Repository context: openxFactory
 Purpose: define the reusable user interface model for xFactories where an AI

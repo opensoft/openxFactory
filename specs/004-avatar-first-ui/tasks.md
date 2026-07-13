@@ -159,10 +159,10 @@ kernel/reference-runtime/F0/DomainxFactory/Flutter/deployment file changed.
 
 ### Implementation for User Story 4 (deferred)
 
-- [ ] T030 [US4] (GATED) Consume any accepted kernel variances through mapped UI fields only in `contracts/schemas/avatar-first-ui-profile.schema.yaml` and affected `examples/avatar-first-ui/fixtures/` — no sibling kernel path edited — per spec §US4
-- [ ] T031 [US4] (GATED) Set `runtime_compatibility` released coordinates (bundle tag + exact commit + registry/interface-lock digests) and run `python3 scripts/validate-avatar-first-ui.py --mode realization`, failing closed on any drift, per spec §FR-021/§FR-025
-- [ ] T032 [US4] (GATED) Rebase to the latest bundle, allocate the next available `contract_bundle_version` at realization (never pre-reserved), and update `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, and `contracts/README.md` atomically for the profile-schema revision + publish the matching annotated `contract-v<major>.<minor>` tag per spec §FR-024/Constitution §VI
-- [ ] T033 [US4] (GATED) Run `git status --porcelain` and `git diff --stat` to confirm no kernel (`contracts/avatar-client/**`)/reference-runtime/F0/DomainxFactory/Flutter/deployment file changed by the release commit (ownership cross-check) per spec §SC-007
+- [X] T030 [US4] (GATED) Consume any accepted kernel variances through mapped UI fields only in `contracts/schemas/avatar-first-ui-profile.schema.yaml` and affected `examples/avatar-first-ui/fixtures/` — no sibling kernel path edited — per spec §US4
+- [X] T031 [US4] (GATED) Set `runtime_compatibility` released coordinates (bundle tag + exact commit + registry/interface-lock digests) and run `python3 scripts/validate-avatar-first-ui.py --mode realization`, failing closed on any drift, per spec §FR-021/§FR-025
+- [X] T032 [US4] (GATED) Rebase to the latest bundle, allocate the next available `contract_bundle_version` at realization (never pre-reserved), and update `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, and `contracts/README.md` atomically for the profile-schema revision + publish the matching annotated `contract-v<major>.<minor>` tag per spec §FR-024/Constitution §VI
+- [X] T033 [US4] (GATED) Run `git status --porcelain` and `git diff --stat` to confirm no kernel (`contracts/avatar-client/**`)/reference-runtime/F0/DomainxFactory/Flutter/deployment file changed by the release commit (ownership cross-check) per spec §SC-007
 
 **Checkpoint**: Serialized release lands atomically after the kernel — gated, not runnable during parallel work.
 
@@ -173,7 +173,7 @@ kernel/reference-runtime/F0/DomainxFactory/Flutter/deployment file changed.
 **Purpose**: Doc-index linkage, lifecycle status, and the full offline gate.
 
 - [X] T034 [P] Update `examples/avatar-first-ui/README.md` and the repository `README.md` doc index to reference the new fixtures area per Constitution §IV
-- [ ] T035 Set the standard's lifecycle header in `docs/avatar-first-ui-standard.md` to `Status: ratified` + `Ratified by: align-avatar-first-ui-standard` at the ratify/landing gate (deliberate transition, not a silent edit) per Constitution §III
+- [X] T035 Set the standard's lifecycle header in `docs/avatar-first-ui-standard.md` to `Status: ratified` + `Ratified by: align-avatar-first-ui-standard` at the ratify/landing gate (deliberate transition, not a silent edit) per Constitution §III
 - [X] T036 Run the full offline gate per quickstart.md: `python3 scripts/validate-avatar-first-ui.py` (baseline), `OPENSPEC_TELEMETRY=0 openspec validate align-avatar-first-ui-standard --strict` and `--all --strict`, acceptance-map parity, and `git diff --check` — all green per spec §SC-008
 - [X] T037 Run the ownership-boundary cross-check (`git status --porcelain`): confirm changes are limited to the five owned artifacts + `examples/avatar-first-ui/fixtures/` during parallel work per spec §SC-007
 

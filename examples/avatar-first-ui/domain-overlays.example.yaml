@@ -69,6 +69,30 @@ examples:
       url_carries_no_secret: true
     runtime_compatibility:
       baseline_identity: avatar-client-parallel-v1
+      # Realized against the released avatar-client kernel (contract-v1.7).
+      # released_tag pins the consumed KERNEL bundle, not this profile's own bundle.
+      released_tag: contract-v1.7
+      released_commit: ddff475f758f23cb11fbfc9a6d5bc352a810f916
+      released_digests:
+        contracts/avatar-client/interface-lock.yaml: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+        contracts/avatar-client/registries/consent-purposes.registry.yaml: d4083d41e09121ff37ef799d0b093a61aad40c662a23543273b09f04145ab4fb
+        contracts/avatar-client/registries/interaction-modes.registry.yaml: f5283be3a4cf2f6cc384ed44d5d8811c6028954fea605d67b6f982d16d8e396f
+        contracts/avatar-client/registries/session-outcomes.registry.yaml: 0a505c2eb05609f313bca2c573af39061825866778bb74024dd363e715716cf1
+        contracts/avatar-client/registries/session-result-reasons.registry.yaml: 8437ecef36a5a470f0a22e92260d0272182e9dc4b2bed9b7660c0f7b06fe2834
+        contracts/avatar-client/registries/fallback-modes.registry.yaml: d3ba146d8d276d3894d29a035c8b73a1e612769cead5b57c4b1050288186f39d
+        contracts/avatar-client/registries/retention-classes.registry.yaml: f41250422ef35fed9f821cb88647428ec42933fdd2d728ea1fa24537979d5c5b
+        contracts/avatar-client/registries/capabilities.registry.yaml: bbce9ffdb037da046dc5c6829763be68b319a4689551605cd52c5bfacffd5ea7
+        contracts/avatar-client/registries/commands.registry.yaml: 0d0c6080e7b7def15a90f58b4a203c4eb76e209f597a0e226190d507c5214f28
+        contracts/avatar-client/registries/events.registry.yaml: a436fcc0406ecdeb4f3a505403b08592c0eded917dfd8ee646dcb87b6ae4be7f
+        contracts/avatar-client/shared-definitions.schema.yaml: a69d4b736bd65a517739f7d4ede514bb5a72634e9bb9690b27949e7ab19057ad
+        contracts/avatar-client/avc-01-session-request.schema.yaml: 9c8c3e4079a6cf5b94c0dd829a2ad72a7fb3f51c2627ad17376d9c240c2c82f2
+        contracts/avatar-client/avc-02-session-result.schema.yaml: 9787776324ec3a28235de6d0c1062e0901a1b5871877f56c165999986f0753bd
+        contracts/avatar-client/avc-04-session-event.schema.yaml: 72a69b7f6b87740eec9ae4ef1838aea307494412d45db9b7ea0f972d5e969e7d
+        contracts/avatar-client/avc-06-structured-confirmation.schema.yaml: 572e1339bc8105d5581bd75e2804121e24a7c55d19d39cbc2db194b4f3f3f9bc
+        contracts/avatar-client/avc-07-retention-profile.schema.yaml: bea72a48c83b7dd15f9cd5e68e8ebd8c9965c05cd5e3be7f19a6277007aa1005
+        contracts/avatar-client/avc-08-persona-profile.schema.yaml: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
+        contracts/avatar-client/avc-11-session-command.schema.yaml: 26eeb1cce04c46e3ac4637537303083eb04c79348ff5a9982cd6b36321add21e
+        contracts/avatar-client/avc-12-state-snapshot.schema.yaml: e06d464689c4003df7ec41f67769caf33debc90e50bf084ec8e1345d9c88d3c7
     domain_overlay:
       persona_roles: [neutral_guide]
       handoff_roles: [accountable_human, support_operator]
@@ -131,6 +155,30 @@ examples:
       url_carries_no_secret: true
     runtime_compatibility:
       baseline_identity: avatar-client-parallel-v1
+      # Realized against the released avatar-client kernel (contract-v1.7).
+      # released_tag pins the consumed KERNEL bundle, not this profile's own bundle.
+      released_tag: contract-v1.7
+      released_commit: ddff475f758f23cb11fbfc9a6d5bc352a810f916
+      released_digests:
+        contracts/avatar-client/interface-lock.yaml: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+        contracts/avatar-client/registries/consent-purposes.registry.yaml: d4083d41e09121ff37ef799d0b093a61aad40c662a23543273b09f04145ab4fb
+        contracts/avatar-client/registries/interaction-modes.registry.yaml: f5283be3a4cf2f6cc384ed44d5d8811c6028954fea605d67b6f982d16d8e396f
+        contracts/avatar-client/registries/session-outcomes.registry.yaml: 0a505c2eb05609f313bca2c573af39061825866778bb74024dd363e715716cf1
+        contracts/avatar-client/registries/session-result-reasons.registry.yaml: 8437ecef36a5a470f0a22e92260d0272182e9dc4b2bed9b7660c0f7b06fe2834
+        contracts/avatar-client/registries/fallback-modes.registry.yaml: d3ba146d8d276d3894d29a035c8b73a1e612769cead5b57c4b1050288186f39d
+        contracts/avatar-client/registries/retention-classes.registry.yaml: f41250422ef35fed9f821cb88647428ec42933fdd2d728ea1fa24537979d5c5b
+        contracts/avatar-client/registries/capabilities.registry.yaml: bbce9ffdb037da046dc5c6829763be68b319a4689551605cd52c5bfacffd5ea7
+        contracts/avatar-client/registries/commands.registry.yaml: 0d0c6080e7b7def15a90f58b4a203c4eb76e209f597a0e226190d507c5214f28
+        contracts/avatar-client/registries/events.registry.yaml: a436fcc0406ecdeb4f3a505403b08592c0eded917dfd8ee646dcb87b6ae4be7f
+        contracts/avatar-client/shared-definitions.schema.yaml: a69d4b736bd65a517739f7d4ede514bb5a72634e9bb9690b27949e7ab19057ad
+        contracts/avatar-client/avc-01-session-request.schema.yaml: 9c8c3e4079a6cf5b94c0dd829a2ad72a7fb3f51c2627ad17376d9c240c2c82f2
+        contracts/avatar-client/avc-02-session-result.schema.yaml: 9787776324ec3a28235de6d0c1062e0901a1b5871877f56c165999986f0753bd
+        contracts/avatar-client/avc-04-session-event.schema.yaml: 72a69b7f6b87740eec9ae4ef1838aea307494412d45db9b7ea0f972d5e969e7d
+        contracts/avatar-client/avc-06-structured-confirmation.schema.yaml: 572e1339bc8105d5581bd75e2804121e24a7c55d19d39cbc2db194b4f3f3f9bc
+        contracts/avatar-client/avc-07-retention-profile.schema.yaml: bea72a48c83b7dd15f9cd5e68e8ebd8c9965c05cd5e3be7f19a6277007aa1005
+        contracts/avatar-client/avc-08-persona-profile.schema.yaml: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
+        contracts/avatar-client/avc-11-session-command.schema.yaml: 26eeb1cce04c46e3ac4637537303083eb04c79348ff5a9982cd6b36321add21e
+        contracts/avatar-client/avc-12-state-snapshot.schema.yaml: e06d464689c4003df7ec41f67769caf33debc90e50bf084ec8e1345d9c88d3c7
     domain_overlay:
       persona_roles: [neutral_copilot]
       handoff_roles: [accountable_human, domain_specialist]
@@ -192,6 +240,30 @@ examples:
       url_carries_no_secret: true
     runtime_compatibility:
       baseline_identity: avatar-client-parallel-v1
+      # Realized against the released avatar-client kernel (contract-v1.7).
+      # released_tag pins the consumed KERNEL bundle, not this profile's own bundle.
+      released_tag: contract-v1.7
+      released_commit: ddff475f758f23cb11fbfc9a6d5bc352a810f916
+      released_digests:
+        contracts/avatar-client/interface-lock.yaml: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+        contracts/avatar-client/registries/consent-purposes.registry.yaml: d4083d41e09121ff37ef799d0b093a61aad40c662a23543273b09f04145ab4fb
+        contracts/avatar-client/registries/interaction-modes.registry.yaml: f5283be3a4cf2f6cc384ed44d5d8811c6028954fea605d67b6f982d16d8e396f
+        contracts/avatar-client/registries/session-outcomes.registry.yaml: 0a505c2eb05609f313bca2c573af39061825866778bb74024dd363e715716cf1
+        contracts/avatar-client/registries/session-result-reasons.registry.yaml: 8437ecef36a5a470f0a22e92260d0272182e9dc4b2bed9b7660c0f7b06fe2834
+        contracts/avatar-client/registries/fallback-modes.registry.yaml: d3ba146d8d276d3894d29a035c8b73a1e612769cead5b57c4b1050288186f39d
+        contracts/avatar-client/registries/retention-classes.registry.yaml: f41250422ef35fed9f821cb88647428ec42933fdd2d728ea1fa24537979d5c5b
+        contracts/avatar-client/registries/capabilities.registry.yaml: bbce9ffdb037da046dc5c6829763be68b319a4689551605cd52c5bfacffd5ea7
+        contracts/avatar-client/registries/commands.registry.yaml: 0d0c6080e7b7def15a90f58b4a203c4eb76e209f597a0e226190d507c5214f28
+        contracts/avatar-client/registries/events.registry.yaml: a436fcc0406ecdeb4f3a505403b08592c0eded917dfd8ee646dcb87b6ae4be7f
+        contracts/avatar-client/shared-definitions.schema.yaml: a69d4b736bd65a517739f7d4ede514bb5a72634e9bb9690b27949e7ab19057ad
+        contracts/avatar-client/avc-01-session-request.schema.yaml: 9c8c3e4079a6cf5b94c0dd829a2ad72a7fb3f51c2627ad17376d9c240c2c82f2
+        contracts/avatar-client/avc-02-session-result.schema.yaml: 9787776324ec3a28235de6d0c1062e0901a1b5871877f56c165999986f0753bd
+        contracts/avatar-client/avc-04-session-event.schema.yaml: 72a69b7f6b87740eec9ae4ef1838aea307494412d45db9b7ea0f972d5e969e7d
+        contracts/avatar-client/avc-06-structured-confirmation.schema.yaml: 572e1339bc8105d5581bd75e2804121e24a7c55d19d39cbc2db194b4f3f3f9bc
+        contracts/avatar-client/avc-07-retention-profile.schema.yaml: bea72a48c83b7dd15f9cd5e68e8ebd8c9965c05cd5e3be7f19a6277007aa1005
+        contracts/avatar-client/avc-08-persona-profile.schema.yaml: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
+        contracts/avatar-client/avc-11-session-command.schema.yaml: 26eeb1cce04c46e3ac4637537303083eb04c79348ff5a9982cd6b36321add21e
+        contracts/avatar-client/avc-12-state-snapshot.schema.yaml: e06d464689c4003df7ec41f67769caf33debc90e50bf084ec8e1345d9c88d3c7
     domain_overlay:
       persona_roles: [neutral_analyst]
       handoff_roles: [governance_council, domain_specialist]
@@ -267,6 +339,30 @@ examples:
       url_carries_no_secret: true
     runtime_compatibility:
       baseline_identity: avatar-client-parallel-v1
+      # Realized against the released avatar-client kernel (contract-v1.7).
+      # released_tag pins the consumed KERNEL bundle, not this profile's own bundle.
+      released_tag: contract-v1.7
+      released_commit: ddff475f758f23cb11fbfc9a6d5bc352a810f916
+      released_digests:
+        contracts/avatar-client/interface-lock.yaml: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+        contracts/avatar-client/registries/consent-purposes.registry.yaml: d4083d41e09121ff37ef799d0b093a61aad40c662a23543273b09f04145ab4fb
+        contracts/avatar-client/registries/interaction-modes.registry.yaml: f5283be3a4cf2f6cc384ed44d5d8811c6028954fea605d67b6f982d16d8e396f
+        contracts/avatar-client/registries/session-outcomes.registry.yaml: 0a505c2eb05609f313bca2c573af39061825866778bb74024dd363e715716cf1
+        contracts/avatar-client/registries/session-result-reasons.registry.yaml: 8437ecef36a5a470f0a22e92260d0272182e9dc4b2bed9b7660c0f7b06fe2834
+        contracts/avatar-client/registries/fallback-modes.registry.yaml: d3ba146d8d276d3894d29a035c8b73a1e612769cead5b57c4b1050288186f39d
+        contracts/avatar-client/registries/retention-classes.registry.yaml: f41250422ef35fed9f821cb88647428ec42933fdd2d728ea1fa24537979d5c5b
+        contracts/avatar-client/registries/capabilities.registry.yaml: bbce9ffdb037da046dc5c6829763be68b319a4689551605cd52c5bfacffd5ea7
+        contracts/avatar-client/registries/commands.registry.yaml: 0d0c6080e7b7def15a90f58b4a203c4eb76e209f597a0e226190d507c5214f28
+        contracts/avatar-client/registries/events.registry.yaml: a436fcc0406ecdeb4f3a505403b08592c0eded917dfd8ee646dcb87b6ae4be7f
+        contracts/avatar-client/shared-definitions.schema.yaml: a69d4b736bd65a517739f7d4ede514bb5a72634e9bb9690b27949e7ab19057ad
+        contracts/avatar-client/avc-01-session-request.schema.yaml: 9c8c3e4079a6cf5b94c0dd829a2ad72a7fb3f51c2627ad17376d9c240c2c82f2
+        contracts/avatar-client/avc-02-session-result.schema.yaml: 9787776324ec3a28235de6d0c1062e0901a1b5871877f56c165999986f0753bd
+        contracts/avatar-client/avc-04-session-event.schema.yaml: 72a69b7f6b87740eec9ae4ef1838aea307494412d45db9b7ea0f972d5e969e7d
+        contracts/avatar-client/avc-06-structured-confirmation.schema.yaml: 572e1339bc8105d5581bd75e2804121e24a7c55d19d39cbc2db194b4f3f3f9bc
+        contracts/avatar-client/avc-07-retention-profile.schema.yaml: bea72a48c83b7dd15f9cd5e68e8ebd8c9965c05cd5e3be7f19a6277007aa1005
+        contracts/avatar-client/avc-08-persona-profile.schema.yaml: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
+        contracts/avatar-client/avc-11-session-command.schema.yaml: 26eeb1cce04c46e3ac4637537303083eb04c79348ff5a9982cd6b36321add21e
+        contracts/avatar-client/avc-12-state-snapshot.schema.yaml: e06d464689c4003df7ec41f67769caf33debc90e50bf084ec8e1345d9c88d3c7
     domain_overlay:
       persona_roles: [neutral_confirmer]
       handoff_roles: [accountable_human]

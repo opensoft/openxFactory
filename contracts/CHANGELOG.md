@@ -9,6 +9,38 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.8 — 2026-07-13 (additive; avatar-first UI profile-schema alignment)
+
+Second annotated-tag release. Realizes the **avatar-first UI standard alignment**
+(`align-avatar-first-ui-standard`), aligning the domain-neutral
+`avatar-first-ui-profile` schema to the released avatar-client (AVC) contract
+kernel. This release consumes the `contract-v1.7` kernel **read-only** — each
+profile's `runtime_compatibility` pins the kernel bundle tag, exact commit
+`ddff475`, and per-file registry/interface-lock SHA-256 digests; no kernel file
+is changed.
+
+Changed:
+
+- `contracts/schemas/avatar-first-ui-profile.schema.yaml` — AVC-aligned additive
+  OPTIONAL blocks with closed (fail-closed) defaults (`runtime_compatibility`,
+  `presentation`, `media`, `outcome_slots`, `fallback_slots`, `interaction_mode`,
+  `speech_gate`, `timing`, `consent_purpose_mappings`, `persona_reference`,
+  `retention_overlay`, `accessibility_baseline`, `handoff`). Top-level `required`
+  keys unchanged; backward compatible. Per-file SHA-256 recorded in
+  `contracts/manifest.yaml`.
+
+Governance:
+
+- Offline realization gate `scripts/validate-avatar-first-ui.py --mode realization`
+  loads the released kernel registries read-only and fails closed
+  (`AFUV-RUNTIME-DRIFT`) on any baseline drift or `runtime_compatibility`
+  digest/tag/commit mismatch. The standard doc is ratified
+  (`docs/avatar-first-ui-standard.md`; `Ratified by: align-avatar-first-ui-standard`).
+
+Consumers: DomainxFactory repos pin this bundle at the `contract-v1.8` tag and
+verify the profile-schema SHA-256 in `manifest.yaml` before treating a copy as
+current.
+
 ## contract-v1.7 — 2026-07-12 (additive; first annotated-tag release)
 
 First contract release published under mandatory annotated-tag enforcement

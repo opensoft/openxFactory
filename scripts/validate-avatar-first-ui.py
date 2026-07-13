@@ -23,6 +23,8 @@ IDs). See specs/004-avatar-first-ui/contracts/validator-rules.md.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -42,6 +44,9 @@ ERR_SCHEMA_SHAPE = "AFUV-SCHEMA-SHAPE"
 ERR_TEMPLATE_SHAPE = "AFUV-TEMPLATE-SHAPE"
 ERR_PARITY_EXAMPLE = "AFUV-PARITY-EXAMPLE"
 ERR_PARITY_ACCEPTANCE = "AFUV-PARITY-ACCEPTANCE"
+# Realization drift (--mode realization): released kernel diverged from the frozen
+# baseline mirror, or a profile's runtime_compatibility fails content-addressing.
+ERR_RUNTIME_DRIFT = "AFUV-RUNTIME-DRIFT"
 ERR_EVIDENCE_UNKNOWN = "AFUV-EVIDENCE-UNKNOWN"
 ERR_FIXTURE_EXPECT = "AFUV-FIXTURE-EXPECT"
 ERR_ACCESSIBILITY_INVALID = "AFUV-ACCESSIBILITY-INVALID"
@@ -138,6 +143,18 @@ TEMPLATE_PATH = ROOT / "templates" / "ui" / "avatar-first.yaml"
 EXAMPLES_PATH = ROOT / "examples" / "avatar-first-ui" / "domain-overlays.example.yaml"
 FIXTURES_DIR = ROOT / "examples" / "avatar-first-ui" / "fixtures"
 
+# Released avatar-client (AVC) kernel files read read-only at --mode realization
+# (FR-021/FR-025). The UI standard OWNS none of these; it verifies the frozen
+# baseline mirror against them and fails closed on drift.
+MANIFEST_PATH = ROOT / "contracts" / "manifest.yaml"
+AVC_DIR = ROOT / "contracts" / "avatar-client"
+RELEASED_INTERFACE_LOCK = AVC_DIR / "interface-lock.yaml"
+RELEASED_SHARED_DEFS = AVC_DIR / "shared-definitions.schema.yaml"
+RELEASED_AVC02 = AVC_DIR / "avc-02-session-result.schema.yaml"
+RELEASED_AVC12 = AVC_DIR / "avc-12-state-snapshot.schema.yaml"
+RELEASED_CONSENT = AVC_DIR / "registries" / "consent-purposes.registry.yaml"
+RELEASED_IMODES = AVC_DIR / "registries" / "interaction-modes.registry.yaml"
+
 REQUIRED_SCHEMA_BLOCKS = (
     "runtime_compatibility", "presentation", "media", "outcome_slots",
     "fallback_slots", "interaction_mode", "speech_gate", "timing",
@@ -166,21 +183,138 @@ def emit(errors: list[str], error_id: str, message: str) -> None:
     errors.append(f"{error_id} {message}")
 
 
+def digest_file(path: Path) -> str:
+    """sha256 over exact bytes — identical algorithm to validate-avatar-client.py."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def resolve_baseline(mode: str, errors: list[str]) -> dict[str, Any]:
     """Return the registry/ceiling baseline for the requested mode (read-only).
 
     baseline: the frozen avatar-client-parallel-v1 mirror above.
-    realization: load the exact released kernel registries and fail closed on
-    drift. The released registries do not exist during parallel work, so this
-    path is deferred to the serialized post-kernel release (US4/Phase 6).
+    realization: load the exact released kernel files read-only and VERIFY every
+    frozen-baseline claim against their actual bytes, failing closed
+    (AFUV-RUNTIME-DRIFT) on any divergence between the parallel mirror and the
+    released IDs/ceilings. Returns the verified baseline (identical to BASELINE
+    when there is no drift, so downstream per-profile verdicts are unchanged).
     """
     if mode == "realization":
-        emit(
-            errors, ERR_PARITY_ACCEPTANCE,
-            "realization mode requires the released kernel registries "
-            "(serialized post-kernel release, Phase 6) — not available in parallel work",
-        )
-        return BASELINE
+        return _verify_released_baseline(errors)
+    return BASELINE
+
+
+def _load_released(path: Path, errors: list[str]) -> dict[str, Any] | None:
+    if not path.exists():
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"released kernel file not found: {rel(path)} (cannot verify baseline — fail closed)")
+        return None
+    return load_yaml(path)
+
+
+def _verify_released_baseline(errors: list[str]) -> dict[str, Any]:
+    """Verify the frozen BASELINE mirror against the released kernel bytes.
+
+    This is a VERIFICATION pass, not an independent re-derivation: each frozen
+    claim (IDs, ceilings, reserved/allowed sets) is asserted against the exact
+    released files and any divergence fails closed. `timeouts_ms`,
+    `closed_defaults`, and `result_kinds` live under the interface-lock `frozen`
+    block (not the document root).
+    """
+    ilock = _load_released(RELEASED_INTERFACE_LOCK, errors)
+    consent = _load_released(RELEASED_CONSENT, errors)
+    imodes = _load_released(RELEASED_IMODES, errors)
+    shared = _load_released(RELEASED_SHARED_DEFS, errors)
+    avc02 = _load_released(RELEASED_AVC02, errors)
+    avc12 = _load_released(RELEASED_AVC12, errors)
+    if None in (ilock, consent, imodes, shared, avc02, avc12):
+        return BASELINE  # a missing file already emitted drift → whole run fails closed
+
+    defs = shared.get("$defs") or {}
+    frozen = ilock.get("frozen") or {}
+    closed = frozen.get("closed_defaults") or {}
+
+    # identity <- interface_baseline (document root)
+    if ilock.get("interface_baseline") != BASELINE["identity"]:
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"interface_baseline {ilock.get('interface_baseline')!r} != frozen {BASELINE['identity']!r}")
+
+    # consent_purposes <- registry members[].id, cross-checked to shared-definitions enum
+    reg_ids = [m.get("id") for m in (consent.get("members") or []) if isinstance(m, dict)]
+    enum_ids = (defs.get("consent_purpose") or {}).get("enum") or []
+    if sorted(reg_ids) != sorted(BASELINE["consent_purposes"]):  # set-equal (order is not semantic)
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"consent-purposes registry {sorted(reg_ids)} != frozen {sorted(BASELINE['consent_purposes'])}")
+    if sorted(enum_ids) != sorted(BASELINE["consent_purposes"]):
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"shared-definitions consent_purpose enum {sorted(enum_ids)} != frozen "
+             f"{sorted(BASELINE['consent_purposes'])}")
+
+    # timing <- interface-lock frozen.timeouts_ms
+    tmo = frozen.get("timeouts_ms") or {}
+    mr, hb = tmo.get("media_readiness") or {}, tmo.get("heartbeat_interval") or {}
+    lag = (tmo.get("lease_after_grant") or {}).get("max")
+    lah = (tmo.get("lease_after_heartbeat") or {}).get("max")
+    derived_timing = {
+        "readiness_ms": {"default": mr.get("default"), "min": mr.get("min"), "max": mr.get("max")},
+        "heartbeat_ms": {"min": hb.get("min"), "max": hb.get("max")},
+        # Both released lease ceilings must equal the single mirrored ceiling; max()
+        # would hide a tightening of one. When they diverge (or either changes), the
+        # non-scalar value below != the mirror's {"max": 10000} and drift fires.
+        "lease_ms": {"max": lag if lag == lah else {"lease_after_grant": lag, "lease_after_heartbeat": lah}},
+    }
+    if derived_timing != BASELINE["timing"]:
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"interface-lock frozen.timeouts_ms -> {derived_timing} != frozen timing {BASELINE['timing']}")
+
+    # speech gates <- shared-definitions speech_gate enum + interface-lock frozen.closed_defaults
+    gate_enum = (defs.get("speech_gate") or {}).get("enum") or []
+    for gate in BASELINE["speech_gates_reserved"]:
+        if gate not in gate_enum:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"reserved speech gate {gate!r} absent from released speech_gate enum {gate_enum}")
+        if gate not in closed:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"reserved speech gate {gate!r} not marked reserved in interface-lock closed_defaults")
+    for gate in BASELINE["speech_gates_allowed"]:
+        if gate not in gate_enum:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"allowed speech gate {gate!r} absent from released speech_gate enum {gate_enum}")
+
+    # interaction modes: neutral must be a released live mode; every reserved mode must NOT be live
+    live = [m.get("id") for m in (imodes.get("members") or []) if isinstance(m, dict)]
+    if BASELINE["interaction_mode_neutral"] not in live:
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"neutral interaction mode {BASELINE['interaction_mode_neutral']!r} not in released "
+             f"interaction-modes registry {live}")
+    for m in BASELINE["interaction_modes_reserved"]:
+        if m in live:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"reserved interaction mode {m!r} is now a released live mode {live} "
+                 f"(kernel promoted it; mirror is stale — fail closed)")
+    # Set-equality cross-check: the released live modes must match the interface-lock
+    # frozen declaration exactly (a new live mode, or a dropped one, is drift even if
+    # neutral-in / reserved-out still holds).
+    il_imodes = (frozen.get("registries") or {}).get("interaction-modes")
+    if isinstance(il_imodes, list) and sorted(live) != sorted(il_imodes):
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"interaction-modes registry {sorted(live)} != interface-lock "
+             f"frozen.registries.interaction-modes {sorted(il_imodes)}")
+
+    # avc02_results <- interface-lock frozen.result_kinds
+    if (frozen.get("result_kinds") or []) != BASELINE["avc02_results"]:
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"interface-lock result_kinds {frozen.get('result_kinds')} != frozen {BASELINE['avc02_results']}")
+
+    # presentation_modes + authoritative_axes <- avc-12
+    props12 = avc12.get("properties") or {}
+    pm_enum = (props12.get("presentation_mode") or {}).get("enum") or []
+    if sorted(pm_enum) != sorted(BASELINE["presentation_modes"]):
+        emit(errors, ERR_RUNTIME_DRIFT,
+             f"avc-12 presentation_mode enum {sorted(pm_enum)} != frozen {sorted(BASELINE['presentation_modes'])}")
+    for axis in BASELINE["authoritative_axes"]:
+        if axis not in props12:
+            emit(errors, ERR_RUNTIME_DRIFT, f"authoritative axis {axis!r} absent from avc-12 properties")
+
     return BASELINE
 
 
@@ -502,6 +636,94 @@ def validate_examples(errors: list[str], baseline: dict[str, Any]) -> None:
         check_profile(example, f"{rel(EXAMPLES_PATH)}#{profile.get('id', index)}", baseline, errors)
 
 
+def verify_released_runtime_compatibility(errors: list[str]) -> None:
+    """--mode realization (FR-021/FR-025): every released profile's
+    runtime_compatibility must pin EXACT content-addressed coordinates over the
+    FULL consumed kernel set. For each profile carrying released_* coordinates:
+    require a full 40-hex commit (no tag-only pin), the interface-lock anchor,
+    and set-completeness (every released schema/registry + interface-lock from
+    the manifest must be pinned — so the AVC schema structural guards cannot
+    relax silently); then triangulate each pinned entry
+    declared digest == manifest per-file sha256 == actual sha256(read_bytes).
+    Fail closed (AFUV-RUNTIME-DRIFT) on any missing/mismatched/omitted coordinate.
+
+    Note: `released_tag` pins the consumed KERNEL bundle (contract-v1.7, from the
+    interface-lock realized_stamp) — NOT this profile's own bundle version in
+    contracts/manifest.yaml. Do not "fix" this to the manifest header.
+    """
+    manifest = load_yaml(MANIFEST_PATH)
+    man_digest = {c.get("path"): c.get("sha256")
+                  for c in (manifest.get("contracts") or []) if isinstance(c, dict)}
+    ilock = load_yaml(RELEASED_INTERFACE_LOCK)
+    kernel_tag = ((ilock.get("completion_states") or {}).get("realized_stamp") or {}).get(
+        "contract_bundle_version")
+    anchor = rel(RELEASED_INTERFACE_LOCK)
+
+    data = load_yaml(EXAMPLES_PATH)
+    for index, example in enumerate(data.get("examples") or []):
+        if not isinstance(example, dict):
+            continue
+        rc = example.get("runtime_compatibility")
+        if not isinstance(rc, dict):
+            continue
+        if not any(k in rc for k in ("released_tag", "released_commit", "released_digests")):
+            continue  # parallel-baseline-pinned profile (baseline_identity only) — not a realization target
+        ctx = f"{rel(EXAMPLES_PATH)}#{(example.get('profile') or {}).get('id', index)}"
+
+        tag = rc.get("released_tag")
+        if tag != kernel_tag:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"{ctx}: released_tag {tag!r} must equal the released kernel bundle "
+                 f"{kernel_tag!r} (interface-lock realized_stamp)")
+        commit = rc.get("released_commit")
+        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit or ""):
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"{ctx}: released_commit must be a full 40-hex release commit SHA "
+                 f"(no tag-only pin), got {commit!r}")
+        digests = rc.get("released_digests")
+        if not isinstance(digests, dict) or not digests:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"{ctx}: released_digests must be a non-empty map of released "
+                 f"registry/interface-lock paths -> sha256")
+            continue
+        if anchor not in digests:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"{ctx}: released_digests must pin the interface-lock anchor {anchor}")
+        # Set-completeness: released_digests MUST content-address the full consumed
+        # kernel set (every schema/registry + interface-lock), derived from the
+        # manifest so the required set cannot itself drift. Without this, the AVC
+        # schema structural guards (avc-02 non_grant.not, avc-12 not-guards) would
+        # never be content-addressed and could relax silently through this gate.
+        required_paths = {
+            p for p in man_digest
+            if isinstance(p, str) and p.startswith("contracts/avatar-client/")
+            and (p.endswith(".schema.yaml") or "/registries/" in p
+                 or p.endswith("interface-lock.yaml"))
+        }
+        missing = sorted(required_paths - set(digests))
+        if missing:
+            emit(errors, ERR_RUNTIME_DRIFT,
+                 f"{ctx}: released_digests omits content-addressed kernel files {missing} "
+                 f"(set-completeness: every released schema/registry/interface-lock must be pinned)")
+        for path_str, declared in digests.items():
+            fpath = ROOT / path_str
+            if not fpath.exists():
+                emit(errors, ERR_RUNTIME_DRIFT,
+                     f"{ctx}: released_digests path {path_str} does not exist (fail closed)")
+                continue
+            actual = digest_file(fpath)
+            if declared != actual:
+                emit(errors, ERR_RUNTIME_DRIFT,
+                     f"{ctx}: released_digests[{path_str}] {declared!r} != actual sha256 {actual!r}")
+            man = man_digest.get(path_str)
+            if man is None:
+                emit(errors, ERR_RUNTIME_DRIFT,
+                     f"{ctx}: released_digests path {path_str} is not a manifest-pinned kernel file")
+            elif man != actual:
+                emit(errors, ERR_RUNTIME_DRIFT,
+                     f"{ctx}: manifest sha256 for {path_str} ({man!r}) != actual {actual!r}")
+
+
 ACCEPTANCE_MAP = (ROOT / "openspec" / "changes" / "align-avatar-first-ui-standard"
                   / "supporting-docs" / "avatar-first-ui-acceptance-map.yaml")
 
@@ -663,6 +885,8 @@ def main(argv: list[str] | None = None) -> int:
     validate_parity(errors)
     validate_forward_parity(errors)
     check_determinism(errors)
+    if args.mode == "realization":
+        verify_released_runtime_compatibility(errors)
     if errors:
         for error in errors:
             print(f"ERROR {error}")

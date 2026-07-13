@@ -24,6 +24,7 @@ evidence anchors (D10, FR-020, SC-002).
 | Example/profile parity with schema (all four archetypes validate) | `AFUV-PARITY-EXAMPLE` | examples check |
 | Acceptance-map parity: 8 requirements / 25 scenarios present; each fixture's scenario `evidence_ids` resolve against the map via `evidence_id_template: TEST-{scenario_id}` | `AFUV-PARITY-ACCEPTANCE` | acceptance-map parity |
 | Fixture references a real `AFU-*` scenario ID (evidence ID = `TEST-{scenario_id}`) | `AFUV-EVIDENCE-UNKNOWN` | fixtures check |
+| `--mode realization` only: released kernel drifted from the frozen baseline (IDs/ceilings/reserved sets — verified set-equal, both lease ceilings, live interaction set), or a profile's `runtime_compatibility` fails content-addressing (wrong `released_tag`, non-40-hex `released_commit`, missing interface-lock anchor, incomplete set — every released schema/registry must be pinned, or a `released_digests` value ≠ manifest sha256 ≠ actual `sha256(read_bytes)`) | `AFUV-RUNTIME-DRIFT` | realization check |
 
 ## Enforced rule classes (each has ≥1 negative fixture — Q6=A + analyze-gate disposition)
 
