@@ -131,7 +131,13 @@ proposal):
 
 Brainstorm (active):
 
-- none currently.
+- [Cluster Combining GUI](brainstorm/cluster-combining-gui.md) — GUI
+  concepts for the funnel's generative zone (cluster canvas, evidence
+  board, possible composer, option sets, AI suggestion trays); D11
+  follow-through feeding the ideation-dashboard staged topic.
+- [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
+  — three upstream gaps from the codexFactory conformance-gate hardening;
+  seeds a future openxFactory proposal.
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a
