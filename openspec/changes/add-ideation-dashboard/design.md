@@ -79,3 +79,17 @@ itself), so it does not touch the contested check-family enumeration.
   byproduct.
 - **Nightly + on-demand regeneration only** (R14): no per-commit
   regeneration in v1.
+- **Hosting = the internal xForge host** (Option C, decided 2026-07-13):
+  the static renderer and the nightly-committed snapshot are served from
+  the existing access-controlled internal host behind `*.xforge.us` — the
+  Azure Kubernetes ingress that already fronts `hermes-readiness.xforge.us`
+  (`installs/omnigent-install/k8s/azure/hermes-readiness/ingress.yaml`) —
+  behind the same access control. Never a public endpoint: the snapshot
+  projects internal governance state (topics, possibles, proposals), so
+  public hosting would leak the roadmap. The serving route is owned by the
+  runtime install layer (Omnigent-Install, which owns that ingress);
+  openxFactory specifies only the requirement that the dashboard is served
+  from an access-controlled internal host reading the committed snapshot
+  read-only. Local generate-and-open remains the zero-infra fallback, and a
+  committed `.html` is not viewable in-repo on GitHub — the host is what
+  makes it a page.

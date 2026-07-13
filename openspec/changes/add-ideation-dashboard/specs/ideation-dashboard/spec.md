@@ -154,14 +154,26 @@ path.
 The dashboard SHALL be delivered as a local generate-and-open command plus
 a nightly lane that commits the snapshot beside the dated doc-health
 reports, with the static renderer tracked in the repository and reading the
-adjacent snapshot. Regeneration is nightly plus on-demand only — no
-per-commit regeneration in v1. The v0 renderer is the HTML funnel/board
-grown from the staged mockup skeleton; historical backfill is limited to
-the worked-example fixtures.
+adjacent snapshot. The committed renderer and snapshot SHALL additionally
+be served from an access-controlled internal host that reads the committed
+snapshot read-only; the serving host is provided by the runtime install
+layer, and the dashboard MUST NOT be served from a public endpoint because
+the snapshot projects internal governance state. Regeneration is nightly
+plus on-demand only — no per-commit regeneration in v1. The v0 renderer is
+the HTML funnel/board grown from the staged mockup skeleton; historical
+backfill is limited to the worked-example fixtures.
 
 #### Scenario: An operator wants the current picture
 - **WHEN** the local command runs
 - **THEN** it regenerates the snapshot from the working tree and opens the renderer against it
+
+#### Scenario: A team viewer opens the hosted dashboard
+- **WHEN** a viewer opens the dashboard on the internal host
+- **THEN** the host serves the committed renderer against the nightly-committed snapshot behind the existing access control, modifying neither
+
+#### Scenario: A public endpoint is proposed
+- **WHEN** any delivery path would serve the dashboard from a public, unauthenticated endpoint
+- **THEN** it MUST be rejected — the snapshot projects internal governance state and is served only from an access-controlled internal host
 
 #### Scenario: Backfill scope is exceeded
 - **WHEN** generation would fabricate register history for documents outside the worked-example fixtures

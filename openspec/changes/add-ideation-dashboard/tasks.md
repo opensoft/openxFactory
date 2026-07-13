@@ -26,6 +26,7 @@
 ## 4. Nightly Lane (xFactory aggregation)
 
 - [ ] 4.1 Add the deterministic snapshot-generation lane to the nightly run after the deterministic pass, committing the snapshot beside the dated doc-health reports; a skipped or failed lane is reported as skipped and never affects deterministic results.
+- [ ] 4.2 Serving (Option C, owned by Omnigent-Install / the runtime install layer): add an access-controlled static-serving route on the existing internal xForge host — a path or sibling ingress on the Azure Kubernetes cluster that already fronts `hermes-readiness.xforge.us` (`installs/omnigent-install/k8s/azure/hermes-readiness/ingress.yaml`) — that serves the committed renderer + nightly snapshot read-only behind the same access control, never a public endpoint. openxFactory owns only the requirement (spec: Delivery and regeneration); the ingress/static-serve mechanics land in Omnigent-Install and are referenced here without duplicating its task list. Local generate-and-open (3.3) remains the zero-infra fallback.
 
 ## 5. Tests And Records
 
