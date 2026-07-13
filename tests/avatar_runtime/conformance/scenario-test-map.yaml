@@ -9,10 +9,12 @@ acceptance_sources:
   role: arr
   path: openspec/changes/implement-avatar-reference-runtime/supporting-docs/avatar-reference-runtime-acceptance-map.yaml
   digest: sha256:d0036814d47afa4c17d7f8620fba5b8e949b71ad5950918215294b52e436196b
-- id: avatar-client-parallel-v1
+# Realized: acr sources the released contract-v1.7 kernel map (was the
+# avatar-client-parallel-v1 provisional baseline during parallel work).
+- id: avatar-client-contract-v1.7
   role: acr
-  path: openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml
-  digest: sha256:0b1f5742b744e686a0e3a970a5df1ddeea88a8ce0ce6fdd602f3731672f5e50e
+  path: contracts/avatar-client/acceptance-map.yaml
+  digest: sha256:23a5176015ab8f05d334262a6af430b0ca8e8b84ff1d335268c1b5d86ae8210f
 mappings:
 - scenario_id: ARR-001-S01
   disposition: mapped

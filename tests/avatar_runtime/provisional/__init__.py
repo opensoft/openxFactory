@@ -24,7 +24,7 @@ _BASELINE = (
     / "supporting-docs/avatar-client-acceptance-map.yaml"
 )
 
-ENABLED = True  # disabled for final conformance (realization uses the released map)
+ENABLED = False  # disabled at contract-v1.7 realization (final conformance uses the released map)
 
 
 def baseline_acr_ids() -> set[str]:
