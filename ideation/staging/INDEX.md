@@ -22,6 +22,22 @@ Update this index in the same commit as any of:
 - **Full promotion** (no files remain staged) — delete the row and detail
   section here; the pointer belongs in `ideation/README.md`'s "Active
   proposals promoted from staging" list instead.
+- **Demotion** (a proposal returns to staging for continued design) — the
+  reverse of promotion: the change's artifacts come back as the topic (its
+  OpenSpec docs into the topic's `openspec/` drafts), the row and detail
+  return here, and the README promoted-list pointer is removed.
+
+## Draft-proposal workspace convention
+
+A staging topic may carry an `openspec/` subfolder holding working drafts
+of its future proposal — proposal, design, tasks, and spec-delta slices,
+each `Status: draft` with a "Draft slice of:" pointer to the topic's
+primary doc. Drafts iterate freely in staging; at the proposal gate they
+move to `openspec/changes/<change-id>/` (front-matter restored, draft
+headers stripped) and the topic's source docs follow into
+`supporting-docs/` per the document lifecycle. Adopted 2026-07-13 (Brett),
+first used by ideation-dashboard; formalizing the convention in the
+document-lifecycle spec is a candidate for the next lifecycle change.
 
 ## Topics
 
@@ -31,6 +47,7 @@ Update this index in the same commit as any of:
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
+| [ideation-dashboard](#ideation-dashboard) | ADDED `ideation-dashboard`; MODIFIED `doc-health`, `document-lifecycle`, `ideation-cross-reference` | 10 | In active design — demoted from its ratified proposal 2026-07-13; drafts iterate in `openspec/` |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -105,6 +122,32 @@ Update this index in the same commit as any of:
 - Exit: two OpenSpec changes once the open questions are settled — do not
   propose yet. (1) neutral: extend `roles-authority-model` with GitHub App
   identity tiers; (2) OpsxFactory: a new `github-administration` capability.
+
+## ideation-dashboard
+
+- Staging ID: `openxFactory:staging:ideation-dashboard`
+- Repository context: openxFactory (contract-level, cross-factory topic).
+- Source: 2026-07-12 design session brainstorm; staged and promoted to
+  `add-ideation-dashboard` the same day (ratified 2026-07-12; amended with
+  D7–D9, six-column hardening, Option-C hosting, D10 project grouping);
+  **demoted back to staging 2026-07-13 by Brett** for continued design —
+  ratification set aside, re-ratification required at the next proposal
+  gate.
+- Claim: a generated, non-mutating ideation dashboard — six-column
+  docs-first realization funnel over a possibles register, pipeline board,
+  doc list, workbench reference sets, per-actor authoring authority,
+  repo → project → project-group roll-ups (D10), nightly snapshot lane,
+  served access-gated from the internal xForge host (Option C).
+- Files:
+  - [ideation-dashboard.md](ideation-dashboard/ideation-dashboard.md) — primary: decided contract, D1–D10 decision record, required deltas, exit.
+  - [dashboard-mockup.html](ideation-dashboard/dashboard-mockup.html) — the hardened six-column interactive mockup (sample data).
+  - `openspec/` — working proposal drafts per the draft-proposal workspace convention: [proposal](ideation-dashboard/openspec/proposal.md), [design](ideation-dashboard/openspec/design.md), [tasks](ideation-dashboard/openspec/tasks.md), four spec-delta slices under `openspec/specs/`, the first-transition manifest, and the staged-origin `.openspec.yaml`.
+- Readiness: in active design — the drafts are complete to the 2026-07-13
+  state (D1–D10) but Brett has more dashboard work coming before proposal
+  form.
+- Exit: re-create `add-ideation-dashboard`; drafts move to
+  `openspec/changes/`, source docs into its `supporting-docs/`, preserving
+  this staging origin; Brett re-ratifies at that gate.
 
 ## proposal-origin-contract
 

@@ -1,5 +1,12 @@
 # doc-health Delta: Ideation Dashboard Snapshot Lane
 
+Status: draft
+Kind: architecture
+Summary: Draft spec-delta slice (MODIFIED doc-health, nightly snapshot lane) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, doc-health, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../../../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## ADDED Requirements
 
 ### Requirement: Ideation dashboard snapshot lane

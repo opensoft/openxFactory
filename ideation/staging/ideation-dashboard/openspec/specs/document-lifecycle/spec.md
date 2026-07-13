@@ -1,5 +1,12 @@
 # document-lifecycle Delta: Possible Feats Declaration
 
+Status: draft
+Kind: architecture
+Summary: Draft spec-delta slice (MODIFIED document-lifecycle, Possible feats declaration) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, document-lifecycle, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../../../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## ADDED Requirements
 
 ### Requirement: Possible feats declaration

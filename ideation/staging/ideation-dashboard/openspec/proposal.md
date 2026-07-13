@@ -1,6 +1,15 @@
 code_surface: openxFactory, codexFactory, xFactory
 target_release: implemented
 
+# Draft Proposal — ideation dashboard
+
+Status: draft
+Kind: architecture
+Summary: Working draft of the add-ideation-dashboard re-proposal, iterating in staging per the draft-proposal workspace convention; front-matter restored and this header stripped when it moves to openspec/changes/ at the proposal gate.
+Topics: ideation-dashboard, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## Why
 
 The family has a semantic surface over ideation content (the NotebookLM

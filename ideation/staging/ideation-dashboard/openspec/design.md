@@ -1,5 +1,12 @@
 # Design: Ideation Area Dashboard
 
+Status: draft
+Kind: architecture
+Summary: Working design draft (decision record D1–D10 and hosting) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## Context
 
 The 2026-07-12 design session (Brett + Claude, with an interactive mockup

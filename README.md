@@ -173,15 +173,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
-  — **ratified 2026-07-12**; staged-origin change for the generated ideation
-  dashboard: realization funnel snapshot over a possibles register,
-  per-actor authoring authority (human create/edit, agent create-only,
-  notebook set-removal), non-mutating workbench with draft-only gate
-  artifacts, and the nightly snapshot lane (code surface: openxFactory,
-  codexFactory, xFactory; archives on realization evidence;
-  ideation-cross-reference delta sequenced with
-  add-ideation-cross-reference-readiness)
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
   durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate

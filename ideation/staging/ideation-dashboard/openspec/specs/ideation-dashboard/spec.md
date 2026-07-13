@@ -1,5 +1,12 @@
 # ideation-dashboard Delta: Realization Funnel, Snapshot, Workbench
 
+Status: draft
+Kind: architecture
+Summary: Draft spec-delta slice (ADDED ideation-dashboard capability requirements) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../../../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## ADDED Requirements
 
 ### Requirement: Snapshot projection contract

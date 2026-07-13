@@ -1,5 +1,12 @@
 # Tasks: Ideation Area Dashboard
 
+Status: draft
+Kind: plan
+Summary: Working task breakdown (20 tasks) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## 1. Sequencing And Contract Baseline
 
 - [ ] 1.1 Sequence the `ideation-cross-reference` delta with the active `add-ideation-cross-reference-readiness` change: verify at realization that the promoted (or pending) wording matches what this change's delta was declared against, rebase if needed, and re-run strict OpenSpec validation.

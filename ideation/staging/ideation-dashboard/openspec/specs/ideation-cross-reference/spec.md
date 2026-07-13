@@ -1,5 +1,12 @@
 # ideation-cross-reference Delta: Possibles Register And Human-Seen Clusters
 
+Status: draft
+Kind: architecture
+Summary: Draft spec-delta slice (MODIFIED ideation-cross-reference, possibles register and human-seen clusters) for the add-ideation-dashboard re-proposal, iterating in staging.
+Topics: ideation-dashboard, ideation-cross-reference, doc-management, doc-workflow
+Repository context: openxFactory
+Draft slice of: [ideation-dashboard staged topic](../../../ideation-dashboard.md) — demoted from the ratified proposal 2026-07-13 (Brett).
+
 ## ADDED Requirements
 
 ### Requirement: Possibles register consolidation

@@ -123,9 +123,11 @@ proposal):
 - [Ideation Area Dashboard](brainstorm/ideation-dashboard.md) — organized
   2026-07-12 into the ideation-dashboard staged topic (six-column docs-first
   realization funnel over a possibles register, pipeline board, doc list,
-  and non-mutating workbench; drafts gate artifacts, never executes gates)
-  and promoted the same day into the add-ideation-dashboard proposal; kept
-  as design history with the in-session decisions inline.
+  and non-mutating workbench; drafts gate artifacts, never executes gates),
+  promoted the same day into the add-ideation-dashboard proposal (ratified
+  2026-07-12), then demoted back to the staged topic 2026-07-13 for
+  continued design — the proposal drafts iterate in the topic's `openspec/`
+  folder; kept as design history with the in-session decisions inline.
 
 Brainstorm (active):
 
@@ -163,12 +165,6 @@ Active proposals promoted from staging:
   `supporting-docs/` and proposes the unified cross-stage topic index,
   three-tier Hermes readiness panel, minimum-score recommendation gate, and
   nightly readiness lane.
-- [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
-  — ratified 2026-07-12; owns the former `ideation-dashboard` staged packet
-  (primary doc plus the interactive mockup) under `supporting-docs/` and
-  defines the realization funnel snapshot, possibles register, per-actor
-  authoring authority, workbench, interactivity boundary, and nightly
-  snapshot lane; active until realization evidence lands.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or
