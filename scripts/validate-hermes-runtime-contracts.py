@@ -37,11 +37,24 @@ from scripts.hermes_runtime_validation.schema_registry import (  # noqa: E402
     SchemaRegistryError,
     build_offline_registry,
 )
+from scripts.hermes_runtime_validation import (  # noqa: E402
+    consumer_handoff,
+    domain_regression,
+    release,
+)
+from scripts.hermes_runtime_validation.loader import (  # noqa: E402
+    YamlLoadError,
+    load_yaml_document,
+)
 
 FAMILY_PATH = PurePosixPath("contracts/hermes-runtime")
 FIXTURE_INDEX_PATH = "fixtures/index.yaml"
 FIXTURE_ROOT_PATH = "contracts/hermes-runtime/fixtures"
 TEST_ROOT_PATH = "tests/hermes_runtime_contracts"
+CATALOG_RELATIVE_PATH = "contracts/hermes-runtime/contract-index.yaml"
+DOMAIN_REGRESSION_INVENTORY_PATH = (
+    "contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml"
+)
 CHANGE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$")
 
 REQUIRED_CATALOG_MEMBERS = {
@@ -840,6 +853,195 @@ def _validate_repository(
     return _normalize_findings(findings), dependency_error, selection, summary
 
 
+def _parse_repo_mappings(
+    pairs: Sequence[str],
+) -> tuple[dict[str, Path], list[dict[str, str]]]:
+    """Parse repeated ``REPO=CHECKOUT`` resolver options into a mapping."""
+
+    mappings: dict[str, Path] = {}
+    findings: list[dict[str, str]] = []
+    for pair in pairs or []:
+        key, separator, value = str(pair).partition("=")
+        if not separator or not key or not value:
+            findings.append(
+                _finding(
+                    "HRC-RESOLVER-MAPPING-INVALID",
+                    f"repository mapping must be REPO=CHECKOUT: {pair!r}",
+                    path="mode",
+                )
+            )
+            continue
+        mappings[key] = Path(value)
+    return mappings, findings
+
+
+def _run_domain_regression(
+    repo_root: Path,
+    domain_mappings: Mapping[str, Path],
+    domain_repo_root: Path | None,
+) -> tuple[list[dict[str, str]], bool]:
+    """Resolve and validate the realized domain-regression inventory live."""
+
+    inventory_path = repo_root / DOMAIN_REGRESSION_INVENTORY_PATH
+    try:
+        inventory = load_yaml_document(inventory_path)
+    except (OSError, ValueError) as error:
+        return (
+            [
+                _finding(
+                    "HGR-REGRESSION-DEPENDENCY",
+                    f"domain regression inventory is unavailable: {error}",
+                    path=DOMAIN_REGRESSION_INVENTORY_PATH,
+                )
+            ],
+            True,
+        )
+    try:
+        resolver = domain_regression.build_repository_resolver(
+            domain_mappings or None, domain_repo_root
+        )
+        result = domain_regression.validate_domain_regression(
+            inventory, resolver=resolver
+        )
+    except domain_regression.DomainRegressionDependencyError as error:
+        return (
+            [_finding(error.code, str(error), path="domain-regression")],
+            True,
+        )
+    return _normalize_findings(result), False
+
+
+def _run_release_mode(
+    repo_root: Path,
+    *,
+    mode: str,
+    domain_supplied: bool,
+    domain_mappings: Mapping[str, Path],
+    domain_repo_root: Path | None,
+    base_dependency: bool,
+) -> tuple[list[dict[str, str]], bool]:
+    """Run candidate/realization release validation plus required domain resolution."""
+
+    if not domain_supplied:
+        return (
+            [
+                _finding(
+                    "HRC-DOMAIN-RESOLVER-REQUIRED",
+                    f"{mode} mode requires --domain-repo or --domain-repo-root for "
+                    "live domain-regression resolution",
+                    path="mode",
+                )
+            ],
+            True,
+        )
+    try:
+        catalog_document = load_yaml_document(repo_root / CATALOG_RELATIVE_PATH)
+    except (OSError, ValueError) as error:
+        return (
+            [
+                _finding(
+                    "HGR-RELEASE-DEPENDENCY",
+                    f"contract catalog is unavailable: {error}",
+                    path=CATALOG_RELATIVE_PATH,
+                )
+            ],
+            True,
+        )
+    if not isinstance(catalog_document, Mapping):
+        return (
+            [
+                _finding(
+                    "HGR-RELEASE-DEPENDENCY",
+                    "contract catalog is not a mapping",
+                    path=CATALOG_RELATIVE_PATH,
+                )
+            ],
+            True,
+        )
+    try:
+        if mode == "candidate":
+            release_findings = release.validate_candidate(
+                repo_root, catalog=catalog_document
+            )
+        else:
+            release_findings = release.validate_realization(
+                repo_root, catalog=catalog_document
+            )
+    except release.ReleaseDependencyError as error:
+        return ([_finding(error.code, str(error), path="mode")], True)
+
+    findings = _normalize_findings(release_findings)
+    unrealized = any(
+        str(item.get("code"))
+        in {"HGR-RELEASE-INVENTORY-MISSING", "HGR-RELEASE-INVENTORY-SHAPE"}
+        for item in release_findings
+    )
+    if unrealized or base_dependency:
+        return findings, False
+    domain_findings, domain_dependency = _run_domain_regression(
+        repo_root, domain_mappings, domain_repo_root
+    )
+    findings.extend(domain_findings)
+    return findings, domain_dependency
+
+
+def _run_consumer_handoff(
+    receipt_path: Path,
+    *,
+    consumer_supplied: bool,
+    consumer_mappings: Mapping[str, Path],
+    consumer_repo_root: Path | None,
+) -> tuple[list[dict[str, str]], bool]:
+    """Validate a Gate G0 consumer handoff receipt against the consumer resolver."""
+
+    if not consumer_supplied:
+        return (
+            [
+                _finding(
+                    "HRC-CONSUMER-RESOLVER-REQUIRED",
+                    "--handoff-receipt requires a resolvable consumer repository "
+                    "(--consumer-repo or --consumer-repo-root)",
+                    path="mode",
+                )
+            ],
+            True,
+        )
+    try:
+        receipt = load_yaml_document(receipt_path)
+    except (OSError, ValueError) as error:
+        return (
+            [
+                _finding(
+                    "HGR-HANDOFF-DEPENDENCY",
+                    f"handoff receipt is unavailable: {error}",
+                    path=str(receipt_path),
+                )
+            ],
+            True,
+        )
+    if not isinstance(receipt, Mapping):
+        return (
+            [
+                _finding(
+                    "HGR-HANDOFF-DEPENDENCY",
+                    "handoff receipt is not a mapping",
+                    path=str(receipt_path),
+                )
+            ],
+            True,
+        )
+    try:
+        resolver = consumer_handoff.build_consumer_resolver(
+            consumer_mappings or None, consumer_repo_root
+        )
+        result = consumer_handoff.validate_handoff_receipt(
+            receipt, consumer_resolver=resolver
+        )
+    except consumer_handoff.ConsumerHandoffDependencyError as error:
+        return ([_finding(error.code, str(error), path="handoff-receipt")], True)
+    return _normalize_findings(result), False
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = _parser().parse_args(argv)
     mode = (
@@ -897,16 +1099,50 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             findings.extend(repository_findings)
             dependency_error = dependency_error or repository_dependency
-            if mode in {"candidate", "realization"}:
-                findings.append(
-                    _finding(
-                        "HRC-MODE-NOT-REALIZED",
-                        f"{mode} validation is unavailable until the T077 release and resolver gate is implemented",
-                        case_id=arguments.case_id or "",
-                        path="mode",
-                    )
-                )
+
+            domain_mappings, domain_parse = _parse_repo_mappings(arguments.domain_repo)
+            consumer_mappings, consumer_parse = _parse_repo_mappings(
+                arguments.consumer_repo
+            )
+            findings.extend(domain_parse)
+            findings.extend(consumer_parse)
+            if domain_parse or consumer_parse:
                 dependency_error = True
+            domain_supplied = (
+                bool(arguments.domain_repo) or arguments.domain_repo_root is not None
+            )
+            consumer_supplied = (
+                bool(arguments.consumer_repo)
+                or arguments.consumer_repo_root is not None
+            )
+
+            if mode in {"candidate", "realization"}:
+                mode_findings, mode_dependency = _run_release_mode(
+                    repo_root,
+                    mode=mode,
+                    domain_supplied=domain_supplied,
+                    domain_mappings=domain_mappings,
+                    domain_repo_root=arguments.domain_repo_root,
+                    base_dependency=dependency_error,
+                )
+                findings.extend(mode_findings)
+                dependency_error = dependency_error or mode_dependency
+            elif domain_supplied and not dependency_error:
+                domain_findings, domain_dependency = _run_domain_regression(
+                    repo_root, domain_mappings, arguments.domain_repo_root
+                )
+                findings.extend(domain_findings)
+                dependency_error = dependency_error or domain_dependency
+
+            if arguments.handoff_receipt is not None:
+                handoff_findings, handoff_dependency = _run_consumer_handoff(
+                    arguments.handoff_receipt,
+                    consumer_supplied=consumer_supplied,
+                    consumer_mappings=consumer_mappings,
+                    consumer_repo_root=arguments.consumer_repo_root,
+                )
+                findings.extend(handoff_findings)
+                dependency_error = dependency_error or handoff_dependency
 
     exit_code = classify_exit_code(
         findings, strict=arguments.strict, dependency_error=dependency_error

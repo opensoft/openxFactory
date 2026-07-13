@@ -311,7 +311,7 @@ entries:
 - scenario_id: HCS-005-S03
   requirement_id: HCS-005
   scenario_title: Customer subject is retired
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HCS-005-S03
   planned_owner_task: T077
@@ -406,22 +406,36 @@ entries:
 - scenario_id: HGR-001-S01
   requirement_id: HGR-001
   scenario_title: Job evidence is recorded
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-001-S01
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-envelope-admission-valid
+  - jobs-lifecycle-valid
+  - jobs-retired-layer-new-job
+  - jobs-retired-layer-evidence-preserved
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_v2_schemas_validate_complete_scoped_records_and_stay_closed
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_retired_layer_preserves_artifact_approval_trace_and_audit_access
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_terminal_layer_lifecycle_denies_new_governed_jobs[retired]
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_terminal_layer_lifecycle_denies_new_governed_jobs[suspended]
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_new_job_admission_fails_closed_without_a_registered_layer
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: HGR-001-S02
   requirement_id: HGR-001
   scenario_title: Governed record omits layer scope
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-001-S02
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-envelope-missing-scope
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_record_missing_or_malformed_scope_fails_semantically
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_every_v2_record_requires_the_neutral_layer_scope_tuple
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: HGR-001-S03
   requirement_id: HGR-001
@@ -1344,170 +1358,263 @@ entries:
 - scenario_id: HGR-009-S01
   requirement_id: HGR-009
   scenario_title: Release candidate is realized
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-009-S01
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_release_fixture_matrix_is_self_describing_and_executable
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_passes_for_a_committed_synthetic_candidate
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_build_digests_match_the_raw_git_blob_oracle
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_build_is_deterministic_and_excludes_itself
   result_refs: []
 - scenario_id: HGR-009-S02
   requirement_id: HGR-009
   scenario_title: Tag is missing or movable evidence is used
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-009-S02
   planned_owner_task: T077
   fixture_case_ids: []
-  test_node_ids: []
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_reports_a_missing_remote_tag
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_rejects_a_lightweight_tag
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_reads_exact_commit_not_a_short_or_symbolic_revision
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_rejects_an_already_published_tag
   result_refs: []
 - scenario_id: HGR-009-S03
   requirement_id: HGR-009
   scenario_title: Manifest contains a host-local path
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-009-S03
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-host-absolute-path
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_release_fixture_matrix_is_self_describing_and_executable
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_schema_accepts_canonical_instance_and_rejects_malformations
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_inventory_never_encodes_a_host_local_source_path
   result_refs: []
 - scenario_id: HGR-009-S04
   requirement_id: HGR-009
   scenario_title: Digest inventory membership is incomplete
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-009-S04
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-missing-member
+  - release-inventory-duplicate-path
+  - release-inventory-out-of-order
+  - release-inventory-wrong-digest
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_detects_missing_extra_duplicate_and_unordered
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_release_fixture_matrix_is_self_describing_and_executable
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_rejects_symlink_submodule_and_traversal
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_rejects_type_and_schema_pin_drift
   result_refs: []
 - scenario_id: HGR-009-S05
   requirement_id: HGR-009
   scenario_title: Legacy local source path is removed
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-HGR-009-S05
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-host-absolute-path
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_inventory_never_encodes_a_host_local_source_path
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_release_membership_is_the_closed_candidate_set
   result_refs: []
 - scenario_id: NJE-004-S01
   requirement_id: NJE-004
   scenario_title: Customer-subject job is issued
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-NJE-004-S01
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-envelope-admission-valid
+  - jobs-envelope-domain-noun
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_v2_schemas_validate_complete_scoped_records_and_stay_closed
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_no_required_property_or_enum_encodes_a_domain_noun
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_neutral_envelope_rejects_domain_noun_properties_structurally
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_domain_nouns_fail_semantically_while_extensions_stay_descriptive
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: NJE-004-S02
   requirement_id: NJE-004
   scenario_title: Run and event correlate to a job
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-NJE-004-S02
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-lifecycle-valid
+  - jobs-run-scope-mismatch
+  - jobs-event-correlation-unknown-run
+  - jobs-event-sequence-regression
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_run_and_event_scope_drift_from_their_job_fails
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_run_and_event_correlation_to_the_exact_job_is_enforced
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_event_sequences_are_monotonic_per_run
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: NJE-004-S03
   requirement_id: NJE-004
   scenario_title: Cross-layer operation is requested
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-NJE-004-S03
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-cross-layer-reference-valid
+  - jobs-cross-layer-source-foreign
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_cross_layer_reference_binds_exact_source_target_and_binding
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: NJE-004-S04
   requirement_id: NJE-004
   scenario_title: Engineering overlay requires Project data
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-NJE-004-S04
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - jobs-overlay-extension-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_domain_nouns_fail_semantically_while_extensions_stay_descriptive
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_no_required_property_or_enum_encodes_a_domain_noun
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_jobs_fixture_matrix_is_self_describing_and_executable
   result_refs: []
 - scenario_id: NJE-004-S05
   requirement_id: NJE-004
   scenario_title: Existing v1 consumer remains pinned
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-NJE-004-S05
   planned_owner_task: T077
   fixture_case_ids: []
-  test_node_ids: []
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_v1_job_schemas_are_byte_frozen_at_the_us3_checkpoint
+  - tests/hermes_runtime_contracts/test_v2_jobs.py::test_v1_job_schemas_still_validate_their_pinned_example_fixtures
   result_refs: []
 - scenario_id: SCO-002-S01
   requirement_id: SCO-002
   scenario_title: Install repo consumes a contract
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S01
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - handoff-receipt-valid
+  - handoff-consumer-receipt-wrong-repository
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_canonical_consumer_receipt_accepted_end_to_end
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_wrong_product_receipt_fails_before_any_object_lookup
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_wrong_product_precedes_every_other_receipt_defect
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_recorded_digests_match_an_independent_hashlib_oracle
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_schema_annotations_are_canonical
   result_refs: []
 - scenario_id: SCO-002-S02
   requirement_id: SCO-002
   scenario_title: Published tag is verified
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S02
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-valid
+  - handoff-receipt-tag-drift
+  - handoff-receipt-commit-drift
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_accepts_an_annotated_reachable_tag
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_cli_verify_promotion_and_verify_tag
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_rejects_a_tag_off_published_main
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_internal_consistency_defects_fail_before_object_lookup[handoff-receipt-tag-drift-HGR-HANDOFF-TAG]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_internal_consistency_defects_fail_before_object_lookup[handoff-receipt-commit-drift-HGR-HANDOFF-COMMIT]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-tag-drift]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-commit-drift]
   result_refs: []
 - scenario_id: SCO-002-S03
   requirement_id: SCO-002
   scenario_title: Pinned file drifts
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S03
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-wrong-digest
+  - handoff-receipt-packet-digest-drift
+  - handoff-receipt-packet-path-drift
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_detects_missing_extra_duplicate_and_unordered
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_rejects_a_drifted_release_surface
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_cli_verify_commit_reports_findings_with_exit_one
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_recorded_artifact_digest_drift_is_rejected[closure_packet-HGR-HANDOFF-PACKET-DIGEST]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-packet-digest-drift]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_internal_consistency_defects_fail_before_object_lookup[handoff-receipt-packet-path-drift-HGR-HANDOFF-PACKET-PATH]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-packet-path-drift]
   result_refs: []
 - scenario_id: SCO-002-S04
   requirement_id: SCO-002
   scenario_title: Runtime verifies without a network connection
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S04
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - release-inventory-valid
+  - handoff-receipt-valid
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_passes_and_ignores_working_tree_edits
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_reads_exact_commit_not_a_short_or_symbolic_revision
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_is_inventory_missing_on_the_real_repository
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_working_tree_spoof_is_rejected
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[path]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[commit]
   result_refs: []
 - scenario_id: SCO-002-S05
   requirement_id: SCO-002
   scenario_title: Compatibility manifest is modified
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S05
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - handoff-receipt-manifest-digest-drift
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_recorded_artifact_digest_drift_is_rejected[compatibility_manifest-HGR-HANDOFF-ARTIFACT-DIGEST]
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-manifest-digest-drift]
   result_refs: []
 - scenario_id: SCO-002-S06
   requirement_id: SCO-002
   scenario_title: Contract changes incompatibly
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S06
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - handoff-receipt-drift-check-passed
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_negative_drift_check_must_record_failure
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-drift-check-passed]
   result_refs: []
 - scenario_id: SCO-002-S07
   requirement_id: SCO-002
   scenario_title: Existing consumer retains an older pin
-  status: planned
+  status: bound
   authorizes: false
   evidence_id: EVIDENCE-SCO-002-S07
   planned_owner_task: T077
-  fixture_case_ids: []
-  test_node_ids: []
+  fixture_case_ids:
+  - handoff-receipt-older-pin
+  test_node_ids:
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_older_bundle_pin_remains_conformant
+  - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-older-pin]
   result_refs: []

@@ -1,0 +1,120 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/hermes-job-envelope-v2.schema.yaml
+contract_id: hermes-job-envelope-v2
+contract_schema_version: 2
+title: Scoped neutral v2 Hermes job envelope
+description: >-
+  Domain-neutral governed job request. Every record carries the exact
+  installation/stack/layer scope tuple and declares job identity, issuer,
+  workflow references, worker/routing requirements, approval requirements,
+  required outputs, trace root, and stop conditions. No Project, repository,
+  feature, patient, or company noun is a required neutral field; domain
+  overlays carry that vocabulary in descriptive extensions only.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-job-envelope-v2
+  owning_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  job_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  job_type:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  issuer_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  issued_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  customer_subject_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/customer_subject_ref
+  workflow_refs:
+    type: array
+    minItems: 1
+    maxItems: 64
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  worker_requirements:
+    type: object
+    properties:
+      pool_id:
+        $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+      capability_ids:
+        type: array
+        minItems: 1
+        maxItems: 64
+        uniqueItems: true
+        items:
+          $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+    required:
+    - pool_id
+    - capability_ids
+    additionalProperties: false
+  routing_policy_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  approval_requirements:
+    type: object
+    properties:
+      approval_required:
+        type: boolean
+      decision_policy_ref:
+        $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+    required:
+    - approval_required
+    additionalProperties: false
+  required_output_ids:
+    type: array
+    minItems: 1
+    maxItems: 64
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  trace_root_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  stop_condition_ids:
+    type: array
+    minItems: 1
+    maxItems: 64
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  cross_layer_requirements:
+    type: array
+    minItems: 1
+    maxItems: 64
+    items:
+      type: object
+      properties:
+        source_resource:
+          $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+        target_resource:
+          $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+        binding_ref:
+          $ref: shared-definitions.schema.yaml#/$defs/cross_layer_binding_reference
+      required:
+      - source_resource
+      - target_resource
+      - binding_ref
+      additionalProperties: false
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- owning_scope
+- job_id
+- job_type
+- issuer_principal_ref
+- issued_at
+- customer_subject_ref
+- workflow_refs
+- worker_requirements
+- routing_policy_ref
+- approval_requirements
+- required_output_ids
+- trace_root_ref
+- stop_condition_ids
+additionalProperties: false

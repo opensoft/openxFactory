@@ -171,6 +171,19 @@ This direction protects domain factories from accidental breakage. An
 continues to run against its pinned compatible version until it explicitly
 upgrades and validates.
 
+The one place `openxFactory` names exact DomainxFactory revisions is the
+versioned regression denominator
+(`contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`). That
+inventory is release-gate evidence, not a dependency pin: before a contract
+bundle publishes, it proves that the pinned `stack.yaml` of every supported
+domain repository still validates at its exact published commit, read as
+exact `commit:path` Git objects rather than from any local working tree. It
+currently names `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
+`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `opensoft/codexFactory`,
+and records `opensoft/LegalxFactory` as an explicit exclusion until it has a
+canonical `stack.yaml`. It never obliges a domain repo to upgrade, and it
+does not invert the compatibility direction above.
+
 ## DomainxFactory Internal Shape
 
 A DomainxFactory contains its own xFactory layer binding plus domain-specific
@@ -209,6 +222,28 @@ Use version declarations inside DomainxFactory repos for contract compatibility.
 Do not use `openxFactory` submodules to pin every DomainxFactory. That would
 invert the ownership direction and make the contract source depend on its
 consumers.
+
+## Hermes Install Ownership
+
+`opensoft/xFactory-Hermes-Install` is the canonical xFactory Hermes install
+repository — the three-layer (Customer/Client/Domain) install — and the only
+supported consumer for the Gate G0 contract-bundle handoff. In the
+aggregation workspace it is the repository pinned at `installs/hermes-install/`.
+It owns the downstream side of the handoff — Hermes neutralization, the
+compatibility checker, and the bundle pin — through its own OpenSpec/Speckit
+feature (`001-three-layer-hermes-runtime`). `openxFactory` owns contract
+implementation and publication; it never edits the consumer repository and
+accepts the landed consumer receipt only as external Gate evidence.
+
+`FarHeap/Hermes-Install` is a different product: a single-layer Hermes agent
+for general business administration. It is not an xFactory consumer and must
+never be substituted for `opensoft/xFactory-Hermes-Install`. The Gate G0
+consumer handoff receipt schema
+(`contracts/hermes-runtime/consumer-handoff-receipt.schema.yaml`) fixes
+`consumer_repository` to `opensoft/xFactory-Hermes-Install`; a receipt
+naming `FarHeap/Hermes-Install` — or any other repository — is rejected with
+the stable finding code `HGR-HANDOFF-CONSUMER-REPOSITORY` before any
+downstream object is resolved.
 
 ## Naming Notes
 

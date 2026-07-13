@@ -1,0 +1,62 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/hermes-job-event-v2.schema.yaml
+contract_id: hermes-job-event-v2
+contract_schema_version: 2
+title: Scoped neutral v2 Hermes job event
+description: >-
+  Domain-neutral append-only job event bound to the exact job and run scope. It
+  carries a monotonic non-negative integer sequence, the acting principal, a
+  neutral event type, the database-derived occurrence time, and a
+  schema-validated payload reference pinned to an exact payload schema id and
+  version.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-job-event-v2
+  owning_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  event_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  job_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  run_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  sequence:
+    type: integer
+    minimum: 0
+  event_type:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  actor_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  occurred_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  payload_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  payload_schema_id:
+    $ref: shared-definitions.schema.yaml#/$defs/schema_id
+  payload_schema_version:
+    $ref: shared-definitions.schema.yaml#/$defs/schema_version
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- owning_scope
+- event_id
+- job_id
+- run_id
+- sequence
+- event_type
+- actor_principal_ref
+- occurred_at
+- payload_ref
+- payload_schema_id
+- payload_schema_version
+dependentRequired:
+  payload_schema_id: [payload_schema_version]
+  payload_schema_version: [payload_schema_id]
+additionalProperties: false

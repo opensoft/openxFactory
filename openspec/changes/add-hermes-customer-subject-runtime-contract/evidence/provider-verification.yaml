@@ -1,0 +1,139 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-provider-verification
+change_id: add-hermes-customer-subject-runtime-contract
+feature: 005-customer-subject-runtime
+task: T078
+generated_for: US4 provider surfaces T066-T077 (pre-realization)
+
+# This is the provider-side (openxFactory) verification record for the US4
+# implementation surface. Realization-time evidence (allocated bundle version,
+# annotated tag, published origin/main commit, remote raw-blob reproduction) is
+# deliberately absent: it belongs to T079-T081 and is recorded separately at
+# realization. No credential, tenant datum, or host-absolute path is recorded.
+
+revision:
+  us3_baseline_commit: 66b14064bbd50d1af4e9585d10f8150f2bc352f0
+  provider_commit: this-checkpoint  # self-excluded; the committing US4 checkpoint
+  branch: 005-customer-subject-runtime
+  note: >-
+    Evidence is bound to canonical content, not to its own commit, so it
+    validates identically after the checkpoint lands.
+
+gates:
+  - id: openspec-strict
+    command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+    result: pass
+    detail: 24 passed, 0 failed
+  - id: strict-contract-validator
+    command: python scripts/validate-hermes-runtime-contracts.py --strict
+    result: pass
+    findings: 0
+    summary:
+      catalog_members: 39      # was 34 at US3 baseline (+5 US4 schemas)
+      schema_members: 32       # was 27 (+5)
+      fixture_cases: 110       # was 79 (+31 US4 fixtures)
+      openspec_requirements: 17
+      openspec_scenarios: 85
+      collected_test_nodes: 796  # was 655
+  - id: strict-validator-with-live-domain-resolution
+    command: >-
+      python scripts/validate-hermes-runtime-contracts.py --strict
+      --domain-repo-root <offline-mirror-root>
+    result: pass
+    detail: >-
+      Live commit:path resolution of the five supported DomainxFactory
+      stack.yaml blobs from an offline bare-mirror root (no network). Each
+      pinned commit and raw-blob digest reproduced exactly against the
+      domain-regression inventory.
+  - id: candidate-mode-pre-realization
+    command: >-
+      python scripts/validate-hermes-runtime-contracts.py --require-candidate
+      --domain-repo-root <offline-mirror-root>
+    result: expected-fail
+    exit_code: 1
+    primary_finding_code: HGR-RELEASE-INVENTORY-MISSING
+    detail: >-
+      Correct fail-closed behavior (decision U7): no realized
+      contracts/releases/<tag>.digests.yaml exists until T079 allocates the
+      bundle version. This is the specified pre-realization state, not a defect.
+  - id: candidate-mode-missing-resolver
+    command: python scripts/validate-hermes-runtime-contracts.py --require-candidate
+    result: expected-fail
+    exit_code: 2
+    primary_finding_code: HRC-DOMAIN-RESOLVER-REQUIRED
+    detail: candidate mode requires a domain resolver; dependency error, exit 2.
+  - id: handoff-receipt-missing-consumer
+    command: >-
+      python scripts/validate-hermes-runtime-contracts.py --handoff-receipt
+      <receipt-path>
+    result: expected-fail
+    exit_code: 2
+    primary_finding_code: HRC-CONSUMER-RESOLVER-REQUIRED
+    detail: >-
+      --handoff-receipt requires a resolvable consumer repository; dependency
+      error, exit 2. The receipt itself is a T082 artifact and is not yet
+      present.
+  - id: release-verifier-build
+    command: >-
+      python scripts/validate-contract-release.py build --tag <tag>
+      --output <path> --json
+    result: pass
+    detail: >-
+      Inventory build succeeds and is well-formed (raw_git_blob digests,
+      bytewise_utf8 path order, self-excluded, no commit field). Run as a
+      structural smoke test only; the realized inventory is a T079 artifact and
+      is NOT committed.
+  - id: pytest-non-postgres
+    command: python -m pytest tests/hermes_runtime_contracts -m 'not postgres' -q
+    result: pass
+    detail: 478 passed, 318 deselected, 0 failed
+  - id: black-check
+    command: black --check <changed .py>
+    result: pass
+    detail: 12 files clean
+  - id: compileall
+    command: python -m compileall -q <changed .py>
+    result: pass
+  - id: git-diff-check
+    command: git diff --check
+    result: pass
+
+postgresql_evidence:
+  status: unchanged-from-us3
+  reason: >-
+    No US4 file intersects the PostgreSQL evidence source inventory
+    (78 members). The both-majors matrix is therefore NOT re-run for US4.
+  inventory_intersection: []   # US4 diff vs 66b1406 intersect PG inventory = empty
+  source_identity_digest: sha256:b2ef44a933ddfe71f3e7afbdc48b6918e1e09bc3d5d18ea145f2f1e69638feb4
+  matrix_digest: sha256:032f80fa9b156106952c7eec7ad03d4cfbf110d2e9a7e9a63e0f8c8ed5284a83
+  majors: [15, 16]
+  tests_per_major: 161
+
+domain_regression_denominator:
+  supported_repositories:
+    - repository: opensoft/AdxFactory
+      commit: d0e42622d1da51a3aa6475e2df076df4e55e7918
+    - repository: opensoft/LedgerxFactory
+      commit: 1b2ca4c1e66b5e90c9e983a7d0aad11c1ab5ae1c
+    - repository: opensoft/MedxFactory
+      commit: 280fdbb5aee8cd83f5c75defd652c1a60039cd0e
+    - repository: opensoft/OpsxFactory
+      commit: beed3481fb7f500695bcc4394bb686fab125ad71
+    - repository: opensoft/codexFactory
+      commit: 7bfa492f700de29cdeab31dc899420745546d982
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  exclusions:
+    - repository: opensoft/LegalxFactory
+      reason: no canonical stack.yaml yet
+  resolution: >-
+    Verified offline via bare mirrors of the local submodule checkouts; each
+    pinned commit and stack.yaml raw-blob digest reproduced exactly.
+
+pending_realization:
+  # Intentionally not produced by this provider-verification pass.
+  - T079: version allocation, release metadata, realized digest inventory
+  - T080: candidate commit, independent expert review
+  - T081: promotion to origin/main, annotated tag, remote raw-blob reproduction
+  - T082: external opensoft/xFactory-Hermes-Install consumer receipt
+  - T083: clean-clone provider/consumer quickstart
+  - T084: Gate G0 / T009 closure

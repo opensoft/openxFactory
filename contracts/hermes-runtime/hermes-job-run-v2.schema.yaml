@@ -1,0 +1,97 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/hermes-job-run-v2.schema.yaml
+contract_id: hermes-job-run-v2
+contract_schema_version: 2
+title: Scoped neutral v2 Hermes job run
+description: >-
+  Domain-neutral run state bound to the exact scope and identity of its job.
+  Records the worker principal and authority grant, stage and status, immutable
+  event/artifact/approval/trace references, and an optional summary that is only
+  admissible once the run has completed. A summary reference requires completion
+  and the run digest is coupled to its job identity.
+type: object
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-job-run-v2
+  owning_scope:
+    $ref: shared-definitions.schema.yaml#/$defs/layer_scope
+  run_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  job_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  job_record_digest:
+    $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+  status:
+    type: string
+    enum:
+    - pending
+    - running
+    - suspended
+    - completed
+    - failed
+    - cancelled
+  current_stage_id:
+    $ref: shared-definitions.schema.yaml#/$defs/canonical_id
+  worker_principal_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/principal_reference
+  worker_grant_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/authority_grant_reference
+  started_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  completed_at:
+    $ref: shared-definitions.schema.yaml#/$defs/rfc3339_timestamp
+  event_refs:
+    type: array
+    minItems: 0
+    maxItems: 4096
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  artifact_refs:
+    type: array
+    minItems: 0
+    maxItems: 4096
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  approval_refs:
+    type: array
+    minItems: 0
+    maxItems: 4096
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  trace_refs:
+    type: array
+    minItems: 0
+    maxItems: 4096
+    uniqueItems: true
+    items:
+      $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  summary_ref:
+    $ref: shared-definitions.schema.yaml#/$defs/content_resource_reference
+  extensions:
+    $ref: shared-definitions.schema.yaml#/$defs/extensions
+required:
+- schema_version
+- kind
+- owning_scope
+- run_id
+- job_id
+- job_record_digest
+- status
+- worker_principal_ref
+- worker_grant_ref
+- started_at
+- event_refs
+- artifact_refs
+- approval_refs
+- trace_refs
+dependentRequired:
+  summary_ref: [completed_at]
+  job_record_digest: [job_id]
+additionalProperties: false

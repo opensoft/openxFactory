@@ -1,0 +1,126 @@
+schema_version: 1
+kind: openxfactory-contract-release-digest-inventory-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/releases/release-digest-inventory.schema.yaml"
+contract_id: release-digest-inventory
+contract_schema_version: 1
+title: openxFactory contract release digest inventory
+description: >-
+  Fully self-contained schema for the realized release digest inventory
+  published at contracts/releases/<bundle-tag>.digests.yaml. The inventory lists
+  every release member as a repository-relative regular-file path in bytewise
+  order with the SHA-256 of its raw Git blob bytes. This schema lives outside
+  the hermes-runtime contract family, defines its own primitives locally, never
+  references another file, and is validated by the release verifier and its own
+  tests rather than the offline schema registry. The inventory excludes itself
+  and never records a commit.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - bundle_tag
+  - repository
+  - digest_algorithm
+  - digest_source
+  - path_order
+  - entries
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-contract-release-digest-inventory
+  bundle_tag:
+    $ref: "#/$defs/bundle_tag"
+  repository:
+    const: opensoft/openxFactory
+  digest_algorithm:
+    const: sha256
+  digest_source:
+    const: raw_git_blob
+  path_order:
+    const: bytewise_utf8
+  entries:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      $ref: "#/$defs/entry"
+$defs:
+  bundle_tag:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^contract-v[0-9]+(?:\\.[0-9]+){1,2}$"
+  artifact_id:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: "^[a-z0-9](?:[a-z0-9._:-]{0,126}[a-z0-9])?$"
+  repository_relative_path:
+    type: string
+    minLength: 1
+    maxLength: 1024
+    pattern: "^(?!/)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\\\)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+  artifact_type:
+    type: string
+    enum:
+      - schema
+      - contract-index
+      - acceptance-map
+      - evidence-register
+      - fixture-index
+      - fixture
+      - documentation
+      - manifest
+      - changelog
+      - requirements
+      - image-lock
+      - sql
+      - migration
+      - validator
+  git_mode:
+    type: string
+    enum:
+      - "100644"
+      - "100755"
+  schema_id:
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: "^[A-Za-z0-9][A-Za-z0-9+._:/-]*$"
+  schema_version:
+    type: integer
+    minimum: 1
+  sha256_digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  entry:
+    type: object
+    additionalProperties: false
+    required:
+      - artifact_id
+      - path
+      - type
+      - git_mode
+      - digest
+    properties:
+      artifact_id:
+        $ref: "#/$defs/artifact_id"
+      path:
+        $ref: "#/$defs/repository_relative_path"
+      type:
+        $ref: "#/$defs/artifact_type"
+      git_mode:
+        $ref: "#/$defs/git_mode"
+      schema_id:
+        $ref: "#/$defs/schema_id"
+      schema_version:
+        $ref: "#/$defs/schema_version"
+      digest:
+        $ref: "#/$defs/sha256_digest"
+    dependentRequired:
+      schema_id:
+        - schema_version
+      schema_version:
+        - schema_id

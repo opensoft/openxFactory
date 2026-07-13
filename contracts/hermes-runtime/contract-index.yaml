@@ -307,3 +307,47 @@ contracts:
   - xfactory-hermes-install
   semantic_member: true
   release_member: true
+- contract_id: hermes-job-envelope-v2
+  path: hermes-job-envelope-v2.schema.yaml
+  type: schema
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true
+- contract_id: hermes-job-run-v2
+  path: hermes-job-run-v2.schema.yaml
+  type: schema
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true
+- contract_id: hermes-job-event-v2
+  path: hermes-job-event-v2.schema.yaml
+  type: schema
+  contract_schema_version: 2
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true
+- contract_id: domain-regression-inventory
+  path: domain-regression-inventory.schema.yaml
+  type: schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  semantic_member: true
+  release_member: true
+- contract_id: consumer-handoff-receipt
+  path: consumer-handoff-receipt.schema.yaml
+  type: schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - xfactory-hermes-install
+  semantic_member: true
+  release_member: true

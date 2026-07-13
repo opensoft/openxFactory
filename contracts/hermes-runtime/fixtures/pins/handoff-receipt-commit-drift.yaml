@@ -1,0 +1,112 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: handoff-receipt-commit-drift
+phase: semantic
+class: invalid
+requirement_ids:
+- SCO-002
+scenario_ids:
+- SCO-002-S02
+evaluation_time: '2026-07-13T12:00:00Z'
+git_tree:
+  repository: opensoft/xFactory-Hermes-Install
+  entries:
+  - path: evidence/gates/g0/contract-v1.7.yaml
+    git_mode: '100644'
+    content_utf8: 'kind: g0-closure-evidence
+
+      bundle_tag: contract-v1.7
+
+      '
+  - path: config/compatibility/contract-v1.7.yaml
+    git_mode: '100644'
+    content_utf8: 'kind: contract-compatibility-manifest
+
+      bundle_tag: contract-v1.7
+
+      '
+  - path: config/scripts/verify-contract-bundle.py
+    git_mode: '100644'
+    content_utf8: '# Gate G0 offline bundle verifier (fixture stub)
+
+      '
+  - path: config/runtime/contract-binding.yaml
+    git_mode: '100644'
+    content_utf8: 'kind: hermes-runtime-contract-binding
+
+      '
+  - path: evidence/gates/g0/contract-v1.7-verification.yaml
+    git_mode: '100644'
+    content_utf8: 'kind: g0-verification-evidence
+
+      bundle_tag: contract-v1.7
+
+      '
+  - path: evidence/gates/g0/checks/online-verify.log
+    git_mode: '100644'
+    content_utf8: 'verify-tag online: annotated tag dereferences to pinned commit
+
+      '
+  - path: evidence/gates/g0/checks/offline-verify.log
+    git_mode: '100644'
+    content_utf8: 'verify-commit offline: every pinned blob reproduced from commit
+
+      '
+  - path: evidence/gates/g0/checks/deliberate-drift.log
+    git_mode: '100644'
+    content_utf8: 'deliberate-drift: mutated pinned blob detected, verification failed
+
+      '
+input:
+  type: consumer_handoff_receipt
+  value:
+    schema_version: 1
+    kind: openxfactory-hermes-runtime-consumer-handoff-receipt
+    consumer_repository: opensoft/xFactory-Hermes-Install
+    bundle_tag: contract-v1.7
+    provider:
+      repository: opensoft/openxFactory
+      tag: contract-v1.7
+      commit: b1946ac92492d2347c6235b4d2611184b3a6f81f
+      manifest_path: contracts/manifest.yaml
+      manifest_digest: sha256:0c18784f4384a72a852652bbe2f9675c00f28d108c38b0d7cc211fbbcd0512a0
+      inventory_path: contracts/releases/contract-v1.7.digests.yaml
+      inventory_digest: sha256:f615a096a115a5a3668c06cedd6fc5ddeeb66abdd2c3d1b1fbdd20af02cfdd8b
+    consumer_commit: main
+    closure_packet:
+      path: evidence/gates/g0/contract-v1.7.yaml
+      digest: sha256:b4deaca3b0b323295d62eadcc34d3236fe795eb37ed902becd39ffbc459b2af3
+    compatibility_manifest:
+      path: config/compatibility/contract-v1.7.yaml
+      digest: sha256:1ce661e083003a61f24f5fea1e40044664aafd6cd2dc87215137fdad0a5bd2fe
+    checker:
+      path: config/scripts/verify-contract-bundle.py
+      digest: sha256:5ff2a554aad143de9beda00122d533cbf6f119289e49d774964ff7119a978956
+    runtime_binding:
+      path: config/runtime/contract-binding.yaml
+      digest: sha256:12c2140f5261159a6eb63cdd777ce890710c426ea8d1c2f2897259c73224985f
+    evidence:
+      path: evidence/gates/g0/contract-v1.7-verification.yaml
+      digest: sha256:7d5e03f0ca00976c611fbbba67fd3af385cd833fdad536d90a1d74337c9c2b97
+    check_results:
+      positive:
+      - check_id: online-verify
+        mode: online
+        outcome: pass
+        evidence_path: evidence/gates/g0/checks/online-verify.log
+        evidence_digest: sha256:926ffc596ae0d9818a693ff7079d34d0e366f5243b9a004dd9f160d176dff599
+      - check_id: offline-verify
+        mode: offline
+        outcome: pass
+        evidence_path: evidence/gates/g0/checks/offline-verify.log
+        evidence_digest: sha256:fcc40a07f62e77e012a5841d7e40090f2662f7902d9e285404af6de11be33c7d
+      negative:
+      - check_id: deliberate-drift
+        mode: offline
+        outcome: fail
+        evidence_path: evidence/gates/g0/checks/deliberate-drift.log
+        evidence_digest: sha256:0256c959495bc80aa7b57b4387fce11cc7ec0fbc0d50932fa97df197382ae0b4
+expected:
+  outcome: fail
+  primary_finding_code: HGR-HANDOFF-COMMIT
+  allowed_secondary_codes: []

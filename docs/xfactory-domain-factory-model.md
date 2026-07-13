@@ -273,6 +273,31 @@ Any materialized current state is only a derived projection and must reconcile
 to the event chain. Retirement is terminal and preserves tombstones for layer
 IDs, policy namespaces, and Customer-subject tuples so they cannot be reused.
 
+Work admission follows the same neutral identity through the additive v2 job
+bridge. The v2 job envelope, run, and event contracts in
+`contracts/hermes-runtime/` require the owning installation, stack, and layer
+scope on every record, correlate runs and events to their job exactly, and
+deny new jobs to layers in a terminal or suspended state while preserving
+read access to retired layers' recorded artifact, approval, trace, and audit
+evidence. No required v2 field or enumeration names a project, repository,
+feature, patient, or company; a domain overlay such as codexFactory may
+require those references in its own overlay without pushing them into the
+neutral core. The v1 job contracts at `contracts/schemas/` stay frozen and
+byte-unchanged through the bridge: unchanged v1 fixtures continue to
+validate, and a consumer pinned to a published v1 path remains conformant
+until it deliberately upgrades.
+
+The compatibility denominator is versioned rather than implicit. A contract
+bundle publishes only after the exact pinned `stack.yaml` of every supported
+DomainxFactory revalidates from exact `commit:path` Git objects — a dirty
+local checkout is never regression evidence. The supported set is named with
+exact commits in
+`contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`:
+currently `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
+`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `opensoft/codexFactory`,
+with `opensoft/LegalxFactory` recorded as an explicit exclusion until it has
+a canonical `stack.yaml`.
+
 Contract and overlay provenance is content-addressed. Runtime assembly resolves
 exact commits and file digests, and directory overlays resolve through complete
 recursive manifests. Ratified OpenSpec and Speckit artifacts control change
@@ -1329,7 +1354,11 @@ Customer overlays own customer-specific fields such as:
 ## Suggested Job Envelope Extension
 
 The generic Hermes job envelope should support factory, domain, client, and
-customer metadata without making xFactory domain-specific.
+customer metadata without making xFactory domain-specific. The canonical
+neutral job contracts are the v2 envelope, run, and event schemas in
+`contracts/hermes-runtime/`; the metadata below is overlay vocabulary a
+domain factory layers on that neutral core, and none of it becomes a
+required neutral field.
 
 Example:
 

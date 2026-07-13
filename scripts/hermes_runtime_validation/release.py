@@ -1,0 +1,869 @@
+"""Closed release digest inventory build and exact-object verification (T068/T074).
+
+The release digest inventory published at ``contracts/releases/<bundle-tag>.digests.yaml``
+lists every release member as a repository-relative regular-file path together
+with the SHA-256 of its raw Git blob bytes.  Membership is closed and derived
+from the canonical registrations (research Decision 10); verification reads
+mode and blob bytes from an exact commit through
+``content.resolve_git_object`` and never trusts the working tree
+(research Decision 11).  Findings use the ``HGR-RELEASE-*`` namespace; an
+unavailable or unsafe dependency raises :class:`ReleaseDependencyError`
+(CLI exit code 2).
+"""
+
+from __future__ import annotations
+
+import hashlib
+import os
+from pathlib import Path
+import subprocess
+from typing import Iterable, Mapping
+
+import yaml
+
+from scripts.hermes_runtime_validation.content import (
+    ContentResolutionError,
+    resolve_git_object,
+)
+
+RELEASE_INVENTORY_KIND = "openxfactory-contract-release-digest-inventory"
+RELEASE_REPOSITORY = "opensoft/openxFactory"
+DIGEST_ALGORITHM = "sha256"
+DIGEST_SOURCE = "raw_git_blob"
+PATH_ORDER = "bytewise_utf8"
+
+FAMILY_PREFIX = "contracts/hermes-runtime/"
+FIXTURE_PREFIX = "contracts/hermes-runtime/fixtures/"
+CATALOG_PATH = "contracts/hermes-runtime/contract-index.yaml"
+FIXTURE_INDEX_PATH = "contracts/hermes-runtime/fixtures/index.yaml"
+INVENTORY_SCHEMA_PATH = "contracts/releases/release-digest-inventory.schema.yaml"
+MANIFEST_PATH = "contracts/manifest.yaml"
+RELEASES_DIRECTORY = "contracts/releases"
+VALIDATOR_PACKAGE = "scripts/hermes_runtime_validation"
+
+NAMED_VALIDATORS = (
+    "scripts/validate-hermes-runtime-contracts.py",
+    "scripts/validate-contract-release.py",
+    "scripts/hermes-runtime-dataset-digest.py",
+)
+AUXILIARY_MEMBERS = (
+    "requirements/hermes-runtime-contracts.in",
+    "requirements/hermes-runtime-contracts.lock",
+    "tests/hermes_runtime_contracts/postgres/images.lock.yaml",
+    INVENTORY_SCHEMA_PATH,
+    "contracts/manifest.yaml",
+    "contracts/CHANGELOG.md",
+    "contracts/README.md",
+)
+NORMATIVE_DOCS = (
+    "docs/contract-versioning-policy.md",
+    "docs/xfactory-domain-factory-model.md",
+    "docs/terminology-and-repo-topology.md",
+)
+RELEASE_SURFACE_PATHS = (
+    "contracts/manifest.yaml",
+    "contracts/CHANGELOG.md",
+    "contracts/README.md",
+    "contracts/hermes-runtime/README.md",
+    "docs/contract-versioning-policy.md",
+)
+
+_SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_REPLACE_REF_BASE",
+)
+
+
+class ReleaseDependencyError(RuntimeError):
+    """An unavailable or unsafe release dependency (CLI exit code 2)."""
+
+    exit_code = 2
+
+    def __init__(self, message: str, *, code: str = "HGR-RELEASE-DEPENDENCY") -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def _finding(code: str, path: str, message: str) -> dict[str, str]:
+    return {"code": code, "severity": "error", "path": path, "message": message}
+
+
+def _sorted(findings: Iterable[Mapping[str, object]]) -> list[dict[str, str]]:
+    return sorted(
+        (dict(item) for item in findings),
+        key=lambda item: (
+            str(item.get("path", "")),
+            str(item.get("code", "")),
+            str(item.get("message", "")),
+        ),
+    )
+
+
+def _bytewise(paths: Iterable[str]) -> list[str]:
+    return sorted(paths, key=lambda value: value.encode("utf-8"))
+
+
+def _is_release_inventory_path(path: object) -> bool:
+    return (
+        isinstance(path, str)
+        and path.startswith(RELEASES_DIRECTORY + "/")
+        and path.endswith(".digests.yaml")
+    )
+
+
+def _run_git(
+    repo: Path, *arguments: str, binary: bool = False, allow_failure: bool = False
+) -> subprocess.CompletedProcess:
+    environment = os.environ.copy()
+    for name in _SCRUBBED_GIT_ENVIRONMENT:
+        environment.pop(name, None)
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    try:
+        result = subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
+            capture_output=True,
+            text=not binary,
+            check=False,
+            timeout=30,
+            env=environment,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ReleaseDependencyError("Git command is unavailable") from exc
+    if result.returncode != 0 and not allow_failure:
+        raise ReleaseDependencyError("Git command failed")
+    return result
+
+
+def _full_commit(repo: Path, revision: str) -> str:
+    result = _run_git(repo, "rev-parse", "--verify", f"{revision}^{{commit}}")
+    commit = str(result.stdout).strip()
+    if not commit:
+        raise ReleaseDependencyError("exact commit is unavailable")
+    return commit
+
+
+def _list_tree(repo: Path, commit: str, prefix: str) -> list[str]:
+    result = _run_git(
+        repo,
+        "ls-tree",
+        "-r",
+        "-z",
+        "--full-tree",
+        "--name-only",
+        commit,
+        "--",
+        prefix,
+        binary=True,
+    )
+    return [
+        entry.decode("utf-8") for entry in bytes(result.stdout).split(b"\0") if entry
+    ]
+
+
+def _ls_remote(repo: Path, remote: str, *patterns: str) -> list[tuple[str, str]]:
+    result = _run_git(repo, "ls-remote", remote, *patterns)
+    rows: list[tuple[str, str]] = []
+    for line in str(result.stdout).splitlines():
+        if not line.strip():
+            continue
+        object_id, _, reference = line.partition("\t")
+        rows.append((object_id.strip(), reference.strip()))
+    return rows
+
+
+def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
+    result = _run_git(
+        repo, "merge-base", "--is-ancestor", ancestor, descendant, allow_failure=True
+    )
+    if result.returncode not in (0, 1):
+        raise ReleaseDependencyError("commit reachability could not be determined")
+    return result.returncode == 0
+
+
+def _blob_object_id(repo: Path, commit: str, path: str) -> str | None:
+    try:
+        return resolve_git_object(repo, commit, path).blob_oid
+    except ContentResolutionError:
+        return None
+
+
+class _WorkingTreeSource:
+    """Read the candidate release from repository working-tree bytes."""
+
+    def __init__(self, repo_root: Path) -> None:
+        self.root = repo_root
+
+    def load_yaml(self, path: str) -> object:
+        target = self.root / path
+        try:
+            text = target.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ReleaseDependencyError(
+                f"release registration is unavailable: {path}"
+            ) from exc
+        return yaml.safe_load(text)
+
+    def exists(self, path: str) -> bool:
+        target = self.root / path
+        return target.is_file() and not target.is_symlink()
+
+    def list_python(self, package: str) -> list[str]:
+        base = self.root / package
+        if not base.is_dir():
+            return []
+        members: list[str] = []
+        for candidate in base.rglob("*.py"):
+            if candidate.is_file() and not candidate.is_symlink():
+                members.append(candidate.relative_to(self.root).as_posix())
+        return members
+
+    def list_release_inventories(self) -> list[str]:
+        base = self.root / RELEASES_DIRECTORY
+        if not base.is_dir():
+            return []
+        return _bytewise(
+            candidate.relative_to(self.root).as_posix()
+            for candidate in base.glob("*.digests.yaml")
+            if candidate.is_file() and not candidate.is_symlink()
+        )
+
+    def read_member(self, path: str) -> tuple[bytes, str, str]:
+        target = self.root / path
+        if target.is_symlink() or not target.is_file():
+            raise ContentResolutionError(
+                f"release member is not a regular file: {path}"
+            )
+        data = target.read_bytes()
+        mode = "100755" if target.stat().st_mode & 0o111 else "100644"
+        digest = f"sha256:{hashlib.sha256(data).hexdigest()}"
+        return data, mode, digest
+
+    def head_commit(self) -> str:
+        return _full_commit(self.root, "HEAD")
+
+
+class _CommitSource:
+    """Read a release from one exact commit; never from the working tree."""
+
+    def __init__(self, repo_root: Path, commit: str) -> None:
+        self.root = repo_root
+        self.commit = commit
+
+    def load_yaml(self, path: str) -> object:
+        try:
+            resolved = resolve_git_object(self.root, self.commit, path)
+        except ContentResolutionError as exc:
+            raise ReleaseDependencyError(
+                f"release registration is unavailable at the pinned commit: {path}"
+            ) from exc
+        return yaml.safe_load(resolved.data)
+
+    def exists(self, path: str) -> bool:
+        try:
+            resolve_git_object(self.root, self.commit, path)
+        except ContentResolutionError:
+            return False
+        return True
+
+    def list_python(self, package: str) -> list[str]:
+        return [
+            entry
+            for entry in _list_tree(self.root, self.commit, package)
+            if entry.endswith(".py")
+        ]
+
+    def list_release_inventories(self) -> list[str]:
+        return _bytewise(
+            entry
+            for entry in _list_tree(self.root, self.commit, RELEASES_DIRECTORY)
+            if entry.endswith(".digests.yaml")
+        )
+
+    def read_member(self, path: str) -> tuple[bytes, str, str]:
+        resolved = resolve_git_object(self.root, self.commit, path)
+        return resolved.data, resolved.git_mode, resolved.digest
+
+
+def _classify_type(path: str) -> str:
+    if path == "contracts/manifest.yaml":
+        return "manifest"
+    if path == "contracts/CHANGELOG.md":
+        return "changelog"
+    if path in {
+        "requirements/hermes-runtime-contracts.in",
+        "requirements/hermes-runtime-contracts.lock",
+    }:
+        return "requirements"
+    if path == "tests/hermes_runtime_contracts/postgres/images.lock.yaml":
+        return "image-lock"
+    if path.startswith("scripts/") and path.endswith(".py"):
+        return "validator"
+    if path.endswith(".schema.yaml"):
+        return "schema"
+    if path.endswith(".sql"):
+        return "migration" if "/migrations/" in path else "sql"
+    if path.startswith(FIXTURE_PREFIX):
+        return "fixture"
+    return "documentation"
+
+
+def _artifact_id(path: str) -> str:
+    return path.lower().replace("/", "-")
+
+
+def _collect_members(
+    source: object,
+) -> tuple[list[str], dict[str, Mapping[str, object]]]:
+    catalog = source.load_yaml(CATALOG_PATH)  # type: ignore[attr-defined]
+    if not isinstance(catalog, Mapping):
+        raise ReleaseDependencyError("contract catalog is not a mapping")
+    catalog_map: dict[str, Mapping[str, object]] = {}
+    members: set[str] = set()
+    for entry in catalog.get("contracts", []) or []:
+        if not isinstance(entry, Mapping) or not entry.get("release_member"):
+            continue
+        relative = entry.get("path")
+        if not isinstance(relative, str):
+            continue
+        repo_path = FAMILY_PREFIX + relative
+        catalog_map[repo_path] = entry
+        members.add(repo_path)
+
+    fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)  # type: ignore[attr-defined]
+    if not isinstance(fixture_index, Mapping):
+        raise ReleaseDependencyError("fixture index is not a mapping")
+    for case in fixture_index.get("cases", []) or []:
+        if not isinstance(case, Mapping):
+            continue
+        for raw_input in case.get("inputs", []) or []:
+            if isinstance(raw_input, str):
+                members.add(FIXTURE_PREFIX + raw_input)
+
+    for member in source.list_python(VALIDATOR_PACKAGE):  # type: ignore[attr-defined]
+        members.add(member)
+    for validator in NAMED_VALIDATORS:
+        if source.exists(validator):  # type: ignore[attr-defined]
+            members.add(validator)
+    for extra in (*AUXILIARY_MEMBERS, *NORMATIVE_DOCS):
+        if source.exists(extra):  # type: ignore[attr-defined]
+            members.add(extra)
+
+    members = {member for member in members if not _is_release_inventory_path(member)}
+    return _bytewise(members), catalog_map
+
+
+def _entry_for(
+    path: str,
+    catalog_map: Mapping[str, Mapping[str, object]],
+    git_mode: str,
+    digest: str,
+) -> dict[str, object]:
+    catalog_entry = catalog_map.get(path)
+    if catalog_entry is not None:
+        artifact_type = str(catalog_entry.get("type", _classify_type(path)))
+        entry: dict[str, object] = {
+            "artifact_id": str(catalog_entry.get("contract_id", _artifact_id(path))),
+            "path": path,
+            "type": artifact_type,
+            "git_mode": git_mode,
+        }
+        if artifact_type == "schema":
+            entry["schema_id"] = str(catalog_entry.get("contract_id"))
+            entry["schema_version"] = int(catalog_entry.get("contract_schema_version"))
+        entry["digest"] = digest
+        return entry
+    return {
+        "artifact_id": _artifact_id(path),
+        "path": path,
+        "type": _classify_type(path),
+        "git_mode": git_mode,
+        "digest": digest,
+    }
+
+
+def _build_inventory(source: object, *, bundle_tag: str) -> dict[str, object]:
+    members, catalog_map = _collect_members(source)
+    entries: list[dict[str, object]] = []
+    for path in members:
+        _, git_mode, digest = source.read_member(path)  # type: ignore[attr-defined]
+        entries.append(_entry_for(path, catalog_map, git_mode, digest))
+    entries.sort(key=lambda entry: str(entry["path"]).encode("utf-8"))
+    return {
+        "schema_version": 1,
+        "kind": RELEASE_INVENTORY_KIND,
+        "bundle_tag": bundle_tag,
+        "repository": RELEASE_REPOSITORY,
+        "digest_algorithm": DIGEST_ALGORITHM,
+        "digest_source": DIGEST_SOURCE,
+        "path_order": PATH_ORDER,
+        "entries": entries,
+    }
+
+
+def release_membership(repo_root: Path) -> list[Path]:
+    """Return the closed, bytewise-sorted release membership from the working tree."""
+
+    members, _ = _collect_members(_WorkingTreeSource(repo_root))
+    return [Path(member) for member in members]
+
+
+def build_release_inventory(repo_root: Path, *, bundle_tag: str) -> dict[str, object]:
+    """Build the candidate inventory from working-tree bytes; excludes itself."""
+
+    return _build_inventory(_WorkingTreeSource(repo_root), bundle_tag=bundle_tag)
+
+
+def dump_inventory(inventory: Mapping[str, object]) -> str:
+    """Serialize an inventory deterministically for byte-stable candidate output."""
+
+    return yaml.safe_dump(dict(inventory), sort_keys=False, allow_unicode=False)
+
+
+def _inventory_path_for_tag(tag: str) -> str:
+    return f"{RELEASES_DIRECTORY}/{tag}.digests.yaml"
+
+
+def _manifest_bundle_tag(source: object) -> str | None:
+    if not source.exists(MANIFEST_PATH):  # type: ignore[attr-defined]
+        return None
+    manifest = source.load_yaml(MANIFEST_PATH)  # type: ignore[attr-defined]
+    if not isinstance(manifest, Mapping):
+        return None
+    tag = manifest.get("contract_bundle_version")
+    return tag if isinstance(tag, str) else None
+
+
+def _load_inventory(source: object, path: str) -> dict[str, object] | None:
+    if not source.exists(path):  # type: ignore[attr-defined]
+        return None
+    document = source.load_yaml(path)  # type: ignore[attr-defined]
+    if not isinstance(document, Mapping):
+        raise ReleaseDependencyError("release inventory is not a mapping")
+    return dict(document)
+
+
+def resolve_committed_inventory(
+    repo_root: Path, commit: str
+) -> tuple[str, dict[str, object]] | None:
+    """Return the current release inventory recorded at ``commit`` or ``None``.
+
+    The current bundle is resolved from ``contracts/manifest.yaml`` at the exact
+    commit so that historical inventories from earlier releases are ignored.
+    """
+
+    commit_oid = _full_commit(repo_root, commit)
+    source = _CommitSource(repo_root, commit_oid)
+    tag = _manifest_bundle_tag(source)
+    if tag is None:
+        return None
+    inventory_path = _inventory_path_for_tag(tag)
+    document = _load_inventory(source, inventory_path)
+    if document is None:
+        return None
+    return inventory_path, document
+
+
+def verify_inventory_against_commit(
+    repo_root: Path, commit: str, inventory: Mapping[str, object]
+) -> list[dict[str, str]]:
+    """Verify an inventory against exact commit bytes, ignoring the working tree."""
+
+    commit_oid = _full_commit(repo_root, commit)
+    source = _CommitSource(repo_root, commit_oid)
+    bundle_tag = inventory.get("bundle_tag")
+    canonical = _build_inventory(
+        source, bundle_tag=bundle_tag if isinstance(bundle_tag, str) else ""
+    )
+    canonical_by_path = {str(entry["path"]): entry for entry in canonical["entries"]}
+
+    findings: list[dict[str, str]] = []
+    if "commit" in inventory:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-SELF-REFERENCE",
+                "commit",
+                "release inventory must not record its own commit",
+            )
+        )
+
+    provided = [
+        entry
+        for entry in (inventory.get("entries", []) or [])
+        if isinstance(entry, Mapping)
+    ]
+    provided_paths = [str(entry.get("path")) for entry in provided]
+    if provided_paths != _bytewise(provided_paths):
+        findings.append(
+            _finding(
+                "HGR-RELEASE-PATH-ORDER",
+                "entries",
+                "entries must be bytewise sorted by path",
+            )
+        )
+    seen: set[str] = set()
+    for path in provided_paths:
+        if path in seen:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-PATH-DUPLICATE",
+                    path,
+                    "duplicate inventory path",
+                )
+            )
+        seen.add(path)
+
+    observed: set[str] = set()
+    for entry in provided:
+        path = str(entry.get("path"))
+        observed.add(path)
+        if _is_release_inventory_path(path):
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-SELF-REFERENCE",
+                    path,
+                    "release inventory must not contain a release inventory instance",
+                )
+            )
+            continue
+        try:
+            _, git_mode, digest = source.read_member(path)
+        except ContentResolutionError:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-PATH-UNRESOLVABLE",
+                    path,
+                    "inventory path is not an exact regular-file Git object",
+                )
+            )
+            continue
+        canonical_entry = canonical_by_path.get(path)
+        if canonical_entry is None:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-MEMBER-EXTRA",
+                    path,
+                    "inventory path is not a closed release member",
+                )
+            )
+            continue
+        if entry.get("digest") != digest:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-DIGEST-MISMATCH",
+                    path,
+                    "digest does not match the raw Git blob at the pinned commit",
+                )
+            )
+        if entry.get("git_mode") != git_mode:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-MODE-MISMATCH",
+                    path,
+                    "git_mode does not match the pinned commit",
+                )
+            )
+        if entry.get("type") != canonical_entry["type"]:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-TYPE-MISMATCH",
+                    path,
+                    "artifact type does not match the canonical registration",
+                )
+            )
+        canonical_schema_id = canonical_entry.get("schema_id")
+        if canonical_schema_id is not None:
+            if entry.get("schema_id") != canonical_schema_id or entry.get(
+                "schema_version"
+            ) != canonical_entry.get("schema_version"):
+                findings.append(
+                    _finding(
+                        "HGR-RELEASE-SCHEMA-PIN-MISMATCH",
+                        path,
+                        "schema pin does not match the canonical registration",
+                    )
+                )
+        elif "schema_id" in entry or "schema_version" in entry:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-SCHEMA-PIN-MISMATCH",
+                    path,
+                    "non-schema member must not declare a schema pin",
+                )
+            )
+
+    for path in canonical_by_path:
+        if path not in observed:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-MEMBER-MISSING",
+                    path,
+                    "required release member is absent from the inventory",
+                )
+            )
+    return _sorted(findings)
+
+
+def _surface_drift(repo_root: Path, commit: str, main_oid: str) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    surfaces = set(RELEASE_SURFACE_PATHS)
+    surfaces.update(_CommitSource(repo_root, commit).list_release_inventories())
+    surfaces.update(_CommitSource(repo_root, main_oid).list_release_inventories())
+    for path in _bytewise(surfaces):
+        if _blob_object_id(repo_root, commit, path) != _blob_object_id(
+            repo_root, main_oid, path
+        ):
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-SURFACE-DRIFT",
+                    path,
+                    "reviewed release-surface blob drifted from published main",
+                )
+            )
+    return findings
+
+
+def verify_promotion(
+    repo_root: Path, *, commit: str, remote: str, tag: str
+) -> list[dict[str, str]]:
+    """Prove a candidate is promotable immediately before tagging."""
+
+    commit_oid = _full_commit(repo_root, commit)
+    findings: list[dict[str, str]] = []
+
+    if _ls_remote(repo_root, remote, f"refs/tags/{tag}"):
+        findings.append(
+            _finding(
+                "HGR-RELEASE-TAG-EXISTS",
+                f"refs/tags/{tag}",
+                "the bundle tag already exists on the remote",
+            )
+        )
+
+    main_rows = _ls_remote(repo_root, remote, "refs/heads/main")
+    if not main_rows:
+        raise ReleaseDependencyError("remote main is unavailable")
+    main_oid = main_rows[0][0]
+
+    if not _is_ancestor(repo_root, commit_oid, main_oid):
+        findings.append(
+            _finding(
+                "HGR-RELEASE-CANDIDATE-UNREACHABLE",
+                commit_oid,
+                "the reviewed candidate is not reachable from remote main",
+            )
+        )
+
+    findings.extend(_surface_drift(repo_root, commit_oid, main_oid))
+    findings.extend(_verify_release_at(repo_root, commit_oid, tag))
+    return _sorted(findings)
+
+
+def _verify_release_at(
+    repo_root: Path, commit_oid: str, tag: str
+) -> list[dict[str, str]]:
+    """Verify the tag-named inventory and its version agreement at a commit."""
+
+    findings: list[dict[str, str]] = []
+    source = _CommitSource(repo_root, commit_oid)
+    inventory_path = _inventory_path_for_tag(tag)
+    inventory = _load_inventory(source, inventory_path)
+    if inventory is None:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-INVENTORY-MISSING",
+                inventory_path,
+                "the pinned commit records no release digest inventory for the tag",
+            )
+        )
+        return findings
+    if inventory.get("bundle_tag") != tag:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-BUNDLE-TAG-MISMATCH",
+                inventory_path,
+                "inventory bundle_tag does not match the release tag",
+            )
+        )
+    if _manifest_bundle_tag(source) != tag:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-VERSION-MISMATCH",
+                MANIFEST_PATH,
+                "manifest contract_bundle_version does not match the release tag",
+            )
+        )
+    findings.extend(verify_inventory_against_commit(repo_root, commit_oid, inventory))
+    return findings
+
+
+def verify_tag(repo_root: Path, *, remote: str, tag: str) -> list[dict[str, str]]:
+    """Prove a published annotated tag peels to a verified main-line release."""
+
+    findings: list[dict[str, str]] = []
+    # An exact ref query does not peel annotated tags; a glob does. Filter the
+    # glob result back to the exact ref and its peel to avoid prefix collisions.
+    rows = _ls_remote(repo_root, remote, f"refs/tags/{tag}*")
+    direct = [row for row in rows if row[1] == f"refs/tags/{tag}"]
+    peeled = [row for row in rows if row[1] == f"refs/tags/{tag}^{{}}"]
+    if not direct:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-TAG-MISSING",
+                f"refs/tags/{tag}",
+                "the bundle tag is absent on the remote",
+            )
+        )
+        return _sorted(findings)
+    if not peeled:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-TAG-NOT-ANNOTATED",
+                f"refs/tags/{tag}",
+                "the bundle tag is not an annotated tag object",
+            )
+        )
+    peeled_commit = peeled[0][0] if peeled else direct[0][0]
+
+    main_rows = _ls_remote(repo_root, remote, "refs/heads/main")
+    if not main_rows:
+        raise ReleaseDependencyError("remote main is unavailable")
+    main_oid = main_rows[0][0]
+    if not _is_ancestor(repo_root, peeled_commit, main_oid):
+        findings.append(
+            _finding(
+                "HGR-RELEASE-TAG-UNREACHABLE",
+                peeled_commit,
+                "the tagged commit is not reachable from published main",
+            )
+        )
+
+    findings.extend(_verify_release_at(repo_root, peeled_commit, tag))
+    return _sorted(findings)
+
+
+def _load_inventory_schema() -> dict[str, object]:
+    schema_path = Path(__file__).resolve().parents[2] / INVENTORY_SCHEMA_PATH
+    document = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+    if not isinstance(document, dict):
+        raise ReleaseDependencyError("release inventory schema is unavailable")
+    return document
+
+
+def inventory_schema_findings(
+    inventory: Mapping[str, object], *, path: str
+) -> list[dict[str, str]]:
+    """Return structural findings for an inventory instance against the schema."""
+
+    from jsonschema import Draft202012Validator, FormatChecker
+
+    schema = _load_inventory_schema()
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    if next(iter(validator.iter_errors(inventory)), None) is None:
+        return []
+    return [
+        _finding(
+            "HGR-RELEASE-INVENTORY-SHAPE",
+            path,
+            "release inventory does not satisfy its self-contained schema",
+        )
+    ]
+
+
+def _catalog_pin_findings(
+    catalog: Mapping[str, object], inventory: Mapping[str, object]
+) -> list[dict[str, str]]:
+    schema_pins: dict[str, int] = {}
+    for entry in catalog.get("contracts", []) or []:
+        if (
+            isinstance(entry, Mapping)
+            and entry.get("release_member")
+            and entry.get("type") == "schema"
+        ):
+            schema_pins[str(entry.get("contract_id"))] = int(
+                entry.get("contract_schema_version")
+            )
+    inventory_pins = {
+        str(entry.get("schema_id")): entry.get("schema_version")
+        for entry in (inventory.get("entries", []) or [])
+        if isinstance(entry, Mapping)
+        and entry.get("type") == "schema"
+        and entry.get("schema_id")
+    }
+    findings: list[dict[str, str]] = []
+    for schema_id, version in schema_pins.items():
+        if inventory_pins.get(schema_id) != version:
+            findings.append(
+                _finding(
+                    "HGR-RELEASE-SCHEMA-PIN-MISMATCH",
+                    schema_id,
+                    "catalog schema pin is not reproduced by the release inventory",
+                )
+            )
+    return findings
+
+
+def validate_candidate(
+    repo_root: Path, *, catalog: Mapping[str, object]
+) -> list[dict[str, str]]:
+    """Validate the realized inventory against the exact HEAD candidate commit."""
+
+    source = _WorkingTreeSource(repo_root)
+    tag = _manifest_bundle_tag(source)
+    document = None
+    inventory_path = _inventory_path_for_tag(tag) if tag else RELEASES_DIRECTORY
+    if tag is not None:
+        document = _load_inventory(source, inventory_path)
+    if document is None:
+        return [
+            _finding(
+                "HGR-RELEASE-INVENTORY-MISSING",
+                inventory_path,
+                "no realized release digest inventory is present for the candidate",
+            )
+        ]
+    findings = inventory_schema_findings(document, path=inventory_path)
+    if findings:
+        return _sorted(findings)
+    if document.get("bundle_tag") != tag:
+        findings.append(
+            _finding(
+                "HGR-RELEASE-BUNDLE-TAG-MISMATCH",
+                inventory_path,
+                "inventory bundle_tag does not match the manifest bundle version",
+            )
+        )
+    head = source.head_commit()
+    findings.extend(verify_inventory_against_commit(repo_root, head, document))
+    findings.extend(_catalog_pin_findings(catalog, document))
+    return _sorted(findings)
+
+
+def validate_realization(
+    repo_root: Path, *, catalog: Mapping[str, object], remote: str = "origin"
+) -> list[dict[str, str]]:
+    """Validate the realized inventory plus the published annotated tag."""
+
+    findings = validate_candidate(repo_root, catalog=catalog)
+    if any(
+        finding["code"]
+        in {"HGR-RELEASE-INVENTORY-MISSING", "HGR-RELEASE-INVENTORY-SHAPE"}
+        for finding in findings
+    ):
+        return findings
+    bundle_tag = _manifest_bundle_tag(_WorkingTreeSource(repo_root))
+    if not isinstance(bundle_tag, str):
+        return _sorted(
+            [
+                *findings,
+                _finding(
+                    "HGR-RELEASE-VERSION-MISMATCH",
+                    MANIFEST_PATH,
+                    "manifest declares no contract_bundle_version for realization",
+                ),
+            ]
+        )
+    findings.extend(verify_tag(repo_root, remote=remote, tag=bundle_tag))
+    return _sorted(findings)

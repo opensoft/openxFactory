@@ -1,0 +1,142 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-contract-schema
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/consumer-handoff-receipt.schema.yaml
+contract_id: consumer-handoff-receipt
+contract_schema_version: 1
+title: Gate G0 consumer handoff receipt
+description: >-
+  openxFactory-side external receipt recorded after the Gate G0 contract bundle
+  is consumed by the single canonical downstream install repository
+  opensoft/xFactory-Hermes-Install. The receipt pins the provider annotated tag
+  and peeled commit, the exact landed consumer commit, and the
+  independently reproducible closure-packet and artifact digests plus positive
+  and deliberate-drift negative check results. The different single-layer
+  product FarHeap/Hermes-Install is a distinct repository and is rejected.
+type: object
+$defs:
+  artifact_reference:
+    type: object
+    properties:
+      path:
+        $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+      digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required: [path, digest]
+    additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: openxfactory-hermes-runtime-consumer-handoff-receipt
+  consumer_repository:
+    const: opensoft/xFactory-Hermes-Install
+  bundle_tag:
+    type: string
+    pattern: ^contract-v[0-9]+\.[0-9]+$
+  provider:
+    type: object
+    properties:
+      repository:
+        const: opensoft/openxFactory
+      tag:
+        type: string
+        pattern: ^contract-v[0-9]+\.[0-9]+$
+      commit:
+        $ref: shared-definitions.schema.yaml#/$defs/git_commit
+      manifest_path:
+        $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+      manifest_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+      inventory_path:
+        $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+      inventory_digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required:
+      - repository
+      - tag
+      - commit
+      - manifest_path
+      - manifest_digest
+      - inventory_path
+      - inventory_digest
+    additionalProperties: false
+  consumer_commit:
+    $ref: shared-definitions.schema.yaml#/$defs/git_commit
+  closure_packet:
+    type: object
+    properties:
+      path:
+        type: string
+        pattern: ^evidence/gates/g0/[A-Za-z0-9][A-Za-z0-9._-]*\.yaml$
+      digest:
+        $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+    required: [path, digest]
+    additionalProperties: false
+  compatibility_manifest:
+    $ref: "#/$defs/artifact_reference"
+  checker:
+    $ref: "#/$defs/artifact_reference"
+  runtime_binding:
+    $ref: "#/$defs/artifact_reference"
+  evidence:
+    $ref: "#/$defs/artifact_reference"
+  check_results:
+    type: object
+    properties:
+      positive:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          properties:
+            check_id:
+              type: string
+              pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            mode:
+              type: string
+              enum: [online, offline]
+            outcome:
+              const: pass
+            evidence_path:
+              $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+            evidence_digest:
+              $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+          required: [check_id, mode, outcome, evidence_path, evidence_digest]
+          additionalProperties: false
+      negative:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          properties:
+            check_id:
+              type: string
+              pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            mode:
+              type: string
+              enum: [online, offline]
+            outcome:
+              const: fail
+            evidence_path:
+              $ref: shared-definitions.schema.yaml#/$defs/repository_relative_path
+            evidence_digest:
+              $ref: shared-definitions.schema.yaml#/$defs/sha256_digest
+          required: [check_id, mode, outcome, evidence_path, evidence_digest]
+          additionalProperties: false
+    required: [positive, negative]
+    additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - consumer_repository
+  - bundle_tag
+  - provider
+  - consumer_commit
+  - closure_packet
+  - compatibility_manifest
+  - checker
+  - runtime_binding
+  - evidence
+  - check_results
+additionalProperties: false

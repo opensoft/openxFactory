@@ -1107,3 +1107,397 @@ cases:
     - major: 16
       path: tests/hermes_runtime_contracts/postgres/evidence/postgres-16.json
       expected_outcome: pass
+- case_id: jobs-envelope-admission-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [NJE-004, HGR-001]
+  scenario_ids: [NJE-004-S01, HGR-001-S01]
+  inputs: [jobs/envelope-admission-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-ENVELOPE-ADMISSION-VALID
+- case_id: jobs-envelope-missing-scope
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-001]
+  scenario_ids: [HGR-001-S02]
+  inputs: [jobs/envelope-missing-scope.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-SCOPE-MISSING
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-ENVELOPE-MISSING-SCOPE
+- case_id: jobs-envelope-domain-noun
+  phase: semantic
+  class: invalid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S01]
+  inputs: [jobs/envelope-domain-noun.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-DOMAIN-NOUN
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-ENVELOPE-DOMAIN-NOUN
+- case_id: jobs-overlay-extension-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S04]
+  inputs: [jobs/overlay-extension-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-OVERLAY-EXTENSION-VALID
+- case_id: jobs-lifecycle-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [NJE-004, HGR-001]
+  scenario_ids: [NJE-004-S02, HGR-001-S01]
+  inputs: [jobs/lifecycle-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-LIFECYCLE-VALID
+- case_id: jobs-run-scope-mismatch
+  phase: semantic
+  class: invalid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S02]
+  inputs: [jobs/run-scope-mismatch.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-SCOPE-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-RUN-SCOPE-MISMATCH
+- case_id: jobs-event-correlation-unknown-run
+  phase: semantic
+  class: invalid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S02]
+  inputs: [jobs/event-correlation-unknown-run.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-CORRELATION
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-EVENT-CORRELATION-UNKNOWN-RUN
+- case_id: jobs-event-sequence-regression
+  phase: semantic
+  class: invalid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S02]
+  inputs: [jobs/event-sequence-regression.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-SEQUENCE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-EVENT-SEQUENCE-REGRESSION
+- case_id: jobs-cross-layer-reference-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S03]
+  inputs: [jobs/cross-layer-reference-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-CROSS-LAYER-REFERENCE-VALID
+- case_id: jobs-cross-layer-source-foreign
+  phase: semantic
+  class: invalid
+  requirement_ids: [NJE-004]
+  scenario_ids: [NJE-004-S03]
+  inputs: [jobs/cross-layer-source-foreign.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-CROSS-LAYER
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-CROSS-LAYER-SOURCE-FOREIGN
+- case_id: jobs-retired-layer-new-job
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-001]
+  scenario_ids: [HGR-001-S01]
+  inputs: [jobs/retired-layer-new-job.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-JOB-LAYER-TERMINAL
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-RETIRED-LAYER-NEW-JOB
+- case_id: jobs-retired-layer-evidence-preserved
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-001]
+  scenario_ids: [HGR-001-S01]
+  inputs: [jobs/retired-layer-evidence-preserved.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-JOBS-RETIRED-LAYER-EVIDENCE-PRESERVED
+- case_id: release-inventory-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S01]
+  inputs: [release/release-inventory-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-VALID
+- case_id: release-inventory-missing-member
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S04]
+  inputs: [release/release-inventory-missing-member.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-RELEASE-MEMBER-MISSING
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-MISSING-MEMBER
+- case_id: release-inventory-duplicate-path
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S04]
+  inputs: [release/release-inventory-duplicate-path.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-RELEASE-PATH-DUPLICATE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-DUPLICATE-PATH
+- case_id: release-inventory-out-of-order
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S04]
+  inputs: [release/release-inventory-out-of-order.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-RELEASE-PATH-ORDER
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-OUT-OF-ORDER
+- case_id: release-inventory-wrong-digest
+  phase: semantic
+  class: invalid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S04]
+  inputs: [release/release-inventory-wrong-digest.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-RELEASE-DIGEST-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-WRONG-DIGEST
+- case_id: release-inventory-host-absolute-path
+  phase: structural
+  class: invalid
+  requirement_ids: [HGR-009]
+  scenario_ids: [HGR-009-S03]
+  inputs: [release/release-inventory-host-absolute-path.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-RELEASE-INVENTORY-SHAPE
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-RELEASE-INVENTORY-HOST-ABSOLUTE-PATH
+- case_id: regression-inventory-realized
+  phase: semantic
+  class: valid
+  requirement_ids: [HCS-006]
+  scenario_ids: [HCS-006-S01]
+  inputs: [domain-regression-inventory.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REGRESSION-INVENTORY-REALIZED
+- case_id: regression-digest-mismatch
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-006]
+  scenario_ids: [HCS-006-S03]
+  inputs: [regression/digest-mismatch.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-REGRESSION-DIGEST-MISMATCH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REGRESSION-DIGEST-MISMATCH
+- case_id: regression-duplicate-repository
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-006]
+  scenario_ids: [HCS-006-S03]
+  inputs: [regression/duplicate-repository.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-REGRESSION-DUPLICATE-REPOSITORY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REGRESSION-DUPLICATE-REPOSITORY
+- case_id: regression-missing-exclusion-reason
+  phase: semantic
+  class: invalid
+  requirement_ids: [HCS-006]
+  scenario_ids: [HCS-006-S03]
+  inputs: [regression/missing-exclusion-reason.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-REGRESSION-MISSING-EXCLUSION-REASON
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-REGRESSION-MISSING-EXCLUSION-REASON
+- case_id: handoff-receipt-valid
+  phase: semantic
+  class: valid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S01, SCO-002-S04]
+  inputs: [pins/handoff-receipt-valid.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-VALID
+- case_id: handoff-receipt-older-pin
+  phase: semantic
+  class: valid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S07]
+  inputs: [pins/handoff-receipt-older-pin.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: pass
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-OLDER-PIN
+- case_id: handoff-consumer-receipt-wrong-repository
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S01]
+  inputs: [pins/consumer-receipt-wrong-repository.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-CONSUMER-REPOSITORY
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-CONSUMER-RECEIPT-WRONG-REPOSITORY
+- case_id: handoff-receipt-tag-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S02]
+  inputs: [pins/handoff-receipt-tag-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-TAG
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-TAG-DRIFT
+- case_id: handoff-receipt-commit-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S02]
+  inputs: [pins/handoff-receipt-commit-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-COMMIT
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-COMMIT-DRIFT
+- case_id: handoff-receipt-packet-path-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S03]
+  inputs: [pins/handoff-receipt-packet-path-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-PACKET-PATH
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-PACKET-PATH-DRIFT
+- case_id: handoff-receipt-packet-digest-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S03]
+  inputs: [pins/handoff-receipt-packet-digest-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-PACKET-DIGEST
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-PACKET-DIGEST-DRIFT
+- case_id: handoff-receipt-manifest-digest-drift
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S05]
+  inputs: [pins/handoff-receipt-manifest-digest-drift.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-ARTIFACT-DIGEST
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-MANIFEST-DIGEST-DRIFT
+- case_id: handoff-receipt-drift-check-passed
+  phase: semantic
+  class: invalid
+  requirement_ids: [SCO-002]
+  scenario_ids: [SCO-002-S06]
+  inputs: [pins/handoff-receipt-drift-check-passed.yaml]
+  depends_on: []
+  evaluation_time: "2026-07-13T12:00:00Z"
+  expected:
+    outcome: fail
+    primary_finding_code: HGR-HANDOFF-CHECK-RESULTS
+    allowed_secondary_codes: []
+  evidence_id: EVIDENCE-FIXTURE-HANDOFF-RECEIPT-DRIFT-CHECK-PASSED

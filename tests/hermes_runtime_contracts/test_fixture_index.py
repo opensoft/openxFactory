@@ -460,12 +460,13 @@ def test_database_source_identity_ignores_unindexed_repository_changes(
     )
 
 
-def test_current_fixture_index_preserves_75_cases() -> None:
-    # 75 US1/US2 cases plus the four T064 migration semantic cases.
+def test_current_fixture_index_preserves_110_cases() -> None:
+    # 79 US1/US2/US3 cases plus the 31 appended US4 jobs/release/regression/handoff
+    # semantic and structural cases registered at the T077 provider gate.
     index = load_yaml_document(
         REPOSITORY_ROOT / "contracts/hermes-runtime/fixtures/index.yaml"
     )
-    assert len(index["cases"]) == 79
+    assert len(index["cases"]) == 110
 
 
 def test_fixture_self_description_must_match_index_metadata(tmp_path: Path) -> None:

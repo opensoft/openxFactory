@@ -1,0 +1,48 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-domain-regression-inventory
+inventory_version: 1
+entries:
+- repository: opensoft/AdxFactory
+  commit: d0e42622d1da51a3aa6475e2df076df4e55e7918
+  stack_path: stack.yaml
+  stack_digest: sha256:b5ab723eac7395523a7988468076048e4d0426e03b556231dfb4c282bb8b3fc9
+  domain_id: adx
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  expected_contract_schema_version: 1
+  expected_result: pass
+- repository: opensoft/LedgerxFactory
+  commit: 1b2ca4c1e66b5e90c9e983a7d0aad11c1ab5ae1c
+  stack_path: stack.yaml
+  stack_digest: sha256:85d67c54a07f3d4e31943257cf43cb19e0fc400f39a0c719591ed30eeb140ab9
+  domain_id: ledgerx
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  expected_contract_schema_version: 1
+  expected_result: pass
+- repository: opensoft/MedxFactory
+  commit: 280fdbb5aee8cd83f5c75defd652c1a60039cd0e
+  stack_path: stack.yaml
+  stack_digest: sha256:02e4b34528217870e982462dde4ff8624c29a7b9e61f3ab405f4710307ff6622
+  domain_id: medx
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  expected_contract_schema_version: 1
+  expected_result: pass
+- repository: opensoft/OpsxFactory
+  commit: beed3481fb7f500695bcc4394bb686fab125ad71
+  stack_path: stack.yaml
+  stack_digest: sha256:3de89a6c7e8b9f112deb7074b8798dc17311425f819968f2f7e1c7e86c7e8fa0
+  domain_id: opsx
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  expected_contract_schema_version: 1
+  expected_result: pass
+- repository: opensoft/codexFactory
+  commit: 7bfa492f700de29cdeab31dc899420745546d982
+  stack_path: stack.yaml
+  stack_digest: sha256:06f88e192bfd17d42ea6519072e472b9f6d028d88ab0985065640e37c9719722
+  domain_id: codex
+  expected_contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+  expected_contract_schema_version: 1
+  expected_result: pass
+exclusions:
+- repository: opensoft/LegalxFactory
+  reason: no canonical stack.yaml yet
+  evidence: specs/005-customer-subject-runtime/research.md Decision 12

@@ -1,0 +1,77 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: jobs-overlay-extension-valid
+phase: semantic
+class: valid
+requirement_ids:
+- NJE-004
+scenario_ids:
+- NJE-004-S04
+evaluation_time: '2026-07-13T12:00:00Z'
+operation: validate_jobs_document
+expected:
+  outcome: pass
+  allowed_secondary_codes: []
+document:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-job-envelope-v2
+  owning_scope:
+    scope_kind: layer
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+  job_id: job-01
+  job_type: governed-workflow-stage
+  issuer_principal_ref:
+    scope:
+      scope_kind: layer
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+    principal_id: hermes-issuer-a
+    record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  issued_at: '2026-07-13T12:00:00Z'
+  customer_subject_ref: urn:xfactory:subject:0f8f1c2d-3a4b-4c5d-8e6f-708192a3b4c5
+  workflow_refs:
+  - installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+    resource_type: contract
+    resource_id: workflow-stage-map
+    digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  worker_requirements:
+    pool_id: worker-pool-a
+    capability_ids:
+    - governed-execution
+  routing_policy_ref:
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+    resource_type: policy
+    resource_id: routing-policy-a
+    digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  approval_requirements:
+    approval_required: true
+    decision_policy_ref:
+      installation_id: install-01
+      stack_id: stack-01
+      layer_id: customer-a
+      resource_type: policy
+      resource_id: decision-policy-a
+      digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  required_output_ids:
+  - governed-result
+  trace_root_ref:
+    installation_id: install-01
+    stack_id: stack-01
+    layer_id: customer-a
+    resource_type: artifact
+    resource_id: trace-root-01
+    digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  stop_condition_ids:
+  - budget-exhausted
+  - human-halt
+  extensions:
+    codexfactory.engineering:
+      repository: opensoft/project-alfa
+      feature_id: feat-001

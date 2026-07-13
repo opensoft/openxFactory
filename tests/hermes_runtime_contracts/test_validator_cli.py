@@ -208,14 +208,72 @@ def test_candidate_and_realization_modes_are_mutually_exclusive(
 @pytest.mark.parametrize(
     "mode_option", ["--require-candidate", "--require-realization"]
 )
-def test_future_release_modes_fail_closed_until_t077(mode_option: str) -> None:
+def test_release_modes_require_a_domain_resolver_input(mode_option: str) -> None:
+    # U7: candidate/realization require a domain resolver; its absence is a
+    # dependency error (exit 2), never a silent pass.
     result = _run_cli(mode_option, "--strict", "--json")
 
     assert result.returncode == 2
     payload = _json_result(result)
     assert payload["status"] == "error"
     assert any(
-        finding["code"] == "HRC-MODE-NOT-REALIZED" and "T077" in finding["message"]
+        finding["code"] == "HRC-DOMAIN-RESOLVER-REQUIRED"
+        for finding in payload["findings"]
+    )
+
+
+def test_candidate_mode_on_the_real_repository_is_pre_realization_missing_inventory(
+    tmp_path: Path,
+) -> None:
+    # U7: on the real repository today, --require-candidate correctly FAILS with
+    # HGR-RELEASE-INVENTORY-MISSING (exit 1) because no realized release digest
+    # inventory exists until T079 allocates the version.
+    result = _run_cli(
+        "--require-candidate",
+        "--strict",
+        "--domain-repo-root",
+        str(tmp_path),
+        "--json",
+    )
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    payload = _json_result(result)
+    assert payload["mode"] == "candidate"
+    assert payload["status"] == "error"
+    assert any(
+        finding["code"] == "HGR-RELEASE-INVENTORY-MISSING"
+        for finding in payload["findings"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("mode_option", "expected_mode"),
+    [("--require-candidate", "candidate"), ("--require-realization", "realization")],
+)
+def test_release_mode_field_is_preserved_on_the_real_repository(
+    tmp_path: Path, mode_option: str, expected_mode: str
+) -> None:
+    result = _run_cli(mode_option, "--domain-repo-root", str(tmp_path), "--json")
+
+    assert result.returncode == 1
+    assert _json_result(result)["mode"] == expected_mode
+
+
+def test_handoff_receipt_without_a_consumer_repository_is_a_dependency_error(
+    tmp_path: Path,
+) -> None:
+    # U7: --handoff-receipt implies consumer resolution; without a resolvable
+    # consumer repository it is a dependency error (exit 2).
+    receipt = tmp_path / "receipt.yaml"
+    receipt.write_text(
+        "consumer_repository: opensoft/xFactory-Hermes-Install\n", encoding="utf-8"
+    )
+    result = _run_cli("--handoff-receipt", str(receipt), "--json")
+
+    assert result.returncode == 2
+    payload = _json_result(result)
+    assert any(
+        finding["code"] == "HRC-CONSUMER-RESOLVER-REQUIRED"
         for finding in payload["findings"]
     )
 

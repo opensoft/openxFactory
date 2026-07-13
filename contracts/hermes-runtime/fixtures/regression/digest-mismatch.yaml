@@ -1,0 +1,94 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: regression-digest-mismatch
+phase: semantic
+class: invalid
+requirement_ids: [HCS-006]
+scenario_ids: [HCS-006-S03]
+evaluation_time: "2026-07-13T12:00:00Z"
+expected:
+  outcome: fail
+  primary_finding_code: HGR-REGRESSION-DIGEST-MISMATCH
+  allowed_secondary_codes: []
+scenario:
+  # The test materializes one synthetic Git repository per entry from this exact
+  # conformant stack body, then substitutes each entry's real commit and raw
+  # blob digest -- except for the repositories named below, whose declared
+  # stack_digest is left deliberately wrong to prove digest parity has teeth.
+  corrupt_digest_repositories: [opensoft/AdxFactory]
+  stack_content_utf8: |
+    schema_version: 1
+    kind: xfactory_domain_stack
+    domain:
+      id: synthetic
+      product_name: Synthetic DomainxFactory
+      display_name: Synthetic Domain Factory
+      category: engineering
+    xfactory:
+      contract_repo: github.com/opensoft/openxFactory
+      contract_name: openxFactory
+      contract_ref_type: commit
+      contract_ref: 3d51c3ed5854d112bcc049e1ef7f70863b993fa3
+      contract_schema_version: 1
+      contract_declared_at: "2026-07-09"
+      contract_source: xFactory-submodule-pin
+    hermes:
+      layers:
+        - role: customer
+          display_name: Customer
+          overlay: hermes/customer
+        - role: client
+          display_name: Client
+          overlay: hermes/client
+        - role: domain
+          display_name: Domain
+          overlay: hermes/domain
+inventory:
+  schema_version: 1
+  kind: openxfactory-hermes-runtime-domain-regression-inventory
+  inventory_version: 1
+  entries:
+  - repository: opensoft/AdxFactory
+    commit: "1111111111111111111111111111111111111111"
+    stack_path: stack.yaml
+    stack_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    domain_id: adx
+    expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
+    expected_contract_schema_version: 1
+    expected_result: pass
+  - repository: opensoft/LedgerxFactory
+    commit: "1111111111111111111111111111111111111111"
+    stack_path: stack.yaml
+    stack_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    domain_id: ledgerx
+    expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
+    expected_contract_schema_version: 1
+    expected_result: pass
+  - repository: opensoft/MedxFactory
+    commit: "1111111111111111111111111111111111111111"
+    stack_path: stack.yaml
+    stack_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    domain_id: medx
+    expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
+    expected_contract_schema_version: 1
+    expected_result: pass
+  - repository: opensoft/OpsxFactory
+    commit: "1111111111111111111111111111111111111111"
+    stack_path: stack.yaml
+    stack_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    domain_id: opsx
+    expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
+    expected_contract_schema_version: 1
+    expected_result: pass
+  - repository: opensoft/codexFactory
+    commit: "1111111111111111111111111111111111111111"
+    stack_path: stack.yaml
+    stack_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    domain_id: codex
+    expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
+    expected_contract_schema_version: 1
+    expected_result: pass
+  exclusions:
+  - repository: opensoft/LegalxFactory
+    reason: no canonical stack.yaml yet
+    evidence: specs/005-customer-subject-runtime/research.md Decision 12

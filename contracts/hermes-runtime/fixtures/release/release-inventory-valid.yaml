@@ -1,0 +1,65 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: release-inventory-valid
+phase: semantic
+class: valid
+requirement_ids:
+- HGR-009
+scenario_ids:
+- HGR-009-S01
+evaluation_time: '2026-07-13T12:00:00Z'
+operation: verify_inventory_against_commit
+inventory:
+  schema_version: 1
+  kind: openxfactory-contract-release-digest-inventory
+  bundle_tag: contract-v1.0
+  repository: opensoft/openxFactory
+  digest_algorithm: sha256
+  digest_source: raw_git_blob
+  path_order: bytewise_utf8
+  entries:
+  - artifact_id: contracts-changelog.md
+    path: contracts/CHANGELOG.md
+    type: changelog
+    git_mode: '100644'
+    digest: sha256:3a874fc8ac7f19dac5090493098c7116756b246d662fc1679bc38db5842f5c1a
+  - artifact_id: contracts-readme.md
+    path: contracts/README.md
+    type: documentation
+    git_mode: '100644'
+    digest: sha256:e84df96197221b6b4e5992fcb7d421503ac113a3ac7649a2013bb9ae5d3d01a5
+  - artifact_id: contract-index
+    path: contracts/hermes-runtime/contract-index.yaml
+    type: contract-index
+    git_mode: '100644'
+    digest: sha256:8e3f23213de81f04127878e766a9c4fc8e7cff2f0e85b17d5a3c0ce5fa97ba7b
+  - artifact_id: example-record
+    path: contracts/hermes-runtime/example-record.schema.yaml
+    type: schema
+    git_mode: '100644'
+    schema_id: example-record
+    schema_version: 2
+    digest: sha256:d00318b4a9d28d3fda0b3f90e50016a50cffe9e3df76518c1948881d9ecd378e
+  - artifact_id: contracts-hermes-runtime-fixtures-example-one.yaml
+    path: contracts/hermes-runtime/fixtures/example/one.yaml
+    type: fixture
+    git_mode: '100644'
+    digest: sha256:53f70cfa69e37fa0f630d9010bf71b5e3f060ca161346a7118e2850730e0ca3d
+  - artifact_id: fixture-index
+    path: contracts/hermes-runtime/fixtures/index.yaml
+    type: fixture-index
+    git_mode: '100644'
+    digest: sha256:c32891dfeafd8aaf82322398e2591bad4185ada52b161d501fc501f9d4152cd8
+  - artifact_id: contracts-manifest.yaml
+    path: contracts/manifest.yaml
+    type: manifest
+    git_mode: '100644'
+    digest: sha256:db0491f80aa696e7d269ed00183a864e41fac1f624a7f65110ef495276ad0c81
+  - artifact_id: docs-contract-versioning-policy.md
+    path: docs/contract-versioning-policy.md
+    type: documentation
+    git_mode: '100644'
+    digest: sha256:e018f6a2bf1bee0bbc2415a347bc1816c1c1a558eb890af709848ff7a815e7ee
+expected:
+  outcome: pass
+  allowed_secondary_codes: []

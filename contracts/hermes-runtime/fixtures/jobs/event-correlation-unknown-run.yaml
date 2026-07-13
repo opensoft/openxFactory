@@ -1,0 +1,193 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-portable-evidence-fixture
+case_id: jobs-event-correlation-unknown-run
+phase: semantic
+class: invalid
+requirement_ids:
+- NJE-004
+scenario_ids:
+- NJE-004-S02
+evaluation_time: '2026-07-13T12:00:00Z'
+operation: validate_jobs_document
+expected:
+  outcome: fail
+  primary_finding_code: HGR-JOB-CORRELATION
+  allowed_secondary_codes: []
+document:
+  operation: validate_job_correlation
+  evaluation_time: '2026-07-13T12:00:00Z'
+  input:
+    job:
+      schema_version: 1
+      kind: openxfactory-hermes-runtime-job-envelope-v2
+      owning_scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      job_id: job-01
+      job_type: governed-workflow-stage
+      issuer_principal_ref:
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        principal_id: hermes-issuer-a
+        record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      issued_at: '2026-07-13T12:00:00Z'
+      customer_subject_ref: urn:xfactory:subject:0f8f1c2d-3a4b-4c5d-8e6f-708192a3b4c5
+      workflow_refs:
+      - installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: contract
+        resource_id: workflow-stage-map
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      worker_requirements:
+        pool_id: worker-pool-a
+        capability_ids:
+        - governed-execution
+      routing_policy_ref:
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: policy
+        resource_id: routing-policy-a
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      approval_requirements:
+        approval_required: true
+        decision_policy_ref:
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+          resource_type: policy
+          resource_id: decision-policy-a
+          digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      required_output_ids:
+      - governed-result
+      trace_root_ref:
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: artifact
+        resource_id: trace-root-01
+        digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      stop_condition_ids:
+      - budget-exhausted
+      - human-halt
+    runs:
+    - schema_version: 1
+      kind: openxfactory-hermes-runtime-job-run-v2
+      owning_scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      run_id: run-01
+      job_id: job-01
+      job_record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      status: running
+      current_stage_id: stage-execute
+      worker_principal_ref:
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        principal_id: worker-a
+        record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      worker_grant_ref:
+        installation_id: install-01
+        grant_id: grant-execute-a
+        record_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      started_at: '2026-07-13T12:00:00Z'
+      event_refs:
+      - installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: job_event
+        resource_id: event-01
+        digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      artifact_refs:
+      - installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: artifact
+        resource_id: artifact-01
+        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      approval_refs:
+      - installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: approval_decision
+        resource_id: decision-01
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      trace_refs:
+      - installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: trace_edge
+        resource_id: trace-edge-01
+        digest: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    events:
+    - schema_version: 1
+      kind: openxfactory-hermes-runtime-job-event-v2
+      owning_scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      event_id: event-01
+      job_id: job-01
+      run_id: run-01
+      sequence: 0
+      event_type: run-started
+      actor_principal_ref:
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        principal_id: worker-a
+        record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      occurred_at: '2026-07-13T12:00:00Z'
+      payload_ref:
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: job_event
+        resource_id: event-01-payload
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      payload_schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/job-event-payloads/run-started.schema.yaml
+      payload_schema_version: 1
+    - schema_version: 1
+      kind: openxfactory-hermes-runtime-job-event-v2
+      owning_scope:
+        scope_kind: layer
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+      event_id: event-02
+      job_id: job-01
+      run_id: run-99
+      sequence: 1
+      event_type: run-started
+      actor_principal_ref:
+        scope:
+          scope_kind: layer
+          installation_id: install-01
+          stack_id: stack-01
+          layer_id: customer-a
+        principal_id: worker-a
+        record_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      occurred_at: '2026-07-13T12:00:00Z'
+      payload_ref:
+        installation_id: install-01
+        stack_id: stack-01
+        layer_id: customer-a
+        resource_type: job_event
+        resource_id: event-02-payload
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      payload_schema_id: https://xforge.us/schemas/openxfactory/hermes-runtime/v2/job-event-payloads/run-started.schema.yaml
+      payload_schema_version: 1
