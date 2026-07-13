@@ -210,15 +210,12 @@ Active changes:
   F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
   realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
   archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
-- [align-avatar-first-ui-standard](openspec/changes/align-avatar-first-ui-standard/proposal.md)
-  — avatar-first standard, domain profile carrier, template, examples, and
-  offline validator; Flutter implementation remains a successor. **Realized
-  (`contract-v1.8`); pending archive** until its acceptance map is relocated out of
-  the change supporting-docs (`validate-avatar-first-ui.py` reads it live)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
-clarification, and the reference runtime archived 2026-07-13 (below). Client
+clarification, the reference runtime, and the avatar-first UI standard all archived
+2026-07-13 (below); **only F0 feasibility remains active** — its evidence is
+resolved by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it
+would break the fail-closed F0 gate or force a `contract-v1.7` re-tag. Client
 implementation, live provider qualification, and pilot hardening remain in
 `implement-avatar-client-lab`, `qualify-avatar-live-voice`, and
 `avatar-pilot-hardening`.
@@ -234,6 +231,11 @@ Archived changes:
 - [implement-avatar-reference-runtime](openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/proposal.md)
   — non-deployable deterministic broker/control reference realized against
   `contract-v1.7`, with archive-safe content-addressed conformance (FR-034a);
+  archived 2026-07-13
+- [align-avatar-first-ui-standard](openspec/changes/archive/2026-07-13-align-avatar-first-ui-standard/proposal.md)
+  — avatar-first UI standard, domain profile carrier, template, examples, and
+  offline realization validator; realized as `contract-v1.8` (acceptance map
+  relocated to `examples/avatar-first-ui/` so the validator survives archive);
   archived 2026-07-13
 - [define-human-escalation-contract](openspec/changes/archive/2026-07-12-define-human-escalation-contract/proposal.md)
   — route/park/interrupt escalation ladder with a deliberately high interrupt

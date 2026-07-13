@@ -5,7 +5,10 @@ Kind: register
 Captured: 2026-07-10
 Proposed by: align-avatar-first-ui-standard
 
-[`avatar-first-ui-acceptance-map.yaml`](avatar-first-ui-acceptance-map.yaml)
+The avatar-first UI acceptance map (relocated at realization to the validator's
+stable input tree:
+[`examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml`](../../../../examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml),
+so it survives this change dir archiving)
 owns the eight `AFU-*` requirements and 25 scenarios split from the original
 avatar-client program proposal. Standard, schema, template, fixture, and
 validator evidence is owned here. Flutter widget, golden, platform

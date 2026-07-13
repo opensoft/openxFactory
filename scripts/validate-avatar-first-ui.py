@@ -724,8 +724,10 @@ def verify_released_runtime_compatibility(errors: list[str]) -> None:
                      f"{ctx}: manifest sha256 for {path_str} ({man!r}) != actual {actual!r}")
 
 
-ACCEPTANCE_MAP = (ROOT / "openspec" / "changes" / "align-avatar-first-ui-standard"
-                  / "supporting-docs" / "avatar-first-ui-acceptance-map.yaml")
+# Runtime-owned acceptance/traceability map, relocated at realization into the
+# validator's stable input tree (examples/avatar-first-ui/) so it survives the
+# align-avatar-first-ui-standard change dir archiving (was in its supporting-docs).
+ACCEPTANCE_MAP = ROOT / "examples" / "avatar-first-ui" / "avatar-first-ui-acceptance-map.yaml"
 
 
 def load_acceptance_scenarios(errors: list[str]) -> set[str]:

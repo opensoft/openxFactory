@@ -66,7 +66,7 @@ every one maps to owned evidence or a named successor:
 python3 - <<'PY'
 import yaml, pathlib
 m = yaml.safe_load(pathlib.Path(
-  "openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml"
+  "examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml"
 ).read_text())
 reqs = m["requirements"]
 scen = sum(len(r["scenarios"]) for r in reqs)

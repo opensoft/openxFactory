@@ -22,8 +22,10 @@ F0_RELEVANT_ACR = ("ACR-003", "ACR-008", "ACR-011", "ACR-012")
 # Pinned known-good digest of the kernel acceptance map (FR-018 fail-closed default).
 # A run verifies the map against this digest so ACR IDs are only ever sourced from a
 # DIGEST-VERIFIED map; an absent or mismatched digest maps the run to INCONCLUSIVE.
+# Points at the RELEASED kernel map (contracts/avatar-client/acceptance-map.yaml); the
+# avatar-client-parallel-v1 baseline map it superseded was archived with the 001 change.
 KERNEL_ACCEPTANCE_MAP_SHA256 = (
-    "0b1f5742b744e686a0e3a970a5df1ddeea88a8ce0ce6fdd602f3731672f5e50e"
+    "23a5176015ab8f05d334262a6af430b0ca8e8b84ff1d335268c1b5d86ae8210f"
 )
 
 

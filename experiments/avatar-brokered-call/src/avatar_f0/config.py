@@ -31,10 +31,7 @@ class RunConfig:
     lab_project_ref: str
     selected_groups: Tuple[str, ...] = VALID_GROUPS
     readiness_deadline_ms: int = READINESS_DEFAULT_MS
-    acceptance_map_path: str = (
-        "openspec/changes/define-avatar-client-contract-kernel/"
-        "supporting-docs/avatar-client-acceptance-map.yaml"
-    )
+    acceptance_map_path: str = "contracts/avatar-client/acceptance-map.yaml"
     # Default to the pinned known-good digest so a normal run verifies the map (FR-018).
     acceptance_map_expected_sha256: str = KERNEL_ACCEPTANCE_MAP_SHA256
     tools_enabled: bool = False

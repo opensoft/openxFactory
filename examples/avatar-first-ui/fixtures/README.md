@@ -37,7 +37,7 @@ fixtures/
 
 Each fixture's `evidence_ids` are the acceptance map's scenario IDs
 (`AFU-<req>-S<nn>`, e.g. `AFU-001-S01`). The acceptance map
-(`openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml`)
+(`examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml`)
 derives each evidence ID via `evidence_id_template: TEST-{scenario_id}` (e.g.
 `TEST-AFU-001-S01`). Fixtures never hand-author `TEST-` IDs; the parity check
 (`AFUV-PARITY-ACCEPTANCE`) resolves fixture scenario IDs against the map.

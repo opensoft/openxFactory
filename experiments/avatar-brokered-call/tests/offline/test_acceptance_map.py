@@ -8,7 +8,7 @@ from avatar_f0.acceptance_map import (AcceptanceMapError, F0_RELEVANT_ACR,
                                        KERNEL_ACCEPTANCE_MAP_SHA256, load_acceptance_map)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-MAP = REPO_ROOT / "openspec/changes/define-avatar-client-contract-kernel/supporting-docs/avatar-client-acceptance-map.yaml"
+MAP = REPO_ROOT / "contracts/avatar-client/acceptance-map.yaml"
 
 
 def test_pinned_digest_matches_committed_map():

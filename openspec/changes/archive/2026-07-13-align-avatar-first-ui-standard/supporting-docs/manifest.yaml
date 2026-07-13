@@ -1,0 +1,17 @@
+{
+  "change_id": "align-avatar-first-ui-standard",
+  "files": [
+    {
+      "path": "avatar-first-ui-acceptance-traceability.md",
+      "sha256": "5b936c6bd21144fcfb1d2c96e495321c80936a83a3f8dfd988ee4ec3360bf17c",
+      "source_path": null
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": null,
+  "remaining_paths": [],
+  "source_revision": "uncommitted-worktree",
+  "source_state": "Proposal-authored acceptance artifacts for the avatar-first UI standards workstream split from define-avatar-client-runtime by explicit user approval. Historical Flutter/UI exploration remains with the staged-origin kernel packet. The acceptance map was relocated at realization to examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml so the validator's parity check survives this change dir archiving.",
+  "transitioned_at": "2026-07-10"
+}

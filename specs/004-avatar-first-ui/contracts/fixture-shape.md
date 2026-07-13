@@ -77,7 +77,7 @@ additive-with-closed-defaults compatibility (D7, D12, FR-016, SC-003).
 that attest it (automated evidence) or to the named successor that owns deferred
 evidence (`implement-avatar-client-lab`, `avatar-pilot-hardening`). This mirrors
 the OpenSpec acceptance map
-(`openspec/changes/align-avatar-first-ui-standard/supporting-docs/avatar-first-ui-acceptance-map.yaml`)
+(`examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml`)
 and is checked by `AFUV-PARITY-ACCEPTANCE`. Evidence-ID convention: a fixture's
 `evidence_ids` are the acceptance map's scenario IDs (`AFU-*-S0Y`); the map's
 evidence ID for each is derived by its `evidence_id_template: TEST-{scenario_id}`
