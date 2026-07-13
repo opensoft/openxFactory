@@ -12,11 +12,13 @@ folders. Two structural gaps surfaced in the 2026-07-12 design session:
 candidate feats a cluster could spawn but has not yet ("possibles")
 evaporate into prose, and nothing lets a human assemble an arbitrary doc set
 and point tools at it when they see a pattern the machine clustering
-missed. All design questions are decided: D1–D13 locked (D7–D9 authoring
+missed. All design questions are decided: D1–D17 locked (D7–D9 authoring
 authority; D10 project grouping; D11 two-zone funnel with the cluster
-column as the working surface; D12 cluster canvas; D13 keyword lens — the
-last four added 2026-07-13 by Brett), R1–R14 confirmed unchanged by Brett
-on 2026-07-12. History: first proposed and ratified 2026-07-12; demoted to
+column as the working surface; D12 cluster canvas; D13 keyword lens; D14
+drill-down folders; D15 read-only Markdown viewer; D16 human gate console,
+superseding the blanket gate prohibition for human actors; D17 next-step
+kickoff — D10 onward added 2026-07-13 by Brett), R1–R14 confirmed
+unchanged by Brett on 2026-07-12. History: first proposed and ratified 2026-07-12; demoted to
 staging 2026-07-13 for continued design (drafts iterated in the topic's
 `openspec/` workspace per the draft-proposal convention); **re-proposed
 2026-07-13 — re-ratification pending** (the 07-12 ratification was set
@@ -40,13 +42,25 @@ xForge host.
   `ideation-workbench` manifests under `ideation/workbench/`; committed
   manifests disallowed; scratch notebooks deleted with their manifest via a
   sync orphan sweep.
-- Bind the permanent interactivity boundary as normative requirements,
-  split by actor: the dashboard's automated machinery is non-mutating over
-  existing source documents and never executes a gate; humans create and
-  edit corpus docs through the dashboard (header-compliant scaffolded
-  creation, select-to-edit opening the human's editor); agents may create
-  new corpus docs but never modify or delete existing ones; deleting a
-  doc/source in a corpus-bound notebook removes it from that set only.
+- Bind the interactivity boundary as normative requirements, split by
+  actor: the dashboard's automated machinery is non-mutating over existing
+  source documents and never executes a gate; humans create and edit
+  corpus docs through the dashboard (header-compliant scaffolded creation,
+  select-to-edit opening the human's editor) and operate lifecycle gates
+  through the gate console (D16); agents may create new corpus docs but
+  never modify, delete, or gate; deleting a doc/source in a corpus-bound
+  notebook removes it from that set only.
+- Add drill-down navigation, the viewer, and the gate console (D14–D17):
+  pipeline/funnel tiles open their underlying folders (staged topic docs;
+  a change's proposal/design/tasks/specs/supporting-docs); any doc opens
+  in a read-only Markdown viewer served pass-through from the pinned
+  checkout; on proposal artifacts a human runs reject-to-staging (the
+  mechanized reverse transition per the draft-proposal convention),
+  AI-assisted or manual edit (AI revisions land as redlines only a human
+  applies), or approve/ratify (recorded); after ratification the console
+  offers the change's outlined next step as a recorded dispatch under the
+  workflow-gate contract (Speckit realization in codexFactory; domain
+  workflows such as MedxFactory diagnosis elsewhere).
 - MODIFIED `document-lifecycle`: brainstorm docs seed candidate feats in a
   `Possible feats:` section at capture; no historical fabrication — only
   the worked examples backfill as renderer fixtures.

@@ -43,9 +43,10 @@ itself), so it does not touch the contested check-family enumeration.
 
 **Non-Goals:**
 
-- Executing any lifecycle gate — permanent boundary, not a v1 limitation.
-  The strongest allowed concession is drafting a gate artifact for human
-  review.
+- Gates executed by machinery or agents — permanent boundary. (Since D16,
+  humans DO operate gates through the console; what remains out of scope
+  forever is any gate executed autonomously, and any transition that skips
+  the governed tooling and records.)
 - Semantic content analysis (NotebookLM's job) or readiness judgment (the
   readiness panel's job) — the dashboard renders their outputs.
 - Domain factory coverage in v1 — the `repository` field keeps that
@@ -137,6 +138,36 @@ itself), so it does not touch the contested check-family enumeration.
   is the recipe — checked + pinned + overrides — in the workbench
   manifest, re-runnable as the corpus grows; "add as cluster" creates the
   workbench set and submits a human-seen cluster proposal (R8).
+- **Tiles open their folders** (D14, added 2026-07-13 by Brett): a
+  pipeline/funnel tile is a view of a real artifact folder — a staged tile
+  opens the topic folder (docs + `openspec/` drafts), a proposal tile
+  opens the change folder (proposal, design, tasks, spec deltas,
+  supporting docs) — and the explorer lets the user pick any doc to open.
+- **Read-only Markdown viewer via source pass-through** (D15, 2026-07-13):
+  explorer-selected docs render as read-only Markdown served from the same
+  pinned checkout the snapshot was generated from. The snapshot-only rule
+  governs dashboard STATE; document CONTENT is the source file — no
+  duplication into the snapshot, divergence surfaces and resolves by
+  regeneration. ✎ edit stays the escape hatch into the human's editor.
+- **The dashboard is the human's gate console** (D16, 2026-07-13 by
+  Brett — supersedes D5's blanket "never executes a gate" for HUMAN
+  actors; machinery and agents still never): on an opened proposal
+  artifact the human can (1) reject / move back to staging — the reverse
+  transition per the draft-proposal workspace convention, exactly the
+  2026-07-13 manual demotion mechanized, with registers updated and a
+  demotion record; (2) edit — the console lists the artifact's main
+  concepts and the human picks one for an AI-drafted revision (delivered
+  as a redline only a human may apply and commit, preserving agent
+  create-only) or hand-edits in their own editor; (3) approve / ratify —
+  the ratification record is written and registers update. Every console
+  action produces the same artifacts as the manual path plus an action
+  record.
+- **Next-step kickoff** (D17, 2026-07-13 by Brett): after ratification the
+  console offers the change's outlined next step as a human-initiated,
+  recorded dispatch under the promoted workflow-gate contract — commonly
+  a Speckit realization workflow in codexFactory; domain workflows in
+  DomainxFactories (e.g. a diagnosis workflow in MedxFactory). The
+  dashboard dispatches and renders status; it never executes the workflow.
 - **v1 is web-based** (Brett, 2026-07-13): the renderer is a static
   repo-tracked web GUI (browser-only; no desktop/native surface in v1),
   served per Option C below — alongside the Hermes-stack surfaces on the

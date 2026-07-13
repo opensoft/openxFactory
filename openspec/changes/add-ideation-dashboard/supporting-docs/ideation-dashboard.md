@@ -77,6 +77,9 @@ clustering missed.
    or Omni worker) may create new corpus docs but never modify or delete
    existing ones. In scope for everyone: reference sets, analysis tools,
    drafting gate artifacts. Executing a stage transition: no one, ever.
+   *(Amended by D16, 2026-07-13: superseded for human actors — humans now
+   operate gates through the gate console via the governed transition
+   tooling with records; machinery and agents still never.)*
 6. **Secondary views** from the same snapshot: pipeline board (stage columns
    with possibles badges), doc list (assembly surface), lineage, readiness
    heat (consumes the cross-reference index), health overlay, stats strip.
@@ -108,6 +111,10 @@ Brett in a follow-on session later the same day (authoring authority).
 | D11 | Funnel zones | Right of the pick is one identity promoted through gates (render state faithfully; gates may bundle/split); left of the pick is the generative many-to-many zone, and the cluster column — many docs in, many candidate feats out — is where feat quality is decided, so dashboard assistance concentrates there | decided 07-13 |
 | D12 | Cluster canvas | Per-cluster three-pane workspace: Topics-derived members only (downstream in a lineage strip), evidence board with passage provenance, gap prompts as actionable slots, possibles rail with option sets, composer drafting register entries; AI assists follow as pending-review deltas | decided 07-13 |
 | D13 | Keyword lens | Bullseye set-builder: keyword rail with counts + co-occurrence hints, match-count rings sectored by subset + matrix fallback, check=stratify/pin=require, declared vs inferred strengths distinct, +/− overrides with recorded reasons as evidence, clusters saved as re-runnable recipes in the workbench manifest | decided 07-13 |
+| D14 | Drill-down folders | Pipeline/funnel tiles open their underlying artifact folders (staged topic docs + openspec/ drafts; a change's proposal/design/tasks/specs/supporting-docs); the explorer opens any doc | decided 07-13 |
+| D15 | Document viewer | Read-only rendered Markdown via source pass-through from the pinned checkout; snapshot-only rule governs state, content is the source file; ✎ edit escape hatch | decided 07-13 |
+| D16 | Human gate console | Supersedes D5's blanket gate prohibition for HUMAN actors (machinery/agents still never): reject-to-staging (mechanized reverse transition), AI-assisted edit (redlines only a human applies), approve/ratify with record — every action produces the manual path's artifacts plus a gate-action record | decided 07-13 |
+| D17 | Next-step kickoff | Post-ratification the console offers the change's outlined next step as a human-initiated recorded dispatch under the workflow-gate contract (Speckit realization in codexFactory; domain workflows, e.g. MedxFactory diagnosis) | decided 07-13 |
 | R1 | Possibles register home | Authors seed a `Possible feats:` section in brainstorm docs at capture; the cross-reference index consolidates the canonical register (same bootstrap posture as the readiness index). No third standalone register file | confirmed |
 | R2 | Possible states | `latent / picked / rejected / superseded`; rejected and superseded require a recorded reason plus citation, mirroring contested-finding dispositions | confirmed |
 | R3 | Pick citation | A pick edge cites the staging ID, inheriting the change ID at the proposal gate — aligned with the proposal-origin-contract discipline | confirmed |
