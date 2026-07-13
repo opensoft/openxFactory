@@ -42,6 +42,54 @@ scaffold + their own editor, agents create only into pending-review queues
 - **Similarity lens** (later): hover a doc → related docs stay lit. Topic
   overlap first; semantic similarity only as a human-reviewed assist.
 
+## The keyword lens — bullseye set-builder (Zone A elaborated; Brett, 2026-07-13)
+
+Brett's concept: a list of the corpus keywords/tags, each showing how many
+docs reference it and the correlation strength per doc. Click a keyword →
+see its docs with strengths. Check more keywords → the doc set grows, with
+union AND intersection both visible: concentric circles where the outer
+ring holds docs matching one checked keyword, each ring inward matches
+more, and the innermost circle holds docs that check all the boxes; closer
+to center = more relevant. Docs are clickable (view/edit) and carry a +/−
+toggle for inclusion in the forming cluster; the included set becomes a
+cluster fed to the rest of the boards.
+
+Refinements from the session:
+
+- **Bullseye beats Venn.** Ring index = match count scales past the 3-set
+  Venn limit. Sector each ring by WHICH subset matched, so "these docs
+  share A+B but lack C" is a visible wedge. Always pair with an
+  UpSet-style matrix/list as the flat fallback view.
+- **Two strengths, visually distinct.** Declared (keyword in the Topics:
+  header — solid dot, binary today) vs inferred (cataloging classifier
+  confidence 0–1 with pending/suggested/reviewed states — hollow dot).
+  v1 rings are pure match count; strength gradients arrive with the
+  cataloging change. A machine guess never renders as an author
+  declaration.
+- **Check = stratify, pin = require.** Checked keywords shape the rings;
+  pinning one makes it a hard filter that collapses the lattice.
+- **Next-keyword assist, deterministic.** Co-occurrence hints against the
+  current selection: "adding credential-contracts pulls 2 docs into
+  ring 2."
+- **Overrides are evidence.** Manual + on a non-matching doc records a
+  reason and emits a scaffolded Topics: edit (under-tagged doc) or a
+  human-seen signal (missing vocabulary term); manual − on a matching doc
+  is negative evidence (tag too broad / mis-tagged). Both feed the tag
+  suggester and organizer queues. Never a silent set edit.
+- **Clusters as recipes.** Save the query — checked, pinned, overrides +
+  reasons — in the workbench manifest, not just the doc list. An
+  intensional cluster stays live: re-running the recipe as the corpus
+  grows surfaces "new candidates since last review." Durable promotion is
+  the existing human-seen path into the cross-reference index (R8), with
+  the recipe as rationale evidence.
+- **Scale + boundary.** Rings aggregate into expandable count bubbles past
+  ~30 docs; hover cards carry title/summary/chips; click previews, ✎
+  launches the human's editor (D7); inclusion state lives only in the
+  manifest.
+- **Placement.** The lens is the cluster canvas's front door: keyword lens
+  → forming set → open as canvas → compose possibles → pick. It absorbs
+  the topic-chip faceting and similarity-lens bullets above.
+
 ## Zone B — cluster canvas (column 2): the war room
 
 The headline concept: clicking into a cluster opens a focused workspace —
@@ -117,6 +165,15 @@ integration-candidates map).
 
 ## Possible feats
 
+- Keyword lens board: bullseye set-builder (match-count rings, subset
+  sectors, strength dots) with UpSet-style matrix fallback and
+  next-keyword co-occurrence assist.
+- Cluster-as-recipe manifests: intensional cluster definitions (query +
+  pins + overrides with reasons) that re-run as the corpus grows and
+  surface new candidates.
+- Override-evidence loop: +/− inclusion overrides emitting Topics-edit
+  scaffolds, human-seen signals, and negative evidence to the tag
+  suggester and organizer queues.
 - Cluster canvas: per-cluster workspace with member docs, evidence board,
   and possibles rail.
 - Possible composer + option-set compare over the possibles register.
