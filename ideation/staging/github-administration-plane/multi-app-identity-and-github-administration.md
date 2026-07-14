@@ -173,9 +173,15 @@ All six open questions are resolved (see above) — ready to propose.
    its two new requirements and the structural-parking amendment are folded
    into `openspec/specs/roles-authority-model/spec.md`, and
    `docs/roles-and-authority.md` carries the identity-tiering description.
-2. `add-github-administration-workflow` (OpsxFactory) — ratified 2026-07-14,
-   implementation in progress at
-   `xFactories/OpsxFactory/openspec/changes/add-github-administration-workflow/`.
+2. `add-github-administration-workflow` (OpsxFactory) — ratified 2026-07-14;
+   deterministic realization (Speckit feature `006-github-administration`)
+   **merged 2026-07-14** as OpsxFactory PR #9 (merge commit `7860bc1`):
+   OpenSpec sections 3–4 complete (260 tests green, 3-lens adversarial
+   review ADMIT_WITH_FIXES with all majors fixed). Change stays ACTIVE at
+   `xFactories/OpsxFactory/openspec/changes/add-github-administration-workflow/`
+   pending the human-gated live rollout (tasks 2.8, 5.1–5.5: App
+   registration, Tier-1 install, Actions Environment gate, live plan/apply,
+   content-App permission narrowing) — archives on that evidence.
 
 Two OpenSpec changes:
 
