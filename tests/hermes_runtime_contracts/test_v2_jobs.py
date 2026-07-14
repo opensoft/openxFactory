@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import subprocess
+import hashlib
 from copy import deepcopy
 from pathlib import Path
 
@@ -29,13 +29,29 @@ V2_KIND_BY_SCHEMA = {
     "hermes-job-event-v2.schema.yaml": jobs.EVENT_KIND,
 }
 
-# The v1 job surface is byte-frozen at the US3 checkpoint (NJE-004-S05 / U8).
-US3_CHECKPOINT = "66b1406"
+# The v1 job surface is byte-frozen (NJE-004-S05 / U8). This was originally
+# proven by diffing against the US3 checkpoint commit 66b1406, but that
+# checkpoint SHA predates a since-landed rebase and is no longer reachable on
+# main (a bare `git show 66b1406:<path>` exits 128 with "bad object"). The
+# freeze is now git-ref-free: each v1 schema file's current bytes are pinned
+# as a literal SHA-256 golden digest below, so the test still trips on any
+# future byte-level change without depending on repo history.
 V1_SCHEMA_PATHS = (
     "contracts/schemas/hermes-job-envelope.schema.yaml",
     "contracts/schemas/hermes-job-run.schema.yaml",
     "contracts/schemas/hermes-job-event.schema.yaml",
 )
+V1_SCHEMA_SHA256 = {
+    "contracts/schemas/hermes-job-envelope.schema.yaml": (
+        "8ce2c89903a2f5a68ce3d73a7b8eb4f47cdef913da038b9a68e22735ee96cb7c"
+    ),
+    "contracts/schemas/hermes-job-run.schema.yaml": (
+        "427fe1b9d299955acc08b4ff1ca25f753bcfdb5c95f4832d2680c1225cbfc406"
+    ),
+    "contracts/schemas/hermes-job-event.schema.yaml": (
+        "2efbd4d043bf24a5173cfc17b7df08d4a48cb0fe65491fb4b8809b4076ef9a1a"
+    ),
+}
 V1_ENVELOPE_EXAMPLE_PATHS = (
     "examples/merge-master/merge-master-job.example.yaml",
     "examples/project-alfa/decomposition/"
@@ -663,19 +679,17 @@ def test_jobs_fixture_matrix_is_self_describing_and_executable(
     }
 
 
-def _checkpoint_blob(path: str) -> bytes:
-    completed = subprocess.run(
-        ["git", "show", f"{US3_CHECKPOINT}:{path}"],
-        cwd=ROOT,
-        capture_output=True,
-        check=True,
-    )
-    return completed.stdout
-
-
 def test_v1_job_schemas_are_byte_frozen_at_the_us3_checkpoint() -> None:
+    # Byte-frozen via pinned SHA-256 (a git-ref-free golden digest). The
+    # original US3 checkpoint SHA (66b1406) is retired: it is a pre-rebase
+    # commit that main no longer contains, so comparing against it via
+    # `git show <sha>:<path>` fails closed with a subprocess error rather
+    # than proving anything about the file's contents. Pinning each file's
+    # current digest as a literal constant preserves the intent (any future
+    # byte-level drift trips this test) without depending on repo history.
     for path in V1_SCHEMA_PATHS:
-        assert (ROOT / path).read_bytes() == _checkpoint_blob(path), path
+        digest = hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+        assert digest == V1_SCHEMA_SHA256[path], path
 
 
 def test_v1_job_schemas_still_validate_their_pinned_example_fixtures() -> None:

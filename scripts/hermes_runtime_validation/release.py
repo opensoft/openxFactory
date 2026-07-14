@@ -323,7 +323,20 @@ def _collect_members(
     catalog_map: dict[str, Mapping[str, object]] = {}
     members: set[str] = set()
     for entry in catalog.get("contracts", []) or []:
-        if not isinstance(entry, Mapping) or not entry.get("release_member"):
+        if not isinstance(entry, Mapping):
+            continue
+        # Invariant (FR-032): a contract the catalog marks as a semantic member
+        # must also be a release member. A catalog that marks a file semantic
+        # but not release-member would silently drop it from the closed bundle,
+        # so fail closed as an unusable dependency input instead.
+        if entry.get("semantic_member") and not entry.get("release_member"):
+            contract_id = entry.get("contract_id") or entry.get("path") or "<unknown>"
+            raise ReleaseDependencyError(
+                "catalog marks a semantic member that is not a release member: "
+                f"{contract_id}",
+                code="HGR-RELEASE-SEMANTIC-NOT-RELEASED",
+            )
+        if not entry.get("release_member"):
             continue
         relative = entry.get("path")
         if not isinstance(relative, str):
@@ -347,7 +360,17 @@ def _collect_members(
     for validator in NAMED_VALIDATORS:
         if source.exists(validator):  # type: ignore[attr-defined]
             members.add(validator)
-    for extra in (*AUXILIARY_MEMBERS, *NORMATIVE_DOCS):
+    # Decision-10 mandatory auxiliaries are unconditional release members: each
+    # is added with no exists() guard, mirroring how the catalog release_member
+    # entries are added above. An auxiliary absent at the pinned commit then
+    # surfaces downstream as a read_member/ContentResolutionError dependency
+    # failure rather than being silently omitted from the closed bundle, which
+    # preserves FR-032's guarantee that every required semantic file is pinned.
+    for extra in AUXILIARY_MEMBERS:
+        members.add(extra)
+    # Normative docs are genuinely conditional ("modified normative docs") and
+    # join the bundle only when present at the source.
+    for extra in NORMATIVE_DOCS:
         if source.exists(extra):  # type: ignore[attr-defined]
             members.add(extra)
 

@@ -60,11 +60,31 @@ inventory:
     type: manifest
     git_mode: '100644'
     digest: sha256:db0491f80aa696e7d269ed00183a864e41fac1f624a7f65110ef495276ad0c81
+  - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
+    path: contracts/releases/release-digest-inventory.schema.yaml
+    type: schema
+    git_mode: '100644'
+    digest: sha256:f6488094c67148d34b92b0560729a6683230827ae33f7bfc90a9e7413675c5ae
   - artifact_id: docs-contract-versioning-policy.md
     path: docs/contract-versioning-policy.md
     type: documentation
     git_mode: '100644'
     digest: sha256:e018f6a2bf1bee0bbc2415a347bc1816c1c1a558eb890af709848ff7a815e7ee
+  - artifact_id: requirements-hermes-runtime-contracts.in
+    path: requirements/hermes-runtime-contracts.in
+    type: requirements
+    git_mode: '100644'
+    digest: sha256:81090a5bfa3c9a604354c6a0e5f64220c4585ec649d83a57cefafaef4e071f63
+  - artifact_id: requirements-hermes-runtime-contracts.lock
+    path: requirements/hermes-runtime-contracts.lock
+    type: requirements
+    git_mode: '100644'
+    digest: sha256:c061415421d73acd1babc70511cf3bc3f8ff48cc97c82588a1233b8fcd998ca9
+  - artifact_id: tests-hermes_runtime_contracts-postgres-images.lock.yaml
+    path: tests/hermes_runtime_contracts/postgres/images.lock.yaml
+    type: image-lock
+    git_mode: '100644'
+    digest: sha256:f4403aecb738495ca6970a95c7c13c06af1d325dac3e12c0daaafc4f841c1a64
 expected:
   outcome: fail
   primary_finding_code: HGR-RELEASE-PATH-DUPLICATE

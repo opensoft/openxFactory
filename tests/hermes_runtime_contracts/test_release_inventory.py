@@ -18,9 +18,11 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
 from scripts.hermes_runtime_validation import release
+from scripts.hermes_runtime_validation.content import ContentResolutionError
 from scripts.hermes_runtime_validation.fixtures import evaluate_expected_findings
 from scripts.hermes_runtime_validation.loader import load_yaml_document
 from tests.hermes_runtime_contracts import support
@@ -64,6 +66,15 @@ CHANGELOG_MD = "# changelog\n"
 CONTRACTS_README_MD = "# contracts\n"
 FAMILY_README_MD = "# hermes runtime family\n"
 VERSIONING_DOC_MD = "# contract versioning policy\n"
+REQUIREMENTS_IN = (
+    "# hermes-runtime contract validation requirements\njsonschema\npyyaml\n"
+)
+REQUIREMENTS_LOCK = "# pinned by pip-compile\njsonschema==4.23.0\npyyaml==6.0.2\n"
+IMAGES_LOCK_YAML = "schema_version: 1\nimages:\n- name: postgres\n  digest: sha256:0\n"
+INVENTORY_SCHEMA_STUB = (
+    "schema_version: 1\n"
+    "kind: openxfactory-contract-release-digest-inventory-schema\n"
+)
 
 SYNTHETIC_TREE: dict[str, str] = {
     "contracts/hermes-runtime/contract-index.yaml": CATALOG_YAML,
@@ -75,6 +86,13 @@ SYNTHETIC_TREE: dict[str, str] = {
     "contracts/CHANGELOG.md": CHANGELOG_MD,
     "contracts/README.md": CONTRACTS_README_MD,
     "docs/contract-versioning-policy.md": VERSIONING_DOC_MD,
+    # Decision-10 mandatory auxiliaries: now unconditional release members, so
+    # every synthetic tree must supply them or the closed-bundle build fails
+    # closed with a read_member dependency error (see F-U3).
+    "requirements/hermes-runtime-contracts.in": REQUIREMENTS_IN,
+    "requirements/hermes-runtime-contracts.lock": REQUIREMENTS_LOCK,
+    "tests/hermes_runtime_contracts/postgres/images.lock.yaml": IMAGES_LOCK_YAML,
+    "contracts/releases/release-digest-inventory.schema.yaml": INVENTORY_SCHEMA_STUB,
 }
 
 
@@ -362,10 +380,68 @@ def test_release_membership_is_the_closed_candidate_set(tmp_path: Path) -> None:
         "contracts/CHANGELOG.md",
         "contracts/README.md",
         "docs/contract-versioning-policy.md",
+        # Decision-10 mandatory auxiliaries are unconditional members (F-U3).
+        "requirements/hermes-runtime-contracts.in",
+        "requirements/hermes-runtime-contracts.lock",
+        "tests/hermes_runtime_contracts/postgres/images.lock.yaml",
+        "contracts/releases/release-digest-inventory.schema.yaml",
     }
     # The family README exists on disk but is not a catalog release member, so
     # membership excludes unregistered files.
     assert "contracts/hermes-runtime/README.md" not in members
+
+
+def test_missing_mandatory_auxiliary_fails_closed_not_silently_shrunk(
+    tmp_path: Path,
+) -> None:
+    # F-U3: Decision-10 mandatory auxiliaries are unconditional members. When one
+    # is absent at the pinned commit the build/verify must fail closed rather than
+    # silently omitting it and verifying a smaller inventory clean.
+    repo, _ = _synthetic_repo(tmp_path)
+    baseline = _canonical_inventory(repo)
+    baseline_paths = {entry["path"] for entry in baseline["entries"]}
+    assert "requirements/hermes-runtime-contracts.lock" in baseline_paths
+
+    # Remove a mandatory auxiliary from the working tree and commit its deletion.
+    (repo / "requirements/hermes-runtime-contracts.lock").unlink()
+    dropped_commit = _commit_all(repo, "drop mandatory auxiliary")
+
+    # Membership no longer shrinks: the lock is still a mandated member even
+    # though it is absent (the old exists()-gated build would have dropped it).
+    members_after = {path.as_posix() for path in release.release_membership(repo)}
+    assert "requirements/hermes-runtime-contracts.lock" in members_after
+
+    # The working-tree candidate build fails closed on the unreadable member.
+    with pytest.raises(ContentResolutionError):
+        release.build_release_inventory(repo, bundle_tag=SYNTHETIC_TAG)
+
+    # The exact-commit canonical build behind verification also fails closed
+    # instead of producing a smaller inventory that verifies clean.
+    with pytest.raises(ContentResolutionError):
+        release.verify_inventory_against_commit(repo, dropped_commit, baseline)
+
+
+def test_semantic_member_must_be_a_release_member(tmp_path: Path) -> None:
+    # F-U3 invariant: every catalog semantic_member must also be a release_member.
+    repo, _ = _synthetic_repo(tmp_path)
+    # The all-consistent synthetic catalog does not trip the invariant.
+    assert release.release_membership(repo)
+
+    orphan_catalog = CATALOG_YAML + (
+        "- contract_id: orphan-semantic\n"
+        "  path: orphan-semantic.schema.yaml\n"
+        "  type: schema\n"
+        "  contract_schema_version: 1\n"
+        "  semantic_member: true\n"
+        "  release_member: false\n"
+    )
+    (repo / "contracts/hermes-runtime/contract-index.yaml").write_text(
+        orphan_catalog, encoding="utf-8"
+    )
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release.release_membership(repo)
+    assert "orphan-semantic" in str(excinfo.value)
+    assert excinfo.value.code == "HGR-RELEASE-SEMANTIC-NOT-RELEASED"
 
 
 # --- exact-commit verification ------------------------------------------------
@@ -673,13 +749,24 @@ def test_verify_tag_reports_a_missing_remote_tag(tmp_path: Path) -> None:
 
 def test_validate_candidate_passes_on_the_realized_repository() -> None:
     # Post-realization (contract-v1.9): the realized release digest inventory is
-    # committed, so validate_candidate reproduces every member from the tree and
-    # passes. The missing-inventory state is gone for both modes; realization
-    # still requires published remote tag/commit evidence, which is asserted
-    # elsewhere against synthetic remotes (its exact outcome here depends on
-    # whether the annotated tag is present in the checkout).
+    # committed at contracts/releases/contract-v1.9.digests.yaml, which is the
+    # thing this test actually needs to prove -- the pre-realization
+    # missing-inventory state (HGR-RELEASE-INVENTORY-MISSING) is gone for both
+    # candidate and realization validation.
+    #
+    # It does NOT assert `== []`: main keeps moving after a release is cut, and
+    # release members (e.g. contracts/README.md) legitimately drift from the
+    # frozen contract-v1.9 digest inventory in between releases -- that is
+    # correct product behavior (you re-realize for the next version), not a
+    # bug. So drift findings like HGR-RELEASE-DIGEST-MISMATCH are expected and
+    # acceptable here; only the missing-inventory failure mode is disallowed.
+    inventory_path = ROOT / "contracts/releases/contract-v1.9.digests.yaml"
+    assert inventory_path.is_file(), inventory_path
     catalog = load_yaml_document(ROOT / "contracts/hermes-runtime/contract-index.yaml")
-    assert release.validate_candidate(ROOT, catalog=catalog) == []
+    candidate = release.validate_candidate(ROOT, catalog=catalog)
+    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
+        finding["code"] for finding in candidate
+    ]
     realization = release.validate_realization(ROOT, catalog=catalog)
     assert "HGR-RELEASE-INVENTORY-MISSING" not in [
         finding["code"] for finding in realization
