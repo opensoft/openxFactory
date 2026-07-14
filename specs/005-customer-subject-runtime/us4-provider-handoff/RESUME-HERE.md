@@ -147,3 +147,21 @@ us3-review-findings.md`, deliberately untouched.
    `--domain-repo-root` now required for the strict validator.
 5. Finish with ONE squashed US4 checkpoint commit; keep this directory as
    `Status: record` or delete it before the clean commit (coordinator call).
+
+## 3.4 T079–T081 EXECUTED: contract-v1.10 published (2026-07-14)
+
+Supersedes §3.3's "parked" status for the release tranche. With Brett's
+explicit gate approvals: the US3 review backlog (F-4, F-7..F-9) was fixed
+and folded in first (final source identity `sha256:979137d3…`, 171 postgres
+tests/major); F-U3 had already been fixed on main (`c6f5d6d`). T079 realized
+contract-v1.10 (superseding the published v1.9 per the Immutable Tag
+Correction policy after two post-tag hardenings changed member bytes); T080
+committed candidate C, reran all gates green on exact bytes, and passed a
+three-lens independent Opus review (zero confirmed findings); T081 promoted
+to published `origin/main` and published + fresh-clone-verified the
+annotated `contract-v1.10` tag. Evidence records:
+`evidence/release-candidate-review.md` and `evidence/release-publication.md`
+(v1.10 sections). REMAINING: T082 awaits the hermes-install feature's T009
+(now unblocked by publication — Speckit feature `001-three-layer-hermes-
+runtime` in `opensoft/xFactory-Hermes-Install`, planned 2026-07-11, 0/123
+tasks); then T083, T084/OpenSpec 5.3 close Gate G0.
