@@ -196,10 +196,16 @@ $defs:
     properties:
       action:
         type: string
-        enum: [notebook, readiness, doc-health, draft-organize, compose-possible, derive-possibles]
+        enum: [notebook, readiness, doc-health, draft-organize, compose-possible, derive-possibles, add-as-cluster]
         # Bounded workbench actions; `compose-possible`/`derive-possibles` are
         # recorded here once their gating deltas land (tasks.md 3.9) — the
         # vocabulary is reserved now so this schema does not need a bump then.
+        # `add-as-cluster` (added additively, codexFactory 002-ideation-dashboard
+        # T024/polish): the lens "add as cluster" action — saves the
+        # recipe-seeded workbench set and records this honest action name,
+        # with the human-seen cross-reference-queue submission itself still
+        # PENDING the sibling contract (change task 3.5's `pending_review`
+        # disposition, tracked as codexFactory T028, not yet landed).
       at: {type: string, format: date-time}
       reference:
         type: string
