@@ -1,0 +1,561 @@
+# GENERATED BOOTSTRAP — ideation cross-reference readiness index (source of truth).
+# Produced by scripts/bootstrap-ideation-cross-reference.py (add-ideation-cross-reference-readiness
+# task 2.4). Regenerate deterministically; ideation/cross-reference.md is a projection of THIS file.
+#
+# CLUSTERING RULE (bootstrap precursor of worker task 3.3): each Topics:/Target capabilities:
+# token is a cluster seed; a token carried by >= 2 docs forms a cluster; tokens with an
+# IDENTICAL member set are merged; cluster id = cl-<alphabetically-first token>; entries sorted
+# by id, members by path. See the script docstring for the full rule and the bootstrap posture
+# (all extension_fit unscored/no-claim, all tiers unscored, possibles_register absent).
+schema_version: 1
+kind: ideation-cross-reference
+repository: openxFactory
+generation:
+  source_revision: a7aac777bedfb83dbb957819a7753436bdabd334
+  generated_at: '2026-07-14T17:31:28Z'
+  generator_version: ideation-xref-bootstrap-0.1.0
+topic_entries:
+- id: cl-avatar-client
+  name: Avatar Client
+  topics:
+  - avatar-client
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+    stage: staged
+    matched_tags:
+    - avatar-client
+  - path: ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md
+    stage: staged
+    matched_tags:
+    - avatar-client
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-client-hermes
+  name: Client Hermes
+  topics:
+  - client-hermes
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/workflow-visualization-tooling.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  - path: ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  - path: ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-client-infrastructure-liaison
+  name: Client Infrastructure Liaison
+  topics:
+  - client-infrastructure-liaison
+  tag_sources:
+  - target-capabilities-header
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-liaison
+  - path: ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-liaison
+  - path: ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-liaison
+  - path: ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-liaison
+  - path: ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-liaison
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-client-infrastructure-request
+  name: Client Infrastructure Request
+  topics:
+  - client-infrastructure-request
+  tag_sources:
+  - target-capabilities-header
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-request
+  - path: ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-request
+  - path: ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-request
+  - path: ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-request
+  - path: ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md
+    stage: staged
+    matched_tags:
+    - client-infrastructure-request
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-credential-contracts
+  name: Credential Contracts
+  topics:
+  - credential-contracts
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/contract-release-and-stack-surface.md
+    stage: brainstorm
+    matched_tags:
+    - credential-contracts
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - credential-contracts
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-doc-health
+  name: Doc Health
+  topics:
+  - doc-health
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/doc-health-pipeline.md
+    stage: staged
+    matched_tags:
+    - doc-health
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - doc-health
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-doc-management
+  name: Doc Management
+  topics:
+  - doc-management
+  - doc-workflow
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/doc-health-pipeline.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/domain-to-neutral-promotion.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/ideation-cross-reference-readiness.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/lens-brainstorm-session-launch.md
+    stage: brainstorm
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/lens-keyword-search-and-adhoc.md
+    stage: brainstorm
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/lens-ring-combination-explorer.md
+    stage: brainstorm
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/openspec-speckit-release-flow.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-feat-request
+  name: Feat Request
+  topics:
+  - feat-request
+  - keyword-lens
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/lens-brainstorm-session-launch.md
+    stage: brainstorm
+    matched_tags:
+    - feat-request
+    - keyword-lens
+  - path: ideation/brainstorm/lens-keyword-search-and-adhoc.md
+    stage: brainstorm
+    matched_tags:
+    - feat-request
+    - keyword-lens
+  - path: ideation/brainstorm/lens-ring-combination-explorer.md
+    stage: brainstorm
+    matched_tags:
+    - feat-request
+    - keyword-lens
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-ideation-cross-reference
+  name: Ideation Cross Reference
+  topics:
+  - ideation-cross-reference
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/ideation-cross-reference-readiness.md
+    stage: staged
+    matched_tags:
+    - ideation-cross-reference
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - ideation-cross-reference
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-ideation-dashboard
+  name: Ideation Dashboard
+  topics:
+  - ideation-dashboard
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/lens-brainstorm-session-launch.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/lens-keyword-search-and-adhoc.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/lens-ring-combination-explorer.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-medxfactory
+  name: Medxfactory
+  topics:
+  - medxfactory
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md
+    stage: staged
+    matched_tags:
+    - medxfactory
+  - path: ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md
+    stage: staged
+    matched_tags:
+    - medxfactory
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-roles-authority-model
+  name: Roles Authority Model
+  topics:
+  - roles-authority-model
+  tag_sources:
+  - target-capabilities-header
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/domain-to-neutral-promotion.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-user-management
+  name: User Management
+  topics:
+  - user-management
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - user-management
+  - path: ideation/brainstorm/lens-keyword-search-and-adhoc.md
+    stage: brainstorm
+    matched_tags:
+    - user-management
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-workbench
+  name: Workbench
+  topics:
+  - workbench
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - workbench
+  - path: ideation/brainstorm/lens-brainstorm-session-launch.md
+    stage: brainstorm
+    matched_tags:
+    - workbench
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized
+- id: cl-workflow-visualization
+  name: Workflow Visualization
+  topics:
+  - workflow-visualization
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - workflow-visualization
+  - path: ideation/brainstorm/workflow-visualization-tooling.md
+    stage: staged
+    matched_tags:
+    - workflow-visualization
+  extension_fit:
+    has_promoted_fit: false
+    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
+      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
+      that evaluation, not an asserted ''no fit exists'' finding.'
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: company
+      unscored_reason: bootstrap — scoring worker not yet realized
+    - tier: project
+      unscored_reason: bootstrap — scoring worker not yet realized

@@ -85,6 +85,9 @@ archives, at the registration task named in that family's note below.
 | `schemas/xfactory-ideation-routing-index.schema.yaml` | Central Idea-ID allocation ledger (`ideation/routing-index.yaml`) | `add-cross-factory-ideation-routing` |
 | `schemas/xfactory-ideation-organizer-recommendations.schema.yaml` | Immutable non-mutating ideation-organizer recommendation evidence | `add-cross-factory-ideation-routing` |
 | `scripts/validate-ideation-routing.py` | Strict validator: schema/vocabulary conformance, central Idea-ID and Claim-ID uniqueness, legal transitions, destination-owner acceptance, structured repository-reference resolution, paired-document identity, prospective legacy compatibility | `add-cross-factory-ideation-routing` |
+| `schemas/ideation-cross-reference.schema.yaml` | Unified cross-stage cross-reference readiness index (source of truth `ideation/cross-reference.yaml`; `.md` is a generated projection); four-schema co-load, embeds the possibles-register kernel | `add-ideation-cross-reference-readiness` |
+| `scripts/validate-ideation-cross-reference.py` | Strict validator: four-schema-registry conformance (FormatChecker-enforced), extension-fit citation resolution against promoted/active-change capabilities, min>=8 gate arithmetic, spread-conflict consistency, topic-entry id uniqueness; delegates register-entry shape/transitions to `validate-ideation-dashboard-contracts.py` | `add-ideation-cross-reference-readiness` |
+| `scripts/render-ideation-cross-reference.py` / `scripts/bootstrap-ideation-cross-reference.py` | Deterministic YAML→Markdown projection renderer, and the one-time header-derived bootstrap generator that seeds `ideation/cross-reference.yaml` + `.md` | `add-ideation-cross-reference-readiness` |
 
 Reference examples for the ideation-dashboard family (8 valid + 21 invalid
 fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
@@ -105,6 +108,18 @@ reporting absent paths as skipped rather than passed. See
 for the requirements these schemas realize. Per this section's rule, these
 entries move to `contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
 `add-cross-factory-ideation-routing` archives (its task 8.4).
+
+Reference examples for the ideation-cross-reference family (1 comprehensive
+valid index + 2 negatives — one schema-layer, one validator-layer) live at
+`examples/ideation-cross-reference/`; `scripts/validate-ideation-cross-reference.py`
+self-tests them (four-schema co-load), then scans the checkout for the real
+`ideation/cross-reference.yaml`. The index's `.md` sibling is a generated
+projection produced by `scripts/render-ideation-cross-reference.py`; the initial
+YAML+MD were seeded by `scripts/bootstrap-ideation-cross-reference.py` (task 2.4).
+See `openspec/changes/add-ideation-cross-reference-readiness/specs/ideation-cross-reference/spec.md`
+for the requirements these realize. Per this section's rule, these entries move
+to `contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
+`add-ideation-cross-reference-readiness` archives (its task 5.2).
 
 ## Contract Manifest
 

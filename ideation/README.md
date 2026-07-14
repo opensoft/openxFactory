@@ -109,6 +109,32 @@ compressed), `Source:`, and — wherever the doc declares deltas —
 complements `Target capabilities:` — free subject keywords versus declared
 deltas — so a subject grep spans both stages with one field name.
 
+## Cross-Reference Readiness Index
+
+`ideation/cross-reference.md` is the unified cross-stage **topic cluster and
+readiness** surface: it clusters related material by topic across `brainstorm/`,
+`staging/`, and archived change material (bootstrapped from the `Topics:` and
+`Target capabilities:` fields above), records each cluster's extension-fit
+against promoted capabilities, and carries the three-tier Hermes readiness panel
+and its minimum-score recommendation gate. It answers "what recurs across stages,
+and what is mature enough to propose?" — distinct from the
+[Staging Index](staging/INDEX.md), which is the flat inventory of staged files;
+the two MUST NOT restate each other (the cross-reference index references
+members; the inventory tracks staged files). The `.md` is a generated projection
+of the source-of-truth `ideation/cross-reference.yaml` — never hand-edit it.
+
+The normative shape and rules live in
+[`contracts/schemas/ideation-cross-reference.schema.yaml`](../contracts/schemas/ideation-cross-reference.schema.yaml)
+and the ratified `add-ideation-cross-reference-readiness` `ideation-cross-reference`
+requirements (Cross-reference index contract, Extension-fit citation,
+Hermes-tier readiness panel, Readiness recommendation gate, Non-mutating
+execution bound) — referenced here, not duplicated. Regenerate the seed with
+`scripts/bootstrap-ideation-cross-reference.py` and validate with
+`scripts/validate-ideation-cross-reference.py`. The current bootstrap seeds
+header-derived clusters with every readiness tier unscored until the scoring
+worker (codexFactory) realizes; the possibles register folds in later via the
+ideation-dashboard flows.
+
 ## Contents
 
 Brainstorm (design history; fully organized into staging or an archived
