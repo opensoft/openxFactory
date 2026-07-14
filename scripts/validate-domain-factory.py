@@ -76,7 +76,13 @@ SECRET_PATTERNS = [
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
 ]
 TEXT_SUFFIXES = {".yaml", ".yml", ".md", ".json", ".py", ".sh", ".sql", ".txt"}
-SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv"}
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv",
+             # The CI convention checks the openxFactory stack pin out
+             # INSIDE the domain workspace; pinned upstream content --
+             # including redaction-test fixtures that deliberately
+             # carry secret-shaped strings -- is not the domain's own
+             # surface and must not fail its validation.
+             ".openxfactory-pin"}
 MEMORY_GATEWAY_TIERS = {"M0", "M1", "M2", "M3", "M4"}
 MEMORY_GATEWAY_OPERATIONS = {
     "xfactory.memory.query",
