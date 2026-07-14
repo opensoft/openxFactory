@@ -1,0 +1,52 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-control-lost-failure
+evidence_ids: [AFU-004-S05]
+# Deterministic fail-closed FAILURE fixture (avatar-client-lab task 4.2,
+# contributed upstream). A failure is a local safety transition nobody authored:
+# the authoritative control/policy channel is lost while media remains connected.
+# The reducer fails closed — the derived avatar state becomes `blocked` (never
+# `speaking`), governed commands disable, and snapshot recovery is required. This
+# is the "failure" half of the denial-vs-failure distinction
+# (acceptance-and-tests.md claim 5b) and also anchors the event-gap recovery path
+# (ACR-004-S04) and control-loss authority derivation (ACR-005-S01): control_lost
+# MUST derive `blocked`, never `speaking`. Its peer `governed-action-denial.yaml`
+# is the "denial" half; the two must render differently. Fixed clock/IDs/font/
+# locale/platform + canonical AVC inputs -> declared view-state/records. No live
+# model, provider, clock, or RNG. Two identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:15Z"
+  ids:
+    session_id: sess-0004
+    workflow_id: wf-0004
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+  events:
+    - {event_type: session_started, authority: authoritative}   # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}  # listening: capture authorized
+    - {event_type: lifecycle_transition, authority: authoritative, control_health: control_lost}  # control channel lost while media connected
+  snapshot:
+    state_revision: 3
+    presentation_mode: conversation
+    control_health: control_lost
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: blocked         # capture/playback halt; avatar derives `blocked`, never `speaking`
+    control_state: lost          # fail-closed local safety transition, NOT an authored outcome
+    workflow_projection: intake
+    governed_commands_enabled: false   # governed commands disable immediately on control loss
+    recovery_required: true            # snapshot recovery required before consequential transitions resume
+  records:
+    - {kind: session_started, session_id: sess-0004}
+    - {kind: media_authorized, session_id: sess-0004}
+    - {kind: control_lost, session_id: sess-0004}

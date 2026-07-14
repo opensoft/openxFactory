@@ -1,0 +1,55 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-consent-withdraw-mid-speech
+evidence_ids: [AFU-006-S03]
+# Deterministic consent-withdraw-mid-speech fixture (avatar-client-lab task 4.2,
+# contributed upstream). An authoritative consent-withdrawn (`revocation`) event
+# arrives while the avatar is `speaking`. Within the revocation bound the fixture
+# adapter terminates the media leg: the avatar LEAVES `speaking`, capture stops,
+# and media-gated governed commands disable (acceptance-and-tests.md claim 5c;
+# AFU-006-S03, and the client-behavioural half of ACR-008-S04). Unlike a control
+# failure this is an authoritative, authored revocation — capture ends cleanly to a
+# credential-free terminal, not a `blocked` safety trip. Fixed clock/IDs/font/
+# locale/platform + canonical AVC inputs -> declared view-state/records. No live
+# model, provider, clock, or RNG. Two identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:20Z"
+  ids:
+    session_id: sess-0005
+    workflow_id: wf-0005
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: user text accepted
+    - {event_type: transcript_segment, authority: observation}   # speaking: streamed response
+    - {event_type: revocation, authority: authoritative}         # consent withdrawn mid-speech
+  snapshot:
+    state_revision: 5
+    presentation_mode: conversation
+    session_outcome: revoked
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: revoked         # media leg terminated within the revocation bound; avatar leaves `speaking`
+    control_state: healthy        # authoritative revocation is a clean authored terminal, not a control failure
+    workflow_projection: intake
+    capture_active: false         # capture stops
+    governed_commands_enabled: false   # media-gated governed commands disable
+  records:
+    - {kind: session_started, session_id: sess-0005}
+    - {kind: media_authorized, session_id: sess-0005}
+    - {kind: command_accepted, session_id: sess-0005}
+    - {kind: transcript_segment, session_id: sess-0005}
+    - {kind: media_revoked, session_id: sess-0005}

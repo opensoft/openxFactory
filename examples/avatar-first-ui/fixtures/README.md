@@ -19,8 +19,11 @@ fixtures/
 ├── compatibility/            # pre-alignment profiles that MUST still validate
 │   └── legacy-persona-catalog.yaml
 ├── deterministic/            # offline-replayable canonical AVC command/event/snapshot -> view-state
-│   ├── offline-acceptance.yaml         # listening (capture_authorized) baseline
-│   └── six-state-transition-arc.yaml   # listening -> thinking -> speaking extension (task 4.3)
+│   ├── offline-acceptance.yaml          # listening (capture_authorized) baseline
+│   ├── six-state-transition-arc.yaml    # listening -> thinking -> speaking extension (task 4.3)
+│   ├── governed-action-denial.yaml      # governed denial outcome; avatar never speaks (task 4.2, claim 5b)
+│   ├── control-lost-failure.yaml        # fail-closed control loss -> avatar blocked (task 4.2, claim 5b)
+│   └── consent-withdraw-mid-speech.yaml # consent withdrawn while speaking -> media terminated (task 4.2, claim 5c)
 └── negative/                 # ≥1 fixture per enforced rule class (nine classes; 12 fixtures)
     ├── authority-transition.yaml       # AFUV-AUTHORITY-TRANSITION      (class 1)
     ├── timing-out-of-range.yaml        # AFUV-TIMING-OUT-OF-RANGE       (class 2)
@@ -58,11 +61,18 @@ successor-owned.
 | AFU-001 Adaptive shell over orthogonal runtime state | `deterministic/offline-acceptance.yaml` (AFU-001-S01), `deterministic/six-state-transition-arc.yaml` (AFU-001-S01), `negative/authority-transition.yaml` (AFU-001-S03), standard §15 | — |
 | AFU-002 Hermes-layer surface defaults | four archetype examples in `../domain-overlays.example.yaml`, standard §16 | — |
 | AFU-003 Flutter client / web-console split | standard §21 (boundary + handoff URL rules) | `implement-avatar-client-lab` (client), workflow-visualization (console) |
-| AFU-004 Standard controls, recording awareness, fallback | `negative/mode-reserved.yaml` (S01), `held-answer-active.yaml` (S02), `control-fallback-missing.yaml` (S04), `timing-out-of-range.yaml` (S05), standard §17–§18 | `implement-avatar-client-lab` (widget/live) |
+| AFU-004 Standard controls, recording awareness, fallback | `negative/mode-reserved.yaml` (S01), `held-answer-active.yaml` (S02), `deterministic/governed-action-denial.yaml` (S03), `control-fallback-missing.yaml` (S04), `timing-out-of-range.yaml` + `deterministic/control-lost-failure.yaml` (S05), standard §17–§18 | `implement-avatar-client-lab` (widget/live) |
 | AFU-005 Accessibility & localization baseline | structured `accessibility_baseline` in examples, `deterministic/six-state-transition-arc.yaml` (AFU-005-S03), standard §22 | `avatar-pilot-hardening` (WCAG audit, platform qualification) |
-| AFU-006 Persona presentation & disclosure | `negative/persona-unresolved.yaml` (S02), `purpose-invalid.yaml` (S03), `retention-unresolved.yaml` (S04), standard §19 | — |
+| AFU-006 Persona presentation & disclosure | `negative/persona-unresolved.yaml` (S02), `purpose-invalid.yaml` + `deterministic/consent-withdraw-mid-speech.yaml` (S03), `retention-unresolved.yaml` (S04), standard §19 | — |
 | AFU-007 Untrusted content & external-action rendering | `negative/unsafe-render.yaml` (S01), standard §20 | `implement-avatar-client-lab` (widget architecture test) |
 | AFU-008 Deterministic UI acceptance | `deterministic/offline-acceptance.yaml` (S01), `deterministic/six-state-transition-arc.yaml` (S01, listening→thinking→speaking extension), validator determinism check | `implement-avatar-client-lab` (goldens), live-provider replay |
+
+The three task-4.2 deterministic seeds (`governed-action-denial`,
+`control-lost-failure`, `consent-withdraw-mid-speech`) are the replayable
+worked-scenario seeds for the client-lab acceptance map
+(`contracts/avatar-client-lab/client-acceptance-map.yaml`); they carry the
+denial-vs-failure and consent-withdraw distinctions the lab must render
+(`supporting-docs/acceptance-and-tests.md` claim 5).
 
 The negative fixtures also anchor the nine enforced validator rule classes (see
 `../../../specs/004-avatar-first-ui/contracts/validator-rules.md`). The offline

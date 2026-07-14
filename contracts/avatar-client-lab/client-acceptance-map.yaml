@@ -1,0 +1,395 @@
+schema_version: 1
+kind: avatar-client-lab-acceptance-map
+change_id: implement-avatar-client-lab
+interface_baseline: avatar-client-parallel-v1
+# Neutral, openxFactory-owned CLIENT-LAB acceptance map (implement-avatar-client-lab
+# task 4.2). It DECLARES what the offline deterministic avatar client lab proves —
+# it does not itself hold Flutter evidence. Evidence nodes (reducer fixtures,
+# widget/avatar goldens) are produced in codexFactory `apps/avatar-client-lab/`;
+# a scenario's status effectively flips only when that Flutter work lands.
+#
+# It exists because two released acceptance maps already name this change as an
+# `owner_change` for a fixed, enumerable set of ACR/SCO/RBG/AFU scenarios that no
+# current artifact records against the lab (supporting-docs/acceptance-and-tests.md
+# claim 2). Here that inherited set is transcribed VERBATIM (ids + titles) with its
+# source map and owner linkage, and each scenario is mapped to its planned client
+# evidence class. Per FR-040's resolution the lab's evidence is CLIENT BEHAVIOUR —
+# the pure reducer reacting + the widgets rendering — NOT a re-proof of the schema
+# layer (the kernel already evidences that by replaying `fixtures/index.yaml`
+# through the real draft-2020-12 validator). So no entry maps to schema re-proof.
+#
+# Ownership boundary: this map does NOT edit and is NOT a member of either released
+# bundle. It lives OUTSIDE `contracts/avatar-client/` (so none of the AVC kernel's
+# digest/metadata/redaction scans touch it) and outside `examples/avatar-first-ui/`.
+# The two released maps
+# (`contracts/avatar-client/acceptance-map.yaml`,
+#  `examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml`),
+# the released evidence register, and `contracts/manifest.yaml` stay byte-identical.
+# The deferred scenario SCO-001-S05 is discharged only through the successor
+# register (`contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml`,
+# locked decision 7), never by an entry here.
+#
+# Machine-checked by scripts/validate-avatar-client.py::check_client_lab_acceptance_map
+# (fail-closed, mirroring check_successor_discharge): every requirement it lists must
+# name this change as an owner in its source released map, every requirement that
+# names this change in either released map must appear here (no silently dropped
+# inherited requirement), and every scenario id + title must match the source map
+# verbatim (no fabricated or renamed scenario).
+
+# The two released acceptance maps whose owner_change slice this map inherits.
+consumes:
+  - bundle: contract-v1.7
+    source_map: contracts/avatar-client/acceptance-map.yaml
+    owner: define-avatar-client-contract-kernel
+    key: avatar-client
+  - bundle: contract-v1.8
+    source_map: examples/avatar-first-ui/avatar-first-ui-acceptance-map.yaml
+    owner: align-avatar-first-ui-standard
+    key: avatar-first-ui
+
+# Closed set of planned client evidence classes (FR-040: reducer + widget behaviour,
+# not schema re-proof). Every inherited scenario resolves to exactly one.
+evidence_classes:
+  fixture: >-
+    A neutral, deterministic fixture replayed through the pure session core proves
+    the reducer behaviour (the reducer + view-state half of FR-040). Includes the
+    portable pin/conformance fixtures the offline gates replay.
+  golden: >-
+    A frame-exact widget or avatar golden on the Linux CI job proves the rendering
+    (the widget half of FR-040): the derived avatar state, per-state non-colour cue,
+    governed-action card, sanitised untrusted content, or reduced-motion static frame.
+  successor: >-
+    Not proven by this offline lab: deferred to a named successor change, or (for
+    SCO-001-S05) discharged through this change's successor evidence register. The
+    lab records the boundary/seam; the evidence lands elsewhere.
+
+# F1-F4 are acceptance FOCI, not delivery rings (claim 1). M0 is a tracer through
+# F1+F2 only, bound to the released deterministic seed fixtures.
+acceptance_foci:
+  - id: M0
+    title: Walking-skeleton tracer through F1+F2
+    seed_fixtures:
+      - examples/avatar-first-ui/fixtures/deterministic/offline-acceptance.yaml
+      - examples/avatar-first-ui/fixtures/deterministic/six-state-transition-arc.yaml
+  - id: F1
+    title: Adaptive shell & authority status
+  - id: F2
+    title: Governed interaction & confirmation
+  - id: F3
+    title: Avatar presentation seam
+  - id: F4
+    title: Accessibility, localization & determinism harness
+  - id: cross_cutting
+    title: Contract ownership, pinning, and repository boundary
+
+# The nine offline, network-free CI gates that gate the lab (claim 4). Each
+# inherited scenario names the gate that anchors it.
+gates:
+  - id: schema_conformance
+    title: Replay every fixtures/index.yaml case + the avatar-first-ui negative cases through the real draft-2020-12 validator; each expect fires exactly as declared.
+    offline: true
+  - id: content_addressed_pin
+    title: contract_pin.yaml records the exact commit + per-file SHA-256 for both bundles and verifies them against contracts/manifest.yaml; a tag-only pin fails (SCO-001-S03).
+    offline: true
+  - id: replay_determinism
+    title: Each canonical fixture replayed twice yields byte-identical normalized view-state (AFU-008-S01).
+    offline: true
+  - id: golden
+    title: Frame-exact goldens on the Linux CI job only, injected phase, reduced-motion static frame as the renderer-swap contract; any flake is a determinism bug.
+    offline: true
+  - id: accessibility
+    title: The eleven accessibility_baseline capabilities as gating tests + keyboard-only F1-F4 completion + per-state non-colour-cue presence, on the qualified desktop platform.
+    offline: true
+  - id: authority_derivation
+    title: Presentation state is a pure function of media/control authority; control_lost/control_degraded never map to speaking; the client emits no authoritative event and executes no tool call.
+    offline: true
+  - id: production_boundary
+    title: The main_lab.dart harness is compiled out of and asserted absent from the production build; no provider credential or server tool handler exists in the owned surface (RBG-001).
+    offline: true
+  - id: fail_closed_seam
+    title: The deferred live ports ship fixture adapters whose defaults hold the interface-lock closed set (offline_drafts disabled, attachments reference_only, second_instance denied, reserved mode/gate preflight-fails-to-text_or_handoff).
+    offline: true
+  - id: evidence_completeness
+    title: Every inherited scenario resolves to a fixture, a golden, or a named successor, or CI fails — the lab's self-gating analog of ACR-012-S03 / AFU-008-S03.
+    offline: true
+
+# The eleven avatar-first-ui accessibility-baseline capabilities are named, gating,
+# and split by platform (claim 6). They mirror the released schema's
+# accessibility_baseline block exactly.
+accessibility_baseline:
+  qualified_platform: windows_desktop
+  web_exception_register: true   # canvas-web WCAG exceptions recorded, no web AA claim in F1-F4 (locked decision 4)
+  capabilities:
+    - keyboard_operation
+    - stable_focus
+    - visible_focus
+    - screen_reader_announcements
+    - captions
+    - text_only_mode
+    - reduced_motion
+    - high_contrast
+    - non_color_cues
+    - zoom_reflow
+    - pseudo_locale_coverage
+
+# Counts self-check (also enforced by the validator against the block below).
+expected_requirement_count: 13
+expected_scenario_count: 42
+
+# The inherited scenario set, transcribed verbatim from the two released maps. Each
+# requirement records its source map, its released title, and the F1-F4 focus it
+# serves; each scenario records its verbatim title, the planned client evidence
+# class, the anchoring gate, and (where a neutral seed exists) the fixture path or
+# (where deferred) the named successor / discharge path.
+inherited_scenarios:
+  - requirement: ACR-003
+    source_map: avatar-client
+    title: Brokered direct media with sideband control
+    slice: fail_closed_media_gate   # the lab owns only the client-enforceable media-gate slice
+    focus: F2
+    scenarios:
+      - id: ACR-003-S03
+        title: Media is attempted before authorization
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+        fixture: examples/avatar-first-ui/fixtures/deterministic/offline-acceptance.yaml
+      - id: ACR-003-S04
+        title: A modified client bypasses the local media gate
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+        fixture: examples/avatar-first-ui/fixtures/deterministic/offline-acceptance.yaml
+  - requirement: ACR-004
+    source_map: avatar-client
+    title: Single-log command, event, and snapshot authority
+    focus: F2
+    scenarios:
+      - id: ACR-004-S01
+        title: Client submits a valid command
+        client_evidence_class: fixture
+        gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/six-state-transition-arc.yaml
+      - id: ACR-004-S02
+        title: Command is retried
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-004-S03
+        title: Revision-guarded command uses a stale revision
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-004-S04
+        title: Event stream has a gap
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+        fixture: examples/avatar-first-ui/fixtures/deterministic/control-lost-failure.yaml
+      - id: ACR-004-S05
+        title: An event arrives while a recovery snapshot is produced
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+      - id: ACR-004-S06
+        title: Client reports a tool completed
+        client_evidence_class: fixture
+        gate: authority_derivation
+  - requirement: ACR-005
+    source_map: avatar-client
+    title: Leased control channel and deterministic recovery
+    focus: F2
+    scenarios:
+      - id: ACR-005-S01
+        title: Control channel is lost while media remains connected
+        client_evidence_class: fixture
+        gate: authority_derivation
+        fixture: examples/avatar-first-ui/fixtures/deterministic/control-lost-failure.yaml
+      - id: ACR-005-S02
+        title: A media profile exceeds the neutral lease ceilings
+        client_evidence_class: fixture
+        gate: schema_conformance
+        fixture: contracts/avatar-client/fixtures/index.yaml
+      - id: ACR-005-S03
+        title: Control connection drops transiently
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-005-S04
+        title: Pending action exists during reconnect
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-005-S05
+        title: User pauses and resumes
+        client_evidence_class: fixture
+        gate: replay_determinism
+  - requirement: ACR-006
+    source_map: avatar-client
+    title: Governed tools and effect-bound confirmation
+    focus: F2
+    scenarios:
+      - id: ACR-006-S01
+        title: Model proposes a consequential action
+        client_evidence_class: golden
+        gate: golden
+      - id: ACR-006-S02
+        title: Exact effect is confirmed
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-006-S03
+        title: Confirmation is stale or superseded
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-006-S04
+        title: Silence or transcript text resembles agreement
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+  - requirement: ACR-009
+    source_map: avatar-client
+    title: Disposable provider context and attachment references
+    focus: F2
+    scenarios:
+      - id: ACR-009-S01
+        title: Session reaches its duration limit
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-009-S02
+        title: Media leg reconnects after a network drop
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-009-S03
+        title: User attaches a document
+        client_evidence_class: fixture
+        gate: fail_closed_seam
+  - requirement: ACR-010
+    source_map: avatar-client
+    title: Minimal retention with no local persistence
+    focus: F2
+    scenarios:
+      - id: ACR-010-S01
+        title: Captions are presentation only
+        client_evidence_class: fixture
+        gate: replay_determinism
+      - id: ACR-010-S02
+        title: A reserved retention class is requested
+        client_evidence_class: fixture
+        gate: schema_conformance
+        fixture: contracts/avatar-client/fixtures/index.yaml
+      - id: ACR-010-S03
+        title: Conflicting edit is submitted
+        client_evidence_class: fixture
+        gate: replay_determinism
+  - requirement: RBG-001
+    source_map: avatar-client
+    title: Neutral avatar-client repository boundary
+    focus: cross_cutting
+    scenarios:
+      - id: RBG-001-S01
+        title: Client repository is created
+        client_evidence_class: successor
+        gate: production_boundary
+        successor_change: implement-avatar-client-lab   # realized in codexFactory apps/avatar-client-lab/; recorded task 9.2
+      - id: RBG-001-S02
+        title: Privileged provider code is proposed in the client
+        client_evidence_class: successor
+        gate: production_boundary
+        successor_change: implement-avatar-client-lab
+  - requirement: SCO-001
+    source_map: avatar-client
+    title: Avatar-client contract ownership and consumer pinning
+    focus: cross_cutting
+    scenarios:
+      - id: SCO-001-S01
+        title: Avatar runtime contract is introduced
+        client_evidence_class: fixture
+        gate: content_addressed_pin
+      - id: SCO-001-S02
+        title: Contract bundle release identifiers disagree
+        client_evidence_class: fixture
+        gate: content_addressed_pin
+      - id: SCO-001-S03
+        title: Consumer records only a contract tag
+        client_evidence_class: fixture
+        gate: content_addressed_pin
+        fixture: contracts/avatar-client/fixtures/index.yaml
+      - id: SCO-001-S04
+        title: Client models drift from the pinned contract
+        client_evidence_class: fixture
+        gate: schema_conformance
+        fixture: contracts/avatar-client/fixtures/index.yaml
+      - id: SCO-001-S05
+        title: Provider event is added
+        client_evidence_class: successor
+        gate: evidence_completeness
+        discharge_via: contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml
+  - requirement: SCO-002
+    source_map: avatar-client
+    title: Avatar runtime reference ownership
+    focus: cross_cutting
+    scenarios:
+      - id: SCO-002-S01
+        title: Server-side provider integration is implemented
+        client_evidence_class: successor
+        gate: production_boundary
+        successor_change: qualify-avatar-live-voice
+      - id: SCO-002-S02
+        title: Domain overlay adopts the runtime
+        client_evidence_class: successor
+        gate: production_boundary
+        successor_change: avatar-pilot-hardening
+  - requirement: AFU-003
+    source_map: avatar-first-ui
+    title: Flutter client and web-console responsibility split
+    focus: F1
+    scenarios:
+      - id: AFU-003-S01
+        title: User reviews workflow status in the client
+        client_evidence_class: golden
+        gate: golden
+      - id: AFU-003-S02
+        title: User edits workflow or policy
+        client_evidence_class: successor
+        gate: production_boundary
+        successor_change: workflow-visualization   # interactive editing owned by the separate web console
+  - requirement: AFU-005
+    source_map: avatar-first-ui
+    title: Accessibility and localization baseline
+    focus: F4
+    scenarios:
+      - id: AFU-005-S01
+        title: User enables reduced motion or text-only mode
+        client_evidence_class: golden
+        gate: accessibility
+      - id: AFU-005-S02
+        title: Pseudo-locale and zoom are applied
+        client_evidence_class: golden
+        gate: accessibility
+      - id: AFU-005-S03
+        title: Screen reader follows a state transition
+        client_evidence_class: fixture
+        gate: accessibility
+        fixture: examples/avatar-first-ui/fixtures/deterministic/six-state-transition-arc.yaml
+  - requirement: AFU-007
+    source_map: avatar-first-ui
+    title: Untrusted content and external-action rendering
+    focus: F2
+    scenarios:
+      - id: AFU-007-S01
+        title: Model emits markup or a dangerous link
+        client_evidence_class: golden
+        gate: golden
+      - id: AFU-007-S02
+        title: Tool summary contains command-like text
+        client_evidence_class: golden
+        gate: golden
+  - requirement: AFU-008
+    source_map: avatar-first-ui
+    title: Deterministic UI acceptance
+    focus: F4
+    scenarios:
+      - id: AFU-008-S01
+        title: Offline acceptance is replayed
+        client_evidence_class: fixture
+        gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/offline-acceptance.yaml
+      - id: AFU-008-S02
+        title: Provider DTO reaches a widget test
+        client_evidence_class: golden
+        gate: golden
+      - id: AFU-008-S03
+        title: Required UI evidence is missing
+        client_evidence_class: fixture
+        gate: evidence_completeness
