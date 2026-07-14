@@ -144,6 +144,12 @@ proposal):
 
 Brainstorm (active):
 
+- [Keycloak Identity Brokering and the Single Persona](brainstorm/keycloak-identity-brokering.md)
+  — self-hosted Keycloak as the family identity broker: bring-your-own
+  IdP (GitHub/Google/Entra/any OIDC), federated logins link into one
+  durable persona per human with organizations as memberships; dashboard
+  auth swap first, gate-console authenticated principals second,
+  editor-product login third.
 - [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
   — three upstream gaps from the codexFactory conformance-gate hardening;
   seeds a future openxFactory proposal.
