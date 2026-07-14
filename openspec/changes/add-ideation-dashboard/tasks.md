@@ -3,7 +3,7 @@
 ## 1. Sequencing And Contract Baseline
 
 - [ ] 1.1 Sequence the `ideation-cross-reference` delta with the active `add-ideation-cross-reference-readiness` change: verify at realization that the promoted (or pending) wording matches what this change's delta was declared against, rebase if needed, and re-run strict OpenSpec validation.
-- [ ] 1.2 Verify this change's staged-origin `.openspec.yaml`, support-manifest origin repetition, and staging-header linkage.
+- [x] 1.2 Verify this change's staged-origin `.openspec.yaml`, support-manifest origin repetition, and staging-header linkage. — Verified 2026-07-14: `.openspec.yaml`, both transition manifests (first + second), and the supporting doc's `Staging ID:` header all carry `openxFactory:staging:ideation-dashboard`; `remaining_paths: []` consistent with the emptied topic. (1.1 stays open by design — it is a realization-gate check against the xref delta.)
 
 ## 2. Contracts And Schemas (openxFactory)
 
