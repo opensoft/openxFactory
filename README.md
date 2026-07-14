@@ -97,6 +97,7 @@ Core domain-neutral docs:
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [Doc-Health Contract](docs/doc-health.md)
 - [Document Catalog Adoption Guide](docs/document-catalog-adoption.md)
+- [Cross-Factory Ideation Routing Adoption Guide](docs/ideation-routing-adoption.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
 - [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)

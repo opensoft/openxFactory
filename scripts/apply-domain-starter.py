@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 11  # v11: document-catalog namespaced tag-registry stub
+STARTER_VERSION = 12  # v12: ideation capture-and-route guide stub
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -136,6 +136,37 @@ It implements the openxFactory/xFactory contract with:
 - [Avatar-First UI](docs/avatar-first-ui.md)
 - [Credentialing](docs/credentialing.md)
 - [Boundary](docs/boundary.md)
+""",
+        "ideation/README.md": f"""# Ideation Work Area
+
+Status: ratified
+Kind: process
+Ratified by: openxFactory change add-document-lifecycle-vocabulary
+Repository context: {ctx.product_name}
+
+Pre-proposal pipeline for this domain: `brainstorm/` holds free-form,
+non-normative capture (the only place prose may contradict promoted specs);
+`staging/` holds organized fragments headed for an OpenSpec change.
+Cross-factory and contract-level topics belong in `openxFactory/ideation/`
+instead. States, gates, and the status taxonomy are defined by the canonical
+xFactory Document Lifecycle in `openxFactory/docs/document-lifecycle.md`.
+
+## Cross-Factory Idea Routing
+
+Known-domain ideas stay here in `brainstorm/`. When an idea's owner is
+genuinely unknown, or it spans several domains, capture and route it from
+`openxFactory/ideation/` rather than forcing it into this repository — the
+`ideation-routing` capability owns capture-first identity, structured
+cross-repository provenance, destination-owner acceptance, and
+owner-authorized disposition. When a claim from such an idea is proposed for
+{ctx.product_name}, this domain's Hermes is the destination authority that
+accepts or declines it; a non-authoritative organizer recommendation never
+confers ownership, and only a reviewed, owner-authorized transition routes a
+claim here. This repository duplicates none of those rules — see
+`openxFactory/docs/ideation-routing-adoption.md`, which points into the
+capability, the routing schemas under `openxFactory/contracts/schemas/`, and
+the central `openxFactory/ideation/routing-index.yaml`. Unchanged legacy
+brainstorms in this repository need no routing metadata.
 """,
         "Makefile": """PYTHON ?= python3
 

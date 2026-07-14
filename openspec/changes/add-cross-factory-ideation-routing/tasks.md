@@ -14,8 +14,8 @@
 
 ## 3. Domain Factory Adoption And Scaffolding
 
-- [ ] 3.1 Add reusable neutral ideation/routing guidance and update `scripts/apply-domain-starter.py` so future DomainxFactories inherit capture, provenance, acceptance, and disposition conventions.
-- [ ] 3.2 Update AdxFactory, LedgerxFactory, MedxFactory, OpsxFactory, and codexFactory ideation guides with known-domain capture, cross-domain routing pointers, destination acceptance, and owner-authorized disposition.
+- [x] 3.1 Add reusable neutral ideation/routing guidance and update `scripts/apply-domain-starter.py` so future DomainxFactories inherit capture, provenance, acceptance, and disposition conventions.
+- [x] 3.2 Update AdxFactory, LedgerxFactory, MedxFactory, OpsxFactory, and codexFactory ideation guides with known-domain capture, cross-domain routing pointers, destination acceptance, and owner-authorized disposition.
 - [ ] 3.3 Re-pin each adopting DomainxFactory to the promoted routing contract and verify unchanged legacy brainstorms receive no fabricated Idea IDs, Claim IDs, or routing history.
 
 ## 4. Fourteenth Deterministic Family
@@ -28,18 +28,18 @@
 
 ## 5. Non-Mutating Ideation Organizer
 
-- [ ] 5.1 Add a separate codexFactory organizer module, versioned prompt, selector, neutral job envelope, and output validator for qualifying changes, manual requests, cross-domain links, aged items, and strict pre-gate review.
-- [ ] 5.2 Require every recommendation to carry committed source revision, passage hash and section reference, rationale, confidence from 0 through 1, alternatives, exclusions, ambiguity, dependencies, and `pending_review` disposition.
-- [ ] 5.3 Allow only current, non-policy-blocked catalog entries matching locator or authorized opaque resolver, content hash, inventory snapshot, and taxonomy digest to enqueue optional routing review; prove tags cannot create routing authority or lifecycle state.
-- [ ] 5.4 Apply source handling and workload-specific host authorization before dispatch, fail closed when unauthorized, filter protected paths/tags/owners/destinations/summaries/evidence, and persist permitted recommendations with `status: record`.
-- [ ] 5.5 Add tests for changed-input, manual, aging, and optional catalog-signal selection; stale-signal rejection; stable evidence; output rejection; authorized disposition; protected-metadata suppression; and organizer failure isolation.
+- [x] 5.1 Add a separate codexFactory organizer module, versioned prompt, selector, neutral job envelope, and output validator for qualifying changes, manual requests, cross-domain links, aged items, and strict pre-gate review.
+- [x] 5.2 Require every recommendation to carry committed source revision, passage hash and section reference, rationale, confidence from 0 through 1, alternatives, exclusions, ambiguity, dependencies, and `pending_review` disposition.
+- [x] 5.3 Allow only current, non-policy-blocked catalog entries matching locator or authorized opaque resolver, content hash, inventory snapshot, and taxonomy digest to enqueue optional routing review; prove tags cannot create routing authority or lifecycle state.
+- [x] 5.4 Apply source handling and workload-specific host authorization before dispatch, fail closed when unauthorized, filter protected paths/tags/owners/destinations/summaries/evidence, and persist permitted recommendations with `status: record`.
+- [x] 5.5 Add tests for changed-input, manual, aging, and optional catalog-signal selection; stale-signal rejection; stable evidence; output rejection; authorized disposition; protected-metadata suppression; and organizer failure isolation.
 
 ## 6. Organizer Worker And Workload Readiness
 
-- [ ] 6.1 Add the bounded read-only `ideation-organizer` profile and capability in omnigent-install, reusing the existing document-analysis host with a distinct job envelope and artifact lane.
-- [ ] 6.2 Add only organizer-specific checks to the Cloud PC runbook and readiness preflight: runner eligibility, heartbeat freshness, profile/version, tenant/data boundary, handling authorization, and absence of repository credentials.
-- [ ] 6.3 Reference the neutral infrastructure-readiness contract for generic evidence, trust, expiry, remediation, and outage semantics rather than defining a competing readiness-result schema.
-- [ ] 6.4 Add profile, envelope, handling, artifact-boundary, offline, restart, stale-job, and recovery integration tests.
+- [x] 6.1 Add the bounded read-only `ideation-organizer` profile and capability in omnigent-install, reusing the existing document-analysis host with a distinct job envelope and artifact lane.
+- [x] 6.2 Add only organizer-specific checks to the Cloud PC runbook and readiness preflight: runner eligibility, heartbeat freshness, profile/version, tenant/data boundary, handling authorization, and absence of repository credentials.
+- [x] 6.3 Reference the neutral infrastructure-readiness contract for generic evidence, trust, expiry, remediation, and outage semantics rather than defining a competing readiness-result schema.
+- [x] 6.4 Add profile, envelope, handling, artifact-boundary, offline, restart, stale-job, and recovery integration tests.
 
 ## 7. Aggregation Workflow And Reporting
 
