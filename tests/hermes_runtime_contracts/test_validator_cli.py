@@ -222,12 +222,14 @@ def test_release_modes_require_a_domain_resolver_input(mode_option: str) -> None
     )
 
 
-def test_candidate_mode_on_the_real_repository_is_pre_realization_missing_inventory(
+def test_candidate_mode_on_the_real_repository_requires_domain_mirrors(
     tmp_path: Path,
 ) -> None:
-    # U7: on the real repository today, --require-candidate correctly FAILS with
-    # HGR-RELEASE-INVENTORY-MISSING (exit 1) because no realized release digest
-    # inventory exists until T079 allocates the version.
+    # Post-realization (T079 cut contract-v1.9), the realized release digest
+    # inventory is present, so --require-candidate no longer short-circuits at
+    # HGR-RELEASE-INVENTORY-MISSING. It proceeds to live domain-regression
+    # resolution, which fails closed as a dependency error (exit 2) when the
+    # mirror root holds none of the supported repositories.
     result = _run_cli(
         "--require-candidate",
         "--strict",
@@ -236,14 +238,14 @@ def test_candidate_mode_on_the_real_repository_is_pre_realization_missing_invent
         "--json",
     )
 
-    assert result.returncode == 1, result.stdout + result.stderr
+    assert result.returncode == 2, result.stdout + result.stderr
     payload = _json_result(result)
     assert payload["mode"] == "candidate"
     assert payload["status"] == "error"
-    assert any(
-        finding["code"] == "HGR-RELEASE-INVENTORY-MISSING"
-        for finding in payload["findings"]
-    )
+    codes = {finding["code"] for finding in payload["findings"]}
+    assert "HGR-REGRESSION-DEPENDENCY" in codes
+    # The realized inventory exists now; the missing-inventory state is gone.
+    assert "HGR-RELEASE-INVENTORY-MISSING" not in codes
 
 
 @pytest.mark.parametrize(
@@ -253,9 +255,11 @@ def test_candidate_mode_on_the_real_repository_is_pre_realization_missing_invent
 def test_release_mode_field_is_preserved_on_the_real_repository(
     tmp_path: Path, mode_option: str, expected_mode: str
 ) -> None:
+    # An empty mirror root makes domain-regression resolution a dependency
+    # error (exit 2); the mode field is still reported.
     result = _run_cli(mode_option, "--domain-repo-root", str(tmp_path), "--json")
 
-    assert result.returncode == 1
+    assert result.returncode == 2
     assert _json_result(result)["mode"] == expected_mode
 
 

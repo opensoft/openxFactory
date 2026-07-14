@@ -9,6 +9,41 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.9 — 2026-07-14 (additive; neutral Hermes customer-subject runtime, provider side)
+
+Third annotated-tag release. Realizes the **provider side** of the neutral
+Hermes customer-subject runtime contract family
+(`add-hermes-customer-subject-runtime-contract`, feature
+`005-customer-subject-runtime`): the domain-neutral customer-subject topology,
+trusted-scope authority/binding/approval/traceability records, the PostgreSQL
+15/16 operational contract with the governed v1-to-v2 migration and quarantine,
+the scoped v2 job/run/event lifecycle, the supported-DomainxFactory regression
+denominator, and this bundle's own raw-Git-blob release digest inventory plus
+the consumer handoff receipt. All additive: existing v1 contract paths and
+pinned consumers are unchanged.
+
+This is the first release to carry a canonical release digest inventory
+(`contracts/releases/contract-v1.9.digests.yaml`, schema
+`contracts/releases/release-digest-inventory.schema.yaml`): raw Git blob
+SHA-256 over every required semantic member, bytewise-`utf8` path order, the
+inventory self-excluded and carrying no commit (the annotated tag anchors the
+commit; a downstream consumer manifest pins the inventory digest externally).
+
+Gate G0 remains OPEN: the exact downstream `opensoft/xFactory-Hermes-Install`
+consumer pin and its reproduced digests are required to close it and are owned
+by that repository's own feature.
+
+Changed:
+
+- `contracts/manifest.yaml` — `contract_bundle_version` -> `contract-v1.9`.
+- `contracts/releases/contract-v1.9.digests.yaml` — new realized release digest
+  inventory for this bundle.
+- The `contracts/hermes-runtime/` family, `scripts/hermes_runtime_validation/`,
+  `scripts/validate-hermes-runtime-contracts.py`,
+  `scripts/validate-contract-release.py`, and the hermes-runtime docs are the
+  realized surface (governed by `contracts/hermes-runtime/contract-index.yaml`;
+  not tracked per-file in `manifest.yaml`).
+
 ## contract-v1.8 — 2026-07-13 (additive; avatar-first UI profile-schema alignment)
 
 Second annotated-tag release. Realizes the **avatar-first UI standard alignment**

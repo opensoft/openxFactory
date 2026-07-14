@@ -1574,7 +1574,7 @@ entries:
   test_node_ids:
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_passes_and_ignores_working_tree_edits
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_reads_exact_commit_not_a_short_or_symbolic_revision
-  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_is_inventory_missing_on_the_real_repository
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_passes_on_the_realized_repository
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_working_tree_spoof_is_rejected
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[path]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[commit]

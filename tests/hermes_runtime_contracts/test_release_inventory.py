@@ -671,15 +671,18 @@ def test_verify_tag_reports_a_missing_remote_tag(tmp_path: Path) -> None:
 # --- candidate / realization modes --------------------------------------------
 
 
-def test_validate_candidate_is_inventory_missing_on_the_real_repository() -> None:
+def test_validate_candidate_passes_on_the_realized_repository() -> None:
+    # Post-realization (contract-v1.9): the realized release digest inventory is
+    # committed, so validate_candidate reproduces every member from the tree and
+    # passes. The missing-inventory state is gone for both modes; realization
+    # still requires published remote tag/commit evidence, which is asserted
+    # elsewhere against synthetic remotes (its exact outcome here depends on
+    # whether the annotated tag is present in the checkout).
     catalog = load_yaml_document(ROOT / "contracts/hermes-runtime/contract-index.yaml")
-    findings = release.validate_candidate(ROOT, catalog=catalog)
-    assert [finding["code"] for finding in findings] == [
-        "HGR-RELEASE-INVENTORY-MISSING"
-    ]
+    assert release.validate_candidate(ROOT, catalog=catalog) == []
     realization = release.validate_realization(ROOT, catalog=catalog)
-    assert [finding["code"] for finding in realization] == [
-        "HGR-RELEASE-INVENTORY-MISSING"
+    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
+        finding["code"] for finding in realization
     ]
 
 
