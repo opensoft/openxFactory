@@ -1,6 +1,10 @@
 # SOP: OpenAI Realtime F0 Lab Credential
 
-- Status: active
+Status: draft
+Kind: runbook
+Repository context: openxFactory
+
+- Operational status: active
 - Owner: openxFactory avatar platform maintainers
 - Applies to: `experiments/avatar-brokered-call` and feature `002-avc-f0-feasibility`
 

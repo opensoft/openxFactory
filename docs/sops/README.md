@@ -1,5 +1,9 @@
 # openxFactory Standard Operating Procedures
 
+Status: draft
+Kind: process
+Repository context: openxFactory
+
 This directory owns repeatable operational procedures for openxFactory development,
 qualification, installation, and incident handling.
 
