@@ -1,0 +1,419 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "ideation-cross-reference.schema.yaml"
+title: "Ideation cross-reference readiness index"
+contract_schema_version: 1
+description: >-
+  The unified cross-stage cross-reference readiness index at the openxFactory
+  ideation level (`add-ideation-cross-reference-readiness`; promoted spec
+  requirements "Cross-reference index contract", "Extension-fit citation",
+  "Hermes-tier readiness panel", "Readiness recommendation gate",
+  "Non-mutating execution bound", and "Nightly scheduling and snapshot
+  consistency"; plus the `add-ideation-dashboard` `ideation-cross-reference`
+  deltas "Possibles register consolidation" and "Human-seen cluster intake"
+  that land on this change's entries). The index clusters ideation material by
+  topic across `ideation/brainstorm/`, `ideation/staging/`, and archived change
+  material, bootstrapping membership from the `Topics:` and
+  `Target capabilities:` header fields (folding in `document-cataloging` tags
+  additively later), and scores each cluster with the three-tier Hermes
+  readiness panel.
+
+  SERIALIZATION. This schema validates the structured `ideation/cross-reference.yaml`,
+  the SOURCE OF TRUTH (C2). `ideation/cross-reference.md` is a generated human
+  projection produced by a later worker wave (the notebook-projection /
+  doc-health-report precedent) and is never hand-edited. Like the sibling
+  `ideation-dashboard-snapshot`, the index is a generated projection over
+  governed documents, so the same working tree yields a byte-consistent index:
+  the generation stamp is the tree-derived `source_revision` (reused verbatim
+  from the snapshot's `generation` $def), never the process clock.
+
+  REGISTER SEAM CLOSED (C2). The provisional embedding field the register kernel
+  (`ideation-possibles-register.schema.yaml`) documented as "working name
+  `possibles_register`, not yet realized" is realized HERE: the top-level
+  `possibles_register` field `$ref`s that kernel's `#/$defs/possibles_register`
+  section. The index owns the top-level envelope; the kernel owns the register
+  section's shape. That kernel's `register_entry.supporting_evidence` `$ref`s
+  the snapshot's `evidence_pin`, so consumers MUST co-load the snapshot schema
+  (see CO-LOAD below).
+
+  EVIDENCE CONTRACT (organizer, not cataloger). Every tier score and every
+  human-seen submission carries the ORGANIZER recommendation evidence shape —
+  `source_ref` (repository + POSIX path + FULL committed revision + section +
+  passage hash) + rationale + numeric confidence + alternatives +
+  `disposition: pending_review` — reused from
+  `xfactory-ideation-organizer-recommendations.schema.yaml#/$defs/recommendation`
+  (spec: "the same evidence-backed recommendation contract the
+  document-cataloger and ideation-organizer already use"; NOT the lighter
+  cataloger/snapshot `evidence_pin`). That organizer schema is owned by the
+  still-active `add-cross-factory-ideation-routing` change and carries
+  routing-only required fields (`claim_candidate_id`, `domain_local_exclusions`,
+  `ambiguity`) and `additionalProperties: false`, so a direct `$ref` to its
+  `recommendation` $def is NOT clean for a readiness score. Per the review's
+  allowance this schema uses a DOCUMENTED STRUCTURAL MIRROR (`$defs/score_evidence`)
+  whose pin sub-fields `$ref` the SAME `xfactory-idea-routing-reference.schema.yaml`
+  kernel the organizer uses, so pins stay byte-identical without forking. Pin
+  note: track that organizer/routing source at the scorer realization (task
+  3.2); if a future change extracts a neutral evidence $def, replace the mirror
+  with a `$ref`.
+
+  CO-LOAD (validator + consumers). Instance validation resolves cross-file
+  `$ref`s into FOUR schemas in one registry — this schema, plus
+  `ideation-possibles-register.schema.yaml` (`possibles_register`),
+  `ideation-dashboard-snapshot.schema.yaml` (`generation`, `lifecycle_status`,
+  and transitively `evidence_pin`), and `xfactory-idea-routing-reference.schema.yaml`
+  (structured member/score references). This EXTENDS review condition C3's named
+  two (kernel + snapshot) to four; the task-2.3 index validator must co-load all
+  four, and owns index envelope/embedding/scores/fit-citation validation while
+  DELEGATING register-entry shape and transitions to
+  `validate-ideation-dashboard-contracts.py`.
+
+  DASHBOARD JOIN. The snapshot's `cluster.readiness` and `cluster.conflict_flags`
+  (optional, unconstrained there — "shape owned" here) are copied VERBATIM from
+  a topic entry's `readiness`/`conflict_flags` where `cluster.id` equals the
+  topic entry `id`. This schema is that shape's home.
+
+  ADDITIVE / forward-compatible: like every schema in this family, objects stay
+  open (no `additionalProperties: false`), consumers MUST ignore unknown
+  properties, and additive growth needs no `schema_version` bump; only a removed
+  or retyped field does. Gate arithmetic (min >= 8, an unscored tier blocking
+  the gate, the spread-conflict threshold) and extension-fit citation resolution
+  (an archive-folder pointer is invalid) are cross-field / corpus-resolving
+  rules the strict index validator enforces (task 2.3), not shapes JSON Schema
+  expresses; the conditionals below express only per-instance field
+  requirements.
+type: object
+required:
+  - schema_version
+  - kind
+  - generation
+  - topic_entries
+properties:
+  schema_version: {const: 1}
+  # Normative kind literal; hyphenated per the family's spec-facing kind
+  # convention (as with the sibling snapshot/workbench schemas), not the
+  # underscored in-file `xfactory_*` kind convention.
+  kind: {const: ideation-cross-reference}
+  repository:
+    $ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/repository_id"
+    # Canonical repository id the index projects (v1 = openxFactory). Optional:
+    # the index is openxFactory-hosted, and each member may name its own
+    # `repository`; absent means the hosting repository.
+  generation:
+    # The tree-derived generation stamp — reused verbatim from the snapshot's
+    # determinism-anchored `generation` $def (`source_revision` required,
+    # `generated_at` derived from the commit date, `generator_version`). The
+    # index is a generated projection, so it carries the same anchor the report
+    # cites; scores cite exactly this corpus snapshot (spec "Nightly scheduling
+    # and snapshot consistency").
+    $ref: "ideation-dashboard-snapshot.schema.yaml#/$defs/generation"
+  topic_entries:
+    type: array
+    # One entry per topic cluster (spec "Cross-reference index contract":
+    # organized by topic cluster, not by file). Present, possibly empty at
+    # bootstrap.
+    items: {$ref: "#/$defs/topic_entry"}
+  possibles_register:
+    # C2 seam closure: the register kernel embedded as a section of this index
+    # (spec/dashboard "Possibles register consolidation": no third standalone
+    # register file). Optional — folds in with the register pass. `register_entry`
+    # shape + transition legality are DELEGATED to
+    # `validate-ideation-dashboard-contracts.py` (C3), not re-validated here.
+    $ref: "ideation-possibles-register.schema.yaml#/$defs/possibles_register"
+$defs:
+  # --- topic cluster entry ("Cross-reference index contract") ---
+  topic_entry:
+    type: object
+    # Open (additive projection posture). `readiness`/`conflict_flags` are
+    # absent until the cluster is scored (a freshly submitted human-seen cluster
+    # or an un-run bootstrap entry carries none); the strict validator (task
+    # 2.3) requires three tier assessments on a scored machine-derived entry.
+    required: [id, topics, tag_sources, members, extension_fit]
+    properties:
+      id:
+        type: string
+        minLength: 1
+        # Stable cluster id; the snapshot's `cluster.id` joins this to copy
+        # readiness/conflict_flags verbatim, and a possible's `claiming_clusters`
+        # edge references it.
+      name:
+        type: string
+        minLength: 1
+        # Human label for the cluster; the projection's row heading.
+      topics:
+        type: array
+        minItems: 1
+        items: {type: string, minLength: 1}
+        # The subject tags that DEFINE this cluster — bootstrapped from the
+        # `Topics:`/`Target capabilities:` headers (spec: cluster membership
+        # bootstraps from those fields); catalog tags fold in additively later.
+      tag_sources:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          enum: [topics-header, target-capabilities-header, document-catalog]
+        # Which membership signal(s) produced this cluster. `document-catalog`
+        # is admissible now but only populated once `document-cataloging`
+        # realizes (spec "The catalog realizes later": additive, no schema break).
+      origin:
+        type: string
+        enum: [machine-derived, human-seen]
+        # Provenance of the cluster. Absent defaults to machine-derived. A
+        # `human-seen` entry (dashboard "Human-seen cluster intake") REQUIRES
+        # the `human_seen` intake block (allOf below).
+      members:
+        type: array
+        # Every related document across brainstorm/staging/archived change
+        # material, one entry per member with its stage (spec scenario "A topic
+        # spans stages": one entry listing every member, not one per stage).
+        items: {$ref: "#/$defs/member"}
+      extension_fit: {$ref: "#/$defs/extension_fit"}
+      readiness: {$ref: "#/$defs/readiness"}
+      conflict_flags:
+        type: array
+        # Surfaced tier disagreements (spec "Readiness recommendation gate": a
+        # wide inter-tier spread is flagged even below the min>=8 threshold).
+        # Copied verbatim into the snapshot's `cluster.conflict_flags`.
+        items: {$ref: "#/$defs/conflict_flag"}
+      human_seen: {$ref: "#/$defs/human_seen"}
+    allOf:
+      # A human-seen cluster carries its intake block (proposer + evidence +
+      # pending_review) — dashboard scenario "A submission lacks evidence":
+      # rejected before persistence.
+      - if:
+          properties: {origin: {const: human-seen}}
+          required: [origin]
+        then:
+          required: [human_seen]
+  # --- one cluster member document ---
+  member:
+    type: object
+    required: [path, stage]
+    properties:
+      repository:
+        $ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/repository_id"
+        # Optional; absent means the index's hosting repository. The routing
+        # kernel's guarded repository id — the family's structured-reference
+        # primitive.
+      path:
+        $ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/posix_relative_path"
+        # POSIX repository-relative path (traversal/absolute rejected by the
+        # kernel shape). Its prefix encodes the cross-stage area
+        # (`ideation/brainstorm/…`, `ideation/staging/…`, `openspec/changes/…`).
+      stage:
+        $ref: "ideation-dashboard-snapshot.schema.yaml#/$defs/lifecycle_status"
+        # The member's controlled `Status:` value — THE stage-column value
+        # (spec: "each member carrying a stage column value"), reusing the
+        # document-lifecycle vocabulary via the snapshot's `lifecycle_status`.
+      document:
+        type: string
+        minLength: 1
+        # Optional stable doc id joining the snapshot's `document.id` when the
+        # member is already captured in a snapshot.
+      matched_tags:
+        type: array
+        items: {type: string, minLength: 1}
+        # Which of the cluster's `topics` this member carries — the many-to-many
+        # membership edge (mirrors the snapshot cluster's
+        # `document_edges[].matched_topics`).
+  # --- extension-fit citation ("Extension-fit citation") ---
+  extension_fit:
+    type: object
+    # REQUIRED on every entry. When a promoted fit exists the note MUST name the
+    # specific promoted spec/capability (`promoted_spec`) and how the cluster
+    # extends it; when none does, it says so EXPLICITLY (distinguishing "no fit"
+    # from "fit check not performed"). A `promoted_spec` that resolves only to
+    # an archived change folder rather than a promoted spec is VALIDATOR-SIDE
+    # INVALID (task 2.3; spec scenario "A fit note cites only an archive folder":
+    # the readiness lane emits an `ideation-readiness` finding) — schema alone
+    # cannot resolve the name against promoted specs.
+    required: [has_promoted_fit]
+    properties:
+      has_promoted_fit: {type: boolean}
+      promoted_spec:
+        type: string
+        minLength: 1
+        # The promoted spec/capability name (e.g. `doc-health`), NOT an archive
+        # folder path. Required when has_promoted_fit is true.
+      how_extends:
+        type: string
+        minLength: 1
+        # How the cluster would extend the named promoted spec/capability.
+      statement:
+        type: string
+        minLength: 1
+        # The explicit "nothing promoted relates" statement. Required when
+        # has_promoted_fit is false.
+    allOf:
+      - if: {properties: {has_promoted_fit: {const: true}}, required: [has_promoted_fit]}
+        then: {required: [promoted_spec]}
+      - if: {properties: {has_promoted_fit: {const: false}}, required: [has_promoted_fit]}
+        then: {required: [statement]}
+  # --- three-tier Hermes readiness panel ("Hermes-tier readiness panel") ---
+  readiness:
+    type: object
+    # Copied verbatim into the snapshot's `cluster.readiness`. The strict
+    # validator (task 2.3) checks the three tiers are present and computes the
+    # min>=8 gate / unscored-tier block; the schema constrains the per-tier
+    # shape and score range only.
+    required: [tiers]
+    properties:
+      tiers:
+        type: array
+        items: {$ref: "#/$defs/tier_assessment"}
+        # One assessment per tier — domain (owning Domain Hermes), company
+        # (openxFactory ratify authority), project (engineering buildability).
+      recommendation: {$ref: "#/$defs/recommendation"}
+  tier_assessment:
+    type: object
+    # A scored tier carries a 1-10 `score` and the organizer `evidence`; a tier
+    # that cannot score is recorded `unscored` with its `reason` and blocks the
+    # gate (spec scenario "A tier cannot score"). Score-arriving-without-evidence
+    # is rejected before persistence (spec scenario "Worker output violates the
+    # evidence contract") via the allOf below.
+    required: [tier]
+    properties:
+      tier:
+        type: string
+        enum: [domain, company, project]
+      score:
+        type: integer
+        minimum: 1
+        maximum: 10
+        # Independent proposal-readiness score; present when the tier scored.
+      unscored_reason:
+        type: string
+        minLength: 1
+        # Why the tier could not score (for example no owning domain resolves);
+        # present when `score` is absent.
+      evidence: {$ref: "#/$defs/score_evidence"}
+    allOf:
+      - if: {required: [score]}
+        then: {required: [evidence]}
+      - if: {not: {required: [score]}}
+        then: {required: [unscored_reason]}
+  # --- organizer evidence shape (documented structural mirror; see header) ---
+  score_evidence:
+    type: object
+    # Byte-for-byte the ORGANIZER recommendation evidence fields this capability
+    # reuses (source_ref + rationale + confidence + alternatives +
+    # pending_review). Routing-only recommendation fields (claim_candidate_id,
+    # domain_local_exclusions, ambiguity, recommended_scope) are DELIBERATELY
+    # absent — a readiness score judges a cluster, not a routing claim — which is
+    # the documented divergence a direct `$ref` to the closed organizer
+    # `recommendation` $def could not express. `alternatives` is a required
+    # (possibly empty) array exactly as the organizer requires.
+    required: [source_ref, rationale, confidence, alternatives, disposition]
+    properties:
+      source_ref: {$ref: "#/$defs/score_source_ref"}
+      rationale: {type: string, minLength: 1}
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+        # Numeric confidence from 0 through 1 (organizer contract).
+      alternatives:
+        type: array
+        items: {type: string, minLength: 1}
+      disposition:
+        const: pending_review
+        # A score/submission is a proposal pending review — never a verdict or
+        # an autonomous disposition (spec "Readiness recommendation gate":
+        # always `pending_review`). Matches the organizer's `const pending_review`.
+  score_source_ref:
+    type: object
+    # The organizer's inline source_ref, mirrored field-for-field with the pin
+    # sub-fields `$ref`ing the SAME routing-reference kernel so pins are
+    # byte-identical to the organizer's. Open posture (this family) rather than
+    # the organizer's `additionalProperties: false`.
+    required: [repository, path, revision, section, passage_sha256]
+    properties:
+      repository: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/repository_id"}
+      path: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/posix_relative_path"}
+      revision: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/full_commit_revision"}
+      section: {type: string, minLength: 1}
+      passage_sha256: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/passage_sha256"}
+  # --- recommendation gate ("Readiness recommendation gate") ---
+  recommendation:
+    type: object
+    # The min>=8 gate outcome. `flagged: true` = "propose for authorization",
+    # ALWAYS a `pending_review` recommendation for the disposing authority —
+    # never an autonomous action (the pass creates no proposal, moves no
+    # document, changes no lifecycle state). Whether `flagged` is legitimate
+    # (min of three tier scores >= 8, no unscored tier) is the validator's gate
+    # arithmetic (task 2.3), not a schema shape.
+    required: [flagged, disposition]
+    properties:
+      flagged: {type: boolean}
+      disposition:
+        const: pending_review
+        # The pass only ever emits `pending_review`; a human authority's accept/
+        # reject is recorded in `human_disposition`, keeping "always
+        # pending_review" true of machine output.
+      summary:
+        type: string
+        minLength: 1
+        # Optional one-line "why flagged / why not" for the ranked plan.
+      human_disposition: {$ref: "#/$defs/human_disposition"}
+  human_disposition:
+    type: object
+    # Recorded when a human authority disposes a flagged recommendation (spec
+    # scenario "A recommendation is disposed"): proposing remains a deliberate,
+    # authorized step OUTSIDE this capability.
+    required: [outcome, authority]
+    properties:
+      outcome:
+        type: string
+        enum: [accepted, rejected, deferred]
+      authority:
+        type: string
+        minLength: 1
+        # The disposing tier/authority (for example the openxFactory ratify gate).
+      at: {type: string, format: date}
+      note: {type: string, minLength: 1}
+  # --- inter-tier conflict flag ("Readiness recommendation gate") ---
+  conflict_flag:
+    type: object
+    required: [kind]
+    properties:
+      kind:
+        type: string
+        enum: [tier-spread]
+        # `tier-spread`: a wide gap between tier scores, surfaced as signal even
+        # when the minimum stays below threshold. Additive — more kinds later.
+      tiers:
+        type: array
+        items: {type: string, enum: [domain, company, project]}
+        # The tiers whose scores diverge.
+      spread:
+        type: number
+        minimum: 0
+        # The numeric gap (max tier score minus min tier score).
+      detail:
+        type: string
+        minLength: 1
+        # Human note recording the divergence as signal.
+  # --- human-seen cluster intake (dashboard "Human-seen cluster intake"; C4) ---
+  human_seen:
+    type: object
+    # The intake shape dashboard task 3.5 is blocked on. An ad-hoc workbench
+    # reference set matching no machine cluster enters the SAME recommendation
+    # queue as machine clustering, carrying the full evidence contract the
+    # panel's scores use and `pending_review` disposition; it MUST NOT bypass
+    # review. On acceptance it becomes a topic cluster like any machine-derived
+    # one (recorded via `recommendation.human_disposition: accepted` plus the
+    # normal tier scores), retaining `origin: human-seen` provenance.
+    required: [proposer, evidence, disposition]
+    properties:
+      proposer:
+        type: string
+        minLength: 1
+        # The workbench user who submitted the reference set.
+      evidence: {$ref: "#/$defs/score_evidence"}
+      disposition:
+        const: pending_review
+      recipe_reference:
+        type: string
+        minLength: 1
+        # Optional pointer to the keyword-lens recipe / workbench set that formed
+        # the human-seen cluster (the "add as cluster" recipe, offered as
+        # rationale). Members themselves are the entry's `members`.

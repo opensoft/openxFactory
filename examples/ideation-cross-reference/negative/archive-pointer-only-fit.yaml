@@ -1,0 +1,31 @@
+# INVALID (VALIDATOR-SIDE, task 2.3) — an archive-pointer-only extension-fit note
+# (task 2.2 "archive-pointer-only (invalid)"; spec "Extension-fit citation" and
+# scenario "A fit note cites only an archive folder"). `extension_fit` claims
+# has_promoted_fit: true but `promoted_spec` names ONLY an archived change folder,
+# not a promoted spec/capability.
+#
+# EXPECTED: schema-VALID (a non-empty string satisfies `promoted_spec`; JSON Schema
+# cannot resolve the name against the promoted spec set), but the strict index
+# validator (task 2.3) MUST reject it and the doc-health readiness lane MUST emit
+# an `ideation-readiness` finding naming the entry and the citation requirement.
+# This fixture therefore fails at the validator layer, not the schema layer — the
+# wave-1 python-jsonschema check accepts it by design.
+schema_version: 1
+kind: ideation-cross-reference
+repository: openxFactory
+generation:
+  source_revision: 154fae4d81e4340270f9de605b01bf69da810175
+topic_entries:
+  - id: cl-archive-pointer
+    name: Cluster whose fit note points only at an archive folder
+    topics: [example]
+    tag_sources: [topics-header]
+    members:
+      - path: ideation/brainstorm/example.md
+        stage: brainstorm
+    extension_fit:
+      has_promoted_fit: true
+      # VIOLATION (validator-side): an archived change folder, not a promoted
+      # spec/capability name such as `doc-health`.
+      promoted_spec: openspec/changes/archive/2026-07-09-add-doc-health
+      how_extends: Claims to extend the archived doc-health change rather than the promoted doc-health spec.

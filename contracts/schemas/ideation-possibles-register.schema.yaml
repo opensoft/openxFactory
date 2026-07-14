@@ -21,16 +21,18 @@ description: >-
   `xfactory-document-opaque-locator.schema.yaml`, it is NEVER validated as a whole
   document on its own and carries no top-level `type`/`kind`/`schema_version`
   envelope. The index owns the top-level envelope; this fragment owns the register
-  section's shape and is `$ref`'d into the index's schema. The index's own
-  structured schema is that change's task 2.1, DECLARED BUT NOT YET REALIZED, so
-  the concrete embedding field name (working name `possibles_register`) is not
-  fixed here. It is verified — and rebased if the index wording moved — at this
-  change's task 1.1 sequencing under the ordered-deltas rule (this delta is
-  declared relative to `add-ideation-cross-reference-readiness`'s outcome and
-  archives after it). SEQUENCING RISK: if that index lands markdown-only with no
-  structured register block, this fragment defines the register's canonical
-  structure to be embedded then as a fenced data block or index-adjacent section
-  under the field the index realization chooses; task 1.1 MUST reconcile the two.
+  section's shape and is `$ref`'d into the index's schema. SEAM RESOLVED
+  (2026-07-14, `add-ideation-cross-reference-readiness` task 2.1): the index's own
+  structured schema is now realized at
+  `contracts/schemas/ideation-cross-reference.schema.yaml`, which embeds this
+  kernel under the top-level field `possibles_register` via
+  `$ref: "ideation-possibles-register.schema.yaml#/$defs/possibles_register"`,
+  fixing the previously provisional embedding field name and confirming a
+  structured (not markdown-only) register block. That index is the source of
+  truth (`ideation/cross-reference.yaml`); `ideation/cross-reference.md` is its
+  generated projection. This delta was declared relative to
+  `add-ideation-cross-reference-readiness`'s outcome and archives after it; its
+  task 1.1 sequencing confirmed the resolved embedding field name above.
   Consumers embed via `$ref: "ideation-possibles-register.schema.yaml#/$defs/possibles_register"`
   (whole section) or `#/$defs/register_entry` (one entry).
 

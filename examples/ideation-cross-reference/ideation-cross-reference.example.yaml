@@ -1,0 +1,287 @@
+# VALID ideation-cross-reference index (add-ideation-cross-reference-readiness
+# task 2.2). One comprehensive index instance validating
+# `ideation-cross-reference.schema.yaml` and exercising, per task 2.2:
+#   - a MULTI-STAGE cluster (members in brainstorm + staging + archived change)
+#   - a PROMOTED-FIT citation (extension_fit names a promoted spec)
+#   - an explicit NO-PROMOTED-FIT entry (distinguished from "not checked")
+#   - MISSING TIER WITH REASON (a tier recorded unscored, blocking the gate)
+#   - a SPREAD CONFLICT flagged below threshold
+#   - a GATED recommendation (all three tiers >= 8; minimum >= 8; pending_review)
+#   - a HUMAN-SEEN recommendation entry (origin: human-seen + intake evidence)
+#   - the embedded POSSIBLES_REGISTER section (reuses the register example
+#     content; its supporting_evidence pins resolve through the snapshot's
+#     evidence_pin $ref — the four-schema co-load).
+# Every tier score / human-seen submission carries the ORGANIZER evidence shape
+# (source_ref{repository,path,revision,section,passage_sha256} + rationale +
+# confidence + alternatives + disposition pending_review).
+schema_version: 1
+kind: ideation-cross-reference
+repository: openxFactory
+generation:
+  source_revision: 154fae4d81e4340270f9de605b01bf69da810175
+  generated_at: "2026-07-14T00:00:00Z"
+  generator_version: ideation-xref-0.1.0
+topic_entries:
+  # (1) Multi-stage cluster + promoted-fit citation + GATED recommendation.
+  - id: cl-ideation-dashboard
+    name: Ideation-area dashboard and cross-reference surfacing
+    topics: [ideation-dashboard, cross-reference, readiness-panel]
+    tag_sources: [topics-header, target-capabilities-header]
+    origin: machine-derived
+    members:
+      - path: ideation/brainstorm/ideation-dashboard.md
+        stage: brainstorm
+        document: doc-ideation-dashboard-brainstorm
+        matched_tags: [ideation-dashboard, cross-reference]
+      - path: ideation/staging/ideation-dashboard/ideation-dashboard.md
+        stage: staged
+        matched_tags: [ideation-dashboard, readiness-panel]
+      - repository: openxFactory
+        path: openspec/changes/add-ideation-dashboard/specs/ideation-cross-reference/spec.md
+        stage: ratified
+        matched_tags: [cross-reference]
+    extension_fit:
+      has_promoted_fit: true
+      promoted_spec: doc-health
+      how_extends: >-
+        Adds a nightly readiness lane and index surfacing beside doc-health's
+        promoted deterministic families and semantic sweep.
+    readiness:
+      tiers:
+        - tier: domain
+          score: 9
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/staging/ideation-dashboard/ideation-dashboard.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Problem
+              passage_sha256: 93af065290615f4728d23d861698c67a510d3a1a112a7f0fcb32edd9a132e7b1
+            rationale: The owning domain reviewer finds the surface well-scoped and evidence-backed.
+            confidence: 0.86
+            alternatives: []
+            disposition: pending_review
+        - tier: company
+          score: 8
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/staging/ideation-dashboard/ideation-dashboard.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Decided Contract
+              passage_sha256: d7019206ff62d687f61c64d3d74cf4394e1733a746923eeb93b15251baf9fb99
+            rationale: Cross-factory value is clear; the ratify authority would entertain a proposal.
+            confidence: 0.8
+            alternatives: [Defer until the cataloging tag source lands.]
+            disposition: pending_review
+        - tier: project
+          score: 9
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/ideation-dashboard.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Notes
+              passage_sha256: 8e13814bbc9774fb910455ac5c71792e4a8344fa1a803bb0c614f7500246de4d
+            rationale: Feature decomposition maps cleanly onto a buildable Spec Kit DAG today.
+            confidence: 0.88
+            alternatives: []
+            disposition: pending_review
+      recommendation:
+        flagged: true
+        disposition: pending_review
+        summary: All three tiers >= 8; the minimum is 8, so the cluster is propose-for-authorization.
+    conflict_flags: []
+  # (2) Spread conflict flagged below threshold (min score 2, wide spread).
+  - id: cl-keyword-lens
+    name: Keyword lens and intensional cluster recipes
+    topics: [keyword-lens, set-builder, recipe]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - path: ideation/brainstorm/keyword-lens.md
+        stage: brainstorm
+        document: doc-keyword-lens
+        matched_tags: [keyword-lens, set-builder]
+      - path: ideation/staging/keyword-lens/keyword-lens.md
+        stage: staged
+        matched_tags: [recipe]
+    extension_fit:
+      has_promoted_fit: true
+      promoted_spec: ideation-cross-reference
+      how_extends: Would add an intensional (recipe-based) membership source to the index's clustering.
+    readiness:
+      tiers:
+        - tier: domain
+          score: 9
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/keyword-lens.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Set-builder
+              passage_sha256: 9f6288d47f19fa176d708141afc718a0cee4a6a487ef5154654789a5c5ff25df
+            rationale: Domain reviewers see mature, well-evidenced intent.
+            confidence: 0.82
+            alternatives: []
+            disposition: pending_review
+        - tier: company
+          score: 8
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/staging/keyword-lens/keyword-lens.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Scope
+              passage_sha256: e0e47a9bf12efe15f45f541bc9356bf9b5182cdb816a5a49a00834d988322b0e
+            rationale: The ratify authority would consider it once the extension surface is firm.
+            confidence: 0.74
+            alternatives: []
+            disposition: pending_review
+        - tier: project
+          score: 2
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/keyword-lens.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Open questions
+              passage_sha256: 7215c24ccaa48db06367932c9cc1a019382283e1940976e8309fb1a3a3a1e4c7
+            rationale: No decomposition path today — the co-occurrence engine is undefined and unbuildable as stated.
+            confidence: 0.7
+            alternatives: [Split the deterministic rail from the inferred engine and score them separately.]
+            disposition: pending_review
+      recommendation:
+        flagged: false
+        disposition: pending_review
+        summary: Minimum tier score is 2; not proposable. Wide inter-tier spread flagged as signal.
+    conflict_flags:
+      - kind: tier-spread
+        tiers: [domain, project]
+        spread: 7
+        detail: Domain readiness 9 vs project buildability 2 — disagreement recorded as signal, not averaged away.
+  # (3) Missing tier with reason (gate blocked) + explicit NO-promoted-fit.
+  - id: cl-semantic-health
+    name: Corpus-wide semantic health scoring
+    topics: [semantic-health, corpus-metrics]
+    tag_sources: [topics-header, target-capabilities-header]
+    origin: machine-derived
+    members:
+      - path: ideation/brainstorm/semantic-health.md
+        stage: brainstorm
+        matched_tags: [semantic-health]
+    extension_fit:
+      has_promoted_fit: false
+      statement: >-
+        Nothing promoted covers corpus-wide semantic health scoring today; this would be
+        net-new, not an extension. Recorded explicitly to distinguish "no fit" from
+        "fit check not performed".
+    readiness:
+      tiers:
+        - tier: domain
+          score: 7
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/semantic-health.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Motivation
+              passage_sha256: 6d018a4ff177034cffd9d605953972e15006cfd27066f7f520fef0f249c63845
+            rationale: Promising but under-specified; the domain lens is not yet at 8.
+            confidence: 0.66
+            alternatives: []
+            disposition: pending_review
+        - tier: company
+          score: 6
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/semantic-health.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Motivation
+              passage_sha256: 398dc750860b0c01cf717e87a27bcd7e4f3a6765ecb8223415ce9367ab3dea41
+            rationale: Overlaps the semantic sweep; the ratify authority wants the boundary drawn first.
+            confidence: 0.6
+            alternatives: []
+            disposition: pending_review
+        - tier: project
+          unscored_reason: No engineering decomposition has been attempted; buildability cannot be judged yet.
+      recommendation:
+        flagged: false
+        disposition: pending_review
+        summary: Project tier unscored — an undefined minimum is not a passing one, so the gate cannot fire.
+    conflict_flags: []
+  # (4) Human-seen recommendation entry (origin: human-seen; intake evidence).
+  - id: cl-human-seen-onboarding
+    name: Human-seen onboarding-friction cluster
+    topics: [onboarding, developer-experience]
+    tag_sources: [topics-header]
+    origin: human-seen
+    members:
+      - path: ideation/brainstorm/onboarding-friction.md
+        stage: brainstorm
+        matched_tags: [onboarding]
+      - path: ideation/brainstorm/first-run-experience.md
+        stage: brainstorm
+        matched_tags: [developer-experience]
+    extension_fit:
+      has_promoted_fit: false
+      statement: No promoted onboarding capability exists; this is an exploratory human-seen set awaiting review.
+    human_seen:
+      proposer: brett
+      recipe_reference: "workbench:onboarding-friction (keyword lens: onboarding, first-run)"
+      disposition: pending_review
+      evidence:
+        source_ref:
+          repository: openxFactory
+          path: ideation/brainstorm/onboarding-friction.md
+          revision: 154fae4d81e4340270f9de605b01bf69da810175
+          section: Notes
+          passage_sha256: b0f04c299263dd2496c601fbbd812d645ebade162c5a9aa15e8fe8b7a656bc7a
+        rationale: Two brainstorm notes independently describe first-run friction; grouping them for review.
+        confidence: 0.6
+        alternatives: [Fold into an existing developer-experience cluster instead of forming a new one.]
+        disposition: pending_review
+# Embedded possibles_register section (C2 seam) — reuses the register example
+# content; claiming_clusters reference cl-ideation-dashboard / cl-keyword-lens
+# above, and supporting_evidence pins resolve through the snapshot's evidence_pin.
+possibles_register:
+  - id: pos-set-builder
+    title: Keyword lens set-builder
+    claim: The keyword rail persists an intensional, re-runnable cluster recipe.
+    state: latent
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard, cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 635aeb57aa897f7abc4a2d802ec3086062de63294cce22ff884eeb2d6d6f7bbb
+  - id: pos-matrix-only
+    title: Matrix-only lens
+    claim: Render only the matrix view, dropping the bullseye.
+    state: superseded
+    reason: The option-set sibling pos-set-builder was chosen at the canvas.
+    citation: pos-set-builder
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    claiming_clusters: [cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+  - id: pos-cluster-canvas
+    title: Cluster canvas working surface
+    claim: A three-pane per-cluster workspace for members, evidence, and possibles.
+    state: picked
+    provenance: {document: doc-cluster-canvas, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard]
+    pick: {staging_id: cluster-canvas, change_id: add-ideation-dashboard}
+    supporting_evidence:
+      - document: doc-cluster-canvas
+        section: Three-pane layout
+        passage_sha256: c321620b83d98a30c2cce10d5a607d397d1714aa739b1e5ce1e0720e969008a5
+  - id: pos-abandoned-autolayout
+    title: Auto-layout cluster graph
+    claim: Auto-arrange the cluster graph rather than the deterministic funnel.
+    state: rejected
+    reason: Out of scope for the deterministic, byte-identical renderer.
+    citation: openspec/changes/add-ideation-dashboard/design.md#non-goals
+    provenance: {document: doc-ideation-dashboard-brainstorm, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard]

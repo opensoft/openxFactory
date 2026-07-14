@@ -6,7 +6,7 @@
 The doc-health capability SHALL include an ideation readiness lane: a
 bounded, non-mutating worker pass — following the same execution split and
 bounded-worker pattern as the agentic semantic sweep and the
-document-cataloger and ideation-organizer lanes — that maintains the
+document-cataloger lane — that maintains the
 promoted `ideation-cross-reference` index and emits `ideation-readiness`
 findings, including the extension-fit citation finding when a fit note
 cites only an archived change folder rather than a promoted spec or
@@ -37,26 +37,23 @@ preflight; this lane adds no deterministic check family.
 ## MODIFIED Requirements
 
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement fifteen check families over
+The doc-health deterministic pass SHALL implement thirteen check families over
 the whole factory family's governance corpus: status validity, standard
 backing, ratified provenance, succession integrity, location conformance,
 record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
-drift, document catalog, ideation routing, and proposal origin. Every check in
-this pass MUST be deterministic — identical inputs produce identical findings,
-with no model calls; semantic analysis and readiness scoring belong to the
-agentic semantic sweep and the separate document-cataloger,
-ideation-organizer, and ideation-readiness lanes their owning capabilities
-define. Check families SHALL implement promoted spec wording; staged ideation
-fragments are inputs to contracts, never check definitions.
+drift, and document catalog. Every check in this pass MUST be deterministic —
+identical inputs produce identical findings, with no model calls; semantic
+analysis and readiness scoring belong to the agentic semantic sweep and the
+separate document-cataloger and ideation-readiness lanes their owning
+capabilities define. Check families SHALL implement promoted spec wording;
+staged ideation fragments are inputs to contracts, never check definitions.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
-- **AND** document catalog MUST validate the shared inventory plus promoted specs and aggregation-hosted catalog snapshots as its owning requirement defines
-- **AND** ideation routing MUST additionally inspect the aggregation root placement boundary and resolve explicitly referenced pinned repositories as its owning requirement defines
-- **AND** proposal origin MUST validate active and archived proposal packets, support manifests, and staging-header linkage as its owning requirements define
-- **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
+- **AND** document catalog MUST validate the shared inventory plus promoted specs and the aggregation-hosted catalog snapshots as its owning requirement defines
+- **AND** a family that cannot run (for example notebook drift without credentials) MUST be reported as skipped, never silently omitted
 
 #### Scenario: Lifecycle conformance checks fire
 - **WHEN** a governance document violates a `document-lifecycle` rule — a free-form or missing `Status:` value, an unbacked `standard` claim, a dangling `Ratified by:` reference, a `superseded` doc without a successor, a `brainstorm` doc outside `ideation/brainstorm/`, a `staged` doc that is outside `ideation/staging/` and is not a candidate register (`Kind: register`), or a content edit to a `record` doc after capture
@@ -73,11 +70,3 @@ fragments are inputs to contracts, never check definitions.
 #### Scenario: Catalog conformance checks fire
 - **WHEN** governed-document coverage, catalog identity, freshness, taxonomy, provenance, override standing, or record immutability violates the promoted catalog contract
 - **THEN** the run MUST emit a `document-catalog` finding with the violated requirement and evidence
-
-#### Scenario: Routing conformance checks fire
-- **WHEN** a routed idea, claim, destination, proposal manifest, repository ID or gitlink, or aggregation placement violates the promoted routing contract
-- **THEN** the run MUST emit an `ideation-routing` finding with the violated requirement and evidence
-
-#### Scenario: Origin conformance checks fire
-- **WHEN** a proposal packet, support manifest, or staging-header linkage violates the promoted origin contract
-- **THEN** the run MUST emit a `proposal-origin` finding with the violated requirement and evidence

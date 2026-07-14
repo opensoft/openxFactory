@@ -1,0 +1,35 @@
+# INVALID (schema-level) — tier score out of the 1-10 range (task 2.2 "score out
+# of range"). The domain tier carries score: 11, which violates
+# `tier_assessment.score` maximum: 10. python-jsonschema (draft 2020-12) rejects
+# this instance; no validator layer is needed to catch it.
+schema_version: 1
+kind: ideation-cross-reference
+repository: openxFactory
+generation:
+  source_revision: 154fae4d81e4340270f9de605b01bf69da810175
+topic_entries:
+  - id: cl-bad-score
+    name: Cluster with an out-of-range score
+    topics: [example]
+    tag_sources: [topics-header]
+    members:
+      - path: ideation/brainstorm/example.md
+        stage: brainstorm
+    extension_fit:
+      has_promoted_fit: false
+      statement: No promoted fit; illustrative only.
+    readiness:
+      tiers:
+        - tier: domain
+          score: 11   # <-- VIOLATION: maximum is 10
+          evidence:
+            source_ref:
+              repository: openxFactory
+              path: ideation/brainstorm/example.md
+              revision: 154fae4d81e4340270f9de605b01bf69da810175
+              section: Notes
+              passage_sha256: 93af065290615f4728d23d861698c67a510d3a1a112a7f0fcb32edd9a132e7b1
+            rationale: Illustrative out-of-range score.
+            confidence: 0.5
+            alternatives: []
+            disposition: pending_review
