@@ -1,0 +1,108 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-ideation-organizer-recommendations.schema.yaml"
+title: "Non-mutating ideation-organizer recommendation evidence"
+contract_schema_version: 1
+description: >-
+  Immutable evidence artifact for one bounded, read-only `ideation-organizer`
+  run (`add-cross-factory-ideation-routing`; spec requirement "Non-mutating
+  semantic ideation organizer"). One file per run, persisted by orchestration at
+  `health/ideation-organizer/YYYY-MM-DD/<idea-id>-<run-id>.yaml` with
+  `status: record` (spec requirement "Organizer execution, persistence, and
+  readiness isolation"); the dated report links its summary, and a closed
+  `Status: record` report is never edited. `idea_id` and `run_id` are echoed
+  inside the artifact because they form its contract-mandated persistence path
+  (mirroring `xfactory-document-cataloger-recommendation.schema.yaml`'s echoed
+  `job_id`). The `kind: ideation_organizer_recommendations` is taken verbatim
+  from the ratified `supporting-docs/organizer-and-sweep-contract.md`.
+
+  Organizer output is a PROPOSAL, never a doc-health finding, verdict, or
+  routing-record mutation (spec requirement "Non-mutating semantic ideation
+  organizer"). `additionalProperties: false` at every level means output that
+  requests or performs a lifecycle or repository mutation — any field outside
+  this recommendation vocabulary — is rejected (scenario "Organizer attempts a
+  mutation"); every recommendation is pinned to `disposition: pending_review`.
+  The output-policy filter that may suppress or opaque-reference protected
+  paths/owners/destinations/summaries before persistence is a codexFactory
+  orchestration concern (change task 5.4), not a shape this schema expresses.
+type: object
+additionalProperties: false
+required: [schema_version, kind, status, idea_id, run_id, source_revision, recommendations]
+properties:
+  schema_version: {const: 1}
+  kind: {const: ideation_organizer_recommendations}
+  status: {const: record}
+  idea_id: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/idea_id"}
+  run_id: {type: string, minLength: 1}
+  source_revision:
+    # The committed source revision the run analyzed (spec: "identify the
+    # committed source revision").
+    $ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/full_commit_revision"
+  generated_at: {type: string, format: date-time}
+  prompt_contract_version: {type: integer, minimum: 1}
+  organizer_profile: {type: string, minLength: 1}
+  recommendations:
+    type: array
+    minItems: 1
+    items: {$ref: "#/$defs/recommendation"}
+$defs:
+  recommendation:
+    # Each recommendation SHALL identify the committed source revision, passage
+    # hash and section reference, rationale, numeric confidence from 0 through
+    # 1, alternatives, exclusions, ambiguity, and `pending_review` disposition
+    # (spec requirement "Non-mutating semantic ideation organizer"; scenario
+    # "Organizer emits recommendations"). `alternatives`, `domain_local_exclusions`,
+    # and `ambiguity` are REQUIRED arrays — present (possibly empty), never
+    # omitted — so every recommendation carries them explicitly.
+    type: object
+    additionalProperties: false
+    required:
+      - claim_candidate_id
+      - source_ref
+      - rationale
+      - confidence
+      - alternatives
+      - domain_local_exclusions
+      - ambiguity
+      - disposition
+    properties:
+      claim_candidate_id: {type: string, minLength: 1}
+      source_ref:
+        type: object
+        additionalProperties: false
+        required: [repository, path, revision, section, passage_sha256]
+        properties:
+          repository: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/repository_id"}
+          path: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/posix_relative_path"}
+          revision: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/full_commit_revision"}
+          section: {type: string, minLength: 1}
+          passage_sha256: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/passage_sha256"}
+      summary: {type: string, minLength: 1}
+      recommended_scope:
+        enum: [unclassified, domain, cross_domain, neutral_candidate, mixed]
+      proposed_owner: {type: [string, "null"]}
+      proposed_target: {type: [string, "null"]}
+      alternatives:
+        type: array
+        items: {type: string, minLength: 1}
+      domain_local_exclusions:
+        type: array
+        items: {type: string, minLength: 1}
+      dependencies:
+        type: array
+        items: {type: string, minLength: 1}
+      ambiguity:
+        type: array
+        items: {type: string, minLength: 1}
+      rationale: {type: string, minLength: 1}
+      confidence:
+        # Numeric confidence from 0 through 1 (spec requirement "Non-mutating
+        # semantic ideation organizer").
+        type: number
+        minimum: 0
+        maximum: 1
+      disposition:
+        # A recommendation is a proposal pending review; it MUST NOT be a
+        # verdict or an accepted disposition (spec scenario "Organizer recommends
+        # an owner": the recommendation "MUST remain pending until an authorized
+        # destination accepts it").
+        const: pending_review

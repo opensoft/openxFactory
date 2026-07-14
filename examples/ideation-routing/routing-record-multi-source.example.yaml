@@ -1,0 +1,156 @@
+# Valid xfactory_idea_routing_record: MULTI-SOURCE ROUTING
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-idea-routing-record.schema.yaml.
+#
+# Several source documents contribute to ONE canonical idea, so the record lists
+# every source and the deduplication rationale (spec "Canonical routing identity
+# and record", scenario "Several sources are deduplicated"). One idea is split
+# claim-by-claim across all four destination classes — neutral (openxFactory),
+# domain (MedxFactory), installer/runtime (installs/cloudpc-install), and
+# aggregation (xFactory, composition/pin only) — demonstrating claim-level
+# classification boundaries (spec "Claim-level classification and ownership
+# boundaries", scenarios "Mixed idea is split" and "Runtime behavior is
+# classified"). Both sources carry full committed revisions because the record
+# has left `intake`.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-007
+title: "Managed-host readiness handling spans neutral policy, domain data, runtime, and pins"
+scope: mixed
+routing_status: triaging
+sources:
+  - repository: xFactories/MedxFactory
+    path: ideation/brainstorm/managed-host-readiness.md
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    context: document
+    passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+  - repository: xFactories/OpsxFactory
+    path: ideation/brainstorm/cloudpc-host-recovery.md
+    revision: 0e01e898f649e7ba3bc3938a076931186197af48
+    context: meeting
+    passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+deduplication_rationale: >-
+  The Med clinical-hosting note and the Ops host-recovery meeting describe the
+  same managed-host readiness idea from two vantage points; consolidated into one
+  canonical record so ownership is decided per claim, not per source document.
+domains_touched:
+  - MedxFactory
+  - OpsxFactory
+candidate_owners:
+  - openxFactory
+  - OpsxFactory
+  - installs/cloudpc-install
+claims:
+  - claim_id: XFI-2026-007-C01
+    summary: "A reusable readiness-result contract that any Client Hermes can consume."
+    source_ref:
+      source_index: 0
+      section: readiness-contract
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    proposed_owner: openxFactory
+    accepted_owner: null
+    target_capability: infrastructure-readiness-result
+    destination: null
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: proposed
+    rationale: "Reusable neutral schema and workflow behavior classifies to openxFactory."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T08:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T09:00:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-007-C02
+    summary: "Protected medical data cannot use an unapproved host fallback."
+    source_ref:
+      source_index: 0
+      section: data-boundary
+      passage_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+    proposed_owner: xFactories/MedxFactory
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Care Hermes must confirm the regulatory threshold before this routes."
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Regulatory data-handling rule is domain evidence owned by MedxFactory."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-12T08:05:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-007-C03
+    summary: "Omni host packaging and recovery behavior on the Cloud PC image."
+    source_ref:
+      source_index: 1
+      section: host-recovery
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: installs/cloudpc-install
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Cloud PC install owner must scope recovery behavior before routing."
+    dependencies:
+      - XFI-2026-007-C01
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Installer/host/runtime implementation routes to its implementation repository, not neutral policy."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T08:10:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-007-C04
+    summary: "Pin the promoted readiness contract into the aggregation workspace release."
+    source_ref:
+      source_index: 1
+      section: release-assembly
+      passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+    proposed_owner: xFactory
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: null
+    dependencies:
+      - XFI-2026-007-C01
+    domain_local_exclusions: []
+    disposition: proposed
+    rationale: "Only submodule pinning and release assembly classify to the xFactory aggregation root."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T08:15:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T09:15:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-12T07:45:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-12T07:55:00Z"
+    evidence_refs: []
+successors: []
+notes: null

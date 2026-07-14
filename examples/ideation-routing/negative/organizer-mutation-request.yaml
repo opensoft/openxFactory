@@ -1,0 +1,38 @@
+# INVALID (category: organizer output): a recommendation carries a
+# `requested_action: move_document` field asking to perform a lifecycle/
+# repository mutation. The organizer MUST NOT move, delete, promote, or approve
+# content, or mutate the canonical routing record; its output is a proposal, not
+# a verdict (spec "Non-mutating semantic ideation organizer", scenario
+# "Organizer attempts a mutation"). Rejected by `additionalProperties: false`
+# on the recommendation shape in
+# xfactory-ideation-organizer-recommendations.schema.yaml — no mutation verb is
+# part of the recommendation vocabulary. Everything else is valid.
+schema_version: 1
+kind: ideation_organizer_recommendations
+status: record
+idea_id: XFI-2026-001
+run_id: 2026-07-13T0930-run-44
+source_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+generated_at: "2026-07-13T09:31:00Z"
+prompt_contract_version: 1
+organizer_profile: ideation-organizer
+recommendations:
+  - claim_candidate_id: candidate-01
+    source_ref:
+      repository: xFactories/MedxFactory
+      path: ideation/brainstorm/omni-clinic-hosting.md
+      revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      section: infrastructure-management
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    summary: "Every Client Hermes needs an infrastructure liaison."
+    recommended_scope: cross_domain
+    proposed_owner: openxFactory
+    proposed_target: ideation/staging/client-infrastructure-liaison
+    alternatives: []
+    domain_local_exclusions: []
+    dependencies: []
+    ambiguity: []
+    rationale: "Reusable client-coordination behavior recurs across domains."
+    confidence: 0.86
+    disposition: pending_review
+    requested_action: move_document

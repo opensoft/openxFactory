@@ -80,6 +80,11 @@ archives, at the registration task named in that family's note below.
 | `schemas/project-register.schema.yaml` | Repository → project → project-group navigation hierarchy (D10) | `add-ideation-dashboard` |
 | `schemas/gate-action-record.schema.yaml` | Human-authenticated gate-console action audit record (D16/D17) | `add-ideation-dashboard` |
 | `scripts/validate-ideation-dashboard-contracts.py` | Strict validator: schema conformance (FormatChecker-enforced), snapshot referential integrity, workbench recipe/override + committed-manifest guard, possibles-register id-uniqueness + transition legality, project-register single-parent hierarchy, gate-action kickoff-ratification precondition | `add-ideation-dashboard` |
+| `schemas/xfactory-idea-routing-record.schema.yaml` | Canonical cross-factory idea routing record (`routing.yaml`); one per unclassified, mixed, cross-domain, or claim-split idea | `add-cross-factory-ideation-routing` |
+| `schemas/xfactory-idea-routing-reference.schema.yaml` | Reusable structured repository/path/revision reference `$defs` kernel (mirrors `xfactory-document-opaque-locator.schema.yaml`); no top-level envelope | `add-cross-factory-ideation-routing` |
+| `schemas/xfactory-ideation-routing-index.schema.yaml` | Central Idea-ID allocation ledger (`ideation/routing-index.yaml`) | `add-cross-factory-ideation-routing` |
+| `schemas/xfactory-ideation-organizer-recommendations.schema.yaml` | Immutable non-mutating ideation-organizer recommendation evidence | `add-cross-factory-ideation-routing` |
+| `scripts/validate-ideation-routing.py` | Strict validator: schema/vocabulary conformance, central Idea-ID and Claim-ID uniqueness, legal transitions, destination-owner acceptance, structured repository-reference resolution, paired-document identity, prospective legacy compatibility | `add-cross-factory-ideation-routing` |
 
 Reference examples for the ideation-dashboard family (8 valid + 21 invalid
 fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
@@ -88,6 +93,18 @@ given file/directory by kind detection, runs register transitions via
 `--transition OLD NEW`, and scans the checkout for committed workbench manifests.
 Per this section's rule, these entries move to `contracts/manifest.yaml` and
 `contracts/CHANGELOG.md` when `add-ideation-dashboard` archives (its task 2.5).
+
+Reference examples for the ideation-routing family (8 valid + 8 invalid
+fixtures, one violation per negative file) live at
+`examples/ideation-routing/`; `scripts/validate-ideation-routing.py`
+self-tests them (schema/`kind`-or-fragment validation) and additionally
+validates any real `ideation/routing-index.yaml`, `ideation/**/routing.yaml`,
+and `health/ideation-organizer/**/*.yaml` artifacts under a given checkout,
+reporting absent paths as skipped rather than passed. See
+`openspec/changes/add-cross-factory-ideation-routing/specs/ideation-routing/spec.md`
+for the requirements these schemas realize. Per this section's rule, these
+entries move to `contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
+`add-cross-factory-ideation-routing` archives (its task 8.4).
 
 ## Contract Manifest
 

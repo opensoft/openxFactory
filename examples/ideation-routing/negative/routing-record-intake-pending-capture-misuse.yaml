@@ -1,0 +1,59 @@
+# INVALID (category: unknown-owner intake): a source carries
+# `revision: pending_capture` but the record has already left `intake`
+# (routing_status is `triaging`). `pending_capture` MAY appear only on a source
+# while the record is in `intake`; every organize/proposal transition requires a
+# committed revision (spec "Structured repository references and resolvable
+# provenance", scenario "Intake has not yet been committed"). Rejected by the
+# intake conditional in xfactory-idea-routing-record.schema.yaml. Everything
+# else is valid.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-020
+title: "Freshness signal moved to triaging without committing its source"
+scope: unclassified
+routing_status: triaging
+sources:
+  - repository: openxFactory
+    path: ideation/brainstorm/inbox/XFI-2026-020/idea.md
+    revision: pending_capture
+    context: discussion
+    passage_sha256: null
+deduplication_rationale: null
+domains_touched: []
+candidate_owners: []
+claims:
+  - claim_id: XFI-2026-020-C01
+    summary: "Notify an owning capability when a cited cross-repository document changes."
+    source_ref:
+      source_index: 0
+      section: problem-statement
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: null
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Owner unknown; needs triage."
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Captured before ownership is known."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory capture (author)"
+        occurred_at: "2026-07-13T09:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory capture (author)"
+    occurred_at: "2026-07-13T09:00:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-13T10:00:00Z"
+    evidence_refs: []
+successors: []
+notes: null

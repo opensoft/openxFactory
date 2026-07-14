@@ -54,6 +54,19 @@ descriptive discovery metadata — never lifecycle, ownership, or approval
 authority (see
 [Document Lifecycle](document-lifecycle.md#catalog-tags-are-not-lifecycle-state)).
 
+A second active change, `add-cross-factory-ideation-routing`, proposes a
+fourteenth deterministic family, `ideation-routing` (sequenced after
+`add-document-cataloging`, per that change's own tasks), covering routing
+schema and controlled-vocabulary conformance, central Idea-ID and Claim-ID
+allocation and uniqueness, legal routing/claim transitions, destination-owner
+acceptance, structured repository/path/revision reference resolution, and
+routing aging; see its
+[doc-health spec delta](../openspec/changes/add-cross-factory-ideation-routing/specs/doc-health/spec.md)
+for the owned check scope. Until both changes promote, this contract remains
+the twelve-family baseline above, and routing metadata stays descriptive
+coordination — never lifecycle, ownership, or approval authority (see
+[Document Lifecycle](document-lifecycle.md#cross-factory-ideation-routing)).
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |

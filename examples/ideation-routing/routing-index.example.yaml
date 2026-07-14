@@ -1,0 +1,31 @@
+# Valid xfactory_ideation_routing_index: populated central allocation ledger
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-ideation-routing-index.schema.yaml.
+#
+# Illustrates the ledger after several Idea IDs have been allocated. The LIVE
+# file (openxFactory/ideation/routing-index.yaml) ships empty (`allocations:
+# []`); this example shows the populated shape. Each entry points at its paired
+# routing record by repository + POSIX path (a revision-less `path_reference`:
+# the index and the record it names are committed together).
+schema_version: 1
+kind: xfactory_ideation_routing_index
+allocations:
+  - idea_id: XFI-2026-001
+    title: "Omni clinic hosting cross-domain routing hub"
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/cross-domain/XFI-2026-001/routing.yaml
+    allocated_at: "2026-07-10"
+  - idea_id: XFI-2026-003
+    title: "Client infrastructure liaison — routed"
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/cross-domain/XFI-2026-003/routing.yaml
+    allocated_at: "2026-07-10"
+  - idea_id: XFI-2026-014
+    title: "Cross-repo document-freshness signal (unclassified)"
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/inbox/XFI-2026-014/routing.yaml
+    allocated_at: "2026-07-13"
+notes: null

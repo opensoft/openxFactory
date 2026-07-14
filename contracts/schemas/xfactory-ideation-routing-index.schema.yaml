@@ -1,0 +1,40 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-ideation-routing-index.schema.yaml"
+title: "Central cross-factory ideation routing-index (Idea ID allocation ledger)"
+contract_schema_version: 1
+description: >-
+  The single central Idea-ID allocation ledger, `openxFactory/ideation/
+  routing-index.yaml` (`add-cross-factory-ideation-routing`; spec requirement
+  "Canonical routing identity and record"). Idea IDs SHALL be allocated from
+  this index in the SAME reviewed change that creates the routing record, and
+  concurrent duplicate allocations SHALL be rejected so the later change rebases
+  and allocates a new sequence (spec scenario "Concurrent allocation collides").
+  The empty ledger (`allocations: []`) is valid — the live file ships empty and
+  grows one entry per allocated idea.
+
+  This schema proves each entry's shape. Idea-ID UNIQUENESS across entries and
+  across the governed corpus, and the entry pointing at a real paired routing
+  record, are deterministic-validator concerns (change task 2.3), not shapes a
+  single-document schema can check. Each `routing_record` is a `path_reference`
+  (repository + POSIX path, no revision): the index and the record it points at
+  are committed together, so pinning a revision here would be circular.
+type: object
+additionalProperties: false
+required: [schema_version, kind, allocations]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_ideation_routing_index}
+  allocations:
+    type: array
+    items: {$ref: "#/$defs/allocation"}
+  notes: {type: [string, "null"]}
+$defs:
+  allocation:
+    type: object
+    additionalProperties: false
+    required: [idea_id, routing_record]
+    properties:
+      idea_id: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/idea_id"}
+      title: {type: string, minLength: 1}
+      routing_record: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/path_reference"}
+      allocated_at: {type: string, format: date}

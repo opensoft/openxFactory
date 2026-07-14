@@ -1,0 +1,264 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-idea-routing-record.schema.yaml"
+title: "Canonical cross-factory idea routing record"
+contract_schema_version: 1
+description: >-
+  The one canonical routing record (`routing.yaml`) for an unclassified, mixed,
+  cross-domain, or claim-split idea (`add-cross-factory-ideation-routing`; spec
+  requirement "Canonical routing identity and record"). Exactly one record per
+  routed idea; destination artifacts carry only lightweight pointers, never a
+  copy of this schema (spec requirement "Organize gate and lightweight
+  destination provenance"; scenario "Destination copies a routing record"). The
+  field layout follows the ratified
+  `supporting-docs/idea-routing-record.template.yaml` exactly, including its
+  `kind: xfactory_idea_routing_record`.
+
+  This schema encodes what JSON Schema can prove on ONE record: the controlled
+  scope / routing-status / disposition vocabularies, the per-edge routing and
+  claim transition graphs, destination-acceptance completeness for a routed
+  claim, the routed-record gate (no active claim left unresolved/proposed), the
+  multi-source deduplication-rationale requirement, and the intake-only
+  `pending_capture` rule. Cross-record and cross-repository invariants — central
+  Idea-ID allocation and uniqueness, claim-prefix agreement, append-only
+  transition history, gitlink/revision resolution, paired-document identity, and
+  aging — are deterministic-validator concerns (change task 2.3), not shapes
+  this schema can check.
+type: object
+additionalProperties: false
+required: [schema_version, kind, idea_id, title, scope, routing_status, sources, claims, transitions]
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_idea_routing_record}
+  idea_id: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/idea_id"}
+  title: {type: string, minLength: 1}
+  scope:
+    # Allowed scopes SHALL be exactly these five (spec requirement "Canonical
+    # routing identity and record").
+    enum: [unclassified, domain, cross_domain, neutral_candidate, mixed]
+  routing_status:
+    # Allowed routing statuses SHALL be exactly these six (spec requirement
+    # "Canonical routing identity and record"). Routing metadata MUST NOT
+    # replace the canonical document `Status:` taxonomy.
+    enum: [intake, triaging, split, routed, deferred, rejected]
+  sources:
+    # Every source SHALL be listed (spec scenario "Several sources are
+    # deduplicated"); at least one origin source always exists.
+    type: array
+    minItems: 1
+    items: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/source_reference"}
+  deduplication_rationale:
+    # Required non-null only when more than one source contributes — enforced by
+    # the multi-source conditional in `allOf` below.
+    type: [string, "null"]
+  domains_touched:
+    type: array
+    items: {type: string, minLength: 1}
+  candidate_owners:
+    # Candidate owners aid discovery; they MUST NOT confer ownership or
+    # authority (spec requirement "Claim-level classification and ownership
+    # boundaries"). That non-authority is a policy invariant, not a shape.
+    type: array
+    items: {type: string, minLength: 1}
+  claims:
+    type: array
+    items: {$ref: "#/$defs/claim"}
+  transitions:
+    # Append-only routing-status history (spec requirement "Routing and claim
+    # transition integrity"). Append-only-ness across edits is validator-checked;
+    # this schema constrains each edge's legality.
+    type: array
+    minItems: 1
+    items: {$ref: "#/$defs/routing_transition"}
+  successors:
+    type: array
+    items: {$ref: "#/$defs/successor"}
+  notes: {type: [string, "null"]}
+allOf:
+  # `pending_capture` MAY appear on a source ONLY while the record is in
+  # `intake`; every organize or proposal transition SHALL use committed,
+  # resolvable revisions (spec requirement "Structured repository references and
+  # resolvable provenance"; scenario "Intake has not yet been committed").
+  - if:
+      not:
+        properties: {routing_status: {const: intake}}
+    then:
+      properties:
+        sources:
+          items:
+            properties:
+              revision: {not: {const: pending_capture}}
+  # A record SHALL reach `routed` only when no active claim remains
+  # `unresolved` or `proposed` (spec requirement "Routing and claim transition
+  # integrity"; scenario "Routing record closes prematurely").
+  - if:
+      properties: {routing_status: {const: routed}}
+    then:
+      properties:
+        claims:
+          items:
+            properties:
+              disposition: {not: {enum: [unresolved, proposed]}}
+  # When several sources contribute, the record SHALL list the deduplication
+  # rationale (spec scenario "Several sources are deduplicated").
+  - if:
+      properties: {sources: {minItems: 2}}
+    then:
+      required: [deduplication_rationale]
+      properties:
+        deduplication_rationale: {type: string, minLength: 1}
+$defs:
+  claim:
+    # One independently routable claim: summary, stable source evidence,
+    # proposed/accepted owners, target capability, structured destination,
+    # dependencies, domain-local exclusions, disposition, and rationale (spec
+    # requirement "Claim-level classification and ownership boundaries").
+    type: object
+    additionalProperties: false
+    required: [claim_id, summary, source_ref, disposition, rationale, transitions]
+    properties:
+      claim_id: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/claim_id"}
+      summary: {type: string, minLength: 1}
+      source_ref:
+        # Stable evidence into the source: which listed source, a stable
+        # section reference, and the passage hash.
+        type: object
+        additionalProperties: false
+        required: [source_index, section, passage_sha256]
+        properties:
+          source_index: {type: integer, minimum: 0}
+          section: {type: string, minLength: 1}
+          passage_sha256: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/passage_sha256"}
+      proposed_owner: {type: [string, "null"]}
+      accepted_owner: {type: [string, "null"]}
+      target_capability: {type: [string, "null"]}
+      destination:
+        # A structured, committed destination reference once routed; null while
+        # unrouted.
+        oneOf:
+          - {type: "null"}
+          - {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/committed_reference"}
+      blocker: {type: [string, "null"]}
+      dependencies:
+        type: array
+        items: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/claim_id"}
+      domain_local_exclusions:
+        type: array
+        items: {type: string, minLength: 1}
+      disposition:
+        # Claim disposition SHALL be one of these five (spec requirement
+        # "Routing and claim transition integrity").
+        enum: [unresolved, proposed, routed, deferred, rejected]
+      rationale: {type: string, minLength: 1}
+      acceptance:
+        oneOf:
+          - {type: "null"}
+          - {$ref: "#/$defs/acceptance"}
+      transitions:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/claim_transition"}
+    allOf:
+      # An unresolved claim SHALL name a blocker or blocking question (spec
+      # requirement "Routing and claim transition integrity"; scenario
+      # "Ownership remains disputed").
+      - if:
+          properties: {disposition: {const: unresolved}}
+        then:
+          required: [blocker]
+          properties:
+            blocker: {type: string, minLength: 1}
+      # A proposed claim names its proposed owner (spec scenario "Proposed owner
+      # has not accepted").
+      - if:
+          properties: {disposition: {const: proposed}}
+        then:
+          required: [proposed_owner]
+          properties:
+            proposed_owner: {type: string, minLength: 1}
+      # A routed claim SHALL name its accepted owner, target capability,
+      # structured destination, and acceptance actor/time/evidence (spec
+      # requirement "Routing and claim transition integrity"; scenarios
+      # "Destination accepts a claim" and "Proposed owner has not accepted").
+      - if:
+          properties: {disposition: {const: routed}}
+        then:
+          required: [accepted_owner, target_capability, destination, acceptance]
+          properties:
+            accepted_owner: {type: string, minLength: 1}
+            target_capability: {type: string, minLength: 1}
+            destination: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/committed_reference"}
+            acceptance: {$ref: "#/$defs/acceptance"}
+  acceptance:
+    # Destination-owner acceptance backing a routed claim (spec: acceptance
+    # actor, acceptance time, and acceptance evidence).
+    type: object
+    additionalProperties: false
+    required: [actor_ref, accepted_at, evidence_refs]
+    properties:
+      actor_ref: {type: string, minLength: 1}
+      accepted_at: {type: string, format: date-time}
+      evidence_refs:
+        type: array
+        minItems: 1
+        items: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/evidence_ref"}
+  successor:
+    type: object
+    additionalProperties: false
+    required: [idea_id]
+    properties:
+      idea_id: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/idea_id"}
+      rationale: {type: string, minLength: 1}
+  routing_transition:
+    # One append-only routing-status transition. The per-edge `allOf` below
+    # encodes the transition graph (spec requirement "Routing and claim
+    # transition integrity"): null->intake; intake->triaging|deferred|rejected;
+    # triaging->split|routed|deferred|rejected; split->triaging|routed|deferred|
+    # rejected; and routed|deferred|rejected->triaging (reviewed reopen).
+    type: object
+    additionalProperties: false
+    required: [from, to, actor_ref, occurred_at, evidence_refs]
+    properties:
+      from: {enum: [null, intake, triaging, split, routed, deferred, rejected]}
+      to: {enum: [intake, triaging, split, routed, deferred, rejected]}
+      actor_ref: {type: string, minLength: 1}
+      occurred_at: {type: string, format: date-time}
+      evidence_refs:
+        type: array
+        items: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/evidence_ref"}
+    allOf:
+      - if: {properties: {from: {const: null}}}
+        then: {properties: {to: {const: intake}}}
+      - if: {properties: {from: {const: intake}}}
+        then: {properties: {to: {enum: [triaging, deferred, rejected]}}}
+      - if: {properties: {from: {const: triaging}}}
+        then: {properties: {to: {enum: [split, routed, deferred, rejected]}}}
+      - if: {properties: {from: {const: split}}}
+        then: {properties: {to: {enum: [triaging, routed, deferred, rejected]}}}
+      - if: {properties: {from: {enum: [routed, deferred, rejected]}}}
+        then: {properties: {to: {const: triaging}}}
+  claim_transition:
+    # One append-only claim-disposition transition. The per-edge `allOf` encodes
+    # the claim transition graph (spec requirement "Routing and claim transition
+    # integrity"): null->unresolved; unresolved->proposed|deferred|rejected;
+    # proposed->routed|deferred|rejected; and a terminal
+    # routed|deferred|rejected->unresolved only through a reviewed reopen.
+    type: object
+    additionalProperties: false
+    required: [from, to, actor_ref, occurred_at, evidence_refs]
+    properties:
+      from: {enum: [null, unresolved, proposed, routed, deferred, rejected]}
+      to: {enum: [unresolved, proposed, routed, deferred, rejected]}
+      actor_ref: {type: string, minLength: 1}
+      occurred_at: {type: string, format: date-time}
+      evidence_refs:
+        type: array
+        items: {$ref: "xfactory-idea-routing-reference.schema.yaml#/$defs/evidence_ref"}
+    allOf:
+      - if: {properties: {from: {const: null}}}
+        then: {properties: {to: {const: unresolved}}}
+      - if: {properties: {from: {const: unresolved}}}
+        then: {properties: {to: {enum: [proposed, deferred, rejected]}}}
+      - if: {properties: {from: {const: proposed}}}
+        then: {properties: {to: {enum: [routed, deferred, rejected]}}}
+      - if: {properties: {from: {enum: [routed, deferred, rejected]}}}
+        then: {properties: {to: {const: unresolved}}}

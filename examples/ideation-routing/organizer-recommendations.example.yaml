@@ -1,0 +1,64 @@
+# Valid ideation_organizer_recommendations: bounded, non-mutating organizer run
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-ideation-organizer-recommendations.schema.yaml.
+#
+# Immutable evidence for one organizer run, persisted at
+# health/ideation-organizer/YYYY-MM-DD/<idea-id>-<run-id>.yaml with
+# `status: record` (spec "Organizer execution, persistence, and readiness
+# isolation"). Every recommendation carries a committed source revision, a
+# passage hash and section reference, rationale, numeric confidence from 0
+# through 1, alternatives, exclusions, ambiguity, and a `pending_review`
+# disposition (spec "Non-mutating semantic ideation organizer", scenario
+# "Organizer emits recommendations"). The output is a PROPOSAL, never a verdict:
+# an authorized owner accepts, edits, or rejects it before any routing state
+# changes.
+schema_version: 1
+kind: ideation_organizer_recommendations
+status: record
+idea_id: XFI-2026-001
+run_id: 2026-07-13T0930-run-42
+source_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+generated_at: "2026-07-13T09:31:00Z"
+prompt_contract_version: 1
+organizer_profile: ideation-organizer
+recommendations:
+  - claim_candidate_id: candidate-01
+    source_ref:
+      repository: xFactories/MedxFactory
+      path: ideation/brainstorm/omni-clinic-hosting.md
+      revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      section: infrastructure-management
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    summary: "Every Client Hermes needs an infrastructure liaison."
+    recommended_scope: cross_domain
+    proposed_owner: openxFactory
+    proposed_target: ideation/staging/client-infrastructure-liaison
+    alternatives:
+      - OpsxFactory
+    domain_local_exclusions:
+      - Intune execution policy
+    dependencies: []
+    ambiguity:
+      - "Whether the liaison owns retry policy or only the readiness contract."
+    rationale: "Reusable client-coordination behavior recurs across domains; classifies neutral."
+    confidence: 0.86
+    disposition: pending_review
+  - claim_candidate_id: candidate-02
+    source_ref:
+      repository: xFactories/MedxFactory
+      path: ideation/brainstorm/omni-clinic-hosting.md
+      revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      section: execution-runtime
+      passage_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+    summary: "Intune and Cloud PC execution follows privileged IT operations policy."
+    recommended_scope: domain
+    proposed_owner: xFactories/OpsxFactory
+    proposed_target: null
+    alternatives: []
+    domain_local_exclusions: []
+    dependencies:
+      - candidate-01
+    ambiguity: []
+    rationale: "Privileged IT execution recurs as an Ops-owned concern."
+    confidence: 0.62
+    disposition: pending_review

@@ -6,11 +6,11 @@
 
 ## 2. Neutral Routing Contracts
 
-- [ ] 2.1 Add canonical routing-record, `ideation/routing-index.yaml`, structured repository-reference, and organizer-recommendation schemas with controlled vocabularies, transition graphs, destination acceptance, numeric confidence, and evidence references.
-- [ ] 2.2 Add valid and invalid examples for unknown-owner intake, domain-origin expansion, multi-source routing, unresolved blockers, destination acceptance, and routed proposal provenance.
-- [ ] 2.3 Implement strict openxFactory validators for routing schema, central ID allocation, unique definitions, paired documents, legal transitions, accepted destinations, structured references, and prospective legacy compatibility.
+- [x] 2.1 Add canonical routing-record, `ideation/routing-index.yaml`, structured repository-reference, and organizer-recommendation schemas with controlled vocabularies, transition graphs, destination acceptance, numeric confidence, and evidence references.
+- [x] 2.2 Add valid and invalid examples for unknown-owner intake, domain-origin expansion, multi-source routing, unresolved blockers, destination acceptance, and routed proposal provenance.
+- [x] 2.3 Implement strict openxFactory validators for routing schema, central ID allocation, unique definitions, paired documents, legal transitions, accepted destinations, structured references, and prospective legacy compatibility.
 - [ ] 2.4 Register every schema and template in `contracts/manifest.yaml`, reconcile versions with `contracts/CHANGELOG.md`, update `contracts/README.md`, and add contract/validator tests.
-- [ ] 2.5 Update openxFactory ideation, document-lifecycle, domain-to-neutral promotion, and doc-health guidance to reference promoted routing requirements without duplicating normative rules.
+- [x] 2.5 Update openxFactory ideation, document-lifecycle, domain-to-neutral promotion, and doc-health guidance to reference promoted routing requirements without duplicating normative rules.
 
 ## 3. Domain Factory Adoption And Scaffolding
 

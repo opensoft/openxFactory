@@ -1,0 +1,168 @@
+# Valid xfactory_idea_routing_record: DESTINATION ACCEPTANCE (fully routed)
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-idea-routing-record.schema.yaml.
+#
+# A record reaching `routed`: no active claim remains `unresolved` or `proposed`
+# (spec "Routing and claim transition integrity", scenario "Routing record
+# closes prematurely" — the inverse). Each routed claim names its accepted
+# owner, target capability, structured committed destination, and acceptance
+# actor/time/evidence (scenario "Destination accepts a claim"); one claim is
+# `deferred` with its reason in the rationale (aging is not triggered for a
+# resolved record). The claim-transition history walks the full
+# null -> unresolved -> proposed -> routed graph, and the record history walks
+# null -> intake -> triaging -> split -> routed.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-003
+title: "Client infrastructure liaison — neutral skeleton and Med overlay, routed"
+scope: cross_domain
+routing_status: routed
+sources:
+  - repository: xFactories/MedxFactory
+    path: ideation/brainstorm/omni-clinic-hosting.md
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    context: document
+    passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+deduplication_rationale: null
+domains_touched:
+  - MedxFactory
+candidate_owners:
+  - openxFactory
+  - xFactories/MedxFactory
+claims:
+  - claim_id: XFI-2026-003-C01
+    summary: "Neutral client-infrastructure-liaison skeleton for reuse across domains."
+    source_ref:
+      source_index: 0
+      section: infrastructure-management
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    proposed_owner: openxFactory
+    accepted_owner: openxFactory
+    target_capability: client-infrastructure-liaison
+    destination:
+      repository: openxFactory
+      path: ideation/staging/client-infrastructure-liaison/liaison-skeleton.md
+      revision: 5142065b2833a2b6d2ccbcb460bf164fd4e1e417
+    blocker: null
+    dependencies: []
+    domain_local_exclusions:
+      - Intune execution policy
+    disposition: routed
+    rationale: "Reusable neutral skeleton accepted by openxFactory ratify authority."
+    acceptance:
+      actor_ref: "openxFactory ratify authority"
+      accepted_at: "2026-07-12T16:00:00Z"
+      evidence_refs:
+        - repository: openxFactory
+          path: ideation/staging/client-infrastructure-liaison/acceptance-note.md
+          revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-10T14:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-11T10:00:00Z"
+        evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T16:00:00Z"
+        evidence_refs:
+          - "openspec/changes/add-client-infrastructure-liaison/proposal.md"
+  - claim_id: XFI-2026-003-C02
+    summary: "Care Hermes overlay specializing the neutral liaison for Med dependencies."
+    source_ref:
+      source_index: 0
+      section: clinical-hosting
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: xFactories/MedxFactory
+    accepted_owner: xFactories/MedxFactory
+    target_capability: care-hermes-infrastructure-overlay
+    destination:
+      repository: xFactories/MedxFactory
+      path: ideation/staging/care-hermes-infrastructure-overlay/overlay.md
+      revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    blocker: null
+    dependencies:
+      - XFI-2026-003-C01
+    domain_local_exclusions: []
+    disposition: routed
+    rationale: "Domain overlay accepted by the destination Domain Hermes."
+    acceptance:
+      actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+      accepted_at: "2026-07-12T16:30:00Z"
+      evidence_refs:
+        - "xFactories/MedxFactory acceptance ledger entry MED-ACC-2026-018"
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-10T14:05:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-11T11:00:00Z"
+        evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-12T16:30:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-003-C03
+    summary: "A shared dashboard widget for liaison status was proposed but set aside."
+    source_ref:
+      source_index: 0
+      section: nice-to-have
+      passage_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+    proposed_owner: openxFactory
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: deferred
+    rationale: "Deferred: out of scope for the first liaison release; revisit after adoption."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-10T14:15:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: deferred
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-11T12:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:30:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:45:00Z"
+    evidence_refs: []
+  - from: triaging
+    to: split
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-11T09:30:00Z"
+    evidence_refs: []
+  - from: split
+    to: routed
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-12T16:30:00Z"
+    evidence_refs:
+      - repository: openxFactory
+        path: ideation/brainstorm/cross-domain/XFI-2026-003/routing-summary.md
+        revision: 5142065b2833a2b6d2ccbcb460bf164fd4e1e417
+successors: []
+notes: "All active claims resolved; C03 explicitly deferred with reason."

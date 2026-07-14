@@ -1,0 +1,30 @@
+# Valid routed proposal provenance: each list item validates independently
+# against contracts/schemas/xfactory-idea-routing-reference.schema.yaml
+# `#/$defs/ideation_provenance_entry` (add-cross-factory-ideation-routing task
+# 2.2).
+#
+# This is the `ideation_provenance` block an OpenSpec proposal support manifest
+# carries when selected staged material derives from routed claims
+# (document-lifecycle delta "Proposal-owned supporting documents", scenario
+# "Routed material enters a proposal"; metadata-application-matrix "OpenSpec
+# Provenance"). Each entry names the source Idea ID, the selected Claim IDs, and
+# a routing-record reference whose repository, path, and FULL committed revision
+# MUST resolve. The `ideation_provenance:` wrapper is a container for this file
+# only. `pending_capture` is INVALID here (see
+# negative/proposal-provenance-pending-capture.yaml).
+ideation_provenance:
+  - idea_id: XFI-2026-003
+    claim_ids:
+      - XFI-2026-003-C01
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/cross-domain/XFI-2026-003/routing.yaml
+      revision: 5142065b2833a2b6d2ccbcb460bf164fd4e1e417
+  - idea_id: XFI-2026-001
+    claim_ids:
+      - XFI-2026-001-C01
+      - XFI-2026-001-C02
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/cross-domain/XFI-2026-001/routing.yaml
+      revision: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0

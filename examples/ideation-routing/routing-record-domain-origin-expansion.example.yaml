@@ -1,0 +1,131 @@
+# Valid xfactory_idea_routing_record: DOMAIN-ORIGIN EXPANSION
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-idea-routing-record.schema.yaml.
+#
+# A MedxFactory brainstorm that later yields neutral and other-domain claims
+# (spec "Routing coordinates but does not transfer authority", scenario
+# "Domain-origin idea expands"). The original domain source stays in place and
+# is referenced by full committed revision; openxFactory hosts the cross-domain
+# routing hub without acquiring the source's domain authority. The reusable
+# skeleton routes to openxFactory while the domain specialization routes to a
+# thin MedxFactory overlay (spec "Claim-level classification and ownership
+# boundaries", scenario "Neutral skeleton has a domain overlay"); a disputed
+# execution claim stays `unresolved` with a blocker. The record-level transition
+# history walks null -> intake -> triaging -> split.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-001
+title: "Omni clinic hosting: neutral liaison, Med overlay, and Ops execution"
+scope: cross_domain
+routing_status: split
+sources:
+  - repository: xFactories/MedxFactory
+    path: ideation/brainstorm/omni-clinic-hosting.md
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    context: document
+    passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+deduplication_rationale: null
+domains_touched:
+  - MedxFactory
+  - OpsxFactory
+candidate_owners:
+  - openxFactory
+  - OpsxFactory
+claims:
+  - claim_id: XFI-2026-001-C01
+    summary: "Every Client Hermes coordinates required external infrastructure via a liaison."
+    source_ref:
+      source_index: 0
+      section: infrastructure-management
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    proposed_owner: openxFactory
+    accepted_owner: null
+    target_capability: client-infrastructure-liaison
+    destination: null
+    blocker: null
+    dependencies: []
+    domain_local_exclusions:
+      - Intune execution policy
+    disposition: proposed
+    rationale: "Reusable neutral client-coordination behavior across domains routes to openxFactory."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-10T14:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-11T10:00:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-001-C02
+    summary: "Care Hermes uses the neutral liaison for Med-specific dependencies (thin overlay)."
+    source_ref:
+      source_index: 0
+      section: clinical-hosting
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: xFactories/MedxFactory
+    accepted_owner: null
+    target_capability: care-hermes-infrastructure-overlay
+    destination: null
+    blocker: null
+    dependencies:
+      - XFI-2026-001-C01
+    domain_local_exclusions: []
+    disposition: proposed
+    rationale: "Domain specialization of the neutral hook routes to a thin MedxFactory overlay."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-10T14:05:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "xFactories/MedxFactory authority (Care Hermes)"
+        occurred_at: "2026-07-11T11:00:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-001-C03
+    summary: "Intune and Cloud PC execution follows privileged IT operations policy."
+    source_ref:
+      source_index: 0
+      section: execution-runtime
+      passage_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+    proposed_owner: xFactories/OpsxFactory
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Awaiting OpsxFactory confirmation that privileged execution policy owns this claim."
+    dependencies:
+      - XFI-2026-001-C01
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Privileged IT execution classifies to OpsxFactory, pending destination-owner review."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-10T14:10:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:30:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:45:00Z"
+    evidence_refs: []
+  - from: triaging
+    to: split
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-11T09:30:00Z"
+    evidence_refs: []
+successors: []
+notes: "openxFactory routing hub; the MedxFactory source remains authoritative for domain-local meaning."

@@ -1,0 +1,58 @@
+# Valid xfactory_idea_routing_record: UNKNOWN-OWNER INTAKE
+# (add-cross-factory-ideation-routing task 2.2). Validates against
+# contracts/schemas/xfactory-idea-routing-record.schema.yaml.
+#
+# An idea captured in the openxFactory unclassified inbox before its owner is
+# known (spec "Capture-first repository routing", scenario "Unknown-owner idea
+# is captured"). Because the record is in `intake`, its source MAY carry
+# `revision: pending_capture` (spec "Structured repository references and
+# resolvable provenance", scenario "Intake has not yet been committed"). The one
+# claim is `unresolved` and names an explicit blocker (spec "Routing and claim
+# transition integrity", scenario "Ownership remains disputed"), which also
+# demonstrates the valid UNRESOLVED-BLOCKER shape.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-014
+title: "Cross-repo document-freshness signal — neutral doc-health or Ops monitoring?"
+scope: unclassified
+routing_status: intake
+sources:
+  - repository: openxFactory
+    path: ideation/brainstorm/inbox/XFI-2026-014/idea.md
+    revision: pending_capture
+    context: discussion
+    passage_sha256: null
+deduplication_rationale: null
+domains_touched: []
+candidate_owners: []
+claims:
+  - claim_id: XFI-2026-014-C01
+    summary: "Notify an owning capability when a cited cross-repository document changes."
+    source_ref:
+      source_index: 0
+      section: problem-statement
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: null
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Owner unknown: could be neutral doc-health or OpsxFactory monitoring; needs triage."
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Captured before ownership is known; no destination is selected yet."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory capture (author)"
+        occurred_at: "2026-07-13T09:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory capture (author)"
+    occurred_at: "2026-07-13T09:00:00Z"
+    evidence_refs: []
+successors: []
+notes: "Unclassified inbox item; awaiting triage to determine the owning repository."

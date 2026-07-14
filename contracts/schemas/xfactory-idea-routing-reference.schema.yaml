@@ -1,0 +1,148 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-idea-routing-reference.schema.yaml"
+title: "Cross-factory ideation-routing structured reference kernel"
+contract_schema_version: 1
+description: >-
+  Reusable structured-reference kernel for the `ideation-routing` capability
+  (`add-cross-factory-ideation-routing`). Pure `$defs` kernel, mirroring
+  `xfactory-document-opaque-locator.schema.yaml` and
+  `contracts/avatar-client/shared-definitions.schema.yaml`: it is never
+  validated as a whole document on its own and carries no top-level
+  `schema_version`/`kind` envelope. It is `$ref`'d by the routing-record,
+  routing-index, and organizer-recommendation schemas in this family, and by
+  the Markdown `Routing records:` provenance header (spec requirement
+  "Organize gate and lightweight destination provenance": that header's value
+  MUST be "a canonical compact JSON array of the same structured
+  repository/path/revision objects this capability defines"; `committed_reference`
+  is exactly that object, so no separate string-reference grammar is introduced).
+
+  Every source, routing-record, and destination reference is a structured
+  object carrying a canonical repository ID, a POSIX repository-relative path,
+  and a full commit revision (spec requirement "Structured repository
+  references and resolvable provenance"). Absolute paths, path traversal, and
+  backslash separators are rejected here by shape; repository-ID gitlink
+  resolution, revision-belongs-to-repository, and the reserved-`xFactory`
+  boundary are deterministic-validator concerns (change task 2.3), not shapes
+  this kernel can check. `pending_capture` is admissible ONLY on a
+  `source_reference` and ONLY while the owning record is in `intake` — the
+  intake gate is a record-level conditional in
+  `xfactory-idea-routing-record.schema.yaml`, because this kernel cannot see
+  the owning record's `routing_status`.
+$defs:
+  posix_relative_path:
+    # SHALL be a POSIX repository-relative path; absolute paths and path
+    # traversal SHALL be invalid (spec: "Structured repository references and
+    # resolvable provenance"; scenario "Reference escapes a repository").
+    # Backslash is rejected too: it is neither a legal POSIX path character
+    # here nor a separator, and blocks Windows-separator traversal obfuscation.
+    type: string
+    minLength: 1
+    not:
+      anyOf:
+        - pattern: "^/"
+        - pattern: "\\\\"
+        - pattern: "(^|/)\\.\\.(/|$)"
+  repository_id:
+    # Reserved root ID `xFactory`, or an aggregation-relative `.gitmodules`
+    # submodule path (for example `openxFactory`, `xFactories/MedxFactory`,
+    # `installs/omnigent-install`). Both forms are single- or multi-segment
+    # POSIX relative paths, so the same shape guard applies; resolving the ID
+    # to a gitlink is the deterministic validator's job.
+    $ref: "#/$defs/posix_relative_path"
+  full_commit_revision:
+    # A full committed revision (spec repeatedly requires the FULL revision at
+    # organize/proposal gates, never an abbreviation): 40-hex (SHA-1) or 64-hex
+    # (SHA-256) lowercase git object name.
+    type: string
+    pattern: "^([0-9a-f]{40}|[0-9a-f]{64})$"
+  passage_sha256:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  idea_id:
+    # `XFI-<year>-<three-digit-sequence>` (spec requirement "Canonical routing
+    # identity and record").
+    type: string
+    pattern: "^XFI-[0-9]{4}-[0-9]{3}$"
+  claim_id:
+    # `<idea-id>-C<two-digit-sequence>` (spec requirement "Canonical routing
+    # identity and record"). Cross-field agreement between a claim's prefix and
+    # its record's `idea_id` is a deterministic-validator concern.
+    type: string
+    pattern: "^XFI-[0-9]{4}-[0-9]{3}-C[0-9]{2}$"
+  committed_reference:
+    # A resolved structured reference: repository + POSIX path + FULL committed
+    # revision. Used by destinations, routing-record pointers, proposal
+    # `ideation_provenance`, and structured evidence — every context the spec
+    # requires to resolve at an organize or proposal gate, and where
+    # `pending_capture` is explicitly invalid (metadata-application-matrix:
+    # "`pending_capture` is valid only for an intake source, never a
+    # destination or proposal provenance record").
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision]
+    properties:
+      repository: {$ref: "#/$defs/repository_id"}
+      path: {$ref: "#/$defs/posix_relative_path"}
+      revision: {$ref: "#/$defs/full_commit_revision"}
+  source_reference:
+    # A source reference on a routing record. Revision MAY be the literal
+    # `pending_capture` (admissible only during `intake`; the record-schema
+    # conditional forbids it at every other status) or a full committed
+    # revision (spec requirement "Structured repository references and
+    # resolvable provenance"; scenario "Intake has not yet been committed").
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision]
+    properties:
+      repository: {$ref: "#/$defs/repository_id"}
+      path: {$ref: "#/$defs/posix_relative_path"}
+      revision:
+        oneOf:
+          - {const: pending_capture}
+          - {$ref: "#/$defs/full_commit_revision"}
+      context:
+        type: string
+        minLength: 1
+        description: >-
+          Free-form origin descriptor (discussion, document, meeting, or other
+          source), per idea-routing-record.template.yaml.
+      passage_sha256:
+        oneOf:
+          - {type: "null"}
+          - {$ref: "#/$defs/passage_sha256"}
+  path_reference:
+    # Repository + POSIX path with no revision. Used only by the central
+    # routing-index allocation ledger, which points at a routing record that is
+    # committed in the SAME reviewed change (spec requirement "Canonical
+    # routing identity and record"): pinning a revision there would be circular.
+    type: object
+    additionalProperties: false
+    required: [repository, path]
+    properties:
+      repository: {$ref: "#/$defs/repository_id"}
+      path: {$ref: "#/$defs/posix_relative_path"}
+  evidence_ref:
+    # One evidence reference. Either an opaque non-empty citation string
+    # (mirroring xfactory-document-catalog-snapshot.schema.yaml's `evidence_ref`
+    # string form) or a resolvable committed structured reference. Acceptance,
+    # transition, and organizer-disposition evidence all use this shape.
+    oneOf:
+      - {type: string, minLength: 1}
+      - {$ref: "#/$defs/committed_reference"}
+  ideation_provenance_entry:
+    # One `ideation_provenance` entry in an OpenSpec proposal support manifest
+    # (document-lifecycle delta requirement "Proposal-owned supporting
+    # documents"; metadata-application-matrix "OpenSpec Provenance"). Names the
+    # source Idea ID, the selected Claim IDs, and a routing-record reference
+    # whose repository, path, and FULL committed revision MUST resolve —
+    # `pending_capture` is invalid here (it is a `committed_reference`).
+    type: object
+    additionalProperties: false
+    required: [idea_id, claim_ids, routing_record]
+    properties:
+      idea_id: {$ref: "#/$defs/idea_id"}
+      claim_ids:
+        type: array
+        minItems: 1
+        items: {$ref: "#/$defs/claim_id"}
+      routing_record: {$ref: "#/$defs/committed_reference"}

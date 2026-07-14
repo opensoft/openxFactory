@@ -1,0 +1,18 @@
+# INVALID (category: routed proposal provenance): a single ideation_provenance
+# entry whose routing_record revision is `pending_capture` instead of a full
+# committed revision. `pending_capture` is valid only on an intake source, never
+# on proposal provenance; routed proposal provenance MUST pin a full committed
+# routing-record revision (document-lifecycle delta "Proposal-owned supporting
+# documents", scenario "Proposal omits a routing revision";
+# metadata-application-matrix "OpenSpec Provenance"). This is an unwrapped
+# standalone fragment; must be rejected by
+# xfactory-idea-routing-reference.schema.yaml `#/$defs/ideation_provenance_entry`
+# (its routing_record is a `committed_reference`, which requires a 40- or 64-hex
+# revision).
+idea_id: XFI-2026-003
+claim_ids:
+  - XFI-2026-003-C01
+routing_record:
+  repository: openxFactory
+  path: ideation/brainstorm/cross-domain/XFI-2026-003/routing.yaml
+  revision: pending_capture

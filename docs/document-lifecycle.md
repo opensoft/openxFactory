@@ -162,6 +162,25 @@ and never move a document through the lifecycle spine above. Once that
 change promotes, its own capability continues to own those rules; this
 section only draws the boundary for readers of this spine.
 
+## Cross-Factory Ideation Routing
+
+The active `add-cross-factory-ideation-routing` change extends the ideation
+work area and proposal-supporting-document rules above: an unknown-owner
+`openxFactory/ideation/brainstorm/inbox/<idea-id>/` capture point; a
+cross-domain routing hub at `ideation/brainstorm/cross-domain/<idea-id>/`
+that coordinates claims split out of a domain-origin idea without replacing
+its source; and an `ideation_provenance` manifest entry (Idea ID, Claim IDs,
+and a pinned routing-record reference) for proposals derived from routed
+claims (see its
+[ideation-routing spec](../openspec/changes/add-cross-factory-ideation-routing/specs/ideation-routing/spec.md)
+and
+[document-lifecycle spec delta](../openspec/changes/add-cross-factory-ideation-routing/specs/document-lifecycle/spec.md)
+for the owned Idea/Claim ID, transition, and destination-acceptance rules).
+Routing coordinates proposed ownership only; it never replaces this spine's
+gates. Until that change promotes, the lifecycle spine above remains
+authoritative and the xFactory aggregation repository still hosts no general
+ideation backlog.
+
 ## Related Documents
 
 - [Ideation Work Area](../ideation/README.md) — the captured/organized areas.

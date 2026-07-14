@@ -1,0 +1,80 @@
+# INVALID (category: destination acceptance): a claim is marked
+# `disposition: routed` and names an accepted owner, target capability, and
+# destination, but `acceptance` is null — there is no destination-owner
+# acceptance actor/time/evidence. A claim MUST NOT be marked `routed` without
+# destination-owner acceptance (spec "Routing and claim transition integrity",
+# scenario "Proposed owner has not accepted"). Rejected by the routed
+# conditional on the claim shape in xfactory-idea-routing-record.schema.yaml.
+# Everything else is valid (the record stays in `split`, so individual claims
+# may route independently).
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-024
+title: "Claim routed without recorded destination-owner acceptance"
+scope: cross_domain
+routing_status: split
+sources:
+  - repository: xFactories/MedxFactory
+    path: ideation/brainstorm/omni-clinic-hosting.md
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    context: document
+    passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+deduplication_rationale: null
+domains_touched:
+  - MedxFactory
+candidate_owners:
+  - openxFactory
+claims:
+  - claim_id: XFI-2026-024-C01
+    summary: "Neutral client-infrastructure-liaison skeleton."
+    source_ref:
+      source_index: 0
+      section: infrastructure-management
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    proposed_owner: openxFactory
+    accepted_owner: openxFactory
+    target_capability: client-infrastructure-liaison
+    destination:
+      repository: openxFactory
+      path: ideation/staging/client-infrastructure-liaison/liaison-skeleton.md
+      revision: 5142065b2833a2b6d2ccbcb460bf164fd4e1e417
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: routed
+    rationale: "Marked routed, but no acceptance record was captured."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-10T14:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-11T10:00:00Z"
+        evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T16:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:30:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-10T13:45:00Z"
+    evidence_refs: []
+  - from: triaging
+    to: split
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-11T09:30:00Z"
+    evidence_refs: []
+successors: []
+notes: null

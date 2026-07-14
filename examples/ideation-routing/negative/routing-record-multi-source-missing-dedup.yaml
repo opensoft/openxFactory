@@ -1,0 +1,71 @@
+# INVALID (category: multi-source routing): two source documents contribute to
+# one record but `deduplication_rationale` is null. When several sources
+# contribute to one canonical idea, the record MUST list every source AND the
+# deduplication rationale (spec "Canonical routing identity and record",
+# scenario "Several sources are deduplicated"). Rejected by the multi-source
+# conditional in xfactory-idea-routing-record.schema.yaml. Everything else is
+# valid.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-022
+title: "Two sources consolidated without a deduplication rationale"
+scope: mixed
+routing_status: triaging
+sources:
+  - repository: xFactories/MedxFactory
+    path: ideation/brainstorm/managed-host-readiness.md
+    revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+    context: document
+    passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+  - repository: xFactories/OpsxFactory
+    path: ideation/brainstorm/cloudpc-host-recovery.md
+    revision: 0e01e898f649e7ba3bc3938a076931186197af48
+    context: meeting
+    passage_sha256: 556cf5c9d4b705b35b587438010d1fe6fca2a0823f4c068011979d0e00e8f962
+deduplication_rationale: null
+domains_touched:
+  - MedxFactory
+  - OpsxFactory
+candidate_owners:
+  - openxFactory
+claims:
+  - claim_id: XFI-2026-022-C01
+    summary: "A reusable readiness-result contract any Client Hermes can consume."
+    source_ref:
+      source_index: 0
+      section: readiness-contract
+      passage_sha256: 86221af6e1fe74746888938b1f2ad9b3e0903e83447c70196cc7c2668926fd74
+    proposed_owner: openxFactory
+    accepted_owner: null
+    target_capability: infrastructure-readiness-result
+    destination: null
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: proposed
+    rationale: "Reusable neutral schema classifies to openxFactory."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T08:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory ratify authority"
+        occurred_at: "2026-07-12T09:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-12T07:45:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority"
+    occurred_at: "2026-07-12T07:55:00Z"
+    evidence_refs: []
+successors: []
+notes: null

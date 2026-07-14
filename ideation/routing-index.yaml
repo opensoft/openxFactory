@@ -1,0 +1,26 @@
+# Central cross-factory ideation routing-index (Idea ID allocation ledger).
+#
+# Schema: contracts/schemas/xfactory-ideation-routing-index.schema.yaml
+# Capability: ideation-routing (add-cross-factory-ideation-routing).
+#
+# This is the single central ledger from which every `XFI-<year>-<sequence>`
+# Idea ID is allocated. An Idea ID and its `allocations` entry are added in the
+# SAME reviewed change that creates the paired routing record; concurrent
+# duplicate allocations are rejected, so a later change rebases and allocates a
+# new sequence (spec requirement "Canonical routing identity and record";
+# scenario "Concurrent allocation collides").
+#
+# The ledger ships empty and is prospective: existing brainstorms receive no
+# fabricated Idea IDs (spec requirement "Prospective compatibility and
+# migration"). Add one entry per allocated idea, for example:
+#
+#   allocations:
+#     - idea_id: XFI-2026-001
+#       title: Omni clinic hosting cross-domain routing hub
+#       routing_record:
+#         repository: openxFactory
+#         path: ideation/brainstorm/cross-domain/XFI-2026-001/routing.yaml
+#       allocated_at: "2026-07-13"
+schema_version: 1
+kind: xfactory_ideation_routing_index
+allocations: []

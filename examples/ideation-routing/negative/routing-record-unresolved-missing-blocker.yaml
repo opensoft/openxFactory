@@ -1,0 +1,52 @@
+# INVALID (category: unresolved blockers): a claim with disposition
+# `unresolved` has `blocker: null`. An unresolved claim SHALL name a blocker or
+# blocking question (spec "Routing and claim transition integrity", scenario
+# "Ownership remains disputed"). Rejected by the unresolved conditional on the
+# claim shape in xfactory-idea-routing-record.schema.yaml. Everything else is
+# valid.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-023
+title: "Unresolved claim with no blocker recorded"
+scope: unclassified
+routing_status: intake
+sources:
+  - repository: openxFactory
+    path: ideation/brainstorm/inbox/XFI-2026-023/idea.md
+    revision: pending_capture
+    context: discussion
+    passage_sha256: null
+deduplication_rationale: null
+domains_touched: []
+candidate_owners: []
+claims:
+  - claim_id: XFI-2026-023-C01
+    summary: "Some behavior that has not been triaged to an owner."
+    source_ref:
+      source_index: 0
+      section: problem-statement
+      passage_sha256: 26379d7195603bdb04e8056c7afb32b0820898ef69aa42c8c3e0da4ef7f94bfa
+    proposed_owner: null
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "Captured before ownership is known."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory capture (author)"
+        occurred_at: "2026-07-13T09:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory capture (author)"
+    occurred_at: "2026-07-13T09:00:00Z"
+    evidence_refs: []
+successors: []
+notes: null

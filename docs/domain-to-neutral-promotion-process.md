@@ -279,6 +279,20 @@ Hermes approves surrendering or receiving a concept, boundary governance
 approves the neutral side, and both gates are OpenSpec changes, never bare
 commits.
 
+## Relationship To Cross-Factory Ideation Routing
+
+The active `add-cross-factory-ideation-routing` change adds claim-level
+routing (Idea IDs, Claim IDs, a central `ideation/routing-index.yaml`
+allocation ledger, and destination-owner acceptance) for ideas that begin
+unclassified, mixed, or cross-domain. Routing coordinates proposed ownership
+only — it never replaces this process's candidate register, scoring,
+OpenSpec handoff, or re-pin/overlay/retire adoption gates above (see its
+[ideation-routing spec](../openspec/changes/add-cross-factory-ideation-routing/specs/ideation-routing/spec.md),
+requirement "Routing coordinates but does not transfer authority"). A routed
+`neutral_candidate` claim still becomes a Domain Neutralization Candidate
+Register entry and follows the full Classification, Scoring, and OpenSpec
+Handoff flow above before it promotes.
+
 ## Review Checklist
 
 Before merging a promotion:
