@@ -46,7 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 4 | Ready to propose — 6 decisions locked 2026-07-13; recommended ID `implement-avatar-client-lab` |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
-| [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | Blocked — 6 open questions unresolved; exit note says do NOT propose yet |
+| [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | In progress 2026-07-14 — `add-github-app-identity-tiers` (openxFactory) ratified + archived; `add-github-administration-workflow` (OpsxFactory) ratified, implementation underway |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -107,13 +107,25 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   OpsxFactory alongside Entra/Intune/endpoint management.
 - Files:
   - [multi-app-identity-and-github-administration.md](github-administration-plane/multi-app-identity-and-github-administration.md) — claims, open questions, interim stop-gap state, exit.
-- Open questions (unresolved — this is why the topic is blocked):
-  - one administration App or several scoped ones?
-  - org-level rulesets vs. per-repo branch protection?
-  - gated through a generalized `endpoint_management` workflow or a dedicated github-administration workflow?
-  - credential custody/rotation for the administration App key?
+- Open questions — resolved 2026-07-14 (see the primary doc's "Open questions
+  — resolved" section for full recommendations):
+  - one administration App or several scoped ones? → one App, narrowed via
+    scoped credential grants, not App count (scoped to Opensoft's own org;
+    client-tenant execution routes through `client-infrastructure-liaison`).
+  - org-level rulesets vs. per-repo branch protection? → org rulesets for
+    Opensoft's own org (Enterprise confirmed); client tenants need a
+    plan-tier-aware org/repo/classic fallback ladder.
+  - gated through a generalized `endpoint_management` workflow or a dedicated
+    github-administration workflow? → dedicated workflow, extending the
+    existing read-only `github-admin` command class.
+  - credential custody/rotation for the administration App key? → DTN-004
+    shape unchanged, at the family's strictest existing tier (15-min grants,
+    Key Vault, 90-day max age, environment-gated).
   - exact scope and explicit prohibited actions for the administration App?
-  - is GitHub administration a second profile of `endpoint_management`, or its own capability?
+    → 7-repo Tier 1 now, `installs/*` deferred; rulesets/branch-protection
+    only, enforced at the workflow/credential layer.
+  - is GitHub administration a second profile of `endpoint_management`, or
+    its own capability? → own capability, sibling to `endpoint_management`.
 - Interim state already applied (stop-gap, to be superseded): a manual
   codexFactory `main` ruleset requiring PR + 1 approval with OrganizationAdmin
   bypass; the `openxfactory` App holds org-wide `Contents: write` +

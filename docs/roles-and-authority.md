@@ -1,7 +1,7 @@
 # Roles And Authority
 
 Status: ratified
-Ratified by: define-human-escalation-contract
+Ratified by: define-human-escalation-contract; amended by add-github-app-identity-tiers
 Kind: architecture
 
 This document is the canonical `openxFactory` cross-factory role and
@@ -179,6 +179,33 @@ declaration of where a human gate exists. For engineering the mechanisms
 are GitHub branch protection/rulesets, code-owner path scoping, and
 environment required reviewers; each domain names its equivalents in its
 role instantiation.
+
+### External enforcement identity separation
+
+Structural parking only holds if the identity that can reconfigure the
+enforcement mechanism itself is separate from the identity doing ordinary
+content or workflow work on the same surface — otherwise a routine-work
+identity could quietly weaken or remove the gate it is meant to be subject
+to. Any identity capable of modifying a structural human-review gate MUST be
+authority-separated from any identity performing ordinary content/workflow
+actions on that surface.
+
+For GitHub, this splits into two tiers. A **content-tier** identity performs
+ordinary factory work — reports, review-record pull requests, pin-sync
+commits — under the existing rules, and holds no permission capable of
+changing rulesets or branch protection. An **administration-tier** identity
+holds the permission to change those rules, applies only rules-as-code
+configuration that has passed the governed review lane and ratify gate, and
+performs no content work. Neither tier escalates the other. This tiering
+governs identities operating on Opensoft's own vendor build org; a client
+tenant's own GitHub identities are out of scope here.
+
+An administration-tier identity's credentials are held under the canonical
+credential-contracts shapes (see `docs/credential-access-model.md`) with
+least-authority defaults: a vaulted key, short-lived and workflow-scoped
+runtime grants, human and domain approval before grant issuance, and an
+audit record — with an evidence reference to the reviewed configuration
+change that authorized it — for every action.
 
 ## Domain Execution Ownership
 

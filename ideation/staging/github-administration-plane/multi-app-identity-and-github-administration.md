@@ -51,23 +51,107 @@ already administers managed platforms (Entra, Intune, endpoints).
    content/administration App tiering is a neutral authority-boundary addition;
    the GitHub-as-managed-platform realization is OpsxFactory-owned.
 
-## Open questions
+## Scope note (added 2026-07-14)
 
-- One OpsxFactory administration App, or several scoped ones (e.g. rulesets vs
-  installation-policy vs repo-settings)?
-- Org-level rulesets (central, one enforcement across all family repos) vs
-  per-repo branch protection — likely org rulesets, to confirm.
-- How is a change to the rules-as-code gated and applied — through the
-  `endpoint_management` workflow generalized to GitHub, or a dedicated
-  github-administration workflow?
-- Credential custody and rotation for the administration App key (per-App Key
-  Vault bundle; the admin key is the highest-value secret in the family).
-- Scope: which repos and which org settings the administration App may touch;
-  explicit prohibited actions (must not disable protection without a reviewed
-  change).
-- Relationship to the OpsxFactory `endpoint_management` capability (the fleet
-  change): is GitHub administration a second profile of the same
-  desired-state/plan/apply/verify/recover envelope, or its own capability?
+This topic governs GitHub administration for Opensoft's own vendor build org
+(`opensoft` — the family repo: openxFactory + the five `xFactories/*` domain
+templates + `installs/*`). It does NOT cover GitHub hosting/administration for
+a client's deployed tenant repo. Client-tenant GitHub topology is a per-client
+decision (client's own GitHub org vs. a customer repo hosted inside Opensoft's
+org) that routes through the `client-infrastructure-liaison` staging topic's
+three execution bindings (customer-managed / managed-host / full OpsxFactory)
+as a `client_infrastructure_request` dependency, not through this topic's
+administration App. The distinction matters because OpsxFactory is itself an
+optional purchase — it cannot be assumed present in every client's install the
+way it is in Opensoft's own vendor org.
+
+## Open questions — resolved 2026-07-14
+
+A research pass (six parallel investigations, one per question, plus a
+synthesis/consistency pass) produced recommendations for all six; Brett
+reviewed and ratified all six below. Q1 and Q2 required a correction after the
+research pass surfaced the vendor-org-vs-client-tenant scope gap — see the
+callouts below and the Scope note above.
+
+1. **One OpsxFactory administration App, or several scoped ones (e.g. rulesets
+   vs installation-policy vs repo-settings)?**
+   → One administration App (distinct from the content App `openxfactory`),
+   bundling GitHub's `Administration` (repo-level) + `Organization
+   administration` (org-level) permissions. GitHub has no finer-grained
+   permission to split those functions along — both hypothetical splits would
+   request the identical underlying permission, so separate Apps would only
+   multiply custody surfaces with no technical narrowing. Narrow authority at
+   the runtime_capability_grant layer instead (short-lived, workflow-scoped,
+   human-approved grants) plus GitHub's native "selected repositories"
+   installation targeting.
+   **Correction (2026-07-14):** this answer is scoped to Opensoft's own
+   vendor org only. It assumes an OpsxFactory-owned App is always present to
+   be the administering identity — true for Opensoft's own build org, not
+   true for a client tenant that hasn't purchased OpsxFactory. Client-tenant
+   GitHub administration is NOT this topic's concern; it routes through
+   `client-infrastructure-liaison`'s three execution bindings, each with its
+   own App identity (client's own App in the customer-managed case,
+   Opensoft's admin App in the managed-host case, the client's own purchased
+   OpsxFactory instance's App in the full-OpsxFactory case).
+
+2. **Org-level rulesets (central, one enforcement across all family repos)
+   vs. per-repo branch protection?**
+   → Org-level rulesets, targeted via explicit "manually selected
+   repositories" (never name-pattern-only — 3 of 12 candidate repos don't
+   contain "Factory" in their name). Confirmed non-blocking for Opensoft's own
+   org via a live `gh api orgs/opensoft` check: plan.name = enterprise.
+   **Correction (2026-07-14):** org-level rulesets require a GitHub Team or
+   Enterprise org plan — not available on Free. This holds for Opensoft's own
+   org (confirmed Enterprise) but cannot be assumed for a client tenant in the
+   customer-managed model, where plan tier varies. Repository-level rulesets
+   have their own gate (Free: public repos only; Team/Enterprise: all repos),
+   and even classic branch protection loses bypass-actor restriction
+   granularity below Team/Enterprise. The capability's "plan" phase must
+   therefore probe the target org's actual plan (`GET /orgs/{org}`) and select
+   from a three-tier ladder — org ruleset → repo ruleset → classic branch
+   protection — rather than assuming org rulesets are always available, and
+   must record which tier was used plus any protection that tier couldn't
+   achieve (e.g. no bypass-actor restriction on a Free-plan private repo) as
+   an explicit degraded-capability note. This requirement applies to the
+   client-tenant execution path only; Opensoft's own org stays on org-level
+   rulesets as originally answered.
+
+3. **Is the rules-as-code change gated/applied through the
+   `endpoint_management` workflow generalized to GitHub, or a dedicated
+   github-administration workflow?**
+   → Dedicated `github_administration` write workflow, extending the
+   already-existing (currently read-only) `github-admin` OpsxFactory command
+   class, reusing `endpoint_management`'s plan/apply/verify/recover pattern
+   without touching its file/spec. Ratified as researched — no change.
+
+4. **Credential custody and rotation for the administration App key?**
+   → Apply DTN-004's five credential-contract record kinds unchanged, at the
+   family's strictest existing tier: new `github_administration_app`
+   requirement (15-min grants, human + domain approval), an Opensoft-owned Key
+   Vault binding, a new fixed 90-day max key age on top of existing
+   trigger-based rotation (Brett to confirm the exact figure), a GitHub
+   Actions Environment with required reviewers as the human gate, and fast
+   App-installation-suspension as first containment on suspected exposure.
+   Ratified as researched — no change.
+
+5. **Scope: which repos and org settings the administration App may touch;
+   explicit prohibited actions?**
+   → Two-tier repo scope for Opensoft's own org: Tier 1 in scope now (7 repos
+   — `xFactory`, `openxFactory`, and the five domain repos), Tier 2 deferred
+   (the 5 `installs/*` repos, matching a boundary the review lane already
+   enforces in code today). Settings: rulesets/branch-protection read+write
+   only; explicit prohibited-actions list (no repo lifecycle, no
+   org/team/billing, no Actions secrets, no Contents/PR write, no
+   self-permission changes). Enforced at the OpsxFactory workflow/credential
+   layer, since GitHub's permission model itself is too coarse to enforce
+   these exclusions. Ratified as researched — no change.
+
+6. **Is GitHub administration a second profile of the `endpoint_management`
+   envelope, or its own capability?**
+   → Own capability, sibling to `endpoint_management`/`entra-admin`/
+   `dns-admin`, realized by extending the existing `github-admin` command
+   class. Independently confirmed by Q3 — no contradiction. Ratified as
+   researched — no change.
 
 ## Interim state (already applied, to be superseded by the governed path)
 
@@ -82,12 +166,27 @@ already administers managed platforms (Entra, Intune, endpoints).
 
 ## Exit
 
-Two OpenSpec changes once details are settled (do NOT propose yet):
+All six open questions are resolved (see above) — ready to propose.
+
+1. `add-github-app-identity-tiers` (openxFactory) — ratified and **archived
+   2026-07-14** as `openspec/changes/archive/2026-07-14-add-github-app-identity-tiers/`;
+   its two new requirements and the structural-parking amendment are folded
+   into `openspec/specs/roles-authority-model/spec.md`, and
+   `docs/roles-and-authority.md` carries the identity-tiering description.
+2. `add-github-administration-workflow` (OpsxFactory) — ratified 2026-07-14,
+   implementation in progress at
+   `xFactories/OpsxFactory/openspec/changes/add-github-administration-workflow/`.
+
+Two OpenSpec changes:
 
 1. Neutral (openxFactory): extend `roles-authority-model` with GitHub App
    identity tiers (content vs administration) and per-App credential custody.
 2. OpsxFactory: a `github-administration` capability — the GitHub org as a
-   managed `platform_tenant` subject, the administration App identity,
-   branch-protection/ruleset desired-state, installation/permission policy, and
-   the rules-as-code governance loop; likely a profile of, or sibling to,
-   `endpoint_management`.
+   managed `platform_tenant` subject, a dedicated `github_administration`
+   workflow extending the existing `github-admin` command class (sibling to,
+   not a profile of, `endpoint_management`), the administration App identity,
+   branch-protection/ruleset desired-state with a plan-tier-aware
+   org/repo/classic ladder, installation/permission policy, and the
+   rules-as-code governance loop. Scope this change explicitly to Opensoft's
+   own vendor org (see Scope note); client-tenant GitHub administration is out
+   of scope here and belongs to `client-infrastructure-liaison`.

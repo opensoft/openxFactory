@@ -174,6 +174,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-github-app-identity-tiers](openspec/changes/add-github-app-identity-tiers/proposal.md)
+  — staged-origin change (exit of `ideation/staging/github-administration-plane`,
+  six open questions resolved and ratified 2026-07-14) extending
+  `roles-authority-model`'s structural-parking requirement so any identity
+  able to modify a GitHub enforcement gate must be authority-separated from
+  any identity doing ordinary content/workflow work on the same surface;
+  adds the content-vs-administration App identity tiers and
+  administration-tier credential-custody requirements. Scoped to Opensoft's
+  own vendor build org (code surface: none — doc/spec only); ratified
+  2026-07-14, archives on landing. Sibling OpsxFactory change
+  `add-github-administration-workflow` instantiates the tiering concretely.
 - [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 and **re-ratified 2026-07-14** (D1–D17; the
   07-12 ratification was set aside at a design-round demotion);
