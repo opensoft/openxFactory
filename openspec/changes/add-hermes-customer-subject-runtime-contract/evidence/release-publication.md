@@ -52,3 +52,48 @@ Closure additionally requires the exact downstream
 compatibility manifest / checker / runtime-binding / evidence digests to be
 independently reproduced against this bundle (T082–T084). No consumer receipt
 is claimed here; no downstream repository was edited.
+
+---
+
+# Release Publication — contract-v1.10 (supersedes the v1.9 publication above)
+
+Status: record
+
+**Date**: 2026-07-14 · **Bundle**: contract-v1.10 · **T081 approval**: Brett
+(explicit, at the gate, after the three-lens candidate review)
+
+## Remote evidence
+
+- Promotion: fast-forward push `005-customer-subject-runtime -> main`
+  (`e8e5e26..f1dd2e0`); published `origin/main` = `f1dd2e0` ("Record
+  contract-v1.10 candidate review and close T079/T080"), whose ancestry is
+  the realization commit `727ca18` ("Realize contract-v1.10 release
+  candidate (T079)") and the hardening commit `359d6bf` (F-4/F-7..F-9).
+  During promotion `origin/main` was advancing under a concurrent
+  avatar-client-lab lane; the final rebase replayed the release commits
+  byte-identically over it and `verify-commit` passed on the exact pushed
+  tip.
+- Pre-tag promotion check: `validate-contract-release.py verify-promotion
+  --commit 727ca18 --remote origin --tag contract-v1.10` → **pass**.
+- Immutable annotated tag: `contract-v1.10` → `727ca18`, pushed to origin.
+- Independent verification from a freshly cloned checkout (new clone of
+  `opensoft/openxFactory`, HEAD `f1dd2e0`):
+  `validate-contract-release.py verify-tag --remote origin
+  --tag contract-v1.10` → **pass**, exit 0.
+
+## Supersession
+
+contract-v1.9 (tag retained, peeled `64cc000`) no longer reproduced the
+tree after two post-tag governed review hardenings (`c6f5d6d` F-U3,
+`359d6bf` F-4/F-7..F-9). contract-v1.10 is its additive superseding
+re-realization per the Immutable Tag Correction policy — membership set
+byte-identical (179 members), one audited host-local manifest field removed
+(FR-042; see legacy-source-path-consumer-audit.md).
+
+## Scope of this publication
+
+Provider publication only. Gate G0 / OpenSpec task 5 / T009 remain **OPEN**.
+Closure additionally requires the exact downstream
+`opensoft/xFactory-Hermes-Install` consumer feature to land and its digests
+to be independently reproduced against this bundle (T082–T084). No consumer
+receipt is claimed here; no downstream repository was edited.
