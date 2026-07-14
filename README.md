@@ -184,9 +184,16 @@ Active changes:
   and read-only Markdown viewer (D14/D15), the human gate console and
   next-step kickoff (D16/D17), per-actor authoring authority, non-mutating
   machinery, and the nightly snapshot lane; web-based v1 served per
-  Option C alongside the Hermes-stack surfaces on the internal xForge host
-  (code surface: openxFactory, codexFactory, xFactory; archives on
-  realization evidence; ideation-cross-reference delta sequenced with
+  Option C on the internal xForge plane. **Realized + deployed
+  2026-07-14**: codexFactory feature 002-ideation-dashboard merged
+  (231 tests, adversarial review ACCEPT), nightly lane green (first
+  snapshot committed), live at ideation-dashboard.xforge.us (Nextest,
+  boundary validator PASSED). At 25/27 — remaining: task 1.1
+  reconciliation and 3.5 human-seen submission, both gated on
+  add-ideation-cross-reference-readiness; archives on the archive-gate
+  ledger (contract registration + additive snapshot-schema deltas)
+  once those land (code surface: openxFactory, codexFactory, xFactory;
+  ideation-cross-reference delta sequenced with
   add-ideation-cross-reference-readiness)
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
