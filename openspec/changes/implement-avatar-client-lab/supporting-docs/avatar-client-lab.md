@@ -1,6 +1,7 @@
 # Staged: Avatar Client Lab — offline deterministic Flutter UI lab
 
-Status: staged
+Status: draft
+Proposed by: implement-avatar-client-lab
 Kind: architecture
 Summary: An offline, deterministic Flutter avatar client UI lab (F1-F4) that
 renders the full avatar-first interaction and authority model from replayed
@@ -91,20 +92,14 @@ decisions, [open-decisions.md](open-decisions.md) for the six locked decision
 records, and [acceptance-and-tests.md](acceptance-and-tests.md) for the F1-F4
 acceptance foci, inherited scenario map, and CI gate set.
 
-## Readiness
+## Exit (satisfied 2026-07-14)
 
-**Ready to propose** — the six previously blocking decisions were locked
-2026-07-13 (see [open-decisions.md](open-decisions.md)); the design direction
-and the acceptance surface are settled. Remaining pre-proposal work is
-mechanical (author the spec deltas and tasks from these fragments).
-
-## Exit
-
-Create `implement-avatar-client-lab` (`code_surface: openxFactory,
-xfactory-avatar-client`; `target_release: implemented`). At the proposal gate,
-move this folder's files (including
-[acceptance-and-tests.md](acceptance-and-tests.md)) into that change's
-`supporting-docs/`, preserving the staging origin; author the full
-`avatar-client-lab` spec deltas and the F1-F4 task list in the change,
-including the acceptance/evidence map (inherited + new scenario IDs) and the
-nine CI gates from acceptance-and-tests.md.
+The staged exit was satisfied as planned: the six blocking decisions were
+locked 2026-07-13 (see [open-decisions.md](open-decisions.md)), and on
+2026-07-14 all four topic fragments moved with Git history into
+`implement-avatar-client-lab`'s `supporting-docs/` (`code_surface:
+openxFactory, xfactory-avatar-client`; `target_release: implemented`),
+preserving the staging origin (`openxFactory:staging:avatar-client-lab`). The
+change carries the full `avatar-client-lab` spec deltas and the F1-F4 task
+list, including the acceptance/evidence map (inherited + new scenario IDs) and
+the nine CI gates from [acceptance-and-tests.md](acceptance-and-tests.md).

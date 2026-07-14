@@ -215,15 +215,27 @@ Active changes:
   F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
   realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
   archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
+- [implement-avatar-client-lab](openspec/changes/implement-avatar-client-lab/proposal.md)
+  — staged-origin change (exit of `ideation/staging/avatar-client-lab`, six
+  decisions locked 2026-07-13) for the offline, deterministic Flutter avatar
+  client UI lab: content-addressed consumption of `contract-v1.7` +
+  `contract-v1.8`, fixture-replay determinism through a pure session core, the
+  replaceable six-state avatar seam, five-region adaptive shell with the
+  authority status strip, gating accessibility baseline, and fail-closed
+  deferral of voice/WebRTC/Hermes to `qualify-avatar-live-voice` (code surface:
+  openxFactory, xfactory-avatar-client — the Flutter app lives in the private
+  client repo; openxFactory owns the neutral fixtures and acceptance map;
+  aggregation-pin wiring is a separate change; archives on realization evidence)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
 2026-07-13 (below); **only F0 feasibility remains active** — its evidence is resolved
 by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it would break the
-fail-closed F0 gate or force a `contract-v1.7` re-tag. The avatar client itself is a
-**staged topic ready to propose** (`ideation/staging/avatar-client-lab`, six decisions
-locked 2026-07-13; exit `implement-avatar-client-lab`), and its successors are now
+fail-closed F0 gate or force a `contract-v1.7` re-tag. The avatar client itself is
+**now proposed** as the active change `implement-avatar-client-lab` (staged origin
+`ideation/staging/avatar-client-lab`, six decisions locked 2026-07-13; ratified and
+in realization 2026-07-14), and its successors are now
 staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
 blocked on open questions + a released client) and `avatar-pilot-hardening` (real
 Hermes/domains/audits + pilot; structurally last) — see the

@@ -1,6 +1,7 @@
 # Acceptance and Tests — avatar client lab
 
-Status: staged
+Status: draft
+Proposed by: implement-avatar-client-lab
 Kind: architecture
 Summary: The F1-F4 acceptance foci, the released scenario IDs the lab discharges
 across the avatar-client (contract-v1.7) and avatar-first-ui (contract-v1.8)

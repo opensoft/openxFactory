@@ -1,6 +1,7 @@
 # Open Decisions — avatar client lab
 
-Status: staged
+Status: draft
+Proposed by: implement-avatar-client-lab
 Kind: architecture
 Summary: The six forks that blocked the avatar-client-lab topic, now locked as
 decisions with rationale (and, for the schema validator, a fallback trigger),
@@ -178,14 +179,12 @@ decision.
   [acceptance-and-tests.md](acceptance-and-tests.md) — organizational, not
   architectural; confirm at the proposal gate.
 
-## Exit
+## Exit (satisfied 2026-07-14)
 
-All six forks are locked, so this topic is ready to promote. Create
-`implement-avatar-client-lab` (`code_surface: openxFactory,
-xfactory-avatar-client`; `target_release: implemented`); at the proposal gate,
-move this folder's files into that change's `supporting-docs/` with the six
-decisions above carried in as locked constraints on the F1-F4 build — the
-Workiva-with-fallback spike as a budgeted first task, `contract_pin.yaml` (both
-digest sets) and the Linux-only goldens as CI gates, the one-loader fixture
-normalization as the acceptance harness, and the desktop-qualified accessibility
-claim (web exception register) as the conformance boundary.
+All six forks were locked and the topic promoted into
+`implement-avatar-client-lab` on 2026-07-14, with the six decisions carried in
+as locked constraints on the F1-F4 build — the Workiva-with-fallback spike as a
+budgeted first task, `contract_pin.yaml` (both digest sets) and the Linux-only
+goldens as CI gates, the one-loader fixture normalization as the acceptance
+harness, and the desktop-qualified accessibility claim (web exception register)
+as the conformance boundary.

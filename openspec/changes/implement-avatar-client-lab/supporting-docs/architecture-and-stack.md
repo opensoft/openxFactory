@@ -1,6 +1,7 @@
 # Architecture and Stack — avatar client lab
 
-Status: staged
+Status: draft
+Proposed by: implement-avatar-client-lab
 Kind: architecture
 Summary: The v1 architecture and recommended stack for the avatar client lab —
 a pure deterministic reducer mirroring the reference runtime, ports/adapters so
