@@ -68,7 +68,11 @@ Every file under `brainstorm/` uses this title and header, in this order:
 - `Topics:` — required; a comma-separated list of subject keywords (target
   capability names where one exists, plus free-text terms), so `grep
   'Topics:'` across `ideation/` surfaces every doc touching a subject
-  without reading prose bodies.
+  without reading prose bodies. Standard tag: `feat-request` marks an
+  enhancement request against an existing or realized capability — the
+  request is an ordinary brainstorm capture that clusters with its
+  capability via Topics, seeds `Possible feats`, and realizes as a
+  MODIFIED-capability OpenSpec delta when picked.
 - `Repository context:` — required.
 - `Captured:` — the date free-form thinking was captured here. Imported
   evidence (e.g. a NotebookLM export) uses `Source workspace:` / `Source
@@ -144,6 +148,12 @@ proposal):
 
 Brainstorm (active):
 
+- Lens feat requests (2026-07-14, from using the deployed dashboard;
+  tagged `feat-request`, expected to stage together as
+  `lens-enhancements`):
+  [keyword search + ad-hoc keywords](brainstorm/lens-keyword-search-and-adhoc.md) ·
+  [brainstorm-session launch from the center ring](brainstorm/lens-brainstorm-session-launch.md) ·
+  [ring combination explorer](brainstorm/lens-ring-combination-explorer.md)
 - [Keycloak Identity Brokering and the Single Persona](brainstorm/keycloak-identity-brokering.md)
   — self-hosted Keycloak as the family identity broker: bring-your-own
   IdP (GitHub/Google/Entra/any OIDC), federated logins link into one
