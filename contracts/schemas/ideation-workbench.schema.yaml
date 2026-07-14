@@ -1,0 +1,221 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "ideation-workbench.schema.yaml"
+title: "Ideation-workbench user-assembled reference-set manifest"
+contract_schema_version: 1
+description: >-
+  A user-assembled temporary reference set for the ideation-area dashboard
+  (`add-ideation-dashboard`; promoted spec requirements "Workbench reference
+  sets" and "Keyword lens set-builder"). A set is seeded from a cluster card,
+  ad-hoc from the doc list, or from a saved keyword-lens recipe, and supports
+  bounded actions — scratch NotebookLM notebook creation, on-demand readiness
+  scoring, scoped doc-health, and draft-organize — each recorded in
+  `action_history`. Saved sets persist as gitignored schema-versioned
+  manifests under `ideation/workbench/` in the owning repository;
+  `ideation-workbench` manifests found in TRACKED repository content are
+  invalid (spec scenario "A workbench manifest is committed") — this schema
+  cannot express that rule structurally (a manifest is well-formed regardless
+  of where it sits), so enforcement is validator-side, checking the manifest's
+  path against the repo's tracked-file list, not this document's shape.
+
+  Not deterministic: unlike `ideation-dashboard-snapshot` (a generated
+  projection required to be byte-identical for an unchanged tree), a workbench
+  manifest is live human session state — `created`/`updated` are ordinary
+  wall-clock timestamps written by whatever workbench action last touched the
+  set, with no source-revision anchor and no byte-identity requirement.
+
+  Manual membership overrides are evidence, never a silent set edit: a
+  `manual-include` member and every `excluded` entry MUST carry a recorded
+  `reason` (spec scenario "A manual override is recorded"); an override without
+  one is invalid (enforced below via `allOf` and in the array item shape).
+
+  Forward-compatible / additive: consumers MUST ignore unknown properties. A
+  later delta may add new action kinds, seed kinds, or recipe fields without a
+  `schema_version` bump; only a breaking change (a removed or retyped field)
+  requires one. This is why no object here sets `additionalProperties: false`.
+type: object
+required:
+  - schema_version
+  - kind
+  - repository
+  - name
+  - created
+  - updated
+  - members
+  - seed
+properties:
+  schema_version: {const: 1}
+  # Normative kind literal from the promoted spec ("Workbench reference sets");
+  # hyphenated per that requirement, not the underscored `xfactory_*` in-file
+  # kind convention (same divergence as the sibling snapshot schema).
+  kind: {const: ideation-workbench}
+  repository:
+    type: string
+    minLength: 1
+    # Owning repository (`ideation/workbench/` is per-repo); mirrors the
+    # snapshot's `repository` field for cross-reference.
+  name:
+    type: string
+    minLength: 1
+    # The set's human name, chosen at creation; not a stable id.
+  created:
+    type: string
+    format: date-time
+    # Wall-clock creation stamp — session state, not a determinism anchor.
+  updated:
+    type: string
+    format: date-time
+    # Wall-clock stamp of the most recent workbench action against this set.
+  members:
+    type: array
+    items: {$ref: "#/$defs/member"}
+  excluded:
+    type: array
+    # Recipe-matching docs the human removed from the forming/saved set — each
+    # entry is negative evidence and REQUIRES a reason (spec scenario "A manual
+    # override is recorded"); absent/empty means no exclusions recorded.
+    items: {$ref: "#/$defs/excluded_entry"}
+  seed: {$ref: "#/$defs/seed"}
+  recipe:
+    # D13 keyword-lens query behind an intensional set (spec: "Keyword lens
+    # set-builder" — "cluster-as-recipe persistence"). Optional for sets seeded
+    # any other way (a manually built set may later have a recipe saved against
+    # it), but REQUIRED when `seed.kind` is `recipe` (allOf below) — a
+    # recipe-seeded set without its stored query would be neither re-runnable
+    # nor auditable (task 2.7).
+    $ref: "#/$defs/recipe"
+  action_history:
+    type: array
+    items: {$ref: "#/$defs/action_history_entry"}
+  notebook: {$ref: "#/$defs/notebook_binding"}
+allOf:
+  # seed.kind = cluster-seeded names the seeding cluster (task 2.2).
+  - if:
+      properties: {seed: {properties: {kind: {const: cluster-seeded}}}}
+      required: [seed]
+    then:
+      properties: {seed: {required: [cluster_id]}}
+  # seed.kind = recipe stores the seeding query: the manifest MUST carry the
+  # recipe block so the set stays re-runnable and auditable (task 2.7; spec:
+  # "the workbench manifest stores the query ... so the set re-runs as the
+  # corpus grows"). Cross-property (seed ↔ recipe), so it lives here at the
+  # top level, not inside a $def.
+  - if:
+      properties: {seed: {properties: {kind: {const: recipe}}}}
+      required: [seed]
+    then:
+      required: [recipe]
+$defs:
+  # --- membership ("Workbench reference sets" / "Keyword lens set-builder") ---
+  member:
+    type: object
+    required: [document, via]
+    properties:
+      document:
+        type: string
+        minLength: 1
+        # Doc reference: the snapshot's `document.id` when the doc already has
+        # one, else a repo-relative path for docs not yet captured in a
+        # snapshot. Distinguishes from `via` below, which records HOW the
+        # member entered this set, not WHICH document it is.
+      via:
+        type: string
+        enum: [recipe-match, manual-include, cluster-seed]
+        # Per-member entry mechanism — distinct from the set-level `seed.kind`
+        # below (a `cluster-seed` set can still gain `manual-include` members).
+      reason:
+        type: string
+        minLength: 1
+        # REQUIRED when via=manual-include (allOf below); the recorded "why"
+        # behind a human override — never a silent set edit.
+    allOf:
+      - if: {properties: {via: {const: manual-include}}}
+        then: {required: [reason]}
+  excluded_entry:
+    type: object
+    required: [document, reason]
+    properties:
+      document: {type: string, minLength: 1}  # same reference convention as member.document
+      reason:
+        type: string
+        minLength: 1
+        # ALWAYS required — negative evidence for a recipe-matching doc the
+        # human removed (spec: overrides are captured evidence, never silent).
+  # --- seed provenance ("Workbench reference sets") ---
+  seed:
+    type: object
+    required: [kind]
+    properties:
+      kind:
+        type: string
+        enum: [cluster-seeded, ad-hoc, recipe]
+        # How the WHOLE set originated: from a cluster card, ad-hoc from the
+        # doc list, or from a saved keyword-lens recipe ("add as cluster").
+      cluster_id:
+        type: string
+        minLength: 1
+        # REQUIRED when kind=cluster-seeded (allOf above); the seeding
+        # cluster's id from the dashboard snapshot.
+  # --- recipe (D13; "Keyword lens set-builder" — cluster-as-recipe persistence) ---
+  recipe:
+    type: object
+    required: [checked]
+    properties:
+      checked:
+        type: array
+        minItems: 1
+        items: {type: string, minLength: 1}
+        # Checked keywords stratifying the forming set (check-to-stratify);
+        # at least one — a zero-keyword query is not an intensional definition.
+      pinned:
+        type: array
+        items: {type: string, minLength: 1}
+        # Pinned (required) keywords (pin-to-require). VALIDATOR RULE (task
+        # 2.4/2.7 examples), not expressible cleanly here: every pinned
+        # keyword MUST also appear in `checked` — this schema does not encode
+        # the subset constraint.
+      last_run:
+        type: object
+        required: [source_revision]
+        properties:
+          source_revision:
+            type: string
+            minLength: 1
+            # Snapshot `generation.source_revision` this recipe was last
+            # evaluated against — the re-run anchor (spec scenario "A recipe
+            # re-runs after corpus growth").
+          at: {type: string, format: date-time}  # wall-clock stamp of that evaluation
+      new_candidates:
+        type: array
+        items: {type: string, minLength: 1}
+        # Docs newly matching the recipe since last_run, surfaced without
+        # altering recorded overrides; cleared (emptied) once reviewed.
+  # --- action history ("Workbench reference sets") ---
+  action_history_entry:
+    type: object
+    required: [action, at]
+    properties:
+      action:
+        type: string
+        enum: [notebook, readiness, doc-health, draft-organize, compose-possible, derive-possibles]
+        # Bounded workbench actions; `compose-possible`/`derive-possibles` are
+        # recorded here once their gating deltas land (tasks.md 3.9) — the
+        # vocabulary is reserved now so this schema does not need a bump then.
+      at: {type: string, format: date-time}
+      reference:
+        type: string
+        minLength: 1
+        # Optional job/artifact ref produced by the action (e.g. a doc-health
+        # run id, a readiness score ref, the draft-organize skeleton path).
+  # --- scratch-notebook binding ("Workbench reference sets") ---
+  notebook_binding:
+    type: object
+    required: [alias]
+    properties:
+      alias:
+        type: string
+        pattern: "^xf-wb-.+$"
+        # Scratch NotebookLM notebook bound to this set. A derived artifact:
+        # deleted by the sync orphan sweep when this manifest is deleted
+        # (spec scenario "A workbench manifest is deleted"), never the
+        # reverse — removing a source from the notebook only drops it from
+        # `members` and leaves the corpus document untouched.
