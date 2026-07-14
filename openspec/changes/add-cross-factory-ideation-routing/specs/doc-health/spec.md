@@ -84,7 +84,7 @@ fragments are inputs to contracts, never check definitions.
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
-- **AND** document catalog MUST validate the shared inventory plus promoted specs and aggregation-hosted catalog snapshots as its owning requirement defines
+- **AND** document catalog MUST validate the shared inventory plus promoted specs and the aggregation-hosted catalog snapshots as its owning requirement defines
 - **AND** ideation routing MUST additionally inspect the aggregation root placement boundary and resolve explicitly referenced pinned repositories as its owning requirement defines
 - **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
 
@@ -114,13 +114,13 @@ across runs: staged topics and `xspec:candidate` blocks untouched 30 days are
 `warning` findings escalating to `error` at 90 days; an `xspec:supersedes`
 marker without `change=` is `warning` at 14 days escalating to `error` at 45
 days; `draft` documents have their age distribution reported always (`info`)
-with a `warning` at 60 days without a lifecycle transition; post-baseline
-catalog classifications remaining `pending` for 30 days are `warning` findings
-escalating to `error` at 90 days from preserved facet-level `state_since`; and
-routing records in `intake`, `triaging`, or incomplete `split` state whose
-latest transition is 30 days old are `warning` findings escalating to `error`
-at 90 days. `routed`, `rejected`, and explicitly `deferred` routing records
-SHALL NOT age as unresolved work.
+with a `warning` at 60 days without a lifecycle transition; after catalog
+baseline, a document classification that remains `pending` for 30 days SHALL be
+a `warning` and SHALL escalate to `error` at 90 days from its preserved
+facet-level `state_since`; and routing records in `intake`, `triaging`, or
+incomplete `split` state whose latest transition is 30 days old are `warning`
+findings escalating to `error` at 90 days. `routed`, `rejected`, and explicitly
+`deferred` routing records SHALL NOT age as unresolved work.
 
 #### Scenario: An item crosses an aging threshold
 - **WHEN** an item's untouched age crosses a threshold

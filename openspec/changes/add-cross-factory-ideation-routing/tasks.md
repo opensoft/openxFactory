@@ -1,8 +1,8 @@
 ## 1. Dependency And Contract Baseline
 
-- [ ] 1.1 Complete, realize, and archive `add-doc-health-semantic-sweep` and `add-document-cataloging` without adding routing scope, then verify the promoted doc-health spec contains thirteen deterministic families plus its separate semantic pass.
-- [ ] 1.2 Rebase this change's doc-health delta onto that promoted wording, preserve `ideation-routing` as the fourteenth deterministic family, and run strict OpenSpec validation.
-- [ ] 1.3 Verify this change's staged-origin supporting-document manifest and hashes and leave general proposal-origin/archive-source-state policy to the staged `proposal-origin-contract` topic.
+- [x] 1.1 Complete, realize, and archive `add-doc-health-semantic-sweep` and `add-document-cataloging` without adding routing scope, then verify the promoted doc-health spec contains thirteen deterministic families plus its separate semantic pass.
+- [x] 1.2 Rebase this change's doc-health delta onto that promoted wording, preserve `ideation-routing` as the fourteenth deterministic family, and run strict OpenSpec validation.
+- [x] 1.3 Verify this change's staged-origin supporting-document manifest and hashes and leave general proposal-origin/archive-source-state policy to the staged `proposal-origin-contract` topic.
 
 ## 2. Neutral Routing Contracts
 
@@ -20,11 +20,11 @@
 
 ## 4. Fourteenth Deterministic Family
 
-- [ ] 4.1 Add `scripts/doc_health/ideation_routing.py` in codexFactory and register it as the fourteenth deterministic family in the registry, runner, configuration, and report output.
-- [ ] 4.2 Implement schema/vocabulary, central Idea-ID and Claim-ID uniqueness, paired-document agreement, legal transition, blocker, destination acceptance, and 30/90-day aging checks.
-- [ ] 4.3 Implement the repository ID/gitlink resolver with POSIX/path-traversal checks, xFactory backlog-boundary inspection, strict-gate materialization, and explicitly skipped nightly external-path results.
-- [ ] 4.4 Implement lightweight source, destination, staged-fragment, and proposal provenance checks that distinguish canonical definitions from valid references and fenced examples.
-- [ ] 4.5 Add deterministic fixtures and tests for ordinary documents without routing sidecars, duplicate IDs, invalid transitions, unresolved blockers, copied records, stale references, safe normalization, contested decisions, and non-default thresholds.
+- [x] 4.1 Add `scripts/doc_health/ideation_routing.py` in codexFactory and register it as the fourteenth deterministic family in the registry, runner, configuration, and report output.
+- [x] 4.2 Implement schema/vocabulary, central Idea-ID and Claim-ID uniqueness, paired-document agreement, legal transition, blocker, destination acceptance, and 30/90-day aging checks.
+- [x] 4.3 Implement the repository ID/gitlink resolver with POSIX/path-traversal checks, xFactory backlog-boundary inspection, strict-gate materialization, and explicitly skipped nightly external-path results.
+- [x] 4.4 Implement lightweight source, destination, staged-fragment, and proposal provenance checks that distinguish canonical definitions from valid references and fenced examples.
+- [x] 4.5 Add deterministic fixtures and tests for ordinary documents without routing sidecars, duplicate IDs, invalid transitions, unresolved blockers, copied records, stale references, safe normalization, contested decisions, and non-default thresholds.
 
 ## 5. Non-Mutating Ideation Organizer
 
