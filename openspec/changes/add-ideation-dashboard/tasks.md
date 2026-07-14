@@ -36,10 +36,12 @@ Realized 2026-07-14 by codexFactory Speckit feature `002-ideation-dashboard`, me
 
 ## 4. Nightly Lane (xFactory aggregation)
 
+4.2 realized 2026-07-14 (Omnigent-Install 2b95735): sibling internal host ideation-dashboard.xforge.us — baked-image static serving of the committed renderer + nightly snapshot, ingress Basic Auth (no unauthenticated path) + cert-manager TLS, read-only by construction; /source pass-through deferred to a checkout-sync phase (viewer degrades gracefully); apply runbook + future-hardening prerequisites in its README. First kubectl apply pending a human deploy run.
+
 4.1 realized 2026-07-14 (codexFactory dc42e6b + aggregation 2357f88/…): lane wired into doc-health-reusable.yml finalize job, fail-as-skipped semantics, candidate-then-publish validation; first green run published health/ideation-dashboard/openxFactory-snapshot.json after the SOP-header fix (2b95805). D10 seed project-register.yaml landed at the aggregation root (xfactory project, eleven pinned repos, groups invited).
 
 - [x] 4.1 Add the deterministic snapshot-generation lane to the nightly run after the deterministic pass, committing the snapshot beside the dated doc-health reports; a skipped or failed lane is reported as skipped and never affects deterministic results.
-- [ ] 4.2 Serving (Option C, owned by Omnigent-Install / the runtime install layer): add an access-controlled static-serving route on the existing internal xForge host — a path or sibling ingress on the Azure Kubernetes cluster that already fronts `hermes-readiness.xforge.us` (`installs/omnigent-install/k8s/azure/hermes-readiness/ingress.yaml`) — that serves the committed renderer + nightly snapshot read-only behind the same access control, never a public endpoint. openxFactory owns only the requirement (spec: Delivery and regeneration); the ingress/static-serve mechanics land in Omnigent-Install and are referenced here without duplicating its task list. Local generate-and-open (3.3) remains the zero-infra fallback.
+- [x] 4.2 Serving (Option C, owned by Omnigent-Install / the runtime install layer): add an access-controlled static-serving route on the existing internal xForge host — a path or sibling ingress on the Azure Kubernetes cluster that already fronts `hermes-readiness.xforge.us` (`installs/omnigent-install/k8s/azure/hermes-readiness/ingress.yaml`) — that serves the committed renderer + nightly snapshot read-only behind the same access control, never a public endpoint. openxFactory owns only the requirement (spec: Delivery and regeneration); the ingress/static-serve mechanics land in Omnigent-Install and are referenced here without duplicating its task list. Local generate-and-open (3.3) remains the zero-infra fallback.
 
 ## 5. Tests And Records
 
