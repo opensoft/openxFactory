@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.10
+contract_bundle_version: contract-v1.11
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -390,3 +390,86 @@ contracts:
     sha256: 6f42422521adad8818895e6b8bb83ca9d148dc33fb9e61a8c762d5e6cca36d66
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
+  # ---- document-cataloging contract surface — contract-v1.11 realization (add-document-cataloging) ----
+  # Canonical openxFactory-owned neutral document-cataloging schemas; per-file
+  # sha256 over the semantic set (the six schemas validate-document-catalog.py
+  # enforces). Consumed by every DomainxFactory (its owned
+  # catalog/document-tag-registry.yaml and catalog/document-tag-overrides.yaml)
+  # and by the codexFactory document-catalog doc-health family plus the
+  # non-authoritative document-cataloger worker lane. The strict validator is
+  # registered as a tool (content-addressed by commit; no per-file digest).
+  - id: xfactory-document-catalog-snapshot
+    path: contracts/schemas/xfactory-document-catalog-snapshot.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-catalog-snapshot.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6c39a6ac674ffaa2278a191ece209fd5113f5518f9e13f8b674b4191c0695d79
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      DomainxFactory repos and the codexFactory doc-health checker consume the
+      six document-cataloging schemas through their pinned openxFactory checkout
+      at the contract-v1.11 tag and MUST verify the per-file sha256 before
+      treating a copy as current. Catalog facets are descriptive discovery
+      metadata only: they never set a document's lifecycle Status/Kind,
+      ownership, routing state, xspec: markers, sensitivity approval, or
+      lifecycle changes.
+  - id: xfactory-document-cataloger-recommendation
+    path: contracts/schemas/xfactory-document-cataloger-recommendation.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-cataloger-recommendation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 94396ab940aab5522dd0bdaa7da6fecdfa01d3add139b424d396f390c59b5477
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: xfactory-document-tag-registry
+    path: contracts/schemas/xfactory-document-tag-registry.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-tag-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6859cb45ddc001a0fcb4ed189e0507890f673a6ccb61463ded6aa738823f67a6
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: xfactory-document-tag-overrides
+    path: contracts/schemas/xfactory-document-tag-overrides.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-tag-overrides.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: aa972e77b16906fd67b4d0c7a82df48f5b1d85c2b2017dc22d76f65effedefdf
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: xfactory-document-opaque-locator
+    path: contracts/schemas/xfactory-document-opaque-locator.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-opaque-locator.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7576baf72de1f3f301607c0b0224db3fba92e11d06d199bd97bcb5c2e8dcb60d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: xfactory-document-handling-gate
+    path: contracts/schemas/xfactory-document-handling-gate.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-document-handling-gate.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7323993179a3933dd1dfd2b8b5bfbfe4baee9d6eb025c479cdd53b2986acf454
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: document-catalog-conformance-validator
+    path: scripts/validate-document-catalog.py
+    source_path: openxFactory/scripts/validate-document-catalog.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - codexFactory document-catalog doc-health family
+      - DomainxFactory catalog adopters
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Strict validator for the six document-cataloging schemas plus the
+      deterministic cross-cutting invariants JSON Schema alone cannot express
+      (complete coverage, unique per-snapshot identity, source and review
+      freshness, taxonomy resolution, override standing, immutable path
+      layout, and the disclosed baseline-mode coverage exception). Reference
+      validator content-addressed by commit; not a pinned semantic artifact,
+      so it carries no per-file digest.

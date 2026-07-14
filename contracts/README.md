@@ -48,6 +48,7 @@ Native openxFactory contracts:
 | `memory-gateway/` | Product-neutral xFactory Memory Gateway contracts, vocabularies, provider profiles, bindings, context packets, migration, usage, erasure, break-glass, and audit | `openxFactory` |
 | `avatar-client/` | Neutral avatar-client (AVC) contract kernel — 8 JSON-Schema contracts, 9 closed registries, acceptance map, frozen `interface-lock.yaml` baseline, and conformance fixtures; realized at `contract-v1.7` with per-file SHA-256 in `manifest.yaml` (see `avatar-client/README.md`) | `openxFactory` |
 | `hermes-runtime/` | Neutral Hermes customer-subject runtime contract family — topology/identity, trusted-scope authority/binding/approval/traceability records, the PostgreSQL 15/16 operational contract with the governed v1-to-v2 migration and quarantine, scoped v2 job/run/event lifecycle, supported-DomainxFactory regression denominator, and the Gate G0 consumer handoff receipt; governed by `hermes-runtime/contract-index.yaml` and realized (provider side) at `contract-v1.10` with the release digest inventory `releases/contract-v1.10.digests.yaml` (superseding `contract-v1.9`, whose immutable tag and `releases/contract-v1.9.digests.yaml` remain as provenance; see `hermes-runtime/README.md`) | `openxFactory` |
+| `schemas/xfactory-document-*.schema.yaml` + `scripts/validate-document-catalog.py` | Neutral document-cataloging contract surface — six JSON-Schema contracts (immutable per-repository catalog snapshot, non-authoritative cataloger-recommendation evidence, namespaced topic-tag registry, owner override/disposition file, and the reusable opaque-locator and handling-gate `$defs` kernels) plus the strict validator; realized at `contract-v1.11` with per-file SHA-256 in `manifest.yaml` (the validator is a commit-content-addressed tool, no per-file digest). Reference examples at `examples/document-cataloging/`; adoption guidance in `docs/document-catalog-adoption.md` | `openxFactory` |
 
 Planned contracts:
 
@@ -69,30 +70,16 @@ that `contract_bundle_version` is "allocated at realization after merge order
 is known" and "a bundle is not published until its tag exists," these files
 are **not yet** registered in `contracts/manifest.yaml` or
 `contracts/CHANGELOG.md`. Registration happens when the owning change
-archives (its task 8.7).
+archives, at the registration task named in that family's note below.
 
 | Contract | Purpose | Owning change |
 |---|---|---|
-| `schemas/xfactory-document-catalog-snapshot.schema.yaml` | Immutable per-repository document-catalog snapshot | `add-document-cataloging` |
-| `schemas/xfactory-document-cataloger-recommendation.schema.yaml` | Immutable non-authoritative cataloger-recommendation evidence | `add-document-cataloging` |
-| `schemas/xfactory-document-tag-registry.schema.yaml` | Namespaced document-catalog topic-tag registry | `add-document-cataloging` |
-| `schemas/xfactory-document-tag-overrides.schema.yaml` | Owner override/disposition file | `add-document-cataloging` |
-| `schemas/xfactory-document-opaque-locator.schema.yaml` | Reusable canonical/opaque document-locator `$defs` kernel | `add-document-cataloging` |
-| `schemas/xfactory-document-handling-gate.schema.yaml` | Reusable dispatch/handling-gate decision `$defs` kernel | `add-document-cataloging` |
-| `scripts/validate-document-catalog.py` | Strict validator: schema conformance, coverage, unique identity, source freshness, taxonomy resolution, override standing, immutable path layout, baseline-mode exceptions | `add-document-cataloging` |
 | `schemas/ideation-dashboard-snapshot.schema.yaml` | Deterministic ideation-area dashboard projection snapshot | `add-ideation-dashboard` |
 | `schemas/ideation-workbench.schema.yaml` | Gitignored user-assembled workbench reference-set manifest | `add-ideation-dashboard` |
 | `schemas/ideation-possibles-register.schema.yaml` | Possibles-register consolidation `$defs` kernel (embedded in the cross-reference index) | `add-ideation-dashboard` |
 | `schemas/project-register.schema.yaml` | Repository → project → project-group navigation hierarchy (D10) | `add-ideation-dashboard` |
 | `schemas/gate-action-record.schema.yaml` | Human-authenticated gate-console action audit record (D16/D17) | `add-ideation-dashboard` |
 | `scripts/validate-ideation-dashboard-contracts.py` | Strict validator: schema conformance (FormatChecker-enforced), snapshot referential integrity, workbench recipe/override + committed-manifest guard, possibles-register id-uniqueness + transition legality, project-register single-parent hierarchy, gate-action kickoff-ratification precondition | `add-ideation-dashboard` |
-
-Reference examples exercising every schema (12 valid + 11 invalid fixtures,
-one violation per negative file) live at `examples/document-cataloging/`. See
-`openspec/changes/add-document-cataloging/specs/document-cataloging/spec.md`
-for the requirements these schemas realize, and that change's `tasks.md`
-task 2.1 completion note for the one documented shape discrepancy against
-its own illustrative `supporting-docs/document-catalog.template.yaml`.
 
 Reference examples for the ideation-dashboard family (8 valid + 21 invalid
 fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;

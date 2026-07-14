@@ -9,6 +9,81 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.11 — 2026-07-14 (additive; document-cataloging contract surface)
+
+Fifth annotated-tag release. Realizes the neutral **document-cataloging
+contract surface** (`add-document-cataloging`): six domain-neutral JSON-Schema
+contracts plus their strict openxFactory validator, promoted at this change's
+archival (task 8.7) out of the "Contracts Pending Realization" holding area
+that task 2.4 added to `contracts/README.md`. All additive: no existing
+contract path changes and `contract_schema_version` is unchanged.
+
+Added — six `contracts/schemas/xfactory-document-*.schema.yaml` contracts
+(YAML-serialized JSON Schema draft 2020-12; per-file SHA-256 recorded in
+`contracts/manifest.yaml`):
+
+- `xfactory-document-catalog-snapshot.schema.yaml` — immutable per-repository
+  document-catalog snapshot.
+- `xfactory-document-cataloger-recommendation.schema.yaml` — immutable,
+  non-authoritative cataloger-recommendation evidence.
+- `xfactory-document-tag-registry.schema.yaml` — namespaced topic-tag registry.
+- `xfactory-document-tag-overrides.schema.yaml` — owner override / disposition
+  file.
+- `xfactory-document-opaque-locator.schema.yaml` — reusable canonical/opaque
+  document-locator `$defs` kernel.
+- `xfactory-document-handling-gate.schema.yaml` — reusable dispatch/handling-gate
+  decision `$defs` kernel.
+
+Also added — `scripts/validate-document-catalog.py`: strict validator over the
+packaged reference examples (`examples/document-cataloging/`) and the
+deterministic cross-cutting invariants JSON Schema alone cannot express
+(complete coverage, unique per-snapshot identity, source and review freshness,
+taxonomy resolution, override standing, immutable path layout, and the
+disclosed baseline-mode coverage exception). Registered as a tool and
+content-addressed by commit; not a pinned semantic artifact, so excluded from
+the per-file digest set.
+
+Governance:
+
+- Catalog facets are descriptive discovery metadata only: they never set a
+  document's lifecycle `Status:`/`Kind:`, ownership, routing state, `xspec:`
+  markers, sensitivity approval, or lifecycle changes (see
+  `docs/document-lifecycle.md` "Catalog Tags Are Not Lifecycle State" and the
+  `document-catalog` family in `docs/doc-health.md`). The adoption guide
+  `docs/document-catalog-adoption.md` is ratified alongside this change.
+- Realization evidence: the deterministic mechanical baseline covers 225/225
+  governed v1 documents across six repositories (xFactory aggregation
+  `800a572`), byte-equal to the freshly built extended inventory with zero
+  source edits and reproduced identically across two from-scratch runs; strict
+  `validate-document-catalog.py` reports 0 errors / 0 warnings against the real
+  artifacts and 661/661 codexFactory tests pass at the merged SHA; the
+  codexFactory `document-catalog` doc-health family and the non-authoritative
+  document-cataloger lane landed in codexFactory PR #4 / PR #6, and the bounded
+  read-only cataloger worker profile in omnigent-install `b836a24`.
+
+- Nightly evidence (workflow runs 29328943314 and 29330008234, 2026-07-14):
+  the first post-baseline nightly produced the dated report
+  `health/reports/2026-07-14.md` (xFactory aggregation `97c4754`) with a
+  rendered "Document Catalog" section — 225 of 225 docs cataloged, facet
+  states pending=1350 (all other states 0), changes 225 new / 0 changed /
+  0 deleted / 0 stale / 0 rejected, classifier `document-cataloger/1`
+  prompt contract v1, cataloger skipped fail-closed with
+  `runner_labels_missing` (the document-cataloger profile is not yet
+  deployed to the artifact-worker host) — and the immutable snapshot at
+  `health/document-catalog/runs/2026-07-14/ee0b0ab6…/`. The
+  `document-catalog` family contributed zero findings at static pins
+  (run 29328943314); run 29330008234's 32 auto-fixable stale-entry
+  findings were the ratified freshness contract firing on an unrelated
+  mid-window codexFactory pin move, self-healed by the landed snapshot.
+  No catalog recommendation entered the Ranked Plan and no catalog-caused
+  critical/error regression was introduced.
+
+Consumers: every DomainxFactory pins this bundle at the `contract-v1.11` tag
+and verifies the per-file SHA-256 in `manifest.yaml` before treating a copy as
+current; the codexFactory `document-catalog` doc-health family and the
+document-cataloger worker consume the schemas and validator from their pinned
+openxFactory checkout.
+
 ## contract-v1.10 — 2026-07-14 (additive; superseding hardening of the neutral Hermes customer-subject runtime, provider side)
 
 Fourth annotated-tag release. A **superseding additive re-realization** of the

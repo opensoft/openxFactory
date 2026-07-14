@@ -1,9 +1,9 @@
 # Document Catalog Adoption Guide
 
-Status: draft
+Status: ratified
 Kind: process
 Repository context: openxFactory
-Proposed by: add-document-cataloging
+Ratified by: add-document-cataloging
 Purpose: give an adopting DomainxFactory one place to see what it owns when
 the active `add-document-cataloging` change's external document catalog
 reaches its repository, entirely by reference to that change's spec.
@@ -15,9 +15,10 @@ contract of its own. Every rule it points to is owned by the
 `add-document-cataloging` change's
 [document-cataloging spec](../openspec/changes/add-document-cataloging/specs/document-cataloging/spec.md);
 this guide only names which requirement to read and which files in your own
-repository that requirement applies to. Until that change promotes, treat
-every reference below as proposed, not ratified — the same caveat the two
-neutral contracts it touches already carry (see
+repository that requirement applies to. The catalog facets those referenced
+requirements define remain descriptive discovery metadata — never lifecycle,
+ownership, or approval authority — the same boundary the two neutral contracts
+it touches draw (see
 [Document Lifecycle](document-lifecycle.md#catalog-tags-are-not-lifecycle-state)
 and [Doc-Health Contract](doc-health.md#check-families)).
 
