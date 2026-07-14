@@ -446,9 +446,14 @@ brainstorm-stage, items may contradict; nothing here is normative.
 
 **D. Local-clone / serving assumptions (Brett's #2, corroborated).**
 
-21. `/snapshot.json` and `/source/<path>` exist only in the loopback dev
-    server; the static deploy presumably 404s both (snapshot likely works
-    only if baked adjacent; the doc viewer certainly dead on live).
+21. Corrected after live probes (2026-07-14): the deployed image bakes
+    the snapshot next to the renderer and serves it fine (deploy evidence
+    shows served == committed byte-identical), and the whole site sits
+    behind nginx Basic Auth by design. What IS dead on the live site is
+    only the `/source/<path>` doc viewer — the container deliberately
+    ships `--checkout-root /srv/empty` (static-only v1), so D15's
+    read-only viewer 404s in production. The v2 seam should give the
+    served backend a real checkout (or proxy) for `/source`.
 22. Gate-console copy-paste commands hardcode
     `python3 scripts/ideation_dashboard/cli.py ... --repo-root .` — the
     script lives in codexFactory but acts on openxFactory; no single
