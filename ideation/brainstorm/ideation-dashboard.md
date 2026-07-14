@@ -500,6 +500,49 @@ brainstorm-stage, items may contradict; nothing here is normative.
   ("cross-reference index not yet landed"), a11y pass, unified DOM-safety
   helpers.
 
+### Tile → NotebookLM (Brett, 2026-07-14)
+
+Every cluster, proposal, and staging-topic tile gets an "Open in
+NotebookLM" action that fires up a notebook loaded with exactly that
+tile's doc set. The pieces mostly exist; v1 shipped the engine without
+the button:
+
+- **Already promoted**: the lifecycle projection (three stage books) and
+  the hybrid per-set notebook pattern — a notebook for one staging
+  topic's or proposal's supporting-docs set, WITH the governed return
+  path (human-converted NotebookLM notes re-enter ideation as
+  Status-tagged files via `--import-exports`/`--import-new-sources`;
+  `add-lifecycle-notebook-hybrid-imports` is merged and archived — the
+  aggregation CLAUDE.md note that it awaits ratification is stale).
+- **Already coded, unwired**: `ideation_dashboard/workbench.py`'s
+  `NotebookAdapter` creates/deletes `xf-wb-<slug>` notebooks for any
+  reference set (cluster-seeded, ad-hoc, recipe-seeded), binds the alias
+  in the gitignored workbench manifest, orphan-sweeps unbound notebooks,
+  and degrades gracefully when `nlm` is unavailable. No cli.py/serve.py/
+  web view calls it today.
+- **CLI surface sufficient**: `nlm notebook create`, `nlm source add
+  --text/--file`, `nlm notebook get <id> --json` → shareable URL.
+
+v2 shape: the tile action calls the backend seam
+(`POST /actions/notebook {tile_kind, tile_id}`); the LOCAL backend wires
+it to the existing `NotebookAdapter` (create-or-rebind `xf-wb-<slug>`,
+add the tile's docs as titled text sources, return the notebook URL, UI
+opens it in a new tab). The SERVED backend cannot hold `nlm` browser
+auth (~20-min operator sessions in `~/.notebooklm-mcp-cli/`), so it
+either deep-links notebooks pre-provisioned by an authenticated nightly
+lane (stage books today; optionally one notebook per staging topic,
+automating the hybrid pattern) or hides the action — making this the
+poster-child capability for the local/served seam. The return path
+closes the loop: read in the dashboard → interrogate in NotebookLM →
+notes come back as governed ideation input.
+
+Additional OQs: notebook lifetime for tile notebooks (default: keep the
+existing orphan-sweep discipline — a notebook lives while its workbench
+manifest binds it); source refresh on re-click (default: diff by title
++ content hash like the lifecycle sync manifest does); whether proposal
+tiles load only supporting-docs or also the proposal/design/tasks files
+(default: all of the change dir minus review records).
+
 ### Open questions (defaults proposed)
 
 - **Allowlist config home**: extend `project-register.yaml` vs a new
