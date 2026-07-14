@@ -1,0 +1,305 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "ideation-dashboard-snapshot.schema.yaml"
+title: "Ideation-dashboard deterministic projection snapshot"
+contract_schema_version: 1
+description: >-
+  The single data path for the ideation-area dashboard (`add-ideation-dashboard`;
+  promoted spec requirements "Snapshot projection contract", "Realization funnel
+  model", "Project grouping hierarchy", "Cluster canvas working surface", and
+  "Keyword lens set-builder"). A deterministic generator scans `ideation/` plus
+  active and archived OpenSpec changes for ONE repository and emits this
+  snapshot; every renderer reads only the snapshot, never the repository
+  directly (spec scenario "A renderer needs data the snapshot lacks"). The
+  snapshot is a projection, never a source of truth: when it disagrees with the
+  repository the resolution is regeneration and dashboard artifacts are never
+  hand-edited (spec scenario "The dashboard disagrees with the repository").
+
+  Deterministic: the same working tree MUST yield a byte-identical snapshot
+  (spec scenario "The generator runs twice on the same tree"), so the envelope
+  carries no wall-clock field — the generation stamp is the tree-derived
+  `source_revision`, and any `generated_at` is derived from that revision's
+  commit date, never the process clock.
+
+  Forward-compatible / additive: consumers MUST ignore unknown properties. A new
+  view acquires data by delta declaring new snapshot fields and the generator
+  populating them; because unknown fields are tolerated, additive growth needs
+  no `schema_version` bump and only a breaking change (a removed or retyped
+  field) does. This is why — unlike the immutable `xfactory-document-catalog`
+  record — no object here sets `additionalProperties: false`. Fields fed by
+  not-yet-landed upstream changes are optional until those changes land: cluster
+  `readiness`/`conflict_flags` arrive verbatim from the ideation-cross-reference
+  index (add-ideation-cross-reference-readiness); document `inferred_topics` and
+  keyword `inferred_doc_count` arrive from document-cataloging. The regenerated
+  projection carries no lifecycle `status` (it is overwritten nightly, not an
+  immutable `record` like the document catalog).
+type: object
+required:
+  - schema_version
+  - kind
+  - repository
+  - generation
+  - documents
+  - clusters
+  - possibles
+  - staged_topics
+  - changes
+  - keyword_index
+properties:
+  schema_version: {const: 1}
+  # Normative kind literal from the promoted spec ("Snapshot projection
+  # contract"); hyphenated per that requirement, not the underscored
+  # `xfactory_*` in-file kind convention.
+  kind: {const: ideation-dashboard-snapshot}
+  repository:
+    type: string
+    minLength: 1
+    # Canonical repository id this snapshot projects; keeps DomainxFactory
+    # instances and an aggregation roll-up additive (v1 = openxFactory only).
+  project:
+    type: string
+    minLength: 1
+    # Resolved from the project register (D10); ABSENT = ungrouped, rendered as
+    # its own implicit project (spec scenario "A repository is absent ...").
+  project_group:
+    type: string
+    minLength: 1
+    # Resolved project group for `project`; absent when ungrouped. Descriptive
+    # navigation only — no lifecycle or authority semantics.
+  generation: {$ref: "#/$defs/generation"}
+  documents:
+    type: array
+    items: {$ref: "#/$defs/document"}
+  clusters:
+    type: array
+    items: {$ref: "#/$defs/cluster"}
+  possibles:
+    type: array
+    items: {$ref: "#/$defs/possible"}
+  staged_topics:
+    type: array
+    items: {$ref: "#/$defs/staged_topic"}
+  changes:
+    type: array
+    items: {$ref: "#/$defs/change"}
+  keyword_index:
+    type: array
+    # Seeds the keyword-lens rail; per-doc match computation is renderer-side
+    # from each document's `topics` (spec: "Keyword lens set-builder").
+    items: {$ref: "#/$defs/keyword_entry"}
+$defs:
+  # --- shared vocabularies ---
+  lifecycle_status:
+    type: string
+    # The controlled `Status:` header vocabulary (docs/document-lifecycle.md).
+    enum: [brainstorm, staged, draft, ratified, standard, superseded, retired, record]
+  evidence_pin:
+    type: object
+    # A pinned passage with cataloging-contract provenance (section ref +
+    # passage hash); backs the canvas evidence board (D12).
+    required: [document, section, passage_sha256]
+    properties:
+      document: {type: string, minLength: 1}                     # document `id` the passage lives in
+      section: {type: string, minLength: 1}                      # section reference within the doc
+      passage_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}  # hash of the pinned passage
+  # --- generation stamp ("Snapshot projection contract") ---
+  generation:
+    type: object
+    required: [source_revision]
+    properties:
+      source_revision:
+        type: string
+        minLength: 1
+        # Git revision of the pinned checkout this snapshot projects; the
+        # determinism anchor and the viewer's divergence check (spec scenario
+        # "Snapshot and content disagree").
+      generated_at:
+        type: string
+        format: date-time
+        # Provenance only; to preserve byte-identity it is derived from
+        # `source_revision`'s commit date (or omitted), never the wall clock.
+      generator_version:
+        type: string
+        minLength: 1
+        # Generator build id; deterministic per build.
+  # --- source documents (funnel column 1) ---
+  document:
+    type: object
+    required: [id, path, stage]
+    properties:
+      id: {type: string, minLength: 1}           # stable doc id (edges reference this)
+      path: {type: string, minLength: 1}         # repo-relative path
+      stage: {$ref: "#/$defs/lifecycle_status"}  # lifecycle Status: header
+      kind: {type: [string, "null"]}             # Kind: header
+      summary: {type: [string, "null"]}          # Summary: header
+      topics:
+        type: array
+        items: {type: string, minLength: 1}
+        # DECLARED Topics: header subjects — the doc→cluster edge source; never
+        # conflated with `inferred_topics`.
+      inferred_topics:
+        type: array
+        # Structurally separate from declared `topics`; optional until
+        # document-cataloging lands (spec: declared kept distinct from inferred).
+        items:
+          type: object
+          required: [tag, confidence, state]
+          properties:
+            tag: {type: string, minLength: 1}
+            confidence: {type: number, minimum: 0, maximum: 1}
+            state: {type: string, enum: [pending, suggested, reviewed]}
+      dates:
+        type: object
+        properties:
+          captured: {type: string, format: date}         # Captured: header
+          last_transition: {type: string, format: date}  # last lifecycle move
+      destinations:
+        type: object
+        # Where this doc is heading downstream (link refs only).
+        properties:
+          staged_topics: {type: array, items: {type: string, minLength: 1}}  # staging ids
+          changes: {type: array, items: {type: string, minLength: 1}}        # change ids
+          capabilities: {type: array, items: {type: string, minLength: 1}}   # capability names
+  # --- topic clusters (funnel column 2; D11/D12 working surface) ---
+  cluster:
+    type: object
+    required: [id, name, topics, document_edges]
+    properties:
+      id: {type: string, minLength: 1}
+      name: {type: string, minLength: 1}
+      topics:
+        type: array
+        items: {type: string, minLength: 1}  # the cluster's topic set
+      document_edges:
+        type: array
+        # Many-to-many doc→cluster edges from Topics: headers; one edge per
+        # member doc naming the topics that matched (spec scenario "One doc
+        # feeds several clusters"). These edges are the ONLY canvas members.
+        items:
+          type: object
+          required: [document, matched_topics]
+          properties:
+            document: {type: string, minLength: 1}
+            matched_topics: {type: array, items: {type: string, minLength: 1}}
+      tallies:
+        type: object
+        # Funnel tallies count LINKS, not cards (spec: "Realization funnel model").
+        properties:
+          document_links: {type: integer, minimum: 0}
+          possible_links: {type: integer, minimum: 0}
+      readiness:
+        type: object
+        # Verbatim tier scores from the ideation-cross-reference index; rendered
+        # without re-scoring (spec scenario "Readiness scores exist for a
+        # cluster"). Optional until add-ideation-cross-reference-readiness
+        # supplies it; shape owned there, so unconstrained here.
+      conflict_flags:
+        type: array
+        # Verbatim conflict flags from the same index; optional until it lands.
+      lineage:
+        type: object
+        # Downstream artifacts for the canvas lineage strip — DISTINCT from the
+        # member edges above (spec scenario "Member pane derivation").
+        properties:
+          staged_picks: {type: array, items: {type: string, minLength: 1}}  # staging ids
+          proposals: {type: array, items: {type: string, minLength: 1}}     # change ids
+          realized: {type: array, items: {type: string, minLength: 1}}      # change ids
+  # --- possibles register (funnel column 3; consolidated in the cross-ref index) ---
+  possible:
+    type: object
+    required: [id, title, claim, state]
+    properties:
+      id: {type: string, minLength: 1}
+      title: {type: string, minLength: 1}
+      claim: {type: string, minLength: 1}
+      state: {type: string, enum: [latent, picked, rejected, superseded]}
+      reason:
+        type: string
+        minLength: 1
+        # REQUIRED for rejected/superseded (allOf below); the durable "why".
+      citation:
+        type: string
+        minLength: 1
+        # REQUIRED for rejected/superseded — an uncited rejection is invalid.
+      claiming_clusters:
+        type: array
+        items: {type: string, minLength: 1}
+        # Many-to-many cluster→possible edges; one entry per claiming cluster
+        # (spec scenario "One possible is claimed by several clusters").
+      pick:
+        type: object
+        # Present when state=picked (allOf below): the organize-gate pick edge.
+        required: [staging_id]
+        properties:
+          staging_id: {type: string, minLength: 1}  # cited at the pick
+          change_id: {type: string, minLength: 1}   # inherited at the proposal gate
+      option_set:
+        type: object
+        # Choose-one grouping of alternative shapes of one feat; siblings share
+        # `id`. Choosing one drafts the others' superseded transitions (D12).
+        required: [id]
+        properties:
+          id: {type: string, minLength: 1}
+          members: {type: array, items: {type: string, minLength: 1}}  # sibling possible ids
+      supporting_evidence:
+        type: array
+        items: {$ref: "#/$defs/evidence_pin"}
+        # doc + section ref + passage hash; seeds the canvas evidence board.
+    allOf:
+      # An uncited rejection/supersession is invalid (task 2.3 register rule).
+      - if: {properties: {state: {enum: [rejected, superseded]}}}
+        then: {required: [reason, citation]}
+      - if: {properties: {state: {const: picked}}}
+        then: {required: [pick]}
+  # --- staged picks (funnel column 4) ---
+  staged_topic:
+    type: object
+    required: [staging_id]
+    properties:
+      staging_id: {type: string, minLength: 1}
+      files: {type: array, items: {type: string, minLength: 1}}  # topic-folder files
+      readiness_state:
+        type: string
+        minLength: 1
+        # Exit-readiness state; verbatim from the cross-ref index when present.
+      target_change:
+        type: string
+        minLength: 1
+        # Exit path — the change id this topic promotes into.
+  # --- changes (funnel columns 5-6: proposals + realized; D6 active + archived) ---
+  change:
+    type: object
+    required: [id, status]
+    properties:
+      id: {type: string, minLength: 1}
+      status: {type: string, enum: [active, archived]}
+      ratification:
+        type: object
+        # Present once ratified; both fields required together.
+        required: [ratifier, date]
+        properties:
+          ratifier: {type: string, minLength: 1}
+          date: {type: string, format: date}
+      code_surface: {type: [string, "null"]}    # release-realization front-matter
+      target_release: {type: [string, "null"]}
+      task_progress:
+        type: object
+        # Task completion for the progress bar.
+        properties:
+          completed: {type: integer, minimum: 0}
+          total: {type: integer, minimum: 0}
+      origin_staging_id: {type: [string, "null"]}  # staging topic this change came from
+  # --- keyword-lens rail seed ("Keyword lens set-builder") ---
+  keyword_entry:
+    type: object
+    required: [keyword, declared_doc_count]
+    properties:
+      keyword: {type: string, minLength: 1}
+      declared_doc_count:
+        type: integer
+        minimum: 0
+        # Docs carrying this keyword as a DECLARED Topics: subject.
+      inferred_doc_count:
+        type: integer
+        minimum: 0
+        # Docs carrying it as an INFERRED tag — kept separate from declared;
+        # optional until document-cataloging lands.
