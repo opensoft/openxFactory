@@ -164,6 +164,39 @@ decision.
    neutral-first contribution rule (architecture-and-stack.md claim 7)
    enforceable.
 
+7. **Deferred-scenario discharge mechanism (locked 2026-07-14, after promotion)
+   — successor evidence registers plus a one-time validator extension; in-place
+   flips illegal; MODIFIED deltas reserved for genuine semantic change.** When this
+   lab discharges a scenario that a released capability deferred to it (SCO-001-S05
+   in `contracts/avatar-client/evidence-register.yaml`, plus the AFU-003/005/007/008
+   successor slots named against this change in the avatar-first-ui acceptance map),
+   the discharge is recorded by a NEW successor register
+   (`contracts/avatar-client/evidence-register.<change>.yaml`) owned by the
+   discharging change, carrying one entry per discharged scenario with
+   `discharges_deferred: true` and an `owner_change` matching the released deferred
+   entry — never by editing the released, content-addressed register or acceptance
+   map, which stay byte-identical. A MODIFIED spec delta to the released capability
+   is required only for a genuine semantic change to a scenario (e.g. restating its
+   fail-closed default), not for a discharge. To make this machine-checked, a
+   one-time extension of `scripts/validate-avatar-client.py` is **REQUIRED** and is
+   part of this change's openxFactory-side work: (a) collect successor registers
+   matching `evidence-register.*.yaml` alongside the released one, add that glob to
+   `SEMANTIC_GLOBS`, and require successor registers to be listed in
+   `contracts/manifest.yaml` so they are content-addressed too; (b) allow a released
+   `deferred` entry to be discharged by exactly one successor entry with
+   `discharges_deferred: true` whose `owner_change` matches the released entry, keep
+   the in-place `deferred->evidenced` flip illegal (`deferred` stays terminal in
+   `EVID_STATUS_TRANSITIONS`), and relax the evidence-dup rule only for that one
+   released+discharging pair. **Why not in-place:** rewriting the released register
+   to discharge the entry mutates a `contract-v1.9` bundle member, forcing a
+   manifest sha256 update and a v1.10 re-release on every routine discharge and
+   breaking every per-file-SHA-256 consumer pin; deferral discharge is pre-declared
+   by `owner_change` and must not couple to a bundle re-release. **Dry run:** branch
+   `dryrun/fr040-evidence-discharge` @ d736fbe produced the successor register
+   discharging SCO-001-S05, and confirmed that without the validator extension the
+   successor register is silently ignored (all checks pass byte-identically to
+   baseline) — which is why the extension is a locked task, not optional.
+
 ## Lower-stakes (record, not blocking)
 
 - Avatar animation-tech ADR: CustomPainter now; Rive documented as the

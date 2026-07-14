@@ -149,15 +149,37 @@ Not final spec text.
 
 ## Open questions
 
-1. **Does discharging a deferred scenario owned by a released capability require a
-   MODIFIED spec delta to that capability, or only an evidence-register update
-   recorded under `implement-avatar-client-lab`?** The lab flips scenarios like
-   SCO-001-S05 and the AFU-003/005/007/008 successor slots from deferred to
-   evidenced across capabilities it does not own. *Recommendation:* record the
-   client evidence in each released capability's evidence-register under this change
-   (no requirement text changes), and reserve a MODIFIED delta only where a scenario's
-   fail-closed default is actually restated — but confirm this against the OpenSpec
-   parity validator before authoring, since it gates strict validation.
+1. **RESOLVED (2026-07-14): a discharge is a SUCCESSOR evidence-register entry
+   only — no MODIFIED spec delta to the released capability.** The lab discharges
+   scenarios that a released capability deferred to it — concretely SCO-001-S05 in
+   `contracts/avatar-client/evidence-register.yaml`, plus the AFU-003/005/007/008
+   successor slots named against this change in the avatar-first-ui acceptance map.
+   *Adopted mechanism:* the discharging change authors a new successor register
+   beside the released one (e.g.
+   `contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml`)
+   carrying one entry per discharged scenario with `discharges_deferred: true` and
+   an `owner_change` matching the released deferred entry; the released,
+   content-addressed register and acceptance map stay byte-identical, and a MODIFIED
+   delta is reserved only for a genuine semantic change to a scenario (e.g.
+   restating its fail-closed default), never for a routine discharge. *Dry run:*
+   branch `dryrun/fr040-evidence-discharge` @ d736fbe (worktree
+   `openxFactory-worktrees/dryrun-fr040`) produced exactly this successor register
+   discharging SCO-001-S05. *Why the validator must be extended:*
+   `scripts/validate-avatar-client.py` reads a single fixed register path with a
+   literal `evidence-register.yaml` entry in `SEMANTIC_GLOBS`, so the successor
+   register is silently ignored — every check passes byte-identically to baseline,
+   i.e. "evidence-register only" as it stands has zero machine-checked effect. The
+   resolution therefore TASKS a one-time validator extension (successor-register
+   collection into `SEMANTIC_GLOBS` + `contracts/manifest.yaml` content-addressing;
+   a released `deferred` entry dischargeable by exactly one successor
+   `discharges_deferred: true` entry with a matching `owner_change`, the in-place
+   `deferred->evidenced` flip staying illegal). *Rejected alternative:* an in-place
+   discharge in the released register is legal under today's transition rules but
+   mutates a `contract-v1.9` bundle member, forcing a manifest sha256 update and a
+   v1.10 re-release on every routine discharge — breaking every per-file-SHA-256
+   consumer pin. Deferral discharge is pre-declared by `owner_change` and must not
+   couple to a bundle re-release, so the successor-register path is the mechanism.
+   Full record: `supporting-docs/open-decisions.md` decision 7.
 
 2. **Confirm or override the F1-F4 acceptance-focus boundary (claim 1).** It is
    currently undefined anywhere in the topic; the proposal cannot enumerate task

@@ -127,3 +127,20 @@ the later live seam is a clean line, not a hole.
 #### Scenario: The live adapter is added later
 - **WHEN** `qualify-avatar-live-voice` supplies a live transport behind the existing `SessionTransport` port
 - **THEN** the session core reducer and the UI MUST require no change to consume it
+
+### Requirement: Successor-register discharge of deferred scenarios is machine-checked
+Discharging a released `deferred` scenario owned by this change SHALL be recorded
+only by a successor evidence register beside the released one, and the discharge
+MUST be machine-checked. The validator collects the successor registers matching
+`evidence-register.*.yaml`; a discharge requires a `discharges_deferred: true`
+entry whose `owner_change` matches the released deferred entry; the released,
+content-addressed register and acceptance map stay byte-identical; and the
+in-place `deferred->evidenced` flip remains illegal.
+
+#### Scenario: A deferred scenario is discharged by a successor register
+- **WHEN** this change discharges a scenario the released acceptance map deferred to it (e.g. SCO-001-S05) by adding a successor `evidence-register.<change>.yaml` entry with `discharges_deferred: true` and an `owner_change` matching the released deferred entry
+- **THEN** the validator MUST accept the discharge while the released evidence register, acceptance map, and manifest remain byte-identical
+
+#### Scenario: A discharge is forged in place or misattributed
+- **WHEN** a released `deferred` entry is flipped to `evidenced` in place, or a successor discharge entry names an `owner_change` that does not match the released deferred entry, or a duplicate discharge targets the same deferred entry
+- **THEN** the validator MUST fail closed and reject the discharge
