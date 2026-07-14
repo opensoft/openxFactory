@@ -1,0 +1,11 @@
+# INVALID project-register — the named case "empty group rejected" (task 2.6).
+# Project group `g-empty` names zero projects; the project_group schema requires
+# projects minItems 1.
+schema_version: 1
+kind: project-register
+projects:
+  - id: p-a
+    repositories: [openxFactory]
+project_groups:
+  - id: g-empty
+    projects: []

@@ -1,0 +1,7 @@
+# INVALID transition (before). pos-1 with its original identity.
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: latent
+    provenance: {document: doc-a, section: Possible feats}

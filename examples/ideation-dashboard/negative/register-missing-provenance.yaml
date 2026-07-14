@@ -1,0 +1,8 @@
+# INVALID possibles-register section: the entry omits `provenance`. Every
+# consolidated possible MUST cite the source document and `Possible feats:`
+# section it was ingested from (register_entry required field).
+possibles_register:
+  - id: pos-a
+    title: A possible
+    claim: Something the topic could become.
+    state: latent

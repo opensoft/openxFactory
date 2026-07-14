@@ -1,0 +1,10 @@
+# INVALID transition (after). id pos-1 is re-used for a DIFFERENT possible — its
+# claim and provenance both changed. A stable register id must always denote the
+# same possible; re-using an id for a new idea destroys the audit trail (validator
+# rule register-reused-id). A genuinely new idea gets a new id.
+possibles_register:
+  - id: pos-1
+    title: An entirely different possible
+    claim: The topic could become a completely unrelated capability.
+    state: latent
+    provenance: {document: doc-z, section: Some other section}

@@ -1,0 +1,24 @@
+# VALID transition (after). Legal moves from the before-register:
+#   pos-1 latent -> picked  (carries pick.staging_id);
+#   pos-2 latent -> rejected (carries reason + citation);
+#   pos-3 is a brand-new entry (allowed — enumeration grows);
+# identity of pos-1/pos-2 (claim + provenance) is unchanged, no entry removed.
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: picked
+    provenance: {document: doc-a, section: Possible feats}
+    pick: {staging_id: topic-first, change_id: add-first-feature}
+  - id: pos-2
+    title: Second possible
+    claim: The topic could become a second feature.
+    state: rejected
+    reason: Declined at the organize gate; superseded by the first feature's scope.
+    citation: openspec/changes/add-first-feature/design.md#scope
+    provenance: {document: doc-b, section: Possible feats}
+  - id: pos-3
+    title: Third possible
+    claim: A newly enumerated backlog possible.
+    state: latent
+    provenance: {document: doc-c, section: Possible feats}

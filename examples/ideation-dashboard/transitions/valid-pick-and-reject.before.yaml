@@ -1,0 +1,12 @@
+# VALID transition (before). Two latent possibles, before the organize gate.
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: latent
+    provenance: {document: doc-a, section: Possible feats}
+  - id: pos-2
+    title: Second possible
+    claim: The topic could become a second feature.
+    state: latent
+    provenance: {document: doc-b, section: Possible feats}

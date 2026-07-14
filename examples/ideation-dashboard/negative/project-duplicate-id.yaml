@@ -1,0 +1,9 @@
+# INVALID project-register: project id `p-a` appears twice. id uniqueness across
+# projects (and groups) is a validator rule (project-duplicate-id).
+schema_version: 1
+kind: project-register
+projects:
+  - id: p-a
+    repositories: [openxFactory]
+  - id: p-a
+    repositories: [xFactories/codexFactory]

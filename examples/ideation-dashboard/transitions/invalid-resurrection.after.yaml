@@ -1,0 +1,11 @@
+# INVALID transition (after). pos-1 rejected -> picked. Rejected is TERMINAL and
+# there is no resurrection: a returning idea must be a NEW entry with a new id,
+# never the same id edited back to a live state (validator rule
+# register-illegal-transition).
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: picked
+    provenance: {document: doc-a, section: Possible feats}
+    pick: {staging_id: topic-first}

@@ -1,0 +1,11 @@
+# INVALID possibles-register section — the named case "uncited rejection failing"
+# (task 2.4; spec scenario "A possible is rejected without citation"). The entry
+# is `rejected` with a `reason` but NO `citation`. The register_entry allOf
+# requires BOTH reason and citation for rejected/superseded.
+possibles_register:
+  - id: pos-a
+    title: A possible
+    claim: Something the topic could become.
+    state: rejected
+    reason: We decided against it.
+    provenance: {document: doc-a, section: Possible feats}

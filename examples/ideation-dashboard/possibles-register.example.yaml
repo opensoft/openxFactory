@@ -1,0 +1,49 @@
+# VALID possibles-register consolidation SECTION (add-ideation-dashboard task 2.4).
+# The register is an envelope-less $defs kernel embedded in the cross-reference
+# index; this file wraps a register instance under the plain `possibles_register:`
+# container key (the same convention document-cataloging's kernel examples use).
+# It is the source-of-truth TWIN of the snapshot example's `possibles` projection —
+# same ids and field values, PLUS the register-only `provenance` on every entry.
+# Exercises: a multi-cluster possible, a cited rejection, a picked entry with pick
+# inheritance, an option-set supersession, and supporting_evidence pins whose shape
+# is resolved by the cross-file $ref into the snapshot schema's evidence_pin.
+possibles_register:
+  - id: pos-set-builder
+    title: Keyword lens set-builder
+    claim: The keyword rail persists an intensional, re-runnable cluster recipe.
+    state: latent
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard, cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 635aeb57aa897f7abc4a2d802ec3086062de63294cce22ff884eeb2d6d6f7bbb
+  - id: pos-matrix-only
+    title: Matrix-only lens
+    claim: Render only the matrix view, dropping the bullseye.
+    state: superseded
+    reason: The option-set sibling pos-set-builder was chosen at the canvas.
+    citation: pos-set-builder
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    claiming_clusters: [cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+  - id: pos-cluster-canvas
+    title: Cluster canvas working surface
+    claim: A three-pane per-cluster workspace for members, evidence, and possibles.
+    state: picked
+    provenance: {document: doc-cluster-canvas, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard]
+    pick: {staging_id: cluster-canvas, change_id: add-ideation-dashboard}
+    supporting_evidence:
+      - document: doc-cluster-canvas
+        section: Three-pane layout
+        passage_sha256: c321620b83d98a30c2cce10d5a607d397d1714aa739b1e5ce1e0720e969008a5
+  - id: pos-abandoned-autolayout
+    title: Auto-layout cluster graph
+    claim: Auto-arrange the cluster graph rather than the deterministic funnel.
+    state: rejected
+    reason: Out of scope for the deterministic, byte-identical renderer.
+    citation: openspec/changes/add-ideation-dashboard/design.md#non-goals
+    provenance: {document: doc-ideation-dashboard-brainstorm, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard]

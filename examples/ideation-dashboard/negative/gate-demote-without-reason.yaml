@@ -1,0 +1,13 @@
+# INVALID gate-action record: action=demote with no `reason`. A demotion without
+# a recorded reason is invalid (schema allOf) — the durable "why" a change went
+# back to staging.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: demote
+target:
+  change_id: add-ideation-dashboard
+at: "2026-07-13T18:00:00Z"
+artifacts:
+  - kind: transition-manifest
+    reference: ideation/staging/ideation-dashboard/DEMOTION.yaml

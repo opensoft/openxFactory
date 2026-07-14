@@ -1,0 +1,8 @@
+# INVALID transition (before). pos-1 is picked (carries a pick edge / lineage).
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: picked
+    provenance: {document: doc-a, section: Possible feats}
+    pick: {staging_id: topic-first, change_id: add-first-feature}

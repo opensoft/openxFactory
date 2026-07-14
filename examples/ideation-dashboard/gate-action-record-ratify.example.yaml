@@ -1,0 +1,17 @@
+# VALID gate-action record: a human ratify action (add-ideation-dashboard task 2.8/D16).
+#   - actor is a human identity (agents are structurally barred by the console);
+#   - action=ratify carries at least one ratification-record artifact (schema allOf);
+#   - a register-update artifact accompanies it, as on the manual path.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: ratify
+target:
+  change_id: add-ideation-dashboard
+at: "2026-07-14T11:00:00Z"
+artifacts:
+  - kind: ratification-record
+    reference: openspec/changes/add-ideation-dashboard/ratification/2026-07-14.yaml
+  - kind: register-update
+    reference: ideation/cross-reference.md#possibles_register
+notes: Re-ratified after the design-round demotion was resolved.

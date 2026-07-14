@@ -1,0 +1,27 @@
+# VALID project-register (add-ideation-dashboard task 2.6/D10). The SCHEMA is
+# neutral (openxFactory), but the INSTANCE is owned by the aggregation/workspace
+# layer — this example stands in for the xFactory aggregation repo's register.
+#   - a MULTI-REPO project (domain-factories spans two repositories);
+#   - unique project and group ids (validator rule);
+#   - every group-member project exists (validator rule);
+#   - single-parent: each repository sits in exactly one project, each project in
+#     exactly one group (the D10 reading the snapshot's singular fields require).
+# A repository absent from this register (e.g. a not-yet-mapped repo) is LEGAL and
+# renders ungrouped as its own implicit project — that is a generator behavior
+# (task 3.8), not a register-validation failure, so there is no negative for it.
+schema_version: 1
+kind: project-register
+projects:
+  - id: openxfactory-core
+    name: openxFactory core
+    repositories: [openxFactory]
+  - id: domain-factories
+    name: Domain xFactories
+    repositories: [xFactories/codexFactory, xFactories/MedxFactory]
+  - id: installs
+    name: Runtime installs
+    repositories: [installs/agenttower]
+project_groups:
+  - id: xfactory-family
+    name: xFactory family
+    projects: [openxfactory-core, domain-factories, installs]

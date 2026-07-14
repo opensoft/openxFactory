@@ -1,0 +1,11 @@
+# INVALID project-register: project group `g-a` references project `p-missing`,
+# which is not among top-level projects[].id. Validator rule
+# project-dangling-group-member — every group-member project id must exist.
+schema_version: 1
+kind: project-register
+projects:
+  - id: p-a
+    repositories: [openxFactory]
+project_groups:
+  - id: g-a
+    projects: [p-a, p-missing]

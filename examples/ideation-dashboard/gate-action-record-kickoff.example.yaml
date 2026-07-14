@@ -1,0 +1,18 @@
+# VALID gate-action record: a human kickoff action (add-ideation-dashboard task 2.8/D17).
+#   - action=kickoff carries at least one workflow-job artifact (schema allOf);
+#   - target change add-ideation-dashboard carries a recorded ratification in the
+#     snapshot example used as context, so the kickoff PRECONDITION is satisfied
+#     (D17 refuses kickoff without ratification). Validate with, e.g.:
+#       validate-ideation-dashboard-contracts.py gate-action-record-kickoff.example.yaml \
+#         --context ideation-dashboard-snapshot.example.yaml
+#   With no context the precondition is reported SKIPPED, never silently passed.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: kickoff
+target:
+  change_id: add-ideation-dashboard
+at: "2026-07-14T11:30:00Z"
+artifacts:
+  - kind: workflow-job
+    reference: workflow-jobs/xf-realization-add-ideation-dashboard-0001

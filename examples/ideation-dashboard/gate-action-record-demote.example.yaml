@@ -1,0 +1,17 @@
+# VALID gate-action record: a human demote action (add-ideation-dashboard task 2.8/D16).
+# The mechanized reverse transition (the 2026-07-13 manual demotion, tooled):
+#   - action=demote carries the required reason (schema allOf) — the durable "why";
+#   - a transition-manifest artifact records the drafts moved back into the topic's
+#     openspec/ workspace, as on the manual path.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: demote
+target:
+  change_id: add-ideation-dashboard
+  document: openspec/changes/add-ideation-dashboard/proposal.md
+at: "2026-07-13T18:00:00Z"
+reason: Design round reopened D9; the change returns to staging for rework.
+artifacts:
+  - kind: transition-manifest
+    reference: ideation/staging/ideation-dashboard/DEMOTION-2026-07-13.yaml

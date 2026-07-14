@@ -1,0 +1,132 @@
+# VALID ideation-dashboard-snapshot (add-ideation-dashboard task 2.4).
+# Exercises, in one projection:
+#   - a doc feeding several clusters (doc-keyword-lens -> two clusters);
+#   - a MULTI-CLUSTER POSSIBLE (pos-set-builder claimed by two clusters);
+#   - a CITED REJECTION (pos-abandoned-autolayout: rejected + reason + citation);
+#   - PICK-EDGE INHERITANCE (pos-cluster-canvas: pick.staging_id + inherited change_id);
+#   - an option set (os-lens-shape) whose choose-one sibling was superseded;
+#   - a ratified change (add-ideation-dashboard) that satisfies the kickoff
+#     precondition for the gate-action-record examples that use this file as context;
+#   - a keyword_index consistent with the declared Topics: (no drift warnings).
+# All internal edges resolve, so the validator's referential-integrity checks pass.
+schema_version: 1
+kind: ideation-dashboard-snapshot
+repository: openxFactory
+project: openxfactory-core
+project_group: xfactory-family
+generation:
+  source_revision: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0
+  generated_at: "2026-07-14T06:00:00Z"
+  generator_version: ideation-dashboard-generator/0.1.0
+documents:
+  - id: doc-ideation-dashboard-brainstorm
+    path: ideation/brainstorm/ideation-area-dashboard.md
+    stage: brainstorm
+    kind: brainstorm
+    summary: The generated ideation-area dashboard concept.
+    topics: [ideation-dashboard, workflow-visualization]
+    dates:
+      captured: "2026-07-11"
+      last_transition: "2026-07-13"
+    destinations:
+      staged_topics: [ideation-dashboard]
+      changes: [add-ideation-dashboard]
+  - id: doc-keyword-lens
+    path: ideation/staging/keyword-lens/README.md
+    stage: staged
+    kind: staging-packet
+    summary: Keyword-lens set-builder staging packet.
+    topics: [keyword-lens, ideation-dashboard]
+    dates:
+      captured: "2026-07-12"
+  - id: doc-cluster-canvas
+    path: ideation/staging/cluster-canvas/README.md
+    stage: staged
+    topics: [cluster-canvas, ideation-dashboard]
+    dates:
+      captured: "2026-07-12"
+clusters:
+  - id: cl-ideation-dashboard
+    name: Ideation dashboard
+    topics: [ideation-dashboard]
+    document_edges:
+      - {document: doc-ideation-dashboard-brainstorm, matched_topics: [ideation-dashboard]}
+      - {document: doc-keyword-lens, matched_topics: [ideation-dashboard]}
+      - {document: doc-cluster-canvas, matched_topics: [ideation-dashboard]}
+    tallies: {document_links: 3, possible_links: 3}
+    lineage:
+      staged_picks: [cluster-canvas]
+      proposals: [add-ideation-dashboard]
+      realized: []
+  - id: cl-keyword-lens
+    name: Keyword lens
+    topics: [keyword-lens]
+    document_edges:
+      - {document: doc-keyword-lens, matched_topics: [keyword-lens]}
+    tallies: {document_links: 1, possible_links: 2}
+possibles:
+  - id: pos-set-builder
+    title: Keyword lens set-builder
+    claim: The keyword rail persists an intensional, re-runnable cluster recipe.
+    state: latent
+    claiming_clusters: [cl-ideation-dashboard, cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 635aeb57aa897f7abc4a2d802ec3086062de63294cce22ff884eeb2d6d6f7bbb
+  - id: pos-matrix-only
+    title: Matrix-only lens
+    claim: Render only the matrix view, dropping the bullseye.
+    state: superseded
+    reason: The option-set sibling pos-set-builder was chosen at the canvas.
+    citation: pos-set-builder
+    claiming_clusters: [cl-keyword-lens]
+    option_set: {id: os-lens-shape, members: [pos-set-builder, pos-matrix-only]}
+  - id: pos-cluster-canvas
+    title: Cluster canvas working surface
+    claim: A three-pane per-cluster workspace for members, evidence, and possibles.
+    state: picked
+    claiming_clusters: [cl-ideation-dashboard]
+    pick: {staging_id: cluster-canvas, change_id: add-ideation-dashboard}
+    supporting_evidence:
+      - document: doc-cluster-canvas
+        section: Three-pane layout
+        passage_sha256: c321620b83d98a30c2cce10d5a607d397d1714aa739b1e5ce1e0720e969008a5
+  - id: pos-abandoned-autolayout
+    title: Auto-layout cluster graph
+    claim: Auto-arrange the cluster graph rather than the deterministic funnel.
+    state: rejected
+    reason: Out of scope for the deterministic, byte-identical renderer.
+    citation: openspec/changes/add-ideation-dashboard/design.md#non-goals
+    claiming_clusters: [cl-ideation-dashboard]
+staged_topics:
+  - staging_id: cluster-canvas
+    files: [ideation/staging/cluster-canvas/README.md]
+    readiness_state: forming
+    target_change: add-ideation-dashboard
+  - staging_id: ideation-dashboard
+    files: [ideation/staging/ideation-dashboard/README.md]
+    readiness_state: promoted
+    target_change: add-ideation-dashboard
+changes:
+  - id: add-ideation-dashboard
+    status: active
+    ratification: {ratifier: brett, date: "2026-07-14"}
+    code_surface: openxFactory/contracts
+    target_release: contract-v1.10
+    task_progress: {completed: 6, total: 12}
+    origin_staging_id: ideation-dashboard
+  - id: add-ideation-cross-reference-readiness
+    status: active
+    ratification: {ratifier: brett, date: "2026-07-13"}
+    code_surface: null
+    target_release: null
+  - id: add-document-cataloging
+    status: archived
+    ratification: {ratifier: brett, date: "2026-07-12"}
+keyword_index:
+  - {keyword: ideation-dashboard, declared_doc_count: 3}
+  - {keyword: workflow-visualization, declared_doc_count: 1}
+  - {keyword: keyword-lens, declared_doc_count: 1}
+  - {keyword: cluster-canvas, declared_doc_count: 1}

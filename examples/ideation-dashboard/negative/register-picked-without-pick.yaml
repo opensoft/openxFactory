@@ -1,0 +1,9 @@
+# INVALID possibles-register section: a `picked` entry carries no `pick` edge.
+# The register_entry allOf requires `pick` when state=picked (a picked possible
+# must cite the staged topic's staging_id).
+possibles_register:
+  - id: pos-a
+    title: A possible
+    claim: Something the topic could become.
+    state: picked
+    provenance: {document: doc-a, section: Possible feats}

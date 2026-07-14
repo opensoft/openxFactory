@@ -15,3 +15,9 @@ __pycache__/
 
 # Worktree-local Spec Kit feature pointer
 .specify/feature.json
+
+# Ideation-dashboard workbench session state (saved reference-set manifests).
+# Live human session state, never committed — a tracked ideation-workbench
+# manifest is an error (add-ideation-dashboard task 2.4; enforced by
+# scripts/validate-ideation-dashboard-contracts.py's committed-manifest guard).
+ideation/workbench/

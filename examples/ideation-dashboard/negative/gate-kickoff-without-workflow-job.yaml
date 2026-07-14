@@ -1,0 +1,13 @@
+# INVALID gate-action record: action=kickoff but the artifacts list contains no
+# `workflow-job`. The schema allOf requires a kickoff record to reference at
+# least one workflow-job artifact (post-ratification realization dispatch, D17).
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: kickoff
+target:
+  change_id: add-ideation-dashboard
+at: "2026-07-14T11:30:00Z"
+artifacts:
+  - kind: ratification-record
+    reference: openspec/changes/add-ideation-dashboard/ratification/2026-07-14.yaml

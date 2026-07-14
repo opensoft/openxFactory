@@ -1,0 +1,14 @@
+# INVALID workbench manifest: an `excluded` entry carries no `reason`. Every
+# exclusion is negative evidence and the excluded_entry schema requires a reason
+# (spec: overrides are captured evidence, never silent).
+schema_version: 1
+kind: ideation-workbench
+repository: openxFactory
+name: Bad exclusion
+created: "2026-07-14T08:00:00Z"
+updated: "2026-07-14T08:00:00Z"
+members: []
+excluded:
+  - {document: doc-a}
+seed:
+  kind: ad-hoc

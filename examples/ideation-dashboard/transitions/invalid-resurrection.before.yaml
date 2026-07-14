@@ -1,0 +1,9 @@
+# INVALID transition (before). pos-1 is rejected — a terminal state.
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: rejected
+    reason: Declined before ever being picked.
+    citation: openspec/changes/add-first-feature/design.md#scope
+    provenance: {document: doc-a, section: Possible feats}

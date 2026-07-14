@@ -1,0 +1,9 @@
+# INVALID transition (after). pos-2 was removed from the register. Entries are
+# never deleted — the register preserves the full audit trail; a discarded idea
+# goes to rejected/superseded, it is not erased (validator rule register-deletion).
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: latent
+    provenance: {document: doc-a, section: Possible feats}

@@ -1,0 +1,20 @@
+# INVALID snapshot: cluster cl-a's document_edge references document id
+# `doc-missing`, which is not in `documents[]`. Violates the snapshot's internal
+# referential integrity (validator rule snapshot-dangling-edge): the edge source
+# is the Topics: header of an existing document.
+schema_version: 1
+kind: ideation-dashboard-snapshot
+repository: openxFactory
+generation: {source_revision: deadbeef}
+documents:
+  - {id: doc-a, path: ideation/brainstorm/a.md, stage: brainstorm}
+clusters:
+  - id: cl-a
+    name: Cluster A
+    topics: [t]
+    document_edges:
+      - {document: doc-missing, matched_topics: [t]}
+possibles: []
+staged_topics: []
+changes: []
+keyword_index: []

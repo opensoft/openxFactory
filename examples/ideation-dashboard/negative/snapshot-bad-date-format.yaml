@@ -1,0 +1,18 @@
+# INVALID snapshot: document date `captured` is "07/14/2026", not an ISO
+# `date`. Only caught because the validator attaches a FormatChecker (date /
+# date-time are annotation-only otherwise) — the first ledger rule.
+schema_version: 1
+kind: ideation-dashboard-snapshot
+repository: openxFactory
+generation: {source_revision: deadbeef}
+documents:
+  - id: doc-a
+    path: ideation/brainstorm/a.md
+    stage: brainstorm
+    dates:
+      captured: "07/14/2026"
+clusters: []
+possibles: []
+staged_topics: []
+changes: []
+keyword_index: []

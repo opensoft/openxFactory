@@ -1,0 +1,13 @@
+# INVALID gate-action record: action=ratify but the artifacts list contains no
+# `ratification-record`. The schema allOf requires a ratify record to reference
+# at least one ratification-record artifact (the gate console is authority-bearing).
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: ratify
+target:
+  change_id: add-ideation-dashboard
+at: "2026-07-14T11:00:00Z"
+artifacts:
+  - kind: register-update
+    reference: ideation/cross-reference.md#possibles_register

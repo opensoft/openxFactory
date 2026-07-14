@@ -1,0 +1,14 @@
+# INVALID possibles-register section: id `pos-a` appears twice. The register
+# consolidates each possible into ONE entry; id uniqueness within the register
+# is a validator rule (register-duplicate-id), not a JSON Schema key constraint.
+possibles_register:
+  - id: pos-a
+    title: First
+    claim: One consolidation of the possible.
+    state: latent
+    provenance: {document: doc-a, section: Possible feats}
+  - id: pos-a
+    title: Second
+    claim: A second, conflicting entry for the same id.
+    state: latent
+    provenance: {document: doc-b, section: Possible feats}

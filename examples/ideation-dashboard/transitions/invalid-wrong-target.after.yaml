@@ -1,0 +1,12 @@
+# INVALID transition (after). pos-1 picked -> rejected. Abandoning a PICKED
+# possible is a supersession, never a rejection (rejected is a pre-pick
+# disposition only); picked -> superseded is the only legal move from picked
+# (validator rule register-illegal-transition).
+possibles_register:
+  - id: pos-1
+    title: First possible
+    claim: The topic could become a first feature.
+    state: rejected
+    reason: We stopped pursuing it after picking.
+    citation: openspec/changes/add-first-feature/design.md#abandoned
+    provenance: {document: doc-a, section: Possible feats}

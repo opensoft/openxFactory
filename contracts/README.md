@@ -80,6 +80,12 @@ archives (its task 8.7).
 | `schemas/xfactory-document-opaque-locator.schema.yaml` | Reusable canonical/opaque document-locator `$defs` kernel | `add-document-cataloging` |
 | `schemas/xfactory-document-handling-gate.schema.yaml` | Reusable dispatch/handling-gate decision `$defs` kernel | `add-document-cataloging` |
 | `scripts/validate-document-catalog.py` | Strict validator: schema conformance, coverage, unique identity, source freshness, taxonomy resolution, override standing, immutable path layout, baseline-mode exceptions | `add-document-cataloging` |
+| `schemas/ideation-dashboard-snapshot.schema.yaml` | Deterministic ideation-area dashboard projection snapshot | `add-ideation-dashboard` |
+| `schemas/ideation-workbench.schema.yaml` | Gitignored user-assembled workbench reference-set manifest | `add-ideation-dashboard` |
+| `schemas/ideation-possibles-register.schema.yaml` | Possibles-register consolidation `$defs` kernel (embedded in the cross-reference index) | `add-ideation-dashboard` |
+| `schemas/project-register.schema.yaml` | Repository → project → project-group navigation hierarchy (D10) | `add-ideation-dashboard` |
+| `schemas/gate-action-record.schema.yaml` | Human-authenticated gate-console action audit record (D16/D17) | `add-ideation-dashboard` |
+| `scripts/validate-ideation-dashboard-contracts.py` | Strict validator: schema conformance (FormatChecker-enforced), snapshot referential integrity, workbench recipe/override + committed-manifest guard, possibles-register id-uniqueness + transition legality, project-register single-parent hierarchy, gate-action kickoff-ratification precondition | `add-ideation-dashboard` |
 
 Reference examples exercising every schema (12 valid + 11 invalid fixtures,
 one violation per negative file) live at `examples/document-cataloging/`. See
@@ -87,6 +93,14 @@ one violation per negative file) live at `examples/document-cataloging/`. See
 for the requirements these schemas realize, and that change's `tasks.md`
 task 2.1 completion note for the one documented shape discrepancy against
 its own illustrative `supporting-docs/document-catalog.template.yaml`.
+
+Reference examples for the ideation-dashboard family (8 valid + 21 invalid
+fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
+`scripts/validate-ideation-dashboard-contracts.py` self-tests them, validates a
+given file/directory by kind detection, runs register transitions via
+`--transition OLD NEW`, and scans the checkout for committed workbench manifests.
+Per this section's rule, these entries move to `contracts/manifest.yaml` and
+`contracts/CHANGELOG.md` when `add-ideation-dashboard` archives (its task 2.5).
 
 ## Contract Manifest
 
