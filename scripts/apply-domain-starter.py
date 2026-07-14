@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 10  # v10: memory_gateway placeholders without provider lock-in
+STARTER_VERSION = 11  # v11: document-catalog namespaced tag-registry stub
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -1913,6 +1913,51 @@ expert_memory_providers: []
 context_packet_smokes: []
 break_glass_workflows: []
 """,
+        "catalog/README.md": md_header(ctx) + f"""# {ctx.product_name} Document Catalog
+
+{ctx.product_name} owns this directory's namespaced inputs to the
+aggregation-hosted document catalog defined by the active
+`add-document-cataloging` change. The catalog itself lives outside this
+repository; this directory holds only the domain-owned registry and override
+files that change's adoption guide describes:
+
+```text
+openxFactory/docs/document-catalog-adoption.md
+```
+
+## Starter Surface
+
+- `catalog/document-tag-registry.yaml` — this domain's namespaced topic-tag
+  registry stub. Add tags only inside the namespace declared here.
+- `catalog/document-tag-overrides.yaml` — not seeded by the starter; add it
+  the first time this domain's Hermes layer reviews or overrides a
+  classification, per the adoption guide.
+
+Catalog tags are descriptive discovery metadata only. They do not assign
+document ownership, lifecycle status, approval, or routing authority.
+""",
+        "catalog/document-tag-registry.yaml": f"""# starter_source: {STARTER_NAME}
+# starter_version: {STARTER_VERSION}
+# domain_id: {ctx.domain_id}
+# managed_mode: scaffold
+#
+# Namespaced document-catalog topic-tag registry owned by this repository
+# (add-document-cataloging spec, "Controlled classification facets and
+# provenance"; see openxFactory/docs/document-catalog-adoption.md). Validates
+# against openxFactory contracts/schemas/xfactory-document-tag-registry.schema.yaml,
+# which forbids properties beyond the ones below, so this file intentionally
+# does not carry the starter_metadata block other starter YAML files use.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces:
+  - id: {ctx.domain_id}
+    owner: {ctx.product_name}
+    description: {ctx.product_name}-owned document-catalog tags.
+tags: []
+proposed_tags: []
+retired_tags: []
+""",
         "omnigent/expert-routing/README.md": md_header(ctx) + "# Expert Routing\n\nDomain expert routing rules belong here.\n",
         "omnigent/validation-checks/README.md": md_header(ctx) + "# Validation Checks\n\nValidation check definitions belong here.\n",
         "omnigent/output-templates/README.md": md_header(ctx) + "# Output Templates\n\nOutput templates belong here.\n",
@@ -2450,6 +2495,8 @@ REQUIRED_FILES = [
     "omnigent/tool-routing.yaml",
     "memory-gateway/README.md",
     "memory-gateway/provider-placeholders.yaml",
+    "catalog/README.md",
+    "catalog/document-tag-registry.yaml",
     "ui/README.md",
     "ui/avatar-first.yaml",
     "workflows/example-readonly.yaml",

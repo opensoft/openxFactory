@@ -96,6 +96,7 @@ Core domain-neutral docs:
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [Doc-Health Contract](docs/doc-health.md)
+- [Document Catalog Adoption Guide](docs/document-catalog-adoption.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
 - [Domain Neutralization Candidate Register](docs/domain-neutralization-candidate-register.md)
 - [Installation Template Catalog](templates/installation/README.md)
