@@ -15,6 +15,7 @@ import copy
 import json
 import subprocess
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -513,6 +514,138 @@ class TestSessionLock:
             assert (
                 outcome.stdout.strip().splitlines()[0].strip() == "t"
             ), "distinct migration ids must not contend for one lock"
+
+
+class TestConcurrentRunners:
+    """Two whole runner processes contend for one installation+migration id.
+
+    Lock exclusivity and the lock-not-held guard are proven at the SQL level in
+    ``TestSessionLock``; this is the end-to-end companion (F-4): two concurrent
+    invocations of ``scripts/run-hermes-v1-to-v2-migration.sh`` against the SAME
+    installation+migration id must resolve to exactly one ``succeeded`` (exit 0,
+    a single SUCCEEDED ledger event, reconciliation intact) and one clean
+    ``lock-unavailable`` (exit 1) that opens no attempt and leaves zero state.
+
+    The race is sequenced deterministically rather than by sleeping. A blocker
+    transaction pre-holds the first v1 table lock the winner takes (bytewise
+    order -> ``public.hermes_approval_requests``). The winner acquires the
+    session advisory lock, commits its STARTED attempt, then parks on that
+    ``LOCK TABLE``; reaching that wait is the proof it already holds the advisory
+    lock. The loser is launched only after the winner is confirmed parked, so
+    its ``pg_try_advisory_lock`` provably fails; the blocker is released only
+    after the loser has recorded its clean lock-unavailable outcome.
+    """
+
+    _BLOCKED_TABLE = "hermes_approval_requests"
+
+    def _share_row_exclusive_locks(
+        self, database: PostgresDatabase, *, granted: bool
+    ) -> int:
+        return _count(
+            database,
+            "SELECT count(*) FROM pg_locks lock_row "
+            "JOIN pg_class rel ON rel.oid = lock_row.relation "
+            "JOIN pg_namespace ns ON ns.oid = rel.relnamespace "
+            "WHERE ns.nspname = 'public' "
+            f"AND rel.relname = '{self._BLOCKED_TABLE}' "
+            "AND lock_row.mode = 'ShareRowExclusiveLock' "
+            f"AND lock_row.granted IS {'true' if granted else 'false'};",
+        )
+
+    def _poll_until(self, predicate: Callable[[], bool], *, message: str) -> None:
+        for _ in range(120):
+            if predicate():
+                return
+            time.sleep(0.25)
+        raise AssertionError(message)
+
+    def test_two_runners_resolve_to_one_success_and_one_lock_unavailable(
+        self, postgres_v1_database: PostgresDatabase, tmp_path: Path
+    ) -> None:
+        database = postgres_v1_database
+        _seed_migration_base(database)
+        _apply_migration_sql(database)
+        assert_sql_succeeds(database.file(TWO_SUBJECT_SEED))
+        dataset = migration.load_dataset_description(TWO_SUBJECT_DATASET)
+        mid = "migration-two-runner-01"
+        staging_text = _staged_document(
+            database,
+            migration_id=mid,
+            dataset=dataset,
+            source_database=database.name,
+        )
+        staging_path = _write_staging(tmp_path, staging_text, "staging.json")
+
+        # The blocker holds the first v1 table lock the winning runner takes.
+        # It never mutates a row (a bare LOCK TABLE, then it waits), so on
+        # release the approved logical boundary is still exact.
+        app_name = f"f4-blocker-{mid}"
+        blocker_sql = f"""
+SET application_name = '{app_name}';
+BEGIN;
+LOCK TABLE public.{self._BLOCKED_TABLE} IN SHARE ROW EXCLUSIVE MODE;
+SELECT pg_sleep(120);
+COMMIT;
+"""
+        release_sql = (
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+            f"WHERE application_name = '{app_name}' AND pid <> pg_backend_pid();"
+        )
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            blocker_future = executor.submit(
+                database.sql, blocker_sql, user="hcs_migrator", timeout=180
+            )
+            self._poll_until(
+                lambda: self._share_row_exclusive_locks(database, granted=True) >= 1,
+                message="blocker never acquired the SHARE ROW EXCLUSIVE table lock",
+            )
+
+            winner_future = executor.submit(_run_runner, database, staging_path, mid)
+            # Parking on the pre-held table lock proves the winner already holds
+            # the session advisory lock and committed exactly one STARTED attempt.
+            self._poll_until(
+                lambda: self._share_row_exclusive_locks(database, granted=False) >= 1,
+                message="winning runner never parked on the pre-held v1 table lock",
+            )
+            assert (
+                _event_count(database, mid, "started") == 1
+            ), "the parked winner must have committed exactly one STARTED attempt"
+
+            # The loser races the SAME installation+migration id while the winner
+            # holds the advisory lock: its pg_try_advisory_lock fails at once.
+            loser = _run_runner(database, staging_path, mid)
+            assert loser.returncode == 1, f"{loser.stdout}\n{loser.stderr}"
+            assert "outcome=lock-unavailable" in loser.stdout
+            # The loser quit before staging: it opened no attempt and wrote no
+            # v2 state; the winner's single STARTED attempt is untouched.
+            assert _event_count(database, mid, "started") == 1
+            assert _classified_counts(database, mid) == (0, 0)
+
+            # Release the blocker; the winner takes the twelve locks and converges.
+            terminated = database.scalar(release_sql)
+            assert terminated == "t", terminated
+            winner = winner_future.result(timeout=300)
+            blocker_future.result(timeout=60)
+
+        assert winner.returncode == 0, f"{winner.stdout}\n{winner.stderr}"
+        assert "outcome=succeeded" in winner.stdout
+
+        # Exactly one attempt reached a terminal SUCCEEDED, with no FAILED or
+        # ABANDONED sibling, and reconciliation is complete and exactly-once.
+        assert _event_count(database, mid, "started") == 1
+        assert _event_count(database, mid, "succeeded") == 1
+        assert _event_count(database, mid, "failed") == 0
+        assert _event_count(database, mid, "abandoned") == 0
+        counts = migration.table_row_counts(dataset)
+        history, quarantined = _classified_counts(database, mid)
+        assert history + quarantined == sum(counts.values())
+        _assert_assertions_hold(
+            database,
+            "migration-event-chain-invariant.sql",
+            "migration-reconciliation-invariant.sql",
+            "migration-freeze-catalog.sql",
+        )
 
 
 class TestConcurrentV1Writes:

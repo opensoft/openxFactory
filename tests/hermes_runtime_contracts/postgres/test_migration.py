@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -1404,3 +1405,367 @@ class TestExecutedMigrations:
             "VALUES ('group-after-abort', 'probe');"
         )
         assert_sql_succeeds(unfrozen_write)
+
+
+# ---------------------------------------------------------------------------
+# F-7 / F-8 / F-9 fail-closed hardening of the SQL digest surface (P3 backlog).
+# ---------------------------------------------------------------------------
+
+# Ratified canonical-JSON DECIMAL number edge cases (spec.md:188 -- arbitrary-
+# precision decimals rendered without exponent or plus sign, without
+# insignificant leading or trailing zeros, negative zero normalised to 0).  The
+# YAML fixture corpus cannot express these (migration.py rejects every float on
+# load), so the SQL number branch is exercised here directly against the
+# dedicated Python serializer.
+_DECIMAL_NUMBER_LITERALS = (
+    "1E2",
+    "1e-3",
+    "1.23E5",
+    "1.500",
+    "100.100",
+    "1.0",
+    "0.00",
+    "-0",
+    "-0.0",
+    "-0E0",
+    "-1.50",
+    "9.99",
+    "100",
+    "12345678901234567890.00",
+    "123456789012345678901234567890.123456789",
+)
+
+# Timestamps that satisfy the frame's shape regex but sit outside / inside the
+# RFC-3339-expressible AD calendar domain that migration.py's datetime.strptime
+# draws.  SQL and Python must accept and reject the identical sets.
+_TIMESTAMP_ACCEPTED = (
+    "2026-07-12T12:00:00.000000Z",
+    "0001-01-01T00:00:00.000000Z",
+    "9999-12-31T23:59:59.999999Z",
+    "2024-02-29T00:00:00.000000Z",  # 2024 is a leap year
+)
+_TIMESTAMP_REJECTED = (
+    "0000-01-01T00:00:00.000000Z",  # year zero does not exist
+    "2026-13-01T00:00:00.000000Z",  # month 13
+    "2026-02-30T00:00:00.000000Z",  # 30 February
+    "2026-02-29T00:00:00.000000Z",  # 2026 is not a leap year
+    "2026-07-12T24:00:00.000000Z",  # 24:00 rolls to the next day
+    "2026-07-12T12:60:00.000000Z",  # minute 60
+    "2016-12-31T23:59:60.000000Z",  # leap second rolls forward
+    "2026-07-12T12:00:61.000000Z",  # second 61
+)
+
+
+def _single_table_dataset(columns: list[dict], rows: list[list[dict]]) -> dict:
+    """Build a one-table dataset description shared by both digest engines."""
+
+    return {
+        "schema_version": 1,
+        "kind": "xfactory-v1-dataset-description",
+        "source_schema": "public",
+        "tables": [
+            {
+                "schema_name": "public",
+                "table_name": "t",
+                "columns": columns,
+                "rows": rows,
+            }
+        ],
+    }
+
+
+def _stream_from_hex_sql(dataset: dict) -> str:
+    rendered = json.dumps(dataset, ensure_ascii=False)
+    return (
+        "SELECT encode(xfactory_runtime_v2.migration_dataset_stream_from("
+        f"$hcsds${rendered}$hcsds$::jsonb), 'hex');"
+    )
+
+
+def _stream_from_sql(dataset: dict) -> str:
+    rendered = json.dumps(dataset, ensure_ascii=False)
+    return (
+        "SELECT xfactory_runtime_v2.migration_dataset_stream_from("
+        f"$hcsds${rendered}$hcsds$::jsonb);"
+    )
+
+
+_ID_TEXT_PK = {
+    "name": "id",
+    "normalized_type": "text",
+    "nullable": False,
+    "primary_key_position": 1,
+}
+
+
+class TestCanonicalJsonNumberParity:
+    """F-7: the ratified DECIMAL number rules, exercised over live jsonb.
+
+    The number branch (e.g. a ``hermes_jobs.envelope`` carrying a decimal) is
+    unreachable from the YAML corpus because ``migration.py`` rejects every
+    float on load, so its byte-parity with the dedicated Python serializer is
+    proven here against real ``jsonb`` inputs.
+    """
+
+    def test_sql_canonical_json_value_matches_python_for_decimal_edge_cases(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        for literal in _DECIMAL_NUMBER_LITERALS:
+            expected = migration.canonical_json_text(
+                json.loads(literal, parse_float=Decimal)
+            )
+            rendered = postgres_database.scalar(
+                "SELECT xfactory_runtime_v2.migration_canonical_json_value("
+                f"'{literal}'::jsonb);"
+            )
+            assert rendered == expected, (
+                f"major {postgres_database.major}: SQL canonical JSON for "
+                f"{literal!r} was {rendered!r}; Python emitted {expected!r}"
+            )
+
+    def test_value_frame_json_tag_matches_python_for_decimal_edge_cases(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        for literal in _DECIMAL_NUMBER_LITERALS:
+            expected = migration._value_frame(
+                {"type": "json", "value": json.loads(literal, parse_float=Decimal)}
+            ).hex()
+            cell_json = '{"type": "json", "value": ' + literal + "}"
+            rendered = postgres_database.scalar(
+                "SELECT encode(xfactory_runtime_v2.migration_value_frame("
+                f"$hcsds${cell_json}$hcsds$::jsonb), 'hex');"
+            )
+            assert rendered == expected, (
+                f"major {postgres_database.major}: SQL 0x36 frame for {literal!r} "
+                f"was {rendered!r}; Python emitted {expected!r}"
+            )
+
+    def test_jsonb_envelope_decimals_frame_identically_through_dataset_stream(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        envelope_json = (
+            '{"weight":1.500,"delta":1e-3,"zero":-0,"neg_zero":-0.0,"count":100,'
+            '"big":123456789012345678901234567890.123456789,'
+            '"nested":{"ratio":0.00,"label":"é"},"series":[1.0,-0E0,9.99]}'
+        )
+        dataset_json = (
+            '{"schema_version":1,"kind":"xfactory-v1-dataset-description",'
+            '"source_schema":"public","tables":[{"schema_name":"public",'
+            '"table_name":"envelopes","columns":['
+            '{"name":"id","normalized_type":"text","nullable":false,'
+            '"primary_key_position":1},'
+            '{"name":"envelope","normalized_type":"jsonb","nullable":false,'
+            '"primary_key_position":0}],"rows":[[{"type":"text","value":"e1"},'
+            '{"type":"json","value":' + envelope_json + "}]]}]}"
+        )
+        expected = migration.dataset_stream(
+            json.loads(dataset_json, parse_float=Decimal)
+        ).hex()
+        rendered = postgres_database.scalar(
+            "SELECT encode(xfactory_runtime_v2.migration_dataset_stream_from("
+            f"$hcsds${dataset_json}$hcsds$::jsonb), 'hex');"
+        )
+        assert rendered == expected, (
+            f"major {postgres_database.major}: live jsonb envelope decimals "
+            "diverge from the Python dataset framing"
+        )
+
+    def test_non_finite_and_float_numbers_are_rejected_by_both_engines(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        # The dedicated serializer fails closed on Python floats and non-finite
+        # values -- the reason decimals are unreachable via the YAML corpus.
+        for value in (1.5, 0.1, float("nan"), float("inf")):
+            with pytest.raises(migration.MigrationContractError) as serializer_error:
+                migration.canonical_json_text(value)
+            assert serializer_error.value.code == "HGR-MIGRATION-JSON-VALUE"
+        # A json dataset cell carrying a float is rejected during validation.
+        floating_cell = _single_table_dataset(
+            [
+                _ID_TEXT_PK,
+                {
+                    "name": "envelope",
+                    "normalized_type": "jsonb",
+                    "nullable": False,
+                    "primary_key_position": 0,
+                },
+            ],
+            [[{"type": "text", "value": "e1"}, {"type": "json", "value": {"x": 1.5}}]],
+        )
+        with pytest.raises(migration.MigrationContractError) as cell_error:
+            migration.dataset_stream(floating_cell)
+        assert cell_error.value.code == "HGR-MIGRATION-DATASET-VALUE"
+        # Non-finite numbers are not representable as jsonb: the SQL surface
+        # rejects them at the type boundary, matching the Python fail-closed.
+        for token in ("NaN", "Infinity", "-Infinity"):
+            result = postgres_database.sql(f"SELECT '{token}'::jsonb;")
+            assert_sql_fails(result, "invalid input", "json")
+
+
+class TestTimestampCalendarDomain:
+    """F-8: the frozen-source digest fails closed outside the AD RFC-3339
+    calendar domain and rejects exactly the timestamps migration.py rejects."""
+
+    _COLUMNS = [
+        _ID_TEXT_PK,
+        {
+            "name": "ts",
+            "normalized_type": "timestamptz",
+            "nullable": False,
+            "primary_key_position": 0,
+        },
+    ]
+
+    def test_value_frame_and_python_agree_on_the_calendar_domain(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        for value in _TIMESTAMP_ACCEPTED:
+            dataset = _single_table_dataset(
+                self._COLUMNS,
+                [
+                    [
+                        {"type": "text", "value": "r1"},
+                        {"type": "timestamp", "value": value},
+                    ]
+                ],
+            )
+            expected = migration.dataset_stream(dataset).hex()
+            rendered = postgres_database.scalar(_stream_from_hex_sql(dataset))
+            assert rendered == expected, f"accepted timestamp diverged: {value}"
+        for value in _TIMESTAMP_REJECTED:
+            dataset = _single_table_dataset(
+                self._COLUMNS,
+                [
+                    [
+                        {"type": "text", "value": "r1"},
+                        {"type": "timestamp", "value": value},
+                    ]
+                ],
+            )
+            with pytest.raises(migration.MigrationContractError) as python_error:
+                migration.dataset_stream(dataset)
+            assert python_error.value.code == "HGR-MIGRATION-DATASET-VALUE", value
+            result = postgres_database.sql(_stream_from_sql(dataset))
+            assert_sql_fails(result, "hgr-migration-dataset-value")
+
+    def test_live_observation_fails_closed_on_bc_era_timestamp(
+        self, postgres_v1_database: PostgresDatabase
+    ) -> None:
+        database = postgres_v1_database
+        _seed_migration_base(database)
+        assert_sql_succeeds(database.file(TWO_SUBJECT_SEED))
+        # Positive control: valid AD source data observes cleanly.
+        assert_sql_succeeds(
+            database.sql(
+                "BEGIN;\n"
+                "SELECT xfactory_runtime_v2.migration_observe_source('public');\n"
+                "ROLLBACK;"
+            )
+        )
+        # A BC-era instant renders to the same four-digit-year string as its AD
+        # alias (44 BC and AD 44 both frame as 0044-...), so the frozen-source
+        # digest would be non-injective.  The observe path must fail closed.
+        assert_sql_succeeds(
+            database.sql(
+                "UPDATE public.hermes_jobs "
+                "SET created_at = timestamptz '0044-03-15 12:00:00 BC';"
+            )
+        )
+        result = database.sql(
+            "BEGIN;\n"
+            "SELECT xfactory_runtime_v2.migration_observe_source('public');\n"
+            "ROLLBACK;"
+        )
+        assert_sql_fails(result, "hgr-migration-dataset-value")
+
+
+class TestDatasetStreamFailClosed:
+    """F-9: migration_dataset_stream_from fails closed on profile-invalid
+    datasets and duplicate framed primary keys, matching migration.py."""
+
+    def test_stream_from_fails_closed_on_duplicate_framed_primary_keys(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        columns = [
+            _ID_TEXT_PK,
+            {
+                "name": "payload",
+                "normalized_type": "text",
+                "nullable": False,
+                "primary_key_position": 0,
+            },
+        ]
+        duplicate = _single_table_dataset(
+            columns,
+            [
+                [{"type": "text", "value": "dup"}, {"type": "text", "value": "a"}],
+                [{"type": "text", "value": "dup"}, {"type": "text", "value": "b"}],
+            ],
+        )
+        with pytest.raises(migration.MigrationContractError) as python_error:
+            migration.dataset_stream(duplicate)
+        assert python_error.value.code == "HGR-MIGRATION-DATASET-ORDER"
+        result = postgres_database.sql(_stream_from_sql(duplicate))
+        assert_sql_fails(result, "hgr-migration-dataset-order")
+        # Distinct primary keys still frame, byte-identically across engines.
+        unique = _single_table_dataset(
+            columns,
+            [
+                [{"type": "text", "value": "k1"}, {"type": "text", "value": "a"}],
+                [{"type": "text", "value": "k2"}, {"type": "text", "value": "b"}],
+            ],
+        )
+        assert postgres_database.scalar(_stream_from_hex_sql(unique)) == (
+            migration.dataset_stream(unique).hex()
+        )
+
+    def test_stream_from_fails_closed_on_duplicate_composite_primary_keys(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        columns = [
+            {
+                "name": "a",
+                "normalized_type": "text",
+                "nullable": False,
+                "primary_key_position": 1,
+            },
+            {
+                "name": "b",
+                "normalized_type": "int4",
+                "nullable": False,
+                "primary_key_position": 2,
+            },
+        ]
+        duplicate = _single_table_dataset(
+            columns,
+            [
+                [{"type": "text", "value": "x"}, {"type": "integer", "value": "1"}],
+                [{"type": "text", "value": "x"}, {"type": "integer", "value": "1"}],
+            ],
+        )
+        with pytest.raises(migration.MigrationContractError) as python_error:
+            migration.dataset_stream(duplicate)
+        assert python_error.value.code == "HGR-MIGRATION-DATASET-ORDER"
+        result = postgres_database.sql(_stream_from_sql(duplicate))
+        assert_sql_fails(result, "hgr-migration-dataset-order")
+
+    def test_stream_from_fails_closed_on_duplicate_column_names(
+        self, postgres_database: PostgresDatabase
+    ) -> None:
+        dataset = _single_table_dataset(
+            [
+                _ID_TEXT_PK,
+                {
+                    "name": "id",
+                    "normalized_type": "int4",
+                    "nullable": True,
+                    "primary_key_position": 0,
+                },
+            ],
+            [],
+        )
+        with pytest.raises(migration.MigrationContractError) as python_error:
+            migration.dataset_stream(dataset)
+        assert python_error.value.code == "HGR-MIGRATION-DATASET-COLUMN"
+        result = postgres_database.sql(_stream_from_sql(dataset))
+        assert_sql_fails(result, "hgr-migration-dataset-column")

@@ -130,7 +130,8 @@ safe). Forces evidence regen (shared-definitions is a source_path).
   columns as JSON number/boolean, not the pinned §7 text form, so a consumer
   reconstructing dataset cells from `source_row` fails migration.py's own
   `_validate_cell`. Internal inconsistency only; `source_row` is a preservation
-  copy, not the digest input.
+  copy, not the digest input. DISPOSITIONED 2026-07-13: Brett approved the
+  current behavior AS-IS (see Resolutions) — closed, no code change.
 
 ## Pre-disposed (fenced from re-report; unchanged)
 
@@ -185,7 +186,33 @@ grant widening (recorded as D11 in integration-decisions.md).
   + semantic validation of all four bodies, exact primary finding codes on
   the invalid cases, reason-specific rejection proven corrupt-then-detect.
 
-Remaining backlog (unchanged): F-4, F-7..F-10 (all P3; behavior correct
-today) and the pre-disposed design limits above. Post-fix gate results are
-recorded in the checkpoint commit message (161 tests/major, 655 collected,
-strict validator zero findings, identical source identity across majors).
+F-4 and F-7..F-9 FIXED (2026-07-14, Opus isolated-copy agents, folded in
+with a fresh both-majors evidence cycle):
+- **F-4 FIXED.** Deterministic two-whole-runner e2e test (blocker-transaction
+  sequencing over pg_locks, no sleeps): exactly one `succeeded` winner and
+  one clean `lock-unavailable` loser, single STARTED/SUCCEEDED, exactly-once
+  reconciliation, loser leaves zero v2 state.
+- **F-8 FIXED.** `migration_value_frame` now enforces the full AD
+  proleptic-Gregorian RFC-3339 domain via immutable `make_timestamp`
+  validation (rejects month-13, 30-Feb, 24:00, minute-60, leap-second forms
+  the regex alone accepted), and `migration_live_cells_expression` tags BC
+  instants so they fail closed with HGR-MIGRATION-DATASET-VALUE instead of
+  aliasing to their AD rendering. Python cannot represent BC at all (RFC-3339
+  strings only), so SQL-side fail-closed is the correct resolution.
+- **F-9 FIXED.** `migration_dataset_stream_from` fails closed on duplicate
+  framed primary keys (HGR-MIGRATION-DATASET-ORDER, deterministic
+  count-vs-distinct detection) and duplicate column names
+  (HGR-MIGRATION-DATASET-COLUMN), mirroring migration.py; golden vectors
+  unchanged byte-for-byte.
+- **F-7 FIXED.** Nine new SQL-side tests drive the live canonical/digest
+  functions over the ratified DECIMAL edge cases with Python byte-parity
+  plus the F-8/F-9 fail-closed branches. (The exponent-form guard is
+  unreachable from jsonb input — PostgreSQL numeric expands exponents —
+  so parity is proven over the reachable domain.)
+
+F-10 is CLOSED as-designed — Brett approved the current `source_row`
+preservation form as-is (2026-07-13): preserved records keep native JSON
+scalar types; the pinned §7 text form governs the digest stream only, not
+the preservation copy. Pre-disposed design limits above unchanged. All
+eleven findings are now resolved or dispositioned; post-fix gate results
+are recorded in the hardening commit message.

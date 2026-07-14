@@ -5026,6 +5026,36 @@ begin
           message = 'HGR-MIGRATION-DATASET-VALUE: timestamp cells must be UTC '
             'RFC 3339 with exactly six fractional digits and Z';
       end if;
+      -- F-8: the shape regex still admits calendar-impossible fields (month 13,
+      -- 30 February, 24:00, the :60 leap second) and the non-existent year 0000,
+      -- which the ratified RFC 3339 profile excludes and migration.py rejects via
+      -- datetime.strptime.  Draw the identical AD-calendar domain line here so the
+      -- SQL and Python framers reject the SAME inputs.  make_timestamp is
+      -- immutable and validates the proleptic-Gregorian date (leap years and the
+      -- >= year 1 floor included); it rolls 24:00 and :60 over rather than
+      -- rejecting, so the wall-clock bounds are asserted explicitly.
+      begin
+        perform make_timestamp(
+          substring(value_text from 1 for 4)::int,
+          substring(value_text from 6 for 2)::int,
+          substring(value_text from 9 for 2)::int,
+          0, 0, 0
+        );
+      exception
+        when others then
+          raise exception using
+            errcode = '22023',
+            message = 'HGR-MIGRATION-DATASET-VALUE: timestamp cells must denote '
+              'a real UTC RFC 3339 calendar date in the AD era';
+      end;
+      if substring(value_text from 12 for 2)::int > 23
+         or substring(value_text from 15 for 2)::int > 59
+         or substring(value_text from 18 for 2)::int > 59 then
+        raise exception using
+          errcode = '22023',
+          message = 'HGR-MIGRATION-DATASET-VALUE: timestamp cells must carry a '
+            'real 24-hour clock time (hours 00-23, minutes and seconds 00-59)';
+      end if;
       return xfactory_runtime_v2.migration_frame(
         x'34'::int, convert_to(value_text, 'UTF8')
       );
@@ -5320,11 +5350,23 @@ begin
           column_reference
         );
       when 'timestamptz' then
+        -- F-8: RFC 3339 cannot express BC-era instants, so to_char renders a BC
+        -- timestamptz with the same four-digit-year string as its AD alias (e.g.
+        -- 44 BC and AD 44 both frame as 0044-...), which would make the frozen-
+        -- source digest non-injective on BC dates.  Fail closed instead: any
+        -- instant before 0001-01-01T00:00:00Z (the BC era or the non-existent
+        -- year 0) is tagged so migration_value_frame's RFC 3339 check rejects it
+        -- with the family dataset-value error, matching the AD-only domain
+        -- migration.py accepts.  AD instants render byte-identically to before
+        -- (years past 9999 already fail the frame's four-digit-year check because
+        -- to_char widens the rendered year).
         cell_expression := format(
           $cell$case when %1$s is null then jsonb_build_object('type', null)
             else jsonb_build_object('type', 'timestamp', 'value',
               to_char(%1$s at time zone 'UTC',
-                'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')) end$cell$,
+                'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+              || case when %1$s < timestamptz '0001-01-01 00:00:00+00'
+                   then ' BC' else '' end) end$cell$,
           column_reference
         );
       when 'jsonb' then
@@ -5722,6 +5764,7 @@ declare
   column_count bigint;
   row_frames bytea;
   row_count bigint;
+  duplicate_keys boolean;
   seen_tables text[] := array[]::text[];
   table_key text;
 begin
@@ -5775,6 +5818,18 @@ begin
           'name, normalized_type, nullable, and primary_key_position';
     end if;
 
+    -- F-9: mirror migration.py's profile validation.  Distinct schema ordinals
+    -- must carry distinct names; a duplicate name is a profile-invalid dataset
+    -- that Python rejects, so fail closed here rather than framing it.
+    if (
+      select count(*) <> count(distinct entry.value->>'name')
+      from jsonb_array_elements(table_entry->'columns') entry
+    ) then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-COLUMN: duplicate column name';
+    end if;
+
     select
       coalesce(
         string_agg(
@@ -5808,8 +5863,9 @@ begin
         string_agg(framed.row_frame, ''::bytea order by framed.sort_key),
         ''::bytea
       ),
-      count(*)::bigint
-    into row_frames, row_count
+      count(*)::bigint,
+      count(*) <> count(distinct framed.sort_key)
+    into row_frames, row_count, duplicate_keys
     from (
       select
         xfactory_runtime_v2.migration_row_frame(
@@ -5824,6 +5880,22 @@ begin
         ) as sort_key
       from jsonb_array_elements(table_entry->'rows') row_entry
     ) framed;
+
+    -- F-9: two rows framing to identical primary-key bytes make the
+    -- order-by-sort_key aggregation unstable and the digest nondeterministic.
+    -- migration.py fails closed on this in _table_frame_validated; detect it
+    -- deterministically here (a distinct-count comparison, not tie-broken
+    -- ordering) and raise the same stable HGR-MIGRATION-DATASET-ORDER.  Valid
+    -- datasets have unique primary keys and are unaffected, so the golden
+    -- vectors still frame byte-for-byte.
+    if duplicate_keys then
+      raise exception using
+        errcode = '22023',
+        message = 'HGR-MIGRATION-DATASET-ORDER: table '
+          || (table_entry->>'schema_name') || '.'
+          || (table_entry->>'table_name')
+          || ' contains duplicate framed primary-key bytes';
+    end if;
 
     stream := stream || xfactory_runtime_v2.migration_frame(
       x'10'::int,
