@@ -1,0 +1,124 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "project-register.schema.yaml"
+title: "Project register: repository -> project -> project-group navigation hierarchy"
+contract_schema_version: 1
+description: >-
+  Declares the family's descriptive repos -> projects -> project-groups
+  navigation hierarchy for the ideation-area dashboard
+  (`add-ideation-dashboard`; promoted spec requirement "Project grouping
+  hierarchy"; design decision D10). The SCHEMA is neutral and lives in
+  openxFactory, but the INSTANCE is owned by the aggregation/workspace
+  layer — the layer that already owns which repositories assemble together
+  (for example, the xFactory aggregation repo's instance spans the nine
+  family repos) — never openxFactory itself, which defines only this
+  contract.
+
+  The ideation-dashboard snapshot generator consumes this register
+  READ-ONLY, resolving each snapshot's `repository` through it into
+  `project` and `project_group` fields (`ideation-dashboard-snapshot.schema.yaml`);
+  renderers read that resolved grouping from the snapshot only, never from
+  this register directly (spec: "renderers read grouping from the
+  snapshot, never the register directly").
+
+  Grouping is descriptive navigation only: membership here confers no
+  lifecycle state and no authority over the repositories, projects, or
+  groups it names — it is a map, not a governance boundary. A repository
+  absent from this register is legal and renders ungrouped, as its own
+  implicit project, rather than failing the dashboard (spec scenario "A
+  repository is absent from the register").
+
+  VALIDATOR-SIDE RULES this schema cannot express structurally (checked by
+  the register validator, not by this shape): every `id` (project and
+  project-group) is unique within the register; every project id named by
+  a `project_groups[].projects` entry MUST exist among `projects[].id`;
+  and — this contract's reading of D10 — the hierarchy is SINGLE-PARENT: a
+  repository belongs to at most one project and a project belongs to at
+  most one project group, because the snapshot carries singular
+  `project`/`project_group` fields per repository
+  (`ideation-dashboard-snapshot.schema.yaml`), rendering exactly one of
+  each (spec scenario "A project spans several
+  repositories" aggregates repositories under ONE project heading; a
+  multi-parent register would make that resolution ambiguous). This rule
+  is flagged here for the generator/orchestrator that performs the
+  `repository` -> `project` -> `project_group` resolution, since nothing
+  in the shape below prevents authoring a repository or project into more
+  than one parent.
+
+  Forward-compatible / additive: consumers MUST ignore unknown properties.
+  A later delta may extend project or project-group entries without a
+  `schema_version` bump; only a breaking change (a removed or retyped
+  field) requires one. This is why no object here sets
+  `additionalProperties: false`.
+type: object
+required:
+  - schema_version
+  - kind
+  - projects
+properties:
+  schema_version: {const: 1}
+  # Normative kind literal from D10 ("kind: project-register"); hyphenated
+  # per the design decision, not the underscored `xfactory_*` in-file kind
+  # convention (same divergence as the sibling snapshot/workbench schemas).
+  kind: {const: project-register}
+  projects:
+    type: array
+    # MAY be empty (register not yet populated); each present entry MUST
+    # NOT be empty of repositories — see $defs/project.
+    items: {$ref: "#/$defs/project"}
+  project_groups:
+    type: array
+    # Optional at the top level: a register may group repositories into
+    # projects without yet rolling those projects into project groups.
+    items: {$ref: "#/$defs/project_group"}
+$defs:
+  # --- a named set of repositories (D10) ---
+  project:
+    type: object
+    required: [id, repositories]
+    properties:
+      id:
+        type: string
+        minLength: 1
+        # Stable project id; project_groups reference this. MUST be unique
+        # within the register (validator-side — see file description).
+      name:
+        type: string
+        minLength: 1
+        # Human display name; optional, `id` remains the reference.
+      repositories:
+        type: array
+        minItems: 1
+        # A project with zero repositories is invalid (task 2.6) — an
+        # empty project names no set. VALIDATOR-SIDE (see file
+        # description): a given repository id MUST appear under at most
+        # one project (single-parent D10 reading).
+        items:
+          type: string
+          minLength: 1
+          # A repository id (matches a snapshot's `repository` field).
+  # --- a group of projects (D10) ---
+  project_group:
+    type: object
+    required: [id, projects]
+    properties:
+      id:
+        type: string
+        minLength: 1
+        # Stable project-group id; MUST be unique within the register
+        # (validator-side — see file description).
+      name:
+        type: string
+        minLength: 1
+        # Human display name; optional.
+      projects:
+        type: array
+        minItems: 1
+        # An empty project group is invalid, same reasoning as an empty
+        # project (task 2.6). VALIDATOR-SIDE (see file description): every
+        # referenced id MUST exist among top-level `projects[].id`, and a
+        # given project id MUST appear under at most one group
+        # (single-parent D10 reading).
+        items:
+          type: string
+          minLength: 1
+          # A project id from the top-level `projects` array.

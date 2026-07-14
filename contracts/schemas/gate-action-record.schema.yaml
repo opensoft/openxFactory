@@ -1,0 +1,163 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "gate-action-record.schema.yaml"
+title: "Gate-action record: human-authenticated console action audit entry"
+contract_schema_version: 1
+description: >-
+  Records one execution of a human gate-console action for the
+  ideation-area dashboard (`add-ideation-dashboard`; promoted spec
+  requirement "Human gate console"; design decisions D16/D17). Every gate
+  action — `demote` (reject / move back to staging), `edit-apply` (a human
+  applying and committing an AI-drafted concept redline), `ratify`
+  (approve), and `kickoff` (post-ratification realization-workflow
+  dispatch, D17) — produces the SAME governed artifacts as the equivalent
+  manual path, PLUS one of these records (spec: "each producing the same
+  governed artifacts as the manual path plus a recorded action").
+
+  `actor` records WHO performed the action. Agents are structurally unable
+  to author a gate-action record at all: the gate console rejects any
+  agent-invoked action before one is ever written (spec scenario "An agent
+  invokes a gate action") — that boundary is enforced by the console and
+  its authenticator, not by this schema, which only shapes the record of
+  an action a human already took.
+
+  `demote` is the mechanized reverse transition (D16): the same move as
+  the 2026-07-13 manual demotion, tooled. A demotion without a recorded
+  `reason` is invalid (allOf below) — the durable "why" a change went back
+  to staging.
+
+  PER-ACTION ARTIFACT REQUIREMENTS (encoded schema-side, allOf below): a
+  `ratify` record MUST reference at least one `ratification-record`
+  artifact, and a `kickoff` record MUST reference at least one
+  `workflow-job` artifact. Each is a SINGLE-INSTANCE "this action's
+  artifact list contains an entry of a given kind" check — cleanly
+  expressible in draft 2020-12 as `if action then artifacts contains kind`
+  — so, unlike the register's cross-snapshot transition rules, it is
+  enforced structurally here rather than deferred. The gate console is
+  authority-bearing (D16), so an authority-bearing record naming the wrong
+  action-to-artifact pairing is caught at write time. This does NOT narrow
+  the additive posture below: new action kinds and new artifact kinds stay
+  unconstrained; only `ratify`/`kickoff` carry a required companion
+  artifact.
+
+  VALIDATOR-SIDE (cross-instance, not shape-expressible): kickoff is
+  downstream of the ratify gate (D17) — the console MUST refuse a `kickoff`
+  whose target change carries no recorded ratification (spec scenario "A
+  non-ratified change is asked for kickoff"). A gate-action record shapes a
+  single action; whether the target already carries a ratify record is a
+  console/validator precondition across records, not a property of this one.
+
+  Forward-compatible / additive: consumers MUST ignore unknown properties.
+  A later delta may add new action kinds or artifact kinds without a
+  `schema_version` bump; only a breaking change (a removed or retyped
+  field) requires one. This is why no object here sets
+  `additionalProperties: false`.
+type: object
+required:
+  - schema_version
+  - kind
+  - actor
+  - action
+  - target
+  - at
+  - artifacts
+properties:
+  schema_version: {const: 1}
+  # Normative kind literal from D16 ("gate-action record"); hyphenated per
+  # the design decision, not the underscored `xfactory_*` in-file kind
+  # convention (same divergence as the sibling dashboard/workbench/register
+  # schemas).
+  kind: {const: gate-action-record}
+  actor:
+    type: string
+    minLength: 1
+    # Human identity string (spec: "executable by a human only"). This
+    # schema only records WHO acted; that no agent path can ever reach
+    # this field is enforced by the console/authenticator, not here.
+  action:
+    type: string
+    enum: [demote, edit-apply, ratify, kickoff]
+    # The four gate-console actions (spec "Human gate console" + D17
+    # kickoff): reject-to-staging, AI-redline-apply, approve/ratify, and
+    # post-ratification workflow dispatch.
+  target: {$ref: "#/$defs/target"}
+  at:
+    type: string
+    format: date-time
+    # Wall-clock stamp of the action; this is a live audit record, not a
+    # deterministic projection (contrast `ideation-dashboard-snapshot`).
+  artifacts:
+    type: array
+    minItems: 1
+    # Every action produces at least the manual path's artifacts (spec) —
+    # an action record with no artifact is invalid.
+    items: {$ref: "#/$defs/artifact"}
+  reason:
+    type: string
+    minLength: 1
+    # REQUIRED for action=demote (allOf below) — a demotion without a
+    # recorded reason is invalid; optional narrative for other actions.
+  notes:
+    type: string
+    minLength: 1
+    # Free-text human narrative; never load-bearing for validation.
+allOf:
+  # A demotion without a recorded reason is invalid (task 2.8).
+  - if: {properties: {action: {const: demote}}}
+    then: {required: [reason]}
+  # A ratify record MUST reference at least one ratification-record artifact
+  # (single-instance contains; the gate console is authority-bearing, D16).
+  - if: {properties: {action: {const: ratify}}}
+    then:
+      properties:
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: ratification-record}}
+  # A kickoff record MUST reference at least one workflow-job artifact
+  # (post-ratification realization dispatch, D17).
+  - if: {properties: {action: {const: kickoff}}}
+    then:
+      properties:
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+$defs:
+  # --- what the action acted on ---
+  target:
+    type: object
+    required: [change_id]
+    properties:
+      change_id:
+        type: string
+        minLength: 1
+        # The proposal/change this action targets (matches a snapshot
+        # `change.id`).
+      document:
+        type: string
+        minLength: 1
+        # Optional document path within the change — e.g. the concept
+        # `edit-apply` targeted; most relevant to action=edit-apply, but
+        # not restricted to it structurally.
+  # --- an artifact this action produced ---
+  artifact:
+    type: object
+    required: [kind, reference]
+    properties:
+      kind:
+        type: string
+        enum:
+          - transition-manifest
+          - ratification-record
+          - redline
+          - workflow-job
+          - register-update
+          - other
+        # The manual-path artifact kinds an action can produce (spec: "the
+        # same governed artifacts as the manual path"). SCHEMA-SIDE (allOf
+        # above): a `ratify` record requires a `ratification-record` entry
+        # and a `kickoff` record requires a `workflow-job` entry.
+      reference:
+        type: string
+        minLength: 1
+        # Path or id locating the produced artifact.
