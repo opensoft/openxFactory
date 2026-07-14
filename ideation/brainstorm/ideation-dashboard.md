@@ -322,3 +322,210 @@ implementing the generator and renderers — the same two-repo split as
 `ideation-routing`, `document-cataloging`, and the staged readiness index;
 alternatively folded into `add-ideation-cross-reference-readiness` as its
 rendering layer if that proposal is still unopened when this matures.
+
+---
+
+## v2 — bug register and direction (2026-07-14, post-realization review)
+
+v1 realized (`add-ideation-dashboard`, 25/27 tasks, deployed at
+https://ideation-dashboard.xforge.us) and immediately taught us where it is
+wrong. This section is the raw v2 input: Brett's direction decisions, a
+four-lane adversarial review of the realized system (governance record,
+lane/deploy pipeline, frontend, plus a live reproduction of the production
+lane failure), and the v1 build track's own candid deferral record. Being
+brainstorm-stage, items may contradict; nothing here is normative.
+
+### Direction decisions (Brett, 2026-07-14)
+
+- **Hybrid backend, explicit seam.** One UI over an explicit backend API
+  seam with two interchangeable implementations: a local backend (reads the
+  operator's clones directly, serves at localhost) and a served backend
+  (server-side workspace on xForge). v1's worst deployment bugs trace to
+  never naming this seam: a loopback-only dev server (`serve.py` says "NOT a
+  backend service") silently became the only thing that could serve
+  `/snapshot.json` and the `/source/<path>` viewer, so the static xForge
+  deploy shipped with both presumed-broken.
+- **Repo discovery with a configurable allowlist.** The tool's entry point
+  becomes a repo picker: enumerate candidate repos from (a) a scan of a
+  configured local workspace root and (b) the user's GitHub orgs via `gh`,
+  filtered through an explicit allowlist config of orgs/repos the tool may
+  see. Merge into one list with per-repo cloned/not-cloned status.
+- **No more implicit local-clone assumption.** v1 assumes the corpus is
+  already cloned at a fixed relative path. v2 must make the workspace root
+  explicit configuration, verify the expected repos are actually cloned,
+  and offer clone-on-demand into the workspace root.
+
+### Bug register (evidenced; grouping mine)
+
+**A. Data pipeline emptiness — the funnel's middle is fiction.**
+
+1. The possibles pipeline is entirely empty in production: `register.py`
+   reads `ideation/cross-reference.yaml`, which has never existed in
+   openxFactory (`possibles: []`, 0 across the live snapshot). Everything
+   downstream of it is dead: staged→proposal flow edges never draw,
+   `origin_staging_id` is always null, funnel possibles column is a bare
+   em-dash everywhere except nothing.
+2. Cluster readiness-heat and conflict-flag UI are dead bindings: the views
+   read `c.readiness`/`c.conflict_flags`; the generator emits neither
+   (0/82 clusters). Upstream-gated on `add-ideation-cross-reference-readiness`,
+   which has not landed — the same sibling change blocks open tasks 1.1 and
+   3.5 and the lens's queue-submission half. One dependency, four gaps.
+3. Ratification line never renders despite 27 archived changes: the
+   generator requires a `Ratified by:` header inside `proposal.md`; 0/35
+   changes carry one there (ratification lives in the ratified DOCS, not
+   proposals). Wrong derivation source.
+4. "Add as cluster" in the keyword lens is a stub: it records
+   `PENDING_PROPOSAL_REF` and shows a note; no queue entry, no submission.
+   A user who clicks it reasonably believes they proposed something.
+5. Canvas draft provenance is reconstructed best-effort (the snapshot
+   projection deliberately drops the register's provenance field) rather
+   than carried through.
+
+**B. The lane and deployment pipeline silently rots.**
+
+6. **stage:null DoS (live-reproduced).** The production lane failure
+   ("snapshot rejected by the pinned validator: 4 error(s)") reproduces
+   exactly: two `docs/sops/` files lacking `Status:` headers made the
+   generator emit `stage: null`, the schema rejected the snapshot, and the
+   whole lane skipped. One unheadered doc anywhere in the corpus blocks the
+   entire dashboard refresh. This is the same presence-vs-value defect
+   class the v1 merge-gate review fixed in agent-capture — it recurred in
+   the generator. The generator must degrade per-document (bucket as
+   "unheadered", surface as a finding), never invalidate the snapshot.
+7. **The lane discards its own diagnosis.** `LaneOutcome` carries only
+   "4 error(s)"; the candidate file and validator stdout are deleted on
+   skip. Operators cannot learn WHICH four errors without re-running the
+   generator by hand against the same pins.
+8. **Stale-success status.** The committed
+   `health/ideation-dashboard/lane-status.json` still says `result: ok`
+   from an older green run while every later run that day failed — failed
+   lanes never commit, and the nightly's same-day-report gate skips the
+   entire `git add health/` for later runs, silently discarding fresh lane
+   output (this same-day discard pattern also affects every other health/
+   subsystem on reruns).
+9. **No refresh path at all for the deployed site.** The Dockerfile COPYs
+   the snapshot into the image ("refreshing it means rebuilding this
+   image"); there is no scheduled rebuild/rollout. The live site froze at
+   its deploy-time snapshot (already 14+ commits behind within five hours).
+10. **Nightly-only regeneration by design** (R14) compounds 9: even with a
+    refresh pipeline, the live site could show ~24h-stale governance state
+    with no staleness indicator beyond the (mis-worded, divergence-only)
+    banner. Needs an always-visible "generated at T, N commits behind"
+    stamp.
+11. The nightly's report commit was blocked for days by the org ruleset
+    (GH013, fixed 2026-07-14 via app bypass) — the lane inherited every
+    doc-health pipeline outage invisibly.
+
+**C. Frontend/UX.**
+
+12. **No scrollbars (Brett).** Overflowing panels/lists are unscrollable —
+    fixed-viewport layout failure across views.
+13. **No search, no filter, no sort, anywhere.** 108 doc cards, 82 cluster
+    cards, 27 realized cards; only ordering is a static path sort.
+14. The funnel is not funnel-shaped: all 108 governed docs pour into
+    column 1 (only 21 are ideation sources; 87 are general corpus docs),
+    and only 19 docs carry Topics at all. Corpus health and ideation
+    pipeline need to be distinct surfaces, or the source column needs
+    scoping.
+15. 68/82 topic clusters are single-member with raw ids as names
+    (`_titleize` is the identity function); cards read like "AVC-09".
+16. Doc-list "other" group header renders twice (grouping compares only
+    against the previous item while iterating a path sort).
+17. Duplicate roll-up bars on funnel and board tabs (mounted globally AND
+    per-view).
+18. Stats tile mislabels: "active ideation docs" counts only
+    stage==brainstorm (2), invisible-ing 55 draft + 19 staged docs; the
+    board likewise hides 87 docs that fit no column.
+19. a11y: explorer dialog has no focus trap/initial focus/aria-labelledby;
+    tabs lack the ARIA roving-focus pattern; override reasons collected via
+    blocking `window.prompt`.
+20. Hygiene: incomplete `esc()` (no `'`) in older views vs textContent in
+    newer ones; six near-duplicate helper copies; dead `STAGE_CLASS`
+    constant; markdown viewer still fetches external `![img](url)` images
+    (network egress decision never made).
+
+**D. Local-clone / serving assumptions (Brett's #2, corroborated).**
+
+21. `/snapshot.json` and `/source/<path>` exist only in the loopback dev
+    server; the static deploy presumably 404s both (snapshot likely works
+    only if baked adjacent; the doc viewer certainly dead on live).
+22. Gate-console copy-paste commands hardcode
+    `python3 scripts/ideation_dashboard/cli.py ... --repo-root .` — the
+    script lives in codexFactory but acts on openxFactory; no single
+    working directory satisfies both as printed.
+23. The deployed host has no repo-in-pod mechanism (4.2 deferral), so
+    D15's read-only viewer never worked on the live site.
+
+**E. Governance/process debt.**
+
+24. Change unarchived at 25/27; the five dashboard schemas are not yet in
+    `contracts/manifest.yaml`/CHANGELOG (deferred to the archive gate);
+    task 1.1's schema reconciliation against the sibling change never done.
+25. Gate-console trust gaps accepted as v1 risks: unauthenticated
+    `--actor`, records-tree-trust ratification (forgeable), un-confined
+    `edit_apply` document path. Fine for v1; must be scheduled, not
+    ambient.
+26. Deployment target deviates from the ratified wording (Nextest QA
+    cluster, not the named OS-AKS-QA) — documented, unreconciled.
+27. Test suites can't run in one pytest invocation (conftest collision
+    between ideation-dashboard and doc-health suites).
+28. AI-assist surfaces prominent in the ratified design (suggestion tray,
+    derive-possibles, inferred tag strength) are wholly absent from v1 —
+    fine as scoping, but v2 should either build or formally de-scope them.
+
+### v2 concept sketch
+
+- **Repo-aware entry.** Allowlist config (schema-versioned, likely an
+  extension of `project-register.yaml`: orgs, repos, workspace root) →
+  picker listing allowlisted repos with cloned/not-cloned/behind status →
+  clone-on-demand → per-repo or cross-repo dashboard. The multi-repo
+  roll-up the grouping model already supports becomes real (load N
+  snapshots, aggregate the five DomainxFactories + openxFactory).
+- **Backend seam.** One small API: `GET /snapshots/<repo>`,
+  `GET /source/<repo>/<path>`, `POST /actions/<queue>` (gate/lens
+  submissions). Local impl: FS + `gh`. Served impl: workspace service with
+  scheduled snapshot refresh + image-free delivery (serve the committed
+  snapshot at request time; kill the bake-into-image model).
+- **Fix the funnel before decorating it:** ideation-scoped source column;
+  possibles from a real index (land the sibling change, or adapt the DTN
+  candidate register as an interim possibles source); human cluster names +
+  singleton collapse; stage-to-stage conversion counts.
+- **Resilience defaults:** per-document degradation in the generator
+  (never whole-snapshot rejection for content defects); lane status carries
+  the validator detail + run id + commits-behind; loud CI check when the
+  committed snapshot falls >N hours/commits behind; always-visible
+  staleness stamp in the UI.
+- **Table stakes sweep:** scrollbars/virtualized lists, global search +
+  filters + sort, single roll-up control, empty-states that explain WHY
+  ("cross-reference index not yet landed"), a11y pass, unified DOM-safety
+  helpers.
+
+### Open questions (defaults proposed)
+
+- **Allowlist config home**: extend `project-register.yaml` vs a new
+  `dashboard-workspace.yaml`? Default: extend project-register (it already
+  models repo→project→group and its group layer is an empty stub waiting
+  for exactly this).
+- **Interim possibles source**: wait for
+  `add-ideation-cross-reference-readiness` vs adapt the DTN candidate
+  register now? Update while drafting this section: that sibling change went
+  ACTIVE the same evening (W1 index-contract keystone a7aac77, W2 validator
+  + living index acbc98f, 2026-07-14 ~17:30-17:52, another session's track)
+  — so the default flips to: wait for the real index, no interim DTN
+  adapter; v2's possibles wiring should target the landing contract and
+  reconcile dashboard task 1.1 against its final wording.
+- **Served-backend write actions**: does the hosted instance accept gate
+  actions at all, or stay read-only with actions local-only until the
+  gate-console trust gaps (25) are hardened? Default: served = read-only;
+  actions only through the local backend until authn lands.
+- **Snapshot-per-repo vs one aggregate snapshot**: default per-repo
+  snapshots + a thin index; the aggregate view composes client-side.
+
+## v2 Exit
+
+Same two-repo split as v1: an openxFactory delta (allowlist/workspace
+config schema, snapshot index contract, per-document degradation rules,
+lane-status enrichment) paired with a codexFactory delta (backend seam +
+local/served implementations, repo picker, funnel scoping, frontend sweep).
+Bugs 6-8 (stage:null DoS, discarded diagnosis, stale-success status) are
+small, severable fixes that should not wait for v2 scoping.
