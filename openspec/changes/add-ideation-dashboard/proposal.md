@@ -20,9 +20,10 @@ superseding the blanket gate prohibition for human actors; D17 next-step
 kickoff — D10 onward added 2026-07-13 by Brett), R1–R14 confirmed
 unchanged by Brett on 2026-07-12. History: first proposed and ratified 2026-07-12; demoted to
 staging 2026-07-13 for continued design (drafts iterated in the topic's
-`openspec/` workspace per the draft-proposal convention); **re-proposed
-2026-07-13 — re-ratification pending** (the 07-12 ratification was set
-aside at demotion). v1 is explicitly web-based: a static repo-tracked web
+`openspec/` workspace per the draft-proposal convention); re-proposed
+2026-07-13 with the reworked feature set. **Re-ratified by Brett on
+2026-07-14** (D1–D17); active until realization evidence lands per the
+release-realization flow. v1 is explicitly web-based: a static repo-tracked web
 GUI served per Option C alongside the Hermes-stack surfaces on the internal
 xForge host.
 

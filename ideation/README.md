@@ -151,9 +151,10 @@ Active proposals promoted from staging:
   doc plus the interactive mockup) under `supporting-docs/` and defines
   the realization funnel snapshot, possibles register, cluster canvas
   (D12), keyword lens with cluster-as-recipe persistence (D13), project
-  grouping (D10), per-actor authoring authority, workbench, interactivity
-  boundary, and nightly snapshot lane; web-based v1 served per Option C
-  alongside the Hermes-stack surfaces; **re-ratification pending**.
+  grouping (D10), drill-down explorer, viewer, gate console, and next-step
+  kickoff (D14–D17), per-actor authoring authority, workbench, and nightly
+  snapshot lane; web-based v1 served per Option C alongside the
+  Hermes-stack surfaces; **re-ratified 2026-07-14**.
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

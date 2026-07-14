@@ -20,9 +20,9 @@ History: staged 2026-07-12 → proposed and ratified as add-ideation-dashboard
 hardening, Option-C hosting, D10 project grouping) → demoted back to
 staging 2026-07-13 by Brett for continued design (D11 two-zone funnel, D12
 cluster canvas, D13 keyword lens added; drafts iterated in the topic's
-openspec/ workspace per the draft-proposal convention) → **re-proposed
-2026-07-13 (this second transition); re-ratification pending** — the 07-12
-ratification was set aside at demotion.
+openspec/ workspace per the draft-proposal convention) → re-proposed
+2026-07-13 (this second transition) → **re-ratified by Brett 2026-07-14**
+(D1–D17; the 07-12 ratification had been set aside at demotion).
 Target capabilities: ADDED `ideation-dashboard`; MODIFIED `doc-health`
 (nightly snapshot-generation lane); MODIFIED `document-lifecycle`
 (`Possible feats:` declaration in the brainstorm format); MODIFIED
@@ -213,6 +213,6 @@ headers stripped) and this doc + the mockup returned to its
 `openxFactory:staging:ideation-dashboard` per the proposal-origin contract.
 Reworked at re-proposal: D11–D13 (two-zone funnel, cluster canvas, keyword
 lens), explicit web-based v1, Option-C hosting alongside the Hermes-stack
-surfaces on the internal xForge host. Awaiting Brett's re-ratification —
-the 2026-07-12 ratification (R1–R14 confirmed unchanged) was set aside by
-the 2026-07-13 demotion.
+surfaces on the internal xForge host; amended same day with D14–D17
+(drill-down, viewer, gate console, next-step kickoff). **Re-ratified by
+Brett 2026-07-14** — realization (27 tasks) is unblocked.

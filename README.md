@@ -174,13 +174,15 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
-  — re-proposed 2026-07-13 (**re-ratification pending**; the 07-12
-  ratification was set aside at a design-round demotion); staged-origin
-  change for the generated ideation dashboard: realization funnel snapshot
-  over a possibles register, cluster canvas working surface (D12), keyword
-  lens set-builder with cluster-as-recipe persistence (D13), project
-  grouping roll-ups (D10), per-actor authoring authority, non-mutating
-  workbench, and the nightly snapshot lane; web-based v1 served per
+  — re-proposed 2026-07-13 and **re-ratified 2026-07-14** (D1–D17; the
+  07-12 ratification was set aside at a design-round demotion);
+  staged-origin change for the generated ideation dashboard: realization
+  funnel snapshot over a possibles register, cluster canvas working
+  surface (D12), keyword lens set-builder with cluster-as-recipe
+  persistence (D13), project grouping roll-ups (D10), drill-down explorer
+  and read-only Markdown viewer (D14/D15), the human gate console and
+  next-step kickoff (D16/D17), per-actor authoring authority, non-mutating
+  machinery, and the nightly snapshot lane; web-based v1 served per
   Option C alongside the Hermes-stack surfaces on the internal xForge host
   (code surface: openxFactory, codexFactory, xFactory; archives on
   realization evidence; ideation-cross-reference delta sequenced with
