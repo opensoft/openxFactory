@@ -129,6 +129,30 @@ EVID_STATUS_TRANSITIONS = {
     "deferred": set(),
 }
 
+# ---- Client-lab acceptance map (implement-avatar-client-lab task 4.2) ----
+# The neutral, openxFactory-owned client-lab acceptance map DECLARES what the
+# offline avatar client lab proves. It lives OUTSIDE contracts/avatar-client/ (so
+# it is untouched by the AVC digest/metadata/redaction scans) and inherits a fixed
+# scenario slice from the two released acceptance maps. This validator fail-closes
+# on drift between the map and those released maps, mirroring
+# check_successor_discharge. It owns NONE of the released bytes.
+CLIENT_LAB_MAP = ROOT / "contracts" / "avatar-client-lab" / "client-acceptance-map.yaml"
+AFU_ACCEPTANCE_MAP = (ROOT / "examples" / "avatar-first-ui"
+                      / "avatar-first-ui-acceptance-map.yaml")
+CLIENT_LAB_CHANGE = "implement-avatar-client-lab"
+CLIENT_LAB_GATES = {
+    "schema_conformance", "content_addressed_pin", "replay_determinism", "golden",
+    "accessibility", "authority_derivation", "production_boundary",
+    "fail_closed_seam", "evidence_completeness",
+}
+CLIENT_LAB_A11Y = {
+    "keyboard_operation", "stable_focus", "visible_focus",
+    "screen_reader_announcements", "captions", "text_only_mode", "reduced_motion",
+    "high_contrast", "non_color_cues", "zoom_reflow", "pseudo_locale_coverage",
+}
+CLIENT_EVIDENCE_CLASSES = {"fixture", "golden", "successor"}
+CLIENT_LAB_FOCI = {"M0", "F1", "F2", "F3", "F4", "cross_cutting"}
+
 
 class Findings:
     def __init__(self) -> None:
@@ -335,6 +359,7 @@ def run(strict: bool, require_realization: bool) -> int:
     # stays green at every phase checkpoint.
     ev_ids = check_fixtures(f, registry, docs)
     check_acceptance_and_evidence(f, ev_ids)
+    check_client_lab_acceptance_map(f)
     check_release_identity(f)
     check_content_addressed_pin(f)
     check_redaction(f)
@@ -665,6 +690,172 @@ def check_successor_discharge(f: Findings, released_entries: list,
                 for k in ("result", "reviewer", "disposition"):
                     if not e.get(k):
                         f.error("successor-manual", f"{rel}: {sid!r} manual discharge missing {k}")
+
+
+def _release_map_index(path: Path) -> dict[str, dict]:
+    """Index a released acceptance map as {requirement_id: {title, owner_changes,
+    scenarios{sid: title}}} for the client-lab parity cross-check."""
+    doc = load_yaml(path) or {}
+    idx: dict[str, dict] = {}
+    for r in doc.get("requirements") or []:
+        rid = r.get("id")
+        scen = {s.get("id"): (s.get("title") or "").strip()
+                for s in (r.get("scenarios") or [])}
+        idx[rid] = {
+            "title": (r.get("title") or "").strip(),
+            "owner_changes": set(r.get("owner_changes") or []),
+            "scenarios": scen,
+        }
+    return idx
+
+
+def check_client_lab_acceptance_map(f: Findings) -> None:
+    """Task 4.2 (locked decision after FR-040): machine-check the neutral,
+    openxFactory-owned client-lab acceptance map against the two released
+    acceptance maps it inherits from, fail-closed (mirroring
+    check_successor_discharge). The client-lab map DECLARES what the offline lab
+    proves; it owns none of the released bytes. Rules:
+
+    - Metadata: schema_version + kind == avatar-client-lab-acceptance-map +
+      change_id == implement-avatar-client-lab.
+    - Gating frame: the gates block is EXACTLY the nine offline CI gates and the
+      accessibility_baseline is EXACTLY the eleven capabilities; F1-F4 foci present.
+    - Verbatim parity: every listed requirement/scenario id + title must match its
+      source released map exactly (no fabricated or renamed item), and every listed
+      requirement must name this change as an owner_change in that released map
+      (no overclaiming).
+    - Requirement-level completeness: every requirement that names this change as an
+      owner_change in EITHER released map must appear here (no silently dropped
+      inherited requirement). Scenario-level slicing (e.g. ACR-003's media-gate
+      slice) is allowed — only listed scenarios are parity-checked.
+    - Evidence class ∈ {fixture, golden, successor} (FR-040: reducer + widget
+      behaviour, not schema re-proof); any referenced gate is one of the nine; any
+      referenced fixture path exists; a `discharge_via` successor register exists
+      and actually discharges that scenario (consistency with decision 7).
+    - Counts self-check.
+
+    Guarded on the map's presence so a kernel-only checkout stays green.
+    """
+    if not CLIENT_LAB_MAP.is_file():
+        return
+    doc = load_yaml(CLIENT_LAB_MAP) or {}
+    rp = str(CLIENT_LAB_MAP.relative_to(ROOT))
+    if not isinstance(doc, dict):
+        f.error("client-lab-meta", f"{rp}: top-level mapping required")
+        return
+    if doc.get("schema_version") is None:
+        f.error("client-lab-meta", f"{rp}: missing schema_version")
+    if doc.get("kind") != "avatar-client-lab-acceptance-map":
+        f.error("client-lab-meta", f"{rp}: kind must be avatar-client-lab-acceptance-map")
+    if doc.get("change_id") != CLIENT_LAB_CHANGE:
+        f.error("client-lab-meta", f"{rp}: change_id must be {CLIENT_LAB_CHANGE!r}")
+
+    gate_ids = [g.get("id") for g in (doc.get("gates") or [])]
+    if len(gate_ids) != len(set(gate_ids)) or set(gate_ids) != CLIENT_LAB_GATES:
+        f.error("client-lab-gates",
+                f"{rp}: gates must be exactly the nine {sorted(CLIENT_LAB_GATES)}, "
+                f"got {sorted(set(gate_ids))}")
+
+    caps = (doc.get("accessibility_baseline") or {}).get("capabilities") or []
+    if len(caps) != len(set(caps)) or set(caps) != CLIENT_LAB_A11Y:
+        f.error("client-lab-a11y",
+                f"{rp}: accessibility_baseline.capabilities must be exactly the "
+                f"eleven {sorted(CLIENT_LAB_A11Y)}, got {sorted(set(caps))}")
+
+    focus_ids = {x.get("id") for x in (doc.get("acceptance_foci") or [])}
+    for need in ("F1", "F2", "F3", "F4"):
+        if need not in focus_ids:
+            f.error("client-lab-foci", f"{rp}: acceptance_foci missing {need}")
+
+    src = {
+        "avatar-client": _release_map_index(AVC / "acceptance-map.yaml"),
+        "avatar-first-ui": _release_map_index(AFU_ACCEPTANCE_MAP),
+    }
+    if not src["avatar-client"] or not src["avatar-first-ui"]:
+        f.error("client-lab-source",
+                f"{rp}: a released source acceptance map is missing/empty (fail closed)")
+        return
+
+    # Requirements that name this change as owner in EITHER released map.
+    owed_reqs = {(key, rid)
+                 for key, idx in src.items()
+                 for rid, meta in idx.items()
+                 if CLIENT_LAB_CHANGE in meta["owner_changes"]}
+
+    listed_reqs: set[tuple[str, str]] = set()
+    all_sids: list[str] = []
+    for block in (doc.get("inherited_scenarios") or []):
+        key = block.get("source_map")
+        rid = block.get("requirement")
+        idx = src.get(key)
+        if idx is None:
+            f.error("client-lab-scenario", f"{rp}: requirement {rid} has unknown source_map {key!r}")
+            continue
+        rmeta = idx.get(rid)
+        if rmeta is None:
+            f.error("client-lab-scenario", f"{rp}: requirement {rid} is not in the released {key} map")
+            continue
+        listed_reqs.add((key, rid))
+        if (block.get("title") or "").strip() != rmeta["title"]:
+            f.error("client-lab-parity",
+                    f"{rp}: requirement {rid} title != released title {rmeta['title']!r}")
+        if CLIENT_LAB_CHANGE not in rmeta["owner_changes"]:
+            f.error("client-lab-owner",
+                    f"{rp}: requirement {rid} does not name {CLIENT_LAB_CHANGE} as an "
+                    f"owner_change in the released {key} map (overclaimed)")
+        if block.get("focus") not in CLIENT_LAB_FOCI:
+            f.error("client-lab-foci",
+                    f"{rp}: requirement {rid} focus {block.get('focus')!r} not in {sorted(CLIENT_LAB_FOCI)}")
+        for s in (block.get("scenarios") or []):
+            sid = s.get("id")
+            all_sids.append(sid)
+            rel_title = rmeta["scenarios"].get(sid)
+            if rel_title is None:
+                f.error("client-lab-parity",
+                        f"{rp}: scenario {sid} is not a released scenario of {rid} in the {key} map")
+            elif (s.get("title") or "").strip() != rel_title:
+                f.error("client-lab-parity",
+                        f"{rp}: scenario {sid} title != released title {rel_title!r}")
+            cls = s.get("client_evidence_class")
+            if cls not in CLIENT_EVIDENCE_CLASSES:
+                f.error("client-lab-class",
+                        f"{rp}: scenario {sid} client_evidence_class {cls!r} not in "
+                        f"{sorted(CLIENT_EVIDENCE_CLASSES)}")
+            g = s.get("gate")
+            if g is not None and g not in CLIENT_LAB_GATES:
+                f.error("client-lab-gates", f"{rp}: scenario {sid} gate {g!r} is not one of the nine gates")
+            fx = s.get("fixture")
+            if fx is not None and not (ROOT / fx).is_file():
+                f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
+            dv = s.get("discharge_via")
+            if dv is not None:
+                dvp = ROOT / dv
+                if not dvp.is_file():
+                    f.error("client-lab-discharge", f"{rp}: scenario {sid} discharge_via {dv} does not exist")
+                else:
+                    reg = load_yaml(dvp) or {}
+                    discharged = {e.get("scenario_id") for e in (reg.get("entries") or [])
+                                  if e.get("discharges_deferred")}
+                    if sid not in discharged:
+                        f.error("client-lab-discharge",
+                                f"{rp}: scenario {sid} names discharge_via {dv} but that "
+                                f"successor register does not discharge it")
+
+    for key, rid in sorted(owed_reqs - listed_reqs):
+        f.error("client-lab-incomplete",
+                f"{rp}: released {key} requirement {rid} names {CLIENT_LAB_CHANGE} as an "
+                f"owner_change but is absent from the client-lab map (dropped inherited requirement)")
+
+    if len(all_sids) != len(set(all_sids)):
+        f.error("client-lab-dup", f"{rp}: duplicate scenario ids in the client-lab map")
+
+    n_reqs = len(doc.get("inherited_scenarios") or [])
+    if doc.get("expected_requirement_count") != n_reqs:
+        f.error("client-lab-count",
+                f"{rp}: expected_requirement_count {doc.get('expected_requirement_count')} != {n_reqs} listed")
+    if doc.get("expected_scenario_count") != len(all_sids):
+        f.error("client-lab-count",
+                f"{rp}: expected_scenario_count {doc.get('expected_scenario_count')} != {len(all_sids)} listed")
 
 
 def check_redaction(f: Findings) -> None:
