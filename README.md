@@ -202,10 +202,6 @@ Active changes:
   proposal-origin change's outcome (code surface: openxFactory, codexFactory,
   xFactory, omnigent-install; ratified 2026-07-12 — admitted intent, active
   until realization evidence lands)
-- [add-document-cataloging](openspec/changes/add-document-cataloging/proposal.md)
-  — external governed-document catalog, controlled discovery taxonomy,
-  immutable snapshots, thirteenth deterministic doc-health family, and bounded
-  document-cataloger lane; unblocked — the semantic sweep archived 2026-07-12
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
@@ -245,6 +241,12 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-document-cataloging](openspec/changes/archive/2026-07-14-add-document-cataloging/proposal.md)
+  — external governed-document catalog, controlled discovery taxonomy,
+  immutable snapshots, thirteenth deterministic doc-health family, and the
+  bounded document-cataloger lane; realized as `contract-v1.11` with the
+  225/225 full-corpus mechanical baseline and nightly dispatch wiring,
+  archived 2026-07-14
 - [define-avatar-client-contract-kernel](openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/proposal.md)
   — canonical eight-contract AVC kernel, registries, fixtures, validator, and
   repository-boundary rules; realized as `contract-v1.7`, archived 2026-07-13
