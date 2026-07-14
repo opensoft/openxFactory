@@ -1,0 +1,50 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-six-state-transition-arc
+evidence_ids: [AFU-008-S01, AFU-001-S01, AFU-005-S03]
+# Deterministic listening->thinking->speaking extension fixture (avatar-client-lab
+# task 4.3, contributed upstream). The released `offline-acceptance.yaml` seed
+# proves only the `listening` (capture_authorized) baseline and emits no
+# thinking/speaking events; this fixture extends the same shape past capture with
+# a user-text command and its accepted/streamed response, so the six-state avatar
+# selector (listening, thinking, speaking, interrupted, blocked, handoff) has a
+# replayable proof path across its first three states. Fixed clock/IDs/font/
+# locale/platform + canonical AVC command/event/snapshot inputs -> declared
+# canonical view-state/record shapes. No live model, provider, clock, or RNG.
+# Two identical runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:05Z"
+  ids:
+    session_id: sess-0002
+    workflow_id: wf-0002
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}
+  events:
+    - {event_type: session_started, authority: authoritative}   # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}  # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}  # thinking: user text accepted for processing
+    - {event_type: transcript_segment, authority: observation}  # speaking: streamed response (never authoritative)
+  snapshot:
+    state_revision: 4
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: speaking
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0002}
+    - {kind: media_authorized, session_id: sess-0002}
+    - {kind: command_accepted, session_id: sess-0002}
+    - {kind: transcript_segment, session_id: sess-0002}

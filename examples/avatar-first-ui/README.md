@@ -19,5 +19,7 @@ Files:
 - [fixtures/](fixtures/README.md) — deterministic UI fixtures checked offline by
   `scripts/validate-avatar-first-ui.py`: one compatibility fixture (a legacy
   profile that stays valid), nine negative fixtures (one per enforced rule class,
-  each failing exactly one stable `AFUV-*` error), and a deterministic
-  offline-acceptance fixture, plus the requirement→evidence map.
+  each failing exactly one stable `AFUV-*` error), and two deterministic
+  fixtures — the offline-acceptance `listening` baseline and a
+  `listening → thinking → speaking` extension — plus the requirement→evidence
+  map.
