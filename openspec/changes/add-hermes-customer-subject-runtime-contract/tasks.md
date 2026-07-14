@@ -25,6 +25,6 @@ Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 
 
 ## 5. External Hermes Install Completion Gate
 
-- [ ] 5.1 Hand the published bundle evidence to the existing Hermes Install OpenSpec/Speckit feature; downstream neutralization, checker implementation, and pinning remain owned there.
+- [x] 5.1 Hand the published bundle evidence to the existing Hermes Install OpenSpec/Speckit feature; downstream neutralization, checker implementation, and pinning remain owned there.
 - [ ] 5.2 Accept Hermes Install evidence tied to its exact landed commit and repository-relative manifest/checker/runtime-binding/evidence paths and digests, including online/offline checks, externally bound manifest digest, exact published pin, deliberate drift failures, strict OpenSpec validation, and clean Speckit analysis.
 - [ ] 5.3 Record Gate G0/T009 closure only after the published openxFactory evidence and Hermes Install pin independently reproduce every required digest and dependent multi-subject implementation remains stopped until then.
