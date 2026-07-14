@@ -7,7 +7,7 @@ Summary: The six forks that blocked the avatar-client-lab topic, now locked as
 decisions with rationale (and, for the schema validator, a fallback trigger),
 clearing the path to the implement-avatar-client-lab proposal.
 Topics: avatar-client, locked-decisions, schema-validation, accessibility, goldens, fixtures
-Repository context: openxFactory (neutral) with the Flutter realization in `xfactory-avatar-client`
+Repository context: openxFactory (neutral) with the Flutter realization in codexFactory `apps/avatar-client-lab/`
 Staging ID: openxFactory:staging:avatar-client-lab
 Source: v1 brainstorm 2026-07-13 (six-dimension synthesis); decisions locked 2026-07-13 after schema/fixture inspection
 

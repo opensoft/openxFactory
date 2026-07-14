@@ -61,9 +61,10 @@ openxFactory (pinned, vendored, SHA-256 verified)
   `contract-v1.7` and `contract-v1.8` refs (commit + per-file SHA-256) in one
   `contract_pin.yaml`; they evolve on different cadences, so CI gates both digest
   sets. No submodule; a tag-only pin fails.
-- **Repository boundary.** The Flutter app + Dart bindings live in
-  `xfactory-avatar-client`; openxFactory owns neutral contracts, fixtures, and
-  acceptance. Aggregation-repo pinning is a separate change.
+- **Repository boundary.** The Flutter app + Dart bindings live in codexFactory
+  under `apps/avatar-client-lab/`; openxFactory owns neutral contracts, fixtures,
+  and acceptance. codexFactory is already an aggregation-repo submodule, so its
+  pin sync is a routine submodule-pointer commit.
 
 ## Locked decisions (staging, 2026-07-13)
 

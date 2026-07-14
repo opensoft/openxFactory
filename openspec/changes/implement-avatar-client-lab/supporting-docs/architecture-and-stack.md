@@ -8,7 +8,7 @@ a pure deterministic reducer mirroring the reference runtime, ports/adapters so
 voice is a later swap, a replaceable six-state avatar, and content-addressed
 contract bindings.
 Topics: avatar-client, flutter, architecture, reducer, riverpod, ports-adapters, determinism, rive, contracts
-Repository context: openxFactory (neutral) with the Flutter realization in `xfactory-avatar-client`
+Repository context: openxFactory (neutral) with the Flutter realization in codexFactory `apps/avatar-client-lab/`
 Staging ID: openxFactory:staging:avatar-client-lab
 Source: v1 brainstorm 2026-07-13 (six-dimension synthesis)
 
@@ -74,10 +74,11 @@ identical view-state**. Goldens and conformance then run in CI with no network.
    profile schema plus its fixtures and acceptance map — has no equivalent
    published enumeration beyond the manifest; the pin must enumerate it.)
 
-7. **Repository boundary.** The Flutter app + generated Dart bindings live in the
-   private `xfactory-avatar-client` repo; openxFactory owns the neutral contracts,
-   conformance fixtures, and acceptance. Aggregation-repo pinning is a separate
-   change. New neutral scenarios are contributed upstream, not forked.
+7. **Repository boundary.** The Flutter app + generated Dart bindings live in
+   codexFactory under `apps/avatar-client-lab/`; openxFactory owns the neutral
+   contracts, conformance fixtures, and acceptance. codexFactory is already an
+   aggregation-repo submodule, so its pin sync is a routine submodule-pointer
+   commit. New neutral scenarios are contributed upstream, not forked.
 
 ## Sketch
 

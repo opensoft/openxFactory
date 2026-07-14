@@ -6,9 +6,9 @@ Kind: architecture
 Summary: An offline, deterministic Flutter avatar client UI lab (F1-F4) that
 renders the full avatar-first interaction and authority model from replayed
 fixtures, with no live model/voice/WebRTC/broker; the neutral acceptance lives
-in openxFactory, the Flutter app in a private repo.
+in openxFactory, the Flutter app in codexFactory `apps/avatar-client-lab/`.
 Topics: avatar-client, flutter, ui-lab, deterministic, fixtures, offline, authority, accessibility, repo-boundary
-Repository context: openxFactory (neutral acceptance + fixtures); Flutter application realized in the private `xfactory-avatar-client` repository
+Repository context: openxFactory (neutral acceptance + fixtures); Flutter application realized in codexFactory `apps/avatar-client-lab/`
 Staging ID: openxFactory:staging:avatar-client-lab
 Source: v1 brainstorm 2026-07-13 (six-dimension synthesis); named successor in the avatar-client parallel-workstream plan; supersedes the historical `flutter-avatar-client-ui-lab` exploration
 Target capabilities: avatar-client-lab (ADDED)
@@ -98,7 +98,7 @@ The staged exit was satisfied as planned: the six blocking decisions were
 locked 2026-07-13 (see [open-decisions.md](open-decisions.md)), and on
 2026-07-14 all four topic fragments moved with Git history into
 `implement-avatar-client-lab`'s `supporting-docs/` (`code_surface:
-openxFactory, xfactory-avatar-client`; `target_release: implemented`),
+openxFactory, codexFactory`; `target_release: implemented`),
 preserving the staging origin (`openxFactory:staging:avatar-client-lab`). The
 change carries the full `avatar-client-lab` spec deltas and the F1-F4 task
 list, including the acceptance/evidence map (inherited + new scenario IDs) and

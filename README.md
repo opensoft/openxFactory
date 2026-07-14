@@ -223,9 +223,10 @@ Active changes:
   replaceable six-state avatar seam, five-region adaptive shell with the
   authority status strip, gating accessibility baseline, and fail-closed
   deferral of voice/WebRTC/Hermes to `qualify-avatar-live-voice` (code surface:
-  openxFactory, xfactory-avatar-client — the Flutter app lives in the private
-  client repo; openxFactory owns the neutral fixtures and acceptance map;
-  aggregation-pin wiring is a separate change; archives on realization evidence)
+  openxFactory, codexFactory — the Flutter app lives in codexFactory under
+  `apps/avatar-client-lab/`; openxFactory owns the neutral fixtures and acceptance
+  map; codexFactory's pin is a routine submodule-pointer sync; archives on
+  realization evidence)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation

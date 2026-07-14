@@ -2,13 +2,16 @@
 
 Order is roughly M0 walking skeleton → F1-F4 breadth → realization. The
 openxFactory-side work (fixtures, acceptance map, boundary) is done here; the
-Flutter work lands in the private `xfactory-avatar-client` repo.
+Flutter work lands in codexFactory under `apps/avatar-client-lab/`.
+
+Note: the Flutter implementation tasks (sections 2-8) run in dedicated
+flutterBench sessions, not in factory doc sessions.
 
 ## 1. Repository and boundary
 
-- [ ] 1.1 Create the private `xfactory-avatar-client` repository; verify visibility and access; record the creation evidence.
-- [ ] 1.2 Bootstrap the monorepo skeleton (pub workspaces + thin melos): packages `avc_contracts`, `avc_session`, `avc_adapters_fixture`, `avatar_view`, `ui_kit`, and `app`; FVM-pin the Flutter SDK.
-- [ ] 1.3 Add the boundary check that fails if the client repo edits a neutral contract, registry, or shared fixture (ownership stays in openxFactory).
+- [ ] 1.1 Bootstrap `apps/avatar-client-lab/` inside codexFactory: create the directory skeleton and an app README stating the ownership boundary (Flutter app + Dart bindings here; neutral contracts/fixtures/acceptance in openxFactory); wire it into codexFactory's validation so the app tree is treated as code, not docs, and is excluded from the doc-health and doc validators (check `scripts/validate-docs.sh` conventions in codexFactory only if needed).
+- [ ] 1.2 Bootstrap the monorepo skeleton under `apps/avatar-client-lab/` (pub workspaces + thin melos): packages `avc_contracts`, `avc_session`, `avc_adapters_fixture`, `avatar_view`, `ui_kit`, and `app`; FVM-pin the Flutter SDK.
+- [ ] 1.3 Add the boundary check that fails if the `apps/avatar-client-lab/` app edits a neutral contract, registry, or shared fixture (ownership stays in openxFactory).
 - [ ] 1.4 Add the pure-Dart / Flutter split guard (pure packages import no Flutter) and the forbidden-API grep gate (`DateTime.now`, `Random`, sockets in pure packages).
 
 ## 2. Content-addressed contracts and bindings
@@ -62,6 +65,6 @@ Flutter work lands in the private `xfactory-avatar-client` repo.
 ## 9. Realization
 
 - [ ] 9.1 [GATE] Confirm the offline lab is green on the implemented target: `verify_pin` + schema conformance + replay determinism + boundary/forbidden-API gates + keyboard-only F1-F4 + the golden set, on Windows + web (locked decision 4: a11y qualified on Windows desktop; a documented WCAG exception register for canvas web; no web AA claim in F1-F4).
-- [ ] 9.2 Record the client release evidence (pinned contract refs, fixture-conformance result, dependency lock, license check, secret scan, test + golden result) in the client repo.
-- [ ] 9.3 Land the openxFactory-side artifacts (client-lab conformance fixtures + acceptance map + boundary rule) and link the client repo in the openxFactory README OpenSpec Records; note aggregation-pin wiring as a separate change.
+- [ ] 9.2 Record the client release evidence (pinned contract refs, fixture-conformance result, dependency lock, license check, secret scan, test + golden result) in codexFactory.
+- [ ] 9.3 Land the openxFactory-side artifacts (client-lab conformance fixtures + acceptance map + boundary rule) and link the codexFactory `apps/avatar-client-lab/` path in the openxFactory README OpenSpec Records; sync the codexFactory pin as a routine submodule-pointer commit.
 - [ ] 9.4 Archive this change once merge evidence and a green run exist on both code surfaces.

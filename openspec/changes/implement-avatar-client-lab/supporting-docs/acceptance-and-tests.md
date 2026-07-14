@@ -8,7 +8,7 @@ across the avatar-client (contract-v1.7) and avatar-first-ui (contract-v1.8)
 acceptance maps, and the determinism/golden/conformance/pin CI gate set — the
 acceptance surface a proposal author needs before writing spec deltas.
 Topics: avatar-client, acceptance, conformance, determinism, golden, ci-gates, scenario-map, accessibility, fixtures
-Repository context: openxFactory (neutral acceptance map + conformance fixtures); the Flutter evidence is produced in the private `xfactory-avatar-client` repository
+Repository context: openxFactory (neutral acceptance map + conformance fixtures); the Flutter evidence is produced in codexFactory `apps/avatar-client-lab/`
 Staging ID: openxFactory:staging:avatar-client-lab
 Source: v1 brainstorm 2026-07-13 (six-dimension synthesis); grounded in the released `contracts/avatar-client/` kernel (contract-v1.7) and `contracts/schemas/avatar-first-ui-profile.schema.yaml` + `examples/avatar-first-ui/` (contract-v1.8)
 
@@ -174,7 +174,7 @@ Not final spec text.
 ## Exit
 
 Fold this fragment into `implement-avatar-client-lab` (`code_surface: openxFactory,
-xfactory-avatar-client`; `target_release: implemented`) alongside the other three.
+codexFactory`; `target_release: implemented`) alongside the other three.
 At the proposal gate its claims become the change's acceptance map + evidence
 register (the inherited scenario IDs of claim 2 wired to fixtures, goldens, and
 named successors) and the F1-F4 task grouping; claim 4's nine gates become the

@@ -1,4 +1,4 @@
-code_surface: openxFactory, xfactory-avatar-client
+code_surface: openxFactory, codexFactory
 target_release: implemented
 
 ## Why
@@ -23,14 +23,16 @@ provider credential. Live voice, real Hermes, and provider qualification are
 deliberately deferred to `qualify-avatar-live-voice` and `avatar-pilot-hardening`
 and appear here only as fail-closed seams. openxFactory owns the neutral
 acceptance and conformance fixtures for the lab; the Flutter application itself
-lives in a separate private repository.
+lives in codexFactory under `apps/avatar-client-lab/`.
 
 ## What Changes
 
-- Create a new private repository `xfactory-avatar-client` holding the Flutter
-  avatar client. openxFactory does not own the Flutter application; it owns the
-  neutral contracts, conformance fixtures, and acceptance requirements the
-  client is measured against. Aggregation-repo pinning is a separate change.
+- Build the Flutter avatar client as a lab (v1) inside codexFactory under
+  `apps/avatar-client-lab/`. openxFactory does not own the Flutter application;
+  it owns the neutral contracts, conformance fixtures, and acceptance
+  requirements the client is measured against. codexFactory is already an
+  aggregation-repo submodule, so syncing its pin here is a routine
+  submodule-pointer commit, not a separate change.
 - Build the client as an offline **deterministic UI lab** (slices F1-F4): an
   adaptive shell with five persistent regions and an always-on authoritative
   status strip; three client-local presentation modes (conversation, work,
@@ -59,7 +61,7 @@ lives in a separate private repository.
 - Add openxFactory-owned neutral conformance fixtures and a client acceptance
   map for the lab, reusing the existing avatar-first UI fixtures where they
   apply; contribute any new neutral scenarios upstream rather than forking them
-  into the client repo.
+  into the codexFactory app.
 - Make accessibility first-class and gating: the eleven avatar-first UI
   accessibility-baseline capabilities, keyboard-only completion of F1-F4,
   non-color state cues, and a text-only peer renderer.
