@@ -84,6 +84,15 @@ Every file under `brainstorm/` uses this title and header, in this order:
 - `Purpose:` — optional; use in place of a `Problem` section for
   evidence/reference-gathering brainstorms rather than design-exploration
   ones.
+- `## Possible feats` — a body section (not a header field) that every
+  design-exploration brainstorm seeds at capture: the candidate feats this
+  thinking could spawn, one per bullet. These seed the possibles register
+  the cross-reference index consolidates (states, pick citations, and
+  transition rules per the possibles-register contract,
+  [`contracts/schemas/ideation-possibles-register.schema.yaml`](../contracts/schemas/ideation-possibles-register.schema.yaml),
+  and the `add-ideation-dashboard` document-lifecycle delta) and the
+  realization funnel renders — an unpicked possible is durable backlog,
+  not failure. Evidence/reference-gathering brainstorms may omit it.
 
 Every file under `staging/<topic>/` carries the same `Status:` (always
 `staged`), `Kind:`, `Summary:`, and `Topics:` fields, in that order, before
