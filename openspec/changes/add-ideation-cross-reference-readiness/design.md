@@ -66,3 +66,18 @@ preflight, not as a sixteenth family.
 - **An unscoreable tier blocks the gate:** where a tier cannot score (for
   example no owning domain resolves), the entry records why and the topic
   cannot be flagged — an undefined minimum is not a passing one.
+
+## Realization notes (2026-07-14, pre-dispatch — see review/2026-07-14-pre-realization-review.md)
+
+- Index serialization: structured `ideation/cross-reference.yaml` is the
+  source of truth; `ideation/cross-reference.md` is a generated projection
+  (C2). The proposal's `.md` wording is read through this note.
+- The index schema embeds the realized possibles-register kernel
+  (`possibles_register` $ref) and models the human-seen-cluster
+  recommendation entry (C2/C4) — closing the dashboard's documented seam.
+- Evidence contract = the ORGANIZER recommendation schema precisely
+  (rationale/confidence/alternatives/pending_review + source_ref pins),
+  not the cataloger facet schema.
+- Validator ownership line per C3; scorer module named
+  `ideation_readiness.py` per C5; doc-health delta rebased to
+  promoted-at-realization wording per C1's rebase list.
