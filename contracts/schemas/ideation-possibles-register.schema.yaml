@@ -1,0 +1,210 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "ideation-possibles-register.schema.yaml"
+title: "Ideation possibles-register consolidation section (cross-reference index embed)"
+contract_schema_version: 1
+description: >-
+  The canonical possibles register for the ideation area (`add-ideation-dashboard`;
+  promoted `ideation-cross-reference` delta requirement "Possibles register
+  consolidation", `document-lifecycle` requirement "Possible feats declaration",
+  and decision R1/R2/R3). Every `Possible feats:` declaration across ideation
+  documents is consolidated into ONE register entry per possible, each carrying a
+  single lifecycle state and explicit many-to-many edges to its claiming topic
+  clusters.
+
+  EMBEDDING (envelope-less fragment — no third standalone register file). Per R1
+  and both promoted deltas the register "is the cross-reference index" and "no
+  third standalone register file exists": the register is a SECTION of the unified
+  cross-reference index (`ideation/cross-reference.md`) owned by the active
+  ratified `add-ideation-cross-reference-readiness` change, the same consolidation
+  posture as that index's `Topics:`/`Target capabilities:` tag bootstrap. This
+  file is therefore a pure `$defs` kernel — modelled on
+  `xfactory-document-opaque-locator.schema.yaml`, it is NEVER validated as a whole
+  document on its own and carries no top-level `type`/`kind`/`schema_version`
+  envelope. The index owns the top-level envelope; this fragment owns the register
+  section's shape and is `$ref`'d into the index's schema. The index's own
+  structured schema is that change's task 2.1, DECLARED BUT NOT YET REALIZED, so
+  the concrete embedding field name (working name `possibles_register`) is not
+  fixed here. It is verified — and rebased if the index wording moved — at this
+  change's task 1.1 sequencing under the ordered-deltas rule (this delta is
+  declared relative to `add-ideation-cross-reference-readiness`'s outcome and
+  archives after it). SEQUENCING RISK: if that index lands markdown-only with no
+  structured register block, this fragment defines the register's canonical
+  structure to be embedded then as a fenced data block or index-adjacent section
+  under the field the index realization chooses; task 1.1 MUST reconcile the two.
+  Consumers embed via `$ref: "ideation-possibles-register.schema.yaml#/$defs/possibles_register"`
+  (whole section) or `#/$defs/register_entry` (one entry).
+
+  STATE MACHINE (documented; only the single-instance slices below are schema-
+  expressible). A possible occupies exactly one state:
+    - `latent`    — enumerated, unpicked backlog (not failure); the seeded default.
+    - `picked`    — selected at the organize gate; carries a pick edge citing the
+                    staged topic's staging ID, inheriting the change ID when the
+                    topic crosses the proposal gate.
+    - `rejected`  — declined before ever being picked; REQUIRES reason + citation.
+    - `superseded`— displaced (e.g. an option-set sibling was chosen, or a picked
+                    possible was abandoned); REQUIRES reason + citation.
+  Legal transitions:
+    latent -> picked | rejected | superseded
+    picked -> superseded            (reason + citation; abandonment of a picked
+                                     possible is a supersession, never a rejection,
+                                     because it already carried a pick edge / lineage)
+    rejected, superseded            terminal.
+  No backward transitions and NO RESURRECTION: a previously rejected or superseded
+  idea that becomes viable again is recorded as a NEW register entry with a new
+  `id`, preserving the original entry's audit trail; the register is never edited
+  back to `latent`/`picked`. `rejected` is a pre-pick disposition only (an entry
+  that was never picked); a picked entry that stops being pursued goes to
+  `superseded`, not `rejected`. JSON Schema validates one instance, not a
+  transition across snapshots, so transition legality, terminality, no-resurrection,
+  and `id` uniqueness within the register are enforced by the strict register
+  validator (task 2.4), not by this schema; the conditional `allOf` blocks below
+  express only the per-state field requirements.
+
+  ALIGNMENT with the snapshot's read-side `possible` projection
+  (`ideation-dashboard-snapshot.schema.yaml#/$defs/possible`): `register_entry`
+  is the source-of-truth shape, `possible` is its snapshot projection, and the
+  field names match one-for-one — `id`, `title`, `claim`, `state` (same four-value
+  enum), `reason`, `citation`, `claiming_clusters` (cluster-id strings),
+  `pick.staging_id`/`pick.change_id`, `option_set.id`/`option_set.members`, and
+  `supporting_evidence` items (the shared `evidence_pin`: `document` + `section` +
+  `passage_sha256`, `$ref`'d from the snapshot schema so pins stay byte-identical
+  across the register and its projection, mirroring how
+  `xfactory-document-cataloger-recommendation.schema.yaml` reuses the snapshot's
+  `facet_assignment`). The one register-only field the snapshot's `possible` does
+  not yet carry is `provenance` (the `Possible feats:` ingestion source — every
+  ingested possible cites the document and section it came from); the snapshot MAY
+  project it additively later without a break. HUMAN-SEEN CLUSTER INTAKE is a
+  SIBLING concern, out of this fragment: the promoted "Human-seen cluster intake"
+  requirement lands on the cross-reference index's CLUSTER/recommendation entry
+  (the `pending_review` disposition + evidence contract per R8) owned by
+  `add-ideation-cross-reference-readiness` task 2.1, not on the register. The only
+  linkage here is that a `claiming_clusters` edge MAY reference a human-seen
+  cluster's id like any other cluster id; the register carries no human-seen state.
+
+  ADDITIVE / forward-compatible: the cross-reference index is a generated
+  projection, so — like `ideation-dashboard-snapshot` — objects here stay open
+  (no `additionalProperties: false`), consumers MUST ignore unknown properties,
+  and additive growth needs no `contract_schema_version` bump; only a removed or
+  retyped field does. This fragment's `contract_schema_version` is tracked in
+  `contracts/manifest.yaml` at task 2.5, distinct from the index instance's own
+  top-level `schema_version`.
+$defs:
+  # --- the register section the cross-reference index embeds ---
+  possibles_register:
+    type: array
+    description: >-
+      The consolidated register: one entry per possible (validator rule — `id`
+      unique within the array; not expressible as a JSON Schema key constraint).
+      Embedded into the cross-reference index under the field its task-2.1
+      realization names (working name `possibles_register`); see the embedding
+      note above and task 1.1.
+    items: {$ref: "#/$defs/register_entry"}
+  # --- one consolidated possible ("Possibles register consolidation"; R2/R3) ---
+  register_entry:
+    type: object
+    # Open (additive projection posture); source-of-truth twin of the snapshot's
+    # `possible` $def — same field names, plus `provenance`.
+    required: [id, title, claim, state, provenance]
+    properties:
+      id:
+        type: string
+        minLength: 1
+        # Stable register id; edges (cluster claims, option-set members) and the
+        # snapshot projection reference this. Unique within the register
+        # (validator rule).
+      title:
+        type: string
+        minLength: 1
+        # Short name of the candidate feat.
+      claim:
+        type: string
+        minLength: 1
+        # What the possible asserts the topic could become — the durable backlog
+        # statement that would otherwise evaporate into prose.
+      state:
+        type: string
+        enum: [latent, picked, rejected, superseded]
+        # Exactly one state; see the documented transition machine above. Same
+        # enum as the snapshot's `possible.state`.
+      reason:
+        type: string
+        minLength: 1
+        # REQUIRED for `rejected`/`superseded` (allOf below) — the durable "why",
+        # mirroring the contested-finding disposition rule. Absent for
+        # `latent`/`picked`.
+      citation:
+        type: string
+        minLength: 1
+        # REQUIRED for `rejected`/`superseded` (allOf below) — an uncited
+        # rejection/supersession is invalid (spec scenario "A possible is
+        # rejected without citation"). For a supersession the citation names what
+        # displaced it (e.g. the chosen option-set sibling's `id`).
+      provenance: {$ref: "#/$defs/ingestion_provenance"}
+      claiming_clusters:
+        type: array
+        items: {type: string, minLength: 1}
+        # Many-to-many edges to the topic clusters that claim this possible — one
+        # cluster id per entry (spec scenario "Declarations are consolidated";
+        # snapshot scenario "One possible is claimed by several clusters"). A
+        # cluster id here MAY be a human-seen cluster; that provenance lives on the
+        # cluster entry in the index, never on the possible.
+      pick: {$ref: "#/$defs/pick_edge"}
+      option_set: {$ref: "#/$defs/option_set"}
+      supporting_evidence:
+        type: array
+        # Passage pins backing the possible (doc + section ref + passage hash),
+        # byte-identical to the snapshot's `possible.supporting_evidence` items
+        # and the canvas evidence board (D12).
+        items: {$ref: "ideation-dashboard-snapshot.schema.yaml#/$defs/evidence_pin"}
+    allOf:
+      # A rejected/superseded possible without a recorded reason AND citation is
+      # invalid (task 2.3 register rule; spec scenario "A possible is rejected
+      # without citation").
+      - if: {properties: {state: {enum: [rejected, superseded]}}}
+        then: {required: [reason, citation]}
+      # A picked possible MUST carry its organize-gate pick edge.
+      - if: {properties: {state: {const: picked}}}
+        then: {required: [pick]}
+  # --- `Possible feats:` ingestion provenance (register-only) ---
+  ingestion_provenance:
+    type: object
+    description: >-
+      Where the possible was ingested from — every consolidated possible cites the
+      source document and the `Possible feats:` section it was declared in
+      (`document-lifecycle` "Possible feats declaration"). Required on every entry;
+      the snapshot's `possible` does not yet project it (additive later).
+    required: [document, section]
+    properties:
+      document: {type: string, minLength: 1}   # source document `id` (or repo-relative path pre-snapshot)
+      section: {type: string, minLength: 1}     # the `Possible feats:` section reference within that document
+  # --- organize-gate pick edge (R3) ---
+  pick_edge:
+    type: object
+    description: >-
+      Present when `state=picked`. Cites the staged topic's staging ID at the
+      organize gate; `change_id` is absent until the staged topic crosses the
+      proposal gate, then inherited while the original `staging_id` is retained
+      (spec scenario "A picked possible's topic crosses the proposal gate";
+      `document-lifecycle` scenario "A possible is picked at the organize gate").
+      Same shape as the snapshot's `possible.pick`.
+    required: [staging_id]
+    properties:
+      staging_id: {type: string, minLength: 1}  # cited at the pick
+      change_id: {type: string, minLength: 1}    # inherited at the proposal gate; optional until then
+  # --- choose-one option set (D12) ---
+  option_set:
+    type: object
+    description: >-
+      Groups alternative shapes of one feat; sibling entries share `id`. Choosing
+      one member is realized as: the chosen member proceeds (latent -> picked) and
+      each sibling's `latent`/`picked` -> `superseded` transition is DRAFTED with
+      the required reason and citation (the chosen member's `id`) for human commit
+      (D12; spec scenario "An option set resolves"). The drafting is a
+      canvas/composer action a human commits — never an autonomous register
+      mutation. Same shape as the snapshot's `possible.option_set`.
+    required: [id]
+    properties:
+      id: {type: string, minLength: 1}                              # shared option-set id
+      members:
+        type: array
+        items: {type: string, minLength: 1}                         # sibling `register_entry` ids
