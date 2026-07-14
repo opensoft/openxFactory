@@ -81,3 +81,10 @@ preflight, not as a sixteenth family.
 - Validator ownership line per C3; scorer module named
   `ideation_readiness.py` per C5; doc-health delta rebased to
   promoted-at-realization wording per C1's rebase list.
+- 3.4 confirmations (2026-07-14, W3): BOTH W2 implementation choices
+  confirmed with no adjustment — spread threshold 4 (scorer constant
+  lockstep-tested against the validator's) and the active-change
+  fit-resolution set (scorer reuses the same corpus capability set as
+  the validator). Recorded here because the scorer feature branch
+  (codexFactory 003-ideation-readiness) deliberately did not touch
+  this checkout.
