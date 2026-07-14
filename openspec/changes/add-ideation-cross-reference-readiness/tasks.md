@@ -14,19 +14,23 @@
 
 ## 3. Readiness Worker (codexFactory)
 
-- [ ] 3.1 Add the readiness-scorer module with a versioned prompt contract producing three independent tier scores (domain, company, project/buildability) per topic cluster.
-- [ ] 3.2 Reuse the organizer/cataloger evidence contract verbatim for every score — committed source revision, passage hash and section reference, rationale, confidence, alternatives, `pending_review` disposition — and validate worker output against it before persistence.
-- [ ] 3.3 Implement cluster membership from the header tag sources with deterministic tie-breaks, and the additive catalog-tag fold-in path guarded off until `document-cataloging` realizes.
-- [ ] 3.4 Implement the minimum-score gate, the unscoreable-tier block, the spread-conflict flag, and the extension-fit citation check emitting `ideation-readiness` findings.
-- [ ] 3.5 Enforce the non-mutating bound: the pass writes only the index and evidence artifacts; add tests proving any other write path is rejected.
+Realized 2026-07-14 by codexFactory Speckit feature `003-ideation-readiness`, merged to main at `1fc0bd7` — ideation_readiness.py scorer + prompt contract v1; pre-merge adversarial review ACCEPT WITH FIXES (two load-bearing: openxFactory-only clustering scope; uncited-resolution exemption preventing spurious nightly regression issues). Suites 519+244 green. Both W2 implementation choices confirmed (design.md note).
+
+- [x] 3.1 Add the readiness-scorer module with a versioned prompt contract producing three independent tier scores (domain, company, project/buildability) per topic cluster.
+- [x] 3.2 Reuse the organizer/cataloger evidence contract verbatim for every score — committed source revision, passage hash and section reference, rationale, confidence, alternatives, `pending_review` disposition — and validate worker output against it before persistence.
+- [x] 3.3 Implement cluster membership from the header tag sources with deterministic tie-breaks, and the additive catalog-tag fold-in path guarded off until `document-cataloging` realizes.
+- [x] 3.4 Implement the minimum-score gate, the unscoreable-tier block, the spread-conflict flag, and the extension-fit citation check emitting `ideation-readiness` findings.
+- [x] 3.5 Enforce the non-mutating bound: the pass writes only the index and evidence artifacts; add tests proving any other write path is rejected.
 
 ## 4. Nightly Lane (xFactory aggregation, omnigent-install)
 
-- [ ] 4.1 Wire the readiness lane into the nightly run after the deterministic pass, consuming its inventory snapshot; a skipped or failed lane is reported as skipped and never affects deterministic results.
-- [ ] 4.2 Add the bounded read-only readiness-scorer profile in omnigent-install reusing the existing document-analysis host pattern, with workload-specific readiness assertions and no repository credentials in the worker environment.
-- [ ] 4.3 Link the index and evidence artifacts from the dated report; recommendations appear in the ranked plan as `contested`, at most `warning`, report-only items.
+Realized 2026-07-14 (same merge + aggregation 669d60a child workflow + omnigent-install f31a019 readiness-scorer profile). Lane reports SKIPPED until a host advertises the profile — valid landed state per the lane scenarios. OPS LEDGER before enabling the worker: deploy the profile to the CPC host AND add the submodule commit-back orchestration (the lane persists into the openxFactory submodule; nothing yet commits it back or bumps the aggregation pin — scored output would be discarded otherwise).
+
+- [x] 4.1 Wire the readiness lane into the nightly run after the deterministic pass, consuming its inventory snapshot; a skipped or failed lane is reported as skipped and never affects deterministic results.
+- [x] 4.2 Add the bounded read-only readiness-scorer profile in omnigent-install reusing the existing document-analysis host pattern, with workload-specific readiness assertions and no repository credentials in the worker environment.
+- [x] 4.3 Link the index and evidence artifacts from the dated report; recommendations appear in the ranked plan as `contested`, at most `warning`, report-only items.
 
 ## 5. Tests And Records
 
-- [ ] 5.1 Add tests: gate fires only at minimum >= 8; one low tier blocks despite two 10s; spread conflict flagged below threshold; recommendation performs no state transition; tag bootstrap reads both header fields; evidence contract validates against the existing organizer/cataloger schema; absent findings from a skipped lane are not treated as resolved.
+- [x] 5.1 Add tests: gate fires only at minimum >= 8; one low tier blocks despite two 10s; spread conflict flagged below threshold; recommendation performs no state transition; tag bootstrap reads both header fields; evidence contract validates against the existing organizer/cataloger schema; absent findings from a skipped lane are not treated as resolved.
 - [ ] 5.2 Keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.

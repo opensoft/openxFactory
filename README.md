@@ -217,10 +217,16 @@ Active changes:
 - [add-ideation-cross-reference-readiness](openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
   — staged-origin proposal for the unified cross-stage ideation topic index,
   three-tier Hermes readiness panel (min >= 8 recommendation gate), and the
-  nightly ideation-readiness doc-health lane; deltas declared relative to the
-  proposal-origin change's outcome (code surface: openxFactory, codexFactory,
-  xFactory, omnigent-install; ratified 2026-07-12 — admitted intent, active
-  until realization evidence lands)
+  nightly ideation-readiness doc-health lane (code surface: openxFactory,
+  codexFactory, xFactory, omnigent-install; ratified 2026-07-12).
+  **Realized 2026-07-14**: index contract + strict validator + the living
+  15-cluster bootstrap (`ideation/cross-reference.yaml` + generated md);
+  scorer worker merged (codexFactory 003-ideation-readiness at 1fc0bd7,
+  pre-merge review ACCEPT WITH FIXES); nightly lane + readiness-scorer
+  profile landed (lane SKIPPED until host deployment — valid landed
+  state). At 15/16; remaining: first-lane-run evidence after the CPC
+  profile deploys with the submodule commit-back orchestration; archives
+  on the release-realization flow
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
