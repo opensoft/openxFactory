@@ -8,6 +8,25 @@ parity, evidence-register completeness, dual redaction (structural + content
 scan with bounded sentinels), per-file digests, and the fail-closed F0
 publication gate.
 
+Successor-register deferral discharge (locked decision 7 of
+implement-avatar-client-lab): a released ``deferred`` scenario is NEVER
+discharged by an in-place ``deferred->evidenced`` flip of the released,
+content-addressed ``evidence-register.yaml`` (that stays terminal in
+``EVID_STATUS_TRANSITIONS`` and byte-identical). Instead the discharging change
+adds a SUCCESSOR register beside it — ``evidence-register.<change>.yaml`` —
+carrying one ``discharges_deferred: true`` entry per discharged scenario whose
+``owner_change`` matches the released deferred entry. These successors join the
+semantic/digest surface (``SEMANTIC_GLOBS``) and, at release realization, must be
+manifest-registered like any other bundle member. Rules (all fail-closed):
+non-discharging entries are ILLEGAL in a successor register (completeness stays
+single-sourced on the acceptance map + released register; brand-new scenarios
+belong to a future bundle's map + released register, not a successor); each
+released deferred entry may be discharged by EXACTLY ONE successor entry
+(duplicate discharge fails); and a ``planned`` discharge is treated as DECLARED
+but not yet effective — the released deferred entry stays authoritative and the
+discharging entry's ``evidence_id`` is not required to resolve until the entry
+flips to ``evidenced`` (a one-line change once the evidence fixture lands).
+
 Reproducible reference tooling only — NOT a pinned semantic artifact and NOT a
 required consumer dependency (spec FR-020/FR-023). Consumers may execute the
 self-describing fixtures with any conformant draft 2020-12 implementation.
@@ -81,6 +100,11 @@ SEMANTIC_GLOBS = [
     "acceptance-map.yaml",
     "interface-lock.yaml",
     "evidence-register.yaml",
+    # Successor deferral-discharge registers (decision 7) join the digested,
+    # manifest-registered semantic surface too. The pattern requires a middle
+    # segment (`.<change>.`), so it is disjoint from the released
+    # `evidence-register.yaml` above and never double-collects it.
+    "evidence-register.*.yaml",
 ]
 
 # ---- schema/registry parity map: registry_id -> (schema file, JSON-pointer to enum) ----
@@ -314,7 +338,7 @@ def run(strict: bool, require_realization: bool) -> int:
     check_release_identity(f)
     check_content_addressed_pin(f)
     check_redaction(f)
-    check_digests(f)
+    check_digests(f, require_realization)
     check_f0_gate(f, require_realization)
 
     for line in f.notes:
@@ -518,6 +542,130 @@ def check_acceptance_and_evidence(f: Findings, fixture_evidence_ids: set[str]) -
                 if not e.get(k):
                     f.error("evidence-deferred", f"{sid}: deferred entry missing {k}")
 
+    # Decision 7: successor registers discharge released `deferred` entries
+    # WITHOUT touching this released register (which stays byte-identical above).
+    check_successor_discharge(f, entries, fixture_evidence_ids)
+
+
+def _is_successor_register(name: str) -> bool:
+    """A successor deferral-discharge register is `evidence-register.<change>.yaml`
+    (a middle `<change>` segment) — never the released `evidence-register.yaml`."""
+    return (name.startswith("evidence-register.")
+            and name.endswith(".yaml")
+            and name != "evidence-register.yaml")
+
+
+def successor_register_files() -> list[Path]:
+    return sorted(p for p in AVC.glob("evidence-register.*.yaml")
+                  if p.is_file() and _is_successor_register(p.name))
+
+
+def check_successor_discharge(f: Findings, released_entries: list,
+                              fixture_evidence_ids: set[str]) -> None:
+    """Decision 7 (locked): machine-check the successor-register discharge of
+    released `deferred` scenarios. A released `deferred` entry MAY be discharged
+    by EXACTLY ONE successor entry carrying `discharges_deferred: true` whose
+    `owner_change` matches the released deferred entry. The released register and
+    acceptance map stay byte-identical; the in-place `deferred->evidenced` flip
+    remains illegal (enforced separately by EVID_STATUS_TRANSITIONS on the
+    released register). Design rules encoded here, all fail-closed:
+
+    - Non-discharging entries are ILLEGAL in a successor register. Successors exist
+      ONLY to discharge; a brand-new scenario belongs to a future bundle's
+      acceptance map + released register, so completeness stays single-sourced on
+      the released register and the map (which this function never re-derives).
+    - Each released deferred scenario is dischargeable exactly once across all
+      successor entries/files; any duplicate discharge fails (`successor-dup`).
+      This is the ONLY relaxation of the evidence-dup rule — the released register
+      keeps its deferred entry and the successor adds the single discharging one.
+    - A `planned` discharge is DECLARED but not yet effective: the released deferred
+      entry stays authoritative and the discharging `evidence_id` need not resolve
+      to a fixture yet. Only an EFFECTIVE (`evidenced`/`accepted`) automated
+      discharge must name an `evidence_id` present in the fixtures index; an
+      effective manual discharge must carry result/reviewer/disposition.
+    - The `change_id` field must match the filename suffix so a successor register
+      cannot masquerade as owned by a different change.
+    """
+    released_by_id = {e.get("scenario_id"): e for e in released_entries}
+    released_deferred = {
+        sid: e for sid, e in released_by_id.items()
+        if e.get("evidence_type") == "deferred" and e.get("status") == "deferred"
+    }
+    discharged: dict[str, str] = {}  # scenario_id -> file that discharged it
+    for path in successor_register_files():
+        rel = str(path.relative_to(ROOT))
+        doc = load_yaml(path) or {}
+        if not isinstance(doc, dict):
+            f.error("successor-meta", f"{rel}: top-level mapping required")
+            continue
+        if doc.get("schema_version") is None:
+            f.error("successor-meta", f"{rel}: missing schema_version")
+        if doc.get("kind") != "avatar-client-evidence-register":
+            f.error("successor-meta", f"{rel}: kind must be avatar-client-evidence-register")
+        change_id = doc.get("change_id")
+        suffix = path.name[len("evidence-register."):-len(".yaml")]
+        if not change_id:
+            f.error("successor-meta", f"{rel}: missing change_id")
+        elif change_id != suffix:
+            f.error("successor-change-id",
+                    f"{rel}: change_id {change_id!r} does not match filename suffix {suffix!r}")
+        for e in doc.get("entries") or []:
+            sid = e.get("scenario_id")
+            if not e.get("discharges_deferred"):
+                f.error("successor-nondischarge",
+                        f"{rel}: entry {sid!r} lacks discharges_deferred: true; a successor "
+                        f"register may only discharge released deferred scenarios (a new scenario "
+                        f"belongs to a future bundle's acceptance map + released register)")
+                continue
+            owner = e.get("owner_change")
+            if sid not in released_by_id:
+                f.error("successor-no-deferred",
+                        f"{rel}: discharge of {sid!r} has no matching scenario in the released register")
+                continue
+            if sid not in released_deferred:
+                f.error("successor-target-not-deferred",
+                        f"{rel}: {sid!r} is not a released `deferred` entry and cannot be discharged")
+                continue
+            released_owner = released_deferred[sid].get("owner_change")
+            if not owner or owner != released_owner:
+                f.error("successor-owner-mismatch",
+                        f"{rel}: discharge of {sid!r} names owner_change {owner!r} but the released "
+                        f"deferred entry names {released_owner!r}")
+                continue
+            if sid in discharged:
+                f.error("successor-dup",
+                        f"{rel}: {sid!r} is already discharged by {discharged[sid]}; a released "
+                        f"deferred entry may be discharged by exactly one successor entry")
+                continue
+            discharged[sid] = rel
+            et = e.get("evidence_type")
+            st = e.get("status")
+            if et not in EVID_TYPES or et == "deferred":
+                f.error("successor-type",
+                        f"{rel}: {sid!r} discharge evidence_type must be automated|manual, got {et!r}")
+                continue
+            if st not in _legal_statuses_for(et):
+                f.error("successor-status",
+                        f"{rel}: {sid!r} status {st!r} is not a legal transition for evidence_type "
+                        f"{et!r} (allowed: {sorted(_legal_statuses_for(et))})")
+                continue
+            if st == "planned":
+                # Declared, not yet effective: released deferred entry remains
+                # authoritative; evidence need not resolve until the flip.
+                continue
+            if et == "automated":
+                ev = e.get("evidence_id")
+                if not ev:
+                    f.error("successor-evidence",
+                            f"{rel}: {sid!r} effective automated discharge missing evidence_id")
+                elif ev not in fixture_evidence_ids:
+                    f.error("successor-evidence",
+                            f"{rel}: {sid!r} evidence_id {ev!r} not found in fixtures index")
+            elif et == "manual":
+                for k in ("result", "reviewer", "disposition"):
+                    if not e.get(k):
+                        f.error("successor-manual", f"{rel}: {sid!r} manual discharge missing {k}")
+
 
 def check_redaction(f: Findings) -> None:
     """US2 (T034): dual redaction. Structural exclusion lives in the schemas; this
@@ -658,11 +806,22 @@ def check_release_identity(f: Findings) -> None:
                     "avatar-client bundle registered in contracts/manifest.yaml but no bundle version is declared")
 
 
-def check_digests(f: Findings) -> None:
+def check_digests(f: Findings, require_realization: bool = False) -> None:
     """US3 (T036): per-file SHA-256 over the semantic consumed set + manifest/digest
     identity. The real contracts/manifest.yaml entries are authored at realization
     (T046); until then the digest set is computed and reported (A6). At realization
-    the manifest digests must match the computed set (SCO-001-S02/S03)."""
+    the manifest digests must match the computed set (SCO-001-S02/S03).
+
+    Successor deferral-discharge registers (decision 7) join the digested semantic
+    surface via SEMANTIC_GLOBS, but — following the release-time manifest convention
+    (the 005/v1.9 pattern: bundle members are registered in contracts/manifest.yaml
+    only when the next additive contract version is cut, not mid-change) — a
+    successor register is manifest-registered at THIS change's release realization,
+    not when it is authored. So an unregistered successor register is DEFERRED to a
+    note pre-realization and fails closed (`digest-missing`) under
+    ``--require-realization``. A successor register that IS listed still has its
+    digest verified. The released register and every other semantic file must be
+    registered unconditionally."""
     files = semantic_files()
     if not files:
         return
@@ -680,6 +839,15 @@ def check_digests(f: Findings) -> None:
     manifest_paths = {c["path"]: c.get("sha256") for c in avc_entries}
     for path, dg in computed.items():
         if path not in manifest_paths:
+            if _is_successor_register(Path(path).name):
+                msg = (f"{path} not yet registered in contracts/manifest.yaml; "
+                       f"successor deferral-discharge registers are content-addressed "
+                       f"at this change's release realization (release-time convention)")
+                if require_realization:
+                    f.error("digest-missing", msg)
+                else:
+                    f.note(msg)
+                continue
             f.error("digest-missing", f"{path} not registered in contracts/manifest.yaml")
         elif manifest_paths[path] != dg:
             f.error("digest-mismatch", f"{path}: manifest sha256 != computed digest")

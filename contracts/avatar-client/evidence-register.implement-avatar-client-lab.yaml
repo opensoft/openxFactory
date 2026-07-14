@@ -1,0 +1,36 @@
+schema_version: 1
+kind: avatar-client-evidence-register
+change_id: implement-avatar-client-lab
+# Successor deferral-discharge register (locked decision 7 of
+# implement-avatar-client-lab). It discharges the released `deferred` scenarios
+# whose released owner_change names THIS change, WITHOUT mutating the released,
+# content-addressed evidence-register.yaml (contract-v1.9 bundle member, manifest
+# sha256 6f42422521adad8818895e6b8bb83ca9d148dc33fb9e61a8c762d5e6cca36d66) or the
+# acceptance map. The released register keeps its terminal `deferred` entry for
+# SCO-001-S05; this successor records the discharge as a separate, owned entry, so
+# the deferred->evidenced progression is expressed ACROSS registers rather than by
+# an illegal in-place flip of the released terminal entry (deferred stays terminal
+# in EVID_STATUS_TRANSITIONS). Machine-checked by
+# scripts/validate-avatar-client.py::check_successor_discharge.
+#
+# Manifest registration: successor registers are content-addressed at this
+# change's RELEASE realization step (the 005/v1.9 convention — members are added
+# to contracts/manifest.yaml when the next additive bundle version is cut), not
+# mid-change. The validator defers the manifest-membership check pre-realization
+# (a note) and fails it closed under --require-realization.
+supersedes_deferred_from: define-avatar-client-contract-kernel
+entries:
+  # HONESTY: the lab's client evidence node TEST-SCO-001-S05 does not exist yet
+  # (it is produced by the codexFactory apps/avatar-client-lab/ conformance work).
+  # This entry is therefore recorded as `planned` (declared, not yet effective):
+  # the released `deferred` entry for SCO-001-S05 remains authoritative, and the
+  # discharging evidence_id need not resolve in fixtures/index.yaml until the flip.
+  # When the lab lands TEST-SCO-001-S05, the discharge becomes effective with a
+  # one-line change here (status: planned -> evidenced).
+  - scenario_id: SCO-001-S05
+    evidence_type: automated
+    status: planned
+    evidence_id: TEST-SCO-001-S05
+    discharges_deferred: true
+    owner_change: implement-avatar-client-lab
+    note: "Provider event added; lab conformance proves it stays in the owning adapter absent a reviewed neutral evolution. Declared discharge of the released deferred entry; effective on the planned->evidenced flip once TEST-SCO-001-S05 lands in fixtures/index.yaml."
