@@ -6,6 +6,8 @@ __pycache__/
 .env
 .env.*
 !.env.example
+*.private-key.pem
+*.private-key.pem:Zone.Identifier
 
 # Session-local agent state (cta dashboard pane)
 .claude/dashboard.md
