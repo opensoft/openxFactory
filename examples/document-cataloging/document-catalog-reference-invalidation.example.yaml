@@ -1,0 +1,102 @@
+# Valid xfactory_document_catalog snapshot: schema-revision example
+# exercising the `evidence_ref` mapping shape (codexFactory
+# `scripts/doc_health/cataloger.py` reconciliation: `evidence_refs` items
+# admit both a worker-emitted opaque string and a resolvable
+# `{repo, path}` reference-propagation mapping).
+#
+# Two entries in the same run: `docs/document-lifecycle.md` is the cited
+# document; `docs/doc-health.md` carries two facets that both cite it.
+# `domain_contexts` is still `suggested` and its `provenance.evidence_refs`
+# names the cited document directly with the `{repo, path}` mapping form
+# (the worker's own structured grounding citation, not a free-text
+# reference). `topic_tags` has already been reference-invalidated: when
+# `docs/document-lifecycle.md`'s content changed, `invalidate()`
+# (`cataloger.py::invalidate`, `_changed_references`) found this facet's
+# prior provenance cited it, reset the facet to `pending` (dropping
+# `provenance` entirely), and appended a `{from, to, occurred_at,
+# evidence_refs}` transition event whose `evidence_refs` carries the same
+# `{repo, path}` mapping — "so the trigger survives the provenance drop."
+schema_version: 1
+kind: xfactory_document_catalog
+status: record
+run:
+  run_id: e428f1614835d9a48639cc65f4f223855d1949c55e5cabeb00fa0167bf0032f0
+  repository: openxFactory
+  repository_revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+  inventory_snapshot_id: c5f2ecc6360c9166afe460b40e59488ccfe83155c1f7bbe13e0561797795d639
+taxonomy:
+  digest: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+  inputs:
+    - repository: openxFactory
+      path: contracts/document-tag-registry.yaml
+      content_sha256: f3f984ede65daee911185774e2f5b0e8619a36aef599fbfcb50af6340bda6460
+      registry_version: "1"
+      repository_revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+      registry_revision: 3936c6dff1417735d56ce3973cfe6c29a09c7541
+    - repository: xFactories/MedxFactory
+      path: catalog/document-tag-registry.yaml
+      content_sha256: c4c813bada6af84cd358636770773a702f6a23cf4aab93a1c59d49aec3a9f2ce
+      registry_version: "1"
+      repository_revision: 7fbf65c5250e7a866da552761ed5d02fa457c042
+      registry_revision: 0e01e898f649e7ba3bc3938a076931186197af48
+entries:
+  - repo: openxFactory
+    path: docs/document-lifecycle.md
+    status: standard
+    kind: policy
+    repository_context: openxFactory
+    handling: null
+    artifact_type: governance_markdown
+    revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+    content_hash: 282ebe25d09c2b1cb52b1d24254935075e986f65780d4167d7b193048ef051d7
+    snapshot_id: c5f2ecc6360c9166afe460b40e59488ccfe83155c1f7bbe13e0561797795d639
+  - repo: openxFactory
+    path: docs/doc-health.md
+    status: standard
+    kind: policy
+    repository_context: openxFactory
+    handling: null
+    artifact_type: governance_markdown
+    revision: c130ff4c0e7401a7d7407a6fb4bce2da119f6f64
+    content_hash: 635d3a8f487de962c154cff031e51c7559d9bc0b38ef19d13e66dcc3499577fd
+    snapshot_id: c5f2ecc6360c9166afe460b40e59488ccfe83155c1f7bbe13e0561797795d639
+    facet_assignments:
+      - facet: domain_contexts
+        values: ["xfactory.document-governance"]
+        state: suggested
+        state_since: "2026-07-12"
+        provenance:
+          taxonomy_sha256: 2af1a250e456f7954d4c4dc0e86902336984572c967fd2237f82729d0ee5fce9
+          method: classifier
+          classifier_version: "1.0.0"
+          model: xfactory-doc-cataloger-2026-06
+          prompt_contract_version: 1
+          confidence: 0.88
+          section: body
+          passage_sha256: 7f3332280e8978d4322b61084280ed0c957ea7c0e99daca41497cfdadc7b5300
+          evidence_refs:
+            - "body: cross-references the document-lifecycle stage pipeline"
+            - repo: openxFactory
+              path: docs/document-lifecycle.md
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: "2026-07-05T02:00:00Z"
+            evidence_refs: []
+        review: null
+      - facet: topic_tags
+        values: []
+        state: pending
+        state_since: "2026-07-12"
+        transitions:
+          - from: pending
+            to: suggested
+            occurred_at: "2026-07-01T02:00:00Z"
+            evidence_refs: []
+          - from: suggested
+            to: pending
+            occurred_at: "2026-07-12T02:00:00Z"
+            evidence_refs:
+              - repo: openxFactory
+                path: docs/document-lifecycle.md
+        review: null

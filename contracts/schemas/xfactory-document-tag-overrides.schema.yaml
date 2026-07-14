@@ -72,7 +72,9 @@ $defs:
           `review.authority`.
       occurred_at: {type: string, format: date-time}
       rationale: {type: string, minLength: 1}
-      evidence_refs: {type: array, items: {type: string, minLength: 1}}
+      evidence_refs:
+        type: array
+        items: {$ref: "xfactory-document-catalog-snapshot.schema.yaml#/$defs/evidence_ref"}
     allOf:
       - $ref: "xfactory-document-opaque-locator.schema.yaml#/$defs/document_locator"
       - if:

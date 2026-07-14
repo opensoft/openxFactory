@@ -17,6 +17,7 @@ document-cataloging/
 ├── document-catalog-snapshot-deletion-after.example.yaml   # deletion (pair, 2/2)
 ├── document-catalog-protected-evidence.example.yaml     # protected evidence + opaque locator
 ├── document-catalog-pending-transitions.example.yaml    # pending-state transitions
+├── document-catalog-reference-invalidation.example.yaml # evidence_ref {repo, path} mapping form
 ├── cataloger-recommendation-suggested.example.yaml       # suggested classification
 ├── document-tag-registry.example.yaml
 ├── document-tag-overrides.example.yaml                   # owner override
@@ -27,6 +28,7 @@ document-cataloging/
     ├── snapshot-bad-facet-value.yaml
     ├── snapshot-reviewed-without-review-block.yaml
     ├── snapshot-suggested-missing-provenance.yaml
+    ├── snapshot-evidence-ref-extra-property.yaml
     ├── recommendation-not-suggested.yaml
     ├── tag-registry-bad-status.yaml
     ├── tag-overrides-missing-values.yaml
@@ -40,7 +42,7 @@ document-cataloging/
 
 | Schema | Valid example(s) | Negative example(s) |
 | --- | --- | --- |
-| `xfactory-document-catalog-snapshot.schema.yaml` | `document-catalog-snapshot-complete`, `-deletion-before`, `-deletion-after`, `-protected-evidence`, `-pending-transitions` | `snapshot-ambiguous-locator`, `snapshot-bad-facet-value`, `snapshot-reviewed-without-review-block`, `snapshot-suggested-missing-provenance` |
+| `xfactory-document-catalog-snapshot.schema.yaml` | `document-catalog-snapshot-complete`, `-deletion-before`, `-deletion-after`, `-protected-evidence`, `-pending-transitions`, `-reference-invalidation` | `snapshot-ambiguous-locator`, `snapshot-bad-facet-value`, `snapshot-reviewed-without-review-block`, `snapshot-suggested-missing-provenance`, `snapshot-evidence-ref-extra-property` |
 | `xfactory-document-cataloger-recommendation.schema.yaml` | `cataloger-recommendation-suggested` | `recommendation-not-suggested` |
 | `xfactory-document-tag-registry.schema.yaml` | `document-tag-registry` | `tag-registry-bad-status` |
 | `xfactory-document-tag-overrides.schema.yaml` | `document-tag-overrides` | `tag-overrides-missing-values` |
@@ -67,6 +69,24 @@ same repository. The "after" snapshot demonstrates deletion structurally: it
 simply has no entry for `docs/legacy-runbook.md`, which the "before" snapshot
 carried. There is no tombstone field — a later run's snapshot omitting a
 locator key already lands as required.
+
+## `evidence_ref` mapping form
+
+`document-catalog-reference-invalidation.example.yaml` exercises the
+`#/$defs/evidence_ref` shape's second `oneOf` branch — a closed `{repo,
+path}` object — alongside the plain non-empty-string form the other
+examples use throughout. `docs/doc-health.md`'s `domain_contexts` facet
+cites `docs/document-lifecycle.md` with the mapping in its
+`provenance.evidence_refs` (the worker's own structured grounding
+citation); its `topic_tags` facet shows the same mapping written onto a
+`transitions[]` event by the realized codexFactory cataloger's
+`invalidate()` (`scripts/doc_health/cataloger.py`) when that cited
+document's content changed and reference-propagation reset the facet to
+`pending` — the mapping is what lets the invalidation trigger survive the
+`provenance` drop. `snapshot-evidence-ref-extra-property.yaml` is the
+matching negative: an `evidence_refs` item with a `repo`/`path` pair plus
+an extra property satisfies neither `oneOf` branch (not a string; the
+object branch is `additionalProperties: false`).
 
 ## Cross-schema consistency
 

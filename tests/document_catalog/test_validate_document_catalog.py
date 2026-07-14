@@ -193,14 +193,17 @@ def _matching_overrides(source_content_hash: str = "3" * 64) -> dict:
 
 def test_gates_valid_examples_pass_and_negative_examples_fail():
     """The documented GATES behavior end-to-end: exit 0 over the packaged
-    fixture set, with 8 top-level valid examples and 11 negative examples
+    fixture set, with 9 top-level valid examples and 12 negative examples
     confirmed (the two fragment-kernel example files carry 2 items each,
-    for the 12 valid fixture cases task 2.2 reports)."""
+    for the 12 valid fixture cases task 2.2 reports, plus the
+    `document-catalog-reference-invalidation`/`snapshot-evidence-ref-
+    extra-property` pair added for the `evidence_ref` mapping-form schema
+    revision)."""
     proc = subprocess.run(
         [sys.executable, str(SCRIPT)], cwd=ROOT, capture_output=True, text=True, timeout=60,
     )
     assert proc.returncode == 0, proc.stdout + proc.stderr
-    assert "8 valid example(s) confirmed valid, 11 negative example(s) confirmed invalid" in proc.stdout
+    assert "9 valid example(s) confirmed valid, 12 negative example(s) confirmed invalid" in proc.stdout
     assert "0 error(s), 0 warning(s)" in proc.stdout
 
 
@@ -211,7 +214,7 @@ def test_negative_examples_each_fail_for_a_reason_matching_their_filename():
     registry, docs = vdc.build_registry()
     neg_dir = vdc.EXAMPLES_DIR / "negative"
     files = sorted(neg_dir.glob("*.yaml"))
-    assert len(files) == 11
+    assert len(files) == 12
     for path in files:
         doc = vdc.load_yaml(path)
         if path.name in vdc.NEGATIVE_FRAGMENT_DEFS:
