@@ -1,9 +1,13 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.9
+contract_bundle_version: contract-v1.10
+# source_compatibility_ref.local_source_path (a host-absolute developer path)
+# was removed at contract-v1.10 after the recorded supported-consumer audit
+# proved no supported consumer requires it; canonical repository and source
+# commit provenance are retained. See
+# openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/legacy-source-path-consumer-audit.md
 source_compatibility_ref:
   repo: opensoft/Omnigent-Install
-  local_source_path: /home/brett/projects/Agents/Omnigent-Install
   source_commit: e254c22ce14e585e909b05c44aed21fd07beba84
 adapter_ownership_rule: >-
   openxFactory owns canonical contract meaning, versioning, and compatibility

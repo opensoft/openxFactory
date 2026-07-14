@@ -9,6 +9,62 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.10 — 2026-07-14 (additive; superseding hardening of the neutral Hermes customer-subject runtime, provider side)
+
+Fourth annotated-tag release. A **superseding additive re-realization** of the
+provider-side neutral Hermes customer-subject runtime family first cut at
+`contract-v1.9`. Per the Immutable Tag Correction policy, the `contract-v1.9`
+annotated tag and its digest inventory
+(`contracts/releases/contract-v1.9.digests.yaml`) remain in place as immutable
+provenance; this bundle carries the corrected bytes under the next available
+version. No contract shape changes: `contract_schema_version` is unchanged,
+every v1 contract path is untouched, and any consumer that pinned
+`contract-v1.9` remains conformant until it deliberately upgrades.
+
+Why a superseding release: after `contract-v1.9` was tagged, two governed
+review findings hardened release-surface members, so the frozen v1.9 digest
+inventory no longer reproduced the current tree (expected drift, not a defect):
+
+- **F-U3** (`Harden release membership closure`) made the Decision-10 mandatory
+  release auxiliaries unconditional members of the closed bundle (no
+  `exists()` gate) and repaired two release-fragile tests, changing
+  `scripts/hermes_runtime_validation/release.py` and the six
+  `contracts/hermes-runtime/fixtures/release/*.yaml` inventory fixtures.
+- **F-4 / F-7..F-9** (`Harden migration digest surface`) changed
+  `contracts/hermes-runtime/hermes-operational-postgres-v2.sql`.
+
+This release refreshes the raw-Git-blob release digest inventory over the
+current bytes and re-establishes manifest/changelog/tag/inventory agreement.
+
+Host-local metadata removal (FR-042): `contracts/manifest.yaml`
+`source_compatibility_ref.local_source_path` — a host-absolute developer path
+(`/home/brett/...`) — is removed in this additive bundle after the recorded
+repository-wide supported-consumer audit
+(`openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/legacy-source-path-consumer-audit.md`,
+`Status: record`) proved no supported consumer requires it. Canonical source
+repository and source-commit provenance are retained; no consumer, validator,
+or DomainxFactory `stack.yaml` resolved the removed field.
+
+Gate G0 remains OPEN: the exact downstream `opensoft/xFactory-Hermes-Install`
+consumer pin and its reproduced digests are required to close it and are owned
+by that repository's own feature.
+
+Changed:
+
+- `contracts/manifest.yaml` — `contract_bundle_version` -> `contract-v1.10`;
+  `source_compatibility_ref.local_source_path` removed (audited; provenance
+  `repo`/`source_commit` retained).
+- `contracts/releases/contract-v1.10.digests.yaml` — new realized release
+  digest inventory (raw Git blob SHA-256; bytewise-`utf8` path order;
+  self-excluded and commit-free) for this bundle.
+- The `contracts/hermes-runtime/` family,
+  `scripts/hermes_runtime_validation/`,
+  `scripts/validate-hermes-runtime-contracts.py`,
+  `scripts/validate-contract-release.py`, and the hermes-runtime docs are the
+  realized surface (governed by `contracts/hermes-runtime/contract-index.yaml`;
+  not tracked per-file in `manifest.yaml`), carrying the F-U3 and
+  F-4/F-7..F-9 hardening above.
+
 ## contract-v1.9 — 2026-07-14 (additive; neutral Hermes customer-subject runtime, provider side)
 
 Third annotated-tag release. Realizes the **provider side** of the neutral
