@@ -172,6 +172,38 @@ CAP_REGISTER_KIND = "avatar-client-lab-capability-scenario-register"
 CAP_ID_REQ = re.compile(r"^ACL-\d{3}$")
 CAP_ID_SCEN = re.compile(r"^ACL-\d{3}-S\d{2}$")
 
+# ---- Avatar-state derivation table (adopt-avatar-client-lab-candidates task 4.3 / P1) ----
+# The neutral, openxFactory-owned table (design D3) that maps the four authoritative runtime
+# axes onto the six FR-019 avatar presentation states.
+# check_avatar_state_derivation_table fail-closes on: an `outputs` set != the six FR-019 states;
+# an `inputs.media_states` axis != the closed ten; any landed deterministic seed that DECLARES an
+# avatar state not resolving to it under the table's precedence (R0..R6 over the seed's reduced/
+# kernel fields); a `reachability_named_combinations` set != the gate (ix)(a) set; or an
+# invariant-contradiction row (control loss mapped to anything but `blocked`). It owns none of the
+# released bytes and is guarded on the table's presence (pre-landing compat).
+DERIV_TABLE_YAML = ROOT / "contracts" / "avatar-client-lab" / "avatar-state-derivation-table.yaml"
+DERIV_TABLE_KIND = "avatar-client-registry"
+DERIV_SEEDS_DIR = ROOT / "examples" / "avatar-first-ui" / "fixtures" / "deterministic"
+# The six FR-019 avatar presentation states (the table's `outputs`).
+DERIV_STATES = {"listening", "thinking", "speaking", "interrupted", "blocked", "handoff"}
+# The ten closed media.states (avatar-first-ui-profile.schema.yaml media.states; FR-012 denominator).
+DERIV_MEDIA_STATES = {
+    "permission", "capture_authorized", "capture_pending", "capture_active",
+    "listening", "speaking", "control_degraded", "control_lost",
+    "governed_action_pending", "retention_active",
+}
+# Presentation-superset media_state values a reducer may emit that are NOT denominator members;
+# each is recognized (intercepted by R1-R4, or by an R3 terminal), never an R0 unknown (table §1).
+DERIV_PRESENTATION_EXTRA = {"idle", "blocked", "revoked", "handoff", "interrupted"}
+# The six terminal session_outcome values that trip R3 (the gate (ix)(a) terminal set).
+DERIV_TERMINAL_OUTCOMES = {
+    "denied", "revoked", "abandoned", "expired", "completed", "session_limit_reached",
+}
+# session_lifecycle signals: handoff (trip R2) and processing (raise the R5 `thinking` overlay).
+DERIV_HANDOFF_SIGNALS = {"handoff_requested", "handoff_active"}
+DERIV_PROCESSING_SIGNALS = {"tool_request_pending", "workflow_waiting",
+                            "comprehension_or_confirmation_check"}
+
 
 class Findings:
     def __init__(self) -> None:
@@ -380,6 +412,7 @@ def run(strict: bool, require_realization: bool) -> int:
     check_acceptance_and_evidence(f, ev_ids)
     check_client_lab_acceptance_map(f)
     check_capability_scenario_register(f)
+    check_avatar_state_derivation_table(f)
     check_release_identity(f)
     check_content_addressed_pin(f)
     check_redaction(f)
@@ -999,6 +1032,222 @@ def check_capability_scenario_register(f: Findings) -> None:
                 f"{rp}: scenario titles do not byte-match the {src_label} capability spec in "
                 f"document order (no fabricated/renamed/dropped/reordered entry): "
                 f"register {reg_scen_titles} != spec {spec_scen_titles}")
+
+
+def _canon_control(value: Any) -> Any:
+    """Canonicalize the control axis to {healthy, degraded, lost} (table §2.2; data-model §4 / L4):
+    the already-flavored `control_lost` / `control_degraded` denominator spellings fold to the
+    canonical `lost` / `degraded` enum; `healthy` / `degraded` / `lost` pass through."""
+    return {"control_lost": "lost", "control_degraded": "degraded"}.get(value, value)
+
+
+def _derive_avatar_state(view_state: dict, snapshot: dict, media_state_map: dict) -> str:
+    """Faithful reimplementation of the table's precedence (§4 R0..R6; first match wins) over a
+    seed's reduced `expected.view_state` (+ the kernel `canonical.snapshot` for session_outcome /
+    session_lifecycle). Returns one of the six avatar states. The R5 base map is read from the
+    table's own `media_state_map`, so the OQ-5 mapping (governed_action_pending => listening) and
+    the OQ-6 fail-closed `blocked` are whatever the landed table declares. R4 keys on the reducer's
+    surfaced `media_state == interrupted`; R2 keys on a handoff signal (§4.1 note: R1..R4 intercept
+    every control/handoff/terminal/interruption value before R5 reads media_state)."""
+    media = view_state.get("media_state")
+    control = _canon_control(view_state.get("control_state")
+                             if view_state.get("control_state") is not None
+                             else snapshot.get("control_health"))
+    outcome = (snapshot.get("session_outcome")
+               if snapshot.get("session_outcome") is not None
+               else view_state.get("session_outcome"))
+    workflow = view_state.get("workflow_projection") or snapshot.get("workflow_projection")
+    lifecycle = snapshot.get("session_lifecycle") or view_state.get("session_lifecycle")
+    recognized_media = DERIV_MEDIA_STATES | DERIV_PRESENTATION_EXTRA
+
+    # R0 — fail-closed / indeterminate: unknown enum on any consumed axis, or an axis
+    # inconsistency (a control media.state while control_health = healthy) => blocked (OQ-6).
+    if control is not None and control not in {"healthy", "degraded", "lost"}:
+        return "blocked"
+    if outcome is not None and outcome not in (DERIV_TERMINAL_OUTCOMES | {"granted"}):
+        return "blocked"
+    if media is not None and media not in recognized_media:
+        return "blocked"
+    if media in {"control_lost", "control_degraded"} and control == "healthy":
+        return "blocked"
+
+    # R1 — control-health safety trip => blocked (INV-1; never speaking).
+    if control in {"degraded", "lost"} or media in {"control_degraded", "control_lost"}:
+        return "blocked"
+
+    # R2 — handoff (control healthy) => handoff (INV-3).
+    if lifecycle in DERIV_HANDOFF_SIGNALS or workflow == "handoff" or media == "handoff":
+        return "handoff"
+
+    # R3 — authored terminal / clean revocation (kernel session_outcome only) => listening (INV-4).
+    if outcome in DERIV_TERMINAL_OUTCOMES:
+        return "listening"
+
+    # R4 — interruption of an active turn (reducer surfaces it as media_state == interrupted).
+    if media == "interrupted":
+        return "interrupted"
+
+    # R5 — live media-state presentation (+ the command-in-flight `thinking` overlay, which does
+    # NOT override speaking), from the table's own base map.
+    if lifecycle in DERIV_PROCESSING_SIGNALS and media != "speaking":
+        return "thinking"
+    return media_state_map.get(media, "listening")
+
+
+def _check_derivation_reachability(f: Findings, rp: str, reach: list) -> None:
+    """(iv) `reachability_named_combinations` must be EXACTLY the gate (ix)(a) set the table
+    names: control_health lost=>control_lost and degraded=>control_degraded, one media_state group
+    (the eight non-control denominator states), and the six terminal session_outcomes — no more."""
+    control_vals: dict[Any, Any] = {}
+    media_groups = 0
+    outcome_groups: list[set] = []
+    extra: list = []
+    for entry in reach:
+        if not isinstance(entry, dict):
+            f.error("derivation-reachability", f"{rp}: reachability entry must be a mapping")
+            continue
+        axis = entry.get("axis")
+        if axis == "control_health":
+            control_vals[entry.get("value")] = entry.get("evidences_media_state")
+        elif axis == "media_state":
+            media_groups += 1
+        elif axis == "session_outcome":
+            outcome_groups.append(set(entry.get("values") or []))
+        else:
+            extra.append(axis)
+    if (set(control_vals) != {"lost", "degraded"}
+            or control_vals.get("lost") != "control_lost"
+            or control_vals.get("degraded") != "control_degraded"):
+        f.error("derivation-reachability",
+                f"{rp}: reachability control_health combinations must be exactly "
+                f"lost=>control_lost and degraded=>control_degraded, got {control_vals!r}")
+    if media_groups != 1:
+        f.error("derivation-reachability",
+                f"{rp}: reachability must name exactly one non-control media_state group, "
+                f"got {media_groups}")
+    if len(outcome_groups) != 1 or outcome_groups[0] != DERIV_TERMINAL_OUTCOMES:
+        f.error("derivation-reachability",
+                f"{rp}: reachability session_outcome terminals must be exactly "
+                f"{sorted(DERIV_TERMINAL_OUTCOMES)}, got {[sorted(g) for g in outcome_groups]}")
+    if extra:
+        f.error("derivation-reachability", f"{rp}: unexpected reachability axis/entries {extra!r}")
+    if len(reach) != 4:
+        f.error("derivation-reachability",
+                f"{rp}: reachability must declare exactly the 4 gate (ix)(a) combinations, "
+                f"got {len(reach)}")
+
+
+def check_avatar_state_derivation_table(f: Findings) -> None:
+    """P1 (adopt-avatar-client-lab-candidates task 4.3; design D3): machine-check the neutral
+    avatar-state derivation table, fail-closed, mirroring check_capability_scenario_register.
+    All rules fail closed:
+
+    (i)   `outputs` == exactly the six FR-019 avatar states.
+    (ii)  `inputs.media_states` == exactly the closed ten.
+    (iii) every landed deterministic seed that DECLARES an avatar/presentation state resolves to
+          that state under the table's precedence (R0..R6 evaluated over the seed's reduced/kernel
+          fields). A seed declares a state via the table's `landed_seed_crosscheck` (the five
+          worked seeds) or by carrying `expected.view_state.media_state` ∈ the six avatar states;
+          every seed's precedence result must be one of the six (totality).
+    (iv)  `reachability_named_combinations` == exactly the gate (ix)(a) set the table declares.
+    (v)   invariant-contradiction rows fail closed: `media_state_map` must map control_lost and
+          control_degraded to `blocked`, and precedence R1's output must be `blocked` (INV-1).
+    (vi)  absent table => skipped (pre-landing compat); present-but-malformed => error.
+
+    Guarded on the table's presence so a checkout without it stays green.
+    """
+    if not DERIV_TABLE_YAML.is_file():
+        return
+    rp = str(DERIV_TABLE_YAML.relative_to(ROOT))
+    try:
+        doc = load_yaml(DERIV_TABLE_YAML)
+    except yaml.YAMLError as exc:
+        f.error("derivation-malformed", f"{rp}: unparseable YAML: {exc}")
+        return
+    if not isinstance(doc, dict):
+        f.error("derivation-malformed", f"{rp}: top-level mapping required")
+        return
+    if doc.get("schema_version") is None:
+        f.error("derivation-meta", f"{rp}: missing schema_version")
+    if doc.get("kind") != DERIV_TABLE_KIND:
+        f.error("derivation-meta", f"{rp}: kind must be {DERIV_TABLE_KIND!r}")
+
+    # (i) outputs == the six FR-019 states.
+    outputs = doc.get("outputs")
+    if (not isinstance(outputs, list) or set(outputs) != DERIV_STATES
+            or len(outputs) != len(DERIV_STATES)):
+        f.error("derivation-outputs",
+                f"{rp}: outputs must be exactly the six FR-019 states "
+                f"{sorted(DERIV_STATES)}, got {outputs!r}")
+
+    # (ii) media_states axis == the closed ten.
+    inputs = doc.get("inputs")
+    media_states = inputs.get("media_states") if isinstance(inputs, dict) else None
+    if (not isinstance(media_states, list) or set(media_states) != DERIV_MEDIA_STATES
+            or len(media_states) != len(DERIV_MEDIA_STATES)):
+        f.error("derivation-media-states",
+                f"{rp}: inputs.media_states must be exactly the closed ten "
+                f"{sorted(DERIV_MEDIA_STATES)}, got {media_states!r}")
+
+    # (v) invariant-contradiction rows fail closed (INV-1): control loss => blocked.
+    media_state_map = doc.get("media_state_map")
+    if not isinstance(media_state_map, dict):
+        f.error("derivation-malformed", f"{rp}: media_state_map mapping required")
+        media_state_map = {}
+    for cstate in ("control_lost", "control_degraded"):
+        if media_state_map.get(cstate) not in (None, "blocked"):
+            f.error("derivation-invariant",
+                    f"{rp}: media_state_map[{cstate}] must be `blocked` (INV-1), "
+                    f"got {media_state_map.get(cstate)!r}")
+    prec = doc.get("precedence") or []
+    r1 = next((p for p in prec if isinstance(p, dict) and p.get("id") == "R1"), None)
+    if r1 is None:
+        f.error("derivation-malformed",
+                f"{rp}: precedence rule R1 (control-health safety trip) missing")
+    elif r1.get("output") != "blocked":
+        f.error("derivation-invariant",
+                f"{rp}: precedence R1 output must be `blocked` (INV-1), got {r1.get('output')!r}")
+
+    # (iv) reachability_named_combinations == the gate (ix)(a) set.
+    reach = doc.get("reachability_named_combinations")
+    if not isinstance(reach, list):
+        f.error("derivation-malformed", f"{rp}: reachability_named_combinations list required")
+    else:
+        _check_derivation_reachability(f, rp, reach)
+
+    # (iii) seed resolution over the table's precedence.
+    crosscheck: dict[str, Any] = {}
+    for c in (doc.get("landed_seed_crosscheck") or []):
+        if isinstance(c, dict) and c.get("seed"):
+            d = c.get("derived")
+            crosscheck[c["seed"]] = d[-1] if isinstance(d, list) and d else d
+    if DERIV_SEEDS_DIR.is_dir():
+        for path in sorted(DERIV_SEEDS_DIR.glob("*.yaml")):
+            try:
+                seed = load_yaml(path) or {}
+            except yaml.YAMLError as exc:
+                f.error("derivation-seed", f"{path.name}: unparseable seed YAML: {exc}")
+                continue
+            expected = seed.get("expected") if isinstance(seed.get("expected"), dict) else {}
+            canonical = seed.get("canonical") if isinstance(seed.get("canonical"), dict) else {}
+            view_state = expected.get("view_state") if isinstance(expected.get("view_state"), dict) else {}
+            snapshot = canonical.get("snapshot") if isinstance(canonical.get("snapshot"), dict) else {}
+            if not isinstance(view_state, dict) or not isinstance(snapshot, dict):
+                continue
+            derived = _derive_avatar_state(view_state, snapshot, media_state_map)
+            # Totality: the precedence must resolve to one of the six states for EVERY seed.
+            if derived not in DERIV_STATES:
+                f.error("derivation-seed",
+                        f"{path.name}: table precedence resolved to {derived!r}, not one of the "
+                        f"six avatar states")
+                continue
+            declared = crosscheck.get(path.name)
+            if declared is None and view_state.get("media_state") in DERIV_STATES:
+                declared = view_state["media_state"]
+            if declared is not None and derived != declared:
+                f.error("derivation-seed",
+                        f"{path.name}: table precedence derives {derived!r} but the seed declares "
+                        f"{declared!r}")
 
 
 def check_redaction(f: Findings) -> None:
