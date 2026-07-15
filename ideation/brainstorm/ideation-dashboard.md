@@ -548,6 +548,63 @@ manifest binds it); source refresh on re-click (default: diff by title
 tiles load only supporting-docs or also the proposal/design/tasks files
 (default: all of the change dir minus review records).
 
+### Doc-location and NotebookLM connectivity (Brett + discussion, 2026-07-15)
+
+Design ground for the hybrid backend seam. The pivotal observation: **the
+repo is already the database** — the nightly lane commits `snapshot.json`
+into the aggregation repo and the governed docs ARE the repo, so "where do
+the docs live" reduces to *who fetches from the repo, when*. Four models:
+
+| | Local clone | Baked server copy (served mode today) | Live server workspace | Repo-direct (the Claude-Code-mobile parallel) |
+|---|---|---|---|---|
+| What | operator's checkouts | corpus frozen into the image | server keeps a pulling clone | UI fetches straight from GitHub (raw snapshot.json + contents API) |
+| Freshness | as fresh as your pull | frozen at build (the staleness bug class) | minutes | always current |
+| Doc viewer | yes | yes since v4, frozen | yes | yes (raw fetch) |
+| Actions | full | none | partial (writes as PRs) | writes become PRs/issues via API — matches the rolling-PR delivery model |
+| Ops burden | clone mgmt (v2 repo picker) | rebuild+redeploy per refresh | pod + sync loop + repo creds | near zero: static page + a token |
+| Auth | your git | ingress Basic Auth | server-held repo creds | fine-grained PAT in browser, or a thin GitHub-App proxy (~the whole "served backend") |
+| Mobile/anywhere | no | yes | yes | best |
+
+Direction: **local clone stays the action-rich operator mode; repo-direct
+is the served mode's destination; the baked image is a stopgap** we now
+understand as such. Repo-direct dissolves three standing bug classes at
+once (staleness, the missing refresh pipeline, the served doc viewer) at
+the cost of one problem — private-repo credentials in a browser — solved
+by a pasted fine-grained PAT (single-operator) or a tiny GitHub-App proxy
+(team).
+
+**NotebookLM connectivity, corrected:** consumer NotebookLM has NO
+official public API. The `nlm` CLI (`notebooklm-mcp-cli`) is
+session-automation: `nlm login` opens a browser and the Google session
+(~20-minute lifetime) lands in `~/.notebooklm-mcp-cli/`; every call
+replays that session against the web endpoints. The MCP flavor is the
+same tool exposed as an MCP server — same auth underneath, not a second
+channel. This is WHY the served backend cannot create notebooks: holding
+a user's live Google session cookies server-side is structurally
+unacceptable, not an engineering gap. The only true service-API path is
+NotebookLM Enterprise (Google Cloud/Agentspace, IAM/service-account) —
+worth a fresh capability check before ever betting on it (knowledge-
+cutoff caveat recorded).
+
+Three integration postures, per mode:
+1. **Local (SHIPPED, v4 PR #15):** tile button → `nlm` under the
+   operator's session; capability-gated, invisible elsewhere.
+2. **Served/repo-direct, pragmatic:** no live creation — a nightly
+   pre-provisioning lane on an already-authenticated host builds one
+   notebook per staging topic/cluster and the UI deep-links. The Cloud PC
+   artifact-worker host is the proven pattern for keeping interactive
+   auth alive (it already does for claude); an `nlm` session there is the
+   same shape.
+3. **Served, someday:** Enterprise API with a service identity — only if
+   multi-user demand justifies procurement.
+
+Bonus from the mobile parallel: the USER'S browser is already logged into
+Google, so deep-links into pre-provisioned notebooks work from any device
+with zero credential machinery. Repo-direct UI + pre-provisioned
+notebooks = a fully-current dashboard usable from a phone, NotebookLM one
+tap away — no pod, no bake, no session juggling. This section supersedes
+the earlier "Served-backend write actions" OQ default where they differ.
+
 ### Open questions (defaults proposed)
 
 - **Allowlist config home**: extend `project-register.yaml` vs a new
