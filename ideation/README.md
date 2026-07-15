@@ -174,6 +174,12 @@ proposal):
 
 Brainstorm (active):
 
+- [Git-Native Record Vault](brainstorm/git-native-record-vault.md) — pull
+  PHI out of governed docs into a SOPS/KMS-audited vault plane; sanitized
+  analysis plane + commodity bulk plane (de-identified, research-reusable)
+  + encrypted vault plane = a basic document-EMR / CPA client vault on the
+  custody-tier model (2026-07-15).
+
 - Lens feat requests (2026-07-14, from using the deployed dashboard;
   tagged `feat-request`, expected to stage together as
   `lens-enhancements`):
