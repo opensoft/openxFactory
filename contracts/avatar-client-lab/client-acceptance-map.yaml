@@ -172,10 +172,12 @@ inherited_scenarios:
         title: Command is retried
         client_evidence_class: fixture
         gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/intake-idempotency-conflict.yaml
       - id: ACR-004-S03
         title: Revision-guarded command uses a stale revision
         client_evidence_class: fixture
         gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/stale-revision-command-fenced.yaml
       - id: ACR-004-S04
         title: Event stream has a gap
         client_evidence_class: fixture
@@ -185,6 +187,7 @@ inherited_scenarios:
         title: An event arrives while a recovery snapshot is produced
         client_evidence_class: fixture
         gate: fail_closed_seam
+        fixture: examples/avatar-first-ui/fixtures/deterministic/snapshot-barrier-recovery.yaml
       - id: ACR-004-S06
         title: Client reports a tool completed
         client_evidence_class: fixture
@@ -229,14 +232,17 @@ inherited_scenarios:
         title: Exact effect is confirmed
         client_evidence_class: fixture
         gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/intake-happy-path.yaml
       - id: ACR-006-S03
         title: Confirmation is stale or superseded
         client_evidence_class: fixture
         gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/intake-supersede-correction.yaml
       - id: ACR-006-S04
         title: Silence or transcript text resembles agreement
         client_evidence_class: fixture
         gate: fail_closed_seam
+        fixture: examples/avatar-first-ui/fixtures/deterministic/intake-decline-withdraw.yaml
   - requirement: ACR-009
     source_map: avatar-client
     title: Disposable provider context and attachment references
@@ -272,6 +278,7 @@ inherited_scenarios:
         title: Conflicting edit is submitted
         client_evidence_class: fixture
         gate: replay_determinism
+        fixture: examples/avatar-first-ui/fixtures/deterministic/intake-idempotency-conflict.yaml
   - requirement: RBG-001
     source_map: avatar-client
     title: Neutral avatar-client repository boundary

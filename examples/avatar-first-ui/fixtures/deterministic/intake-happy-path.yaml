@@ -1,0 +1,86 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-intake-happy-path
+evidence_ids: [AFU-001-S01, AFU-001-S02]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic service-intake HAPPY-PATH fixture (P7 candidate). Extends the
+# released listening->thinking->speaking arc past the model's proposal into the
+# effect-bound AVC-06 confirmation and a `completed` governed-action outcome. The
+# consequential value (the appointment) is proposed in the caption (presentation
+# only, FR-017) and is written only AFTER the user confirms the exact effect via an
+# AVC-06 decision — the client never treats the caption as the record. Fixed clock/
+# IDs/font/locale/platform + canonical AVC command/event/snapshot inputs -> declared
+# canonical view-state/records. No live model, provider, clock, or RNG. Two identical
+# runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:25Z"
+  ids:
+    session_id: sess-0006
+    workflow_id: wf-0006
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}              # user provides intake information
+    - {command_type: submit_confirmation_decision}  # user confirms the exact effect (AVC-06 decision)
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: user text accepted for processing
+    - {event_type: transcript_segment, authority: observation}   # speaking: model proposes the consequential action (caption is presentation only)
+    - {event_type: command_accepted, authority: authoritative}   # the AVC-06 confirmation decision is accepted (exact effect confirmed)
+    - {event_type: workflow_result, authority: authoritative}  # governed action approved + executed; result rendered via outcome_slot (not a session-level session_outcome — the session continues)
+  # AVC-06 challenge bound to the exact proposed effect; the decision is `confirmed`.
+  # State-revision convention (shared across the P7 set, mirroring the released
+  # deterministic seeds): snapshot.state_revision equals the TOTAL count of
+  # canonical events — every canonical event advances the cursor by exactly one,
+  # observation-class transcript_segments and rejected/retried commands included.
+  # This matches the released `six-state-transition-arc.yaml` (4 events incl. 1
+  # observation -> state_revision: 4) and `consent-withdraw-mid-speech.yaml`
+  # (5 events incl. 1 observation -> state_revision: 5). issuing_state_revision=4
+  # is the cursor right after the first four events {session_started,
+  # media_authorized, command_accepted(user text), transcript_segment}; the
+  # model's proposal transcript_segment is an observation and, like every
+  # canonical event, advances the cursor, so the confirmation is issued once the
+  # cursor reaches 4.
+  confirmation:
+    confirmation_id: cfm-0006
+    confirmation_version: 1
+    effect_summary: "Book appointment on 2026-08-01 at 09:00 with clinic A"
+    risk_class: medium
+    issuing_state_revision: 4
+    scope: {action: book_appointment}
+    decision: confirmed
+  snapshot:
+    # 6 = one per canonical event: session_started(1), media_authorized(2),
+    # command_accepted-user-text(3), transcript_segment(4 — observation, counted),
+    # command_accepted-confirm(5), workflow_result(6). See the state-revision
+    # convention note above.
+    state_revision: 6
+    presentation_mode: conversation
+    # No session-level `session_outcome`: the session stays active after the
+    # action completes (see the header comment) — completion is represented
+    # only via expected.view_state.outcome_slot below.
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # session active; avatar rests after completing the action — never `speaking` at the terminal, never `blocked`
+    control_state: healthy
+    workflow_projection: intake
+    outcome_slot: {effect_ref: book_appointment, safe_message_key: msg.action_completed}  # action-completion signal; NOT view_state.session_outcome (that enum's `completed` member means "Logical session completed" per the registry — a session-level terminal that would contradict this active-session presentation; AVC-02 result_kind is separately reserved for {grant, denial, terminal})
+    governed_commands_enabled: true
+  records:
+    - {kind: session_started, session_id: sess-0006}
+    - {kind: media_authorized, session_id: sess-0006}
+    - {kind: command_accepted, session_id: sess-0006}
+    - {kind: transcript_segment, session_id: sess-0006}
+    - {kind: confirmation_confirmed, session_id: sess-0006, confirmation_id: cfm-0006}
+    - {kind: action_completed, session_id: sess-0006, effect_ref: book_appointment}

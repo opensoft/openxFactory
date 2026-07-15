@@ -1,0 +1,58 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-intake-ask-only-the-gap
+evidence_ids: [AFU-001-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic ASK-ONLY-THE-GAP intake fixture (P7 candidate). The session resumes a
+# workflow whose projection already carries two of three required slots (from prior
+# context owned by the workflow authority, delivered in the AVC-12 snapshot). The
+# client asks only the single missing slot, the user answers it once, and the intake
+# advances with no redundant re-asking. Fixed clock/IDs/font/locale/platform +
+# canonical AVC inputs -> declared view-state/records. No live model, provider, clock,
+# or RNG. Two identical runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:30Z"
+  ids:
+    session_id: sess-0007
+    workflow_id: wf-0007
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_workflow_value}   # user provides the single missing field (revision-guarded)
+  events:
+    - {event_type: session_started, authority: authoritative}   # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}  # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}  # submit_workflow_value accepted; the gap slot is filled
+  snapshot:
+    # 3 = one per canonical event: session_started(1), media_authorized(2),
+    # command_accepted-submit_workflow_value(3 — the gap slot is filled). See
+    # the state-revision convention note in intake-happy-path.yaml.
+    state_revision: 3
+    presentation_mode: conversation
+    # AVC-12 snapshot carries the partially-filled workflow projection: the client
+    # asks ONLY `gap_slots`, never re-asking `filled_slots`.
+    workflow:
+      filled_slots: [full_name, contact_email]
+      gap_slots: [appointment_time]
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized
+    control_state: healthy
+    workflow_projection: intake
+    asked_slots: [appointment_time]                                 # only the gap was requested
+    filled_slots: [full_name, contact_email, appointment_time]      # after the gap value is accepted, all required slots filled
+    governed_commands_enabled: true
+  records:
+    - {kind: session_started, session_id: sess-0007}
+    - {kind: media_authorized, session_id: sess-0007}
+    - {kind: workflow_value_accepted, session_id: sess-0007, slot: appointment_time}

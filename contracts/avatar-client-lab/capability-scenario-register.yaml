@@ -1,0 +1,173 @@
+# avatar-client-lab capability-scenario register — landed neutral artifact.
+#
+# Landed by change adopt-avatar-client-lab-candidates (Option B per design D2): a
+# distinct register at contracts/avatar-client-lab/capability-scenario-register.yaml
+# (the codexFactory lab vendors + pins it as a vendored_evidence_inputs entry at
+# realization, retiring the interim vendored-checklist faithfulness guard).
+#
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+#   The body below (schema_version: onward) is byte-verbatim from that source.
+#
+# Field authority (READ before machine-checking):
+#   VERBATIM / machine-checked, fail-closed, by
+#   scripts/validate-avatar-client.py::check_capability_scenario_register:
+#     * every requirement `title:` (the 9 `### Requirement:` titles) and
+#     * every scenario   `title:` (the 22 `#### Scenario:` titles)
+#   are transcribed byte-for-byte from the capability spec delta, preserving spec
+#   document order. Counts (9 / 22) and `ACL-*` id uniqueness/pattern are checked too.
+#   PROPOSED (candidate, NOT transcribed law): the `ACL-*` id scheme and every
+#   `proposed_anchoring_gate:` (a factory session or app realization may re-wire).
+#
+# Transcription source: the implement-avatar-client-lab capability spec delta
+#   (pre-archive: openspec/changes/implement-avatar-client-lab/specs/avatar-client-lab/spec.md;
+#    post-archive: the promoted openspec/specs/avatar-client-lab/spec.md — same content).
+#   The validator re-verifies against the promoted path once it exists, else the delta.
+#   The register's `source:` block below records the exact transcription commit.
+schema_version: 1
+kind: avatar-client-lab-capability-scenario-register
+change_id: implement-avatar-client-lab
+capability: avatar-client-lab
+interface_baseline: avatar-client-parallel-v1
+
+# Provenance of the verbatim transcription (READ-ONLY consult; nothing here edited).
+source:
+  transcribed_from: openspec/changes/implement-avatar-client-lab/specs/avatar-client-lab/spec.md
+  promoted_path_after_archive: openspec/specs/avatar-client-lab/spec.md
+  openxfactory_commit: 0fbea594a9da2e0ba1a0282581305dbdcd7681e2
+  spec_delta_last_touched_commit: 2520a00955abf2dbbd82498385189fdddfd6628a
+  transcribed_on: 2026-07-14
+  order_preserved: true   # requirements + scenarios appear in spec document order
+
+# Self-check counts (mirrors the P2 map's expected_* self-check; the upstream
+# validator MUST enforce both against the blocks below, fail-closed).
+expected_requirement_count: 9
+expected_scenario_count: 22
+
+# Machine-check contract the owning factory task SHOULD implement (mirroring
+# validate-avatar-client.py::check_client_lab_acceptance_map, fail-closed):
+#   1. requirement count == expected_requirement_count (9);
+#   2. scenario   count == expected_scenario_count (22);
+#   3. every requirement `title:` byte-matches a `### Requirement:` heading in the
+#      transcription source, in the same document order;
+#   4. every scenario `title:` byte-matches a `#### Scenario:` heading in the
+#      transcription source, in the same document order;
+#   5. every `id:` is unique and matches ^ACL-\d{3}(-S\d{2})?$ .
+machine_check:
+  id_pattern_requirement: '^ACL-\d{3}$'
+  id_pattern_scenario: '^ACL-\d{3}-S\d{2}$'
+  title_fidelity: verbatim-byte-match-in-document-order
+
+# The 9 capability requirements and their 22 scenarios, in spec document order.
+# `title` fields are VERBATIM; `id` scheme and `proposed_anchoring_gate` are PROPOSED.
+requirements:
+  - id: ACL-001
+    capability: avatar-client-lab
+    title: Offline deterministic client-lab boundary
+    scenarios:
+      - id: ACL-001-S01
+        title: Lab build is inspected for live surfaces
+        proposed_anchoring_gate: production_boundary
+      - id: ACL-001-S02
+        title: A test reaches for wall time, randomness, or network
+        proposed_anchoring_gate: replay_determinism
+
+  - id: ACL-002
+    capability: avatar-client-lab
+    title: Content-addressed contract consumption
+    scenarios:
+      - id: ACL-002-S01
+        title: A pinned contract file drifts
+        proposed_anchoring_gate: content_addressed_pin
+      - id: ACL-002-S02
+        title: A tag-only pin is recorded
+        proposed_anchoring_gate: content_addressed_pin
+
+  - id: ACL-003
+    capability: avatar-client-lab
+    title: Fixture-replay determinism
+    scenarios:
+      - id: ACL-003-S01
+        title: A fixture is replayed twice
+        proposed_anchoring_gate: replay_determinism
+      - id: ACL-003-S02
+        title: A canonical state has no fixture
+        proposed_anchoring_gate: evidence_completeness
+
+  - id: ACL-004
+    capability: avatar-client-lab
+    title: Client re-derives authority and never decides it
+    scenarios:
+      - id: ACL-004-S01
+        title: A tool call is proposed to the client
+        proposed_anchoring_gate: authority_derivation
+      - id: ACL-004-S02
+        title: The control channel is lost mid-session
+        proposed_anchoring_gate: authority_derivation
+      - id: ACL-004-S03
+        title: A consequential value arrives only as a caption
+        proposed_anchoring_gate: authority_derivation
+
+  - id: ACL-005
+    capability: avatar-client-lab
+    title: Replaceable six-state avatar presentation seam
+    scenarios:
+      - id: ACL-005-S01
+        title: The control channel is lost while speaking
+        proposed_anchoring_gate: authority_derivation
+      - id: ACL-005-S02
+        title: Reduced motion is requested
+        proposed_anchoring_gate: golden
+      - id: ACL-005-S03
+        title: A different renderer is substituted
+        proposed_anchoring_gate: golden
+
+  - id: ACL-006
+    capability: avatar-client-lab
+    title: Accessibility baseline is gating acceptance
+    scenarios:
+      - id: ACL-006-S01
+        title: A workflow is driven by keyboard only
+        proposed_anchoring_gate: accessibility
+      - id: ACL-006-S02
+        title: A state is distinguished only by color
+        proposed_anchoring_gate: accessibility
+      - id: ACL-006-S03
+        title: Text-only mode is selected
+        proposed_anchoring_gate: accessibility
+
+  - id: ACL-007
+    capability: avatar-client-lab
+    title: Repository and ownership boundary
+    scenarios:
+      - id: ACL-007-S01
+        title: A neutral contract or fixture is edited from the codexFactory app
+        proposed_anchoring_gate: production_boundary
+      - id: ACL-007-S02
+        title: A new neutral scenario is authored for the lab
+        proposed_anchoring_gate: production_boundary
+
+  - id: ACL-008
+    capability: avatar-client-lab
+    title: Fail-closed deferral of voice, media, and Hermes
+    scenarios:
+      - id: ACL-008-S01
+        title: A deferred live capability is exercised
+        proposed_anchoring_gate: fail_closed_seam
+      - id: ACL-008-S02
+        title: A closed-default capability is left unspecified
+        proposed_anchoring_gate: fail_closed_seam
+      - id: ACL-008-S03
+        title: The live adapter is added later
+        proposed_anchoring_gate: fail_closed_seam
+
+  - id: ACL-009
+    capability: avatar-client-lab
+    title: Successor-register discharge of deferred scenarios is machine-checked
+    scenarios:
+      - id: ACL-009-S01
+        title: A deferred scenario is discharged by a successor register
+        proposed_anchoring_gate: evidence_completeness
+      - id: ACL-009-S02
+        title: A discharge is forged in place or misattributed
+        proposed_anchoring_gate: evidence_completeness

@@ -1,0 +1,92 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-intake-decline-withdraw
+evidence_ids: [AFU-001-S02]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic DECLINE/WITHDRAW intake fixture (P7 candidate). The model proposes an
+# enrollment; the client renders the effect-bound AVC-06 confirmation; the user's
+# speech resembles agreement (an observation-class transcript_segment) but decides
+# nothing; the user then declines. The attempt is `abandoned`, the action renders as
+# `cancelled`/`withdrawn`, and no governed write occurs. Unlike a `denied` outcome (a
+# governed negative decided by authority) and unlike a fail-closed failure (a
+# client-local safety trip), this is an authored user choice with a clean,
+# credential-free terminal. Fixed clock/IDs/font/locale/platform + canonical AVC
+# inputs -> declared view-state/records. No live model, provider, clock, or RNG.
+# Two identical runs yield equivalent expected shapes.
+inputs:
+  clock: "2026-07-11T00:00:40Z"
+  ids:
+    session_id: sess-0009
+    workflow_id: wf-0009
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}              # user provides intake info
+    - {command_type: submit_confirmation_decision}  # user DECLINES the proposed action
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: user text accepted; model proposes the consequential action
+    - {event_type: transcript_segment, authority: observation}   # speaking: model proposes the effect (caption resemblance is NOT agreement, FR-017/ACR-006-S04)
+    - {event_type: transcript_segment, authority: observation, payload: {text: "Mm, yeah, sounds good"}}  # ACR-006-S04: user speech RESEMBLES agreement; an observation-class event, never authoritative, so it decides NOTHING on its own
+    - {event_type: command_accepted, authority: authoritative}   # the explicit decline decision is accepted
+    - {event_type: lifecycle_transition, authority: authoritative, session_outcome: abandoned}  # the attempt is abandoned (user declined)
+  # State-revision convention (shared across the P7 set, mirroring the released
+  # deterministic seeds): snapshot.state_revision equals the TOTAL count of
+  # canonical events — every canonical event advances the cursor by exactly one,
+  # observation-class transcript_segments included — matching the released
+  # `six-state-transition-arc.yaml` / `consent-withdraw-mid-speech.yaml`
+  # precedent, where the observation IS counted. Both transcript_segments here,
+  # including the resemblance-only one, are observations and each advances the
+  # cursor in turn.
+  confirmation:
+    confirmation_id: cfm-0009
+    confirmation_version: 1
+    effect_summary: "Submit enrollment for plan Silver, effective 2026-09-01"
+    risk_class: medium
+    issuing_state_revision: 4   # after session_started(1), media_authorized(2), command_accepted-user-text(3), transcript_segment(4 — the model's proposal observation, counted per the event-count convention)
+    scope: {action: submit_enrollment}
+    decision: declined
+  snapshot:
+    # 7 = one per canonical event: session_started(1), media_authorized(2),
+    # command_accepted-user-text(3), transcript_segment-proposal(4),
+    # transcript_segment-resemblance(5 — both observations, counted),
+    # command_accepted-decline(6), lifecycle_transition-abandoned(7). See the
+    # state-revision convention note above.
+    state_revision: 7
+    presentation_mode: conversation
+    session_outcome: abandoned
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # session active; avatar not `speaking`, not `blocked`
+    control_state: healthy             # a decline is an authored user choice, NOT a control failure
+    workflow_projection: intake
+    session_outcome: abandoned
+    outcome_slot:
+      outcome_label: withdrawn               # presentation label + distinct non-color cue (FR-018(c)); kernel signal lives in view_state.session_outcome above (AVC-02 result_kind is reserved for {grant, denial, terminal})
+      reason: attempt_abandoned
+      safe_message_key: msg.action_declined
+    governed_commands_enabled: true
+    # The consequential write is NEVER applied: an explicit decline is the only
+    # signal honored — silence and caption/transcript resemblance never approve.
+    # Proof: the resemblance-only transcript_segment below yields ONLY a
+    # `transcript_segment` record — no `confirmation_confirmed`/`confirmation_declined`
+    # record derives from it; that record appears only after the explicit decline.
+  records:
+    - {kind: session_started, session_id: sess-0009}
+    - {kind: media_authorized, session_id: sess-0009}
+    - {kind: command_accepted, session_id: sess-0009}
+    - {kind: transcript_segment, session_id: sess-0009}
+    - {kind: transcript_segment, session_id: sess-0009}  # resemblance-only observation; decides nothing (ACR-006-S04)
+    - {kind: confirmation_declined, session_id: sess-0009, confirmation_id: cfm-0009}
+    - {kind: session_abandoned, session_id: sess-0009, reason: attempt_abandoned}

@@ -1,0 +1,54 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-media-state-capture-pending
+evidence_ids: [AFU-008-S01, AFU-004-S02]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic kernel-media.state fixture (avatar-client-lab P12 upstream candidate). Closes the
+# FR-012/SC-002 reachability gap for `capture_pending` by populating the AVC-12 kernel snapshot
+# `media_state` to the closed ten-enum value. `capture_pending` is the phase after the media leg is
+# negotiated (SDP answer received) but BEFORE `media_authorized` — capture authorization is pending
+# (AFU-004-S02). It is distinguished from `permission`, `capture_authorized`, and `listening` ONLY
+# by the kernel media_state value, not by any client-derived signal (standard §15 forbids the client
+# authoring an authority axis). NOTE: `expected.view_state.media_state` below renders the raw
+# kernel value verbatim, which is UNVERIFIED against the eventual P1 reducer output — the landed
+# `governed-action-denial.yaml` projects its own un-authorized-capture case to presentation `idle`
+# instead; see README.md design decision 6 ("Unverified placeholder for permission/capture_pending").
+# Fixed clock/IDs/font/locale/platform + canonical AVC command/event/
+# snapshot inputs -> declared view-state/record shapes. No live model, provider, clock, or RNG.
+inputs:
+  clock: "2026-07-11T00:01:05Z"
+  ids:
+    session_id: sess-0102
+    workflow_id: wf-0102
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+  events:
+    - {event_type: session_started, authority: authoritative}     # permission granted; media leg negotiation begins
+    - {event_type: lifecycle_transition, authority: authoritative} # SDP answer received; awaiting media_authorized -> capture_pending
+  snapshot:
+    logical_session_id: sess-0102
+    last_event_sequence: 2
+    state_revision: 2
+    control_health: healthy
+    media_state: capture_pending      # KERNEL denominator evidence: closed media.state `capture_pending`
+    session_outcome: granted
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_pending
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0102}
+    - {kind: media_leg_pending, session_id: sess-0102}

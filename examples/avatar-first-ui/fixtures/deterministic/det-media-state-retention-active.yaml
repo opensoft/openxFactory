@@ -1,0 +1,61 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-media-state-retention-active
+evidence_ids: [AFU-008-S01, AFU-006-S04]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic kernel-media.state fixture (avatar-client-lab P12 upstream candidate). After the
+# logical session completes, structured-record retention is active (`retention_active`): capture has
+# stopped and the retained record is governed by an externally owned retention policy (the profile's
+# retention_overlay references policy IDs only — no inline durations/consent evidence). The kernel
+# media_state carries the closed value and session_outcome is `completed`. The exact session_outcome
+# pairing for `retention_active` is a P1-derivation-table nuance the factory session should confirm;
+# `completed` is used here as the post-session retention posture. Fixed clock/IDs/font/locale/platform
+# + canonical AVC inputs -> declared shapes. No live model, provider, clock, or RNG.
+# NOTE on evidence_ids: AFU-006-S04 ("Handoff context is reviewed") is a nearest-fit anchor, NOT an
+# exact scenario match — the acceptance map has no dedicated retention-active scenario. Reused
+# (rather than adding a new AFU scenario) to avoid changing the map's 8/25 requirement/scenario
+# counts (out of scope here). A factory session may want to author a dedicated retention-active
+# scenario upstream and repoint this evidence_id. See README.md "Nearest-fit anchors" note.
+inputs:
+  clock: "2026-07-11T00:01:35Z"
+  ids:
+    session_id: sess-0108
+    workflow_id: wf-0108
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: end_session}
+  events:
+    - {event_type: session_started, authority: authoritative}     # permission granted
+    - {event_type: media_authorized, authority: authoritative}    # capture authorized
+    - {event_type: command_accepted, authority: authoritative}    # structured record written
+    - {event_type: lifecycle_transition, authority: authoritative} # session completed; retention active on structured record
+  snapshot:
+    logical_session_id: sess-0108
+    last_event_sequence: 4
+    state_revision: 4
+    control_health: healthy
+    media_state: retention_active     # KERNEL denominator evidence: closed media.state `retention_active`
+    session_outcome: completed
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: retention_active
+    control_state: healthy
+    workflow_projection: intake
+    capture_active: false
+  records:
+    - {kind: session_started, session_id: sess-0108}
+    - {kind: media_authorized, session_id: sess-0108}
+    - {kind: command_accepted, session_id: sess-0108}
+    - {kind: session_completed, session_id: sess-0108}

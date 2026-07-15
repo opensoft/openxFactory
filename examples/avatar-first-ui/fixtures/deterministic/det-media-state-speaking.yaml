@@ -1,0 +1,59 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-media-state-speaking
+evidence_ids: [AFU-008-S01, AFU-001-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic kernel-media.state fixture (avatar-client-lab P12 upstream candidate). The avatar
+# is streaming a response (`speaking`) after an accepted user-text command. `last_event_sequence`
+# counts every event (the observation `transcript_segment` included), while `state_revision` counts
+# only authoritative state-changing events (session_started, media_authorized, command_accepted) —
+# per this deliverable's reading, the observation stream never bumps the revision guard (AVC-12
+# schema description: "state_revision guards state-changing commands"; data-model.md §3). NOTE:
+# the landed `six-state-transition-arc.yaml` carries this IDENTICAL event arc but sets
+# `state_revision: 4` (it counts the observation) — this is an open cross-corpus divergence, not a
+# settled convention; see README.md design decision 5 for the reconciliation ask. The kernel
+# media_state carries the closed value; the six-state avatar derivation is P1-owned and not
+# asserted. Fixed clock/IDs/font/locale/platform + canonical AVC inputs -> declared view-state/
+# record shapes. No live model, provider, clock, or RNG.
+inputs:
+  clock: "2026-07-11T00:01:25Z"
+  ids:
+    session_id: sess-0106
+    workflow_id: wf-0106
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}
+  events:
+    - {event_type: session_started, authority: authoritative}   # permission granted
+    - {event_type: media_authorized, authority: authoritative}  # capture authorized
+    - {event_type: command_accepted, authority: authoritative}  # thinking: user text accepted for processing
+    - {event_type: transcript_segment, authority: observation}  # speaking: streamed response (never authoritative)
+  snapshot:
+    logical_session_id: sess-0106
+    last_event_sequence: 4
+    state_revision: 3
+    control_health: healthy
+    media_state: speaking             # KERNEL denominator evidence: closed media.state `speaking`
+    session_outcome: granted
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: speaking
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0106}
+    - {kind: media_authorized, session_id: sess-0106}
+    - {kind: command_accepted, session_id: sess-0106}
+    - {kind: transcript_segment, session_id: sess-0106}

@@ -1,0 +1,54 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-media-state-permission
+evidence_ids: [AFU-008-S01, AFU-006-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic kernel-media.state fixture (avatar-client-lab P12 upstream candidate). The
+# landed P3-P6 seeds reach a media.state ONLY via the presentation `expected.view_state.media_state`
+# field; this fixture closes that gap for `permission` by populating the AVC-12 kernel snapshot
+# `media_state` to the closed ten-enum value, so FR-012/SC-002 state-reachability is evidenced
+# from kernel authority (data-model.md §4). `permission` is the pre-authorization media phase:
+# the session request is granted and consent is present, but capture is NOT yet authorized. NOTE:
+# `expected.view_state.media_state` below renders the raw kernel value verbatim, which is
+# UNVERIFIED against the eventual P1 reducer output — the landed `governed-action-denial.yaml`
+# projects its own un-authorized-capture case to presentation `idle` instead; see README.md
+# design decision 6 ("Unverified placeholder for permission/capture_pending"). The
+# six-state avatar derivation (media.state -> {listening,thinking,speaking,interrupted,blocked,
+# handoff}) is P1-owned and NOT asserted here. Fixed clock/IDs/font/locale/platform + canonical
+# AVC command/event/snapshot inputs -> declared view-state/record shapes. No live model, provider,
+# clock, or RNG. Two identical runs yield equivalent shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:01:00Z"
+  ids:
+    session_id: sess-0101
+    workflow_id: wf-0101
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+  events:
+    - {event_type: session_started, authority: authoritative}   # permission: session granted; media permission phase, capture not yet authorized
+  snapshot:
+    logical_session_id: sess-0101
+    last_event_sequence: 1
+    state_revision: 1
+    control_health: healthy
+    media_state: permission           # KERNEL denominator evidence: closed media.state `permission`
+    session_outcome: granted
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: permission
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0101}

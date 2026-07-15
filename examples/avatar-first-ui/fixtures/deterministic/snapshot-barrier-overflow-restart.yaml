@@ -1,0 +1,77 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-snapshot-barrier-overflow-restart
+evidence_ids: [AFU-001-S03, AFU-008-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic snapshot-barrier OVERFLOW fixture (avatar-client-lab P8, contributed
+# upstream). Events apply through sequence 3; sequence 7 arrives with 4/5/6 missing — an
+# event-sequence GAP fixes the barrier and requests an AVC-12 recovery snapshot. More
+# out-of-order events (8, 9, 10) then arrive while the snapshot is produced and fill the
+# buffer PAST the barrier capacity. On overflow the reducer MUST RESTART — re-initialize
+# from the authoritative recovery snapshot — rather than draining or silently dropping the
+# buffered tail. The restart is a governed, fail-safe re-init — NOT a silent drop and NOT a
+# crash. Control stays healthy (the restart is not a control-loss failure). Fixed clock/IDs/font/locale/platform + canonical AVC
+# inputs -> declared view-state/records. No live model, provider, clock, or RNG. Two
+# identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:40Z"
+  ids:
+    session_id: sess-0009
+    workflow_id: wf-0009
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}
+  events:
+    - {event_type: session_started, authority: authoritative, sequence: 1}      # listening: session begins
+    - {event_type: media_authorized, authority: authoritative, sequence: 2}     # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative, sequence: 3}     # thinking: user text accepted
+    - {event_type: transcript_segment, authority: observation, sequence: 7}     # GAP: 4/5/6 missing -> barrier fixes at 3, recovery requested, buffering begins
+    - {event_type: transcript_segment, authority: observation, sequence: 8}     # buffered during recovery
+    - {event_type: transcript_segment, authority: observation, sequence: 9}     # buffered during recovery
+    - {event_type: transcript_segment, authority: observation, sequence: 10}    # buffer past barrier capacity -> OVERFLOW: forces a restart, never a silent drop
+    - {event_type: snapshot_delivered, authority: authoritative, last_event_sequence: 10, state_revision: 10}  # restart re-initializes from the authoritative snapshot; declares the authoritative rev at cursor 10 (rev tracks seq: seqs 1..10 = 10), ahead of the 8 local canonical events
+  snapshot:
+    # Event-count convention (L4) with the gap/overflow AHEAD value. Local pre-gap
+    # events fold to rev 3 (session_started/1, media_authorized/2, command_accepted/3).
+    # seq 7,8,9,10 arrive with 4,5,6 missing and BUFFER (not folded). The authoritative
+    # snapshot_delivered frame DECLARES the ahead revision — the ONLY licensed carrier of
+    # an ahead value (L4): state_revision 10 at last_event_sequence 10 (rev tracks seq:
+    # seqs 1..10 = 10). That runs AHEAD of len(canonical.events) = 8 by the gap the client
+    # never observed. On overflow the reducer RESTARTS from this snapshot; the buffered
+    # tail (seq 7..10) is all <= cursor 10, so it is SUBSUMED (never replayed past the
+    # cursor, never dropped) — nothing folds past the snapshot, so the view stays at rev 10.
+    state_revision: 10
+    last_event_sequence: 10
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # restart re-baselines to the authoritative snapshot; streaming has not resumed
+    control_state: healthy             # a governed restart is NOT a control failure
+    workflow_projection: intake
+    state_revision: 10                 # authoritative revision from the restart snapshot; the buffered tail (seq 7..10) is subsumed at/under cursor 10, so nothing replays past it and the revision stays at 10
+    last_event_sequence: 10            # cursor re-established from the authoritative snapshot
+    # NOTE: this control-HEALTHY restart asserts ONLY the session-core.md snapshot-barrier
+    # overflow invariant (line 17: "overflow -> restart, never a silent drop"). It deliberately
+    # does NOT assert governed_commands_enabled/recovery_required: session-core.md pauses governed
+    # actions ONLY on LOSS of the control/policy channel (line 21) — which does not apply here —
+    # and the barrier invariant says nothing about disabling governed commands or requiring
+    # recovery. Contrast control-lost-failure.yaml, where those fields ARE grounded (control_lost).
+    session_restarted: true            # overflow -> restart (fix/buffer then restart, not drain)
+    restart_reason: snapshot_barrier_overflow
+    buffered_events_dropped: false     # the barrier NEVER silently drops the buffered tail
+  records:
+    - {kind: session_started, session_id: sess-0009}
+    - {kind: media_authorized, session_id: sess-0009}
+    - {kind: command_accepted, session_id: sess-0009}
+    - {kind: session_restarted, session_id: sess-0009, reason: snapshot_barrier_overflow, last_event_sequence: 10, state_revision: 10}

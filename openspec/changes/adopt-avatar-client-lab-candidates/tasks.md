@@ -14,16 +14,16 @@ paths only; check `git status -sb` before every commit.
 
 ## 2. Fixture families (P7, P8, P11, P12/P13)
 
-- [ ] 2.1 Land the P7 intake-set (5 fixtures) into `examples/avatar-first-ui/fixtures/deterministic/` with the D6 header swap; re-run the baseline validator harness green.
-- [ ] 2.2 Land the P8 takeover/recovery set (4 fixtures) the same way; confirm the event-count revision arithmetic and the `command_rejected`/`second_instance_denied` epoch-fence vocabulary land byte-verbatim from source.
-- [ ] 2.3 Land the P11 `interrupted`/`handoff` pair (2 fixtures).
-- [ ] 2.4 Land the P12/P13 media-states set (9 fixtures: eight non-control closed `media.states` + `control_degraded`), verifying each evidences its denominator state via AVC-12 kernel fields only.
-- [ ] 2.5 Wire acceptance-map/evidence-register rows additively where a landed fixture discharges or newly evidences a scenario; any released `deferred` discharge goes through a successor-register entry only (locked decision 7); evidence-id parity green.
+- [x] 2.1 Land the P7 intake-set (5 fixtures) into `examples/avatar-first-ui/fixtures/deterministic/` with the D6 header swap; re-run the baseline validator harness green.
+- [x] 2.2 Land the P8 takeover/recovery set (4 fixtures) the same way; confirm the event-count revision arithmetic and the `command_rejected`/`second_instance_denied` epoch-fence vocabulary land byte-verbatim from source.
+- [x] 2.3 Land the P11 `interrupted`/`handoff` pair (2 fixtures).
+- [x] 2.4 Land the P12/P13 media-states set (9 fixtures: eight non-control closed `media.states` + `control_degraded`), verifying each evidences its denominator state via AVC-12 kernel fields only.
+- [x] 2.5 Wire acceptance-map/evidence-register rows additively where a landed fixture discharges or newly evidences a scenario; any released `deferred` discharge goes through a successor-register entry only (locked decision 7); evidence-id parity green.
 
 ## 3. P10 — capability-scenario register (owning task per escalation memo)
 
-- [ ] 3.1 Land `contracts/avatar-client-lab/capability-scenario-register.yaml` (Option B, design D2) from the candidate; verify 9 requirements / 22 scenarios, titles byte-matched against the `implement-avatar-client-lab` capability spec delta in document order.
-- [ ] 3.2 Add the register fidelity check to `scripts/validate-avatar-client.py` (mirrors `check_client_lab_acceptance_map`; fail-closed; re-verifies against the promoted spec path after that change archives) + negative coverage (renamed title, dropped scenario, reordered entry each fail).
+- [x] 3.1 Land `contracts/avatar-client-lab/capability-scenario-register.yaml` (Option B, design D2) from the candidate; verify 9 requirements / 22 scenarios, titles byte-matched against the `implement-avatar-client-lab` capability spec delta in document order.
+- [x] 3.2 Add the register fidelity check to `scripts/validate-avatar-client.py` (mirrors `check_client_lab_acceptance_map`; fail-closed; re-verifies against the promoted spec path after that change archives) + negative coverage (renamed title, dropped scenario, reordered entry each fail).
 
 ## 4. P1 — avatar-state derivation table (owning task per escalation memo)
 

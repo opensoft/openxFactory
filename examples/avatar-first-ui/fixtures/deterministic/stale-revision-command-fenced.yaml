@@ -1,0 +1,64 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-stale-revision-command-fenced
+evidence_ids: [AFU-001-S03, AFU-008-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic stale-revision fencing fixture (avatar-client-lab P8, contributed
+# upstream). The authoritative log advances state_revision to 3 via a delivered
+# snapshot; the client then issues a revision-guarded command guarded on the stale
+# expected_state_revision 2. The reducer fences it — resolved `command_conflict`,
+# NEVER double-applied — and the client MUST re-derive against the authoritative
+# revision (the "authoritative snapshot replaces stale projection" path, AFU-001-S03),
+# not mutate on the stale view. Control stays healthy: this is command-level fencing,
+# NOT a control failure and NOT a snapshot-gap recovery. Fixed clock/IDs/font/locale/
+# platform + canonical AVC inputs -> declared view-state/records. No live model,
+# provider, clock, or RNG. Two identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:25Z"
+  ids:
+    session_id: sess-0006
+    workflow_id: wf-0006
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_workflow_value, expected_state_revision: 2}  # revision-guarded; guards on the STALE revision 2 (one behind the authoritative rev 3)
+  events:
+    - {event_type: session_started, authority: authoritative}                              # listening: session begins (event 1 -> rev 1)
+    - {event_type: media_authorized, authority: authoritative}                             # listening: capture authorized (event 2 -> rev 2)
+    - {event_type: snapshot_delivered, authority: authoritative, state_revision: 3}        # authoritative revision advances to 3 (event 3; non-gap, so a fold-position value, NOT an ahead value)
+    - {event_type: command_conflict, authority: authoritative, expected_state_revision: 2, current_state_revision: 3}  # stale command (guard 2) fenced against current rev 3; this conflict record is itself the 4th canonical event, folding the revision to 4
+  snapshot:
+    # 4 = one per canonical event: session_started(1), media_authorized(2),
+    # snapshot_delivered(3 — authoritative revision advances to 3), command_conflict(4 —
+    # the stale command is fenced; the conflict record itself folds the revision to 4).
+    # Event-count convention: snapshot.state_revision == len(canonical.events). No
+    # gap/overflow here, so no ahead value is declared (the snapshot_delivered above
+    # carries only its fold-position revision 3).
+    state_revision: 4
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # session remains at the capture-authorized baseline; no consequential mutation applied
+    control_state: healthy             # command-level fencing, NOT a control failure
+    workflow_projection: intake
+    state_revision: 4                  # client re-derives to the authoritative fold (4 = all four canonical events; the conflict record advanced the revision from the fenced-against 3 to 4)
+    stale_revision_fenced: true        # expected_state_revision 2 < current 3 -> fenced
+    last_command_disposition: conflict # resolved conflict, never double-applied (idempotency + revision guard)
+    command_applied: false
+    governed_commands_enabled: true    # control healthy: further commands allowed once re-derived against revision 4
+    recovery_required: false           # a stale revision is a re-derive, NOT a snapshot-gap recovery
+  records:
+    - {kind: session_started, session_id: sess-0006}
+    - {kind: media_authorized, session_id: sess-0006}
+    - {kind: snapshot_delivered, session_id: sess-0006, state_revision: 3}
+    - {kind: command_conflict, session_id: sess-0006, expected_state_revision: 2, current_state_revision: 3}

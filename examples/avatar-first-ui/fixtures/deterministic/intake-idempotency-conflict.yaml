@@ -1,0 +1,68 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-intake-idempotency-conflict
+evidence_ids: [AFU-001-S01, AFU-001-S03]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic IDEMPOTENCY-KEYED-CONFLICT intake fixture (P7 candidate). A workflow
+# value is submitted once and applied once; a byte-identical retry under the same
+# `command_id` returns the same authoritative result idempotently (not re-applied);
+# a third message reuses the same `command_id` with a changed value and is rejected as
+# an `idempotency_conflict`. The value is APPLIED exactly once across all three
+# (see `command_results[*].applied` and `filled_slots`), proving no double-apply;
+# `snapshot.state_revision` separately counts every canonical event (5) per the
+# released seed convention and is not the idempotency proof. Fixed clock/IDs/font/locale/platform + canonical AVC
+# inputs -> declared view-state/records. No live model, provider, clock, or RNG. Two
+# identical runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:45Z"
+  ids:
+    session_id: sess-0010
+    workflow_id: wf-0010
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_workflow_value, command_id: cmd-0010-a, slot: full_name, value: "Jordan Rivera"}       # first submission
+    - {command_type: submit_workflow_value, command_id: cmd-0010-a, slot: full_name, value: "Jordan Rivera"}       # retry: same id + identical effect
+    - {command_type: submit_workflow_value, command_id: cmd-0010-a, slot: full_name, value: "Jordan T. Rivera"}    # reuse: same id + CHANGED non-volatile field -> conflict
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # cmd-0010-a first submission accepted; value applied once (applied: true)
+    - {event_type: command_accepted, authority: authoritative}   # cmd-0010-a retry: idempotent — same authoritative result, NOT re-applied (applied: false); still a canonical event, so the state cursor advances
+    - {event_type: command_rejected, authority: authoritative, reason: idempotency_conflict}  # cmd-0010-a reused with a changed field -> generic rejection (not the revision-guard-specific command_conflict); value not applied (applied: false), but still a canonical event that advances the cursor
+  snapshot:
+    # 5 = one per canonical event: session_started(1), media_authorized(2),
+    # first accept(3), idempotent retry(4), conflicting reject(5) — every canonical
+    # event advances the cursor per the released seed convention. No-double-apply is
+    # evidenced SEPARATELY by command_results[*].applied (only the first submission is
+    # applied) and filled_slots, NOT by the cursor count.
+    state_revision: 5
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized
+    control_state: healthy
+    workflow_projection: intake
+    state_revision: 5                        # counts every canonical event; the value is applied exactly once — see command_results[*].applied below
+    filled_slots: [full_name]
+    command_results:
+      - {command_id: cmd-0010-a, result: accepted, applied: true}                          # first submission applied
+      - {command_id: cmd-0010-a, result: accepted, applied: false, idempotent: true}       # retry: same result, not re-applied
+      - {command_id: cmd-0010-a, result: rejected, reason: idempotency_conflict, applied: false}  # changed-field reuse rejected (command_rejected, not command_conflict)
+    governed_commands_enabled: true
+  records:
+    - {kind: session_started, session_id: sess-0010}
+    - {kind: media_authorized, session_id: sess-0010}
+    - {kind: command_accepted, session_id: sess-0010, command_id: cmd-0010-a, applied: true}
+    - {kind: command_accepted, session_id: sess-0010, command_id: cmd-0010-a, idempotent: true}
+    - {kind: command_rejected, session_id: sess-0010, command_id: cmd-0010-a, reason: idempotency_conflict}
