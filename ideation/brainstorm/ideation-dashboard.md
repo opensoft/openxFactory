@@ -602,6 +602,39 @@ substance (possibles_register population + the scoring worker) plus
 generator wiring against the landed schema — v2's data spine should be
 scoped to consume exactly that landed contract.
 
+### v4 candidates (Brett's live v3 feedback, 2026-07-15)
+
+Bugs observed using the deployed v3 site, verbatim intent preserved:
+
+1. **Lens fold-aware scrollbars**: keyword-lens columns must gain a
+   scrollbar once they extend to within ~10% of the fold — cap columns at
+   ~90vh with overflow-y auto so nothing approaches the bottom edge
+   unscrolled.
+2. **Mystery second scrollbar**: funnel/board/canvas/lens list menus show
+   an extra right-side scrollbar of unclear purpose — likely a nested
+   scroller introduced by the v3 sweep (roll-up body cap or `.scroller`
+   wrapper) stacking against the page scrollbar. Consolidate to ONE
+   scroll context per region; a scrollbar whose owner the user can't
+   identify is a defect even when functional.
+3. **Global layout contract**: on every screen, no column may run off the
+   bottom of the viewport — all columns viewport-bounded with their own
+   scrollbars, keeping every widget reachable within one screen height.
+   This is a layout-system rule, not per-view CSS patches; v3 fixed
+   instances, v4 should fix the contract.
+4. **Live `/source` 404s** (e.g.
+   `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md`):
+   register #23 confirmed by the operator on the live site. Fix: bake the
+   pinned openxFactory checkout into the image (the build context already
+   contains it) and set `--checkout-root` accordingly — turning D15's
+   read-only viewer ON in production. Owner surface: omnigent-install
+   Dockerfile + deployment args; serve.py already supports it.
+5. **Tile → NotebookLM pulled forward**: the operator cannot see how to
+   start NotebookLM from a doc set — because the button was scoped out of
+   v3. Promote the "Tile → NotebookLM" capability (see its section above:
+   wire the existing NotebookAdapter through a local-backend action) into
+   the next fix round rather than the next major version. Served-instance
+   behavior per that section (deep-link pre-provisioned books or hide).
+
 ## v2 Exit
 
 Same two-repo split as v1: an openxFactory delta (allowlist/workspace
