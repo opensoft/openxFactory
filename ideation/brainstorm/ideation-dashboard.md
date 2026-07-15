@@ -605,6 +605,66 @@ notebooks = a fully-current dashboard usable from a phone, NotebookLM one
 tap away — no pod, no bake, no session juggling. This section supersedes
 the earlier "Served-backend write actions" OQ default where they differ.
 
+### Custody tiers: git as the traceability plane (Brett + discussion, 2026-07-15)
+
+Principle: **system of record ≠ traceability plane.** The EMR is where
+medical records live; the client's books are where ledger data lives; you
+cannot and should not force those into git. What the system requires is
+the EVIDENCE plane: **every use of this tool requires a git repo, where
+the inputs to a governed analysis are hash-locked at the moment of use.**
+Source docs join under one of three custody tiers:
+
+| Tier | Domains | What's in the repo |
+|---|---|---|
+| Repo-native | codex; most Ledgerx working papers | the docs themselves, fully versioned |
+| External system-of-record | Medx (EMR), bank/ERP feeds | an evidence manifest: opaque locator + content hash + retrieval provenance (system, record id, as-of) — plus only policy-permitted derived extracts |
+| Drive-hosted (OneDrive/GDrive) | ad-hoc client folders | treated as external sources — manifests + optionally mirrored copies |
+
+The primitives already shipped as `contract-v1.11` (document-cataloging):
+per-doc `content_hash` with source-freshness enforcement, the
+opaque-locator kernel (reference a document without storing path or
+content), the handling-gate kernel (`policy_blocked` unless authorized),
+immutable `status: record` snapshots. The Medx and Ledgerx tiers are
+configurations of that machinery, not new systems.
+
+**Engagement model:** an audit or clinical analysis = a branch (or
+engagement repo). Evidence manifests hash-lock every source at the
+version analyzed → the NotebookLM notebook is loaded from exactly that
+manifest → generated material commits alongside → the decision/opinion is
+tagged. Verifiable later: THIS conclusion came from THESE bytes.
+
+**Hard rules (Brett, 2026-07-15):**
+1. **PHI never enters GitHub.** Tier-2 manifests carry hashes and opaque
+   refs, never content. Because raw content-hashes of guessable records
+   can leak by dictionary attack, protected-tier manifest hashes are
+   salted/HMAC — extend the opaque-locator kernel's domain separation
+   with an engagement-scoped key held OUTSIDE the repo.
+2. **No PHI enters NotebookLM. Ever.** NotebookLM is Google-hosted,
+   consumer session-auth, not a BAA-covered pipeline. Loading a notebook
+   IS a dispatch across a custody boundary — the same handling-gate shape
+   as the cataloger's dispatch gate.
+3. **Sanitize before dispatch.** A sanitization process runs before any
+   protected-tier doc reaches a notebook: strip/replace direct
+   identifiers, with **salted deterministic pseudonymization** — PHI
+   identifiers become HMAC-derived pseudonyms under an engagement-scoped
+   salt, so "Patient A" stays consistent across the engagement's docs
+   (the analysis still works) while being unlinkable outside it and
+   reversible only by the key-holder inside the boundary. The evidence
+   manifest records BOTH the original's salted hash reference and the
+   sanitized derivative's plain hash — trail from opinion → sanitized
+   inputs → (inside the boundary only) original records. This is the
+   generalization of the cataloging contract's redacted-dispatch rule
+   ("redacted dispatch MAY occur only when source policy explicitly
+   authorizes the redacted derived view") into a reusable sanitizer
+   worker — a natural bounded Omnigent lane, same shape as the cataloger.
+
+Dashboard consequences: the v2 allowlist config gains a **custody profile
+per repo/source** (native / manifest / drive-source); the repo picker
+enforces "no repo, no workload"; the NotebookLM action consults the
+handling gate + sanitizer before loading sources. Git-inside-a-Drive
+folder is an anti-pattern (sync clients corrupt .git, race refs), not a
+fourth tier — treat as tier 1 with a health warning if encountered.
+
 ### Open questions (defaults proposed)
 
 - **Allowlist config home**: extend `project-register.yaml` vs a new
