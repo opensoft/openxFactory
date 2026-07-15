@@ -154,11 +154,37 @@ key; access travels as attenuated capability grants.
   git + KMS logs already provide the tamper-evident audit; a ledger
   anchor stays optional.
 
+**Practitioner wallets (Brett, 2026-07-15): both ends of every grant are
+wallet-held keys.** Practitioners carry the same passkey-backed DID
+wallet, which upgrades three things at once:
+
+1. **Possession-bound grants**: using a grant requires proof-of-possession
+   (a signature from the practitioner's wallet key), not mere bearer
+   presentation — a stolen grant is useless without the key.
+2. **Key-attributed views**: every KMS-mediated decrypt logs the
+   practitioner's key alongside the grant — cryptographic attribution for
+   the classic EMR snooping/audit problem, instead of shareable logins.
+3. **Signed edits**: amendments and notes are APPEND-ONLY commits signed
+   by the practitioner's key (git commit signing, or the record appended
+   as a signed VC) — never rewrites, matching the medical-legal
+   right-to-amend model, non-repudiable, landing in the same evidence
+   plane as everything else.
+
+Falls out for free: **licensure as wallet credentials** — the
+practitioner's DID carries verifiable credentials (medical license, DEA,
+CPA for Ledgerx) that the vault gate verifies ("licensed, current")
+before honoring any grant; and **attenuating delegation chains**
+(attending → resident → nurse, each link narrowing scope/time, every
+link signed), with the patient's original grant able to carry a
+no-re-delegation caveat.
+
 Additional OQs this raises: wallet recovery/custodianship (lost phone;
 minors; incapacitated patients — custodial fallback degrades gracefully
 to today's practice-held model); grant granularity (whole record set vs
-per-encounter vs per-document); whether professionals' DIDs come from a
-practice registry or a public trust framework.
+per-encounter vs per-document); the professional trust registry (who
+issues licensure VCs and how revocation of a LICENSE propagates to live
+grants); delegation policy defaults (re-delegable or not, and who
+decides).
 
 ## Scope line
 
