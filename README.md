@@ -175,6 +175,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-avatar-client-lab-candidates](openspec/changes/adopt-avatar-client-lab-candidates/proposal.md)
+  — the owning change for the avatar-client-lab P-ledger escalations and
+  fixture adoptions: lands the P1 neutral avatar-state derivation table and
+  the P10 22-capability-scenario register (new `avatar-lab-evidence`
+  capability), adopts the panel-confirmed P7/P8/P11/P12/P13 deterministic
+  fixture families into `examples/avatar-first-ui/`, and cuts
+  `contract-v1.12` (also manifest-registering the successor evidence register
+  so the SCO-001-S05 discharge takes effect). Code surface: codexFactory
+  avatar-client-lab contract-pin resync; realization = nine gates green on
+  the resynced pin.
 - [add-github-app-identity-tiers](openspec/changes/add-github-app-identity-tiers/proposal.md)
   — staged-origin change (exit of `ideation/staging/github-administration-plane`,
   six open questions resolved and ratified 2026-07-14) extending
