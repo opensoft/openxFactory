@@ -173,15 +173,20 @@ All six open questions are resolved (see above) — ready to propose.
    its two new requirements and the structural-parking amendment are folded
    into `openspec/specs/roles-authority-model/spec.md`, and
    `docs/roles-and-authority.md` carries the identity-tiering description.
-2. `add-github-administration-workflow` (OpsxFactory) — ratified 2026-07-14;
-   deterministic realization (Speckit feature `006-github-administration`)
-   **merged 2026-07-14** as OpsxFactory PR #9 (merge commit `7860bc1`):
-   OpenSpec sections 3–4 complete (260 tests green, 3-lens adversarial
-   review ADMIT_WITH_FIXES with all majors fixed). Change stays ACTIVE at
-   `xFactories/OpsxFactory/openspec/changes/add-github-administration-workflow/`
-   pending the human-gated live rollout (tasks 2.8, 5.1–5.5: App
-   registration, Tier-1 install, Actions Environment gate, live plan/apply,
-   content-App permission narrowing) — archives on that evidence.
+2. `add-github-administration-workflow` (OpsxFactory) — ratified 2026-07-14,
+   realized and **archived 2026-07-15** as
+   `openspec/changes/archive/2026-07-15-add-github-administration-workflow/`
+   (six requirements folded into the `github-administration-workflow` spec).
+   Full lifecycle complete: deterministic realization merged (PR #9,
+   `7860bc1`, 260 tests, 3-lens adversarial review); admin App
+   `opsxfactory` (4300489) registered + installed on the 7 Tier-1 repos;
+   environment-gated live apply created org ruleset 18962101 (PR+1,
+   OrgAdmin-only bypass); nightly doc-health adapted to PR-flow; content
+   App's always-bypass removed from ruleset 18834180 and its installation
+   narrowed from all-367 to 12 repos. **The 2026-07-10 incident is closed.**
+   Follow-ups live outside this topic: 5 minor PR #9 findings; the
+   Hermes/Merge Master autonomous approver (retires Brett's daily
+   nightly-PR approval chore).
 
 Two OpenSpec changes:
 
