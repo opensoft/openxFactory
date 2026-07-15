@@ -174,6 +174,11 @@ proposal):
 
 Brainstorm (active):
 
+- [Agent Wallets and Drift-Triggered Certification](brainstorm/agent-certification-wallets.md)
+  — every AI agent gets a DID wallet; certified qualification levels grant
+  scoped autonomous authority bound to a quantified agent identity
+  (config hash + behavioral battery); change beyond tolerance = no longer
+  the certified agent = recertify (2026-07-15).
 - [Git-Native Record Vault](brainstorm/git-native-record-vault.md) — pull
   PHI out of governed docs into a SOPS/KMS-audited vault plane; sanitized
   analysis plane + commodity bulk plane (de-identified, research-reusable)
