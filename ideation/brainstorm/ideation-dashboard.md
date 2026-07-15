@@ -569,6 +569,39 @@ tiles load only supporting-docs or also the proposal/design/tasks files
 - **Snapshot-per-repo vs one aggregate snapshot**: default per-repo
   snapshots + a thin index; the aggregate view composes client-side.
 
+### Triage ledger (2026-07-15, post-redeploy reevaluation)
+
+Live site redeployed 2026-07-14 evening (served snapshot byte-identical to
+b4b0d65: 116 docs, 89 clusters, source_revision 0fcf01ae, resilient-lane
+fields live). Strict per-bug triage against codexFactory 426c972 +
+openxFactory 0fbea59:
+
+- **FIXED (4):** 6, 7, 8 (PR #9 — per-document degradation, diagnosis
+  retention, same-day commit; all verified in code), 11 (GH013 app bypass).
+- **Corrected/moot (1):** 21 (register text already amended; the residual
+  real defect is the dead `/source` viewer = 23).
+- **Partial/in-progress (3):** 1 — the premise flipped:
+  `ideation/cross-reference.yaml` NOW EXISTS (sibling W1/W2), but as an
+  all-unscored bootstrap with the `possibles_register` section deliberately
+  absent, and the dashboard's adapter reads a key the bootstrap doesn't
+  carry — so possibles is still 0 and every downstream edge still dead;
+  the funnel middle now has a CONTRACT but no DATA. 10 — lane-status
+  gained run_id/generated_at (PR #9) but no commits-behind field and no
+  UI staleness stamp. 24 — task 1.1's schema reconciliation discharged;
+  manifest registration + archive still pending (sibling at 15/16).
+- **OPEN (20):** 2-5, 9, 12-20, 22-23, 25-28 — the entire frontend sweep
+  (web/ is byte-untouched since v1), the refresh pipeline, funnel scoping,
+  gate-console hardening, and the AI-assist build-or-descope decision.
+
+Numerically the render got worse with real data: 93/116 docs (80%) are
+topic-less orphan cards in column 1; 70/89 clusters are singletons; 0/36
+changes show ratification. The bootstrap index carries human topic names
+('Avatar Client') that the snapshot clusters don't consume — a cheap win
+waiting. What turns the funnel middle ON is the sibling's remaining
+substance (possibles_register population + the scoring worker) plus
+generator wiring against the landed schema — v2's data spine should be
+scoped to consume exactly that landed contract.
+
 ## v2 Exit
 
 Same two-repo split as v1: an openxFactory delta (allowlist/workspace
