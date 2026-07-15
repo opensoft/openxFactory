@@ -1,0 +1,57 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-media-state-listening
+evidence_ids: [AFU-008-S01, AFU-001-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic kernel-media.state fixture (avatar-client-lab P12 upstream candidate). Closes the
+# FR-012/SC-002 reachability gap for the closed media.state `listening` by populating the AVC-12
+# kernel snapshot `media_state`. Per settled-law L4 the avatar-state "listening" (a presentation
+# label) is NOT itself a reached media.state; the denominator member here is the KERNEL media.state
+# `listening`, evidenced from the snapshot field, never derived in-app. The event arc mirrors
+# `capture_authorized` (session_started + media_authorized) — the two are distinguished ONLY by the
+# kernel media_state value.
+# NOTE: this same two-event, zero-observation arc (`session_started` + `media_authorized`, both
+# authoritative) is also the arc the landed `offline-acceptance.yaml` carries at `state_revision: 1`,
+# whereas this fixture (like its `capture_authorized` peer) sets `state_revision: 2` — the same open
+# cross-corpus `state_revision` divergence, not a settled convention. (Here the arc is byte-identical
+# but the reached denominator state differs — `listening` via the kernel `media_state`, vs
+# `offline-acceptance`'s `capture_authorized`.) See README.md design decision 5 for the reconciliation
+# ask. Fixed clock/IDs/font/locale/platform + canonical AVC inputs -> declared
+# view-state/record shapes. No live model, provider, clock, or RNG.
+inputs:
+  clock: "2026-07-11T00:01:20Z"
+  ids:
+    session_id: sess-0105
+    workflow_id: wf-0105
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+  events:
+    - {event_type: session_started, authority: authoritative}   # permission granted
+    - {event_type: media_authorized, authority: authoritative}  # capture authorized; avatar listening for user input -> listening
+  snapshot:
+    logical_session_id: sess-0105
+    last_event_sequence: 2
+    state_revision: 2
+    control_health: healthy
+    media_state: listening            # KERNEL denominator evidence: closed media.state `listening`
+    session_outcome: granted
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: listening
+    control_state: healthy
+    workflow_projection: intake
+  records:
+    - {kind: session_started, session_id: sess-0105}
+    - {kind: media_authorized, session_id: sess-0105}

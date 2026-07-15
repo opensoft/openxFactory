@@ -153,6 +153,25 @@ CLIENT_LAB_A11Y = {
 CLIENT_EVIDENCE_CLASSES = {"fixture", "golden", "successor"}
 CLIENT_LAB_FOCI = {"M0", "F1", "F2", "F3", "F4", "cross_cutting"}
 
+# ---- Capability-scenario register (adopt-avatar-client-lab-candidates task 3.1/P10) ----
+# The neutral, openxFactory-owned register that enumerates the 22 avatar-client-lab
+# capability scenarios (9 requirements) gate (ix)(b) resolves, each with a stable
+# ACL-* id and a VERBATIM `#### Scenario:` title transcribed from the
+# implement-avatar-client-lab capability spec delta (design D2, Option B). Landed as a
+# distinct register (not an extension of the client-lab map). check_capability_scenario_register
+# fail-closes on any drift between the register and that spec (mirrors
+# check_client_lab_acceptance_map). It owns none of the released bytes.
+CAP_REGISTER = ROOT / "contracts" / "avatar-client-lab" / "capability-scenario-register.yaml"
+# Authoritative title source: the PROMOTED capability spec once
+# implement-avatar-client-lab archives; until then the change-delta copy. The check
+# re-verifies against the promoted path if it exists, else falls back to the delta.
+CAP_SPEC_PROMOTED = ROOT / "openspec" / "specs" / "avatar-client-lab" / "spec.md"
+CAP_SPEC_DELTA = (ROOT / "openspec" / "changes" / "implement-avatar-client-lab"
+                  / "specs" / "avatar-client-lab" / "spec.md")
+CAP_REGISTER_KIND = "avatar-client-lab-capability-scenario-register"
+CAP_ID_REQ = re.compile(r"^ACL-\d{3}$")
+CAP_ID_SCEN = re.compile(r"^ACL-\d{3}-S\d{2}$")
+
 
 class Findings:
     def __init__(self) -> None:
@@ -360,6 +379,7 @@ def run(strict: bool, require_realization: bool) -> int:
     ev_ids = check_fixtures(f, registry, docs)
     check_acceptance_and_evidence(f, ev_ids)
     check_client_lab_acceptance_map(f)
+    check_capability_scenario_register(f)
     check_release_identity(f)
     check_content_addressed_pin(f)
     check_redaction(f)
@@ -856,6 +876,129 @@ def check_client_lab_acceptance_map(f: Findings) -> None:
     if doc.get("expected_scenario_count") != len(all_sids):
         f.error("client-lab-count",
                 f"{rp}: expected_scenario_count {doc.get('expected_scenario_count')} != {len(all_sids)} listed")
+
+
+def _capability_spec_titles() -> tuple[str, list[str], list[str]] | None:
+    """Extract the authoritative avatar-client-lab requirement + scenario titles from
+    the capability spec, in document order (spec FR-020 style). Reads the PROMOTED
+    ``openspec/specs/avatar-client-lab/spec.md`` once ``implement-avatar-client-lab``
+    archives, else the change-delta copy. Returns (source_label, req_titles,
+    scen_titles), or None if neither spec path exists (so the caller fails closed).
+    Mirrors _delta_titles: the requirement/scenario heading keyword must be on the
+    line's start."""
+    if CAP_SPEC_PROMOTED.is_file():
+        path, label = CAP_SPEC_PROMOTED, "promoted"
+    elif CAP_SPEC_DELTA.is_file():
+        path, label = CAP_SPEC_DELTA, "change-delta"
+    else:
+        return None
+    req_titles: list[str] = []
+    scen_titles: list[str] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s.startswith("### Requirement:"):
+            req_titles.append(s[len("### Requirement:"):].strip())
+        elif s.startswith("#### Scenario:"):
+            scen_titles.append(s[len("#### Scenario:"):].strip())
+    return label, req_titles, scen_titles
+
+
+def check_capability_scenario_register(f: Findings) -> None:
+    """P10 (adopt-avatar-client-lab-candidates task 3.2; design D2): machine-check the
+    neutral avatar-client-lab capability-scenario register against the authoritative
+    capability spec, fail-closed, mirroring check_client_lab_acceptance_map.
+
+    The register enumerates the 22 avatar-client-lab capability scenarios (9
+    requirements) gate (ix)(b) resolves, each with a stable ACL-* id and a VERBATIM
+    ``#### Scenario:`` title transcribed from the implement-avatar-client-lab
+    capability spec delta. All rules fail closed:
+
+    - Metadata: schema_version + kind == avatar-client-lab-capability-scenario-register.
+    - Counts self-check: expected_requirement_count == the number of requirement
+      blocks (9); expected_scenario_count == the number of scenarios listed (22).
+    - Ids unique and pattern-conformant (^ACL-\\d{3}$ / ^ACL-\\d{3}-S\\d{2}$).
+    - VERBATIM title fidelity IN DOCUMENT ORDER: the ordered list of requirement titles
+      and the ordered list of scenario titles must byte-match the spec's
+      ``### Requirement:`` / ``#### Scenario:`` headings exactly. This is an ordered
+      element-wise compare, so a fabricated, renamed, dropped, OR reordered entry all
+      fail (a reorder fails even though the sets are equal).
+
+    Source path (design D2): the PROMOTED openspec/specs/avatar-client-lab/spec.md once
+    implement-avatar-client-lab archives; until then the change-delta copy — the check
+    is pinned to re-verify against the promoted path the moment it exists. Guarded on
+    the register's presence so a checkout without it stays green.
+    """
+    if not CAP_REGISTER.is_file():
+        return
+    rp = str(CAP_REGISTER.relative_to(ROOT))
+    doc = load_yaml(CAP_REGISTER) or {}
+    if not isinstance(doc, dict):
+        f.error("cap-register-meta", f"{rp}: top-level mapping required")
+        return
+    if doc.get("schema_version") is None:
+        f.error("cap-register-meta", f"{rp}: missing schema_version")
+    if doc.get("kind") != CAP_REGISTER_KIND:
+        f.error("cap-register-meta", f"{rp}: kind must be {CAP_REGISTER_KIND!r}")
+
+    reqs = doc.get("requirements") or []
+    reg_req_titles: list[str] = []
+    reg_scen_titles: list[str] = []
+    ids: list[str] = []
+    for r in reqs:
+        if not isinstance(r, dict):
+            f.error("cap-register-shape", f"{rp}: requirement entry must be a mapping")
+            continue
+        rid = r.get("id")
+        ids.append(rid)
+        if not (isinstance(rid, str) and CAP_ID_REQ.match(rid)):
+            f.error("cap-register-id", f"{rp}: requirement id {rid!r} must match ^ACL-\\d{{3}}$")
+        reg_req_titles.append((r.get("title") or "").strip())
+        for s in r.get("scenarios") or []:
+            if not isinstance(s, dict):
+                f.error("cap-register-shape", f"{rp}: scenario entry must be a mapping")
+                continue
+            sid = s.get("id")
+            ids.append(sid)
+            if not (isinstance(sid, str) and CAP_ID_SCEN.match(sid)):
+                f.error("cap-register-id",
+                        f"{rp}: scenario id {sid!r} must match ^ACL-\\d{{3}}-S\\d{{2}}$")
+            reg_scen_titles.append((s.get("title") or "").strip())
+
+    # Counts self-check.
+    if doc.get("expected_requirement_count") != len(reqs):
+        f.error("cap-register-count",
+                f"{rp}: expected_requirement_count {doc.get('expected_requirement_count')} "
+                f"!= {len(reqs)} requirement blocks listed")
+    if doc.get("expected_scenario_count") != len(reg_scen_titles):
+        f.error("cap-register-count",
+                f"{rp}: expected_scenario_count {doc.get('expected_scenario_count')} "
+                f"!= {len(reg_scen_titles)} scenarios listed")
+
+    # Id uniqueness.
+    concrete = [i for i in ids if i is not None]
+    if len(concrete) != len(set(concrete)):
+        dups = sorted({i for i in concrete if concrete.count(i) > 1})
+        f.error("cap-register-dup", f"{rp}: duplicate ids {dups}")
+
+    # Verbatim title fidelity, IN DOCUMENT ORDER, against the authoritative spec.
+    titles = _capability_spec_titles()
+    if titles is None:
+        f.error("cap-register-source",
+                f"{rp}: neither the promoted openspec/specs/avatar-client-lab/spec.md nor the "
+                f"change-delta openspec/changes/implement-avatar-client-lab/specs/avatar-client-lab/"
+                f"spec.md capability spec exists (fail closed)")
+        return
+    src_label, spec_req_titles, spec_scen_titles = titles
+    if reg_req_titles != spec_req_titles:
+        f.error("cap-register-parity",
+                f"{rp}: requirement titles do not byte-match the {src_label} capability spec in "
+                f"document order (no fabricated/renamed/dropped/reordered entry): "
+                f"register {reg_req_titles} != spec {spec_req_titles}")
+    if reg_scen_titles != spec_scen_titles:
+        f.error("cap-register-parity",
+                f"{rp}: scenario titles do not byte-match the {src_label} capability spec in "
+                f"document order (no fabricated/renamed/dropped/reordered entry): "
+                f"register {reg_scen_titles} != spec {spec_scen_titles}")
 
 
 def check_redaction(f: Findings) -> None:

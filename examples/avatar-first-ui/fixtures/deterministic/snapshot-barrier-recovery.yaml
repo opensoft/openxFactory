@@ -1,0 +1,72 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-snapshot-barrier-recovery
+evidence_ids: [AFU-001-S03, AFU-008-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic snapshot-barrier recovery fixture (avatar-client-lab P8, contributed
+# upstream). Events apply through sequence 3; sequence 6 arrives with 4/5 missing — an
+# event-sequence GAP. The reducer FIXES the barrier at the last good cursor, requests an
+# AVC-12 recovery snapshot, and BUFFERS the out-of-order events (6, then 7 which arrives
+# while the snapshot is produced) rather than applying or dropping them. The authoritative
+# recovery snapshot (last_event_sequence 6, state_revision 6) restores the projection at
+# cursor 6 and the barrier DRAINS ONCE: the buffered event past the cursor (seq 7) replays
+# and advances the revision to 7 (event-count convention, observations included); events
+# at/under the cursor are subsumed. Recovery completes cleanly and control stays
+# healthy — this is the "authoritative snapshot replaces stale projection" path (AFU-001-S03),
+# distinct from a fail-closed control loss. Fixed clock/IDs/font/locale/platform + canonical
+# AVC inputs -> declared view-state/records. No live model, provider, clock, or RNG. Two
+# identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:35Z"
+  ids:
+    session_id: sess-0008
+    workflow_id: wf-0008
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}
+  events:
+    - {event_type: session_started, authority: authoritative, sequence: 1}      # listening: session begins
+    - {event_type: media_authorized, authority: authoritative, sequence: 2}     # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative, sequence: 3}     # thinking: user text accepted
+    - {event_type: transcript_segment, authority: observation, sequence: 6}     # GAP: 4/5 missing -> barrier fixes at 3, recovery requested, this + later events buffer
+    - {event_type: transcript_segment, authority: observation, sequence: 7}     # arrives WHILE the recovery snapshot is produced -> buffered behind the barrier
+    - {event_type: snapshot_delivered, authority: authoritative, last_event_sequence: 6, state_revision: 6}  # AVC-12 recovery snapshot declares the authoritative rev at cursor 6 (rev tracks seq: seqs 1..6 = 6); barrier drains ONCE at cursor 6
+  snapshot:
+    # Event-count convention (L4). The pre-gap events fold to rev 3
+    # (session_started/1, media_authorized/2, command_accepted/3). The gap (seq 4,5
+    # missing) leaves the client's local fold behind the authoritative log, so the
+    # snapshot_delivered frame DECLARES the authoritative revision at its cursor —
+    # state_revision 6 at last_event_sequence 6 (rev tracks seq: seqs 1..6 = 6). Here
+    # that equals len(canonical.events) = 6; the buffered seq-7 observation then
+    # replays past the cursor and advances the view to rev 7 (see expected.view_state).
+    state_revision: 6
+    last_event_sequence: 6
+    presentation_mode: conversation
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: speaking              # after the single drain the last replayed observation is a transcript segment
+    control_state: healthy             # a clean gap recovery is NOT a control failure
+    workflow_projection: intake
+    state_revision: 7                  # recovery-snapshot rev 6 + 1 for the replayed seq-7 observation drained past cursor 6 (event-count convention, observations included; R4 drained-observation fix)
+    last_event_sequence: 7             # snapshot cursor 6 + the one buffered event (seq 7) drained past it
+    recovery_required: false           # recovery completed cleanly
+    recovered_via_snapshot: true       # projection restored from the authoritative AVC-12 snapshot
+    barrier_drained_once: true         # fix -> buffer -> drain once (no restart; buffer within capacity)
+    buffered_events_replayed: 1        # seq 7 replayed past the cursor; seq 6 subsumed by the snapshot
+  records:
+    - {kind: session_started, session_id: sess-0008}
+    - {kind: media_authorized, session_id: sess-0008}
+    - {kind: command_accepted, session_id: sess-0008}
+    - {kind: snapshot_recovered, session_id: sess-0008, last_event_sequence: 6, state_revision: 6}
+    - {kind: transcript_segment, session_id: sess-0008, sequence: 7}

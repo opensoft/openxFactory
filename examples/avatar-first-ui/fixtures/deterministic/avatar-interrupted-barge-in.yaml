@@ -1,0 +1,68 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-avatar-interrupted-barge-in
+evidence_ids: [AFU-008-S01, AFU-001-S01, AFU-005-S03]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic interrupted (user barge-in) extension fixture (P11 candidate,
+# contributed upstream). The five landed seeds reach only listening/thinking/
+# speaking/blocked and the revoked terminal — none produce the `interrupted`
+# avatar state. Here the avatar is `speaking` (an in-flight, still-streaming
+# `transcript_segment` observation) when the user barges in with a fresh turn:
+# a new authoritative `submit_user_text` -> `command_accepted` (producer
+# control_api) arrives BEFORE the current utterance completes, superseding it.
+# The reducer leaves `speaking` for `interrupted` — capture stays active, control
+# stays healthy, and NO session-terminal outcome is emitted, so this is a clean
+# conversational interruption, distinct from both `blocked` (control_lost/degraded)
+# and the `revoked` consent-withdrawal terminal (consent-withdraw-mid-speech.yaml).
+# The `interrupted` state is derived from the authoritative EVENT ORDERING
+# (a new user command_accepted after an in-flight transcript_segment), not from a
+# snapshot axis — no kernel media.state, control_health, or session_outcome names
+# it; formalizing that axis->`interrupted` row is the P1 derivation table's job
+# (see README). Fixed clock/IDs/font/locale/platform + canonical AVC command/event/
+# snapshot inputs -> declared canonical view-state/record shapes. No live model,
+# provider, clock, or RNG. Two identical runs yield equivalent expected shapes and
+# identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:25Z"
+  ids:
+    session_id: sess-0006
+    workflow_id: wf-0006
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}   # turn 1: the user's initial input
+    - {command_type: submit_user_text}   # barge-in: a fresh turn while the avatar speaks
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: turn-1 user text accepted (producer control_api)
+    - {event_type: transcript_segment, authority: observation}   # speaking: response streaming (never authoritative; producer provider)
+    - {event_type: command_accepted, authority: authoritative}   # interrupted: BARGE-IN — new user turn accepted mid-utterance, superseding the in-flight speaking turn
+  snapshot:
+    state_revision: 5
+    presentation_mode: conversation
+    # No control_health (healthy) and no session_outcome: the interruption is a
+    # conversational event, NOT a control failure and NOT a session terminal.
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: interrupted      # avatar leaves `speaking` for `interrupted`; the in-flight utterance is superseded by the barge-in
+    control_state: healthy        # a barge-in is authored/normal, NOT a control failure — so this derives `interrupted`, never `blocked`
+    workflow_projection: intake
+    capture_active: true          # capture stays active (the user is now the active speaker) — contrast consent-withdraw (capture stops)
+    governed_commands_enabled: true   # no governance pause: control is healthy and no terminal outcome was emitted
+  records:
+    - {kind: session_started, session_id: sess-0006}
+    - {kind: media_authorized, session_id: sess-0006}
+    - {kind: command_accepted, session_id: sess-0006}
+    - {kind: transcript_segment, session_id: sess-0006}
+    - {kind: speech_interrupted, session_id: sess-0006}   # derived: the in-flight utterance was superseded by the user barge-in

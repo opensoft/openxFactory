@@ -1,0 +1,80 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-lease-epoch-takeover
+evidence_ids: [AFU-004-S03, AFU-008-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic lease/epoch takeover-ATTEMPT fixture (avatar-client-lab P8, contributed
+# upstream). The incumbent holds the authoritative control lease at session_epoch 1. A
+# SECOND concurrent instance attempts to acquire control (a takeover attempt) and is
+# DENIED by the interface-lock closed default (second_instance: denied) — so control
+# never transfers and the authoritative session_epoch stays 1. The denied second
+# instance's in-flight command carries a STALE epoch (0): it is FENCED (resolved
+# `command_rejected` with the registered reason second_instance_denied, never applied).
+# The incumbent is UNAFFECTED — it retains control: control_state healthy, media at the
+# capture-authorized baseline (NEVER `blocked`), governed commands enabled, no recovery
+# required. This is a closed-default denial plus command-level epoch fencing, NOT a
+# control failure — the epoch counterpart of stale-revision-command-fenced.yaml (that
+# fixture fences a stale REVISION via `command_conflict`; here the stale EPOCH under the
+# second_instance closed default is rejected via `command_rejected` + reason
+# second_instance_denied — `command_conflict` stays reserved for revision-guard conflicts
+# per events.registry.yaml). Real multi-device takeover (a second instance
+# SUCCESSFULLY superseding the incumbent) is DEFERRED and NOT modeled here. Fixed
+# clock/IDs/font/locale/platform + canonical AVC inputs -> declared view-state/records.
+# No live model, provider, clock, or RNG. Two identical runs yield equivalent shapes.
+inputs:
+  clock: "2026-07-11T00:00:30Z"
+  ids:
+    session_id: sess-0007
+    workflow_id: wf-0007
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text, session_epoch: 0}  # second instance's command, tagged with the STALE epoch 0
+  events:
+    - {event_type: session_started, authority: authoritative, session_epoch: 1}   # incumbent holds the lease at epoch 1
+    - {event_type: media_authorized, authority: authoritative, session_epoch: 1}  # capture authorized under the incumbent lease
+    - {event_type: lifecycle_transition, authority: authoritative, session_epoch: 1, result_kind: denial, reason: second_instance_denied}  # a second concurrent instance's session request is DENIED (closed default); reason is the registered session-result-reasons token `second_instance_denied` (== the record kind below, == AVC-02 reason enum); control stays with the incumbent, epoch unchanged
+    - {event_type: command_rejected, authority: authoritative, reason: second_instance_denied, expected_session_epoch: 0, current_session_epoch: 1}  # the denied second instance's stale epoch-0 command is rejected (command_rejected + registered reason second_instance_denied); command_conflict is reserved for revision-guard conflicts (stale-revision-command-fenced.yaml) per events.registry.yaml
+  snapshot:
+    # 4 = one per canonical event: session_started(1), media_authorized(2),
+    # lifecycle_transition(3 — the second-instance denial), command_rejected(4 —
+    # the stale epoch-0 command rejected). This fixture carries NO snapshot_delivered
+    # frame, so state_revision is purely the fold of its own four canonical events
+    # (the event-count convention every released seed without a snapshot frame follows).
+    state_revision: 4
+    presentation_mode: conversation
+    # session_epoch is intentionally NOT here: the released avc-12-state-snapshot.schema.yaml
+    # defines no session_epoch property. session_epoch is a shared-definitions type carried by
+    # AVC-04 events (session_started/media_authorized/lifecycle_transition above, all
+    # session_epoch: 1) and required on AVC-11 commands (the submit_user_text command above,
+    # session_epoch: 0) -- never an AVC-12 snapshot authority field. Note command_rejected
+    # (the epoch-fence event above) is itself an AVC-04 event (event_type enum), not an AVC-11 command; its
+    # expected_session_epoch/current_session_epoch are ad-hoc payload fields on that event,
+    # not the shared-definitions session_epoch type.
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # incumbent unaffected; stays at the capture-authorized baseline, NEVER `blocked`
+    control_state: healthy             # the incumbent retains the lease; a denied second instance is NOT a control failure
+    workflow_projection: intake
+    session_epoch: 1                    # authoritative epoch unchanged — control never transferred
+    stale_epoch_fenced: true            # second instance's epoch-0 command fenced under authoritative epoch 1 (view flag, peer of stale-revision-command-fenced.yaml's stale_revision_fenced)
+    last_command_disposition: rejected  # command_rejected (reason second_instance_denied), never applied under the stale epoch + second_instance closed default
+    command_applied: false
+    governed_commands_enabled: true     # control healthy: the incumbent's governed commands remain enabled
+    second_instance: denied             # interface-lock closed default; the second concurrent instance is denied
+    recovery_required: false            # the incumbent needs no recovery; only the challenger's stale command was fenced
+  records:
+    - {kind: session_started, session_id: sess-0007, session_epoch: 1}
+    - {kind: media_authorized, session_id: sess-0007, session_epoch: 1}
+    - {kind: second_instance_denied, session_id: sess-0007, session_epoch: 1}
+    - {kind: command_rejected, session_id: sess-0007, expected_session_epoch: 0, current_session_epoch: 1, reason: second_instance_denied}

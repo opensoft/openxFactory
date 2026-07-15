@@ -1,0 +1,101 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-intake-supersede-correction
+evidence_ids: [AFU-001-S02, AFU-001-S03]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic AVC-06 SUPERSEDE-CORRECTION intake fixture (P7 candidate). The model
+# proposes a high-risk consequential transfer; the client renders the effect-bound
+# AVC-06 confirmation v1. Before the user decides, a correction supersedes it with a
+# v2 confirmation carrying the corrected account. The client voids the pending v1
+# action (rendered `cancelled`/superseded), presents the corrected v2 confirmation,
+# and rejects a stale decision bound to v1 as `command_rejected` (generic rejection,
+# not the revision-guard-specific `command_conflict`) — the consequential write is
+# never applied against the stale value. Fixed clock/IDs/font/locale/platform +
+# canonical AVC inputs -> declared view-state/records. No live model, provider, clock,
+# or RNG. Two identical runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:35Z"
+  ids:
+    session_id: sess-0008
+    workflow_id: wf-0008
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}              # user provides intake info incl. the value later corrected
+    - {command_type: submit_confirmation_decision}  # a decision bound to the STALE v1 confirmation -> conflict
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: user text accepted; model proposes the consequential action (v1)
+    - {event_type: transcript_segment, authority: observation}   # speaking: model states the proposed v1 effect (caption is presentation only)
+    - {event_type: lifecycle_transition, authority: authoritative, supersedes_confirmation_version: 1, confirmation_version: 2}  # AVC-06 supersede: corrected v2 voids the still-pending v1 before approval (applied mutation)
+    - {event_type: command_rejected, authority: authoritative, reason: attempt_abandoned}  # the stale decision bound to v1 (superseded) is rejected — generic rejection, not `command_conflict` (registry: "Revision-guard conflict result"); never double-applied. It is still a canonical event, so it advances the state cursor by one (event-count convention); what it cannot do is advance the ISSUING revision it was fenced against (v1 stays issued at 4)
+  # AVC-06 challenge v1 (proposed) and the corrected v2 that supersedes it.
+  # State-revision convention (shared across the P7 set, mirroring the released
+  # deterministic seeds): snapshot.state_revision equals the TOTAL count of
+  # canonical events — every canonical event advances the cursor by exactly one,
+  # observation-class transcript_segments AND the rejected decision included —
+  # matching the released `six-state-transition-arc.yaml` /
+  # `consent-withdraw-mid-speech.yaml` precedent, where the observation IS
+  # counted. issuing_state_revision values below reflect the cursor at the moment
+  # each confirmation was issued (a later rejected command advances the state
+  # cursor but never these already-fixed issuing revisions).
+  confirmation:
+    proposed:
+      confirmation_id: cfm-0008
+      confirmation_version: 1
+      effect_summary: "Transfer 500.00 USD to account ending 4321"
+      risk_class: high
+      issuing_state_revision: 4   # after session_started(1), media_authorized(2), command_accepted-user-text(3), transcript_segment(4 — the v1-proposing observation, counted per the event-count convention)
+      scope: {action: transfer_funds}
+    superseded_by:
+      confirmation_id: cfm-0008
+      confirmation_version: 2
+      effect_summary: "Transfer 500.00 USD to account ending 9876"   # corrected consequential value
+      risk_class: high
+      issuing_state_revision: 5   # after the supersede lifecycle_transition (applied mutation) advances the cursor from 4 to 5
+      supersedes_version: 1
+      scope: {action: transfer_funds}
+  snapshot:
+    # 6 = one per canonical event: session_started(1), media_authorized(2),
+    # command_accepted-user-text(3), transcript_segment(4 — observation, counted),
+    # lifecycle_transition-supersede(5), command_rejected(6 — every canonical event
+    # advances the cursor, the rejected decision included). See the state-revision
+    # convention note above.
+    state_revision: 6
+    presentation_mode: conversation
+    # No `session_outcome`: the session continues to the corrected v2 confirmation.
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: capture_authorized    # session active; avatar not `speaking`, not `blocked`
+    control_state: healthy             # a supersede is an authored correction, NOT a control failure
+    workflow_projection: intake
+    outcome_slot:
+      outcome_label: cancelled                  # presentation label + non-color cue (FR-018(c)); AVC-02 result_kind is reserved for {grant, denial, terminal} and does not apply here
+      cancellation_signal: avc06_supersede      # FR-018(c): the concrete kernel signal is the AVC-06 supersede (there is NO session_outcome for a supersede)
+      superseded_confirmation_id: cfm-0008
+      superseded_confirmation_version: 1
+      safe_message_key: msg.action_superseded
+    pending_confirmation:                        # the corrected v2 confirmation now awaits an effect-bound decision (FR-017)
+      confirmation_id: cfm-0008
+      confirmation_version: 2
+      effect_summary: "Transfer 500.00 USD to account ending 9876"
+      risk_class: high
+    governed_commands_enabled: true
+  records:
+    - {kind: session_started, session_id: sess-0008}
+    - {kind: media_authorized, session_id: sess-0008}
+    - {kind: command_accepted, session_id: sess-0008}
+    - {kind: transcript_segment, session_id: sess-0008}
+    - {kind: confirmation_superseded, session_id: sess-0008, confirmation_id: cfm-0008, from_version: 1, to_version: 2}
+    - {kind: command_rejected, session_id: sess-0008, confirmation_id: cfm-0008, reason: attempt_abandoned}

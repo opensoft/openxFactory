@@ -1,0 +1,75 @@
+schema_version: 1
+kind: xfactory_avatar_first_ui_fixture
+fixture_id: det-avatar-handoff-escalation
+evidence_ids: [AFU-006-S04, AFU-001-S01, AFU-008-S01]
+# Provenance: adopted verbatim from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+# Deterministic handoff (authority-initiated escalation) extension fixture (P11
+# candidate, contributed upstream). During an intake the workflow authority
+# determines a human specialist is required and issues an authoritative
+# `workflow_result` (producer authority_stub) escalating to a human handoff. The
+# workflow-projection axis (Hermes/workflow-authority-owned) now carries `handoff`;
+# `deriveAvatarState` maps `handoff => handoff` (L5). Control stays HEALTHY — a
+# handoff is an authored workflow escalation, NOT a control failure, so this derives
+# `handoff`, never `blocked`. The client renders the handoff SCOPE (role + reason +
+# disclosure) and the handoff carries NO token/secret (FR-018; profile schema
+# `handoff.url_carries_no_secret` default true; US3 acceptance scenario 5).
+#
+# DISTINCT from governed-action-denial.yaml (P4): that fixture is a governed DENIAL
+# that merely OFFERS `human_handoff` in its `fallback_modes` while the avatar stays
+# `idle` and never enters a handoff state. Here the session actually escalates and
+# the avatar PRESENTS `handoff`.
+#
+# Fixed clock/IDs/font/locale/platform + canonical AVC command/event/snapshot inputs
+# -> declared canonical view-state/record shapes. No live model, provider, clock, or
+# RNG. Two identical runs yield equivalent expected shapes and identical evidence_ids.
+inputs:
+  clock: "2026-07-11T00:00:30Z"
+  ids:
+    session_id: sess-0007
+    workflow_id: wf-0007
+    persona_id: neutral.guide
+    persona_version: 1
+  font: pinned-neutral-sans-with-rtl-face
+  locale: en
+  platform_capabilities:
+    keyboard: true
+    screen_reader: true
+    reduced_motion: false
+canonical:
+  commands:
+    - {command_type: start_session}
+    - {command_type: submit_user_text}   # the user describes a need the authority routes to a human
+  events:
+    - {event_type: session_started, authority: authoritative}    # listening: session begins
+    - {event_type: media_authorized, authority: authoritative}   # listening: capture authorized
+    - {event_type: command_accepted, authority: authoritative}   # thinking: user text accepted (producer control_api)
+    - {event_type: workflow_result, authority: authoritative}    # handoff: workflow authority escalates to a human specialist (producer authority_stub)
+  snapshot:
+    state_revision: 4
+    presentation_mode: conversation
+    workflow_projection: handoff   # authoritative workflow-projection axis now carries a human handoff (Hermes/workflow-authority-owned)
+    # No control_health (healthy) and no session_outcome: a handoff is an authored
+    # workflow escalation, not a control failure and not a session-outcome terminal.
+expected:
+  view_state:
+    presentation_mode: conversation
+    media_state: handoff          # avatar presents `handoff`; it yields to the human successor (NOT `speaking`, NOT `blocked`)
+    control_state: healthy        # authored workflow escalation, NOT a control failure — so this derives `handoff`, never `blocked`
+    workflow_projection: handoff
+    handoff_scope:                # FR-018 / US3-S5: the handoff MUST show its scope
+      role: domain_specialist     # released `domain_overlay.handoff_roles` value (domain-overlays.example.yaml lines 184/269)
+      trigger: escalation_required
+      disclosure: "Connecting you with a human specialist"
+    handoff_carries_token: false  # FR-018 / US3-S5: the handoff carries NO token/secret (profile `handoff.url_carries_no_secret`)
+    governed_commands_enabled: false   # INFERRED, not released-source-grounded: the only landed groundings for
+    # disabling governed commands are control loss (standard §18) and consent
+    # revocation (consent-withdraw-mid-speech.yaml), both distinct from a
+    # control-healthy handoff. This value assumes the avatar relinquishes
+    # governed actions to the human successor on handoff; the P1 derivation
+    # table must confirm or correct it (see README ask item 2).
+  records:
+    - {kind: session_started, session_id: sess-0007}
+    - {kind: media_authorized, session_id: sess-0007}
+    - {kind: command_accepted, session_id: sess-0007}
+    - {kind: session_handoff, session_id: sess-0007, role: domain_specialist, carries_token: false}   # derived: escalation to a human, scope shown, no token
