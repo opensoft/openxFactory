@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.11
+contract_bundle_version: contract-v1.12
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -473,3 +473,214 @@ contracts:
       layout, and the disclosed baseline-mode coverage exception). Reference
       validator content-addressed by commit; not a pinned semantic artifact,
       so it carries no per-file digest.
+  # ---- avatar-client-lab evidence surface — contract-v1.12 realization (adopt-avatar-client-lab-candidates) ----
+  # Canonical openxFactory-owned neutral client-lab evidence artifacts landed by the
+  # P-row adoption change: the P1 avatar-state derivation table and the P10
+  # capability-scenario register (design D2/D3), the 20 adopted deterministic seeds that
+  # close the state-reachability denominator (P7/P8/P11/P12/P13), and the SCO-001-S05
+  # successor deferral-discharge register (implement-avatar-client-lab task 4.4, registered
+  # here per the release-time manifest convention — the 005/v1.9 pattern: successor registers
+  # are content-addressed when the next additive bundle is cut, never mid-change). Per-file
+  # sha256 over each file's bytes. Deliberately NOT per-file members: the `.md` prose companions
+  # (derivation-table narrative, avatar-client-lab/README.md) and client-acceptance-map.yaml
+  # (landed by implement-avatar-client-lab; governed by check_client_lab_acceptance_map, not a
+  # per-file digest) — matching the v1.7/v1.11 convention of registering only machine-readable
+  # YAML, and the proposal's "+2 artifacts" impact accounting. The reference validators
+  # (validate-avatar-client.py, validate-avatar-first-ui.py) are content-addressed by commit;
+  # no per-file digest. Consumed by the codexFactory avatar-client-lab app as
+  # vendored_evidence_inputs at its contract-v1.12 pin resync.
+  - id: avatar-client-lab-avatar-state-derivation-table
+    path: contracts/avatar-client-lab/avatar-state-derivation-table.yaml
+    source_path: openxFactory/contracts/avatar-client-lab/avatar-state-derivation-table.yaml
+    type: derivation_table
+    schema_version: 1
+    sha256: 36f094bafb72881c3eabb6d3e8c4e2a45d02235f3cccc7bd0d2ed440cc2f3f43
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-lab-capability-scenario-register
+    path: contracts/avatar-client-lab/capability-scenario-register.yaml
+    source_path: openxFactory/contracts/avatar-client-lab/capability-scenario-register.yaml
+    type: capability_scenario_register
+    schema_version: 1
+    sha256: 32e5925995836926c8d1b8d7c243c6ddb58168ed3afbcf875d6eb3318210a2a0
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-client-evidence-register-implement-avatar-client-lab
+    path: contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml
+    source_path: openxFactory/contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml
+    type: evidence_register
+    schema_version: 1
+    sha256: 8598efdaeb86e034ca9783c105233c10f39a2863b5dc6558af37a74761e73bbb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  # ---- adopted deterministic fixtures (examples/avatar-first-ui/fixtures/deterministic/) ----
+  # The 20 P-row fixtures adopted verbatim from codexFactory 002-avatar-client-lab @ 3a8fbd5
+  # (7/7 panel-confirmed). Kernel-field-only evidence of the closed media.states denominator and
+  # the intake/takeover/interrupted/handoff scenario families. Grouped P7/P8/P11/P12-P13. The
+  # five pre-existing released seeds in this directory (offline-acceptance, six-state-transition-arc,
+  # governed-action-denial, control-lost-failure, consent-withdraw-mid-speech) are NOT this
+  # change's members and stay unregistered.
+  # P7 — intake breadth (5)
+  - id: avatar-first-ui-fixture-intake-happy-path
+    path: examples/avatar-first-ui/fixtures/deterministic/intake-happy-path.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/intake-happy-path.yaml
+    type: fixture
+    schema_version: 1
+    sha256: b32aeabea362c9b80bf6da0b9fbc5aa54d7f4cf0e6a9acfc50dad25ef52228bc
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-intake-ask-only-the-gap
+    path: examples/avatar-first-ui/fixtures/deterministic/intake-ask-only-the-gap.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/intake-ask-only-the-gap.yaml
+    type: fixture
+    schema_version: 1
+    sha256: ea1ee68afd661b820e59f3e25b96f7624b6b7c64006ddf069b1cb4a3eafee8e3
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-intake-supersede-correction
+    path: examples/avatar-first-ui/fixtures/deterministic/intake-supersede-correction.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/intake-supersede-correction.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 343ae0cf749c71c8ec919496bcd531f193c4eb19ffbdb36022cf9c237f6e3f75
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-intake-decline-withdraw
+    path: examples/avatar-first-ui/fixtures/deterministic/intake-decline-withdraw.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/intake-decline-withdraw.yaml
+    type: fixture
+    schema_version: 1
+    sha256: e7136571eb286e470d7bc616ad58751e81c33d79ba5cc0ca5dd8e75c8bd1a92e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-intake-idempotency-conflict
+    path: examples/avatar-first-ui/fixtures/deterministic/intake-idempotency-conflict.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/intake-idempotency-conflict.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 5b994251a59f4e9bcba4a20498f6eae95ca507138ba02a898d0143b1d4bbf686
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  # P8 — lease/epoch takeover + snapshot-barrier recovery (4)
+  - id: avatar-first-ui-fixture-lease-epoch-takeover
+    path: examples/avatar-first-ui/fixtures/deterministic/lease-epoch-takeover.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/lease-epoch-takeover.yaml
+    type: fixture
+    schema_version: 1
+    sha256: eb1a3e0efe5af477c47df3813d809995d52fe376b228e601aff730e274e4db48
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-stale-revision-command-fenced
+    path: examples/avatar-first-ui/fixtures/deterministic/stale-revision-command-fenced.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/stale-revision-command-fenced.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 7b5181d095f9fe0044caac34d1fa2e94b5b765ca33830d66cb21ed15eb780ee4
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-snapshot-barrier-recovery
+    path: examples/avatar-first-ui/fixtures/deterministic/snapshot-barrier-recovery.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/snapshot-barrier-recovery.yaml
+    type: fixture
+    schema_version: 1
+    sha256: feda4037f9641c5c18775d801b09489b00b9290b90a4af6746f0413c032506b4
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-snapshot-barrier-overflow-restart
+    path: examples/avatar-first-ui/fixtures/deterministic/snapshot-barrier-overflow-restart.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/snapshot-barrier-overflow-restart.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 97d22a3d8d6c0434b2f542d89c65b05b4d6babb3b94d6c948840aecacc333299
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  # P11 — interrupted/handoff (2)
+  - id: avatar-first-ui-fixture-avatar-interrupted-barge-in
+    path: examples/avatar-first-ui/fixtures/deterministic/avatar-interrupted-barge-in.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/avatar-interrupted-barge-in.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 45caf6a346a60aaf2b5718b2f49a757c208f55ade28784f6eb3a0f10fa92435a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-avatar-handoff-escalation
+    path: examples/avatar-first-ui/fixtures/deterministic/avatar-handoff-escalation.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/avatar-handoff-escalation.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 3dd2b4a907c9c7f575718f48f64b98ce55945cd3f032b379cde543bd03519860
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  # P12/P13 — eight non-control closed media.states + control_degraded (9)
+  - id: avatar-first-ui-fixture-det-media-state-permission
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-permission.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-permission.yaml
+    type: fixture
+    schema_version: 1
+    sha256: a3813d2df15b60e77406dda0b18ed426b36b500a2ece5fa05b70c64be0364e6a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-capture-authorized
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-authorized.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-authorized.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 3b70d999df84a74bf053597e185e7875e40256be479f14f4227fb6694413fe60
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-capture-pending
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-pending.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-pending.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 137e4911329ceb0acf7163e5af6fe4b2b63faa242986641b9195e4d728da5b41
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-capture-active
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-active.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-capture-active.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 207a6023b34b1d7589848a2ace1bc30150317dc7a7a6289f7d20b476b08c3619
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-listening
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-listening.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-listening.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 8aefba87d6d5e9e332e1f1103d05aac58502621a5d0f4fe13cbc86ec32469663
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-speaking
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-speaking.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-speaking.yaml
+    type: fixture
+    schema_version: 1
+    sha256: c878b900e1c618bfe5df627a60d0c48e99fb9b69e5778eca81aaa5e3ab1edfd0
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-governed-action-pending
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-governed-action-pending.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-governed-action-pending.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 1c90fa0efb0db300e26702910f2bcfe0e037efddf8712822129eede5d67c07a2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-media-state-retention-active
+    path: examples/avatar-first-ui/fixtures/deterministic/det-media-state-retention-active.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-media-state-retention-active.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 5d485a15afbd4364a37b4ab5fc49ecc0bee9d46076bcbe6cd5e9c96ba4f17c63
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: avatar-first-ui-fixture-det-control-degraded
+    path: examples/avatar-first-ui/fixtures/deterministic/det-control-degraded.yaml
+    source_path: openxFactory/examples/avatar-first-ui/fixtures/deterministic/det-control-degraded.yaml
+    type: fixture
+    schema_version: 1
+    sha256: 9401fa4fd7ba7bdc89d59dd846c2d78adc531bff9507577e1572c3ba29e3108e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory

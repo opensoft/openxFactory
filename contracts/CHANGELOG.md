@@ -9,6 +9,73 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.12 — 2026-07-15 (additive; avatar-client-lab evidence surface / P-row adoption)
+
+Sixth annotated-tag release. Realizes the neutral **avatar-client-lab evidence
+surface** (`adopt-avatar-client-lab-candidates`), the P1/P10 owning change that
+adopts the panel-confirmed layer-2 evidence candidates from codexFactory
+`002-avatar-client-lab` @ `3a8fbd5` (7/7 confirmed; provenance in that feature's
+`upstream-drafts/STATUS.md`). All additive: every `contract-v1.7` / `v1.8` /
+`v1.11` released path is byte-identical and `contract_schema_version` is unchanged.
+
+Added — two neutral, content-addressed client-lab artifacts under
+`contracts/avatar-client-lab/` (per-file SHA-256 recorded in
+`contracts/manifest.yaml`):
+
+- `avatar-state-derivation-table.yaml` — the P1 total avatar-state derivation
+  table (design D3): the precedence-ordered R0..R6 derivation plus the enumerated
+  healthy-control matrix mapping the four authoritative runtime axes onto the six
+  FR-019 avatar presentation states, embedding the normative invariants, with
+  OQ-1..OQ-6 ratified (product-owner sign-off Brett 2026-07-15). Gate
+  (vi)/(ix)(a) source. Its normative `.md` companion
+  (`avatar-state-derivation-table.md`) and `README.md` are prose governed by this
+  changelog, not per-file manifest members.
+- `capability-scenario-register.yaml` — the P10 capability-scenario register
+  (9 requirements / 22 scenarios; Option B, design D2): stable `ACL-*` ids and
+  verbatim `#### Scenario:` titles machine-checked fail-closed in document order
+  against the `implement-avatar-client-lab` capability spec. Gate (ix)(b) source.
+
+Added — the 20 adopted deterministic fixtures under
+`examples/avatar-first-ui/fixtures/deterministic/` (per-file SHA-256 in
+`manifest.yaml`), closing the state-reachability denominator via AVC-12 kernel
+fields only: P7 intake breadth (5), P8 lease/epoch takeover + snapshot-barrier
+recovery (4), P11 `interrupted`/`handoff` (2), and P12/P13 the eight non-control
+closed `media.states` + `control_degraded` (9). The five pre-existing released
+seeds already in that directory stay unregistered (not this change's members).
+
+Added — `contracts/avatar-client/evidence-register.implement-avatar-client-lab.yaml`,
+the SCO-001-S05 successor deferral-discharge register (locked decision 7 of
+`implement-avatar-client-lab`, task 4.4). Registering it here — the release-time
+manifest convention first used at `contract-v1.9` (bundle members join
+`manifest.yaml` only when the next additive version is cut, never mid-change) —
+makes the `deferred → evidenced` discharge effective WITHOUT mutating the
+released, byte-identical `evidence-register.yaml` (a contract-v1.9 member).
+
+Governance:
+
+- Settled law L2 (the app never self-serves neutral artifacts): all candidates
+  land at their upstream openxFactory source; the codexFactory
+  `apps/avatar-client-lab/` app consumes them read-only as
+  `vendored_evidence_inputs` at its `contract-v1.12` pin resync (this change's
+  codexFactory realization surface).
+- Fail-closed validation: `scripts/validate-avatar-client.py` carries
+  `check_avatar_state_derivation_table` and `check_capability_scenario_register`
+  (both fail-closed, with negative coverage); with the successor register now
+  manifest-listed, `--require-realization` passes (0 errors).
+  `scripts/validate-avatar-first-ui.py` (baseline + realization) stays green. The
+  reference validators are content-addressed by commit and carry no per-file digest.
+
+Also added — `contracts/releases/contract-v1.12.digests.yaml`: the raw-Git-blob
+SHA-256 release digest inventory for this bundle (built by
+`scripts/validate-contract-release.py`), refreshing the closed hermes-runtime
+release surface plus the `manifest.yaml` / `CHANGELOG.md` / `README.md`
+auxiliaries; the avatar-client-lab surface is outside that closure and is
+content-addressed via `manifest.yaml` per-file digests instead.
+
+Consumers: the codexFactory `apps/avatar-client-lab/` lab pins this bundle at
+the `contract-v1.12` tag and verifies the per-file SHA-256 in `manifest.yaml`
+before treating a vendored copy as current.
+
 ## contract-v1.11 — 2026-07-14 (additive; document-cataloging contract surface)
 
 Fifth annotated-tag release. Realizes the neutral **document-cataloging

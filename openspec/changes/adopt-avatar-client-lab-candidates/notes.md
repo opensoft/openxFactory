@@ -50,3 +50,70 @@ Product-owner sign-off: **Brett, 2026-07-15**. Recorded verbatim-in-substance in
   `blocked`, lawful via an explicit amendment: `blocked` derives ONLY from
   `control_lost`/`control_degraded` OR the INV-2 fail-closed condition, citing
   FR-018(b).
+
+## Release cut (section 5) — contract-v1.12 (2026-07-15)
+
+Cut on branch `task/adopt-v112-release` (worktree
+`openxFactory-worktrees/adopt-release`, base main @ `58fc401`).
+
+- **5.1 collision re-check (before manifest edits).** `git status -sb` =
+  `## task/adopt-v112-release` (clean, own branch only); `git log --oneline -6 --
+  contracts examples` = this change's two landing commits (`fc42511`, `43c5a73`)
+  atop the ideation cross-reference/routing work and `a010288` (v1.11 inventory) —
+  all ancestors of HEAD; `openspec list` active changes (`add-ideation-dashboard`,
+  `add-cross-factory-ideation-routing`, `add-ideation-cross-reference-readiness`,
+  etc.) touch only `contracts/schemas/ideation-*` + `scripts/` paths held in the
+  README "Contracts Pending Realization" area — none touch `contracts/avatar-client`,
+  `contracts/avatar-client-lab`, or `examples/avatar-first-ui`. No collision.
+
+- **Manifest members added: 23.** (a) 2 client-lab artifacts —
+  `avatar-client-lab-avatar-state-derivation-table` (derivation table `.yaml`),
+  `avatar-client-lab-capability-scenario-register`; (b) 20 adopted deterministic
+  fixtures (P7 intake ×5, P8 takeover/recovery ×4, P11 interrupted/handoff ×2,
+  P12/P13 media.states + control_degraded ×9); (c) 1 successor register
+  `avatar-client-evidence-register-implement-avatar-client-lab`. Manifest now
+  carries 68 contract entries, 53 with a per-file sha256.
+  **`.md`-membership decision: NOT members.** `avatar-state-derivation-table.md`,
+  `avatar-client-lab/README.md`, and `client-acceptance-map.yaml` are deliberately
+  excluded — the manifest registers only machine-readable YAML per the v1.7 kernel
+  and v1.11 document-cataloging precedent (neither registered a `.md`/adoption-guide
+  doc), the proposal's Impact counts this change as "+2 artifacts" (the two `.yaml`),
+  and tasks.md 5.1 names "the two client-lab artifacts"; `client-acceptance-map.yaml`
+  is `implement-avatar-client-lab`'s artifact (governed by `check_client_lab_acceptance_map`,
+  not manifest-membership) and neither `--require-realization` nor the impact notes
+  demand it here. The prose `.md`/map are governed by the changelog + fail-closed
+  validators instead.
+
+- **Byte-identity sweep (5.2): 53 members verified, 0 mismatches.** All 30
+  pre-existing recorded-sha256 members — `avatar-first-ui-profile` (v1.8), the 23
+  avatar-client kernel members (v1.7), and the 6 document-cataloging schemas
+  (v1.11) — recompute byte-identical to their manifest sha256; the 23 newly-added
+  members match their computed digests. Confirms the additive-only invariant
+  (no released v1.7/v1.8/v1.11 path changed).
+
+- **Gate tail lines (5.3), all from the worktree HEAD:**
+  - `validate-avatar-client.py` → `0 error(s), 0 warning(s)`
+  - `--strict` → `0 error(s), 0 warning(s)`
+  - `--require-realization` → `0 error(s), 0 warning(s)` (now PASSES: the successor
+    register is manifest-listed, so `check_digests` no longer emits `digest-missing`;
+    pre-registration it failed with exactly that one error)
+  - `validate-avatar-first-ui.py` (baseline) → `OK ... [mode=baseline]`
+  - `--mode realization` → `OK ... [mode=realization]`
+  - `pytest tests/avatar_client_validator/ -q` → `60 passed`
+  - `compileall scripts/` → exit 0 (clean)
+  - `openspec validate adopt-avatar-client-lab-candidates --strict` → valid;
+    `--all --strict` → 28 passed, 0 failed
+
+- **Digest inventory: YES.** `contracts/releases/contract-v1.12.digests.yaml` built
+  by `scripts/validate-contract-release.py build --tag contract-v1.12` (release: pass;
+  179 entries). It refreshes the closed hermes-runtime release surface + the
+  `manifest.yaml` / `CHANGELOG.md` / `README.md` auxiliaries; diff vs
+  `contract-v1.11.digests.yaml` = only `bundle_tag` and those three auxiliary
+  digests (the hermes-runtime family is byte-identical). The avatar-client-lab
+  surface is outside this closure and is content-addressed via `manifest.yaml`.
+
+- **DEFERRED TAG (deviation from 5.2 text).** No git tag created or pushed. The
+  annotated `contract-v1.12` tag is applied by the coordinator on the main merge
+  commit after review — a tag on this branch commit would point at the wrong
+  object. Manifest `contract_bundle_version`, `CHANGELOG.md`, and the digest
+  inventory are all cut and internally consistent; only the tag object is pending.
