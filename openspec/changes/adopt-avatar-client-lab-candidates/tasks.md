@@ -33,10 +33,10 @@ paths only; check `git status -sb` before every commit.
 
 ## 5. Release cut — contract-v1.12
 
-- [ ] 5.1 Re-run task 1.3's collision check; then register in `contracts/manifest.yaml` with computed sha256: the two client-lab artifacts, the 20 adopted fixtures, and `evidence-register.implement-avatar-client-lab.yaml` (the task-4.4 release-time registration that makes the SCO-001-S05 discharge effective).
-- [ ] 5.2 Verify every `contract-v1.7` / `contract-v1.8` released file is byte-identical (digest re-computation), write the changelog entry, bump `contract_bundle_version` to `contract-v1.12`, tag.
-- [ ] 5.3 Full validation sweep: `validate-avatar-client.py` (incl. both new checks + successor-register manifest membership under `--require-realization`) + `validate-avatar-first-ui.py` baseline + realization, all green.
-- [ ] 5.4 List this change in the openxFactory README "OpenSpec Records" block; `openspec validate adopt-avatar-client-lab-candidates --strict` + `--all --strict` green; commit + push per shared-checkout discipline.
+- [x] 5.1 Re-run task 1.3's collision check; then register in `contracts/manifest.yaml` with computed sha256: the two client-lab artifacts, the 20 adopted fixtures, and `evidence-register.implement-avatar-client-lab.yaml` (the task-4.4 release-time registration that makes the SCO-001-S05 discharge effective).
+- [x] 5.2 Verify every `contract-v1.7` / `contract-v1.8` released file is byte-identical (digest re-computation), write the changelog entry, bump `contract_bundle_version` to `contract-v1.12`, tag. — tag applied by coordinator at merge (a branch-commit tag would point at the wrong object; the annotated `contract-v1.12` tag lands on the main merge commit after review).
+- [x] 5.3 Full validation sweep: `validate-avatar-client.py` (incl. both new checks + successor-register manifest membership under `--require-realization`) + `validate-avatar-first-ui.py` baseline + realization, all green.
+- [x] 5.4 List this change in the openxFactory README "OpenSpec Records" block; `openspec validate adopt-avatar-client-lab-candidates --strict` + `--all --strict` green; commit + push per shared-checkout discipline.
 
 ## 6. Realization (code surface: codexFactory lab pin resync)
 
