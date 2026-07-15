@@ -8,9 +8,9 @@ paths only; check `git status -sb` before every commit.
 
 ## 1. Preflight
 
-- [ ] 1.1 Verify the source commit: fetch codexFactory, confirm `3a8fbd5` is an ancestor of `origin/002-avatar-client-lab` (or of main once its PR merges), and record the exact source SHA in this change's notes.
-- [ ] 1.2 Baseline validation run: `validate-avatar-client.py` + `validate-avatar-first-ui.py --mode baseline` + `--mode realization` green BEFORE any landing (establishes that later failures are ours).
-- [ ] 1.3 Confirm no concurrent change touches `contracts/` or `examples/avatar-first-ui/` (`openspec list` + `git log --oneline -10 -- contracts examples`); note findings.
+- [x] 1.1 Verify the source commit: fetch codexFactory, confirm `3a8fbd5` is an ancestor of `origin/002-avatar-client-lab` (or of main once its PR merges), and record the exact source SHA in this change's notes.
+- [x] 1.2 Baseline validation run: `validate-avatar-client.py` + `validate-avatar-first-ui.py --mode baseline` + `--mode realization` green BEFORE any landing (establishes that later failures are ours).
+- [x] 1.3 Confirm no concurrent change touches `contracts/` or `examples/avatar-first-ui/` (`openspec list` + `git log --oneline -10 -- contracts examples`); note findings.
 
 ## 2. Fixture families (P7, P8, P11, P12/P13)
 
