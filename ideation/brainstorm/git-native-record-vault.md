@@ -63,6 +63,43 @@ Salted hashes chain all three planes: opinion → sanitized inputs (plane
    family already carries erasure/break-glass/audit vocabulary — this is
    those contracts applied to a SOPS vault instead of a memory store.
 
+## Sensitivity locus and the purpose-driven encryption ladder (Brett, 2026-07-15)
+
+General rule: **for secure documents, the identity/linkage always goes to
+the encrypted vault (plane 3). Whether the FILES themselves are encrypted
+is then decided by sensitivity locus and purpose.**
+
+**Locus 1 — linkage-sensitive** (medical, legal clients, financial
+accounts): the danger concentrates in WHO the record is about, not the
+content itself. Identity → vault; content tiers by purpose:
+
+| Rung | State | Purpose / access |
+|---|---|---|
+| (a) | Fully encrypted, identified | the raw record; vault-plane custody, clinician/key-holder only |
+| (b) | **Encrypted after de-identification** | controlled research: the dataset gets its own SOPS/KMS data key issued to a named researcher group — trust moves from the storage to the key, so commodity blob/DB still works |
+| (c) | De-identified, plaintext | public/open research — REQUIRES the formal de-identification bar (Safe Harbor or Expert Determination), not just pseudonymization |
+
+Refinement of the three-plane note above: plane 2's "no PHI custody
+burden" applies fully only to rung (c); rung (b) data rides the same
+commodity storage BECAUSE it is encrypted, not because it is harmless.
+
+**Locus 2 — content-sensitive** (high-security engineering, trade
+secrets): the danger is diffused through WHAT the document says; there is
+nothing meaningful to de-identify, so a half stage buys nothing
+(Brett: "if you decrypt, you see all — I do not see value in a half
+stage"). Binary custody: encrypted whole, access by clearance. Noted as
+policy default rather than technical constraint: per-file SOPS keys still
+permit need-to-know compartments (per project/cell) later without
+redesign.
+
+**Locus 3 — open** (codex governance docs and most engineering work):
+plaintext, repo-native — the existing tier-1 custody, unchanged.
+
+The dashboard/NotebookLM consequence: the custody profile per repo/source
+gains a locus + rung declaration, and the NotebookLM dispatch gate reads
+it — rung (a) never dispatches, rung (b) dispatches only under the
+dataset key-group's authorization, rung (c) and locus-3 dispatch freely.
+
 ## Research-reuse caveats (honest edges)
 
 - Salted-pseudonymized data is "coded," not Safe-Harbor de-identified:
