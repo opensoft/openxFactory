@@ -115,6 +115,51 @@ dataset key-group's authorization, rung (c) and locus-3 dispatch freely.
   the model emits judgment; orchestration computes every hash and
   pseudonym.
 
+## Patient wallet: capability grants over the vault (Brett, 2026-07-15)
+
+The patient holds their records in a "medical wallet" and issues scoped,
+time-boxed access to professionals. Cardinal rule: **never hand out raw
+keys** — raw keys cannot expire or be revoked. The wallet holds a SIGNING
+key; access travels as attenuated capability grants.
+
+- **Wallet** = a device-bound signing key (passkey/WebAuthn for real-user
+  UX — no seed phrases) anchored to a DID, holding (1) the patient's own
+  linkage-salt share (a patient can always re-identify their own records;
+  the org still needs the vault) and (2) the root capability over their
+  record set.
+- **Grant** = a signed capability token (UCAN/Biscuit/macaroon-style
+  attenuation, or a W3C Verifiable Credential): audience = the
+  professional's DID; records = evidence-manifest salted hash refs (the
+  grant never names content); scope = locus rung + purpose; expiry;
+  optional single-use. Issued as QR/link — the SMART Health Cards/Links
+  interaction pattern, proven at population scale.
+- **Enforcement fork**: (v1, recommended) KMS-mediated — the Hermes-gated
+  vault API verifies the grant, logs it, and releases a short-lived
+  derived key scoped to it; revocation and expiry are actually
+  enforceable; trust = the vault operator, which is already true.
+  Upgrade paths: proxy re-encryption (ciphertext transformed to the
+  grantee's key without plaintext exposure) and threshold split-key
+  (patient share required for any decrypt — maximal sovereignty, but
+  patient unavailability becomes a clinical availability problem, so
+  break-glass is required by construction).
+- **Every grant/use/revocation/break-glass event is itself a governance
+  record** committed to the evidence plane (DIDs + hashes only, PHI-free):
+  "who could see what, when, granted by whom" lands in the same
+  traceability plane as "which bytes produced this diagnosis."
+- **Break-glass** is not new design: the memory-gateway contract family's
+  break-glass/audit vocabulary applied to the vault.
+- **Steal, don't invent**: UMA 2.0 / HEART profile (purpose-built
+  patient-directed health-data sharing), SMART on FHIR scope vocabulary,
+  W3C DID/VC, UCAN/Biscuit for attenuation. Blockchain not required —
+  git + KMS logs already provide the tamper-evident audit; a ledger
+  anchor stays optional.
+
+Additional OQs this raises: wallet recovery/custodianship (lost phone;
+minors; incapacitated patients — custodial fallback degrades gracefully
+to today's practice-held model); grant granularity (whole record set vs
+per-encounter vs per-document); whether professionals' DIDs come from a
+practice registry or a public trust framework.
+
 ## Scope line
 
 This is a **document-EMR — a governed records vault** — not a clinical
