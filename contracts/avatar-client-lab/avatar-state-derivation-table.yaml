@@ -1,0 +1,252 @@
+# avatar-state derivation table — landed neutral artifact (machine-readable companion
+# to avatar-state-derivation-table.md). Encodes the precedence-ordered derivation
+# (R0..R6) + the enumerated healthy-control matrix so gate (vi) can test
+# deriveAvatarState faithfully and gate (ix)(a) can read the exact control_health/
+# session_outcome combinations the table names.
+#
+# Landed by change adopt-avatar-client-lab-candidates (tasks 4.1-4.3; design D3): a
+# neutral, content-addressed artifact the codexFactory lab vendors + pins as a
+# vendored_evidence_inputs entry at realization.
+#
+# Provenance: adopted from codexFactory branch 002-avatar-client-lab @ 3a8fbd5
+#   (7/7 panel-confirmed; evidence in specs/002-avatar-client-lab/upstream-drafts/STATUS.md).
+#   Byte-faithful to that source EXCEPT the D6 header swap, the OQ-5 mapping change
+#   (governed_action_pending => listening, not thinking), and the OQ-6 scoping amendment
+#   (blocked is the lawful INV-2 fail-closed target). See the .md section 8 "Ratifications"
+#   for the six OQ dispositions and the product-owner sign-off (Brett, 2026-07-15).
+#
+# Machine-checked fail-closed by
+#   scripts/validate-avatar-client.py::check_avatar_state_derivation_table:
+#   outputs == the six FR-019 states; inputs.media_states == the closed ten; every landed
+#   deterministic seed that declares an avatar state resolves to it under the precedence
+#   rules below; reachability_named_combinations == the gate (ix)(a) set; and any
+#   invariant-contradiction row (e.g. control_lost mapped to non-blocked) fails closed.
+#
+# schema_version + kind mirror the neutral registry convention (kind: avatar-client-registry).
+
+schema_version: 1
+kind: avatar-client-registry
+registry_id: avatar-state-derivation-table
+registry_version: 1
+
+# ---------------------------------------------------------------------------
+# Input axes (exact closed enumerations from the released sources)
+# ---------------------------------------------------------------------------
+inputs:
+  media_states:            # avatar-first-ui-profile.schema.yaml media.states (FR-012 denominator)
+    - permission
+    - capture_authorized
+    - capture_pending
+    - capture_active
+    - listening
+    - speaking
+    - control_degraded
+    - control_lost
+    - governed_action_pending
+    - retention_active
+  control_health:          # avc-12-state-snapshot.schema.yaml
+    - healthy
+    - degraded
+    - lost
+  session_outcome:         # shared-definitions.schema.yaml / session-outcomes.registry.yaml
+    - granted              # non-terminal (initial authorization)
+    - denied               # terminal
+    - completed            # terminal
+    - abandoned            # terminal
+    - expired              # terminal
+    - revoked              # terminal
+    - session_limit_reached  # terminal
+    # (absent/unset) is also valid and non-terminal
+  session_lifecycle:       # broker-owned open string; standard §9 neutral vocabulary (OQ-1 ratified — see the .md section 8 "Ratifications")
+    handoff_signals: [handoff_requested, handoff_active]
+    processing_signals: [tool_request_pending, workflow_waiting, comprehension_or_confirmation_check]
+
+outputs:                   # the six avatar presentation states (FR-019)
+  - listening
+  - thinking
+  - speaking
+  - interrupted
+  - blocked
+  - handoff
+
+# Reachability flavoring: kernel control_health -> denominator media.state
+# (data-model §4; gate ix(a) evidencing). The landed UI seeds carry the control
+# condition ALREADY-FLAVORED (control-lost-failure.yaml snapshot control_health:
+# control_lost) -- that IS the denominator value, so it normalizes to itself; the
+# AVC-12 conformance cases carry the enum value `lost` (which normalizes to control_lost).
+control_health_normalization:
+  lost: control_lost
+  degraded: control_degraded
+
+# Derivation canonicalization (deriveAvatarState; applied BEFORE precedence) -- the
+# INVERSE map: an already-flavored control value -> canonical control_health enum, so
+# R1 matches BOTH encodings (e.g. P5's control_lost => lost, resolving via R1 not R0)
+# and R0's unknown-guard never trips on a recognized control value. Normative per
+# data-model §4 and settled law L4. After this step the control axis is always one of
+# {healthy, degraded, lost}.
+control_axis_canonicalization:
+  control_lost: lost
+  control_degraded: degraded
+
+# ---------------------------------------------------------------------------
+# Normative derivation invariants (settled law; embedded)
+# ---------------------------------------------------------------------------
+invariants:
+  INV-1: "control_lost/control_degraded => blocked; never speaking"
+  INV-2: >-
+    unknown enum/producer/forbidden key => fail-closed safe state (trigger
+    verbatim from spec Clarifications Q2/Q3, FR-009, data-model section 6,
+    session-core.md). The target avatar state 'blocked' (R0, R6) is RATIFIED by
+    the OQ-6 scoping amendment (product-owner sign-off Brett 2026-07-15): blocked
+    derives ONLY from control_lost/control_degraded (INV-1) OR the INV-2
+    fail-closed condition, grounded in FR-018(b) (a fail-closed local failure and
+    control/policy-channel loss render the same labeled safe/unavailable surface).
+    See the .md section 8 "Ratifications" (OQ-6).
+  INV-3: "handoff => handoff"
+  INV-4: >-
+    P6 revocation-terminal: control healthy + media revoked => leaves speaking to a
+    NON-speaking, NON-blocked state; blocked derives ONLY from control_lost/control_degraded.
+landed_seed_corollary: >-
+  The five landed seeds reach only {listening, thinking, speaking, blocked} and never
+  produce interrupted or handoff (plan P11); therefore INV-4's revocation terminal
+  resolves to listening. interrupted/handoff are reached only by not-yet-landed P11 fixtures.
+
+# ---------------------------------------------------------------------------
+# Derivation procedure — precedence-ordered; first match wins; total.
+# ---------------------------------------------------------------------------
+precedence:
+  - id: R0
+    name: fail_closed_indeterminate
+    when: >-
+      any consumed axis carries a present-but-unknown/unparseable enum
+      (media.state present and not in the ten, control_health not in
+      {healthy,degraded,lost} AFTER control_axis_canonicalization -- the
+      already-flavored control_lost/control_degraded canonicalize to
+      lost/degraded and are RECOGNIZED, so they are NOT R0 triggers,
+      session_outcome not in the seven) -- an
+      absent/unset kernel media.state is NOT itself an R0 trigger; a
+      terminal-only snapshot carrying no kernel media.state field falls
+      through to R1..R6 on the other axes; OR an unauthorized producer /
+      forbidden key drove the reducer to its fail-closed safe view-state; OR
+      axis inconsistency (media.state in {control_lost,control_degraded}
+      while control_health = healthy)
+    output: blocked
+    output_status: ratified   # RATIFIED by the OQ-6 scoping amendment (product-owner sign-off Brett 2026-07-15): blocked derives ONLY from control_lost/control_degraded (INV-1) OR the INV-2 fail-closed condition, grounded in FR-018(b). See note + the .md section 8 Ratifications (OQ-6).
+    basis: INV-2
+    note: >-
+      target state 'blocked' is RATIFIED as the INV-2 fail-closed target by the
+      OQ-6 scoping amendment (FR-018(b): a fail-closed local failure and
+      control/policy-channel loss render the same labeled safe/unavailable
+      surface). No landed seed exercises this rule; the amendment governs it. See
+      the .md section 8 "Ratifications" (OQ-6).
+
+  - id: R1
+    name: control_health_safety_trip
+    when: "control_health in {degraded, lost} (after control_axis_canonicalization -- equivalently the already-flavored control_lost/control_degraded) OR media.state in {control_degraded, control_lost}"
+    output: blocked
+    basis: [INV-1, "P5 control-lost-failure.yaml"]
+    note: "dominates R2..R5; no fresh authoritative transition is admissible once control is lost/degraded"
+
+  - id: R2
+    name: handoff
+    when: >-
+      control_health = healthy AND
+      (session_lifecycle in {handoff_requested, handoff_active}
+       OR workflow_projection designates a handoff scope)
+    output: handoff
+    basis: INV-3
+    proof_seed: avatar-handoff-escalation.yaml   # P11 landed
+    ratification: OQ-1   # RATIFIED: binds to the runtime session-lifecycle transition registry; see the .md section 8 "Ratifications" (OQ-1)
+
+  - id: R3
+    name: authored_terminal_or_clean_revocation
+    when: >-
+      control_health = healthy AND NOT R2 AND
+      session_outcome in {denied, revoked, abandoned, expired, completed, session_limit_reached}
+    output: listening   # leaves any speaking turn; non-speaking, non-blocked (INV-4)
+    basis: [INV-4, "P4 governed-action-denial.yaml", "P6 consent-withdraw-mid-speech.yaml"]
+    note: >-
+      session_outcome here is the kernel AVC-12 snapshot field only — never the
+      app-land presentation media_state (table.md R3 non-negotiable framing; L4).
+      Separately, the governed OUTCOME (denial/cancellation label + non-color cue)
+      renders in the governed-action card outcome_slots/fallback_slots (FR-018) —
+      separate from avatar state.
+
+  - id: R4
+    name: interruption_of_active_turn
+    when: >-
+      control_health = healthy AND no terminal session_outcome AND NOT R2 AND
+      an authoritative interruption of the CURRENT turn while media.state = speaking
+      (explicit stop/cancel: response.cancel / output_audio_buffer.clear, OR a superseding
+      new user turn), session remaining live (non-terminal)
+    output: interrupted
+    basis: FR-019
+    proof_seed: avatar-interrupted-barge-in.yaml   # P11 landed
+    ratification: OQ-2   # RATIFIED: binds to response.cancel / output_audio_buffer.clear or a superseding authoritative turn; see the .md section 8 "Ratifications" (OQ-2)
+
+  - id: R5
+    name: live_media_state_presentation
+    when: "control_health = healthy AND no terminal AND NOT R2 AND NOT R4"
+    output: per media_state_map (+ processing_overlay)
+    basis: ["P3 six-state-transition-arc.yaml", "M0 offline-acceptance.yaml"]
+    note: >-
+      media_state here is deriveAvatarState's actual input -- the reduced
+      NormalizedViewState.media_state app-land presentation projection
+      (data-model section 4/6; session-core.md), NOT the gate (ix)(a)
+      kernel-evidencing field (table.md section 1 scoping). R1..R4 already
+      intercept every control-health/handoff/terminal/interruption value
+      before R5 is reached, so R5 only ever observes the ten closed-state
+      subset of that superset field.
+
+  - id: R6
+    name: default_fail_closed
+    when: "none of R0..R5 matched"
+    output: blocked
+    output_status: ratified   # RATIFIED -- shares R0's OQ-6 scoping amendment (blocked as the INV-2 fail-closed target, FR-018(b)). See the .md section 8 Ratifications (OQ-6).
+    basis: INV-2
+    note: >-
+      totality guard; unreachable given R0 unknown-guard + R5 exhaustiveness
+      over the ten media.states. Target state 'blocked' is RATIFIED via R0's OQ-6
+      scoping amendment -- see the .md section 8 "Ratifications" (OQ-6).
+
+# R5 base map (control healthy; no terminal/handoff/interruption)
+media_state_map:
+  speaking: speaking
+  governed_action_pending: listening   # OQ-5 RATIFIED (replacement): a non-speaking awaiting baseline surfaced by the action card + status strip (AFU-004 family); no released source grounds thinking (it would falsely signal model activity during a governance wait). See the .md section 8 "Ratifications" (OQ-5).
+  permission: listening
+  capture_pending: listening
+  capture_authorized: listening
+  capture_active: listening
+  listening: listening
+  retention_active: listening
+  control_degraded: blocked   # handled at R1
+  control_lost: blocked       # handled at R1
+
+# R5 overlay: a command in flight => thinking (beats the listening/capture_* baselines; NOT speaking)
+processing_overlay:
+  when: >-
+    control_health = healthy AND no terminal AND NOT R2/R4 AND
+    (session_lifecycle in {tool_request_pending, workflow_waiting, comprehension_or_confirmation_check}
+     OR a command_accepted whose workflow_result is still pending)
+  output: thinking
+  precedence_note: "overrides capture_*/listening/permission/retention_active; does NOT override speaking"
+
+# ---------------------------------------------------------------------------
+# Verification: reproduces every landed seed (see avatar-state-derivation-table.md §6)
+# ---------------------------------------------------------------------------
+landed_seed_crosscheck:
+  - {seed: offline-acceptance.yaml, p_row: M0, kernel: "healthy; media_state=capture_authorized is view_state's presentation projection (canonical AVC-12 snapshot carries no kernel media_state field) -- deriveAvatarState's actual R5 input, not kernel-evidenced (P12 gap); no terminal", rule: R5-base, derived: listening}
+  - {seed: six-state-transition-arc.yaml, p_row: P3, kernel: "healthy; command_accepted then streamed transcript_segment; ends media_state=speaking, likewise view_state's presentation projection (no kernel media_state field in canonical snapshot) -- R5's actual input, not kernel-evidenced (P12 gap)", rule: "R5-overlay -> R5 speaking", derived: [thinking, speaking]}
+  - {seed: governed-action-denial.yaml, p_row: P4, kernel: "healthy; session_outcome denied (no kernel media_state field; view_state.media_state=idle is presentation-only, not consumed)", rule: R3, derived: listening}
+  - {seed: control-lost-failure.yaml, p_row: P5, kernel: "snapshot control_health control_lost (already-flavored; canonicalizes to lost per control_axis_canonicalization, so it matches R1 -- NOT the R0 unknown-guard; the reduced view_state.control_state is already canonical lost)", rule: R1, derived: blocked}
+  - {seed: consent-withdraw-mid-speech.yaml, p_row: P6, kernel: "healthy; session_outcome revoked (no kernel media_state field; view_state.media_state=revoked is presentation-only, not consumed)", rule: "R3 (INV-4)", derived: listening}
+
+# ---------------------------------------------------------------------------
+# Named combinations feeding the FR-012/SC-002 gate (ix)(a) reachability denominator
+# ---------------------------------------------------------------------------
+reachability_named_combinations:
+  - {axis: control_health, value: lost, evidences_media_state: control_lost, landed: true, via: control-lost-failure.yaml}
+  - {axis: control_health, value: degraded, evidences_media_state: control_degraded, landed: false, gap: P13}
+  - {axis: media_state, note: "eight non-control media.states evidenced by kernel media_state fixture", landed: false, gap: P12}
+  - {axis: session_outcome, values: [denied, revoked, abandoned, expired, completed, session_limit_reached],
+     note: "enters only via R3; adds NO new denominator media.state (maps to listening baseline)"}

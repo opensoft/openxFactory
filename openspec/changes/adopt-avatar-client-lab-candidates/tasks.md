@@ -27,9 +27,9 @@ paths only; check `git status -sb` before every commit.
 
 ## 4. P1 — avatar-state derivation table (owning task per escalation memo)
 
-- [ ] 4.1 Ratify OQ-1..OQ-6 from the candidate's §8 against cited sources (standard §15, avatar-client-runtime spec, data-model §6/§7, the landed seeds); record each ratification (citation or replacement) in the table's prose; product-owner sign-off recorded before proceeding. [GATE]
-- [ ] 4.2 Land `contracts/avatar-client-lab/avatar-state-derivation-table.md` + `.yaml` with ratifications applied; add the §15 pointer line to `docs/avatar-first-ui-standard.md` (pointer only — the standard's text otherwise unchanged).
-- [ ] 4.3 Add `check_avatar_state_derivation_table` to `scripts/validate-avatar-client.py`: outputs == six states; `media_states` == closed ten; every landed deterministic seed resolves to its stated avatar state; named reachability combinations are exactly the gate (ix)(a) set; invariant-contradiction rows fail closed. Negative coverage included.
+- [x] 4.1 Ratify OQ-1..OQ-6 from the candidate's §8 against cited sources (standard §15, avatar-client-runtime spec, data-model §6/§7, the landed seeds); record each ratification (citation or replacement) in the table's prose; product-owner sign-off recorded before proceeding. [GATE]
+- [x] 4.2 Land `contracts/avatar-client-lab/avatar-state-derivation-table.md` + `.yaml` with ratifications applied; add the §15 pointer line to `docs/avatar-first-ui-standard.md` (pointer only — the standard's text otherwise unchanged).
+- [x] 4.3 Add `check_avatar_state_derivation_table` to `scripts/validate-avatar-client.py`: outputs == six states; `media_states` == closed ten; every landed deterministic seed resolves to its stated avatar state; named reachability combinations are exactly the gate (ix)(a) set; invariant-contradiction rows fail closed. Negative coverage included.
 
 ## 5. Release cut — contract-v1.12
 

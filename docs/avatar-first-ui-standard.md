@@ -437,6 +437,13 @@ pending local intent. Consequential values (names, identifiers, dates, money,
 addresses, consent, proposed effects) MUST be shown as complete display-safe
 values in work or review mode and MUST NOT be confirmed by voice alone.
 
+The neutral mapping from these four authoritative axes (with the AVC-12
+`session_outcome` terminal) onto the six avatar presentation states is the
+openxFactory-owned **avatar-state derivation table**, landed at
+`contracts/avatar-client-lab/avatar-state-derivation-table.{md,yaml}` (change
+`adopt-avatar-client-lab-candidates`); `deriveAvatarState` implements it and CI
+gate (vi) tests against it.
+
 ## 16. Hermes-Layer Surface Defaults (Authoritative)
 
 The defaults in §11 are the authoritative Hermes-layer surface defaults:

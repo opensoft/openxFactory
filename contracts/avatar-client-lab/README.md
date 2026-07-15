@@ -26,6 +26,17 @@ boundary*).
   register) — per FR-040 (reducer + widget behaviour, **not** schema re-proof),
   and carries the gating frame: the **nine** offline CI gates and the **eleven**
   accessibility-baseline capabilities, plus the F1-F4 acceptance foci.
+- [`avatar-state-derivation-table.md`](avatar-state-derivation-table.md) +
+  [`avatar-state-derivation-table.yaml`](avatar-state-derivation-table.yaml) —
+  the neutral, openxFactory-owned **avatar-state derivation table** (P1): the
+  total, precedence-ordered mapping from the four authoritative runtime axes (the
+  ten closed `media.states` + AVC-12 `control_health`/`session_outcome`, resolved
+  with `session_lifecycle`/`workflow_projection`) onto the six FR-019 avatar
+  presentation states. `deriveAvatarState` implements it and gate (vi) tests
+  against it; gate (ix)(a) reads the named `control_health`/`session_outcome`
+  combinations it declares. The six candidate open questions (OQ-1..OQ-6) are
+  ratified in the `.md` §8 (product-owner sign-off Brett 2026-07-15). Landed by
+  `adopt-avatar-client-lab-candidates`; a pointer sits at standard §15.
 
 ## Ownership boundary (why this lives here, not in a bundle dir)
 
