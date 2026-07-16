@@ -654,6 +654,46 @@ notebooks = a fully-current dashboard usable from a phone, NotebookLM one
 tap away — no pod, no bake, no session juggling. This section supersedes
 the earlier "Served-backend write actions" OQ default where they differ.
 
+### Hosted NotebookLM: service identity + native sharing + Keycloak (Brett, 2026-07-16)
+
+The hosted site now has the DOCUMENTS (v4 bakes the checkout); the
+blocker is Google identity. Two proposals, complementary:
+
+**A. Org-owned NotebookLM account + native sharing.** The
+pre-provisioning lane runs `nlm` as an org WORKSPACE identity (e.g.
+xfactory-notebooks@ — Workspace, not consumer: shared personal accounts
+are a Google ToS gray zone; Workspace gets admin controls). Notebooks are
+created under the service identity and SHARED to individual users via
+NotebookLM's native sharing — **the share list IS a grant list** (share =
+grant, unshare = revoke, per-notebook scope): the first real openxWallet
+grant implementation, enforced by Google's own ACLs, zero crypto on day
+one. Users open shared notebooks in their OWN Google context — browser or
+the iOS app via deep link.
+STRUCK CLAUSE: embedding NotebookLM in the hosted page. Google apps
+refuse framing, and proxying the service session would hand every hosted
+user the whole service account's reach (cross-user leakage) — the hosted
+page renders deep-links to the notebooks shared with YOU; the notebook
+always opens in Google's own surface.
+Operational risk to test: the ~20-minute nlm session means the service
+account needs a maintained login on the authenticated host (Cloud PC
+pattern: persistent browser profile, provisioning in batch windows).
+
+**B. Keycloak — right tool, different job than stated.** Brokering
+Google login yields the user's IDENTITY, never their NotebookLM session
+(no OAuth scope drives NotebookLM). Keycloak's real jobs here: (1)
+replace the hosted site's Basic Auth with SSO (connects to the existing
+keycloak-identity-brokering brainstorm); (2) its Google-brokered identity
+DRIVES option A's share lists — knowing the user's email, the lane shares
+their notebooks and the dashboard renders THEIR links; (3) bridge IdP for
+openxWallet while DIDs mature, and the identity that would map to
+per-user NotebookLM Enterprise API calls if that path is ever procured.
+
+**Synthesis:** Keycloak login → identity → service-provisioned notebooks
+shared to that identity → deep-links in the hosted page → opens under the
+user's own Google session anywhere (incl. iOS). Server never holds user
+creds; service creds never leave the authenticated host; nothing
+embedded.
+
 ### Custody tiers: git as the traceability plane (Brett + discussion, 2026-07-15)
 
 Principle: **system of record ≠ traceability plane.** The EMR is where
