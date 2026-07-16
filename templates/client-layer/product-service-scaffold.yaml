@@ -81,6 +81,59 @@ client_layer_objects:
   - escalation_map
   - communication_policy
   - outcome_dashboard
+  - client_infrastructure_liaison
+
+# Neutral coordination profile for privileged infrastructure dependencies on a
+# client tenant, a contracted managed host, or OpsxFactory. Composed from the
+# roles below (never a new always-running agent); domain scaffolds may set a
+# display alias that resolves to this same neutral contract. Governing doc:
+# docs/client-infrastructure-liaison.md. Request/readiness contracts:
+# contracts/schemas/xfactory-client-infrastructure-request.schema.yaml and
+# contracts/schemas/xfactory-infrastructure-readiness-result.schema.yaml. The
+# liaison coordinates only: it never holds tenant-administration authority,
+# never executes privileged change, and never stores secrets.
+client_infrastructure_liaison:
+  present: true
+  default_state: configured_but_inactive
+  composed_from:
+    - client_profile_steward
+    - integration_credential_steward
+    - policy_approval_gatekeeper
+    - fulfillment_delivery_coordinator
+    - communication_handoff_agent
+    - quality_outcome_monitor
+    - client_memory_steward
+  # Display alias resolving to this neutral contract, e.g. Care / Firm /
+  # Marketing / Engineering / IT Infrastructure Liaison. null = neutral name.
+  domain_alias: null
+  # REQUIRED even when active routing is disabled: an install must still name a
+  # responsible operator and an escalation path (scaffold validation fails
+  # otherwise).
+  responsible_operator: null
+  escalation_path: []
+  # Blocks install activation when any declared component needs an external
+  # operator and the activation_gate below is unsatisfied.
+  activation_blocking: false
+  supported_execution_bindings:
+    - client_managed        # MUST-support
+    - opsxfactory_executed  # MUST-support
+    - managed_host          # SHOULD-support (named-host scope only, never the tenant)
+  # Activation gate: defaults are configured-but-inactive; a liaison activates
+  # only when every field below is satisfied and one failure-and-recovery
+  # scenario has been exercised.
+  activation_gate:
+    operating_model: null            # client_managed | managed_host | opsxfactory_executed
+    accountable_owner: null
+    execution_authority: null
+    approval_authority: null
+    primary_coordination_path: null
+    out_of_band_recovery_path: null  # MUST NOT depend on the managed dependency itself
+    validation_profiles: []
+    trusted_validators: []
+    response_target: null
+    restoration_target: null
+    escalation_target: null
+    failure_and_recovery_scenario_exercised: false
 
 agent_scaffold:
   - id: client_profile_steward

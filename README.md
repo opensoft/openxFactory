@@ -116,6 +116,7 @@ Core domain-neutral docs:
 - [xFactory Memory Gateway Architecture](docs/customer-memory-gateway-architecture.md)
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
+- [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
 - [Workflow Visualization Tooling Exploration](ideation/brainstorm/workflow-visualization-tooling.md)
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)

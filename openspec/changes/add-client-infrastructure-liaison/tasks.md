@@ -21,10 +21,10 @@ checkout: explicit paths, `git status -sb` before every commit.
 
 ## 3. Governing doc and role wiring
 
-- [ ] 3.1 Author `docs/client-infrastructure-liaison.md` (Status: draft → ratified by this change): role definition, authority boundary, the three operating models, request lifecycle + transition matrix (the normative prose home), handoff + readiness contracts, activation gate, out-of-band recovery rule, Southside worked scenarios as appendix pointers into `supporting-docs/`.
-- [ ] 3.2 Link the doc into the README doc index; add the one-line client-tenant routing pointer to `docs/roles-and-authority.md` §External enforcement identity separation (additive, mirrors the promoted-spec delta).
-- [ ] 3.3 Extend `templates/client-layer/product-service-scaffold.yaml` with the liaison profile block per design D7 (configured-but-inactive default, responsible operator + escalation path required, activation-gate fields, `activation_blocking` trigger) + update `templates/client-layer/README.md`.
-- [ ] 3.4 Register the liaison in `docs/client-hermes-product-service-scaffold.md` §4 (the canonical Client Hermes role roster it composes from) — the "scaffold AND templates" half of the primary fragment's Required Delta 4 (panel finding, fragment-faithfulness #1).
+- [x] 3.1 Author `docs/client-infrastructure-liaison.md` (Status: draft → ratified by this change): role definition, authority boundary, the three operating models, request lifecycle + transition matrix (the normative prose home), handoff + readiness contracts, activation gate, out-of-band recovery rule, Southside worked scenarios as appendix pointers into `supporting-docs/`.
+- [x] 3.2 Link the doc into the README doc index; add the one-line client-tenant routing pointer to `docs/roles-and-authority.md` §External enforcement identity separation (additive, mirrors the promoted-spec delta).
+- [x] 3.3 Extend `templates/client-layer/product-service-scaffold.yaml` with the liaison profile block per design D7 (configured-but-inactive default, responsible operator + escalation path required, activation-gate fields, `activation_blocking` trigger) + update `templates/client-layer/README.md`.
+- [x] 3.4 Register the liaison in `docs/client-hermes-product-service-scaffold.md` §4 (the canonical Client Hermes role roster it composes from) — the "scaffold AND templates" half of the primary fragment's Required Delta 4 (panel finding, fragment-faithfulness #1).
 
 ## 4. Ratification gate
 

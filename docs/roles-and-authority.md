@@ -198,7 +198,13 @@ holds the permission to change those rules, applies only rules-as-code
 configuration that has passed the governed review lane and ratify gate, and
 performs no content work. Neither tier escalates the other. This tiering
 governs identities operating on Opensoft's own vendor build org; a client
-tenant's own GitHub identities are out of scope here.
+tenant's own GitHub identities are out of scope here. Client-tenant
+infrastructure execution — including a client-tenant GitHub organization or a
+customer repo administered under client authority — is instead coordinated as a
+`client_infrastructure_request` under the
+[Client Infrastructure Liaison](client-infrastructure-liaison.md) model, whose
+coordinating role never receives tenant-administration authority and whose
+executing identity is the request's approved execution owner under its binding.
 
 An administration-tier identity's credentials are held under the canonical
 credential-contracts shapes (see `docs/credential-access-model.md`) with

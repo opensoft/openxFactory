@@ -135,10 +135,15 @@ agents, but the responsibilities should remain visible.
 | Source Inventory Agent | Catalogs approved document, email, ticket, CRM, calendar, and collaboration sources for installation discovery. |
 | Practice Gap Auditor | Compares observed current practice with domain standards, client policy, security rules, and customer-facing expectations. |
 | Migration Planner Agent | Produces containment, dual-run, cutover, retirement, and drift-monitoring plans for bad or weak current practice. |
+| Client Infrastructure Liaison | Neutral coordination profile for privileged infrastructure dependencies on a client tenant, a contracted managed host, or OpsxFactory. **Composed from** the Client Profile Steward, Integration And Credential Steward, Policy And Approval Gatekeeper, Fulfillment Or Delivery Coordinator, Communication And Handoff Agent, Quality And Outcome Monitor, and Client Memory Steward — not a new always-running agent. Coordinates only: never holds tenant-administration authority, executes privileged change, or stores secrets. Governing contract: [Client Infrastructure Liaison](client-infrastructure-liaison.md). |
 
 This team is not a set of always-running autonomous workers. It is a role
 scaffold. Agents may be implemented as prompts, tools, workflow roles, review
-councils, deterministic services, or human-assisted queues.
+councils, deterministic services, or human-assisted queues. The Client
+Infrastructure Liaison is one such composed role rather than a standing agent;
+domain scaffolds may give it a display alias (Care / Firm / Marketing /
+Engineering / IT Infrastructure Liaison) that resolves to the same neutral
+contract.
 
 ## 5. Skill Scaffold
 

@@ -15,6 +15,16 @@ Purpose: provide reusable templates for Client Hermes overlays.
   records to discover workflows and migrate bad current practice to approved
   target practice.
 
+The scaffold carries a `client_infrastructure_liaison` profile block — the
+neutral coordination role for privileged infrastructure dependencies on a
+client tenant, a contracted managed host, or OpsxFactory. It defaults to
+`configured_but_inactive`, always requires a responsible operator and an
+escalation path, and becomes `activation_blocking` when a declared component
+needs an external operator. Governing contract:
+[Client Infrastructure Liaison](../../docs/client-infrastructure-liaison.md)
+(request/readiness schemas under `contracts/schemas/`, validated by
+`scripts/validate-client-infrastructure.py`).
+
 General installation spine templates live under
 [templates/installation](../installation/README.md). Client-layer templates are
 used inside that spine when the installer configures a tenant or Client Hermes
