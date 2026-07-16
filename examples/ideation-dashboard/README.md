@@ -22,6 +22,7 @@ ideation-dashboard/
 ├── ideation-workbench-cluster-seeded.example.yaml     # cluster-seeded set + recipe (pinned ⊆ checked)
 ├── ideation-workbench-adhoc-human-seen.example.yaml   # ad-hoc human-seen cluster submission
 ├── possibles-register.example.yaml                    # register section (source-of-truth twin of the snapshot possibles)
+├── derived-possible-register.example.yaml             # AI-derived possibles (origin + derivation delta; add-possibles-derivation-lane)
 ├── project-register.example.yaml                      # repo → project → group hierarchy (multi-repo project)
 ├── gate-action-record-ratify.example.yaml             # ratify action + ratification-record artifact
 ├── gate-action-record-kickoff.example.yaml            # kickoff action + workflow-job artifact (needs ratified context)
@@ -39,6 +40,10 @@ ideation-dashboard/
 │   ├── register-picked-without-pick.yaml              #   picked without pick edge
 │   ├── register-missing-provenance.yaml               #   entry without provenance
 │   ├── register-duplicate-id.yaml                     #   id repeated within the register
+│   ├── register-derived-missing-derivation.yaml       #   ai-derived with no derivation block at all (schema + validator)
+│   ├── register-derived-missing-worker-run.yaml       #   ai-derived derivation without worker_run (schema layer)
+│   ├── register-derived-unsourced.yaml                #   ai-derived with no cluster edge / evidence pin (validator layer)
+│   ├── register-derived-bad-disposition.yaml          #   ai-derived machine disposition ≠ pending_review (schema + validator)
 │   ├── project-empty-project.yaml                     #   project with zero repositories
 │   ├── project-empty-group.yaml                       #   group with zero projects
 │   ├── project-duplicate-id.yaml                      #   duplicate project id
@@ -50,10 +55,13 @@ ideation-dashboard/
 │   └── gate-kickoff-unratified-target.yaml            #   kickoff target not ratified (context-dependent)
 └── transitions/                                       # register (old, new) pairs; valid-* pass, invalid-* fail
     ├── valid-pick-and-reject.{before,after}.yaml      #   latent→picked, latent→rejected, plus a new entry
+    ├── valid-derived-disposition.{before,after}.yaml  #   derived accept→latent (origin retained) + reject→rejected
     ├── invalid-resurrection.{before,after}.yaml       #   rejected→picked (terminal / no resurrection)
     ├── invalid-wrong-target.{before,after}.yaml       #   picked→rejected (must be superseded)
     ├── invalid-deletion.{before,after}.yaml           #   an entry was removed
-    └── invalid-reused-id.{before,after}.yaml          #   id re-used for a different possible
+    ├── invalid-reused-id.{before,after}.yaml          #   id re-used for a different possible
+    ├── invalid-derived-undispose.{before,after}.yaml  #   disposed→undisposed (one-way disposition)
+    └── invalid-derived-origin-launder.{before,after}.yaml # origin ai-derived→human-authored (fixed origin)
 ```
 
 ## Schema → example map
@@ -62,7 +70,7 @@ ideation-dashboard/
 | --- | --- | --- |
 | `ideation-dashboard-snapshot.schema.yaml` | `ideation-dashboard-snapshot.example` | `snapshot-dangling-document-edge`, `snapshot-dangling-claiming-cluster`, `snapshot-dangling-option-set-member`, `snapshot-bad-date-format` |
 | `ideation-workbench.schema.yaml` | `ideation-workbench-cluster-seeded`, `ideation-workbench-adhoc-human-seen` | `workbench-override-without-reason`, `workbench-excluded-without-reason`, `workbench-pinned-not-checked`, `workbench-candidate-in-members` |
-| `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `transitions/invalid-*` |
+| `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |
 | `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target` |
 
@@ -77,6 +85,43 @@ ideation-dashboard/
   proposal gate; `transitions/valid-pick-and-reject` shows the latent→picked move.
 - **Ad-hoc human-seen cluster submission** —
   `ideation-workbench-adhoc-human-seen.example.yaml`.
+
+## AI-derived possibles (add-possibles-derivation-lane)
+
+The kernel's additive `origin` + `derivation` delta (a derive-possibles worker
+PROPOSES candidate possibles that humans dispose on the gate console) is
+exercised here without a `contract_schema_version` bump:
+
+- **Valid** — `derived-possible-register.example.yaml`: an undisposed derived
+  possible (`origin: ai-derived`, worker-run identity, machine `pending_review`,
+  sourced by a cluster edge + an evidence pin), an accepted derived possible
+  (retains `origin: ai-derived`, carries the `human_disposition` mirror), and a
+  human-authored possible (no `origin`) coexisting unaffected.
+- **`register-derived-missing-derivation.yaml`** — SCHEMA + VALIDATOR layers:
+  `origin: ai-derived` with no `derivation` block at all — the top-level allOf
+  conditional (`if origin: ai-derived then required: [derivation]`) and the
+  delegated validator both reject it (distinct from the missing-worker-run case,
+  which has a derivation block).
+- **`register-derived-missing-worker-run.yaml`** — SCHEMA layer: a `derivation`
+  block that omits its required `worker_run`.
+- **`register-derived-unsourced.yaml`** — VALIDATOR layer: schema-valid by design
+  (the kernel does not require a citation), rejected by the delegated register
+  validator because a derived entry cites no cluster edge and no evidence pin.
+- **`register-derived-bad-disposition.yaml`** — SCHEMA + VALIDATOR layers: a
+  well-formed, sourced derived entry whose machine `derivation.disposition` reads
+  `accepted` — the `const: pending_review` and the delegated validator both reject
+  it (the human verdict belongs in `derivation.human_disposition`).
+- **`transitions/valid-derived-disposition`** — accept keeps the entry `latent`
+  retaining origin; reject moves it to `rejected` with reason + citation.
+- **`transitions/invalid-derived-undispose`** — a disposed derived possible
+  edited back to undisposed (one-way disposition lifecycle).
+- **`transitions/invalid-derived-origin-launder`** — `origin` laundered from
+  `ai-derived` to human-authored in place (a possible's origin is fixed).
+
+The one-way disposition lifecycle and the derived-entry shape rules are enforced
+by `scripts/validate-ideation-dashboard-contracts.py` (the C3 delegated register
+validator); `scripts/validate-ideation-cross-reference.py` delegates them, not
+duplicating the checks.
 
 ## The register is an envelope-less kernel
 

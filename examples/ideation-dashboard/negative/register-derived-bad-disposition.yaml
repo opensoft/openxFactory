@@ -1,0 +1,33 @@
+# INVALID possibles-register section (SCHEMA + VALIDATOR layers) — a derived entry
+# stamps a machine disposition other than pending_review (add-possibles-derivation-lane
+# task 2.3/2.4; the machine-only pending_review rule). The entry is a well-formed,
+# fully sourced `origin: ai-derived` entry (complete `derivation.worker_run`, one
+# `claiming_clusters` edge, one `supporting_evidence` pin) whose only fault is that
+# its machine `derivation.disposition` reads `accepted` — a human verdict written
+# into the machine field, which is always `pending_review` (the human verdict lives
+# in `derivation.human_disposition`).
+#
+# EXPECTED: rejected at BOTH layers. `$defs/derivation.disposition` is
+# `const: pending_review`, so python-jsonschema (draft 2020-12) rejects it at the
+# SCHEMA layer; the delegated register validator
+# `scripts/validate-ideation-dashboard-contracts.py` independently rejects a machine
+# disposition other than pending_review (register-derived-bad-disposition). This is
+# the only negative that exercises the machine-disposition const/rule.
+possibles_register:
+  - id: pos-derived-bad-disposition
+    title: Derived possible with a non-pending machine disposition
+    claim: A candidate whose machine disposition was stamped accepted instead of pending_review.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-2026-07-16T00-00-00Z-c0ffee
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: accepted   # <-- VIOLATION: machine output is const pending_review; a human verdict belongs in human_disposition
+    claiming_clusters: [cl-keyword-lens]
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 182ba64dc6df4c9135b26983d548d6bfd2281de1432bb25d5a794edf2a1f1081

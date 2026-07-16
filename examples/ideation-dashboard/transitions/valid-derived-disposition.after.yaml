@@ -1,0 +1,56 @@
+# VALID transition (after) — humans disposed both derived possibles on the gate
+# console (add-possibles-derivation-lane task 2.4). Legal moves:
+#   pos-da  accepted -> stays `latent`, RETAINS origin ai-derived, records
+#           human_disposition.outcome accepted (first-class latent possible);
+#   pos-dr  rejected -> `latent` -> `rejected` with reason + citation, RETAINS
+#           origin ai-derived, records human_disposition.outcome rejected.
+# Identity (claim + provenance) and origin are unchanged; the machine
+# `derivation.disposition` stays `pending_review` (the human verdict lives in
+# `human_disposition`); no entry removed.
+possibles_register:
+  - id: pos-da
+    title: Derived possible to accept
+    claim: A cluster could become an accepted feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+      human_disposition:
+        outcome: accepted
+        authority: openxFactory ideation gate
+        at: "2026-07-16"
+        note: Accepted at the gate console; proceeds on the normal pick lifecycle.
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: a64d3db74540566c46bb89ebb8e6952c438cbc05604eccb93782bf4ed413ecdc
+  - id: pos-dr
+    title: Derived possible to reject
+    claim: A cluster could become a rejected feature.
+    state: rejected
+    origin: ai-derived
+    reason: Declined at the gate console; out of scope for the current wave.
+    citation: openspec/changes/add-possibles-derivation-lane/design.md#non-goals
+    provenance: {document: doc-b, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-dr
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+      human_disposition:
+        outcome: rejected
+        authority: openxFactory ideation gate
+        at: "2026-07-16"
+        note: Rejected at the gate console; a later revival is a NEW entry with a new id.
+    claiming_clusters: [cl-b]
+    supporting_evidence:
+      - document: doc-b
+        section: Notes
+        passage_sha256: c68d4f72fbc242930cd22351c8f173440bc60e574064e395340408187758d53a

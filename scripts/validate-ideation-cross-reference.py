@@ -75,7 +75,12 @@ Validator-side rules (beyond plain schema conformance):
   here. An embedded `possibles_register` is confirmed structurally
   present-and-parseable (its entry SHAPES are validated by the schema `$ref`,
   its id-uniqueness and cross-snapshot TRANSITIONS are DELEGATED to
-  `scripts/validate-ideation-dashboard-contracts.py` — run it separately).
+  `scripts/validate-ideation-dashboard-contracts.py` — run it separately). This
+  delegation now also covers the AI-derived register-entry rules
+  (`add-possibles-derivation-lane`): the additive `origin`/`derivation` shape,
+  the derived-entry source citation, the machine-only `pending_review`
+  disposition, and the one-way disposition lifecycle live in that dashboard
+  validator too and are NOT duplicated here.
 
 Usage:
     # Default: self-test the packaged examples and scan the checkout for the
@@ -376,7 +381,10 @@ def check_topic_id_uniqueness(f: Findings, label: str, doc: dict) -> None:
 def note_possibles_register(f: Findings, label: str, doc: dict) -> None:
     """C3 ownership line: confirm the embed is present-and-parseable, then
     DELEGATE its entry-shape/id-uniqueness/transition validation to the
-    dashboard validator (schema `$ref` already validates the entry shapes)."""
+    dashboard validator (schema `$ref` already validates the entry shapes). The
+    AI-derived entry rules (origin/derivation shape, source citation,
+    machine-only pending_review, one-way disposition — add-possibles-derivation-lane)
+    are delegated the same way and are not duplicated here."""
     reg = doc.get("possibles_register")
     if reg is None:
         return
@@ -385,8 +393,8 @@ def note_possibles_register(f: Findings, label: str, doc: dict) -> None:
                 f"{label}: possibles_register is present but is not a list/array")
         return
     f.note(f"{label}: embedded possibles_register present ({len(reg)} entry/entries) — entry "
-           f"id-uniqueness and cross-snapshot transitions delegated to "
-           f"validate-ideation-dashboard-contracts.py (C3 ownership line)")
+           f"id-uniqueness, cross-snapshot transitions, and AI-derived origin/derivation rules "
+           f"delegated to validate-ideation-dashboard-contracts.py (C3 ownership line)")
 
 
 # --------------------- layer 1: packaged reference examples ---------------------

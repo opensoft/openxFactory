@@ -1,0 +1,27 @@
+# INVALID possibles-register section (SCHEMA + VALIDATOR layers) — a derived entry
+# omits its `derivation` block entirely (add-possibles-derivation-lane task 2.3/2.4;
+# the derivation-required conditional). The entry declares `origin: ai-derived` but
+# carries NO `derivation` key at all (distinct from register-derived-missing-worker-run,
+# which HAS a derivation block missing only its worker_run). It is otherwise sourced
+# by a `claiming_clusters` edge and a `supporting_evidence` pin, so the sole fault is
+# the absent derivation block.
+#
+# EXPECTED: rejected at BOTH layers. `register_entry`'s allOf fires the conditional
+# `if origin: ai-derived then required: [derivation]`, so python-jsonschema (draft
+# 2020-12) rejects it at the SCHEMA layer ('derivation' is a required property); the
+# delegated register validator `scripts/validate-ideation-dashboard-contracts.py`
+# independently reports the same (register-derived-missing-derivation). This is the
+# only negative that exercises the top-level derivation-required conditional and that
+# validator branch.
+possibles_register:
+  - id: pos-derived-no-derivation
+    title: Derived possible missing its derivation block
+    claim: A candidate declared ai-derived without recording any derivation block.
+    state: latent
+    origin: ai-derived   # <-- VIOLATION: origin ai-derived requires a derivation block, which is absent
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    claiming_clusters: [cl-keyword-lens]
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 182ba64dc6df4c9135b26983d548d6bfd2281de1432bb25d5a794edf2a1f1081

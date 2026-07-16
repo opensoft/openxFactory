@@ -1,0 +1,27 @@
+# INVALID possibles-register section (VALIDATOR layer) — a derived entry cites no
+# source (add-possibles-derivation-lane task 2.3/2.4; spec scenario "A derived
+# entry cites no source"). The entry is a well-formed `origin: ai-derived` entry
+# with a complete `derivation.worker_run` and `pending_review`, but carries
+# NEITHER a `claiming_clusters` topic-cluster edge NOR a `supporting_evidence`
+# passage pin — so it is an unsourced assertion.
+#
+# EXPECTED: schema-VALID by design (the kernel does not require claiming_clusters
+# or supporting_evidence — JSON Schema cannot express "a derived entry must be
+# sourced"), so it fails at the VALIDATOR layer: the delegated register validator
+# `scripts/validate-ideation-dashboard-contracts.py` rejects a derived entry that
+# cites no cluster edge and no evidence pin (register-derived-unsourced).
+possibles_register:
+  - id: pos-derived-unsourced
+    title: Unsourced derived possible
+    claim: A candidate the worker proposed without citing any source cluster or passage.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-2026-07-16T00-00-00Z-badbad
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    # VIOLATION (validator-side): no claiming_clusters edge AND no
+    # supporting_evidence pin — a derived possible must cite at least one of each.

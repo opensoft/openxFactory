@@ -83,6 +83,27 @@ description: >-
   linkage here is that a `claiming_clusters` edge MAY reference a human-seen
   cluster's id like any other cluster id; the register carries no human-seen state.
 
+  AI-DERIVATION INTAKE (SIBLING of human-seen; lands ON this fragment,
+  `add-possibles-derivation-lane`). Where the human-seen cluster intake above
+  lands on the INDEX's cluster entry, the possibles-side analog lands HERE: a
+  bounded, read-only derive-possibles worker PROPOSES candidate register entries
+  that carry `origin: ai-derived` and a `derivation` block (worker-run identity +
+  machine `disposition: pending_review`); humans dispose them on the same gate
+  console, and an accepted candidate becomes a first-class `latent` possible
+  retaining `origin: ai-derived` — the one-for-one mirror of the index topic
+  entry's `origin` + `human_seen` pair. The worker-run identity lives in
+  `derivation.worker_run`, NOT in `ingestion_provenance`, whose `Possible feats:`
+  meaning and `required: [document, section]` are untouched; a derived entry
+  cites its source clusters and passages through the existing `claiming_clusters`
+  and `supporting_evidence` fields. Both `origin` and `derivation` are OPTIONAL
+  and the conditional never fires on an origin-absent (human-authored) entry, so
+  the delta is ADDITIVE and needs NO `contract_schema_version` bump. The
+  register-wide `id` uniqueness, the required source citation on a derived entry,
+  the machine-only `pending_review` disposition, and the one-way disposition
+  lifecycle (no edit back to undisposed, no resurrection) are enforced by the
+  strict register validator (`scripts/validate-ideation-dashboard-contracts.py`,
+  this fragment's C3 delegated owner), not by this schema.
+
   ADDITIVE / forward-compatible: the cross-reference index is a generated
   projection, so — like `ideation-dashboard-snapshot` — objects here stay open
   (no `additionalProperties: false`), consumers MUST ignore unknown properties,
@@ -158,6 +179,18 @@ $defs:
         # byte-identical to the snapshot's `possible.supporting_evidence` items
         # and the canvas evidence board (D12).
         items: {$ref: "ideation-dashboard-snapshot.schema.yaml#/$defs/evidence_pin"}
+      # --- AI-derivation intake (add-possibles-derivation-lane; ADDITIVE) ---
+      # One-for-one mirror of the index topic_entry's `origin` + `human_seen`
+      # pair (see the AI-DERIVATION INTAKE note in the header). Both OPTIONAL; a
+      # human-authored possible carries neither and is unaffected.
+      origin:
+        type: string
+        enum: [human-authored, ai-derived]
+        # Provenance of the possible. Absent defaults to `human-authored`
+        # (exactly as the index topic_entry.origin absent means
+        # `machine-derived`). An `ai-derived` entry REQUIRES the `derivation`
+        # block (allOf below).
+      derivation: {$ref: "#/$defs/derivation"}
     allOf:
       # A rejected/superseded possible without a recorded reason AND citation is
       # invalid (task 2.3 register rule; spec scenario "A possible is rejected
@@ -167,6 +200,15 @@ $defs:
       # A picked possible MUST carry its organize-gate pick edge.
       - if: {properties: {state: {const: picked}}}
         then: {required: [pick]}
+      # An `ai-derived` possible carries its `derivation` block (worker-run
+      # identity + `pending_review`) — mirrors the index topic_entry's human-seen
+      # conditional. Never fires on an origin-absent (human-authored) entry, so
+      # the delta stays additive.
+      - if:
+          properties: {origin: {const: ai-derived}}
+          required: [origin]
+        then:
+          required: [derivation]
   # --- `Possible feats:` ingestion provenance (register-only) ---
   ingestion_provenance:
     type: object
@@ -210,3 +252,64 @@ $defs:
       members:
         type: array
         items: {type: string, minLength: 1}                         # sibling `register_entry` ids
+  # --- AI-derivation block (add-possibles-derivation-lane; ADDITIVE) ---
+  derivation:
+    type: object
+    description: >-
+      Present when `register_entry.origin: ai-derived` (allOf conditional on
+      `register_entry`). Records the bounded derive-possibles worker run that
+      PROPOSED the possible and the machine review disposition; a derived
+      possible is never an autonomous act — humans dispose it on the gate
+      console. The possibles-side analog of the index topic_entry's `human_seen`
+      intake block. Open posture (this family): consumers ignore unknown
+      properties; additive growth needs no `contract_schema_version` bump.
+    required: [worker_run, disposition]
+    properties:
+      worker_run:
+        type: object
+        description: >-
+          The orchestration-stamped worker-run identity. The tool-less worker
+          proposes titles/claims/rationale prose only; the correlation id and
+          every other machine-precision value are orchestration-authoritative,
+          not worker-supplied (the change's "Orchestration-authoritative
+          identifiers" requirement). Lives here, not in `ingestion_provenance`,
+          so that fragment's `Possible feats:` shape is not stretched.
+        required: [correlation_id, worker_profile, prompt_contract_version]
+        properties:
+          correlation_id: {type: string, minLength: 1}        # the run's orchestration correlation id
+          worker_profile: {type: string, minLength: 1}        # the bounded derive-possibles Omnigent profile
+          prompt_contract_version: {type: string, minLength: 1}  # the versioned prompt contract that produced the proposal
+      disposition:
+        const: pending_review
+        # The MACHINE output — a derived possible is always a proposal pending
+        # review, never an autonomous verdict (as with the index
+        # `recommendation.disposition` / `human_seen.disposition` /
+        # `score_evidence.disposition`). The human verdict is recorded in
+        # `human_disposition`; this machine field stays `pending_review`.
+      human_disposition: {$ref: "#/$defs/derivation_human_disposition"}
+  # --- human disposition of a derived possible (LOCAL structural mirror) ---
+  derivation_human_disposition:
+    type: object
+    description: >-
+      Recorded when a human authority disposes a `pending_review` derived
+      possible on the gate console. A DOCUMENTED STRUCTURAL MIRROR of the index
+      schema's `human_disposition`
+      (`ideation-cross-reference.schema.yaml#/$defs/human_disposition`), copied
+      field-for-field rather than `$ref`'d — this kernel is EMBEDDED by that
+      index, so a `$ref` back into it would be circular (the family's established
+      mirror pattern, as `score_evidence` mirrors the organizer recommendation).
+      accepted -> the entry becomes a first-class `latent` possible retaining
+      `origin: ai-derived`; rejected -> the entry is recorded `rejected` with
+      reason + citation (the register `state` machine above). The one-way
+      lifecycle is enforced by the strict register validator.
+    required: [outcome, authority]
+    properties:
+      outcome:
+        type: string
+        enum: [accepted, rejected, deferred]
+      authority:
+        type: string
+        minLength: 1
+        # The disposing tier/authority on the gate console.
+      at: {type: string, format: date}
+      note: {type: string, minLength: 1}

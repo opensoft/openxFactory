@@ -135,6 +135,22 @@ header-derived clusters with every readiness tier unscored until the scoring
 worker (codexFactory) realizes; the possibles register folds in later via the
 ideation-dashboard flows.
 
+**AI-derived possibles.** A bounded, read-only derive-possibles worker may
+propose candidate possibles into the register (`origin: ai-derived` with a
+`derivation` worker-run block) for humans to dispose on the gate console — the
+possibles-side analog of human-seen cluster intake. The additive kernel shape
+lives in
+[`contracts/schemas/ideation-possibles-register.schema.yaml`](../contracts/schemas/ideation-possibles-register.schema.yaml)
+(`origin` + `derivation`), and the rules live in the `add-possibles-derivation-lane`
+`ideation-cross-reference` requirements (Derived possible register entry and
+provenance; Orchestration-authoritative identifiers and hashes; One-way
+derived-possible disposition on the gate console; Bounded derivation worker,
+immutable evidence, and concurrency-protected merge; Derived possibles are a
+distinct class until disposed; Non-mutating derivation bound) — referenced here,
+not duplicated. The derived register-entry shape and the one-way disposition
+lifecycle are enforced by the delegated register validator
+`scripts/validate-ideation-dashboard-contracts.py`.
+
 ## Contents
 
 Brainstorm (design history; fully organized into staging or an archived

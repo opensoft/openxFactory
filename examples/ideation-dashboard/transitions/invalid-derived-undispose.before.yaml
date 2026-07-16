@@ -1,0 +1,25 @@
+# INVALID transition (before) — a derived possible ALREADY disposed accepted on
+# the gate console (add-possibles-derivation-lane task 2.4). It carries
+# human_disposition.outcome accepted.
+possibles_register:
+  - id: pos-da
+    title: A disposed derived possible
+    claim: A cluster could become an accepted feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+      human_disposition:
+        outcome: accepted
+        authority: openxFactory ideation gate
+        at: "2026-07-16"
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: 8c3cb206de27f4c8a5755b29147e5793788870af96c88e7c27291a06c357cb31

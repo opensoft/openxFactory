@@ -35,14 +35,24 @@ Validator-side rules beyond plain schema conformance:
              manifest found in TRACKED repository content (outside the
              reference `examples/` tree, which is static material) is an error:
              saved manifests belong under gitignored `ideation/workbench/`.
-  Register   `id` uniqueness within one register; and, in TRANSITION mode
-             (`--transition OLD NEW`), state-machine legality across the pair:
-             latent->picked|rejected|superseded, picked->superseded only,
-             rejected/superseded terminal, NO entry deletion / resurrection (a
-             removed id is an error; a re-used id with a different identity is
-             an error). Per-state field requirements (reason+citation for
-             rejected/superseded; pick.staging_id for picked) are re-checked
-             through the transition path.
+  Register   `id` uniqueness within one register (including AI-derived entries);
+             and, in TRANSITION mode (`--transition OLD NEW`), state-machine
+             legality across the pair: latent->picked|rejected|superseded,
+             picked->superseded only, rejected/superseded terminal, NO entry
+             deletion / resurrection (a removed id is an error; a re-used id with
+             a different identity is an error). Per-state field requirements
+             (reason+citation for rejected/superseded; pick.staging_id for
+             picked) are re-checked through the transition path.
+  Derived    AI-derived register entries (add-possibles-derivation-lane; the
+             kernel's additive `origin`/`derivation` delta). Single-instance:
+             an `origin: ai-derived` entry carries a `derivation` block, cites at
+             least one `claiming_clusters` edge AND one `supporting_evidence` pin
+             (never an unsourced assertion), and its machine
+             `derivation.disposition` is `pending_review` only. TRANSITION mode:
+             the one-way disposition lifecycle — a possible's origin is fixed (an
+             accepted derived possible retains `origin: ai-derived`), and a
+             disposed derived possible (a recorded `human_disposition`) is never
+             edited back to the undisposed `pending_review` state.
   Project    `id` uniqueness (projects and groups); every group-member project
              id must exist; single-parent hierarchy — a repository in at most
              one project, a project in at most one group (the D10 reading, since
@@ -260,6 +270,7 @@ def validate_instance(
             loc = "/".join(str(p) for p in e.absolute_path) or "<root>"
             f.error("schema", f"{label}: {REGISTER_CONTAINER_KEY}/{loc}: {e.message}")
         check_register_unique_ids(f, label, doc[REGISTER_CONTAINER_KEY])
+        check_derived_entries(f, label, doc[REGISTER_CONTAINER_KEY])
         return tag
 
     schema_name = KIND_TO_SCHEMA[tag]
@@ -365,6 +376,62 @@ def check_register_unique_ids(f: Findings, label: str, entries: list) -> None:
             f.error("register-duplicate-id", f"{label}: register id {rid!r} appears {n} times")
 
 
+# --------------------------- derived-entry (ai-derived) rules ---------------------------
+
+def _origin(entry: dict) -> str:
+    """Normalized register-entry origin — absent defaults to human-authored
+    (the kernel's additive `origin` delta)."""
+    return entry.get("origin") or "human-authored"
+
+
+def _human_outcome(entry: dict) -> str | None:
+    """The recorded human disposition outcome on a derived entry, or None when
+    the entry is undisposed (the machine `derivation.disposition` is
+    `pending_review` and no `human_disposition` has been recorded)."""
+    deriv = entry.get("derivation")
+    if isinstance(deriv, dict):
+        hd = deriv.get("human_disposition")
+        if isinstance(hd, dict):
+            return hd.get("outcome")
+    return None
+
+
+def check_derived_entry(f: Findings, label: str, entry: dict) -> None:
+    """Single-instance rules for an `origin: ai-derived` register entry
+    (add-possibles-derivation-lane): it carries a `derivation` block, cites at
+    least one `claiming_clusters` edge AND one `supporting_evidence` pin (never
+    an unsourced assertion), and its machine `derivation.disposition` is
+    `pending_review` only. Human-authored entries (origin absent) are skipped."""
+    if not isinstance(entry, dict) or _origin(entry) != "ai-derived":
+        return
+    rid = entry.get("id")
+    deriv = entry.get("derivation")
+    if not isinstance(deriv, dict):
+        # Also caught by the schema allOf; reported here with a register code so
+        # the delegated register validator names it directly.
+        f.error("register-derived-missing-derivation",
+                f"{label}: register id {rid!r} is origin ai-derived but carries no derivation block")
+        return
+    if not (entry.get("claiming_clusters") or []):
+        f.error("register-derived-unsourced",
+                f"{label}: derived register id {rid!r} cites no claiming_clusters topic-cluster edge "
+                f"(a derived possible must cite at least one cluster edge and one evidence pin)")
+    if not (entry.get("supporting_evidence") or []):
+        f.error("register-derived-unsourced",
+                f"{label}: derived register id {rid!r} cites no supporting_evidence passage pin "
+                f"(a derived possible must cite at least one cluster edge and one evidence pin)")
+    if deriv.get("disposition") != "pending_review":
+        f.error("register-derived-bad-disposition",
+                f"{label}: derived register id {rid!r} machine derivation.disposition is "
+                f"{deriv.get('disposition')!r}; machine output is always 'pending_review' "
+                f"(the human verdict lives in derivation.human_disposition)")
+
+
+def check_derived_entries(f: Findings, label: str, entries: list) -> None:
+    for e in entries or []:
+        check_derived_entry(f, label, e)
+
+
 # --------------------------- register transition ---------------------------
 
 def _entry_map(entries: list) -> dict[str, dict]:
@@ -394,13 +461,29 @@ def check_register_transition(f: Findings, old_label: str, old: list, new_label:
     for rid, new_entry in new_map.items():
         old_entry = old_map.get(rid)
         if old_entry is None:
-            # A brand-new entry — no transition to check, but per-state fields still apply.
+            # A brand-new entry — no transition to check, but per-state fields
+            # and the derived-entry shape still apply.
             check_entry_state_fields(f, new_label, new_entry)
+            check_derived_entry(f, new_label, new_entry)
             continue
         if _identity(old_entry) != _identity(new_entry):
             f.error("register-reused-id",
                     f"transition: register id {rid!r} was re-used for a different possible "
                     f"(claim/provenance identity changed between {old_label} and {new_label})")
+        # A possible's origin is fixed: an accepted derived possible retains
+        # `origin: ai-derived`; provenance is never laundered in place.
+        if _origin(old_entry) != _origin(new_entry):
+            f.error("register-derived-origin-changed",
+                    f"transition: register id {rid!r} origin changed {_origin(old_entry)!r} -> "
+                    f"{_origin(new_entry)!r} — a possible's origin is fixed (an accepted derived "
+                    f"possible retains origin ai-derived)")
+        # The derived-possible disposition is one-way: once a human_disposition
+        # is recorded it is never edited back to the undisposed pending_review.
+        old_outcome = _human_outcome(old_entry)
+        if old_outcome in {"accepted", "rejected", "deferred"} and _human_outcome(new_entry) is None:
+            f.error("register-derived-undispose",
+                    f"transition: register id {rid!r} was disposed {old_outcome!r} but is now undisposed "
+                    f"— a derived possible's disposition is one-way and is never edited back to pending_review")
         old_state = old_entry.get("state")
         new_state = new_entry.get("state")
         legal = LEGAL_TRANSITIONS.get(old_state, set())
@@ -413,6 +496,7 @@ def check_register_transition(f: Findings, old_label: str, old: list, new_label:
             f.error("register-illegal-transition",
                     f"transition: register id {rid!r} {old_state!r} -> {new_state!r} is not a legal move{hint}")
         check_entry_state_fields(f, new_label, new_entry)
+        check_derived_entry(f, new_label, new_entry)
 
 
 def check_entry_state_fields(f: Findings, label: str, entry: dict) -> None:

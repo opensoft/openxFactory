@@ -1,0 +1,25 @@
+# INVALID transition (after) — the derived possible's origin is laundered from
+# ai-derived to human-authored (the `origin` field dropped, defaulting to
+# human-authored) while keeping the same id. An accepted derived possible RETAINS
+# origin ai-derived; the provenance of an entry cannot be rewritten in place
+# (validator rule register-derived-origin-changed).
+possibles_register:
+  - id: pos-da
+    title: A derived possible
+    claim: A cluster could become a feature.
+    state: latent
+    # VIOLATION: origin ai-derived silently dropped (now defaults human-authored)
+    # while the derivation block remains — laundering a derived possible's
+    # provenance is not a legal in-place edit.
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: f1393ea661b866e81efbe1ee4e19031a4e596322a5669fcd41ad3245194a8695
