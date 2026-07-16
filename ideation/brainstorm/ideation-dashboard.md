@@ -557,9 +557,13 @@ idempotent, so the pre-provisioner is the same call looped over staging
 topics; click-time then hits the existing no-op path (hashes match →
 immediate URL return).
 
-- **Scope: staging topics only, not clusters** — quota-correct (5 topics
-  vs 89 clusters against NotebookLM's notebook limits) and semantically
-  right: staging folders are the docs under active deliberation.
+- **The policy (Brett, 2026-07-16): notebook permanence follows document
+  lifecycle.** A click on a possible/cluster loads its notebook REALTIME
+  (the PR #15 on-demand path — exploration is ephemeral, and on-demand
+  latency is acceptable for it); a concept PROMOTED TO STAGING earns its
+  own dedicated, pre-provisioned notebook (deliberation is persistent).
+  Also quota-correct: 5 staging topics vs 89 clusters against
+  NotebookLM's notebook limits.
 - **Two warming triggers**: (a) serve.py startup — a background thread
   syncs staging notebooks while the operator looks at the funnel;
   warm-if-authenticated, silent skip on a stale nlm session; (b) the
