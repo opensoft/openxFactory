@@ -699,6 +699,77 @@ intent preserved:
    scrollbar in that small area — remove (likely v4 shell fallout: a
    height constraint on the tab strip).
 
+### THE WHEEL — locked interaction spec (Track C, Brett-approved 2026-07-16)
+
+v5 candidate 4 graduated through two interactive prototype rounds (a
+session-built mockup on the real `0fcf01ae` snapshot: 26 ideation docs,
+89 clusters, 5 staged, 7 active, 29 archived, 137 indexed doc→cluster
+edges; possibles synthesized and demo-marked since the register is
+empty). Brett drove both rounds and locked the second: "the wheels are
+great … this is good, lets lock this in." Spec below is LOCKED for the
+v5+ realization; only the eye-vs-dock choice (candidate 3) stays open.
+
+**Deck.** Six wheels in funnel order — documents → clusters → possibles
+→ staged → active → archived — crossed by one horizontal brass FOCUS
+LINE at viewport half-height. Discrete carousel (locks candidate 2):
+arrow buttons / ←→ keys page column-by-column with scroll-snap; no
+horizontal scrollbar, no pixel scrolling.
+
+**Spin & focus.** Hover a wheel and the mouse wheel spins it in
+whole-tile steps (↑/↓ likewise; clicking a tile centres it). Only the
+FOCUSED wheel magnifies: its centred tile scales ~1.35 onto the focus
+line and carries the per-class connection chips.
+
+**Elastic alignment (the round-2 refinement that locked it).** When the
+focused wheel seats on an item, each connected wheel takes a SOFT turn
+that rests its linked tiles BALANCED around the centre line — group
+centroid, nudged ±0.45 step if any tile would land dead-centre; a single
+linked tile parks ~0.8 step off-centre. The other wheels are never
+centred-and-magnified: a tile exactly on the line collapses its thread
+into a flat connector, and magnification is reserved for focus. Linked
+tiles get a teal edge only. Clicking a linked tile TRANSFERS focus —
+that wheel centres + magnifies and the pull radiates from it instead.
+
+**Physics ("mass" + elastic connectors).** Wheels are spring–damper
+systems: the user-driven wheel runs stiffness .020 / damping .84 (real
+inertia, slight overshoot before seating); pulled wheels run .008 / .90
+so they trail behind — the threads visibly drag them. The pull is LIVE:
+as the driven wheel crosses each tile mid-spin, connected wheels
+retarget continuously rather than jumping once at settle.
+prefers-reduced-motion ⇒ instant snap, no springs.
+
+**Threads.** SVG beziers from the focused centre tile to visible linked
+tiles, class-coded: solid teal = indexed edge, dashed teal = inferred,
+dashed brass = synthesized/demo. Because pulled tiles rest off-centre,
+threads keep visible curvature at rest.
+
+**Tiles & badges (locks candidate 5).** Every tile: two-line label,
+class subline (stage / n files / n docs), total-degree pill. The focused
+centred tile adds "n ⟨class⟩" chips per connected class; clicking a chip
+pages the carousel to that column (expanding it if collapsed) and pulses
+it — the chip is the "view that enlightens" entry point.
+
+**Column hiding (candidate 3 — deliberately open).** The mockup ships
+BOTH affordances sharing one state for A/B feel: a header eye collapsing
+the column to a thin vertical rail, and dock chips along the bottom
+edge. Brett picks after more driving; realization carries the survivor
+(or both).
+
+**Possibles honesty rule.** While `possibles_register` is empty the
+wheel may show SYNTHESIZED possibles derived from real clusters/staged
+topics — each dash-bordered, "demo"-tagged, threaded in dashed brass —
+never visually confusable with indexed data. Placeholder until the
+derive-possibles lane (v5 item 1) populates the register.
+
+**Realization data contract.** The mockup inferred cross-class edges by
+token overlap; the real wheel needs the snapshot (or server-side
+derivation) to carry MATERIALIZED cross-class edges — cluster→staged,
+staged→change (active/archived), possible→cluster/staged — plus
+per-item degree counts, each edge carrying a class field
+(indexed | inferred | synthesized) that drives thread styling. Exit:
+same v2 two-repo split; the wheel lands as a new codexFactory
+`web/views/wheel.js` view once the v5 Track A fixes settle.
+
 ### Hosted NotebookLM: service identity + native sharing + Keycloak (Brett, 2026-07-16)
 
 The hosted site now has the DOCUMENTS (v4 bakes the checkout); the
