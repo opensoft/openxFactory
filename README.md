@@ -175,6 +175,19 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-client-infrastructure-liaison](openspec/changes/add-client-infrastructure-liaison/proposal.md)
+  — staged-origin change (exit of `ideation/staging/client-infrastructure-liaison`,
+  design decisions locked 2026-07-12, proposed 2026-07-16): adds the neutral
+  Client Infrastructure Liaison coordination profile and the
+  `client_infrastructure_request` contract family (two schemas, examples,
+  deterministic validator) with three execution bindings
+  (client-managed / managed-host / OpsxFactory-executed), readiness-gated
+  completion, and an OpsxFactory handoff boundary; MODIFIES
+  `roles-authority-model`'s identity-tiers requirement so client-tenant
+  infrastructure execution routes here (closing the
+  github-administration-plane carve-out). Code surface: openxFactory
+  (validator + schemas + templates); release allocated at realization.
+
 - [add-github-app-identity-tiers](openspec/changes/add-github-app-identity-tiers/proposal.md)
   — staged-origin change (exit of `ideation/staging/github-administration-plane`,
   six open questions resolved and ratified 2026-07-14) extending

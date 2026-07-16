@@ -45,7 +45,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | --- | --- | --- | --- |
 | [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 4 | Ready to propose — 6 decisions locked 2026-07-13; recommended ID `implement-avatar-client-lab` |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
-| [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | Ready to propose — recommended ID `add-client-infrastructure-liaison` |
+| [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | EXITED 2026-07-16 — proposed as `add-client-infrastructure-liaison`; fragments moved to that change's `supporting-docs/` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
@@ -90,9 +90,13 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   - [opsx-handoff-and-readiness-contract.md](client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md) — the neutral request vs. OpsxFactory service-request handoff boundary.
   - [proposal-impact-and-adoption-map.md](client-infrastructure-liaison/proposal-impact-and-adoption-map.md) — locked decisions and per-domain adoption impact.
   - [southside-operating-model-scenarios.md](client-infrastructure-liaison/southside-operating-model-scenarios.md) — worked customer-managed / managed-host / OpsxFactory-bound scenarios.
-- Exit: create `add-client-infrastructure-liaison`; at the proposal gate move
-  this folder's files into that change's `supporting-docs/`, preserving the
-  staging origin.
+- Exit: EXITED 2026-07-16 — `add-client-infrastructure-liaison` created; the
+  six fragments moved (git mv, history preserved) to
+  `openspec/changes/add-client-infrastructure-liaison/supporting-docs/` with
+  the staging origin recorded in that folder's README. The file links above
+  now resolve there. Cross-reference index path refresh delegated to the
+  active `add-ideation-cross-reference-readiness` change (validator clean
+  post-move; avoiding a cross-session index rewrite).
 
 ## github-administration-plane
 
