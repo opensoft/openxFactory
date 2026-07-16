@@ -575,6 +575,28 @@ immediate URL return).
   and the existing orphan sweep collects its notebook. No new lifecycle
   machinery.
 
+**The four notebook types (Brett, 2026-07-16)** — and the set-first
+discipline beneath them: **no notebook without a set, no set without a
+manifest** (the orphan sweep keys on manifests; the four notebook types
+ARE the four set types):
+
+| # | Type | Set source | Lifetime |
+|---|---|---|---|
+| 1 | Stage books (ideation/drafts/canon) | `Status:` headers, automatic | permanent, synced |
+| 2 | Staging-topic notebooks | staging folders, automatic | while the topic lives |
+| 3 | Realtime tile notebooks | cluster/possible/proposal click | ephemeral, on demand |
+| 4 | Ad-hoc workbench notebooks | user-assembled reference set | while its manifest lives |
+
+Corrections to the naive model: users do NOT create clusters by
+selecting docs — clusters derive from `Topics:` headers, and a `Status:`
+header alone puts every governed doc into a stage book with zero user
+action. The one true "select docs → notebook" path is type 4, the
+keyword lens's assembled set — **and PR #15 did not wire the notebook
+button onto it** (buttons landed on funnel/board/canvas cards only).
+v5 item: "Open in NotebookLM" on the lens's assembled reference set —
+the one surface where users literally hand-pick docs is currently the
+one without the button.
+
 ### Doc-location and NotebookLM connectivity (Brett + discussion, 2026-07-15)
 
 Design ground for the hybrid backend seam. The pivotal observation: **the
