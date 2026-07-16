@@ -654,6 +654,51 @@ notebooks = a fully-current dashboard usable from a phone, NotebookLM one
 tap away — no pod, no bake, no session juggling. This section supersedes
 the earlier "Served-backend write actions" OQ default where they differ.
 
+### v5 candidates (Brett's live v4 feedback, 2026-07-16)
+
+v4 deployed and operator-tested on the hosted site. Six items, verbatim
+intent preserved:
+
+1. **Possibles column is blank — so generate possibles.** Confirmed
+   data-level: the landed cross-reference index's possibles_register is
+   deliberately absent (bootstrap), adapter correct since PR #12. Brett's
+   direction: "it must be that we have possibilities — that is what we
+   want our AI system to do, help think of possible connections." →
+   the **derive-possibles worker lane**: a bounded Omnigent lane (same
+   shape as the cataloger, same model-worker contract lessons) proposes
+   candidate possibles into the register with `pending_review`
+   disposition; humans dispose on the gate console. This was the ratified
+   v1 design's deferred AI-assist surface — now the headline v5 data
+   item.
+2. **Carousel, not horizontal scroll.** The viewport must not scroll
+   horizontally pixel-by-pixel: discrete column-by-column navigation with
+   arrow buttons.
+3. **Column visibility toggles.** An eye symbol in each column header to
+   show/hide that column; hidden = header collapses to just the eye, no
+   column data, remaining columns close in so the viewport focuses on
+   what's visible. Brett: unsure the eye is right — think of alternative
+   GUI elements for column on/off (icon-tray? checkbox legend? click the
+   carousel dots? column header context menu?).
+4. **THE WHEEL (funnel navigation paradigm).** Each column becomes a
+   vertically spinning wheel (slot-reel / iOS-picker style). Hover over
+   the column you want to adjust; the MOUSE WHEEL spins that tile-wheel;
+   the selected item lands in the vertical CENTER position, magnified
+   ~30-40% to show focus (click or wheel-align to select). Then the
+   OTHER column wheels spin automatically to bring the items CONNECTED
+   to the centered one into alignment in the viewport — selection in one
+   column rotates the neighbors so its relations line up on the center
+   row. (The funnel's existing trace machinery already computes the
+   connection sets; the wheel is a re-render of trace as alignment.)
+   Paradigm-level redesign — deserves a mockup round before code.
+5. **Connection-count badges on tiles.** Every tile shows the NUMBER of
+   items it links to per neighbor class (documents, topic clusters,
+   possibles, active proposals, archived) — and each count is a link to
+   a view that enlightens the user about those connections.
+6. **Menu scrollbar bug.** The tab menu (realization / pipeline /
+   cluster / keyword / doclist / lineage) shows an unneeded vertical
+   scrollbar in that small area — remove (likely v4 shell fallout: a
+   height constraint on the tab strip).
+
 ### Hosted NotebookLM: service identity + native sharing + Keycloak (Brett, 2026-07-16)
 
 The hosted site now has the DOCUMENTS (v4 bakes the checkout); the
