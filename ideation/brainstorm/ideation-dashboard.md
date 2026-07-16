@@ -548,6 +548,29 @@ manifest binds it); source refresh on re-click (default: diff by title
 tiles load only supporting-docs or also the proposal/design/tasks files
 (default: all of the change dir minus review records).
 
+### Background notebook pre-provisioning (Brett, 2026-07-16 — v5 candidate)
+
+Pre-create notebooks in the background for each STAGING folder so
+launching NotebookLM from the dashboard is instant. The PR #15 machinery
+makes this nearly free: create-or-rebind + content-hash sync is
+idempotent, so the pre-provisioner is the same call looped over staging
+topics; click-time then hits the existing no-op path (hashes match →
+immediate URL return).
+
+- **Scope: staging topics only, not clusters** — quota-correct (5 topics
+  vs 89 clusters against NotebookLM's notebook limits) and semantically
+  right: staging folders are the docs under active deliberation.
+- **Two warming triggers**: (a) serve.py startup — a background thread
+  syncs staging notebooks while the operator looks at the funnel;
+  warm-if-authenticated, silent skip on a stale nlm session; (b) the
+  nightly lane on the authenticated host — the served-mode
+  pre-provisioning posture above, enabling deep-links from the deployed
+  site or a phone.
+- **Lifecycle**: the pre-provisioner regenerates each topic's workbench
+  manifest per run; a topic that exits staging stops being regenerated
+  and the existing orphan sweep collects its notebook. No new lifecycle
+  machinery.
+
 ### Doc-location and NotebookLM connectivity (Brett + discussion, 2026-07-15)
 
 Design ground for the hybrid backend seam. The pivotal observation: **the
