@@ -1,0 +1,15 @@
+schema: spec-driven
+created: 2026-07-16
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:possibles-derivation-lane
+  reason: >-
+    Direction set in the ideation-dashboard brainstorm (v5 candidate 1,
+    "Possibles column is blank — so generate possibles", and the
+    Brett-approved "THE WHEEL — locked interaction spec"), not from an
+    organized staging topic: the derive-possibles AI-assist surface was the
+    ratified add-ideation-cross-reference-readiness v1 design's deferred
+    surface, now the headline v5 data item. No staged fragment exists for it,
+    so it enters as an approved ad-hoc origin.
+  approved_by: Brett (openxFactory operator authority)
+  approved_on: 2026-07-16

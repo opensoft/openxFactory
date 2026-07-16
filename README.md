@@ -241,6 +241,22 @@ Active changes:
   state). At 15/16; remaining: first-lane-run evidence after the CPC
   profile deploys with the submodule commit-back orchestration; archives
   on the release-realization flow
+- [add-possibles-derivation-lane](openspec/changes/add-possibles-derivation-lane/proposal.md)
+  — ad-hoc-origin proposal (ideation-dashboard brainstorm v5 candidate 1 +
+  the Brett-approved THE WHEEL locked spec, 2026-07-16) for the AI-assisted
+  derive-possibles worker lane: a bounded read-only Omnigent lane that derives
+  CANDIDATE possibles from the landed cross-reference index and proposes
+  `possibles_register` entries carrying `origin: ai-derived`, worker-run
+  provenance, and `pending_review` disposition, humans disposing on the gate
+  console. Adds the small ADDITIVE possibles-register kernel delta (`origin` +
+  a `derivation` $def, no `contract_schema_version` bump) modelled on the
+  human-seen intake pair; carries the document-cataloger lane's artifact-worker,
+  model-worker (orchestration-authoritative identifiers), immutable-evidence,
+  and concurrency-protected next-run-merge invariants; derived-undisposed
+  possibles stay a distinct non-`indexed` WHEEL class excluded from any Ranked
+  Plan (code surface: codexFactory, openxFactory, xFactory, omnigent-install;
+  realization follows the ideation-readiness two-repo split; release allocated
+  at realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
