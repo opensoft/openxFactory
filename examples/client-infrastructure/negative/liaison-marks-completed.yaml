@@ -1,0 +1,46 @@
+# INVALID — illegal transition: the liaison owner marks the request completed.
+# validation_pending -> completed is authorized only for the trusted validator;
+# the coordinating liaison cannot self-certify completion.
+schema_version: 1
+kind: client_infrastructure_request
+request_id: cir-southside-omni001-liaisondone
+idempotency_key: southside:omni001:liaisondone:v1
+correlation_id: medx-southside-omni001-provision-055
+client_ref: southside-clinic
+requesting_factory: MedxFactory
+requesting_component: MedxOmni
+request_type: provision
+managed_subject_refs:
+  - southside-omni001
+requirements_profile:
+  id: omnigent-cloudpc-host
+  version: 1
+execution_binding:
+  mode: opsxfactory_executed
+  organization_ref: southside-clinic
+  actor_ref: southside-opsx-omnigent
+  capability_ref: southside-omni-host-management
+  credential_grant_ref: vaultref://southside/opsx/omni-host-management
+approval:
+  required: true
+  authority_ref: southside-it-director
+communication:
+  channel_ref: southside-it-hermes-intake
+  external_ticket_ref: opsx-southside-incident-8830
+validation_profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+status: completed
+transition:
+  from: validation_pending
+  to: completed
+  actor_role: liaison_owner
+  actor_ref: southside-care-infrastructure-liaison
+  hermes_layer: care-hermes
+  at: "2026-07-30T03:05:00Z"
+  reason: liaison declared the host ready
+  evidence_refs: []
+conditions: []
+evidence_refs: []
+created_by: southside-care-infrastructure-liaison
+created_at: "2026-07-29T17:50:00Z"

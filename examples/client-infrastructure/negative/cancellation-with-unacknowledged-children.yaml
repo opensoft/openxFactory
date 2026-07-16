@@ -1,0 +1,58 @@
+# INVALID — cancellation without child acknowledgments. Southside cancels
+# provisioning after OpsxFactory execution began (a handoff exists), but the
+# record carries no child_acks. Cancellation MUST propagate to the external
+# work item and every active child job, each recording whether work stopped,
+# partially applied, or completed.
+schema_version: 1
+kind: client_infrastructure_request
+request_id: cir-southside-omni001-cancel
+idempotency_key: southside:omni001:cancel:v1
+correlation_id: medx-southside-omni001-provision-042
+client_ref: southside-clinic
+requesting_factory: MedxFactory
+requesting_component: MedxOmni
+request_type: provision
+managed_subject_refs:
+  - southside-omni001
+requirements_profile:
+  id: omnigent-cloudpc-host
+  version: 1
+execution_binding:
+  mode: opsxfactory_executed
+  organization_ref: southside-clinic
+  actor_ref: southside-opsx-omnigent
+  capability_ref: southside-omni-host-management
+  credential_grant_ref: vaultref://southside/opsx/omni-host-management
+approval:
+  required: true
+  authority_ref: southside-it-director
+communication:
+  channel_ref: southside-it-hermes-intake
+  external_ticket_ref: opsx-southside-incident-8821
+validation_profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+status: cancelled
+transition:
+  from: implementing
+  to: cancelled
+  actor_role: requester
+  actor_ref: southside-care-infrastructure-liaison
+  hermes_layer: care-hermes
+  at: "2026-07-30T06:05:00Z"
+  reason: client cancelled provisioning after execution began
+  evidence_refs: []
+handoff:
+  infrastructure_request_ref: cir-southside-omni001-cancel
+  correlation_id: medx-southside-omni001-provision-042
+  receiving_system: OpsxFactory
+  receiving_client_ref: southside-clinic
+  external_work_item_ref: opsx-southside-incident-8821
+  accepted_by_actor_ref: southside-opsx-intake
+  accepted_at: "2026-07-29T18:05:00Z"
+  mapping_version: opsx-projection-v1
+  projected_status: implementing
+conditions: []
+evidence_refs: []
+created_by: southside-care-infrastructure-liaison
+created_at: "2026-07-29T17:50:00Z"

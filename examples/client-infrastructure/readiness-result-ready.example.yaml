@@ -1,0 +1,40 @@
+# Valid — the signed, traceable readiness result that gates completion of
+# cir-southside-omni001-opsx-provision (correlated by correlation_id and
+# subject_ref). Non-privileged validator; overall status ready; every
+# mandatory check passing; valid_until is after the request's completion
+# transition time, so the result was fresh when completion was recorded.
+schema_version: 1
+kind: infrastructure_readiness_result
+result_id: ready-southside-omni001-20260730t020200z
+subject_ref: southside-omni001
+correlation_id: medx-southside-omni001-provision-042
+request_ref: cir-southside-omni001-opsx-provision
+profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+status: ready
+observed_at: "2026-07-30T02:02:00Z"
+valid_until: "2026-07-30T02:20:00Z"
+validator:
+  actor_ref: southside-omni-readiness-validator
+  trust_policy_ref: southside-readiness-validators-v1
+checks:
+  - id: windows365_connectivity
+    mandatory: true
+    outcome: pass
+    evidence_ref: intune-evidence://device/xfactory-omni001/health/123
+  - id: github_runner_online
+    mandatory: true
+    outcome: pass
+    evidence_ref: github-evidence://opensoft/xfactory/runners/xfactory-omni001/456
+  - id: omnigent_runtime
+    mandatory: true
+    outcome: pass
+    evidence_ref: omni-evidence://southside-omni001/heartbeat/789
+  - id: capacity_headroom
+    mandatory: false
+    outcome: pass
+    evidence_ref: omni-evidence://southside-omni001/capacity/790
+failed_checks: []
+evidence_digest: sha256:0badf00d0badf00d0badf00d0badf00d0badf00d0badf00d0badf00d0badf00d
+signature_ref: sigstore://southside/readiness/omni001/20260730

@@ -1,0 +1,37 @@
+# INVALID — execution actor equals approval authority. The identity that
+# performs the privileged change (execution_binding.actor_ref) is the same as
+# the identity that approves it (approval.authority_ref). Execution and
+# approval must be separate parties.
+schema_version: 1
+kind: client_infrastructure_request
+request_id: cir-southside-omni001-actorauth
+idempotency_key: southside:omni001:actorauth:v1
+correlation_id: medx-install-southside-103
+client_ref: southside-clinic
+requesting_factory: MedxFactory
+requesting_component: MedxOmni
+request_type: provision
+managed_subject_refs:
+  - southside-omni001
+requirements_profile:
+  id: omnigent-cloudpc-host
+  version: 1
+execution_binding:
+  mode: client_managed
+  organization_ref: southside-clinic
+  actor_ref: southside-it-director
+  capability_ref: southside-endpoint-administration
+approval:
+  required: true
+  authority_ref: southside-it-director
+communication:
+  channel_ref: southside-it-service-desk
+  external_ticket_ref: null
+validation_profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+status: awaiting_client_approval
+conditions: []
+evidence_refs: []
+created_by: southside-care-infrastructure-liaison
+created_at: "2026-07-09T23:00:00Z"

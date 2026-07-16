@@ -1,0 +1,113 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-infrastructure-readiness-result.schema.yaml"
+title: "Infrastructure readiness result"
+contract_schema_version: 1
+description: >-
+  The `infrastructure_readiness_result` artifact
+  (`add-client-infrastructure-liaison` change, capability
+  `client-infrastructure-request`; opsx-handoff-and-readiness-contract
+  fragment). A signed / otherwise traceable evidence artifact produced by a
+  trusted, non-privileged validator — never a bare boolean. A neutral
+  `client_infrastructure_request` may transition to `completed` only when a
+  fresh passing result of this kind exists for its named validation profile:
+  used before `valid_until`, overall `status: ready`, every mandatory check
+  passing (the cross-record freshness gate is enforced in
+  `scripts/validate-client-infrastructure.py`). Kept a separate kind from the
+  request (design D3): different producer, lifecycle, and trust policy.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - result_id
+  - subject_ref
+  - profile
+  - status
+  - observed_at
+  - valid_until
+  - validator
+  - checks
+  - evidence_digest
+properties:
+  schema_version: {const: 1}
+  kind: {const: infrastructure_readiness_result}
+  result_id: {$ref: "#/$defs/local_ref"}
+  subject_ref:
+    $ref: "#/$defs/local_ref"
+    description: The served subject this result attests to (correlates to a request's managed_subject_refs).
+  correlation_id:
+    type: string
+    minLength: 1
+    description: Correlates the result to the coordinating request; optional but used by the completion gate.
+  request_ref:
+    $ref: "#/$defs/local_ref"
+    description: Optional direct reference to the gated request.
+  profile:
+    type: object
+    additionalProperties: false
+    required: [id, version]
+    description: The validation profile this result satisfies; must match the request's `validation_profile`.
+    properties:
+      id: {type: string, minLength: 1}
+      version: {type: integer, minimum: 1}
+  status:
+    type: string
+    enum: [ready, degraded, not_ready, unknown, maintenance]
+    description: Overall readiness. Only `ready` (with every mandatory check passing) gates completion.
+  observed_at: {$ref: "#/$defs/timestamp"}
+  valid_until:
+    $ref: "#/$defs/timestamp"
+    description: Freshness bound; a result is usable only before this instant.
+  validator:
+    type: object
+    additionalProperties: false
+    required: [actor_ref, trust_policy_ref]
+    description: >-
+      The non-privileged validator: it cannot change the target and holds at
+      most granted read-only access. Named in the request's validation profile.
+    properties:
+      actor_ref: {$ref: "#/$defs/local_ref"}
+      trust_policy_ref: {type: string, minLength: 1}
+  checks:
+    type: array
+    minItems: 1
+    description: Per-check outcomes; each identifies its trusted asserting source by evidence reference.
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, mandatory, outcome, evidence_ref]
+      properties:
+        id: {type: string, minLength: 1}
+        mandatory:
+          type: boolean
+          description: A mandatory check that is not `pass` makes the result non-gating even when status is ready.
+        outcome:
+          type: string
+          enum: [pass, fail, skip, unknown]
+        evidence_ref:
+          type: string
+          minLength: 1
+          description: Reference to the asserting system's evidence; never an inline secret.
+  failed_checks:
+    type: array
+    items: {type: string, minLength: 1}
+    description: Ids of the checks that failed (returned to the execution owner on validation failure).
+  evidence_digest:
+    $ref: "#/$defs/sha256_digest"
+    description: Traceability digest binding the evidence set (the artifact's signature/traceability anchor).
+  signature_ref:
+    type: string
+    minLength: 1
+    description: Optional reference to a detached signature over this result.
+$defs:
+  local_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+  sha256_digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  timestamp:
+    type: string
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    description: RFC3339 UTC/offset timestamp.

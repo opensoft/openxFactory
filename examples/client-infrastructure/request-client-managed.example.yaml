@@ -1,0 +1,56 @@
+# Valid — customer-managed provisioning (Southside buys MedxFactory, not
+# OpsxFactory). Care Infrastructure Liaison drafts the request and resolves
+# the execution binding + approval authority; Southside IT is the executor.
+# No OpsxFactory reference and no handoff block: client-managed stays entirely
+# under client-tenant authority.
+schema_version: 1
+kind: client_infrastructure_request
+request_id: cir-southside-omni001-provision
+idempotency_key: southside:omni001:provision:v1
+correlation_id: medx-install-southside-001
+client_ref: southside-clinic
+requesting_factory: MedxFactory
+requesting_component: MedxOmni
+request_type: provision
+managed_subject_refs:
+  - southside-omni001
+requirements_profile:
+  id: omnigent-cloudpc-host
+  version: 1
+execution_binding:
+  mode: client_managed
+  organization_ref: southside-clinic
+  actor_ref: southside-primary-sysadmin
+  capability_ref: southside-endpoint-administration
+approval:
+  required: true
+  authority_ref: southside-it-director
+communication:
+  channel_ref: southside-it-service-desk
+  external_ticket_ref: null
+package_refs:
+  - uri: cloudpc-install://packages/omni-host/1.0.0
+    digest: sha256:cafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe
+    publisher_ref: cloudpc-install
+runbook_refs:
+  - cloudpc-install://runbooks/omni-cloudpc-provisioning-v1
+validation_profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+change_window_ref: southside-standard-endpoint-window
+required_by: "2026-08-01T17:00:00Z"
+status: awaiting_client_approval
+transition:
+  from: request_drafted
+  to: awaiting_client_approval
+  actor_role: liaison_owner
+  actor_ref: southside-care-infrastructure-liaison
+  hermes_layer: care-hermes
+  at: "2026-07-09T23:01:00Z"
+  reason: execution binding and approval authority resolved
+  evidence_refs:
+    - cloudpc-install://runbooks/omni-cloudpc-provisioning-v1
+conditions: []
+evidence_refs: []
+created_by: southside-care-infrastructure-liaison
+created_at: "2026-07-09T23:00:00Z"

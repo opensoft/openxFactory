@@ -1,0 +1,46 @@
+# INVALID — terminal-state mutation. The record attempts to move out of a
+# terminal state (cancelled -> scheduled). Terminals (completed, declined,
+# cancelled) are immutable; the only continuation is a new request carrying
+# supersedes_request_ref, never a transition out of the terminal.
+schema_version: 1
+kind: client_infrastructure_request
+request_id: cir-southside-omni001-revive
+idempotency_key: southside:omni001:revive:v1
+correlation_id: medx-install-southside-105
+client_ref: southside-clinic
+requesting_factory: MedxFactory
+requesting_component: MedxOmni
+request_type: provision
+managed_subject_refs:
+  - southside-omni001
+requirements_profile:
+  id: omnigent-cloudpc-host
+  version: 1
+execution_binding:
+  mode: client_managed
+  organization_ref: southside-clinic
+  actor_ref: southside-primary-sysadmin
+  capability_ref: southside-endpoint-administration
+approval:
+  required: true
+  authority_ref: southside-it-director
+communication:
+  channel_ref: southside-it-service-desk
+  external_ticket_ref: null
+validation_profile:
+  id: omnigent-cloudpc-ready
+  version: 1
+status: scheduled
+transition:
+  from: cancelled
+  to: scheduled
+  actor_role: execution_actor
+  actor_ref: southside-primary-sysadmin
+  hermes_layer: care-hermes
+  at: "2026-07-30T05:05:00Z"
+  reason: attempt to revive a cancelled request
+  evidence_refs: []
+conditions: []
+evidence_refs: []
+created_by: southside-care-infrastructure-liaison
+created_at: "2026-07-09T23:00:00Z"

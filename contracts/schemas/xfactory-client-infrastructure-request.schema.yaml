@@ -1,0 +1,398 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-client-infrastructure-request.schema.yaml"
+title: "Client infrastructure coordination request"
+contract_schema_version: 1
+description: >-
+  The `client_infrastructure_request` durable coordination record
+  (`add-client-infrastructure-liaison` change, capability
+  `client-infrastructure-request`). A neutral Client Hermes record that
+  coordinates a privileged infrastructure outcome required from a client
+  administrator, a contracted managed-host provider, or OpsxFactory —
+  distinct from a Hermes job envelope (it may authorize or correlate to zero
+  or more bounded jobs but is never one). This schema fixes only within-file
+  shape: the six never-conflated identity-reference classes as `$defs`, the
+  three-mode execution binding (design D1), the closed 13-state `status`
+  enum, orthogonal `conditions[]` (never states), digest-bearing
+  `package_refs`, the embedded `handoff` acceptance record, cancellation
+  child acknowledgments, and `supersedes_request_ref`. Everything schema
+  cannot express — transition legality, terminal immutability,
+  readiness-gated completion, embedded-secret rejection, actor/authority and
+  subject-field separation, idempotency/supersedes integrity — is enforced
+  deterministically by `scripts/validate-client-infrastructure.py` (design
+  D4/D6). Secret values are forbidden in every field: references only.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - request_id
+  - idempotency_key
+  - correlation_id
+  - client_ref
+  - requesting_factory
+  - requesting_component
+  - request_type
+  - managed_subject_refs
+  - requirements_profile
+  - execution_binding
+  - approval
+  - communication
+  - validation_profile
+  - status
+  - conditions
+  - evidence_refs
+  - created_by
+  - created_at
+properties:
+  schema_version: {const: 1}
+  kind: {const: client_infrastructure_request}
+  request_id:
+    $ref: "#/$defs/local_ref"
+    description: Globally unique within the client installation.
+  idempotency_key:
+    type: string
+    minLength: 1
+    description: >-
+      Repeated intake with the same key returns the existing open request
+      rather than creating a duplicate (validator-enforced integrity).
+  correlation_id:
+    type: string
+    minLength: 1
+    description: Correlates the neutral request to any external work item and child jobs.
+  client_ref:
+    $ref: "#/$defs/organization_ref"
+  requesting_factory:
+    type: string
+    minLength: 1
+  requesting_component:
+    type: string
+    minLength: 1
+  request_type:
+    type: string
+    enum: [provision, change, remediation, deprovision]
+  managed_subject_refs:
+    type: array
+    minItems: 1
+    items: {$ref: "#/$defs/subject_ref"}
+    description: The served subjects (systems, services, identities) this outcome targets.
+  requirements_profile:
+    $ref: "#/$defs/profile_ref"
+  execution_binding:
+    type: object
+    additionalProperties: false
+    required: [mode, organization_ref, actor_ref, capability_ref]
+    properties:
+      mode:
+        type: string
+        enum: [client_managed, managed_host, opsxfactory_executed]
+        description: >-
+          Design D1. `client_managed` and `opsxfactory_executed` are
+          MUST-support bindings; `managed_host` is SHOULD-support (a
+          contracted operations profile scoped to named hosts, never the
+          tenant).
+      organization_ref: {$ref: "#/$defs/organization_ref"}
+      actor_ref:
+        $ref: "#/$defs/actor_ref"
+        description: >-
+          The identity that performs the privileged change. Never the
+          coordinating liaison; never equal to `approval.authority_ref`
+          (validator-enforced).
+      capability_ref: {$ref: "#/$defs/capability_ref"}
+      credential_grant_ref:
+        $ref: "#/$defs/credential_grant_ref"
+        description: >-
+          Present where the binding is privileged (e.g. managed-host /
+          opsxfactory_executed). An opaque reference to a short-lived scoped
+          grant — never a secret value.
+  approval:
+    type: object
+    additionalProperties: false
+    required: [required]
+    properties:
+      required: {type: boolean}
+      authority_ref:
+        $ref: "#/$defs/authority_ref"
+        description: >-
+          The role/council/person authorized to approve. Distinct from the
+          executing actor; a subject identifier here is rejected.
+  communication:
+    type: object
+    additionalProperties: false
+    required: [channel_ref]
+    properties:
+      channel_ref:
+        type: string
+        minLength: 1
+        description: Approved ticket / Teams / email adapter reference.
+      external_ticket_ref:
+        type: [string, "null"]
+        description: Stores the internal request_id and correlation_id on the external side.
+  package_refs:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [uri, digest]
+      properties:
+        uri:
+          $ref: "#/$defs/uri_ref"
+          description: Names the approved publisher via its scheme/authority.
+        digest:
+          $ref: "#/$defs/sha256_digest"
+          description: Immutable content digest; a package reference without one cannot pass approval.
+        publisher_ref: {$ref: "#/$defs/organization_ref"}
+  runbook_refs:
+    type: array
+    items: {$ref: "#/$defs/uri_ref"}
+  validation_profile:
+    $ref: "#/$defs/profile_ref"
+    description: Names the readiness profile whose fresh passing result gates completion.
+  change_window_ref:
+    type: string
+    minLength: 1
+  required_by: {$ref: "#/$defs/timestamp"}
+  status:
+    type: string
+    description: >-
+      Closed lifecycle. `completed`, `declined`, and `cancelled` are
+      terminal. Deadline and escalation are `conditions`, never states.
+    enum:
+      - identified
+      - request_drafted
+      - awaiting_client_approval
+      - submitted
+      - acknowledged
+      - scheduled
+      - implementing
+      - validation_pending
+      - completed
+      - blocked
+      - declined
+      - validation_failed
+      - cancelled
+  transition:
+    type: object
+    additionalProperties: false
+    required: [to, actor_role]
+    description: >-
+      The most-recent applied transition that produced `status` (records
+      actor, timestamp, owning Hermes layer, reason, and evidence — the
+      liaison doc's per-transition record). Optional; when present the
+      validator checks the (from -> to) edge is legal for `actor_role`, that
+      `to` equals `status`, and that no transition leaves a terminal state.
+    properties:
+      from:
+        type: [string, "null"]
+        enum:
+          - identified
+          - request_drafted
+          - awaiting_client_approval
+          - submitted
+          - acknowledged
+          - scheduled
+          - implementing
+          - validation_pending
+          - completed
+          - blocked
+          - declined
+          - validation_failed
+          - cancelled
+          - null
+      to:
+        type: string
+        enum:
+          - identified
+          - request_drafted
+          - awaiting_client_approval
+          - submitted
+          - acknowledged
+          - scheduled
+          - implementing
+          - validation_pending
+          - completed
+          - blocked
+          - declined
+          - validation_failed
+          - cancelled
+      actor_role:
+        type: string
+        enum:
+          - liaison_owner
+          - approval_authority
+          - execution_actor
+          - trusted_validator
+          - current_owner
+          - policy_gate
+          - requester
+      actor_ref: {$ref: "#/$defs/actor_ref"}
+      hermes_layer: {type: string, minLength: 1}
+      at: {$ref: "#/$defs/timestamp"}
+      reason: {type: string, minLength: 1}
+      evidence_refs:
+        type: array
+        items: {type: string, minLength: 1}
+  conditions:
+    type: array
+    description: >-
+      Orthogonal to `status`: overdue / escalation / holds coexist with the
+      workflow state and are never expressed as a status value.
+    items:
+      type: object
+      additionalProperties: false
+      required: [type, active, observed_at]
+      properties:
+        type:
+          type: string
+          enum: [overdue, escalated, maintenance_hold, awaiting_external_response]
+        active: {type: boolean}
+        observed_at: {$ref: "#/$defs/timestamp"}
+        policy_ref: {type: string, minLength: 1}
+        cleared_by: {$ref: "#/$defs/actor_ref"}
+        cleared_reason: {type: string, minLength: 1}
+        evidence_refs:
+          type: array
+          description: Escalation steps and clearing evidence recorded here, in order.
+          items: {type: string, minLength: 1}
+  handoff:
+    type: object
+    additionalProperties: false
+    description: >-
+      Acceptance record for a request bound to an external execution system.
+      The neutral request and the execution system's own work item stay
+      separately owned; acceptance is recorded only after the external system
+      returns its durable work-item identifier. Projection never overwrites
+      the execution system's internal state.
+    required:
+      - infrastructure_request_ref
+      - correlation_id
+      - receiving_system
+      - external_work_item_ref
+      - accepted_by_actor_ref
+      - projected_status
+    properties:
+      infrastructure_request_ref: {$ref: "#/$defs/local_ref"}
+      correlation_id: {type: string, minLength: 1}
+      receiving_system:
+        type: string
+        minLength: 1
+        description: e.g. OpsxFactory — the external system's own name, consumed not renamed.
+      receiving_client_ref: {$ref: "#/$defs/organization_ref"}
+      external_work_item_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The external system's durable work-item identifier (e.g. an
+          OpsxFactory service-request reference). Neutral field; its value
+          references the execution system's own record.
+      accepted_by_actor_ref: {$ref: "#/$defs/actor_ref"}
+      accepted_at: {$ref: "#/$defs/timestamp"}
+      mapping_version: {type: string, minLength: 1}
+      projected_status:
+        type: string
+        enum:
+          - identified
+          - request_drafted
+          - awaiting_client_approval
+          - submitted
+          - acknowledged
+          - scheduled
+          - implementing
+          - validation_pending
+          - completed
+          - blocked
+          - declined
+          - validation_failed
+          - cancelled
+  child_acks:
+    type: array
+    description: >-
+      Cancellation / material-scope-change propagation acknowledgments. When
+      a request with external execution is cancelled, every active child job
+      and external work item records whether work stopped, partially applied,
+      or completed — history is never rewritten.
+    items:
+      type: object
+      additionalProperties: false
+      required: [work_item_ref, system, outcome]
+      properties:
+        work_item_ref: {type: string, minLength: 1}
+        system: {type: string, minLength: 1}
+        outcome:
+          type: string
+          enum: [stopped, partially_applied, completed]
+        acknowledged_by_actor_ref: {$ref: "#/$defs/actor_ref"}
+        acknowledged_at: {$ref: "#/$defs/timestamp"}
+        evidence_refs:
+          type: array
+          items: {type: string, minLength: 1}
+  supersedes_request_ref:
+    $ref: "#/$defs/local_ref"
+    description: >-
+      Names the terminal predecessor when reopening completed work or making
+      a material scope change; never a mutation of the predecessor.
+  evidence_refs:
+    type: array
+    items: {type: string, minLength: 1}
+  created_by: {$ref: "#/$defs/actor_ref"}
+  created_at: {$ref: "#/$defs/timestamp"}
+$defs:
+  organization_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: Client or contracted provider organization. Opaque slug reference.
+  subject_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: >-
+      System, service, identity, person, or other served subject. Opaque
+      slug reference; a subject identifier MUST NOT appear in an actor,
+      capability, or authority field (validator-enforced).
+  actor_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: Person, service, agent, or group performing an action. Opaque slug reference.
+  authority_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: Role, group, council, or person authorized to approve. Opaque slug reference.
+  capability_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: Scoped action class the execution actor may exercise. Opaque slug reference.
+  credential_grant_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z][a-z0-9+.-]*://[^\\s]+$"
+    description: >-
+      Opaque, scheme-prefixed reference to a short-lived scoped grant (e.g.
+      `vaultref://...`). Its distinct URI form separates it structurally from
+      the slug identity refs; it is NEVER a secret value.
+  local_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z0-9][a-z0-9._:-]*$"
+    description: Opaque local record identifier (request ids and the like).
+  uri_ref:
+    type: string
+    minLength: 1
+    pattern: "^[a-z][a-z0-9+.-]*://[^\\s]+$"
+    description: Scheme-prefixed resource reference (packages, runbooks, evidence).
+  profile_ref:
+    type: object
+    additionalProperties: false
+    required: [id, version]
+    properties:
+      id: {type: string, minLength: 1}
+      version: {type: integer, minimum: 1}
+  sha256_digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  timestamp:
+    type: string
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    description: RFC3339 UTC/offset timestamp.
