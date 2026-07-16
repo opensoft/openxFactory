@@ -1,4 +1,4 @@
-# Git-Native Record Vault — Brainstorm
+# openxVault — Git-Native Record Vault (Brainstorm)
 
 Status: brainstorm
 Kind: architecture
@@ -7,6 +7,16 @@ store it in SOPS-encrypted, KMS-audited files — the combination of the
 sanitized analysis plane, a commodity bulk plane, and the encrypted vault
 plane is a basic document-EMR (and CPA-grade client vault) built on the
 custody-tier model, with de-identified records reusable for research.
+
+Naming (decided by Brett, 2026-07-16): **openxVault** — the neutral
+custody/storage capability (planes, custody tiers, encryption ladder,
+sanitizer, evidence manifests), following the family's
+neutral-contract → domain-instantiation pattern (MedxVault,
+LedgerxVault, ... when adopted). Identity, credentials, and capability
+grants are the sibling capability **openxWallet**
+([agent-certification-wallets.md](agent-certification-wallets.md)); the
+vault's gate CONSUMES wallet grants — that boundary is the split between
+the two names.
 
 Origin: 2026-07-15 session with Brett, growing out of the
 ideation-dashboard brainstorm's custody-tier section ("Custody tiers: git

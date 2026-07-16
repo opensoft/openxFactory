@@ -1,4 +1,4 @@
-# Agent Wallets and Drift-Triggered Certification — Brainstorm
+# openxWallet — Wallets, Grants, and Drift-Triggered Certification (Brainstorm)
 
 Status: brainstorm
 Kind: architecture
@@ -7,6 +7,15 @@ qualification at a certified level grants scoped autonomous authority as
 a verifiable credential bound to the agent's quantified identity — and
 when the agent changes beyond tolerance, it is no longer the certified
 agent and must recertify.
+
+Naming (decided by Brett, 2026-07-16): **openxWallet** — the neutral
+identity/authorization capability: patient, practitioner, AND agent
+wallets (passkey-backed DIDs), verifiable credentials (licensure, agent
+certification), attenuated capability grants, delegation chains, and the
+drift-triggered recertification rules below. Storage/custody is the
+sibling capability **openxVault**
+([git-native-record-vault.md](git-native-record-vault.md)), whose gate
+consumes openxWallet grants.
 
 Origin: 2026-07-15 session with Brett, extending the patient/practitioner
 wallet model in
