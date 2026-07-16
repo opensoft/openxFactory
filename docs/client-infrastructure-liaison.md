@@ -1,6 +1,7 @@
 # Client Infrastructure Liaison
 
-Status: draft
+Status: ratified
+Ratified by: add-client-infrastructure-liaison
 Kind: architecture
 Repository context: openxFactory
 Purpose: define the neutral Client Hermes role that coordinates privileged
@@ -11,11 +12,11 @@ tenant-administration authority.
 
 > This document is the normative prose home for the liaison role, its
 > authority boundary, the three operating models, and the request lifecycle +
-> transition matrix. It is authored under the active change
-> `add-client-infrastructure-liaison` (capabilities `client-infrastructure-liaison`
-> and `client-infrastructure-request`); it flips to `Status: ratified` with a
-> `Ratified by:` pointer at that change's ratification gate. The machine-checked
-> shape lives in `contracts/schemas/xfactory-client-infrastructure-request.schema.yaml`
+> transition matrix, ratified at the `add-client-infrastructure-liaison`
+> product-owner gate on 2026-07-16 (capabilities
+> `client-infrastructure-liaison` and `client-infrastructure-request`). The
+> machine-checked shape lives in
+> `contracts/schemas/xfactory-client-infrastructure-request.schema.yaml`
 > and `contracts/schemas/xfactory-infrastructure-readiness-result.schema.yaml`,
 > enforced by `scripts/validate-client-infrastructure.py`.
 
