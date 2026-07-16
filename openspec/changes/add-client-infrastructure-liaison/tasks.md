@@ -30,7 +30,7 @@ checkout: explicit paths, `git status -sb` before every commit.
 
 - [ ] 4.1 [GATE] Product-owner sign-off on D1 (execution-binding enum tokens) and D5 (roles-authority-model scenario wording) recorded here before the specs are treated as settled.
 - [x] 4.2 Fresh 2-lens adversarial panel over the whole change (fragment-faithfulness vs supporting-docs + protocol/vocabulary compliance incl. the OpsxFactory consume-don't-rename rule); findings fixed to clean; evidence recorded. — cycle 1 (`wf_3f85acaf-5c3`): 4 findings — BLOCKING `code_surface: none` vs the release-realization code-surface rule (fixed: openxFactory named), plus 3 minor fragment-coverage gaps (canonical scaffold-doc roster → new task 3.4; overdue→escalation scenario added; cancellation-propagation + scope-change-supersede clauses/scenarios added). All fixes are the refuters' own proposed remedies; strict validation green post-fix. A fresh confirmation cycle can run at the 4.1 ratification if requested.
-- [ ] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate add-client-infrastructure-liaison --strict` and `--all --strict` green; change listed in the README "OpenSpec Records" block.
+- [x] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate add-client-infrastructure-liaison --strict` and `--all --strict` green (29/29 repo-wide, post-implementation sweep 2026-07-16); change listed in the README "OpenSpec Records" block; `validate-client-infrastructure.py` self-test 4 valid / 9 negatives each failing for its intended reason.
 
 ## 5. Realization (per contract-versioning-policy: at the next bundle cut)
 
