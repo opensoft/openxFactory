@@ -43,26 +43,10 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
-| [avatar-client-lab](#avatar-client-lab) | ADDED `avatar-client-lab` | 4 | Ready to propose — 6 decisions locked 2026-07-13; recommended ID `implement-avatar-client-lab` |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
-| [client-infrastructure-liaison](#client-infrastructure-liaison) | ADDED `client-infrastructure-liaison`; ADDED `client-infrastructure-request`; MODIFIED `roles-authority-model` | 6 | EXITED 2026-07-16 — proposed as `add-client-infrastructure-liaison`; fragments moved to that change's `supporting-docs/` |
-| [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed |
+| [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
-
-## avatar-client-lab
-
-- Staging ID: `openxFactory:staging:avatar-client-lab`
-- Repository context: openxFactory (neutral acceptance + fixtures); Flutter application realized in the private `xfactory-avatar-client` repository.
-- Source: v1 brainstorm 2026-07-13 (six-dimension synthesis); named successor in the avatar-client parallel-workstream plan; supersedes the historical `flutter-avatar-client-ui-lab` exploration.
-- Claim: an offline, deterministic Flutter avatar client UI lab (F1-F4) rendering the full avatar-first interaction and authority model from replayed fixtures — no live model/voice/WebRTC/broker; a pure reducer mirroring the reference-runtime invariants, ports so voice is a later adapter swap, and a replaceable six-state avatar. openxFactory owns the neutral acceptance; the Flutter app lives in a private repo.
-- Files:
-  - [avatar-client-lab.md](avatar-client-lab/avatar-client-lab.md) — primary: problem, capability + `avatar-client-lab` (ADDED) delta, scope in/out, acceptance summary, exit.
-  - [architecture-and-stack.md](avatar-client-lab/architecture-and-stack.md) — the v1 architecture and recommended stack (pure reducer, Riverpod-over-core, ports/adapters, CustomPainter avatar, hybrid contracts, monorepo, M0).
-  - [open-decisions.md](avatar-client-lab/open-decisions.md) — the six formerly blocking forks, locked 2026-07-13 with rationale (schema validator with fallback trigger, Riverpod binding, contract pin, web a11y claim, golden platform, fixture-duality loader).
-  - [acceptance-and-tests.md](avatar-client-lab/acceptance-and-tests.md) — the F1-F4 acceptance foci, the inherited scenario map (released acceptance maps already name `implement-avatar-client-lab` as an owner change), and the CI gate set.
-- Readiness: the six decisions are locked; the topic is ready to promote.
-- Exit: create `implement-avatar-client-lab` (`code_surface: openxFactory, xfactory-avatar-client`); at the proposal gate move this folder's files into that change's `supporting-docs/`, preserving the staging origin, and author the full `avatar-client-lab` spec deltas + F1-F4 tasks (including the acceptance/evidence map and CI gates from acceptance-and-tests.md).
 
 ## avatar-pilot-hardening
 
@@ -74,29 +58,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   - [avatar-pilot-hardening.md](avatar-pilot-hardening/avatar-pilot-hardening.md) — primary: scope, claims, gates (qualified live profile + SBOM + license review + formal a11y audit), open questions, exit.
 - Open questions (blocking): see the fragment — plus it is structurally last: it cannot propose until `qualify-avatar-live-voice` publishes a qualified live profile and the client lab lands.
 - Exit: create `avatar-pilot-hardening` (`code_surface: openxFactory, xfactory-avatar-client, installs/hermes-install, xFactories/*`); archives only on merged + green + recorded pilot-gate evidence.
-
-## client-infrastructure-liaison
-
-- Staging ID: `openxFactory:staging:client-infrastructure-liaison`
-- Source: Southside Clinic MedxFactory and OpsxFactory operating-model review, 2026-07-09.
-- Claim: defines a neutral Client Hermes coordination role and a structured
-  `client_infrastructure_request` lifecycle for client-managed, managed-host,
-  or OpsxFactory-executed infrastructure dependencies, without granting domain
-  agents tenant administration authority.
-- Files:
-  - [client-infrastructure-liaison.md](client-infrastructure-liaison/client-infrastructure-liaison.md) — primary: problem, capability, responsibilities, authority boundary, request contract, lifecycle, required deltas/tests, exit.
-  - [request-contract-and-transition-matrix.md](client-infrastructure-liaison/request-contract-and-transition-matrix.md) — the `client_infrastructure_request` artifact boundary and state transitions.
-  - [role-authority-and-operating-models.md](client-infrastructure-liaison/role-authority-and-operating-models.md) — capability shape and coordination-vs-execution authority split.
-  - [opsx-handoff-and-readiness-contract.md](client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md) — the neutral request vs. OpsxFactory service-request handoff boundary.
-  - [proposal-impact-and-adoption-map.md](client-infrastructure-liaison/proposal-impact-and-adoption-map.md) — locked decisions and per-domain adoption impact.
-  - [southside-operating-model-scenarios.md](client-infrastructure-liaison/southside-operating-model-scenarios.md) — worked customer-managed / managed-host / OpsxFactory-bound scenarios.
-- Exit: EXITED 2026-07-16 — `add-client-infrastructure-liaison` created; the
-  six fragments moved (git mv, history preserved) to
-  `openspec/changes/add-client-infrastructure-liaison/supporting-docs/` with
-  the staging origin recorded in that folder's README. The file links above
-  now resolve there. Cross-reference index path refresh delegated to the
-  active `add-ideation-cross-reference-readiness` change (validator clean
-  post-move; avoiding a cross-session index rewrite).
 
 ## github-administration-plane
 
@@ -134,9 +95,14 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   codexFactory `main` ruleset requiring PR + 1 approval with OrganizationAdmin
   bypass; the `openxfactory` App holds org-wide `Contents: write` +
   `Pull requests: write` pending the split.
-- Exit: two OpenSpec changes once the open questions are settled — do not
-  propose yet. (1) neutral: extend `roles-authority-model` with GitHub App
-  identity tiers; (2) OpsxFactory: a new `github-administration` capability.
+- Exit: COMPLETE — the two planned OpenSpec changes were proposed, ratified,
+  realized, and archived: (1) neutral `add-github-app-identity-tiers`
+  (openxFactory, archived 2026-07-14) extending `roles-authority-model` with
+  the GitHub App identity tiers; (2) `add-github-administration-workflow`
+  (OpsxFactory, archived 2026-07-15) instantiating the
+  `github-administration` capability. Live rollout done; the 2026-07-10
+  incident is closed. The primary doc remains here as `superseded`
+  provenance (its header names both successors).
 
 ## proposal-origin-contract
 

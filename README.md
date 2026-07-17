@@ -189,17 +189,19 @@ Active changes:
   github-administration-plane carve-out). Code surface: openxFactory
   (validator + schemas + templates); release allocated at realization.
 
-- [add-github-app-identity-tiers](openspec/changes/add-github-app-identity-tiers/proposal.md)
-  — staged-origin change (exit of `ideation/staging/github-administration-plane`,
-  six open questions resolved and ratified 2026-07-14) extending
-  `roles-authority-model`'s structural-parking requirement so any identity
-  able to modify a GitHub enforcement gate must be authority-separated from
-  any identity doing ordinary content/workflow work on the same surface;
-  adds the content-vs-administration App identity tiers and
-  administration-tier credential-custody requirements. Scoped to Opensoft's
-  own vendor build org (code surface: none — doc/spec only); ratified
-  2026-07-14, archives on landing. Sibling OpsxFactory change
-  `add-github-administration-workflow` instantiates the tiering concretely.
+- [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
+  — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
+  governed-record-integrity contracts separating the Customer/Client/Domain
+  role templates from their runtime layer instances, with repeatable
+  pseudonymous Customer subject instances, fail-closed default-deny
+  isolation, explicit expiring directional bindings, parallel v2 job
+  envelope/run/event and Postgres operational contracts, an idempotent
+  v1-to-v2 migration with reconciliation and quarantine, and a versioned
+  additive release bundle that Hermes Install must pin before multi-subject
+  implementation proceeds (code surface: openxFactory; at the
+  acceptance-gate stage — its tasks accept Speckit realization evidence;
+  Hermes Install Gate G0/T009 stays closed until the published evidence
+  independently reproduces)
 - [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 and **re-ratified 2026-07-14** (D1–D17; the
   07-12 ratification was set aside at a design-round demotion);
@@ -214,9 +216,10 @@ Active changes:
   2026-07-14**: codexFactory feature 002-ideation-dashboard merged
   (231 tests, adversarial review ACCEPT), nightly lane green (first
   snapshot committed), live at ideation-dashboard.xforge.us (Nextest,
-  boundary validator PASSED). At 25/27 — remaining: task 1.1
-  reconciliation and 3.5 human-seen submission, both gated on
-  add-ideation-cross-reference-readiness; archives on the archive-gate
+  boundary validator PASSED). At 26/27 — remaining: task 3.5 human-seen
+  submission, gated on add-ideation-cross-reference-readiness's
+  pending_review intake contract (landed 2026-07-14 — 3.5 is now
+  unblocked pending its codexFactory implementation); archives on the archive-gate
   ledger (contract registration + additive snapshot-schema deltas)
   once those land (code surface: openxFactory, codexFactory, xFactory;
   ideation-cross-reference delta sequenced with
@@ -234,7 +237,8 @@ Active changes:
   nightly ideation-readiness doc-health lane (code surface: openxFactory,
   codexFactory, xFactory, omnigent-install; ratified 2026-07-12).
   **Realized 2026-07-14**: index contract + strict validator + the living
-  15-cluster bootstrap (`ideation/cross-reference.yaml` + generated md);
+  bootstrap index (`ideation/cross-reference.yaml` + generated md; 11
+  clusters after the 2026-07-16 staging exits);
   scorer worker merged (codexFactory 003-ideation-readiness at 1fc0bd7,
   pre-merge review ACCEPT WITH FIXES); nightly lane + readiness-scorer
   profile landed (lane SKIPPED until host deployment — valid landed
@@ -306,6 +310,16 @@ Archived changes:
   SCO-001-S05 discharge takes effect). Realized via codexFactory PR #17
   (avatar-client-lab contract-pin resync, nine gates green on the resynced
   pin; Brett Tier-1 approval, merge `0fed12c`), archived 2026-07-16
+- [add-github-app-identity-tiers](openspec/changes/archive/2026-07-14-add-github-app-identity-tiers/proposal.md)
+  — exit of `ideation/staging/github-administration-plane`: extended
+  `roles-authority-model`'s structural-parking requirement so any identity
+  able to modify a GitHub enforcement gate is authority-separated from any
+  identity doing ordinary content/workflow work on the same surface, adding
+  the content-vs-administration App identity tiers and administration-tier
+  credential-custody requirements (code surface: none — doc/spec only);
+  ratified and archived on landing 2026-07-14. Sibling OpsxFactory change
+  `add-github-administration-workflow` (realized, archived 2026-07-15)
+  instantiates the tiering concretely; live rollout done
 - [add-document-cataloging](openspec/changes/archive/2026-07-14-add-document-cataloging/proposal.md)
   — external governed-document catalog, controlled discovery taxonomy,
   immutable snapshots, thirteenth deterministic doc-health family, and the

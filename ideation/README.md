@@ -245,10 +245,11 @@ Active proposals promoted from staging:
   — owns the former `ideation-routing` staged packet under
   `supporting-docs/` and proposes capture-first claim routing, destination
   acceptance, deterministic routing validation, and a bounded organizer.
-- [add-document-cataloging](../openspec/changes/add-document-cataloging/proposal.md)
+- [add-document-cataloging](../openspec/changes/archive/2026-07-14-add-document-cataloging/proposal.md)
   — user-approved split from the former umbrella proposal; owns external
   controlled tagging, immutable catalog snapshots, deterministic catalog
-  validation, and the bounded document cataloger.
+  validation, and the bounded document cataloger; realized as
+  `contract-v1.11` and **archived 2026-07-14**.
 - [add-proposal-origin-contract](../openspec/changes/add-proposal-origin-contract/proposal.md)
   — owns the former `proposal-origin-contract` primary doc under
   `supporting-docs/` and proposes the mandatory staged/ad-hoc origin
@@ -260,6 +261,16 @@ Active proposals promoted from staging:
   `supporting-docs/` and proposes the unified cross-stage topic index,
   three-tier Hermes readiness panel, minimum-score recommendation gate, and
   nightly readiness lane.
+- [implement-avatar-client-lab](../openspec/changes/implement-avatar-client-lab/proposal.md)
+  — exit of the `avatar-client-lab` staged topic (six decisions locked
+  2026-07-13, promoted 2026-07-14); owns the four staged fragments under
+  `supporting-docs/` and realizes the offline, deterministic Flutter avatar
+  client UI lab against `contract-v1.7`/`contract-v1.8`.
+- [add-client-infrastructure-liaison](../openspec/changes/add-client-infrastructure-liaison/proposal.md)
+  — exit of the `client-infrastructure-liaison` staged topic (promoted
+  2026-07-16); owns the six staged fragments under `supporting-docs/` and
+  adds the neutral Client Infrastructure Liaison coordination profile plus
+  the `client_infrastructure_request` contract family.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or

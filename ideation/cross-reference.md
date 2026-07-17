@@ -6,10 +6,10 @@ Repository context: openxFactory
 
 **GENERATED FILE — do not edit by hand.** This is a deterministic Markdown projection of the source-of-truth `ideation/cross-reference.yaml`, produced by `scripts/render-ideation-cross-reference.py`. Edit the YAML and re-render; per the `add-ideation-cross-reference-readiness` spec the index is a generated projection over governed documents. See `ideation/README.md` for how this surface relates to the promoted requirements and to `staging/INDEX.md`.
 
-- Source revision: `a7aac777bedfb83dbb957819a7753436bdabd334`
-- Generated at: 2026-07-14T17:31:28Z
+- Source revision: `ee0864c2ea57d14ac5dbb2ebd9272c546e39523b`
+- Generated at: 2026-07-16T11:22:02Z
 - Generator: `ideation-xref-bootstrap-0.1.0`
-- Topic clusters: 15
+- Topic clusters: 11
 - Possibles register: absent (consolidated via the ideation-dashboard flows in a later wave; when present its entries are validated by `validate-ideation-dashboard-contracts.py`).
 
 ## Avatar Client
@@ -25,55 +25,6 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md` | staged | avatar-client |
 | `ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md` | staged | avatar-client |
-
-## Client Hermes
-
-- id: `cl-client-hermes`
-- topics: client-hermes
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending that evaluation, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (bootstrap — scoring worker not yet realized); company unscored (bootstrap — scoring worker not yet realized); project unscored (bootstrap — scoring worker not yet realized)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/brainstorm/workflow-visualization-tooling.md` | staged | client-hermes |
-| `ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md` | staged | client-hermes |
-| `ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md` | staged | client-hermes |
-
-## Client Infrastructure Liaison
-
-- id: `cl-client-infrastructure-liaison`
-- topics: client-infrastructure-liaison
-- tag sources: target-capabilities-header, topics-header
-- origin: machine-derived
-- no promoted fit — Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending that evaluation, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (bootstrap — scoring worker not yet realized); company unscored (bootstrap — scoring worker not yet realized); project unscored (bootstrap — scoring worker not yet realized)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md` | staged | client-infrastructure-liaison |
-| `ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md` | staged | client-infrastructure-liaison |
-| `ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md` | staged | client-infrastructure-liaison |
-| `ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md` | staged | client-infrastructure-liaison |
-| `ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md` | staged | client-infrastructure-liaison |
-
-## Client Infrastructure Request
-
-- id: `cl-client-infrastructure-request`
-- topics: client-infrastructure-request
-- tag sources: target-capabilities-header, topics-header
-- origin: machine-derived
-- no promoted fit — Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending that evaluation, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (bootstrap — scoring worker not yet realized); company unscored (bootstrap — scoring worker not yet realized); project unscored (bootstrap — scoring worker not yet realized)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md` | staged | client-infrastructure-request |
-| `ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md` | staged | client-infrastructure-request |
-| `ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md` | staged | client-infrastructure-request |
-| `ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md` | staged | client-infrastructure-request |
-| `ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md` | staged | client-infrastructure-request |
 
 ## Credential Contracts
 
@@ -171,25 +122,11 @@ Repository context: openxFactory
 | `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | ideation-dashboard |
 
-## Medxfactory
-
-- id: `cl-medxfactory`
-- topics: medxfactory
-- tag sources: topics-header
-- origin: machine-derived
-- no promoted fit — Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending that evaluation, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (bootstrap — scoring worker not yet realized); company unscored (bootstrap — scoring worker not yet realized); project unscored (bootstrap — scoring worker not yet realized)
-
-| Member | Stage | Matched tags |
-| --- | --- | --- |
-| `ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md` | staged | medxfactory |
-| `ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md` | staged | medxfactory |
-
 ## Roles Authority Model
 
 - id: `cl-roles-authority-model`
 - topics: roles-authority-model
-- tag sources: target-capabilities-header, topics-header
+- tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending that evaluation, not an asserted 'no fit exists' finding.
 - readiness: domain unscored (bootstrap — scoring worker not yet realized); company unscored (bootstrap — scoring worker not yet realized); project unscored (bootstrap — scoring worker not yet realized)
@@ -198,10 +135,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/domain-to-neutral-promotion.md` | staged | roles-authority-model |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | brainstorm | roles-authority-model |
-| `ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md` | staged | roles-authority-model |
-| `ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md` | staged | roles-authority-model |
-| `ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md` | staged | roles-authority-model |
-| `ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md` | staged | roles-authority-model |
+| `ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md` | superseded | roles-authority-model |
 
 ## User Management
 

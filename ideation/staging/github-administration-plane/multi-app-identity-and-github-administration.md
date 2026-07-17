@@ -1,10 +1,12 @@
 # Staged: Multi-App Identity Tiering and GitHub Administration Plane
 
-Status: staged
+Status: superseded
+Superseded by: openspec/changes/archive/2026-07-14-add-github-app-identity-tiers (openxFactory) and 2026-07-15-add-github-administration-workflow (OpsxFactory)
 Kind: architecture
 Summary: Separates the content-only GitHub App identity from a new
 administration-tier App identity and locates GitHub administration in
-OpsxFactory as a managed platform; six open questions block proposal.
+OpsxFactory as a managed platform; both exit changes are realized and
+archived — retained as provenance.
 Topics: github-administration, app-identity-tiers, roles-authority-model, opsxfactory, branch-protection
 Repository context: openxFactory (neutral) with an OpsxFactory-owned realization
 Staging ID: openxFactory:staging:github-administration-plane
