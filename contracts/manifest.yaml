@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.12
+contract_bundle_version: contract-v1.13
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -684,3 +684,62 @@ contracts:
     sha256: 9401fa4fd7ba7bdc89d59dd846c2d78adc531bff9507577e1572c3ba29e3108e
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
+  # ---- client-infrastructure contract family — contract-v1.13 realization (add-client-infrastructure-liaison) ----
+  # Canonical openxFactory-owned neutral client-infrastructure coordination schemas;
+  # per-file sha256 over the two kinds validate-client-infrastructure.py enforces. The
+  # strict validator is registered as a tool (content-addressed by commit; no per-file
+  # digest — the document-cataloging/memory-gateway convention). Deliberately NOT per-file
+  # members: the packaged reference examples (examples/client-infrastructure/, self-tested
+  # on each validator run) and the ratified governing role doc
+  # docs/client-infrastructure-liaison.md (prose governed by the changelog) — matching the
+  # v1.11 schemas+validator convention of registering only the machine-readable contract
+  # schemas plus the tool. Consumed by the per-domain adoption successors (OpsxFactory
+  # binding/readiness producer first, then the Medx/Ledger/Ad/codex aliases) through their
+  # pinned openxFactory checkout; openxFactory ships no instance records (they live in
+  # client installs, credential-contracts residency model).
+  - id: xfactory-client-infrastructure-request
+    path: contracts/schemas/xfactory-client-infrastructure-request.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-client-infrastructure-request.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 5cc2dd7ee4b4c888ffb033c491da50ef3c826e9f40ccf16ccb927981bdf84bb1
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The per-domain adoption successors consume both client-infrastructure schemas
+      through their pinned openxFactory checkout at the contract-v1.13 tag and MUST
+      verify the per-file sha256 before treating a copy as current. The
+      client_infrastructure_request is a durable coordination record, never a Hermes
+      job envelope; the liaison and no domain agent ever holds tenant-administration
+      authority. Everything schema cannot express (transition legality, terminal
+      immutability, readiness-gated completion, embedded-secret rejection,
+      actor/authority and subject-field separation, idempotency/supersedes integrity)
+      is enforced by scripts/validate-client-infrastructure.py.
+  - id: xfactory-infrastructure-readiness-result
+    path: contracts/schemas/xfactory-infrastructure-readiness-result.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-infrastructure-readiness-result.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 60a64eb84cbba777ab8cf3767b279518643ef552e3a7877a442605016a52156b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: client-infrastructure-conformance-validator
+    path: scripts/validate-client-infrastructure.py
+    source_path: openxFactory/scripts/validate-client-infrastructure.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - OpsxFactory binding/readiness producer
+      - DomainxFactory client-infrastructure adopters
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Strict validator for both client-infrastructure kinds: schema conformance,
+      embedded-secret rejection (shared avatar-client denylist), transition legality
+      including terminal immutability and readiness-gated completion, identity-class
+      separation (actor != authority != creating liaison; a subject id never in a typed
+      field), idempotency/supersedes integrity, and cancellation-acknowledgment presence.
+      Self-tests the packaged examples (examples/client-infrastructure/). Reference
+      validator content-addressed by commit; not a pinned semantic artifact, so it
+      carries no per-file digest.

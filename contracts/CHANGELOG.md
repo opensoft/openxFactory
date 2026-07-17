@@ -9,6 +9,74 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.13 — 2026-07-17 (additive; client-infrastructure-request contract family)
+
+Seventh annotated-tag release. Realizes the neutral **client-infrastructure
+contract family** (`add-client-infrastructure-liaison`): the durable
+`client_infrastructure_request` coordination record, the signed/traceable
+`infrastructure_readiness_result` artifact, and their strict openxFactory
+validator, promoted at this change's archival (task 5.1) out of the "Contracts
+Pending Realization" holding area that task 2.5 added to `contracts/README.md`.
+All additive: every `contract-v1.7` / `v1.8` / `v1.11` / `v1.12` released path
+is byte-identical and `contract_schema_version` is unchanged.
+
+Added — two `contracts/schemas/xfactory-*.schema.yaml` contracts
+(YAML-serialized JSON Schema draft 2020-12, `contract_schema_version: 1`;
+per-file SHA-256 recorded in `contracts/manifest.yaml`):
+
+- `xfactory-client-infrastructure-request.schema.yaml` — the
+  `client_infrastructure_request` durable coordination record (never a Hermes job
+  envelope): six never-conflated identity-reference `$defs`, the three-mode
+  `execution_binding` (`client_managed|managed_host|opsxfactory_executed`, design
+  D1), the closed 13-state `status` enum, orthogonal `conditions[]`, the embedded
+  `handoff` acceptance record, digest-bearing `package_refs`, cancellation
+  `child_acks`, and `supersedes_request_ref`.
+- `xfactory-infrastructure-readiness-result.schema.yaml` — the
+  `infrastructure_readiness_result` signed/traceable readiness artifact, never a
+  bare boolean: status `ready|degraded|not_ready|unknown|maintenance`,
+  `valid_until` freshness, non-privileged validator + trust refs, per-check
+  `mandatory`/`outcome`/evidence, and `evidence_digest`.
+
+Also added — `scripts/validate-client-infrastructure.py`: strict validator for
+both kinds — schema conformance, embedded-secret rejection (shared avatar-client
+denylist), transition legality including terminal immutability and
+readiness-gated completion, identity-class separation (actor ≠ authority ≠
+creating liaison; a subject id never in a typed field), idempotency/supersedes
+integrity, and cancellation-acknowledgment presence — self-testing the packaged
+reference examples (`examples/client-infrastructure/`: 4 valid + 9
+one-violation-each negatives). Registered as a tool and content-addressed by
+commit; not a pinned semantic artifact, so excluded from the per-file digest set.
+
+Governance:
+
+- The liaison and no domain agent ever holds tenant-administration authority; an
+  `infrastructure_readiness_result` is never a bare boolean and gates a
+  `client_infrastructure_request` completion only when fresh (used before
+  `valid_until`), overall `ready`, and every mandatory check passes. The governing
+  role doc `docs/client-infrastructure-liaison.md` is ratified alongside this
+  change (`Status: ratified`; `Ratified by: add-client-infrastructure-liaison`),
+  with product-owner sign-off on design D1 (execution-binding tokens) and D5
+  (roles-authority wording) recorded by Brett 2026-07-16 (task 4.1). It is prose
+  governed by this changelog, not a per-file manifest member.
+- Fail-closed validation: `scripts/validate-client-infrastructure.py` self-test
+  confirms 4 valid examples and 9 negatives each failing for its intended reason;
+  `OPENSPEC_TELEMETRY=0 openspec validate add-client-infrastructure-liaison
+  --strict` is green. The reference validator is content-addressed by commit and
+  carries no per-file digest.
+
+Also added — `contracts/releases/contract-v1.13.digests.yaml`: the raw-Git-blob
+SHA-256 release digest inventory for this bundle (built by
+`scripts/validate-contract-release.py`), refreshing the closed hermes-runtime
+release surface plus the `manifest.yaml` / `CHANGELOG.md` / `README.md`
+auxiliaries; the client-infrastructure family is outside that closure and is
+content-addressed via `manifest.yaml` per-file digests instead.
+
+Consumers: the per-domain adoption successors (OpsxFactory binding/readiness
+producer first, then the Medx/Ledger/Ad/codex aliases) pin this bundle at the
+`contract-v1.13` tag and verify the per-file SHA-256 in `manifest.yaml` before
+treating a copy as current; openxFactory ships no instance records (they live in
+client installs, credential-contracts residency model).
+
 ## contract-v1.12 — 2026-07-15 (additive; avatar-client-lab evidence surface / P-row adoption)
 
 Sixth annotated-tag release. Realizes the neutral **avatar-client-lab evidence

@@ -50,6 +50,7 @@ Native openxFactory contracts:
 | `hermes-runtime/` | Neutral Hermes customer-subject runtime contract family — topology/identity, trusted-scope authority/binding/approval/traceability records, the PostgreSQL 15/16 operational contract with the governed v1-to-v2 migration and quarantine, scoped v2 job/run/event lifecycle, supported-DomainxFactory regression denominator, and the Gate G0 consumer handoff receipt; governed by `hermes-runtime/contract-index.yaml` and realized (provider side) at `contract-v1.10` with the release digest inventory `releases/contract-v1.10.digests.yaml` (superseding `contract-v1.9`, whose immutable tag and `releases/contract-v1.9.digests.yaml` remain as provenance; see `hermes-runtime/README.md`) | `openxFactory` |
 | `schemas/xfactory-document-*.schema.yaml` + `scripts/validate-document-catalog.py` | Neutral document-cataloging contract surface — six JSON-Schema contracts (immutable per-repository catalog snapshot, non-authoritative cataloger-recommendation evidence, namespaced topic-tag registry, owner override/disposition file, and the reusable opaque-locator and handling-gate `$defs` kernels) plus the strict validator; realized at `contract-v1.11` with per-file SHA-256 in `manifest.yaml` (the validator is a commit-content-addressed tool, no per-file digest). Reference examples at `examples/document-cataloging/`; adoption guidance in `docs/document-catalog-adoption.md` | `openxFactory` |
 | `avatar-client-lab/` + adopted `examples/avatar-first-ui/fixtures/deterministic/` seeds | Neutral avatar-client-lab evidence surface — the P1 total avatar-state derivation table and the P10 22-capability-scenario register (gate (vi)/(ix)(a)/(ix)(b) sources), the 20 adopted deterministic fixtures closing the state-reachability denominator (P7/P8/P11/P12/P13), and the SCO-001-S05 successor deferral-discharge register `avatar-client/evidence-register.implement-avatar-client-lab.yaml`; realized at `contract-v1.12` with per-file SHA-256 in `manifest.yaml`. The `.md` prose companions and `avatar-client-lab/client-acceptance-map.yaml` are governed by the changelog / `check_client_lab_acceptance_map`, not per-file digests; the reference validators are commit-content-addressed tools. See `avatar-client-lab/README.md` | `openxFactory` |
+| `schemas/xfactory-client-infrastructure-request.schema.yaml` + `schemas/xfactory-infrastructure-readiness-result.schema.yaml` + `scripts/validate-client-infrastructure.py` | Neutral client-infrastructure contract family — the durable `client_infrastructure_request` coordination record (six never-conflated identity-reference `$defs`, the three-mode `execution_binding` `client_managed\|managed_host\|opsxfactory_executed`, the closed 13-state `status` enum, embedded `handoff` acceptance record, digest-bearing `package_refs`, cancellation `child_acks`, `supersedes_request_ref`) and the signed/traceable `infrastructure_readiness_result` (never a bare boolean; `ready\|degraded\|not_ready\|unknown\|maintenance`, `valid_until`, per-check `mandatory`/`outcome`/evidence) plus the strict validator; realized at `contract-v1.13` with per-file SHA-256 in `manifest.yaml` (the validator is a commit-content-addressed tool, no per-file digest). Reference examples at `examples/client-infrastructure/`; governing role doc `docs/client-infrastructure-liaison.md` | `openxFactory` |
 
 Planned contracts:
 
@@ -89,9 +90,6 @@ archives, at the registration task named in that family's note below.
 | `schemas/ideation-cross-reference.schema.yaml` | Unified cross-stage cross-reference readiness index (source of truth `ideation/cross-reference.yaml`; `.md` is a generated projection); four-schema co-load, embeds the possibles-register kernel | `add-ideation-cross-reference-readiness` |
 | `scripts/validate-ideation-cross-reference.py` | Strict validator: four-schema-registry conformance (FormatChecker-enforced), extension-fit citation resolution against promoted/active-change capabilities, min>=8 gate arithmetic, spread-conflict consistency, topic-entry id uniqueness; delegates register-entry shape/transitions to `validate-ideation-dashboard-contracts.py` | `add-ideation-cross-reference-readiness` |
 | `scripts/render-ideation-cross-reference.py` / `scripts/bootstrap-ideation-cross-reference.py` | Deterministic YAML→Markdown projection renderer, and the one-time header-derived bootstrap generator that seeds `ideation/cross-reference.yaml` + `.md` | `add-ideation-cross-reference-readiness` |
-| `schemas/xfactory-client-infrastructure-request.schema.yaml` | The `client_infrastructure_request` durable coordination record: six never-conflated identity-reference `$defs`, three-mode execution binding (D1), closed 13-state `status` enum, orthogonal `conditions[]`, embedded `handoff` acceptance record, digest-bearing `package_refs`, cancellation `child_acks`, `supersedes_request_ref` | `add-client-infrastructure-liaison` |
-| `schemas/xfactory-infrastructure-readiness-result.schema.yaml` | The `infrastructure_readiness_result` signed/traceable readiness artifact (never a bare boolean); status `ready\|degraded\|not_ready\|unknown\|maintenance`, `valid_until` freshness, non-privileged validator + trust refs, per-check mandatory/outcome/evidence, `evidence_digest` | `add-client-infrastructure-liaison` |
-| `scripts/validate-client-infrastructure.py` | Strict validator for both kinds: schema conformance, embedded-secret rejection (shared avatar-client denylist), transition legality incl. terminal immutability + readiness-gated completion, identity-class separation (actor≠authority≠creating-liaison; subject id never in a typed field), idempotency/supersedes integrity, cancellation-acknowledgment presence; self-tests the packaged examples | `add-client-infrastructure-liaison` |
 
 Reference examples for the ideation-dashboard family (8 valid + 21 invalid
 fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
@@ -124,22 +122,6 @@ See `openspec/changes/add-ideation-cross-reference-readiness/specs/ideation-cros
 for the requirements these realize. Per this section's rule, these entries move
 to `contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
 `add-ideation-cross-reference-readiness` archives (its task 5.2).
-
-Reference examples for the client-infrastructure family (4 valid — one request
-per execution binding plus a readiness result — and 9 one-violation-each
-negatives) live at `examples/client-infrastructure/`;
-`scripts/validate-client-infrastructure.py` self-tests them (each valid must
-validate and pass every deterministic check; each negative must fail for its
-intended reason) and additionally validates any real
-`client_infrastructure_request` / `infrastructure_readiness_result` artifacts
-under an optionally supplied path, skipping foreign kinds with notice
-(instance records live in client installs, so openxFactory normally supplies
-none). See
-`openspec/changes/add-client-infrastructure-liaison/specs/client-infrastructure-request/spec.md`
-and `.../specs/client-infrastructure-liaison/spec.md` for the requirements
-these realize. Per this section's rule, these entries move to
-`contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
-`add-client-infrastructure-liaison` archives (its task 5.1).
 
 ## Contract Manifest
 
