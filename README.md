@@ -176,19 +176,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-client-infrastructure-liaison](openspec/changes/add-client-infrastructure-liaison/proposal.md)
-  — staged-origin change (exit of `ideation/staging/client-infrastructure-liaison`,
-  design decisions locked 2026-07-12, proposed 2026-07-16): adds the neutral
-  Client Infrastructure Liaison coordination profile and the
-  `client_infrastructure_request` contract family (two schemas, examples,
-  deterministic validator) with three execution bindings
-  (client-managed / managed-host / OpsxFactory-executed), readiness-gated
-  completion, and an OpsxFactory handoff boundary; MODIFIES
-  `roles-authority-model`'s identity-tiers requirement so client-tenant
-  infrastructure execution routes here (closing the
-  github-administration-plane carve-out). Code surface: openxFactory
-  (validator + schemas + templates); release allocated at realization.
-
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
@@ -300,6 +287,20 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-client-infrastructure-liaison](openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)
+  — exit of `ideation/staging/client-infrastructure-liaison`: the neutral
+  Client Infrastructure Liaison coordination profile (promoted capabilities
+  `client-infrastructure-liaison` + `client-infrastructure-request`) and the
+  `client_infrastructure_request` contract family — two schemas, reference
+  examples, and the strict validator — with three execution bindings
+  (client-managed / managed-host / OpsxFactory-executed), readiness-gated
+  completion, and the OpsxFactory handoff boundary; MODIFIES
+  `roles-authority-model` so client-tenant infrastructure execution routes
+  here (closing the github-administration-plane carve-out). PO gate signed
+  off by Brett 2026-07-16; realized as **`contract-v1.13`** and archived
+  2026-07-17 with the verified supporting-doc bundle. Successor per-domain
+  adoption changes (OpsxFactory binding/readiness producer first, then
+  Medx/Ledger/Ad/codex aliases) are proposed per the impact map's sequence
 - [adopt-avatar-client-lab-candidates](openspec/changes/archive/2026-07-16-adopt-avatar-client-lab-candidates/proposal.md)
   — the owning change for the avatar-client-lab P-ledger escalations and
   fixture adoptions: landed the P1 neutral avatar-state derivation table and

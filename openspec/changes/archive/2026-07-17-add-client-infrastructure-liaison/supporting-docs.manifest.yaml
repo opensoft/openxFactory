@@ -1,0 +1,48 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "347f000644311e80e996de4767bb74c95cdbe4515fb715fa5c1a05a913e28437"
+  },
+  "change_id": "add-client-infrastructure-liaison",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "62555a319321bb1dafe97c0629691041e6ba344bc932e1fd46d6696bf2fbbf26"
+    },
+    {
+      "path": "client-infrastructure-liaison.md",
+      "sha256": "d4e7c9aec940fab44d79e106b48113d63f321499f28477158309864738d15af7"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "33d7f36a7d1b526de1c00c6cde7648930f5b064b26207e311b85f9130eb296f6"
+    },
+    {
+      "path": "opsx-handoff-and-readiness-contract.md",
+      "sha256": "d5af374df75efd2bb5faf1151df57f9b7ff96d98fa1fda6b90ef9839d145f042"
+    },
+    {
+      "path": "proposal-impact-and-adoption-map.md",
+      "sha256": "5511fa3a6eca1ff9aa200bfdad594f14dfce2ad24e496181d23b25b1d4645ded"
+    },
+    {
+      "path": "request-contract-and-transition-matrix.md",
+      "sha256": "b8eba6321833fcb5d459472eca060d21192c2562f57ba64f1f49457c77949fd1"
+    },
+    {
+      "path": "role-authority-and-operating-models.md",
+      "sha256": "fffb5af06fb2bb463f69ab7a0037b0ff066df9e05b235f14cb355eac584ba97b"
+    },
+    {
+      "path": "southside-operating-model-scenarios.md",
+      "sha256": "391877f9b152e59818ada53b9406ca38281699a2394d4e042d02083a18db6260"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/client-infrastructure-liaison",
+  "packaged_at": "2026-07-17",
+  "source_revision": "4745daa6e776c8e1488bd04fe0f6b31e803e5e9a",
+  "transitioned_at": "2026-07-16"
+}

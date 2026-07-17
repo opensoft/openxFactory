@@ -266,11 +266,13 @@ Active proposals promoted from staging:
   2026-07-13, promoted 2026-07-14); owns the four staged fragments under
   `supporting-docs/` and realizes the offline, deterministic Flutter avatar
   client UI lab against `contract-v1.7`/`contract-v1.8`.
-- [add-client-infrastructure-liaison](../openspec/changes/add-client-infrastructure-liaison/proposal.md)
+- [add-client-infrastructure-liaison](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)
   — exit of the `client-infrastructure-liaison` staged topic (promoted
-  2026-07-16); owns the six staged fragments under `supporting-docs/` and
-  adds the neutral Client Infrastructure Liaison coordination profile plus
-  the `client_infrastructure_request` contract family.
+  2026-07-16); owns the six staged fragments (bundled as
+  `supporting-docs.tar.gz` at archive) and adds the neutral Client
+  Infrastructure Liaison coordination profile plus the
+  `client_infrastructure_request` contract family; realized as
+  `contract-v1.13` and **archived 2026-07-17**.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or

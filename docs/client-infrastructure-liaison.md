@@ -121,7 +121,7 @@ every external ticket stores the internal `request_id` and `correlation_id`; a
 `package_refs` entry carries an immutable digest from an approved publisher;
 secrets are forbidden everywhere; `completed` requires a fresh passing
 readiness result. The full source shape is the change's
-[Request Contract And Transition Matrix](../openspec/changes/add-client-infrastructure-liaison/supporting-docs/request-contract-and-transition-matrix.md).
+[Request Contract And Transition Matrix](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/supporting-docs.manifest.yaml).
 
 ## 5. Lifecycle And Transition Matrix
 
@@ -189,7 +189,7 @@ external work-item reference, `accepted_by_actor_ref`, `projected_status`).
   is never rewritten.
 
 See the change's
-[Opsx Handoff And Readiness Contract](../openspec/changes/add-client-infrastructure-liaison/supporting-docs/opsx-handoff-and-readiness-contract.md).
+[Opsx Handoff And Readiness Contract](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/supporting-docs.manifest.yaml).
 
 ## 8. Readiness Contract
 
@@ -256,11 +256,14 @@ negative stops failing for its intended reason.
 Concrete Southside Clinic reference traces (synthetic org) for each operating
 model, plus the outage, validation-failure, and cancellation cases, are in the
 change's
-[Southside Operating Model Scenarios](../openspec/changes/add-client-infrastructure-liaison/supporting-docs/southside-operating-model-scenarios.md).
+[Southside Operating Model Scenarios](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/supporting-docs.manifest.yaml).
 The full role/lifecycle prose provenance is
-[Client Infrastructure Liaison (staged)](../openspec/changes/add-client-infrastructure-liaison/supporting-docs/client-infrastructure-liaison.md)
+[Client Infrastructure Liaison (staged)](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/supporting-docs.manifest.yaml)
 and
-[Role Authority And Operating Models](../openspec/changes/add-client-infrastructure-liaison/supporting-docs/role-authority-and-operating-models.md).
+[Role Authority And Operating Models](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/supporting-docs.manifest.yaml).
+(The named fragments live inside the archived change's deterministic
+`supporting-docs.tar.gz`; the linked manifest records each member and its
+SHA-256.)
 
 ## 13. Repository Ownership
 
