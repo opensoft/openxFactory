@@ -12,5 +12,5 @@ main. The QA runtime realization is tracked by omnigent-install's
 - [x] 1.3 `credential-contracts` delta with the pattern requirement and its
       rejection/rotation scenarios; `--strict` validated.
 - [x] 1.4 README OpenSpec Records entry.
-- [ ] 1.5 Archive on landing (PR #34 merge), promoting the delta into
+- [x] 1.5 Archive on landing (PR #34 merge), promoting the delta into
       `openspec/specs/credential-contracts/`.
