@@ -26,7 +26,8 @@ secret providers.
 
 ### 1.1 Ratified SOPS ciphertext ruling
 
-Ratified by Brett Heap on 2026-07-19 for xFactory GitOps installations:
+Ratified by Brett Heap on 2026-07-19 for xFactory GitOps installations
+(recorded by OpenSpec change `add-sops-ciphertext-ruling`):
 SOPS ciphertext is **not** a raw credential when every credential-bearing leaf
 is encrypted with SOPS AES-256-GCM and all of the following controls hold:
 
