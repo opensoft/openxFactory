@@ -176,13 +176,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-sops-ciphertext-ruling](openspec/changes/add-sops-ciphertext-ruling/proposal.md)
-  — ratified 2026-07-19: SOPS AES-256-GCM ciphertext with an externally
-  custodied, per-environment decryption identity is not a raw credential
-  and is an approved secret-provider pattern for GitOps repositories
-  (ciphertext-only repos, pre-commit plaintext rejection, rotation of key
-  and credentials on exposure); first realization is xFactory QA
-  (omnigent-install). Doc-only; archives on landing.
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
