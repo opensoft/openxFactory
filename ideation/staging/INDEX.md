@@ -44,9 +44,43 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
+| [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
+
+## client-credential-escrow-registry
+
+- Staging ID: `openxFactory:staging:client-credential-escrow-registry`
+- Repository context: openxFactory (neutral contract — likely a
+  `credential-contracts` delta + the sanctioned repo-policy exception);
+  registry realization in the operator's Client Hermes tree
+  (`xFactory-Hermes-Install` `config/clients/<client_ref>/credentials/`);
+  escrow runbook steps in install repos (`Omnigent-Install` first);
+  managed-install obligation in OpsxFactory workflow contracts.
+- Source: named by Brett Heap during track-1 QA secret-custody design
+  (2026-07-19); first concrete case = the opensoft self-client QA
+  install's `kv-opensoft-xfactory-qa` secrets + the Flux deploy key.
+- Claim: per-client SOPS/age-encrypted credential escrow, written at
+  secret create/rotate and read only at break-glass; exactly ONE
+  break-glass key per operator scope in the password manager (public
+  recipient committed, so routine escrow never touches the key);
+  multi-recipient adds optional client-held recovery; custody is
+  operator-side OUTSIDE the client estate (survives client-tenant +
+  client-GitHub destruction); under `opsxfactory_executed` escrow is an
+  explicit testable obligation, with a drift audit (every `vaultref://`
+  has a registry entry) checkable without decryption.
+- Files:
+  - [client-credential-escrow-registry.md](client-credential-escrow-registry/client-credential-escrow-registry.md) — primary: custody model, 7 claims, 6 open questions, exit.
+- Open questions (blocking): delta shape (MODIFIED `credential-contracts`
+  vs new capability); master-key rotation/blast-radius runbook;
+  break-glass authorization topology + post-use rotation; dedicated
+  registry-repo escalation criteria; MUST-escrow scope boundary
+  (non-vault plumbing credentials like deploy keys); validator for
+  registry structure + SOPS-metadata lint.
+- Exit: one openxFactory OpenSpec change; archives only on the first
+  escrowed install (opensoft self-client QA) with drift audit green and a
+  REHEARSED break-glass restore drill recorded.
 
 ## avatar-pilot-hardening
 
