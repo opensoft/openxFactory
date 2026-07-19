@@ -1,0 +1,12 @@
+schema: spec-driven
+created: 2026-07-19
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-19-sops-ciphertext-ruling
+  reason: >-
+    Ruling requested and approved by Brett during the 2026-07-19 SOPS
+    secret-management design review (Codex session); this change converts
+    the direct doc edit published on PR #34 into a durable OpenSpec
+    ratification record.
+  approved_by: Brett
+  approved_on: 2026-07-19

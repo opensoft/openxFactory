@@ -24,6 +24,38 @@ Repos store credential requirements, reference names, binding templates,
 approval policy, grant templates, and audit rules. Real secrets live in approved
 secret providers.
 
+### 1.1 Ratified SOPS ciphertext ruling
+
+Ratified by Brett Heap on 2026-07-19 for xFactory GitOps installations
+(recorded by OpenSpec change `add-sops-ciphertext-ruling`):
+SOPS ciphertext is **not** a raw credential when every credential-bearing leaf
+is encrypted with SOPS AES-256-GCM and all of the following controls hold:
+
+- the repository stores only ciphertext, non-secret object metadata, the SOPS
+  integrity metadata/MAC, and public recipients;
+- the private decryption identity lives durably only in an approved secret
+  provider and is projected separately into the runtime controller;
+- recipients are unique per environment or stronger trust boundary;
+- repository policy rejects plaintext Secret values and private decryption
+  identities before commit;
+- a controller compromise is treated as compromise of every secret that
+  controller can decrypt; and
+- an exposed decryption identity triggers rotation of both the identity and
+  every underlying credential because historical Git ciphertext remains
+  recoverable with the exposed identity.
+
+Under these constraints, **SOPS plus the externally custodied decryption key**
+is an approved secret-provider pattern. Git is only the authenticated
+ciphertext store; it is not the custodian of the credential or private key.
+Base64-encoded Kubernetes Secret values, ad hoc encrypted blobs without SOPS
+metadata/MAC, a private age identity, and any value decryptable without the
+approved external identity remain raw credentials and are prohibited.
+
+The first approved realization is xFactory QA: one QA-wide age identity whose
+only durable private copy is in 1Password and whose replaceable runtime copy is
+the uncommitted `flux-system/sops-age` Secret. Production MUST use a different
+recipient and custody item; environment keys may not be reused.
+
 ## 2. Layer Model
 
 ```text
