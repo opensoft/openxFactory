@@ -372,6 +372,13 @@ Active proposals promoted from staging:
   memory → gateway bindings, persona prose → pinned reference); deterministic,
   digest-pinned, idempotent, re-seeds on re-pin (client-consented), fails closed
   to a safe structural-only layer (2026-07-21).
+- [Omnigent Lane Activation Path](brainstorm/omnigent-lane-activation-path.md)
+  — the sequenced path from today's govern/record plane to a Hermes-managed
+  omnigent lane that autonomously codes: P0 runtime (live) → P1 seed+enforce
+  content → P2 governed job lifecycle → P3 omnigent run loop → P4 governed close
+  → P5 self-host; the ordering answer is that Hermes layer *content* (seeded +
+  enforceable) gates a *managed* lane while the execution machinery builds in
+  parallel and converges (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

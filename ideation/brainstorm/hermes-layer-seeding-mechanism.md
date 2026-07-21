@@ -100,6 +100,13 @@ digests, what materialized, when) — the content analog of the release
 realization packet. An idempotency key makes re-runs converge (re-seed is safe
 to repeat); the evidence is what an audit or a later re-pin reads.
 
+## Where this sits in the bigger path
+
+Seeding is **P1** of the omnigent-lane activation path
+(`omnigent-lane-activation-path.md`): it is the step that makes the Hermes layer
+content enforceable, which is the prerequisite for a Hermes-*managed* omnigent
+lane. It is hand-built (the lane cannot build the content loader it depends on).
+
 ## Ownership / plane
 
 Seeding is a **hermes-install runtime lifecycle verb** (the umbrella's "Where it
