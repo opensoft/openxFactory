@@ -10,6 +10,13 @@ Source: Brett, live session — prompted by the add-possibles-derivation-lane
 packet showing no supporting docs while the idea's substance sits scattered
 across other docs.
 
+## Possible feats
+
+- **Per-topic compilation-tree generator** — a one-line-summary index that opens
+  to per-passage abstracts, each linked to its full source doc.
+- **Link-not-copy supporting-docs convention** — packets reference docs in a
+  general home instead of duplicating them.
+
 ## The problem (verbatim intent)
 
 The possibles idea has real brainstorm substance, but it lives as passages

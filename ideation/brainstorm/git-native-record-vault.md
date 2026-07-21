@@ -1,4 +1,4 @@
-# openxVault — Git-Native Record Vault (Brainstorm)
+# openxVault — Git-Native Record Vault — Brainstorm
 
 Status: brainstorm
 Kind: architecture
@@ -18,11 +18,21 @@ grants are the sibling capability **openxWallet**
 vault's gate CONSUMES wallet grants — that boundary is the split between
 the two names.
 
+Topics: openxvault, custody, storage, phi, sops, kms, encryption-tiers,
+sanitizer, analysis-plane, vault-plane, de-identification, document-emr
+Repository context: openxFactory (neutral openxVault capability)
 Origin: 2026-07-15 session with Brett, growing out of the
 ideation-dashboard brainstorm's custody-tier section ("Custody tiers: git
 as the traceability plane") — this doc gives the vault idea its own
 lifecycle path. Being brainstorm-stage, items may contradict; nothing
 here is normative.
+
+## Possible feats
+
+- **openxVault neutral custody capability** — planes, custody tiers, encryption
+  ladder, sanitizer, evidence manifests.
+- **Sanitized analysis plane + encrypted vault plane** split for PHI-bearing docs.
+- **De-identified commodity bulk plane** reusable for research.
 
 ## The insight
 

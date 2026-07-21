@@ -9,6 +9,19 @@ the contested tail — and how the Project (Customer) Hermes realizes a
 cleared practice on the actual repo through the factory's own PR and
 review machinery. Umbrella: `hermes-governed-nightly-sweep.md`;
 generation side: `domain-practice-suggestion-generation.md`.
+Topics: practice-clearance, auto-clear-envelope, project-realization,
+client-policy, merge-master-pattern, practice-adoption
+Repository context: openxFactory (client clearance + project realization behavior)
+Captured: 2026-07-20
+
+## Possible feats
+
+- **Auto-clear envelope** — a ratified rules-as-code artifact for the
+  mature/low-risk middle.
+- **Clearance approval record** on the deployed approvals tables, carrying
+  conditions that travel with the job.
+- **Realization job flow** composing `proposed_realization` + conditions through
+  the factory's own PR/review front door.
 
 ## Clearance at the Client (Policy) layer
 

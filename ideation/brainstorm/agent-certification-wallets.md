@@ -1,4 +1,4 @@
-# openxWallet — Wallets, Grants, and Drift-Triggered Certification (Brainstorm)
+# openxWallet — Wallets, Grants, and Drift-Triggered Certification — Brainstorm
 
 Status: brainstorm
 Kind: architecture
@@ -17,10 +17,21 @@ sibling capability **openxVault**
 ([git-native-record-vault.md](git-native-record-vault.md)), whose gate
 consumes openxWallet grants.
 
+Topics: openxwallet, agent-identity, did, verifiable-credentials,
+capability-grants, delegation-chains, agent-certification, drift-recertification
+Repository context: openxFactory (neutral openxWallet capability)
 Origin: 2026-07-15 session with Brett, extending the patient/practitioner
 wallet model in
 [git-native-record-vault.md](git-native-record-vault.md) to AI agents.
 Brainstorm-stage: free-form, nothing normative.
+
+## Possible feats
+
+- **openxWallet neutral capability** — passkey-backed DID wallets + verifiable
+  credentials (licensure, agent certification).
+- **Attenuated capability-grant + delegation-chain contract**.
+- **Drift-triggered recertification rule** — config-hash + behavioral battery;
+  change beyond tolerance = recertify.
 
 ## The principle (Brett, 2026-07-15)
 

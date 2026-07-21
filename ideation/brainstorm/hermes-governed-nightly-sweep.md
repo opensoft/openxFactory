@@ -13,6 +13,16 @@ Hermes implements the GitHub Action on the repo. Companions:
 and `practice-clearance-and-project-realization.md` (how policy clears
 and the project realizes). Substrate: `hermes-layer-content-seeding.md`
 (how the three layers get the content this pipeline assumes they have).
+Topics: nightly-sweep, doc-health, practice-adoption, three-layer-hermes,
+github-actions, self-hosting
+Repository context: openxFactory (umbrella; realized via codexFactory + hermes-install)
+Captured: 2026-07-20
+
+## Possible feats
+
+- **Meta-nightly gap scan** the Domain Hermes runs to generate sweep suggestions.
+- **Reusable sweep workflow** pinned at a released ref, installed by a reviewed PR.
+- **Retro-adoption record** for the existing hand-installed doc-health action.
 
 ## The inversion
 

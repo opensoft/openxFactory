@@ -216,6 +216,23 @@ Brainstorm (active):
 - [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
   — three upstream gaps from the codexFactory conformance-gate hardening;
   seeds a future openxFactory proposal.
+- [Hermes-Governed Nightly Sweep](brainstorm/hermes-governed-nightly-sweep.md)
+  — umbrella for the practice-adoption pipeline: the hand-wired doc-health sweep
+  should become an OUTPUT of the three-layer flow (domain suggests, client
+  clears, project realizes). Companions below (2026-07-20).
+- [Domain Practice Suggestion Generation](brainstorm/domain-practice-suggestion-generation.md)
+  — how the Domain Hermes autonomously generates practice-adoption suggestions:
+  a practice catalog of adoption profiles, a read-only gap scan, a structured
+  suggestion record, and a hard autonomy boundary (the domain may only SUGGEST)
+  (2026-07-20).
+- [Practice Clearance and Project Realization](brainstorm/practice-clearance-and-project-realization.md)
+  — the clearance (client auto-clear envelope + human liaison) and realization
+  (project implements through the factory's own PR/review front door) legs of
+  the pipeline (2026-07-20).
+- [Topic Compilation Tree](brainstorm/topic-compilation-tree.md)
+  — link-not-copy supporting docs, and a generated per-topic tree compilation:
+  a one-line-summary index opening to per-passage abstracts linked to sources
+  (2026-07-19).
 - [Three-Layer Hermes Content & Seeding](brainstorm/hermes-layer-content-seeding.md)
   — how each Hermes layer gets its personality/memory/policy *content* (not
   just structural topology): Domain authored once in codexFactory (same for all
