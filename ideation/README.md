@@ -321,6 +321,20 @@ Active proposals promoted from staging:
   practices, workflows, and default agents; the stricter-only invariant chains
   domain→client→project-type, and the spike shows safe gate *relaxation* via
   quarantine (2026-07-21).
+- [Hermes Knowledge-Base Architecture](brainstorm/hermes-knowledge-base-architecture.md)
+  — applies the Cerebras knowledge-base pattern (federate over sources, unified
+  evidence rows, structure-before-embed, hybrid retrieval + RRF + age decay,
+  planner→executor→synthesizer, primitives-not-answers) inside the ratified
+  memory gateway's consent / tenant-isolation / source-authority rails; the
+  client layer is the star case (federate over the operating org's real systems
+  via the scaffold's source-inventory + memory-steward agents) (2026-07-21).
+- [Client Ingestion-Adapter Contract](brainstorm/client-ingestion-adapter-contract.md)
+  — the governed connector from a client source system (chat, VCS, tickets, CRM,
+  …) to tenant-scoped evidence rows: a `client_source_adapter` manifest composing
+  the ratified provider/consent contracts, an `evidence_row` output schema, the
+  differential-sync + structure-before-embed + redact pipeline, and the
+  non-negotiables (credential-reference-only, tenant isolation, consent-gated,
+  source-authority tagged); runs as a read-only Plane-2 worker (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

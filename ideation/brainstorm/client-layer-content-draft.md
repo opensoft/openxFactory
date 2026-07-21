@@ -107,6 +107,11 @@ The invariant that matters: client memory is **tenant-isolated**; only
 de-identified `domain_learning_candidates` cross upward, and only through the
 domain-review promotion gate.
 
+*How these buckets get populated* — federating over the org's real systems,
+structure-before-embed, governed retrieval — is designed in
+`hermes-knowledge-base-architecture.md` (the Cerebras pattern inside the gateway
+rails); the client layer is its star case.
+
 ## integration-boundaries.yaml — allowed classes, references only
 
 ```yaml
