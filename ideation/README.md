@@ -216,6 +216,13 @@ Brainstorm (active):
 - [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
   — three upstream gaps from the codexFactory conformance-gate hardening;
   seeds a future openxFactory proposal.
+- [Three-Layer Hermes Content & Seeding](brainstorm/hermes-layer-content-seeding.md)
+  — how each Hermes layer gets its personality/memory/policy *content* (not
+  just structural topology): Domain authored once in codexFactory (same for all
+  installs), Client scaffolded + tuned by a policy wizard, Project scaffolded
+  from a project-type template library; hinges on whether the runtime loads the
+  inert `overlay_ref`. Substrate under the practice-pipeline brainstorms
+  (`hermes-governed-nightly-sweep.md` + its two companions) (2026-07-21).
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a
@@ -233,6 +240,87 @@ Active proposals promoted from staging:
   kickoff (D14–D17), per-actor authoring authority, workbench, and nightly
   snapshot lane; web-based v1 served per Option C alongside the
   Hermes-stack surfaces; **re-ratified 2026-07-14**.
+- [codexFactory Domain Hermes Content & Roster](brainstorm/codexfactory-domain-hermes-content.md)
+  — fills the Software Engineering domain layer: the Plane-1 authority-persona
+  roster (seven Leads + a Scrum Coordinator), domain policy/memory/practice-catalog
+  storage map, and the Merge-Master-as-operator / cross-layer Gate-Rules-Council
+  reframing; keeps the Plane-2 execution workers in the Omnigent install
+  (2026-07-21).
+- [Hermes-Layer Persona Character Model](brainstorm/hermes-persona-character-model.md)
+  — how much personality a Hermes decider should carry (technical disposition →
+  full authored character), the dimensions of character, five options (A–E,
+  leaning a trait-framework-plus-prose hybrid), and the guardrail that character
+  shapes *how* not *whether* a persona decides (2026-07-21).
+- [codexFactory Domain Plane-1 Roster — Draft Role Objects](brainstorm/codexfactory-domain-roster-draft.md)
+  — the eight drafted domain decider personas (seven Leads + Scrum Coordinator)
+  under the Option-E character model: a trait-axis framework (disposition
+  domain-locked, voice client-tunable), authored prose for the three flagship
+  deciders, and no house style — deliberately distinct personas (2026-07-21).
+- [codexFactory Domain Policy — Store the Delta, Not the Textbook](brainstorm/codexfactory-domain-policy-model.md)
+  — what belongs in *stored* domain policy/memory vs. what the model improvises:
+  pin only the choices that must be consistent, the rules a gate must enforce,
+  the fail-closed boundaries, the staked positions, and the accumulated learning;
+  leave generic best practice to the model. Includes the decision test and the
+  filled codex policy categories (2026-07-21).
+- [codexFactory Domain Deliberation](brainstorm/codexfactory-domain-deliberation.md)
+  — the roster-adjacent stored content: MoA agent-mix profiles (declaring the
+  review-lane ensemble as `panel_synthesis`; Plane 3 profile lives in Hermes,
+  execution in Omnigent), escalation routing + stop conditions remapped onto the
+  personas, and the two review councils (per-PR merge-readiness vs. cross-layer
+  gate-rules) (2026-07-21).
+- [codexFactory Domain Memory & Practice Catalog](brainstorm/codexfactory-domain-memory-and-practices.md)
+  — the learning-side content: memory boundaries (cross-client domain learning
+  vs. never-touch client-private, promoted only through the ratified memory
+  gateway) and the practice catalog (adoption profiles over the promoted codex
+  capabilities, feeding the suggestion pipeline) (2026-07-21).
+- [Client (Company Policy) Layer Scaffold](brainstorm/client-layer-scaffold.md)
+  — scaffolds and lists the Client layer: three-tier composition (neutral
+  scaffold → domain specialization → per-client wizard tuning), the plane split
+  (house-team deciders vs. the 18 steward workers), the object model, file shape,
+  and the policy wizard; the key contrast is that client content is per-client
+  and wizard-loaded, not authored once (2026-07-21).
+- [Client (Company Policy) Plane-1 Roster — Draft House Team](brainstorm/client-layer-roster-draft.md)
+  — the ten house-team decider personas, clustered as policy core (Company Policy
+  Lead, Change Approvals Authority), a Risk & Assurance bench (Legal & Compliance
+  Counsel, Reputation & Brand Steward, Product Liability & Insurance Officer),
+  Security, Ops (Integrations Steward, Infrastructure Liaison, Delivery & SLA
+  Lead), and Customer & Communications — all sharing a coherent house-style
+  voice, itself client-tunable; a **neutral** roster (openxFactory scaffold),
+  domain-specialized and client-tuned (2026-07-21).
+- [Hermes Legal & Compliance Model](brainstorm/hermes-legal-compliance-model.md)
+  — a dedicated Legal & Compliance Counsel (IP/licensing, age-appropriate,
+  financial, data-protection, accessibility, export) that enforces human-ratified
+  legal constraints, fails closed, and escalates novel legal questions to human
+  counsel — never practices law; cross-layer (client authority, domain
+  license-scan practice, project audience expectations) (2026-07-21).
+- [Client Risk & Assurance Bench](brainstorm/client-risk-and-assurance-model.md)
+  — groups legal, a Reputation & Brand Steward (harm to the company's
+  reputation), and a Product Liability & Insurance Officer (product-liability
+  exposure + Errors & Omissions coverage) into one bench; all enforce stored
+  constraints, fail closed, and escalate to a human, convening as a launch/
+  release Risk & Assurance review (2026-07-21).
+- [Client Layer Content — policy/memory/integration boundaries](brainstorm/client-layer-content-draft.md)
+  — fills the three client content files: policy overrides (the client's stored
+  delta, stricter-than-domain only), the four per-tenant memory buckets with the
+  domain-promotion gate, and integration boundaries (credential references only);
+  each a domain default plus a wizard-tuned per-client instance (2026-07-21).
+- [Client Policy Wizard](brainstorm/client-policy-wizard.md)
+  — the guided elicitation that turns a scaffolded client into a tuned one:
+  the bounded question set, the auto-clear-envelope generator (the clearance
+  pipeline's input), conservative park-by-default safety, idempotent re-tuning
+  with disposition feedback, and the stricter-only guard (2026-07-21).
+- [Project/Customer (Subject) Layer Scaffold](brainstorm/project-layer-scaffold.md)
+  — the subject-centric layer: its content model (identity, scope, acceptance,
+  consent, private memory, journey state), a small Plane-1 roster (Product Owner
+  + Project Manager) with the three-layer coordination boundary (domain Scrum
+  Coordinator / project PM / client Delivery Lead), provisioning from an
+  archetype, and the manual-writer as a Plane-2 worker (2026-07-21).
+- [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
+  — six project archetypes (service, library, cli, application, infra-iac, spike)
+  a project is provisioned from, each a bundle of default policy, expected
+  practices, workflows, and default agents; the stricter-only invariant chains
+  domain→client→project-type, and the spike shows safe gate *relaxation* via
+  quarantine (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

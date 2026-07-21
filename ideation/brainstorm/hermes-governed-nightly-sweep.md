@@ -11,7 +11,8 @@ Client (Company Policy) Hermes clears it, and the Project (Customer)
 Hermes implements the GitHub Action on the repo. Companions:
 `domain-practice-suggestion-generation.md` (how the domain generates)
 and `practice-clearance-and-project-realization.md` (how policy clears
-and the project realizes).
+and the project realizes). Substrate: `hermes-layer-content-seeding.md`
+(how the three layers get the content this pipeline assumes they have).
 
 ## The inversion
 
