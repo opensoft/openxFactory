@@ -33,7 +33,7 @@ Reference: Cerebras, "How we built our knowledge base"
   gateway's provider-binding.
 - **Structure-before-embed** ingestion for the client's noisy sources.
 - **Governed retrieval primitives** (search_* over context-packets) instead of a
-  monolithic answer endpoint.
+  monolithic answer endpoint — detailed in `hermes-retrieval-primitives-contract.md`.
 
 ## The fit: the gateway is the wrapper, Cerebras is the mechanism
 

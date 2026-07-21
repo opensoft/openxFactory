@@ -335,6 +335,12 @@ Active proposals promoted from staging:
   differential-sync + structure-before-embed + redact pipeline, and the
   non-negotiables (credential-reference-only, tenant isolation, consent-gated,
   source-authority tagged); runs as a read-only Plane-2 worker (2026-07-21).
+- [Hermes Retrieval Primitives](brainstorm/hermes-retrieval-primitives-contract.md)
+  — the read side: governed low-level primitives (`search`, `search_<source>`,
+  `who_knows`, `recall`) returning context-packets, a planner→executor→
+  synthesizer pipeline that only *advises* (Hermes decides), the hybrid + RRF +
+  age-decay ranking recipe, per-query consent/tenant/ACL/source-authority
+  enforcement, and MCP tool exposure (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still
