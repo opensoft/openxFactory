@@ -341,6 +341,13 @@ Active proposals promoted from staging:
   synthesizer pipeline that only *advises* (Hermes decides), the hybrid + RRF +
   age-decay ranking recipe, per-query consent/tenant/ACL/source-authority
   enforcement, and MCP tool exposure (2026-07-21).
+- [Subject Recall & Consent Path](brainstorm/subject-recall-and-consent-path.md)
+  — the hardest case: recalling a person-subject's (patient's) private memory
+  with consent checked per query — a subject-owned consent model (who/what/why/
+  how-long/where, default deny), purpose-bound + minimized recall with an
+  explained denial list and a subject-visible audit log, immediate revocation/
+  erasure, and an audited dual-authorized break-glass exception for life-critical
+  domains (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

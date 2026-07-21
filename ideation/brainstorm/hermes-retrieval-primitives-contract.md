@@ -122,7 +122,8 @@ advisory retrieval path, and the persona makes the call.
 - **Synthesis authority weighting** — exact function mapping `source_authority`
   to rank weight, and the floor's default per layer.
 - **recall consent granularity** — per-field consent on a subject's memory
-  (a patient consents to some memory being recalled, not all)?
+  (a patient consents to some memory being recalled, not all)? Detailed in
+  `subject-recall-and-consent-path.md`.
 - **Cross-tenant domain learning** — how does the domain query its de-identified
   `domain_learning` (cross-client) without breaching tenant isolation — a
   separate authority-scoped primitive?

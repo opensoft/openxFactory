@@ -67,7 +67,7 @@ subject:
   identity: {kind: repository|product|feature_initiative, ref, display_name}
   scope: {feature_initiatives: [...], out_of_scope: [...]}      # PO owns
   acceptance_criteria: [...]                                     # PO owns; definition of done
-  consent_model: {...}                                          # what may be done to the subject; gateway consent
+  consent_model: {...}                                          # gateway consent; per-query recall path in subject-recall-and-consent-path.md
   private_memory: {scope: subject_private, promotes_via: domain_learning_candidates}
   journey_state: intent_received | ... | merge_ready | blocked  # the domain workflow sequence
 ```
