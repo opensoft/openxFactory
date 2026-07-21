@@ -348,6 +348,13 @@ Active proposals promoted from staging:
   explained denial list and a subject-visible audit log, immediate revocation/
   erasure, and an audited dual-authorized break-glass exception for life-critical
   domains (2026-07-21).
+- [Hermes Layer Seeding Mechanism](brainstorm/hermes-layer-seeding-mechanism.md)
+  — the runtime `seed-layer-content` step that makes the drafted content live:
+  resolve the pinned overlay_ref → verify digest → compose the overlay stack →
+  validate → split into three destinations (enforceable slice → runtime records,
+  memory → gateway bindings, persona prose → pinned reference); deterministic,
+  digest-pinned, idempotent, re-seeds on re-pin (client-consented), fails closed
+  to a safe structural-only layer (2026-07-21).
 
 - [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — approved split owning the isolated F0 harness and empirical evidence; still

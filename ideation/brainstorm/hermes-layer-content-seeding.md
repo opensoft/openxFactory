@@ -28,7 +28,8 @@ Captured: 2026-07-21
 
 - **Layer content loader** — a `seed-layer-content` runtime verb that fetches,
   validates, and (per the seam decision) materializes the pinned `overlay_ref`
-  content into the live stack after `register-stack`.
+  content into the live stack after `register-stack`. Detailed in
+  `hermes-layer-seeding-mechanism.md`.
 - **Domain Hermes content authoring (codexFactory)** — fill `hermes/domain/`
   (persona/system-frame, `roles/`, `policies/`, `review-councils/`,
   `memory-boundaries.yaml`, `escalation-rules.yaml`, `agent-mixes.yaml`) and the
