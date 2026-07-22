@@ -273,7 +273,12 @@ Active changes:
   possibles stay a distinct non-`indexed` WHEEL class excluded from any Ranked
   Plan (code surface: codexFactory, openxFactory, xFactory, omnigent-install;
   realization follows the ideation-readiness two-repo split; release allocated
-  at realization)
+  at realization). **§3 worker realized 2026-07-22** (codexFactory
+  `specs/004-derive-possibles`, PR #25 at `ee72113`: worker + prompt
+  contract, orchestration-authoritative identifiers, fingerprint-CAS merge,
+  one-way gate dispositions, boundary-guarded persistence, 33 tests);
+  remaining: contract registration at realization (2.6), the §4 nightly
+  lane + watchdog + omnigent worker profile, and §5 records
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
