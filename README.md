@@ -176,6 +176,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-subject-tenant-domain-vocabulary](openspec/changes/adopt-subject-tenant-domain-vocabulary/proposal.md)
+  — proposed 2026-07-22 (naming decision approved by Brett the same day):
+  renames the canonical Hermes layer vocabulary Customer/Client/Domain to
+  **Subject/Tenant/Domain**, adds the `layer-vocabulary` capability
+  (canonical names, domain-alias model, reserved ambiguous terms,
+  machine-identifier freeze with a published legacy mapping in
+  `contracts/policies/layer-vocabulary.yaml`), and stages the migration so
+  released `contracts/hermes-runtime/` identifiers and pinned consumers
+  (Hermes Install Track 2) stay byte-stable until the next major contract
+  bundle; closes review §A1's Client-Hermes collision at the vocabulary
+  level (code surface: openxFactory)
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain

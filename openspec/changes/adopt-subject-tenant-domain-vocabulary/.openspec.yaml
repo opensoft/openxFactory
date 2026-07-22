@@ -1,0 +1,13 @@
+schema: spec-driven
+created: 2026-07-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-22-subject-tenant-domain-vocabulary
+  reason: >-
+    Brett reviewed three alternatives per layer for the Hermes layer
+    vocabulary in a 2026-07-22 working session and selected Subject /
+    Tenant / Domain (replacing Customer / Client / Domain); this change is
+    the durable lifecycle record of that decision and its staged migration
+    rule, addressing review 2026-07-03 defect A1 and fix priority 2.
+  approved_by: Brett
+  approved_on: 2026-07-22
