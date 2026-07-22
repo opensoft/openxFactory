@@ -274,11 +274,18 @@ Active changes:
   Plan (code surface: codexFactory, openxFactory, xFactory, omnigent-install;
   realization follows the ideation-readiness two-repo split; release allocated
   at realization). **§3 worker realized 2026-07-22** (codexFactory
-  `specs/004-derive-possibles`, PR #25 at `ee72113`: worker + prompt
-  contract, orchestration-authoritative identifiers, fingerprint-CAS merge,
-  one-way gate dispositions, boundary-guarded persistence, 33 tests);
-  remaining: contract registration at realization (2.6), the §4 nightly
-  lane + watchdog + omnigent worker profile, and §5 records
+  `specs/004-derive-possibles`, PR #25: worker + prompt contract,
+  orchestration-authoritative identifiers, fingerprint-CAS merge, one-way
+  gate dispositions, boundary-guarded persistence, 33 tests). **§4 lane +
+  2.6 registration realized 2026-07-22**: nightly dispatch + 10/30-minute
+  watchdog + dormant rolling-PR register commit-back (codexFactory PR #27 +
+  the xFactory artifact-only child workflow), the omnigent-install
+  `derive-possibles` profile v1 (Omnigent-Install PR #22, contract-only),
+  and the kernel delta registered as **contract-v1.14**. The lane reports
+  SKIPPED until a host advertises the profile (the readiness precedent's
+  valid landed state). At 18/20; remaining: 5.1's WHEEL non-`indexed`
+  edge-class styling in the dashboard renderer + first-lane-run evidence,
+  and 5.2 records through archive
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and

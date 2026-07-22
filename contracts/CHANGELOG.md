@@ -9,6 +9,39 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.14 — 2026-07-22 (additive; possibles-register AI-derivation intake)
+
+Eighth annotated-tag release. Realizes the **possibles-derivation lane's
+contract surface** (`add-possibles-derivation-lane`, task 2.6 registration at
+the realization commit): the ADDITIVE AI-derivation intake delta on the
+`ideation-possibles-register` kernel — optional `register_entry.origin`
+(enum `[human-authored, ai-derived]`; absent defaults to human-authored),
+optional `register_entry.derivation` (worker-run identity: correlation id /
+worker profile / prompt-contract version, plus machine
+`disposition: pending_review` and the `derivation_human_disposition` local
+mirror of the index's `human_disposition`), and the `allOf` conditional that
+requires `derivation` when `origin: ai-derived`. Modelled one-for-one on the
+index topic entry's `origin` + `human_seen` intake pair; the conditional
+never fires on an origin-absent entry, so `contract_schema_version` stays 1
+per the kernel's additive-growth rule and every released path from prior
+bundles is byte-identical.
+
+Registered — `contracts/schemas/ideation-possibles-register.schema.yaml`
+(per-file SHA-256 recorded in `contracts/manifest.yaml`; the kernel's first
+manifest registration — the ideation-dashboard family was previously
+registered in `contracts/README.md`'s doc index only). Packaged examples:
+`examples/ideation-dashboard/derived-possible-register.example.yaml` plus
+the derived negatives and one-way-disposition transition pairs, all enforced
+by the delegated strict register validator
+(`scripts/validate-ideation-dashboard-contracts.py`, extended at task 2.4).
+
+Realization evidence: codexFactory `specs/004-derive-possibles` — the
+derive-possibles worker (PR #25), the nightly lane + watchdog + rolling-PR
+register commit-back (PR #27), and the omnigent-install `derive-possibles`
+worker profile (Omnigent-Install PR #22, contract-only until host
+deployment). The nightly lane reports SKIPPED until a host advertises the
+profile — the readiness-scorer precedent's valid landed state.
+
 ## contract-v1.13 — 2026-07-17 (additive; client-infrastructure-request contract family)
 
 Seventh annotated-tag release. Realizes the neutral **client-infrastructure

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.13
+contract_bundle_version: contract-v1.14
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -743,3 +743,34 @@ contracts:
       Self-tests the packaged examples (examples/client-infrastructure/). Reference
       validator content-addressed by commit; not a pinned semantic artifact, so it
       carries no per-file digest.
+  # ---- possibles-derivation contract surface — contract-v1.14 realization (add-possibles-derivation-lane) ----
+  # The ADDITIVE AI-derivation intake delta on the ideation-possibles-register
+  # kernel (register_entry.origin + the derivation/derivation_human_disposition
+  # $defs; no contract_schema_version bump — the conditional never fires on an
+  # origin-absent human-authored entry). This is the kernel's FIRST manifest
+  # registration: the ideation-dashboard family was previously registered in
+  # contracts/README.md's doc index only, and the delta's realization commit is
+  # the release-time registration point the change's task 2.6 fixed (the
+  # avatar-client / document-cataloging precedent). Per-file sha256 over the
+  # file's bytes. The delegated strict validator
+  # (scripts/validate-ideation-dashboard-contracts.py) and the index validator
+  # (scripts/validate-ideation-cross-reference.py) are content-addressed by
+  # commit; no per-file digest.
+  - id: ideation-possibles-register
+    path: contracts/schemas/ideation-possibles-register.schema.yaml
+    source_path: openxFactory/contracts/schemas/ideation-possibles-register.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1eabf64abe82becb9ec8e9c6e67ddbcdd79c062b07c0000601accd0fceb5537c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumers embed the register kernel through their pinned openxFactory
+      checkout at the contract-v1.14 tag and MUST verify the per-file sha256
+      before treating a copy as current. An `origin: ai-derived` entry REQUIRES
+      the `derivation` block (worker-run identity + machine
+      `disposition: pending_review`); register id uniqueness, the derived-entry
+      source-citation rule, the machine-only pending_review disposition, and the
+      one-way disposition lifecycle are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the kernel's C3
+      delegated owner), never re-implemented by consumers.
