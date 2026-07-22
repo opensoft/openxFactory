@@ -16,6 +16,32 @@ operating-policy, approval-matrix, house-style, re-tuning, elicitation,
 client-layer, layer-content-seeding
 Repository context: openxFactory (wizard is a hermes-install runtime act writing config/clients/<client>/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (interface + envelope-scope decisions; ratification/facts/seeding sync; cost blocks; park-map)
+
+## Decided (2026-07-22)
+
+- **Interface: avatar-assisted first.** The primary wizard experience is the
+  avatar-guided flow (the scaffold's `user_interaction_scaffold` surfaces; ties
+  to the avatar pilot work already in staging) — the operating organization is
+  interviewed, not handed a form. The **elicitation schema is the contract**;
+  a CLI verb drives the same schema as the fallback/automation path, but the
+  avatar flow leads.
+- **Envelope scope: per-unit allowed, per-client default.** The envelope
+  carries a `scope` field; a simple client ratifies one, a multi-unit client
+  may ratify one per operating unit / customer class — each separately
+  human-ratified.
+- **Envelope ratification (synced):** wizard drafts, human **ratifies** —
+  stronger than the earlier acknowledgement leaning; nothing auto-clears
+  un-ratified (`client-layer-content-draft.md` §Decided).
+- **The facts rule governs the question set (synced):** anything justifiable
+  for any engineering org is a domain default the wizard merely confirms;
+  anything naming a client-specific fact is wizard-only
+  (`client-layer-scaffold.md` §Decided).
+- **Output is an overlay (synced):** per the unified seeding decision
+  (`hermes-layer-seeding-mechanism.md`), the wizard's final step **packages
+  the tuned tree as the per-client overlay document, commits it, and records
+  its digest pin** — client content then seeds through the same pipeline as
+  the domain's (fail-closed digest verify, stricter-only check at step 4).
 
 ## Possible feats
 
@@ -44,13 +70,13 @@ are few, plain-spoken (house style), and every one has a conservative default:
 | Repo boundaries | which repos/paths may / may never be touched | `operating-policy.yaml` |
 | Realization | PR-only? any exceptions? | `operating-policy.yaml` |
 | Credentials | which families allowed; confirm prod/deploy never standing | `operating-policy.yaml` |
-| Spend | runner-minute / compute ceilings | `operating-policy.yaml` |
+| Spend & accounting | budget envelopes (runner minutes, compute, credits/project); **tracking granularity** the subject layer must honor | `operating-policy.yaml` (FAO-owned blocks) |
 | Security posture | who clears new external calls / foreign-input triggers | `operating-policy.yaml` |
 | Approvers | named change + security approval authorities | `approval-matrix.yaml` |
 | Escalation | ordered escalation contacts; out-of-band recovery path | `escalation-map.yaml` |
 | Integrations | permitted integration classes; credential bindings (refs) | `integration-map.yaml` |
 | Memory & consent | what may promote as domain-learning; consent profile | `memory-boundaries` tuning |
-| House voice | warmth / formality / verbosity within the tunable bounds | `house_style` tuning |
+| House voice | warmth / formality / verbosity / humor within the tunable ranges — respect + discretion locked, warmth floored at moderate (roster §Decided) | `house_style` tuning |
 
 ## The load-bearing output: the auto-clear envelope
 
@@ -72,6 +98,13 @@ parks for the human liaison.
 - **Disposition feedback.** The human liaison's accreted parking dispositions
   (from the clearance pipeline) are surfaced as candidate envelope revisions on
   the next pass — the human tail *trains* the envelope over time.
+- **The park-map (manual-surface report).** Every wizard run — full or partial
+  — ends by emitting an evidence-shaped **park-map**: exactly which blocks
+  still default to "park for the human," and therefore the manual load the
+  operator is carrying. Partial tuning stops being invisible; re-tuning
+  progress is measurable run over run (the park-map shrinks), and the
+  disposition-feedback loop reads it to propose the next questions worth
+  answering.
 
 ## Authority & validation
 
@@ -90,11 +123,17 @@ parks for the human liaison.
 
 ## Open questions
 
-- **Interface.** Is the wizard a CLI lifecycle verb, an avatar-assisted flow
-  (the scaffold's `user_interaction_scaffold` lists guided surfaces), or both?
-- **Envelope ratification.** Auto-generate vs. always-human-ratify the conjunctive
-  conditions (leaning: generate + one human acknowledgement).
-- **Partial tuning UX.** How does the wizard show what is still defaulting to
-  "park" so the operator knows the manual surface they are carrying?
-- **Multi-unit clients.** One envelope per client, or per operating unit /
-  customer class?
+- ~~**Interface**~~ — DECIDED 2026-07-22: avatar-assisted first, CLI drives
+  the same elicitation schema as fallback (§Decided).
+- ~~**Envelope ratification**~~ — DECIDED 2026-07-22: wizard drafts, human
+  ratifies, always (§Decided).
+- ~~**Partial tuning UX**~~ — answered structurally: the park-map report
+  (§Defaults, safety, and re-tuning).
+- ~~**Multi-unit clients**~~ — DECIDED 2026-07-22: per-unit allowed,
+  per-client default, each separately ratified (§Decided).
+- **Wizard overlay signing** — the wizard commits a per-client overlay
+  (§Decided); who signs its digest pin and where it is recorded is the open
+  question shared with `hermes-layer-seeding-mechanism.md`.
+- **Avatar-flow prerequisites** — which of the staging avatar capabilities
+  (pilot hardening, live voice) the guided flow actually needs before it can
+  lead.

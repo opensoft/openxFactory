@@ -16,6 +16,24 @@ trait-framework, persona-schema, lead-architect, lead-security, lead-quality,
 scrum-coordinator, character-model
 Repository context: openxFactory (drafts target codexFactory hermes/domain/roles/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (council-tier / ref-direction / deploy decisions; escalation audit; coverage + closure tables; cost-accountability capture)
+
+## Decided (2026-07-22)
+
+- **Two council tiers, risk-triggered.** `deliberation_mix` gains
+  `council_small` (a few seats, cheap, the flagship default) and
+  `council_large` (full bench), convened when the decision meets a declared
+  risk trigger (security ambiguity, contested standard, architecture
+  commitment, gate-weakening change). `panel_synthesis` stays for routine
+  advisory. The trigger thresholds are declared per-mix in `agent-mixes.yaml`
+  (deliberation doc).
+- **Worker references: both directions, seed-checked.** The persona declares
+  `directs_workers` AND the Omnigent overlay declares its directing persona;
+  the seeding verb consistency-checks the pair and fails closed on skew.
+  Strongest integrity; the redundancy is the point.
+- **Deploy line confirmed.** Nothing in the domain roster owns deploy
+  execution — Lead Release stops at recommendation; deploy/merge enforcement
+  stays repository- and external-owned per `overlay.yaml`.
 
 ## Possible feats
 
@@ -265,6 +283,93 @@ stops at *recommendation*: final merge/branch enforcement and deploy stay
 repository- and external-owned per `overlay.yaml`. The Plane-2 release-note
 worker drafts; LR judges and accepts.
 
+## Escalation-target audit (2026-07-22)
+
+The drafts above overload `gate_rules_council` — doc 3 defines it narrowly as
+the cross-layer body that *sets per-repo merge/gate rules*. Re-pointed:
+
+| Persona | Trigger | Drafted target | Corrected target |
+| --- | --- | --- | --- |
+| LA | `architecture_ambiguity_unresolvable` | gate_rules_council | **council_large** (domain); still unresolved → park for liaison |
+| LE | `scope_exceeds_approved` | lead_architect | **park — new approval request** (scope is an approvals concern, not LA's); LA only for decomposition-*shape* disputes |
+| LC | `change_cannot_be_bounded` | lead_architect | lead_architect ✓ (design question — correct as drafted) |
+| LQ | `standard_contested` | gate_rules_council | **council_large** (domain standard); only if the outcome changes per-repo gate rules does the domain's gate-rules *seat* carry it onward |
+| LS | `security_ambiguity` | gate_rules_council | **park for liaison** — the stored must-not is "on security ambiguity, park — never proceed"; a council deliberates *after* parking, never instead of it |
+| LI | `readiness_blocked_unexpectedly` | lead_engineer | lead_engineer ✓ (flow problem — correct) |
+| SC | `cross_persona_deadlock` | lead_engineer | **council_small** — LE is a peer in the deadlock; a peer can't referee it |
+| LR | `release_blocked_by_policy` | gate_rules_council | **client liaison** if blocked by *client* policy; gate_rules_council only when the *rule itself* is claimed wrong |
+
+The persona YAML blocks above are not yet updated — apply this table when the
+objects promote (the audit is the ratifiable artifact; rewriting eight drafts
+mid-brainstorm churns the diff).
+
+## Worker-coverage table (all Plane-2 classes → directing persona)
+
+Verified against `omnigent/domain-overlay.yaml` (9 classes defined):
+
+| Omnigent class | Directing persona | Note |
+| --- | --- | --- |
+| engineering_decomposer | LE | as drafted |
+| spec_planner | LE | **was uncovered** — planning is lane work |
+| coding_agent | LC | as drafted |
+| test_agent | LQ | **was uncovered** — check execution reports to quality |
+| security_agent | LS | **was uncovered** |
+| documentation_agent | LQ | **was uncovered** — verifies docs/traceability (quality-gate work); the project-layer manual *writer* is a different, future worker |
+| branch_review_agent | LQ | **was uncovered** — review standards owner |
+| pr_admission_agent | LI | **was uncovered** — admission is integration front door |
+| merge_readiness_agent | LI | as drafted |
+| scrum_master_worker | SC | **referenced but does NOT exist in the overlay yet** — must be added to Omnigent when SC promotes |
+| release_note_agent | LR | **referenced but does NOT exist in the overlay yet** — same |
+
+Every existing class now has exactly one directing persona; the two
+roster-referenced-but-undefined workers are an Omnigent-side prerequisite for
+promoting SC and LR. Under the bidirectional decision (§Decided), each row
+becomes a seed-time consistency check.
+
+## Authority-closure matrix (roster × `overlay.yaml` `codex_owns`)
+
+`codex_owns` today: `engineering_decomposition`, `coding_agent_execution`,
+`branch_review`, `pr_admission`, `merge_readiness_summary`.
+
+| `codex_owns` item | Owning persona |
+| --- | --- |
+| engineering_decomposition | LE (acceptance) + LA (shape) |
+| coding_agent_execution | LC |
+| branch_review | LQ |
+| pr_admission | LI |
+| merge_readiness_summary | LI |
+
+Closure holds downward (every `codex_owns` item has an owner) but **not
+upward**: the roster claims authority the overlay never granted —
+`system_architecture` (LA), `security_posture` + `fail_closed_defaults` (LS),
+`quality_gates`/`review_standards` (LQ), `release_readiness`/`versioning` (LR),
+`cadence`/`flow_and_wip_health` (SC). **Finding: promoting this roster requires
+extending `overlay.yaml` `codex_owns` in the same change** — otherwise the
+personas' enforceable authority blocks (`role_authority` records) claim scope
+the domain overlay doesn't stake, and the seed-time closure check must fail
+closed on exactly this skew.
+
+## Cost accountability: workers clock in with their manager (captured 2026-07-22)
+
+New cross-layer model, domain slice captured here (full model:
+`cost-accountability-and-efficiency-model.md`):
+
+- **Clock-in/clock-out:** every Plane-2 worker action reports to its directing
+  persona (the manager, per the coverage table) with **credits burned vs.
+  action taken**; the manager judges whether the spend was appropriate for the
+  outcome. This rides the bidirectional reference — the manager relationship
+  is now also the *accounting* relationship.
+- **Efficiency mandate:** the Domain Hermes actively looks for cheaper ways to
+  do recurring tasks, with an **audit-selection algorithm** deciding which
+  tasks get an efficiency audit (candidates: highest total spend, highest
+  variance vs. estimate, most-repeated) and feeding process updates back into
+  the practice catalog / policies.
+- **Carried to other layers:** the Client (tenant) layer gets a
+  reporting-to-accounting function tracking company-wide costs; the Project
+  layer gets a project accountant tracking project/sub-project task spend; and
+  **the tenant layer defines the tracking granularity the subject layer must
+  honor**.
+
 ## Notes carried into other layers
 
 **Project layer — documentation help/manual writer.** Captured for the project
@@ -285,10 +390,18 @@ so its personas should share a voice baseline the domain deliberately does not.
 
 - **Trait vocabulary depth** — is `low/moderate/high` enough resolution, or do
   disposition axes need finer/ordinal values for the client-tunable bounds?
-- **Deliberation-mix binding** — do flagship deciders always convene a
-  `deliberative_council`, or only above a risk threshold (cost vs. rigor)?
-- **`directs_workers` vs. authority** — is naming Plane-2 workers here the right
-  reference direction, or should the Omnigent overlay point *up* at the persona?
-- **Deploy authority** — Lead Release (§8) now owns release *readiness* and the
-  release narrative; deploy *enforcement* stays repository/external per
-  `overlay.yaml`. Confirm nothing in the domain should own deploy execution.
+  (Deferred to `hermes-persona-character-model.md`, where the axis question lives.)
+- ~~**Deliberation-mix binding**~~ — DECIDED 2026-07-22: two council tiers
+  (`council_small` default, `council_large` above a declared risk trigger)
+  (§Decided). Still open: the trigger values per mix, in the deliberation doc.
+- ~~**`directs_workers` vs. authority**~~ — DECIDED 2026-07-22: both
+  directions, seed-time consistency-checked (§Decided).
+- ~~**Deploy authority**~~ — CONFIRMED 2026-07-22: nothing in the domain owns
+  deploy execution (§Decided).
+- **`codex_owns` extension** — the closure matrix shows the roster claims
+  authority the overlay doesn't stake; the promoting change must extend
+  `overlay.yaml` in lockstep (§Authority-closure matrix).
+- **Efficiency-audit ownership** — who runs the audit-selection algorithm and
+  owns process-update proposals: the Scrum Coordinator (flow/process) or Lead
+  Engineer (lane throughput)? (§Cost accountability; full model in
+  `cost-accountability-and-efficiency-model.md`.)

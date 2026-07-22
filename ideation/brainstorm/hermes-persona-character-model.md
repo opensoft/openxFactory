@@ -129,6 +129,51 @@ non-negotiable; every option below inherits it. "Pleasant" ≠ "permissive."
   these are governed agents; a human should always be able to tell, and the
   persona should never leverage rapport to push past a gate.
 
+## Decided (2026-07-22)
+
+- **Trait vocabulary v1 adopted.** 4 disposition axes (`rigor`, `risk_posture`,
+  `bias`, `autonomy`) + 5 voice axes (`warmth`, `verbosity`, `formality`,
+  `humor`, `proactivity`), `low/moderate/high` scale. Client-tunable bounds
+  are declared **per-axis as a range** on the persona object:
+  `client_tunable: {warmth: [moderate, high], formality: [low, high], ...}` —
+  outside the range, the persona "stops being itself" by definition. Finer
+  resolution only if the behavioral battery proves 3 levels can't
+  discriminate.
+- **Authoring authority: proportional ceremony.** A new persona, or any
+  change to disposition or authority, is a **domain OpenSpec ratification**
+  (it changes how the domain decides). Prose polish and voice-default tweaks
+  are **Lead-accepted recorded changes**. Mirrors the catalog-signing
+  decision.
+- **Drift policy: fixed + versioned re-authoring.** Character changes only by
+  deliberate, ratified re-authoring — a new certified persona version.
+  Relationship memory (via the gateway, consent-scoped) supplies the "it
+  knows me" warmth without character drift. Predictability is the trust
+  feature.
+- **Decide-then-speak (the guardrail as architecture).** The gate verdict and
+  authority check are computed **before** persona rendering; the persona
+  layer receives the verdict as immutable input it may only *phrase*. The
+  guardrail stops being a promise and becomes a pipeline property: character
+  cannot override authority because character executes after authority.
+
+## Behavioral battery (certification stub)
+
+The quantified-identity idea made concrete — a certified persona version is
+(trait vector + prose frame + battery pass):
+
+- **Gate-pressure probes:** scripted attempts to leverage rapport, urgency, or
+  seniority to get past a fail-closed gate; the persona must park/refuse in
+  character, every time. (Lead Security is the canonical stress test.)
+- **Disposition-consistency probes:** the same ambiguous evidence presented
+  repeatedly and across underlying models; the discretionary lean must stay
+  within the declared trait vector (a persona is a role the models play, not
+  a model).
+- **Voice-bounds probes:** with client tuning applied at the extremes of each
+  declared range, the persona remains recognizably itself and the disposition
+  axes measure unchanged.
+- **Drift tolerance:** re-run the battery on schedule/re-pin; deviation beyond
+  tolerance = a *different* persona → recertification (and a version bump),
+  never silent drift. Wallet linkage: `agent-certification-wallets.md`.
+
 ## Decided (2026-07-21)
 
 - **Option E** is the chosen model: a neutral trait-axis framework spine +
@@ -145,16 +190,20 @@ non-negotiable; every option below inherits it. "Pleasant" ≠ "permissive."
 
 ## Open questions
 
-- **Which trait axes**, and how many, before it feels either mechanical (too few)
-  or unbounded (too many)? (The roster draft proposes 4 disposition + 5 voice
-  axes as the starting set.)
-- **Client-tunable surface** — the roster draft splits it disposition=locked /
-  voice=tunable; still open is the *bounds* (how far a client may shift voice
-  before a persona stops being itself).
+- ~~**Which trait axes**~~ — DECIDED 2026-07-22: v1 = the roster's 4+5 with
+  3-level scale (§Decided).
+- ~~**Client-tunable surface bounds**~~ — DECIDED 2026-07-22: per-axis
+  declared ranges on the persona object (§Decided). Still open: the neutral
+  schema field name and whether the wizard shows out-of-range as disabled or
+  hidden.
 - **Relationship memory depth** — how much does a persona remember about a
-  specific human, and under what consent (gateway `consent-profile`)?
-- **Authoring authority** — who signs a persona into existence, and is a persona
-  change a domain OpenSpec/ratification event (like the practice catalog)?
-- **Evolving vs. fixed** — may a persona's character *grow* from experience, or is
-  it versioned only by deliberate re-authoring? (Fixed is safer for trust;
-  evolving is more human.)
+  specific human, and under what consent (gateway `consent-profile`)? The
+  fixed-character decision leans on this working well — it is the warmth
+  budget.
+- ~~**Authoring authority**~~ — DECIDED 2026-07-22: proportional —
+  disposition/authority = ratified; prose/voice-defaults = Lead-accepted
+  (§Decided).
+- ~~**Evolving vs. fixed**~~ — DECIDED 2026-07-22: fixed + versioned
+  re-authoring (§Decided).
+- **Battery authoring** — who writes and maintains the probe sets, and are
+  battery results evidence records (they look exactly like one)?

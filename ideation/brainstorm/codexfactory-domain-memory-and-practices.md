@@ -18,6 +18,24 @@ memory-gateway, practice-catalog, adoption-profile, promoted-capabilities,
 domain-learning, layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/memory-boundaries.yaml + practice catalog)
 Captured: 2026-07-21
+Updated: 2026-07-22 (write-authority + catalog-signing + de-id decisions; provenance verified; cost-model wiring)
+
+## Decided (2026-07-22)
+
+- **Memory write authority: worker proposes, Lead accepts** — no ratification
+  for memory entries; memory is learning, not policy. (Decided with
+  `codexfactory-domain-policy-model.md`.) A Lead-accepted entry lands at
+  authority level `reviewed`; only deliberate domain ratification makes it
+  `domain_authoritative`.
+- **Catalog signing: proportional ceremony.** Adding or removing a practice is
+  a **codex OpenSpec change** (the domain staking its reputation); adjusting a
+  profile's parameters (N days, applicability wording) is a **Lead-accepted
+  recorded change** by the owning Lead.
+- **De-identification: structural schema + Lead attestation.** A promoted
+  `domain_learning` item must fit a pattern-shaped schema (no free-text client
+  fields, no tenant identifiers, no org/repo names) validated mechanically,
+  AND the accepting Lead attests to generalization. Two independent layers;
+  stub below.
 
 ## Possible feats
 
@@ -51,9 +69,26 @@ domain_learning:                 # cross-client, domain-owned
 client_private:                  # the domain may NOT read this
   access: denied
   note: domain learning is generalized, never a copy of a client's private context
-write_authority:
+write_authority:                  # DECIDED 2026-07-22 (§Decided)
   proposer: worker                # a worker proposes a memory entry from evidence
-  accepter: relevant_lead         # e.g. Lead Security accepts a security pattern — OPEN
+  accepter: owning_lead           # per the per-Lead ownership matrix (content doc)
+  ratification: none              # memory is learning, not policy
+```
+
+### De-identification contract (stub)
+
+```yaml
+kind: domain_learning_promotion
+pattern:                          # structural: only these shapes, no free text about a tenant
+  finding_class: <controlled vocabulary>
+  generalized_description: <no tenant ids, org names, repo names, hostnames>
+  occurrence_count: <n>           # aggregated, never per-client enumerable
+  first_seen: <quarter, not date> # coarse time — dates can fingerprint a client
+evidence_refs: []                 # gateway-internal, consent-scoped; NOT copied into the item
+attestation:
+  lead: <owning lead>
+  generalized: true               # the Lead's explicit claim, recorded
+validator: mechanical             # schema check fails closed before the Lead ever sees it
 ```
 
 The key invariant: the domain *learns in general* (a de-identified pattern
@@ -85,6 +120,8 @@ kind: codex_practice_catalog
 practices:
   - id: doc-health-sweep
     capability_ref: doc-health-checker           # promoted spec
+    promoted_in: codexFactory                    # neutral counterpart: openxFactory doc-health
+    owning_lead: lead-quality
     subject_kind: repository
     applicability: holds governed docs with Status headers
     realization: thin caller workflow pinned to the reusable at a released ref; runs green within N days
@@ -92,6 +129,8 @@ practices:
     risk_class: low
   - id: conformance-gate
     capability_ref: conformance-gate              # promoted spec
+    promoted_in: codexFactory                     # codex-local; no neutral counterpart yet
+    owning_lead: lead-quality
     subject_kind: repository
     applicability: is a registered factory repo
     realization: conformance-gate workflow present and passing
@@ -99,6 +138,8 @@ practices:
     risk_class: low
   - id: governed-review-lane
     capability_ref: governed-review-lane          # promoted spec
+    promoted_in: codexFactory                     # codex-local; no neutral counterpart yet
+    owning_lead: lead-integration
     subject_kind: repository
     applicability: opens PRs through the factory
     realization: review lane wired; verdicts recorded as governed review records
@@ -106,6 +147,8 @@ practices:
     risk_class: medium                            # touches review authority
   - id: credential-contracts
     capability_ref: credential-contracts          # promoted spec
+    promoted_in: codexFactory + openxFactory      # both — neutral contract + codex realization
+    owning_lead: lead-security
     subject_kind: repository
     applicability: requires scoped credentials
     realization: credential requirements + bindings declared; no standing prod/deploy capability
@@ -117,6 +160,17 @@ Each profile's `risk_class` and any `credential_implications` feed the client
 policy layer's auto-clear envelope — the higher the risk, the more likely a
 suggestion parks for the human liaison rather than auto-clearing.
 
+Provenance rule (verified 2026-07-22): every `capability_ref` names a real
+promoted spec and `promoted_in` says where — a catalog entry may not claim
+more promotion than exists (a codex-local promotion is a weaker stake than a
+neutral openxFactory one, and the client policy layer may weight it so).
+
+Cost-model wiring: `practice_effectiveness` is exactly the signal the
+efficiency audit produces (`cost-accountability-and-efficiency-model.md`) —
+audit findings about cheaper realizations enter domain memory through the same
+worker-proposes/Lead-accepts gate, and catalog parameter updates they justify
+ride the Lead-accepted path (§Decided).
+
 ## Why these are stored (per the delta principle)
 
 Both pass the store-vs-improvise test (`codexfactory-domain-policy-model.md`)
@@ -127,12 +181,16 @@ generic opinion (catalog). Neither is textbook the model supplies on the fly.
 
 ## Open questions
 
-- **Memory write-authority** — worker-proposes / Lead-accepts, and does a memory
-  entry need ratification like policy, or a lighter evidence bar?
-- **Catalog signing** — is adding a practice a codex OpenSpec change (the domain
-  staking its reputation), matching the "who signs the catalog" question in the
-  suggestion-generation brainstorm?
-- **Practice ownership by Lead** — does each Lead own the adoption profiles in
-  its area (Lead Security owns security-practice profiles, etc.)?
-- **Memory de-identification** — the mechanism that guarantees a promoted
-  `domain_learning` item carries no client-specific residue.
+- ~~**Memory write-authority**~~ — DECIDED 2026-07-22: worker proposes, Lead
+  accepts, no ratification (§Decided).
+- ~~**Catalog signing**~~ — DECIDED 2026-07-22: new/removed practice =
+  OpenSpec change; parameter tweaks = Lead-accepted (§Decided).
+- ~~**Practice ownership by Lead**~~ — answered by the per-Lead ownership
+  matrix in `codexfactory-domain-hermes-content.md`; `owning_lead` is now a
+  catalog field.
+- ~~**Memory de-identification**~~ — DECIDED 2026-07-22: structural schema +
+  Lead attestation (§Decided; stub in §De-identification contract). Still
+  open: the controlled `finding_class` vocabulary.
+- **Neutral counterparts** — conformance-gate and governed-review-lane are
+  codex-local promotions; are they DTN candidates (neutralize the shape so
+  other domains get the same practices)?

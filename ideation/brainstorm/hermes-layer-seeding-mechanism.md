@@ -20,13 +20,39 @@ materialization, digest-pinning, determinism, fail-closed, memory-gateway,
 runtime-records, hermes-install, lifecycle-verb
 Repository context: hermes-install runtime (consumes openxFactory/domain/client/project content)
 Captured: 2026-07-21
+Updated: 2026-07-22 (increment 1 realized; record-shape / compose-site / client-source decisions)
+
+## Decided (2026-07-22)
+
+- **Record shape: generic kernel + specialized views.** One `layer_content`
+  table keyed `(layer_id, content_kind, enforceable_payload, provenance)`;
+  specialized tables/views only where gates need structured queries (the
+  approvals tables already exist and stay). Cheapest to evolve while content
+  kinds are still being authored; increment 2 designs against this.
+- **Compose site: build-time render + seed-time verify.** The overlay stack is
+  rendered deterministically and digest-pinned at build time (like the deploy
+  manifest); the runtime verifies the bundle digest and loads — it never
+  templates. Matches the proven realization flow.
+- **Client/Project source: unified — the wizard writes an overlay.** Wizard and
+  provisioning output is committed as a per-client / per-project overlay
+  document that seeds through the SAME pipeline (pin → digest verify →
+  validate → split). One load path, one evidence trail; no parallel digest
+  discipline for wizard-written trees. Consequence: client/project layers DO
+  eventually get a seedable `overlay_ref`, and their digest pins need a
+  recorded home (still open below).
+- **Increment 1 is DONE.** Realized as hermes-install `add-seed-layer-content`
+  + Speckit `002-seed-layer-content` (merged PR #5, archived
+  `2026-07-22-add-seed-layer-content`). Steps 1–2 + per-kind validation +
+  evidence are now *tested behavior with a capability spec*
+  (`openspec/specs/layer-content-seeding/spec.md`): fail-closed digest verify,
+  fail-closed missing-pin, role→path REFUSE for client/customer, per-layer
+  independence under `--all`, idempotent evidence.
 
 ## Possible feats
 
 - **`seed-layer-content` lifecycle verb** (hermes-install) — increment 1
   (read-only resolve→fetch→verify→validate→evidence, single layer, no compose/
-  materialize) is **proposed**: hermes-install `add-seed-layer-content` +
-  Speckit `002-seed-layer-content`.
+  materialize) is **realized and archived 2026-07-22** (§Decided).
 - **Layer-content record schema** (the materialized enforceable slice).
 - **Deterministic overlay-compose + digest-pin** (reuse the render/pin discipline).
 - **Seeding evidence record** (pins, digests, what materialized) — increment 1
@@ -83,11 +109,14 @@ today but never *recomputes* one (it verifies per-file `file_content_sha256` of
 consumed artifacts); step 2 is the first actual archive-level verify, built
 from the existing digest helpers.
 
-**Increment 1 (proposed)** covers steps 1–2 plus per-kind validation and the
-evidence record, for a **single layer's overlay** — no compose (3), no split/
+**Increment 1 (DONE 2026-07-22)** covers steps 1–2 plus per-kind validation and
+the evidence record, for a **single layer's overlay** — no compose (3), no split/
 materialize/bind (5–7). A layer whose role has no seedable overlay at its pin
 (client/customer today) fails closed per-layer; on the live stack only the
-Domain layer seeds until later increments land.
+Domain layer seeds until later increments land. All of this is now proven by
+the `layer-content-seeding` capability spec and its unit/integration suites
+(`tests/unit/test_seed_layer_content.py`, `test_overlay_content.py`), including
+the throwaway-git-repo `git archive` round-trip.
 
 ## The three destinations
 
@@ -101,6 +130,29 @@ This is the hybrid made concrete: the persona's *authority* (owns/decides/
 escalates + disposition + guardrail) materializes and is enforced; the persona's
 *character frame* stays behind the pin and is read when the agent speaks.
 
+### The enforceable slice, field by field (increment-2 cut list)
+
+Against the record-shape decision (generic kernel + views), the field-level
+map for what actually exists or is drafted today — overlay field → materialized
+record → the gate that reads it:
+
+| Overlay field (source) | `content_kind` in `layer_content` | Read by |
+| --- | --- | --- |
+| `approval_scope_kinds` (domain `overlay.yaml`, exists) | `approval_scope` | approval-request validation: is this scope kind approvable in this layer? |
+| `required_approval_fields` (domain `overlay.yaml`, exists) | `approval_scope` payload | approval-request completeness check |
+| `authority_boundaries.{codex,xfactory,repository}_owns` (domain `overlay.yaml`, exists) | `authority_boundary` | cross-layer binding checks; who-decides disputes park for the liaison |
+| domain policy positions (`hermes/domain/policies/`, to author) | `policy_position` (incl. contested flag + review cadence) | clearance pipeline; stricter-only baseline for client overrides |
+| escalation rules (`escalation-rules.yaml`, to author) | `escalation_rule` | dispatch/parking decisions |
+| persona authority block only — owns/decides/escalates/guardrail (`roles/*.yaml`, to author) | `role_authority` | scope checks on agent actions; NOT the prose (stays behind the pin) |
+| client `policy-overrides.yaml` incl. auto-clear envelope (wizard) | `policy_override` | clearance auto-clear check; stricter-only validated at seed (step 4) |
+| practice-catalog `adoption_profile`s (to author) | `practice_adoption` | nightly sweep / gap auditor |
+| memory-boundaries, consent models | **not records** — gateway bindings (step 7) | retrieval primitives, consent-gated |
+| persona prose, character frames, review-council narrative | **not records** — pinned reference | job-time load (increment 6) |
+
+Everything in the first column that says "to author" is why increment 2 is
+content-starved: the only enforceable fields that exist today are the three
+rows sourced from the 32-line domain stub.
+
 ## Determinism, digest-pinning, re-seed
 
 The composed bundle is digest-pinned (the `parameter_digest` analog); re-seeding
@@ -109,6 +161,19 @@ domain content upgrade) = re-compose + re-seed the enforceable slice — a
 **client-consented pin-range event** (the umbrella's open question resolved this
 way): the client consents to a pin *range*, the domain moves within it, and a
 move outside the range requires fresh consent.
+
+## Seeding order (invariant)
+
+**Domain → Client → Project/Subject, always.** The stricter-only validation of
+a client `policy-overrides.yaml` (step 4) is only meaningful against an
+already-seeded domain baseline, and a project archetype's practice-adoption
+expectations presuppose both. So: a layer whose prerequisite layer is unseeded
+**fails closed with per-layer REFUSED evidence naming the missing
+prerequisite** — never a silent skip, never a reorder. Under `--all` the verb
+seeds in dependency order and a mid-sequence failure still leaves later layers
+REFUSED-with-reason rather than half-seeded. (Increment 1 already proves the
+per-layer REFUSED-while-siblings-seed behavior; the dependency ordering itself
+lands with increment 2, when a second layer first becomes seedable.)
 
 ## Fail-closed
 
@@ -146,24 +211,25 @@ ops tier below it (deploy) and the content overlays above it (govern).
 
 ## Open questions
 
-- **Record shape** — one generic `layer_content` table keyed by (layer_id,
-  content_kind, enforceable_payload, provenance), or specialized tables per kind
-  (policies, escalation, personas-authority, practice-catalog)? (Leaning: a
-  generic kernel + specialized views where gates need structured queries; the
-  approvals tables already exist.)
-- **Compose location** — render the bundle at build time (pre-pinned, like the
-  deploy manifest) or at seed time in-runtime? (Leaning build-time render +
-  seed-time verify, matching the realization flow.)
+- ~~**Record shape**~~ — DECIDED 2026-07-22: generic kernel + specialized views
+  (§Decided). Still open: the exact `enforceable_payload` schema per
+  `content_kind` (the §cut-list table is the draft).
+- ~~**Compose location**~~ — DECIDED 2026-07-22: build-time render + seed-time
+  verify (§Decided). Still open: which repo/step owns the render (the release
+  pipeline? a compose verb in the domain repo?).
 - **Reference-slice loading** — how do agents fetch pinned persona prose at job
   time — a governed read primitive, or a mounted pinned checkout?
 - **Partial re-seed** — can one content kind re-seed (e.g. just the practice
   catalog) without a full layer re-seed?
-- **Seeding order** — domain before client before project (dependencies:
-  stricter-only needs the domain gate present first)?
-- **Client/project overlay source** — client and project content is wizard- and
-  archetype-produced, not repo-overlay-authored; do those layers ever get a
-  seedable `overlay_ref` document, or does seeding for them consume the
-  per-client tree / archetype directly (with its own digest discipline)?
-- **Digest pins for future overlays** — when a client/project overlay does
-  become seedable, where does its `source_archive_sha256` get recorded (the
-  compatibility manifest today covers only the domain overlay + contract repo)?
+- ~~**Seeding order**~~ — DECIDED as an invariant: domain → client → project,
+  REFUSED-not-skip (§Seeding order).
+- ~~**Client/project overlay source**~~ — DECIDED 2026-07-22: unified — the
+  wizard/provisioning commit a per-client/per-project overlay document that
+  seeds through the same pipeline (§Decided).
+- **Digest pins for wizard-written overlays** — now consequential given the
+  unified decision: when the wizard commits a client overlay, where does its
+  `source_archive_sha256` get recorded, and who signs it? (The compatibility
+  manifest today covers only the domain overlay + contract repo; a per-client
+  pin block or a client-consent record are the candidates.)
+- **Re-pin range recording** — where the client's consented pin *range* lives
+  and is enforced (compatibility manifest vs. consent record) — increment 5.

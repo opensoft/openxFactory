@@ -17,6 +17,24 @@ escalation-rules, review-councils, gate-rules-council, merge-readiness-council,
 deliberation, plane-3
 Repository context: openxFactory (targets codexFactory hermes/domain/{agent-mixes,escalation-rules}.yaml + review-councils/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (two-tier councils; enumerated triggers; roster governance; distinct-councils confirmed)
+
+## Decided (2026-07-22)
+
+- **Two council tiers, enumerated triggers.** `deliberative_council` splits
+  into `council_small` (flagship default — a few seats, cheap) and
+  `council_large` (full bench), convened by a **declared trigger list** per
+  mix, not a numeric risk score (checkable, no fake precision; revisit scoring
+  once council history exists to calibrate against). Mirrors the roster-draft
+  decision.
+- **Panel roster changes are Lead-accepted recorded events.** Changing
+  `REVIEW_MODELS` is proposed by whoever, accepted by the owning persona (Lead
+  Quality for the review lane), and recorded as evidence — the same weight as
+  memory writes, lighter than policy ratification.
+- **The two councils are permanently distinct.** Merge-readiness (per-PR,
+  domain-only) never absorbs gate-rules (per-repo, cross-layer + human ack).
+  Rationale, one line: **a body that sets the rules must not also apply
+  them.**
 
 ## Possible feats
 
@@ -45,22 +63,65 @@ mixes:
   - id: scored_vote
     mode: scored_vote
     description: panelists score against a rubric; weighted/threshold vote
-  - id: deliberative_council
+  - id: council_small               # flagship default — a few seats, cheap
     mode: deliberative_council
-    description: panelists deliberate to a single reasoned recommendation for a decider
+    seats: 3
+    description: small bench deliberates to a single reasoned recommendation
+  - id: council_large               # full bench — convened only on declared triggers
+    mode: deliberative_council
+    seats: full_bench
+    triggers:                       # enumerated, checkable — never a computed score
+      - security_ambiguity_parked   # LS has already parked; council deliberates the parked item
+      - standard_contested
+      - architecture_commitment     # hard-to-reverse design commitments
+      - gate_weakening_change       # any change that would weaken a gate
+      - spend_over_envelope         # cost-accountability hook
 usage:                              # which decider convenes which mix, and when
-  - {persona: lead-architect, convenes: deliberative_council, when: architecture_ambiguity}
-  - {persona: lead-security,  convenes: deliberative_council, when: security_ambiguity}
-  - {persona: lead-quality,   convenes: deliberative_council, when: standard_contested}
-  - {persona: "*",            convenes: panel_synthesis,      when: routine_review}
+  - {persona: lead-architect, convenes: council_small, when: architecture_ambiguity}
+  - {persona: lead-architect, convenes: council_large, when: architecture_commitment}
+  - {persona: lead-security,  convenes: council_large, when: security_ambiguity_parked}  # park FIRST (roster escalation audit), deliberate after
+  - {persona: lead-quality,   convenes: council_large, when: standard_contested}
+  - {persona: "*",            convenes: panel_synthesis, when: routine_review}
 guardrails:
   advisory_only: true               # MoA advises; Hermes decides; openxFactory enforces
   context_via: governed_context_packet
   no_standing_credentials: true
+  roster_change: lead_accepted_recorded   # REVIEW_MODELS change = Lead Quality accepts + evidence record
 ```
 
-Note the cost/rigor tradeoff (open question): flagship deciders convene a
-`deliberative_council` only above a risk threshold, not on every call.
+The cost/rigor tradeoff is now structural: small council by default,
+large council only on the declared triggers (decided 2026-07-22, with the
+roster draft). A council convening is itself a **spend event** — it clocks in
+like any worker action (`cost-accountability-and-efficiency-model.md`), so
+habitual large-council convening shows up in the efficiency audit.
+
+### Council failure semantics (fail closed, never drift)
+
+- **Split vote / no consensus:** the council's output is `split` and the item
+  **parks for the human liaison** — the convening persona may NOT break the
+  tie by fiat (that would silently turn an advisory body into a decider).
+- **Missing seat:** a council convened without a required seat is REFUSED —
+  it never proceeds with defaults. A gate-rules council without its client
+  seat cannot set rules for that repo.
+- **Advisory boundary:** a council output is always a *recommendation*; the
+  convening persona's decision record must name the recommendation it
+  accepted or rejected (rejecting is allowed, silently ignoring is not).
+
+### The governed context packet (stub)
+
+Named in the guardrails, defined nowhere — minimal fields:
+
+```yaml
+kind: governed_context_packet
+scope_ref: <approved_scope_ref>          # what this deliberation is about
+content_refs: [<git+repo@rev#path>...]   # pinned reference slices (never raw dumps)
+memory_grants: [<gateway consent-scoped read grants>]
+spend_budget: {credits: <n>, hard: true} # clock-in integration
+emitted_by: <convening persona>
+```
+
+The packet is how "no standing credentials" and consent-gated memory stay true
+inside an ensemble: panelists see the packet, not the world.
 
 ## Escalation rules
 
@@ -135,11 +196,16 @@ merge-readiness council is the per-PR body whose verdict the deciders act on.
 
 ## Open questions
 
-- **Deliberation threshold** — the risk level above which a flagship convenes a
-  `deliberative_council` vs. accepting a `panel_synthesis` verdict.
-- **Panel roster governance** — the ensemble roster is config (`REVIEW_MODELS`);
-  is changing it a domain-ratified event, or free operational config?
-- **Gate-rules council seats** — exact client/project seat definitions, and
-  whether the human step is ever escalated to approval for high-risk repos.
-- **Merge-readiness vs. gate-rules overlap** — confirm the two councils never
-  collapse into one in practice.
+- ~~**Deliberation threshold**~~ — DECIDED 2026-07-22: two tiers with an
+  enumerated trigger list (§Decided; trigger list drafted in the mixes YAML).
+  Still open: whether `spend_over_envelope`'s envelope value is domain policy
+  or per-client.
+- ~~**Panel roster governance**~~ — DECIDED 2026-07-22: Lead-accepted recorded
+  change (§Decided).
+- **Gate-rules council seats** — exact client/project seat definitions (the
+  human step is decided: acknowledgement — content doc §Decided).
+- ~~**Merge-readiness vs. gate-rules overlap**~~ — CONFIRMED distinct,
+  permanently (§Decided).
+- **Council seat sourcing** — for `council_small`, which 3 seats? Fixed per
+  convening persona, or drawn by the trigger kind (e.g. security trigger
+  always seats LS)?

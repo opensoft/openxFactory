@@ -19,6 +19,22 @@ review-council, practice-catalog, omnigent-separation, moa-advisory,
 layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/ + omnigent/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (Plane-3 / human-step / scrum-boundary decisions; harvest map, practice matrix, exit path)
+
+## Decided (2026-07-22)
+
+- **Plane-3 home: split.** The MoA mix *profile* is governed domain content in
+  `hermes/domain/agent-mixes.yaml`; the ensemble *execution* stays in the
+  Omnigent install. Same advises/decides seam as the mantra.
+- **Gate-Rules Council human step: acknowledgement.** A non-blocking "here are
+  the gate rules for your project" notice the human registers — not a formal
+  approval. (If a later rule change would *weaken* a gate, escalation semantics
+  can be revisited; the default is acknowledgement.)
+- **Scrum boundary: the changes-vs-operates test.** Anything that *changes how
+  the team works* (cadence, WIP limits, ceremony definitions, process policy)
+  is a Scrum Coordinator decision (domain persona); anything that *operates the
+  current process* (scheduling, board updates, tracking, reminders) is the
+  Scrum Master worker (Omnigent). Edge cases park with the Coordinator.
 
 ## Possible feats
 
@@ -71,6 +87,50 @@ owns"); today only `overlay.yaml` exists.
 | `memory-boundaries.yaml` *(new)* | domain cross-client learning vs. client-private | `codexfactory-domain-memory-and-practices.md` |
 | `escalation-rules.yaml` *(new)* | elevate the `routing:` + `stop_conditions:` | `codexfactory-domain-deliberation.md` |
 | practice catalog *(new)* | `adoption_profile`s over promoted capabilities | `codexfactory-domain-memory-and-practices.md` |
+
+## Harvest map (source → target, verified 2026-07-22)
+
+The "exists but scattered" claim, made checkable — each target file, its actual
+source artifacts in the codexFactory tree, and how the content moves:
+
+| Target (`hermes/domain/`) | Source artifact(s) | Move |
+| --- | --- | --- |
+| `overlay.yaml` | itself (32 lines, live) | **keep**; tighten once the neutral schema lands |
+| `roles/*.yaml` | `docs/engineering-roles-and-authority.md` (prose authority tables) + `codexfactory-domain-roster-draft.md` (persona objects) + Option E character model | **transform** — prose → persona objects; authority block is the enforceable slice |
+| `policies/` | `docs/engineering-xfactory-domain.md`, `docs/engineering-omnigent-constitution.md`, `docs/engineering-worker-model.md`, `docs/spec-kit-engineering-flow.md` + the filled position table in `codexfactory-domain-policy-model.md` | **transform** — store-the-delta filter: only the binding positions move; the textbook prose stays behind |
+| `review-councils/merge-readiness.yaml` | `docs/pr-admission-merge-readiness.md` (NOT a `merge-council.md` — none exists) | **transform** |
+| `review-councils/gate-rules-seat.yaml` | none — the Gate-Rules Council is new (§Merge Master reframe); `scripts/merge_master/envelope.py` is the enforcement artifact the council's output feeds | **author new** |
+| `agent-mixes.yaml` | `profiles/software-team.yaml` (ensemble shape) + the review-lane ensemble config | **transform** — declare as MoA profiles; execution stays Omnigent (§Decided) |
+| `escalation-rules.yaml` | `omnigent/domain-overlay.yaml` `routing:` (~L157) + `stop_conditions:` (~L165) | **transform** — remap onto roster personas |
+| `memory-boundaries.yaml` | none (gateway vocabulary exists; no domain instance) | **author new** |
+| practice catalog | promoted openxFactory capabilities (below) + adoption-profile shape from `codexfactory-domain-memory-and-practices.md` | **author new** (structure), harvesting capability names |
+
+Rows with no source are the genuine voids: the Gate-Rules Council seat, domain
+memory boundaries, and the practice catalog structure. Everything else is
+consolidation.
+
+## Per-Lead practice ownership (draft answer to the ownership question)
+
+Each Lead owns the adoption profiles in their area — drafted against the
+capabilities promoted in openxFactory as of 2026-07-22:
+
+| Capability (promoted) | Owning Lead |
+| --- | --- |
+| doc-health | Lead Quality |
+| document-lifecycle, document-cataloging | Lead Quality |
+| workflow-gate-contract | Lead Integration |
+| release-realization | Lead Release |
+| credential-contracts | Lead Security |
+| repo-boundary-governance | Lead Security |
+| neutral-job-envelope | Lead Engineer |
+| roles-authority-model | Lead / Chief Architect |
+| shared-contract-ownership | Lead / Chief Architect |
+| memory-gateway (consumption practices) | Scrum Coordinator? — no natural Lead; candidate roster-gap signal |
+
+Rule this table encodes: **a promoted capability with no natural owning Lead is
+a roster-gap test**, not something to force-fit. The catalog is signed
+per-profile by its owning Lead; the catalog *as a whole* is a domain
+ratification (the "who signs" question in the memory-and-practices doc).
 
 ## The Plane-1 roster (domain deciders + coordinator)
 
@@ -129,23 +189,39 @@ domain layer. The seven personas are drafted under that model in
 
 ## Open questions
 
-- **Plane 3 (MoA advisory) home.** The mix *profile* declaration fits
-  `hermes/domain/agent-mixes.yaml` (Hermes domain), while the ensemble
-  *execution* (`review_lane/ensemble.py`) is Omnigent. Split profile-vs-execution,
-  or pick one home? (Leaning: profile in Hermes, execution in Omnigent — same
-  advises/decides seam as the mantra.)
-- **Gate-Rules Council composition + the human step.** Exactly who sits from each
-  layer, and is the human step acknowledgement-of-notice or approval? (User leans
-  acknowledgement.)
-- **Scrum Coordinator vs. Scrum Master boundary.** Where precisely does
-  "decides process/cadence" (domain) end and "runs the ceremonies" (omnigent)
-  begin?
+- ~~**Plane 3 (MoA advisory) home**~~ — DECIDED 2026-07-22: split — profile in
+  `hermes/domain/agent-mixes.yaml`, execution in Omnigent (§Decided).
+- **Gate-Rules Council composition.** The human step is DECIDED
+  (acknowledgement, §Decided); still open: exactly who sits from each layer.
+- ~~**Scrum Coordinator vs. Scrum Master boundary**~~ — DECIDED 2026-07-22:
+  the changes-vs-operates test (§Decided).
 - **Roster completeness.** The domain decider set is now seven Leads (incl. Lead
   Release) + Scrum Coordinator. A project-layer **documentation help/manual
   writer** was raised — captured as a project-roster item (likely a Plane-2
-  worker), separate from this domain workstream.
-- **Practice-catalog ownership vs. the roster.** Does each Lead own the practices
-  in its area (e.g. Lead Security owns security-practice adoption profiles)?
+  worker), separate from this domain workstream. The §practice-ownership table
+  adds one signal: memory-gateway consumption practices have no natural owning
+  Lead.
+- **Practice-catalog ownership vs. the roster.** Structurally answered by the
+  §Per-Lead practice ownership draft (each Lead owns their area; unowned
+  capability = roster-gap test); the table itself still needs domain
+  ratification.
 - **Neutral `hermes_domain_overlay` schema.** Author it in openxFactory (with a
   machine-readable `overlay_path`) so every domain's overlay validates the same
   way — the seeding increment currently ships only a structural check.
+
+## Exit path (concrete changes this cluster becomes)
+
+1. **codexFactory OpenSpec increment A — `roles/` + `policies/`.** The
+   enforceable-slice sources (persona authority blocks, binding policy
+   positions). This is what the runtime's seeding increment 2 is starved for —
+   highest leverage, propose first. Harvest per the §Harvest map.
+2. **codexFactory OpenSpec increment B — councils + mixes + escalation +
+   memory boundaries.** `review-councils/`, `agent-mixes.yaml`,
+   `escalation-rules.yaml`, `memory-boundaries.yaml`, and the practice catalog
+   skeleton with the §ownership table.
+3. **openxFactory change — neutral `hermes_domain_overlay` schema** + a
+   machine-readable per-pin `overlay_path`, replacing the runtime's minimal
+   structural check. Independent of A/B; unblocks every other domain.
+
+Sequencing: A → (B ∥ 3); the hermes-install materialization increment
+(seeding increment 2) proposes against A's landed content.

@@ -18,6 +18,28 @@ per-client, policy-wizard, client-infrastructure-liaison, offer-shapes,
 plane-1, plane-2, layer-content-seeding
 Repository context: openxFactory (targets openxFactory client-layer template + codexFactory hermes/client/ + hermes-install config/clients/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (roles/ + facts-rule + liaison decisions; seeding path synced; steward table + accounting gap)
+
+## Decided (2026-07-22)
+
+- **`roles/` is added to the client shape.** The house team gets a `roles/`
+  dir by domain analogy; the prescribed model doc
+  (`xfactory-domain-factory-model.md`) is updated to include it — the same
+  reconciliation pass that renames `customer/` → `subject/` (umbrella
+  §Decided).
+- **The facts rule (domain-default vs. wizard-only).** A policy value may be a
+  domain default iff it is justifiable for *any* engineering organization;
+  anything naming a **client-specific fact** (a person, a system, a ceiling
+  value) is wizard-only, always. Domain defaults are suggestions the wizard
+  confirms — never pre-filled client facts.
+- **The liaison is a convened capability, not a member.** It is composed from
+  stewards, `configured_but_inactive`, never standing — the house team
+  *activates* it through its gate; it holds no seat. Plane 1 is therefore
+  **9 deciders + 1 convened capability**, not 10 members.
+- **How client content seeds — decided with the mechanism doc:** the wizard's
+  output is committed as a per-client overlay document that seeds through the
+  SAME pipeline (pin → digest verify → validate → split). Still open there:
+  where the wizard-written overlay's digest pin is recorded and who signs it.
 
 ## Possible feats
 
@@ -123,6 +145,41 @@ is set, everything parks for the human liaison, so an un-tuned client is safe.
 Re-running the wizard is idempotent re-tuning; the liaison's accreted
 dispositions are candidate inputs for the next pass.
 
+**The facts rule (decided, §Decided) governs every wizard question:** if the
+answer would be true for any engineering organization, it belongs in the
+domain's `hermes/client/policy-overrides.yaml` as a default the wizard merely
+confirms; the moment an answer names a client-specific fact — an approver, a
+system, a spend number — it is wizard-only and lives exclusively in
+`config/clients/<client>/`.
+
+## Steward direction (Plane 1 → Plane 2) and the accounting gap
+
+Count correction: the neutral scaffold defines **19** steward agents, not 18.
+Draft direction map (mirrors the domain's worker-coverage table; the stewards
+live in a **client Omnigent overlay — to be created**, with the same
+bidirectional seed-checked references and the same clock-in duty from
+`cost-accountability-and-efficiency-model.md`):
+
+| House-team decider | Directs (stewards) |
+| --- | --- |
+| Company Policy Lead | policy_approval_gatekeeper, workflow_definition_agent, practice_gap_auditor, client_profile_steward |
+| Change Approvals Authority | policy_approval_gatekeeper (approval-packet leg) |
+| Legal & Compliance Counsel | consent_adoption_gatekeeper, client_memory_steward |
+| Reputation & Brand Steward | — none; **undirected by design or a steward gap — verify** |
+| Product Liability & Insurance Officer | exception_dispute_agent |
+| Client Security & Compliance Officer | integration_credential_steward (posture leg) |
+| Integrations & Credentials Steward | integration_credential_steward, source_inventory_agent, migration_planner_agent |
+| Delivery & SLA Lead | fulfillment_delivery_coordinator, intake_and_triage_agent, configure_quote_scope_agent, staff_capability_routing_agent, quality_outcome_monitor, offer_catalog_steward? |
+| Customer & Communications Lead | customer_relationship_steward, communication_handoff_agent, renewal_expansion_retention_agent |
+
+**The accounting gap (finding, 2026-07-22):** the cost-accountability model
+requires the tenant layer to run **reporting-to-accounting** (company-wide
+cost tracking) and to **set the tracking granularity the subject layer must
+honor** — and *no* house-team persona or steward owns that today. Candidates:
+a new **Finance & Accounting Officer** persona (+ a `cost_reporting_steward`
+worker), or growing Delivery & SLA Lead's scope. Carried to
+`client-layer-roster-draft.md` as a roster-gap item.
+
 ## The scaffold, listed
 
 ```text
@@ -154,18 +211,23 @@ CLIENT (COMPANY POLICY) LAYER
 
 ## Open questions
 
-- **`roles/` vs. prescribed shape** — the prescribed client shape omits `roles/`;
-  add it (domain analogy) or fold the house team into `template.yaml`?
-- **Domain-default vs. client-tuned split** — which client policy is a domain
-  *default* (in codexFactory `hermes/client/`) vs. purely wizard-loaded per client?
-- **Steward-worker home** — do the 18 stewards live in the client's Omnigent
-  overlay (like the domain workers), and does that overlay exist yet?
-- **Liaison as persona vs. profile** — the liaison is a composed coordination
-  profile; is it a house-team "member" or a capability the house team convenes?
-- **How client content seeds** — the registered client layer's `overlay_ref`
-  points at the openxFactory contract pin (the neutral scaffold), which is not a
-  seedable overlay document; the substance lives in the wizard-written
-  `config/clients/<client>/` tree. Does `seed-layer-content` for the client role
-  consume that tree directly (with its own digest discipline), or does the
-  wizard's output get packaged into a pinned overlay? (Cross-link:
-  `hermes-layer-seeding-mechanism.md` open questions.)
+- ~~**`roles/` vs. prescribed shape**~~ — DECIDED 2026-07-22: add `roles/`;
+  update the prescribed model doc in the same pass as the `subject/` rename
+  (§Decided).
+- ~~**Domain-default vs. client-tuned split**~~ — DECIDED 2026-07-22: the
+  facts rule (§Decided).
+- **Steward-worker home** — the direction table assumes a **client Omnigent
+  overlay** (like the domain workers); that overlay does not exist yet and is
+  a prerequisite for the stewards being real. Also: scaffold count is 19, not
+  18 — reconcile the label.
+- ~~**Liaison as persona vs. profile**~~ — DECIDED 2026-07-22: convened
+  capability, not a member; Plane 1 = 9 deciders + 1 capability (§Decided).
+- ~~**How client content seeds**~~ — DECIDED 2026-07-22 with
+  `hermes-layer-seeding-mechanism.md`: unified — the wizard commits a
+  per-client overlay that seeds through the same pipeline (§Decided).
+- ~~**The accounting gap**~~ — DECIDED 2026-07-22: a new **Finance &
+  Accounting Officer** persona + `cost_reporting_steward` worker (drafted in
+  `client-layer-roster-draft.md` §11); the steward must be added to the
+  neutral scaffold's roster.
+- **Reputation & Brand Steward's hands** — the only decider with no directed
+  steward; confirm undirected-by-design or add a steward.

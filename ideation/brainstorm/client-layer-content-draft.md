@@ -16,6 +16,23 @@ integration-boundaries, auto-clear-envelope, store-the-delta, per-tenant-memory,
 credential-references, client-layer
 Repository context: openxFactory (targets codexFactory hermes/client/ defaults + hermes-install config/clients/<client>/)
 Captured: 2026-07-21
+Updated: 2026-07-22 (stricter-only mechanics + envelope ratification + memory-seam decisions; cost wiring; validator package)
+
+## Decided (2026-07-22)
+
+- **Stricter-only: mechanical + review fallback.** Fields with defined
+  comparison semantics (§Comparability spec) are checked mechanically at seed
+  time (pipeline step 4), fail-closed; fields with no natural partial order
+  **park for review** — never a silent pass.
+- **Envelope authorship: wizard drafts, human ratifies.** The wizard composes
+  the conjunctive envelope from answers; the responsible operator explicitly
+  ratifies it before anything auto-clears. The envelope is the single riskiest
+  artifact the wizard writes — it never activates un-ratified.
+- **Customer-memory seam confirmed.** The client's
+  `customer_relationship_memory` holds the *operator's* view (account,
+  entitlement, relationship); the Customer/Subject layer holds the *subject's
+  own* view (its state, its consent). Two records, never merged storage;
+  cross-referencing only through governed gateway reads.
 
 ## Possible feats
 
@@ -47,9 +64,13 @@ policy:
   credential_posture:
     allowed_families: [repo_read, branch_write, pr_write]
     never_standing: [production, deploy, package_publish]
-  spend_ceilings:
+  budget_envelopes:                      # FAO-owned (client-layer-roster-draft §11)
     runner_minutes_per_day: <n>
     hosted_compute: <cap>
+    credits_per_project: <n>             # clock-in ledger rolls up against these
+  tracking_granularity:                  # the contract the subject layer must honor
+    level: per_task | per_job | per_worker_run   # cost-accountability-and-efficiency-model.md
+    set_by: finance-accounting-officer
   security_posture:
     new_external_call: requires_csc_clearance
     new_foreign_input_trigger: requires_csc_clearance
@@ -128,6 +149,33 @@ grant_readiness:
   requires: [named_binding, approval_authority, out_of_band_recovery_path]
 ```
 
+## Comparability spec (what "stricter" means, per field)
+
+The mechanical half of the stricter-only decision — comparison semantics per
+field class; anything not listed here parks for review:
+
+| Field class | Stricter means | Check |
+| --- | --- | --- |
+| allowlists (`may_touch`, `allowed_families`, `allowed_classes`) | client set ⊆ domain set | subset |
+| denylists (`never_touch`, `never_standing`, `standing_forbidden`) | client set ⊇ domain set | superset |
+| numeric ceilings (`budget_envelopes.*`) | client value ≤ domain default | ≤ |
+| numeric floors (coverage new-code threshold) | client value ≥ domain floor | ≥ |
+| clearance requirements (`requires_csc_clearance`, approvers) | client may add required approvals, never remove | add-only |
+| auto-clear envelope (`conjunctive`) | client may ADD conjuncts or tighten one, never remove or loosen | conjunctive-add-only |
+| enums with a declared order (`realization: pr_only` > direct) | client at or above the domain's rung | ordered |
+| free-text / structural fields (escalation_path ordering, …) | **no partial order — park for review** | review |
+
+## Validator work package (the exit for the coverage gap)
+
+One package, consumed twice: JSON-schemas for the new kinds
+(`client_policy_overrides`, `client_memory_boundaries`,
+`client_integration_boundaries`, plus the wizard outputs `operating-policy`,
+`approval-matrix`, `integration-map`) and a `validate-client-content` check
+implementing the §Comparability spec. The **wizard** runs it at write time and
+the **seeder** runs the same check at step 4 — one implementation, two
+enforcement points, so the wizard can never write what the seeder would
+reject.
+
 ## Why these are stored (store-the-delta)
 
 All three are the client's *specific choices* — its repo allowlist, its
@@ -139,16 +187,16 @@ policy model, drawn for the client.
 
 ## Open questions
 
-- **Stricter-only enforcement** — is `relation_to_domain: stricter_only` checked
-  mechanically (diff the client gate against the domain gate) or by review?
+- ~~**Stricter-only enforcement**~~ — DECIDED 2026-07-22: mechanical + review
+  fallback (§Decided; semantics in §Comparability spec).
 - **Default aggressiveness** — how conservative are the domain-shipped defaults
-  before they become friction (everything parking) vs. risk (auto-clearing too much)?
-- **Envelope authorship** — is the auto-clear envelope fully wizard-generated, or
-  does it always require a human ratification of the conjunctive conditions?
-- **Customer memory vs. Customer layer** — `customer_relationship_memory` here vs.
-  the Customer/Project layer's own memory — confirm the boundary (client holds
-  the *operator's* view of the customer; the customer layer holds the subject's).
-- **Validator coverage** — the new per-client shapes (`operating-policy`,
-  `approval-matrix`, `integration-map`) have no validator yet;
-  `validate-client-infrastructure.py` covers only the infrastructure records.
-  Each new kind needs a schema + check before the wizard's output can be trusted.
+  before they become friction (everything parking) vs. risk (auto-clearing too
+  much)? The envelope-ratification decision softens the stakes: nothing
+  auto-clears un-ratified regardless of defaults.
+- ~~**Envelope authorship**~~ — DECIDED 2026-07-22: wizard drafts, human
+  ratifies, always (§Decided).
+- ~~**Customer memory vs. Customer layer**~~ — CONFIRMED 2026-07-22:
+  operator's view vs. subject's view, never merged (§Decided).
+- ~~**Validator coverage**~~ — scoped as the §Validator work package: one
+  implementation, enforced at wizard write time and seeder step 4. Still
+  open: which repo hosts the schemas (openxFactory contracts, as usual?).

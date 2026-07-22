@@ -23,14 +23,41 @@ overlay-ref, provision-project, client-policy-wizard, project-type-templates,
 hermes-install-core, composition-overlay-stack, openworkflow-lineage
 Repository context: openxFactory (spans codexFactory + installs/hermes-install)
 Captured: 2026-07-21
+Updated: 2026-07-22 (increment 1 realized; seam/naming/re-pin decisions recorded)
+
+## Decided (2026-07-22)
+
+- **Central seam: HYBRID — decided.** Materialize the *enforceable* slice
+  (policy envelopes, boundaries, consent models) into runtime records; keep
+  *reference* content (persona text, role prose) behind the pin; memory goes
+  through the ratified gateway, never a parallel store. Increment 1 was built
+  on this assumption and is realized (below); the §Central seam section keeps
+  the full argument.
+- **Naming: `subject/` wins.** codexFactory's `hermes/subject/` is the truer
+  word (the subject ranges from a patient to a repo); the prescribed model in
+  `openxFactory/docs/xfactory-domain-factory-model.md` is to be updated from
+  `customer/` → `subject/`, not the other way around. Paths in this doc are
+  written `subject/` accordingly. (The runtime's Customer *layer role* label is
+  a separate, already-canonical concept — this decision is about the domain
+  repo's content directory name.)
+- **Domain re-pin consent: pin-range model — decided.** The client consents to
+  a *pin range* for the Domain overlay; the domain re-pins freely within it;
+  changing the range itself is a client-consented event. Where ranges are
+  recorded is still open (seeding-mechanism doc).
+- **Increment 1 (read-only load) is DONE, not proposed.** Realized as
+  hermes-install change `add-seed-layer-content` + Speckit `002-seed-layer-content`,
+  merged (PR #5), gates green, archived
+  `openspec/changes/archive/2026-07-22-add-seed-layer-content`; capability spec
+  at `openspec/specs/layer-content-seeding/spec.md`.
 
 ## Possible feats
 
 - **Layer content loader** — a `seed-layer-content` runtime verb that fetches,
   validates, and (per the seam decision) materializes the pinned `overlay_ref`
   content into the live stack after `register-stack`. Detailed in
-  `hermes-layer-seeding-mechanism.md`; increment 1 (read-only load) is proposed
-  as hermes-install `add-seed-layer-content` + Speckit `002-seed-layer-content`.
+  `hermes-layer-seeding-mechanism.md`; increment 1 (read-only load) is
+  **realized and archived 2026-07-22** (hermes-install `add-seed-layer-content`
+  + Speckit `002-seed-layer-content`); increments 2+ in §Increment roadmap.
 - **Domain Hermes content authoring (codexFactory)** — fill `hermes/domain/`
   (persona/system-frame, `roles/`, `policies/`, `review-councils/`,
   `memory-boundaries.yaml`, `escalation-rules.yaml`, `agent-mixes.yaml`) and the
@@ -41,7 +68,7 @@ Captured: 2026-07-21
   scaffold into a real per-client policy set + the auto-clear envelope, written
   to `config/clients/<client>/`.
 - **Project-type template library** — codexFactory-owned archetypes
-  (`hermes/customer/templates/<type>.yaml`) selected at `provision-project`, with
+  (`hermes/subject/templates/<type>.yaml`) selected at `provision-project`, with
   a neutral schema in openxFactory.
 - **Neutral layer-content + project-template schemas** — the openxFactory
   contract shapes that keep every domain's layer content legible to the client
@@ -80,6 +107,26 @@ loader needs a role→overlay-path convention (domain:
 `hermes/domain/overlay.yaml`). Consequence: the Domain layer is the only role
 with first-class seedable overlay content today; client and project content
 arrive by the wizard and archetype paths below.
+
+## Seeding readiness by layer (as of 2026-07-22)
+
+What each layer role has and lacks before it can seed — the entry criteria the
+staging split inherits:
+
+| Readiness | Domain (codexFactory) | Client | Project/Subject |
+| --- | --- | --- | --- |
+| Seedable `overlay_ref` | ✅ `git+codexFactory@<rev>` | ❌ points at the neutral contract pin, not a seedable overlay | ❌ same |
+| Digest pin recorded | ✅ compatibility manifest `domain_overlays[]` | ✅ `contract_repository` (but nothing seedable behind it) | ✅ same |
+| Role→overlay-path rule | ✅ `hermes/domain/overlay.yaml` | ❌ none — seeding REFUSEs by design | ❌ none |
+| Schema / validator | ⚠️ runtime minimal structural check only; no neutral `hermes_domain_overlay` contract | ❌ wizard output shapes have no validators | ❌ no archetype schema |
+| Content | ⚠️ 32-line structural stub; `roles/` `policies/` `review-councils/` etc. empty | ⚠️ scaffold labels, no policy text; arrives via wizard | ⚠️ `subject/template.yaml` stub; arrives via archetype at `provision-project` |
+| Runtime load path | ✅ increment 1 (read-only) live | ❌ arrival path is the wizard, not the seeder — see open question | ❌ arrival path is `provision-project` + archetype |
+
+Reading: the Domain column is plumbing-complete and content-empty — authoring
+`hermes/domain/` is the highest-leverage next act. The Client and Subject
+columns fail at the first row: whether they ever get a seedable `overlay_ref`
+(vs. their content arriving only by wizard/provisioning writes) is an open
+question in `hermes-layer-seeding-mechanism.md`.
 
 ## Two axes: composition vs. runtime content loading
 
@@ -163,9 +210,9 @@ hermes/
 ```
 
 codexFactory ships only the stubs: `hermes/domain/overlay.yaml`,
-`hermes/client/template.yaml`, `hermes/subject/template.yaml` (naming skew:
-`subject/` vs the prescribed `customer/` — flag against review §A1's layer-name
-collision warning). The `roles/`, `policies/`, `review-councils/`,
+`hermes/client/template.yaml`, `hermes/subject/template.yaml` (naming skew
+resolved 2026-07-22: `subject/` wins; the prescribed model doc is to be updated
+from `customer/` — see §Decided). The `roles/`, `policies/`, `review-councils/`,
 `memory-boundaries.yaml`, `escalation-rules.yaml`, `agent-mixes.yaml`, and the
 whole `customer/` tree are **empty**. This brainstorm is largely "fill those
 files with real content and wire a loader," aligned with the draft model rather
@@ -246,7 +293,7 @@ default practices, workflow selection, and memory/consent posture.
   workflow selections, memory boundaries, consent model.
 - **Ownership:** project *types* are domain knowledge (a "microservice repo" is
   a Software-Engineering concept), so the library is **codexFactory-owned**
-  under `hermes/customer/templates/<type>.yaml`, with the neutral *schema* in
+  under `hermes/subject/templates/<type>.yaml`, with the neutral *schema* in
   openxFactory (same split the practice brainstorm uses: domain owns the
   catalog, openxFactory owns the shape). This keeps every domain's project
   templates legible to the client policy layer.
@@ -326,6 +373,25 @@ all versus leaving it to the model on the fly — is worked out in
 boundaries, staked positions, learning), improvise the textbook. Same line,
 drawn once.
 
+## Increment roadmap (the seam, sequenced)
+
+The hybrid decision decomposes into increments; each is gated on a decision,
+not just on the previous increment's code:
+
+| # | Increment | Gated on | Status |
+| --- | --- | --- | --- |
+| 1 | **Read-only load path** — `seed-layer-content` verb: resolve pin → fetch → fail-closed digest verify → validate → evidence | — | **DONE 2026-07-22** (`archive/2026-07-22-add-seed-layer-content`) |
+| 2 | **Materialize the enforceable slice** into runtime records | record-shape decision (generic content table vs. per-kind tables); *which* fields are enforceable (policy envelopes, boundaries, consent models) — and real domain content to materialize | next |
+| 3 | **Memory-gateway binding** — seed initial memory boundaries/priors via gateway vocabulary | the runtime has no memory table; must land as gateway bindings, never a parallel store | after 2 |
+| 4 | **Overlay-stack composition** — compose Core → xFactory → domain → client → project instead of single-layer load | compose-at-build vs. compose-at-seed; whether Client/Subject ever get a seedable `overlay_ref` | after 2 |
+| 5 | **Re-pin / pin-range consent flow** | model decided (pin range, above); where ranges are recorded is open | after 2 |
+| 6 | **Job-time loading of the reference slice** — agents read persona/prose at job time via the pin | role→path conventions beyond `overlay.yaml`; retrieval surface | parallel to 3–5 |
+
+Increment 2 is the critical path — and it is content-starved, not
+code-starved: with only a 32-line domain stub there is nothing enforceable to
+materialize. Author `hermes/domain/` first (the domain-content-authoring
+staging topic), then cut increment 2 against real content.
+
 ## Where it lives (answering "hermes-install or a codexFactory overlay?")
 
 Both — split by ownership, which the layer model already dictates:
@@ -335,7 +401,7 @@ Both — split by ownership, which the layer model already dictates:
 | Domain content (persona, roles, policies, practice catalog) | codexFactory `hermes/domain/` | install-invariant, domain-owned; shipped by pin |
 | Neutral client scaffold + schemas | openxFactory `templates/client-layer/` + contracts | domain-neutral defaults; one shape for all |
 | Client policy wizard + resulting client tree | hermes-install (runtime) + `config/clients/<client>/` | install-time act; per-client instantiation |
-| Project-type template library | codexFactory `hermes/customer/templates/` (schema in openxFactory) | domain knowledge; neutral shape |
+| Project-type template library | codexFactory `hermes/subject/templates/` (schema in openxFactory) | domain knowledge; neutral shape |
 | The seeding/loading mechanism | hermes-install (runtime) | the runtime is what materializes content into the live stack |
 | Ops/deploy/backup/DR plumbing | `Hermes-Install-Core` (once wired) | generic single-Hermes operational engine, shared by all tenant installs (Axis A base tier) |
 
@@ -351,8 +417,10 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
    pure content, ratified in codexFactory.
 2. **Seed it read-only:** teach the runtime to fetch + validate the Domain
    `overlay_ref` and expose it (option 2 first — no new tables), proving the
-   load path against the already-live opensoft QA stack. *(In flight: the
-   `add-seed-layer-content` OpenSpec change + Speckit 002.)*
+   load path against the already-live opensoft QA stack. *(DONE 2026-07-22:
+   `add-seed-layer-content` + Speckit 002, merged and archived.)* Note steps
+   are intentionally out of order: step 2 landed before step 1's content
+   exists — the loader is proven against the 32-line stub.
 3. **Wizard the client on one policy:** run the client wizard for just the
    repo-boundary + PR-only realization policy, write it to
    `config/clients/opensoft/`, and let it define the first auto-clear envelope
@@ -363,12 +431,15 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
 
 ## Open questions
 
-- **Persistence of seeded content:** new runtime tables vs. the ratified memory
-  gateway vs. pointer-only — the §Central seam decision. Leaning hybrid.
+- ~~**Persistence of seeded content**~~ — DECIDED 2026-07-22: hybrid (§Decided).
+  Still open within it: the record shapes for increment 2 (generic vs.
+  per-kind tables) and exactly which fields count as the enforceable slice.
 - **Persona representation:** is a Hermes-layer "personality" a system-prompt
-  document, a structured trait/policy set, or both? No precedent exists to copy.
-- **Naming:** codexFactory `hermes/subject/` vs. the prescribed `hermes/customer/`
-  — resolve before filling, given the §A1 layer-name-collision hazard.
+  document, a structured trait/policy set, or both? Substantially answered by
+  `hermes-persona-character-model.md` Option E (trait-axis spine + authored
+  prose for flagships); what remains is the on-disk file shape in `roles/`.
+- ~~**Naming**~~ — DECIDED 2026-07-22: `subject/` wins; update
+  `xfactory-domain-factory-model.md` from `customer/` (§Decided).
 - **Neutral overlay contract:** no `hermes_domain_overlay` schema (or
   machine-readable role→overlay-path declaration) exists in openxFactory
   contracts — the seeding verb ships a minimal structural check until one lands.
@@ -376,9 +447,9 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
 - **Wizard authority:** who may run the client wizard and ratify its output —
   the company-policy liaison (Brett in the self-client)? Does a policy change
   need the same thin-independent-approval floor the install already recorded?
-- **Domain content upgrade:** re-pinning the Domain overlay changes behavior for
-  a live client — is that a client-consented event (gateway consent) or a domain
-  prerogative? (Leaning: client consents to a *pin range*, domain moves within it.)
+- ~~**Domain content upgrade**~~ — DECIDED 2026-07-22: pin-range consent
+  (§Decided). Still open: where pin ranges are recorded and enforced
+  (compatibility manifest vs. a consent record) — increment 5.
 - **Project template drift:** if the archetype changes after a project is
   provisioned, does the project re-seed, or is the archetype a one-time stamp?
 - **Core integration + lineage:** how does this repo consume

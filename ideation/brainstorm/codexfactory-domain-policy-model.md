@@ -18,6 +18,21 @@ determinism, enforceability, domain-memory, best-practices, governance-gates,
 layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/policies/ + memory-boundaries)
 Captured: 2026-07-21
+Updated: 2026-07-22 (coverage / contested-position / memory-write decisions; kind map; DTN candidate)
+
+## Decided (2026-07-22)
+
+- **Coverage floor: ratchet, no absolute number.** Coverage never decreases,
+  and new/changed code meets the new-code threshold — no repo-wide absolute
+  floor (they age badly). The threshold value itself is set in the policy file,
+  not here.
+- **Contested positions carry `rationale` + `review_by`.** Every staked
+  position records why, what was rejected, and a review-by date; an overdue
+  `review_by` is a doc-health-style finding. Schema below.
+- **Domain memory writes: worker proposes, Lead accepts.** Any Plane-2 worker
+  or sweep may propose an entry; the owning Lead accepts it into domain memory.
+  No full ratification — memory is learning, not policy. (Policy changes keep
+  their heavier path.)
 
 ## Possible feats
 
@@ -89,6 +104,38 @@ Omnigent constitution (prohibited actions), `credentials/requirements.yaml`
 (capability families), `roles-and-authority.md` (review verdict), and the
 traceability docs — into `hermes/domain/policies/` as enforceable content.
 
+**How the rows materialize** (record shape decided 2026-07-22 in
+`hermes-layer-seeding-mechanism.md`: generic `layer_content` kernel +
+specialized views): rows 1–7 seed as `content_kind: policy_position`
+(contested ones with the schema below), row 8 as `role_authority` /
+`escalation_rule`. The "gate" column names the view/check that reads each —
+no longer aspirational.
+
+## Contested-position record shape (draft)
+
+Category 4 made authorable — the fields a staked position carries so staleness
+is mechanically visible:
+
+```yaml
+kind: policy_position
+contested: true
+position: "squash-merge into protected branches"
+rationale: >-
+  Linear history is worth more to us than merge-commit fidelity; bisection
+  and revert discipline depend on it.
+alternatives_rejected:
+  - merge-commit (history fidelity argument — rejected: bisection cost)
+  - rebase-ff (rejected: rewrites shared history)
+staked_at: 2026-07-22
+staked_by: lead-integration        # the owning Lead
+review_by: 2027-01-22              # overdue => doc-health-style finding
+supersedes: null                   # or the prior position's id
+evidence: []                       # optional links to what informed it
+```
+
+Uncontested positions omit `contested`/`alternatives_rejected`/`review_by` —
+the ceremony is proportional to how debatable the call is.
+
 ## Domain memory (stored because it is learned, not because it is a rule)
 
 Distinct from policy: this is evidence/history the domain accumulates and the
@@ -119,6 +166,23 @@ Storing these would be bloat that drifts and governs nothing:
 Rule of thumb: the domain policy is the **diff** against "a competent engineer
 doing the obvious right thing," not a re-derivation of it.
 
+## The test, neutralized (DTN candidate)
+
+The decision test is already domain-free; the neutral wording for openxFactory:
+
+> *A domain SHALL store a policy element only when improvisation fails it:
+> when two competent practitioners — or two model runs — could reasonably
+> differ AND it matters that they don't (consistency, enforceability, our-way
+> choice, staked position, fail-closed boundary, accumulated learning). If any
+> reasonable answer is acceptable, the element is left to the model and MUST
+> NOT be stored.*
+
+Exit: register as a DTN promotion candidate
+(`openxFactory/docs/domain-neutralization-candidate-register.md`) — the
+store-vs-improvise test as a neutral authoring contract every domain's
+`policies/` is validated against. Medx/Ledgerx/Opsx/Adx get the same filter
+codex used, and "policy bloat" becomes a checkable finding rather than taste.
+
 ## Store-vs-improvise is the same seam as the runtime hybrid
 
 This maps straight onto the content-seeding decision (`hermes-layer-content-
@@ -130,16 +194,16 @@ textbook.
 
 ## Open questions
 
-- **Coverage floor value** — pick a concrete number, or express as "no decrease
-  + new-code threshold" only? (Leaning the latter — absolute floors age badly.)
+- ~~**Coverage floor value**~~ — DECIDED 2026-07-22: ratchet only (§Decided).
 - **Domain default vs. project override granularity** — exactly which stack
   standards are domain-locked vs. project-overridable? (`tenant_overrides_allowed`
   already lists `repository_check_commands`, `required_check_extensions`.)
-- **Contested positions** — do domain positions on debated practices carry an
-  explicit rationale field + a review cadence, so a stale position is visible?
-- **Memory write authority** — who/what may add to domain memory (a worker
-  proposes, a Lead accepts?), and does it need ratification like policy does?
-- **Record shape for the stored delta** — how these policy rows materialize as
-  runtime records is the seeding mechanism's open record-shape question
-  (`hermes-layer-seeding-mechanism.md`); the categories here should map cleanly
-  onto whatever kernel it picks, or the "gate" column stays aspirational.
+- ~~**Contested positions**~~ — DECIDED 2026-07-22: rationale + `review_by`
+  (§Decided; schema in §Contested-position record shape).
+- ~~**Memory write authority**~~ — DECIDED 2026-07-22: worker proposes, Lead
+  accepts; no ratification for memory entries (§Decided). Sync this into
+  `codexfactory-domain-memory-and-practices.md`, which carries the same question.
+- ~~**Record shape for the stored delta**~~ — DECIDED 2026-07-22 in
+  `hermes-layer-seeding-mechanism.md`: generic `layer_content` kernel +
+  specialized views; the categories map per the "How the rows materialize"
+  note above.

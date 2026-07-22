@@ -21,6 +21,30 @@ evidence-rows, planner-executor-synthesizer, hybrid-search, tenant-isolation,
 consent, source-authority, client-hermes, cerebras
 Repository context: openxFactory (memory gateway + client scaffold; applies to all layers)
 Captured: 2026-07-21
+Updated: 2026-07-22 (row-kernel / adapter-authority / rank-params decisions; cost hook; exit path)
+
+## Decided (2026-07-22)
+
+- **Evidence row = new kernel; context-packets compose from it.** Rows are the
+  internal storage/ingest shape; the ratified `context-packet` stays the
+  governed *output* form retrieval returns. No amendment to a ratified
+  contract; clean storage/output separation.
+- **Adapter authoring: steward proposes, ICS accepts, CSC clears surface.**
+  `source_inventory_agent` proposes an adapter from discovery; the
+  Integrations & Credentials Steward accepts it; any new external call or
+  credential surface additionally needs CSC clearance (already required by
+  `integration-boundaries`). The propose/accept pattern, applied to sources.
+- **Ranking: domain-default recipe, client-tunable values in ranges.** The
+  mechanics (hybrid + RRF + age decay) are neutral/domain; the parameter
+  *values* (recency weight per source class) are client-tunable within
+  declared ranges — the facts rule applied to ranking.
+- **Planner is tiered (cost hook).** Cheap governed primitives are the
+  default query path; the full planner→executor→synthesizer pass is reserved
+  for the deliberative path (council-tier triggers) — mirroring
+  `council_small`/`council_large`. Every retrieval, and especially a planner
+  pass, is a **spend event** that clocks in
+  (`cost-accountability-and-efficiency-model.md`); FAO's tracking granularity
+  covers query spend like any other.
 
 Reference: Cerebras, "How we built our knowledge base"
 (https://www.cerebras.ai/blog/how-we-built-our-knowledge-base).
@@ -114,15 +138,31 @@ side is specified in `client-ingestion-adapter-contract.md`.
   the subject is a person (a Medx patient): retrieval must honor the patient's
   consent profile per query, not just at ingest.
 
+## Exit path (concrete contracts this becomes)
+
+1. **openxFactory memory-gateway contract extension** — the evidence-row
+   kernel schema (new, composes into the ratified `context-packet`) + the
+   ranking-recipe defaults with per-parameter tunable ranges.
+2. **`client-ingestion-adapter-contract.md`** (sibling brainstorm) carries the
+   adapter shape → an openxFactory contract; adapter instances are client
+   config accepted per the §Decided authority chain.
+3. **`hermes-retrieval-primitives-contract.md`** (sibling brainstorm) carries
+   the governed primitives; the tiered-planner rule lands there.
+
 ## Open questions
 
-- **Evidence-row vs. context-packet** — extend the ratified `context-packet`
-  schema to be the evidence row, or add a new kernel it composes into?
-- **Adapter authoring authority** — who may add a source adapter (a client
-  steward proposes, the Integrations & Credentials Steward approves)?
-- **RRF/age-decay parameters** — domain-default vs. client-tunable (recency
-  weighting is genuinely org-specific)?
-- **Planner cost** — a planning LLM pass per query is Cerebras' design; is that
-  affordable at Hermes scale, or reserved for the deliberative path?
-- **Structure-before-embed ownership** — is the summarization a Plane-2 worker
-  (omnigent) feeding a Plane-1 steward's promotion decision?
+- ~~**Evidence-row vs. context-packet**~~ — DECIDED 2026-07-22: new kernel,
+  packets compose (§Decided).
+- ~~**Adapter authoring authority**~~ — DECIDED 2026-07-22: steward proposes,
+  ICS accepts, CSC clears new surface (§Decided).
+- ~~**RRF/age-decay parameters**~~ — DECIDED 2026-07-22: domain-default
+  recipe, client-tunable values in declared ranges (§Decided).
+- ~~**Planner cost**~~ — DECIDED 2026-07-22: tiered — primitives by default,
+  planner on the deliberative path only; all retrieval clocks in (§Decided).
+- **Structure-before-embed ownership** — confirmed shape: a Plane-2 worker
+  summarizes, a Plane-1 authority accepts the promotion (the propose/accept
+  pattern) — still open: which worker per source class, drafted when the
+  adapter contract lands.
+- **Per-tenant partitioning mechanics** — Cerebras' single table becomes
+  per-tenant-partitioned; physical partitioning vs. row-level scoping is a
+  gateway-provider decision to record.
