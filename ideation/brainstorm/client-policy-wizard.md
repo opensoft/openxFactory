@@ -79,10 +79,12 @@ parks for the human liaison.
   opensoft self-client). An open question: does the resulting envelope need the
   same thin-independent-approval floor the install already recorded, or is
   acknowledgement enough (mirroring the gate-rules council's human step)?
-- **Validation.** The written tree is validated by the existing
-  `openxFactory/scripts/validate-client-infrastructure.py` from the pinned
-  openxFactory checkout (the opensoft tree already passes) — the wizard's output
-  is not trusted until it validates.
+- **Validation.** The written tree is not trusted until it validates. Honest
+  scope note: the existing `openxFactory/scripts/validate-client-infrastructure.py`
+  covers only the client-*infrastructure* records (the opensoft tree passes it);
+  the wizard's new shapes (`operating-policy`, `approval-matrix`,
+  `integration-map`, the envelope) need their own schemas + checks — authoring
+  those validators is part of this feat, not a given.
 - **Stricter-only guard.** The wizard must reject any answer that would make a
   gate *weaker* than the domain (the `stricter_only` invariant).
 

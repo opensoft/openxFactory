@@ -146,11 +146,11 @@ non-negotiable; every option below inherits it. "Pleasant" ≠ "permissive."
 ## Open questions
 
 - **Which trait axes**, and how many, before it feels either mechanical (too few)
-  or unbounded (too many)?
-- **Cast coherence vs. diversity** — shared house style, deliberate contrast, or
-  a baseline-plus-variance model?
-- **Client-tunable surface** — exactly which traits are client-adjustable (voice,
-  formality?) and which are domain-locked (disposition, rigor)?
+  or unbounded (too many)? (The roster draft proposes 4 disposition + 5 voice
+  axes as the starting set.)
+- **Client-tunable surface** — the roster draft splits it disposition=locked /
+  voice=tunable; still open is the *bounds* (how far a client may shift voice
+  before a persona stops being itself).
 - **Relationship memory depth** — how much does a persona remember about a
   specific human, and under what consent (gateway `consent-profile`)?
 - **Authoring authority** — who signs a persona into existence, and is a persona

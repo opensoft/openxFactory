@@ -69,9 +69,13 @@ generic RAG stack:
   retrieves another's (the client memory-boundaries invariant). Cerebras' single
   internal table becomes a per-tenant-partitioned one.
 - **Source authority / provenance.** Every evidence row carries a
-  `source_authority` tag; the domain's expert gateway already sets
-  `source_authority_minimum: cited_source`. Synthesis cites, and low-authority
-  evidence cannot silently drive a decision.
+  `source_authority` tag using the gateway's **ratified** `authority_levels`
+  vocabulary (`self_reported | observed | source_backed | reviewed |
+  domain_authoritative | below_threshold`,
+  `contracts/memory-gateway/vocabularies.yaml`) — not an invented one — and the
+  expert rails already enforce a minimum-authority floor
+  (`source_authority_below_threshold` is a ratified denial). Synthesis cites,
+  and low-authority evidence cannot silently drive a decision.
 
 ## Client layer — the star use case
 

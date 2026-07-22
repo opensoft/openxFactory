@@ -72,21 +72,34 @@ undefined roles). Cross-layer targets are flagged.
 schema_version: 1
 kind: hermes_domain_escalation_rules
 routing:
-  - {ambiguity: architecture_ambiguity, to: lead-architect}
-  - {ambiguity: security_ambiguity,     to: lead-security}
-  - {ambiguity: quality_ambiguity,      to: lead-quality}
-  - {ambiguity: scope_ambiguity,        to: lead-engineer}
-  - {ambiguity: release_ambiguity,      to: lead-release}
-  - {ambiguity: process_deadlock,       to: scrum-coordinator}
-  - {ambiguity: product_ambiguity,      to: product_owner, cross_layer: customer_project}  # NOT domain-owned
+  - {ambiguity: architecture_ambiguity,   to: lead-architect}
+  - {ambiguity: security_ambiguity,       to: lead-security}
+  - {ambiguity: quality_ambiguity,        to: lead-quality}
+  - {ambiguity: implementation_ambiguity, to: lead-coder}       # was: lead_engineer (undefined role)
+  - {ambiguity: scope_ambiguity,          to: lead-engineer}
+  - {ambiguity: release_ambiguity,        to: lead-release}
+  - {ambiguity: process_deadlock,         to: scrum-coordinator}
+  - {ambiguity: product_ambiguity,        to: product_owner,      cross_layer: customer_project}  # NOT domain-owned
+  - {ambiguity: policy_ambiguity,         to: company-policy-lead, cross_layer: client}           # governance is client/xFactory, not domain
 stop_conditions:                  # a worker halts and escalates — never proceeds past these
-  - approved_scope_exceeded
-  - security_finding_open
+  # elevates the omnigent overlay's six (missing_approved_scope, required_check_failed,
+  # branch_review_failed, secret_detected, unapproved_scope_detected,
+  # repository_policy_conflict) — same conditions, persona-era names, one addition
+  - approved_scope_missing_or_exceeded   # missing_approved_scope + unapproved_scope_detected
+  - security_finding_open                # secret_detected generalized
   - required_check_failed
-  - credential_required_not_held
+  - branch_review_failed
+  - repository_policy_conflict
+  - credential_required_not_held         # new: no credential improvisation, ever
   - human_gate_reached
 on_stop: park_fail_closed
 ```
+
+The remap covers **all** of `omnigent/domain-overlay.yaml`'s current `routing:`
+targets (which name undefined roles like `hermes_governance_owner` /
+`engineering_architect`) — nothing silently dropped: `policy_ambiguity` routes
+cross-layer to the client's Company Policy Lead, and `implementation_ambiguity`
+lands on the Lead Coder, who bounds the coding workers.
 
 `product_ambiguity` deliberately routes *out* of the domain to the
 customer/project layer's Product Owner — the domain never answers "should we

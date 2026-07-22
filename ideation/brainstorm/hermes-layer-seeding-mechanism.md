@@ -23,10 +23,17 @@ Captured: 2026-07-21
 
 ## Possible feats
 
-- **`seed-layer-content` lifecycle verb** (hermes-install).
+- **`seed-layer-content` lifecycle verb** (hermes-install) — increment 1
+  (read-only resolve→fetch→verify→validate→evidence, single layer, no compose/
+  materialize) is **proposed**: hermes-install `add-seed-layer-content` +
+  Speckit `002-seed-layer-content`.
 - **Layer-content record schema** (the materialized enforceable slice).
 - **Deterministic overlay-compose + digest-pin** (reuse the render/pin discipline).
-- **Seeding evidence record** (pins, digests, what materialized).
+- **Seeding evidence record** (pins, digests, what materialized) — increment 1
+  emits it as the runtime's existing redacted `LifecycleEvidence`.
+- **Neutral overlay contract** (openxFactory): a `hermes_domain_overlay` schema
+  + a machine-readable per-pin `overlay_path`, so validation and the role→path
+  rule stop being convention.
 
 ## Recap of the seam decision
 
@@ -47,7 +54,9 @@ what those pointers point at. Today `overlay_ref` is inert; seeding activates it
 ```text
 seed-layer-content [--layer <id> | --all] [--reseed]
 
-1. resolve   → read the layer's overlay_ref (git+repo@rev) + template_revision + parameter_digest
+1. resolve   → read the layer's overlay_ref (git+repo@rev); join (repo, rev) to the
+               compatibility manifest's recorded source_archive_sha256 pin
+               (no matching pin → FAIL-CLOSED, never a silent skip)
 2. fetch+verify → fetch the pinned overlay archive; verify sha256 == pin      (FAIL-CLOSED on mismatch)
 3. compose   → apply the overlay stack (Core → xfactory → domain → client → project)
                into a rendered content bundle; compute the bundle digest       (deterministic, like generate-manifest)
@@ -59,10 +68,26 @@ seed-layer-content [--layer <id> | --all] [--reseed]
 8. record    → seeding_evidence {layer, pins, digests, materialized_kinds, at}; idempotency key
 ```
 
+Pin precision (matters to step 1): the digest pins live in the install's
+**compatibility manifest** (`domain_overlays[]` + `contract_repository`) — not
+on the layer row, and the runtime manifest's per-layer `overlay` block carries
+repository + revision only. And `overlay_ref` names a repo, not a file, so the
+loader needs a **role→overlay-path rule** (domain: `hermes/domain/overlay.yaml`)
+until openxFactory carries a machine-readable `overlay_path`.
+
 Steps 2–4 reuse the discipline the runtime already proved in the release
 realization (digest verify, deterministic render, no-secret scan, pin-
 equivalence) — seeding is the same shape applied to *content* instead of
-deployment manifests.
+deployment manifests. One honesty note: the runtime *records* archive digests
+today but never *recomputes* one (it verifies per-file `file_content_sha256` of
+consumed artifacts); step 2 is the first actual archive-level verify, built
+from the existing digest helpers.
+
+**Increment 1 (proposed)** covers steps 1–2 plus per-kind validation and the
+evidence record, for a **single layer's overlay** — no compose (3), no split/
+materialize/bind (5–7). A layer whose role has no seedable overlay at its pin
+(client/customer today) fails closed per-layer; on the live stack only the
+Domain layer seeds until later increments land.
 
 ## The three destinations
 
@@ -95,10 +120,14 @@ the human liaison, nothing auto-clears). A half-seeded layer is never left live.
 
 ## Evidence & idempotency
 
-Each run writes a `seeding_evidence` record (which layer, from which pins +
+Each run emits a `seeding_evidence` record (which layer, from which pins +
 digests, what materialized, when) — the content analog of the release
-realization packet. An idempotency key makes re-runs converge (re-seed is safe
-to repeat); the evidence is what an audit or a later re-pin reads.
+realization packet. Increment 1 emits it as the runtime's existing redacted
+`LifecycleEvidence` (JSON output, exit code reflects outcome — there is no
+evidence store); once materialization lands, the evidence should persist
+alongside the materialized records. An idempotency key `(layer_id, pin)` makes
+re-runs converge (re-seed is safe to repeat); the evidence is what an audit or
+a later re-pin reads.
 
 ## Where this sits in the bigger path
 
@@ -131,3 +160,10 @@ ops tier below it (deploy) and the content overlays above it (govern).
   catalog) without a full layer re-seed?
 - **Seeding order** — domain before client before project (dependencies:
   stricter-only needs the domain gate present first)?
+- **Client/project overlay source** — client and project content is wizard- and
+  archetype-produced, not repo-overlay-authored; do those layers ever get a
+  seedable `overlay_ref` document, or does seeding for them consume the
+  per-client tree / archetype directly (with its own digest discipline)?
+- **Digest pins for future overlays** — when a client/project overlay does
+  become seedable, where does its `source_archive_sha256` get recorded (the
+  compatibility manifest today covers only the domain overlay + contract repo)?

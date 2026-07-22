@@ -29,7 +29,8 @@ Captured: 2026-07-21
 - **Layer content loader** — a `seed-layer-content` runtime verb that fetches,
   validates, and (per the seam decision) materializes the pinned `overlay_ref`
   content into the live stack after `register-stack`. Detailed in
-  `hermes-layer-seeding-mechanism.md`.
+  `hermes-layer-seeding-mechanism.md`; increment 1 (read-only load) is proposed
+  as hermes-install `add-seed-layer-content` + Speckit `002-seed-layer-content`.
 - **Domain Hermes content authoring (codexFactory)** — fill `hermes/domain/`
   (persona/system-frame, `roles/`, `policies/`, `review-councils/`,
   `memory-boundaries.yaml`, `escalation-rules.yaml`, `agent-mixes.yaml`) and the
@@ -69,6 +70,16 @@ seam already exists (`overlay_ref` + the stack's `template_revision` /
 `parameter_digest` pins). The open work is (a) a content model for what lives
 behind that pointer per layer, and (b) a **seeding** step that loads it into
 the running Hermes.
+
+Two pin facts worth stating precisely (they shape the loader): the archive
+digests (`source_archive_sha256`) live in the install's **compatibility
+manifest** — recorded today only for the domain overlay and the contract repo
+(client/customer `overlay_ref`s point at the openxFactory contract pin's
+neutral templates); and `overlay_ref` names a **repo+rev, not a file**, so the
+loader needs a role→overlay-path convention (domain:
+`hermes/domain/overlay.yaml`). Consequence: the Domain layer is the only role
+with first-class seedable overlay content today; client and project content
+arrive by the wizard and archetype paths below.
 
 ## Two axes: composition vs. runtime content loading
 
@@ -340,7 +351,8 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
    pure content, ratified in codexFactory.
 2. **Seed it read-only:** teach the runtime to fetch + validate the Domain
    `overlay_ref` and expose it (option 2 first — no new tables), proving the
-   load path against the already-live opensoft QA stack.
+   load path against the already-live opensoft QA stack. *(In flight: the
+   `add-seed-layer-content` OpenSpec change + Speckit 002.)*
 3. **Wizard the client on one policy:** run the client wizard for just the
    repo-boundary + PR-only realization policy, write it to
    `config/clients/opensoft/`, and let it define the first auto-clear envelope
@@ -357,6 +369,10 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
   document, a structured trait/policy set, or both? No precedent exists to copy.
 - **Naming:** codexFactory `hermes/subject/` vs. the prescribed `hermes/customer/`
   — resolve before filling, given the §A1 layer-name-collision hazard.
+- **Neutral overlay contract:** no `hermes_domain_overlay` schema (or
+  machine-readable role→overlay-path declaration) exists in openxFactory
+  contracts — the seeding verb ships a minimal structural check until one lands.
+  Should the neutral layer-content schemas feat above cover both?
 - **Wizard authority:** who may run the client wizard and ratify its output —
   the company-policy liaison (Brett in the self-client)? Does a policy change
   need the same thin-independent-approval floor the install already recorded?

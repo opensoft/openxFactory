@@ -20,7 +20,7 @@ Captured: 2026-07-21
 ## Possible feats
 
 - **Neutral persona schema** (`openxFactory/contracts/.../hermes-domain-persona.schema.yaml`).
-- **The seven role objects** promoted to `codexFactory hermes/domain/roles/`.
+- **The eight role objects** promoted to `codexFactory hermes/domain/roles/`.
 - **Trait-axis vocabulary** as a neutral, client-tunable-aware controlled list.
 
 ## The trait-axis framework (the Option-E spine)
@@ -51,7 +51,7 @@ kind: hermes_domain_persona
 persona:
   id: <slug>
   display_name: <name>
-  role_code: <LA|LE|LC|LQ|LI|LS|SC>
+  role_code: <LA|LE|LC|LQ|LS|LI|SC|LR>
   layer: domain
   authority:            # from engineering-roles-and-authority.md, scoped by overlay.yaml codex_owns
     owns: [...]

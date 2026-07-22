@@ -139,3 +139,7 @@ textbook.
   explicit rationale field + a review cadence, so a stale position is visible?
 - **Memory write authority** — who/what may add to domain memory (a worker
   proposes, a Lead accepts?), and does it need ratification like policy does?
+- **Record shape for the stored delta** — how these policy rows materialize as
+  runtime records is the seeding mechanism's open record-shape question
+  (`hermes-layer-seeding-mechanism.md`); the categories here should map cleanly
+  onto whatever kernel it picks, or the "gate" column stays aspirational.

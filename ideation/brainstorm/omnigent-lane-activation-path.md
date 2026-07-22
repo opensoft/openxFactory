@@ -61,7 +61,7 @@ before the lane is managed**, and the execution machinery (P3) is built alongsid
 | Phase | What | Depends on | State |
 | --- | --- | --- | --- |
 | **P0** | Hermes govern/record plane: jobs/runs/events, gates, worker register, identity, layer isolation | — | ✅ live (foundation) |
-| **P1** | **Seed + enforce Hermes content** — seed-layer-content (read-only → materialize enforceable slice), author domain/client/project content so Hermes can *authorize* + *clear* | P0 | ⏳ seed-layer-content proposed; content in brainstorm |
+| **P1** | **Seed + enforce Hermes content** — seed-layer-content (read-only → materialize enforceable slice), author domain/client/project content so Hermes can *authorize* + *clear* | P0 | ⏳ seed-layer-content increment 1 proposed (`add-seed-layer-content` + Speckit 002, gate-reviewed 2026-07-22); content in brainstorm |
 | **P2** | **Governed job lifecycle** — engineering_intent approval → client auto-clear envelope (or human) → compose neutral-job-envelope + conditions | P1 (client clearance content) | ▫ approvals tables exist, flow unwired |
 | **P3** | **Omnigent run loop** — worker *claims* an authorized job; scoped short-lived credential issuance (never standing); bounded execute (clone/code/checks per permission flags); content-only App opens the PR; report runs/events back | P0 primitives (parallel w/ P1–P2); converges at first run | ▫ worker register + App-identity-tiers + credential-contracts realized; claim loop + issuance unbuilt |
 | **P4** | **Governed close** — governed-review-lane reviews the PR; gate-rules-council rules + Merge Master enforce/merge; evidence recorded | P3 (a PR to review) | ▫ review lane realized; merge-master proposed (not landed) |
@@ -86,6 +86,13 @@ Only at **P5** does the recursion close — the factory builds its *next* change
 through the lane it just gained (the self-hosting move named in
 `hermes-governed-nightly-sweep.md`). seed-layer-content sits in **P1**: a
 hand-built foundation, not a lane-built change.
+
+P1 is itself three legs, and only together do they complete the phase: the
+**seeding mechanism** (increment 1 read-only is proposed; materialization is a
+later increment), the **authored content** (this brainstorm cluster → ratified
+domain/client/project content), and the **enforcement wiring** (gates checking
+the materialized slice). The read-only increment alone proves the load path; it
+does not yet let Hermes authorize or clear anything.
 
 ## Open questions
 

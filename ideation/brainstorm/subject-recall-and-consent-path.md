@@ -141,4 +141,10 @@ strict for person-subjects.
 - **Transparency-log access** — how does a subject (patient) actually see their
   recall log, and through which layer's surface?
 - **Break-glass scope** — domain-gated only, or also client-policy-gated (an
-  operator that forbids break-glass even where the domain allows it)?
+  operator that forbids break-glass even where the domain allows it)? Note the
+  ratified gateway already ships a `break-glass-profile` schema — compose it,
+  don't redefine it.
+- **Transparency-log contract** — the ratified contracts cover `audit-event` and
+  `usage-event`, but a *subject-visible* recall log is an extension: is it a new
+  neutral contract (a projection of audit events scoped to the subject), and
+  which layer serves it?

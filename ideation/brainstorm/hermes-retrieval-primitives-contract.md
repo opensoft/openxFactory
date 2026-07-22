@@ -96,9 +96,11 @@ Cerebras is internal; xFactory governs every read:
 - **Tenant isolation** — a query never returns another tenant's rows.
 - **ACL / visibility** — the source-derived `visibility` on each row is honored;
   the caller sees only what its permissions allow.
-- **Source-authority floor** — evidence below `source_authority_minimum`
-  (`cited_source` in the domain expert gateway) cannot silently drive synthesis;
-  it may appear, flagged, but not as load-bearing.
+- **Source-authority floor** — evidence below the caller's minimum authority
+  level (the gateway's ratified `authority_levels` vocabulary — e.g. an expert
+  floor of `source_backed`; `source_authority_below_threshold` is a ratified
+  denial code) cannot silently drive synthesis; it may appear, flagged, but not
+  as load-bearing.
 - **Audit + erasure** — a `usage-event` per retrieval; revoked/erased rows are
   never returned.
 

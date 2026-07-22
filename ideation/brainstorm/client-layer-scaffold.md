@@ -162,3 +162,10 @@ CLIENT (COMPANY POLICY) LAYER
   overlay (like the domain workers), and does that overlay exist yet?
 - **Liaison as persona vs. profile** — the liaison is a composed coordination
   profile; is it a house-team "member" or a capability the house team convenes?
+- **How client content seeds** — the registered client layer's `overlay_ref`
+  points at the openxFactory contract pin (the neutral scaffold), which is not a
+  seedable overlay document; the substance lives in the wizard-written
+  `config/clients/<client>/` tree. Does `seed-layer-content` for the client role
+  consume that tree directly (with its own digest discipline), or does the
+  wizard's output get packaged into a pinned overlay? (Cross-link:
+  `hermes-layer-seeding-mechanism.md` open questions.)

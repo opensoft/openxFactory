@@ -20,7 +20,8 @@ Captured: 2026-07-21
 
 ## Possible feats
 
-- **The seven house-team persona objects** (domain defaults, client-tunable).
+- **The ten house-team persona objects** (domain defaults, client-tunable),
+  including the three Risk & Assurance bench members.
 - **The `house_style` baseline block** every client persona inherits.
 - **Persona → steward-worker → object mapping** (which Plane-2 stewards and
   client objects each decider directs).

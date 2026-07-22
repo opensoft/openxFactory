@@ -63,7 +63,7 @@ owns"); today only `overlay.yaml` exists.
 
 | File | Content | Source |
 | --- | --- | --- |
-| `overlay.yaml` *(exists)* | domain identity, approval scopes, authority boundaries | keep |
+| `overlay.yaml` *(exists)* | domain identity, approval scopes, authority boundaries | keep — note: its `hermes_domain_overlay` kind has **no neutral schema** in openxFactory contracts yet; the seeding verb validates it by a minimal structural check until one lands |
 | `roles/` *(new)* | the Plane-1 persona roster (below) | harvest `engineering-roles-and-authority.md` |
 | `policies/` *(new)* | the stored *delta* — binding choices, enforceable rules, fail-closed boundaries, staked positions (not generic best practice) | `codexfactory-domain-policy-model.md` |
 | `review-councils/` *(new)* | per-PR merge-readiness council + the Gate-Rules Council seat | `codexfactory-domain-deliberation.md` |
@@ -146,3 +146,6 @@ domain layer. The seven personas are drafted under that model in
   worker), separate from this domain workstream.
 - **Practice-catalog ownership vs. the roster.** Does each Lead own the practices
   in its area (e.g. Lead Security owns security-practice adoption profiles)?
+- **Neutral `hermes_domain_overlay` schema.** Author it in openxFactory (with a
+  machine-readable `overlay_path`) so every domain's overlay validates the same
+  way — the seeding increment currently ships only a structural check.

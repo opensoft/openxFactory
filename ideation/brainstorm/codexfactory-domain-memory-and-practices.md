@@ -60,6 +60,12 @@ The key invariant: the domain *learns in general* (a de-identified pattern
 promoted through the gateway), it never *accumulates a client's specifics*. This
 is what keeps a multi-client domain from becoming a cross-tenant leak.
 
+Vocabulary note: promoted memory items should carry the gateway's **ratified**
+`authority_levels` (`self_reported | observed | source_backed | reviewed |
+domain_authoritative | below_threshold`, per
+`contracts/memory-gateway/vocabularies.yaml`) — a Lead-accepted pattern lands as
+`reviewed`; only deliberate domain ratification makes it `domain_authoritative`.
+
 ## Practice catalog
 
 The domain's expertise made actionable: each promoted capability MAY carry an

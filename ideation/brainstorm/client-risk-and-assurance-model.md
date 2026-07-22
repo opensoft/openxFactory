@@ -137,3 +137,7 @@ assurance_constraints:
   responsible_operator?
 - **Reputation signal sources** — how does RBS observe reputation risk (stored
   red-lines only, or also external signal), staying inside tenant boundaries?
+- **Bench vs. clearance pipeline seam** — the Change Approvals Authority owns
+  routine clear/park; the bench convenes for launches. Confirm which changes
+  route through *both* (a cleared change that is also a material release) so the
+  two gates never double-adjudicate or, worse, assume the other checked.

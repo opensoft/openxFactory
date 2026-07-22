@@ -140,3 +140,7 @@ legal_constraints:
   (leaning both: client sets the reg set, archetype flags applicability)?
 - **License-scan practice** — add `license-compliance` to the domain practice
   catalog now (it is engineering-executable), owned by which Lead?
+- **Constraint staleness** — law changes under the stored constraints; who
+  re-ratifies and on what cadence, and does a constraint set carry an explicit
+  review-by date so an expired set degrades to park-everything rather than
+  silently enforcing stale law?

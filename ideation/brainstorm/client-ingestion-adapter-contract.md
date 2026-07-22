@@ -58,7 +58,7 @@ adapter:
   consent:
     consent_profile_ref: <ref>     # ratified; ingest AND retrieval blocked without it
     pii_handling: redact | tokenize | exclude
-  source_authority: cited_source | operator_asserted | inferred   # tag stamped on every row
+  source_authority: source_backed | observed | self_reported   # ratified authority_levels (memory-gateway vocabularies) — tag stamped on every row
   sync:
     mode: full | differential      # differential re-processes only changed items (Cerebras)
     cadence: <schedule>

@@ -148,3 +148,7 @@ policy model, drawn for the client.
 - **Customer memory vs. Customer layer** — `customer_relationship_memory` here vs.
   the Customer/Project layer's own memory — confirm the boundary (client holds
   the *operator's* view of the customer; the customer layer holds the subject's).
+- **Validator coverage** — the new per-client shapes (`operating-policy`,
+  `approval-matrix`, `integration-map`) have no validator yet;
+  `validate-client-infrastructure.py` covers only the infrastructure records.
+  Each new kind needs a schema + check before the wizard's output can be trusted.

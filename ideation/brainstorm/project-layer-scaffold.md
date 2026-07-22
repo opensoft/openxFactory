@@ -150,7 +150,11 @@ the client's Delivery & SLA Lead.
 the archetype → tune to the project (repo, branch-protection state, team) →
 register into the stack. Today's `*.params.yaml` project entry (`layer_id`,
 `display_name`, `project_ref`, `policy_namespace`, `overlay`) is the structural
-half; the archetype is the content half.
+half; the archetype is the content half. The structural verb already exists and
+is idempotent-convergent keyed on `(stack_id, policy_namespace)`
+(`repositories/layers.py::provision_customer_layer`) — archetype selection
+extends it, and re-provisioning with a *different* archetype must be an explicit
+governed event, not a convergence.
 
 ## The scaffold, listed
 

@@ -21,7 +21,8 @@ Captured: 2026-07-21
 
 ## Possible feats
 
-- **Neutral archetype schema** (`codex_project_type_template`).
+- **Neutral archetype schema** (`xfactory_project_type_template` — a neutral
+  schema needs a neutral `kind`; codex archetypes are *instances* of it).
 - **The six archetype content files** under `hermes/customer/templates/`.
 - **`provision-project --type`** selection wired to the library.
 
@@ -29,7 +30,7 @@ Captured: 2026-07-21
 
 ```yaml
 schema_version: 1
-kind: codex_project_type_template
+kind: xfactory_project_type_template   # neutral kind (openxFactory schema); this file is a codex instance
 project_type:
   id: <service|library|cli|application|infra_iac|spike>
   subject_kind: repository
