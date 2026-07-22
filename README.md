@@ -177,7 +177,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
-  — proposed 2026-07-22 (promotion of the omnigent-core-domain-split
+  — **ratified 2026-07-22** (promotion of the omnigent-core-domain-split
   staging topic): gives omnigent-install the domain tier it lacks. Two new
   capabilities — `omnigent-domain-overlay` (per-domain content authored in
   each DomainxFactory `omnigent/` tree, consumed by digest pin;

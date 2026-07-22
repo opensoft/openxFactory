@@ -1,5 +1,7 @@
 code_surface: openxFactory
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified by: user approval of `add-omnigent-domain-overlay` on 2026-07-22
 
 ## Why
 

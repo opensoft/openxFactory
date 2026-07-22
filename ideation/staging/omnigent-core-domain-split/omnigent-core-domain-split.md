@@ -155,8 +155,9 @@ contract; they carry into the proposal's design record with leanings:
 
 ## Exit
 
-Proposal raised 2026-07-22: `add-omnigent-domain-overlay`
-(`openspec/changes/add-omnigent-domain-overlay/`) ratifies the neutral
+`add-omnigent-domain-overlay`
+(`openspec/changes/add-omnigent-domain-overlay/`) — proposed and **ratified
+2026-07-22** — ratifies the neutral
 overlay + install-manifest contracts (`code_surface: openxFactory`),
 followed by gated realization changes: `installs/omnigent-install` (manifest
 + verify increment), `installs/hermes-install` (worker-readiness port),
