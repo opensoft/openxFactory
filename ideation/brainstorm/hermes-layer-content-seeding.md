@@ -463,7 +463,9 @@ all deploy onto belongs in `Hermes-Install-Core` (see the composition stack).
   a shared runtime-app core that both a single-layer and the 3-layer install
   consume, or stay in this repo while only the ops tier (Hermes-Install-Core) is
   shared? Distinct from Core-as-it-exists today (ops only).
-- **Split at staging:** this umbrella likely becomes three staging topics
-  (domain-content-authoring, client-policy-wizard, project-template-library)
-  sharing the seeding-mechanism spine; keep them together until the seam
-  decision lands, since it constrains all three.
+- ~~**Split at staging**~~ — DONE 2026-07-22: staged as three exit-oriented
+  topics — `codexfactory-domain-hermes-content`,
+  `layer-content-materialization`, `client-layer-tuning`
+  (`ideation/staging/INDEX.md`). The project-template-library remains
+  brainstorm-only (`project-type-template-library-draft.md`) and stages when
+  the subject-layer work firms up.

@@ -45,7 +45,10 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | --- | --- | --- | --- |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
+| [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | Ready to iterate — decisions settled 2026-07-22; neutral scaffold/schema change first; wizard gated on schemas; avatar surface gated on the avatar topics |
+| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **Ready to propose** — critical path (seeding increment 2 is content-starved until change A); decisions settled 2026-07-22; change A drafted in the topic's `openspec/` |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
+| [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | Schema change ready now; increment 2 gated on domain change A + the schema |
 | [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + `omnigent-install-manifest` (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Proposal raised 2026-07-22 (`add-omnigent-domain-overlay`) — absorbed the medical-harness neutral deltas (archetype vocabulary, generalized permission matrix, never_assignable tier); v2 adoption + pre-rendered composition settled; 2 realization-phase questions carried into the proposal's design record |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
@@ -94,6 +97,59 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Open questions (blocking): see the fragment — plus it is structurally last: it cannot propose until `qualify-avatar-live-voice` publishes a qualified live profile and the client lab lands.
 - Exit: create `avatar-pilot-hardening` (`code_surface: openxFactory, xfactory-avatar-client, installs/hermes-install, xFactories/*`); archives only on merged + green + recorded pilot-gate evidence.
 
+## client-layer-tuning
+
+- Staging ID: `openxFactory:staging:client-layer-tuning`
+- Repository context: openxFactory (scaffold `roles/`, content schemas,
+  `validate-client-content`) + codexFactory `hermes/client/` (domain
+  defaults) + `xFactory-Hermes-Install` (wizard verb).
+- Source: 2026-07-22 review pass over the client brainstorm cluster
+  (`client-layer-scaffold.md`, `client-layer-roster-draft.md`,
+  `client-layer-content-draft.md`, `client-policy-wizard.md`).
+- Claim: per-client tuning made real — house-team `roles/` join the neutral
+  scaffold (11 personas incl. the new Finance & Accounting Officer +
+  `cost_reporting_steward` worker; voice floor locked); the facts rule splits
+  domain defaults from wizard-only values; stricter-only is enforced
+  mechanically per the comparability spec (review fallback); the wizard
+  (avatar-assisted first, CLI on the same elicitation schema) drafts and a
+  human ratifies the auto-clear envelope (per-unit allowed), emits a park-map
+  every run, and commits its output as a per-client overlay that seeds
+  through the standard pipeline.
+- Files:
+  - [client-layer-tuning.md](client-layer-tuning/client-layer-tuning.md) — primary: claims, three exit changes, open questions.
+- Open questions (blocking): validator host repo; wizard-overlay digest-pin
+  signing (shared with layer-content-materialization); default
+  aggressiveness; RBS's directed steward; FAO↔domain efficiency-audit seam;
+  avatar-flow prerequisites.
+- Exit: three changes — openxFactory scaffold+schemas, codexFactory client
+  defaults, hermes-install wizard verb (in that order).
+
+## codexfactory-domain-hermes-content
+
+- Staging ID: `openxFactory:staging:codexfactory-domain-hermes-content`
+- Repository context: codexFactory (`hermes/domain/` +
+  `omnigent/domain-overlay.yaml` in lockstep); neutral persona/mix/council
+  schemas in openxFactory later.
+- Source: 2026-07-22 review pass over the domain brainstorm cluster (5
+  codexfactory-domain docs + `hermes-persona-character-model.md`); harvest
+  map verified against the codexFactory tree.
+- Claim: author the Domain Hermes content the seeding runtime is starved for —
+  8 Option-E personas (trait vocabulary v1, decide-then-speak guardrail,
+  escalation-target audit applied), the stored policy delta (position table,
+  contested-position schema, coverage ratchet), two-tier councils with
+  enumerated triggers, memory boundaries (worker-proposes/Lead-accepts,
+  de-id schema + attestation), and the practice catalog (`promoted_in` +
+  `owning_lead`); promotion extends `codex_owns` and adds the two missing
+  Omnigent workers in the same change or the seed-time closure check fails.
+- Files:
+  - [codexfactory-domain-hermes-content.md](codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md) — primary: claims, exit changes A/B + Omnigent extension, open questions.
+- Open questions (carried): gate-rules council seats; `council_small` seat
+  sourcing; efficiency-audit ownership; neutral schema timing;
+  `finding_class` vocabulary.
+- Exit: codexFactory change A (`add-domain-hermes-roles-and-policies`, draft
+  in the topic's `openspec/`), then change B (councils/mixes/escalation/
+  memory/catalog); Omnigent extension rides whichever first needs it.
+
 ## github-administration-plane
 
 - Staging ID: `openxFactory:staging:github-administration-plane`
@@ -138,6 +194,30 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   `github-administration` capability. Live rollout done; the 2026-07-10
   incident is closed. The primary doc remains here as `superseded`
   provenance (its header names both successors).
+
+## layer-content-materialization
+
+- Staging ID: `openxFactory:staging:layer-content-materialization`
+- Repository context: openxFactory (neutral `hermes_domain_overlay` contract +
+  machine-readable `overlay_path`) + `xFactory-Hermes-Install` (seeding
+  increment 2).
+- Source: 2026-07-22 review pass over `hermes-layer-content-seeding.md` +
+  `hermes-layer-seeding-mechanism.md`; increment 1 realized and archived
+  2026-07-22 (hermes-install `add-seed-layer-content`, capability spec
+  `layer-content-seeding`).
+- Claim: take the proven read-only load path to enforcement — hybrid seam
+  decided; generic `layer_content` kernel `(layer_id, content_kind,
+  enforceable_payload, provenance)` + views; build-time render + seed-time
+  verify; seeding-order invariant (domain → client → project,
+  REFUSED-not-skip); the field-level enforceable-slice cut list is drafted;
+  wizard-written client overlays unify into the same pipeline.
+- Files:
+  - [layer-content-materialization.md](layer-content-materialization/layer-content-materialization.md) — primary: claims, two exit changes, sequencing.
+- Open questions (carried): per-kind `enforceable_payload` schemas; render
+  ownership; wizard-overlay pin home/signing; re-pin range recording;
+  partial re-seed.
+- Exit: openxFactory `add-hermes-domain-overlay-contract` (independent, ready
+  now) ∥ domain change A → hermes-install seeding increment 2.
 
 ## omnigent-core-domain-split
 
