@@ -179,6 +179,14 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-hermes-domain-overlay-contract](openspec/changes/add-hermes-domain-overlay-contract/proposal.md)
+  — the neutral `hermes_domain_overlay` schema + role→path overlay
+  descriptor + canonical validator (`validate-hermes-domain-overlay.py`) with
+  fixtures, published as a versioned additive bundle. Replaces the seeding
+  runtime's minimal structural check and the hard-coded role→path convention;
+  validated against codexFactory's live 37-authority overlay. First exit of
+  the `layer-content-materialization` staging topic; unblocks hermes-install
+  seeding increment 2.
 - [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
   — **ratified 2026-07-22** (promotion of the omnigent-core-domain-split
   staging topic): gives omnigent-install the domain tier it lacks. Two new
