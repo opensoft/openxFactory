@@ -115,6 +115,9 @@ Core domain-neutral docs:
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
 - [xFactory Memory Gateway Architecture](docs/customer-memory-gateway-architecture.md)
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
+- [Omnigent Contract Family](contracts/omnigent/README.md)
+  (domain-overlay payload + install manifest; realized by
+  `add-omnigent-domain-overlay`, pending bundle registration)
 - [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)

@@ -1,0 +1,114 @@
+# Conforming example: a minimal engineering-flavored overlay with one worker
+# class per neutral archetype. Instantiation stub — real overlays live in
+# each DomainxFactory repo under omnigent/.
+schema_version: 1
+kind: omnigent_domain_overlay
+
+domain:
+  id: example-engineering
+  orchestrator_profile: software
+  artifact_root: .example/artifacts
+
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+
+workers:
+  - id: scope_framer
+    archetype: frame
+    responsibility: Split approved scope into bounded, reviewable slices.
+    inputs: [approved_intent]
+    outputs: [scope_frame]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: false
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+  - id: change_author
+    archetype: generate
+    responsibility: Produce bounded implementation artifacts for a slice.
+    inputs: [scope_frame]
+    outputs: [implementation_artifact]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+    permission_aliases:
+      write_repo: write_artifacts
+      run_checks: run_validations
+  - id: check_runner
+    archetype: verify
+    responsibility: Run deterministic validations and produce reports.
+    inputs: [implementation_artifact]
+    outputs: [validation_report]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+  - id: adversarial_reviewer
+    archetype: challenge
+    responsibility: Attempt to refute the artifact before admission.
+    inputs: [implementation_artifact, validation_report]
+    outputs: [adversarial_review]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: false
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+  - id: admission_assembler
+    archetype: assemble_for_admission
+    responsibility: Assemble the admission packet and submit it for review.
+    inputs: [validation_report, adversarial_review]
+    outputs: [admission_packet]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: true
+      execute_final_action: false
+      access_secrets: false
+
+prompt_packs:
+  - id: review_lanes
+    path: prompts/review-lane-pack.yaml
+    description: Blocking-criteria review lanes for the challenge archetype.
+
+job_types:
+  - scope_framing
+  - change_generation
+  - validation_run
+  - adversarial_review
+  - admission_packet
+
+credential_requirements:
+  all_classes:
+    - workspace_read
+  by_class:
+    change_author:
+      - workspace_write
+    admission_assembler:
+      - admission_submit
+  unassigned_by_default:
+    - release_publish
+  never_assignable:
+    - final_action_execute
+
+routing:
+  scope_ambiguity: intent_owner
+  policy_ambiguity: hermes_governance_owner
+  safety_ambiguity: safety_reviewer
+
+stop_conditions:
+  - missing_approved_scope
+  - required_validation_failed
+  - secret_detected

@@ -1280,6 +1280,78 @@ Omnigent decides how approved work is decomposed and executed.
 xFactory defines the contract between them.
 ```
 
+### Overlay Tree Shape And Consumption
+
+Ratified by: `add-omnigent-domain-overlay` (2026-07-22).
+
+Each DomainxFactory authors its Omnigent domain content in an `omnigent/`
+tree at repository root, a sibling of `hermes/domain/`:
+
+```text
+omnigent/
+  domain-overlay.yaml        conforms to omnigent-domain-overlay
+                             (contracts/omnigent/)
+  prompts/                   prompt packs (incl. review-lane packs)
+  toolchains/                container/toolchain bindings
+  validators/                domain QA validators
+  preseed/                   methodology preseed deltas
+  lanes/                     lane and scaleout policy deltas
+```
+
+Install repositories consume the tree only via digest pin — the Omnigent
+install manifest (`omnigent-install-manifest` contract) records repository,
+commit, overlay root, and the v2 hermes-runtime overlay-manifest digest.
+An install repository never forks or locally amends domain overlay content;
+the ownership line is the one the Hermes installs ratified. Composition
+over core worker configuration uses the `domain_installation_overlay`
+operations (`supplement/replace/constrain/veto`) with
+`stricter_rule_wins: true`: a domain can tighten core constraints, never
+loosen them. Effective worker profiles are pre-rendered at compose time and
+committed with provenance annotations; the install manifest also carries
+the subject-workload registry (one tenant, one domain, N subject workloads
+per stack).
+
+### Worker Archetypes And The Permission Matrix
+
+Every worker class an overlay declares maps to exactly one neutral
+archetype:
+
+```text
+frame -> generate -> verify -> challenge -> assemble_for_admission
+```
+
+The terminal action of any workflow belongs to the domain's external
+enforcement layer and its human authority, never to a worker archetype.
+Domain-facing class names are aliases over the archetypes, the same alias
+pattern the layer vocabulary uses:
+
+| Archetype | codexFactory alias | MedxFactory alias |
+| --- | --- | --- |
+| frame | engineering_decomposer, spec_planner | case_framing_agent |
+| generate | coding_agent, documentation_agent | dream_hypothesis_agent, evidence_retrieval_agent, draft_documentation_agent |
+| verify | test_agent, security_agent | test_utility_agent, simulation_agent, base_rate_agent, data_reverification_agent |
+| challenge | branch_review_agent | skeptic_agent, safety_agent |
+| assemble_for_admission | pr_admission_agent, merge_readiness_agent | convergence_packet_agent |
+| (external enforcement) | GitHub branch protection + merge | clinician sign-off + chart/CPOE order signing |
+
+Every worker class declares the generalized six-boolean permission matrix
+— `read_workspace`, `write_artifacts`, `run_validations`,
+`propose_admission`, `execute_final_action`, `access_secrets` — of which
+the last two are constitutional: `execute_final_action` and
+`access_secrets` are false for every worker class in every domain and
+every configuration (schema-level `const`; no approval path overrides
+them). They restate the Omnigent authority boundary of
+`docs/omnigent-constitution.md` machine-checkably. Domain permission names
+(`read_repo`, `open_pr`, ...) are declared aliases of the neutral
+booleans.
+
+Credential requirement families are declared in four tiers: `all_classes`,
+`by_class`, `unassigned_by_default`, and `never_assignable`. The last is a
+structural prohibition, not an approval-gated default — a
+`never_assignable` family (medical: `order_sign`, `chart_write`,
+`truth_model_write`) is not grantable to any worker identity under any
+approval path.
+
 Expert memory follows that same rule. Domain Omnigent can use external expert
 memory and knowledge DBs only through xFactory-governed context packets or
 approved gateway operations. xFactory maintains the expert provider bindings,

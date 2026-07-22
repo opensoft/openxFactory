@@ -1,0 +1,29 @@
+# expect: execute_final_action
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: bad-example
+  orchestrator_profile: software
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+workers:
+  - id: admission_assembler
+    archetype: assemble_for_admission
+    responsibility: Worker class claiming the terminal action.
+    inputs: [validation_report]
+    outputs: [admission_packet]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: true
+      execute_final_action: true
+      access_secrets: false
+credential_requirements:
+  all_classes: [workspace_read]
+  never_assignable: [final_action_execute]
+routing:
+  scope_ambiguity: intent_owner
+stop_conditions:
+  - missing_approved_scope

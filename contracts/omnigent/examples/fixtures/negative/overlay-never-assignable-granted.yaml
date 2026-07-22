@@ -1,0 +1,34 @@
+# expect: never_assignable
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: bad-example
+  orchestrator_profile: medical
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+workers:
+  - id: convergence_packet_agent
+    archetype: assemble_for_admission
+    responsibility: Valid worker; the violation is in the credential tiers below.
+    inputs: [skeptic_review]
+    outputs: [convergence_packet]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: true
+      execute_final_action: false
+      access_secrets: false
+credential_requirements:
+  all_classes: [case_context_read]
+  by_class:
+    convergence_packet_agent:
+      - order_sign
+  never_assignable:
+    - order_sign
+    - chart_write
+routing:
+  clinical_ambiguity: clinician_of_record
+stop_conditions:
+  - missing_source_trace

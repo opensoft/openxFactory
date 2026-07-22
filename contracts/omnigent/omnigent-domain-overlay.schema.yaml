@@ -1,0 +1,233 @@
+schema_version: 1
+kind: openxfactory-omnigent-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/omnigent/v1/omnigent-domain-overlay.schema.yaml"
+contract_id: omnigent-domain-overlay
+contract_schema_version: 1
+title: Omnigent domain overlay payload
+description: >-
+  The per-domain Omnigent content contract (`add-omnigent-domain-overlay`,
+  capability `omnigent-domain-overlay`). Authored once in each
+  DomainxFactory repository under `omnigent/` and consumed by install
+  repositories only via digest pin (the pin itself lives in the consuming
+  Omnigent install manifest and uses the v2 hermes-runtime
+  overlay-manifest shape). Every worker class maps to exactly one neutral
+  archetype and declares the generalized six-boolean permission matrix;
+  `execute_final_action` and `access_secrets` are constitutionally false
+  (schema-level `const`, no domain or approval path can set them true).
+  Credential families carry a `never_assignable` tier stronger than
+  `unassigned_by_default`. Composition over core worker configuration uses
+  the `domain_installation_overlay` operations with
+  `stricter_rule_wins: true`. Cross-file semantics the schema cannot
+  express — tier disjointness, vocabulary lint, fixture behavior — are
+  enforced by `scripts/validate-omnigent-contracts.py`.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - domain
+  - composition
+  - workers
+  - credential_requirements
+  - routing
+  - stop_conditions
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: omnigent_domain_overlay
+  domain:
+    type: object
+    additionalProperties: false
+    required: [id, orchestrator_profile]
+    properties:
+      id:
+        $ref: "#/$defs/identifier"
+      orchestrator_profile:
+        $ref: "#/$defs/identifier"
+      artifact_root:
+        $ref: "#/$defs/relative_path"
+  composition:
+    type: object
+    additionalProperties: false
+    required: [operations_contract, stricter_rule_wins]
+    properties:
+      operations_contract:
+        description: >-
+          The operations envelope this overlay composes under
+          (supplement/replace/constrain/veto).
+        const: domain_installation_overlay
+      stricter_rule_wins:
+        const: true
+  workers:
+    type: array
+    minItems: 1
+    items:
+      $ref: "#/$defs/worker_class"
+  prompt_packs:
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
+  toolchain_bindings:
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
+  domain_validators:
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
+  preseed_deltas:
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
+  lane_policy_deltas:
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
+  job_types:
+    description: >-
+      The domain-owned job_type vocabulary this overlay declares for the
+      neutral job envelope.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      $ref: "#/$defs/identifier"
+  credential_requirements:
+    type: object
+    additionalProperties: false
+    required: [all_classes, never_assignable]
+    properties:
+      all_classes:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/identifier"
+      by_class:
+        type: object
+        additionalProperties:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: "#/$defs/identifier"
+      unassigned_by_default:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/identifier"
+      never_assignable:
+        description: >-
+          Structural prohibition, not an approval-gated default: families
+          not grantable to any worker identity under any approval path.
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/identifier"
+  routing:
+    description: Ambiguity class to authority role (Human Escalation Contract rung 1).
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    patternProperties:
+      "^[a-z][a-z0-9_]*_ambiguity$":
+        $ref: "#/$defs/identifier"
+  stop_conditions:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      $ref: "#/$defs/identifier"
+$defs:
+  identifier:
+    type: string
+    pattern: "^[a-z][a-z0-9_-]*$"
+  relative_path:
+    type: string
+    pattern: "^[^/].*[^/]$"
+  payload_ref:
+    type: object
+    additionalProperties: false
+    required: [id, path]
+    properties:
+      id:
+        $ref: "#/$defs/identifier"
+      path:
+        $ref: "#/$defs/relative_path"
+      digest:
+        $ref: "#/$defs/sha256_digest"
+      description:
+        type: string
+  sha256_digest:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  worker_class:
+    type: object
+    additionalProperties: false
+    required: [id, archetype, responsibility, inputs, outputs, permissions]
+    properties:
+      id:
+        $ref: "#/$defs/identifier"
+      archetype:
+        description: >-
+          Exactly one neutral worker archetype. The terminal action of any
+          workflow belongs to the domain's external enforcement layer and
+          its human authority, never to an archetype.
+        enum:
+          - frame
+          - generate
+          - verify
+          - challenge
+          - assemble_for_admission
+      responsibility:
+        type: string
+        minLength: 1
+      inputs:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/identifier"
+      outputs:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/identifier"
+      permissions:
+        type: object
+        additionalProperties: false
+        required:
+          - read_workspace
+          - write_artifacts
+          - run_validations
+          - propose_admission
+          - execute_final_action
+          - access_secrets
+        properties:
+          read_workspace:
+            type: boolean
+          write_artifacts:
+            type: boolean
+          run_validations:
+            type: boolean
+          propose_admission:
+            type: boolean
+          execute_final_action:
+            const: false
+          access_secrets:
+            const: false
+      permission_aliases:
+        description: >-
+          Domain-facing permission names (for example read_repo, open_pr)
+          declared as aliases of the neutral booleans.
+        type: object
+        additionalProperties: false
+        patternProperties:
+          "^[a-z][a-z0-9_]*$":
+            enum:
+              - read_workspace
+              - write_artifacts
+              - run_validations
+              - propose_admission

@@ -2,7 +2,7 @@
 
 ## 1. Contract schemas (openxFactory)
 
-- [ ] 1.1 Author the Omnigent domain-overlay payload schema alongside
+- [x] 1.1 Author the Omnigent domain-overlay payload schema alongside
       `contracts/hermes-runtime/` (v2 family; consumes
       `overlay-manifest.schema.yaml` for the file-inventory + sha256 +
       `git_overlay_pin` shape): worker-class declarations with archetype
@@ -12,30 +12,32 @@
       validator / preseed / lane-delta sections, and the
       `domain_installation_overlay` operation envelope with
       `stricter_rule_wins`.
-- [ ] 1.2 Author the Omnigent install-manifest schema: digest pin of the
+- [x] 1.2 Author the Omnigent install-manifest schema: digest pin of the
       Hermes runtime manifest as stack identity, tenant/domain cardinality,
       subject-workload registry entries (identity ref, activation state,
       validator mode), and compose/verify evidence-record references.
       Canonical `subject`/`tenant`/`domain` spellings throughout.
-- [ ] 1.3 Positive and negative fixtures: a conforming overlay + manifest
+- [x] 1.3 Positive and negative fixtures: a conforming overlay + manifest
       pair; rejections for archetype-less worker class, constitutional
       boolean true, loosening overlay, dual domain overlay, identity drift,
       unrendered-profile launch, `never_assignable` grant.
-- [ ] 1.4 Validator: extend or add a `scripts/validate-*.py` covering 1.3;
+- [x] 1.4 Validator: extend or add a `scripts/validate-*.py` covering 1.3;
       register new files per the contract versioning policy (holding area
       until the allocated additive release).
 
 ## 2. Documentation
 
-- [ ] 2.1 MODIFY `docs/xfactory-domain-factory-model.md`: prescribe the
+- [x] 2.1 MODIFY `docs/xfactory-domain-factory-model.md`: prescribe the
       DomainxFactory `omnigent/` tree shape (sibling of `hermes/domain/`),
       its payload inventory, and the pin-consumption mechanism; cite this
       change as the ratification record.
-- [ ] 2.2 Record the worker archetype vocabulary and permission-matrix
+- [x] 2.2 Record the worker archetype vocabulary and permission-matrix
       semantics in the domain-factory model's Omnigent overlay section
       (with the codex and Medx alias examples).
-- [ ] 2.3 Link this change in the README OpenSpec Records block; keep the
-      staging INDEX row current (done at proposal authoring).
+- [x] 2.3 Link this change in the README OpenSpec Records block; keep the
+      staging INDEX row current (done at proposal authoring). Doc-index
+      link to `contracts/omnigent/README.md` and the contracts README
+      holding-area rows added at realization.
 
 ## 3. Gated follow-up changes (filed, not executed in this change)
 
