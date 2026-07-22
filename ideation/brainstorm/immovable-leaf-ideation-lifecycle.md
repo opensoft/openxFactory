@@ -108,12 +108,31 @@ the possibles column. The delta this brainstorm adds:
   (yesterday's cost-accountability leaf registered with nothing) —
   registration-at-capture closes that.
 
-## Open questions
+## Charter authority (decided 2026-07-22)
 
-- **Charter authority** — who may charter a cluster (any human? the
-  ideation owner? does the readiness lane's nomination need a threshold?),
-  and can a chartered cluster be retired/merged (the cluster-combining GUI
-  brainstorm gestures at merge mechanics)?
+- **Charterer: any human, recorded, optional shepherd.** Any authorized human
+  charters by writing the register entry (charterer, date, definition, member
+  criteria); the charter MAY name a shepherd who owns the cluster's
+  definition thereafter. Recorded event, never ratification — clusters are
+  working structures, not policy. AI never charters: the lane nominates, a
+  human charters.
+- **Auto-nomination: 3+ leaves sharing 2+ topics** (starting rule, tunable);
+  nominations are `pending_review` and dismissible. Human and readiness-lane
+  nominations flow through the same intake.
+- **EOL: supersede + forward, never delete** — retirement/merge writes
+  `superseded_by` and forwards member registrations; history stays walkable;
+  pins keep resolving.
+- **Retirement records are nomination suppressors** (Brett's re-formation
+  problem: the co-occurrence trigger outlives the cluster). The retirement
+  record keeps the cluster's *nomination signature* (the topic set that
+  formed it) + the retirement reason. The engine suppresses any candidate
+  whose signature matches a retired cluster's — leaf registration history
+  ("member of X; X retired") supplies the check — UNLESS material new
+  evidence exists (enough post-retirement leaves to change the signature).
+  A resurfacing nomination carries the old retirement reason so the human
+  sees why it died last time.
+
+## Open questions
 - **Leaf edit semantics under pins** — dated in-place edits (current
   practice) are fine for live reading; is any edit class disallowed once a
   leaf is pinned by a ratified change (e.g. deleting a section a pin cites),
