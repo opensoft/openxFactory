@@ -283,9 +283,12 @@ Active changes:
   `derive-possibles` profile v1 (Omnigent-Install PR #22, contract-only),
   and the kernel delta registered as **contract-v1.14**. The lane reports
   SKIPPED until a host advertises the profile (the readiness precedent's
-  valid landed state). At 18/20; remaining: 5.1's WHEEL non-`indexed`
-  edge-class styling in the dashboard renderer + first-lane-run evidence,
-  and 5.2 records through archive
+  valid landed state). **§5.1 tests realized 2026-07-22** including THE
+  WHEEL (codexFactory PR #28, `web/views/wheel.js` + `wheel-model.js`:
+  the locked Track C deck with class-coded threads — undisposed derived
+  possibles render non-`indexed` `inferred`, demo placeholders
+  `synthesized`). At 19/20; remaining: 5.2 records through archive +
+  first-lane-run evidence after host deployment
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
