@@ -46,6 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
+| [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + install-manifest contract (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Ready to iterate — sequencing + 3 core decisions settled with Brett 2026-07-22 (openxFactory-first, shared identity, readiness→hermes-install, manifest+verify first increment); 4 open questions (overlay contract generation and readiness cutover hardest) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -137,6 +138,37 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   `github-administration` capability. Live rollout done; the 2026-07-10
   incident is closed. The primary doc remains here as `superseded`
   provenance (its header names both successors).
+
+## omnigent-core-domain-split
+
+- Staging ID: `openxFactory:staging:omnigent-core-domain-split`
+- Repository context: openxFactory (neutral overlay + install-manifest
+  contracts); realizations in `installs/omnigent-install` (manifest +
+  compose/verify increment), `installs/hermes-install` (worker-readiness
+  port), `xFactories/codexFactory` (first `omnigent/` overlay authoring).
+- Source: `ideation/brainstorm/omnigent-core-domain-split.md` (2026-07-21);
+  omnigent-install ↔ hermes-install ↔ codexFactory review + Option A/B
+  decisions settled with Brett Heap 2026-07-22; parent roadmap
+  `omnigent-lane-activation-path.md` (P3-adjacent).
+- Claim: give omnigent-install the domain tier it lacks — per-domain
+  content authored in each DomainxFactory repo under `omnigent/`, consumed
+  by digest pin; the Omnigent install manifest pins the Hermes runtime
+  manifest as shared stack identity (1 client, 1 domain, N customer
+  workloads) and a read-only compose+verify step emits hermes-install-style
+  evidence; the pilot `hermes_service` retires by porting worker-readiness
+  into hermes-install; a second domain becomes a params-plus-overlay-pin
+  delta, never a copy-fork.
+- Files:
+  - [omnigent-core-domain-split.md](omnigent-core-domain-split/omnigent-core-domain-split.md) — primary: target delta, 7 claims, decisions record, 4 open questions, exit.
+- Open questions (blocking): overlay contract generation (v1 pinned set vs
+  first consumer of v2 `contracts/hermes-runtime/`); effective-profile
+  composition (pre-rendered leaning); shared-identity generation ownership
+  + revision-equality verification; readiness-port cutover shape.
+- Exit: one openxFactory OpenSpec change (neutral contracts), then gated
+  realization changes in omnigent-install, hermes-install, and
+  codexFactory; archives only when the codexFactory overlay renders the
+  live execution-lane binding byte-equivalently and a second-domain params
+  fixture renders without touching core.
 
 ## proposal-origin-contract
 
