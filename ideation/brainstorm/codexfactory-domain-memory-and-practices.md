@@ -189,8 +189,12 @@ generic opinion (catalog). Neither is textbook the model supplies on the fly.
   matrix in `codexfactory-domain-hermes-content.md`; `owning_lead` is now a
   catalog field.
 - ~~**Memory de-identification**~~ — DECIDED 2026-07-22: structural schema +
-  Lead attestation (§Decided; stub in §De-identification contract). Still
-  open: the controlled `finding_class` vocabulary.
+  Lead attestation (§Decided; stub in §De-identification contract).
+  `finding_class` vocabulary RESOLVED (B-gating round, 2026-07-22): seed a
+  small starter list in change B (`recurring_review_finding`,
+  `known_bad_pattern`, `flaky_regression`, `practice_effectiveness_signal`,
+  `efficiency_finding`); extensions are Lead-accepted recorded changes;
+  neutralize to openxFactory later with the DTN batch.
 - **Neutral counterparts** — conformance-gate and governed-review-lane are
   codex-local promotions; are they DTN candidates (neutralize the shape so
   other domains get the same practices)?

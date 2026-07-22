@@ -62,16 +62,32 @@ hermes-persona-character-model.md; decisions recorded 2026-07-22.
 
 ## Open questions (carried to the proposals)
 
-- Gate-Rules Council: exact client/project seat definitions.
-- `council_small` seat sourcing (fixed per persona vs. drawn by trigger kind).
+- ~~Gate-Rules Council seats~~ — DECIDED 2026-07-22 (B-gating round): client
+  seat = Company Policy Lead (CSC pulled in by the conjunction rule on
+  security-touching rules); project seat = the intent-owner role-slot,
+  symbolic until the project roster lands; human ack stays the final step.
+- ~~`council_small` seat sourcing~~ — DECIDED 2026-07-22: drawn by trigger —
+  convener + 2 from a trigger→seats table (security→LS, quality→LQ,
+  architecture→LA).
+- ~~`spend_over_envelope` home~~ — DECIDED 2026-07-22: domain declares only
+  the trigger; the value is client-owned (FAO budget envelope); un-tuned
+  client parks.
+- ~~`finding_class` vocabulary~~ — DECIDED 2026-07-22: seed small in change B
+  (five starter classes); Lead-accepted extensions; neutralize later.
 - Efficiency-audit ownership (Scrum Coordinator vs. Lead Engineer) — from
-  `cost-accountability-and-efficiency-model.md`; the clock-in duty rides the
-  bidirectional references.
+  `cost-accountability-and-efficiency-model.md`; not B-gating (the clock-in
+  duty rides the bidirectional references; ownership lands with the cost
+  model).
 - Neutral persona/mix/council schemas in openxFactory: with the neutral
-  `hermes_domain_overlay` schema (materialization topic) or a later change?
-- Controlled `finding_class` vocabulary for de-identified domain learning.
+  `hermes_domain_overlay` schema (materialization topic) or a later change.
 
 ## Readiness
 
-Ready to propose — decisions settled 2026-07-22; sources verified against the
-codexFactory tree; change A is drafted in `openspec/` here.
+**Change A COMPLETE** — ratified + archived 2026-07-22
+(`archive/2026-07-22-add-domain-hermes-roles-and-policies`; canonical spec
+`domain-hermes-content`). **Change B author-ready** — all four gating
+decisions made (above); drafted in `openspec/` here (proposal-b + tasks-b);
+sole remaining gate: the `add-omnigent-domain-overlay` codexFactory
+realization (ratified 2026-07-22), since B's `escalation-rules.yaml`
+elevates from the overlay that change restructures — author B against the
+archetype-shaped overlay once it lands.

@@ -198,14 +198,20 @@ merge-readiness council is the per-PR body whose verdict the deciders act on.
 
 - ~~**Deliberation threshold**~~ — DECIDED 2026-07-22: two tiers with an
   enumerated trigger list (§Decided; trigger list drafted in the mixes YAML).
-  Still open: whether `spend_over_envelope`'s envelope value is domain policy
-  or per-client.
+  `spend_over_envelope` RESOLVED (B-gating round, 2026-07-22): the domain
+  declares only the TRIGGER; the threshold value is client-owned (FAO budget
+  envelope, per the facts rule); an un-tuned client parks.
 - ~~**Panel roster governance**~~ — DECIDED 2026-07-22: Lead-accepted recorded
   change (§Decided).
-- **Gate-rules council seats** — exact client/project seat definitions (the
-  human step is decided: acknowledgement — content doc §Decided).
+- ~~**Gate-rules council seats**~~ — DECIDED 2026-07-22 (B-gating round):
+  client seat = **Company Policy Lead** (the CSC/LS conjunction rule pulls
+  the Client Security & Compliance Officer in when a rule touches security
+  posture); project seat = the neutral skeleton's **intent-owner role-slot,
+  symbolic** — binds to a real persona when the project roster lands; the
+  human acknowledgement stays the separate final step.
 - ~~**Merge-readiness vs. gate-rules overlap**~~ — CONFIRMED distinct,
   permanently (§Decided).
-- **Council seat sourcing** — for `council_small`, which 3 seats? Fixed per
-  convening persona, or drawn by the trigger kind (e.g. security trigger
-  always seats LS)?
+- ~~**Council seat sourcing**~~ — DECIDED 2026-07-22 (B-gating round):
+  **drawn by trigger** — `council_small` = convener + 2 seats from a
+  trigger→seats table in `agent-mixes.yaml` (security triggers always seat
+  LS, quality LQ, architecture LA).
