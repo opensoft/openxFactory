@@ -176,6 +176,21 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
+  — proposed 2026-07-22 (promotion of the omnigent-core-domain-split
+  staging topic): gives omnigent-install the domain tier it lacks. Two new
+  capabilities — `omnigent-domain-overlay` (per-domain content authored in
+  each DomainxFactory `omnigent/` tree, consumed by digest pin;
+  stricter-rule-wins payload composition; neutral five-archetype worker
+  vocabulary; generalized six-boolean permission matrix with constitutional
+  `execute_final_action`/`access_secrets` false; `never_assignable`
+  credential tier) and `omnigent-install-manifest` (Hermes runtime manifest
+  digest-pinned as shared stack identity; one tenant / one domain / N
+  subject workloads; subject-workload registry; fail-closed compose+verify
+  with seeding-vocabulary evidence; pre-rendered effective profiles;
+  canonical Subject/Tenant/Domain spellings from birth). Realizations in
+  omnigent-install, hermes-install, codexFactory, and the MedxFactory
+  second-domain fixture follow as gated changes (code surface: openxFactory)
 - [adopt-subject-tenant-domain-vocabulary](openspec/changes/adopt-subject-tenant-domain-vocabulary/proposal.md)
   — proposed 2026-07-22 (naming decision approved by Brett the same day):
   renames the canonical Hermes layer vocabulary Customer/Client/Domain to

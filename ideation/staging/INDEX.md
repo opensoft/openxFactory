@@ -46,7 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
-| [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + install-manifest contract (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Ready to iterate — sequencing + 3 core decisions settled with Brett 2026-07-22 (openxFactory-first, shared identity, readiness→hermes-install, manifest+verify first increment); 4 open questions (overlay contract generation and readiness cutover hardest) |
+| [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + `omnigent-install-manifest` (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Proposal raised 2026-07-22 (`add-omnigent-domain-overlay`) — absorbed the medical-harness neutral deltas (archetype vocabulary, generalized permission matrix, never_assignable tier); v2 adoption + pre-rendered composition settled; 2 realization-phase questions carried into the proposal's design record |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -159,16 +159,26 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   into hermes-install; a second domain becomes a params-plus-overlay-pin
   delta, never a copy-fork.
 - Files:
-  - [omnigent-core-domain-split.md](omnigent-core-domain-split/omnigent-core-domain-split.md) — primary: target delta, 7 claims, decisions record, 4 open questions, exit.
-- Open questions (blocking): overlay contract generation (v1 pinned set vs
-  first consumer of v2 `contracts/hermes-runtime/`); effective-profile
-  composition (pre-rendered leaning); shared-identity generation ownership
-  + revision-equality verification; readiness-port cutover shape.
-- Exit: one openxFactory OpenSpec change (neutral contracts), then gated
-  realization changes in omnigent-install, hermes-install, and
-  codexFactory; archives only when the codexFactory overlay renders the
-  live execution-lane binding byte-equivalently and a second-domain params
-  fixture renders without touching core.
+  - [omnigent-core-domain-split.md](omnigent-core-domain-split/omnigent-core-domain-split.md) — primary: target delta, 7 claims, absorbed neutral deltas, decisions record, 2 open questions, exit.
+- Absorbed 2026-07-22 (from `ideation/brainstorm/medical-omnigent-harness-adaptation.md`):
+  neutral worker archetype vocabulary (frame/generate/verify/challenge/
+  assemble_for_admission), generalized permission matrix with constitutional
+  `execute_final_action`/`access_secrets` false, `never_assignable`
+  credential tier; second-domain proof drafted at
+  `MedxFactory/ideation/staging/medical-omnigent-overlay/`.
+- Settled at proposal authoring 2026-07-22: adopt the v2
+  `contracts/hermes-runtime/` set as first install-side consumer;
+  pre-rendered effective profiles with provenance; canonical
+  Subject/Tenant/Domain machine spellings from birth.
+- Open questions (realization-phase, carried in the proposal design record):
+  shared-identity generation ownership + revision-equality verification
+  (leaning hermes-install generates, omnigent-install digest-pins);
+  readiness-port cutover shape.
+- Exit: proposal raised 2026-07-22 — `add-omnigent-domain-overlay`
+  (neutral contracts), then gated realization changes in omnigent-install,
+  hermes-install, and codexFactory; archives only when the codexFactory
+  overlay renders the live execution-lane binding byte-equivalently and a
+  second-domain params fixture renders without touching core.
 
 ## proposal-origin-contract
 
