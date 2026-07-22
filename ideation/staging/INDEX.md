@@ -46,7 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | Ready to iterate — decisions settled 2026-07-22; neutral scaffold/schema change first; wizard gated on schemas; avatar surface gated on the avatar topics |
-| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **Ready to propose** — critical path (seeding increment 2 is content-starved until change A); decisions settled 2026-07-22; change A drafted in the topic's `openspec/` |
+| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | Change A RAISED 2026-07-22 (`add-domain-hermes-roles-and-policies`, codexFactory, strict-valid) — implementation next; change B stages here until A lands |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | Schema change ready now; increment 2 gated on domain change A + the schema |
 | [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + `omnigent-install-manifest` (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Proposal raised 2026-07-22 (`add-omnigent-domain-overlay`) — absorbed the medical-harness neutral deltas (archetype vocabulary, generalized permission matrix, never_assignable tier); v2 adoption + pre-rendered composition settled; 2 realization-phase questions carried into the proposal's design record |
@@ -146,9 +146,11 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Open questions (carried): gate-rules council seats; `council_small` seat
   sourcing; efficiency-audit ownership; neutral schema timing;
   `finding_class` vocabulary.
-- Exit: codexFactory change A (`add-domain-hermes-roles-and-policies`, draft
-  in the topic's `openspec/`), then change B (councils/mixes/escalation/
-  memory/catalog); Omnigent extension rides whichever first needs it.
+- Exit: codexFactory change A (`add-domain-hermes-roles-and-policies` —
+  **raised 2026-07-22**, proposal + tasks + `domain-hermes-content` spec
+  delta on codexFactory main, strict validation green; the topic's
+  `openspec/` drafts are its provenance), then change B (councils/mixes/
+  escalation/memory/catalog); the Omnigent extension rides change A.
 
 ## github-administration-plane
 
