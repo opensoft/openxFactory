@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body>
+<!-- THE WHEEL locked interaction prototype (Track C, Brett-approved 2026-07-16;
+     ideation-dashboard brainstorm). Session-built on the 0fcf01ae snapshot, driven
+     and locked over two rounds; recovered 2026-07-22 from the original claude.ai
+     artifact and preserved here as the normative reference for the codexFactory
+     web/views/wheel.js realization (ported verbatim, codexFactory PR #30). -->
+
+<title>THE WHEEL — Ideation Funnel Navigator</title>
+<style>
+  :root{
+    --bg:#0E1116; --panel:#161B23; --panel2:#1C2330; --ink:#E8ECF2; --muted:#8B94A3;
+    --line:#252D3A; --brass:#D9A441; --brass-dim:#8a6a2e; --teal:#4FB8C9; --teal-dim:#2b6b77;
+    --shadow:0 8px 24px rgba(0,0,0,.45);
+    --colw:238px; --railw:42px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#EEF0F3; --panel:#FFFFFF; --panel2:#F4F5F7; --ink:#1B2129; --muted:#5C6675;
+      --line:#D8DCE2; --brass:#9A731C; --brass-dim:#c9ab63; --teal:#237F8F; --teal-dim:#8fc3cc;
+      --shadow:0 8px 22px rgba(24,32,48,.14);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1116; --panel:#161B23; --panel2:#1C2330; --ink:#E8ECF2; --muted:#8B94A3;
+    --line:#252D3A; --brass:#D9A441; --brass-dim:#8a6a2e; --teal:#4FB8C9; --teal-dim:#2b6b77;
+    --shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  :root[data-theme="light"]{
+    --bg:#EEF0F3; --panel:#FFFFFF; --panel2:#F4F5F7; --ink:#1B2129; --muted:#5C6675;
+    --line:#D8DCE2; --brass:#9A731C; --brass-dim:#c9ab63; --teal:#237F8F; --teal-dim:#8fc3cc;
+    --shadow:0 8px 22px rgba(24,32,48,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Seravek,"Segoe UI",system-ui,sans-serif;font-size:14px;overflow:hidden}
+  .cond{font-family:"Avenir Next Condensed","Bahnschrift Condensed",Bahnschrift,"Arial Narrow",sans-serif}
+  code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+  .app{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+  /* ── header ─────────────────────────────────────────────── */
+  .bar{flex:none;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+    padding:10px 18px 8px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .bar h1{margin:0;font-size:21px;letter-spacing:.14em;font-weight:700}
+  .bar h1 .spoke{color:var(--brass)}
+  .bar .sub{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .bar .meta{margin-left:auto;color:var(--muted);font-size:12px;display:flex;gap:14px;align-items:baseline}
+  .bar .meta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* ── stage / carousel ───────────────────────────────────── */
+  .stage{flex:1;min-height:0;display:flex;align-items:stretch;position:relative}
+  .pager{flex:none;width:34px;border:none;background:transparent;color:var(--muted);
+    font-size:20px;cursor:pointer;transition:color .15s}
+  .pager:hover{color:var(--brass)}
+  .pager:disabled{opacity:.2;cursor:default}
+  .pager:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
+
+  .viewport{flex:1;min-width:0;position:relative;overflow:hidden}
+  .focusline{position:absolute;left:0;right:0;top:50%;height:0;z-index:3;pointer-events:none;
+    border-top:1px solid color-mix(in srgb, var(--brass) 55%, transparent)}
+  .focusline::before,.focusline::after{content:"";position:absolute;top:-4px;width:7px;height:7px;
+    border:1px solid var(--brass);transform:rotate(45deg);background:var(--bg)}
+  .focusline::before{left:6px} .focusline::after{right:6px}
+  .centerband{position:absolute;left:0;right:0;top:calc(50% - 46px);height:92px;z-index:0;pointer-events:none;
+    background:linear-gradient(to bottom, transparent,
+      color-mix(in srgb, var(--brass) 6%, transparent) 45%,
+      color-mix(in srgb, var(--brass) 6%, transparent) 55%, transparent)}
+
+  .deck{height:100%;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+    scrollbar-width:none}
+  .deck::-webkit-scrollbar{display:none}
+
+  .threads{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+  /* ── columns ────────────────────────────────────────────── */
+  .col{flex:none;width:var(--colw);height:100%;display:flex;flex-direction:column;
+    scroll-snap-align:start;border-right:1px solid var(--line);position:relative;
+    transition:width .25s ease;background:transparent}
+  .col.pulse{animation:pulse 1s ease 1}
+  @keyframes pulse{0%,100%{background:transparent}30%{background:color-mix(in srgb, var(--brass) 9%, transparent)}}
+
+  .col-head{flex:none;display:flex;align-items:center;gap:8px;padding:9px 12px 8px;z-index:4;
+    border-bottom:1px solid var(--line);background:var(--panel)}
+  .col-head .name{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .col-head .cnt{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+  .col-head .demo-tag{font-size:10px;letter-spacing:.08em;color:var(--brass);
+    border:1px dashed var(--brass-dim);border-radius:3px;padding:1px 5px;text-transform:uppercase}
+  .eye{margin-left:auto;border:none;background:transparent;color:var(--muted);cursor:pointer;
+    font-size:14px;line-height:1;padding:3px 5px;border-radius:4px}
+  .eye:hover{color:var(--ink);background:var(--panel2)}
+  .eye:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+
+  .reel{flex:1;min-height:0;position:relative;overflow:hidden;cursor:ns-resize}
+
+  /* collapsed rail */
+  .col.collapsed{width:var(--railw)}
+  .col.collapsed .reel,.col.collapsed .col-head .cnt,.col.collapsed .col-head .demo-tag{display:none}
+  .col.collapsed .col-head{flex-direction:column;gap:10px;height:100%;border-bottom:none;
+    padding:12px 0;align-items:center;background:var(--panel2)}
+  .col.collapsed .col-head .name{writing-mode:vertical-rl;font-size:12px;color:var(--muted)}
+  .col.collapsed .eye{margin-left:0}
+
+  /* ── tiles ──────────────────────────────────────────────── */
+  .tile{position:absolute;left:50%;top:50%;width:172px;min-height:46px;padding:6px 9px;
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    display:flex;flex-direction:column;gap:2px;cursor:pointer;will-change:transform,opacity;
+    transition:border-color .2s, box-shadow .2s}
+  .tile .t-label{font-size:12px;line-height:1.25;font-weight:500;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tile .t-sub{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
+  .tile .t-tag{letter-spacing:.05em;text-transform:uppercase}
+  .tile .t-deg{margin-left:auto;font-variant-numeric:tabular-nums;
+    border:1px solid var(--line);border-radius:8px;padding:0 6px;line-height:14px}
+  .tile.is-demo{border-style:dashed;border-color:var(--brass-dim)}
+  .tile.linked{border-color:var(--teal);box-shadow:0 0 0 1px color-mix(in srgb, var(--teal) 45%, transparent)}
+  .tile.linked .t-deg{border-color:var(--teal);color:var(--teal)}
+  .tile.centered{background:var(--panel2);box-shadow:var(--shadow)}
+  .tile.focused{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass), var(--shadow)}
+  .tile:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+  /* badge rail under the focused centered tile */
+  .badge-rail{position:absolute;left:50%;transform:translateX(-50%);z-index:5;
+    display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 16px);
+    pointer-events:auto}
+  .badge-rail .chip{border:1px solid var(--teal-dim);background:var(--panel);color:var(--teal);
+    font-size:10.5px;letter-spacing:.04em;border-radius:10px;padding:2px 8px;cursor:pointer;
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  .badge-rail .chip:hover{border-color:var(--teal);background:var(--panel2)}
+  .badge-rail .chip b{font-weight:700}
+  .badge-rail .chip.none{color:var(--muted);border-color:var(--line);cursor:default}
+
+  /* ── dock / footer ──────────────────────────────────────── */
+  .dock{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:8px 16px;border-top:1px solid var(--line);background:var(--panel)}
+  .dock .dchip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);
+    background:var(--panel2);border-radius:14px;padding:3px 10px;font-size:11.5px;cursor:pointer;
+    color:var(--ink);font-variant-numeric:tabular-nums;transition:opacity .2s, border-color .2s}
+  .dock .dchip .dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+  .dock .dchip.off{opacity:.45;border-style:dashed}
+  .dock .dchip.off .dot{background:var(--muted)}
+  .dock .dchip:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+  .legend{display:flex;gap:14px;margin-left:auto;color:var(--muted);font-size:11px;align-items:center}
+  .legend .sw{display:inline-block;width:22px;height:0;vertical-align:middle;margin-right:5px}
+  .legend .sw.real{border-top:2px solid var(--teal)}
+  .legend .sw.inferred{border-top:2px dashed var(--teal)}
+  .legend .sw.demo{border-top:2px dashed var(--brass)}
+  .hints{flex-basis:100%;color:var(--muted);font-size:11px;letter-spacing:.03em;padding-top:2px}
+  .hints kbd{font-family:inherit;border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:10px}
+
+  @media (prefers-reduced-motion: reduce){
+    .col{transition:none}
+    .col.pulse{animation:none;background:color-mix(in srgb, var(--brass) 9%, transparent)}
+  }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <h1 class="cond">THE <span class="spoke">⊕</span> WHEEL</h1>
+    <span class="sub cond">ideation funnel navigator · track C mockup</span>
+    <div class="meta">
+      <span id="countStrip"></span>
+      <span>snapshot <code id="revStamp"></code></span>
+    </div>
+  </header>
+
+  <div class="stage">
+    <button class="pager left" id="pgL" aria-label="Previous column">◀</button>
+    <div class="viewport" id="viewport">
+      <div class="centerband"></div>
+      <div class="deck" id="deck"></div>
+      <svg class="threads" id="threads"></svg>
+      <div class="focusline"></div>
+    </div>
+    <button class="pager right" id="pgR" aria-label="Next column">▶</button>
+  </div>
+
+  <footer class="dock" id="dock">
+    <span class="legend">
+      <span><span class="sw real"></span>indexed link</span>
+      <span><span class="sw inferred"></span>inferred</span>
+      <span><span class="sw demo"></span>synthesized (demo)</span>
+    </span>
+    <span class="hints">hover a wheel · scroll to spin (threads pull the linked wheels along) ·
+      linked tiles rest balanced around the centre line — click one to take the focus ·
+      centred chips jump to a column · <kbd>←</kbd><kbd>→</kbd> page columns ·
+      <kbd>↑</kbd><kbd>↓</kbd> spin focused wheel · eye or dock chip collapses a column</span>
+  </footer>
+</div>
+<script>
+
+const DATA = {"meta":{"rev":"0fcf01aee2c6","date":"2026-07-14","counts":{"docs":26,"clusters":89,"possibles":13,"staged":5,"active":7,"archived":29}},"cols":{"docs":[{"id":"ideation/README.md","label":"README","stage":"ratified","topics":[]},{"id":"ideation/brainstorm/cluster-combining-gui.md","label":"cluster-combining-gui","stage":"staged","topics":["ideation-dashboard","workbench","possibles-register","gui-design","ideation-tooling","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/contract-release-and-stack-surface.md","label":"contract-release-and-stack-surface","stage":"brainstorm","topics":["contract-release","stack-surface","credential-contracts","conformance-gate","release-tagging"]},{"id":"ideation/brainstorm/doc-health-pipeline.md","label":"doc-health-pipeline","stage":"staged","topics":["doc-health","prose-tagging","ideation-lifecycle","nightly-ci","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/domain-to-neutral-promotion.md","label":"domain-to-neutral-promotion","stage":"staged","topics":["domain-to-neutral-promotion","contract-ownership","roles-authority-model","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/ideation-cross-reference-readiness.md","label":"ideation-cross-reference-readiness","stage":"staged","topics":["ideation-cross-reference","readiness-scoring","hermes-review-panel","extension-fit","staging-readiness","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/ideation-dashboard.md","label":"ideation-dashboard","stage":"staged","topics":["ideation-dashboard","workflow-visualization","ideation-cross-reference","doc-health","notebooklm-projection","lifecycle-projection","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/keycloak-identity-brokering.md","label":"keycloak-identity-brokering","stage":"brainstorm","topics":["identity-brokering","keycloak","user-management","single-persona","sso","ideation-dashboard","roles-authority-model","credential-contracts"]},{"id":"ideation/brainstorm/lens-brainstorm-session-launch.md","label":"lens-brainstorm-session-launch","stage":"brainstorm","topics":["feat-request","ideation-dashboard","keyword-lens","workbench","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","label":"lens-keyword-search-and-adhoc","stage":"brainstorm","topics":["feat-request","ideation-dashboard","keyword-lens","user-management","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/lens-ring-combination-explorer.md","label":"lens-ring-combination-explorer","stage":"brainstorm","topics":["feat-request","ideation-dashboard","keyword-lens","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","label":"notebooklm-ideas-2026-07-09","stage":"brainstorm","topics":["notebooklm-projection","ideation-lifecycle","document-lifecycle","sync-protocol","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/openspec-speckit-release-flow.md","label":"openspec-speckit-release-flow","stage":"staged","topics":["release-realization","openspec-speckit-integration","archive-gate","brownfield-tracking","doc-management","doc-workflow"]},{"id":"ideation/brainstorm/workflow-visualization-tooling.md","label":"workflow-visualization-tooling","stage":"staged","topics":["workflow-visualization","client-hermes","oss-license-evidence"]},{"id":"ideation/cross-reference.md","label":"cross-reference","stage":"record","topics":[]},{"id":"ideation/staging/INDEX.md","label":"INDEX","stage":"staged","topics":[]},{"id":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","label":"avatar-pilot-hardening","stage":"staged","topics":["avatar-client","hermes","delegation","domain-overlays","personas","accessibility","wcag-audit","operations","telemetry","sbom","license-review","pilot","rollback","kill-switch","threat-model-closure"]},{"id":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","label":"client-infrastructure-liaison","stage":"staged","topics":["client-infrastructure-liaison","client-infrastructure-request","roles-authority-model","client-hermes","infrastructure-coordination"]},{"id":"ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md","label":"opsx-handoff-and-readiness-contract","stage":"staged","topics":["client-infrastructure-request","opsxfactory-handoff","readiness-contract"]},{"id":"ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md","label":"proposal-impact-and-adoption-map","stage":"staged","topics":["client-infrastructure-liaison","adoption-impact","locked-decisions"]},{"id":"ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md","label":"request-contract-and-transition-matrix","stage":"staged","topics":["client-infrastructure-request","state-transitions","coordination-artifact"]},{"id":"ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md","label":"role-authority-and-operating-models","stage":"staged","topics":["client-infrastructure-liaison","roles-authority-model","client-hermes","operating-models"]},{"id":"ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md","label":"southside-operating-model-scenarios","stage":"staged","topics":["client-infrastructure-liaison","southside-clinic","operating-model-scenarios","medxfactory"]},{"id":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","label":"multi-app-identity-and-github-administration","stage":"staged","topics":["github-administration","app-identity-tiers","roles-authority-model","opsxfactory","branch-protection"]},{"id":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","label":"fda-samd-traceability-rationale","stage":"staged","topics":["fda-samd","traceability","proposal-origin","regulatory-compliance","medxfactory"]},{"id":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","label":"qualify-avatar-live-voice","stage":"staged","topics":["avatar-client","live-voice","webrtc","brokered-sdp","gpt-realtime-2.1","latency-slo","activation-gate","provider-qualification","canary-rollback","credential-custody","AVC-09","AVC-10"]}],"clusters":[{"id":"cl-AVC-09","label":"AVC 09","n":1},{"id":"cl-AVC-10","label":"AVC 10","n":1},{"id":"cl-accessibility","label":"Accessibility","n":1},{"id":"cl-activation-gate","label":"Activation Gate","n":1},{"id":"cl-adoption-impact","label":"Adoption Impact","n":1},{"id":"cl-app-identity-tiers","label":"App Identity Tiers","n":1},{"id":"cl-archive-gate","label":"Archive Gate","n":1},{"id":"cl-avatar-client","label":"Avatar Client","n":2},{"id":"cl-branch-protection","label":"Branch Protection","n":1},{"id":"cl-brokered-sdp","label":"Brokered Sdp","n":1},{"id":"cl-brownfield-tracking","label":"Brownfield Tracking","n":1},{"id":"cl-canary-rollback","label":"Canary Rollback","n":1},{"id":"cl-client-hermes","label":"Client Hermes","n":3},{"id":"cl-client-infrastructure-liaison","label":"Client Infrastructure Liaison","n":4},{"id":"cl-client-infrastructure-request","label":"Client Infrastructure Request","n":3},{"id":"cl-conformance-gate","label":"Conformance Gate","n":1},{"id":"cl-contract-ownership","label":"Contract Ownership","n":1},{"id":"cl-contract-release","label":"Contract Release","n":1},{"id":"cl-coordination-artifact","label":"Coordination Artifact","n":1},{"id":"cl-credential-contracts","label":"Credential Contracts","n":2},{"id":"cl-credential-custody","label":"Credential Custody","n":1},{"id":"cl-delegation","label":"Delegation","n":1},{"id":"cl-doc-health","label":"Doc Health","n":2},{"id":"cl-doc-management","label":"Doc Management","n":10},{"id":"cl-doc-workflow","label":"Doc Workflow","n":10},{"id":"cl-document-lifecycle","label":"Document Lifecycle","n":1},{"id":"cl-domain-overlays","label":"Domain Overlays","n":1},{"id":"cl-domain-to-neutral-promotion","label":"Domain To Neutral Promotion","n":1},{"id":"cl-extension-fit","label":"Extension Fit","n":1},{"id":"cl-fda-samd","label":"Fda Samd","n":1},{"id":"cl-feat-request","label":"Feat Request","n":3},{"id":"cl-github-administration","label":"Github Administration","n":1},{"id":"cl-gpt-realtime-2.1","label":"Gpt Realtime 2.1","n":1},{"id":"cl-gui-design","label":"Gui Design","n":1},{"id":"cl-hermes","label":"Hermes","n":1},{"id":"cl-hermes-review-panel","label":"Hermes Review Panel","n":1},{"id":"cl-ideation-cross-reference","label":"Ideation Cross Reference","n":2},{"id":"cl-ideation-dashboard","label":"Ideation Dashboard","n":6},{"id":"cl-ideation-lifecycle","label":"Ideation Lifecycle","n":2},{"id":"cl-ideation-tooling","label":"Ideation Tooling","n":1},{"id":"cl-identity-brokering","label":"Identity Brokering","n":1},{"id":"cl-infrastructure-coordination","label":"Infrastructure Coordination","n":1},{"id":"cl-keycloak","label":"Keycloak","n":1},{"id":"cl-keyword-lens","label":"Keyword Lens","n":3},{"id":"cl-kill-switch","label":"Kill Switch","n":1},{"id":"cl-latency-slo","label":"Latency Slo","n":1},{"id":"cl-license-review","label":"License Review","n":1},{"id":"cl-lifecycle-projection","label":"Lifecycle Projection","n":1},{"id":"cl-live-voice","label":"Live Voice","n":1},{"id":"cl-locked-decisions","label":"Locked Decisions","n":1},{"id":"cl-medxfactory","label":"Medxfactory","n":2},{"id":"cl-nightly-ci","label":"Nightly Ci","n":1},{"id":"cl-notebooklm-projection","label":"Notebooklm Projection","n":2},{"id":"cl-openspec-speckit-integration","label":"Openspec Speckit Integration","n":1},{"id":"cl-operating-model-scenarios","label":"Operating Model Scenarios","n":1},{"id":"cl-operating-models","label":"Operating Models","n":1},{"id":"cl-operations","label":"Operations","n":1},{"id":"cl-opsxfactory","label":"Opsxfactory","n":1},{"id":"cl-opsxfactory-handoff","label":"Opsxfactory Handoff","n":1},{"id":"cl-oss-license-evidence","label":"Oss License Evidence","n":1},{"id":"cl-personas","label":"Personas","n":1},{"id":"cl-pilot","label":"Pilot","n":1},{"id":"cl-possibles-register","label":"Possibles Register","n":1},{"id":"cl-proposal-origin","label":"Proposal Origin","n":1},{"id":"cl-prose-tagging","label":"Prose Tagging","n":1},{"id":"cl-provider-qualification","label":"Provider Qualification","n":1},{"id":"cl-readiness-contract","label":"Readiness Contract","n":1},{"id":"cl-readiness-scoring","label":"Readiness Scoring","n":1},{"id":"cl-regulatory-compliance","label":"Regulatory Compliance","n":1},{"id":"cl-release-realization","label":"Release Realization","n":1},{"id":"cl-release-tagging","label":"Release Tagging","n":1},{"id":"cl-roles-authority-model","label":"Roles Authority Model","n":5},{"id":"cl-rollback","label":"Rollback","n":1},{"id":"cl-sbom","label":"Sbom","n":1},{"id":"cl-single-persona","label":"Single Persona","n":1},{"id":"cl-southside-clinic","label":"Southside Clinic","n":1},{"id":"cl-sso","label":"Sso","n":1},{"id":"cl-stack-surface","label":"Stack Surface","n":1},{"id":"cl-staging-readiness","label":"Staging Readiness","n":1},{"id":"cl-state-transitions","label":"State Transitions","n":1},{"id":"cl-sync-protocol","label":"Sync Protocol","n":1},{"id":"cl-telemetry","label":"Telemetry","n":1},{"id":"cl-threat-model-closure","label":"Threat Model Closure","n":1},{"id":"cl-traceability","label":"Traceability","n":1},{"id":"cl-user-management","label":"User Management","n":2},{"id":"cl-wcag-audit","label":"Wcag Audit","n":1},{"id":"cl-webrtc","label":"Webrtc","n":1},{"id":"cl-workbench","label":"Workbench","n":2},{"id":"cl-workflow-visualization","label":"Workflow Visualization","n":2}],"possibles":[{"id":"pos-00","label":"unify: doc management","demo":true},{"id":"pos-01","label":"neutral doc workflow contract","demo":true},{"id":"pos-02","label":"cross-domain ideation dashboard lane","demo":true},{"id":"pos-03","label":"unify: roles authority model","demo":true},{"id":"pos-04","label":"neutral client infrastructure liaison contract","demo":true},{"id":"pos-05","label":"cross-domain client hermes lane","demo":true},{"id":"pos-06","label":"unify: client infrastructure request","demo":true},{"id":"pos-07","label":"neutral feat request contract","demo":true},{"id":"pos-08","label":"cross-domain keyword lens lane","demo":true},{"id":"pos-x0","label":"seed: avatar pilot hardening follow-on","demo":true},{"id":"pos-x1","label":"seed: github administration plane follow-on","demo":true},{"id":"pos-x2","label":"seed: proposal origin contract follow-on","demo":true},{"id":"pos-x3","label":"seed: qualify avatar live voice follow-on","demo":true}],"staged":[{"id":"staged/avatar-pilot-hardening","label":"avatar-pilot-hardening","files":1},{"id":"staged/client-infrastructure-liaison","label":"client-infrastructure-liaison","files":6},{"id":"staged/github-administration-plane","label":"github-administration-plane","files":1},{"id":"staged/proposal-origin-contract","label":"proposal-origin-contract","files":1},{"id":"staged/qualify-avatar-live-voice","label":"qualify-avatar-live-voice","files":1}],"active":[{"id":"add-cross-factory-ideation-routing","label":"cross factory ideation routing"},{"id":"add-hermes-customer-subject-runtime-contract","label":"hermes customer subject runtime contract"},{"id":"add-ideation-cross-reference-readiness","label":"ideation cross reference readiness"},{"id":"add-ideation-dashboard","label":"ideation dashboard"},{"id":"add-proposal-origin-contract","label":"proposal origin contract"},{"id":"implement-avatar-client-lab","label":"implement avatar client lab"},{"id":"qualify-avatar-brokered-call-feasibility","label":"qualify avatar brokered call feasibility"}],"archived":[{"id":"add-contested-finding-rule","label":"contested finding rule"},{"id":"add-customer-memory-gateway-architecture","label":"customer memory gateway architecture"},{"id":"add-doc-health-contract","label":"doc health contract"},{"id":"add-doc-health-semantic-sweep","label":"doc health semantic sweep"},{"id":"add-document-cataloging","label":"document cataloging"},{"id":"add-document-lifecycle-vocabulary","label":"document lifecycle vocabulary"},{"id":"add-github-app-identity-tiers","label":"github app identity tiers"},{"id":"add-lifecycle-notebook-hybrid-imports","label":"lifecycle notebook hybrid imports"},{"id":"add-lifecycle-notebook-projection","label":"lifecycle notebook projection"},{"id":"add-proposal-supporting-doc-lifecycle","label":"proposal supporting doc lifecycle"},{"id":"add-release-realization-flow","label":"release realization flow"},{"id":"add-xfactory-installer-repository","label":"xfactory installer repository"},{"id":"adopt-workflow-visualization-stack","label":"adopt workflow visualization stack"},{"id":"align-avatar-first-ui-standard","label":"align avatar first ui standard"},{"id":"clarify-avatar-revocation-client-enforced","label":"clarify avatar revocation client enforced"},{"id":"concretize-prose-tagging-syntax","label":"concretize prose tagging syntax"},{"id":"define-avatar-client-contract-kernel","label":"define avatar client contract kernel"},{"id":"define-human-escalation-contract","label":"define human escalation contract"},{"id":"enable-live-openxfactory","label":"enable live openxfactory"},{"id":"exclude-worktrees-from-notebook-projection","label":"exclude worktrees from notebook projection"},{"id":"implement-avatar-reference-runtime","label":"implement avatar reference runtime"},{"id":"migrate-canonical-policy-to-openxfactory","label":"migrate canonical policy to openxfactory"},{"id":"neutralize-job-envelope","label":"neutralize job envelope"},{"id":"promote-credential-contracts","label":"promote credential contracts"},{"id":"promote-workflow-gate-contract","label":"promote workflow gate contract"},{"id":"reconcile-domain-neutral-and-engineering-spec-ownership","label":"reconcile domain neutral and engineering spec ownership"},{"id":"refine-promotion-provenance","label":"refine promotion provenance"},{"id":"restructure-factory-repo-boundaries","label":"restructure factory repo boundaries"},{"id":"split-roles-authority","label":"split roles authority"}]},"edges":[{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-AVC-09","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-AVC-10","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-accessibility","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-activation-gate","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md","b":"clusters","bi":"cl-adoption-impact","k":"real"},{"a":"docs","ai":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","b":"clusters","bi":"cl-app-identity-tiers","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-archive-gate","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-avatar-client","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-avatar-client","k":"real"},{"a":"docs","ai":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","b":"clusters","bi":"cl-branch-protection","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-brokered-sdp","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-brownfield-tracking","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-canary-rollback","k":"real"},{"a":"docs","ai":"ideation/brainstorm/workflow-visualization-tooling.md","b":"clusters","bi":"cl-client-hermes","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","b":"clusters","bi":"cl-client-hermes","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md","b":"clusters","bi":"cl-client-hermes","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","b":"clusters","bi":"cl-client-infrastructure-liaison","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md","b":"clusters","bi":"cl-client-infrastructure-liaison","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md","b":"clusters","bi":"cl-client-infrastructure-liaison","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md","b":"clusters","bi":"cl-client-infrastructure-liaison","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","b":"clusters","bi":"cl-client-infrastructure-request","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md","b":"clusters","bi":"cl-client-infrastructure-request","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md","b":"clusters","bi":"cl-client-infrastructure-request","k":"real"},{"a":"docs","ai":"ideation/brainstorm/contract-release-and-stack-surface.md","b":"clusters","bi":"cl-conformance-gate","k":"real"},{"a":"docs","ai":"ideation/brainstorm/domain-to-neutral-promotion.md","b":"clusters","bi":"cl-contract-ownership","k":"real"},{"a":"docs","ai":"ideation/brainstorm/contract-release-and-stack-surface.md","b":"clusters","bi":"cl-contract-release","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md","b":"clusters","bi":"cl-coordination-artifact","k":"real"},{"a":"docs","ai":"ideation/brainstorm/contract-release-and-stack-surface.md","b":"clusters","bi":"cl-credential-contracts","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-credential-contracts","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-credential-custody","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-delegation","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-doc-health","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-doc-health","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/domain-to-neutral-promotion.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-ring-combination-explorer.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-doc-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/domain-to-neutral-promotion.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-ring-combination-explorer.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-doc-workflow","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-document-lifecycle","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-domain-overlays","k":"real"},{"a":"docs","ai":"ideation/brainstorm/domain-to-neutral-promotion.md","b":"clusters","bi":"cl-domain-to-neutral-promotion","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-extension-fit","k":"real"},{"a":"docs","ai":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","b":"clusters","bi":"cl-fda-samd","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-feat-request","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-feat-request","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-ring-combination-explorer.md","b":"clusters","bi":"cl-feat-request","k":"real"},{"a":"docs","ai":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","b":"clusters","bi":"cl-github-administration","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-gpt-realtime-2.1","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-gui-design","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-hermes","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-hermes-review-panel","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-ideation-cross-reference","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-ideation-cross-reference","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-ring-combination-explorer.md","b":"clusters","bi":"cl-ideation-dashboard","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-ideation-lifecycle","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-ideation-lifecycle","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-ideation-tooling","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-identity-brokering","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","b":"clusters","bi":"cl-infrastructure-coordination","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-keycloak","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-keyword-lens","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-keyword-lens","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-ring-combination-explorer.md","b":"clusters","bi":"cl-keyword-lens","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-kill-switch","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-latency-slo","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-license-review","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-lifecycle-projection","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-live-voice","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/proposal-impact-and-adoption-map.md","b":"clusters","bi":"cl-locked-decisions","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md","b":"clusters","bi":"cl-medxfactory","k":"real"},{"a":"docs","ai":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","b":"clusters","bi":"cl-medxfactory","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-nightly-ci","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-notebooklm-projection","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-notebooklm-projection","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-openspec-speckit-integration","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md","b":"clusters","bi":"cl-operating-model-scenarios","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md","b":"clusters","bi":"cl-operating-models","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-operations","k":"real"},{"a":"docs","ai":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","b":"clusters","bi":"cl-opsxfactory","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md","b":"clusters","bi":"cl-opsxfactory-handoff","k":"real"},{"a":"docs","ai":"ideation/brainstorm/workflow-visualization-tooling.md","b":"clusters","bi":"cl-oss-license-evidence","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-personas","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-pilot","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-possibles-register","k":"real"},{"a":"docs","ai":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","b":"clusters","bi":"cl-proposal-origin","k":"real"},{"a":"docs","ai":"ideation/brainstorm/doc-health-pipeline.md","b":"clusters","bi":"cl-prose-tagging","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-provider-qualification","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/opsx-handoff-and-readiness-contract.md","b":"clusters","bi":"cl-readiness-contract","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-readiness-scoring","k":"real"},{"a":"docs","ai":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","b":"clusters","bi":"cl-regulatory-compliance","k":"real"},{"a":"docs","ai":"ideation/brainstorm/openspec-speckit-release-flow.md","b":"clusters","bi":"cl-release-realization","k":"real"},{"a":"docs","ai":"ideation/brainstorm/contract-release-and-stack-surface.md","b":"clusters","bi":"cl-release-tagging","k":"real"},{"a":"docs","ai":"ideation/brainstorm/domain-to-neutral-promotion.md","b":"clusters","bi":"cl-roles-authority-model","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-roles-authority-model","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/client-infrastructure-liaison.md","b":"clusters","bi":"cl-roles-authority-model","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/role-authority-and-operating-models.md","b":"clusters","bi":"cl-roles-authority-model","k":"real"},{"a":"docs","ai":"ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md","b":"clusters","bi":"cl-roles-authority-model","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-rollback","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-sbom","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-single-persona","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/southside-operating-model-scenarios.md","b":"clusters","bi":"cl-southside-clinic","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-sso","k":"real"},{"a":"docs","ai":"ideation/brainstorm/contract-release-and-stack-surface.md","b":"clusters","bi":"cl-stack-surface","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-cross-reference-readiness.md","b":"clusters","bi":"cl-staging-readiness","k":"real"},{"a":"docs","ai":"ideation/staging/client-infrastructure-liaison/request-contract-and-transition-matrix.md","b":"clusters","bi":"cl-state-transitions","k":"real"},{"a":"docs","ai":"ideation/brainstorm/notebooklm-import-test/notebooklm-ideas-2026-07-09.md","b":"clusters","bi":"cl-sync-protocol","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-telemetry","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-threat-model-closure","k":"real"},{"a":"docs","ai":"ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md","b":"clusters","bi":"cl-traceability","k":"real"},{"a":"docs","ai":"ideation/brainstorm/keycloak-identity-brokering.md","b":"clusters","bi":"cl-user-management","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-keyword-search-and-adhoc.md","b":"clusters","bi":"cl-user-management","k":"real"},{"a":"docs","ai":"ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md","b":"clusters","bi":"cl-wcag-audit","k":"real"},{"a":"docs","ai":"ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md","b":"clusters","bi":"cl-webrtc","k":"real"},{"a":"docs","ai":"ideation/brainstorm/cluster-combining-gui.md","b":"clusters","bi":"cl-workbench","k":"real"},{"a":"docs","ai":"ideation/brainstorm/lens-brainstorm-session-launch.md","b":"clusters","bi":"cl-workbench","k":"real"},{"a":"docs","ai":"ideation/brainstorm/ideation-dashboard.md","b":"clusters","bi":"cl-workflow-visualization","k":"real"},{"a":"docs","ai":"ideation/brainstorm/workflow-visualization-tooling.md","b":"clusters","bi":"cl-workflow-visualization","k":"real"},{"a":"clusters","ai":"cl-avatar-client","b":"staged","bi":"staged/avatar-pilot-hardening","k":"inferred"},{"a":"clusters","ai":"cl-pilot","b":"staged","bi":"staged/avatar-pilot-hardening","k":"inferred"},{"a":"clusters","ai":"cl-avatar-client","b":"staged","bi":"staged/client-infrastructure-liaison","k":"inferred"},{"a":"clusters","ai":"cl-client-hermes","b":"staged","bi":"staged/client-infrastructure-liaison","k":"inferred"},{"a":"clusters","ai":"cl-client-infrastructure-liaison","b":"staged","bi":"staged/client-infrastructure-liaison","k":"inferred"},{"a":"clusters","ai":"cl-client-infrastructure-request","b":"staged","bi":"staged/client-infrastructure-liaison","k":"inferred"},{"a":"clusters","ai":"cl-infrastructure-coordination","b":"staged","bi":"staged/client-infrastructure-liaison","k":"inferred"},{"a":"clusters","ai":"cl-github-administration","b":"staged","bi":"staged/github-administration-plane","k":"inferred"},{"a":"staged","ai":"staged/proposal-origin-contract","b":"active","bi":"add-proposal-origin-contract","k":"inferred"},{"a":"clusters","ai":"cl-contract-ownership","b":"staged","bi":"staged/proposal-origin-contract","k":"inferred"},{"a":"clusters","ai":"cl-contract-release","b":"staged","bi":"staged/proposal-origin-contract","k":"inferred"},{"a":"clusters","ai":"cl-proposal-origin","b":"staged","bi":"staged/proposal-origin-contract","k":"inferred"},{"a":"clusters","ai":"cl-readiness-contract","b":"staged","bi":"staged/proposal-origin-contract","k":"inferred"},{"a":"staged","ai":"staged/qualify-avatar-live-voice","b":"active","bi":"qualify-avatar-brokered-call-feasibility","k":"inferred"},{"a":"clusters","ai":"cl-avatar-client","b":"staged","bi":"staged/qualify-avatar-live-voice","k":"inferred"},{"a":"clusters","ai":"cl-live-voice","b":"staged","bi":"staged/qualify-avatar-live-voice","k":"inferred"},{"a":"clusters","ai":"cl-doc-management","b":"possibles","bi":"pos-00","k":"demo"},{"a":"clusters","ai":"cl-doc-workflow","b":"possibles","bi":"pos-01","k":"demo"},{"a":"clusters","ai":"cl-ideation-dashboard","b":"possibles","bi":"pos-02","k":"demo"},{"a":"clusters","ai":"cl-roles-authority-model","b":"possibles","bi":"pos-03","k":"demo"},{"a":"clusters","ai":"cl-client-infrastructure-liaison","b":"possibles","bi":"pos-04","k":"demo"},{"a":"possibles","ai":"pos-04","b":"staged","bi":"staged/client-infrastructure-liaison","k":"demo"},{"a":"clusters","ai":"cl-client-hermes","b":"possibles","bi":"pos-05","k":"demo"},{"a":"possibles","ai":"pos-05","b":"staged","bi":"staged/client-infrastructure-liaison","k":"demo"},{"a":"clusters","ai":"cl-client-infrastructure-request","b":"possibles","bi":"pos-06","k":"demo"},{"a":"possibles","ai":"pos-06","b":"staged","bi":"staged/client-infrastructure-liaison","k":"demo"},{"a":"clusters","ai":"cl-feat-request","b":"possibles","bi":"pos-07","k":"demo"},{"a":"clusters","ai":"cl-keyword-lens","b":"possibles","bi":"pos-08","k":"demo"},{"a":"possibles","ai":"pos-x0","b":"staged","bi":"staged/avatar-pilot-hardening","k":"demo"},{"a":"possibles","ai":"pos-x1","b":"staged","bi":"staged/github-administration-plane","k":"demo"},{"a":"possibles","ai":"pos-x2","b":"staged","bi":"staged/proposal-origin-contract","k":"demo"},{"a":"possibles","ai":"pos-x3","b":"staged","bi":"staged/qualify-avatar-live-voice","k":"demo"}]};
+
+const COLS = [
+  {key:'docs',      title:'Documents'},
+  {key:'clusters',  title:'Clusters'},
+  {key:'possibles', title:'Possibles', demo:true},
+  {key:'staged',    title:'Staged'},
+  {key:'active',    title:'Active'},
+  {key:'archived',  title:'Archived'},
+];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPACING = 58, BULGE = 15, VISIBLE = 6;
+
+/* adjacency: 'col:id' -> [{col,id,kind}] (undirected) */
+const ADJ = {};
+function addAdj(a, ai, b, bi, k){
+  (ADJ[a+':'+ai] ||= []).push({col:b, id:bi, kind:k});
+  (ADJ[b+':'+bi] ||= []).push({col:a, id:ai, kind:k});
+}
+DATA.edges.forEach(e => addAdj(e.a, e.ai, e.b, e.bi, e.k));
+function degree(col, id){ return (ADJ[col+':'+id]||[]).length; }
+
+/* ── wheel ──────────────────────────────────────────────── */
+const wheels = [];
+let focusWheel = null, threadsDirty = true;
+
+class Wheel{
+  constructor(colDef, items){
+    this.col = colDef; this.items = items;
+    this.sel = 0; this.target = 0; this.vel = 0; this.animating = false;
+    this.k = .02; this.damp = .84;            /* spring stiffness / damping */
+    this.pendingAlign = false; this.live = false; this.lastRound = 0; this.acc = 0;
+    this.index = {}; items.forEach((it,i)=> this.index[it.id]=i);
+    this.buildDom();
+  }
+  buildDom(){
+    const col = document.createElement('div'); col.className='col'; this.elCol = col;
+    const head = document.createElement('div'); head.className='col-head';
+    const name = document.createElement('span'); name.className='name cond'; name.textContent=this.col.title;
+    const cnt = document.createElement('span'); cnt.className='cnt'; cnt.textContent=this.items.length;
+    head.append(name,cnt);
+    if(this.col.demo){
+      const dt=document.createElement('span'); dt.className='demo-tag';
+      dt.textContent='demo'; dt.title='possibles register is empty — these are synthesized suggestions derived from real clusters and staged topics';
+      head.append(dt);
+    }
+    const eye=document.createElement('button'); eye.className='eye'; eye.textContent='👁';
+    eye.title='collapse / expand this column';
+    eye.setAttribute('aria-label','toggle '+this.col.title+' column');
+    eye.addEventListener('click', ()=> toggleCol(this));
+    head.append(eye);
+    const reel=document.createElement('div'); reel.className='reel'; this.elReel=reel;
+
+    this.tiles = this.items.map((it,i)=>{
+      const t=document.createElement('div'); t.className='tile'; t.tabIndex=-1;
+      if(it.demo) t.classList.add('is-demo');
+      const lab=document.createElement('div'); lab.className='t-label'; lab.textContent=it.label;
+      const sub=document.createElement('div'); sub.className='t-sub';
+      const tag=document.createElement('span'); tag.className='t-tag';
+      tag.textContent = it.demo ? 'synthesized' : (it.stage || (it.files!=null? it.files+' files' : (it.n!=null? it.n+' docs' : '')));
+      const deg=document.createElement('span'); deg.className='t-deg';
+      deg.textContent = degree(this.col.key, it.id) || '·';
+      deg.title = 'total linked items';
+      sub.append(tag,deg); t.append(lab,sub);
+      t.addEventListener('click', ()=>{ setFocus(this); this.pendingAlign=true; this.live=true; this.spinTo(i); });
+      reel.append(t); return t;
+    });
+
+    this.badgeRail=document.createElement('div'); this.badgeRail.className='badge-rail';
+    this.badgeRail.style.display='none'; reel.append(this.badgeRail);
+
+    reel.addEventListener('wheel', ev=>{
+      ev.preventDefault();
+      setFocus(this);
+      this.acc += ev.deltaY;
+      const step = Math.trunc(this.acc/40);
+      if(step){ this.acc -= step*40; this.pendingAlign=true; this.live=true;
+        this.spinTo(Math.round(this.target)+step); }
+    }, {passive:false});
+
+    col.append(head,reel);
+    this.layout();
+  }
+  /* soft=true: elastic pull from a connector (low stiffness, heavy damping) */
+  spinTo(i, soft){
+    this.target = Math.max(0, Math.min(this.items.length-1, i));
+    if(soft){ this.k=.008; this.damp=.90; }      /* dragged along by the threads */
+    else    { this.k=.020; this.damp=.84; }      /* user spin: mass + slight overshoot */
+    if(REDUCED){ this.sel=this.target; this.vel=0; this.layout(); this.settled(); }
+    else { this.animating=true; }
+  }
+  tick(){
+    if(!this.animating) return false;
+    const d=this.target-this.sel;
+    this.vel += d*this.k;
+    this.vel *= this.damp;
+    this.sel += this.vel;
+    if(Math.abs(d)<.01 && Math.abs(this.vel)<.004){
+      this.sel=this.target; this.vel=0; this.animating=false;
+      this.layout(); this.settled(); return false;
+    }
+    /* live elastic pull: as the user's wheel crosses each tile, retarget the
+       connected wheels so the threads drag them along with spring lag */
+    if(this.live){
+      const r=Math.round(this.sel);
+      if(r!==this.lastRound){ this.lastRound=r; align(this); }
+    }
+    this.layout(); return true;
+  }
+  settled(){
+    if(this.pendingAlign){ this.pendingAlign=false; this.live=false; align(this); }
+    threadsDirty=true;
+  }
+  layout(){
+    /* only the wheel the user is driving magnifies its centred tile; pulled
+       wheels keep flat tiles that rest balanced around the centre line */
+    const n=this.items.length, focused=(focusWheel===this), bulge=focused?BULGE:0;
+    for(let i=0;i<n;i++){
+      const t=this.tiles[i], d=i-this.sel, ad=Math.abs(d);
+      if(ad>VISIBLE+1){ t.style.visibility='hidden'; continue; }
+      t.style.visibility='visible';
+      const off = d*SPACING + Math.tanh(d)*bulge;
+      const s = focused ? .92 + .43*Math.max(0,1-ad) : .95;
+      t.style.transform=`translate(-50%, calc(-50% + ${off.toFixed(1)}px)) scale(${s.toFixed(3)})`;
+      t.style.opacity = (ad<.5 ? 1 : Math.max(.22, .82 - ad*.14)).toFixed(2);
+      t.style.zIndex = ad<.5 ? 6 : Math.max(1, 5-Math.round(ad));
+      t.classList.toggle('centered', focused && ad<.5);
+      t.classList.toggle('focused', focused && ad<.5);
+    }
+    this.badgeRail.style.top = 'calc(50% + 46px)';
+    threadsDirty=true;
+  }
+  centerIndex(){ return Math.max(0, Math.min(this.items.length-1, Math.round(this.sel))); }
+  centerTile(){ return this.tiles[this.centerIndex()]; }
+  centerItem(){ return this.items[this.centerIndex()]; }
+}
+
+/* ── alignment ──────────────────────────────────────────── */
+function clearLinked(){
+  wheels.forEach(w=> w.tiles.forEach(t=> t.classList.remove('linked')));
+}
+/* rest connected tiles BALANCED around the centre line, never dead on it —
+   a tile sitting exactly on the line collapses its thread into a flat line */
+function balancedTarget(idxs, n){
+  if(idxs.length===1){
+    const i=idxs[0];
+    return Math.max(0, Math.min(n-1, i>=0.8 ? i-0.8 : i+0.8));
+  }
+  let c = idxs.reduce((a,b)=>a+b,0)/idxs.length;
+  const near = idxs.reduce((a,b)=> Math.abs(b-c)<Math.abs(a-c)?b:a);
+  if(Math.abs(near-c) < .35) c += (near>=c ? -.45 : .45);
+  return Math.max(0, Math.min(n-1, c));
+}
+function align(src){
+  clearLinked();
+  const item=src.centerItem();
+  const conns=ADJ[src.col.key+':'+item.id]||[];
+  const byCol={};
+  conns.forEach(c=> (byCol[c.col] ||= []).push(c));
+  wheels.forEach(w=>{
+    if(w===src) return;
+    const list=byCol[w.col.key]; if(!list) return;
+    const idxs=list.map(c=>w.index[c.id]).filter(i=>i!=null);
+    idxs.forEach(i=> w.tiles[i].classList.add('linked'));
+    if(idxs.length){
+      w.spinTo(balancedTarget(idxs, w.items.length), true); /* soft elastic pull */
+    }
+  });
+  renderBadges(src, byCol);
+  threadsDirty=true;
+}
+function renderBadges(src, byCol){
+  wheels.forEach(w=>{ if(w!==src) w.badgeRail.style.display='none'; });
+  const rail=src.badgeRail; rail.textContent='';
+  let any=false;
+  COLS.forEach(c=>{
+    if(c.key===src.col.key) return;
+    const list=byCol[c.key]; if(!list) return;
+    any=true;
+    const chip=document.createElement('button'); chip.className='chip';
+    chip.innerHTML=''; const b=document.createElement('b'); b.textContent=list.length;
+    chip.append(b, document.createTextNode(' '+c.title.toLowerCase()));
+    chip.title='jump to '+c.title;
+    chip.addEventListener('click', ev=>{ ev.stopPropagation(); jumpToCol(c.key); });
+    rail.append(chip);
+  });
+  if(!any){
+    const chip=document.createElement('span'); chip.className='chip none';
+    chip.textContent='no links yet'; rail.append(chip);
+  }
+  rail.style.display='flex';
+}
+function jumpToCol(key){
+  const w=wheels.find(x=>x.col.key===key); if(!w) return;
+  if(w.elCol.classList.contains('collapsed')) toggleCol(w);
+  w.elCol.scrollIntoView({behavior:REDUCED?'auto':'smooth', inline:'nearest', block:'nearest'});
+  w.elCol.classList.remove('pulse'); void w.elCol.offsetWidth; w.elCol.classList.add('pulse');
+}
+function setFocus(w){
+  focusWheel=w;
+  wheels.forEach(x=> x.layout());
+}
+
+/* ── collapse (eye + dock share state) ──────────────────── */
+function toggleCol(w){
+  const off=w.elCol.classList.toggle('collapsed');
+  w.dockChip.classList.toggle('off', off);
+  threadsDirty=true;
+  setTimeout(()=>{ threadsDirty=true; updatePagers(); }, 280);
+}
+
+/* ── threads ────────────────────────────────────────────── */
+const svg=document.getElementById('threads'), viewport=document.getElementById('viewport');
+function drawThreads(){
+  const vb=viewport.getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  svg.setAttribute('width',vb.width); svg.setAttribute('height',vb.height);
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  if(!focusWheel || focusWheel.elCol.classList.contains('collapsed')) return;
+  const src=focusWheel.centerTile(); if(!src || src.style.visibility==='hidden') return;
+  const sr=src.getBoundingClientRect();
+  const item=focusWheel.centerItem();
+  const conns=ADJ[focusWheel.col.key+':'+item.id]||[];
+  const cs=getComputedStyle(document.documentElement);
+  const teal=cs.getPropertyValue('--teal').trim(), brass=cs.getPropertyValue('--brass').trim();
+  conns.forEach(c=>{
+    const w=wheels.find(x=>x.col.key===c.col); if(!w) return;
+    if(w.elCol.classList.contains('collapsed')) return;
+    const i=w.index[c.id]; if(i==null) return;
+    const t=w.tiles[i]; if(t.style.visibility==='hidden') return;
+    const tr=t.getBoundingClientRect();
+    if(tr.right<vb.left || tr.left>vb.right) return;
+    const goRight = tr.left >= sr.right;
+    const x1=(goRight? sr.right : sr.left)-vb.left, y1=sr.top+sr.height/2-vb.top;
+    const x2=(goRight? tr.left : tr.right)-vb.left, y2=tr.top+tr.height/2-vb.top;
+    const mx=(x1+x2)/2;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+    p.setAttribute('fill','none');
+    if(c.kind==='real'){ p.setAttribute('stroke',teal); p.setAttribute('stroke-width','1.6'); p.setAttribute('opacity','.75'); }
+    else if(c.kind==='inferred'){ p.setAttribute('stroke',teal); p.setAttribute('stroke-width','1.3'); p.setAttribute('stroke-dasharray','5 4'); p.setAttribute('opacity','.6'); }
+    else { p.setAttribute('stroke',brass); p.setAttribute('stroke-width','1.3'); p.setAttribute('stroke-dasharray','3 4'); p.setAttribute('opacity','.6'); }
+    svg.append(p);
+  });
+}
+
+/* ── build ──────────────────────────────────────────────── */
+const deck=document.getElementById('deck'), dock=document.getElementById('dock');
+COLS.forEach(c=>{
+  const w=new Wheel(c, DATA.cols[c.key]);
+  wheels.push(w); deck.append(w.elCol);
+  const chip=document.createElement('button'); chip.className='dchip';
+  const dot=document.createElement('span'); dot.className='dot';
+  chip.append(dot, document.createTextNode(c.title+' '));
+  const n=document.createElement('b'); n.textContent=w.items.length; chip.append(n);
+  chip.title='show / hide '+c.title;
+  chip.addEventListener('click', ()=> toggleCol(w));
+  w.dockChip=chip;
+  dock.insertBefore(chip, dock.querySelector('.legend'));
+});
+
+document.getElementById('countStrip').textContent =
+  `${DATA.meta.counts.docs} docs · ${DATA.meta.counts.clusters} clusters · ${DATA.meta.counts.possibles} possibles* · `+
+  `${DATA.meta.counts.staged} staged · ${DATA.meta.counts.active} active · ${DATA.meta.counts.archived} archived  (*demo)`;
+document.getElementById('revStamp').textContent = DATA.meta.rev;
+
+/* ── carousel paging ────────────────────────────────────── */
+const pgL=document.getElementById('pgL'), pgR=document.getElementById('pgR');
+function colStarts(){
+  return wheels.map(w=> w.elCol.offsetLeft);
+}
+function page(dir){
+  const starts=colStarts(), cur=deck.scrollLeft;
+  let i = starts.findIndex(s=> s > cur+4); if(i<0) i=starts.length;
+  const firstVisible = Math.max(0, i-1);
+  const next = Math.max(0, Math.min(starts.length-1, firstVisible+dir));
+  deck.scrollTo({left:starts[next], behavior:REDUCED?'auto':'smooth'});
+}
+pgL.addEventListener('click', ()=>page(-1));
+pgR.addEventListener('click', ()=>page(1));
+function updatePagers(){
+  pgL.disabled = deck.scrollLeft <= 2;
+  pgR.disabled = deck.scrollLeft >= deck.scrollWidth - deck.clientWidth - 2;
+}
+deck.addEventListener('scroll', ()=>{ threadsDirty=true; updatePagers(); }, {passive:true});
+addEventListener('resize', ()=>{ threadsDirty=true; updatePagers(); });
+
+/* ── keyboard ───────────────────────────────────────────── */
+addEventListener('keydown', ev=>{
+  if(ev.key==='ArrowLeft'){ page(-1); ev.preventDefault(); }
+  else if(ev.key==='ArrowRight'){ page(1); ev.preventDefault(); }
+  else if(ev.key==='ArrowUp' || ev.key==='ArrowDown'){
+    if(!focusWheel) return;
+    focusWheel.pendingAlign=true; focusWheel.live=true;
+    focusWheel.spinTo(Math.round(focusWheel.target) + (ev.key==='ArrowDown'?1:-1));
+    ev.preventDefault();
+  }
+});
+
+/* ── main loop ──────────────────────────────────────────── */
+function loop(){
+  let busy=false;
+  wheels.forEach(w=>{ if(w.tick()) busy=true; });
+  if(busy || threadsDirty){ drawThreads(); threadsDirty=false; }
+  requestAnimationFrame(loop);
+}
+
+/* ── init: centre the richest document and align ────────── */
+(function init(){
+  const dw=wheels[0];
+  let best=0, bd=-1;
+  dw.items.forEach((it,i)=>{ const d=degree('docs',it.id); if(d>bd){bd=d;best=i;} });
+  setFocus(dw);
+  dw.sel=best; dw.target=best; dw.layout();
+  align(dw);
+  updatePagers();
+  requestAnimationFrame(loop);
+})();
+
+</script>
+</body>
+</html>
