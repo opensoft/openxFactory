@@ -182,16 +182,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-governed-derived-model](openspec/changes/add-governed-derived-model/proposal.md)
-  — proposed 2026-07-23 (promotion of the governed-derived-model staging
-  topic; DTN-014): a new `governed-derived-model` capability neutralizing
-  the derived-model pattern proven in Medx (dream object / simulation
-  scenario, ratified), Adx (persona / campaign simulation, staged), and
-  Ledgerx (counterparty health profile / financial scenario, staged) —
-  conformance declaration (`xfactory_derived_model_conformance`) with
-  `governed`/`calibrated` tiers, five line-verified invariants, six
-  declared dials (incl. `person_modeling`), a vocabulary doc, and
-  `scripts/validate-derived-models.py` with positive/negative fixtures.
 - [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
   — **ratified 2026-07-22** (promotion of the omnigent-core-domain-split
   staging topic): gives omnigent-install the domain tier it lacks. Two new
@@ -344,6 +334,20 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-governed-derived-model](openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
+  — **ratified, realized, and archived 2026-07-23** (same-day promotion of
+  the governed-derived-model staging topic; DTN-014): the
+  `governed-derived-model` capability — conformance declaration
+  (`xfactory_derived_model_conformance`) with `governed`/`calibrated`
+  tiers, five line-verified invariants, six declared dials (incl.
+  `person_modeling`), the vocabulary doc
+  (`docs/governed-derived-model.md`), and
+  `scripts/validate-derived-models.py` with positive/negative fixtures.
+  Realization evidence: MedxFactory conforms at `governed`
+  declaration-only (0987bca, unchanged ratified templates); AdxFactory
+  is the first `calibrated`-tier conformer (eb98f84, via
+  `add-adx-object-model`). Deferred to the contract-v1.16 cut: manifest
+  entry + DTN-014 `adopted` flip.
 - [add-client-infrastructure-liaison](openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)
   — exit of `ideation/staging/client-infrastructure-liaison`: the neutral
   Client Infrastructure Liaison coordination profile (promoted capabilities

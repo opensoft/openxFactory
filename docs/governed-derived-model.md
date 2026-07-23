@@ -1,7 +1,7 @@
 # Governed Derived Model
 
-Status: draft
-Proposed by: add-governed-derived-model
+Status: ratified
+Ratified by: add-governed-derived-model
 Kind: contract
 
 The invariant vocabulary and conformance guidance for the

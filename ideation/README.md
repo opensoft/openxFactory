@@ -247,16 +247,19 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [add-governed-derived-model](../openspec/changes/add-governed-derived-model/proposal.md)
-  — promoted 2026-07-23 (same-day capture → decisions → promotion); owns the
-  former `governed-derived-model` staged topic (DTN-014) under
+- [add-governed-derived-model](../openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
+  — promoted 2026-07-23 (same-day capture → decisions → promotion →
+  **ratified, realized, archived 2026-07-23**); owns the former
+  `governed-derived-model` staged topic (DTN-014) under
   `supporting-docs/`. Neutralizes the pattern three domains instantiate
   independently (Medx Dream Object/Simulation Scenario, Adx
   Persona/Campaign Simulation, Ledgerx Counterparty Health
   Profile/Financial Scenario): five verified invariants, `governed` /
   `calibrated` conformance tiers, six declared dials, a
   `xfactory_derived_model_conformance` declaration, and
-  `validate-derived-models.py`.
+  `validate-derived-models.py`. Canonical spec:
+  `openspec/specs/governed-derived-model/`. Conformers: Medx
+  (`governed`, declaration-only), Adx (`calibrated`, first).
 - [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 after a design-round demotion (second
   transition); owns the former `ideation-dashboard` staged packet (primary
