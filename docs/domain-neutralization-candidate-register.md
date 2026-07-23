@@ -41,7 +41,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-011 | Domain profile, tenant, and deployment profile normalization | `promote` | P2 | `seed` | standard profile/deployment questionnaire schema |
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
 | DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
-| DTN-014 | Derived third-party model (governed non-authoritative models and scenarios) | `promote` | P2 | `staged` | derived-model invariant vocabulary, conformance schema, and validator rules |
+| DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `staged` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 
 ## Candidate Details
 
@@ -288,34 +288,48 @@ Evidence:
 Domain-local exclusions: concrete role names, reviewer group mappings, and the
 domain's external enforcement system.
 
-### DTN-014: Derived third-party model (governed non-authoritative models and scenarios)
+### DTN-014: Governed derived model (non-authoritative models and scenarios, tiered conformance)
 
-Staged 2026-07-23: staging topic
-[derived-third-party-model](../ideation/staging/derived-third-party-model/derived-third-party-model.md)
+Staged 2026-07-23; all four design questions decided the same day:
+staging topic
+[governed-derived-model](../ideation/staging/governed-derived-model/governed-derived-model.md)
 (named during the Adx→Ledgerx cross-domain modeling session with Brett
-Heap; Medx recognized as the original instance).
+Heap; Medx recognized as the original instance; renamed from "derived
+third-party model" — the Medx dream object models a synthetic case at
+domain scope and the simulation scenario models the subject, so "third
+party" over-fit the marketing/accounting instances).
 
 Three domains independently converged on the same object shape: a
-governed model of a party the served subject cares about but who holds
-no authority in the stack — Medx models a synthetic patient (dream
+governed model derived from evidence that can never be mistaken for
+truth or act on the world — Medx models synthetic patient cases (dream
 object + simulation scenario), Adx models the advertiser's customer
 (persona + campaign simulation), Ledgerx models the client company's
 customers and vendors (counterparty health profile + financial
-scenario). All three carry the same six invariants: non-authoritative by
-construction (single-value enums), per-fact provenance with a declared
-assumption register, read-only access to the domain truth store with
-zero action authority, per-subject isolation, human-gated promotion of
-hypotheses into action, and calibration-derived confidence written only
-by a designated workflow. What varies is four dials: third-party
-identity (synthetic vs real entity), truth store (Hermes memory vs
-external enforcement system), calibration source, and promoting
-authority. Promote the invariant vocabulary, a `conforms_to` conformance
-declaration, and validator rules; domains keep their own object
-templates.
+scenario). Five invariants are the verified intersection (line-checked
+2026-07-23 against the ratified Medx templates): non-authoritative by
+construction with promotion-by-new-object (authority never mutates in
+place), full provenance (assumption register, or the
+assumptions-forbidden form: evidence trace min 1 + invented-facts
+`none`), read-only truth store with zero action authority, declared
+scope (domain|subject) with no cross-scope data without review, and
+human-gated promotion of hypothesis-only outputs. Calibration
+(designated-writer loop, derived-only confidence, miss-downgrade) is a
+second conformance tier (`calibrated`), not an invariant — the Medx
+templates carry none. Six declared dials: identity (synthetic vs real
+entity; real implies a two-object identity/assessment split), model
+scope, truth store (Hermes memory vs external enforcement system),
+calibration source, promoting authority, and person_modeling
+(`synthetic_only | aggregated_only | identified_organizations_only |
+identified_persons_under_policy`, the last requiring a policy ref).
+Promote the conformance declaration
+(`conforms_to: governed-derived-model`, kind
+`xfactory_derived_model_conformance`), the invariant vocabulary, and
+`validate-derived-models.py`; domains keep their own object templates.
+Draft proposal/spec/tasks live in the staging topic's `openspec/`.
 
 Evidence:
 
-- `xFactories/MedxFactory/templates/dream-object.yaml` (ratified; conforms as-is)
+- `xFactories/MedxFactory/templates/dream-object.yaml` (ratified; conforms at `governed` tier declaration-only)
 - `xFactories/MedxFactory/templates/simulation-scenario.yaml` (ratified)
 - `xFactories/AdxFactory/ideation/staging/adx-persona-simulation/` (staged 2026-07-23)
 - `xFactories/LedgerxFactory/ideation/staging/ledgerx-counterparty-model/` (staged 2026-07-23)
