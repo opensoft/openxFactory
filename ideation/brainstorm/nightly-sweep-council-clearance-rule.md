@@ -40,8 +40,10 @@ lane-emitted PR check-run transport. **Rule v1 RATIFIED AS AMENDED**,
 `configured_but_inactive`; Brett Heap's acknowledgement registered. The
 rehearsal satisfies `first_convening_rehearsed_and_recorded`; the remaining
 activation-gate requirement is council orchestration in the Omnigent lane.
-Exit remaining: the codexFactory OpenSpec change (envelope.py tier-2 +
-check-run verdict check + negative tests).
+Exit RAISED 2026-07-23: codexFactory change
+`add-nightly-sweep-council-clearance` (three ADDED requirements on
+`merge-master-approval`, strict-valid, on main 5492110) — implementation
+next; archives after its parent change.
 
 ## Decided (2026-07-23)
 
