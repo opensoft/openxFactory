@@ -6,6 +6,10 @@ Repository context: openxFactory
 Purpose: distinguish the xFactory layer from the openxFactory reference stack
 and from domain-specific DomainxFactory stacks.
 
+Runtime-party companion: the [Party Ladder](party-ladder.md) — the
+neutral author/operator → tenant → subject → third-parties chain every
+domain instantiates, with the frozen-machine-word reading rules.
+
 ## Core Terms
 
 `xFactory` names the overall product family and repository aggregation space.

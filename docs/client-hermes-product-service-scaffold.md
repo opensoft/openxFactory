@@ -6,6 +6,12 @@ Repository context: openxFactory
 Purpose: define a reusable Tenant Hermes scaffold for organizations that sell,
 deliver, support, or operate products, services, or hybrid offers.
 
+Party position: Tenant Hermes is rung 1 of the neutral
+[Party Ladder](party-ladder.md) (author/operator → tenant → subject →
+third parties) — frozen machine role key `client`. A tenant may also
+occupy rung 2 for itself via the self-client pattern (the firm keeping
+its own books, the agency marketing itself).
+
 ## 1. Core Idea
 
 Every Tenant Hermes layer represents an operating organization. Most operating

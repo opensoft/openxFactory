@@ -74,6 +74,7 @@ Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
+- [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)

@@ -1361,6 +1361,10 @@ review standards.
 
 ## Governed Derived Models
 
+Party position: derived models are rung 3 of the neutral
+[Party Ladder](party-ladder.md) — modeled third parties attach to
+exactly one declared scope and never float between rungs or subjects.
+
 When a domain models something it must reason about but must never
 treat as truth or let act — synthetic library cases, personas of the
 subject's customers, financial-health assessments of the subject's

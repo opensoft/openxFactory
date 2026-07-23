@@ -6,6 +6,12 @@ Repository context: openxFactory
 Purpose: define the canonical memory and identity objects owned by the
 Subject Hermes layer, including Patient Hermes in MedxFactory.
 
+Party position: Subject Hermes is rung 2 of the neutral
+[Party Ladder](party-ladder.md) (author/operator → tenant → subject →
+third parties); the subject's own policy binds work stricter-rule-wins,
+and the subject's modeled third parties (counterparties, personas) live
+inside this layer's scope as governed objects, never as layers.
+
 Implementation architecture: see
 [xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md)
 for the product-neutral gateway, rails, provider profile, GBrain adapter, and
