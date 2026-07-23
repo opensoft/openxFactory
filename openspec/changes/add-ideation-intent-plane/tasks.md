@@ -43,15 +43,29 @@ this change.
 
 ## 3. Local Action Center (codexFactory Speckit realization — D5 first)
 
-- [ ] 3.1 Loopback-gated executing gate routes in serve.py
-      (`POST /actions/gate/<verb>`) calling the console engine; actor from
-      local identity; capability probe advertises them only on loopback.
-- [ ] 3.2 Dispose tray UI on pending_review possible tiles (wheel + canvas):
-      accept / reject(reason+citation) / defer; refusal panel rendering
-      GateRefused/boundary refusals; gate bar upgraded from descriptor to
-      executing when the routes are live.
-- [ ] 3.3 Tests: route gating (403 off-loopback), tray -> engine -> register
-      lifecycle outcomes, refusal surfacing, boundary intact.
+- [x] 3.1 Realized 2026-07-23 (codexFactory `specs/006-local-action-center`,
+      PR #39): `gate_routes.py` + serve.py `POST /actions/gate/<verb>`
+      (dispose-possible, ratify executing; demote/edit-apply/kickoff stay
+      descriptor this slice) over the gate-console engine; actor = explicit
+      `--actor` or the checkout's git user.name (unresolvable identity keeps
+      the capability off, fail-closed); the capability verdict gains
+      `actions.gate` + `actor`, true only on loopback + real checkout +
+      resolved actor — the deployed image never qualifies.
+- [x] 3.2 Realized 2026-07-23 (PR #39; wheel — the canvas tray follows the
+      same dispose.js module when that view grows a pending surface):
+      `views/dispose.js` tray (accept / reject with required reason+citation
+      / defer) on the wheel's focused pending_review tile, session-local
+      applied overlay (two-plane: the snapshot is never mutated; tiles show
+      the verdict + regenerate hint), refusal panel rendering every engine
+      refusal textContent-only; gate.js ratify EXECUTES under the capability
+      (caps bound by app.js — gate.js stays import-free for its standalone
+      node tests).
+- [x] 3.3 Realized 2026-07-23 (PR #39): 8 real-HTTP tests — capability
+      advertisement on/off loopback and without actor, accept persists
+      register + gate-action record, uncited reject refused on the wire with
+      nothing persisted, validator-reject persists nothing, invalid/unknown
+      verbs, ratify executes; notebook-suite capability expectations updated
+      (actor pinned for determinism); dashboard suite 329 green.
 
 ## 4. Hosted Intent Plane (codexFactory + omnigent-install + aggregation)
 
