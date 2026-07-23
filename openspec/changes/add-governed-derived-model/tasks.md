@@ -39,8 +39,12 @@
 
 ## 4. Realization evidence (archive gate)
 
-- [ ] 4.1 MedxFactory: declaration-only conformance at `governed`
+- [x] 4.1 MedxFactory: declaration-only conformance at `governed`
       (stack/declaration edit + validator green; no template changes).
+      Landed 2026-07-23: `MedxFactory/models/derived-model-conformance.yaml`
+      (commit 0987bca) — dream_simulation family, canonical validator
+      green against the unchanged ratified templates, local
+      `make validate` green.
 - [ ] 4.2 First of AdxFactory/LedgerxFactory object-model changes lands
       with a `calibrated` declaration + validator green.
 - [ ] 4.3 Update DTN-014 register entry to `implemented` → `adopted` as
