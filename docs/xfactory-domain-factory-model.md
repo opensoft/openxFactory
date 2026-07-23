@@ -1359,6 +1359,24 @@ route tables, source-authority rails, usage events, migration manifests, and
 audit records. Domain Hermes remains the owner of reusable expert truth and
 review standards.
 
+## Governed Derived Models
+
+When a domain models something it must reason about but must never
+treat as truth or let act — synthetic library cases, personas of the
+subject's customers, financial-health assessments of the subject's
+counterparties — that object is a **governed derived model** and should
+declare conformance to the `governed-derived-model` capability instead
+of re-deriving the safety rules by hand. The pattern (five invariants,
+`governed`/`calibrated` tiers, six dials including the mandatory
+`person_modeling` posture) is defined in
+[Governed Derived Model](governed-derived-model.md); the declaration
+schema is `contracts/schemas/xfactory-derived-model-conformance.schema.yaml`
+(domain-owned document at `models/derived-model-conformance.yaml`) and
+the canonical validator is `scripts/validate-derived-models.py`. Proof
+instantiations: MedxFactory dream objects and simulation scenarios,
+AdxFactory personas and campaign simulations, LedgerxFactory
+counterparty health profiles and financial scenarios.
+
 ## Factory Contract Boundary
 
 xFactory / openxFactory owns general contract fields such as:

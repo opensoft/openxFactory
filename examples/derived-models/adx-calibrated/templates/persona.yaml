@@ -1,0 +1,39 @@
+schema_version: 1
+kind: adx_object_template
+# Trimmed fixture copy of the staged AdxFactory persona template —
+# only the surface the conformance validator inspects.
+
+template:
+  id: persona
+
+fields:
+  traits:
+    type: list
+    required: true
+  assumption_register:
+    type: list
+    required: true
+  source_traces:
+    type: list
+    target: Evidence Record
+  authority_status:
+    type: enum
+    required: true
+    values:
+      - non_authoritative
+  pii_visibility:
+    type: enum
+    required: true
+    values:
+      - aggregated_only
+  brand_truth_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+
+gates:
+  - id: every_trait_carries_provenance
+    blocks_on_failure: true
+  - id: cross_advertiser_reuse_prohibited
+    blocks_on_failure: true

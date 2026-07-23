@@ -1,0 +1,48 @@
+schema_version: 1
+kind: xfactory_derived_model_conformance
+# Reference fixture: the LedgerxFactory shape — calibrated tier, REAL
+# entity identity (two-object split: the authoritative counterparty
+# subject is declared as identity_subject_kind and is not a family
+# member), subject scope, external-enforcement truth store (the
+# ledger). Mirrors the staged ledgerx-counterparty-model drafts.
+conforms_to: governed-derived-model
+
+domain:
+  id: ledgerx
+
+families:
+  - id: counterparty_health
+    display_name: Counterparty Health Profile and Financial Scenario
+    tier: calibrated
+    identity_subject_kind: counterparty
+    members:
+      - role: model
+        kind: counterparty_health_profile
+        template: templates/counterparty-health-profile.yaml
+        provenance:
+          form: assumption_register
+          evidence_field: signals
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: ledger_write_access
+          value: read_only
+      - role: scenario
+        kind: financial_scenario
+        template: templates/financial-scenario.yaml
+        truth_store_access:
+          field: ledger_write_access
+          value: read_only
+        action_authority:
+          - field: posting_authority
+            value: none
+        output_status_field: output_status
+    dials:
+      identity: real_entity
+      scope: subject
+      isolation_boundary: per_client
+      truth_store: ledger
+      truth_store_class: external_enforcement
+      calibration_writer: close_readiness
+      calibration_source: close_cycle_actuals
+      promoting_authority: licensed_professional_of_record
+      person_modeling: identified_organizations_only

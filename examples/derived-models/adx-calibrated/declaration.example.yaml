@@ -1,0 +1,50 @@
+schema_version: 1
+kind: xfactory_derived_model_conformance
+# Reference fixture: the AdxFactory shape — calibrated tier, synthetic
+# aggregate identity at subject scope, assumption-register provenance,
+# field-lock truth-store protection. Mirrors the staged
+# adx-persona-simulation drafts; template files here are trimmed
+# fixture copies of the target shape.
+conforms_to: governed-derived-model
+
+domain:
+  id: adx
+
+families:
+  - id: persona_simulation
+    display_name: Persona and Campaign Simulation
+    tier: calibrated
+    members:
+      - role: model
+        kind: persona
+        template: templates/persona.yaml
+        provenance:
+          form: assumption_register
+          evidence_field: source_traces
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: brand_truth_access
+          value: read_only
+        locks:
+          - field: pii_visibility
+            value: aggregated_only
+      - role: scenario
+        kind: campaign_simulation
+        template: templates/campaign-simulation.yaml
+        truth_store_access:
+          field: brand_truth_access
+          value: read_only
+        action_authority:
+          - field: spend_authority
+            value: none
+        output_status_field: output_status
+    dials:
+      identity: synthetic_aggregate
+      scope: subject
+      isolation_boundary: per_advertiser
+      truth_store: brand_truth
+      truth_store_class: hermes_memory
+      calibration_writer: performance_review
+      calibration_source: performance_review_actuals
+      promoting_authority: human_launch_approver
+      person_modeling: aggregated_only

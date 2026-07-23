@@ -1,0 +1,28 @@
+schema_version: 1
+kind: medx_object_template
+# Trimmed fixture copy of MedxFactory templates/simulation-scenario.yaml.
+
+template:
+  id: simulation_scenario
+
+fields:
+  assumption_set:
+    type: list
+    required: true
+  output_status:
+    type: enum
+    required: true
+    values:
+      - hypothesis_proposed
+      - no_signal
+      - discarded
+  truth_model_write_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+
+gates:
+  cannot_write_patient_truth_model: true
+  cannot_create_orders: true
+  hypothesis_promotion_requires_clinician_review: true

@@ -1,0 +1,36 @@
+schema_version: 1
+kind: adx_object_template
+# Trimmed fixture copy of the staged AdxFactory campaign-simulation template.
+
+template:
+  id: campaign_simulation
+
+fields:
+  assumption_set:
+    type: list
+  brand_truth_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+  spend_authority:
+    type: enum
+    required: true
+    values:
+      - none
+  persona_write_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+  output_status:
+    type: enum
+    required: true
+    values:
+      - hypothesis_proposed
+      - no_signal
+      - discarded
+
+gates:
+  - id: promotion_requires_human_launch_approval
+    blocks_on_failure: true

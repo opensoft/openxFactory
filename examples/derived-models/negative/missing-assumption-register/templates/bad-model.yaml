@@ -1,0 +1,20 @@
+schema_version: 1
+kind: negx_object_template
+
+template:
+  id: bad_model
+
+fields:
+  traits:
+    type: list
+    required: true
+  authority_status:
+    type: enum
+    required: true
+    values:
+      - non_authoritative
+  truth_access:
+    type: enum
+    required: true
+    values:
+      - read_only

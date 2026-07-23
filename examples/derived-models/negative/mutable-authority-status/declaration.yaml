@@ -1,0 +1,31 @@
+# expected_failure: authority_status
+# A model whose authority_status enum admits a second value — the
+# derived object could be promoted in place, violating
+# non-authoritative-by-construction.
+schema_version: 1
+kind: xfactory_derived_model_conformance
+conforms_to: governed-derived-model
+
+domain:
+  id: negx
+
+families:
+  - id: mutable_authority
+    tier: governed
+    members:
+      - role: model
+        kind: bad_model
+        template: templates/bad-model.yaml
+        provenance:
+          form: assumption_register
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: truth_access
+          value: read_only
+    dials:
+      identity: synthetic
+      scope: domain
+      truth_store: example_truth
+      truth_store_class: hermes_memory
+      promoting_authority: human_reviewer
+      person_modeling: synthetic_only

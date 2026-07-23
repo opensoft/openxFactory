@@ -1,0 +1,28 @@
+schema_version: 1
+kind: medx_object_template
+# Trimmed fixture copy of MedxFactory templates/dream-object.yaml —
+# only the surface the conformance validator inspects.
+
+template:
+  id: dream_object
+
+fields:
+  source_trace:
+    type: list
+    target: Root Truth Record
+    required: true
+    min_items: 1
+  authority_status:
+    type: enum
+    required: true
+    values:
+      - non_authoritative
+  invented_patient_facts:
+    type: enum
+    required: true
+    values:
+      - none
+
+gates:
+  source_trace_required: true
+  cannot_write_patient_truth_model: true

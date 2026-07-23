@@ -75,6 +75,7 @@ Core domain-neutral docs:
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
+- [Governed Derived Model](docs/governed-derived-model.md)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
