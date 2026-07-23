@@ -304,6 +304,22 @@ Active changes:
   rolling commit-back PR (openxFactory #38, approved + merged) — the
   register's bootstrap-empty era is over; humans dispose on the gate
   console. At 19/20; remaining: 5.2 records through archive
+- [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
+  — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
+  from the dashboard-action-center + cloud-workstation-topology brainstorms;
+  ratified 2026-07-23) for the intent plane that makes the dashboard the
+  process action center WITHOUT weakening D16: a click emits a signed
+  `gate-intent` (actor, verb, target, snapshot_rev_seen); a dispatch-only
+  inbox wakes the apply lane; the gate-console engine revalidates and commits
+  intent + gate-action record + artifacts atomically via rolling PR
+  (second-touch DECIDED: custody-not-decision, batched auto-merge). Two-plane
+  rendering (snapshot + intent-feed overlay + refusal panel), identity ladder
+  (per-user htpasswd -> Keycloak, contract-invisible), dispose tray as the
+  first verb (local loopback-executing routes first, hosted intents second),
+  Flutter verdict terminal as the same client class. Also carries the
+  document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
+  until merged). (code surface: codexFactory, openxFactory, omnigent-install,
+  xFactory; release allocated at realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and

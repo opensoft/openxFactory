@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-07-23
+origin:
+  kind: staged
+  id: openxFactory:staging:ideation-action-plane
+  reason: >-
+    Organized 2026-07-23 from the dashboard-action-center and
+    cloud-workstation-topology brainstorms (both Brett-locked the day the
+    first derive->dispose cycle ran end-to-end) into the
+    ideation-action-plane staged topic; this change is the topic's first
+    exit (the intent plane). The Drive-membrane fragment exits separately
+    after its ingestion spike.
+  approved_by: Brett (openxFactory operator authority)
+  approved_on: 2026-07-23

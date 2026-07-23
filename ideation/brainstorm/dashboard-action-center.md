@@ -1,6 +1,6 @@
 # Dashboard Action Center — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Evolve the hosted ideation dashboard from a read-only projection into
 the action center where a human manages the whole ideation process — WITHOUT
@@ -14,6 +14,7 @@ first as the proof verb.
 Topics: ideation-dashboard, gate-console, interactivity-boundary, intent-queue, possibles-register, roles-authority-model, keycloak, identity-brokering, doc-management, doc-workflow
 Repository context: openxFactory (capability owner; realization spans codexFactory + omnigent-install + xFactory aggregation)
 Captured: 2026-07-23
+Organized: 2026-07-23 into the ideation-action-plane staged topic and promoted the same day into [add-ideation-intent-plane](../../openspec/changes/add-ideation-intent-plane/proposal.md).
 
 ## The reframe (Brett + session, 2026-07-23)
 

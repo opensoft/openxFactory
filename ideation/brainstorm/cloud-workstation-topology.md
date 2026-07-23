@@ -1,6 +1,6 @@
 # Cloud/Workstation Topology and the Drive→NotebookLM Projection Mirror — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Fixes the local-vs-cloud custody question for the ideation system:
 git (GitHub) stays the ONLY truth; every cloud surface is a derived
@@ -17,6 +17,7 @@ hosted forks.
 Topics: notebooklm-projection, lifecycle-projection, ideation-dashboard, google-drive, identity-brokering, keycloak, custody-tiers, doc-management, doc-workflow
 Repository context: openxFactory (capability owner; realization spans codexFactory + aggregation lanes)
 Captured: 2026-07-23
+Organized: 2026-07-23 into the ideation-action-plane staged topic (intent plane exits as add-ideation-intent-plane; the Drive-membrane fragment exits separately after its ingestion spike).
 
 ## The topology principle (Brett + session, 2026-07-23)
 

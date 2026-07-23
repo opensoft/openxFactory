@@ -44,6 +44,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
+| [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | First exit RAISED + IMPLEMENTED 2026-07-23 (`add-client-layer-tuning-contracts`, contract-v1.17: roles/ + FAO + cost_reporting_steward + client-content schemas + comparability validator) — codexFactory defaults (2b) and the wizard + client seeding (2c) next |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
@@ -53,6 +54,26 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 1 | Ready to iterate — build decision by Brett 2026-07-23; 6 open questions (Omni-001 admin path, runner-under-virtual-account, bench-manifest home hardest) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
+
+## ideation-action-plane
+
+- Staging ID: `openxFactory:staging:ideation-action-plane`
+- Repository context: openxFactory (gate-intent kernel, `ideation-intent-plane`
+  capability, document-lifecycle delta); codexFactory (tray/overlay UI, local
+  executing gate routes, apply-lane orchestration); omnigent-install (inbox
+  service, per-user ingress auth); xFactory aggregation (lane wiring)
+- Files: `ideation-action-plane.md` (primary — the intent plane),
+  `drive-membrane.md` (fragment 2 — projection mirror out / intake lane in)
+- Target capabilities: `ideation-intent-plane` (ADDED), `document-lifecycle`
+  (MODIFIED — gates happen on main); fragment 2 targets
+  `lifecycle-notebook-projection` (MODIFIED)
+- Source: dashboard-action-center + cloud-workstation-topology brainstorms,
+  Brett-locked 2026-07-23 (the day the first derive→dispose cycle ran
+  end-to-end)
+- Readiness: exit 1 (`add-ideation-intent-plane`) raised at this gate with
+  the second-touch decision RESOLVED (custody-not-decision, batched
+  auto-merge on approval); fragment 2 exits separately after the Drive↔NLM
+  ingestion spike
 
 ## client-credential-escrow-registry
 
