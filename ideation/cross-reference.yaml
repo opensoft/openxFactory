@@ -1,20 +1,388 @@
-# GENERATED BOOTSTRAP — ideation cross-reference readiness index (source of truth).
-# Produced by scripts/bootstrap-ideation-cross-reference.py (add-ideation-cross-reference-readiness
-# task 2.4). Regenerate deterministically; ideation/cross-reference.md is a projection of THIS file.
-#
-# CLUSTERING RULE (bootstrap precursor of worker task 3.3): each Topics:/Target capabilities:
-# token is a cluster seed; a token carried by >= 2 docs forms a cluster; tokens with an
-# IDENTICAL member set are merged; cluster id = cl-<alphabetically-first token>; entries sorted
-# by id, members by path. See the script docstring for the full rule and the bootstrap posture
-# (all extension_fit unscored/no-claim, all tiers unscored, possibles_register absent).
+# GENERATED — ideation cross-reference readiness index (source of truth).
+# Produced by the codexFactory readiness scorer (scripts/doc_health/ideation_readiness.py;
+# add-ideation-cross-reference-readiness tasks 3.1-3.5). Regenerate deterministically;
+# ideation/cross-reference.md is a projection of THIS file. Cluster rule + scoring contract:
+# specs/003-ideation-readiness/ (codexFactory).
+# possibles_register section maintained by the derive-possibles lane
+# (scripts/doc_health/derive_possibles.py; add-possibles-derivation-lane tasks 3.1-3.5;
+# specs/004-derive-possibles).
 schema_version: 1
 kind: ideation-cross-reference
 repository: openxFactory
 generation:
-  source_revision: ee0864c2ea57d14ac5dbb2ebd9272c546e39523b
-  generated_at: '2026-07-16T11:22:02Z'
-  generator_version: ideation-xref-bootstrap-0.1.0
+  source_revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+  generator_version: ideation-xref-scorer-0.1.0
 topic_entries:
+- id: cl-accessibility
+  name: Accessibility
+  topics:
+  - accessibility
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-legal-compliance-model.md
+    stage: brainstorm
+    matched_tags:
+    - accessibility
+  - path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+    stage: staged
+    matched_tags:
+    - accessibility
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-activation-gate
+  name: Activation Gate
+  topics:
+  - activation-gate
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - activation-gate
+  - path: ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md
+    stage: staged
+    matched_tags:
+    - activation-gate
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+- id: cl-adoption-profile
+  name: Adoption Profile
+  topics:
+  - adoption-profile
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - adoption-profile
+  - path: ideation/brainstorm/domain-practice-suggestion-generation.md
+    stage: brainstorm
+    matched_tags:
+    - adoption-profile
+  extension_fit:
+    has_promoted_fit: true
+    promoted_spec: memory-gateway
+    how_extends: The cluster's domain-memory-boundaries content is explicitly designed to feed into (not
+      parallel) the already-ratified customer memory gateway's promotion vocabulary and authority_levels
+      (self_reported | observed | source_backed | reviewed | domain_authoritative | below_threshold),
+      and the practice catalog's entries cite already-promoted capabilities (doc-health, credential-contracts)
+      as capability_ref targets rather than proposing new ones from scratch.
+  readiness:
+    tiers:
+    - tier: domain
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+          section: 'ideation/brainstorm/codexfactory-domain-memory-and-practices.md â€” ## Memory boundaries
+            (write_authority block)'
+          passage_sha256: f9df2c81ad3110bbfd680d2196e33234e915ef7dbf7a28952604c80f0c4d582a
+          repository: openxFactory
+        rationale: 'An owning domain resolves cleanly: this is codexFactory''s Domain Hermes content,
+          with catalog content explicitly codex-owned and memory boundaries expressed against the ratified
+          gateway. The cluster carries a dated ''Decided (2026-07-22)'' section fixing write authority
+          (worker proposes, owning Lead accepts, no ratification for memory), catalog-signing ceremony,
+          and a two-layer de-identification contract â€” real domain-authority decisions, not open sketches.
+          It falls short of a 9-10 because several domain-facing questions remain genuinely open (whether
+          conformance-gate and governed-review-lane are DTN/neutralization candidates, catalog versioning
+          semantics), so the domain''s authority over this material is substantial but not fully closed.'
+        confidence: 0.6
+        alternatives:
+        - Could be scored lower (5-6) on the view that 'brainstorm' status alone signals insufficient
+          domain maturity regardless of decided sub-items.
+        - Could be UNSCORED if the codex/openxFactory split ownership (catalog codex-owned, schema neutral)
+          is read as ambiguous rather than resolved â€” rejected here because the front matter and body
+          both state the split explicitly rather than leaving it undetermined.
+        disposition: pending_review
+    - tier: company
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/domain-practice-suggestion-generation.md
+          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+          section: ideation/brainstorm/domain-practice-suggestion-generation.md â€” front-matter (Repository
+            context line)
+          passage_sha256: 057edfabbf75d63500c898664db328c5bddad80b8fcb0e30a466396d271c1e2a
+          repository: openxFactory
+        rationale: The cluster explicitly frames the adoption_profile schema as neutral/company-scoped
+          (openxFactory) so that suggestions look uniform across every domain's suggestions to every client's
+          policy layer, which is the kind of coherence a company ratify gate would want to see before
+          entertaining a cross-domain contract. However, both documents remain at brainstorm status with
+          unresolved cross-domain questions still flagged as open (who signs the catalog, whether conformance-gate/governed-review-lane
+          are DTN candidates for neutralization, batch-vs-per-subject suggestion UX) â€” these are exactly
+          the kind of open coherence questions a neutral gate would need settled first, so this sits at
+          moderate rather than high readiness.
+        confidence: 0.5
+        alternatives:
+        - Could score higher (6-7) crediting the explicit neutral-schema framing as sufficient company-level
+          coherence on its own.
+        - Could score lower (3-4) on the view that a cluster with two still-brainstorm documents and multiple
+          unresolved cross-domain questions hasn't yet reached company-gate coherence at all.
+        disposition: pending_review
+    - tier: project
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+          section: 'ideation/brainstorm/codexfactory-domain-memory-and-practices.md â€” ## Practice catalog
+            (codex_practice_catalog YAML block)'
+          passage_sha256: 314f7e74892f01119a7b4640908c61b1058d282703f805d7d2efd4167209bcd1
+          repository: openxFactory
+        rationale: 'The cluster supplies concrete, near-shippable shapes: a full practice-catalog YAML
+          schema with typed fields (capability_ref, promoted_in, owning_lead, subject_kind, applicability,
+          realization, maturity_gate, risk_class), a memory-boundaries YAML with write-authority fields,
+          and a structured suggestion-record grammar (suggestion_id, idempotency_key, disposition lifecycle)
+          reusing an established record family''s grammar. This is enough concrete surface for initial
+          feature decomposition. It''s not a full 8-9 because several implementation-blocking questions
+          are still open in the companion document (catalog versioning/reopening semantics, observation-authority
+          for private subjects, whether the gap scan runs as a Hermes runtime CronJob or a factory workflow)
+          â€” decisions a Spec Kit DAG would need pinned down first.'
+        confidence: 0.55
+        alternatives:
+        - Could score higher (7-8) since the YAML schemas and record grammar are unusually concrete for
+          a brainstorm-stage cluster.
+        - Could score lower (4-5) given the gap-scan runtime placement and catalog-versioning semantics
+          are still explicitly unresolved open questions that a DAG couldn't safely proceed past.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — minimum tier score is 5 (< 8): {''domain'': 7, ''company'': 5, ''project'':
+        6}'
+- id: cl-agent-certification
+  name: Agent Certification
+  topics:
+  - agent-certification
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/agent-certification-wallets.md
+    stage: brainstorm
+    matched_tags:
+    - agent-certification
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - agent-certification
+  extension_fit:
+    has_promoted_fit: true
+    promoted_spec: credential-contracts
+    how_extends: The wallet document explicitly proposes extending the credential-contracts capability
+      with a new credential type â€” an agent-certification verifiable credential (issuer = certification
+      gate, subject = agent DID, claims = qualification level, certified config hash, battery scores,
+      expiry) â€” alongside the existing patient/practitioner licensure credentials, and the persona document
+      extends the same idea to persona-as-quantified-identity via its behavioral battery.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: No owning DomainxFactory resolves for this cluster
+    - tier: company
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-certification-wallets.md
+          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+          section: '## Exit'
+          passage_sha256: 315792afbb4be2782f2496c1883134fcf2bcfb4fd9af48d2f94a455b1322cbc9
+          repository: openxFactory
+        rationale: 'The cluster is coherent as a neutral, company-layer proposal: it has a named exit
+          format (an openxFactory contract change), explicit composition points with two already-promoted
+          capabilities (roles-authority-model, credential-contracts), and a sibling document showing the
+          idea maturing through dated ratify-style decisions (2026-07-21/22) rather than staying purely
+          speculative. That gives a ratify authority enough to engage with a proposal. It is held back
+          from a higher score by both documents still carrying Status: brainstorm, and by open questions
+          (cert-issuance authority, battery ownership) that touch governance/authority boundaries the
+          company gate would need resolved first.'
+        confidence: 0.6
+        alternatives:
+        - 'Score 7-8: the extensive dated ''Decided'' sections in the persona doc and the explicit exit/composition
+          statement in the wallet doc could be read as proposal-ready.'
+        - 'Score 4-5: both documents are still explicitly brainstorm-stage and the cert-authority open
+          question is itself a governance question the company gate would normally need settled before
+          engaging.'
+        disposition: pending_review
+    - tier: project
+      score: 4
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-certification-wallets.md
+          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+          section: '## Open questions'
+          passage_sha256: f0269e236ba09e47d771e33ed01b6b8b76ad6a62aec8f55a435f289692b7986f
+          repository: openxFactory
+        rationale: 'Feature decomposition needs concrete, boundable units of work, but the cluster''s
+          central mechanisms are still open design questions rather than settled contracts: drift-tolerance
+          bands are undetermined, battery authorship/sizing is unresolved (''who authors the golden tasks
+          per lane, how large a battery is statistically sufficient''), cert-issuance authority is unresolved,
+          and the persona doc''s own open-questions list still carries an unanswered battery-authoring
+          question. These aren''t implementation details that decomposition can absorb â€” they change
+          what the certification/persona contracts even are, so a Spec Kit DAG built today would be built
+          on shifting ground.'
+        confidence: 0.55
+        alternatives:
+        - 'Score 5-6: the wallet doc''s ''Possible feats'' bullets (openxWallet capability, capability-grant
+          contract, drift-rule) are concrete enough that a first DAG slice (e.g. config-hash declared-change
+          decert) could be decomposed independently of the unresolved battery-design questions.'
+        - 'Score 2-3: since both the certification battery and the persona battery share the same unresolved
+          design gap, and the two documents are mutually dependent (persona battery explicitly links to
+          the wallet doc), the whole cluster may be more tightly coupled to open questions than a single-feature
+          carve-out would suggest.'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+- id: cl-agent-mixes
+  name: Agent Mixes
+  topics:
+  - agent-mixes
+  - escalation-rules
+  - review-councils
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - agent-mixes
+    - escalation-rules
+    - review-councils
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - agent-mixes
+    - escalation-rules
+    - review-councils
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+- id: cl-authority-personas
+  name: Authority Personas
+  topics:
+  - authority-personas
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - authority-personas
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - authority-personas
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - authority-personas
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - authority-personas
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-auto-clear-envelope
+  name: Auto Clear Envelope
+  topics:
+  - auto-clear-envelope
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-content-draft.md
+    stage: brainstorm
+    matched_tags:
+    - auto-clear-envelope
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - auto-clear-envelope
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - auto-clear-envelope
+  - path: ideation/brainstorm/practice-clearance-and-project-realization.md
+    stage: brainstorm
+    matched_tags:
+    - auto-clear-envelope
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - auto-clear-envelope
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
 - id: cl-avatar-client
   name: Avatar Client
   topics:
@@ -33,17 +401,377 @@ topic_entries:
     - avatar-client
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-break-glass
+  name: Break Glass
+  topics:
+  - break-glass
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/subject-recall-and-consent-path.md
+    stage: brainstorm
+    matched_tags:
+    - break-glass
+  - path: ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md
+    stage: staged
+    matched_tags:
+    - break-glass
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-cerebras
+  name: Cerebras
+  topics:
+  - cerebras
+  - evidence-rows
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - cerebras
+    - evidence-rows
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - cerebras
+    - evidence-rows
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-character-model
+  name: Character Model
+  topics:
+  - character-model
+  - trait-framework
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - character-model
+    - trait-framework
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - character-model
+    - trait-framework
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
+        cluster member document (a cited passage must be real)'
+- id: cl-client-hermes
+  name: Client Hermes
+  topics:
+  - client-hermes
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/client-layer-content-draft.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/client-risk-and-assurance-model.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/hermes-legal-compliance-model.md
+    stage: brainstorm
+    matched_tags:
+    - client-hermes
+  - path: ideation/brainstorm/workflow-visualization-tooling.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  - path: ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - client-hermes
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: company
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+    - tier: project
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
+- id: cl-client-layer
+  name: Client Layer
+  topics:
+  - client-layer
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-content-draft.md
+    stage: brainstorm
+    matched_tags:
+    - client-layer
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - client-layer
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - client-layer
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+- id: cl-codexfactory
+  name: Codexfactory
+  topics:
+  - codexfactory
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/brainstorm/codexfactory-domain-policy-model.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - codexfactory
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - codexfactory
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-codexfactory'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-codexfactory'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-codexfactory'
+- id: cl-company-policy
+  name: Company Policy
+  topics:
+  - company-policy
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-content-draft.md
+    stage: brainstorm
+    matched_tags:
+    - company-policy
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - company-policy
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - company-policy
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - company-policy
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-company-policy'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-company-policy'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-company-policy'
+- id: cl-consent
+  name: Consent
+  topics:
+  - consent
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - consent
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - consent
+  - path: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    stage: brainstorm
+    matched_tags:
+    - consent
+  - path: ideation/brainstorm/project-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - consent
+  - path: ideation/brainstorm/subject-recall-and-consent-path.md
+    stage: brainstorm
+    matched_tags:
+    - consent
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-consent'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-consent'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-consent'
+- id: cl-cost-accountability
+  name: Cost Accountability
+  topics:
+  - cost-accountability
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - cost-accountability
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - cost-accountability
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-cost-accountability'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-cost-accountability'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-cost-accountability'
 - id: cl-credential-contracts
   name: Credential Contracts
   topics:
@@ -62,17 +790,72 @@ topic_entries:
     - credential-contracts
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-credential-contracts'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-credential-contracts'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-credential-contracts'
+- id: cl-credentials
+  name: Credentials
+  topics:
+  - credentials
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/omnigent-lane-activation-path.md
+    stage: brainstorm
+    matched_tags:
+    - credentials
+  - path: ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md
+    stage: staged
+    matched_tags:
+    - credentials
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-credentials'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-credentials'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-credentials'
+- id: cl-determinism
+  name: Determinism
+  topics:
+  - determinism
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-policy-model.md
+    stage: brainstorm
+    matched_tags:
+    - determinism
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - determinism
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-determinism'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-determinism'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-determinism'
 - id: cl-doc-health
   name: Doc Health
   topics:
@@ -85,23 +868,26 @@ topic_entries:
     stage: staged
     matched_tags:
     - doc-health
+  - path: ideation/brainstorm/hermes-governed-nightly-sweep.md
+    stage: brainstorm
+    matched_tags:
+    - doc-health
   - path: ideation/brainstorm/ideation-dashboard.md
     stage: staged
     matched_tags:
     - doc-health
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-health'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-health'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-health'
 - id: cl-doc-management
   name: Doc Management
   topics:
@@ -156,19 +942,171 @@ topic_entries:
     matched_tags:
     - doc-management
     - doc-workflow
+  - path: ideation/brainstorm/topic-compilation-tree.md
+    stage: brainstorm
+    matched_tags:
+    - doc-management
+    - doc-workflow
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-management'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-management'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-doc-management'
+- id: cl-domain-hermes
+  name: Domain Hermes
+  topics:
+  - domain-hermes
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/codexfactory-domain-policy-model.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/domain-practice-suggestion-generation.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - domain-hermes
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - domain-hermes
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-hermes'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-hermes'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-hermes'
+- id: cl-domain-memory
+  name: Domain Memory
+  topics:
+  - domain-memory
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - domain-memory
+  - path: ideation/brainstorm/codexfactory-domain-policy-model.md
+    stage: brainstorm
+    matched_tags:
+    - domain-memory
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-memory'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-memory'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-domain-memory'
+- id: cl-execution-lane
+  name: Execution Lane
+  topics:
+  - execution-lane
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/omnigent-lane-activation-path.md
+    stage: brainstorm
+    matched_tags:
+    - execution-lane
+  - path: ideation/brainstorm/tech-stack-benches.md
+    stage: brainstorm
+    matched_tags:
+    - execution-lane
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-execution-lane'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-execution-lane'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-execution-lane'
+- id: cl-fail-closed
+  name: Fail Closed
+  topics:
+  - fail-closed
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-risk-and-assurance-model.md
+    stage: brainstorm
+    matched_tags:
+    - fail-closed
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - fail-closed
+  - path: ideation/brainstorm/hermes-legal-compliance-model.md
+    stage: brainstorm
+    matched_tags:
+    - fail-closed
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-fail-closed'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-fail-closed'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-fail-closed'
 - id: cl-feat-request
   name: Feat Request
   topics:
@@ -195,17 +1133,239 @@ topic_entries:
     - keyword-lens
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-feat-request'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-feat-request'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-feat-request'
+- id: cl-gate-rules-council
+  name: Gate Rules Council
+  topics:
+  - gate-rules-council
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - gate-rules-council
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - gate-rules-council
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - gate-rules-council
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-rules-council'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-rules-council'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-rules-council'
+- id: cl-hermes-install
+  name: Hermes Install
+  topics:
+  - hermes-install
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - hermes-install
+  - path: ideation/staging/layer-content-materialization/layer-content-materialization.md
+    stage: staged
+    matched_tags:
+    - hermes-install
+  - path: ideation/staging/omnigent-core-domain-split/omnigent-core-domain-split.md
+    stage: staged
+    matched_tags:
+    - hermes-install
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-hermes-install'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-hermes-install'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-hermes-install'
+- id: cl-house-style
+  name: House Style
+  topics:
+  - house-style
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - house-style
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - house-style
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-house-style'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-house-style'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-house-style'
+- id: cl-house-team
+  name: House Team
+  topics:
+  - house-team
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - house-team
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - house-team
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - house-team
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-house-team'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-house-team'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-house-team'
+- id: cl-human-escalation
+  name: Human Escalation
+  topics:
+  - human-escalation
+  - legal-compliance
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-risk-and-assurance-model.md
+    stage: brainstorm
+    matched_tags:
+    - human-escalation
+    - legal-compliance
+  - path: ideation/brainstorm/hermes-legal-compliance-model.md
+    stage: brainstorm
+    matched_tags:
+    - human-escalation
+    - legal-compliance
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-human-escalation'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-human-escalation'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-human-escalation'
+- id: cl-hybrid-seam
+  name: Hybrid Seam
+  topics:
+  - hybrid-seam
+  - materialization
+  - seed-layer-content
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - hybrid-seam
+    - materialization
+    - seed-layer-content
+  - path: ideation/staging/layer-content-materialization/layer-content-materialization.md
+    stage: staged
+    matched_tags:
+    - hybrid-seam
+    - materialization
+    - seed-layer-content
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-seam'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-seam'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-seam'
+- id: cl-hybrid-search
+  name: Hybrid Search
+  topics:
+  - hybrid-search
+  - planner-executor-synthesizer
+  - retrieval
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - hybrid-search
+    - planner-executor-synthesizer
+    - retrieval
+  - path: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    stage: brainstorm
+    matched_tags:
+    - hybrid-search
+    - planner-executor-synthesizer
+    - retrieval
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-search'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-search'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-hybrid-search'
 - id: cl-ideation-cross-reference
   name: Ideation Cross Reference
   topics:
@@ -224,17 +1384,16 @@ topic_entries:
     - ideation-cross-reference
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-cross-reference'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-cross-reference'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-cross-reference'
 - id: cl-ideation-dashboard
   name: Ideation Dashboard
   topics:
@@ -267,19 +1426,702 @@ topic_entries:
     stage: brainstorm
     matched_tags:
     - ideation-dashboard
+  - path: ideation/brainstorm/topic-compilation-tree.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-dashboard'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-dashboard'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-dashboard'
+- id: cl-ideation-lifecycle
+  name: Ideation Lifecycle
+  topics:
+  - ideation-lifecycle
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/doc-health-pipeline.md
+    stage: staged
+    matched_tags:
+    - ideation-lifecycle
+  - path: ideation/brainstorm/immovable-leaf-ideation-lifecycle.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-lifecycle
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-lifecycle'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-lifecycle'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-lifecycle'
+- id: cl-ideation-tooling
+  name: Ideation Tooling
+  topics:
+  - ideation-tooling
+  - possibles-register
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - ideation-tooling
+    - possibles-register
+  - path: ideation/brainstorm/topic-compilation-tree.md
+    stage: brainstorm
+    matched_tags:
+    - ideation-tooling
+    - possibles-register
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-tooling'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-tooling'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-ideation-tooling'
+- id: cl-layer-content-seeding
+  name: Layer Content Seeding
+  topics:
+  - layer-content-seeding
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/codexfactory-domain-policy-model.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - layer-content-seeding
+  - path: ideation/staging/layer-content-materialization/layer-content-materialization.md
+    stage: staged
+    matched_tags:
+    - layer-content-seeding
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-layer-content-seeding'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-layer-content-seeding'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-layer-content-seeding'
+- id: cl-manual-writer
+  name: Manual Writer
+  topics:
+  - manual-writer
+  - project-type-template
+  - provisioning
+  - subject
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/project-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - manual-writer
+    - project-type-template
+    - provisioning
+    - subject
+  - path: ideation/brainstorm/project-type-template-library-draft.md
+    stage: brainstorm
+    matched_tags:
+    - manual-writer
+    - project-type-template
+    - provisioning
+    - subject
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-manual-writer'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-manual-writer'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-manual-writer'
+- id: cl-medxfactory
+  name: Medxfactory
+  topics:
+  - medxfactory
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/medical-omnigent-harness-adaptation.md
+    stage: brainstorm
+    matched_tags:
+    - medxfactory
+  - path: ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md
+    stage: staged
+    matched_tags:
+    - medxfactory
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-medxfactory'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-medxfactory'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-medxfactory'
+- id: cl-memory-boundaries
+  name: Memory Boundaries
+  topics:
+  - memory-boundaries
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-content-draft.md
+    stage: brainstorm
+    matched_tags:
+    - memory-boundaries
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - memory-boundaries
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - memory-boundaries
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-boundaries'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-boundaries'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-boundaries'
+- id: cl-memory-gateway
+  name: Memory Gateway
+  topics:
+  - memory-gateway
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  - path: ideation/brainstorm/subject-recall-and-consent-path.md
+    stage: brainstorm
+    matched_tags:
+    - memory-gateway
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-gateway'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-gateway'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-memory-gateway'
+- id: cl-merge-master
+  name: Merge Master
+  topics:
+  - merge-master
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - merge-master
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - merge-master
+  - path: ideation/brainstorm/omnigent-lane-activation-path.md
+    stage: brainstorm
+    matched_tags:
+    - merge-master
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-master'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-master'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-master'
+- id: cl-merge-readiness-council
+  name: Merge Readiness Council
+  topics:
+  - merge-readiness-council
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - merge-readiness-council
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - merge-readiness-council
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-readiness-council'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-readiness-council'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-merge-readiness-council'
+- id: cl-nightly-sweep
+  name: Nightly Sweep
+  topics:
+  - nightly-sweep
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-governed-nightly-sweep.md
+    stage: brainstorm
+    matched_tags:
+    - nightly-sweep
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - nightly-sweep
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-nightly-sweep'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-nightly-sweep'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-nightly-sweep'
+- id: cl-omnigent-lane
+  name: Omnigent Lane
+  topics:
+  - omnigent-lane
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    stage: brainstorm
+    matched_tags:
+    - omnigent-lane
+  - path: ideation/brainstorm/omnigent-lane-activation-path.md
+    stage: brainstorm
+    matched_tags:
+    - omnigent-lane
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-omnigent-lane'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-omnigent-lane'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-omnigent-lane'
+- id: cl-overlay-ref
+  name: Overlay Ref
+  topics:
+  - overlay-ref
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - overlay-ref
+  - path: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    stage: brainstorm
+    matched_tags:
+    - overlay-ref
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-overlay-ref'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-overlay-ref'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-overlay-ref'
+- id: cl-personality
+  name: Personality
+  topics:
+  - personality
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - personality
+  - path: ideation/brainstorm/hermes-persona-character-model.md
+    stage: brainstorm
+    matched_tags:
+    - personality
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-personality'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-personality'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-personality'
+- id: cl-plane-1
+  name: Plane 1
+  topics:
+  - plane-1
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - plane-1
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - plane-1
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - plane-1
+  - path: ideation/brainstorm/project-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - plane-1
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - plane-1
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-1'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-1'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-1'
+- id: cl-plane-2
+  name: Plane 2
+  topics:
+  - plane-2
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - plane-2
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - plane-2
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-2'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-2'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-2'
+- id: cl-plane-3
+  name: Plane 3
+  topics:
+  - plane-3
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-deliberation.md
+    stage: brainstorm
+    matched_tags:
+    - plane-3
+  - path: ideation/brainstorm/hermes-legal-compliance-model.md
+    stage: brainstorm
+    matched_tags:
+    - plane-3
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-3'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-3'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-plane-3'
+- id: cl-policy-wizard
+  name: Policy Wizard
+  topics:
+  - policy-wizard
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - policy-wizard
+  - path: ideation/brainstorm/client-policy-wizard.md
+    stage: brainstorm
+    matched_tags:
+    - policy-wizard
+  - path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    stage: staged
+    matched_tags:
+    - policy-wizard
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-policy-wizard'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-policy-wizard'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-policy-wizard'
+- id: cl-practice-adoption
+  name: Practice Adoption
+  topics:
+  - practice-adoption
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/domain-practice-suggestion-generation.md
+    stage: brainstorm
+    matched_tags:
+    - practice-adoption
+  - path: ideation/brainstorm/hermes-governed-nightly-sweep.md
+    stage: brainstorm
+    matched_tags:
+    - practice-adoption
+  - path: ideation/brainstorm/practice-clearance-and-project-realization.md
+    stage: brainstorm
+    matched_tags:
+    - practice-adoption
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-adoption'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-adoption'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-adoption'
+- id: cl-practice-catalog
+  name: Practice Catalog
+  topics:
+  - practice-catalog
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - practice-catalog
+  - path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    stage: brainstorm
+    matched_tags:
+    - practice-catalog
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - practice-catalog
+  - path: ideation/brainstorm/domain-practice-suggestion-generation.md
+    stage: brainstorm
+    matched_tags:
+    - practice-catalog
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - practice-catalog
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - practice-catalog
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-catalog'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-catalog'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-practice-catalog'
+- id: cl-project-hermes
+  name: Project Hermes
+  topics:
+  - project-hermes
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    stage: brainstorm
+    matched_tags:
+    - project-hermes
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - project-hermes
+  - path: ideation/brainstorm/project-layer-scaffold.md
+    stage: brainstorm
+    matched_tags:
+    - project-hermes
+  - path: ideation/brainstorm/project-type-template-library-draft.md
+    stage: brainstorm
+    matched_tags:
+    - project-hermes
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-project-hermes'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-project-hermes'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-project-hermes'
 - id: cl-roles-authority-model
   name: Roles Authority Model
   topics:
@@ -302,17 +2144,196 @@ topic_entries:
     - roles-authority-model
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-roles-authority-model'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-roles-authority-model'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-roles-authority-model'
+- id: cl-roster
+  name: Roster
+  topics:
+  - roster
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-layer-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - roster
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - roster
+  - path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+    stage: staged
+    matched_tags:
+    - roster
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-roster'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-roster'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-roster'
+- id: cl-scrum-coordinator
+  name: Scrum Coordinator
+  topics:
+  - scrum-coordinator
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - scrum-coordinator
+  - path: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    stage: brainstorm
+    matched_tags:
+    - scrum-coordinator
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-scrum-coordinator'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-scrum-coordinator'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-scrum-coordinator'
+- id: cl-self-hosting
+  name: Self Hosting
+  topics:
+  - self-hosting
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/hermes-governed-nightly-sweep.md
+    stage: brainstorm
+    matched_tags:
+    - self-hosting
+  - path: ideation/brainstorm/omnigent-lane-activation-path.md
+    stage: brainstorm
+    matched_tags:
+    - self-hosting
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-self-hosting'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-self-hosting'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-self-hosting'
+- id: cl-sops
+  name: Sops
+  topics:
+  - sops
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/git-native-record-vault.md
+    stage: brainstorm
+    matched_tags:
+    - sops
+  - path: ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md
+    stage: staged
+    matched_tags:
+    - sops
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-sops'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-sops'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-sops'
+- id: cl-source-authority
+  name: Source Authority
+  topics:
+  - source-authority
+  - tenant-isolation
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/client-ingestion-adapter-contract.md
+    stage: brainstorm
+    matched_tags:
+    - source-authority
+    - tenant-isolation
+  - path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    stage: brainstorm
+    matched_tags:
+    - source-authority
+    - tenant-isolation
+  - path: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    stage: brainstorm
+    matched_tags:
+    - source-authority
+    - tenant-isolation
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-source-authority'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-source-authority'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-source-authority'
+- id: cl-three-layer-hermes-runtime
+  name: Three Layer Hermes Runtime
+  topics:
+  - three-layer-hermes-runtime
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    stage: brainstorm
+    matched_tags:
+    - three-layer-hermes-runtime
+  - path: ideation/brainstorm/hermes-layer-content-seeding.md
+    stage: brainstorm
+    matched_tags:
+    - three-layer-hermes-runtime
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-three-layer-hermes-runtime'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-three-layer-hermes-runtime'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-three-layer-hermes-runtime'
 - id: cl-user-management
   name: User Management
   topics:
@@ -331,17 +2352,16 @@ topic_entries:
     - user-management
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-user-management'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-user-management'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-user-management'
 - id: cl-workbench
   name: Workbench
   topics:
@@ -360,17 +2380,16 @@ topic_entries:
     - workbench
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workbench'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workbench'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workbench'
 - id: cl-workflow-visualization
   name: Workflow Visualization
   topics:
@@ -389,14 +2408,100 @@ topic_entries:
     - workflow-visualization
   extension_fit:
     has_promoted_fit: false
-    statement: 'Bootstrap: extension-fit not yet evaluated. The readiness scoring worker (task 3.x, not
-      yet realized) assesses promoted-fit with cited evidence; recorded as no-promoted-fit-claim pending
-      that evaluation, not an asserted ''no fit exists'' finding.'
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workflow-visualization'
     - tier: company
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workflow-visualization'
     - tier: project
-      unscored_reason: bootstrap — scoring worker not yet realized
+      unscored_reason: 'worker failed: no remote result collected for cl-workflow-visualization'
+possibles_register:
+- id: pos-derived-neutral-openxfactory-schema-package-for-domain-h
+  title: Neutral openxFactory schema package for domain Hermes content
+  claim: The cluster's scattered schema needs (persona shape, agent-mix/council shape, and the domain-overlay
+    shape) could become a single neutral openxFactory schema package so every domain â€” not just codexFactory
+    â€” validates its Hermes content the same way.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-71aecbb1422d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: '## Possible feats'
+    passage_sha256: fdcc893a0b65b05f8895283e598761c0240bfeb497b67c64bd116313dfce2cbb
+  rationale: 'Three independent member documents each flag the same gap from a different angle: the roster
+    draft wants a neutral persona schema, the deliberation doc wants neutral mix-profile + council schemas,
+    and the hermes-content doc wants a neutral hermes_domain_overlay schema (currently only structural-checked).
+    None of these are covered by the already-staged Change A/B (which are codexFactory-side content authoring),
+    so a single cross-cutting openxFactory schema effort connecting all three is a distinct, concrete
+    artifact this cluster''s material converges on.'
+- id: pos-derived-cross-plane-cost-accountability-integration-spec
+  title: Cross-plane cost-accountability integration spec
+  claim: The cluster's separate mentions of worker clock-ins, council-convening spend events, and catalog
+    effectiveness signals could become one integration spec defining how Plane-2 worker spend, Plane-3
+    council convenings, and the practice catalog's efficiency findings all feed the same accounting/efficiency-audit
+    flow.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-71aecbb1422d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: '## Cost accountability: workers clock in with their manager (captured 2026-07-22)'
+    passage_sha256: 3f4f9a471d9e646f8ecde0f0e5f04d050aaa7b2fe93d53d5c09f6d76e0919755
+  rationale: 'Three member documents independently wire into the same not-yet-fully-defined cost-accountability
+    model: the roster draft defines worker clock-in/clock-out with credits-burned-vs-outcome judged by
+    the manager persona; the deliberation doc treats a council convening itself as a spend event feeding
+    the same efficiency audit; and the memory-and-practices doc routes practice_effectiveness signals
+    from that same audit back into domain memory via the Lead-accepted gate. None of the cluster''s documents
+    actually specify the integration surface connecting these three feeds, making it a genuine connection-across-members
+    opportunity distinct from the already-staged council/catalog content.'
+- id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+  title: Reusable tier-2 council-clearance pattern beyond the doc-health sweep
+  claim: The nightly-sweep-specific tier-2 council-clearance rule could become a generalized per-repo
+    gate-rule pattern â€” a template other autonomous sweeps or repos can instantiate through their own
+    Gate-Rules Council exercise, rather than a one-off doc-health carve-out.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-71aecbb1422d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    section: Summary
+    passage_sha256: 86f3e04dcfb886081362d8b4f51ee6c9ecb38eb874731f05c791ec1a07001d8a
+  rationale: The nightly-sweep document explicitly frames itself as the Gate-Rules Council's first exercise
+    of a general capability (widening what auto-clears is itself a per-repo gate rule), while the deliberation
+    and hermes-content documents define the Gate-Rules Council and merge-readiness council as reusable,
+    cross-repo governance bodies rather than single-purpose ones. Connecting the concrete rehearsal artifact
+    to the abstract council machinery suggests a durable, reusable authoring pattern for future tier-2
+    rules, which no existing possible or the staged Change B currently names.
