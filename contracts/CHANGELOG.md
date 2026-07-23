@@ -9,6 +9,42 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.16 — 2026-07-23 (additive; omnigent contract family + layer vocabulary)
+
+Tenth annotated-tag release. Realizes **add-omnigent-domain-overlay** (the
+Omnigent execution layer's domain-tier contracts) and registers
+**adopt-subject-tenant-domain-vocabulary**'s policy artifact:
+
+- `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — per-domain
+  overlay payload: worker classes mapped to the five neutral archetypes
+  (frame/generate/verify/challenge/assemble_for_admission), the generalized
+  six-boolean permission matrix with constitutional
+  `execute_final_action`/`access_secrets` `const: false`, four credential
+  tiers including `never_assignable`, domain-level permission aliases,
+  whole-document `worker_profiles` payload, `stricter_rule_wins`
+  composition under the `domain_installation_overlay` operations.
+- `contracts/omnigent/omnigent-install-manifest.schema.yaml` — the install
+  manifest: hermes-install rendered runtime manifest digest-pinned as the
+  single stack identity (no parallel identity by construction), exactly one
+  domain overlay, the authoritative subject-workload registry, pre-rendered
+  effective-profile provenance. First family with canonical
+  Subject/Tenant/Domain machine spellings from birth.
+- `contracts/policies/layer-vocabulary.yaml` — the ratified canonical layer
+  vocabulary: names + roles, the customer→subject / client→tenant legacy
+  mapping, reserved layer terms, the frozen-identifier inventory (migration
+  staged dormant at `ideation/staging/layer-vocabulary-machine-migration/`),
+  and the per-domain alias table.
+
+Canonical validator `scripts/validate-omnigent-contracts.py` with packaged
+examples and marked negative fixtures (commit-content-addressed tools, no
+per-file digest). Realization evidence: canonical domain overlays in
+codexFactory (`engineering-omnigent-overlay`) and MedxFactory
+(`medical-omnigent-overlay`); Omnigent-Install's live manifest with
+fail-closed compose/verify, byte-equivalent rendered coding-patch-worker
+binding, and the MedxFactory second-domain params fixture. All additive:
+every released path from `contract-v1.7` through `contract-v1.15` is
+byte-identical.
+
 ## contract-v1.15 — 2026-07-23 (additive; hermes-domain-overlay contract surface)
 
 Ninth annotated-tag release. Realizes **add-hermes-domain-overlay-contract**:

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.15
+contract_bundle_version: contract-v1.16
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -816,3 +816,65 @@ contracts:
       runtime layer roles (domain/client/customer), deliberately not
       directory names. Declared-path existence is enforced by the canonical
       validator when a repo path is supplied.
+  # ---- omnigent contract family + layer vocabulary — contract-v1.16 realization (add-omnigent-domain-overlay; adopt-subject-tenant-domain-vocabulary) ----
+  # The Omnigent execution layer's domain tier: per-domain overlay payload
+  # (five neutral worker archetypes, generalized permission matrix with
+  # constitutional execute_final_action/access_secrets false, four credential
+  # tiers incl. never_assignable) and the install manifest (Hermes runtime
+  # manifest digest-pinned as single stack identity, one tenant / one domain /
+  # N subject workloads, workload registry, rendered-profile provenance) —
+  # first contract family authored with canonical Subject/Tenant/Domain
+  # machine spellings from birth. Realization proof: codexFactory
+  # engineering-omnigent-overlay + MedxFactory medical-omnigent-overlay
+  # canonical overlays; omnigent-install live manifest with byte-equivalent
+  # rendered coding-patch-worker + Medx second-domain fixture. The canonical
+  # validator (scripts/validate-omnigent-contracts.py) and the packaged
+  # examples/negative fixtures are content-addressed by commit; no per-file
+  # digest.
+  - id: omnigent-domain-overlay
+    path: contracts/omnigent/omnigent-domain-overlay.schema.yaml
+    source_path: openxFactory/contracts/omnigent/omnigent-domain-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d5e090687b4da494e11bae0e1d7c663aa817c1125a75968639b1bc74f5286099
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Each DomainxFactory authors its omnigent/ overlay against this schema;
+      install repositories consume overlays only via digest pin and keep
+      exact pinned copies recorded in their compatibility manifest. The
+      constitutional permission booleans, archetype mapping, credential-tier
+      disjointness, and canonical-vocabulary key lint are enforced by
+      scripts/validate-omnigent-contracts.py (canonical), never
+      re-implemented by consumers.
+  - id: omnigent-install-manifest
+    path: contracts/omnigent/omnigent-install-manifest.schema.yaml
+    source_path: openxFactory/contracts/omnigent/omnigent-install-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 27a36744c580545e2d7ede606e54bbccf0576d80ecda3016ee9a8093ea616626
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Omnigent install repositories declare their stack through this
+      manifest: stack identity ONLY by digest-pinning the hermes-install
+      rendered runtime manifest; exactly one domain overlay; the
+      subject-workload registry is authoritative for liveness. First
+      consumer: Omnigent-Install config/omnigent-install-manifest.yaml
+      (verified by its scripts/validate_omnigent_manifest.py against the
+      exact pinned copy).
+  - id: layer-vocabulary
+    path: contracts/policies/layer-vocabulary.yaml
+    source_path: openxFactory/contracts/policies/layer-vocabulary.yaml
+    type: policy
+    schema_version: 1
+    sha256: 65f7c61a0f1338b41b479c6c0f96b82caa4f50322ca0726699484555640f26af
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The canonical Subject/Tenant/Domain layer vocabulary: legacy machine
+      spellings (customer_subject*, role kinds customer|client|domain,
+      stack.yaml hermes.layers keys) stay byte-frozen until the next MAJOR
+      bundle and are interpreted ONLY through this mapping; "customer" and
+      "client" never name a layer on new surfaces; domain aliases specialize
+      canonical names and never replace them.
