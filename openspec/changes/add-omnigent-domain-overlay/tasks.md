@@ -41,10 +41,15 @@
 
 ## 3. Gated follow-up changes (filed, not executed in this change)
 
-- [ ] 3.1 `installs/omnigent-install`: manifest quartet +
+- [x] 3.1 `installs/omnigent-install`: manifest quartet +
       `domain_overlays[]` digest pins + cardinality validation + read-only
       compose/verify increment emitting seeding-vocabulary evidence
       (first realization increment; worker-host mutation verbs deferred).
+      REALIZED 2026-07-23: omnigent-install `add-omnigent-install-manifest`
+      (3f31270) — manifest with hermes identity pin + codex overlay pin,
+      fail-closed verify with deterministic evidence, skew findings
+      surfaced. Effective-profile rendering + byte-equivalence deferred to
+      its follow-up increment (overlays carry no profile deltas yet).
 - [ ] 3.2 `installs/hermes-install`: worker-readiness API port and pilot
       `hermes_service/` retirement (cutover shape per the design record's
       open question).
@@ -66,6 +71,9 @@
       canonical — MedxFactory `adopt-neutral-omnigent-overlay` ratified +
       archived (canonical spec `medical-omnigent-overlay`; conforming
       `omnigent/domain-overlay.yaml` + pinnable overlay manifest at
-      cadeaa2). Remaining: the rendered fixture itself, gated on task
-      3.1's compose/verify step (kickoff packet drafted at the
-      aggregation root: `omnigent-install-manifest-change-draft.md`).
+      cadeaa2).
+      REALIZED (manifest level) 2026-07-23: omnigent-install
+      `config/fixtures/medx-second-domain.manifest.yaml` — params-only
+      delta over the same schema + verify step, zero core edits, verified
+      green with evidence. The staging topic's full archive gate still
+      awaits task 3.3's byte-equivalence clause (rendering increment).
