@@ -1,14 +1,14 @@
-# Client Hermes Product And Service Scaffold
+# Tenant Hermes Product And Service Scaffold
 
 Status: draft
 Kind: template
 Repository context: openxFactory
-Purpose: define a reusable Client Hermes scaffold for organizations that sell,
+Purpose: define a reusable Tenant Hermes scaffold for organizations that sell,
 deliver, support, or operate products, services, or hybrid offers.
 
 ## 1. Core Idea
 
-Every Client Hermes layer represents an operating organization. Most operating
+Every Tenant Hermes layer represents an operating organization. Most operating
 organizations offer one or more of these:
 
 ```text
@@ -23,10 +23,10 @@ project or engagement
 outcome-based offer
 ```
 
-Client Hermes should therefore model the client's business as an offer system:
+Tenant Hermes should therefore model the client's business as an offer system:
 
 ```text
-Client Hermes
+Tenant Hermes
   -> offer catalog
   -> customer roster
   -> staff and capability map
@@ -51,9 +51,9 @@ become operational policy until gap review and Hermes approval. See
 
 ## 2. Product Versus Service Lens
 
-The product/service distinction gives Client Hermes a practical scaffold.
+The product/service distinction gives Tenant Hermes a practical scaffold.
 
-| Offer shape | Client Hermes needs to model |
+| Offer shape | Tenant Hermes needs to model |
 | --- | --- |
 | Product | Catalog item, variant, entitlement, configuration, fulfillment, inventory or availability, warranty/return/support rules, activation state. |
 | Service | Scope, intake criteria, assignment, schedule, capacity, deliverable, SLA, completion criteria, review, follow-up, renewal. |
@@ -63,13 +63,13 @@ The product/service distinction gives Client Hermes a practical scaffold.
 | Marketplace offer | Supplier/provider, offer listing, eligibility, routing, dispute/return path, payout or settlement boundary. |
 | Outcome-based offer | Target outcome, measurement method, intervention classes, risk boundaries, proof requirements, review cadence. |
 
-This lens should not turn Client Hermes into a full ERP or CRM. It gives the
+This lens should not turn Tenant Hermes into a full ERP or CRM. It gives the
 client layer enough structure to route work, enforce local policy, and explain
 what the organization is allowed to do for a customer.
 
 ## 3. Client Layer Objects
 
-Client Hermes should start with these domain-neutral objects.
+Tenant Hermes should start with these domain-neutral objects.
 
 ```yaml
 client_profile:
@@ -111,9 +111,9 @@ integration_map:
 Domain factories can add domain-specific fields, but these objects should stay
 recognizable across all client overlays.
 
-## 4. Client Hermes Agent Scaffold
+## 4. Tenant Hermes Agent Scaffold
 
-Client Hermes should have a stable operating team. Domains can rename these
+Tenant Hermes should have a stable operating team. Domains can rename these
 agents, but the responsibilities should remain visible.
 
 | Agent | Purpose |
@@ -147,7 +147,7 @@ contract.
 
 ## 5. Skill Scaffold
 
-Client Hermes skills should be grouped by the work of operating an offer.
+Tenant Hermes skills should be grouped by the work of operating an offer.
 
 ```text
 offer_modeling
@@ -212,7 +212,7 @@ Each skill should declare:
 
 ## 6. User Interaction Scaffold
 
-Client Hermes should expose a hybrid UI: avatar-assisted where guidance matters,
+Tenant Hermes should expose a hybrid UI: avatar-assisted where guidance matters,
 conventional where density and repeatability matter.
 
 ### Operator Avatar
@@ -357,7 +357,7 @@ marketing retainer + campaign deliverables
 training product + coaching service
 ```
 
-Client Hermes should model hybrids as bundles with:
+Tenant Hermes should model hybrids as bundles with:
 
 - product component
 - service component
@@ -369,7 +369,7 @@ Client Hermes should model hybrids as bundles with:
 
 ## 11. Memory And Learning
 
-Client Hermes should separate memory into three buckets.
+Tenant Hermes should separate memory into three buckets.
 
 ```text
 client_private_memory
@@ -382,7 +382,7 @@ domain_learning_candidates
   reusable patterns that may be promoted only after domain review
 ```
 
-Client Hermes must not promote customer-private facts into domain memory unless
+Tenant Hermes must not promote customer-private facts into domain memory unless
 the customer and client policies allow it and the owning Hermes layer approves.
 
 ## 12. Starter Files

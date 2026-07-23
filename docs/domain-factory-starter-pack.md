@@ -141,9 +141,9 @@ The runner:
 - creates a pre-run questionnaire, setup runbook, and example pre-run answers
 - creates Hermes Mixture of Agents docs, profiles, templates, and schema hooks
 - creates the avatar-first UI profile and validation hooks
-- creates product/service Client Hermes scaffold templates for offer catalog,
+- creates product/service Tenant Hermes scaffold templates for offer catalog,
   client agents, skills, and user interactions
-- creates Client Hermes installation discovery and workflow migration templates
+- creates Tenant Hermes installation discovery and workflow migration templates
   for document/email evidence, gap review, containment, cutover, and drift
   monitoring
 - creates memory gateway placeholders that point at the canonical openxFactory
@@ -172,8 +172,8 @@ scripts/apply-domain-starter.py /path/to/NewFactory \
   --display-name "New Factory" \
   --category new_domain \
   --domain-layer-name "New Domain Hermes" \
-  --client-layer-name "New Client Hermes" \
-  --customer-layer-name "New Customer Hermes"
+  --client-layer-name "New Tenant Hermes" \
+  --customer-layer-name "New Subject Hermes"
 ```
 
 ## 2. Required Repo Shape
@@ -308,10 +308,10 @@ directories, so placeholder files preserve the expected scaffold in the first
 commit.
 
 Domains may add clearer aliases when useful, but the logical mapping to domain,
-client, and customer Hermes must remain explicit in `stack.yaml`.
+client, and Subject Hermes must remain explicit in `stack.yaml`.
 
-Customer Hermes implementations should preserve the canonical object vocabulary
-from [Customer Hermes Memory Model](customer-hermes-memory-model.md): identity
+Subject Hermes implementations should preserve the canonical object vocabulary
+from [Subject Hermes Memory Model](customer-hermes-memory-model.md): identity
 profile, consent profile, preference profile, timeline, evidence graph, source
 claim, current state snapshot, memory item, active workflow context, follow-up
 obligation, and promotion candidate.
@@ -324,7 +324,7 @@ MedxFactory/hermes/client/     -> Clinic, hospital, pharmacy, imaging center, or
 MedxFactory/hermes/domain/     -> Medical Domain Hermes
 
 OpsxFactory/hermes/customer/   -> Managed tenant or system Hermes
-OpsxFactory/hermes/client/     -> IT customer Hermes
+OpsxFactory/hermes/client/     -> IT Subject Hermes
 OpsxFactory/hermes/domain/     -> Operations Domain Hermes
 ```
 
@@ -334,8 +334,8 @@ Before adding detailed workflows, decide:
 
 1. Domain name and product name.
 2. Domain Hermes layer name.
-3. Client Hermes layer name.
-4. Customer Hermes layer name.
+3. Tenant Hermes layer name.
+4. Subject Hermes layer name.
 5. Factory type and factory subtype.
 6. Target domain and target domain subtype.
 7. Client industry and client type.
@@ -389,7 +389,7 @@ memory_gateway:
   conformance_tier: M0
   placeholder: true
   customer_memory_gateway:
-    customer_layer_name: Example Customer Hermes
+    customer_layer_name: Example Subject Hermes
     customer_subject_kinds: []
     required_operations:
       - xfactory.memory.context_packet
@@ -411,9 +411,9 @@ memory_gateway:
 hermes:
   domain_layer_name: Example Domain Hermes
   domain_overlay: hermes/domain
-  client_layer_name: Example Client Hermes
+  client_layer_name: Example Tenant Hermes
   client_overlay: hermes/client
-  customer_layer_name: Example Customer Hermes
+  customer_layer_name: Example Subject Hermes
   customer_overlay: hermes/customer
 
 omnigent:
@@ -980,7 +980,7 @@ MedxFactory-specific rules:
 
 1. Patient Hermes does not own clinic-wide credentials.
 2. Patient Hermes may request patient-specific access.
-3. Clinic or client Hermes owns local integration bindings.
+3. Clinic or Tenant Hermes owns local integration bindings.
 4. Medical Domain Hermes approves medical policy and risk.
 5. Patient data access requires consent and audit.
 6. Care-affecting, diagnosis-related, or external patient communication
@@ -1048,17 +1048,17 @@ OpsxFactory-specific rules:
 [ ] Create stack.yaml.
 [ ] Create Makefile with local validation target.
 [ ] Name Domain Hermes.
-[ ] Name Client Hermes.
-[ ] Name Customer Hermes.
+[ ] Name Tenant Hermes.
+[ ] Name Subject Hermes.
 [ ] Define client or tenant kinds.
 [ ] Define customer subject kinds.
 [ ] Add deployment profiles.
 [ ] Add initial workflow catalog.
 [ ] Complete pre-run questionnaire for this domain interpretation.
 [ ] Mark which answers are declared, inferred, simulated, confirmed, or approved.
-[ ] Normalize any legacy subject-layer vocabulary into domain, client, and customer Hermes.
+[ ] Normalize any legacy subject-layer vocabulary into domain, client, and Subject Hermes.
 [ ] Add setup runbook for implementation and instantiation.
-[ ] Add domain overview, customer Hermes model, workflow gates, and Omnigent constitution docs.
+[ ] Add domain overview, Subject Hermes model, workflow gates, and Omnigent constitution docs.
 [ ] Add hermes/domain overlay.
 [ ] Add hermes/domain agent mix profiles.
 [ ] Add hermes/client overlay.
@@ -1169,7 +1169,7 @@ Current review lessons:
 
 - `AdxFactory` and `LedgerxFactory` show that every domain needs narrative
   orientation docs, not only machine manifests. The starter therefore creates
-  domain overview, customer Hermes model, workflow gates, and Omnigent
+  domain overview, Subject Hermes model, workflow gates, and Omnigent
   constitution docs.
 - `MedxFactory` shows that schemas and local validation must arrive early. The
   starter therefore creates a Makefile, schema descriptors, and a validation

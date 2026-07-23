@@ -30,7 +30,7 @@ xFactory layer's stack composition contract and runtime governance contract:
 
 - required stack parts for a DomainxFactory
 - the three-Hermes-layer contract: customer, client, domain
-- default responsibility boundaries for customer Hermes, client Hermes, and
+- default responsibility boundaries for Subject Hermes, Tenant Hermes, and
   domain Hermes
 - required xFactory layer binding and contract pin fields
 - required domain Omnigent, credential broker, source governance, and external
@@ -55,7 +55,7 @@ Domain factories own the domain nouns and domain behavior:
   layers to concrete names and authority scopes
 - customer kinds, client kinds, focal item kinds, journey states, outcomes, and interventions
 - domain Hermes policies, review standards, escalation rules, and memory boundaries
-- client and customer Hermes templates
+- client and Subject Hermes templates
 - client installation source policies, current-state workflow maps, gap
   registers, and workflow migration plans
 - domain workflows, checks, examples, and tenant/profile examples
@@ -301,9 +301,9 @@ surface in the first commit.
 - `kind: xfactory_domain_stack`
 - domain ID, product name, display name, and category
 - consumed `openxFactory` repo and version, tag, or commit
-- domain, client, and customer Hermes layer names
-- paths to domain, client, and customer Hermes overlays
-- paths to domain, client, and customer Hermes Mixture of Agents profiles or templates
+- domain, client, and Subject Hermes layer names
+- paths to domain, client, and Subject Hermes overlays
+- paths to domain, client, and Subject Hermes Mixture of Agents profiles or templates
 - domain execution overlay path
 - client kinds and customer kinds
 - focal item kinds, journey states, outcome measures, and intervention kinds
@@ -326,8 +326,8 @@ The root `README.md` must explain:
 - what `openxFactory` owns
 - what the domain factory owns
 - what domain Hermes owns
-- what client Hermes owns
-- what customer Hermes owns
+- what Tenant Hermes owns
+- what Subject Hermes owns
 - what the execution overlay owns
 - what the final enforcement or handoff system owns
 - which business-looking concerns are inside the domain boundary
@@ -353,9 +353,9 @@ The root `README.md` must explain:
 - which events each layer may self-initiate from
 - which actions each layer may take under standing approval
 - which actions require client, domain, or human review
-- core customer Hermes team roles
-- rules for dynamically adding and retiring customer Hermes agents
-- client Hermes domain-specific monitoring scope
+- core Subject Hermes team roles
+- rules for dynamically adding and retiring Subject Hermes agents
+- Tenant Hermes domain-specific monitoring scope
 - out-of-domain routing rules for general business concerns
 
 `docs/source-workspaces.md` must define:
@@ -477,7 +477,7 @@ Domain Hermes must declare:
 - domain memory boundaries
 - domain Mixture of Agents profiles for reusable review patterns
 
-Client Hermes must declare:
+Tenant Hermes must declare:
 
 - supported client kinds
 - required client fields
@@ -511,7 +511,7 @@ Client Hermes must declare:
 - client memory boundaries
 - client Mixture of Agents template overrides that may strengthen but not weaken domain defaults
 
-Customer Hermes must declare:
+Subject Hermes must declare:
 
 - supported customer kinds
 - required customer fields

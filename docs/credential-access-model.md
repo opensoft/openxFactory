@@ -16,7 +16,7 @@ invariants those records carry.
 
 ```text
 No xFactory repo, domain stack repo, tenant repo, agent identity repo, customer
-Hermes layer, client Hermes layer, domain Hermes layer, or Omnigent worker
+Hermes layer, Tenant Hermes layer, domain Hermes layer, or Omnigent worker
 stores raw credentials.
 ```
 
@@ -161,10 +161,10 @@ repo files, memory files, screenshots, artifacts, or review packets.
 ## 4. Runtime Flow
 
 ```text
-Customer Hermes
+Subject Hermes
   -> requests a domain workflow
 
-Client Hermes
+Tenant Hermes
   -> checks client policy, local integrations, tenant bindings, and consent
 
 Domain Hermes
@@ -292,7 +292,7 @@ MedxFactory must separate:
 Patient Hermes
   lifetime patient context, consent, preferences, and patient memory
 
-Clinic or client Hermes
+Clinic or Tenant Hermes
   local clinic, hospital, pharmacy, imaging center, or IDTF integrations
 
 Medical Domain Hermes
@@ -303,7 +303,7 @@ Medx Omnigent
 ```
 
 Patient Hermes must not own clinic-wide credentials. Patient Hermes may request
-patient-specific actions, but client Hermes, Medical Domain Hermes, and tenant
+patient-specific actions, but Tenant Hermes, Medical Domain Hermes, and tenant
 policy decide what credential access is allowed.
 
 MedxFactory should prefer:

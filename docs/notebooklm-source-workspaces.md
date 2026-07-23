@@ -38,14 +38,14 @@ are traced and the correct Hermes layer accepts the claim.
 NotebookLM workspaces may be attached to any Hermes layer or to a domain agent
 task.
 
-Customer Hermes may use a NotebookLM workspace for:
+Subject Hermes may use a NotebookLM workspace for:
 
 - customer-specific context packets
 - patient, buyer, project, matter, or account source collections
 - private summaries used inside the customer boundary
 - customer-facing explanations after review
 
-Client Hermes may use a NotebookLM workspace for:
+Tenant Hermes may use a NotebookLM workspace for:
 
 - client policy binders
 - tenant operating manuals
@@ -200,11 +200,11 @@ consumers:
 
 ## 7. Layer Ownership
 
-Customer Hermes owns NotebookLM workspaces that contain customer-specific data.
+Subject Hermes owns NotebookLM workspaces that contain customer-specific data.
 Those workspaces inherit the customer consent, privacy, memory, and sharing
 boundaries.
 
-Client Hermes owns NotebookLM workspaces that contain client-specific operating
+Tenant Hermes owns NotebookLM workspaces that contain client-specific operating
 data, staff data, client policies, local procedures, vendor docs, and tenant
 records.
 
@@ -224,8 +224,8 @@ Customer to client:
 
 ```text
 customer-specific notebook finding
-  -> customer Hermes consent and privacy check
-  -> client Hermes relevance and authorization review
+  -> Subject Hermes consent and privacy check
+  -> Tenant Hermes relevance and authorization review
   -> client memory update or rejection
 ```
 

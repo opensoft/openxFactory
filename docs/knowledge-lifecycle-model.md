@@ -61,7 +61,7 @@ volatile       fast-changing, latest facts, may be unverified but urgent
 experiential   emergent from usage, org-local first, sometimes promoted
                e.g. de-identified case patterns, what worked at this org,
                     local standing orders
-               home: Client Hermes memory -> candidate patterns
+               home: Tenant Hermes memory -> candidate patterns
                      -> (gates) Root Truth
 ```
 
@@ -90,7 +90,7 @@ live fact
   -> [promotion gate]    Root Truth atom, when verified; live entry expires
   -> or TTL escalation   forced verification decision near expiry (section 5)
 
-experiential pattern (Client Hermes memory)
+experiential pattern (Tenant Hermes memory)
   -> [de-identify gate]  candidate pattern, stripped to domain criteria
   -> [promotion gate]    Root Truth atom, after domain review
 ```
@@ -152,11 +152,11 @@ Domain Hermes (global / cloud)
   canonical Root Truth + derived indexes + Live Knowledge Layer
   the source of record; consistent and auditable across all deployments
 
-Client Hermes (org-local, thin cache)
+Tenant Hermes (org-local, thin cache)
   a pinned subset of derived indexes for the specialties this org practices,
   plus org-local experiential memory; rare queries hit the cloud on demand
 
-Customer Hermes (subject edge)
+Subject Hermes (subject edge)
   subject projections and consented retrieval scope only
 ```
 
@@ -261,7 +261,7 @@ review, but they do not hold a veto that can leave the atom unowned.
 ## 8. Feedback Without Training on Live Subject Data
 
 Usage should improve retrieval without training models on identifiable
-subject data. The path is: usage produces org-local patterns in Client Hermes
+subject data. The path is: usage produces org-local patterns in Tenant Hermes
 memory; the de-identify gate (section 3) strips them to candidate patterns
 under domain criteria; the promotion gate reviews them; approved patterns
 become Root Truth atoms that improve future retrieval for everyone. Retrieval
@@ -272,8 +272,8 @@ profile in `customer-hermes-memory-model.md`.
 
 ## 9. Domain Specialization Example — MedxFactory
 
-MedxFactory implements this contract with its tier aliases: Customer Hermes is
-**Patient Hermes**, Client Hermes is **Clinic Hermes** (the care organization),
+MedxFactory implements this contract with its tier aliases: Subject Hermes is
+**Patient Hermes**, Tenant Hermes is **Clinic Hermes** (the care organization),
 Domain Hermes is **Medical Domain Hermes**.
 
 ```text

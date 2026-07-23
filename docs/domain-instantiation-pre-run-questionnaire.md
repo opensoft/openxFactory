@@ -35,10 +35,10 @@ type.
 The existing xFactory domains use the same general pattern but interpret the
 layers differently:
 
-| Domain | Customer Hermes | Client Hermes | Domain Hermes | Main Subject | Main Risk |
+| Domain | Subject Hermes | Tenant Hermes | Domain Hermes | Main Subject | Main Risk |
 | --- | --- | --- | --- | --- | --- |
 | `MedxFactory` | Patient Hermes | Clinic, practice, hospital, pharmacy, imaging center, or IDTF Hermes | Medical Domain Hermes | Patient and care context | Care-affecting action, patient privacy, clinical authority |
-| `OpsxFactory` | Managed System Hermes | IT Customer Hermes | Operations Domain Hermes | Tenant, system, service, subscription, DNS zone, backup vault | Privileged admin action, outage, destructive change |
+| `OpsxFactory` | Managed System Hermes | IT Subject Hermes | Operations Domain Hermes | Tenant, system, service, subscription, DNS zone, backup vault | Privileged admin action, outage, destructive change |
 | `codexFactory` | Project, repo, product, or feature Hermes | Software Company Hermes | Software Engineering Domain Hermes | Feature, repo, PR, release, incident | Merge, deploy, data exposure, production impact |
 | `AdxFactory` | Buyer, audience, account, or campaign Hermes | Agency, brand, growth team, or marketing operator Hermes | Marketing Domain Hermes | Campaign, audience, offer, channel, account | Brand risk, external send, paid spend, privacy, attribution |
 | `LedgerxFactory` | Ledger, company, client, tax matter, or engagement Hermes | Firm, controller org, bookkeeping team, or finance team Hermes | Ledger Domain Hermes | Ledger, filing, report, transaction, obligation | Money movement, filing accuracy, audit, compliance |
@@ -84,10 +84,10 @@ explicit for the target stack.
 - What is the domain Hermes called?
 - What reusable domain policy, standards, review councils, and memory does it
   own?
-- What is the client Hermes called?
+- What is the Tenant Hermes called?
 - What organization, operating policy, staff roster, integrations, and local
   approval rules does it own?
-- What is the customer Hermes called?
+- What is the Subject Hermes called?
 - What customer-subject, timeline, current state, consent, and subject-specific
   memory does it own?
 - Can one physical Hermes install host multiple logical layers?
@@ -97,8 +97,8 @@ explicit for the target stack.
 - Which layer can approve write, publish, send, deploy, care-affecting,
   money-moving, or privileged work?
 - Does the current repo use an older `subject_layer` or two-Hermes vocabulary?
-- If yes, what is the normalized mapping to domain Hermes, client Hermes, and
-  customer Hermes?
+- If yes, what is the normalized mapping to domain Hermes, Tenant Hermes, and
+  Subject Hermes?
 - Which layer name is repo-declared, and which layer name is inferred?
 
 ### 3.2.5 Hermes Mixture Of Agents
@@ -197,8 +197,8 @@ explicit for the target stack.
 - Which are write, admin, publish, send, deploy, care-affecting, money-moving,
   or destructive?
 - Which credential requirements need domain Hermes approval?
-- Which need client Hermes approval?
-- Which need customer Hermes consent or authorization?
+- Which need Tenant Hermes approval?
+- Which need Subject Hermes consent or authorization?
 - Which need human approval?
 - What secret providers are allowed?
 - Who owns rotation?

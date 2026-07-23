@@ -80,7 +80,7 @@ It owns:
 - stack composition contracts
 - required layer/module declarations
 - the three-Hermes-layer contract
-- default responsibility boundaries for customer, client, and domain Hermes
+- default responsibility boundaries for Subject, Tenant, and Domain Hermes
 - workflow contracts
 - job envelopes
 - gates and admission states
@@ -94,9 +94,27 @@ It owns:
 - audit records
 - handoff boundaries between governance, execution, and enforcement systems
 
-The `xFactory layer` does not own domain truth, customer truth, raw memory
+The `xFactory layer` does not own domain truth, subject truth, raw memory
 stores, production credentials, domain agent behavior, or final external
 enforcement.
+
+## Layer Vocabulary
+
+The canonical Hermes layer vocabulary is **Subject / Tenant / Domain**
+(served subject / tenant-operator / expert-domain), ratified by
+`adopt-subject-tenant-domain-vocabulary` (2026-07-23) and published
+machine-readably at `contracts/policies/layer-vocabulary.yaml` (canonical
+names, legacy mapping, frozen-identifier inventory, per-domain aliases).
+
+Legacy vocabulary note: these layers were formerly named Customer / Client /
+Domain. "Customer" and "Client" no longer name layers on new or
+substantively revised surfaces (both words remain legal in
+commercial-relationship prose). Released machine identifiers keep the
+legacy spellings byte-stable until the next major contract bundle — the
+`hermes.layers` role keys `customer|client|domain` in `stack.yaml`, and
+`customer_subject` / role kinds in `contracts/hermes-runtime/` — and are
+interpreted through the published mapping (`customer → subject`,
+`client → tenant`).
 
 ## Stack Composition Contract
 
@@ -109,11 +127,11 @@ Every DomainxFactory must declare and map these required parts:
 xFactory layer binding
   consumed openxFactory version, contract compatibility, gates, traceability
 
-Customer Hermes
-  customer-specific context, consent, preferences, journey state, private memory
+Subject Hermes
+  subject-specific context, consent, preferences, journey state, private memory
 
-Client Hermes
-  tenant/client policy, staff, integrations, local constraints, credentials
+Tenant Hermes
+  tenant-operator policy, staff, integrations, local constraints, credentials
 
 Domain Hermes
   reusable domain policy, source authority, domain memory boundaries,
@@ -137,15 +155,19 @@ DomainxFactory supplies the domain names and domain content.
 
 ```text
 xFactory says:
-  "A customer Hermes layer is required and owns customer-specific memory,
+  "A Subject Hermes layer is required and owns subject-specific memory,
   consent, preferences, and active state."
 
 MedxFactory says:
-  "In this domain, customer Hermes is Patient Hermes."
+  "In this domain, Subject Hermes is Patient Hermes."
 
 OpsxFactory says:
-  "In this domain, customer Hermes is Managed System or Tenant Hermes."
+  "In this domain, Subject Hermes is Managed System Hermes."
 ```
+
+(OpsxFactory's former secondary alias "Tenant Hermes" for its subject layer
+is retired: an alias may not equal a canonical layer name of a different
+layer, and Tenant now canonically names the operator layer.)
 
 ## DomainxFactory Compatibility Direction
 
@@ -199,11 +221,12 @@ DomainxFactory
   Domain Hermes
     reusable domain policy, memory boundaries, source authority, review rules
 
-  Client Hermes
-    tenant policy, local integrations, staff, credentials, client memory
+  Tenant Hermes
+    tenant-operator policy, local integrations, staff, credentials,
+    organizational memory
 
-  Customer Hermes
-    customer-specific memory, consent, preferences, journey state
+  Subject Hermes
+    subject-specific memory, consent, preferences, journey state
 
   Domain Omnigent
     expert routing, workers, tools, validation, output templates
@@ -226,7 +249,8 @@ consumers.
 ## Hermes Install Ownership
 
 `opensoft/xFactory-Hermes-Install` is the canonical xFactory Hermes install
-repository — the three-layer (Customer/Client/Domain) install — and the only
+repository — the three-layer (Subject/Tenant/Domain; legacy
+Customer/Client/Domain) install — and the only
 supported consumer for the Gate G0 contract-bundle handoff. In the
 aggregation workspace it is the repository pinned at `installs/hermes-install/`.
 It owns the downstream side of the handoff — Hermes neutralization, the

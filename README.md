@@ -12,7 +12,7 @@ Use these terms precisely:
   which stack parts are required for a domain and how work moves through gates,
   routing, traceability, source authority, memory promotion, credentials, and
   audit. It also governs memory and knowledge provider bindings, migrations,
-  metering, and bounded context packets for Customer Hermes and Domain
+  metering, and bounded context packets for Subject Hermes and Domain
   Omnigent.
 - A `DomainxFactory` is an instantiated domain stack such as `MedxFactory`,
   `LedgerxFactory`, `OpsxFactory`, `AdxFactory`, or `codexFactory`.
@@ -111,14 +111,14 @@ Core domain-neutral docs:
   (neutral session/consent/revocation contract family; realized at
   `contract-v1.7` with a fail-closed F0 publication gate)
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
-- [Customer Hermes Memory Model](docs/customer-hermes-memory-model.md)
+- [Subject Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
 - [xFactory Memory Gateway Architecture](docs/customer-memory-gateway-architecture.md)
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Omnigent Contract Family](contracts/omnigent/README.md)
   (domain-overlay payload + install manifest; realized by
   `add-omnigent-domain-overlay`, pending bundle registration)
-- [Client Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
+- [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
 - [Workflow Visualization Tooling Exploration](ideation/brainstorm/workflow-visualization-tooling.md)
@@ -152,9 +152,11 @@ IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
 Every DomainxFactory must validate against the canonical contract:
 
 - Stack shape: [xfactory-domain-stack schema](contracts/schemas/xfactory-domain-stack.schema.yaml)
-  — Hermes layers are declared as `hermes.layers` with canonical roles
-  `customer` (served subject), `client` (tenant/operator organization), and
-  `domain` (reusable expert domain).
+  — Hermes layers are declared as `hermes.layers` with role keys
+  `customer|client|domain`: frozen v1 machine spellings for the canonical
+  **Subject / Tenant / Domain** layers (served subject / tenant-operator
+  organization / reusable expert domain; mapping published at
+  [contracts/policies/layer-vocabulary.yaml](contracts/policies/layer-vocabulary.yaml)).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)

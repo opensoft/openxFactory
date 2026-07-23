@@ -252,13 +252,13 @@ serve different user sets.
 
 | Hermes layer | Best default | Primary user set | Why |
 | --- | --- | --- | --- |
-| Customer Hermes | Avatar-first | Customer subjects and their representatives | These users usually need guidance, explanation, preference capture, language support, trust, and handoff more than dense controls. |
-| Client Hermes | Hybrid | Staff, operators, managers, approvers, and tenant administrators | These users need conversational help for ambiguity, but also fast queues, dashboards, approvals, rosters, configuration, and audit views. |
+| Subject Hermes | Avatar-first | Customer subjects and their representatives | These users usually need guidance, explanation, preference capture, language support, trust, and handoff more than dense controls. |
+| Tenant Hermes | Hybrid | Staff, operators, managers, approvers, and tenant administrators | These users need conversational help for ambiguity, but also fast queues, dashboards, approvals, rosters, configuration, and audit views. |
 | Domain Hermes | Conventional-first with avatar copilot | Domain experts, reviewers, maintainers, governance owners, and specialist councils | These users need precision, policy editing, schema review, source promotion, routing tables, evidence review, and trace inspection. |
 
-### Customer Hermes UI
+### Subject Hermes UI
 
-Customer Hermes should be avatar-first.
+Subject Hermes should be avatar-first.
 
 Use avatar UI for:
 
@@ -281,9 +281,9 @@ Use conventional UI for:
 - workflow status
 - transcript and history review
 
-### Client Hermes UI
+### Tenant Hermes UI
 
-Client Hermes should be hybrid.
+Tenant Hermes should be hybrid.
 
 Use avatar UI for:
 
@@ -447,7 +447,7 @@ gate (vi) tests against it.
 ## 16. Hermes-Layer Surface Defaults (Authoritative)
 
 The defaults in §11 are the authoritative Hermes-layer surface defaults:
-Customer Hermes is **avatar-first**, Client Hermes is **hybrid**, and Domain
+Subject Hermes is **avatar-first**, Tenant Hermes is **hybrid**, and Domain
 Hermes is **conventional-first with an avatar analyst or copilot**. A
 DomainxFactory override MUST record the user set, workflow need, risk class,
 accessibility fallback, and authority boundary, and MUST NOT make avatar text

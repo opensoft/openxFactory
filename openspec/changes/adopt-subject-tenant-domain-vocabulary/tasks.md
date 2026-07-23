@@ -2,7 +2,7 @@
 
 ## 1. Vocabulary contract
 
-- [ ] 1.1 Author `contracts/policies/layer-vocabulary.yaml` (`schema_version: 1`,
+- [x] 1.1 Author `contracts/policies/layer-vocabulary.yaml` (`schema_version: 1`,
       `kind: layer_vocabulary`): canonical names with one-line role
       definitions, legacy-to-canonical mapping
       (`customer → subject`, `client → tenant`, `domain → domain`), the
@@ -10,20 +10,20 @@
       `customer_subject_ref`, `contracts/hermes-runtime/` `$id`s), and the
       per-domain alias table (Medx patient, codex project, Ops managed
       system/tenant, Ledgerx client company, Adx brand audience).
-- [ ] 1.2 Register the new file per the contract versioning policy
+- [x] 1.2 Register the new file per the contract versioning policy
       (contracts/README.md holding area until the allocated additive release;
       manifest digest at release).
 
 ## 2. Canon documentation
 
-- [ ] 2.1 Update `docs/terminology-and-repo-topology.md` to
+- [x] 2.1 Update `docs/terminology-and-repo-topology.md` to
       Subject/Tenant/Domain throughout, with one legacy-vocabulary note
       mapping the old names.
-- [ ] 2.2 Sweep remaining openxFactory `docs/` layer prose (architecture,
+- [x] 2.2 Sweep remaining openxFactory `docs/` layer prose (architecture,
       avatar-first-ui-standard, memory-model docs, starter pack, checklists)
       to the canonical vocabulary; leave commercial-relationship prose
       ("client of Opensoft") untouched.
-- [ ] 2.3 Link this change in the README OpenSpec Records block and keep the
+- [x] 2.3 Link this change in the README OpenSpec Records block and keep the
       doc index current.
 
 ## 3. Downstream follow-ups (filed, not executed in this change)

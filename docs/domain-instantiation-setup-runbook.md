@@ -40,7 +40,7 @@ Forbidden inputs:
 1. Mark answer quality as declared, inferred, simulated, confirmed, or approved.
 2. Confirm the domain interpretation.
 3. Normalize any legacy `subject_layer` vocabulary into domain Hermes, client
-   Hermes, and customer Hermes.
+   Hermes, and Subject Hermes.
 4. Confirm the three Hermes layer names and authority boundaries.
 5. Confirm client, tenant, and customer-subject isolation.
 6. Declare any authorized installation discovery sources, including document
@@ -121,9 +121,9 @@ Stop before applying changes when:
 Recommended interpretation:
 
 - Domain Hermes: Medical Domain Hermes
-- Client Hermes: Clinic, practice, hospital, pharmacy, imaging center, or IDTF
+- Tenant Hermes: Clinic, practice, hospital, pharmacy, imaging center, or IDTF
   Hermes
-- Customer Hermes: Patient Hermes
+- Subject Hermes: Patient Hermes
 - Customer-subject: patient across the life of the patient, not only one case
 - Example profiles: clinic, group practice, hospital, pharmacy, imaging center,
   IDTF
@@ -150,8 +150,8 @@ Setup emphasis:
 Recommended interpretation:
 
 - Domain Hermes: Operations Domain Hermes
-- Client Hermes: IT Customer Hermes
-- Customer Hermes: Managed System Hermes
+- Tenant Hermes: IT Subject Hermes
+- Subject Hermes: Managed System Hermes
 - Customer-subject: tenant, subscription, service, DNS zone, backup vault,
   endpoint fleet, or production workload
 - Example profiles: managed IT customer, DevOps customer, internal IT team
@@ -165,7 +165,7 @@ Recommended interpretation:
 Setup emphasis:
 
 - Managed System Hermes owns the operational subject and current state.
-- IT Customer Hermes owns tenant policy, maintenance windows, staff approvers,
+- IT Subject Hermes owns tenant policy, maintenance windows, staff approvers,
   integration inventory, and credential bindings.
 - Operations Domain Hermes owns reusable operations policy, risk classes,
   escalation rules, and command standards.
@@ -177,8 +177,8 @@ Setup emphasis:
 Recommended interpretation:
 
 - Domain Hermes: Software Engineering Domain Hermes
-- Client Hermes: Software Company Hermes
-- Customer Hermes: Project, repo, product, feature, or release Hermes
+- Tenant Hermes: Software Company Hermes
+- Subject Hermes: Project, repo, product, feature, or release Hermes
 - Customer-subject: project, repository, feature initiative, bug, PR, release,
   incident, dependency, or technical debt item
 - Example profile: software team
@@ -205,8 +205,8 @@ Setup emphasis:
 Recommended interpretation:
 
 - Domain Hermes: Marketing Domain Hermes
-- Client Hermes: Agency, brand, growth team, or marketing operator Hermes
-- Customer Hermes: Buyer, prospect, audience, account, or campaign Hermes
+- Tenant Hermes: Agency, brand, growth team, or marketing operator Hermes
+- Subject Hermes: Buyer, prospect, audience, account, or campaign Hermes
 - Customer-subject: campaign, audience, offer, channel, brand, account,
   product, subscription, or purchase decision
 - Example profiles: agency, brand program, growth team, in-house marketing team
@@ -219,9 +219,9 @@ Recommended interpretation:
 
 Setup emphasis:
 
-- Customer Hermes should clarify whether the subject is a buyer, audience,
+- Subject Hermes should clarify whether the subject is a buyer, audience,
   account, or campaign because each has different memory and consent semantics.
-- Client Hermes owns brand policy, campaign approvals, budget boundaries,
+- Tenant Hermes owns brand policy, campaign approvals, budget boundaries,
   channel integrations, and local review rules.
 - Marketing Domain Hermes owns reusable marketing standards, claim review,
   segmentation policy, experimentation rules, and campaign gates.
@@ -233,9 +233,9 @@ Setup emphasis:
 Recommended interpretation:
 
 - Domain Hermes: Ledger Domain Hermes
-- Client Hermes: Accounting firm, bookkeeping firm, controller organization, or
+- Tenant Hermes: Accounting firm, bookkeeping firm, controller organization, or
   finance team Hermes
-- Customer Hermes: Ledger, company, client, tax matter, engagement, or report
+- Subject Hermes: Ledger, company, client, tax matter, engagement, or report
   Hermes
 - Customer-subject: company, ledger, transaction set, account, filing, report,
   tax matter, audit issue, obligation, or financial decision
@@ -250,9 +250,9 @@ Recommended interpretation:
 
 Setup emphasis:
 
-- Customer Hermes must disambiguate whether the subject is the company, ledger,
+- Subject Hermes must disambiguate whether the subject is the company, ledger,
   tax matter, engagement, or filing.
-- Client Hermes owns firm policy, staff roles, client authorizations,
+- Tenant Hermes owns firm policy, staff roles, client authorizations,
   integration bindings, and professional review.
 - Ledger Domain Hermes owns accounting standards, evidence requirements,
   close/reconciliation gates, and compliance-sensitive workflow policy.

@@ -3,7 +3,7 @@
 Status: draft
 Kind: process
 Repository context: openxFactory
-Purpose: define how Client Hermes may use an installing company's document
+Purpose: define how Tenant Hermes may use an installing company's document
 management system, historical email, and related collaboration records to
 configure an installation without preserving bad current practice as the target
 operating model.
@@ -65,7 +65,7 @@ discovery from adoption.
 
 ## 3. Allowed Source Families
 
-Client Hermes may use these source families during installation when the client
+Tenant Hermes may use these source families during installation when the client
 authorizes scoped, read-only access:
 
 | Source family | Useful for | Guardrail |
@@ -89,7 +89,7 @@ The source-authority distinction must be explicit.
 | --- | --- | --- |
 | Observed current practice | "Requests usually arrive by email and Jane approves exceptions." | `L3_ground_source_verified_current_state` |
 | Written client policy | "The SOP says manager approval is required above $5,000." | `L3_ground_source_verified_current_state` |
-| Accepted client policy | "Client Hermes accepts this as current local policy." | `L4_hermes_reviewed_truth` |
+| Accepted client policy | "Tenant Hermes accepts this as current local policy." | `L4_hermes_reviewed_truth` |
 | Target operational rule | "The new workflow blocks above $5,000 until manager approval." | `L5_operational_policy` |
 | Domain best practice | "The domain standard requires separation of requester and approver." | `L5_operational_policy` when owned by Domain Hermes |
 
@@ -113,13 +113,13 @@ Use this pipeline for client installation.
 9. Gap and risk classification
 10. Migration plan
 11. Workflow-change consent
-12. Client Hermes approval
+12. Tenant Hermes approval
 13. Domain Hermes review when domain standards change or high risk appears
 14. Target workflow generation
 15. Dry-run and cutover
 ```
 
-The pipeline is the openxFactory installation spine for Client Hermes. Domain
+The pipeline is the openxFactory installation spine for Tenant Hermes. Domain
 overlays may specialize a stage, but they must preserve source traceability,
 current-state versus target-state separation, workflow-change consent, and the
 shared artifact families.
@@ -248,7 +248,7 @@ Compare the current workflow against:
 
 - openxFactory workflow and gate requirements
 - domain Hermes standards
-- Client Hermes policy and risk tolerance
+- Tenant Hermes policy and risk tolerance
 - legal, compliance, privacy, and professional authority boundaries
 - security and credential-minimization rules
 - customer-facing communication standards
@@ -351,7 +351,7 @@ Compare outputs, timing, exception rates, and staff friction before cutover.
 
 ### Approve Cutover
 
-Client Hermes approves local operating adoption. Domain Hermes reviews when the
+Tenant Hermes approves local operating adoption. Domain Hermes reviews when the
 change touches reusable domain standards, regulated practice, high-risk action,
 or domain memory promotion.
 
@@ -373,7 +373,7 @@ gap, or target workflow defect.
 
 ## 7. Agent Scaffold
 
-Add these Client Hermes roles for installation discovery:
+Add these Tenant Hermes roles for installation discovery:
 
 | Agent | Purpose |
 | --- | --- |

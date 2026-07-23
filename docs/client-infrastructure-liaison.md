@@ -4,7 +4,7 @@ Status: ratified
 Ratified by: add-client-infrastructure-liaison
 Kind: architecture
 Repository context: openxFactory
-Purpose: define the neutral Client Hermes role that coordinates privileged
+Purpose: define the neutral Tenant Hermes role that coordinates privileged
 infrastructure dependencies on a client tenant, a contracted managed host, or
 OpsxFactory — and the `client_infrastructure_request` lifecycle it drives —
 without any domain agent or the liaison itself ever holding
@@ -24,19 +24,19 @@ tenant-administration authority.
 
 Every DomainxFactory install depends on infrastructure someone else controls —
 a customer's own tenant, a contracted managed host, or a purchased OpsxFactory
-instance. The **Client Infrastructure Liaison** is the neutral Client Hermes
+instance. The **Client Infrastructure Liaison** is the neutral Tenant Hermes
 coordination profile that owns that dependency end to end without becoming its
 privileged executor.
 
 - **One accountable owner.** The liaison is a named coordination profile with
   exactly one accountable owner per install.
-- **Composed, not a new agent.** It is composed from existing Client Hermes
+- **Composed, not a new agent.** It is composed from existing Tenant Hermes
   roles (profile steward, integration and credential steward, policy and
   approval gatekeeper, fulfillment coordinator, communication and handoff
   agent, quality and outcome monitor, memory steward — see
-  [Client Hermes Product And Service Scaffold](client-hermes-product-service-scaffold.md)
+  [Tenant Hermes Product And Service Scaffold](client-hermes-product-service-scaffold.md)
   §4), never a new always-running autonomous agent.
-- **Present in every Client Hermes scaffold.** An install MAY disable active
+- **Present in every Tenant Hermes scaffold.** An install MAY disable active
   routing when it has no external infrastructure dependency, but it MUST still
   declare the responsible operator and an escalation path.
 - **Domain aliases resolve to the neutral contract.** A domain scaffold may
@@ -44,7 +44,7 @@ privileged executor.
   role, with the same authority boundary and lifecycle obligations — never a
   domain-defined variant.
 
-| Domain stack | Client Hermes | Display alias |
+| Domain stack | Tenant Hermes | Display alias |
 |---|---|---|
 | MedxFactory | Care Hermes | Care Infrastructure Liaison |
 | LedgerxFactory | Firm Hermes | Firm Infrastructure Liaison |
@@ -172,7 +172,7 @@ evidence, while the workflow `status` is unchanged by the escalation itself.
 
 A request bound to an external execution system keeps the **neutral request
 and the execution system's own record as separate records with separate
-owners**. Client Hermes remains the source of truth for the requested outcome
+owners**. Tenant Hermes remains the source of truth for the requested outcome
 and client communication; the execution system becomes the source of truth for
 privileged execution **only after it returns an accepted work-item
 identifier**. Acceptance is recorded in the request's `handoff` block
@@ -271,7 +271,7 @@ SHA-256.)
 |---|---|
 | openxFactory | Liaison role, request + readiness schemas, lifecycle, authority boundary, evidence and escalation contracts, deterministic validator |
 | DomainxFactory | Domain-specific dependency profiles, readiness needs, display aliases, and safe fallback policy |
-| Client Hermes | Contacts, local policies, channels, approvals, deadlines, and request history (instance records) |
+| Tenant Hermes | Contacts, local policies, channels, approvals, deadlines, and request history (instance records) |
 | OpsxFactory | Privileged IT execution workflows and Managed System operations |
 | CloudPC-Install | Cloud PC installation packages, runbooks, detection, remediation, and host readiness validators |
 | Omnigent-Install | Worker runtime requirements, worker packs, and application health contract |
