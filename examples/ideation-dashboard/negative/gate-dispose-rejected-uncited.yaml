@@ -1,0 +1,15 @@
+# INVALID gate-action record: a REJECTED dispose-possible without the required
+# reason + citation (schema allOf; the register kernel's uncited-rejection
+# rule surfaced on the audit record). Violated rule: dispose-possible with
+# target.outcome=rejected requires [reason, citation]. Layer: SCHEMA.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: dispose-possible
+target:
+  possible_id: pos-derived-wheel-honesty
+  outcome: rejected
+at: "2026-07-23T12:00:00Z"
+artifacts:
+  - kind: register-update
+    reference: ideation/cross-reference.yaml#possibles_register

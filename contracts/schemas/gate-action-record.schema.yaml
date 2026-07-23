@@ -75,10 +75,13 @@ properties:
     # this field is enforced by the console/authenticator, not here.
   action:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff]
-    # The four gate-console actions (spec "Human gate console" + D17
-    # kickoff): reject-to-staging, AI-redline-apply, approve/ratify, and
-    # post-ratification workflow dispatch.
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible]
+    # The gate-console actions (spec "Human gate console" + D17 kickoff):
+    # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
+    # workflow dispatch, and — add-possibles-derivation-lane ("One-way
+    # derived-possible disposition on the gate console") — the human
+    # disposition of a pending_review ai-derived possible (ADDITIVE enum
+    # extension; every prior record stays valid).
   target: {$ref: "#/$defs/target"}
   at:
     type: string
@@ -94,8 +97,15 @@ properties:
   reason:
     type: string
     minLength: 1
-    # REQUIRED for action=demote (allOf below) — a demotion without a
-    # recorded reason is invalid; optional narrative for other actions.
+    # REQUIRED for action=demote and for a rejected dispose-possible (allOf
+    # below) — an unreasoned demotion or rejection is invalid; optional
+    # narrative for other actions.
+  citation:
+    type: string
+    minLength: 1
+    # REQUIRED for a rejected dispose-possible (allOf below) — an uncited
+    # rejection is invalid, mirroring the register state machine's own
+    # rejected-entry rule; optional otherwise.
   notes:
     type: string
     minLength: 1
@@ -104,6 +114,32 @@ allOf:
   # A demotion without a recorded reason is invalid (task 2.8).
   - if: {properties: {action: {const: demote}}}
     then: {required: [reason]}
+  # The four change-lifecycle actions target a change (the original
+  # strictness, preserved per-action now that `target` also serves the
+  # possible-disposition action).
+  - if: {properties: {action: {enum: [demote, edit-apply, ratify, kickoff]}}}
+    then: {properties: {target: {required: [change_id]}}}
+  # A dispose-possible record targets a register possible with a recorded
+  # outcome and MUST reference the register-update artifact it produced
+  # (the updated cross-reference index).
+  - if: {properties: {action: {const: dispose-possible}}}
+    then:
+      properties:
+        target: {required: [possible_id, outcome]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: register-update}}
+  # A rejected disposition without reason AND citation is invalid (the
+  # register kernel's uncited-rejection rule, surfaced on the audit record).
+  - if:
+      properties:
+        action: {const: dispose-possible}
+        target:
+          properties: {outcome: {const: rejected}}
+          required: [outcome]
+      required: [action, target]
+    then: {required: [reason, citation]}
   # A ratify record MUST reference at least one ratification-record artifact
   # (single-instance contains; the gate console is authority-bearing, D16).
   - if: {properties: {action: {const: ratify}}}
@@ -126,13 +162,27 @@ $defs:
   # --- what the action acted on ---
   target:
     type: object
-    required: [change_id]
+    # Per-action required fields live in the allOf conditionals above: the
+    # four change-lifecycle actions require `change_id`; `dispose-possible`
+    # requires `possible_id` + `outcome`. (The unconditional `change_id`
+    # requirement moved into the conditional when the disposition action
+    # landed — every previously valid record stays valid.)
     properties:
       change_id:
         type: string
         minLength: 1
         # The proposal/change this action targets (matches a snapshot
         # `change.id`).
+      possible_id:
+        type: string
+        minLength: 1
+        # The possibles-register entry a dispose-possible action targets
+        # (matches a `register_entry.id`).
+      outcome:
+        type: string
+        enum: [accepted, rejected, deferred]
+        # The human verdict a dispose-possible action recorded (mirrors
+        # `derivation_human_disposition.outcome` in the register kernel).
       document:
         type: string
         minLength: 1
