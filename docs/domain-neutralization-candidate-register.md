@@ -303,7 +303,9 @@ add-ledgerx-counterparty-model) — three of five domains conform; all
 three dial-position archetypes (synthetic/domain, synthetic-aggregate/
 subject, real-entity/external-enforcement) are now proven live. Flips to
 `adopted` when domain stack pins advance to a ref containing the schema
-(the contract-v1.16 cut, which also lands the manifest entry). The
+and the manifest entry lands — at the NEXT bundle cut: contract-v1.16
+was cut 2026-07-23 (omnigent family + layer vocabulary) before this
+schema registered, so the deferred items target contract-v1.17. The
 former staging topic
 [governed-derived-model](../openspec/changes/archive/2026-07-23-add-governed-derived-model/supporting-docs/governed-derived-model.md)
 rides under the change's `supporting-docs/` (named during the
