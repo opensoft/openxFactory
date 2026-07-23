@@ -53,15 +53,20 @@
 - [ ] 3.2 `installs/hermes-install`: worker-readiness API port and pilot
       `hermes_service/` retirement (cutover shape per the design record's
       open question).
-- [ ] 3.3 `xFactories/codexFactory`: author the first `omnigent/` overlay;
+- [x] 3.3 `xFactories/codexFactory`: author the first `omnigent/` overlay;
       the live coding-patch-worker binding becomes a rendered consequence
       of overlay + params, byte-equivalence proven.
       PROGRESS 2026-07-23: overlay authored, conforming, and archived
       (codexFactory `align-omnigent-overlay-to-neutral-contract`, canonical
       spec `engineering-omnigent-overlay`; digest-pinnable
-      `omnigent/overlay-manifest.yaml` landed). Remaining: the
-      byte-equivalence rendering proof, gated on task 3.1's
-      omnigent-install compose/verify step.
+      `omnigent/overlay-manifest.yaml` landed).
+      COMPLETE 2026-07-23 (rendering increment): codexFactory
+      `author-execution-lane-profile-in-overlay` (469322b) made the live
+      coding-patch-worker profile overlay-authored; omnigent-install
+      `render-effective-profiles` (def6a56) renders it byte-verbatim with
+      provenance sidecars and proves rendered == pinned source == live
+      binding (sha256 f2f70eb2..., render-verify evidence green). The live
+      execution-lane binding is a rendered consequence of overlay + params.
 - [ ] 3.4 `xFactories/MedxFactory`: second-domain params fixture rendered
       from the staged overlay draft
       (`ideation/staging/medical-omnigent-overlay/domain-overlay.draft.yaml`)
