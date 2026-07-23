@@ -15,23 +15,28 @@ this change.
 - [x] 1.2 Decision record: second touch RESOLVED as custody-not-decision
       (design D1, Brett 2026-07-23); intent kernel is its own schema (D3);
       local-first realization order (D5).
-- [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate add-ideation-intent-plane
-      --strict` and `--all --strict` green before commit; README "OpenSpec
-      Records" entry added.
+- [x] 1.3 Verified 2026-07-23: `--strict` and `--all --strict` green (37
+      items); README "OpenSpec Records" entry added in the proposal commit.
 
 ## 2. Gate-Intent Kernel (openxFactory contract)
 
-- [ ] 2.1 `contracts/schemas/gate-intent.schema.yaml`: the request artifact
-      (actor, verb enum incl. dispose-possible, target, args, requested_at,
-      snapshot_rev_seen, status pending|applied|refused + refusal reason,
-      applied_record ref) — open/additive posture, gate-action-record's
-      sibling, never a record of an applied act.
-- [ ] 2.2 Packaged examples (valid pending/applied/refused; negatives:
-      forged-status, missing snapshot_rev_seen, refused-without-reason).
-- [ ] 2.3 Delegated validator rules in
-      `validate-ideation-dashboard-contracts.py` (status transitions one-way
-      pending->applied|refused; applied requires record ref; kind/family
-      registration) + self-test fixtures green.
+- [x] 2.1 Realized 2026-07-23: `contracts/schemas/gate-intent.schema.yaml`
+      — the request artifact (actor inbox-stamped, verb enum in lockstep with
+      gate-action-record incl. dispose-possible, per-verb target
+      conditionals, args as console-entrypoint kwargs, requested_at,
+      snapshot_rev_seen, one-way status with refused->refusal_reason and
+      applied->applied_record conditionals, idempotency_key); open/additive
+      posture, never a record of an applied act.
+- [x] 2.2 Realized 2026-07-23: packaged examples — valid pending + applied
+      (with the request->act record chain); negatives
+      `intent-refused-without-reason` and `intent-applied-without-record`
+      (both schema-layer, each naming its violated rule).
+- [x] 2.3 Realized 2026-07-23 (schema registration + per-status field rules;
+      one-way TRANSITION-mode pairs ride the apply-lane realization with its
+      fixtures): `gate-intent.schema.yaml` registered in the family
+      validator's schema list + kind map; applied->record and
+      refused->reason enforced at the schema layer; self-test green
+      (0 errors, 0 warnings, --strict).
 - [ ] 2.4 Register the delta in contracts/manifest.yaml / CHANGELOG.md /
       README.md at the realization commit (registration-at-realization
       precedent).

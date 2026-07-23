@@ -110,6 +110,7 @@ SCHEMA_FILENAMES = [
     "ideation-possibles-register.schema.yaml",
     "project-register.schema.yaml",
     "gate-action-record.schema.yaml",
+    "gate-intent.schema.yaml",
 ]
 
 # Whole-document schemas keyed by the hyphenated `kind` literal each declares.
@@ -118,6 +119,7 @@ KIND_TO_SCHEMA = {
     "ideation-workbench": "ideation-workbench.schema.yaml",
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
+    "gate-intent": "gate-intent.schema.yaml",
 }
 
 # The possibles register is an envelope-less `$defs` kernel (no kind/envelope of
