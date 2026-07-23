@@ -1,0 +1,16 @@
+# expected_failure: domain-owned list
+schema_version: 1
+kind: hermes_domain_overlay
+
+domain:
+  id: codex
+  display_name: codex Domain Hermes
+  approval_scope_kinds:
+    - engineering_intent
+  required_approval_fields:
+    - approved_scope_ref
+  authority_boundaries:
+    xfactory_owns:
+      - gates
+    repository_owns:
+      - final_merge_enforcement

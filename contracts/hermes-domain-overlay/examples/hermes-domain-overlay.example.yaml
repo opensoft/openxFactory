@@ -1,0 +1,27 @@
+# Positive reference example — modeled on codexFactory's live overlay
+# (trimmed authority lists; the full 37-authority instance is the
+# realization proof target).
+schema_version: 1
+kind: hermes_domain_overlay
+
+domain:
+  id: codex
+  display_name: codex Domain Hermes
+  approval_scope_kinds:
+    - engineering_intent
+    - repository_change
+  required_approval_fields:
+    - approved_scope_ref
+    - owner
+    - repository
+  authority_boundaries:
+    codex_owns:
+      - engineering_decomposition
+      - branch_review
+      - system_architecture
+    xfactory_owns:
+      - neutral_contracts
+      - gates
+    repository_owns:
+      - final_branch_protection
+      - final_merge_enforcement

@@ -1,0 +1,9 @@
+# Positive reference example — role→path declaration. Note the customer
+# ROLE pointing into the subject/ DIRECTORY: the role label and directory
+# name legitimately differ, which is why the descriptor exists.
+schema_version: 1
+kind: hermes_overlay_descriptor
+
+overlay_paths:
+  domain: hermes/domain/overlay.yaml
+  customer: hermes/subject/template.yaml

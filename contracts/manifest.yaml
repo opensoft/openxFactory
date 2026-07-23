@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.14
+contract_bundle_version: contract-v1.15
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -774,3 +774,45 @@ contracts:
       one-way disposition lifecycle are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the kernel's C3
       delegated owner), never re-implemented by consumers.
+  # ---- hermes-domain-overlay contract surface — contract-v1.15 realization (add-hermes-domain-overlay-contract) ----
+  # The neutral schema for a domain's seedable Hermes overlay plus the
+  # role→path overlay descriptor, replacing the hermes-install seeding
+  # runtime's minimal structural check and hard-coded role→path convention.
+  # Realization proof: the canonical validator's packaged-example self-test
+  # AND codexFactory's live 37-authority hermes/domain/overlay.yaml passing
+  # unmodified via the documented-convention fallback. Per-file sha256 over
+  # each schema's bytes; the canonical validator
+  # (scripts/validate-hermes-domain-overlay.py) is content-addressed by
+  # commit; no per-file digest.
+  - id: hermes-domain-overlay
+    path: contracts/hermes-domain-overlay/hermes-domain-overlay.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/hermes-domain-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4941e94100306524ad66f4924eac19c86112cd703bb989cee4acd42be1bf8979
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The hermes-install seeding runtime (materialization increment) and
+      DomainxFactory validate chains consume this schema through their pinned
+      openxFactory checkout at the contract-v1.15 tag and MUST verify the
+      per-file sha256 before treating a copy as current. The domain-owned
+      boundary list naming (`<domain.id>_owns`), non-emptiness, and the
+      no-overlap rule are enforced by
+      scripts/validate-hermes-domain-overlay.py (canonical), never
+      re-implemented by consumers.
+  - id: hermes-overlay-descriptor
+    path: contracts/hermes-domain-overlay/overlay-descriptor.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/overlay-descriptor.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4a39079170df2198a17884d42f7550e824d187e3e50c99e89afc6f1448a3afc0
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A domain repo MAY ship hermes/overlay-descriptor.yaml against this
+      schema; absent, consumers fall back to the documented role→path
+      convention (domain → hermes/domain/overlay.yaml). Role keys are the
+      runtime layer roles (domain/client/customer), deliberately not
+      directory names. Declared-path existence is enforced by the canonical
+      validator when a repo path is supplied.

@@ -1,0 +1,17 @@
+# expected_failure: approval_scope_kinds
+schema_version: 1
+kind: hermes_domain_overlay
+
+domain:
+  id: codex
+  display_name: codex Domain Hermes
+  approval_scope_kinds: []
+  required_approval_fields:
+    - approved_scope_ref
+  authority_boundaries:
+    codex_owns:
+      - engineering_decomposition
+    xfactory_owns:
+      - gates
+    repository_owns:
+      - final_merge_enforcement

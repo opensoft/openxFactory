@@ -9,6 +9,23 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.15 — 2026-07-23 (additive; hermes-domain-overlay contract surface)
+
+Ninth annotated-tag release. Realizes **add-hermes-domain-overlay-contract**:
+the neutral `hermes_domain_overlay` schema (domain identity, non-empty
+approval scopes and required fields, authority boundaries with the
+canonical-validator-enforced `<domain.id>_owns` naming and no-overlap rules)
+and the `hermes_overlay_descriptor` role→path declaration (runtime layer
+roles domain/client/customer as keys — deliberately not directory names —
+with a documented-convention fallback when absent and fail-closed dangling
+paths). New canonical validator `scripts/validate-hermes-domain-overlay.py`
+with self-testing packaged examples/negatives under
+`contracts/hermes-domain-overlay/examples/`. Realization proof: codexFactory's
+live 37-authority `hermes/domain/overlay.yaml` passes unmodified via the
+convention fallback. Replaces the hermes-install seeding runtime's minimal
+structural check at its materialization increment (which pins this release).
+Purely additive; no existing contract touched.
+
 ## contract-v1.14 — 2026-07-22 (additive; possibles-register AI-derivation intake)
 
 Eighth annotated-tag release. Realizes the **possibles-derivation lane's
