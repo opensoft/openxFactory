@@ -13,6 +13,10 @@ composition:
   operations_contract: domain_installation_overlay
   stricter_rule_wins: true
 
+permission_aliases:
+  write_repo: write_artifacts
+  run_checks: run_validations
+
 workers:
   - id: scope_framer
     archetype: frame
@@ -38,9 +42,6 @@ workers:
       propose_admission: false
       execute_final_action: false
       access_secrets: false
-    permission_aliases:
-      write_repo: write_artifacts
-      run_checks: run_validations
   - id: check_runner
     archetype: verify
     responsibility: Run deterministic validations and produce reports.

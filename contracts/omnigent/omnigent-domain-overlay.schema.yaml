@@ -60,6 +60,21 @@ properties:
         const: domain_installation_overlay
       stricter_rule_wins:
         const: true
+  permission_aliases:
+    description: >-
+      Domain-facing permission names (for example read_repo, open_pr)
+      declared once for the whole overlay as aliases of the neutral
+      booleans. The two constitutional booleans have no alias targets.
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    patternProperties:
+      "^[a-z][a-z0-9_]*$":
+        enum:
+          - read_workspace
+          - write_artifacts
+          - run_validations
+          - propose_admission
   workers:
     type: array
     minItems: 1
@@ -180,6 +195,12 @@ $defs:
           - verify
           - challenge
           - assemble_for_admission
+      directed_by:
+        description: >-
+          Optional Domain Hermes persona (role id) that directs this worker
+          class — the deciders-direct-workers linkage domains declare in
+          their hermes/domain/roles tree.
+        $ref: "#/$defs/identifier"
       responsibility:
         type: string
         minLength: 1
@@ -218,16 +239,3 @@ $defs:
             const: false
           access_secrets:
             const: false
-      permission_aliases:
-        description: >-
-          Domain-facing permission names (for example read_repo, open_pr)
-          declared as aliases of the neutral booleans.
-        type: object
-        additionalProperties: false
-        patternProperties:
-          "^[a-z][a-z0-9_]*$":
-            enum:
-              - read_workspace
-              - write_artifacts
-              - run_validations
-              - propose_admission
