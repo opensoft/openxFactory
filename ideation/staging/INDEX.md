@@ -49,6 +49,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
+| [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -219,6 +220,27 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   partial re-seed.
 - Exit: openxFactory `add-hermes-domain-overlay-contract` (independent, ready
   now) ∥ domain change A → hermes-install seeding increment 2.
+
+## layer-vocabulary-machine-migration
+
+- Staging ID: `openxFactory:staging:layer-vocabulary-machine-migration`
+- Repository context: openxFactory (`contracts/hermes-runtime/`,
+  `contracts/schemas/`); ripples to hermes-install, omnigent-install, and
+  all five DomainxFactory `stack.yaml` files.
+- Source: `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3, filed as
+  the deferral artifact 2026-07-23; authoritative scope =
+  `contracts/policies/layer-vocabulary.yaml` frozen_identifiers inventory.
+- Claim: the frozen legacy machine spellings migrate to Subject/Tenant/
+  Domain only AT the next major contract bundle (the migration rides the
+  major, never causes it); hermes-install adopts at pin bump; Ops/Adx
+  prose sweeps can run before the major, key migrations only with it.
+- Files:
+  - [layer-vocabulary-machine-migration.md](layer-vocabulary-machine-migration/layer-vocabulary-machine-migration.md) — primary: target deltas, 3 claims, 2 open questions, exit.
+- Open questions (non-blocking, dormant): fold into other v3 drivers vs
+  standalone; `$id` redirect policy for archived digest inventories.
+- Exit: per-surface-family OpenSpec changes at the scheduled major +
+  mechanical per-repo stack.yaml migrations; archives when every frozen
+  identifier is migrated or explicitly retained as archived-only.
 
 ## proposal-origin-contract
 

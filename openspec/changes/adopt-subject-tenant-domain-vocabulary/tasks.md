@@ -28,14 +28,20 @@
 
 ## 3. Downstream follow-ups (filed, not executed in this change)
 
-- [ ] 3.1 File the machine-identifier migration change for the next major
+- [x] 3.1 File the machine-identifier migration change for the next major
       contract bundle (`customer_subject_ref → subject_ref`, role kind enums,
       schema `$id`s, migration + mapping manifest per the existing v1-to-v2
       pattern).
-- [ ] 3.2 File per-repo migration changes for the five DomainxFactories
+- [x] 3.2 File per-repo migration changes for the five DomainxFactories
       (stack.yaml keys, directory names, README prose) — this also closes the
       review §A1 Ledgerx collision and folds into fix priority #2.
-- [ ] 3.3 Coordinate with `installs/hermes-install`: no action while it
+- [x] 3.3 Coordinate with `installs/hermes-install`: no action while it
       consumes openxFactory by pin; adopt the vocabulary at its first pin bump
       after the Track 2 realization of
       `add-hermes-customer-subject-runtime-contract` lands.
+
+Filing record (2026-07-23): tasks 3.1–3.3 are filed as the staging topic
+`ideation/staging/layer-vocabulary-machine-migration/` (dormant by design;
+rides the next major bundle). Track 2 landed + archived 2026-07-19, so 3.3
+reduces to "hermes-install migrates at its pin bump onto the major" —
+recorded in the topic's claims. Ledgerx prose sweep landed 2026-07-23.
