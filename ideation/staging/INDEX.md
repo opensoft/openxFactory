@@ -49,7 +49,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
-| [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + `omnigent-install-manifest` (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Ratified 2026-07-22 (`add-omnigent-domain-overlay`) — absorbed the medical-harness neutral deltas (archetype vocabulary, generalized permission matrix, never_assignable tier); v2 adoption + pre-rendered composition settled; 2 realization-phase questions carried into the proposal's design record |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
@@ -220,47 +219,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   partial re-seed.
 - Exit: openxFactory `add-hermes-domain-overlay-contract` (independent, ready
   now) ∥ domain change A → hermes-install seeding increment 2.
-
-## omnigent-core-domain-split
-
-- Staging ID: `openxFactory:staging:omnigent-core-domain-split`
-- Repository context: openxFactory (neutral overlay + install-manifest
-  contracts); realizations in `installs/omnigent-install` (manifest +
-  compose/verify increment), `installs/hermes-install` (worker-readiness
-  port), `xFactories/codexFactory` (first `omnigent/` overlay authoring).
-- Source: `ideation/brainstorm/omnigent-core-domain-split.md` (2026-07-21);
-  omnigent-install ↔ hermes-install ↔ codexFactory review + Option A/B
-  decisions settled with Brett Heap 2026-07-22; parent roadmap
-  `omnigent-lane-activation-path.md` (P3-adjacent).
-- Claim: give omnigent-install the domain tier it lacks — per-domain
-  content authored in each DomainxFactory repo under `omnigent/`, consumed
-  by digest pin; the Omnigent install manifest pins the Hermes runtime
-  manifest as shared stack identity (1 client, 1 domain, N customer
-  workloads) and a read-only compose+verify step emits hermes-install-style
-  evidence; the pilot `hermes_service` retires by porting worker-readiness
-  into hermes-install; a second domain becomes a params-plus-overlay-pin
-  delta, never a copy-fork.
-- Files:
-  - [omnigent-core-domain-split.md](omnigent-core-domain-split/omnigent-core-domain-split.md) — primary: target delta, 7 claims, absorbed neutral deltas, decisions record, 2 open questions, exit.
-- Absorbed 2026-07-22 (from `ideation/brainstorm/medical-omnigent-harness-adaptation.md`):
-  neutral worker archetype vocabulary (frame/generate/verify/challenge/
-  assemble_for_admission), generalized permission matrix with constitutional
-  `execute_final_action`/`access_secrets` false, `never_assignable`
-  credential tier; second-domain proof drafted at
-  `MedxFactory/ideation/staging/medical-omnigent-overlay/`.
-- Settled at proposal authoring 2026-07-22: adopt the v2
-  `contracts/hermes-runtime/` set as first install-side consumer;
-  pre-rendered effective profiles with provenance; canonical
-  Subject/Tenant/Domain machine spellings from birth.
-- Open questions (realization-phase, carried in the proposal design record):
-  shared-identity generation ownership + revision-equality verification
-  (leaning hermes-install generates, omnigent-install digest-pins);
-  readiness-port cutover shape.
-- Exit: `add-omnigent-domain-overlay` ratified 2026-07-22
-  (neutral contracts), then gated realization changes in omnigent-install,
-  hermes-install, and codexFactory; archives only when the codexFactory
-  overlay renders the live execution-lane binding byte-equivalently and a
-  second-domain params fixture renders without touching core.
 
 ## proposal-origin-contract
 

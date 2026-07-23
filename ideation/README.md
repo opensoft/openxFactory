@@ -247,6 +247,16 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-omnigent-domain-overlay](../openspec/changes/add-omnigent-domain-overlay/proposal.md)
+  — fully promoted 2026-07-23: owns the former `omnigent-core-domain-split`
+  staged topic under `supporting-docs/`. Both archive-gate halves proven
+  the same day — the live coding-patch-worker binding renders
+  byte-equivalently from the codexFactory overlay
+  (`author-execution-lane-profile-in-overlay` + omnigent-install
+  `render-effective-profiles`, ratified + archived 2026-07-23), and the
+  MedxFactory second-domain fixture renders as a params-only delta with
+  zero core edits. The change itself stays active until its remaining task
+  (hermes-install readiness port) and bundle registration land.
 - [add-governed-derived-model](../openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
   — promoted 2026-07-23 (same-day capture → decisions → promotion →
   **ratified, realized, archived 2026-07-23**); owns the former
