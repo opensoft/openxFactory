@@ -2435,6 +2435,12 @@ possibles_register:
       worker_profile: derive-possibles
       prompt_contract_version: derive-possibles-prompt-v1
     disposition: pending_review
+    human_disposition:
+      outcome: accepted
+      authority: Brett
+      at: '2026-07-23'
+      note: 'Strong DTN candidate: three docs converge on the same neutral schema gap; not covered by
+        staged Changes A/B.'
   claiming_clusters:
   - cl-codexfactory
   supporting_evidence:
@@ -2464,6 +2470,13 @@ possibles_register:
       worker_profile: derive-possibles
       prompt_contract_version: derive-possibles-prompt-v1
     disposition: pending_review
+    human_disposition:
+      outcome: accepted
+      authority: Brett
+      at: '2026-07-23'
+      note: 'Genuine cross-member connection: the integration surface between Plane-2 spend, Plane-3 convenings,
+        and practice-effectiveness signals is specified nowhere. Broad — may start as a staged exploration
+        when picked.'
   claiming_clusters:
   - cl-codexfactory
   supporting_evidence:
@@ -2493,6 +2506,12 @@ possibles_register:
       worker_profile: derive-possibles
       prompt_contract_version: derive-possibles-prompt-v1
     disposition: pending_review
+    human_disposition:
+      outcome: accepted
+      authority: Brett
+      at: '2026-07-23'
+      note: Sound abstraction-from-precedent; extract the template when a second sweep wants a tier-2
+        rule (rule-of-three noted at accept time).
   claiming_clusters:
   - cl-codexfactory
   supporting_evidence:
