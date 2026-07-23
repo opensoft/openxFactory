@@ -80,6 +80,16 @@ properties:
     minItems: 1
     items:
       $ref: "#/$defs/worker_class"
+  worker_profiles:
+    description: >-
+      Domain-authored worker profile documents (whole-document payload,
+      rendered byte-verbatim by the consuming install with sidecar
+      provenance). Field-level delta composition against core baseline
+      profiles is a future increment; until then a profile listed here is
+      the authored source for the identically named rendered profile.
+    type: array
+    items:
+      $ref: "#/$defs/payload_ref"
   prompt_packs:
     type: array
     items:
