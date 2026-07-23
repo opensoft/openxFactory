@@ -23,6 +23,19 @@ merge-readiness-council, gate-rules-council, auto-clear-envelope, tier-2,
 nightly-sweep, omnigent-lane, activation-gate, cost-accountability
 Repository context: codexFactory (envelope rules-as-code + per-repo gate rule); openxFactory (this leaf)
 Captured: 2026-07-23
+Updated: 2026-07-23 (Q1 + Q4 decided; convening packet assembled)
+
+## Decided (2026-07-23)
+
+- **Q1 — docs-class is a static allowlist, Lead Quality owns it.**
+  Rules-as-code: `**/*.md` plus `health/**`; everything else — workflows,
+  scripts, schemas, any YAML outside `health/**` — is NOT docs-class.
+  Allowlist changes are Lead-Quality-accepted recorded events. Deterministic,
+  auditable, no new code surface, no circularity.
+- **Q4 — v1 clears docs-only overflow alone.**
+  `dispositioned_regression_finding` is dropped from v1 (riskier, rarer);
+  adding it later is a normal rule amendment through the same council. One
+  crisp condition for the council's first exercise.
 
 ## The two tiers
 
@@ -48,14 +61,18 @@ rule:
   default_state: configured_but_inactive      # activation gate below
   tier_1: merge_master_autonomous_envelope    # unchanged; this rule NEVER weakens it
 
-  council_clearable:                          # closed, declared list — nothing else
+  council_clearable:                          # closed, declared list — nothing else (v1)
     - id: docs_only_path_overflow
       condition: paths exceed health/** but every changed path is docs-class
+      docs_class:                             # DECIDED: static allowlist, no classifier
+        allowlist: ["**/*.md", "health/**"]
+        everything_else: not_docs_class       # workflows, scripts, schemas, YAML outside health/**
+        owner: lead-quality                   # allowlist changes = Lead-accepted recorded
       council_verifies: no behavioral or config surface touched
+
+  deferred_amendments:                        # NOT in v1; normal rule amendment later
     - id: dispositioned_regression_finding
-      condition: an open regression finding exists but carries a recorded
-        disposition or contested-resolution in flight
-      council_verifies: the finding does not bear on THIS PR's content
+      note: riskier and rarer; propose through the same council when wanted
 
   never_clearable:                            # always park for the human
     - author_or_app_identity_mismatch         # identity stays hard — spoofing surface
@@ -126,17 +143,48 @@ rule:
    flipping the gate is a Lead-accepted recorded event once its two
    requirements hold.
 
+## Convening packet (Gate-Rules Council first exercise — rehearsal)
+
+Everything the seats need in one sitting; the human step is Brett's
+acknowledgement.
+
+1. **The rule** — the v1 YAML above (docs-only overflow, static allowlist,
+   never-clearable floor, unanimous SHA-pinned verdict, once-per-SHA,
+   anti-normalization at 3, kill switch, configured_but_inactive).
+2. **Verification claims for the seats to check, not assume:**
+   - *Lead Security:* the never-clearable floor covers every security
+     surface (identity, checks, secrets, security-touching paths, gate
+     weakening) — therefore the rule widens nothing security-posture-shaped
+     and the **CSC conjunction pull-in is not triggered** (evaluated on the
+     record, not waved through).
+   - *Lead Quality:* the docs-class allowlist is deterministic and owned;
+     the anti-normalization threshold turns recurring clearances into
+     generator fixes (evidence before trust holds).
+   - *Lead Architect:* tier-2 composes with tier-1 without weakening it;
+     the council output is a recommendation, the Merge Master remains the
+     only approver, repository enforcement stays final.
+   - *Company Policy Lead:* "is this allowed here" — the tenant accepts an
+     agent council clearing a docs-maintenance exception class with a
+     standing kill switch and per-clearance notices.
+   - *Project seat (intent-owner, symbolic):* recorded as vacant-symbolic;
+     binds when the subject-layer roster lands.
+3. **Q2 recommendation carried into the convening:** verdict transport as a
+   **PR check-run emitted by the lane** — already SHA-bound, visible in the
+   PR, and the Merge Master App already reads check state; the alternative
+   (governed record the App queries) adds an API surface. Council blesses
+   or redirects.
+4. **Output:** the ratified `per_repo_gate_rules` record + Brett's
+   acknowledgement notice → then the codexFactory OpenSpec change
+   (envelope.py tier-2 classification + recommendation-record check +
+   negative tests, shipped configured_but_inactive).
+
 ## Open questions
 
-- **docs-class definition** for `docs_only_path_overflow` — extension
-  allowlist (`*.md`, `health/**`, doc-index lines in README) vs. a
-  doc-health-owned classifier; who maintains it (Lead Quality).
-- **Recommendation-record transport** — where the council's verdict record
-  lives so the Merge Master (a GitHub App) can check it: a PR check-run
-  emitted by the lane vs. a governed record the App queries.
-- **Notice fatigue** — per-clearance acknowledgement notices vs. a weekly
-  digest once tier-2 clears routinely (interacts with anti-normalization:
-  if it clears routinely, the generator needs fixing anyway).
-- **Does `dispositioned_regression_finding` belong in v1** — it is the
-  riskier of the two clearable conditions; shipping v1 with only
-  `docs_only_path_overflow` is a defensible narrower start.
+- ~~docs-class definition~~ — DECIDED 2026-07-23: static allowlist, Lead
+  Quality owns (§Decided).
+- **Recommendation-record transport** — recommendation in the convening
+  packet (check-run emitted by the lane); the council blesses or redirects.
+- **Notice fatigue** — deferred to activation-gate time, informed by real
+  clearance counts (anti-normalization bounds the worst case anyway).
+- ~~v1 scope~~ — DECIDED 2026-07-23: docs-only overflow alone;
+  `dispositioned_regression_finding` is a deferred amendment (§Decided).
