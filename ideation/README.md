@@ -372,6 +372,12 @@ Active proposals promoted from staging:
   memory → gateway bindings, persona prose → pinned reference); deterministic,
   digest-pinned, idempotent, re-seeds on re-pin (client-consented), fails closed
   to a safe structural-only layer (2026-07-21).
+- [Tech-Stack Benches as Governed Worker Toolchains](brainstorm/tech-stack-benches.md)
+  — adopt the operator's per-stack bench containers as governed worker
+  execution environments: neutral bench-manifest contract, digest-pinned
+  `toolchain_bindings` in domain overlays, per-job bench selection, heartbeat
+  bench inventory, and Intune-deployed worker-host-agent pre-pull; first
+  bench-enabled host is the idle Omni-001 Cloud PC (2026-07-23).
 - [Omnigent Lane Activation Path](brainstorm/omnigent-lane-activation-path.md)
   — the sequenced path from today's govern/record plane to a Hermes-managed
   omnigent lane that autonomously codes: P0 runtime (live) → P1 seed+enforce
