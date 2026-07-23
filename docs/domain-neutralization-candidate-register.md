@@ -296,8 +296,12 @@ ratified/realized/archived. Canonical spec
 `openspec/specs/governed-derived-model/`; contract
 `contracts/schemas/xfactory-derived-model-conformance.schema.yaml`;
 validator `scripts/validate-derived-models.py`. Conformers: MedxFactory
-(`governed` tier, declaration-only, 0987bca) and AdxFactory
-(`calibrated` tier, first, eb98f84 via add-adx-object-model). Flips to
+(`governed` tier, declaration-only, 0987bca), AdxFactory (`calibrated`
+tier, first, eb98f84 via add-adx-object-model), and LedgerxFactory
+(`calibrated` tier, first real-entity two-object split, fc624a5 via
+add-ledgerx-counterparty-model) — three of five domains conform; all
+three dial-position archetypes (synthetic/domain, synthetic-aggregate/
+subject, real-entity/external-enforcement) are now proven live. Flips to
 `adopted` when domain stack pins advance to a ref containing the schema
 (the contract-v1.16 cut, which also lands the manifest entry). The
 former staging topic
@@ -342,7 +346,7 @@ Evidence:
 - `xFactories/MedxFactory/templates/dream-object.yaml` (ratified; conforms at `governed` tier declaration-only)
 - `xFactories/MedxFactory/templates/simulation-scenario.yaml` (ratified)
 - `xFactories/AdxFactory/openspec/changes/archive/2026-07-23-add-adx-object-model/` (realized 2026-07-23 — first `calibrated` conformer; live templates at `templates/{persona,campaign-simulation}.yaml`)
-- `xFactories/LedgerxFactory/openspec/changes/add-ledgerx-counterparty-model/` (proposed 2026-07-23 — will be the second `calibrated` conformer, first real-entity split)
+- `xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-counterparty-model/` (realized 2026-07-23 — second `calibrated` conformer, first real-entity split; live templates at `templates/{counterparty-health-profile,financial-scenario}.yaml`)
 
 Domain-local exclusions: the modeled party's kind and fields, signal/trait
 vocabularies, truth-store identity, benchmark content, approver roles,
