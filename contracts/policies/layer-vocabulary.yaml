@@ -72,8 +72,10 @@ domain_aliases:
     subject: Managed System Hermes
     tenant: Operator Organization Hermes
   LedgerxFactory:
-    subject: Client Company Hermes
-    tenant: pending_migration  # "Firm Hermes" exists only in prose (review 2026-07-03 A2)
+    # The review-A1 "Client Hermes" collision was fixed in-repo (renamed
+    # Engagement Hermes 2026-07-03; hermes/client/ = Firm Hermes).
+    subject: Engagement Hermes
+    tenant: Firm Hermes
   AdxFactory:
     subject: pending_migration
     tenant: pending_migration  # "Brand Hermes" exists only in prose (review 2026-07-03 A2)
