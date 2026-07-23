@@ -141,14 +141,26 @@ MedxFactory states a reusable boundary: Omnigent may detect and propose, but the
 appropriate Hermes layer and openxFactory decide whether the proposal becomes an
 admitted workflow.
 
+First concrete consumer (2026-07-23): the LedgerxFactory AP-intake
+design (`xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/`)
+— a deterministic mailbox monitor emits proposed triggers under Hermes
+self-initiation ("downstream system event") and an admission boundary
+opens governed `document_intake` jobs. Shaping decision recorded there:
+**admission vocabulary stays species-free** — the trigger boundary
+classifies channel and plausibility only (one coarse `inbound_document`
+admission per channel); document species is pipeline classification, so
+the neutral admission contract needs no per-document-type vocabulary.
+
 Evidence:
 
 - `xFactories/MedxFactory/docs/omnigent-trigger-boundary.md`
 - `docs/xfactory-domain-factory-model.md`
 - `docs/omnigent-constitution.md`
+- `xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/` (staged 2026-07-23)
 
 Domain-local exclusions: clinical trigger categories, patient-specific
-authority, and clinician review requirements.
+authority, clinician review requirements, and (per the Ledgerx shaping)
+all document-species vocabulary.
 
 ### DTN-006: Candidate-only work product lifecycle
 
@@ -156,11 +168,20 @@ MedxFactory's DDE docs sharply separate candidates from conclusions. This is a
 neutral lifecycle useful for any domain where agents generate ideas, findings,
 risks, plans, or recommendations before review.
 
+Second consumer shape (2026-07-23): the LedgerxFactory AP-intake design
+(`xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/`) — the
+extraction record and the **coding candidate** (account/dimension/tax
+proposal with confidence and cited precedents) are candidates until
+human disposition or ratified-envelope clearance; the standing Ledgerx
+memory-fill rule "OCR and AI categorization are candidates until
+reconciled or reviewed" is this lifecycle stated as domain policy.
+
 Evidence:
 
 - `xFactories/MedxFactory/docs/differential-discovery-engine.md`
 - `xFactories/MedxFactory/workflows/decision-foundation-loop.yaml`
 - `xFactories/codexFactory/workflows/pr-admission.yaml`
+- `xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/` (staged 2026-07-23)
 
 Domain-local exclusions: diagnoses, treatments, accounting conclusions,
 campaign approvals, deployment approvals, and merge decisions.
@@ -187,11 +208,21 @@ evidence is useful beyond medicine. openxFactory can define a neutral pattern
 for foundational facts, reliability status, dependency strength, and recheck
 requirements.
 
+Second consumer shape (2026-07-23): the LedgerxFactory AP-intake design
+(`xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/`) —
+per-field extraction confidence with source anchors, binding-dependent
+message-evidence grades (direct-delivery SPF/DKIM vs forwarded ARC),
+and risk-tiered disposition (posting-autonomy position + unwaivable
+domain invariants like bank-detail-change-never-auto) are exactly the
+reliability-status / dependency-strength / recheck pattern this
+candidate names.
+
 Evidence:
 
 - `xFactories/MedxFactory/docs/foundational-data-reliability-and-reverification.md`
 - `docs/customer-memory-fill-maintenance-taxonomy.md`
 - `docs/traceability-model.md`
+- `xFactories/LedgerxFactory/ideation/staging/ledgerx-ap-intake/` (staged 2026-07-23)
 
 Domain-local exclusions: modality-specific clinical failure modes, treatment
 risks, and clinician workflows.
