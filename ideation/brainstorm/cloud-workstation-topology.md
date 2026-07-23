@@ -64,6 +64,26 @@ sets are gitignored by design). Each engineer's per-branch dashboard is the
 LOCAL `generate-and-open` against their working tree — per-engineer views
 with zero hosted infrastructure and no truth drift.
 
+## Gates happen on main (Brett, 2026-07-23 — the temporal rule)
+
+The shared-hosted / local-per-branch split has a temporal corollary worth
+formalizing: the hosted dashboard shows MAIN at last bake, so a lifecycle
+transition an engineer performs on a branch is INVISIBLE to the team until
+merged. Today "merge before formalizing" is habit, not rule (brainstorm
+captures commit straight to main; organizes have gone via PR; proposals and
+ratification records live on main) — nothing written stops a staged topic or
+even an OpenSpec change riding a long-lived branch unseen.
+
+Proposed invariant (a document-lifecycle delta when organized):
+**a lifecycle transition is not real until it is on main.** Organize
+(brainstorm→staged), propose (staged→change), ratify, and archive are MAIN
+events, merged promptly; unmerged transitions are exploration, not status.
+Drafting, workbench assembly, and local reorganization stay branch/local-
+legal — the local dashboard exists precisely to PREVIEW a move before it is
+merged. The payoff: the shared dashboard is always the team's true picture
+of what is moving forward, and "visible on the dash" becomes synonymous
+with "governed".
+
 ## Workspace identity implications
 
 Per-engineer Google Workspace users are required by the NLM sharing model
