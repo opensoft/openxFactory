@@ -51,6 +51,12 @@
 - [ ] 3.3 `xFactories/codexFactory`: author the first `omnigent/` overlay;
       the live coding-patch-worker binding becomes a rendered consequence
       of overlay + params, byte-equivalence proven.
+      PROGRESS 2026-07-23: overlay authored, conforming, and archived
+      (codexFactory `align-omnigent-overlay-to-neutral-contract`, canonical
+      spec `engineering-omnigent-overlay`; digest-pinnable
+      `omnigent/overlay-manifest.yaml` landed). Remaining: the
+      byte-equivalence rendering proof, gated on task 3.1's
+      omnigent-install compose/verify step.
 - [ ] 3.4 `xFactories/MedxFactory`: second-domain params fixture rendered
       from the staged overlay draft
       (`ideation/staging/medical-omnigent-overlay/domain-overlay.draft.yaml`)
