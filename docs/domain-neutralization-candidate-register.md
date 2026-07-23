@@ -41,7 +41,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-011 | Domain profile, tenant, and deployment profile normalization | `promote` | P2 | `seed` | standard profile/deployment questionnaire schema |
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
 | DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
-| DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `staged` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
+| DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `openspec` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 
 ## Candidate Details
 
@@ -290,14 +290,16 @@ domain's external enforcement system.
 
 ### DTN-014: Governed derived model (non-authoritative models and scenarios, tiered conformance)
 
-Staged 2026-07-23; all four design questions decided the same day:
-staging topic
-[governed-derived-model](../ideation/staging/governed-derived-model/governed-derived-model.md)
-(named during the Adx→Ledgerx cross-domain modeling session with Brett
-Heap; Medx recognized as the original instance; renamed from "derived
-third-party model" — the Medx dream object models a synthetic case at
-domain scope and the simulation scenario models the subject, so "third
-party" over-fit the marketing/accounting instances).
+OpenSpec: [add-governed-derived-model](../openspec/changes/add-governed-derived-model/proposal.md).
+Proposed 2026-07-23 — same-day capture → decisions → promotion; the
+former staging topic
+[governed-derived-model](../openspec/changes/add-governed-derived-model/supporting-docs/governed-derived-model.md)
+rides under the change's `supporting-docs/` (named during the
+Adx→Ledgerx cross-domain modeling session with Brett Heap; Medx
+recognized as the original instance; renamed from "derived third-party
+model" — the Medx dream object models a synthetic case at domain scope
+and the simulation scenario models the subject, so "third party"
+over-fit the marketing/accounting instances).
 
 Three domains independently converged on the same object shape: a
 governed model derived from evidence that can never be mistaken for

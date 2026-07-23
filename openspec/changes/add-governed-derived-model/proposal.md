@@ -1,10 +1,5 @@
-# Proposal (draft): add-governed-derived-model
-
-Status: draft
-Draft slice of: ../governed-derived-model.md
-Target repo at promotion: openxFactory `openspec/changes/add-governed-derived-model/`
-code_surface: openxFactory (contracts/schemas/ + docs/ + scripts/ validator)
-target_release: next contract bundle (contract-v1.16 candidate)
+code_surface: openxFactory
+target_release: contract-v1.16
 
 ## Why
 

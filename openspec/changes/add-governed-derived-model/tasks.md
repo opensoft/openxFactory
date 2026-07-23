@@ -1,8 +1,4 @@
-# Tasks (draft): add-governed-derived-model
-
-Status: draft
-Draft slice of: ../governed-derived-model.md
-Target at promotion: openxFactory `openspec/changes/add-governed-derived-model/tasks.md`
+# Tasks: add-governed-derived-model
 
 ## 1. Contract surface
 

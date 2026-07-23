@@ -181,6 +181,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-governed-derived-model](openspec/changes/add-governed-derived-model/proposal.md)
+  — proposed 2026-07-23 (promotion of the governed-derived-model staging
+  topic; DTN-014): a new `governed-derived-model` capability neutralizing
+  the derived-model pattern proven in Medx (dream object / simulation
+  scenario, ratified), Adx (persona / campaign simulation, staged), and
+  Ledgerx (counterparty health profile / financial scenario, staged) —
+  conformance declaration (`xfactory_derived_model_conformance`) with
+  `governed`/`calibrated` tiers, five line-verified invariants, six
+  declared dials (incl. `person_modeling`), a vocabulary doc, and
+  `scripts/validate-derived-models.py` with positive/negative fixtures.
 - [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
   — **ratified 2026-07-22** (promotion of the omnigent-core-domain-split
   staging topic): gives omnigent-install the domain tier it lacks. Two new

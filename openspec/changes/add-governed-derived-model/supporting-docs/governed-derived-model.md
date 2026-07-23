@@ -1,6 +1,7 @@
 # Governed Derived Model — Staged Topic
 
-Status: staged
+Status: draft
+Proposed by: add-governed-derived-model
 Kind: architecture
 Summary: Name and neutralize the pattern three domains instantiate
 independently: a governed model derived from evidence — of a synthetic

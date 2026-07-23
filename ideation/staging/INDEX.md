@@ -46,63 +46,12 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | Ready to iterate — decisions settled 2026-07-22; neutral scaffold/schema change first; wizard gated on schemas; avatar surface gated on the avatar topics |
-| [governed-derived-model](#governed-derived-model) | ADDED `governed-derived-model` (conformance schema + invariant vocabulary + `validate-derived-models.py`); DTN-014 | 4 | Author-ready — all 4 design questions decided 2026-07-23 (tiers `governed`/`calibrated`, scope-as-dial, name, person_modeling declaration); invariants line-verified against Medx ratified templates; proposal/spec/tasks drafted in the topic's `openspec/`; only realization-phase questions remain |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [omnigent-core-domain-split](#omnigent-core-domain-split) | ADDED `omnigent-domain-overlay` + `omnigent-install-manifest` (shared stack identity); MODIFIED `xfactory-domain-factory-model` guidance | 1 | Ratified 2026-07-22 (`add-omnigent-domain-overlay`) — absorbed the medical-harness neutral deltas (archetype vocabulary, generalized permission matrix, never_assignable tier); v2 adoption + pre-rendered composition settled; 2 realization-phase questions carried into the proposal's design record |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
-
-## governed-derived-model
-
-- Staging ID: `openxFactory:staging:governed-derived-model`
-  (renamed 2026-07-23 from `derived-third-party-model` — the Medx dream
-  object models a synthetic case at domain scope and the simulation
-  scenario models the subject; "third party" over-fit the marketing and
-  accounting instances).
-- Repository context: openxFactory (conformance schema + invariant
-  vocabulary + validator); proof domains MedxFactory (ratified
-  `templates/{dream-object,simulation-scenario}.yaml`, line-verified),
-  AdxFactory (`ideation/staging/adx-persona-simulation/`), LedgerxFactory
-  (`ideation/staging/ledgerx-counterparty-model/`).
-- Source: cross-domain modeling session with Brett Heap 2026-07-23 — the
-  Adx persona/simulation design translated to Ledgerx counterparty
-  health, Medx recognized as the original instance; invariant set
-  corrected the same day against the ratified Medx templates. Registered
-  as DTN-014.
-- Claim: three domains converged on a governed model derived from
-  evidence that can never be mistaken for truth or act on the world.
-  FIVE verified shared invariants (non-authoritative single-value enums
-  + promotion-by-new-object; full provenance with assumption register or
-  the assumptions-forbidden form; read-only truth store + zero action
-  authority; declared scope with no cross-scope data without review;
-  human-gated promotion of hypothesis-only outputs) and two conformance
-  tiers — `governed` (the five) and `calibrated` (adds designated-writer
-  calibration + derived-only confidence; Medx disproved calibration as
-  an invariant). Six declared dials: identity synthetic↔real (real
-  implies the two-object identity/assessment split), scope
-  domain↔subject, truth store, calibration source, promoting authority,
-  person_modeling (synthetic_only | aggregated_only |
-  identified_organizations_only | identified_persons_under_policy —
-  the three proofs fill three different slots). Promote conformance
-  declaration (`conforms_to: governed-derived-model`, kind
-  `xfactory_derived_model_conformance`) + vocabulary + validator;
-  domains keep their own templates.
-- Files:
-  - [governed-derived-model.md](governed-derived-model/governed-derived-model.md) — primary: decisions (7, all settled 2026-07-23), the five invariants + tiers, dial table, claims, realization questions, exit.
-  - [openspec/proposal.md](governed-derived-model/openspec/proposal.md) — draft proposal for `add-governed-derived-model`.
-  - [openspec/spec.md](governed-derived-model/openspec/spec.md) — draft capability spec delta (8 requirements with scenarios).
-  - [openspec/tasks.md](governed-derived-model/openspec/tasks.md) — draft task list incl. positive/negative fixtures and the archive gate.
-- Open questions (realization-phase only): declaration home (stack.yaml
-  `derived_models:` block vs `models/` file — leaning stack.yaml);
-  validator host (leaning new `validate-derived-models.py`);
-  `generation_seed` SHOULD semantics for LLM-driven scenario runs.
-- Exit: raise `add-governed-derived-model` from the topic's `openspec/`
-  drafts (`code_surface: openxFactory`); archives when ≥2 domains
-  declare conformance and validate green at `governed`+ — Medx
-  (declaration-only, verified) plus the first of Adx/Ledgerx to land its
-  object-model change (proving `calibrated`).
 
 ## client-credential-escrow-registry
 

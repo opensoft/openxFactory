@@ -1,8 +1,4 @@
-# Spec delta (draft): governed-derived-model
-
-Status: draft
-Draft slice of: ../governed-derived-model.md
-Target at promotion: `openspec/changes/add-governed-derived-model/specs/governed-derived-model/spec.md`
+# governed-derived-model
 
 ## ADDED Requirements
 
