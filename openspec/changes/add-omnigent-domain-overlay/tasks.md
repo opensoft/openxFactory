@@ -67,7 +67,7 @@
       provenance sidecars and proves rendered == pinned source == live
       binding (sha256 f2f70eb2..., render-verify evidence green). The live
       execution-lane binding is a rendered consequence of overlay + params.
-- [ ] 3.4 `xFactories/MedxFactory`: second-domain params fixture rendered
+- [x] 3.4 `xFactories/MedxFactory`: second-domain params fixture rendered
       from the staged overlay draft
       (`ideation/staging/medical-omnigent-overlay/domain-overlay.draft.yaml`)
       without touching core — the pattern-is-real gate for archiving the
@@ -80,5 +80,6 @@
       REALIZED (manifest level) 2026-07-23: omnigent-install
       `config/fixtures/medx-second-domain.manifest.yaml` — params-only
       delta over the same schema + verify step, zero core edits, verified
-      green with evidence. The staging topic's full archive gate still
-      awaits task 3.3's byte-equivalence clause (rendering increment).
+      green with evidence. With task 3.3 complete (rendering increment), both
+      halves of the staging topic's archive gate are satisfied; the topic
+      archives when the rendering-increment changes ratify.
