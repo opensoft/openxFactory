@@ -253,9 +253,14 @@ Active changes:
   scorer worker merged (codexFactory 003-ideation-readiness at 1fc0bd7,
   pre-merge review ACCEPT WITH FIXES); nightly lane + readiness-scorer
   profile landed (lane SKIPPED until host deployment — valid landed
-  state). At 15/16; remaining: first-lane-run evidence after the CPC
-  profile deploys with the submodule commit-back orchestration; archives
-  on the release-realization flow
+  state). **First-lane-run evidence 2026-07-23** (nightly run
+  30000105423): the readiness-scorer child ran on the deployed CPC rider
+  profile and 2 clusters persisted scored readiness panels into
+  `ideation/cross-reference.yaml` (openxFactory PR #38, delivered by the
+  derive lane's rolling commit-back; a readiness-only run still lacks its
+  own commit-back — scores persist when the derive lane also merges).
+  At 15/16 (5.2 records through archive); archives on the
+  release-realization flow
 - [add-possibles-derivation-lane](openspec/changes/add-possibles-derivation-lane/proposal.md)
   — ad-hoc-origin proposal (ideation-dashboard brainstorm v5 candidate 1 +
   the Brett-approved THE WHEEL locked spec, 2026-07-16) for the AI-assisted
@@ -285,8 +290,12 @@ Active changes:
   WHEEL (codexFactory PR #28, `web/views/wheel.js` + `wheel-model.js`:
   the locked Track C deck with class-coded threads — undisposed derived
   possibles render non-`indexed` `inferred`, demo placeholders
-  `synthesized`). At 19/20; remaining: 5.2 records through archive +
-  first-lane-run evidence after host deployment
+  `synthesized`). **FIRST LANE RUN 2026-07-23** (nightly run 30000105423,
+  CPC rider profile live): 3 contract-clean `pending_review` possibles
+  derived from cl-codexfactory merged into `possibles_register` via the
+  rolling commit-back PR (openxFactory #38, approved + merged) — the
+  register's bootstrap-empty era is over; humans dispose on the gate
+  console. At 19/20; remaining: 5.2 records through archive
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
