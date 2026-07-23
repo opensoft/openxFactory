@@ -23,7 +23,25 @@ merge-readiness-council, gate-rules-council, auto-clear-envelope, tier-2,
 nightly-sweep, omnigent-lane, activation-gate, cost-accountability
 Repository context: codexFactory (envelope rules-as-code + per-repo gate rule); openxFactory (this leaf)
 Captured: 2026-07-23
-Updated: 2026-07-23 (Q1 + Q4 decided; convening packet assembled)
+Updated: 2026-07-23 (Q1+Q4 decided; convening packet assembled; CONVENED —
+rule ratified as amended, record at codexFactory
+`hermes/domain/review-councils/records/2026-07-23-gate-rules-nightly-sweep-clearance.md`)
+
+## Convened (2026-07-23)
+
+The Gate-Rules Council's first exercise ran as a recorded manual rehearsal:
+all seat verifications HOLD (LS floor verified against `envelope.py`, CSC
+pull-in evaluated and not triggered; LA composition; CPL kill switch +
+notices; project seat vacant-symbolic), with one **LQ amendment** — the
+docs-class allowlist narrowed from `**/*.md` to
+`["health/**", "docs/**/*.md", "README.md"]` (workflow contracts, openspec
+records, and `hermes/` governed content are not docs-class). Q2 blessed:
+lane-emitted PR check-run transport. **Rule v1 RATIFIED AS AMENDED**,
+`configured_but_inactive`; Brett Heap's acknowledgement registered. The
+rehearsal satisfies `first_convening_rehearsed_and_recorded`; the remaining
+activation-gate requirement is council orchestration in the Omnigent lane.
+Exit remaining: the codexFactory OpenSpec change (envelope.py tier-2 +
+check-run verdict check + negative tests).
 
 ## Decided (2026-07-23)
 
@@ -65,7 +83,7 @@ rule:
     - id: docs_only_path_overflow
       condition: paths exceed health/** but every changed path is docs-class
       docs_class:                             # DECIDED: static allowlist, no classifier
-        allowlist: ["**/*.md", "health/**"]
+        allowlist: ["health/**", "docs/**/*.md", "README.md"]   # as amended at the convening
         everything_else: not_docs_class       # workflows, scripts, schemas, YAML outside health/**
         owner: lead-quality                   # allowlist changes = Lead-accepted recorded
       council_verifies: no behavioral or config surface touched
