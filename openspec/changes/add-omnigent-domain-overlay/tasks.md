@@ -53,6 +53,15 @@
 - [ ] 3.2 `installs/hermes-install`: worker-readiness API port and pilot
       `hermes_service/` retirement (cutover shape per the design record's
       open question).
+      AUTHORED + LANDED 2026-07-23: hermes-install
+      `port-worker-readiness-surface` (09af670) — wire+auth-compatible
+      endpoints outside /api/v1, pilot validation ported, additive
+      migration 0010, sanitized read view, 15 API tests, all gates green.
+      Cutover decision recorded: hard hostname repoint, no data migration
+      (300s freshness), no dual-serve. REMAINING (human-gated): Brett's
+      deployment window — deploy, repoint hermes-readiness.xforge.us,
+      verify a consumer freshness gate, retire the pilot. This task and
+      the parent change complete at that evidence.
 - [x] 3.3 `xFactories/codexFactory`: author the first `omnigent/` overlay;
       the live coding-patch-worker binding becomes a rendered consequence
       of overlay + params, byte-equivalence proven.
