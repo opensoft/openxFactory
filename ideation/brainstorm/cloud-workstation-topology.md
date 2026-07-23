@@ -125,6 +125,29 @@ RULED OUT: an on-device git sandbox in the app (repo credentials on the
 most loseable device, merge conflicts on a touchscreen, the workstation
 problem re-created on the worst hardware, no gain over the intent lane).
 
+## The NLM return path — inbound intake (Brett, 2026-07-23)
+
+Extends the archived add-lifecycle-notebook-hybrid-imports flow to the
+mobile/Drive era. Round trip: Flutter dash -> NLM deep-link (your identity,
+native share) -> work in the notebook -> new material lands as notebook
+notes and/or Docs in a PER-ENGINEER DRIVE INBOX folder. That inbox is a
+CAPTURE BUFFER, never storage — Drive is not truth inbound either. An
+INTAKE LANE (nightly/on-demand) sweeps notebook notes (existing hybrid
+import) + the Drive inboxes: converts Doc->markdown, scaffolds the house
+header via the authoring.py create-only scaffold (header-completeness
+gate), stamps provenance (author = inbox owner, source doc id,
+captured_at; origin: human-authored — cleanly distinct from ai-derived),
+and delivers via a rolling "ideation intake" PR. On merge the flywheel
+turns: corpus -> index -> snapshot -> dashboards -> projection mirror ->
+the new doc becomes a proper NLM SOURCE in its lifecycle set, and the
+inbox copy retires to an imported/ archive folder. Drive is thus a
+MEMBRANE around the git truth — permeable both directions, never a
+competing record. Second-touch note: brainstorm capture is not a
+lifecycle transition (humans commit brainstorms straight to main today),
+so the intake PR may reasonably auto-merge on the AUTHOR's own approval —
+the same second-touch decision as the action center, one answer serves
+both.
+
 ## Open questions
 
 - Does Drive↔NLM sync ingest markdown files well (vs preferring Docs/PDF),
@@ -153,3 +176,6 @@ problem re-created on the worst hardware, no gain over the intent lane).
 - Flutter verdict-terminal app (snapshot consumer + intent emitter; no
   on-device checkout).
 - Codespaces per-branch dashboard recipe (generate-and-open port-forwarded).
+- Ideation intake lane (Drive inbox + notebook-note sweep -> header
+  scaffold -> rolling intake PR; per-engineer attribution).
+- Inbox retirement convention (imported/ archive after merge).
