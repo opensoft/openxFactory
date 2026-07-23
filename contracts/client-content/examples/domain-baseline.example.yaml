@@ -1,0 +1,31 @@
+schema_version: 1
+kind: client_policy_baseline
+policy:
+  repo_boundaries:
+    may_touch:
+    - opensoft/project-alfa/**
+    - opensoft/project-bravo/**
+    never_touch:
+    - '**/secrets/**'
+  credential_posture:
+    allowed_families:
+    - repo_read
+    - branch_write
+    - pr_write
+    never_standing:
+    - production
+    - deploy
+    - package_publish
+  budget_envelopes:
+    runner_minutes_per_day: 480
+  realization_order:
+  - direct
+  - pr_only
+  realization:
+    mode: pr_only
+  auto_clear_envelope:
+    conjunctive:
+    - practice_maturity: '>= standard'
+    - risk_class: low
+    - new_credentials: none
+    - realization: pr_only

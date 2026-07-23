@@ -1,0 +1,28 @@
+schema_version: 1
+name: hermes_client_overlay
+# Client-content contract (add-client-layer-tuning-contracts). Structural
+# shape; the stricter-only comparability rules live in the canonical
+# validator (scripts/validate-client-content.py) and are never re-implemented
+# by consumers.
+type: object
+required:
+  - schema_version
+  - kind
+  - client
+# The SEEDABLE per-client document: canonical path
+# config/clients/<client_ref>/overlay.yaml in the install repo, declared to
+# the seeder via the repo's hermes_overlay_descriptor (client role), and
+# digest-pinned in the install compatibility manifest's client_overlays[].
+# Composes the three content kinds above as its enforceable tenant slice.
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind: {type: string, enum: [hermes_client_overlay]}
+  client:
+    type: object
+    required: [ref, display_name, policy_overrides]
+    properties:
+      ref: {type: string}
+      display_name: {type: string}
+      policy_overrides: {type: object}       # a client_policy_overrides document
+      memory_boundaries: {type: object}      # a client_memory_boundaries document
+      integration_boundaries: {type: object} # a client_integration_boundaries document

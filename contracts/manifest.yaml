@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.16
+contract_bundle_version: contract-v1.17
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -878,3 +878,56 @@ contracts:
       bundle and are interpreted ONLY through this mapping; "customer" and
       "client" never name a layer on new surfaces; domain aliases specialize
       canonical names and never replace them.
+  # ---- client-content contract surface — contract-v1.17 realization (add-client-layer-tuning-contracts) ----
+  # The neutral tenant-layer set: three content kinds + the seedable
+  # hermes_client_overlay. The stricter-only comparability rules are enforced
+  # by scripts/validate-client-content.py (canonical, content-addressed by
+  # commit), never re-implemented by consumers (wizard + seeder both consume).
+  - id: client-policy-overrides
+    path: contracts/client-content/client-policy-overrides.schema.yaml
+    source_path: openxFactory/contracts/client-content/client-policy-overrides.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f53a8fe9aecb9fd939ac20df1314d6c90f83f1d4882eb29edb762ff3ece452ee
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.17
+      tag; per-file sha256 verified before any copy is treated as current.
+      Comparability semantics live only in the canonical validator.
+  - id: client-memory-boundaries
+    path: contracts/client-content/client-memory-boundaries.schema.yaml
+    source_path: openxFactory/contracts/client-content/client-memory-boundaries.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ecfe26a2a70345455dc969cc0d7c376a7cf2bcbe5dc69212c44764824f750422
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.17
+      tag; per-file sha256 verified before any copy is treated as current.
+      Comparability semantics live only in the canonical validator.
+  - id: client-integration-boundaries
+    path: contracts/client-content/client-integration-boundaries.schema.yaml
+    source_path: openxFactory/contracts/client-content/client-integration-boundaries.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c6c81aeb50cb381fc13629ba33965e7f427a7df6a92aed472f82d01c892b7cd2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.17
+      tag; per-file sha256 verified before any copy is treated as current.
+      Comparability semantics live only in the canonical validator.
+  - id: client-overlay
+    path: contracts/client-content/client-overlay.schema.yaml
+    source_path: openxFactory/contracts/client-content/client-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f67a341295b4a20284279ed5617430f56848eef4771a9b6bdae3fb11ff039b63
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.17
+      tag; per-file sha256 verified before any copy is treated as current.
+      Comparability semantics live only in the canonical validator.

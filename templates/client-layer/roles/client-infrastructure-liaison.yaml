@@ -1,0 +1,17 @@
+schema_version: 1
+kind: xfactory_client_capability_profile
+# NOT a persona: the liaison is a composed coordination capability the house
+# team CONVENES (decided 2026-07-22) — configured_but_inactive by default,
+# composed from stewards, never standing, holds no tenant authority, stores
+# no secrets. Plane 1 is therefore 10 deciders + this 1 capability.
+capability:
+  id: client-infrastructure-liaison
+  role_code: CIL
+  layer: client
+  kind: composed_coordination_profile
+  default_state: configured_but_inactive
+  authority:
+    owns: [privileged_dependency_coordination]
+    decides: []          # coordinates only — never executes, never approves
+  voice: {inherits: house_style, tone_in_incident: calm}
+  convened_by: house_team

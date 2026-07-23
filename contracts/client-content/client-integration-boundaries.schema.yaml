@@ -1,0 +1,23 @@
+schema_version: 1
+name: client_integration_boundaries
+# Client-content contract (add-client-layer-tuning-contracts). Structural
+# shape; the stricter-only comparability rules live in the canonical
+# validator (scripts/validate-client-content.py) and are never re-implemented
+# by consumers.
+type: object
+required:
+  - schema_version
+  - kind
+  - allowed_classes
+  - credential_binding
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind: {type: string, enum: [client_integration_boundaries]}
+  allowed_classes: {type: array, minItems: 1, items: {type: string}}
+  credential_binding:
+    type: object
+    required: [form]
+    properties:
+      form: {type: string, enum: [reference_only]}
+      standing_forbidden: {type: array, items: {type: string}}
+  external_calls: {type: object}

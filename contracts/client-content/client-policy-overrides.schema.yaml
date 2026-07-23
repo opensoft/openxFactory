@@ -1,0 +1,47 @@
+schema_version: 1
+name: client_policy_overrides
+# Client-content contract (add-client-layer-tuning-contracts). Structural
+# shape; the stricter-only comparability rules live in the canonical
+# validator (scripts/validate-client-content.py) and are never re-implemented
+# by consumers.
+type: object
+required:
+  - schema_version
+  - kind
+  - relation_to_domain
+  - policy
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind: {type: string, enum: [client_policy_overrides]}
+  relation_to_domain: {type: string, enum: [stricter_only]}
+  policy:
+    type: object
+    properties:
+      repo_boundaries:
+        type: object
+        properties:
+          may_touch: {type: array, items: {type: string}}
+          never_touch: {type: array, items: {type: string}}
+      realization:
+        type: object
+        properties:
+          mode: {type: string}
+      credential_posture:
+        type: object
+        properties:
+          allowed_families: {type: array, items: {type: string}}
+          never_standing: {type: array, items: {type: string}}
+      budget_envelopes:
+        type: object
+      tracking_granularity:
+        type: object
+        properties:
+          level: {type: string, enum: [per_task, per_job, per_worker_run]}
+          set_by: {type: string}
+      security_posture: {type: object}
+      auto_clear_envelope:
+        type: object
+        properties:
+          ratified_by: {type: string}
+          ratified_at: {type: string}
+          conjunctive: {type: array, minItems: 1}

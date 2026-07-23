@@ -9,6 +9,24 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.17 — 2026-07-23 (additive; client-content tuning surface)
+
+Realizes **add-client-layer-tuning-contracts** (phase 2a of the layer
+activation path): the neutral tenant-layer contract set — three client
+content kinds (`client_policy_overrides` with stricter_only + budget
+envelopes + tracking granularity + the human-ratified auto-clear envelope,
+`client_memory_boundaries` with the tenant_isolated invariant,
+`client_integration_boundaries` reference-only) and the seedable
+**`hermes_client_overlay`** (canonical path
+`config/clients/<client_ref>/overlay.yaml`, descriptor-declared,
+`client_overlays[]`-pinned). Canonical validator
+`scripts/validate-client-content.py` implements the stricter-only
+comparability spec with a `review_required` fallback and self-testing
+fixtures. Also in this bundle: the neutral house-team roster
+(`templates/client-layer/roles/` — 10 deciders incl. the Finance &
+Accounting Officer + the liaison capability, voice floor locked) and the
+scaffold's `cost_reporting_steward`. Purely additive.
+
 ## contract-v1.16 — 2026-07-23 (additive; omnigent contract family + layer vocabulary)
 
 Tenth annotated-tag release. Realizes **add-omnigent-domain-overlay** (the
