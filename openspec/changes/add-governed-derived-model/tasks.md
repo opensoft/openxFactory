@@ -45,7 +45,17 @@
       (commit 0987bca) — dream_simulation family, canonical validator
       green against the unchanged ratified templates, local
       `make validate` green.
-- [ ] 4.2 First of AdxFactory/LedgerxFactory object-model changes lands
+- [x] 4.2 First of AdxFactory/LedgerxFactory object-model changes lands
       with a `calibrated` declaration + validator green.
+      Landed 2026-07-23: AdxFactory `add-adx-object-model` ratified,
+      realized, archived (commit eb98f84) —
+      `models/derived-model-conformance.yaml`, persona_simulation family
+      at calibrated tier, canonical validator green (first
+      calibrated-tier conformer; exercises writer separation and the
+      field-lock binding form).
 - [ ] 4.3 Update DTN-014 register entry to `implemented` → `adopted` as
       the re-pins complete.
+
+Archive-gate status: evidence complete (Medx governed declaration-only +
+Adx calibrated, both validator-green). The change archives on its own
+ratification; 4.3 rides the archive.
