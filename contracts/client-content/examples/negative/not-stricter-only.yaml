@@ -34,7 +34,7 @@ client:
         conjunctive:
         - practice_maturity: '>= standard'
         - risk_class: low
-        - new_credentials: none
+        - credential_surface: unchanged
         - realization: pr_only
         ratified_at: '2026-07-23'
         ratified_by: brett-heap

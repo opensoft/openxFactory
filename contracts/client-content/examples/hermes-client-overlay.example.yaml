@@ -37,7 +37,7 @@ client:
         conjunctive:
         - practice_maturity: '>= standard'
         - risk_class: low
-        - new_credentials: none
+        - credential_surface: unchanged
         - realization: pr_only
   memory_boundaries:
     schema_version: 1
