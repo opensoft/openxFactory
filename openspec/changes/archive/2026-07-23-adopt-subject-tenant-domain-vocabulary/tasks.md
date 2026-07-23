@@ -45,3 +45,7 @@ Filing record (2026-07-23): tasks 3.1–3.3 are filed as the staging topic
 rides the next major bundle). Track 2 landed + archived 2026-07-19, so 3.3
 reduces to "hermes-install migrates at its pin bump onto the major" —
 recorded in the topic's claims. Ledgerx prose sweep landed 2026-07-23.
+
+Registration record (2026-07-23): `contracts/policies/layer-vocabulary.yaml`
+registered at **contract-v1.16** (manifest per-file sha256, CHANGELOG tenth
+release, annotated tag verified: `release verify-tag: pass`).
