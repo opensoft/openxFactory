@@ -1,5 +1,7 @@
 code_surface: openxFactory
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified by: user approval of `adopt-subject-tenant-domain-vocabulary` on 2026-07-23
 
 ## Why
 

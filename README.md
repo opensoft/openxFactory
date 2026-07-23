@@ -195,7 +195,7 @@ Active changes:
   omnigent-install, hermes-install, codexFactory, and the MedxFactory
   second-domain fixture follow as gated changes (code surface: openxFactory)
 - [adopt-subject-tenant-domain-vocabulary](openspec/changes/adopt-subject-tenant-domain-vocabulary/proposal.md)
-  — proposed 2026-07-22 (naming decision approved by Brett the same day):
+  — **ratified 2026-07-23** (naming decision approved by Brett 2026-07-22):
   renames the canonical Hermes layer vocabulary Customer/Client/Domain to
   **Subject/Tenant/Domain**, adds the `layer-vocabulary` capability
   (canonical names, domain-alias model, reserved ambiguous terms,
