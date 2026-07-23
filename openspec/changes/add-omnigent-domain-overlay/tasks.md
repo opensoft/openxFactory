@@ -62,3 +62,10 @@
       (`ideation/staging/medical-omnigent-overlay/domain-overlay.draft.yaml`)
       without touching core — the pattern-is-real gate for archiving the
       staging topic.
+      PROGRESS 2026-07-23: the fixture's content source is landed and
+      canonical — MedxFactory `adopt-neutral-omnigent-overlay` ratified +
+      archived (canonical spec `medical-omnigent-overlay`; conforming
+      `omnigent/domain-overlay.yaml` + pinnable overlay manifest at
+      cadeaa2). Remaining: the rendered fixture itself, gated on task
+      3.1's compose/verify step (kickoff packet drafted at the
+      aggregation root: `omnigent-install-manifest-change-draft.md`).
