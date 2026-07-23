@@ -40,10 +40,13 @@ lane-emitted PR check-run transport. **Rule v1 RATIFIED AS AMENDED**,
 `configured_but_inactive`; Brett Heap's acknowledgement registered. The
 rehearsal satisfies `first_convening_rehearsed_and_recorded`; the remaining
 activation-gate requirement is council orchestration in the Omnigent lane.
-Exit RAISED 2026-07-23: codexFactory change
-`add-nightly-sweep-council-clearance` (three ADDED requirements on
-`merge-master-approval`, strict-valid, on main 5492110) — implementation
-next; archives after its parent change.
+Exit IMPLEMENTED 2026-07-23: codexFactory change
+`add-nightly-sweep-council-clearance` — rule YAML + council_clearance.py
+decision core (composes tier 1, envelope.py untouched) + 18 negative-suite
+tests, all green, on main 8931ee2. Ships active: false (report-only).
+Pending: ratification; archives after its parent
+add-merge-master-autonomous-approval. Activation awaits council
+orchestration in the Omnigent lane.
 
 ## Decided (2026-07-23)
 
