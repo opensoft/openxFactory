@@ -142,7 +142,7 @@ appropriate Hermes layer and openxFactory decide whether the proposal becomes an
 admitted workflow.
 
 First concrete consumer (2026-07-23): the LedgerxFactory AP-intake
-design (`xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/`)
+design (`xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/`)
 — a deterministic mailbox monitor emits proposed triggers under Hermes
 self-initiation ("downstream system event") and an admission boundary
 opens governed `document_intake` jobs. Shaping decision recorded there:
@@ -156,7 +156,7 @@ Evidence:
 - `xFactories/MedxFactory/docs/omnigent-trigger-boundary.md`
 - `docs/xfactory-domain-factory-model.md`
 - `docs/omnigent-constitution.md`
-- `xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/` (proposed 2026-07-23; all design decisions resolved)
+- `xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/` (ratified, realized, archived 2026-07-23; live workflows at `workflows/{document-intake,invoice-coding,vendor-onboarding}.yaml`)
 
 Domain-local exclusions: clinical trigger categories, patient-specific
 authority, clinician review requirements, and (per the Ledgerx shaping)
@@ -169,7 +169,7 @@ neutral lifecycle useful for any domain where agents generate ideas, findings,
 risks, plans, or recommendations before review.
 
 Second consumer shape (2026-07-23): the LedgerxFactory AP-intake design
-(`xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/`) — the
+(`xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/`) — the
 extraction record and the **coding candidate** (account/dimension/tax
 proposal with confidence and cited precedents) are candidates until
 human disposition or ratified-envelope clearance; the standing Ledgerx
@@ -181,7 +181,7 @@ Evidence:
 - `xFactories/MedxFactory/docs/differential-discovery-engine.md`
 - `xFactories/MedxFactory/workflows/decision-foundation-loop.yaml`
 - `xFactories/codexFactory/workflows/pr-admission.yaml`
-- `xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/` (proposed 2026-07-23; all design decisions resolved)
+- `xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/` (ratified, realized, archived 2026-07-23; live workflows at `workflows/{document-intake,invoice-coding,vendor-onboarding}.yaml`)
 
 Domain-local exclusions: diagnoses, treatments, accounting conclusions,
 campaign approvals, deployment approvals, and merge decisions.
@@ -209,7 +209,7 @@ for foundational facts, reliability status, dependency strength, and recheck
 requirements.
 
 Second consumer shape (2026-07-23): the LedgerxFactory AP-intake design
-(`xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/`) —
+(`xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/`) —
 per-field extraction confidence with source anchors, binding-dependent
 message-evidence grades (direct-delivery SPF/DKIM vs forwarded ARC),
 and risk-tiered disposition (posting-autonomy position + unwaivable
@@ -222,7 +222,7 @@ Evidence:
 - `xFactories/MedxFactory/docs/foundational-data-reliability-and-reverification.md`
 - `docs/customer-memory-fill-maintenance-taxonomy.md`
 - `docs/traceability-model.md`
-- `xFactories/LedgerxFactory/openspec/changes/add-ledgerx-ap-intake/` (proposed 2026-07-23; all design decisions resolved)
+- `xFactories/LedgerxFactory/openspec/changes/archive/2026-07-23-add-ledgerx-ap-intake/` (ratified, realized, archived 2026-07-23; live workflows at `workflows/{document-intake,invoice-coding,vendor-onboarding}.yaml`)
 
 Domain-local exclusions: modality-specific clinical failure modes, treatment
 risks, and clinician workflows.
