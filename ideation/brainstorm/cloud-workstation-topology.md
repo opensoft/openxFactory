@@ -92,6 +92,39 @@ mirror adds no additional identity cost: one service account owns the Drive
 tree and notebooks; engineers receive shares. Keycloak-brokered identity
 (existing brainstorm) later drives the share lists automatically.
 
+## Two planes, two targets (Brett Q, 2026-07-23)
+
+Hosted buttons NEVER act on a workstation — impossible (browser sandbox)
+and undesired. The symmetry: LOCAL dashboard acts on YOUR WORKING TREE
+(loopback server; preview, act, then you merge); HOSTED dashboard acts on
+MAIN (intent -> apply lane -> fresh cloud checkout -> rolling PR -> merge);
+results reach workstations via ordinary `git pull`. Same buttons, same
+console engine, different substrate.
+
+## Mobile (Flutter) — the intent model IS the mobile architecture
+
+Ranked by weight, with NO on-device checkout at any tier:
+
+1. **Process management (the 90% case)**: the Flutter app is a snapshot
+   consumer + intent emitter — dispose / ratify / demote / pick / kickoff /
+   approve-PR are decisions about governed state, not file editing. Two
+   endpoints (snapshot JSON + intent API), identity via the same
+   htpasswd->Keycloak path, intents offline-queueable. The phone is a
+   verdict terminal.
+2. **Light authoring**: capture-brainstorm (create-only, boundary-legal)
+   and edit-apply redlines travel AS intent payloads; the lane commits.
+   Direct GitHub contents-API editing from the app works for single files
+   but re-implements gate_console in Dart for structured moves — wrong
+   layer; one engine, one audit chain.
+3. **Heavy authoring**: GitHub Codespaces as the escape hatch — a cloud
+   working tree with zero device checkout, and `generate-and-open` runs
+   INSIDE the codespace (port-forwarded), so the per-branch "local"
+   dashboard becomes a cloud dashboard viewable from the phone's browser.
+
+RULED OUT: an on-device git sandbox in the app (repo credentials on the
+most loseable device, merge conflicts on a touchscreen, the workstation
+problem re-created on the worst hardware, no gain over the intent lane).
+
 ## Open questions
 
 - Does Drive↔NLM sync ingest markdown files well (vs preferring Docs/PDF),
@@ -117,3 +150,6 @@ tree and notebooks; engineers receive shares. Keycloak-brokered identity
 - Keycloak-driven NLM share-list automation.
 - Local-dashboard quickstart doc (per-branch view as the per-engineer
   dashboard).
+- Flutter verdict-terminal app (snapshot consumer + intent emitter; no
+  on-device checkout).
+- Codespaces per-branch dashboard recipe (generate-and-open port-forwarded).
