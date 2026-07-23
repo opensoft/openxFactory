@@ -51,6 +51,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
+| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 1 | Ready to iterate — build decision by Brett 2026-07-23; 6 open questions (Omni-001 admin path, runner-under-virtual-account, bench-manifest home hardest) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## client-credential-escrow-registry
@@ -258,6 +259,36 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Exit: the rationale exits with a future regulated-traceability-profile
   topic when a regulated domain needs it; it does not exit with the origin
   contract.
+
+## worker-host-app
+
+- Staging ID: `openxFactory:staging:worker-host-app`
+- Repository context: openxFactory (eventual neutral manifests); app +
+  manifests first-consumer in Omnigent-Install; Intune packaging + WSL
+  policy in OpsxFactory; bench build pipeline owner TBD.
+- Source: `ideation/brainstorm/tech-stack-benches.md` organized 2026-07-23
+  on Brett's build decision; motivating evidence = the 2026-07-22/23 CPC
+  heartbeat/credential recovery; prescription precedent in
+  `cloudpc-named-worker-licensing.md` (device-scoped Intune artifacts,
+  SYSTEM context).
+- Claim: an Intune-delivered Win32 app reconciles a declarative
+  `worker_host_manifest` — WSL2 + docker-ce substrate, sealed identities
+  (passwordless-first, escrow-at-birth), durable heartbeat tasks with a new
+  bench-inventory section, credential profiles from vaultrefs, and
+  digest-pinned workBench containers verified against `bench-manifest`
+  records — turning any managed Windows machine into a governed worker
+  host; first consumer Omni-001, retiring the operator-CPC rider.
+- Files:
+  - [worker-host-app.md](worker-host-app/worker-host-app.md) — primary:
+    7 claims, both manifest sketches, 4 decisions, 6 open questions, exit.
+- Open questions (blocking): Omni-001 local-admin/provisioning-policy
+  inventory; actions-runner under virtual service accounts; bench-manifest
+  home (repo vs OCI artifact); heartbeat bench-inventory three-place
+  contract delta; WSL servicing owner; LLM-vault consolidation ordering.
+- Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
+  (the app), OpsxFactory change (packaging); archives on Omni-001 green
+  readiness via the app + a governed lane run on an Omni-001 worker +
+  operator-CPC rider retirement.
 
 ## qualify-avatar-live-voice
 

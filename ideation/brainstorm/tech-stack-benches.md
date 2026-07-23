@@ -18,6 +18,10 @@ codexFactory `omnigent/` overlay (first `toolchain_bindings` consumer);
 Omnigent-Install (harness selection, host manifest, heartbeat publisher);
 OpsxFactory (bench build pipeline + Intune deployment)
 Captured: 2026-07-23
+Organized: 2026-07-23 — the app/Intune/host portion moved to
+[staging/worker-host-app](../staging/worker-host-app/worker-host-app.md);
+the overlay `toolchain_bindings` + neutral bench-manifest contract framing
+remains sourced here.
 
 ## The idea
 
