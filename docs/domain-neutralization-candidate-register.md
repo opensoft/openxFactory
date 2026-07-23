@@ -341,8 +341,8 @@ Evidence:
 
 - `xFactories/MedxFactory/templates/dream-object.yaml` (ratified; conforms at `governed` tier declaration-only)
 - `xFactories/MedxFactory/templates/simulation-scenario.yaml` (ratified)
-- `xFactories/AdxFactory/ideation/staging/adx-persona-simulation/` (staged 2026-07-23)
-- `xFactories/LedgerxFactory/ideation/staging/ledgerx-counterparty-model/` (staged 2026-07-23)
+- `xFactories/AdxFactory/openspec/changes/archive/2026-07-23-add-adx-object-model/` (realized 2026-07-23 — first `calibrated` conformer; live templates at `templates/{persona,campaign-simulation}.yaml`)
+- `xFactories/LedgerxFactory/openspec/changes/add-ledgerx-counterparty-model/` (proposed 2026-07-23 — will be the second `calibrated` conformer, first real-entity split)
 
 Domain-local exclusions: the modeled party's kind and fields, signal/trait
 vocabularies, truth-store identity, benchmark content, approver roles,
