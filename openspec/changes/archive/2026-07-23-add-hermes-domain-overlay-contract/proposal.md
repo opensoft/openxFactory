@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (contracts/hermes-domain-overlay/ schemas + fixtures, scripts/validate-hermes-domain-overlay.py); consumers pin at realization (hermes-install seeding, DomainxFactory validate chains)
-target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+target_release: contract-v1.15 (allocated and released at realization, 2026-07-23; annotated tag verified)
+Status: ratified
+Ratified by: user approval of `add-hermes-domain-overlay-contract` on 2026-07-23
 ---
 
 # Proposal: add-hermes-domain-overlay-contract
