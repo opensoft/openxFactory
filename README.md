@@ -295,6 +295,16 @@ Active changes:
   document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
+- [add-propose-verb](openspec/changes/add-propose-verb/proposal.md)
+  — gate-console verb `propose` (Brett's 2026-07-24 action-center direction:
+  take a staging tile to a proposal from the dashboard): kickoff's
+  recorded-dispatch mechanic at the staging→proposal boundary — a human-only
+  `workflow-job` commission (workflow `proposal-authoring`, target
+  `topic_id`) + gate-action record; the authoring runs externally and lands
+  as an ordinary change under the existing review/ratify gates. Additive
+  gate-intent / gate-action-record enum + `topic_id` target extension.
+  (code surface: codexFactory, openxFactory; release allocated at
+  realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and

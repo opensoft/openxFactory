@@ -75,13 +75,16 @@ properties:
     # this field is enforced by the console/authenticator, not here.
   action:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff, dispose-possible]
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
     # derived-possible disposition on the gate console") — the human
     # disposition of a pending_review ai-derived possible (ADDITIVE enum
-    # extension; every prior record stays valid).
+    # extension; every prior record stays valid). `propose`
+    # (add-propose-verb) commissions proposal authoring for a staging
+    # topic: kickoff's recorded-dispatch mechanic at the staging->proposal
+    # boundary (ADDITIVE, same posture).
   target: {$ref: "#/$defs/target"}
   at:
     type: string
@@ -158,6 +161,17 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
+  # A propose record targets a staging topic and MUST reference the
+  # workflow-job descriptor it dispatched (add-propose-verb: commissioning,
+  # never authoring).
+  - if: {properties: {action: {const: propose}}}
+    then:
+      properties:
+        target: {required: [topic_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
 $defs:
   # --- what the action acted on ---
   target:
@@ -178,6 +192,12 @@ $defs:
         minLength: 1
         # The possibles-register entry a dispose-possible action targets
         # (matches a `register_entry.id`).
+      topic_id:
+        type: string
+        minLength: 1
+        # The staging topic a propose action commissions (matches a
+        # `ideation/staging/<topic_id>/` directory / staged tile
+        # `staging_id`).
       outcome:
         type: string
         enum: [accepted, rejected, deferred]
