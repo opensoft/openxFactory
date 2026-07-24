@@ -9,6 +9,21 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## Unreleased — pending bundle registration (fold into the next cut)
+
+- **`xfactory-derived-model-conformance`**
+  (`contracts/schemas/xfactory-derived-model-conformance.schema.yaml`) —
+  realized and ratified 2026-07-23 by archived
+  `add-governed-derived-model` (canonical spec `governed-derived-model`;
+  three conforming domains: Medx `governed`, Adx + Ledgerx
+  `calibrated`), but never registered in `contracts/manifest.yaml`: the
+  deferral was recorded only in the archived change's tasks, and the
+  v1.16, v1.17, and v1.18 cuts each missed it. At the next cut:
+  register the schema (`adapter_owner: domain factory repos`, pin-only
+  consumption rule, sha256), and flip DTN-014 `implemented` → `adopted`
+  in the candidate register as domain pins advance past the registering
+  ref.
+
 ## contract-v1.18 — 2026-07-24 (additive; domain content manifest + memory binding)
 
 Realizes **add-hermes-domain-content-manifest** (seeding increment 4b's
