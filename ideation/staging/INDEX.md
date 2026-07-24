@@ -53,6 +53,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
+| [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | Ready to iterate — pattern + material verified 2026-07-24; roster composition is the change-A gating decision (needs a decision round with Brett); no external gates (omnigent overlay realization archived at contract-v1.16) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 1 | Ready to iterate — build decision by Brett 2026-07-23; 6 open questions (Omni-001 admin path, runner-under-virtual-account, bench-manifest home hardest) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
@@ -345,6 +346,37 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Exit: per-surface-family OpenSpec changes at the scheduled major +
   mechanical per-repo stack.yaml migrations; archives when every frozen
   identifier is migrated or explicitly retained as archived-only.
+
+## medxfactory-domain-hermes-content
+
+- Staging ID: `openxFactory:staging:medxfactory-domain-hermes-content`
+- Repository context: MedxFactory (`hermes/domain/` +
+  `omnigent/domain-overlay.yaml` + `omnigent/overlay-manifest.yaml` digest
+  re-pin in lockstep).
+- Source: team001 omnigent-program handoff next-unit mapping (2026-07-24);
+  MedxFactory `docs/` corpus (27 drafts) + the codexFactory
+  `domain-hermes-content` pattern; both trees inventoried 2026-07-24.
+- Claim: author the Medx Domain Hermes content the seeding runtime needs —
+  clinical Plane-1 personas directing the 11 ratified worker classes
+  (roster derivation base: the omnigent routing table's undefined domain
+  authorities + the MxD-MRR convener), the stored medical policy delta
+  (safety/root-truth corpus, store-the-delta filter), MxD-MRR formalized
+  as the domain review council, escalation elevation, memory boundaries in
+  the gateway vocabulary (patient-derived de-id), and the
+  `medx_practice_catalog`; `overlay.yaml` upgrades from pre-contract stub
+  to the v1.15 schema with two-way `medx_owns` closure; lockstep adds
+  `directed_by` to all 11 workers + re-pins the overlay-manifest digest.
+- Files:
+  - [medxfactory-domain-hermes-content.md](medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md) — primary: 7 claims, exit changes A/B, 6 open questions.
+- Open questions (carried): roster composition (change-A gating; candidate
+  seven-persona derivation offered as decision input); council placement
+  across layers (only MxD-MRR is domain-owned); specialist pods vs mixes;
+  practice-catalog seed set; explicit content manifest vs convention;
+  client-layer-defaults analog timing.
+- Exit: MedxFactory change A (`add-domain-hermes-roles-and-policies` —
+  roles + policies + `medx_owns` closure + Omnigent lockstep), then change
+  B (councils/mixes/escalation/memory/catalog), mirroring the codex
+  sequence; MxC-LOR/MxP-CIR machine surfaces ride their own layer changes.
 
 ## proposal-origin-contract
 
