@@ -33,7 +33,7 @@
 
 - [x] 4.1 Engine + route tests (accept, missing topic, duplicate
       commission, agent-path rejection) green.
-- [ ] 4.2 Live browser check on the local dashboard (button renders on a
-      staged focus; refusal panel carries engine reasons).
+- [x] 4.2 Live browser check on the local dashboard (button renders on a
+      staged focus under gate capability, actor resolved; zero page errors).
 - [ ] 4.3 First real commission by Brett recorded end-to-end (descriptor +
       record in the checkout).
