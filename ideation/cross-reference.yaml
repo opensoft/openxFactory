@@ -10,7 +10,7 @@ schema_version: 1
 kind: ideation-cross-reference
 repository: openxFactory
 generation:
-  source_revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+  source_revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
   generator_version: ideation-xref-scorer-0.1.0
 topic_entries:
 - id: cl-accessibility
@@ -30,20 +30,74 @@ topic_entries:
     matched_tags:
     - accessibility
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: avatar-reference-runtime
+    how_extends: 'The avatar-pilot-hardening staged doc is explicitly a hardening successor to the already-realized
+      reference runtime: it replaces the reference runtime''s ''static, fail-closed fixture adapters''
+      (PolicyResolver/ConsentGate/OperationRunner) with real Hermes-backed adapters behind the identical
+      frozen ports, and separately commissions the formal WCAG 2.2 AA audit that the reference runtime''s
+      lab predecessor deferred. This is the only clear promoted-capability extension in the cluster; the
+      legal-compliance brainstorm document cites no promoted capability it extends and instead proposes
+      a wholly new persona and panel.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: no single owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/hermes-legal-compliance-model.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Plane-3 — the legal advisory panel (lenses)'
+          passage_sha256: 66e628d3a507afc444a73152351c56db7e06589456ffca0662a1dea29d9dfeea
+          repository: openxFactory
+        rationale: The cluster is grouped only by an incidental shared 'accessibility' tag, not by a coherent
+          shared proposal. In the legal-compliance brainstorm, accessibility is a single bullet among
+          six legal-advisory lenses (IP, data protection, age-appropriateness, financial regulation, accessibility,
+          export control), not a focal concern of the document. In the avatar-pilot-hardening staged doc,
+          the WCAG audit is one claim among seven unrelated hardening workstreams (real Hermes wiring,
+          domain overlays, telemetry, rollout/rollback). Neither document is actually about accessibility
+          as a topic to formalize, and the two documents otherwise share no subject matter (legal-compliance
+          personas vs. avatar-runtime hardening). A neutral ratify authority would not see a coherent,
+          valuable cluster here — it would see two unrelated efforts each mentioning accessibility in
+          passing.
+        confidence: 0.75
+        alternatives:
+        - A higher score could be argued if the shared thread is read as 'accessibility-as-legal/regulatory-obligation'
+          spanning both client policy and pilot-gate evidence, but neither document develops that connection
+          explicitly — it would be an inferred synthesis, not something stated in the source material.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Exit'
+          passage_sha256: 278fe58d69cf66105cbd501a50158d89213c0e3ee422f756224ed14aa5debfed
+          repository: openxFactory
+        rationale: Neither document is at a stage codexFactory could decompose into a buildable Spec Kit
+          feature DAG today. The avatar-pilot-hardening staged doc is explicitly blocked on two external
+          prerequisite capabilities plus six named, unresolved forking questions (Hermes call-site pattern,
+          one-vs-five domain-overlay contracts, accessibility scope for the first cohort, first-cohort/DPA
+          posture, kill-switch custody, provider data-residency ownership) before it can even be authored
+          as a proposal, let alone decomposed into features. The legal-compliance document is pure brainstorm
+          with five open questions still undecided (single Counsel vs. bench, human-counsel escalation
+          requirement, where age/audience law binds, who owns the license-scan practice, constraint-staleness
+          cadence) and no persona, schema, or practice yet ratified. Both artifacts are pre-decisional,
+          not pre-implementation.
+        confidence: 0.8
+        alternatives:
+        - The avatar-pilot-hardening doc's claims (1-7) are individually fairly concrete and could be
+          read as feature-shaped, which might argue for a slightly higher score in isolation — but the
+          doc's own Exit section makes clear it cannot even be proposed yet, which caps the project-readiness
+          assessment for the whole cluster.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-activation-gate
   name: Activation Gate
   topics:
@@ -61,17 +115,80 @@ topic_entries:
     matched_tags:
     - activation-gate
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: avatar-client-lab
+    how_extends: qualify-avatar-live-voice.md explicitly names 'avatar-client-lab' as its staging-topic
+      source and states it extends the offline lab's fail-closed SessionTransport port by swapping the
+      FixtureScenarioTransport fixture adapter for a live WebRTC/broker transport 'with zero reducer or
+      UI change,' qualifying gpt-realtime-2.1 for the internal-live ring. This fit applies only to that
+      one member; the nightly-sweep-council-clearance-rule.md member has no corresponding promoted-capability
+      fit — its parent 'add-merge-master-autonomous-approval' is not itself listed among the promoted
+      capabilities.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+      unscored_reason: 'The cluster''s two members have no single owning domain. The brainstorm doc is
+        explicitly scoped to codexFactory''s Merge Master / Gate-Rules Council domain (''Repository context:
+        codexFactory (envelope rules-as-code + per-repo gate rule); openxFactory (this leaf)''), while
+        the staged doc is explicitly scoped to the avatar-client domain (''openxFactory owns the neutral
+        live-voice acceptance ... the live transport ... is realized in the private xfactory-avatar-client
+        repo''). These are two unrelated domain authorities joined only by the shared lexical tag ''activation-gate'',
+        so no owning domain resolves for the cluster as a whole.'
     - tier: company
-      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: header/Topics (nightly-sweep-council-clearance-rule.md)
+          passage_sha256: 3eb540e3a3b505f076b540005386283cba509ca161301566e5d0a33a3aa947ae
+          repository: openxFactory
+        rationale: Comparing this topic set against the staged doc's own topics ('avatar-client, live-voice,
+          webrtc, brokered-sdp, gpt-realtime-2.1, latency-slo, activation-gate, provider-qualification,
+          canary-rollback, credential-custody, AVC-09, AVC-10'), the only overlap is the single word 'activation-gate'.
+          The two documents describe unrelated systems (a CI/CD merge-readiness council rule vs. a live-voice
+          WebRTC provider qualification) with no shared capability, codebase, or value proposition. A
+          neutral company ratify gate would not entertain this pairing as one proposal; each document
+          individually may have merit, but the cluster as constituted lacks the coherence a unified ratification
+          decision requires.
+        confidence: 0.75
+        alternatives:
+        - If 'activation-gate' (configured_but_inactive / gated promotion with a kill switch) is itself
+          an emerging cross-factory governance pattern worth ratifying as a shared idiom, coherence could
+          be scored higher — but neither document proposes that abstraction explicitly.
+        - Score each document's standalone company-readiness instead of the cluster's joint coherence
+          — not what this tier asks for at the cluster level.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''domain'': rationale is not a non-empty string'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Exit (qualify-avatar-live-voice.md)'
+          passage_sha256: 2e9b6005bae770fe3365ade69e29e5fa368b4e32d0b409cc69d0933f941fd18d
+          repository: openxFactory
+        rationale: 'Neither member is decomposable into a buildable feature DAG today. qualify-avatar-live-voice
+          explicitly declares itself not-yet-proposable pending five blocking forks (credential custody,
+          latency-budget derivation, activation-gate scope, consent/data-control, canary semantics). nightly-sweep-council-clearance-rule
+          is likewise inert: it ships ''configured_but_inactive'' / ''active: false (report-only)'' and
+          states ''Activation awaits council orchestration in the Omnigent lane'' — a dependency that
+          does not yet exist. Beyond each document''s individual blockers, the two also target entirely
+          different code surfaces (codexFactory merge tooling vs. the Flutter avatar client + session
+          broker), so even once unblocked they would not decompose into one coherent Spec Kit DAG as a
+          joint cluster.'
+        confidence: 0.8
+        alternatives:
+        - 'Score buildability per-document: nightly-sweep-council-clearance-rule''s tier-2 classification
+          code (council_clearance.py) is already implemented and merged behind a flag, which could support
+          a higher standalone project score once its orchestration dependency lands.'
+        - Treat the cluster as two separate future feature DAGs rather than one — which would make a single
+          cluster-level project score inappropriate, reinforcing why the joint score stays low.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-adoption-profile
   name: Adoption Profile
   topics:
@@ -89,97 +206,17 @@ topic_entries:
     matched_tags:
     - adoption-profile
   extension_fit:
-    has_promoted_fit: true
-    promoted_spec: memory-gateway
-    how_extends: The cluster's domain-memory-boundaries content is explicitly designed to feed into (not
-      parallel) the already-ratified customer memory gateway's promotion vocabulary and authority_levels
-      (self_reported | observed | source_backed | reviewed | domain_authoritative | below_threshold),
-      and the practice catalog's entries cite already-promoted capabilities (doc-health, credential-contracts)
-      as capability_ref targets rather than proposing new ones from scratch.
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      score: 7
-      evidence:
-        source_ref:
-          path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
-          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
-          section: 'ideation/brainstorm/codexfactory-domain-memory-and-practices.md â€” ## Memory boundaries
-            (write_authority block)'
-          passage_sha256: f9df2c81ad3110bbfd680d2196e33234e915ef7dbf7a28952604c80f0c4d582a
-          repository: openxFactory
-        rationale: 'An owning domain resolves cleanly: this is codexFactory''s Domain Hermes content,
-          with catalog content explicitly codex-owned and memory boundaries expressed against the ratified
-          gateway. The cluster carries a dated ''Decided (2026-07-22)'' section fixing write authority
-          (worker proposes, owning Lead accepts, no ratification for memory), catalog-signing ceremony,
-          and a two-layer de-identification contract â€” real domain-authority decisions, not open sketches.
-          It falls short of a 9-10 because several domain-facing questions remain genuinely open (whether
-          conformance-gate and governed-review-lane are DTN/neutralization candidates, catalog versioning
-          semantics), so the domain''s authority over this material is substantial but not fully closed.'
-        confidence: 0.6
-        alternatives:
-        - Could be scored lower (5-6) on the view that 'brainstorm' status alone signals insufficient
-          domain maturity regardless of decided sub-items.
-        - Could be UNSCORED if the codex/openxFactory split ownership (catalog codex-owned, schema neutral)
-          is read as ambiguous rather than resolved â€” rejected here because the front matter and body
-          both state the split explicitly rather than leaving it undetermined.
-        disposition: pending_review
+      unscored_reason: 'worker failed: no remote result collected for cl-adoption-profile'
     - tier: company
-      score: 5
-      evidence:
-        source_ref:
-          path: ideation/brainstorm/domain-practice-suggestion-generation.md
-          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
-          section: ideation/brainstorm/domain-practice-suggestion-generation.md â€” front-matter (Repository
-            context line)
-          passage_sha256: 057edfabbf75d63500c898664db328c5bddad80b8fcb0e30a466396d271c1e2a
-          repository: openxFactory
-        rationale: The cluster explicitly frames the adoption_profile schema as neutral/company-scoped
-          (openxFactory) so that suggestions look uniform across every domain's suggestions to every client's
-          policy layer, which is the kind of coherence a company ratify gate would want to see before
-          entertaining a cross-domain contract. However, both documents remain at brainstorm status with
-          unresolved cross-domain questions still flagged as open (who signs the catalog, whether conformance-gate/governed-review-lane
-          are DTN candidates for neutralization, batch-vs-per-subject suggestion UX) â€” these are exactly
-          the kind of open coherence questions a neutral gate would need settled first, so this sits at
-          moderate rather than high readiness.
-        confidence: 0.5
-        alternatives:
-        - Could score higher (6-7) crediting the explicit neutral-schema framing as sufficient company-level
-          coherence on its own.
-        - Could score lower (3-4) on the view that a cluster with two still-brainstorm documents and multiple
-          unresolved cross-domain questions hasn't yet reached company-gate coherence at all.
-        disposition: pending_review
+      unscored_reason: 'worker failed: no remote result collected for cl-adoption-profile'
     - tier: project
-      score: 6
-      evidence:
-        source_ref:
-          path: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
-          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
-          section: 'ideation/brainstorm/codexfactory-domain-memory-and-practices.md â€” ## Practice catalog
-            (codex_practice_catalog YAML block)'
-          passage_sha256: 314f7e74892f01119a7b4640908c61b1058d282703f805d7d2efd4167209bcd1
-          repository: openxFactory
-        rationale: 'The cluster supplies concrete, near-shippable shapes: a full practice-catalog YAML
-          schema with typed fields (capability_ref, promoted_in, owning_lead, subject_kind, applicability,
-          realization, maturity_gate, risk_class), a memory-boundaries YAML with write-authority fields,
-          and a structured suggestion-record grammar (suggestion_id, idempotency_key, disposition lifecycle)
-          reusing an established record family''s grammar. This is enough concrete surface for initial
-          feature decomposition. It''s not a full 8-9 because several implementation-blocking questions
-          are still open in the companion document (catalog versioning/reopening semantics, observation-authority
-          for private subjects, whether the gap scan runs as a Hermes runtime CronJob or a factory workflow)
-          â€” decisions a Spec Kit DAG would need pinned down first.'
-        confidence: 0.55
-        alternatives:
-        - Could score higher (7-8) since the YAML schemas and record grammar are unusually concrete for
-          a brainstorm-stage cluster.
-        - Could score lower (4-5) given the gap-scan runtime placement and catalog-versioning semantics
-          are still explicitly unresolved open questions that a DAG couldn't safely proceed past.
-        disposition: pending_review
-    recommendation:
-      flagged: false
-      disposition: pending_review
-      summary: 'gate not fired — minimum tier score is 5 (< 8): {''domain'': 7, ''company'': 5, ''project'':
-        6}'
+      unscored_reason: 'worker failed: no remote result collected for cl-adoption-profile'
 - id: cl-agent-certification
   name: Agent Certification
   topics:
@@ -197,73 +234,17 @@ topic_entries:
     matched_tags:
     - agent-certification
   extension_fit:
-    has_promoted_fit: true
-    promoted_spec: credential-contracts
-    how_extends: The wallet document explicitly proposes extending the credential-contracts capability
-      with a new credential type â€” an agent-certification verifiable credential (issuer = certification
-      gate, subject = agent DID, claims = qualification level, certified config hash, battery scores,
-      expiry) â€” alongside the existing patient/practitioner licensure credentials, and the persona document
-      extends the same idea to persona-as-quantified-identity via its behavioral battery.
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: No owning DomainxFactory resolves for this cluster
+      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
     - tier: company
-      score: 6
-      evidence:
-        source_ref:
-          path: ideation/brainstorm/agent-certification-wallets.md
-          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
-          section: '## Exit'
-          passage_sha256: 315792afbb4be2782f2496c1883134fcf2bcfb4fd9af48d2f94a455b1322cbc9
-          repository: openxFactory
-        rationale: 'The cluster is coherent as a neutral, company-layer proposal: it has a named exit
-          format (an openxFactory contract change), explicit composition points with two already-promoted
-          capabilities (roles-authority-model, credential-contracts), and a sibling document showing the
-          idea maturing through dated ratify-style decisions (2026-07-21/22) rather than staying purely
-          speculative. That gives a ratify authority enough to engage with a proposal. It is held back
-          from a higher score by both documents still carrying Status: brainstorm, and by open questions
-          (cert-issuance authority, battery ownership) that touch governance/authority boundaries the
-          company gate would need resolved first.'
-        confidence: 0.6
-        alternatives:
-        - 'Score 7-8: the extensive dated ''Decided'' sections in the persona doc and the explicit exit/composition
-          statement in the wallet doc could be read as proposal-ready.'
-        - 'Score 4-5: both documents are still explicitly brainstorm-stage and the cert-authority open
-          question is itself a governance question the company gate would normally need settled before
-          engaging.'
-        disposition: pending_review
+      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
     - tier: project
-      score: 4
-      evidence:
-        source_ref:
-          path: ideation/brainstorm/agent-certification-wallets.md
-          revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
-          section: '## Open questions'
-          passage_sha256: f0269e236ba09e47d771e33ed01b6b8b76ad6a62aec8f55a435f289692b7986f
-          repository: openxFactory
-        rationale: 'Feature decomposition needs concrete, boundable units of work, but the cluster''s
-          central mechanisms are still open design questions rather than settled contracts: drift-tolerance
-          bands are undetermined, battery authorship/sizing is unresolved (''who authors the golden tasks
-          per lane, how large a battery is statistically sufficient''), cert-issuance authority is unresolved,
-          and the persona doc''s own open-questions list still carries an unanswered battery-authoring
-          question. These aren''t implementation details that decomposition can absorb â€” they change
-          what the certification/persona contracts even are, so a Spec Kit DAG built today would be built
-          on shifting ground.'
-        confidence: 0.55
-        alternatives:
-        - 'Score 5-6: the wallet doc''s ''Possible feats'' bullets (openxWallet capability, capability-grant
-          contract, drift-rule) are concrete enough that a first DAG slice (e.g. config-hash declared-change
-          decert) could be decomposed independently of the unresolved battery-design questions.'
-        - 'Score 2-3: since both the certification battery and the persona battery share the same unresolved
-          design gap, and the two documents are mutually dependent (persona battery explicitly links to
-          the wallet doc), the whole cluster may be more tightly coupled to open questions than a single-feature
-          carve-out would suggest.'
-        disposition: pending_review
-    recommendation:
-      flagged: false
-      disposition: pending_review
-      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
 - id: cl-agent-mixes
   name: Agent Mixes
   topics:
@@ -287,20 +268,81 @@ topic_entries:
     - escalation-rules
     - review-councils
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: omnigent-domain-overlay
+    how_extends: The cluster's escalation-rules.yaml elevates and remaps the routing/stop_conditions currently
+      in omnigent/domain-overlay.yaml onto the new roster personas, and the staged document states Change
+      B's promotion is gated on the already-ratified add-omnigent-domain-overlay realization, requiring
+      a lockstep extension of that overlay's codex_owns scope.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
-        cluster member document (a cited passage must be real)'
+      score: 8
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/codexfactory-domain-deliberation.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Decided (2026-07-22)'
+          passage_sha256: 28c645fa837a044df645b30635846b5261199d8f1bb1c9c541c17c200b42f63d
+          repository: openxFactory
+        rationale: The cluster is unambiguously owned by codexFactory's Domain Hermes layer (roster, escalation,
+          councils under hermes/domain/). Change A of this content is already ratified and archived, and
+          Change B is author-ready with all four gating decisions closed, including the omnigent-overlay
+          dependency already ratified — a mature, well-owned domain artifact with recorded decisions rather
+          than open drift.
+        confidence: 0.75
+        alternatives:
+        - Could be read as still-blocked pending the omnigent overlay migration, but the staged doc explicitly
+          notes that gate is already ratified.
+        - Could be scored lower if migration-era undefined-role remnants (e.g. the old `lead_engineer`
+          routing target) were treated as unresolved domain debt rather than already remapped.
+        disposition: pending_review
     - tier: company
-      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
-        cluster member document (a cited passage must be real)'
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Open questions (carried to the proposals)'
+          passage_sha256: 78933d00269b5b04837b0eefeabed6d590ae62672f6b2074f59badeb75e17ec2
+          repository: openxFactory
+        rationale: The cluster is internally coherent, but the piece that would make it recognizably valuable
+          at the neutral, cross-domain ratify layer — the neutral persona/mix/council schemas in openxFactory
+          — is left as an explicit open question deferred to a later, unscheduled change rather than settled
+          content, so the company-ratify gate has only moderate grounds to entertain a proposal today.
+        confidence: 0.55
+        alternatives:
+        - Could be scored higher since Change A is already archived and Change B is author-ready, if the
+          neutral-schema gap is treated as out-of-scope for this particular cluster's ratify ask.
+        - Could be UNSCORED if the neutral company-layer artifact is treated as a hard prerequisite for
+          any company-tier judgment rather than a deferred nice-to-have.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''domain'': grounding passage is not found verbatim in any
-        cluster member document (a cited passage must be real)'
+      score: 8
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/codexfactory-domain-deliberation.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Agent-mixes (Plane 3, Hermes side)'
+          passage_sha256: f491650958a84b50a71fd90076a1bef80c600e5f5b2a761699e9798ab644b445
+          repository: openxFactory
+        rationale: The brainstorm document already contains fully-specified, concrete YAML schemas for
+          agent-mixes, escalation-rules, and review-councils (with fields, triggers, and failure semantics),
+          and the staged document lists an author-ready openspec change (proposal-b + tasks-b) with a
+          file-by-file exit path — enough concrete structure for codexFactory's feature decomposition
+          to turn into a buildable Spec Kit feature DAG with only modest additional drafting (e.g. the
+          still-stubbed governed_context_packet).
+        confidence: 0.7
+        alternatives:
+        - Could be scored 9-10 since the YAML is already essentially spec-ready, not just a sketch.
+        - Could be scored lower if the undefined `governed_context_packet` stub and unbuilt trigger→seats
+          table are treated as blocking engineering prerequisites rather than fill-in-later details.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — minimum tier score is 5 (< 8): {''domain'': 8, ''company'': 5, ''project'':
+        8}'
 - id: cl-authority-personas
   name: Authority Personas
   topics:
@@ -326,20 +368,69 @@ topic_entries:
     matched_tags:
     - authority-personas
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: hermes-domain-overlay
+    how_extends: codexfactory-domain-hermes-content.md targets the existing hermes-domain-overlay capability
+      (today only overlay.yaml exists) and proposes extending it with roles/, policies/, review-councils/,
+      agent-mixes.yaml, memory-boundaries.yaml, escalation-rules.yaml, and a practice catalog, while the
+      roster drafts and character model separately reference roles-authority-model as the pattern the
+      harvested personas must conform to.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: no single owning domain resolves for this cluster during the Hermes-layer migration
     - tier: company
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/hermes-persona-character-model.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Decided (2026-07-22)'
+          passage_sha256: dbe22c4d1b5e4e9ee243c2344be0f37b9abb991fd405b55d279a78dcdebafb93
+          repository: openxFactory
+        rationale: The neutral character-model doc converts what began as a soft promise ('character shapes
+          how, never whether') into an enforced pipeline property, and pairs it with a ratified trait
+          vocabulary, a proportional authoring-authority ceremony, and a fixed-plus-versioned drift policy.
+          The client roster doc independently locks a coherent, client-tunable house-voice floor. This
+          is a mature, coherent, cross-cutting governance design that a neutral ratify authority would
+          plausibly entertain as a proposal. It is held back from a higher score by several still-open
+          items (relationship-memory depth, battery-authoring ownership, steward-assignment finalization,
+          the FAO/domain cost-data seam) and by all four documents still carrying brainstorm status.
+        confidence: 0.6
+        alternatives:
+        - score higher (8) given how many load-bearing decisions across all four docs already carry explicit
+          ratified dates and mechanisms
+        - 'score lower (5) since every document is still status: brainstorm and several open questions
+          (memory depth, battery ownership) remain genuinely unresolved'
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/codexfactory-domain-hermes-content.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Exit path (concrete changes this cluster becomes)'
+          passage_sha256: 58bc21fa89e7c769d601163a72eee4406347e803f2fb7184e8418de97eb7c4db
+          repository: openxFactory
+        rationale: codexfactory-domain-hermes-content.md already lays out sequenced, concrete OpenSpec
+          increments (A, then B ∥ an independent openxFactory schema change) tied to a verified harvest
+          map naming real source files (e.g. docs/engineering-roles-and-authority.md, omnigent/domain-overlay.yaml
+          line ranges). That is close to a buildable feature DAG. However, the sibling roster draft's
+          own escalation-target audit explicitly flags that 'the persona YAML blocks above are not yet
+          updated' and that promoting the roster requires extending overlay.yaml's codex_owns 'in the
+          same change' — known, unresolved prerequisites that a decomposition would have to absorb before
+          build, keeping this below a fully-ready score.
+        confidence: 0.55
+        alternatives:
+        - score higher (7-8) since the harvest map already ties every target file to a real existing source
+          artifact with a concrete sequencing plan
+        - 'score lower (4) given the explicit self-identified gaps: unupdated persona objects per the
+          escalation audit and the required lockstep overlay.yaml codex_owns extension'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-auto-clear-envelope
   name: Auto Clear Envelope
   topics:
@@ -369,20 +460,78 @@ topic_entries:
     matched_tags:
     - auto-clear-envelope
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: client-layer-tuning
+    how_extends: The cluster's staging document carries the exact Staging ID `openxFactory:staging:client-layer-tuning`,
+      matching the promoted capability `client-layer-tuning` in the registry. This cluster (the content
+      schemas, the memory/policy/integration boundary shapes, the policy wizard, and the nightly-sweep
+      auto-clear-envelope/council-clearance rule) is the next iteration extending that capability -- adding
+      the Finance & Accounting Officer role, the stricter-only comparability spec, the avatar-assisted
+      wizard, and a tier-2 council-clearance path onto the same auto-clear-envelope mechanism.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: No single owning DomainxFactory resolves for this cluster. The bulk of the material
+        (client-layer-content-draft.md, client-policy-wizard.md, client-layer-tuning.md) is Client/Company-Policy-layer
+        governance machinery -- scaffold roles, policy-override schemas, the wizard -- which is explicitly
+        openxFactory/hermes-install content, not the output of any specific engineering-practice DomainxFactory.
+        The remaining document (nightly-sweep-council-clearance-rule.md) is a codexFactory-internal gate
+        rule reviewed by a Gate-Rules Council convening, but that convening itself spans domain/client/project
+        seats rather than sitting inside one owning domain, and treating codexFactory-as-domain there
+        would still leave the rest of the cluster without a domain owner.
     - tier: company
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Readiness'
+          passage_sha256: fd497fc6a256126795eb09509b67222744ac5633026faa592ae38f2983e667dd
+          repository: openxFactory
+        rationale: The cluster's staging document records settled decisions across shape, roster, content
+          rules, and wizard behavior (each with a dated 'Decided' provenance), and lays out a concrete
+          three-part exit path (openxFactory scaffold+schema change, codexFactory domain-defaults change,
+          hermes-install wizard change). This is coherent and decomposed enough for openxFactory's neutral
+          ratify gate to entertain a proposal, though several open questions (validator-hosting repo,
+          overlay-signing authority, default aggressiveness, FAO/domain efficiency-audit seam) are explicitly
+          still 'carried to the proposals' rather than resolved, which keeps this short of a top score.
+        confidence: 0.7
+        alternatives:
+        - Score higher (8-9) given how extensive and dated the 'Decided' claims are and that a sibling
+          piece of the same envelope pattern (nightly-sweep-council-clearance-rule.md) has already been
+          convened and ratified end-to-end.
+        - Score lower (5-6) given the number of open questions still explicitly deferred rather than resolved
+          before proposal formation.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 8
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Convened (2026-07-23)'
+          passage_sha256: 8065e3f335c5c879e303833395a319fbf8b65475f332aa08701dce134d6eb3ee
+          repository: openxFactory
+        rationale: Part of this cluster is not merely a proposal but an already-merged, fully tested implementation
+          (rule YAML + decision-core module + 18 passing negative-suite tests on main), demonstrating
+          that codexFactory's feature decomposition can and did turn this exact auto-clear-envelope/council-clearance
+          pattern into a buildable, shippable feature. The rest of the cluster (wizard, content schemas)
+          is described with similarly concrete deliverables (specific YAML kinds, named files, a bounded
+          elicitation question table), suggesting the remaining pieces decompose cleanly too, though they
+          remain unbuilt and still carry a couple of open integration questions (e.g. overlay-signing
+          authority).
+        confidence: 0.75
+        alternatives:
+        - Score lower (6) since the shipped nightly-sweep feature ships `configured_but_inactive`/report-only
+          and gated on a still-missing Omnigent-lane activation dependency, and the client-layer wizard/schema
+          pieces are not yet built at all.
+        - Score higher (9) given the depth of concrete artifact specs (YAML schemas, file paths, elicitation
+          table) across all documents, which would decompose very cleanly into a Spec Kit DAG.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-avatar-client
   name: Avatar Client
   topics:
@@ -400,20 +549,173 @@ topic_entries:
     matched_tags:
     - avatar-client
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: avatar-brokered-call-feasibility
+    how_extends: qualify-avatar-live-voice.md names the F0 brokered-call feasibility spike (specs/002-avc-f0-feasibility)
+      as its direct predecessor and explicitly carries 'the feasible handshake across the non-qualification
+      boundary F0 refuses to cross,' turning the promoted feasibility proof into an internal-live qualified
+      provider profile (gpt-realtime-2.1) with real latency SLOs, AVC-09/AVC-10 contracts, and an activation
+      gate — i.e., it is the qualification successor to the already-promoted avatar-brokered-call-feasibility
+      capability, not a fresh capability.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: No single owning DomainxFactory resolves for this cluster; both member documents
+        describe avatar-pilot-hardening and qualify-avatar-live-voice as neutral, openxFactory-owned capabilities,
+        with per-domain (Med/Ledger/Ops/Ad/codex) involvement limited to future overlay/persona instances
+        that are themselves an open, unresolved fork (whether it is one parameterized schema or five separate
+        domain-owned overlay capabilities).
     - tier: company
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: avatar-pilot-hardening.md — Repository context
+          passage_sha256: 72b43bf8b2527b5d8ea584af433805e491ce1b8388e59becc297a993120dc8b5
+          repository: openxFactory
+        rationale: 'Both documents are unusually mature staged artifacts: each has a fully worked claims
+          section grounded in concrete prior contracts (contract-v1.7, F0 feasibility, the reference runtime''s
+          frozen ports), a named conjunction of gate artifacts (SBOM, license review, WCAG audit, pen
+          test, privacy review), and explicit exit/archival discipline tied to release-realization. That
+          coherence and the clear neutral (non-domain-forking) value proposition are exactly what a ratify
+          gate looks for. However, each document independently declares itself blocking on multiple unresolved
+          forks (six in pilot-hardening, five in live-voice) and on two other unlanded changes, so the
+          cluster is coherent enough to entertain but not yet a finished, defensible proposal — a mid-range
+          score rather than a high one.'
+        confidence: 0.72
+        alternatives:
+        - Score higher (8) purely on the strength and specificity of the claims sections, treating the
+          open questions as normal pre-proposal refinement rather than a readiness penalty
+        - Score lower (4) given that 11 combined blocking forks and two unlanded prerequisite changes
+          suggest the cluster is still closer to a working plan than a ratify-ready proposal
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: avatar-pilot-hardening.md — Exit
+          passage_sha256: 278fe58d69cf66105cbd501a50158d89213c0e3ee422f756224ed14aa5debfed
+          repository: openxFactory
+        rationale: 'The cluster is explicit and self-aware that it is not buildable today: avatar-pilot-hardening
+          cannot even begin until a sibling change (qualify-avatar-live-voice) and a separate client-lab
+          implementation both land, on top of six named blocking forks (Hermes call-site timing, overlay
+          contract shape, accessibility scope, first cohort/data posture, kill-switch custody, provider/residency
+          ownership). qualify-avatar-live-voice carries a parallel set of five blocking forks (credential
+          custody and spend cap, latency budget derivation, activation-gate scope, evaluation-audio consent,
+          canary/rollback semantics) before its own exit criteria are met. A Spec Kit feature DAG needs
+          settled interfaces and acceptance criteria; here the core mechanisms (overlay contract, activation
+          gate scope, credential custody model) are still forks, not decisions, so engineering decomposition
+          would be premature.'
+        confidence: 0.78
+        alternatives:
+        - Score moderately (5) since the frozen AVC port/protocol surface and named AVC-09/AVC-10 contract
+          shapes give real structure to build against even with the forks open
+        - Score very low (1-2) given the explicit cross-change gating (cannot even start until another
+          staged change lands) makes this arguably not a standalone buildable unit at all yet
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+- id: cl-bench-manifest
+  name: Bench Manifest
+  topics:
+  - bench-manifest
+  - cloudpc
+  - dtn-candidate
+  - intune
+  - omni-001
+  - tech-benches
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/tech-stack-benches.md
+    stage: brainstorm
+    matched_tags:
+    - bench-manifest
+    - cloudpc
+    - dtn-candidate
+    - intune
+    - omni-001
+    - tech-benches
+  - path: ideation/staging/worker-host-app/worker-host-app.md
+    stage: staged
+    matched_tags:
+    - bench-manifest
+    - cloudpc
+    - dtn-candidate
+    - intune
+    - omni-001
+    - tech-benches
+  extension_fit:
+    has_promoted_fit: true
+    promoted_spec: omnigent-domain-overlay
+    how_extends: The cluster proposes populating the already-ratified `omnigent-domain-overlay` schema's
+      existing `toolchain_bindings` payload_ref[] slot with bench-manifest entries (digest-pinned tech-stack
+      benches per engineering stack), per the brainstorm doc's 'Contract fit (the slot already exists)'
+      section citing `contracts/omnigent/omnigent-domain-overlay.schema.yaml` from the ratified `add-omnigent-domain-overlay`
+      change.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: no single owning DomainxFactory resolves for this cluster
+    - tier: company
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/staging/worker-host-app/worker-host-app.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Exit'
+          passage_sha256: 1434c2294d7babd478bc2469e5866f1257612a617c8d6911274703658f75c660
+          repository: openxFactory
+        rationale: The cluster shows explicit owner decision-making (Brett Heap's 2026-07-23 build decision),
+          a motivating incident tying the work to real operational risk (the 2026-07-22/23 CPC recovery),
+          a coherent staged summary, and — critically for a ratify gate — a concrete, falsifiable exit
+          condition spanning three repos with named artifacts. This is more mature than a typical brainstorm
+          and shows real cross-factory value, but bench registry ownership is still 'TBD' and several
+          open questions (container engine, credential model, manifest location) remain unresolved, which
+          keeps it below the top of the range.
+        confidence: 0.6
+        alternatives:
+        - 'Score 8-9: the explicit build decision, incident motivation, and staged promotion could be
+          read as strong enough coherence/value for near-immediate ratify consideration.'
+        - 'Score 5: the unresolved bench-registry ownership and multiple open questions could be read
+          as still too unsettled for the neutral ratify gate to entertain confidently.'
+        disposition: pending_review
+    - tier: project
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/staging/worker-host-app/worker-host-app.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Decisions to take'
+          passage_sha256: 5673a59fc34edf517c2ffdcece2014e20bbef04e41f3d1e11573602be81c1f9f
+          repository: openxFactory
+        rationale: The staged document already includes draft YAML manifest sketches (`xfactory_worker_host_manifest`,
+          `xfactory_tech_bench`) and a 'Possible feats' list, giving real decomposition seeds. But several
+          foundational implementation choices remain explicitly undecided — container engine, app implementation
+          approach (v1 vs v2), credential-acquisition mechanism, and even which repo will own bench sources/build
+          pipeline going forward. A Spec Kit feature DAG built today would have to encode these as open
+          branches rather than committed decisions, which blocks a clean buildable decomposition without
+          further resolution.
+        confidence: 0.55
+        alternatives:
+        - 'Score 7: the concrete draft manifests, explicit contract deltas (bench-manifest, worker-host-manifest,
+          heartbeat delta), and itemized ''Possible feats''/''Target capability and delta'' sections could
+          already be read as sufficient for a first-pass feature DAG, treating the open decisions as in-DAG
+          spikes.'
+        - 'Score 3: the unresolved substrate/identity/ownership questions plus the explicit ''three-places
+          rule'' coordination requirement for the heartbeat contract delta could be read as too much undecided
+          architecture for buildability today.'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-break-glass
   name: Break Glass
   topics:
@@ -431,20 +733,73 @@ topic_entries:
     matched_tags:
     - break-glass
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: credential-contracts
+    how_extends: The staged document explicitly names its target capability as 'credential-contracts (MODIFIED
+      — escrow registry + break-glass custody; possibly a sixth canonical record kind)', extending the
+      existing per-install vaultref:// runtime-secret contract with an operator-side, SOPS-encrypted break-glass
+      escrow registry layer.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: no owning domain resolves for this cluster — both member documents are explicitly
+        framed as neutral/openxFactory-owned rather than belonging to a specific DomainxFactory
     - tier: company
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 4
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/subject-recall-and-consent-path.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Break-glass (life-critical domains only)'
+          passage_sha256: 62bf3cf9211d6ff75429bb00946761f5037d381222c0622382994e034ccf17e2
+          repository: openxFactory
+        rationale: In the brainstorm document, break-glass is a narrow, subordinate exception mechanism
+          nested inside a much larger person-subject consent/recall governance design — the passage above
+          is one of several sub-sections, not the document's core subject. In the staged document, break-glass
+          credential-escrow custody IS the central subject. The two member documents converge only on
+          the shared word 'break-glass' applied to structurally unrelated problems (per-query consent-recall
+          denial override vs. disaster-recovery key custody); they do not cross-reference each other,
+          share a target capability, or share an architectural mechanism. A neutral ratify gate reviewing
+          this pairing would most likely split it into two independent proposals rather than entertain
+          one coherent company-level proposal, which caps the score below what either document would earn
+          standing alone.
+        confidence: 0.6
+        alternatives:
+        - Score higher if 'break-glass' is treated as a single architectural pattern the company wants
+          to standardize once across both the gateway consent path and credential escrow, making the pairing
+          intentional rather than coincidental
+        - Score lower, treating the cluster as two unrelated ideas that should not have been grouped at
+          all
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Exit'
+          passage_sha256: df11fe579f675ccc8b78d2d6084a27fad3dd3ed2f8a3867d57d7a73918ce00a1
+          repository: openxFactory
+        rationale: 'The staged credential-escrow document is close to buildable today: it names an explicit
+          target capability delta (credential-contracts MODIFIED, possibly a sixth canonical record kind),
+          a concrete code surface, and measurable realization/acceptance criteria (drift audit green,
+          a rehearsed restore drill) — this is directly decomposable into a Spec Kit feature DAG. The
+          brainstorm consent-recall document pulls the cluster average down: despite a detailed consent-model
+          schema and recall pseudocode, it still carries open, unresolved core-mechanism questions (minimization
+          enforcement point, purpose vocabulary, the shape of a subject-visible transparency-log contract)
+          that block precise feature decomposition today. The cluster''s buildability is therefore uneven
+          rather than uniformly ready.'
+        confidence: 0.55
+        alternatives:
+        - Score lower (~3) if the cluster must be decomposed as one unified DAG and the brainstorm document's
+          open questions are treated as blocking the whole cluster
+        - Score higher (~7) if only the staged, more concrete document is weighted and the brainstorm
+          document is treated as background context rather than an in-scope deliverable
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-cerebras
   name: Cerebras
   topics:
@@ -465,20 +820,74 @@ topic_entries:
     - cerebras
     - evidence-rows
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: memory-gateway
+    how_extends: 'Both documents explicitly build on top of the ratified memory-gateway rather than duplicating
+      it: the adapter contract says it ''composes the ratified memory-gateway provider contracts (provider-profile
+      + provider-binding + consent-profile) rather than duplicating them, and adds the ingestion layer'',
+      and the architecture doc frames the whole cluster as adopting Cerebras'' retrieval/ingestion mechanics
+      ''inside the [ratified memory] gateway''s governance rails'', introducing a new evidence-row kernel
+      that composes into the gateway''s existing context-packet output.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: no owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/hermes-knowledge-base-architecture.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: 'hermes-knowledge-base-architecture.md ## Exit path (concrete contracts this becomes)'
+          passage_sha256: 24cda06105ac2ae4817131c400e886bb849f6b4c541b16e5ee29a6bed1d9a6b0
+          repository: openxFactory
+        rationale: 'The cluster shows real convergence toward a company-level proposal: a dated ''Decided''
+          section resolves the evidence-row-vs-context-packet question, adapter-authoring authority chain,
+          ranking-parameter ownership, and planner cost tiering, and the architecture doc closes with
+          an explicit ''Exit path'' enumerating the concrete openxFactory contracts this cluster becomes
+          (memory-gateway extension, adapter contract, retrieval-primitives contract). That is exactly
+          the shape a neutral ratify gate would want to see before entertaining a proposal: a coherent,
+          already-partially-decided extension of an existing ratified contract rather than a raw idea.
+          It is held at 7 rather than higher because both documents remain formally in ''brainstorm''
+          status and several open questions (adapter runtime shape, structurer trust, ACL freshness) are
+          still unresolved, so full company-level coherence isn''t yet locked down.'
+        confidence: 0.7
+        alternatives:
+        - 'Score higher (8-9): the Decided section and Exit path could be read as sufficient maturity
+          regardless of the brainstorm status label.'
+        - 'Score lower (5-6): treat the still-brainstorm status and unresolved adapter-runtime/custom-source-class
+          questions as disqualifying for a ratify-gate proposal today.'
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''project'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/client-ingestion-adapter-contract.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: 'client-ingestion-adapter-contract.md ## Open questions'
+          passage_sha256: 55212def37fc8b191fe84219a9b192febd6e15c7a0deae25efec580f3959129e
+          repository: openxFactory
+        rationale: The cluster supplies concrete, decomposable artifacts codexFactory could start from
+          — a full YAML adapter manifest, an evidence_row schema, and a 9-step ingestion pipeline — which
+          pushes buildability above the floor. But the manifest's central runtime question (whether adapters
+          are first-party workers per source_class or a generic worker plus declarative config) is explicitly
+          still open, alongside unresolved 'Structurer trust', 'ACL freshness', and 'Custom source_class'
+          questions, and the sibling architecture doc's own open-questions list still flags 'which worker
+          per source class' and 'per-tenant partitioning mechanics' as undecided. These are exactly the
+          kind of implementation-shape decisions a Spec Kit feature DAG needs settled before tasks can
+          be cut, so the cluster is buildable in outline but not yet in full today.
+        confidence: 0.6
+        alternatives:
+        - 'Score higher (6-7): the detailed manifest schema, evidence_row schema, and 9-step pipeline
+          are concrete enough to seed an initial feature DAG even with some open questions deferred to
+          later tasks.'
+        - 'Score lower (3-4): treat the unresolved adapter-runtime, structurer-trust, and partitioning-mechanics
+          questions as blocking any DAG decomposition until a follow-up design pass resolves them.'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-character-model
   name: Character Model
   topics:
@@ -574,20 +983,84 @@ topic_entries:
     matched_tags:
     - client-hermes
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: client-layer-tuning
+    how_extends: 'client-layer-tuning is already a promoted capability, and the staged client-layer-tuning.md
+      member of this cluster is its direct source material (scaffold roles/, content schemas, the policy
+      wizard). The remaining brainstorm members of this same cluster extend that promoted capability with
+      material it does not yet cover: a Legal & Compliance Counsel persona and a Risk & Assurance bench
+      (client-risk-and-assurance-model.md, hermes-legal-compliance-model.md), a cost-accountability/Finance
+      & Accounting Officer seam (cost-accountability-and-efficiency-model.md), and a client-layer knowledge-base/ingestion-adapter
+      mechanism (hermes-knowledge-base-architecture.md, client-ingestion-adapter-contract.md). Two other
+      members are already tied to separate promoted capabilities rather than extending client-layer-tuning:
+      workflow-visualization-tooling.md is cited evidence behind the promoted ''workflow-visualization''
+      capability, and client-credential-escrow-registry.md targets the promoted ''credential-contracts''
+      capability and touches the promoted ''client-infrastructure-liaison'' capability.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      unscored_reason: No owning DomainxFactory resolves for this cluster — the documents themselves classify
+        the Client ("Company Policy") layer as neutral, cross-domain scaffold content that is only *specialized*
+        by a consuming domain (e.g. codexFactory) downstream, never domain-owned itself.
     - tier: company
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 8
+      evidence:
+        source_ref:
+          path: ideation/staging/client-layer-tuning/client-layer-tuning.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: 'client-layer-tuning.md — ## Readiness'
+          passage_sha256: fd497fc6a256126795eb09509b67222744ac5633026faa592ae38f2983e667dd
+          repository: openxFactory
+        rationale: 'The cluster shows unusually strong cross-document convergence: nearly every brainstorm
+          doc carries a dated 2026-07-22 "Decided" section resolving prior open questions (stricter-only
+          enforcement, envelope ratification, liaison membership, FAO addition, adapter authoring authority,
+          evidence-row kernel shape), and one member (client-layer-tuning.md) is already a staged topic
+          with settled claims and a concrete three-part exit path. A sibling seeding effort from the same
+          parent doc (hermes-layer-content-seeding.md) has already produced a merged, archived increment,
+          demonstrating this line of work reliably clears a neutral ratify gate. This is a mature, coherent,
+          cross-referenced cluster well suited for company-level proposal review.'
+        confidence: 0.72
+        alternatives:
+        - 'Score lower (5-6): several sibling docs (client-risk-and-assurance-model.md, hermes-legal-compliance-model.md,
+          client-ingestion-adapter-contract.md, hermes-knowledge-base-architecture.md) remain brainstorm-status
+          with substantial open questions (bench structure, human-authority naming, adapter runtime choice),
+          which dilutes the coherence of the cluster taken as a whole rather than just its most-advanced
+          slice.'
+        - 'Score higher (9): the density of resolved decisions and the existence of a real merged/archived
+          precedent for this exact layer could argue for near-ceiling readiness.'
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
-        any cluster member document (a cited passage must be real)'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/hermes-layer-content-seeding.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: 'hermes-layer-content-seeding.md — ## Decided (2026-07-22)'
+          passage_sha256: 705f3d17b77de8539f004a8a7b9b07cc2c99bd1779556f3a0129813ec65690bc
+          repository: openxFactory
+        rationale: 'There is direct, concrete precedent that this domain decomposes into a buildable Spec
+          Kit feature DAG: increment 1 of the seeding mechanism was realized as a hermes-install change
+          plus Speckit 002-seed-layer-content, merged and archived. The staged client-layer-tuning.md
+          member further lays out three scoped, sequenced changes (openxFactory scaffold/schema, codexFactory
+          domain defaults, hermes-install wizard verb). However, several other cluster members carry genuinely
+          unresolved architectural questions that block decomposition today — the ingestion-adapter contract''s
+          open questions (adapter runtime shape, structurer trust gate, ACL freshness cadence, custom
+          source_class review) and the knowledge-base architecture''s remaining ownership questions (structure-before-embed
+          worker assignment, partitioning mechanics) are pre-design, not pre-build. The cluster as a whole
+          is only partially DAG-ready today; the client-layer-tuning slice is ready now, the rest needs
+          another design pass first.'
+        confidence: 0.55
+        alternatives:
+        - Score higher (8) if the project tier is scoped strictly to the already-staged client-layer-tuning
+          subset, which genuinely has a decomposable exit path today.
+        - Score lower (4) if the ingestion-adapter and knowledge-base architecture open questions are
+          treated as blocking prerequisites for the whole cluster's build-readiness rather than an independent,
+          parallel workstream.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-client-layer
   name: Client Layer
   topics:
@@ -609,17 +1082,91 @@ topic_entries:
     matched_tags:
     - client-layer
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: client-layer-tuning
+    how_extends: client-policy-wizard.md is the concrete elicitation/tuning mechanism for the promoted
+      'client-layer-tuning' capability — it specifies the bounded question set, the auto-clear-envelope
+      generation, and the overlay-commit/digest-pin step that a tuning capability would need to operate.
+      The cluster also touches the separately promoted 'client-infrastructure-liaison' capability, since
+      client-layer-scaffold.md specifies its composed-from-stewards design and configured_but_inactive
+      activation gate.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/client-layer-scaffold.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## How the client layer is composed (three tiers) — ideation/brainstorm/client-layer-scaffold.md'
+          passage_sha256: 75261d291cbe5525c537b5ad5cb33bd65ce8a7819058d93ecff26fdf719a35d3
+          repository: openxFactory
+        rationale: 'The owning domain (codexFactory, via Engineering Organization Hermes) is clearly resolvable:
+          the cluster explicitly targets codexFactory/hermes/client/template.yaml, which already exists,
+          and the cluster spells out precisely what that domain owns versus what belongs to Project Hermes,
+          Domain Hermes, or xFactory. Decisions are converging (the facts rule, the roles/ addition),
+          but the domain-side artifacts themselves (policy-overrides.yaml, memory-boundaries.yaml, integration-boundaries.yaml,
+          role-overrides.yaml) are all still marked NEW/unauthored, and a load-bearing prerequisite (the
+          client Omnigent overlay for the 19 stewards) does not exist yet — so ownership resolves cleanly
+          but domain-side maturity is only moderate.'
+        confidence: 0.6
+        alternatives:
+        - Score lower (3-4), treating the domain-side content as entirely unauthored/net-new rather than
+          'mature'
+        - Score higher (8), weighting the volume of converged, synced decisions as sufficient maturity
+          despite unauthored files
+        disposition: pending_review
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/client-layer-content-draft.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Decided (2026-07-22) — ideation/brainstorm/client-layer-content-draft.md'
+          passage_sha256: 45c4f852102ad0c0dca61b0c7ce018e2df455a51045b927e9f6b3386bfde46de
+          repository: openxFactory
+        rationale: 'The three documents show strong internal coherence — they cross-reference and sync
+          decisions consistently (envelope ratification, the facts rule, the unified seeding mechanism)
+          — and center on a clear, risk-bounded value proposition: a per-client tuning wizard whose single
+          riskiest artifact requires explicit human ratification before it can auto-clear anything. That
+          combination of coherence and an explicit, load-bearing safety invariant is exactly what a neutral
+          ratify authority would look for, though unresolved cross-cutting questions (validator authorship,
+          overlay-signing authority) keep it short of a top score.'
+        confidence: 0.65
+        alternatives:
+        - Score lower (5), given several structural open questions (missing steward overlay, undecided
+          signing authority) reduce ratify-readiness
+        - Score higher (8-9), given the explicit stricter-only and conservative-default invariants are
+          unusually strong safety guarantees for a ratify gate
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-client-layer'
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/client-layer-scaffold.md
+          revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+          section: '## Open questions — ideation/brainstorm/client-layer-scaffold.md'
+          passage_sha256: 33e065b8485e08f3fe9bdbe35954599d7031edfa15216dfd703d1bfa0a3f04bd
+          repository: openxFactory
+        rationale: Several pieces are concretely spec'd enough to seed feature tickets directly — the
+          policy-overrides/memory-boundaries/integration-boundaries YAML schemas, the validator work package,
+          and the elicitation table mapping wizard questions to output files. But a load-bearing prerequisite,
+          the client Omnigent overlay meant to host the 19 steward workers, does not exist yet and is
+          explicitly flagged as blocking the steward-direction work, alongside unresolved ownership questions
+          (who signs the overlay's digest pin, which repo hosts the new schemas) that a DAG decomposition
+          would need settled before sequencing dependent features.
+        confidence: 0.55
+        alternatives:
+        - Score lower (3), treating the missing Omnigent overlay as blocking nearly all steward-related
+          feature work in the DAG
+        - Score higher (6-7), since the policy/memory/integration schemas and validator package are independently
+          buildable without the steward overlay
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — minimum tier score is 5 (< 8): {''domain'': 6, ''company'': 7, ''project'':
+        5}'
 - id: cl-codexfactory
   name: Codexfactory
   topics:
@@ -897,7 +1444,17 @@ topic_entries:
   - topics-header
   origin: machine-derived
   members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
   - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/brainstorm/dashboard-action-center.md
     stage: staged
     matched_tags:
     - doc-management
@@ -947,6 +1504,16 @@ topic_entries:
     matched_tags:
     - doc-management
     - doc-workflow
+  - path: ideation/staging/ideation-action-plane/drive-membrane.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
+    matched_tags:
+    - doc-management
+    - doc-workflow
   extension_fit:
     has_promoted_fit: false
     statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
@@ -959,6 +1526,35 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-doc-management'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-doc-management'
+- id: cl-document-lifecycle
+  name: Document Lifecycle
+  topics:
+  - document-lifecycle
+  tag_sources:
+  - target-capabilities-header
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/immovable-leaf-ideation-lifecycle.md
+    stage: brainstorm
+    matched_tags:
+    - document-lifecycle
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
+    matched_tags:
+    - document-lifecycle
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-document-lifecycle'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-document-lifecycle'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-document-lifecycle'
 - id: cl-domain-hermes
   name: Domain Hermes
   topics:
@@ -1143,6 +1739,40 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-feat-request'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-feat-request'
+- id: cl-gate-console
+  name: Gate Console
+  topics:
+  - gate-console
+  - intent-queue
+  - interactivity-boundary
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/dashboard-action-center.md
+    stage: staged
+    matched_tags:
+    - gate-console
+    - intent-queue
+    - interactivity-boundary
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
+    matched_tags:
+    - gate-console
+    - intent-queue
+    - interactivity-boundary
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-console'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-console'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-gate-console'
 - id: cl-gate-rules-council
   name: Gate Rules Council
   topics:
@@ -1175,6 +1805,34 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-gate-rules-council'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-gate-rules-council'
+- id: cl-google-drive
+  name: Google Drive
+  topics:
+  - google-drive
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - google-drive
+  - path: ideation/staging/ideation-action-plane/drive-membrane.md
+    stage: staged
+    matched_tags:
+    - google-drive
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-google-drive'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-google-drive'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-google-drive'
 - id: cl-hermes-install
   name: Hermes Install
   topics:
@@ -1191,7 +1849,7 @@ topic_entries:
     stage: staged
     matched_tags:
     - hermes-install
-  - path: ideation/staging/omnigent-core-domain-split/omnigent-core-domain-split.md
+  - path: ideation/staging/layer-vocabulary-machine-migration/layer-vocabulary-machine-migration.md
     stage: staged
     matched_tags:
     - hermes-install
@@ -1402,7 +2060,15 @@ topic_entries:
   - topics-header
   origin: machine-derived
   members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - ideation-dashboard
   - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/brainstorm/dashboard-action-center.md
     stage: staged
     matched_tags:
     - ideation-dashboard
@@ -1428,6 +2094,14 @@ topic_entries:
     - ideation-dashboard
   - path: ideation/brainstorm/topic-compilation-tree.md
     stage: brainstorm
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/staging/ideation-action-plane/drive-membrane.md
+    stage: staged
+    matched_tags:
+    - ideation-dashboard
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
     matched_tags:
     - ideation-dashboard
   extension_fit:
@@ -1474,7 +2148,6 @@ topic_entries:
   name: Ideation Tooling
   topics:
   - ideation-tooling
-  - possibles-register
   tag_sources:
   - topics-header
   origin: machine-derived
@@ -1483,12 +2156,10 @@ topic_entries:
     stage: staged
     matched_tags:
     - ideation-tooling
-    - possibles-register
   - path: ideation/brainstorm/topic-compilation-tree.md
     stage: brainstorm
     matched_tags:
     - ideation-tooling
-    - possibles-register
   extension_fit:
     has_promoted_fit: false
     statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
@@ -1501,6 +2172,78 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-ideation-tooling'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-ideation-tooling'
+- id: cl-identity-brokering
+  name: Identity Brokering
+  topics:
+  - identity-brokering
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - identity-brokering
+  - path: ideation/brainstorm/dashboard-action-center.md
+    stage: staged
+    matched_tags:
+    - identity-brokering
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - identity-brokering
+  - path: ideation/staging/ideation-action-plane/drive-membrane.md
+    stage: staged
+    matched_tags:
+    - identity-brokering
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
+    matched_tags:
+    - identity-brokering
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-identity-brokering'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-identity-brokering'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-identity-brokering'
+- id: cl-keycloak
+  name: Keycloak
+  topics:
+  - keycloak
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - keycloak
+  - path: ideation/brainstorm/dashboard-action-center.md
+    stage: staged
+    matched_tags:
+    - keycloak
+  - path: ideation/brainstorm/keycloak-identity-brokering.md
+    stage: brainstorm
+    matched_tags:
+    - keycloak
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-keycloak'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-keycloak'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-keycloak'
 - id: cl-layer-content-seeding
   name: Layer Content Seeding
   topics:
@@ -1561,6 +2304,42 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-layer-content-seeding'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-layer-content-seeding'
+- id: cl-lifecycle-projection
+  name: Lifecycle Projection
+  topics:
+  - lifecycle-projection
+  - notebooklm-projection
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cloud-workstation-topology.md
+    stage: staged
+    matched_tags:
+    - lifecycle-projection
+    - notebooklm-projection
+  - path: ideation/brainstorm/ideation-dashboard.md
+    stage: staged
+    matched_tags:
+    - lifecycle-projection
+    - notebooklm-projection
+  - path: ideation/staging/ideation-action-plane/drive-membrane.md
+    stage: staged
+    matched_tags:
+    - lifecycle-projection
+    - notebooklm-projection
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-lifecycle-projection'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-lifecycle-projection'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-lifecycle-projection'
 - id: cl-manual-writer
   name: Manual Writer
   topics:
@@ -1826,6 +2605,34 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-omnigent-lane'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-omnigent-lane'
+- id: cl-opsxfactory
+  name: Opsxfactory
+  topics:
+  - opsxfactory
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md
+    stage: superseded
+    matched_tags:
+    - opsxfactory
+  - path: ideation/staging/worker-host-app/worker-host-app.md
+    stage: staged
+    matched_tags:
+    - opsxfactory
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-opsxfactory'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-opsxfactory'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-opsxfactory'
 - id: cl-overlay-ref
   name: Overlay Ref
   topics:
@@ -2010,6 +2817,42 @@ topic_entries:
       unscored_reason: 'worker failed: no remote result collected for cl-policy-wizard'
     - tier: project
       unscored_reason: 'worker failed: no remote result collected for cl-policy-wizard'
+- id: cl-possibles-register
+  name: Possibles Register
+  topics:
+  - possibles-register
+  tag_sources:
+  - topics-header
+  origin: machine-derived
+  members:
+  - path: ideation/brainstorm/cluster-combining-gui.md
+    stage: staged
+    matched_tags:
+    - possibles-register
+  - path: ideation/brainstorm/dashboard-action-center.md
+    stage: staged
+    matched_tags:
+    - possibles-register
+  - path: ideation/brainstorm/topic-compilation-tree.md
+    stage: brainstorm
+    matched_tags:
+    - possibles-register
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
+    matched_tags:
+    - possibles-register
+  extension_fit:
+    has_promoted_fit: false
+    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
+      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+  readiness:
+    tiers:
+    - tier: domain
+      unscored_reason: 'worker failed: no remote result collected for cl-possibles-register'
+    - tier: company
+      unscored_reason: 'worker failed: no remote result collected for cl-possibles-register'
+    - tier: project
+      unscored_reason: 'worker failed: no remote result collected for cl-possibles-register'
 - id: cl-practice-adoption
   name: Practice Adoption
   topics:
@@ -2130,6 +2973,10 @@ topic_entries:
   - topics-header
   origin: machine-derived
   members:
+  - path: ideation/brainstorm/dashboard-action-center.md
+    stage: staged
+    matched_tags:
+    - roles-authority-model
   - path: ideation/brainstorm/domain-to-neutral-promotion.md
     stage: staged
     matched_tags:
@@ -2140,6 +2987,10 @@ topic_entries:
     - roles-authority-model
   - path: ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md
     stage: superseded
+    matched_tags:
+    - roles-authority-model
+  - path: ideation/staging/ideation-action-plane/ideation-action-plane.md
+    stage: staged
     matched_tags:
     - roles-authority-model
   extension_fit:
@@ -2524,3 +3375,758 @@ possibles_register:
     cross-repo governance bodies rather than single-purpose ones. Connecting the concrete rehearsal artifact
     to the abstract council machinery suggests a durable, reusable authoring pattern for future tier-2
     rules, which no existing possible or the staged Change B currently names.
+- id: pos-derived-unified-nightly-ideation-governance-lane
+  title: Unified nightly ideation-governance lane
+  claim: This cluster's material could become one consolidated, scheduled nightly lane that runs doc-health
+    checks, cross-reference readiness scoring, dashboard snapshot generation, and the Drive projection-mirror
+    export as coordinated stages of a shared orchestration, rather than as separately designed nightly
+    jobs each reinventing scheduling and degradation handling.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cloud-workstation-topology.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ede62a058e15
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/cloud-workstation-topology.md
+    section: '## Locked: the projection mirror'
+    passage_sha256: fa1082b8aee562e23035233a9712479ca8c8315df08d2e7dba841f5472fdeb1d
+  rationale: doc-health-pipeline.md defines the original nightly deterministic+agentic health run; ideation-cross-reference-readiness.md
+    schedules its Hermes-tier scoring pass as 'nightly, as a new doc-health pipeline lane'; ideation-dashboard.md's
+    snapshot generator is called 'plausibly the same nightly lane' as doc-health; and cloud-workstation-topology.md's
+    Drive projection-mirror lane is explicitly modeled on 'the doc-health lane family's pattern'. Four
+    independently-designed nightly passes across four documents converge on the same lane family without
+    any one document defining the shared scheduling/orchestration contract that would let them share diagnostics
+    and degradation handling (the per-document degradation and lane-status enrichment already built for
+    doc-health).
+- id: pos-derived-shared-bounded-agent-worker-contract-across-heal
+  title: Shared bounded-agent worker contract across health, readiness, and possibles lanes
+  claim: This cluster's material could become a single registered bounded-agent worker-profile contract
+    (evidence citation shape, rationale/confidence, pending_review disposition, non-mutating boundary)
+    reused by the doc-health semantic sweep, the readiness Hermes-tier scoring panel, and the possibles-derivation/AI-suggestion-tray
+    lane, instead of each being specified as a separate agent.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/ideation-cross-reference-readiness.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ede62a058e15
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/ideation-cross-reference-readiness.md
+    section: '### Cross-reference index'
+    passage_sha256: 17c9ab104b63c125cd6059455c4e633f0cf4bb98465526c0e40870ecd1a01d81
+  rationale: ideation-cross-reference-readiness.md's three-tier scoring panel explicitly says it mirrors
+    'the evidence-backed-recommendation contract already used by the document-cataloger and the ideation-organizer';
+    doc-health-pipeline.md independently designs its own agentic sweep; and cluster-combining-gui.md's
+    AI suggestion tray plus ideation-dashboard.md's derive-possibles worker converge on the identical
+    bounded-agent, evidence-cited, pending_review shape. Four documents each re-derive the same worker
+    contract rather than naming it once as shared infrastructure.
+- id: pos-derived-shared-passage-level-evidence-index-across-compi
+  title: Shared passage-level evidence index across compilation trees, evidence boards, and the wheel
+  claim: This cluster's material could become one shared passage-indexing and evidence-citation infrastructure
+    (passage discovery plus section-anchored citation classed indexed|inferred|synthesized) that simultaneously
+    serves the topic-compilation-tree generator, the cluster-canvas evidence board's pinned-passage citations,
+    and the WHEEL's materialized cross-class edge contract.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/topic-compilation-tree.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ede62a058e15
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/topic-compilation-tree.md
+    section: '## What already exists to build on (do not reinvent)'
+    passage_sha256: 39a533b7986256ea6bafd564a9c019b2bb290fcdc166da6578c44ddfb41c228f
+  rationale: topic-compilation-tree.md explicitly identifies its own passage→topic edge data as 'EXACTLY
+    the materialized cross-class edge contract the WHEEL realization requires' (a connection into ideation-dashboard.md's
+    WHEEL spec), while cluster-combining-gui.md's evidence board separately relies on 'section reference
+    + passage hash' provenance from the cataloging contract for its pinned quotes. Three documents each
+    build overlapping passage-level provenance machinery that could be a single shared index rather than
+    three parallel implementations.
+- id: pos-derived-client-risk-assurance-legal-compliance-staged-ex
+  title: Client Risk & Assurance / Legal Compliance staged exit
+  claim: The cluster's assurance material — the Legal & Compliance Counsel and the Risk & Assurance bench
+    (Reputation & Brand Steward, Product Liability & Insurance Officer) — could become its own staged
+    topic, parallel to and exited alongside client-layer-tuning, since that topic explicitly carved this
+    material out as still-brainstorm rather than absorbing it.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2a09b390d2ca
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    section: Source (front matter)
+    passage_sha256: e1f87c7d18a59605b0823c3729d2bb5292eb1646d3a7b39ecaa06765be7c35d2
+  rationale: 'hermes-legal-compliance-model.md and client-risk-and-assurance-model.md are full architecture
+    brainstorms with their own personas, stored-constraint schemas, and open questions (bench size, launch-review
+    triggers, human-authority naming), but client-layer-tuning.md''s exit path — which already promotes
+    the roster, wizard, and schemas to staged — names this exact material and defers it. That leaves a
+    concrete, ready-to-name gap: a sibling staged topic for the assurance bench.'
+- id: pos-derived-evidence-row-ingestion-pipeline-as-a-standalone
+  title: Evidence-row ingestion pipeline as a standalone contract
+  claim: The knowledge-base architecture and the adapter contract could combine into one dedicated openxFactory
+    capability — the evidence-row schema, the client_source_adapter manifest, and structure-before-embed
+    — exited together rather than as two separate sibling brainstorms.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2a09b390d2ca
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    section: Exit path (concrete contracts this becomes)
+    passage_sha256: 55ab1821ee492875859e304b23ed57bc3f72300159761efef5934af3e629113f
+  rationale: hermes-knowledge-base-architecture.md's own exit path names client-ingestion-adapter-contract.md
+    as the adapter half of the same mechanism (evidence rows, consent-bound ingestion, structure-before-embed),
+    and the adapter doc in turn treats the KB architecture doc as its parent — the two are already tightly
+    coupled but neither has a staged topic of its own.
+- id: pos-derived-cross-layer-spend-ledger-clock-in-capability
+  title: Cross-layer spend-ledger / clock-in capability
+  claim: The clock-in protocol from cost-accountability-and-efficiency-model.md could become a unified
+    spend-ledger capability that the client policy wizard's budget envelopes and the knowledge-base architecture's
+    retrieval-as-spend-event decision both plug into, rather than three docs independently referencing
+    an unbuilt ledger.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2a09b390d2ca
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: The chain, by layer
+    passage_sha256: cec7c8f429f7b31385bd8c8b18c507d8fd152e8081a538458d9200020bf05320
+  rationale: The cost-accountability doc frames the wizard's spend ceilings as the envelope with itself
+    as the ledger/judgment layer, and hermes-knowledge-base-architecture.md separately decided that every
+    retrieval and planner pass clocks in against FAO's tracking granularity — two independent documents
+    converging on the same not-yet-built spend-tracking mechanism.
+- id: pos-derived-domain-roster-overlay-authority-closure-checker
+  title: Domain roster/overlay authority-closure checker
+  claim: The roster, overlay, and content-seeding material in this cluster could become a concrete seed-time
+    validation tool that checks persona authority claims against `overlay.yaml` `codex_owns`, verifies
+    the bidirectional persona↔worker references, and fails closed on any skew before domain content is
+    ever materialized into the runtime.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a36b125900ba
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: Authority-closure matrix (roster × `overlay.yaml` `codex_owns`)
+    passage_sha256: 6ad8ff5ce66068d90c223fe508c62cb9873701e9177670683ceea032e1d02dce
+  rationale: The roster draft's own Authority-closure matrix names a specific, checkable skew (the personas
+    claim authority `overlay.yaml` never grants) and explicitly calls for 'the seed-time closure check'
+    to fail closed on it; the same draft's bidirectional-reference decision and worker-coverage table
+    (two workers referenced but undefined in Omnigent) describe the same class of consistency problem
+    from another angle. No document proposes the checker as a single deliverable, but three separate findings
+    across this cluster all point at the identical missing artifact.
+- id: pos-derived-practice-effectiveness-closed-loop-pipeline
+  title: Practice-effectiveness closed-loop pipeline
+  claim: The gap-scan practice-suggestion generator, the domain memory's practice-effectiveness signal,
+    and the cost-accountability efficiency audit could become one integrated, closed-loop capability,
+    where adopted practices are measured, mined for cheaper realizations, and fed back as catalog and
+    policy updates automatically.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a36b125900ba
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: Possible feats
+    passage_sha256: 9f6bac79b66241d9091900e34a6555bd9948df65774b8944e1a9c493c97ea1f3
+  rationale: domain-practice-suggestion-generation.md defines how practices get suggested and adopted,
+    codexfactory-domain-memory-and-practices.md wires the resulting `practice_effectiveness` signal directly
+    into the efficiency audit, and cost-accountability-and-efficiency-model.md declares the audit's process-update
+    loop feeding back into the practice catalog — three documents each describe one leg of the same loop
+    without any of them framing it as a single end-to-end deliverable.
+- id: pos-derived-persona-behavioral-certification-test-suite
+  title: Persona behavioral-certification test suite
+  claim: The character model's behavioral-battery stub and the roster draft's already-authored personas
+    — especially Lead Security, explicitly drafted as the guardrail stress test — could become a concrete,
+    runnable certification test suite that verifies each persona holds its disposition and never trades
+    a fail-closed gate for rapport before it is promoted.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-persona-character-model.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a36b125900ba
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-persona-character-model.md
+    section: Behavioral battery (certification stub)
+    passage_sha256: 780cd260eaa69f11912be2a5e5d1fa9f05522ad82b1d6342e0997171cd04131b
+  rationale: hermes-persona-character-model.md defines gate-pressure, disposition-consistency, and voice-bounds
+    probes as a certification stub but leaves 'battery authoring' as an open question, while codexfactory-domain-roster-draft.md
+    has already drafted the concrete persona (Lead Security, framed in its own heading as 'the guardrail
+    stress test') that the battery would need to run against — the two documents describe the same missing
+    artifact from opposite ends of the cluster.
+- id: pos-derived-cross-layer-cost-accounting-ownership-finance-ac
+  title: Cross-layer cost accounting ownership (Finance & Accounting Officer + granularity contract)
+  claim: This cluster's material could become a cross-layer cost-accountability capability — a tenant-level
+    Finance & Accounting Officer persona paired with a neutral granularity-contract schema and roll-up
+    mechanism — that finally gives the tenant layer's reporting-to-accounting function and its 'tracking
+    granularity the subject layer must honor' a real owner, closing the accounting gap the client roster
+    work flagged but did not resolve.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-layer-scaffold.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d463c7370945
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/brainstorm/client-layer-scaffold.md
+    section: '## Steward direction (Plane 1 → Plane 2) and the accounting gap'
+    passage_sha256: 834295a9aef1417c68b4095141aa7fad7f91e5f5168b4b76a95fab4250de2267
+  rationale: cost-accountability-and-efficiency-model.md defines the tenant layer's reporting-to-accounting
+    function and granularity-setting role, while client-layer-scaffold.md independently records this as
+    an unowned gap ('no house-team persona or steward owns that today'), and the staged client-layer-tuning.md
+    shows only a partial follow-through (FAO added, but the 'FAO ↔ domain efficiency-audit seam' is still
+    an open question). The connection across these three documents — a named gap, a proposed persona,
+    and a still-open cross-layer seam — is exactly the kind of durable backlog item this cluster's material
+    supports but has not yet stated as a single capability.
+- id: pos-derived-shared-stricter-only-content-comparability-engin
+  title: Shared stricter-only content comparability engine
+  claim: The cluster's material could become a single reusable 'stricter-only' comparability engine —
+    one mechanical check callable from both the client policy wizard and the domain-content materialization
+    pipeline — guaranteeing that no client-tuned or project-level override can ever weaken a domain-set
+    gate, instead of each layer re-implementing its own version of the same guard.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d463c7370945
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/staging/client-layer-tuning/client-layer-tuning.md
+    section: Summary
+    passage_sha256: 887b1f8069e1e73d73f7a51f9113cde8ed87c8a84dacaebcf51c4de89ccc970f
+  rationale: 'The stricter-only invariant is asserted independently in at least three member documents:
+    client-policy-wizard.md''s wizard-side guard (''the wizard must reject any answer that would make
+    a gate weaker than the domain''), client-layer-tuning.md''s plan to ship a shared `validate-client-content`
+    check implementing ''the stricter-only comparability spec,'' and layer-content-materialization.md''s
+    reference to ''the stricter-only mechanical check hook (comparability spec, from the client cluster)''
+    as a dependency of seeding increment 2. Three separate documents converging on the same not-yet-built
+    shared mechanism is precisely the cross-member connection this lane should surface.'
+- id: pos-derived-unified-manual-surface-and-efficiency-feedback-l
+  title: Unified manual-surface and efficiency feedback loop
+  claim: The cluster's material could become one unified feedback-telemetry capability that merges the
+    client wizard's park-map (evidence of what still defaults to manual parking) with the domain's efficiency-audit
+    process-update loop (evidence of which practices paid off), so envelope tuning and practice-catalog
+    revision draw from a single accreted evidence stream instead of two disconnected loops in two different
+    layers.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-policy-wizard.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d463c7370945
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/brainstorm/client-policy-wizard.md
+    section: '## Defaults, safety, and re-tuning'
+    passage_sha256: 28434f265e944510bf4fb6bbe3c5f55f1af3127095f47972fa03b07b1110a8af
+  rationale: client-policy-wizard.md describes the park-map as an evidence-shaped report of manual load
+    that feeds a 'disposition-feedback loop' proposing the next wizard questions, while cost-accountability-and-efficiency-model.md
+    independently describes a 'process-update loop' where audit findings become practice-catalog updates
+    through the same worker-proposes/Lead-accepts path used for domain memory. Both are the same shape
+    of mechanism — parked/inefficient work training future policy — described in different layers without
+    being connected, which is the kind of cross-cluster synthesis this lane exists to surface.
+- id: pos-derived-domain-learning-retrieval-primitive
+  title: Domain-learning retrieval primitive
+  claim: This cluster's material could become a distinct, authority-scoped retrieval primitive letting
+    a Domain Hermes query its own de-identified, cross-client domain_learning corpus without breaching
+    any single client's tenant isolation.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    section: derived-from cluster cl-memory-gateway
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-5f0f7569d74c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-memory-gateway
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    section: Open questions
+    passage_sha256: b9bd1e335fed15aff1e2728340b7d716987562331dee947b390abc0c66ee30da
+  rationale: hermes-retrieval-primitives-contract.md explicitly flags this as unresolved ('how does the
+    domain query its de-identified domain_learning without breaching tenant isolation'), while codexfactory-domain-memory-and-practices.md
+    fully specifies the domain_learning promotion/de-identification pipeline that would feed such a primitive,
+    and hermes-knowledge-base-architecture.md names the domain KB as curated content 'plus the cross-client
+    domain_learning promoted through the gateway gate' — the three together sketch a concrete primitive
+    none of them individually commits to building.
+- id: pos-derived-consent-gated-persona-relationship-memory
+  title: Consent-gated persona relationship-memory
+  claim: The persona-character work and the subject-recall consent path could combine into a governed
+    feature where a Hermes persona's 'it knows me' warmth is delivered strictly through the gateway's
+    purpose-bound, consent-scoped recall mechanics, never a separate memory store.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-persona-character-model.md
+    section: derived-from cluster cl-memory-gateway
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-5f0f7569d74c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-memory-gateway
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-persona-character-model.md
+    section: Decided (2026-07-22)
+    passage_sha256: 01d1571a9a86ced9fb3cc37667e92efade1baf76ef71b6c1105fd584d0a0d538
+  rationale: hermes-persona-character-model.md states relationship memory arrives 'via the gateway, consent-scoped'
+    to supply warmth without character drift, but specifies no mechanism; subject-recall-and-consent-path.md
+    independently designs exactly that mechanism (purpose-bound recall, minimum-necessary filtering, live
+    revocation/erasure) for the person-subject case — wiring the two closes a dependency the persona doc
+    states but does not resolve.
+- id: pos-derived-seeding-triggered-adapter-activation-reconciliat
+  title: Seeding-triggered adapter activation reconciliation
+  claim: The layer-seeding pipeline and the client ingestion-adapter contract could become one reconciled
+    activation path, resolving whether an adapter's own configured_but_inactive→active lifecycle (steward
+    approval, consent gate, dry-run) is subsumed by, or runs alongside, the seeding pipeline's step that
+    binds gateway provider-bindings and KB adapters.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    section: derived-from cluster cl-memory-gateway
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-5f0f7569d74c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-memory-gateway
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    section: The `seed-layer-content` pipeline
+    passage_sha256: 55e2180694754fb60bf28b4aefd1271838c826b70cbf1959ed129963fec7b179
+  rationale: hermes-layer-seeding-mechanism.md's pipeline explicitly performs 'register gateway provider-bindings
+    + (client) KB adapters' as part of its bind step, while client-ingestion-adapter-contract.md defines
+    a separate, fully-specified adapter lifecycle and approval chain (Integrations & Credentials Steward,
+    consent gate, dry-run) for the same adapter manifests — two authority paths over the same activation
+    event that nothing in the cluster currently reconciles.
+- id: pos-derived-neutral-store-vs-improvise-authoring-test-as-a-d
+  title: Neutral store-vs-improvise authoring test as a DTN contract
+  claim: The cluster's domain-policy authoring principle ("store the delta, not the textbook") could become
+    a standalone neutral openxFactory authoring contract — a decision test every domain's policies/ folder
+    is validated against — rather than staying a codexFactory-local heuristic.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-policy-model.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2e29fb44cc21
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-policy-model.md
+    section: '## The test, neutralized (DTN candidate)'
+    passage_sha256: 185ff70d10d47833e1c5c7383f24984f1823155f685aa7e7e63be97714ec7316
+  rationale: 'codexfactory-domain-policy-model.md explicitly flags the store-vs-improvise decision test
+    as a DTN (domain-neutralization) promotion candidate, distinct in kind from the persona/mix/council/overlay
+    structural schemas already tracked as a possible: this is an authoring heuristic other domains (Medx/Ledgerx/Opsx/Adx)
+    could apply, not a data shape to validate against.'
+- id: pos-derived-seed-time-roster-overlay-consistency-check-suite
+  title: Seed-time roster/overlay consistency-check suite
+  claim: The cluster's separate escalation-target audit, worker-coverage table, and authority-closure
+    matrix could become one unified seed-time validation suite that mechanically catches drift between
+    a persona's claimed authority/directs_workers references and the Omnigent overlay's codex_owns grants
+    before domain content promotes.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2e29fb44cc21
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: '## Authority-closure matrix (roster × `overlay.yaml` `codex_owns`)'
+    passage_sha256: 6ad8ff5ce66068d90c223fe508c62cb9873701e9177670683ceea032e1d02dce
+  rationale: codexfactory-domain-roster-draft.md independently surfaces three kinds of roster/overlay
+    skew (misrouted escalation targets, workers referenced but undefined in the overlay, authority claimed
+    but not staked in codex_owns) and each time proposes the same remedy — a seed-time consistency check
+    — suggesting these are facets of one reusable validation artifact rather than three separate fixes.
+- id: pos-derived-governed-context-packet-as-a-reusable-plane-3-en
+  title: Governed context packet as a reusable Plane-3 ensemble contract
+  claim: The cluster's stubbed governed_context_packet — currently "defined nowhere" — could become a
+    formal, neutral contract governing what any MoA ensemble or council may see, hold, and spend, generalized
+    beyond the one review-lane ensemble it was sketched for.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-deliberation.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2e29fb44cc21
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-deliberation.md
+    section: '### The governed context packet (stub)'
+    passage_sha256: 308294f4cca9b662ba3f4b278853509973b17cfeb9152b09c1bd975f7fb21cfb
+  rationale: codexfactory-domain-deliberation.md names the packet as the mechanism that keeps "no standing
+    credentials" and consent-gated memory true for any panel, but leaves it an undefined stub while every
+    mix profile and council in the cluster implicitly depends on it, making it a concrete cross-cutting
+    artifact distinct from the structural persona/mix/council schemas already tracked.
+- id: pos-derived-efficiency-audit-to-catalog-feedback-pipeline
+  title: Efficiency-audit-to-catalog feedback pipeline
+  claim: This cluster's material could become a concrete pipeline artifact that routes efficiency-audit
+    findings (the practice_effectiveness signal) through the worker-proposes/Lead-accepts memory gate
+    into practice-catalog parameter updates, closing the loop between cost accounting and practice recommendations.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-130e6284f8a6
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: Practice catalog > Cost-model wiring
+    passage_sha256: 93c8beb1db4e86b652e658a2c590b40bd45a0e995dbbe73568dc2bb9f3d343f6
+  rationale: cost-accountability-and-efficiency-model.md defines an audit-selection algorithm and a process-update
+    loop feeding catalog updates, and codexfactory-domain-memory-and-practices.md independently names
+    practice_effectiveness as a remembered signal and explicitly wires the two docs together under the
+    Lead-accepted path — the cluster states the connection in prose but no artifact yet formalizes the
+    pipeline itself.
+- id: pos-derived-practice-catalog-roster-gap-detector
+  title: Practice-catalog roster-gap detector
+  claim: The cluster's per-Lead ownership table over the practice catalog could become a standing mechanism
+    that flags any promoted capability lacking a natural owning Lead as a signal for domain-roster gaps,
+    rather than remaining a one-time table.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-130e6284f8a6
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    section: Per-Lead practice ownership (draft answer to the ownership question)
+    passage_sha256: 76971574b6a80b19d217bbe1615bfe144538b66503142915235f64a9abe93eff
+  rationale: codexfactory-domain-hermes-content.md's ownership table already surfaces one unowned capability
+    (memory-gateway consumption practices) and states the encoding rule generally, showing the catalog
+    itself is a diagnostic input to roster completeness across the cluster's open questions.
+- id: pos-derived-cross-domain-practice-neutralization-queue
+  title: Cross-domain practice neutralization queue
+  claim: The practice catalog's codex-local entries (e.g. conformance-gate, governed-review-lane) could
+    become a tracked queue of DTN candidates that promotes domain-local practices into openxFactory-neutral
+    shapes so other Hermes domains gain the same practices.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-130e6284f8a6
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: Open questions
+    passage_sha256: 812d8d7f4ee20859716574b478e26a988ef80fd0ffd2bc1912f5d28fabcaa3ce
+  rationale: memory-and-practices.md flags specific codex-local catalog entries as possible DTN candidates,
+    and hermes-layer-content-seeding.md's neutralization-gradient framing (client layer highly neutral,
+    domain layer not) gives the structural basis for deciding which catalog entries are ripe to neutralize,
+    connecting the catalog's provenance rule to the cluster's multi-domain architecture.
+- id: pos-derived-cross-layer-never-weakens-invariant-checker
+  title: Cross-layer never-weakens invariant checker
+  claim: This cluster's material could become a single, generic non-weakening validator that enforces
+    "policy layer N never weakens layer N-1" wherever this exact shape recurs — domain→client stricter-only
+    comparisons and tier-1→tier-2 council-clearance rules alike — instead of each layer inventing its
+    own ad hoc version of the same check.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    section: derived-from cluster cl-auto-clear-envelope
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bc6f7dcdd79a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-auto-clear-envelope
+  supporting_evidence:
+  - document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
+    section: '## Draft rule (the ratifiable artifact)'
+    passage_sha256: ccc0488fceab99e387c9093bc078e03a53a40ec609f0efb0577c6f45bd011fe0
+  rationale: client-layer-content-draft.md formalizes "client policy may only be stricter than the domain,
+    never weaker" as a mechanical comparability spec with per-field-class semantics. nightly-sweep-council-clearance-rule.md
+    independently states the same invariant for a different layer pair (tier-1 vs. tier-2) with a bare
+    comment and no shared spec reference — the identical governance shape appearing twice, unconnected,
+    is exactly the kind of cross-document pattern worth surfacing as one reusable capability.
+- id: pos-derived-generalized-envelope-disposition-training-loop
+  title: Generalized envelope disposition-training loop
+  claim: 'The cluster''s disposition-feedback mechanism (client policy wizard) and anti-normalization
+    rule (nightly-sweep council clearance) could become one shared "envelope training" capability: a generic
+    way to surface repeated human/council parking-or-clearing decisions on the same condition as candidate
+    rule revisions, applicable to any auto-clear envelope instance rather than reimplemented per envelope.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-policy-wizard.md
+    section: derived-from cluster cl-auto-clear-envelope
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bc6f7dcdd79a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-auto-clear-envelope
+  supporting_evidence:
+  - document: ideation/brainstorm/client-policy-wizard.md
+    section: '## Defaults, safety, and re-tuning'
+    passage_sha256: 3b9adc54f6bea4f366711f9ce0968c0deaf489ca2329f2988923e0fad354c50f
+  rationale: client-policy-wizard.md's disposition feedback loop and nightly-sweep-council-clearance-rule.md's
+    anti-normalization rule (three consecutive clearances of the same condition flags the generator and
+    parks) solve the same underlying problem — a recurring parked/cleared condition signaling a defect
+    in the upstream generator or envelope — independently and with different mechanics. Naming this as
+    one connective capability is the kind of link this lane exists to surface.
+- id: pos-derived-shared-auto-clear-envelope-evaluation-engine-acr
+  title: Shared auto-clear envelope evaluation engine across layers
+  claim: The cluster could become a single reusable envelope-evaluation engine — conjunctive condition
+    matching, fail-closed on unevaluable fields, park-for-human on failure — shared across the client
+    policy auto-clear envelope, the Merge Master tier-1 envelope, and the tier-2 council-clearance classifier,
+    rather than three independently built copies of the identical conjunctive-match-or-park shape.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/practice-clearance-and-project-realization.md
+    section: derived-from cluster cl-auto-clear-envelope
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bc6f7dcdd79a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-auto-clear-envelope
+  supporting_evidence:
+  - document: ideation/brainstorm/practice-clearance-and-project-realization.md
+    section: '## Clearance at the Client (Policy) layer'
+    passage_sha256: 80e9a3d5643f49728a9026d6afaee7477bd6685e2cc4b9564c205bd083cb4353
+  rationale: practice-clearance-and-project-realization.md states outright that the client clearance envelope
+    is "deliberately copying the Merge Master pattern one level up," and nightly-sweep-council-clearance-rule.md
+    then builds a second, separate extension of that same envelope shape for tier-2. Three documents converging
+    on one unnamed shared pattern is a genuine cross-cluster connection worth staging as a concrete engine
+    rather than leaving as three parallel prose descriptions.
+- id: pos-derived-subject-visible-recall-transparency-log
+  title: Subject-Visible Recall Transparency Log
+  claim: 'This cluster''s scattered usage-event audit trails (one emitted per ingest, one per retrieval/recall)
+    could become a single subject-facing transparency-log surface: a projection of both ingest-side and
+    query-side usage-events, scoped to one subject, so a person-subject can see who touched their memory
+    and when.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/subject-recall-and-consent-path.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ab76b25d39a4
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/subject-recall-and-consent-path.md
+    section: '## Open questions'
+    passage_sha256: 1fd2adab115021a85e12a0fe31a1f7e5a04fe4b51c92b8d913532164e08cfdb7
+  rationale: client-ingestion-adapter-contract.md audits a usage-event per ingest and hermes-retrieval-primitives-contract.md
+    audits a usage-event per retrieval, but subject-recall-and-consent-path.md explicitly flags that no
+    subject-visible view over these events yet exists ('a *subject-visible* recall log is an extension').
+    Connecting the two existing audit emitters to this named gap yields a concrete, buildable artifact
+    rather than a restatement of any one document.
+- id: pos-derived-shared-consent-gate-primitive-for-ingest-and-que
+  title: Shared Consent-Gate Primitive for Ingest and Query
+  claim: The cluster's two independently-described consent checkpoints — an ingest-time consent gate that
+    blocks adapter fetch, and a query-time per-recall consent check with purpose binding — could become
+    one shared consent-enforcement primitive composed identically by the ingestion pipeline and the retrieval/recall
+    path, instead of two parallel implementations of the same consent-profile logic.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ab76b25d39a4
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-retrieval-primitives-contract.md
+    section: '## Governance at retrieval (the delta from Cerebras)'
+    passage_sha256: ab739d5a7e45bd83a20da146aad3b755e6556b3fc13b9737ed2d368b54ab7b33
+  rationale: client-ingestion-adapter-contract.md's pipeline gates ingestion on a satisfied consent-profile,
+    while hermes-retrieval-primitives-contract.md and subject-recall-and-consent-path.md independently
+    re-derive a per-query consent check (with purpose binding, minimization, fail-closed denial) for recall.
+    Naming this as one candidate surfaces the duplication risk across the write side and read side that
+    no single document states outright.
+- id: pos-derived-cross-entry-point-erasure-cascade-contract
+  title: Cross-Entry-Point Erasure Cascade Contract
+  claim: The cluster's separately-described erasure triggers — an adapter/source revocation purging its
+    ingested evidence rows, and a subject's consent revocation purging recalled memory at query time —
+    could become one erasure-cascade contract guaranteeing that a purge fired from either the ingestion
+    side or the subject-consent side propagates to every evidence row and context-packet tied to that
+    source or subject.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ab76b25d39a4
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-knowledge-base-architecture.md
+    section: '## The xFactory delta: govern what Cerebras left open'
+    passage_sha256: ccf2bb40ecf1c1c23231cd1babd931932b8bcc06f6dea599935530f5c8ed03ce
+  rationale: client-ingestion-adapter-contract.md ties revocation to 'purge its rows' at the source/adapter
+    level, subject-recall-and-consent-path.md ties revocation to memory 'purged from the store' at the
+    subject level, and hermes-knowledge-base-architecture.md's governance obligations already state both
+    ingest and retrieval must be revocable and erasable — but no document unifies these into a single
+    cascade guarantee spanning both entry points.

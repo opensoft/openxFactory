@@ -1,0 +1,67 @@
+schema_version: 1
+kind: derive_possibles_run
+status: record
+run_id: derive-possibles-30064161614-1
+source_revision: b6c5b09d6e8faefd71bb9bb03fa77b000058e97b
+generated_at: '2026-07-24T00:00:00Z'
+prompt_contract_version: derive-possibles-prompt-v1
+worker_profile: derive-possibles
+generator_version: possibles-derivation-0.1.0
+register_fingerprint_read: d08c9e81c747e1c370f00fe7a713f3400b3903079979d4fadc541813ea74a60b
+register_fingerprint_written: 5fd2947ba30a6c4eb0f3aeb8207cdfc9fad95301a2c1a50b646e7c8019c4b806
+envelopes:
+- cluster_id: cl-doc-management
+  job_id: DPOSS-ede62a058e15
+- cluster_id: cl-client-hermes
+  job_id: DPOSS-2a09b390d2ca
+- cluster_id: cl-ideation-dashboard
+  job_id: DPOSS-19daef7c0080
+- cluster_id: cl-domain-hermes
+  job_id: DPOSS-a36b125900ba
+- cluster_id: cl-layer-content-seeding
+  job_id: DPOSS-d463c7370945
+- cluster_id: cl-memory-gateway
+  job_id: DPOSS-5f0f7569d74c
+- cluster_id: cl-codexfactory
+  job_id: DPOSS-2e29fb44cc21
+- cluster_id: cl-practice-catalog
+  job_id: DPOSS-130e6284f8a6
+- cluster_id: cl-auto-clear-envelope
+  job_id: DPOSS-bc6f7dcdd79a
+- cluster_id: cl-consent
+  job_id: DPOSS-ab76b25d39a4
+proposed:
+- id: pos-derived-unified-nightly-ideation-governance-lane
+- id: pos-derived-shared-bounded-agent-worker-contract-across-heal
+- id: pos-derived-shared-passage-level-evidence-index-across-compi
+- id: pos-derived-client-risk-assurance-legal-compliance-staged-ex
+- id: pos-derived-evidence-row-ingestion-pipeline-as-a-standalone
+- id: pos-derived-cross-layer-spend-ledger-clock-in-capability
+- id: pos-derived-domain-roster-overlay-authority-closure-checker
+- id: pos-derived-practice-effectiveness-closed-loop-pipeline
+- id: pos-derived-persona-behavioral-certification-test-suite
+- id: pos-derived-cross-layer-cost-accounting-ownership-finance-ac
+- id: pos-derived-shared-stricter-only-content-comparability-engin
+- id: pos-derived-unified-manual-surface-and-efficiency-feedback-l
+- id: pos-derived-domain-learning-retrieval-primitive
+- id: pos-derived-consent-gated-persona-relationship-memory
+- id: pos-derived-seeding-triggered-adapter-activation-reconciliat
+- id: pos-derived-neutral-store-vs-improvise-authoring-test-as-a-d
+- id: pos-derived-seed-time-roster-overlay-consistency-check-suite
+- id: pos-derived-governed-context-packet-as-a-reusable-plane-3-en
+- id: pos-derived-efficiency-audit-to-catalog-feedback-pipeline
+- id: pos-derived-practice-catalog-roster-gap-detector
+- id: pos-derived-cross-domain-practice-neutralization-queue
+- id: pos-derived-cross-layer-never-weakens-invariant-checker
+- id: pos-derived-generalized-envelope-disposition-training-loop
+- id: pos-derived-shared-auto-clear-envelope-evaluation-engine-acr
+- id: pos-derived-subject-visible-recall-transparency-log
+- id: pos-derived-shared-consent-gate-primitive-for-ingest-and-que
+- id: pos-derived-cross-entry-point-erasure-cascade-contract
+merge_skipped: []
+skipped_clusters:
+- cluster_id: cl-ideation-dashboard
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/topic-compilation-tree.md'' (a
+    cited passage must be real)'
+voided: []
