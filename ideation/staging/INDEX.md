@@ -47,6 +47,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
+| [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); exit gated on a second domain instantiating (Adx agency agreement or Medx custody-bearing patient consent) |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
@@ -75,6 +76,42 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   the second-touch decision RESOLVED (custody-not-decision, batched
   auto-merge on approval); fragment 2 exits separately after the Drive↔NLM
   ingestion spike
+
+## consent-instrument-contract
+
+- Staging ID: `openxFactory:staging:consent-instrument-contract`
+- Repository context: openxFactory (neutral schema + vocabulary); proof
+  instruments: LedgerxFactory (first schema'd instance —
+  `docs/engagement-letter-template.md` +
+  `tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`,
+  2026-07-24), MedxFactory (patient consent + memory-gateway
+  consent-profile, not yet custody-bearing), Adx/Opsx/codex (implied,
+  unmodeled).
+- Source: the Meds Rx, Inc onboarding — drafting the
+  LedgerXCorp↔MedsRx engagement letter surfaced that the instrument is
+  the single record the whole authority chain resolves to (grants cite
+  it, gates verify it, adapters activate on it, termination cascades to
+  credential revoke+rotate); named by Brett Heap 2026-07-24.
+  Registered as DTN-016.
+- Claim: every domain's rung-1↔rung-2 relationship starts with a
+  consent instrument, and its shape is domain-invariant — parties by
+  party-ladder rung incl. third-party ESTATE HOSTS (the Medxcorp
+  pattern), scope/out-of-scope, delegation clauses carrying the
+  technical access shape, autonomy position, revocation SLA,
+  signed-original custody by opaque locator + sha256, status lifecycle.
+  It composes with (not competes with) memory-gateway consent-profile,
+  document-cataloging, and credential-contracts. Schema it; stop
+  treating it as prose.
+- Files:
+  - [consent-instrument-contract.md](consent-instrument-contract/consent-instrument-contract.md) — primary: per-domain instantiation table, 4 claims, open questions, exit.
+- Open questions: delta shape (new capability vs MODIFIED
+  memory-gateway — leaning new schema + declared consent-profile
+  mapping: instrument authorizes ACTION, profile governs DATA);
+  signature/execution modeling depth (distinct-signers SHOULD for
+  related-party cases?); amendment lifecycle; broker-side check host
+  (credential-contracts validator vs new validate-consent-instruments).
+- Exit: `add-consent-instrument` after a second domain instantiates;
+  the Ledgerx record declares conformance rather than being rewritten.
 
 ## client-credential-escrow-registry
 
