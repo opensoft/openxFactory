@@ -183,14 +183,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-client-layer-tuning-contracts](openspec/changes/add-client-layer-tuning-contracts/proposal.md)
-  — phase 2a of the layer activation path: the neutral house-team roster
-  (10 deciders incl. the Finance & Accounting Officer + the liaison as a
-  convened capability, voice floor locked), the client content schemas incl.
-  the seedable `hermes_client_overlay`, the `cost_reporting_steward`, and
-  `validate-client-content` implementing the stricter-only comparability
-  spec. Realized at `contract-v1.17`; unblocks codexFactory client defaults
-  (2b) and the hermes-install wizard + client seeding (2c).
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
