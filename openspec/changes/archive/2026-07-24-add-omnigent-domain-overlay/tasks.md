@@ -50,7 +50,7 @@
       fail-closed verify with deterministic evidence, skew findings
       surfaced. Effective-profile rendering + byte-equivalence deferred to
       its follow-up increment (overlays carry no profile deltas yet).
-- [ ] 3.2 `installs/hermes-install`: worker-readiness API port and pilot
+- [x] 3.2 `installs/hermes-install`: worker-readiness API port and pilot
       `hermes_service/` retirement (cutover shape per the design record's
       open question).
       AUTHORED + LANDED 2026-07-23: hermes-install
@@ -62,6 +62,12 @@
       deployment window — deploy, repoint hermes-readiness.xforge.us,
       verify a consumer freshness gate, retire the pilot. This task and
       the parent change complete at that evidence.
+      COMPLETE 2026-07-24: cutover Phases 1-4 executed and evidenced
+      (hermes-install port-worker-readiness-surface, ratified + archived
+      2026-07-24, canonical spec worker-readiness-surface; pilot workload
+      pruned via Omnigent-Install PRs #29/#30; doc-health readiness gates
+      green end-to-end; pilot code retirement filed as omnigent-install
+      retire-pilot-readiness-service).
 - [x] 3.3 `xFactories/codexFactory`: author the first `omnigent/` overlay;
       the live coding-patch-worker binding becomes a rendered consequence
       of overlay + params, byte-equivalence proven.
