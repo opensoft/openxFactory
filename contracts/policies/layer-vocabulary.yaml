@@ -77,5 +77,9 @@ domain_aliases:
     subject: Engagement Hermes
     tenant: Firm Hermes
   AdxFactory:
-    subject: pending_migration
-    tenant: pending_migration  # "Brand Hermes" exists only in prose (review 2026-07-03 A2)
+    # Filled 2026-07-24 from AdxFactory stack.yaml hermes.layers display
+    # names (subject renamed Campaign -> Advertiser Hermes and the phantom
+    # "Brand Hermes" delivered as Marketing Organization Hermes by
+    # add-adx-object-model, archived 2026-07-23; review 2026-07-03 A2 closed).
+    subject: Advertiser Hermes
+    tenant: Marketing Organization Hermes
