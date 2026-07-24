@@ -41,7 +41,12 @@ on the QA cluster already dispatches through
 ## The rule
 
 **A release deployment SHALL be executed by the factory that manages the
-target surface.** Concretely, for the engineering domain:
+target surface — and the rule binds every actor class.** Scope confirmed
+by Brett 2026-07-24: not just factory workers but human engineers and CI
+pipelines alike. A GitHub Actions workflow holding a kubeconfig, or an
+engineer with standing admin on a managed scope, violates the boundary
+exactly as a worker deploying would — a standing key to someone else's
+surface. Concretely, for the engineering domain:
 
 1. codexFactory's authority ends at the release: the built artifact, its
    immutable digests, and release-realization evidence (merged + green).
@@ -91,12 +96,19 @@ division across benches, worker hosts, and deployments.
    `execution_binding.mode = opsxfactory_executed` (or `managed_host`),
    closed lifecycle with a trusted-validator verdict. No new record kind
    is needed for v1 — deployments are a requirements-profile of it.
-3. **Producing factories hold no deployment credentials.** The preventive
-   core: codexFactory identities (workers, CI) possess no credential that
-   can mutate a managed surface. `deployment_operator` credentials exist
-   only as OpsxFactory grants under `credential-contracts`, issued per
-   request and revoked on completion (`revocation_record` is already
-   required evidence in `deployment.yaml`).
+3. **No non-opsX identity holds standing deployment credentials — human
+   or machine.** The preventive core, strengthened to full scope
+   2026-07-24: only OpsxFactory execution identities hold standing write
+   credentials to managed surfaces. codexFactory workers and CI possess
+   nothing that reaches a deployed surface (CI keeps push rights only to
+   its own build namespaces). Human direct access — the operator's
+   included — is break-glass only: a time-boxed credential checkout from
+   escrow with evidence and a retroactive request. `deployment_operator`
+   credentials exist only as OpsxFactory grants under
+   `credential-contracts`, issued per accepted request and revoked on
+   completion (`revocation_record` is already required evidence in
+   `deployment.yaml`). This is what forces the ask: there is no
+   credential path that skips OpsxFactory.
 4. **Managed surfaces admit changes only through governed channels.**
    Where the surface supports it, the channel is structural: GitOps
    pull-only reconciliation (Flux, pinned, self-managed) from an
@@ -154,42 +166,69 @@ hooks, and realization tasks.
   al.), not just the request record's own lifecycle — it needs a home
   both sides can cite.
 
-## Decisions to take
+## Resolutions (clarifying session with Brett, 2026-07-24)
+
+The five originally-open questions plus the scope/phasing question they
+raised, all decided:
+
+1. **Actor scope — everyone.** The rule binds factory workers, human
+   engineers, and CI pipelines alike; credentials are the primary
+   enforcement ("if it is an opsX-managed surface, only opsX has the
+   keys, and it is break-glass for any admin to get access" — Brett).
+2. **Phasing of human standing admin — phased, never gapped.** The rule
+   ratifies at full strength with the target state explicit; existing
+   standing admin (the operator's Azure/GitHub owner rights) is a named,
+   dispositioned exception until the escrow-registry break-glass checkout
+   is realized and TESTED, then a dated milestone removes standing
+   assignments. Standing access is never removed before the emergency
+   path provably works.
+3. **Mechanical test point — grant issuance, plus the GitOps merge gate.**
+   The authoritative gate is credential issuance: OpsxFactory issues a
+   deployment grant only against an accepted request targeting a
+   registered subject (the subject-registry lookup happens where the key
+   is born). The structural gate is merge authority on the GitOps config
+   tree. No separate dispatch-time checker service.
+4. **Correlation — stamp `correlation_id` everywhere.** OpsX execution
+   stamps the request's `correlation_id` into GitOps commit trailers,
+   Kubernetes deployment annotations, and Intune app metadata. The audit
+   becomes a trivial join; any unstamped change is automatically a
+   finding — which is exactly what makes break-glass and bypass visible.
+5. **Benches — yes, via a standing maintenance request.** Bench
+   publication mutates the managed ACR and the `xfactory-workbenches`
+   subject, so it is on the rail; the weekly + triggered rebuild cadence
+   rides one standing approved request per policy period, each build
+   stamping its correlation_id + digest as evidence. Per-build approvals
+   rejected as cadence-hostile.
+6. **Break-glass — retroactive request; custody stays in the escrow
+   topic.** This capability requires only that a break-glass action MUST
+   be followed by a retroactive `client_infrastructure_request`
+   (correlating the out-of-band change, with evidence and disposition)
+   within a policy window. Who can break glass and how credentials are
+   custodied is `client-credential-escrow-registry`'s design — coordinate,
+   don't fork.
+7. **First consumer — codexFactory alone.** The capability is written
+   domain-neutrally; only codexFactory realizes now (the client-
+   infrastructure / governed-derived-model first-consumer path). Other
+   domains bind when they grow deployment surfaces.
+
+## Decisions still open (take at proposal gate or realization)
 
 - Capability home: new `deployment-handoff-boundary` vs MODIFIED
   `client-infrastructure-request` + `release-realization` only (leaning:
-  new capability, above).
+  new capability, above; confirm at proposal gate).
 - QA approval calibration: which approvals relax at QA (leaning: human +
   subject-Hermes approval retained; tenant approval standing via the
   accepted-risk register rather than per-request).
-- ACR namespace split enforcement point: registry RBAC scope map — which
-  identities may push where (needs the OpsxFactory bench-pipeline design
-  from the worker-host-app topic; same registry, same decision).
-- Long-lived preview environments: at what lifetime/exposure does a
-  "preview" acquire a subject record and flip to the handoff path
-  (leaning: exposure to real users or persistence beyond its producing
-  job ⇒ subject).
-
-## Open questions
-
-- Where does the managed-subject test evaluate mechanically — dispatch
-  time in the request pipeline (subject-registry lookup), pre-merge in
-  the GitOps tree (CODEOWNERS as approximation), or both?
-- What is the correlation key for the detective audit — request
-  `correlation_id` stamped into GitOps commits / deployment annotations /
-  Intune app metadata? (Leaning: yes, stamp it; uncorrelatable changes
-  are then trivially findable.)
-- Does bench publication count as a deployment under this rule? (Leaning:
-  yes and it is already conformant — OpsxFactory owns the bench pipeline
-  per the 2026-07-24 decision; publishing a bench mutates the managed
-  ACR + the `xfactory-workbenches` application_service subject.)
-- Break-glass: when a human deploys around the rail in an incident, what
-  retroactive record restores correlation (pattern exists in
-  client-credential-escrow-registry staging — coordinate, don't fork).
-- Do the other domain factories (Medx, Ledgerx, Adx) have deployment
-  surfaces at all yet, or does the neutral capability ratify now with
-  codexFactory as sole first consumer? (Leaning: sole first consumer;
-  that is the normal DTN-ish path.)
+- ACR namespace scope map: which identities may push where (build vs
+  deploy/bench namespaces) — realize with the OpsxFactory bench-pipeline
+  design from the worker-host-app topic; same registry, same decision.
+- Long-lived preview environments: at what lifetime/exposure a "preview"
+  acquires a subject record and flips to the handoff path (leaning:
+  exposure to real users or persistence beyond its producing job ⇒
+  subject).
+- Break-glass policy window: how long after an out-of-band action the
+  retroactive request must land (realization detail; the escrow topic may
+  set it).
 
 ## Exit
 

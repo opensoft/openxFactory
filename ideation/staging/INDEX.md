@@ -48,7 +48,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
-| [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | Ready to iterate — rule confirmed by Brett 2026-07-24; enforcement design drafted; 5 open questions (mechanical test point + correlation key hardest) |
+| [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
@@ -193,19 +193,26 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   managed QA stack) crosses as a governed `client_infrastructure_request`
   that OpsxFactory executes; work inside the producing factory's own
   execution lane (ephemeral CI/bench containers, no subject) self-serves.
-  Tier calibrates approval depth and accepted risk, never the executor.
+  The rule binds ALL actor classes — workers, human engineers, CI. Tier
+  calibrates approval depth and accepted risk, never the executor.
   Enforced in layers: constitutional (Omnigent matrix), credential
-  non-possession (the teeth), structural GitOps pull-only + Intune,
+  non-possession (the teeth — only opsX identities hold standing keys;
+  human access is break-glass), structural GitOps pull-only + Intune,
   detective correlation audit, human approvals.
 - Files:
   - [deployment-handoff-boundary.md](deployment-handoff-boundary/deployment-handoff-boundary.md)
     — primary: the rule + test, 6 claims, layered enforcement table,
-    capability-home leaning, 4 decisions, 5 open questions, exit.
-- Open questions (blocking): mechanical test point (dispatch vs GitOps
-  pre-merge); audit correlation key; bench publication as deployment
-  (leaning yes, already conformant); break-glass retro-correlation
-  (coordinate with client-credential-escrow-registry); sole-first-consumer
-  ratification.
+    7 clarifying resolutions (2026-07-24), residual decisions, exit.
+- Open questions: RESOLVED 2026-07-24 (clarifying session) — all-actor
+  scope; phased strip of human standing admin (never before tested
+  break-glass); grant-issuance + GitOps-merge as the mechanical gates;
+  correlation_id stamped into GitOps trailers / k8s annotations / Intune
+  metadata; benches on one standing maintenance request per period;
+  break-glass = retroactive request, custody per
+  client-credential-escrow-registry; codexFactory sole first consumer.
+  Residual (proposal gate/realization): capability home, QA approval
+  calibration, ACR namespace scope map, preview-environment threshold,
+  break-glass window.
 - Exit: openxFactory `add-deployment-handoff-boundary` (capability +
   `release-realization` delta), then OpsxFactory + codexFactory
   realization changes; archives on one real release crossing the rail
