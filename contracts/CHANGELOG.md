@@ -9,6 +9,25 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.18 — 2026-07-24 (additive; domain content manifest + memory binding)
+
+Realizes **add-hermes-domain-content-manifest** (seeding increment 4b's
+contract half; convention-then-contract): the optional
+**`hermes_domain_content_manifest`**
+(`contracts/hermes-domain-overlay/content-manifest.schema.yaml`) — a domain
+repo declares its seedable content set per ratified `content_kind` (exactly
+one of `path`/`directory`; absent manifest, consumers keep the documented
+increment-4a convention; an undeclared kind never loads silently) — and the
+**`hermes_memory_binding`** record shape
+(`contracts/memory-gateway/memory-binding.schema.yaml`), formalizing the
+derived binding hermes-install increment 3 materializes: rails input in the
+ratified gateway vocabulary (promotion gateway constitutionally
+`customer_memory_gateway`, `accepted_authority_level` drawn from
+`authority_levels`), never a provider binding — any provider/credential
+surface fails the canonical validator. Realization anchors: the codexFactory
+conventional set declared verbatim; the two LIVE-derived opensoft bindings
+as the packaged example. Purely additive.
+
 ## contract-v1.17 — 2026-07-23 (additive; client-content tuning surface)
 
 Realizes **add-client-layer-tuning-contracts** (phase 2a of the layer

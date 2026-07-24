@@ -1,0 +1,55 @@
+schema_version: 1
+name: hermes_domain_content_manifest
+# Machine-readable declaration of a domain repo's seedable CONTENT SET — the
+# convention-then-contract successor to the well-known-path list hermes-install
+# seeding increment 4a ships (roles/, policies/, review-councils/,
+# escalation-rules.yaml, agent-mixes.yaml, memory-boundaries.yaml,
+# practice-catalog.yaml). A domain repo MAY ship it at
+# `hermes/domain/content-manifest.yaml`. Absent manifest => consumers fall
+# back to the documented convention. Each declared kind maps to exactly one
+# of `path` (a single document) or `directory` (a per-file aggregate); a
+# declared location that does not exist in the repo fails validation (checked
+# by the canonical validator when a repo path is supplied), and a consumer
+# never loads an undeclared kind silently.
+type: object
+required:
+  - schema_version
+  - kind
+  - content_set
+properties:
+  schema_version:
+    type: integer
+    minimum: 1
+  kind:
+    type: string
+    enum:
+      - hermes_domain_content_manifest
+  content_set:
+    type: object
+    minProperties: 1
+    # Keys are drawn from the ratified content-kind vocabulary; each value
+    # declares exactly one location form.
+    properties:
+      role_authority: {$ref: "#/definitions/location"}
+      policy_position: {$ref: "#/definitions/location"}
+      escalation_rule: {$ref: "#/definitions/location"}
+      deliberation_mix: {$ref: "#/definitions/location"}
+      review_council: {$ref: "#/definitions/location"}
+      memory_boundary: {$ref: "#/definitions/location"}
+      practice_adoption: {$ref: "#/definitions/location"}
+    additionalProperties: false
+  omnigent_overlay_path:
+    # Optional: where the archive's Omnigent overlay lives for the
+    # persona↔worker closure cross-check (convention:
+    # omnigent/domain-overlay.yaml).
+    type: string
+definitions:
+  location:
+    type: object
+    oneOf:
+      - required: [path]
+      - required: [directory]
+    properties:
+      path: {type: string}
+      directory: {type: string}
+    additionalProperties: false

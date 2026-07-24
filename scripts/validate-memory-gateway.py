@@ -37,6 +37,7 @@ REQUIRED_CONTRACTS = {
     "erasure.schema.yaml",
     "break-glass-profile.schema.yaml",
     "audit-event.schema.yaml",
+    "memory-binding.schema.yaml",
 }
 
 REQUIRED_EXAMPLES = {
@@ -61,6 +62,7 @@ REQUIRED_EXAMPLES = {
     "medx-omnigent-diagnostic-reviewer-context.example.yaml",
     "opsx-runbook-expert-context.example.yaml",
     "medx-break-glass.example.yaml",
+    "memory-binding.example.yaml",
 }
 
 REQUIRED_FIXTURE_IDS = {
@@ -223,6 +225,49 @@ def validate_examples(errors: list[str]) -> None:
             errors.append(f"medx break-glass example missing {key}")
 
 
+def _binding_surface_violations(value: Any, path: str, errors: list[str], where: str) -> None:
+    """A memory binding is rails input: any provider/credential surface fails."""
+    forbidden = ("provider", "credential", "secret", "endpoint", "token")
+    if isinstance(value, dict):
+        for key, child in value.items():
+            key_l = str(key).lower()
+            if any(marker in key_l for marker in forbidden):
+                errors.append(f"{where} memory binding carries a provider/credential surface: {path}.{key}")
+            _binding_surface_violations(child, f"{path}.{key}", errors, where)
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            _binding_surface_violations(child, f"{path}[{index}]", errors, where)
+
+
+def validate_memory_bindings(errors: list[str]) -> None:
+    """Deterministic memory-binding checks the schema shape cannot express."""
+    vocab = load_yaml(CONTRACT_DIR / "vocabularies.yaml").get("vocabularies", {})
+    authority_levels = set(vocab.get("authority_levels") or [])
+    example_path = EXAMPLE_DIR / "memory-binding.example.yaml"
+    bindings = load_yaml(example_path).get("memory_bindings", [])
+    if not bindings:
+        errors.append(f"{rel(example_path)} carries no memory_bindings")
+        return
+    for binding in bindings:
+        where = f"{rel(example_path)} ({binding.get('layer_role', '?')})"
+        if binding.get("kind") != "hermes_memory_binding":
+            errors.append(f"{where} kind must be hermes_memory_binding")
+        if binding.get("derived_from") != "memory_boundary":
+            errors.append(f"{where} derived_from must be memory_boundary")
+        if not binding.get("vocabulary_bundle_tag"):
+            errors.append(f"{where} missing vocabulary_bundle_tag")
+        for scope in binding.get("scopes", []):
+            promotion = scope.get("promotion")
+            if promotion is None:
+                continue
+            if promotion.get("gateway") != "customer_memory_gateway":
+                errors.append(f"{where} scope {scope.get('scope')} promotion gateway must be customer_memory_gateway")
+            level = promotion.get("accepted_authority_level")
+            if level is not None and level not in authority_levels:
+                errors.append(f"{where} scope {scope.get('scope')} accepted_authority_level outside authority_levels: {level}")
+        _binding_surface_violations(binding, "binding", errors, where)
+
+
 def validate_fixtures(errors: list[str]) -> None:
     data = load_yaml(EXAMPLE_DIR / "conformance-fixtures.yaml")
     fixtures = data.get("fixtures", [])
@@ -316,6 +361,7 @@ def main() -> int:
     validate_contracts(errors)
     validate_provider_profiles(errors)
     validate_examples(errors)
+    validate_memory_bindings(errors)
     validate_fixtures(errors)
     validate_runtime_smoke(errors)
     if errors:

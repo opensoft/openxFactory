@@ -183,6 +183,15 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-hermes-domain-content-manifest](openspec/changes/add-hermes-domain-content-manifest/proposal.md)
+  — raised 2026-07-24 (seeding increment 4b, contract half): the optional
+  `hermes_domain_content_manifest` declaring a domain repo's seedable
+  content set (convention-then-contract successor to increment 4a's
+  well-known-path list) and the `hermes_memory_binding` record schema
+  formalizing increment 3's derived gateway-rails input; canonical
+  validator extensions with the codexFactory set and the live-derived
+  opensoft bindings as realization anchors (code surface: openxFactory;
+  released as a versioned additive bundle for hermes-install to pin).
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain

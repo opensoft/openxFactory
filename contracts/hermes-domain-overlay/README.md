@@ -18,6 +18,13 @@ from a domain repo pin (capability `layer-content-seeding`, realized
   domain repo MAY ship at `hermes/overlay-descriptor.yaml`. Keys are runtime
   layer **roles** (`domain`/`client`/`customer`), deliberately not directory
   names — the customer role's overlay may live under `hermes/subject/`.
+- `content-manifest.schema.yaml` — the optional content-set declaration a
+  domain repo MAY ship at `hermes/domain/content-manifest.yaml`
+  (`kind: hermes_domain_content_manifest`, add-hermes-domain-content-manifest):
+  per ratified `content_kind`, exactly one of `path` or `directory`; absent
+  manifest, consumers fall back to the documented conventional set the
+  hermes-install seeder ships (increment 4a); an undeclared kind never loads
+  silently.
 - `examples/` — positive reference examples plus self-testing negatives
   (each declares its `# expected_failure:` reason).
 
@@ -33,6 +40,10 @@ checkout, never copied):
    domain/client/customer, and every declared path exists when a domain repo
    path is supplied. A missing descriptor falls back to the documented
    convention: `domain → hermes/domain/overlay.yaml`.
+4. **Content-manifest kinds and locations** — declared content kinds are
+   limited to the ratified vocabulary, each declares exactly one of
+   `path`/`directory`, and every declared location exists when a domain repo
+   path is supplied.
 
 ## Consumers
 

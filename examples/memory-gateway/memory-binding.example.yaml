@@ -1,0 +1,53 @@
+# The two LIVE-derived bindings (hermes-install increment 3, seeded on the
+# opensoft QA stack): the domain's cross-tenant learning binding and the
+# tenant's four-bucket binding. These are the realization anchors for
+# memory-binding.schema.yaml.
+memory_bindings:
+  - schema_version: 1
+    kind: hermes_memory_binding
+    layer_role: domain
+    derived_from: memory_boundary
+    vocabulary_bundle_tag: contract-v1.17
+    scopes:
+      - scope: domain_learning
+        subject_scope: cross_client
+        remembers:
+          - recurring_review_findings
+          - known_bad_patterns
+          - flaky_regression_history
+          - practice_effectiveness
+        promotion:
+          gateway: customer_memory_gateway
+          candidate_kind: promotion-candidate
+          consent_required: true
+          accepted_authority_level: reviewed
+        write_authority:
+          proposer: worker
+          accepter: owning_lead
+        deidentification_required: true
+    denied_scopes:
+      - scope: client_private
+    invariants: []
+  - schema_version: 1
+    kind: hermes_memory_binding
+    layer_role: client
+    derived_from: memory_boundary
+    vocabulary_bundle_tag: contract-v1.17
+    consent_profile: gateway_consent_profile
+    scopes:
+      - scope: client_private_memory
+        subject_scope: per_tenant
+        shared_with_domain: false
+        cross_client: never
+      - scope: customer_relationship_memory
+        subject_scope: per_customer
+        visibility: client_private
+      - scope: domain_learning_candidates
+        subject_scope: promotable
+        promotion_requires_domain_review: true
+      - scope: current_state_evidence
+        subject_scope: installation_discovery
+        retention: bounded
+    denied_scopes: []
+    invariants:
+      - tenant_isolated
