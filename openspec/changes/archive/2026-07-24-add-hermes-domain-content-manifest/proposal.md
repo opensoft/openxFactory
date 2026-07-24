@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (contracts/hermes-domain-overlay/ content-manifest schema + fixtures, contracts/memory-gateway/ memory-binding schema + fixtures, validator extensions); consumers pin at realization (hermes-install seeding increment 4b)
-target_release: next contract-vN (allocated and released at realization; contract-v1.17 current at proposal time — re-check before allocating, other sessions release too)
+target_release: contract-v1.18 (allocated and released at realization, 2026-07-24; annotated tag verified)
+Status: ratified
+Ratified by: user approval of `add-hermes-domain-content-manifest` on 2026-07-24
 ---
 
 # Proposal: add-hermes-domain-content-manifest
