@@ -26,7 +26,7 @@
       manifest + pending_review entry) with gate-action records; index
       file untouched; every refusal case; agent path rejected; gate-off
       posture.
-- [ ] 3.2 Full dashboard suite green; Playwright smoke: build a set in the
+- [x] 3.2 Full dashboard suite green; Playwright smoke: build a set in the
       lens, execute save-recipe, see the landing confirmation; add-as-cluster
       lands the pending entry; zero page errors.
 - [ ] 3.3 Brett's dogfood pass: build a real set, land it, and find the
