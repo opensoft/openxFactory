@@ -48,6 +48,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); exit gated on a second domain instantiating (Adx agency agreement or Medx custody-bearing patient consent) |
+| [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, per-repo snapshots + thin index) + index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | Ready to iterate — four decisions locked with Brett 2026-07-25 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels); neutral-vs-override fork deliberately open pending domain-drive vocabulary evidence; exit 1 must sequence against active `add-ideation-dashboard` + team004's wheel branch (PR #41) |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
@@ -113,6 +114,30 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   (credential-contracts validator vs new validate-consent-instruments).
 - Exit: `add-consent-instrument` after a second domain instantiates;
   the Ledgerx record declares conformance rather than being rewritten.
+
+## dashboard-repo-selector
+
+- Staging ID: `openxFactory:staging:dashboard-repo-selector`
+- Repository context: openxFactory (the `ideation-dashboard` capability delta
+  + index contract); codexFactory (lane iteration, multi-snapshot/multi-root
+  serving, selector UI); xFactory aggregation (project-register instance =
+  the selector roster); install repos later (the runtime-plane capability)
+- Files: `dashboard-repo-selector.md` (primary)
+- Target capabilities: `ideation-dashboard` (MODIFIED — selector, per-repo
+  snapshots + thin index); later ADDED runtime capability (neutral
+  install-shipped ideation surface; name open; DTN candidate at its gate)
+- Source: `ideation/brainstorm/ideation-dashboard.md` — the v2 concept
+  sketch plus §"Domain drive + the runtime plane (2026-07-25)" (four
+  decisions Brett-locked 2026-07-25; same-day drive findings against
+  Medx/Adx/Ledgerx)
+- Readiness: ready to iterate — decisions locked (runtime plane is the
+  goal, planes are separate systems, per-repo snapshots + index, sparse
+  wheels honest); the one-neutral-vs-domain-overrides fork is deliberately
+  open until domain driving yields vocabulary evidence; exit 1 (the
+  dev-plane change pair) must state its sequencing against the still-active
+  `add-ideation-dashboard` change and team004's wheel surface (PR #41)
+  before proposing; exit 2 (runtime plane) gates on the content-kind design
+  decision
 
 ## client-credential-escrow-registry
 

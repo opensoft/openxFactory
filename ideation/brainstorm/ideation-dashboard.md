@@ -1046,3 +1046,8 @@ runtime plane routes separately when scoped: an openxFactory
 neutralization change defining the governed-content adapter seam and what
 an "idea" is as install content, registered as a domain-neutralization
 candidate.
+
+Organized 2026-07-25 into the
+[dashboard-repo-selector](../staging/dashboard-repo-selector/dashboard-repo-selector.md)
+staging topic (decisions, open fork, drive findings, and both exits carried
+there; this section stays as the brainstorm-side record).
