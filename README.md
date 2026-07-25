@@ -320,6 +320,24 @@ Active changes:
   fulfilment lanes are out of scope (a terminal session fulfils dispatched
   commissions in the interim, as with propose). (code surface: codexFactory,
   openxFactory; release allocated at realization)
+- [add-staging-workbench](openspec/changes/add-staging-workbench/proposal.md)
+  — Brett's Track B ruling 2026-07-25 (the staging area is where the real
+  proposal gets developed): the workbench as that area's READ-ONLY
+  foundation. Derived-model growth first — a deterministic per-document
+  completeness signal computed at snapshot generation time (structure,
+  length, open markers, keyword coverage, link degree; fixed weights as v1
+  contract constants, no LLM judgment so it stays testable and
+  byte-identical) emitted as an additive `documents[].completeness` object,
+  informational only and never gating anything. Then the scoped view: a
+  full-screen workbench over ONE topic-bearing tile (cluster, possible, or
+  staged topic) with `docs` (the tile's doc set with completeness bars),
+  `lens` (interconnectedness re-scoped from the existing
+  keyword_index/degree derivation, no new analysis) and `outline` (the
+  topic's outline read through the viewer's `/source` pass-through) panels,
+  plus an ungated read-only `open workbench` row on the wheel's
+  expanded-tile action point. The AI chat layer — and outline editing, and
+  every workbench write path — is Track C, a later change. (code surface:
+  codexFactory, openxFactory; release allocated at realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
