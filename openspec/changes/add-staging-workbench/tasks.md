@@ -97,60 +97,60 @@
 
 ## 4. Staging workbench view (codexFactory — Speckit-side realization)
 
-- [ ] 4.1 Pure model module: `workbenchScope(snapshot, kind, id)` deriving
+- [x] 4.1 Pure model module: `workbenchScope(snapshot, kind, id)` deriving
       the tile's document set per kind (cluster edges; possible cited
       evidence + separately labelled inherited claiming-cluster members;
       staged-topic folder documents + documents declaring that destination),
       with stable ordering. Unit-tested from the node harness like
       `wheel-model.js`.
-- [ ] 4.2 The full-screen scoped view shell with the `docs` / `lens` /
+- [x] 4.2 The full-screen scoped view shell with the `docs` / `lens` /
       `outline` tab set, opened at one scope and closed back to the wheel.
-- [ ] 4.3 `docs` panel: one row per document with its completeness bar and
+- [x] 4.3 `docs` panel: one row per document with its completeness bar and
       the named signals with raw counts, rendered VERBATIM from the
       snapshot; missing completeness renders as no bar, never as zero
       (design D7).
-- [ ] 4.4 `lens` panel: re-scope the EXISTING keyword-lens seed and
+- [x] 4.4 `lens` panel: re-scope the EXISTING keyword-lens seed and
       edge/degree derivation to the tile's keywords/documents — reuse
       `lens-model.js` / the wheel's degree derivation, add no new
       computation and no new snapshot read.
-- [ ] 4.5 `outline` panel: render the scope's outline material read-only
+- [x] 4.5 `outline` panel: render the scope's outline material read-only
       through the `/source` pass-through (the viewer's route, as the
       `landed` verb does); explicit empty state when there is no outline;
       inline degraded message when the route is absent.
-- [ ] 4.6 Read-only enforcement: no panel has a write path — assert against
+- [x] 4.6 Read-only enforcement: no panel has a write path — assert against
       the boundary checker (`boundary.py`) that the view declares no output
       path, and keep the view free of any POST.
 
 ## 5. Wheel tile action + staged health display (codexFactory — Speckit-side realization)
 
-- [ ] 5.1 `views/wheel-model.js` `WHEEL_ACTIONS`: an `open workbench` row on
+- [x] 5.1 `views/wheel-model.js` `WHEEL_ACTIONS`: an `open workbench` row on
       `clusters`, `possibles`, and `staged` with NO `visible` predicate (a
       read-only verb, design D6); `documents` / `active` / `archived` gain
       nothing.
-- [ ] 5.2 `views/wheel.js` `ACTION_MOUNTERS`: one mounter reusing the
+- [x] 5.2 `views/wheel.js` `ACTION_MOUNTERS`: one mounter reusing the
       existing read-only nav-button chrome, wired through the app shell's
       nav callbacks (`app.js`), disabled where no nav callback is supplied.
-- [ ] 5.3 Staged tile health chrome (design D10): the FOCUSED tile face
+- [x] 5.3 Staged tile health chrome (design D10): the FOCUSED tile face
       carries a compact tri-state indicator from the snapshot's
       `health.status`; the EXPANDED tile renders the full health block —
       status, standing open items per document, score min/mean, blockers —
       VERBATIM from the snapshot; resting drum faces stay unadorned; a
       pre-growth snapshot renders no indicator and no block, and the
       renderer never computes health itself.
-- [ ] 5.4 Pure-model tests: `actionsFor` across all six wheels (the
+- [x] 5.4 Pure-model tests: `actionsFor` across all six wheels (the
       workbench row appears on exactly the three topic-bearing wheels, gate
       capability on and off); health chrome model for ready / developing /
       stub / absent-health fixtures.
 
 ## 6. Verification
 
-- [ ] 6.1 Generator + view tests green, including the nightly lane's runtime
+- [x] 6.1 Generator + view tests green, including the nightly lane's runtime
       after scoring is added (no regression in lane duration).
-- [ ] 6.2 Schema conformance: a snapshot with completeness and health
+- [x] 6.2 Schema conformance: a snapshot with completeness and health
       validates; a pre-growth snapshot still validates; a malformed
       completeness or health object (out-of-range value, missing signal,
       unknown status) is rejected.
-- [ ] 6.3 Live browser check on the local dashboard: the workbench opens
+- [x] 6.3 Live browser check on the local dashboard: the workbench opens
       from a cluster, a possible, and a staged tile with correct scope; docs
       bars match the snapshot; the lens panel is scoped; the outline renders
       for a staged topic and empty-states elsewhere; the staged tile shows
