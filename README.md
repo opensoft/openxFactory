@@ -183,6 +183,13 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
+  — authored 2026-07-25: two human-only gate-console verbs executing the
+  keyword lens's plans through the tested engines (`lens-save-recipe` →
+  workbench manifest; `lens-add-as-cluster` → manifest + pending_review
+  human-seen submission), recorded dispatches with the engines' refusals
+  surfaced at the route; the generated cross-reference index stays
+  untouched; plan-only posture preserved where the gate capability is off.
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
