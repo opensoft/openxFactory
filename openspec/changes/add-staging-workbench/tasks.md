@@ -157,7 +157,7 @@
       the compact indicator at focus and the full health block at expand;
       a propose on a blocked topic surfaces the refusal with its named
       blockers; zero page errors.
-- [ ] 6.4 Degraded-posture check on the served static image: the workbench
+- [x] 6.4 Degraded-posture check on the served static image: the workbench
       action is offered with the gate capability off, `docs` and `lens`
       render, `outline` reports the missing `/source` route inline, and a
       pre-growth snapshot shows no health chrome.
