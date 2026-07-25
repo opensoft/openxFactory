@@ -2,18 +2,18 @@
 
 ## 1. Contract / schema growth (openxFactory)
 
-- [ ] 1.1 Extend `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`:
+- [x] 1.1 Extend `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`:
       the `document` `$def` grows an OPTIONAL `completeness` object —
       `score` (number, 0..1) plus the five named signals `structure`,
       `length`, `open_markers`, `keyword_coverage`, `link_degree`, each a
       normalized 0..1 value carrying the raw count that produced it.
-- [ ] 1.2 Extend the same schema: the `staged_topic` `$def` grows an
+- [x] 1.2 Extend the same schema: the `staged_topic` `$def` grows an
       OPTIONAL `health` object — `standing_open_items` (integer),
       `doc_score_min` / `doc_score_mean` (0..1, fixed precision),
       `blockers` (array of typed reasons, each naming its document and
       carrying its count or score), `status`
       (`ready` | `developing` | `stub`).
-- [ ] 1.3 Pin the contract's invariants in the schema's own commentary: the
+- [x] 1.3 Pin the contract's invariants in the schema's own commentary: the
       definition of each signal, `open_markers` as an INVERSE signal, the
       fixed weights, fixed decimal precision, and `READY_MIN_SCORE` as v1
       contract constants (tunable configurations are a successor, design
@@ -23,14 +23,14 @@
       bound: the per-document score's ONE gate consumer is the
       staged-to-proposal readiness gate, through the health aggregate —
       never the readiness recommendation gate, never doc-health.
-- [ ] 1.4 Keep the additive posture explicit: no `contract_schema_version`
+- [x] 1.4 Keep the additive posture explicit: no `contract_schema_version`
       bump, no `additionalProperties: false`, header note naming this change
       as the growth source, and both new objects OPTIONAL so a pre-growth
       snapshot stays valid (design D7).
-- [ ] 1.5 Confirm no aggregate is added to `cluster` or `possible` (design
+- [x] 1.5 Confirm no aggregate is added to `cluster` or `possible` (design
       D3 — `staged_topic.health` is the one sanctioned aggregate), and that
       `ideation-workbench.schema.yaml` is untouched (design D5).
-- [ ] 1.6 Validate: the delegated dashboard-contract validator
+- [x] 1.6 Validate: the delegated dashboard-contract validator
       (`scripts/validate-ideation-dashboard-contracts.py`) plus
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`; every
       packaged snapshot example still validates unchanged.
@@ -40,7 +40,7 @@
 
 ## 2. Generator scoring + health (codexFactory — Speckit-side realization)
 
-- [ ] 2.1 New deterministic scoring module beside `generator.py`: the five
+- [x] 2.1 New deterministic scoring module beside `generator.py`: the five
       signal functions, the fixed weight constants, `READY_MIN_SCORE`, the
       fixed-precision rounding, the normalized+raw output shape, AND the
       health aggregation (`topic_health(member_docs)` → standing items,
@@ -48,37 +48,37 @@
       document text plus the snapshot-derived edge data — no I/O, no clock,
       no model call. This ONE module is imported by the generator and by
       the propose route's guard (design D9) — no second implementation.
-- [ ] 2.2 `structure`: expected structural elements per `Kind:` with the
+- [x] 2.2 `structure`: expected structural elements per `Kind:` with the
       common fallback (H1 title, governance header block, at least one
       section); the expected sets are declared in ONE table, not scattered
       through the checks.
-- [ ] 2.3 `length` and `open_markers`: body word count against the fixed
+- [x] 2.3 `length` and `open_markers`: body word count against the fixed
       saturation threshold; marker scan (`TODO`, `TBD`, `FIXME`, `??`, open-
       question headings) against the fixed saturation count, subtracted from
       1. Single pass over the already-loaded text (design: generator cost).
-- [ ] 2.4 `keyword_coverage` and `link_degree`: declared `Topics:` subjects
+- [x] 2.4 `keyword_coverage` and `link_degree`: declared `Topics:` subjects
       resolving against the snapshot's keyword vocabulary; edge degree from
       cluster document edges plus `destinations` (staged topics, changes,
       capabilities), normalized against the fixed saturation degree. Both
       read the generator's own derived maps — no second scan.
-- [ ] 2.5 `generator.py` `_document_entry` emits `completeness`; excluded
+- [x] 2.5 `generator.py` `_document_entry` emits `completeness`; excluded
       documents (`_document_exclusion_reason`) carry none, and no dangling
       score survives an exclusion. Each `staged_topics[]` entry emits
       `health` from its FOLDER corpus documents only (design D8) —
       destination-declaring documents contribute nothing to health.
-- [ ] 2.6 Determinism tests: byte-identity across two runs on one fixture
+- [x] 2.6 Determinism tests: byte-identity across two runs on one fixture
       tree (documents AND staged-topic health); a fixture doc gaining
       sections and edges scores strictly higher; a fixture topic whose last
       open marker closes and whose docs cross the threshold flips to
       `ready`; an empty topic folder reports `stub`; cross-platform
       stability of the rounded values.
-- [ ] 2.7 Gating-bound test: no doc-health family or readiness path reads
+- [x] 2.7 Gating-bound test: no doc-health family or readiness path reads
       completeness or health; outside the generator and its tests, the
       scoring module's only importer is the propose route's guard.
 
 ## 3. Staged-to-proposal readiness gate (codexFactory — Speckit-side realization)
 
-- [ ] 3.1 The propose route in `serve.py` gains the readiness guard: import
+- [x] 3.1 The propose route in `serve.py` gains the readiness guard: import
       the scoring module, recompute the topic's health LIVE from the pinned
       checkout at request time (never the served snapshot, design D9), and
       refuse with the blockers verbatim — each document with standing open
@@ -86,12 +86,12 @@
       score and the constant — persisting nothing, exactly like the
       existing missing-topic and duplicate refusals. The existing refusals
       and the human-only rule stand unchanged.
-- [ ] 3.2 Guard tests: standing open marker → refusal naming the document
+- [x] 3.2 Guard tests: standing open marker → refusal naming the document
       and count; closed questions but an under-threshold document → refusal
       citing score vs constant; ready topic → the commission proceeds
       (descriptor + gate-action record, as add-propose-verb realized);
       refusal persists nothing; agent path still rejected.
-- [ ] 3.3 Staleness test: a fixture where the snapshot says `ready` but the
+- [x] 3.3 Staleness test: a fixture where the snapshot says `ready` but the
       checkout has since gained a standing marker → the route refuses,
       citing the marker the snapshot has not seen.
 

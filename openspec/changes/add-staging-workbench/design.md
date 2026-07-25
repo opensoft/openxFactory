@@ -210,6 +210,21 @@ honest conditions — nothing there yet, being worked, worked to done — and
 deriving status from blockers (rather than scoring status directly) means
 the gate and the icon can never disagree about WHY.
 
+**Realization note — open-question closure convention** (2026-07-25,
+needed because a resolved fragment keeps its "## Open questions" section,
+so `ready` would otherwise be unreachable). Two deterministic rules, both
+taken from the live corpus: a resolution word in the section HEADING
+(case-insensitive — "Open questions — resolved 2026-07-14") closes the
+whole section; otherwise a per-item UPPERCASE
+`RESOLVED|ANSWERED|CLOSED|DECIDED|SETTLED` closes that item. Lowercase
+prose never closes anything (real open questions legitimately say
+"resolved" about other things). Calibration on the live corpus:
+github-administration-plane (Brett's "all six open questions are
+resolved — ready to propose") scores ready at 0.925;
+proposal-origin-contract and deployment-handoff-boundary are ready; the
+eleven fragments with standing questions are developing; median document
+score sits at 0.60 — the ruled `READY_MIN_SCORE`.
+
 ### D9 — The gate evaluates live, through the same scoring module
 **Decision**: the propose route recomputes the topic's health from the
 pinned checkout at request time, importing the SAME Python scoring module
