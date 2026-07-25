@@ -156,6 +156,18 @@ possible at all.
 opens the create dialog, AND the forming-set pane carries an explicit
 labelled button that opens the same dialog. Both, not either.
 
+**Ruled and EXTENDED, 2026-07-25 (Brett, open question 2)**: the centre-ring
+gesture stays, and it generalizes — clicking or keyboard-activating ANY ring
+SECTOR opens the same create dialog, seeded with THAT sector's matched
+keyword combination. Each ring is sectored by which checked keywords a
+document matched, so a sector already names a specific combination; the
+centre region (matches-ALL) is simply the sector whose combination is the
+whole checked set. Every sector is keyboard-reachable on the same terms as
+the centre region, and every sector opens the ONE dialog with the ONE seeding
+rule — the only thing a sector changes is which subset of the checked
+keywords arrives as `Topics:`. The explicit labelled button remains (it seeds
+the full checked set), so the discoverable path is unchanged.
+
 **Rationale**: the centre ring is Brett's gesture from the brainstorm and it
 is the right one — the innermost zone IS "the thing I am currently thinking
 about", so acting on it there is the shortest honest path from thought to
@@ -165,10 +177,13 @@ discoverable, focusable, screen-reader-legible path; the ring is the fast
 one. They open ONE dialog with ONE seeding rule, so they can never diverge.
 (Open question 2 records this as Brett's to confirm.)
 
-**Consequence**: the widget module's centre-ring hit region takes an
-`onActivate` callback from the caller and is keyboard-reachable when one is
-supplied; when none is supplied (the main lens tab, this change) the region
-is inert and the SVG is unchanged.
+**Consequence**: the widget module's hit regions — the centre region AND
+every ring sector, per the ruling — take an `onActivate` callback from the
+caller and are keyboard-reachable when one is supplied; when none is supplied
+(the main lens tab, this change) every region is inert and the SVG is
+byte-identically rendered. The callback receives the activated region's
+matched-keyword subset, so the caller never has to re-derive it from
+geometry.
 
 ### D7 — Seeding is per-tab and deterministic, and the human still confirms
 **Decision**: each tab seeds the create dialog from the material that tab is
@@ -183,6 +198,23 @@ showing, and the dialog is EDITABLE before the create fires.
 `Repository context:` defaults from the served snapshot's `repository` on
 every tab. `Kind:` defaults to the engine's own default. `Summary:` and
 `Title:` have no honest machine seed and are the human's to type.
+
+**Ruled 2026-07-25 (Brett, open question 1)**: `Status:` is seeded
+`brainstorm` on every tab, in every area — "these are brainstorm docs". The
+area column above is UNCHANGED and is where the packet tie lives: a create
+from a staged tile lands the file inside `ideation/staging/<topic>/`, which
+is what ties it to the packet and what makes it count toward that folder's
+folder-scoped health and readiness; a create from a cluster or a possible
+lands in `ideation/brainstorm/` and is tied to its neighbours only through
+`Topics:`. PLACEMENT carries the relationship; `Status:` carries the
+lifecycle stage, and the stage of a just-captured thought is `brainstorm`
+wherever it sits. The field stays editable in the dialog, so a human who
+knows they are writing an organized fragment can say `staged` on the spot.
+
+**Ruled 2026-07-25 (Brett, open question 3)**: the per-row "seed from this
+document" affordance on `docs` rows is DEFERRED to a follow-on change, as
+recommended — it needs row-selection state the `docs` panel does not have.
+Unchanged as a non-goal here.
 
 **Rationale**: the seeding exists to stop the human retyping what the
 workbench already knows; it does not exist to guess. `Topics:` and the area
@@ -284,11 +316,25 @@ per-action conditional is safe because no record has ever carried
 target does not name the created document is not an audit record of
 anything. The conditional mirrors the `propose` conditional's shape.
 
-**Consequence**: the record's single artifact is the created document,
-carried as an `other`-kind artifact with the relpath as its `reference` —
-`artifacts` has `minItems: 1`, and the existing `kind` enum has no
-document-shaped value. Whether that enum should grow a named kind is open
-question 4.
+**Consequence (superseded by ruling)**: as authored, the record's single
+artifact was to be the created document carried as an `other`-kind artifact
+with the relpath as its `reference` — `artifacts` has `minItems: 1`, and the
+existing `kind` enum had no document-shaped value. Whether that enum should
+grow a named kind was open question 4.
+
+**Ruled 2026-07-25 (Brett, open question 4)**: the artifact `kind` enum GROWS
+a first-class `document` value NOW, and the create record's artifact rides as
+`kind: document`. The `other`-in-v1 recommendation above is superseded by the
+ruling — it is kept for the reasoning history, not as the decision. So D12's
+schema growth is FOUR additive edits, not three: the `action` enum value
+`create-document`, the broadened `target.document` commentary, the per-action
+`allOf` conditional (which now also requires a `document`-kind artifact, the
+enforcement the named kind makes possible and which `other` could never
+carry), and the artifact `kind` enum value `document` with commentary naming
+this change as the growth source. Still no `contract_schema_version` bump and
+still no invalidated record: the enum only WIDENS what a `kind` may say, and
+the one narrowing conditional is scoped to an action no record has ever
+carried.
 
 ### D13 — This realizes ONE slice of the brainstorm, and says so
 **Decision**: the change realizes the scaffolded-document slice of
@@ -343,15 +389,54 @@ staging topic, as their own Exit sections propose.
   (it IS the checkboxes), and it resets on every scope change — the two
   cases where forgetting would matter.
 - **Status headers on documents created into staging folders.** Open
-  question 1: a `brainstorm`-status document sitting in
+  question 1 asked whether a `brainstorm`-status document sitting in
   `ideation/staging/<topic>/` is a lifecycle inconsistency the doc-health
-  and completeness machinery will notice. Mitigation: the recommended
-  area-derived default (below) makes the common case right; whatever Brett
-  rules is a one-line default in the seeding rule.
+  and completeness machinery will notice. Brett RULED `brainstorm` always
+  (below), so this is now a deliberate state rather than an accident: a
+  freshly captured thought inside a staging packet is a `brainstorm` doc in
+  that packet, and the packet's health machinery sees it as unpromoted
+  material — which is what it is. Residual risk: if doc-health treats
+  `brainstorm`-in-staging as a FINDING rather than as normal unpromoted
+  material, creates into staging folders will generate health noise.
+  Mitigation: the `Status:` field is editable at create time, promotion to
+  `staged` is the ordinary one-line lifecycle edit the pipeline already
+  expects, and any doc-health rule that disagrees is a doc-health question
+  to raise there, not a reason to born-mislabel a document.
 
-## Open Questions
+## Open Questions — RULED 2026-07-25 (Brett, binding)
+
+All four are closed. Brett's rulings are recorded VERBATIM below, each above
+the question and recommendation it answers; the recommendations are kept as
+reasoning history, and where a ruling went the other way the recommendation
+is marked superseded rather than deleted.
+
+> **Q1**: created documents are ALWAYS `Status: brainstorm` ("these are
+> brainstorm docs"). The tie to a staging packet comes from PLACEMENT, which
+> the generator already derives from path: created from a staged tile → the
+> file lands in ideation/staging/<topic>/ (tied to the packet, counts toward
+> its folder-scoped health/readiness); created from a cluster/possible →
+> ideation/brainstorm/, tied only via Topics. NO area-derived `staged` status
+> — that part of the realization is REVERSED.
+>
+> **Q2**: center-ring create stays, AND is EXTENDED — clicking ANY ring
+> sector opens the create dialog seeded with that sector's matched keyword
+> combination (each ring is sectored by which checked keywords matched; the
+> center region = all checked). Keyboard-reachable like the center region.
+>
+> **Q3**: per-row "seed from this document" DEFERRED to a follow-on change
+> (as recommended).
+>
+> **Q4**: the gate-action-record artifact `kind` vocabulary GROWS a
+> first-class `document` value now (Brett rejected the `other`
+> recommendation); the create record's artifact uses `kind: document`.
+
+Where each ruling lands in this design: Q1 → D7 (and it REVERSES the
+`status_for_area()` behaviour the first realization pass shipped; see
+tasks.md "Realization notes"); Q2 → D6 and D1's widget seam; Q3 → unchanged
+non-goal; Q4 → D12 and the schema growth.
 
 1. **The `Status:` header for a document created into a staging folder.**
+   **RULED: `brainstorm` always — the recommendation below is SUPERSEDED.**
    The authoring engine defaults to `brainstorm`, which is correct for
    `ideation/brainstorm/` and wrong for `ideation/staging/<topic>/` — a
    staging fragment is `staged`, and a `brainstorm`-status file in a staging
@@ -361,13 +446,16 @@ staging topic, as their own Exit sections propose.
    field editable in the dialog either way. The alternative (always ask) puts
    a lifecycle question in front of a human who is trying to capture a
    thought. Brett decides.
-2. **The centre-ring create gesture.** Should clicking the bullseye's
+2. **The centre-ring create gesture.**
+   **RULED: gesture plus button as recommended — and EXTENDED to every ring
+   sector (D6).** Should clicking the bullseye's
    matches-ALL zone open the create dialog, or should the explicit button be
    the only path? **Recommendation: yes to the gesture, plus the button** —
    the gesture is Brett's own from the brainstorm and it is the fastest path
    from a formed thought to a document; the button is what makes it
    discoverable and keyboard-reachable (D6). Brett decides.
 3. **A per-document "seed from this document" affordance on `docs` rows.**
+   **RULED: deferred to a follow-on change, as recommended.**
    Seeding a new document from ONE row (its topics, its repository context,
    citing it as `Source:`) is an obvious want when the human is reading a
    near-miss document. **Recommendation: defer to a follow-on** — it needs
@@ -376,6 +464,12 @@ staging topic, as their own Exit sections propose.
    it), and adding selection state is a bigger change to the panel than
    this one should carry. Brett decides.
 4. **Whether the artifact `kind` enum should grow a document-shaped value.**
+   **RULED: GROW IT NOW, as `document` — the `other`-in-v1 recommendation
+   below is SUPERSEDED.** (The ruled spelling is `document`, not the
+   `ideation-document` this question floated: the record already says
+   `create-document` in `action` and names the path in `target.document`, so
+   the shorter value reads consistently with both and stays usable by any
+   future action that produces a document.)
    The create record's one artifact is the created document, which today can
    only be `kind: other` (D12). A named value — `ideation-document` — would
    let an audit consumer filter creates from the enum rather than from the

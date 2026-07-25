@@ -68,10 +68,14 @@ reference set and the scratch notebook where they are.
   engine change: the controlled header block, the create-only semantics, and
   the existing-target `SOURCE_EDIT` refusal are the engine's, surfaced
   verbatim at the route. Payload:
-  `{area, title, summary, topics[], repository_context?, kind?,
+  `{area, title, summary, topics[], repository_context?, kind?, status?,
   possible_feats[]?, source?}`, with `repository_context` defaulting from the
-  served snapshot's `repository`. Agent actors are refused and reported,
-  like every gate action.
+  served snapshot's `repository` and `status` defaulting to `brainstorm` in
+  EVERY area (Brett's 2026-07-25 ruling on design open question 1 — a
+  created document's tie to a staging packet is its PLACEMENT in the packet's
+  folder, not its status header; a supplied status is honoured only from the
+  create-legal set, so nothing is born approved). Agent actors are refused
+  and reported, like every gate action.
 - RECORD every create as a gate-action record — the same recorded-dispatch
   discipline as propose, dispose, and the two lens verbs — carrying the
   created document's repo-relative path.
@@ -81,11 +85,15 @@ reference set and the scratch notebook where they are.
     `area` = the staging topic folder for a staged scope and
     `ideation/brainstorm/` for a cluster or possible scope, `Source:` citing
     the workbench scope (kind + id).
-  - `lens` — a button on the forming-set pane AND a click on the bullseye's
-    CENTRE ring (the matches-ALL zone) opening the same dialog. `Topics:`
-    seeded from the LIVE checked keyword set, `Source:` citing the recipe
+  - `lens` — a button on the forming-set pane AND an activation of ANY
+    bullseye region — the matches-ALL centre zone or any ring SECTOR —
+    opening the same dialog. `Topics:` seeded from the LIVE checked keyword
+    set for the button and the centre zone, and from that sector's own
+    matched subset of the checked set for a sector (Brett's 2026-07-25
+    ruling on design open question 2, which extended the gesture from the
+    centre ring to every sector); `Source:` citing the recipe
     (checked + pinned) at the snapshot's `source_revision`. This is the
-    brainstorm's centre-ring gesture, realized.
+    brainstorm's centre-ring gesture, realized and widened.
   - `outline` — staged scopes only: "new fragment in this topic",
     `area` = the staging topic folder. Hidden for cluster and possible
     scopes, which have no topic folder to write into.
@@ -102,10 +110,13 @@ reference set and the scratch notebook where they are.
   surface's honest self-description and it can no longer be a constant.
 - EXTEND (additive, no `contract_schema_version` bump)
   `contracts/schemas/gate-action-record.schema.yaml`: the `action` enum gains
-  `create-document`, and the EXISTING optional `target.document` field is
-  re-commented to cover the created document path (it is currently described
-  as a document within a change). Every prior record stays valid. This is
-  the same additive growth `add-lens-gate-verbs` made for its two verbs.
+  `create-document`, the artifact `kind` enum gains `document` (Brett's
+  2026-07-25 ruling on design open question 4 — the created document is a
+  first-class artifact kind, not an `other`), and the EXISTING optional
+  `target.document` field is re-commented to cover the created document path
+  (it is currently described as a document within a change). Every prior
+  record stays valid. This is the same additive growth `add-lens-gate-verbs`
+  made for its two verbs.
 
 ## Impact
 
@@ -128,9 +139,11 @@ reference set and the scratch notebook where they are.
   knowingly, and archive `add-staging-workbench` BEFORE this change, because
   the MODIFIED requirement restates a requirement that change ADDS.
 - Affected schemas: `contracts/schemas/gate-action-record.schema.yaml`
-  (additive `action` enum value + broadened `target.document` commentary +
-  one per-action conditional requiring `target.document` for the new action;
-  no `schema_version` bump, no existing record invalidated). No new schema:
+  (additive `action` enum value + additive artifact `kind` enum value
+  `document` + broadened `target.document` commentary + one per-action
+  conditional requiring `target.document` and a `document`-kind artifact for
+  the new action; no `schema_version` bump, no existing record invalidated).
+  No new schema:
   the created document is an ordinary ideation corpus document under the
   header contract of `ideation/README.md`, and no `ideation-workbench`
   manifest is written (that is the OTHER workbench — design D5 of

@@ -13,14 +13,21 @@
       repository-relative path a `create-document` action brought into
       existence. No type change, no new property.
 - [x] 1.3 Same schema: one `allOf` conditional requiring
-      `target: {required: [document]}` when `action == create-document`,
-      mirroring the `propose` conditional's shape. Safe because no record
+      `target: {required: [document]}` — and, per 1.4's ruling, a
+      `document`-kind artifact — when `action == create-document`, mirroring
+      the `propose` conditional's shape. Safe because no record
       has ever carried this action; worth having because a create record
       that does not name the created document audits nothing.
-- [x] 1.4 Confirm the artifact `kind` enum is NOT grown in v1 (design D12,
-      open question 4): the created document rides as an `other`-kind
-      artifact with the relpath as `reference`, satisfying
-      `artifacts.minItems: 1`.
+- [x] 1.4 Same schema: GROW the artifact `kind` enum with `document`, per
+      Brett's 2026-07-25 ruling on open question 4 (which REJECTED the
+      `other`-in-v1 recommendation this task originally carried — design
+      D12's consequence is marked superseded, not deleted). Additive
+      commentary names this change as the growth source; the created document
+      rides as a `document`-kind artifact with the relpath as `reference`,
+      satisfying `artifacts.minItems: 1`, and the `create-document`
+      conditional from 1.3 requires that kind. No `schema_version` bump;
+      every prior record stays valid, since the enum only widens what a
+      `kind` may say.
 - [x] 1.5 Validate: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
       plus the delegated dashboard-contract validator; every packaged
       gate-action-record example (if any exist at realization) still
@@ -36,10 +43,12 @@
       consumed by BOTH the keyword-lens view and the workbench lens panel
       (design D1). Pure function of the model plus `GEOM`; `lens-model.js`
       geometry untouched.
-- [x] 2.2 The widget takes an optional `onActivate` for the CENTRE-ring hit
-      region (design D6): keyboard-reachable and focusable when supplied,
+- [x] 2.2 The widget takes an optional `onActivate` for its hit regions
+      (design D6): keyboard-reachable and focusable when supplied,
       wholly inert and byte-identically rendered when not — the main lens
-      tab supplies none in this change.
+      tab supplies none in this change. Per open question 2's ruling the
+      activatable regions are the centre zone AND every ring SECTOR, and the
+      callback receives the activated region's matched-keyword subset (§8.2).
 - [x] 2.3 `views/lens.js` consumes the widget with NO signature change to
       its own callers; the existing lens tests stay green unmodified.
 
@@ -69,11 +78,13 @@
       `{area, title, summary, topics[], repository_context?, kind?,
       possible_feats[]?, source?}`, `repository_context` defaulting from the
       served snapshot's `repository`; the `Status:` default per open
-      question 1's ruling (recommended: area-derived — `staged` under
-      `ideation/staging/`, `brainstorm` otherwise).
+      question 1's RULING — `brainstorm` ALWAYS, in every area, with the
+      area-derived variant this task originally recommended REVERSED (§8.1).
+      A human-supplied `status` is honoured only from `CREATABLE_STATUSES`.
 - [x] 4.3 Gate-action record: action `create-document`, `target.document` =
-      the created repo-relative path, one `other`-kind artifact referencing
-      it. `gate_console.write_gate_action_record`'s `target_id` derivation
+      the created repo-relative path, one `document`-kind artifact
+      referencing it (open question 4's ruling; `other` reversed — §8.3).
+      `gate_console.write_gate_action_record`'s `target_id` derivation
       must accept a document-only target — it currently reads
       `change_id or possible_id or target["topic_id"]` and would `KeyError`
       (design D10 consequence b).
@@ -105,9 +116,10 @@
 - [x] 5.4 The `docs` tab affordance: a pane actions-row button opening the
       dialog with every seeded value editable.
 - [x] 5.5 The `lens` tab affordances: a forming-set pane button AND the
-      bullseye centre-ring gesture (per open question 2's ruling; recommended
-      YES plus the button) opening the SAME dialog with the LIVE checked set
-      as topics.
+      bullseye gesture (open question 2's ruling: gesture plus button, and
+      EXTENDED to every ring sector — §8.2) opening the SAME dialog, with the
+      LIVE checked set as topics from the button and the centre zone, and the
+      sector's own matched subset from a sector.
 - [x] 5.6 The `outline` tab affordance: staged scopes only ("new fragment in
       this topic", area = the staging topic folder), HIDDEN — not disabled —
       for cluster and possible scopes.
@@ -150,17 +162,21 @@
 
 Recorded deviations from the design, all additive and reasoned:
 
-- D10's "no change to `authoring.py`" was relaxed: honouring Q1's
-  area-derived `Status:` and the `Source:` citation WITHOUT post-editing
-  the created file required `authoring.status_for_area()` plus `status`/
-  `source` passthrough on `create_scaffold` and one optional `Source:`
-  line in `render_scaffold` (emitted only when supplied — a sourceless
-  scaffold is byte-identical to before). `CREATABLE_STATUSES =
-  (brainstorm, staged, draft)` guards against a document born `ratified`.
-  `boundary.py` untouched.
+- D10's "no change to `authoring.py`" was relaxed: carrying an explicit
+  `Status:` and the `Source:` citation WITHOUT post-editing the created
+  file required `status`/`source` passthrough on `create_scaffold` and one
+  optional `Source:` line in `render_scaffold` (emitted only when supplied
+  — a sourceless scaffold is byte-identical to before). `CREATABLE_STATUSES
+  = (brainstorm, staged, draft)` guards against a document born `ratified`.
+  `boundary.py` untouched. The first pass ALSO added
+  `authoring.status_for_area()` to honour Q1's area-derived recommendation;
+  Brett's ruling reversed that, so the helper and its wiring were removed
+  and the default is `brainstorm` in every area (§8.1). The `status`/
+  `source` passthrough itself stands — it is what lets the editable field
+  and the `Source:` line work at all.
 - The route payload accepts an optional `status` (validated against
-  `CREATABLE_STATUSES`, defaulting area-derived) because the dialog keeps
-  the field editable per Q1's recommendation.
+  `CREATABLE_STATUSES`, defaulting `brainstorm`) because the dialog keeps
+  the field editable.
 - `topics` is required non-empty at the route (an empty `Topics:` header
   would violate the ideation header contract the engine's agent path
   already enforces).
@@ -178,10 +194,51 @@ Recorded deviations from the design, all additive and reasoned:
 
 ## 7. Dogfood
 
-- [ ] 7.1 Brett's rulings on open questions 1-4 recorded in this change
+- [x] 7.1 Brett's rulings on open questions 1-4 recorded in this change
       before the seeding defaults and the artifact-kind decision are frozen
-      at realization.
+      at realization. RULED 2026-07-25, binding; recorded verbatim in
+      design.md's "Open Questions — RULED" block. Summary:
+      **Q1 — `Status:` is ALWAYS `brainstorm`** ("these are brainstorm
+      docs"); the tie to a staging packet comes from PLACEMENT, which the
+      generator already derives from path (staged tile →
+      `ideation/staging/<topic>/`, counting toward that folder's
+      folder-scoped health/readiness; cluster/possible →
+      `ideation/brainstorm/`, tied only via `Topics:`). The area-derived
+      `staged` status is REVERSED.
+      **Q2 — the centre-ring create stays and is EXTENDED**: activating ANY
+      ring SECTOR opens the create dialog seeded with that sector's matched
+      keyword combination (rings are sectored by which checked keywords
+      matched; the centre region = all checked), keyboard-reachable like the
+      centre region.
+      **Q3 — the per-row "seed from this document" affordance is DEFERRED**
+      to a follow-on change, as recommended.
+      **Q4 — the artifact `kind` vocabulary GROWS a first-class `document`
+      value now** (the `other` recommendation rejected); the create record's
+      artifact uses `kind: document`.
 - [ ] 7.2 Brett's live pass: work a real staged topic in the workbench,
       read its scope in the bullseye, create the document the scope made him
       want, and find it where the dialog said — with a `Source:` line that
       actually re-derives the membership that motivated it.
+
+## 8. Ruling application (post-7.1, 2026-07-25)
+
+The three rulings that change realized code. Q3 needs no work (unchanged
+non-goal).
+
+- [ ] 8.1 Q1 — REVERSE the area-derived `Status:`: remove
+      `authoring.status_for_area()` and default the route, the CLI verb, and
+      the dialog seeding to `brainstorm` in every area. The
+      `CREATABLE_STATUSES` guard and the editable status field STAY; the
+      staged-tile AREA seeding stays exactly as it is (placement is what
+      carries the packet tie). Every test asserting `staged` for a
+      staging-area create is updated to `brainstorm`.
+- [ ] 8.2 Q2 — generalize the widget's activation seam from the centre
+      region to every ring SECTOR: activating a sector opens the same dialog
+      seeded with that sector's matched subset. The keyword-lens view still
+      supplies NO handler, so its rendering stays byte-identical and every
+      region stays inert there. Node-harness tests for the sector → keywords
+      mapping; renderer tests that sector regions are focusable in the
+      workbench and absent on the lens tab.
+- [ ] 8.3 Q4 — the create record's artifact rides as `kind: document`,
+      not `other`, and a produced record is verified against the GROWN
+      schema (task 1.4).

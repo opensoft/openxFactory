@@ -34,10 +34,13 @@ description: >-
   — so, unlike the register's cross-snapshot transition rules, it is
   enforced structurally here rather than deferred. The gate console is
   authority-bearing (D16), so an authority-bearing record naming the wrong
-  action-to-artifact pairing is caught at write time. This does NOT narrow
-  the additive posture below: new action kinds and new artifact kinds stay
-  unconstrained; only `ratify`/`kickoff` carry a required companion
-  artifact.
+  action-to-artifact pairing is caught at write time. Later additive deltas
+  extended the same per-action shape to `dispose-possible`
+  (`register-update`), `propose` (`workflow-job`), and `create-document`
+  (`document`) — each safe at the time it landed because no existing record
+  carried that action. This does NOT narrow the additive posture below: new
+  action kinds and new artifact kinds stay unconstrained, and no
+  PRE-EXISTING action ever gains a required companion artifact.
 
   VALIDATOR-SIDE (cross-instance, not shape-expressible): kickoff is
   downstream of the ratify gate (D17) — the console MUST refuse a `kickoff`
@@ -90,8 +93,9 @@ properties:
     # into existence through the tested authoring scaffold, create-only —
     # an existing target refuses as a source-edit and is never overwritten,
     # so this action carries NO edit or delete authority. It targets
-    # `document` (allOf below) and references the created document as its
-    # artifact (ADDITIVE enum extension; every prior record stays valid).
+    # `document` (allOf below) and references the created document as a
+    # `document`-kind artifact (ADDITIVE enum extension; every prior record
+    # stays valid).
   target: {$ref: "#/$defs/target"}
   at:
     type: string
@@ -183,11 +187,21 @@ allOf:
   # (add-workbench-bullseye-and-create): a create record that does not name
   # the created path audits nothing. Safe as a per-action conditional — no
   # record has ever carried this action, so no prior record is invalidated.
-  # No companion artifact KIND is required: the created document rides as an
-  # `other`-kind artifact in v1 (a named document kind is a possible
-  # successor, design open question 4).
+  # The created document rides as a `document`-kind artifact with the
+  # relpath as its `reference` (Brett's 2026-07-25 ruling on that change's
+  # open question 4 grew the artifact enum a first-class `document` value
+  # instead of overloading `other`), and that kind is REQUIRED here — a
+  # create record whose artifact list names no document is not an audit
+  # record of a creation. Unlike the enum growth itself this conditional is
+  # only safe per-action, which it is.
   - if: {properties: {action: {const: create-document}}}
-    then: {properties: {target: {required: [document]}}}
+    then:
+      properties:
+        target: {required: [document]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: document}}
 $defs:
   # --- what the action acted on ---
   target:
@@ -250,11 +264,22 @@ $defs:
           - redline
           - workflow-job
           - register-update
+          - document
           - other
         # The manual-path artifact kinds an action can produce (spec: "the
         # same governed artifacts as the manual path"). SCHEMA-SIDE (allOf
         # above): a `ratify` record requires a `ratification-record` entry
         # and a `kickoff` record requires a `workflow-job` entry.
+        #
+        # `document` — an ideation/corpus document this action brought into
+        # existence or rewrote, referenced by repository-relative path
+        # (add-workbench-bullseye-and-create; Brett's 2026-07-25 ruling on
+        # that change's design open question 4, which rejected carrying a
+        # created document as `other`). ADDITIVE enum extension in the
+        # `add-lens-gate-verbs` shape: no `contract_schema_version` bump, and
+        # every prior record stays valid because no record is required to
+        # carry this kind — an audit consumer can now filter document-
+        # producing actions from the enum rather than only from `action`.
       reference:
         type: string
         minLength: 1
