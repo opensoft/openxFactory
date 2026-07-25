@@ -225,20 +225,38 @@ Recorded deviations from the design, all additive and reasoned:
 The three rulings that change realized code. Q3 needs no work (unchanged
 non-goal).
 
-- [ ] 8.1 Q1 — REVERSE the area-derived `Status:`: remove
+- [x] 8.1 Q1 — REVERSE the area-derived `Status:`: remove
       `authoring.status_for_area()` and default the route, the CLI verb, and
       the dialog seeding to `brainstorm` in every area. The
       `CREATABLE_STATUSES` guard and the editable status field STAY; the
       staged-tile AREA seeding stays exactly as it is (placement is what
       carries the packet tie). Every test asserting `staged` for a
       staging-area create is updated to `brainstorm`.
-- [ ] 8.2 Q2 — generalize the widget's activation seam from the centre
+- [x] 8.2 Q2 — generalize the widget's activation seam from the centre
       region to every ring SECTOR: activating a sector opens the same dialog
       seeded with that sector's matched subset. The keyword-lens view still
       supplies NO handler, so its rendering stays byte-identical and every
       region stays inert there. Node-harness tests for the sector → keywords
       mapping; renderer tests that sector regions are focusable in the
       workbench and absent on the lens tab.
-- [ ] 8.3 Q4 — the create record's artifact rides as `kind: document`,
+- [x] 8.3 Q4 — the create record's artifact rides as `kind: document`,
       not `other`, and a produced record is verified against the GROWN
       schema (task 1.4).
+
+Realized as codexFactory PR #46 commit `3d10ed9` (2026-07-25), suite 485
+passed + 5 skipped (was 479 + 5). Recorded realization detail: `sectors` in
+`lens-model.js bullseyeLayout()` grew ADDITIVE geometry fields (`keywords`,
+`matchCount`, `spanDeg`, `isCenter`, `outerRadius`, `innerRadius`) so a sector
+can report its own matched combination and its own ring band — the pre-existing
+`subsetKey` / `angleDeg` are unchanged and nothing outside the widget reads the
+new fields. The widget's activation callback became `onActivate(region)` with
+`{kind, keywords, subsetKey}`; the matches-ALL sector is left to the CENTRE
+region rather than stacking two hit nodes over one zone in tab order; and a
+sector narrows only the `Topics:` seed, so the `Source:` recipe still cites the
+FULL checked and pinned sets at the source revision (plus a `bullseye sector`
+clause naming what was acted on) and cannot misreport what the human had
+checked. Playwright re-smoke on a scratch openxFactory copy confirmed all
+three rulings live with zero page errors; the smoke also showed that an annulus
+wedge's BOUNDING-BOX centre can fall in its hole, so an automated click must
+target a hit-tested point inside the wedge — a real pointer inside the visible
+band hits it, and the keyboard path is unaffected.
