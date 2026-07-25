@@ -305,6 +305,21 @@ Active changes:
   gate-intent / gate-action-record enum + `topic_id` target extension.
   (code surface: codexFactory, openxFactory; release allocated at
   realization)
+- [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
+  — four gate-verb rulings Brett made 2026-07-25 for the wheel's
+  expanded-tile action row: `demote` promoted from descriptor-only to an
+  executing dashboard verb (plan + record on the click, the corpus move stays
+  the separate human-run step), plus three recorded commissions on propose's
+  mechanic — `promote-to-staging` (an ACCEPTED possible organized into
+  `ideation/staging/<topic>/`; dispose-possible is a strict upstream and the
+  pick edge lands with the fragment, not at commission), `derive-possibles`
+  (a cluster-scoped run of the ratified possibles-derivation lane) and
+  `research-brief` (a pre-verdict evidence brief accompanying a possible,
+  never a precondition for disposing). Additive gate-intent /
+  gate-action-record enum + `cluster_id` target extension; the three
+  fulfilment lanes are out of scope (a terminal session fulfils dispatched
+  commissions in the interim, as with propose). (code surface: codexFactory,
+  openxFactory; release allocated at realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
