@@ -8,6 +8,15 @@ workbench is its read-only foundation. Track C — the AI chat layer that
 makes the workbench generative — is a LATER change, and this one must not
 be designed as if it already exists.
 
+Brett's second ruling (2026-07-25, after PR #41 landed): **a gate must
+hold the staging→proposal move until the topic's open questions are
+closed and enough is done, and the staged topic's health must be clearly
+indicated — a small health icon at the first click level, expanded at the
+second.** This overrules the first draft's "completeness never gates"
+bound and narrows D3: staged topics DO get an aggregate, because the
+staged→proposal transition now needs a machine-checkable doneness bar
+(D8–D10 below).
+
 Three facts about the existing surfaces set the shape:
 
 1. **The snapshot is the only data path.** The promoted capability's
@@ -39,10 +48,11 @@ already-proven foundation.
 
 **Non-Goals**: the AI chat layer (Track C) and every write it implies —
 outline editing, fragment authoring, in-place document composition, any
-workbench write path at all; tunable weights (v1 constants); aggregate
-completeness for clusters/possibles/staged topics; any re-scoring or
-reinterpretation of the three-tier readiness panel; new snapshot fields for
-the lens panel.
+workbench write path at all; tunable weights or thresholds (v1 constants);
+aggregate completeness for clusters and possibles (the staged-topic health
+aggregate of D8 is the ONE ruled exception); any re-scoring or
+reinterpretation of the three-tier readiness panel; gating any verb other
+than propose; new snapshot fields for the lens panel.
 
 ## Decisions
 
@@ -94,17 +104,24 @@ panel could host weights) — see open question 1. Whatever shape it takes,
 it must keep determinism: the weights would have to be part of the pinned
 input, recorded in the snapshot beside the scores.
 
-### D3 — Completeness is per DOCUMENT only
+### D3 — Completeness is per DOCUMENT; the one aggregate is staged-topic health
 **Decision**: only `documents[]` entries gain a `completeness` object.
-Clusters, possibles, and staged topics get no aggregate score.
+Clusters and possibles get no aggregate score. Staged topics get exactly
+one aggregate — the `health` object of D8 — and nothing else does.
 
 **Rationale**: an aggregate would immediately be read as readiness, which
 is a governed judgment with three named authorities and a recommendation
 gate at min >= 8. Averaging deterministic document structure into a
 tile-level number would create a second, unauthorized readiness signal that
-looks authoritative and is not. The `docs` panel shows the individual bars
-and lets the human aggregate them by eye — which is the honest rendering of
-what the data supports.
+looks authoritative and is not. That reasoning still bounds clusters and
+possibles — cluster judgment already has an owner in the readiness panel.
+Staged topics are the ruled exception: Brett's 2026-07-25 ruling makes the
+staged→proposal transition conditional on structural doneness, and a gate
+needs a defined, machine-checkable input. The aggregate is deliberately
+named HEALTH, not readiness: it answers "is this topic's own material
+structurally done" (open questions closed, documents past the threshold),
+never "should this be proposed" — that judgment stays human, exercised by
+clicking propose after the gate clears.
 
 ### D4 — The tab set is docs / lens / outline, and nothing else in v1
 **Decision**: three panels.
@@ -175,13 +192,69 @@ serving yesterday's snapshot must not break. The `docs` panel therefore
 treats missing completeness as "no bars", never as zero (a zero bar would
 libel a finished document as a stub).
 
+### D8 — Health is folder-scoped, blockers-first, tri-state
+**Decision**: a staged topic's health derives exclusively from its FOLDER's
+own corpus documents — `standing_open_items` (summed `open_markers` raw
+counts), `doc_score_min` / `doc_score_mean`, a typed `blockers` list, and a
+`status` derived from the blockers: `ready` (none), `stub` (no corpus
+documents), `developing` (otherwise). The ready threshold
+(`READY_MIN_SCORE`) is a v1 contract constant pinned beside the weights.
+
+**Rationale**: documents that merely DECLARE the topic as a destination are
+inbound context — their doneness is their own topic's business, and letting
+an unfinished upstream note hold a finished fragment hostage would make the
+gate capricious. Blockers-first keeps the aggregate honest: the status is a
+summary of named, countable reasons, so a red icon is always explainable in
+one hover and one refusal message. The three states match the tile's three
+honest conditions — nothing there yet, being worked, worked to done — and
+deriving status from blockers (rather than scoring status directly) means
+the gate and the icon can never disagree about WHY.
+
+### D9 — The gate evaluates live, through the same scoring module
+**Decision**: the propose route recomputes the topic's health from the
+pinned checkout at request time, importing the SAME Python scoring module
+the generator uses; the snapshot's `health` object is display truth only.
+
+**Rationale**: the snapshot is regenerated nightly, so it can trail the
+checkout by a working day — and a gate that refuses (or worse, allows) on
+yesterday's tree teaches people to distrust it. The generator and serve.py
+are both Python, so one module serves both callers with zero duplication —
+the same fixture-tested functions produce the icon and the refusal. The
+guard sits in the route itself, the single choke point every surface
+(tile action, CLI, direct request) already passes through, mirroring how
+the missing-topic and duplicate refusals are enforced today.
+
+### D10 — Health shows at the interaction levels Brett named
+**Decision**: resting drum faces stay unadorned; the FOCUSED (first-click,
+centred) staged tile face carries a compact tri-state indicator; the
+EXPANDED (second-click) tile renders the full health block — status,
+standing open items per document, score min/mean, blockers — verbatim from
+the snapshot.
+
+**Rationale**: this is Brett's stated shape ("small health icon in the
+first click level and expanded in the second"), and it matches the wheel's
+established progressive-disclosure model: focus answers "which topic",
+expand answers "what would I do here". Rendering verbatim from the
+snapshot keeps the renderer no-scan and makes any drift from the live gate
+a visible, explainable staleness (D9's refusal message is authoritative),
+never a silent client-side recomputation.
+
 ## Risks / Trade-offs
 
 - **A structural proxy will be read as a quality verdict.** A polished stub
   can outscore a dense, unformatted, nearly-complete brainstorm. Mitigation:
-  the signals are shown individually with their raw counts, the score is
-  labelled as structural, and D1 forbids it from gating anything — a
-  misleading bar costs a second look, never a refused action.
+  the signals are shown individually with their raw counts and the score is
+  labelled as structural. Since the readiness gate now refuses on it (D8),
+  a misleading score CAN cost a refused propose — but the refusal names the
+  exact document and number, so the cost is closing a named gap or fixing a
+  named miscount, never arguing with an opaque verdict.
+- **The gate will be felt as friction.** The first refused propose on a
+  topic Brett considers ready is the moment this design is judged.
+  Mitigation: blockers are specific and actionable (this document, these
+  standing markers, this score against this constant) — closing them IS the
+  work the gate exists to force; and the threshold is calibrated with Brett
+  on the real corpus at realization (task 6.5) before the gate ever refuses
+  him.
 - **Completeness could be mistaken for readiness.** Two scores in one
   dashboard invites conflation. Mitigation: D3 (no tile-level aggregate) and
   the explicit non-gating rule; the readiness panel keeps its own rendering
@@ -221,3 +294,15 @@ libel a finished document as a stub).
    sort/filter** (worst-first is the obvious working order) or stay in the
    snapshot's stable path order. Sorting is a pure renderer concern, so it
    can land either here at realization or later without contract impact.
+4. **The `READY_MIN_SCORE` value.** A contract constant like the weights,
+   so it needs a number before the gate can refuse. Recommendation: start
+   at 0.60 and calibrate on the real corpus with Brett at realization
+   (task 6.5) — the fragments he has actually taken to proposal (e.g.
+   github-administration-plane, "all six open questions are resolved —
+   ready to propose") are the ground truth for where ready sits.
+5. **Whether the gate needs a human override.** V1 recommendation: NO —
+   the honest response to a blocker is to close it (resolve the question,
+   finish the document), and an override that skips that is the gate not
+   existing. If a legitimate emergency shape emerges, the override must be
+   a recorded gate action carrying a reason, never a silent bypass —
+   a successor change.
