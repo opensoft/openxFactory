@@ -162,8 +162,8 @@
       render, `outline` reports the missing `/source` route inline, and a
       pre-growth snapshot shows no health chrome.
 - [ ] 6.5 Brett's live pass on the real corpus: completeness bars are
-      credible on documents he knows well; `READY_MIN_SCORE` is calibrated
-      against fragments he has actually taken to proposal (open question
-      4); the gate's first refusals are ones he agrees with; and the
-      read-only posture holds — nothing in the corpus changed by the
-      session.
+      credible on documents he knows well; `READY_MIN_SCORE` (starting at
+      0.60 per his 2026-07-25 ruling) is calibrated against fragments he
+      has actually taken to proposal; the gate's first refusals are ones
+      he agrees with; and the read-only posture holds — nothing in the
+      corpus changed by the session.

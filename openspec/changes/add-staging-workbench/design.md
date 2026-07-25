@@ -294,15 +294,18 @@ never a silent client-side recomputation.
    sort/filter** (worst-first is the obvious working order) or stay in the
    snapshot's stable path order. Sorting is a pure renderer concern, so it
    can land either here at realization or later without contract impact.
-4. **The `READY_MIN_SCORE` value.** A contract constant like the weights,
-   so it needs a number before the gate can refuse. Recommendation: start
-   at 0.60 and calibrate on the real corpus with Brett at realization
-   (task 6.5) — the fragments he has actually taken to proposal (e.g.
-   github-administration-plane, "all six open questions are resolved —
-   ready to propose") are the ground truth for where ready sits.
-5. **Whether the gate needs a human override.** V1 recommendation: NO —
-   the honest response to a blocker is to close it (resolve the question,
-   finish the document), and an override that skips that is the gate not
-   existing. If a legitimate emergency shape emerges, the override must be
-   a recorded gate action carrying a reason, never a silent bypass —
-   a successor change.
+4. **The `READY_MIN_SCORE` value.** RESOLVED by Brett's ruling
+   (2026-07-25): v1 starts at **0.60**, calibrated on the real corpus at
+   realization (task 6.5) — the fragments he has actually taken to
+   proposal (e.g. github-administration-plane, "all six open questions
+   are resolved — ready to propose") are the ground truth for where ready
+   sits. Calibration may move the constant before the gate first refuses;
+   whatever value ships is pinned in the schema commentary like the
+   weights.
+5. **Whether the gate needs a human override.** RESOLVED by Brett's
+   ruling (2026-07-25): NO override in v1 — the honest response to a
+   blocker is to close it (resolve the question, finish the document),
+   and an override that skips that is the gate not existing. If a
+   legitimate emergency shape emerges, the override must be a recorded
+   gate action carrying a reason, never a silent bypass — a successor
+   change.

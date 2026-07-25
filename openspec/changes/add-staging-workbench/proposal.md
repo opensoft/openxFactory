@@ -72,9 +72,10 @@ generative is Track C — deliberately a LATER change (see out of scope).
   (summed `open_markers` raw counts), doc score min/mean, a typed
   `blockers` list, and a derived tri-state `status`
   (`ready` / `developing` / `stub`). The ready threshold
-  (`READY_MIN_SCORE`) is a contract constant in v1, pinned beside the
+  (`READY_MIN_SCORE`) is a contract constant in v1 — initial value 0.60,
+  calibrated at realization (Brett, 2026-07-25) — pinned beside the
   completeness weights. Deterministic and additive, exactly like the
-  per-document signal.
+  per-document signal. The gate carries NO override in v1 (same ruling).
 - ADD the staged-to-proposal readiness gate: the `propose` action refuses
   a topic whose health is not `ready`, evaluated LIVE against the pinned
   checkout with the same scoring module the generator uses (never the
