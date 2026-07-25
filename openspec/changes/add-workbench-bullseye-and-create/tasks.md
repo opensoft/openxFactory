@@ -149,7 +149,7 @@
       intact; create from `docs`, from the forming-set button, and from the
       centre ring; the created document opens in the viewer; the `outline`
       affordance is absent on cluster/possible scopes; zero page errors.
-- [ ] 6.4 Degraded-posture check on the served static image: the pill reads
+- [x] 6.4 Degraded-posture check on the served static image: the pill reads
       `read-only`, every create affordance is a copyable CLI descriptor, no
       live button exists, and the bullseye + matrix still render from the
       snapshot alone.
