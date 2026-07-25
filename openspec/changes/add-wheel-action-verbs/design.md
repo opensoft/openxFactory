@@ -142,9 +142,12 @@ change, with the descriptor it must consume already contracted.
 
 ## Open Questions
 
-1. `demote`'s host column (D1) — proposals column as specified, or a
-   staged-tile shortcut as the ruling's wording could be read. Cheap to
-   change; no contract impact.
+1. ~~`demote`'s host column (D1)~~ **RESOLVED 2026-07-25 (Brett)**: the
+   proposals column, as specified. Brett's flow ruling: "in the proposal
+   tile, we review the actual proposal easily … but normally if we do not
+   agree, we would demote and go back to the working staging area" —
+   demote lives where the proposal is reviewed and returns the change to
+   staging.
 2. The staging-fragment workflow's topic-slug policy: does the human name
    the destination topic at commission time (optional arg, as specified) or
    does the fulfilling lane propose it? Both fit the descriptor.
