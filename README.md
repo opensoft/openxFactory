@@ -183,6 +183,18 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-workbench-bullseye-and-create](openspec/changes/add-workbench-bullseye-and-create/proposal.md)
+  — authored 2026-07-25: two coupled deltas to the staged workbench — the
+  `lens` panel renders the match-count bullseye at tile scope (the scoped
+  derivation already computes the geometry) above the always-present matrix,
+  with the checked-keyword selection persisting across tab switches; and a
+  human-only `create-document` gate verb drives the existing tested
+  authoring scaffold (create-only; an existing target refuses) with per-tab
+  seeding — the tile's keywords on `docs`, the live checked set plus a
+  recipe citation on `lens` (the brainstorm's centre-ring gesture), a new
+  fragment in the topic on `outline` for staged scopes — recorded as a
+  gate-action record, rendered as copyable CLI descriptors where the gate
+  capability is off.
 - [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
   — authored 2026-07-25: two human-only gate-console verbs executing the
   keyword lens's plans through the tested engines (`lens-save-recipe` →
