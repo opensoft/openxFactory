@@ -56,7 +56,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
 | [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | Ready to iterate — pattern + material verified 2026-07-24; roster composition is the change-A gating decision (needs a decision round with Brett); no external gates (omnigent overlay realization archived at contract-v1.16) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
-| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 1 | Ready to iterate — build decision by Brett 2026-07-23; 6 open questions (Omni-001 admin path, runner-under-virtual-account, bench-manifest home hardest) |
+| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## ideation-action-plane
@@ -441,10 +441,19 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Files:
   - [worker-host-app.md](worker-host-app/worker-host-app.md) — primary:
     7 claims, both manifest sketches, 4 decisions, 6 open questions, exit.
+  - [wsl-install-and-setup.md](worker-host-app/wsl-install-and-setup.md) —
+    WSL substrate focus (split out 2026-07-25): manifest `substrate:`
+    surface, the three observed truths + convergence actions as
+    implemented (`substrate_wsl`, Omnigent-Install PR #33), fail-closed
+    reboot semantics, 4 WSL-specific open questions (SYSTEM-context
+    distro registration is new).
 - Open questions (blocking): Omni-001 local-admin/provisioning-policy
-  inventory; actions-runner under virtual service accounts; bench-manifest
-  home (repo vs OCI artifact); heartbeat bench-inventory three-place
-  contract delta; WSL servicing owner; LLM-vault consolidation ordering.
+  inventory (now also carries the SYSTEM-context WSL distro-registration
+  fact-check); actions-runner under virtual service accounts;
+  bench-manifest home (repo vs OCI artifact); heartbeat bench-inventory
+  three-place contract delta; WSL servicing owner (plus kernel-update and
+  `.wslconfig` resource-limit ownership, see the WSL doc); LLM-vault
+  consolidation ordering.
 - Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
   (the app), OpsxFactory change (packaging); archives on Omni-001 green
   readiness via the app + a governed lane run on an Omni-001 worker +
