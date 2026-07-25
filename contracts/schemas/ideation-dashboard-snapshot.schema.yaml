@@ -403,6 +403,14 @@ $defs:
         maximum: 1
         # REQUIRED for kind=below_ready_threshold — the document's
         # completeness score (compare against the READY_MIN_SCORE constant).
+      threshold:
+        type: number
+        minimum: 0
+        maximum: 1
+        # Emitted beside `score` for kind=below_ready_threshold: the
+        # READY_MIN_SCORE constant the score fell short of, carried in the
+        # blocker so a renderer can show "score vs constant" verbatim
+        # without hardcoding the contract constant.
     allOf:
       - if: {properties: {kind: {const: standing_open_items}}}
         then: {required: [count]}
