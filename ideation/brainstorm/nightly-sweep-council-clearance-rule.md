@@ -60,6 +60,19 @@ orchestration in the Omnigent lane.
   adding it later is a normal rule amendment through the same council. One
   crisp condition for the council's first exercise.
 
+## Decided (2026-07-25)
+
+- **Verdict-emitting identity is a DISTINCT lane identity, `checks: write`
+  only** (Brett, 2026-07-25, at the `add-council-clearance-lane-wiring`
+  proposal gate). Three-identity separation on the candidate PR: the
+  content App authors, the lane identity emits the verdict check-run, the
+  Merge Master App approves — no identity both produces evidence and
+  consumes it for its own act. Reusing the content App was considered and
+  set aside: the PR author emitting the clearance evidence for its own PR
+  weakens the separation the envelope is built on.
+- **Backing stack for rehearsal + initial active period** — OPEN, at
+  Brett's gate (same proposal, question 2).
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
