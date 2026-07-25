@@ -51,9 +51,12 @@ gate console, as recorded dispatches like propose and dispose.
   the unpromoted `add-ideation-dashboard` capability alongside
   add-propose-verb, add-wheel-action-verbs, and add-staging-workbench —
   sequence the archives knowingly.
-- No schema change: both writes land in artifacts whose contracts already
-  exist (`ideation-workbench` manifests; the `human_seen` intake $def of
-  `ideation-cross-reference.schema.yaml`).
+- One ADDITIVE schema touch (corrected at realization — the original
+  "no schema change" missed it): `gate-action-record.schema.yaml`'s
+  `action` enum gains the two verbs and `target` gains an optional `set`
+  slug; every prior record stays valid. The artifact contracts themselves
+  already exist (`ideation-workbench` manifests; the `human_seen` intake
+  $def of `ideation-cross-reference.schema.yaml`).
 - Affected code (codexFactory, realization): `gate_routes.py` (two verbs
   beside dispose/ratify/propose), thin glue into `lens.py` /
   `workbench.py` / `human_seen.py` (no engine changes), `views/lens.js`

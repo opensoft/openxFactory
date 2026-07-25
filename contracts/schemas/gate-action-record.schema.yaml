@@ -75,7 +75,8 @@ properties:
     # this field is enforced by the console/authenticator, not here.
   action:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose]
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
+           lens-save-recipe, lens-add-as-cluster]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -192,6 +193,14 @@ $defs:
         minLength: 1
         # The possibles-register entry a dispose-possible action targets
         # (matches a `register_entry.id`).
+      set:
+        type: string
+        minLength: 1
+        # The workbench reference-set slug a lens verb lands
+        # (add-lens-gate-verbs; ADDITIVE — every prior record stays
+        # valid): lens-save-recipe writes the manifest of this set,
+        # lens-add-as-cluster additionally submits its pending_review
+        # human-seen entry.
       topic_id:
         type: string
         minLength: 1
