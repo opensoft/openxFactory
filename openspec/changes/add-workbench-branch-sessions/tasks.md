@@ -7,7 +7,7 @@ registry.
 
 ## 1. Contract (openxFactory)
 
-- [ ] 1.1 Additive growth of `contracts/schemas/gate-action-record.schema.yaml`
+- [x] 1.1 Additive growth of `contracts/schemas/gate-action-record.schema.yaml`
       (design D13; no `contract_schema_version` bump, no existing record
       invalidated): `action` enum gains `edit-document`, `open-pr`, and
       `abandon-session`; the artifact `kind` enum gains `commit` and
@@ -15,7 +15,7 @@ registry.
       2026-07-25, not `other`); `target` gains an OPTIONAL `ref` naming the
       session branch. Commentary states each addition's owning change and why
       the growth is safe.
-- [ ] 1.2 Three per-action conditionals in the same file, constraining ONLY the
+- [x] 1.2 Three per-action conditionals in the same file, constraining ONLY the
       new actions: `edit-document` requires `target.document` + `target.ref` and
       an artifact of kind `commit`; `open-pr` requires `target.ref` and an
       artifact of kind `pull-request`; `abandon-session` requires `target.ref`
@@ -23,7 +23,7 @@ registry.
       is NOT a conditional on `create-document` (D13 — it would narrow a
       pre-existing action whose non-session use produces no commit), and why
       `target.ref` therefore stays optional.
-- [ ] 1.3 Packaged examples under `examples/`: a valid `edit-document` record
+- [x] 1.3 Packaged examples under `examples/`: a valid `edit-document` record
       (document + ref + commit artifact), a valid `open-pr` record
       (ref + pull-request artifact), a valid `abandon-session` record with a
       reason, and negatives naming the rule they violate —
@@ -31,10 +31,13 @@ registry.
       `gate-action-open-pr-no-pull-request-artifact`,
       `gate-action-abandon-session-unreasoned`, and
       `gate-action-edit-document-no-ref`.
-- [ ] 1.4 NO new schema (D10): confirm at review that no session-descriptor
+- [x] 1.4 NO new schema (D10): confirm at review that no session-descriptor
       artifact was introduced — a session stays derived from its branch, its
       worktree, its registry entry, and its tile-derived notebook alias.
-- [ ] 1.5 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
+      (Confirmed at realization review: codexFactory feature 007 T089 evidence
+      shows no session-descriptor artifact and no new schema — the contract
+      growth here is additive on `gate-action-record` alone.)
+- [x] 1.5 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
       add-workbench-branch-sessions --strict` and `--all --strict`, plus the
       repo's contract validators green (0 errors, 0 warnings) with the new
       examples included.
@@ -166,7 +169,7 @@ registry.
 - [ ] 6.4 Hybrid source-return imports for a session notebook write into the
       origin folder INSIDE the worktree and land on the branch, with the
       imported-file header contract and idempotency-by-source-id unchanged.
-- [ ] 6.5 Update `docs/lifecycle-notebook-projection.md` with the session
+- [x] 6.5 Update `docs/lifecycle-notebook-projection.md` with the session
       notebook section (the canon books' main-only rule stated, the session
       notebook's life bound to its session, the worktree-sourced sync command,
       and the branch-landing import path).

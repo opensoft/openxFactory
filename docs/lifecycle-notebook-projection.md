@@ -3,6 +3,8 @@
 Status: standard
 Kind: process
 Backed by: [openspec/specs/lifecycle-notebook-projection/spec.md](../openspec/specs/lifecycle-notebook-projection/spec.md) (promoted from the archived add-lifecycle-notebook-projection change)
+Extended by: add-workbench-branch-sessions (ratified 2026-07-26) — section 9,
+branch-session notebooks, plus the main-only rule made explicit in section 1
 Repository context: openxFactory
 Purpose: define the full NotebookLM workflow for the governance corpus — how
 document lifecycle states project into derived notebooks, how those notebooks
@@ -29,8 +31,13 @@ Scope: `openxFactory/` and `xFactories/*/`, skipping `.git`, `installs/`
 (nested submodules), `openspec/changes/` (change artifacts have their own
 lifecycle; promoted specs are included from `openspec/specs/`), and any
 nested git working copy below a scanned repository root — feature-branch
-worktree checkouts (`<repo>-worktrees/` containers) and embedded clones —
-so unmerged or duplicate checkouts never project into the books.
+worktree checkouts (`<repo>-worktrees/` containers, branch-session worktrees
+included) and embedded clones — so unmerged or duplicate checkouts never
+project into the books. The three books are **MAIN-ONLY without exception**: a
+lifecycle book IS the lifecycle projection, so a book carrying unmerged
+sources is not a stale book but a WRONG one, asserting lifecycle states that
+do not exist. Section 9 is the only surface permitted to read a worktree, and
+it is not a book.
 
 ## 2. Source Titles
 
@@ -189,13 +196,93 @@ Seed sources are context, not new material. Importers skip `00 [charter]`,
 `00 [hybrid charter]`, and titles beginning `[brainstorm]`, `[staged]`,
 `[draft]`, `[ratified]`, `[standard]`, `[spec]`, or `[grounding]`.
 
-## 9. Workspace Records
+## 9. Branch-Session Notebooks
+
+Ratified by `add-workbench-branch-sessions` (2026-07-26; decisions D11, D16).
+
+A branch session — the workbench's working state on a git branch materialized
+as a worktree — MAY carry exactly ONE session notebook, and it is the only
+notebook surface allowed to read a worktree. It is not one of the three books
+and never becomes one: the books stay main-only (section 1), a session
+notebook MUST NEVER contribute a source, a title, or a repository name to a
+book, and its existence relaxes the worktree exclusion for no book. Session
+material reaches a book only after the session's pull request merges, by the
+ordinary sync.
+
+The notebook's life is the session's life. It is created when the session
+opens, re-synced from the worktree on demand, and RETIRED when the session
+ends by either route — merge or abandon — torn down together with the worktree
+and the session's snapshot-registry entry. It is never re-pointed at `main`
+(D16): after a merge there is no source left to project (the merge deletes the
+branch and the teardown removes the worktree), and a re-pointed notebook would
+be neither a lifecycle book nor a section 7 hybrid. If a session's ANALYSIS
+must outlive its branch, the route is an explicit conversion to a section 7
+hybrid under that section's charter and seeding rules — a future change, not a
+silent re-point. A notebook is optional throughout: when the NotebookLM quota
+is exhausted the session opens anyway, without one, and the human is told
+whose limit was hit (the quota is one shared account, consumed by the three
+books, every live `xf-wb-*` reference set, and every live `xf-session-*`, so
+it scales with concurrent tiles across everyone).
+
+Aliases are `xf-session-<repository>-<transformed-branch>`, derived from the
+(repository, branch) pair — the repository segment is required for
+injectivity, since two repositories can carry the same topic or cluster id.
+The transform strips a leading `draft/`, maps every remaining `/` to `-`, and
+lowercases, so `(openxFactory, draft/workbench-branch-sessions)` becomes
+`xf-session-openxfactory-workbench-branch-sessions`. The `xf-session-`
+namespace is deliberately DISJOINT from the swept `xf-wb-*` reference-set
+namespace: the book-sync mode also runs the ideation-dashboard workbench orphan
+sweep, which deletes every `xf-wb-*` notebook no live workbench manifest binds,
+and a session leaves NO manifest — so a session notebook titled `xf-wb-*` would
+be an orphan from birth and the next routine `--apply` would delete it
+mid-session. Renaming keeps the two lifecycles independent without re-cutting
+the sweep's contract.
+
+Sourced from the worktree, not the served checkout:
+
+```bash
+# Preview, then apply, from the workspace root. --session-repository is the
+# tie-break when the same branch is live in more than one repository.
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --session-ref draft/workbench-branch-sessions
+
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --session-ref draft/workbench-branch-sessions --apply
+
+# Retire at session end (both endings; the workbench's session teardown
+# performs this — the flag is the manual equivalent).
+python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+  --session-ref draft/workbench-branch-sessions --session-retire --apply
+```
+
+The mode refuses rather than guesses: no live worktree for the branch, or a
+branch live in more than one repository with no `--session-repository`, is an
+error with the reason stated. Its verbs are SYNC / RETIRE / KEEP / SKIPPED,
+deliberately not the books' ADD / DEL / UPD, so doc-health's
+notebook-projection-drift family never counts a session operation as pending
+lifecycle-book projection work.
+
+**Branch-landing imports.** Section 8's source-return path applies unchanged,
+with one difference: for a session notebook the imported file is written into
+the origin folder INSIDE THE SESSION WORKTREE and lands on the session branch
+as ordinary working material, committed with the session's gate action —
+never into the served checkout. The imported file's header contract is
+verbatim section 8's (origin lifecycle status, `Kind: reference`, source
+workspace, `Authority: L1 notebook synthesis`, NotebookLM source id and
+title), idempotency is still by source id, and the seed-source skip list is
+unchanged. Session-notebook output carries `L1 notebook synthesis` authority
+exactly as a hybrid's does: it may raise claims but decides no policy, memory,
+release scope, OpenSpec approval, or customer-facing output.
+
+## 10. Workspace Records
 
 The three books are registered as `external_source_workspace` records in
 [examples/lifecycle-notebook-workspaces.yaml](../examples/lifecycle-notebook-workspaces.yaml),
-per the source-workspaces record model.
+per the source-workspaces record model. A branch-session notebook is NOT
+registered: it is derived state bound to a branch that outlives nothing, and
+`add-workbench-branch-sessions` D10 adds no session descriptor of any kind.
 
-## 10. Known Limitations
+## 11. Known Limitations
 
 - NotebookLM source-count limits apply per notebook; the Working Drafts book
   is the largest and should be watched as the corpus grows (split by repo if
