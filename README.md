@@ -183,6 +183,22 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
+  — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
+  topic: a repository selector whose roster is the project register (sparse
+  repositories render whatever stations they have data for and are never
+  refused), a snapshot source keyed on the PAIR (repository, ref) with
+  `ref` defaulting to `main` and one serving-side registry behind it, a new
+  additive snapshot-INDEX contract (its own schema — the snapshot schema is
+  not grown), and the snapshot/image decoupling Brett decided 2026-07-25
+  after a document landed minutes past a rebake and stayed invisible: bake
+  the APP and fetch the DATA at runtime, with the baked snapshot demoted to
+  a first-boot/offline fallback that shows a never-silent stale banner, a
+  freshness header (`repo @ ref · source_revision · generated-at`), one
+  refresh affordance with two plane bindings (served re-fetch; local
+  regenerate), and `workflow_dispatch` on the publication lane — the pod
+  gains no build or rollout authority by any path. Sequenced strictly
+  before `add-workbench-branch-sessions`, which consumes the seam.
 - [add-workbench-bullseye-and-create](openspec/changes/add-workbench-bullseye-and-create/proposal.md)
   — authored 2026-07-25: two coupled deltas to the staged workbench — the
   `lens` panel renders the match-count bullseye at tile scope (the scoped
