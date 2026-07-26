@@ -299,6 +299,27 @@ both lane-side facts outside the admin AI's view:
    fail-closed against it before any write (runbook §5). Unverified as of
    this record.
 
+**Stage-1 federation test (2026-07-26, runs 30200808815 / 30200918192,
+emit-only against PR #29 — read-only by construction, nothing written).**
+The `Federate a Hermes runtime token` step succeeded on both runs: assertion
+minted, Entra exchange accepted, token issued — the GitHub→Entra path is
+PROVEN live. Hermes then answered the job-list read with **HTTP 403
+`authz.cross_layer_denied`** (surfaced by the diagnostic patch codexFactory
+`9e62a38`, which makes the lane's runtime-read warnings name the runtime's
+own error code). That code is precise: 401 would be token validation
+(issuer/audience/signature), and `authz.insufficient_scope` would fire
+FIRST — `require_scope` is a dependency ahead of the handler's layer check —
+so the token validates AND carries `hermes.job.read`. The ONLY remaining
+defect is the layer claim: `extn.layer` is absent from the emitted token or
+carries the wrong value, despite the claims-mapping policy fix. Back with
+Brett's admin AI: verify what the emitted token actually carries (the
+out-of-band decode is now justified), checking Entra propagation lag first;
+fallbacks if a dotted literal `JwtClaimType` won't emit are the
+directory-extension optional-claim route (lands natively as `extn.<name>`)
+or, last resort, re-pointing the overlay's `oidc_layer_claim` (config
+change + redeploy). `hermes.job.execute` remains unproven until a commission
+runs (stage 2).
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
