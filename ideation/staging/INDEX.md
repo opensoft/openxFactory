@@ -48,6 +48,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); exit gated on a second domain instantiating (Adx agency agreement or Medx custody-bearing patient consent) |
+| [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, per-repo snapshots + thin index) + index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | Ready to iterate — four decisions locked with Brett 2026-07-25 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels); neutral-vs-override fork deliberately open pending domain-drive vocabulary evidence; exit 1 must sequence against active `add-ideation-dashboard` + team004's wheel branch (PR #41) |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
@@ -114,6 +115,48 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   (credential-contracts validator vs new validate-consent-instruments).
 - Exit: `add-consent-instrument` after a second domain instantiates;
   the Ledgerx record declares conformance rather than being rewritten.
+
+## context-compression-runtime
+
+- Staging ID: `openxFactory:staging:context-compression-runtime`
+- Repository context: openxFactory (neutral capability + audit-tier
+  contract); Omnigent-Install (pilot wiring: pinned `headroom` in the
+  omnigent-worker image behind a build arg, worker-profile activation
+  block; later the egress-capture sidecar container); codexFactory
+  (pilot lane); Medx/Ledgerx (tier-3 consumers when activated).
+- Source: Headroom evaluation session 2026-07-25/26 (Brett Heap) —
+  a source audit of headroom v0.32.0 (upstream `4bd1214`) found the
+  CCR reversible-compression store is a session-scale correctness
+  cache (SQLite on worker disk, 30-min TTL, content-addressed
+  `sha256(original)[:24]` keys embedded LLM-visibly) with NO PHI/PII
+  exclusion anywhere in the compression path. That flipped the design
+  from "durable CCR audit backend" to RAM-only cache + three-tier
+  audit.
+- Claim: context compression is worker-lane infrastructure (pinned
+  dependency, never a submodule, invisible to the domain layer), and
+  its safety envelope is domain-invariant: (1) worker-host stores are
+  RAM-only; (2) sensitive-data exclusion is an upstream Hermes-ingress
+  obligation, never assumed of the compressor; (3) audit is
+  three-tier — envelope (authorized in), harness transcript (all
+  uncompressed originals, hash-joinable to compression markers),
+  optional egress-capture sidecar (exact disclosed bytes,
+  NetworkPolicy-enforced as the only provider egress, fail-closed) for
+  disclosure-accounting domains only.
+- Files:
+  - [context-compression-runtime.md](context-compression-runtime/context-compression-runtime.md) — primary: source-audit evidence table, 5 claims, pilot posture, open questions, exit.
+- Open questions: tier-3 knob home (omnigent overlay vs worker
+  profile vs both); sidecar implementation (mitmproxy vs Envoy tap,
+  SSE reassembly, capture retention per domain); whether the
+  three-tier audit model deserves its own neutral spec (generalizes
+  to any provider-traffic-transforming lane middleware);
+  upstream-exclusion mechanics (Hermes-boundary redaction vs tagged
+  spans via tag_protector); re-audit cadence for headroom version
+  bumps.
+- Exit: pilot evidence in Omnigent-Install →
+  `add-context-compression-runtime` (`code_surface:
+  installs/omnigent-install`), realization gated on the pilot lane
+  green with measured savings; tier-3 sidecar delta rides the same
+  change or a follow-on.
 
 ## dashboard-repo-selector
 
