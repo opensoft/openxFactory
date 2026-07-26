@@ -70,8 +70,21 @@ orchestration in the Omnigent lane.
   consumes it for its own act. Reusing the content App was considered and
   set aside: the PR author emitting the clearance evidence for its own PR
   weakens the separation the envelope is built on.
-- **Backing stack for rehearsal + initial active period** — OPEN, at
-  Brett's gate (same proposal, question 2).
+- **Backing stack for rehearsal + initial active period** — DECIDED
+  (Brett, 2026-07-26, option B): the live opensoft self-client QA stack
+  (`hermes-opensoft-qa`) backs both the rehearsal and the initial active
+  period. Conditions recorded with the decision: (1) a named migration
+  trigger — the lane moves to a production-posture stack at P5 self-host
+  landing OR at the first domain-layer reseed of the QA stack, whichever
+  comes first; (2) a lane-side duplicate guard — the lane never
+  commissions a convening for a head SHA that already carries a verdict
+  check-run (protects the convene-at-most-once discipline against a
+  reseed wiping the runtime's job ledger). Both conditions ride the
+  `council_orchestration_available` attestation packet. Risk basis: the
+  clearable set is docs-class overflow on the bot-authored nightly PR
+  only — unanimous SHA-pinned verdict, independently re-judged by the
+  tier-2 core, anti-normalization at 3, standing kill switch,
+  per-clearance notice.
 
 ## The two tiers
 
