@@ -166,7 +166,12 @@ to close, none of it introduced by the change. **Findings 1–3 were FIXED
 inside this change** (Brett's ruling: fix the gathers now and ratify text and
 code together, rather than narrow the requirement) — codexFactory `841ab26`,
 aggregation `af5b89d`, pin `bd52fba`, recorded as tasks §4. Findings 4 and 5
-remain open.
+remain open. **The change was then ratified and archived on 2026-07-26**
+(codexFactory `da10584`,
+`openspec/changes/archive/2026-07-26-add-changed-path-completeness`); its
+spec delta archived WITH it rather than folding into `openspec/specs/`,
+since `merge-master-approval` stays unpromoted while the parent's task 7.4
+is blocked.
 
 1. **The commit-statuses gather is unpaginated** —
    `gh api "repos/$REPO/commits/$HEAD_SHA/status"` carries no `--paginate`
