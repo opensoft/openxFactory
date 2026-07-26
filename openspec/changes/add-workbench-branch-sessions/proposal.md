@@ -1,6 +1,8 @@
 ---
 code_surface: codexFactory (the branch-session lifecycle — branch creation plus git worktree materialization and teardown; session entries in the (repository, ref) snapshot registry `add-dashboard-repo-selector` lands; per-gate-action session snapshot regeneration; branch-aware `/source` confinement; the `edit-document`, `open-pr`, and abandon gate routes with CLI parity; the refresh-notebook session action and the session-notebook mode of `scripts/sync-notebooklm-books.py`; workbench session affordances and the session posture indicator; tests), openxFactory (additive `gate-action-record` growth for the three new actions, two new artifact kinds and one new target field; the `ideation-dashboard` and `lifecycle-notebook-projection` capability deltas), xFactory aggregation (the gitignored worktree-container location the session worktrees materialize into, which the notebook scan scope already excludes)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified by: Brett's approval of `add-workbench-branch-sessions` on 2026-07-26, after the 5-lens adversarial review (2 findings confirmed and fixed), the rename-completeness audit, and rulings on all six open questions (D16-D21)
 ---
 
 # Proposal: add-workbench-branch-sessions

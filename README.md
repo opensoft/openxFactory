@@ -217,8 +217,12 @@ Active changes:
   the OpsxFactory custody/policy/runner-group work are named successor
   changes.
 - [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
-  — authored 2026-07-26, the single exit of the `workbench-branch-sessions`
-  staged topic: the workbench becomes a place to CREATE and EDIT documents
+  — authored AND RATIFIED 2026-07-26, the single exit of the
+  `workbench-branch-sessions` staged topic; twenty-one decisions locked and no
+  open questions, after a five-lens adversarial review (two findings confirmed
+  and fixed) and a rename-completeness audit. Realization is unblocked; it
+  archives on merged plus green realization evidence, not on ratification.
+  The workbench becomes a place to CREATE and EDIT documents
   without loosening a gate, because the working state moves onto a git branch
   and the PULL REQUEST is the formal re-entry into the governed doc system.
   The first gate write against a tile spawns `draft/<staging-id>` (named for
