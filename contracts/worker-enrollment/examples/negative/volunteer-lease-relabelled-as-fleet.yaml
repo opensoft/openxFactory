@@ -1,0 +1,57 @@
+# expected_failure: estate-coherence
+# expected_failure_detail: estate 'fleet' contradicts
+# VIOLATES spec R1 and R8 by RELABELLING ONE ENUM. Every other fact in this lease
+# says volunteered workstation — an ENGINEER subject, `managed: false`, a laptop
+# host id — and it claims `estate: fleet`, `trust_tier: managed_fleet`, and a
+# binding into the standing execution lane.
+#
+# This was the whole bypass, and it was clean: the segregation rule keys off the
+# ESTATE, so a temp lease labelled `fleet` was never examined for its runner
+# group, and nothing tied the estate to the subject class, the host's managed
+# flag, or the tier. A volunteered laptop became a managed-fleet worker in the
+# standing lane, and a matching audit record corroborated it — the artifact whose
+# stated purpose is to let a lane prove sensitive work never reached volunteered
+# hardware.
+#
+# Fails twice now, by design: the lease schema couples estate, subject class, host
+# management and trust tier IN BOTH DIRECTIONS, and the canonical validator's rule
+# (e) reports the contradiction by name (rule (b) also fires, because the
+# segregation check no longer keys off the estate label alone).
+schema_version: 1
+kind: worker_lease
+
+lease_id: wl-ws-volunteer-18-0001
+estate: fleet
+
+subject:
+  class: engineer
+  ref: engineer:eng-0047
+
+host:
+  host_id: ws-volunteer-18
+  device_name: WS-VOL18-KK7D2
+  managed: false
+
+worker:
+  worker_id: xfactory-coding-ws-volunteer-18
+  runner_name: xfactory-coding-ws-volunteer-18
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+  labels:
+    - self-hosted
+    - omnigent
+    - coding-patch
+
+trust_tier: managed_fleet
+issued_at: "2026-07-30T09:00:00Z"
+expires_at: "2026-07-31T09:00:00Z"
+cadence:
+  ttl: PT24H
+  renewal_interval: PT1H
+  grace: PT12H
+  clock_skew_tolerance: PT5M
+floor_in_force:
+  min_app_version: 1.4.0
+state: active
+policy_version: worker-enrollment-v1

@@ -1,0 +1,59 @@
+# Positive reference example — the REFUSAL audit record (spec R9 scenarios 1 and
+# 3, R5). The floor was raised to 1.5.0 and this volunteer workstation is still on
+# 1.3.2, so its renewal was refused. It is the counterpart of
+# `renewal-below-floor-refusal.example.yaml`: that one is the EXCHANGE, this one is
+# the record the audit trail keeps.
+#
+# It exists as a packaged positive because the family had none for any refusal, so
+# nothing pinned the two things this shape has to settle:
+#
+#   * ONE ENCODING. A refused renewal is `event: renew` + `decision: refused`,
+#     never `event: refuse` (which is reserved for a refused ENROLLMENT, before any
+#     lease exists). Both used to be legal and nothing chose, so a compliance query
+#     filtering one returned silence against a broker that emitted the other — and
+#     read the silence as "no refusals occurred";
+#   * THE TIER AND THE GROUP TRAVEL. They are required here, not only on allowed
+#     decisions, because R9 scenario 3 makes the revocation record and the refusals
+#     that follow it the SOLE evidence for when and why a worker lost authority —
+#     and R8 scenario 3 asks that same trail to show sensitive work never reached
+#     volunteered hardware.
+#
+# As on every record: no token, no key, no secret, no response body, and
+# `reason_detail` bounded so none can be smuggled into prose.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-ws-brett-01-0164
+event: renew
+occurred_at: "2026-08-14T08:00:00Z"
+
+subject:
+  class: engineer
+  ref: engineer:eng-brett
+  authentication_mode: device_code
+
+host:
+  host_id: ws-brett-01
+  device_name: WS-BRETT-TUBV0
+  managed: false
+
+estate: temp
+decision: refused
+reason: below_floor
+reason_detail: observed app version below the estate floor; runner services stop
+
+lease_id: wl-ws-brett-01-0001
+trust_tier: volunteered_hardware
+runner_group: xfactory-temp-volunteer-workers
+
+observed:
+  app_version: 1.3.2
+  runner_version: v2.337.1
+floor:
+  min_app_version: 1.5.0
+  source: policy
+policy_version: worker-enrollment-v2
+
+evidence_ref:
+  class: renewal_exchange
+  ref: broker/renewals/2026-08-14/rnw-ws-brett-01-0163

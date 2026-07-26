@@ -1,0 +1,300 @@
+schema_version: 1
+name: worker_enrollment_policy
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-enrollment-policy.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.5). The
+# policy the broker CONSUMES — never broker-local config (design D3). The
+# instance is OpsxFactory-owned estate policy, matching the managed-platform
+# precedent; shipping the SCHEMA here keeps D3 a home-and-review decision rather
+# than a contract decision.
+#
+# Raising a floor DENIES WORK ACROSS A WHOLE ESTATE, so `review.floor_raise_path`
+# is part of the contract: the floor moves through the governed review lane, and
+# the broker reads the merged policy rather than accepting a floor from an ad-hoc
+# call (design D3).
+#
+# The policy also declares the two facts the canonical validator needs to enforce
+# segregation without guessing (spec R8):
+#   * `estates.temp.runner_group` — the dedicated temp group a volunteer lease
+#     must bind;
+#   * `standing_execution_lane_runner_groups` — the groups a temp lease must
+#     NEVER name.
+# With a policy in scope the validator checks against these declarations; with no
+# policy in scope it falls back to a naming heuristic and says so.
+type: object
+required:
+  - schema_version
+  - kind
+  - policy_version
+  - effective_from
+  - cadence
+  - registration_token
+  - estates
+  - eligibility
+  - trust_tiers
+  - execution_lanes
+  - standing_execution_lane_runner_groups
+  - review
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_enrollment_policy]
+  policy_version:
+    # Cited by every lease, grant, renewal response, and audit record.
+    $ref: '#/$defs/policy_version'
+  effective_from: {type: string, format: date-time}
+  cadence:
+    # Design D2. The hourly supervisor already exists, so renewal is free; 24h
+    # TTL with 12h grace means an ordinary overnight or a flaky VPN never fails a
+    # worker closed, while a revoked laptop loses authority within a working day
+    # at worst. Shorter TTLs buy tighter revocation at the cost of making the
+    # broker a hard availability dependency of every running worker.
+    type: object
+    required: [ttl, renewal_interval, grace, clock_skew_tolerance]
+    additionalProperties: false
+    properties:
+      ttl: {$ref: '#/$defs/duration', default: PT24H}
+      renewal_interval: {$ref: '#/$defs/duration', default: PT1H}
+      grace: {$ref: '#/$defs/duration', default: PT12H}
+      clock_skew_tolerance: {$ref: '#/$defs/duration', default: PT5M}
+  registration_token:
+    # THE ESTATE'S CEILING ON "SHORT-LIVED" (spec R2). Without it there was no
+    # number anywhere in the family: the grant pinned `single_use` as a constant
+    # while the token's lifetime was a free date-time, so the broker service, the
+    # host app and this policy could each pick a different lifetime and all three
+    # claim to pin the same bundle. The grant declares its own bounded
+    # `lifetime`; this is the cap the broker may not exceed, and the canonical
+    # validator checks grants against it whenever a policy is in scope.
+    type: object
+    required: [max_lifetime, single_use]
+    additionalProperties: false
+    properties:
+      max_lifetime: {$ref: '#/$defs/short_lifetime'}
+      single_use: {const: true}
+  estates:
+    type: object
+    required: [fleet, temp]
+    additionalProperties: false
+    properties:
+      fleet:
+        type: object
+        required:
+          - authentication_mode
+          - min_app_version
+          - runner_package
+          - runner_group
+          - trust_tier
+          - manifest_source
+        additionalProperties: false
+        properties:
+          authentication_mode: {const: host_identity}
+          min_app_version: {$ref: '#/$defs/app_version'}
+          runner_package:
+            # Hard pin; bumps ride manifest rollouts (spec R7).
+            type: object
+            required: [mode, version, platform, sha256, self_update, delivery]
+            additionalProperties: false
+            properties:
+              mode: {const: pinned}
+              version: {$ref: '#/$defs/runner_version'}
+              platform:
+                type: string
+                enum: [win-x64, win-arm64, linux-x64, linux-arm64, osx-x64, osx-arm64]
+              sha256: {$ref: '#/$defs/sha256'}
+              self_update: {const: disabled}
+              delivery: {const: manifest_rollout}
+          runner_group: {$ref: '#/$defs/runner_group'}
+          labels:
+            type: array
+            items: {$ref: '#/$defs/label'}
+            uniqueItems: true
+          trust_tier: {$ref: '#/$defs/trust_tier'}
+          manifest_source: {const: delivery_plane}
+      temp:
+        type: object
+        required:
+          - authentication_mode
+          - min_app_version
+          - runner_package
+          - runner_group
+          - labels
+          - trust_tier
+          - manifest_source
+        additionalProperties: false
+        properties:
+          authentication_mode: {const: device_code}
+          min_app_version: {$ref: '#/$defs/app_version'}
+          runner_package:
+            # Self-update on, observed version informational, NO PIN (spec R7):
+            # a volunteered laptop must not fail closed for runner-binary drift.
+            type: object
+            required: [mode, self_update, observed_version_handling]
+            additionalProperties: false
+            properties:
+              mode: {const: self_update}
+              self_update: {const: enabled}
+              observed_version_handling: {const: informational}
+          runner_group:
+            # THE dedicated temp group (design D8, spec R8).
+            $ref: '#/$defs/runner_group'
+          labels:
+            type: array
+            minItems: 1
+            items: {$ref: '#/$defs/label'}
+            uniqueItems: true
+          trust_tier: {const: volunteered_hardware}
+          manifest_source: {const: broker_served}
+          manifest_template:
+            # Design D5 content leaning: one worker, the general coding-patch
+            # profile, temp labels, no benches in v1 — bench pre-pull is a
+            # multi-gigabyte imposition on somebody's laptop and should be
+            # opt-in once temp workers have proven useful.
+            type: object
+            required: [workers, benches]
+            additionalProperties: false
+            properties:
+              workers: {type: integer, minimum: 1, maximum: 4}
+              profiles:
+                type: array
+                minItems: 1
+                items: {$ref: '#/$defs/label'}
+                uniqueItems: true
+              benches:
+                type: array
+                items: {$ref: '#/$defs/identifier'}
+                uniqueItems: true
+  eligibility:
+    type: object
+    required: [groups, max_machines_per_engineer]
+    additionalProperties: false
+    properties:
+      groups:
+        # Membership as a FACT, not a second roster to maintain (design D6).
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: object
+          required: [estate, directory_group_ref]
+          additionalProperties: false
+          properties:
+            estate: {type: string, enum: [fleet, temp]}
+            directory_group_ref: {$ref: '#/$defs/identifier'}
+      max_machines_per_engineer:
+        # Enforceable precisely because leases are per-machine records the
+        # broker holds (design D6).
+        type: integer
+        minimum: 1
+        default: 1
+  trust_tiers:
+    # Each tier's two projections (design D8): the runner group/labels the lease
+    # binds (so GitHub-side targeting works today), and whether a lane may
+    # dispatch sensitive work to it.
+    type: array
+    minItems: 2
+    uniqueItems: true
+    items:
+      type: object
+      required: [id, accepts_sensitive_work, runner_group_projection]
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/$defs/trust_tier'}
+        accepts_sensitive_work: {type: boolean}
+        runner_group_projection: {$ref: '#/$defs/runner_group'}
+        label_projection:
+          type: array
+          items: {$ref: '#/$defs/label'}
+          uniqueItems: true
+        description: {$ref: '#/$defs/constrained_text'}
+  execution_lanes:
+    # R8 SCENARIO 3, LANE SIDE. The tier alone could not express it: a single
+    # global `accepts_sensitive_work` boolean per tier cannot say "lane A accepts
+    # no volunteered hardware while lane B does", so a realization asked to honour
+    # a lane-level exclusion had to either invent the field (and the three
+    # consumers would each invent it differently) or carve another runner group —
+    # the group enumeration the requirement exists to replace. A lane DECLARES the
+    # tiers it accepts, here, as data.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [lane_ref, runner_group, accepts_trust_tiers]
+      additionalProperties: false
+      properties:
+        lane_ref: {$ref: '#/$defs/identifier'}
+        runner_group: {$ref: '#/$defs/runner_group'}
+        accepts_trust_tiers:
+          # The tiers this lane will take work from. A lane that omits
+          # `volunteered_hardware` accepts no volunteered-hardware worker, and the
+          # canonical validator refuses a standing execution lane that accepts it.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: {$ref: '#/$defs/trust_tier'}
+        accepts_sensitive_work: {type: boolean}
+        description: {$ref: '#/$defs/constrained_text'}
+  standing_execution_lane_runner_groups:
+    # The groups a temp lease must NEVER be bound into (spec R8). Declared here
+    # so the prohibition is data the validator and the broker share, not a
+    # convention each re-derives.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items: {$ref: '#/$defs/runner_group'}
+  review:
+    type: object
+    required: [floor_raise_path, owner]
+    additionalProperties: false
+    properties:
+      floor_raise_path: {const: governed_review_lane}
+      owner: {$ref: '#/$defs/identifier'}
+      note: {$ref: '#/$defs/constrained_text'}
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  runner_group:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._-]{1,63}$'
+  label:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[a-z0-9][a-z0-9._-]{1,63}$'
+  trust_tier:
+    type: string
+    enum: [managed_fleet, volunteered_hardware]
+  app_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$'
+  runner_version:
+    type: string
+    pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+  sha256:
+    type: string
+    pattern: '^[0-9a-f]{64}$'
+  duration:
+    type: string
+    pattern: '^PT(?=[0-9])(?:[0-9]{1,4}H)?(?:[0-9]{1,4}M)?(?:[0-9]{1,4}S)?$'
+  short_lifetime:
+    # At most 15 minutes, at most 999 seconds, never zero — the same bound the
+    # grant's `registration_token.lifetime` carries.
+    type: string
+    pattern: '^PT(?:(?:[1-9]|1[0-5])M|[1-9][0-9]{0,2}S)$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  constrained_text:
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

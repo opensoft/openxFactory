@@ -1,0 +1,52 @@
+# expected_failure: schema
+# expected_failure_detail: 'trust_tier' is a required property
+# VIOLATES spec R8: EVERY lease carries a trust tier, so a lane can decline
+# dispatch to a tier rather than by enumerating hosts.
+#
+# The tier is required on the fleet estate too, which is what this fixture omits.
+# A lease without a tier is not a mildly incomplete lease: it is a worker no lane
+# can reason about. An exclusion rule of the form "this lane accepts no
+# volunteered hardware" can only hold if every lease answers the question, so an
+# absent tier would silently read as "not excluded" — the exact default a
+# governance boundary must never have.
+#
+# This one IS a schema failure, and deliberately so: the trust tier is required by
+# shape rather than checked by the validator, because a required field is the
+# strongest form the rule can take.
+schema_version: 1
+kind: worker_lease
+
+lease_id: wl-cpc-omni03-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni03
+
+host:
+  host_id: cpc-omni03
+  device_name: CPC-Omni0-T2LM8
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni03
+  runner_name: xfactory-coding-cpc-omni03
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+  labels:
+    - self-hosted
+    - omnigent
+    - coding-patch
+
+issued_at: "2026-07-29T09:00:00Z"
+expires_at: "2026-07-30T09:00:00Z"
+cadence:
+  ttl: PT24H
+  renewal_interval: PT1H
+  grace: PT12H
+  clock_skew_tolerance: PT5M
+floor_in_force:
+  min_app_version: 1.4.0
+state: active
+policy_version: worker-enrollment-v1

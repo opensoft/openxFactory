@@ -1,0 +1,253 @@
+schema_version: 1
+name: worker_lease
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-lease.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.2). THE
+# AUTHORITY RECORD. Enrollment grants a renewable LEASE, not a registration
+# (Brett's ruling 4): a registration is a fact on a machine that survives until
+# someone reaches the machine, while a lease lapses unless the platform
+# re-grants it on a cadence. Every other control in this family — the version
+# floor, revocation, the trust tier, the audit trail — is expressed as a
+# property of a renewal decision, which is why they all work on hardware nobody
+# manages (design "Why the lease inversion is the whole design").
+#
+# THE LEASE CARRIES NO TOKEN FIELD AT ALL (spec R2). This is the load-bearing
+# absence of the whole family: the short-lived registration token exists only in
+# the live enrollment response (`worker-enrollment-grant.schema.yaml`), and the
+# document the host actually persists — this one — has no property that could
+# hold it, at any depth, with `additionalProperties: false` everywhere so none
+# can be added by a consumer.
+#
+# This document is embedded whole inside a grant and persisted whole by the
+# host; it is also a standalone record in the broker's lease store.
+type: object
+required:
+  - schema_version
+  - kind
+  - lease_id
+  - estate
+  - subject
+  - host
+  - worker
+  - binding
+  - trust_tier
+  - issued_at
+  - expires_at
+  - cadence
+  - floor_in_force
+  - state
+  - policy_version
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_lease]
+  lease_id: {$ref: '#/$defs/identifier'}
+  estate:
+    type: string
+    enum: [fleet, temp]
+  subject:
+    # The subject the lease was granted TO: the fleet host identity, or the
+    # engineer who volunteered the workstation. Reference only.
+    type: object
+    required: [class, ref]
+    additionalProperties: false
+    properties:
+      class:
+        type: string
+        enum: [host, engineer]
+      ref: {$ref: '#/$defs/identifier'}
+  host:
+    type: object
+    required: [host_id, managed]
+    additionalProperties: false
+    properties:
+      host_id: {$ref: '#/$defs/identifier'}
+      device_name: {$ref: '#/$defs/identifier'}
+      managed:
+        # REQUIRED, and locked to the estate by the coupling below: a lease
+        # cannot describe unmanaged hardware and claim the fleet estate.
+        type: boolean
+  worker:
+    type: object
+    required: [worker_id, runner_name]
+    additionalProperties: false
+    properties:
+      worker_id: {$ref: '#/$defs/identifier'}
+      runner_name: {$ref: '#/$defs/identifier'}
+  binding:
+    # The GitHub-side projection of the trust tier (design D8): a temp lease
+    # binds the dedicated temp runner group with temp labels and NEVER a
+    # standing execution-lane group. Labels alone were rejected as the
+    # segregation mechanism because a label is host-assertable; the runner group
+    # named on a broker-issued lease is not. The canonical validator enforces
+    # the standing-group prohibition, which no schema can express (spec R8).
+    type: object
+    required: [runner_group, labels]
+    additionalProperties: false
+    properties:
+      runner_group: {$ref: '#/$defs/runner_group'}
+      labels:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/label'}
+        uniqueItems: true
+      dispatch_label: {$ref: '#/$defs/label'}
+  trust_tier:
+    # FIRST-CLASS LEASE FIELD (design D8, spec R8): a lane declines dispatch
+    # against the tier rather than by enumerating hosts. v1 vocabulary; adding a
+    # tier is an additive contract change, and the policy declares each tier's
+    # runner-group/label projection.
+    type: string
+    enum: [managed_fleet, volunteered_hardware]
+  issued_at: {type: string, format: date-time}
+  expires_at: {type: string, format: date-time}
+  cadence:
+    # Design D2 values as defaults: 24h TTL, hourly renewal by the existing
+    # supervisor task, 12h grace past expiry before the lease is treated as
+    # lapsed, +/-5 minutes of clock-skew tolerance on expiry evaluation. The
+    # fail-closed bound in the spec is "cadence plus grace", so tightening any
+    # of these later is a policy edit, not a contract change.
+    type: object
+    required: [ttl, renewal_interval, grace, clock_skew_tolerance]
+    additionalProperties: false
+    properties:
+      ttl: {$ref: '#/$defs/duration', default: PT24H}
+      renewal_interval: {$ref: '#/$defs/duration', default: PT1H}
+      grace: {$ref: '#/$defs/duration', default: PT12H}
+      clock_skew_tolerance: {$ref: '#/$defs/duration', default: PT5M}
+  floor_in_force:
+    # The minimum app version in force for this estate when the lease was
+    # issued or last renewed. It travels again on EVERY renewal response
+    # (spec R4) — this copy is the host-legible record of what it was told.
+    type: object
+    required: [min_app_version]
+    additionalProperties: false
+    properties:
+      min_app_version: {$ref: '#/$defs/app_version'}
+  state:
+    # The whole revocation story (spec R6): revoking a worker sets `revoked`
+    # here so the NEXT RENEWAL is refused. It needs no reach into the machine,
+    # no prior deletion of a registration, and no engineer cooperation.
+    type: string
+    enum: [active, expired, revoked, refused]
+  state_reason:
+    # Coded, closed vocabulary — never free text, so the reason a worker lost
+    # authority is machine-legible in the audit trail.
+    type: string
+    enum:
+      - active_at_or_above_floor
+      - below_floor
+      - renewal_lapsed
+      - operator_revocation
+      - subject_departed
+      - host_decommissioned
+      - trust_withdrawn
+      - ineligible_subject
+      - standing_group_requested
+      - machine_cap_exceeded
+  state_changed_at: {type: string, format: date-time}
+  policy_version:
+    # The `worker_enrollment_policy` version APPLIED to this decision; the audit
+    # record cites the same value (design D3).
+    $ref: '#/$defs/policy_version'
+  note: {$ref: '#/$defs/constrained_text'}
+
+allOf:
+  # ESTATE, SUBJECT CLASS, HOST MANAGEMENT AND TRUST TIER ARE ONE FACT, NOT FOUR
+  # (spec R1, R8; design D8). A volunteered workstation is volunteered hardware
+  # ON THE LEASE, by shape — the tier is not something the host gets to assert.
+  # The coupling reads in BOTH directions on purpose: relabelling `estate: fleet`
+  # on a volunteered machine was otherwise enough to make a laptop read as
+  # managed-fleet hardware AND to slip past the canonical validator's
+  # standing-group prohibition, which keys off the estate. No single field can
+  # carry that lie alone now: `fleet` means a HOST subject on MANAGED hardware in
+  # the `managed_fleet` tier, `temp` means an ENGINEER subject on UNMANAGED
+  # hardware in the `volunteered_hardware` tier, and each of the three
+  # temp-shaped facts independently forces `estate: temp`.
+  - if:
+      properties: {estate: {const: fleet}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: managed_fleet}
+        subject:
+          properties: {class: {const: host}}
+        host:
+          properties: {managed: {const: true}}
+  - if:
+      properties: {estate: {const: temp}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: volunteered_hardware}
+        subject:
+          properties: {class: {const: engineer}}
+        host:
+          properties: {managed: {const: false}}
+  - if:
+      properties: {trust_tier: {const: volunteered_hardware}}
+      required: [trust_tier]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        subject:
+          properties: {class: {const: engineer}}
+          required: [class]
+      required: [subject]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        host:
+          properties: {managed: {const: false}}
+          required: [managed]
+      required: [host]
+    then:
+      properties: {estate: {const: temp}}
+  # A lease that is not active names WHY, so silence is never the explanation.
+  - if:
+      properties: {state: {enum: [expired, revoked, refused]}}
+      required: [state]
+    then:
+      required: [state_reason, state_changed_at]
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  runner_group:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._-]{1,63}$'
+  label:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[a-z0-9][a-z0-9._-]{1,63}$'
+  app_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$'
+  duration:
+    # ISO-8601 time duration, bounded to the components a cadence needs.
+    type: string
+    pattern: '^PT(?=[0-9])(?:[0-9]{1,4}H)?(?:[0-9]{1,4}M)?(?:[0-9]{1,4}S)?$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  constrained_text:
+    # See worker-enrollment-request.schema.yaml: bounded length, closed
+    # character set, and no unbroken run of 25+ token-alphabet characters —
+    # SEPARATORS INCLUDED IN THE RUN CLASS, so `AAAA....BBBB` chunking does not
+    # break the run — so a token cannot be smuggled into a human-readable field
+    # (spec R9).
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

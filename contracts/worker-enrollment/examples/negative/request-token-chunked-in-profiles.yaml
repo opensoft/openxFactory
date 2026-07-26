@@ -1,0 +1,61 @@
+# expected_failure: embedded-secret
+# expected_failure_detail: profiles
+# VIOLATES spec R9 by CHUNKING. `requested_worker.profiles` is the one map in the
+# request whose key names the consumer chooses, and a 52-character runner
+# registration token is here in seven pieces under seven invented profile names.
+#
+# Two entries used to defeat the no-secret rule completely: the key names are
+# unmodelled, so the property-name vocabulary had nothing to match, and each
+# 26-character half sat under the value heuristic's run floor. The control case is
+# the same token unsplit in an identifier field — THAT was always caught, which is
+# what showed chunking to be the entire bypass.
+#
+# Both layers moved. The schema bounds the map on both sides (label-shaped keys,
+# eight-character flag values, bounded breadth), so the two-halves version is now
+# a schema failure; this fixture uses the residual seven-piece form that the
+# schema still admits, and the canonical validator catches it by testing the
+# CONCATENATION of the map's values for a token shape.
+schema_version: 1
+kind: worker_enrollment_request
+
+request_id: req-ws-volunteer-51-0001
+requested_at: "2026-08-03T09:15:00Z"
+estate: temp
+
+authentication:
+  mode: device_code
+  subject:
+    class: engineer
+    ref: engineer:eng-0082
+    directory_group_refs:
+      - entra-group:xfactory-engineering
+  authenticated_at: "2026-08-03T09:14:30Z"
+
+host:
+  host_id: ws-volunteer-51
+  device_name: WS-VOL51-GH6N3
+  managed: false
+  os:
+    family: windows
+    version: "11 24H2"
+  app_version_observed: 1.4.0
+
+requested_worker:
+  worker_id: xfactory-coding-temp-ws-volunteer-51
+  runner_name: xfactory-coding-temp-ws-volunteer-51
+  requested_runner_group: xfactory-temp-volunteer-workers
+  requested_labels:
+    - self-hosted
+    - omnigent
+    - temp
+    - volunteered
+  profiles:
+    bootstrap-a: AABF3JGZ
+    bootstrap-b: DX3P5PME
+    bootstrap-c: XLND6TS6
+    bootstrap-d: FCWO6BLY
+    bootstrap-e: PS6TZ5NA
+    bootstrap-f: T2CVKWHJ
+    bootstrap-g: TP7Q
+
+policy_version_seen: worker-enrollment-v1

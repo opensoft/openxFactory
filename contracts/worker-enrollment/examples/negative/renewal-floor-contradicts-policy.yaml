@@ -1,0 +1,44 @@
+# expected_failure: renewal-floor-contradicts-policy
+# VIOLATES spec R4 by carrying a floor that is present, well-formed, cited to a
+# real policy version — and STALE: the policy in scope declares 1.4.0 for both
+# estates and this response serves 1.2.0.
+#
+# Rule (d) used to check only that `min_app_version` was PRESENT and truthy: never
+# against the policy's declared per-estate floor, never against the lease's
+# `floor_in_force`. So a broker regression that zeroed or staled the floor was
+# invisible to both layers, which disables the only control that reaches unmanaged
+# hardware — the exact "floor that sometimes travels" failure the belt-and-braces
+# note in the renewal schema says this family cannot afford.
+#
+# Rule (d) now checks the VALUE: a floor declaring `source: policy` and citing a
+# policy version in scope must match a floor that policy declares. A floor the
+# broker served from cache says so instead (`source: last_known`), which is
+# legitimate on a `policy_unavailable` refusal and a warning anywhere else.
+schema_version: 1
+kind: worker_lease_renewal
+
+renewal_id: rnw-ws-brett-01-0092
+lease_id: wl-ws-brett-01-0001
+
+request:
+  requested_at: "2026-07-30T10:00:00Z"
+  authentication:
+    mode: device_code
+    subject:
+      class: engineer
+      ref: engineer:eng-brett
+    standing_secret_on_host: none
+  observed:
+    app_version: 1.0.0
+    runner_version: v2.337.1
+
+response:
+  decided_at: "2026-07-30T10:00:00Z"
+  lease_state: active
+  new_expiry: "2026-07-31T10:00:00Z"
+  floor:
+    min_app_version: 1.2.0
+    source: policy
+  required_action: none
+  policy_version: worker-enrollment-v1
+  note: floor read from a cached policy document two versions behind

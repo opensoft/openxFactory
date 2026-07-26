@@ -1,0 +1,70 @@
+# expected_failure: token-in-record
+# expected_failure_detail: lease.registration_token
+# VIOLATES spec R2 (the lease is the record of authority and carries NO token
+# field at all) and the transient-token declaration of
+# worker-enrollment-grant.schema.yaml. The grant is otherwise well formed; the
+# emitter helpfully copied the registration token into the lease so the host could
+# "re-register later". That is exactly the failure the lease inversion exists to
+# prevent: the lease is the document the host PERSISTS, so a token inside it is a
+# standing credential on the machine.
+#
+# Fails twice, by design — the lease schema's `additionalProperties: false` has no
+# such property, and the canonical validator's rule (a) finds a token-shaped
+# property inside a derived record.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-cpc-omni01-0002
+request_ref: req-cpc-omni01-0002
+granted_at: "2026-07-26T09:05:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-cpc-omni01-0002
+  estate: fleet
+  subject:
+    class: host
+    ref: host:cpc-omni01
+  host:
+    host_id: cpc-omni01
+    managed: true
+  worker:
+    worker_id: xfactory-coding-cpc-omni01
+    runner_name: xfactory-coding-cpc-omni01
+  binding:
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+  trust_tier: managed_fleet
+  issued_at: "2026-07-26T09:05:00Z"
+  expires_at: "2026-07-27T09:05:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+  registration_token: AABF3JGZDX3P5PMEXLND6TS6FCWO6BLYPS6TZ5NAT2CVKWHJTP7Q
+
+runner_package:
+  mode: pinned
+  version: v2.336.0
+  platform: win-x64
+  sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+  self_update: disabled
+  delivery: manifest_rollout
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-26T09:15:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

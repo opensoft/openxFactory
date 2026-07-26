@@ -1,0 +1,50 @@
+# expected_failure: embedded-secret
+# expected_failure_detail: reason_detail
+# VIOLATES spec R9 in the field the family declares immune by shape. This is
+# `audit-record-carries-token.yaml`'s exact scenario — "record which token it
+# issued, for traceability" — written into the one free-text field instead of a
+# property of its own, with dots between the pieces.
+#
+# The run bound was the whole protection, and separators were excluded from the
+# run class: `AABF...TS6.FCWO...HJ.TP7Q` is a complete 52-character token that a
+# single `value.replace('.', '')` recovers. A 40-character unbroken base64ish
+# string WAS rejected, so the bound worked against the naive case and only
+# against the naive case.
+#
+# Fails twice now: `constrained_text` counts separators as part of a run, and the
+# canonical validator re-tests every value with separators stripped per word.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-cpc-omni04-0061
+event: remove_token
+occurred_at: "2026-08-04T10:12:00Z"
+
+subject:
+  class: host
+  ref: host:cpc-omni04
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni04
+  managed: true
+
+estate: fleet
+decision: allowed
+reason: remove_token_brokered
+reason_detail: brokered remove token AABF3JGZDX3P5PMEXLND6TS6.FCWO6BLYPS6TZ5NAT2CVKWHJ.TP7Q for drift repair
+
+lease_id: wl-cpc-omni04-0001
+trust_tier: managed_fleet
+runner_group: xfactory-execution-lane-workers
+
+observed:
+  app_version: 1.4.0
+floor:
+  min_app_version: 1.4.0
+  source: policy
+policy_version: worker-enrollment-v1
+
+evidence_ref:
+  class: lease_record
+  ref: broker/leases/wl-cpc-omni04-0001

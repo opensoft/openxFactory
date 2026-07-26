@@ -1,0 +1,51 @@
+# Positive reference example — VOLUNTEER (temp estate) enrollment request
+# (spec R1 scenario 2). An engineer ran the installer on an unmanaged
+# workstation and completed the interactive device-code flow, so the
+# authenticated subject is the ENGINEER, not the machine. No standing secret is
+# written to the workstation at any step: the device-code identity is used for
+# this exchange and for every renewal, and is never escrowed on the machine.
+#
+# The request asks for the temp group by name. It would be equally legal for it
+# to ask for a standing execution lane — and the broker would REFUSE rather than
+# silently downgrade it (spec R8 scenario 2). The refusal, not the request, is
+# where segregation is enforced.
+schema_version: 1
+kind: worker_enrollment_request
+
+request_id: req-ws-brett-01-0001
+requested_at: "2026-07-26T14:30:00Z"
+estate: temp
+
+authentication:
+  mode: device_code
+  subject:
+    class: engineer
+    ref: engineer:eng-brett
+    directory_group_refs:
+      - entra-group:xfactory-engineering
+  authenticated_at: "2026-07-26T14:29:41Z"
+
+host:
+  host_id: ws-brett-01
+  device_name: WS-BRETT-TUBV0
+  managed: false
+  os:
+    family: windows
+    version: "11 24H2"
+  app_version_observed: 1.4.0
+
+requested_worker:
+  worker_id: xfactory-coding-temp-ws-brett-01
+  runner_name: xfactory-coding-temp-ws-brett-01
+  requested_runner_group: xfactory-temp-volunteer-workers
+  requested_labels:
+    - self-hosted
+    - omnigent
+    - temp
+    - volunteered
+    - coding-patch
+  profiles:
+    coding-patch-worker: "1"
+
+policy_version_seen: worker-enrollment-v1
+note: first volunteer workstation, expected to run for months

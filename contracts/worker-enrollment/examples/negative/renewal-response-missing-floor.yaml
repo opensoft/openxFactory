@@ -1,0 +1,42 @@
+# expected_failure: renewal-response-missing-floor
+# VIOLATES spec R4: every renewal response MUST carry the current minimum app
+# version, including approvals.
+#
+# This fixture is the optimization that quietly breaks the only control that
+# reaches unmanaged hardware: "the floor did not change, so why send it?" Because
+# the response is the ONLY channel to the machine. A floor that travels
+# conditionally is a floor whose absence is indistinguishable from an unchanged
+# one — and a worker that has never been told a floor cannot fail closed against
+# it.
+#
+# Fails twice, by design: `floor` is a required property of the response, and the
+# canonical validator's rule (d) checks it independently, because this is the one
+# invariant the family cannot afford to have enforced in only one place.
+schema_version: 1
+kind: worker_lease_renewal
+
+renewal_id: rnw-cpc-omni01-0102
+lease_id: wl-cpc-omni01-0001
+
+request:
+  requested_at: "2026-07-31T08:00:00Z"
+  authentication:
+    mode: host_identity
+    subject:
+      class: host
+      ref: host:cpc-omni01
+    standing_secret_on_host: broker_access_only
+  observed:
+    app_version: 1.4.0
+    runner_version: v2.336.0
+  liveness:
+    last_heartbeat_at: "2026-07-31T07:57:00Z"
+    consecutive_failed_renewals: 0
+
+response:
+  decided_at: "2026-07-31T08:00:00Z"
+  lease_state: active
+  new_expiry: "2026-08-01T08:00:00Z"
+  required_action: none
+  policy_version: worker-enrollment-v1
+  note: floor unchanged since the previous renewal so it was omitted

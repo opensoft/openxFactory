@@ -1,0 +1,52 @@
+# expected_failure: schema
+# expected_failure_detail: 'trust_tier' is a required property
+# VIOLATES spec R9: "Every enrollment, renewal, refusal, and revocation SHALL emit
+# an audit record carrying ... the lease id, the trust tier, the runner group".
+#
+# The tier and the group used to be required only under `decision: allowed`, so
+# this record — a refused renewal, complete in every other respect — validated
+# cleanly with neither. That is precisely backwards: R8 scenario 3 and R9 scenario
+# 3 make the REFUSAL chain the evidence. An auditor asked to prove sensitive work
+# never reached volunteered hardware, or to establish when a worker lost
+# authority, got a compliant-but-tierless chain and had to join back to the lease
+# store the record exists to make unnecessary.
+#
+# The tier now travels on every record whose tier can be known — the only
+# exemptions are an unauthenticated caller and a `policy_unavailable` refusal,
+# where there is no projection to read — and the group travels wherever a lease
+# exists.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-ws-brett-01-0214
+event: renew
+occurred_at: "2026-08-21T09:00:00Z"
+
+subject:
+  class: engineer
+  ref: engineer:eng-brett
+  authentication_mode: device_code
+
+host:
+  host_id: ws-brett-01
+  device_name: WS-BRETT-TUBV0
+  managed: false
+
+estate: temp
+decision: refused
+reason: below_floor
+reason_detail: observed app version below the estate floor; runner services stopped
+
+lease_id: wl-ws-brett-01-0001
+runner_group: xfactory-temp-volunteer-workers
+
+observed:
+  app_version: 1.3.2
+floor:
+  min_app_version: 1.5.0
+  source: policy
+policy_version: worker-enrollment-v2
+
+evidence_ref:
+  class: renewal_exchange
+  ref: broker/renewals/2026-08-21/rnw-ws-brett-01-0164

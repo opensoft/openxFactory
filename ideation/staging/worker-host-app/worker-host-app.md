@@ -130,11 +130,27 @@ refresh: {policy: rebuild-on-base-cve, cadence: monthly}
 
 ## Decisions to take
 
+- **Runner registration credential** — **RESOLVED 2026-07-26** by
+  `add-worker-enrollment-broker` (staged topic
+  `openxFactory:staging:worker-enrollment-broker`; contract family
+  `contracts/worker-enrollment/`). This was the parked decision behind the
+  fail-closed `runner_services` refusal in PRs #36/#37: there was no legitimate
+  way to hand a host a runner registration token, because minting one needs an
+  administration-tier GitHub App key that must not sit on hosts. The resolution
+  inverts the question — enrollment grants a renewable LEASE, and the host asks
+  a standalone broker for a short-lived single-use registration token against
+  that lease. Minting authority (the opsxfactory administration-tier App key)
+  stays in the broker alone, remove-token brokering for drift repair rides the
+  same authority and audit path, and the app persists only the lease. So
+  `runner_services` gains a broker call in the seam that already refuses, and no
+  key ever reaches a worker host.
 - **Container engine**: docker-ce in WSL (leaning) vs Podman (rootless).
 - **App implementation v1**: PowerShell module + supervisor scheduled task
   (leaning — fast, auditable, no toolchain on the host) vs compiled service;
   v2 grows into the full enrollment-handshake agent (device-cert-backed
-  identity, Hermes registration approval).
+  identity, Hermes registration approval — which arrives through the broker's
+  enrollment door per that change's design D4, with no contract delta needed to
+  add the ceremony).
 - **ACR pull identity**: per-host scoped ACR token escrowed in KV (v1
   leaning) vs device-certificate-backed Entra credential (v2).
 - **Bench registry + build pipeline owner**: platform ACR

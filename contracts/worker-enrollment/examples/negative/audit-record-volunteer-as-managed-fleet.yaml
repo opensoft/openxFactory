@@ -1,0 +1,51 @@
+# expected_failure: estate-coherence
+# expected_failure_detail: estate 'fleet' contradicts
+# VIOLATES spec R9 (and R1, R8) by making the AUDIT TRAIL agree with the lie.
+# This record puts `subject.authentication_mode: device_code`, `subject.class:
+# engineer` and `host.managed: false` — three volunteer facts — next to
+# `estate: fleet`, `trust_tier: managed_fleet`, and the standing execution-lane
+# runner group.
+#
+# It matters more here than on the lease. R8 scenario 3 and R9 scenario 3 both
+# rest on the audit trail being able to establish, on its own, that sensitive
+# work never reached volunteered hardware. A record that can corroborate the
+# opposite is worse than no record: it is evidence pointing the wrong way.
+#
+# Fails twice, by design: the audit schema carries the same both-directions
+# coupling the lease does, and the canonical validator's rule (e) names the
+# contradiction.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-ws-volunteer-18-0001
+event: enroll
+occurred_at: "2026-07-30T09:00:00Z"
+
+subject:
+  class: engineer
+  ref: engineer:eng-0047
+  authentication_mode: device_code
+
+host:
+  host_id: ws-volunteer-18
+  device_name: WS-VOL18-KK7D2
+  managed: false
+
+estate: fleet
+decision: allowed
+reason: eligible_subject
+
+lease_id: wl-ws-volunteer-18-0001
+trust_tier: managed_fleet
+runner_group: xfactory-execution-lane-workers
+
+observed:
+  app_version: 1.4.0
+floor:
+  min_app_version: 1.4.0
+  source: policy
+policy_version: worker-enrollment-v1
+
+evidence_ref:
+  class: enrollment_request
+  ref: broker/requests/2026-07-30/req-ws-volunteer-18-0001

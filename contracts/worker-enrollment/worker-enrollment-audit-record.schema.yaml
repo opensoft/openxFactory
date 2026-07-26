@@ -1,0 +1,338 @@
+schema_version: 1
+name: worker_enrollment_audit_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-enrollment-audit-record.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.6). One record
+# per enrollment, renewal, refusal, revocation, and remove-token brokering (spec
+# R9). The audit trail alone must establish WHEN a worker lost authority and WHY,
+# without reference to host-side logs — because on volunteered hardware there are
+# no host-side logs anyone can compel.
+#
+# THE REDACTION RULE IS EXPRESSED IN THE SHAPE, NOT IN A LOGGING CONVENTION
+# (spec R9). Three properties of this schema carry it:
+#   1. NO token, secret, key, credential, or password property exists — at any
+#      depth. There is nothing to fill in.
+#   2. `additionalProperties: false` at EVERY level, so a well-meaning emitter
+#      cannot add one.
+#   3. Every free-text field is `constrained_text`: max 200 characters, a closed
+#      character set, and NO unbroken run of 25 or more token-alphabet
+#      characters — so a registration or remove token cannot be smuggled into a
+#      human-readable field. Everything else is a coded, closed vocabulary.
+# The canonical validator additionally scans every value for secret shapes, so a
+# record presenting one fails validation (spec R9 scenario 2).
+#
+# THE TIER AND THE GROUP TRAVEL ON REFUSALS AND REVOCATIONS TOO (spec R9). They
+# used to be required only under `decision: allowed`, so a refusal record — the
+# artifact R9 scenario 3 makes the SOLE evidence for when and why a worker lost
+# authority — could omit both, and an auditor asked to prove sensitive work never
+# reached volunteered hardware got a compliant-but-tierless chain and had to join
+# back to the lease store the record exists to make unnecessary. They are now
+# required wherever the facts exist, and the ONLY exemptions are the records
+# where they demonstrably do not: an enrollment refusal has no lease to bind a
+# group to, and an unauthenticated or `policy_unavailable` refusal has no tier
+# projection to read.
+type: object
+required:
+  - schema_version
+  - kind
+  - record_id
+  - event
+  - occurred_at
+  - subject
+  - host
+  - estate
+  - decision
+  - reason
+  - observed
+  - floor
+  - evidence_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_enrollment_audit_record]
+  record_id: {$ref: '#/$defs/identifier'}
+  event:
+    # `remove_token` is here because remove-token brokering for drift repair
+    # rides the SAME authority and the SAME audit path as registration (spec R3).
+    #
+    # ONE ENCODING PER OUTCOME, pinned by the allOf below, because a compliance
+    # query that filters the wrong one returns silence and reads it as "no
+    # refusals occurred" (spec R9 scenario 3):
+    #   * `enroll`       — an ALLOWED enrollment (a refused one is `refuse`);
+    #   * `refuse`       — a refused ENROLLMENT, i.e. before any lease exists, so
+    #                      it carries no `lease_id`;
+    #   * `renew`        — a renewal, allowed OR refused (a refused renewal is
+    #                      `renew` + `refused`, never `refuse`);
+    #   * `revoke`       — an operator revocation;
+    #   * `remove_token` — remove-token brokering, allowed or refused.
+    type: string
+    enum: [enroll, renew, refuse, revoke, remove_token]
+  occurred_at: {type: string, format: date-time}
+  subject:
+    type: object
+    required: [class, ref, authentication_mode]
+    additionalProperties: false
+    properties:
+      class:
+        type: string
+        enum: [host, engineer, operator, unauthenticated]
+      ref: {$ref: '#/$defs/identifier'}
+      authentication_mode:
+        type: string
+        enum: [host_identity, device_code, operator_action, none]
+  host:
+    type: object
+    required: [host_id, managed]
+    additionalProperties: false
+    properties:
+      host_id: {$ref: '#/$defs/identifier'}
+      device_name: {$ref: '#/$defs/identifier'}
+      managed:
+        # REQUIRED, and locked to the estate by the coupling below.
+        type: boolean
+  estate:
+    type: string
+    enum: [fleet, temp]
+  decision:
+    type: string
+    enum: [allowed, refused, revoked]
+  reason:
+    # Coded and closed. A refusal names its SPECIFIC reason (spec R9 scenario 1).
+    type: string
+    enum:
+      - eligible_subject
+      - at_or_above_floor
+      - remove_token_brokered
+      - unauthenticated
+      - ineligible_subject
+      - machine_cap_exceeded
+      - standing_group_requested
+      - below_floor
+      - revoked_lease
+      - expired_lease
+      - unknown_lease
+      - policy_unavailable
+      - operator_revocation
+      - subject_departed
+      - host_decommissioned
+      - trust_withdrawn
+  reason_detail:
+    # The only free-text field on the record, and bounded so it cannot carry a
+    # token (see the header, rule 3).
+    $ref: '#/$defs/constrained_text'
+  lease_id:
+    # Absent only where no lease exists yet — an unauthenticated or ineligible
+    # enrollment refusal (spec R1 scenario 3).
+    $ref: '#/$defs/identifier'
+  trust_tier: {$ref: '#/$defs/trust_tier'}
+  runner_group: {$ref: '#/$defs/runner_group'}
+  observed:
+    type: object
+    required: [app_version]
+    additionalProperties: false
+    properties:
+      app_version: {$ref: '#/$defs/app_version'}
+      runner_version: {$ref: '#/$defs/runner_version'}
+  floor:
+    # The floor IN FORCE at the decision — the other half of every
+    # below-floor determination, recorded so the determination is re-checkable.
+    # `source` says whether it was read from the policy or is the broker's last
+    # known value, so a `policy_unavailable` refusal can still record a floor
+    # without pretending it read one.
+    type: object
+    required: [min_app_version, source]
+    additionalProperties: false
+    properties:
+      min_app_version: {$ref: '#/$defs/app_version'}
+      source:
+        type: string
+        enum: [policy, last_known]
+  policy_version:
+    # Required on every record EXCEPT a `policy_unavailable` refusal (see the
+    # allOf): the record must not cite a policy version the broker never read.
+    $ref: '#/$defs/policy_version'
+  evidence_ref:
+    # A REFERENCE to evidence, never the evidence itself: no response body, no
+    # request body, no transcript.
+    type: object
+    required: [class, ref]
+    additionalProperties: false
+    properties:
+      class:
+        type: string
+        enum: [enrollment_request, renewal_exchange, operator_action, lease_record, package_verification]
+      ref: {$ref: '#/$defs/locator'}
+
+allOf:
+  # --- one encoding per outcome (see `event`) --------------------------------
+  - if:
+      properties: {event: {const: enroll}}
+      required: [event]
+    then:
+      properties: {decision: {const: allowed}}
+      required: [lease_id, trust_tier, runner_group]
+  - if:
+      properties: {event: {const: refuse}}
+      required: [event]
+    then:
+      properties: {decision: {const: refused}}
+      # A refused ENROLLMENT precedes any lease, so there is none to name.
+      not: {required: [lease_id]}
+  - if:
+      properties: {event: {const: renew}}
+      required: [event]
+    then:
+      properties: {decision: {enum: [allowed, refused]}}
+      required: [lease_id, trust_tier, runner_group]
+  - if:
+      properties: {event: {const: revoke}}
+      required: [event]
+    then:
+      properties: {decision: {const: revoked}}
+      required: [lease_id, trust_tier, runner_group]
+  - if:
+      properties: {event: {const: remove_token}}
+      required: [event]
+    then:
+      properties: {decision: {enum: [allowed, refused]}}
+      required: [lease_id, trust_tier, runner_group]
+  # --- the decision and its reason are one statement ------------------------
+  - if:
+      properties: {decision: {const: allowed}}
+      required: [decision]
+    then:
+      properties:
+        reason:
+          enum: [eligible_subject, at_or_above_floor, remove_token_brokered]
+  - if:
+      properties: {decision: {const: refused}}
+      required: [decision]
+    then:
+      properties:
+        reason:
+          enum:
+            - unauthenticated
+            - ineligible_subject
+            - machine_cap_exceeded
+            - standing_group_requested
+            - below_floor
+            - revoked_lease
+            - expired_lease
+            - unknown_lease
+            - policy_unavailable
+  - if:
+      properties: {decision: {const: revoked}}
+      required: [decision]
+    then:
+      properties:
+        reason:
+          enum:
+            - operator_revocation
+            - subject_departed
+            - host_decommissioned
+            - trust_withdrawn
+  # --- the tier travels unless it cannot be known ---------------------------
+  # An unauthenticated caller has no estate projection to read, and a
+  # `policy_unavailable` refusal is precisely the case where the projection could
+  # not be read. Every other record names the tier (spec R9).
+  - if:
+      properties:
+        reason: {not: {enum: [unauthenticated, policy_unavailable]}}
+      required: [reason]
+    then:
+      required: [trust_tier]
+  # --- the policy version travels unless there was no policy to read --------
+  - if:
+      properties:
+        reason: {not: {const: policy_unavailable}}
+      required: [reason]
+    then:
+      required: [policy_version]
+  # --- estate, tier, host management and authentication mode are one fact ---
+  # The same both-directions coupling the lease carries (spec R1, R8): an audit
+  # record must not be able to corroborate a lie the lease can no longer tell —
+  # `estate: fleet` / `trust_tier: managed_fleet` recorded next to
+  # `host.managed: false` and `authentication_mode: device_code` was exactly the
+  # trail that made a volunteered laptop look like fleet metal.
+  - if:
+      properties: {estate: {const: fleet}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: managed_fleet}
+        host:
+          properties: {managed: {const: true}}
+  - if:
+      properties: {estate: {const: temp}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: volunteered_hardware}
+        host:
+          properties: {managed: {const: false}}
+  - if:
+      properties: {trust_tier: {const: volunteered_hardware}}
+      required: [trust_tier]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: device_code}}
+          required: [authentication_mode]
+      required: [subject]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: host_identity}}
+          required: [authentication_mode]
+      required: [subject]
+    then:
+      properties: {estate: {const: fleet}}
+  - if:
+      properties:
+        host:
+          properties: {managed: {const: false}}
+          required: [managed]
+      required: [host]
+    then:
+      properties: {estate: {const: temp}}
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  locator:
+    type: string
+    minLength: 3
+    maxLength: 256
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/+-]{2,255}$'
+  runner_group:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._-]{1,63}$'
+  trust_tier:
+    type: string
+    enum: [managed_fleet, volunteered_hardware]
+  app_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$'
+  runner_version:
+    type: string
+    pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  constrained_text:
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

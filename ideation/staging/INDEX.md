@@ -59,7 +59,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | Ready to iterate — pattern + material verified 2026-07-24; roster composition is the change-A gating decision (needs a decision round with Brett); no external gates (omnigent overlay realization archived at contract-v1.16) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
-| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home TBD) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10 with recommendations, D1 (broker home + hosting) blocking the first realization; the contract ships six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
+| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## ideation-action-plane
@@ -574,6 +574,13 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   three-place contract delta; WSL servicing owner (plus kernel-update and
   `.wslconfig` resource-limit ownership, see the WSL doc); LLM-vault
   consolidation ordering.
+- Resolved elsewhere: the parked **registration-credential** decision (the
+  fail-closed `runner_services` refusal behind PRs #36/#37) is RESOLVED
+  2026-07-26 by `add-worker-enrollment-broker` — enrollment grants a renewable
+  lease and a short-lived single-use registration token from a standalone
+  broker that holds the opsxfactory administration-tier App key alone, so no
+  minting authority ever reaches a host. See the `worker-enrollment-broker`
+  topic below and `contracts/worker-enrollment/`.
 - Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
   (the app), OpsxFactory change (packaging); archives on Omni-001 green
   readiness via the app + a governed lane run on an Omni-001 worker +
@@ -583,7 +590,9 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 
 - Staging ID: `openxFactory:staging:worker-enrollment-broker`
 - Repository context: openxFactory (neutral enrollment/lease contract);
-  standalone broker service (home TBD by open question 1);
+  standalone broker service (home DECIDED by D1: a new Opsx-owned repo,
+  container app on the existing platform subscription, deliberately NOT the
+  QA AKS cluster);
   Omnigent-Install (registration-via-broker in `runner_services`, lease
   renewal in the supervisor); OpsxFactory (opsxfactory App key custody,
   minimum-version policy, temp runner group, engineer eligibility).
@@ -606,10 +615,13 @@ document-lifecycle spec is a candidate for the next lifecycle change.
     the volunteer-workstation acceptance test (first volunteer = Brett's
     machine, doubling as the NT SERVICE fact-check).
 - Open questions (all carried into the proposal's `design.md` as
-  decisions D1–D10 with recommendations; each still needs Brett's
-  ruling): broker home/hosting + credential custody (D1 — BLOCKS the
-  first realization; recommendation = dedicated Opsx-owned repo,
-  container app off the QA cluster); lease cadence + grace (D2 — 24h TTL,
+  decisions D1–D10 with recommendations, and **all ten adopted as DECIDED
+  by Brett's approval of the change on 2026-07-26** — none of them is a
+  live gate; do not re-escalate): broker home/hosting + credential
+  custody (D1 — a dedicated Opsx-owned repo, container app on the
+  existing platform subscription and NOT the QA AKS cluster, whose blast
+  radius and lifecycle a production control-plane dependency must not
+  inherit); lease cadence + grace (D2 — 24h TTL,
   hourly renewal, 12h grace); version-floor policy home (D3 —
   OpsxFactory-owned policy the broker consumes, floor raises through the
   governed lane); enrollment approval (D4 — Entra-group auto-approve in
@@ -626,7 +638,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   re-enrollment); heartbeat/readiness lease-state integration (D10 —
   three-places rule, rides the bench-inventory heartbeat delta if it
   lands first).
-- Readiness: **exit 1 proposed 2026-07-26** as
+- Readiness: **exit 1 proposed AND phase-1 realized 2026-07-26** as
   `add-worker-enrollment-broker` — the neutral contract (one enrollment
   point / two auth modes, lease + short-lived token, minting authority
   broker-only incl. remove tokens, renewal carrying the floor,

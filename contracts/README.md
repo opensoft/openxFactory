@@ -93,6 +93,8 @@ archives, at the registration task named in that family's note below.
 | `schemas/ideation-cross-reference.schema.yaml` | Unified cross-stage cross-reference readiness index (source of truth `ideation/cross-reference.yaml`; `.md` is a generated projection); four-schema co-load, embeds the possibles-register kernel | `add-ideation-cross-reference-readiness` |
 | `scripts/validate-ideation-cross-reference.py` | Strict validator: four-schema-registry conformance (FormatChecker-enforced), extension-fit citation resolution against promoted/active-change capabilities, min>=8 gate arithmetic, spread-conflict consistency, topic-entry id uniqueness; delegates register-entry shape/transitions to `validate-ideation-dashboard-contracts.py` | `add-ideation-cross-reference-readiness` |
 | `scripts/render-ideation-cross-reference.py` / `scripts/bootstrap-ideation-cross-reference.py` | Deterministic YAML→Markdown projection renderer, and the one-time header-derived bootstrap generator that seeds `ideation/cross-reference.yaml` + `.md` | `add-ideation-cross-reference-readiness` |
+| `worker-enrollment/` | Neutral worker-enrollment contract family — one enrollment point serving both estates through two authentication modes (`host_identity` / `device_code`) as FIELDS of one request shape; the `worker_lease` authority record that carries no token field at all (leases over registrations, so staleness/revocation/trust are renewal decisions rather than facts on a machine); the grant with its estate-split runner package (fleet hard pin + sha256 + self-update disabled vs temp self-update, no pin) and its TRANSIENT `writeOnly` registration token; the renewal exchange whose response always carries the minimum-app-version floor; the OpsxFactory-owned policy instance shape; and the audit record whose shape — no token/secret/key property, bounded free text — IS the redaction rule | `add-worker-enrollment-broker` |
+| `scripts/validate-worker-enrollment.py` | Strict validator: schema conformance (FormatChecker-enforced, `$id`-keyed registry for the grant's embedded lease `$ref`) plus the cross-shape rules — no token/secret-shaped property or value in any record or lease, chunk-resistant (separator-stripped values, concatenated arrays and bounded flag maps) and class-filtered against the shared `avatar-client/redaction/` denylist; temp leases never bound into a standing execution-lane runner group (declared policy facts, else a fail-closed naming fallback that says so); the estate runner-package split, with the fleet pin checked against the policy's declared package; a MEANINGFUL floor on every renewal response; estate/subject/host-management/trust-tier coherence; a device-code renewal holding no standing secret; lease expiry consistent with the cadence and a short-lived registration token; and no standing execution lane accepting volunteered hardware | `add-worker-enrollment-broker` |
 
 Reference examples for the ideation-dashboard family (8 valid + 21 invalid
 fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
@@ -125,6 +127,25 @@ See `openspec/changes/add-ideation-cross-reference-readiness/specs/ideation-cros
 for the requirements these realize. Per this section's rule, these entries move
 to `contracts/manifest.yaml` and `contracts/CHANGELOG.md` when
 `add-ideation-cross-reference-readiness` archives (its task 5.2).
+
+Reference examples for the worker-enrollment family (9 positives — both estates
+end to end, a renewal carrying the floor, a below-floor refusal, the refusal
+audit record, a revocation record, and the policy instance — plus 21 negatives,
+one violation per file, each declaring its `# expected_failure:` reason and, where
+a finding code alone is too coarse an anchor, an `# expected_failure_detail:`
+substring that pins the fixture to the invariant it is named for) live beside the
+schemas at
+`contracts/worker-enrollment/examples/`, the packaged-fixture convention the
+`hermes-domain-overlay` and `client-content` families use.
+`scripts/validate-worker-enrollment.py` self-tests them and additionally scans a
+given checkout for real enrollment artifacts, excluding that examples tree. Family
+overview, the two authentication modes, and the redaction rule:
+[contracts/worker-enrollment/README.md](worker-enrollment/README.md); the
+requirements these schemas realize are in
+`openspec/changes/add-worker-enrollment-broker/specs/worker-enrollment-broker/spec.md`.
+Per this section's rule, these entries move to `contracts/manifest.yaml` and
+`contracts/CHANGELOG.md` at the next additive bundle cut
+(`add-worker-enrollment-broker` task 1.11).
 
 ## Contract Manifest
 

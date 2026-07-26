@@ -1,0 +1,87 @@
+# Positive reference example — FLEET enrollment grant with the HARD PIN
+# (spec R2, R7 scenario 1). Note three things the shape is doing:
+#
+#   * the lease is embedded WHOLE and carries no token field at all — it is the
+#     only part of this response the host persists;
+#   * `runner_package` is the pinned variant: exact version, platform, sha256,
+#     `self_update: disabled`, and `delivery: manifest_rollout`, because a fleet
+#     runner bump rides an Intune manifest rollout, never a broker instruction to
+#     a running host;
+#   * `registration_token` declares TRANSIENCE and carries NO `value`. The live
+#     response body carries one; no stored artifact ever may, which is why this
+#     packaged example cannot show one and the canonical validator fails any
+#     artifact that does.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-cpc-omni01-0001
+request_ref: req-cpc-omni01-0001
+granted_at: "2026-07-26T09:00:01Z"
+
+approval:
+  mode: eligibility_auto_approved
+  evidence:
+    eligibility_group_ref: entra-group:xfactory-worker-hosts
+    policy_version: worker-enrollment-v1
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-cpc-omni01-0001
+  estate: fleet
+  subject:
+    class: host
+    ref: host:cpc-omni01
+  host:
+    host_id: cpc-omni01
+    device_name: CPC-Omni0-P5AJB
+    managed: true
+  worker:
+    worker_id: xfactory-coding-cpc-omni01
+    runner_name: xfactory-coding-cpc-omni01
+  binding:
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - coding-patch
+      - host-coding-cpc-omni01
+    dispatch_label: host-coding-cpc-omni01
+  trust_tier: managed_fleet
+  issued_at: "2026-07-26T09:00:01Z"
+  expires_at: "2026-07-27T09:00:01Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  state_reason: active_at_or_above_floor
+  state_changed_at: "2026-07-26T09:00:01Z"
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: pinned
+  version: v2.336.0
+  platform: win-x64
+  sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+  self_update: disabled
+  delivery: manifest_rollout
+  download_ref: https://github.com/actions/runner/releases/download/v2.336.0/actions-runner-win-x64-2.336.0.zip
+
+host_manifest:
+  # The fleet host already has its manifest: it arrived in the Intune package.
+  source: delivery_plane
+  policy_version: worker-enrollment-v1
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-26T09:10:01Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

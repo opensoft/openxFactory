@@ -1,0 +1,228 @@
+schema_version: 1
+name: worker_enrollment_request
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-enrollment-request.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.1). The ONE
+# enrollment request both estates send: a fleet host authenticating with the
+# per-host identity provisioned for it in the managed-platform key vault, and a
+# volunteer workstation whose ENGINEER authenticated through an interactive
+# device-code flow (spec R1). The estate and the authentication mode are FIELDS
+# of this one shape — there is deliberately no second request schema, so a
+# divergence between the estates can only ever be a policy fork, never a
+# protocol fork.
+#
+# Load-bearing absences (the shape IS the rule):
+#   * no credential, secret, assertion, private-key, or token property exists
+#     anywhere in this document — the authenticated subject is carried as a
+#     REFERENCE and the proof of authentication happens in the transport, never
+#     in the record (spec R1, R9);
+#   * `additionalProperties: false` at every level, so a consumer cannot smuggle
+#     one in under an unmodelled key. The ONE map with consumer-chosen key names
+#     (`requested_worker.profiles`) is bounded on BOTH sides — label-shaped keys
+#     and 8-character flag values — because an open map is an open channel.
+#
+# The cross-shape rules a schema cannot express (no token-shaped value anywhere)
+# live in `scripts/validate-worker-enrollment.py`, the canonical validator.
+type: object
+required:
+  - schema_version
+  - kind
+  - request_id
+  - requested_at
+  - estate
+  - authentication
+  - host
+  - requested_worker
+  - policy_version_seen
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_enrollment_request]
+  request_id: {$ref: '#/$defs/identifier'}
+  requested_at: {type: string, format: date-time}
+  estate:
+    # `fleet` = managed metal (Intune-delivered, per-host identity, pinned
+    # package); `temp` = a volunteered workstation (device-code, self-updating
+    # runner, segregated group). Estate is a FIELD, not a second schema (R1).
+    type: string
+    enum: [fleet, temp]
+  authentication:
+    type: object
+    required: [mode, subject]
+    additionalProperties: false
+    properties:
+      mode:
+        # Exactly two modes and no others (R1).
+        type: string
+        enum: [host_identity, device_code]
+      subject:
+        # The AUTHENTICATED subject, by reference. `host` for a fleet per-host
+        # identity (broker ACCESS only — it carries no token-minting authority,
+        # R3); `engineer` for a device-code volunteer enrollment.
+        type: object
+        required: [class, ref]
+        additionalProperties: false
+        properties:
+          class:
+            type: string
+            enum: [host, engineer]
+          ref: {$ref: '#/$defs/identifier'}
+          directory_group_refs:
+            # Eligibility evidence the broker evaluates against the policy
+            # (design D6): group membership as a fact, never a roster copy.
+            type: array
+            items: {$ref: '#/$defs/identifier'}
+            uniqueItems: true
+      authenticated_at: {type: string, format: date-time}
+  host:
+    # Host identity FACTS as observed by the requesting host app. The observed
+    # app version is what the floor is evaluated against (R4, R5).
+    type: object
+    required: [host_id, managed, os, app_version_observed]
+    additionalProperties: false
+    properties:
+      host_id: {$ref: '#/$defs/identifier'}
+      device_name: {$ref: '#/$defs/identifier'}
+      managed:
+        # True only where a managed delivery plane can force our app current;
+        # a volunteer workstation reports false, which is WHY the version floor
+        # exists (R5).
+        type: boolean
+      os:
+        type: object
+        required: [family, version]
+        additionalProperties: false
+        properties:
+          family:
+            type: string
+            enum: [windows, linux, macos]
+          version: {$ref: '#/$defs/short_token'}
+      app_version_observed: {$ref: '#/$defs/app_version'}
+      runner_version_observed:
+        # Informational for the temp estate by contract (R7).
+        $ref: '#/$defs/runner_version'
+  requested_worker:
+    # What the host asks to become. A temp-estate request naming a standing
+    # execution-lane runner group is REFUSED rather than silently downgraded
+    # (R8) — the refusal is a broker decision, so the request may legally
+    # carry the ask.
+    type: object
+    required: [worker_id, runner_name]
+    additionalProperties: false
+    properties:
+      worker_id: {$ref: '#/$defs/identifier'}
+      runner_name: {$ref: '#/$defs/identifier'}
+      requested_runner_group: {$ref: '#/$defs/runner_group'}
+      requested_labels:
+        type: array
+        items: {$ref: '#/$defs/label'}
+        uniqueItems: true
+      profiles:
+        # A BOUNDED FLAG MAP, not an open map (spec R9). The key names are
+        # label-shaped and the values are short FLAGS — never free text — because
+        # an open map whose values were 64-character tokens was the one place in
+        # this document a credential could still ride in: two entries of 26
+        # characters each carry a chunked GitHub runner token past both the
+        # property-name vocabulary (the keys are attacker-chosen, so there is
+        # nothing to match) and the validator's value heuristic (each half is
+        # under its run floor). Keys are labels, values are at most 8
+        # characters, the map is bounded, and the canonical validator
+        # additionally tests the CONCATENATION of a profiles map's values for a
+        # token shape.
+        type: object
+        minProperties: 1
+        maxProperties: 16
+        propertyNames: {$ref: '#/$defs/label'}
+        additionalProperties: {$ref: '#/$defs/profile_flag'}
+  policy_version_seen:
+    # The `worker_enrollment_policy` version the requester believes is current;
+    # the broker decides against the merged policy it reads, never against this
+    # (design D3).
+    $ref: '#/$defs/policy_version'
+  note: {$ref: '#/$defs/constrained_text'}
+
+allOf:
+  # The estate determines WHO authenticates — the only estate difference in the
+  # exchange itself (R1).
+  - if:
+      properties: {estate: {const: fleet}}
+      required: [estate]
+    then:
+      properties:
+        authentication:
+          properties:
+            mode: {const: host_identity}
+            subject: {properties: {class: {const: host}}}
+        host:
+          properties: {managed: {const: true}}
+  - if:
+      properties: {estate: {const: temp}}
+      required: [estate]
+    then:
+      properties:
+        authentication:
+          properties:
+            mode: {const: device_code}
+            subject: {properties: {class: {const: engineer}}}
+        host:
+          properties: {managed: {const: false}}
+  # And in reverse: unmanaged hardware is the temp estate, whatever the request
+  # says it is (the same both-directions coupling the lease carries).
+  - if:
+      properties:
+        host:
+          properties: {managed: {const: false}}
+          required: [managed]
+      required: [host]
+    then:
+      properties: {estate: {const: temp}}
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  short_token:
+    type: string
+    minLength: 1
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._:+-]{0,63}$'
+  runner_group:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._-]{1,63}$'
+  label:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[a-z0-9][a-z0-9._-]{1,63}$'
+  profile_flag:
+    # A profile FLAG: `1`, `0`, `true`, `false`, or a small count. Deliberately
+    # too short to hold a useful chunk of anything (spec R9).
+    type: string
+    minLength: 1
+    maxLength: 8
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,7}$'
+  app_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$'
+  runner_version:
+    type: string
+    pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  constrained_text:
+    # Free text, deliberately bounded: 200 characters, a closed character set,
+    # and NO unbroken run of 25+ token-alphabet characters — so a registration
+    # or remove token cannot be smuggled into a human-readable field (spec R9).
+    # The same $def appears in every record shape of this family.
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

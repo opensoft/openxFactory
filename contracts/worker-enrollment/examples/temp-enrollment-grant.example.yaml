@@ -1,0 +1,111 @@
+# Positive reference example — VOLUNTEER (temp estate) enrollment grant
+# (spec R7 scenario 2, R8 scenario 1; design D5). The SAME response shape as the
+# fleet grant, with three estate differences and no protocol differences:
+#
+#   * `runner_package` is the self-update variant and carries NO pin. GitHub
+#     keeps the runner binary current by itself, and a volunteered laptop must
+#     never fail closed for runner-binary drift — the fail-closed control here is
+#     the app-version floor, nothing else;
+#   * the lease binds the DEDICATED temp runner group with temp labels and the
+#     `volunteered_hardware` trust tier, so a lane can decline this hardware by
+#     tier rather than by enumerating hosts;
+#   * the broker SERVES the host manifest inline, because a volunteer workstation
+#     has no delivery plane — enrollment is the only door. Content per D5: one
+#     worker, the general coding-patch profile, temp labels, no benches in v1.
+#
+# As in every grant, `registration_token` declares transience and carries no
+# `value`.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-ws-brett-01-0001
+request_ref: req-ws-brett-01-0001
+granted_at: "2026-07-26T14:30:02Z"
+
+approval:
+  mode: eligibility_auto_approved
+  evidence:
+    eligibility_group_ref: entra-group:xfactory-engineering
+    policy_version: worker-enrollment-v1
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-ws-brett-01-0001
+  estate: temp
+  subject:
+    class: engineer
+    ref: engineer:eng-brett
+  host:
+    host_id: ws-brett-01
+    device_name: WS-BRETT-TUBV0
+    managed: false
+  worker:
+    worker_id: xfactory-coding-temp-ws-brett-01
+    runner_name: xfactory-coding-temp-ws-brett-01
+  binding:
+    runner_group: xfactory-temp-volunteer-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - temp
+      - volunteered
+      - coding-patch
+    dispatch_label: host-coding-ws-brett-01
+  trust_tier: volunteered_hardware
+  issued_at: "2026-07-26T14:30:02Z"
+  expires_at: "2026-07-27T14:30:02Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  state_reason: active_at_or_above_floor
+  state_changed_at: "2026-07-26T14:30:02Z"
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: self_update
+  self_update: enabled
+  observed_version_handling: informational
+
+host_manifest:
+  source: broker_served
+  policy_version: worker-enrollment-v1
+  inline:
+    schema_version: 1
+    kind: xfactory_worker_host_manifest
+    host:
+      host_id: ws-brett-01
+      policy_version: worker-enrollment-v1
+    substrate:
+      wsl_distro: ubuntu-24.04
+      container_engine: docker-ce
+    workers:
+      - worker_id: xfactory-coding-temp-ws-brett-01
+        runner_name: xfactory-coding-temp-ws-brett-01
+        runner_group: xfactory-temp-volunteer-workers
+        labels:
+          - self-hosted
+          - omnigent
+          - temp
+          - volunteered
+          - coding-patch
+        profiles:
+          coding-patch-worker: "1"
+        heartbeat:
+          interval: PT3M
+    benches: []
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-26T14:40:02Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

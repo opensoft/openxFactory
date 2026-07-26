@@ -1,0 +1,104 @@
+# expected_failure: embedded-secret
+# expected_failure_detail: pem_lines
+# VIOLATES spec R2 and R9 in the one document the temp estate has no other
+# delivery plane for. Everything about this grant is right — temp lease, dedicated
+# temp group, self-updating runner with no pin, broker-served manifest, transient
+# token declaration with no value — except that the manifest the broker RENDERS
+# carries an App installation key, chunked across the items of an array, a hex
+# secret under an innocuous key, and a runner registration token split in two.
+#
+# `host_manifest.inline` used to be `{type: object, minProperties: 1}`: an
+# unbounded channel in the family that advertises `additionalProperties: false`
+# at every level, and the ONLY channel that writes to a volunteer's disk. The
+# property-name vocabulary was the sole guard, so `client_secret_hex` was caught
+# and `installation_material_hex` was not.
+#
+# Now: the channel is bounded (closed key vocabulary, bounded scalars, bounded
+# breadth and depth) and the canonical validator DE-CHUNKS inside this subtree —
+# it concatenates array items and map values before testing for a token shape, and
+# it refuses a long opaque hex blob under any key that is not a digest.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-ws-volunteer-44-0001
+request_ref: req-ws-volunteer-44-0001
+granted_at: "2026-08-02T14:00:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-ws-volunteer-44-0001
+  estate: temp
+  subject:
+    class: engineer
+    ref: engineer:eng-0071
+  host:
+    host_id: ws-volunteer-44
+    device_name: WS-VOL44-BC2Q7
+    managed: false
+  worker:
+    worker_id: xfactory-coding-temp-ws-volunteer-44
+    runner_name: xfactory-coding-temp-ws-volunteer-44
+  binding:
+    runner_group: xfactory-temp-volunteer-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - temp
+      - volunteered
+  trust_tier: volunteered_hardware
+  issued_at: "2026-08-02T14:00:00Z"
+  expires_at: "2026-08-03T14:00:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: self_update
+  self_update: enabled
+  observed_version_handling: informational
+
+host_manifest:
+  source: broker_served
+  policy_version: worker-enrollment-v1
+  inline:
+    schema_version: 1
+    kind: xfactory_worker_host_manifest
+    host:
+      host_id: ws-volunteer-44
+      policy_version: worker-enrollment-v1
+    workers:
+      - worker_id: xfactory-coding-temp-ws-volunteer-44
+        runner_name: xfactory-coding-temp-ws-volunteer-44
+        runner_group: xfactory-temp-volunteer-workers
+        labels:
+          - self-hosted
+          - omnigent
+          - temp
+          - volunteered
+    github:
+      app_installation:
+        pem_lines:
+          - MIIEowIBAAKCAQEAx7Vq2mJZ8Q
+          - nT4pL0sWdRb9yHc3KfGuAoIBAQ
+          - 5wZmXtNvJqEsDbYrPlCkHgFaTu
+        installation_material_hex: a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4
+    runner:
+      bootstrap_part_1: AABF3JGZDX3P5PMEXLND6TS6FC
+      bootstrap_part_2: WO6BLYPS6TZ5NAT2CVKWHJTP7Q
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-08-02T14:10:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

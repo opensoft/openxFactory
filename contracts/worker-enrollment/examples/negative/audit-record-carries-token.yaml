@@ -1,0 +1,47 @@
+# expected_failure: token-in-record
+# VIOLATES spec R9: an audit record MUST NOT contain any registration token,
+# remove token, key material, or secret value, in any field, at any time —
+# redaction is a property of the record SHAPE, not of a logging convention.
+#
+# This is the plausible version of the mistake: a remove-token brokering record
+# that records "which token" it issued, for traceability. Traceability is what
+# `evidence_ref` is for. The token value itself must exist nowhere.
+#
+# Fails twice, by design — the audit schema's `additionalProperties: false` has no
+# such property, and the canonical validator's rule (a) finds both a token-shaped
+# property and a token-shaped VALUE in a record.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-cpc-omni01-0044
+event: remove_token
+occurred_at: "2026-07-29T10:12:00Z"
+
+subject:
+  class: host
+  ref: host:cpc-omni01
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni01
+  managed: true
+
+estate: fleet
+decision: allowed
+reason: remove_token_brokered
+
+lease_id: wl-cpc-omni01-0001
+trust_tier: managed_fleet
+runner_group: xfactory-execution-lane-workers
+remove_token: AABF3JGZDX3P5PMEXLND6TS6FCWO6BLYPS6TZ5NAT2CVKWHJTP7Q
+
+observed:
+  app_version: 1.4.0
+floor:
+  min_app_version: 1.4.0
+  source: policy
+policy_version: worker-enrollment-v1
+
+evidence_ref:
+  class: lease_record
+  ref: broker/leases/wl-cpc-omni01-0001

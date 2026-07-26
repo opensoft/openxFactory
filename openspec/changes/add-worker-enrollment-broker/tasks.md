@@ -8,21 +8,21 @@ and are NOT executed by this change.
 
 ## 1. Contract (openxFactory — THIS CHANGE)
 
-- [ ] 1.1 NEW `contracts/worker-enrollment/worker-enrollment-request.schema.yaml`
+- [x] 1.1 NEW `contracts/worker-enrollment/worker-enrollment-request.schema.yaml`
       (`kind: worker_enrollment_request`, `schema_version`): estate
       (`fleet` | `temp`), authentication mode (`host_identity` |
       `device_code`), authenticated subject, host identity facts (host
       id/device, OS, app version observed), requested worker shape, and
       the policy version the requester saw. One shape for both estates —
       the mode is a field, not a second schema (spec R1).
-- [ ] 1.2 NEW `contracts/worker-enrollment/worker-lease.schema.yaml`
+- [x] 1.2 NEW `contracts/worker-enrollment/worker-lease.schema.yaml`
       (`kind: worker_lease`): lease id, worker/host binding, estate,
       issued-at and expiry, renewal cadence and grace, trust tier, runner
       group + labels, floor in force, lease state
       (`active` | `expired` | `revoked` | `refused`), and the
       `policy_version` applied. The lease is the authority record — it
       carries no token field at all (spec R2, R8).
-- [ ] 1.3 NEW `contracts/worker-enrollment/worker-enrollment-grant.schema.yaml`
+- [x] 1.3 NEW `contracts/worker-enrollment/worker-enrollment-grant.schema.yaml`
       (`kind: worker_enrollment_grant`): the enrollment response — the
       lease, the runner package policy for the estate (pinned version +
       sha256 + self-update disabled for fleet; self-update enabled for
@@ -30,21 +30,21 @@ and are NOT executed by this change.
       estate (design D5), and the short-lived registration token declared
       TRANSIENT: single-use, never persisted, never logged, and excluded
       from every derived record by shape (spec R2, R7).
-- [ ] 1.4 NEW `contracts/worker-enrollment/worker-lease-renewal.schema.yaml`
+- [x] 1.4 NEW `contracts/worker-enrollment/worker-lease-renewal.schema.yaml`
       (`kind: worker_lease_renewal`): the renewal request (lease id,
       observed app version, observed runner version, heartbeat liveness
       facts) and the renewal response (lease state, new expiry, CURRENT
       FLOOR always present, required action — `none` | `update_required`
       | `stop` — and refusal reason when refusing). The floor is
       REQUIRED on every response, including approvals (spec R4, R5, R6).
-- [ ] 1.5 NEW `contracts/worker-enrollment/worker-enrollment-policy.schema.yaml`
+- [x] 1.5 NEW `contracts/worker-enrollment/worker-enrollment-policy.schema.yaml`
       (`kind: worker_enrollment_policy`): per-estate minimum app version,
       per-estate runner package policy, eligibility groups + per-engineer
       machine cap, trust-tier definitions and their runner-group/label
       projections, cadence/grace/skew parameters, and `policy_version`.
       Shipping the schema here keeps design D3 to a home-and-review
       decision rather than a contract decision.
-- [ ] 1.6 NEW `contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml`
+- [x] 1.6 NEW `contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml`
       (`kind: worker_enrollment_audit_record`): event
       (`enroll` | `renew` | `refuse` | `revoke` | `remove_token`),
       subject, host, estate, decision + reason, lease id, trust tier,
@@ -52,11 +52,11 @@ and are NOT executed by this change.
       evidence ref. The redaction rule is expressed IN THE SHAPE — no
       token/secret/key property exists and free-text fields are
       constrained so a token cannot be smuggled into one (spec R9).
-- [ ] 1.7 `contracts/worker-enrollment/README.md`: the family, the two
+- [x] 1.7 `contracts/worker-enrollment/README.md`: the family, the two
       authentication modes, the lease-not-registration inversion, the
       estate policy split, the redaction rule, and the named consumers
       (broker service, Omnigent-Install host app, OpsxFactory policy).
-- [ ] 1.8 Packaged examples under `contracts/worker-enrollment/examples/`:
+- [x] 1.8 Packaged examples under `contracts/worker-enrollment/examples/`:
       positives — a fleet enrollment request + grant (pinned package), a
       volunteer request + grant (self-update, temp group, temp manifest),
       a renewal approval carrying the floor, a renewal refusal for a
@@ -65,15 +65,40 @@ and are NOT executed by this change.
       `audit-record-carries-token`, `temp-lease-in-standing-group`,
       `fleet-grant-without-package-pin`, `renewal-response-missing-floor`,
       `lease-without-trust-tier` — each naming the rule it violates.
-- [ ] 1.9 Implement `scripts/validate-worker-enrollment.py` (canonical
+      Extended by the adversarial review of 2026-07-26 to 9 positives (the
+      temp positives renamed `temp-*` for estate parity, plus the missing
+      refusal audit record) and 21 negatives, adding one fixture per
+      review finding: the mislabelled-estate lease and its corroborating
+      audit record, an unrecognized temp runner group, the chunked token
+      in `profiles` / in `reason_detail` / in the broker-served manifest,
+      the long-lived token, the drifted fleet pin, the temp grant that
+      pins, the escrowing renewal, the stale and the zeroed floor, the
+      tierless refusal, the over-long lease, the temp-grant pin branch
+      that had a rule and no fixture, and the standing lane that accepts
+      volunteered hardware. Fixtures whose finding CODE is a coarse anchor
+      also declare an `# expected_failure_detail:`, so a fixture cannot be
+      mutated into testing nothing while its self-test stays green.
+- [x] 1.9 Implement `scripts/validate-worker-enrollment.py` (canonical
       validator, repo-path argument like the other canonical validators):
       schema checks plus the four rules the shapes cannot express —
       (a) no token/secret value in any record or lease, (b) a temp-estate
       lease never names a standing execution-lane runner group, (c) a
       fleet grant always carries version + sha256 + self-update disabled
       while a temp grant never carries a pin, (d) every renewal response
-      carries a floor.
-- [ ] 1.10 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
+      carries a floor. Extended by the 2026-07-26 adversarial review with
+      the four rules the review proved were needed, and with value checks
+      where the original rules only checked presence: (e) estate, subject
+      class, host management and trust tier agree (both directions, on the
+      lease AND the audit record), (f) a device-code renewal declares no
+      standing secret on the host, (g) lease expiry matches the cadence
+      and the registration token is genuinely short-lived, (h) no standing
+      execution lane accepts volunteered hardware; the fleet pin is
+      checked against the policy's declared package, the floor against the
+      floors declared by the policy version it cites (and never zero), the
+      denylist is applied by CLASS so realistic identifiers do not read as
+      secrets, chunked tokens are de-chunked, and rule (b)'s no-policy
+      fallback became a fail-closed allow-list that says when it runs.
+- [x] 1.10 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
       add-worker-enrollment-broker --strict` and `--all --strict` green;
       `python3 scripts/validate-worker-enrollment.py . --strict` green
       (0 errors, 0 warnings) over the packaged examples;
@@ -83,17 +108,23 @@ and are NOT executed by this change.
       + the README contract index at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`
       (registration-at-realization precedent).
-- [ ] 1.12 Close-out: README OpenSpec Records entry; staging INDEX +
+- [x] 1.12 Close-out: README OpenSpec Records entry; staging INDEX +
       topic file readiness updated to "Proposed as
       add-worker-enrollment-broker (exit 1)"; the parked
       registration-credential decision on the worker-host-app topic
       annotated as resolved by this contract.
 
-## 2. Broker service (FOLLOW-ON CHANGE — home decision D1 comes first)
+## 2. Broker service (FOLLOW-ON CHANGE — home decision D1 already taken)
 
-- [ ] 2.1 **Decide design D1 with Brett** — repository and hosting target
-      for the standalone broker — BEFORE opening the successor change;
-      nothing else in this phase can land without the repo it lands in.
+- [x] 2.1 **Design D1 — DECIDED 2026-07-26** with the change's approval
+      (proposal.md: "D1-D10 recommendations adopted as decided"). The
+      broker lands in a NEW dedicated repository owned by OpsxFactory's
+      domain, deployed as a container app on the existing platform
+      subscription and deliberately NOT into the QA AKS cluster — it is a
+      production control-plane dependency of every worker host, and
+      hanging it off a QA cluster would inherit QA's blast radius and
+      lifecycle. Do NOT re-escalate this: it is recorded in design.md D1
+      and in the family README's consumer note.
 - [ ] 2.2 Custody the opsxfactory administration-tier App key under the
       ratified `credential-contracts` shapes (vaulted binding,
       short-lived workflow-scoped grants, approval before issuance,
@@ -106,7 +137,14 @@ and are NOT executed by this change.
       floor on every response, refusal reasons, revocation as a lease
       state that refuses the next renewal (spec R4–R6).
 - [ ] 2.5 Remove-token brokering for drift repair, on the same authority
-      and the same audit path as registration (spec R3).
+      and the same audit path as registration (spec R3). **Carries a
+      contract delta**: the phase-1 family ships the AUDIT half only
+      (`event: remove_token`), and R3 scenario 2's request/response shape
+      has no schema — `worker_enrollment_grant` requires a lease and a
+      runner package, so it cannot represent a remove-token issuance. Add
+      that shape to the bundle in this phase rather than letting the
+      broker and the host app agree on it in code, where the canonical
+      validator cannot see a divergence (paired with task 3.5).
 - [ ] 2.6 Audit emission for every decision, validated against the
       audit-record schema with the redaction rule enforced in code and in
       test (spec R9).

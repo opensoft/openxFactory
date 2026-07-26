@@ -120,6 +120,11 @@ Core domain-neutral docs:
 - [Omnigent Contract Family](contracts/omnigent/README.md)
   (domain-overlay payload + install manifest; realized by
   `add-omnigent-domain-overlay`, pending bundle registration)
+- [Worker Enrollment Contract Family](contracts/worker-enrollment/README.md)
+  (one enrollment point / two authentication modes, renewable LEASES instead of
+  registrations, fail-closed minimum-app-version floor, temp-estate segregation
+  by trust tier, and audit records no token value can enter; realized by
+  `add-worker-enrollment-broker`, pending bundle registration)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
