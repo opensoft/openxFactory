@@ -2,7 +2,7 @@
 
 Status: draft
 
-Reference examples for the five ideation-area dashboard contract schemas under
+Reference examples for the ideation-area dashboard contract schemas under
 `contracts/schemas/` (`add-ideation-dashboard` change, task 2.4, plus the
 sibling schemas from tasks 2.6/2.8). These are static reference material, not
 runtime state — see `../README.md` for the placement policy this directory
@@ -19,6 +19,8 @@ ideation-dashboard/
 ├── README.md                                          # this index
 ├── ideation-dashboard-snapshot.example.yaml           # complete snapshot (multi-cluster possible,
 │                                                       #   cited rejection, pick-edge inheritance, option set)
+├── snapshot-index.example.yaml                        # (repository, ref) locator: 4 repos incl. a
+│                                                      #   sparse install repo + an aggregate view
 ├── ideation-workbench-cluster-seeded.example.yaml     # cluster-seeded set + recipe (pinned ⊆ checked)
 ├── ideation-workbench-adhoc-human-seen.example.yaml   # ad-hoc human-seen cluster submission
 ├── possibles-register.example.yaml                    # register section (source-of-truth twin of the snapshot possibles)
@@ -32,6 +34,8 @@ ideation-dashboard/
 │   ├── snapshot-dangling-claiming-cluster.yaml        #   claiming_clusters → missing cluster id
 │   ├── snapshot-dangling-option-set-member.yaml       #   option_set member → missing possible id
 │   ├── snapshot-bad-date-format.yaml                  #   FormatChecker: date is not ISO
+│   ├── snapshot-index-duplicate-repo-ref.yaml         #   same (repository, ref) pair twice
+│   ├── snapshot-index-carries-projection-data.yaml    #   locator carrying projection data (D3)
 │   ├── workbench-override-without-reason.yaml         #   manual-include member without reason
 │   ├── workbench-excluded-without-reason.yaml         #   excluded entry without reason
 │   ├── workbench-pinned-not-checked.yaml              #   pinned keyword not in checked (W1)
@@ -69,6 +73,7 @@ ideation-dashboard/
 | Schema | Valid example(s) | Negative example(s) |
 | --- | --- | --- |
 | `ideation-dashboard-snapshot.schema.yaml` | `ideation-dashboard-snapshot.example` | `snapshot-dangling-document-edge`, `snapshot-dangling-claiming-cluster`, `snapshot-dangling-option-set-member`, `snapshot-bad-date-format` |
+| `ideation-dashboard-snapshot-index.schema.yaml` | `snapshot-index.example` | `snapshot-index-duplicate-repo-ref`, `snapshot-index-carries-projection-data` |
 | `ideation-workbench.schema.yaml` | `ideation-workbench-cluster-seeded`, `ideation-workbench-adhoc-human-seen` | `workbench-override-without-reason`, `workbench-excluded-without-reason`, `workbench-pinned-not-checked`, `workbench-candidate-in-members` |
 | `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |

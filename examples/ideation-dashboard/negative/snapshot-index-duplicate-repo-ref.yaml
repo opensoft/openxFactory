@@ -1,0 +1,17 @@
+# INVALID ideation-dashboard snapshot index: two entries name the SAME
+# (repository, ref) pair — `openxFactory` at `main` appears twice, each pointing
+# at a different snapshot file.
+# Violates the validator rule snapshot-index-duplicate-repo-ref: every
+# (repository, ref) pair is unique within one index, because two entries for one
+# pair make "which snapshot is this repository's?" ambiguous.
+schema_version: 1
+kind: ideation-dashboard-snapshot-index
+entries:
+  - repository: openxFactory
+    ref: main
+    snapshot: openxFactory-snapshot.json
+    source_revision: "9f2c1b7ad4e35608c1d90ab4477e2f6b0c8d15ae"
+  - repository: openxFactory
+    ref: main
+    snapshot: openxFactory-snapshot.rebuilt.json
+    source_revision: "1122334455667788990011223344556677889900"
