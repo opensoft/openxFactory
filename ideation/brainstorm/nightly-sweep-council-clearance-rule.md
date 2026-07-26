@@ -357,6 +357,27 @@ widening the definition, not another mechanism). Policy stays unassigned
 (provably contributed nothing, suppressed the native path). Credentials
 again at zero.
 
+**Dead end confirmed, design settled (2026-07-26).** Graph does not support
+directory extensions on ServicePrincipal objects (SP PATCH refused;
+`targetObjects` widening refused as an invalid value) — so an app-only token
+for this lane structurally CANNOT carry a per-client `extn.layer` claim by
+any of the three mechanisms tried (claims-mapping, native optional claims,
+SP extension). A static-value transformation was ruled out deliberately: it
+stamps every token the resource issues, and claims take precedence over
+persisted rows, so it would mis-scope every other principal. The fix is
+Hermes's own designed-in fallback (`claims.layer_id or persisted.layer_id`):
+ONE persisted principal row keyed by the token's `sub` (the lane SP object
+id `037eb659…`), `layer_id codexfactory-software-engineering`, kind
+`service`, scopes empty (scopes always come from the token's `roles`, which
+three decodes proved carry BOTH job scopes). Exact SQL now in the runbook
+(codexFactory `39f6795`); the row is operational state — survives a domain
+reseed, needs re-inserting on a database rebuild, so it rides the
+stack-migration checklist. Entra side is FINAL: policy permanently
+unassigned, no lane credentials, nothing further for the admin AI. Remaining
+for stage 1: Brett inserts the row (psql, phase-1 runbook pattern) and the
+emit-only test re-dispatches — no Entra propagation involved, the row is
+read live.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
