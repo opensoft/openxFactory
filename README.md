@@ -235,7 +235,7 @@ Active changes:
   The workbench becomes a place to CREATE and EDIT documents
   without loosening a gate, because the working state moves onto a git branch
   and the PULL REQUEST is the formal re-entry into the governed doc system.
-  The first gate write against a tile spawns `draft/<staging-id>` (named for
+  The first gate write against a tile spawns `draft/<topic-folder>` (named for
   the TILE, so two humans join one session) and materializes a git WORKTREE —
   the served checkout never switches branches, which dissolves the
   shared-checkout hazard by construction. Every gate action is ONE commit
