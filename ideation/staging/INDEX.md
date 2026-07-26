@@ -221,12 +221,14 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   create on the branch, session-only draft visibility, session snapshots
   through the (repository, ref) seam, the tool triangle on the branch,
   PR-as-save, local-plane-only until intent-plane §4, the snapshot registry
-  as the one new server plumbing); FOUR open questions parked with
+  as the one new server plumbing); FIVE open questions parked with
   recommendations in the change's design (branch-name reuse after a merged
   staging id → suffix a session ordinal; squash-vs-merge → merge commit, the
   history is the audit; session-notebook quota → degrade to no notebook;
   whether `open-pr` needs the readiness gate → NO, readiness guards propose,
-  not save). SEQUENCED strictly after `add-dashboard-repo-selector`, which
+  not save; whether a session notebook survives its session → RETIRE, with
+  conversion to a §7 hybrid as the route if it should outlive the branch).
+  SEQUENCED strictly after `add-dashboard-repo-selector`, which
   defines the seam this topic consumes
 - Exit: `add-workbench-branch-sessions` (code surface: codexFactory +
   openxFactory + aggregation), raised 2026-07-26; archives on merged + green

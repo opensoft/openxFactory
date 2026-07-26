@@ -93,9 +93,11 @@ the selector rather than beside it.
   session's registry entry, and the session notebook, then refresh the main
   view. Abandon is a recorded action carrying a reason; it ends the SESSION and
   never deletes pushed history or closes a pull request on the human's behalf.
-- SYNC per-session NotebookLM notebooks (`xf-wb-<topic>`) FROM the session
-  WORKTREE, created on session start and retired or re-pointed at `main` on
-  session end, with a "refresh notebook" session action after edits and hybrid
+- SYNC per-session NotebookLM notebooks (`xf-session-<topic>`, a namespace
+  DISJOINT from the workbench's `xf-wb-*` reference-set notebooks so the
+  reference-set orphan sweep can never delete a live session's notebook) FROM
+  the session WORKTREE, created on session start and retired on session end,
+  with a "refresh notebook" session action after edits and hybrid
   source-return imports landing ON THE BRANCH under the unchanged imported-file
   header contract. The three canon books (`xf-ideation`, `xf-drafts`,
   `xf-canon`) stay MAIN-ONLY without exception — they ARE the lifecycle

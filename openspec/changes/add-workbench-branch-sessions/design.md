@@ -221,9 +221,15 @@ session with an owner distinct from its committers, a scheduled expiry). Until
 then, derived state cannot rot.
 
 ### D11 — Session notebooks are the one surface allowed to read a worktree
-**Decision**: `xf-wb-<topic>` session notebooks sync FROM the worktree. The
+**Decision**: `xf-session-<topic>` session notebooks sync FROM the worktree. The
 three lifecycle books (`xf-ideation`, `xf-drafts`, `xf-canon`) stay MAIN-ONLY
-without exception.
+without exception. The `xf-session-` prefix is deliberately DISJOINT from the
+workbench's `xf-wb-*` reference-set namespace: `add-ideation-dashboard` requires
+the notebook sync to sweep every orphaned `xf-wb-*` notebook, liveness is proven
+only by a workbench manifest, and D10 gives a session no manifest — so a session
+notebook titled `xf-wb-*` would be an orphan from birth and the next routine
+`sync-notebooklm-books.py --apply` would delete it mid-session. Renaming keeps
+the two lifecycles independent without re-cutting the sweep's contract.
 
 **Rationale**: a lifecycle book IS the lifecycle projection, so a book
 containing unmerged sources is not a stale book — it is a WRONG book, asserting
@@ -344,8 +350,9 @@ the answer must be unambiguously no.
 
 ## Open Questions
 
-Four, each with a recommendation, all parked for Brett. The first three are the
-staged topic's own; the fourth was raised while authoring this change.
+Five, each with a recommendation, all parked for Brett. The first three are the
+staged topic's own; the fourth was raised while authoring this change; the fifth
+was raised by the adversarial review of 2026-07-26.
 
 1. **Branch-name reuse after a merged session.** `draft/<staging-id>` is stable
    by design, so a staging id worked again after its first session merged
@@ -368,7 +375,7 @@ staged topic's own; the fourth was raised while authoring this change.
    than a governed one. If a squash is ever required by a repository's protection
    rules, the fallback is to require the squash message to enumerate the gate
    actions, so the record survives in prose even when the commits do not.
-3. **Session-notebook quota behaviour.** Per-session `xf-wb-<topic>` notebooks
+3. **Session-notebook quota behaviour.** Per-session `xf-session-<topic>` notebooks
    are created and retired per session; what happens when the NotebookLM
    account's notebook quota is reached mid-session is undecided — refuse the
    session, degrade to no notebook, or evict the oldest retired notebook.
@@ -389,3 +396,20 @@ staged topic's own; the fourth was raised while authoring this change.
    what it measures: readiness is derived FROM the documents a session
    produces. It would also strand a session's work unmergeable on a branch,
    which is the one state this whole change exists to eliminate.
+5. **Does a session notebook ever survive its session?** Staged claim 7 said the
+   notebook is "retired, or re-pointed at `main`" at session end, while claim 8
+   (decided the same day) said it is "cleaned up" on merge, and the dashboard
+   delta requires unconditionally that the notebook "be torn down" alongside the
+   worktree and the registry entry. The change had carried both readings, which
+   contradict: a re-pointed notebook survives in active use and is not torn down.
+   *Recommendation: RETIRE, and the requirement now states it.* Teardown is the
+   reading the dashboard delta already mandates for the other two pieces of
+   session state, it keeps one rule for all three, and it avoids creating a
+   notebook class the promoted spec does not govern — a re-pointed `xf-session-*`
+   notebook is neither a lifecycle book nor a hybrid (which requires a Canon
+   release line, an enumerated origin folder, and a `00 [hybrid charter]` seed),
+   and its only import rule writes into the origin folder INSIDE the worktree
+   that teardown has just removed. If Brett wants a session's analysis to
+   outlive the branch, the clean route is an explicit CONVERSION to a §7 hybrid
+   under that section's existing charter and seeding rules, which this change
+   would then need to state; silent re-pointing is the option to avoid.

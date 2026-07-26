@@ -128,10 +128,11 @@ registry.
 
 ## 6. NotebookLM session notebooks (codexFactory tooling)
 
-- [ ] 6.1 `xf-wb-<topic>` session-notebook mode in
+- [ ] 6.1 `xf-session-<topic>` session-notebook mode in
       `scripts/sync-notebooklm-books.py`: sources synced FROM the session
-      worktree, created on session start, retired or re-pointed at `main` on
-      session end (D11).
+      worktree, created on session start, RETIRED on session end (D11). The
+      title MUST NOT use the `xf-wb-` prefix, and a test MUST assert that
+      `workbench_orphan_sweep` leaves a live session notebook untouched.
 - [ ] 6.2 Lifecycle books stay MAIN-ONLY: confirm by test that branch-session
       worktrees are excluded from all three books, in addition to the existing
       `<repo>-worktrees/` exclusion.
@@ -191,14 +192,17 @@ registry.
 
 ## 9. Dogfood
 
-- [ ] 9.1 Brett's rulings on the four open questions recorded in this change
+- [ ] 9.1 Brett's rulings on the five open questions recorded in this change
       before realization freezes them: (1) branch-name reuse after a merged
       session — recommendation: suffix a session ordinal; (2) squash versus merge
       for session pull requests — recommendation: merge commit, the history IS
       the audit; (3) session-notebook quota behaviour — recommendation: degrade
       to no notebook, loudly; (4) whether `open-pr` requires the topic's
       readiness gate — recommendation: NO, the readiness gate guards propose,
-      not save.
+      not save; (5) whether a session notebook ever survives its session —
+      recommendation: RETIRE (the requirement now states it), with conversion to
+      a §7 hybrid as the clean route if he wants the analysis to outlive the
+      branch.
 - [ ] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
       REAL session end to end. Create and edit documents on a session branch,
       watch the panels follow the worktree, use the session notebook, open the
