@@ -394,6 +394,32 @@ lane is DONE end to end. Remaining before the recorded rehearsal (task
 as `tier1_approve`). Stage 2 also gives `hermes.job.execute` its first live
 exercise (already proven present in the token by decode).
 
+**Stage 2 commissioned (2026-07-26, run 30207122387).** Candidate staged:
+README one-liner on `doc-health/nightly` (docs-class overflow), pin
+`27c3221`. En route, TWO findings fixed/observed: (a) SonarCloud's automatic
+analysis attaches NO check-run to a diff without analyzable code, so a
+docs-only head reads fail-closed "absent" forever — closed by adding the
+repo's first PR CI (`validate.yml`, aggregation `6d8d99f`: the same
+pytest+actionlint gates the discipline runs locally, job id `validate`,
+non-excluded); (b) the auto-triggered tier-1 evaluation on the staged head
+parked with the classifier ADMITTING the docs-only overflow and refusing
+only on checks-absent — the ordering evidence, free. With `validate` green,
+the lane preflight classified clearable and the runtime ADMITTED THE FIRST
+LIVE CONVENING: `CONVENE-27c32213aced-30207122387`, HTTP 201. Observed fact
+to chase later: the job landed `queued`, NOT `awaiting_authorization` — the
+tenant auto-clear envelope gate (governed-job P2) did not engage, meaning
+`tenant_auto_clear_envelope` found no materialized `policy_override` on the
+client layer (phase-3a reseeded the client layer with "3 kinds"; whether
+policy_override is among them needs checking — recorded as an open question,
+not a rehearsal blocker; it removes the authorize step). Emit half correctly
+emitted nothing on a queued convening. Next: the operator-relayed worker leg
+(claim → run → conforming verdict), prompt prepared at
+`xFactory/council-lane-rehearsal-worker-prompt.md` — the rehearsal worker is
+the lane identity with a temporary `hermes.worker.write` role + temporary
+secret (its tokens inherit the persisted-row layer binding), both removed in
+cleanup. Then emit-only re-dispatch, tier-2 report-only evidence, dated
+record, attestation packet.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
