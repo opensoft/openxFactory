@@ -1,0 +1,19 @@
+# INVALID gate-action record: action=edit-document that names its document and
+# its commit but NOT the session branch. Violated rule: edit-document requires
+# BOTH target.document and target.ref (add-workbench-branch-sessions D13).
+# Layer: SCHEMA. `edit-document` is valid ONLY inside a branch session, so a
+# record with no ref describes an edit with no legible location — the reviewer
+# cannot tell which branch's history carries it, and the commit artifact's
+# introduced-by resolution has no branch to resolve against. `target.ref` stays
+# OPTIONAL in the schema for the pre-existing actions; it is REQUIRED here, and
+# this file is the negative that proves the conditional bites.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: edit-document
+target:
+  document: ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md
+at: "2026-07-26T14:05:00Z"
+artifacts:
+  - kind: commit
+    reference: 20260726T140500Z

@@ -1,0 +1,18 @@
+# INVALID gate-action record: action=edit-document whose artifacts list contains
+# no `commit`. Violated rule: edit-document requires an artifact of kind
+# `commit` (add-workbench-branch-sessions D4/D13 — one commit per gate action,
+# carrying the documents AND the record, with the record naming that commit).
+# Layer: SCHEMA. The record otherwise names document + ref correctly, so the
+# artifact list is the only thing wrong: a session edit that names no commit
+# claims an audit trail version control cannot corroborate.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: edit-document
+target:
+  document: ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md
+  ref: draft/workbench-branch-sessions
+at: "2026-07-26T14:05:00Z"
+artifacts:
+  - kind: document
+    reference: ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md

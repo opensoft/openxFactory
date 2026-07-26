@@ -29,6 +29,10 @@ ideation-dashboard/
 ├── gate-action-record-ratify.example.yaml             # ratify action + ratification-record artifact
 ├── gate-action-record-kickoff.example.yaml            # kickoff action + workflow-job artifact (needs ratified context)
 ├── gate-action-record-demote.example.yaml             # demote action + reason
+├── gate-action-record-dispose-possible.example.yaml   # dispose-possible + outcome + register-update artifact
+├── gate-action-record-edit-document.example.yaml      # BRANCH SESSION: document + ref + commit artifact
+├── gate-action-record-open-pr.example.yaml            # BRANCH SESSION: ref + pull-request artifact (no commit)
+├── gate-action-record-abandon-session.example.yaml    # BRANCH SESSION: ref + reason (no artifact kind required)
 ├── negative/                                          # one violation per file
 │   ├── snapshot-dangling-document-edge.yaml           #   edge → missing document id
 │   ├── snapshot-dangling-claiming-cluster.yaml        #   claiming_clusters → missing cluster id
@@ -56,7 +60,12 @@ ideation-dashboard/
 │   ├── gate-demote-without-reason.yaml                #   demote without reason
 │   ├── gate-ratify-without-ratification-artifact.yaml #   ratify without ratification-record
 │   ├── gate-kickoff-without-workflow-job.yaml         #   kickoff without workflow-job
-│   └── gate-kickoff-unratified-target.yaml            #   kickoff target not ratified (context-dependent)
+│   ├── gate-kickoff-unratified-target.yaml            #   kickoff target not ratified (context-dependent)
+│   ├── gate-dispose-rejected-uncited.yaml             #   rejected disposition without reason + citation
+│   ├── gate-action-edit-document-no-commit-artifact.yaml  # edit-document without a commit artifact
+│   ├── gate-action-edit-document-no-ref.yaml          #   edit-document naming no session branch
+│   ├── gate-action-open-pr-no-pull-request-artifact.yaml  # open-pr without a pull-request artifact
+│   └── gate-action-abandon-session-unreasoned.yaml    #   abandon-session without a reason
 └── transitions/                                       # register (old, new) pairs; valid-* pass, invalid-* fail
     ├── valid-pick-and-reject.{before,after}.yaml      #   latent→picked, latent→rejected, plus a new entry
     ├── valid-derived-disposition.{before,after}.yaml  #   derived accept→latent (origin retained) + reject→rejected
@@ -77,7 +86,7 @@ ideation-dashboard/
 | `ideation-workbench.schema.yaml` | `ideation-workbench-cluster-seeded`, `ideation-workbench-adhoc-human-seen` | `workbench-override-without-reason`, `workbench-excluded-without-reason`, `workbench-pinned-not-checked`, `workbench-candidate-in-members` |
 | `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |
-| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target` |
+| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned` |
 
 ## Named cases from task 2.4
 
@@ -127,6 +136,42 @@ The one-way disposition lifecycle and the derived-entry shape rules are enforced
 by `scripts/validate-ideation-dashboard-contracts.py` (the C3 delegated register
 validator); `scripts/validate-ideation-cross-reference.py` delegates them, not
 duplicating the checks.
+
+## Branch sessions (add-workbench-branch-sessions)
+
+The gate-action record's session growth (design D13) is exercised here without a
+`contract_schema_version` bump: `action` gained `edit-document`, `open-pr`, and
+`abandon-session`; the artifact `kind` enum gained `commit` and `pull-request` as
+first-class kinds; and `target` gained an OPTIONAL `ref` naming the session
+branch. Each per-action conditional constrains ONLY its own new action, which is
+why the growth invalidates no existing record.
+
+- **Valid** — `gate-action-record-edit-document.example.yaml`: `document` + `ref`
+  + a `commit` artifact whose `reference` is the action's own STAMP rather than a
+  sha (a commit cannot contain its own sha, so the referenced commit is the one
+  that introduced the record file on the branch).
+- **Valid** — `gate-action-record-open-pr.example.yaml`: `ref` + a
+  `pull-request` artifact, and deliberately NO `commit` artifact — the record is
+  main-resident and the action adds no commit to the branch.
+- **Valid** — `gate-action-record-abandon-session.example.yaml`: `ref` +
+  `reason`, with the branch carried as an `other` artifact only to satisfy
+  `artifacts.minItems`; no artifact KIND is required of this action.
+- **`gate-action-edit-document-no-commit-artifact.yaml`** — SCHEMA layer: the
+  one-commit-per-gate-action rule, missing its `commit` artifact.
+- **`gate-action-edit-document-no-ref.yaml`** — SCHEMA layer: a session edit
+  naming no session branch. `target.ref` is optional in general and REQUIRED
+  here; this file is what proves the conditional bites.
+- **`gate-action-open-pr-no-pull-request-artifact.yaml`** — SCHEMA layer: a save
+  record that references a commit instead of the pull request it opened.
+- **`gate-action-abandon-session-unreasoned.yaml`** — SCHEMA layer: the
+  unreasoned-demotion rule applied to the session's other ending.
+
+There is deliberately NO negative for "`create-document` without a `commit`
+artifact": that action pre-dates branch sessions and is legitimately performed
+outside one, where no commit is produced, so the commit-per-action rule is a
+ROUTE obligation for it and never a schema conditional (D13). For the same
+reason `target.ref` stays optional even though the route populates it for every
+in-session action.
 
 ## The register is an envelope-less kernel
 

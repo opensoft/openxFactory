@@ -36,11 +36,50 @@ description: >-
   authority-bearing (D16), so an authority-bearing record naming the wrong
   action-to-artifact pairing is caught at write time. Later additive deltas
   extended the same per-action shape to `dispose-possible`
-  (`register-update`), `propose` (`workflow-job`), and `create-document`
-  (`document`) — each safe at the time it landed because no existing record
-  carried that action. This does NOT narrow the additive posture below: new
-  action kinds and new artifact kinds stay unconstrained, and no
-  PRE-EXISTING action ever gains a required companion artifact.
+  (`register-update`), `propose` (`workflow-job`), `create-document`
+  (`document`), and — `add-workbench-branch-sessions` — `edit-document`
+  (`commit`) and `open-pr` (`pull-request`); `abandon-session` is constrained
+  on `target.ref` + `reason` with NO artifact-kind requirement (see below).
+  Each was safe at the time it landed because no existing record carried that
+  action. This does NOT narrow the additive posture below: new action kinds
+  and new artifact kinds stay unconstrained, and no PRE-EXISTING action ever
+  gains a required companion artifact.
+
+  BRANCH SESSIONS (`add-workbench-branch-sessions`, design D13; landed
+  2026-07-26 as an ADDITIVE growth of `contract_schema_version: 1` — no bump,
+  no existing record invalidated): the workbench's working state moved onto a
+  git branch materialized as a worktree, so three session actions join the
+  vocabulary — `edit-document` (the session-only rewrite of an existing
+  document, deliberately NOT `edit-apply`, which stays the main-resident
+  redline path), `open-pr` (push the session branch and open or update the
+  pull request that is the formal re-entry of the work into the governed doc
+  system), and `abandon-session` (end a session without saving, carrying a
+  required reason). `target` gains an OPTIONAL `ref` naming the session
+  branch, and the artifact vocabulary gains `commit` and `pull-request` as
+  FIRST-CLASS kinds — the `document` precedent Brett set on 2026-07-25, not
+  `other`, so an audit consumer can filter them from the enum.
+
+  Two REALIZATION FACTS (codexFactory feature 007) this schema is shaped to
+  validate, recorded so a reader does not infer a stricter contract than the
+  one written:
+
+    * a `commit` artifact's `reference` is the record's OWN action stamp,
+      never a sha. A commit cannot contain its own sha, so resolution is
+      DEFINED rather than literal: the referenced commit is the one that
+      INTRODUCED the record file on the session branch
+      (`git log --diff-filter=A -- <record-path>`), which immediately after
+      the action is the branch tip. This schema requires only
+      `{kind, reference}` of an artifact, and a resolvable reference satisfies
+      it — so no `reference` pattern is imposed here.
+    * `open-pr` and `abandon-session` records are MAIN-RESIDENT — written into
+      the served checkout's records tree, never onto the session branch, which
+      the merge deletes and the abandoned-branch cleanup may later delete.
+      Neither action adds a commit to the branch, so NEITHER may be required
+      to carry a `commit` artifact: a record naming one would name something
+      that does not exist. An `abandon-session` record satisfies
+      `artifacts.minItems` by naming the branch itself as an `other`-kind
+      artifact, which is why its conditional constrains `target.ref` +
+      `reason` and imposes NO artifact-kind requirement at all.
 
   VALIDATOR-SIDE (cross-instance, not shape-expressible): kickoff is
   downstream of the ratify gate (D17) — the console MUST refuse a `kickoff`
@@ -79,7 +118,8 @@ properties:
   action:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
-           lens-save-recipe, lens-add-as-cluster, create-document]
+           lens-save-recipe, lens-add-as-cluster, create-document,
+           edit-document, open-pr, abandon-session]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -95,7 +135,17 @@ properties:
     # so this action carries NO edit or delete authority. It targets
     # `document` (allOf below) and references the created document as a
     # `document`-kind artifact (ADDITIVE enum extension; every prior record
-    # stays valid).
+    # stays valid). The three BRANCH-SESSION actions
+    # (add-workbench-branch-sessions, D13) close the set: `edit-document`
+    # rewrites an EXISTING document inside the session worktree — session-only,
+    # no create and no delete authority, and no per-edit redline, because the
+    # pull-request review is the governance; `open-pr` pushes the session
+    # branch and opens or updates the pull request into the existing
+    # Merge-Master ritual, dispatching and never deciding (it cannot merge,
+    # approve, self-review, or bypass protection, and consults NO readiness
+    # signal — D21); `abandon-session` ends a session without saving and
+    # carries the durable "why", exactly as a demotion does. All three are
+    # ADDITIVE enum extensions; every prior record stays valid.
   target: {$ref: "#/$defs/target"}
   at:
     type: string
@@ -202,15 +252,67 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: document}}
+  # --- the three BRANCH-SESSION conditionals (add-workbench-branch-sessions,
+  # D13). Each constrains ONLY its own NEW action, which is exactly why each is
+  # safe: no record has ever carried `edit-document`, `open-pr`, or
+  # `abandon-session`, so nothing pre-existing is narrowed and no
+  # `contract_schema_version` bump is owed.
+  #
+  # What deliberately does NOT appear here, stated because its absence is a
+  # DECISION and not an omission: the commit-per-gate-action rule is NOT a
+  # conditional on `create-document`. That action pre-dates branch sessions and
+  # is legitimately performed OUTSIDE one — against the served checkout, where
+  # no commit is produced — so requiring a `commit` artifact for it would
+  # invalidate the non-session case and narrow a PRE-EXISTING action, the one
+  # thing this schema's additive posture forbids. The rule therefore lives in
+  # the requirement and is enforced at the route, and `target.ref` stays
+  # OPTIONAL for the same reason even though the route populates it for every
+  # in-session action, `create-document` included.
+  #
+  # An `edit-document` record names the document it rewrote, the session branch
+  # it rewrote it on, and the commit it rode: all three, or it audits nothing.
+  # The `commit` artifact's `reference` is this record's own action stamp, not a
+  # sha — resolution is the introduced-by rule stated in the description.
+  - if: {properties: {action: {const: edit-document}}}
+    then:
+      properties:
+        target: {required: [document, ref]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: commit}}
+  # An `open-pr` record names the session branch it pushed and the pull request
+  # it opened or updated. NO `commit` artifact is required — the record is
+  # main-resident and this action adds no commit to the branch.
+  - if: {properties: {action: {const: open-pr}}}
+    then:
+      properties:
+        target: {required: [ref]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: pull-request}}
+  # An `abandon-session` record names the branch it abandoned and WHY — the
+  # unreasoned-demotion rule applied to the other ending. No artifact KIND is
+  # required: this action produces no commit and no pull request, and the branch
+  # it names is carried as an `other`-kind artifact purely to satisfy
+  # `artifacts.minItems`. The record is main-resident precisely so it OUTLIVES
+  # the branch the later cleanup may delete.
+  - if: {properties: {action: {const: abandon-session}}}
+    then:
+      required: [reason]
+      properties:
+        target: {required: [ref]}
 $defs:
   # --- what the action acted on ---
   target:
     type: object
     # Per-action required fields live in the allOf conditionals above: the
     # four change-lifecycle actions require `change_id`; `dispose-possible`
-    # requires `possible_id` + `outcome`. (The unconditional `change_id`
-    # requirement moved into the conditional when the disposition action
-    # landed — every previously valid record stays valid.)
+    # requires `possible_id` + `outcome`; `edit-document` requires `document`
+    # + `ref`; `open-pr` and `abandon-session` require `ref`. (The
+    # unconditional `change_id` requirement moved into the conditional when the
+    # disposition action landed — every previously valid record stays valid.)
     properties:
       change_id:
         type: string
@@ -244,13 +346,30 @@ $defs:
       document:
         type: string
         minLength: 1
-        # A repository-relative document path this action acted on. Two
-        # senses, both structurally unrestricted by action: the document
-        # WITHIN a change that an `edit-apply` redlined, and — REQUIRED for
+        # A repository-relative document path this action acted on. Three
+        # senses, all structurally unrestricted by action: the document
+        # WITHIN a change that an `edit-apply` redlined; REQUIRED for
         # `create-document` (add-workbench-bullseye-and-create; allOf
-        # below) — the path the create-only authoring scaffold brought into
-        # existence. Broadened commentary only; the field, its type, and
-        # its optionality are unchanged, so every prior record stays valid.
+        # above) — the path the create-only authoring scaffold brought into
+        # existence; and REQUIRED for `edit-document`
+        # (add-workbench-branch-sessions; allOf above) — the path the
+        # session-only rewrite replaced inside the session WORKTREE, relative
+        # to the worktree root rather than to the served checkout. Broadened
+        # commentary only; the field, its type, and its optionality are
+        # unchanged, so every prior record stays valid.
+      ref:
+        type: string
+        minLength: 1
+        # The git ref — the SESSION BRANCH — a branch-session action acted on
+        # (add-workbench-branch-sessions, D13; ADDITIVE — every prior record
+        # stays valid). REQUIRED for `edit-document`, `open-pr`, and
+        # `abandon-session` (allOf above) and OPTIONAL everywhere else, on
+        # purpose: `create-document` pre-dates sessions and is legitimately
+        # invoked outside one, where there is no ref to name, so an
+        # unconditional requirement would invalidate every existing record and
+        # narrow a pre-existing action. Inside a session the ROUTE populates it
+        # for every action — a session record that does not name its branch
+        # audits nothing — which is a route obligation, not a schema one.
   # --- an artifact this action produced ---
   artifact:
     type: object
@@ -265,6 +384,8 @@ $defs:
           - workflow-job
           - register-update
           - document
+          - commit
+          - pull-request
           - other
         # The manual-path artifact kinds an action can produce (spec: "the
         # same governed artifacts as the manual path"). SCHEMA-SIDE (allOf
@@ -280,6 +401,28 @@ $defs:
         # every prior record stays valid because no record is required to
         # carry this kind — an audit consumer can now filter document-
         # producing actions from the enum rather than only from `action`.
+        #
+        # `commit` — the SINGLE session commit a file-producing gate action
+        # rode, carrying that action's documents AND this record together
+        # (add-workbench-branch-sessions, D4/D13). Its `reference` is the
+        # record's own ACTION STAMP and never a sha: a commit cannot contain
+        # its own sha, so resolution is DEFINED as the commit that INTRODUCED
+        # the record file on the session branch. REQUIRED on an
+        # `edit-document` record (allOf above) and NEVER required of
+        # `create-document`, whose non-session use produces no commit (D13).
+        #
+        # `pull-request` — the pull request an `open-pr` action opened or
+        # updated, referenced by URL: the formal re-entry of a session's work
+        # into the governed doc system, dispatched into the existing
+        # Merge-Master ritual and decided there, never here. REQUIRED on an
+        # `open-pr` record (allOf above).
+        #
+        # Both are ADDITIVE enum extensions in the same shape as `document`,
+        # and both are FIRST-CLASS kinds rather than `other` on the precedent
+        # Brett set on 2026-07-25 — an audit consumer should be able to filter
+        # session commits and session pull requests from the artifact
+        # vocabulary and not only from `action`. No `contract_schema_version`
+        # bump: no pre-existing record is required to carry either kind.
       reference:
         type: string
         minLength: 1

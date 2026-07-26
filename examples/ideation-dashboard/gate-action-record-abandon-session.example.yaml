@@ -1,0 +1,27 @@
+# VALID gate-action record: a human abandon-session action — the session's other
+# ending (add-workbench-branch-sessions task 1.3/D9/D13).
+#   - action=abandon-session names the branch it abandoned (target.ref) and
+#     carries the REQUIRED reason (schema allOf) — the durable "why this topic's
+#     session ended without merging", exactly as a demotion carries its own;
+#   - NO artifact KIND is required for this action: it produces no commit and no
+#     pull request, so the branch itself is the artifact, carried as `other`
+#     purely to satisfy `artifacts.minItems: 1`;
+#   - the record is MAIN-RESIDENT so that it OUTLIVES the branch — the abandon
+#     deletes nothing at abandon time (pushed history and any open pull request
+#     survive as reviewable evidence), and the surviving branch becomes
+#     deletable only once the topic's proposal exists (D17);
+#   - the asymmetry with the merge ending is deliberate: the merge preserved the
+#     work, the abandon did not, so the abandon is the ending that has to leave
+#     a reason behind.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: abandon-session
+target:
+  ref: draft/workbench-branch-sessions
+at: "2026-07-26T16:20:00Z"
+reason: The fragment was superseded by the ratified change; the drafts are no longer wanted.
+artifacts:
+  - kind: other
+    reference: draft/workbench-branch-sessions
+notes: Worktree, registry entry, and session notebook torn down; the branch is retained.
