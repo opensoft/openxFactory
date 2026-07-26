@@ -139,6 +139,91 @@ since 2026-07-16 unless noted):
    `opensoft/xFactory`; `validate_rule` never reads the field. A council
    amendment should correct the text.
 
+## Adversarial review — `add-changed-path-completeness` (2026-07-26)
+
+Review of the landed combined diff (codexFactory `553826b` core precondition
++ aggregation `b0e86ef` gathers) before ratification, because the last review
+of this surface found a critical fail-open. **No fail-open found in the
+change itself.** Items 1 and 2 of the out-of-scope list above are closed by
+it.
+
+Verified by execution, not assertion: aggregation `pytest tests/` 44 passed /
+25 subtests and `actionlint` exit 0 on both workflows; codexFactory
+`pytest tests/merge-master/` at `c43151e` 128 passed / 5 skipped. The
+never-clearable property holds by construction — `_classify` returns early on
+`failed_condition != "path_allowlist"` (council_clearance.py:152) and the
+precondition sits between the expected-base block and condition 2
+(envelope.py:356-400), so an unproven set can never be reported as a path
+failure. `changed_paths` has no third consumer: only `envelope.evaluate` and
+`_classify`, and `_classify` is unreachable until completeness has passed.
+The shipped jq was run directly against edge fixtures the suite does not
+cover — zero-file PR, null / empty-string / non-string `previous_filename`,
+duplicate filenames, rename cycles, an absent `changed_files`, a string
+total — and every case is fail-closed or benign.
+
+What the review DID find, all in the same fail-open class the change exists
+to close, none of it introduced by the change:
+
+1. **The commit-statuses gather is unpaginated** —
+   `gh api "repos/$REPO/commits/$HEAD_SHA/status"` carries no `--paginate`
+   and no `per_page`, two lines below a sibling check-runs call that does
+   paginate, inside the block this change rewrote. The combined-status
+   endpoint pages at 30. `_checks_green` quantifies universally over
+   `facts.statuses` and fails closed only when the considered count is zero,
+   so a failing legacy status past entry 30 is invisible and all-checks-green
+   reports satisfied. Latent, not live: the candidate head carries zero
+   legacy statuses today (the repo uses check-runs). The endpoint returns
+   `total_count`, so the exact proof this change invented for changed paths
+   is available here for the price of one comparison.
+2. **Neither the check-runs nor the statuses gather carries a completeness
+   proof.** The change's own principle — a fact set the envelope quantifies
+   over must not be accepted without proof that it is whole — is applied to
+   changed paths alone. Both responses carry `total_count`. This is also a
+   spec/realization mismatch worth settling at ratification: the fourth
+   ADDED requirement is titled *"Every gather feeding an approval decision
+   proves completeness the same way"*, but its scenarios pin only the two
+   workflow SURFACES, so `--strict` passes while the title promises more
+   than the code delivers. Either narrow the requirement to "every workflow
+   surface" or extend the discipline to these two gathers.
+3. **The open-findings window is still a truncating client-side filter.**
+   `gh issue list --limit 200` truncates with no total, and the notice
+   exclusion runs after the fetch, so the workflow's own per-clearance
+   notices — filed as open issues and never closed, and unlabelled on the
+   fallback path — consume window slots. An absent finding reads as "no
+   blocking finding". Zero exposure today (1 open issue), saturating in
+   ~200 clearances once tier 2 is active. Server-side exclusion via
+   `--search "-label:<notice>"` plus a count cross-check closes it.
+4. **Candidate resolution masks failure with the idiom the change removed**,
+   two lines above the gather block and therefore outside the no-masking
+   test's window: `mapfile -t HEAD_REFS < <(python3 "$CORE" …)` cannot see a
+   core that is absent or throwing (`set -e` does not observe process
+   substitution) and `n="$(gh pr list … || true)"` reads an API failure as
+   "no open PR". Both yield `decision=skip` on a green run. Not a security
+   fail-open — no approval is granted — but the nightly can silently stop
+   being evaluated with no operator signal, which matters precisely because
+   the core is pulled from a floating `@main` (item 4 above).
+5. **Informational.** (a) `echo "reason=$REASON"` puts a string that can
+   embed a changed path into `GITHUB_OUTPUT` unescaped; git permits newlines
+   in filenames, so a crafted path can inject further `key=value` lines. Not
+   exploitable for approval — `decision=` is written after `reason=` and the
+   last write wins, and a malformed output file fails the step — and it
+   presupposes an already-compromised generator. The heredoc-delimiter form
+   is the fix when the file is next touched. (b) The convening lane
+   commissions `resolve.outputs.head_sha`, read before the classify step's
+   gather and never compared against the SHA that step settles on, so the
+   new recheck does not cover the gap between the two jobs' reads; downstream
+   SHA binding makes the worst case a wasted convening. (c) The head-SHA
+   recheck cannot see base-branch movement, which also changes the diff —
+   exploiting it needs push access to `main`.
+
+Two deviations beyond brief in `b0e86ef`, both defensible and documented
+in-file, flagged for the ratification decision: the `|| echo '[]'` removal
+was extended past open-findings to the check-runs and statuses gathers; and
+the pull-request resource is read twice (once in full, once for
+`-q .user.login`) because the harness asserts that exact literal call.
+Relatedly `.head | .sha` is spelled that way deliberately — the harness
+asserts the literal `head.sha` is absent — so neither should be "tidied".
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
