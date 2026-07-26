@@ -232,6 +232,35 @@ archive-sequencing list. No other forward transition is gated: mid-pipeline
 verbs leave the tile in staging where a session is legitimate working state,
 and only proposal ends the pipeline.
 
+### D20 — A tile is a work surface OR a proposal, never both
+**Decision** (Brett, 2026-07-26): a tile carrying a live proposal REFUSES to open
+or resume a branch session. The route back is `demote` — "we have to demote back
+to staging if we want to open a session."
+
+**Rationale**: D15 already stopped a tile from being proposed while it was being
+worked. This closes the same door from the other side, and the pair is what
+actually makes the pipeline safe. Without it the asymmetry is exploitable: a
+tile could be proposed from `main`, and then — with authoring already running —
+a gate write would spawn a fresh session whose commits merge into `main`
+underneath a proposal authored from the older text. The proposal and its source
+would disagree with no record of which version the reviewer read. Brett's
+framing is the general form: proposal is the END of the staging pipeline, so a
+tile is either a staging work surface or a proposal, and reopening it for work
+is a deliberate lifecycle move backwards — which the corpus already has a verb
+and a lifecycle rule for (`demote`; "a proposal returns to staging for continued
+design").
+
+**Consequence**: the two refusals are now mirrors — `propose` refuses on a live
+session, a session refuses on a live proposal — so the states are mutually
+exclusive from both directions rather than by convention. One honest wrinkle is
+recorded in the requirement rather than glossed: while a `propose` dispatch is
+in flight there is no proposal yet to demote, so the tile is simply closed until
+authoring lands, and the refusal must say that instead of naming a route the
+human cannot take. This also removes the hazard D17 left open, where an
+abandoned branch could be RESUMED after the topic was proposed — the resume
+prompt is now suppressed on a proposed tile, so D17's "MAY delete the abandoned
+branch once the proposal exists" is a tidy-up rather than the only guard.
+
 ### D18 — A session PR lands as a MERGE COMMIT; the series is never squashed
 **Decision** (Brett, 2026-07-26, closing the staged topic's SQUASH-VERSUS-MERGE
 question): session pull

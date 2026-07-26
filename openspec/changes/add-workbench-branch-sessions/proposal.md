@@ -101,6 +101,13 @@ the selector rather than beside it.
   discard). Proposal ends the staging pipeline, so a tile whose drafts are
   still unmerged on a branch must be cleared first. An abandoned session is
   RESOLVED even if its pushed branch survives.
+- REFUSE opening or resuming a session on a tile that carries a LIVE PROPOSAL,
+  and name `demote` as the route back. A tile is a staging work surface OR a
+  proposal, never both: editing the staging documents underneath a proposal
+  authored from them would leave the two disagreeing, with the edit merging into
+  `main` beneath a proposal that never saw it. This is the mirror of the
+  `propose` refusal above — together they make the two states mutually exclusive
+  from both directions.
 - SYNC per-session NotebookLM notebooks (`xf-session-<topic>`, a namespace
   DISJOINT from the workbench's `xf-wb-*` reference-set notebooks so the
   reference-set orphan sweep can never delete a live session's notebook) FROM
@@ -131,11 +138,12 @@ the selector rather than beside it.
 
 ## Impact
 
-- Affected specs: `ideation-dashboard` — EIGHT ADDED requirements (branch
-  session lifecycle; one commit per gate action; the session-scoped
-  `edit-document` verb; the session snapshot addressed by (repository, session
-  ref); session-confined draft visibility; branch-aware source resolution; the
-  `open-pr` save verb; local-plane confinement) and THREE MODIFIED requirements.
+- Affected specs: `ideation-dashboard` — NINE ADDED requirements (branch
+  session lifecycle; a proposed tile refusing branch sessions; one commit per
+  gate action; the session-scoped `edit-document` verb; the session snapshot
+  addressed by (repository, session ref); session-confined draft visibility;
+  branch-aware source resolution; the `open-pr` save verb; local-plane
+  confinement) and THREE MODIFIED requirements.
   `Staging workbench scoped view` is modified because its "ONLY write authority
   ... MUST NOT modify or delete any existing document, in any panel, by any
   path" clause is exactly what a session edit supersedes — inside a session and

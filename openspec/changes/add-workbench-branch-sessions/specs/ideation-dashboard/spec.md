@@ -39,6 +39,26 @@ The workbench SHALL open a BRANCH SESSION on a topic-bearing tile the first time
 - **THEN** the session MUST end: the worktree, the session registry entry, and the session notebook are torn down and the main view is refreshed
 - **AND** the session branch MUST be deleted, since the merge has preserved everything it held
 
+### Requirement: A tile that has moved to proposal refuses branch sessions
+A branch session SHALL NOT open, and an abandoned branch SHALL NOT be resumed, on a tile that carries a LIVE PROPOSAL — either a dispatched `propose` workflow-job that has not yet delivered, or a proposal that already exists for the topic. Proposal is the end of the staging pipeline, and a tile is in exactly ONE of two modes: it is a staging work surface, or it is a proposal, never both at once. Editing a topic's staging documents underneath a proposal authored FROM them would leave the two disagreeing with no record of which version the reviewer read, and any such edit would merge into `main` beneath a proposal that never saw it. The refusal SHALL name the route back: `demote`, which returns the proposal to staging for continued design; once a tile has been demoted it accepts sessions again exactly as before. While a `propose` dispatch is still in flight there is no proposal yet to demote, so the refusal SHALL say so rather than naming a route the human cannot take — the tile is closed until its proposal lands. This rule is the mirror of the `propose` refusal on an unresolved session: together they make the two states mutually exclusive from both directions, so a tile can never be simultaneously worked and proposed.
+
+#### Scenario: A gate write arrives on a tile whose proposal exists
+- **WHEN** a human performs a gate write against a tile that carries an existing proposal
+- **THEN** no session MUST be opened and nothing MUST be persisted
+- **AND** the refusal MUST name `demote` as the route back to a workable staging tile
+
+#### Scenario: A gate write arrives while proposal authoring is still in flight
+- **WHEN** a human performs a gate write against a tile whose `propose` workflow-job is dispatched and undelivered
+- **THEN** no session MUST be opened, and the refusal MUST state that the proposal has not landed yet, so there is nothing to demote and the tile is closed until it does
+
+#### Scenario: A demoted tile is worked again
+- **WHEN** a tile's proposal has been demoted back to staging and a human performs a gate write against it
+- **THEN** a branch session MUST open normally, under the ordinary naming and resume-or-new rules
+
+#### Scenario: An abandoned branch is resumed on a proposed tile
+- **WHEN** a tile carries a live proposal and an abandoned session branch for that tile still exists
+- **THEN** the resume-or-new choice MUST NOT be offered and the branch MUST NOT be resumed — the tile is a proposal, not a work surface
+
 ### Requirement: One commit per gate action inside a branch session
 Every gate action performed inside a branch session SHALL produce exactly ONE commit on the session branch, carrying BOTH the documents that action wrote and the gate-action record that attests to it, and that record SHALL name the commit as a `commit`-kind artifact. A record and the artifact it attests to MUST NOT land through separate paths: riding the same commit is what keeps them inseparable, and it is why a session's audit trail FALLS OUT of version control instead of being reconstructed beside it. A gate verb whose effect reaches OUTSIDE the branch — a workflow dispatch that actually runs, a publication, an image build, or a rollout — MUST NOT be performed from inside a branch session, because it would act on state that is not yet governed; those verbs remain main-resident. A gate action whose artifacts are FILES is session-legal, and it becomes governed STATUS only when the session's pull request merges, exactly as the gates-happen-on-main rule requires of any unmerged transition.
 

@@ -56,6 +56,12 @@ registry.
       existing branch, keeping its name) or NEW (next ordinal). Offered ONLY
       while no live session holds the tile; once either choice opens a session,
       later writers JOIN it, so the prompt can never fork one tile in two.
+- [ ] 2.1b Refuse to open OR resume a session on a tile carrying a LIVE
+      PROPOSAL (D20): an existing proposal, or a dispatched-and-undelivered
+      `propose` workflow-job. The refusal names `demote` as the route back; when
+      authoring is still in flight it says instead that the proposal has not
+      landed yet, since there is nothing to demote. Mirror of the D15 refusal —
+      the two states are mutually exclusive from both directions.
 - [ ] 2.2 Spawn on the FIRST gate write against a tile with no active session:
       create the branch and materialize a git WORKTREE for it. Idempotent — a
       second actor's first write JOINS the existing session (D2).
@@ -196,6 +202,13 @@ registry.
       merge or approve; proceeds with no fired readiness gate; a second
       invocation updates rather than duplicating; merge tears the session down,
       DELETES the session branch, and refreshes the main view.
+- [ ] 8.13 Proposed-tile session refusal tests (D20): a gate write on a tile
+      with an existing proposal opens no session, persists nothing, and names
+      `demote`; a gate write while a `propose` job is dispatched-and-undelivered
+      refuses and says the proposal has not landed rather than naming demote;
+      after a demotion the same tile opens a session normally; and the
+      resume-or-new prompt is NOT offered on a proposed tile that still has an
+      abandoned branch.
 - [ ] 8.11 Resume-or-new tests (D17): a first gate write on a tile with a
       surviving abandoned branch reports it and offers both continuations
       rather than choosing; RESUME re-materializes a worktree over the existing
