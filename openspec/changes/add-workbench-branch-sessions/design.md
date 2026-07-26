@@ -113,7 +113,7 @@ reading the action log, and there is nothing to reconcile because there is only
 one artifact.
 
 **Consequence**: a long session produces many small commits, which is open
-question 2 (squash versus merge). Note that the recommendation there follows
+question 1 (squash versus merge). Note that the recommendation there follows
 from this decision rather than from taste — squashing on merge would discard on
 `main` precisely the granularity this decision creates.
 
@@ -182,7 +182,7 @@ the human's mental model is saving, and the honest implementation of saving in
 a governed system is offering work for review.
 
 **Consequence**: "save" is a slightly heavier gesture than a save button, and
-the readiness-gate question (open question 4) is a direct consequence — the
+the readiness-gate question (open question 3) is a direct consequence — the
 recommendation is NO, because a draft PR is exploration and the readiness gate
 guards PROPOSE, not SAVE.
 
@@ -196,7 +196,7 @@ behalf.
 merge has already preserved everything the branch held, on `main`, under the
 Merge-Master ritual — so the branch is pure residue, and leaving it behind only
 contends for its own deterministic name the next time the tile is worked (the
-collision that open question 1 exists to handle). An abandon has preserved
+collision that decision D17 now handles). An abandon has preserved
 nothing: an abandon that deleted a pushed branch would destroy potentially
 auditable, potentially collaborative work with one click on a COLLABORATIVE
 branch — the worst possible pairing with D2. Ending the session (worktree,
@@ -230,6 +230,44 @@ proposal commissioning" requirement, so `add-propose-verb` joins the
 archive-sequencing list. No other forward transition is gated: mid-pipeline
 verbs leave the tile in staging where a session is legitimate working state,
 and only proposal ends the pipeline.
+
+### D17 — Reworking a tile with an abandoned branch: RESUME or NEW, and the branch dies at the proposal
+**Decision** (Brett, 2026-07-26, closing what was open question 1): when the
+first gate write lands on a tile whose previous session was abandoned and whose
+branch survives, notify the human and offer two continuations — RESUME the
+abandoned branch under its existing name, or start NEW under the next ordinal
+(`draft/<staging-id>-2`). Separately: once the topic's PROPOSAL exists, a
+surviving abandoned branch MAY be deleted.
+
+**Rationale**: the collision this resolves is much narrower than when the
+question was written, because D9 now deletes the branch at merge — so the only
+way a tile's name is still occupied is an abandon, the one ending that
+deliberately keeps pushed history. At that point the interesting question is
+not what to NAME the new branch but whether the human wants the abandoned work
+back. Silently allocating an ordinal answers the naming question and throws away
+the more useful one; silently reusing the name would attach a new session to old
+commits without the human saying so. Asking costs one prompt at exactly the
+moment the human has the context to answer, and it is the only moment the
+question is cheap. Letting the human name the continuation freely was rejected:
+that would break D2, since two humans could pick different names for one tile
+and fork it into two sessions.
+
+The second half gives abandoned branches an END OF LIFE they previously lacked.
+"Abandon never deletes pushed history" was absolute, which meant every abandoned
+exploration accumulated forever. A proposal closes its topic off — once one
+exists, the abandoned branch is no longer evidence anyone needs, so it becomes
+deletable. That is a retention rule, not a weakening of the abandon rule: abandon
+still never deletes anything at abandon time, and nothing is destroyed on the
+strength of a `propose` DISPATCH, whose commissioned authoring may not have
+produced a proposal yet.
+
+**Consequence**: the ordinal mechanism survives but now carries meaning — a
+`draft/<staging-id>-2` exists only where a previous attempt was abandoned AND
+the human chose not to resume it, which is real signal rather than a counter of
+how often a topic was worked. Two realization constraints follow: the highest
+existing ordinal MUST be computed against the REMOTE, or two machines allocate
+the same ordinal; and the prompt MUST be suppressed once any session is live, or
+concurrent writers could answer it differently and fork the tile.
 
 ### D16 — A session notebook is RETIRED at session end; it never survives
 **Decision** (Brett, 2026-07-26): retire the NotebookLM notebook when the
@@ -369,7 +407,7 @@ the answer must be unambiguously no.
   conflict path is the same one every engineering change already uses.
   Deliberately NOT in scope: automatic rebase or merge of `main` into a session
   branch, which would rewrite a human's working state under them.
-- **Commit-per-action inflates history (open question 2).** A long session
+- **Commit-per-action inflates history (open question 1).** A long session
   opens a PR with many small commits. Mitigation: that granularity IS the audit
   trail (D4), the PR view collapses it for reading, and the recommendation is a
   merge commit rather than a squash for exactly this reason.
@@ -402,22 +440,10 @@ the answer must be unambiguously no.
 
 ## Open Questions
 
-Four, each with a recommendation, all parked for Brett. The first three are the
-staged topic's own; the fourth was raised while authoring this change.
+Three, each with a recommendation, all parked for Brett. The first two are the
+staged topic's own; the third was raised while authoring this change.
 
-1. **Branch-name reuse after a merged session.** `draft/<staging-id>` is stable
-   by design, so a staging id worked again after its first session merged
-   collides with the merged (or still-present) name. Options: reuse the name
-   after deletion; suffix a session ordinal; or refuse and require the human to
-   name the continuation.
-   *Recommendation: suffix a session ORDINAL* (`draft/<staging-id>` then
-   `draft/<staging-id>-2`). Reuse makes two different pull requests share a
-   name, which degrades exactly the git-native audit trail D4 buys; refusing
-   pushes a naming decision onto a human at the least useful moment. An ordinal
-   keeps the derivation deterministic (highest existing ordinal plus one), keeps
-   the tile identity legible in the name, and keeps D2's join-the-same-session
-   property — a second human joins the CURRENT ordinal.
-2. **Squash versus merge for a session pull request.** Commit-per-gate-action
+1. **Squash versus merge for a session pull request.** Commit-per-gate-action
    makes the audit trail free, but it also means a long session's PR carries
    many small commits.
    *Recommendation: a MERGE COMMIT, preserving the series.* The history IS the
@@ -426,7 +452,7 @@ staged topic's own; the fourth was raised while authoring this change.
    than a governed one. If a squash is ever required by a repository's protection
    rules, the fallback is to require the squash message to enumerate the gate
    actions, so the record survives in prose even when the commits do not.
-3. **Session-notebook quota behaviour.** Per-session `xf-session-<topic>` notebooks
+2. **Session-notebook quota behaviour.** Per-session `xf-session-<topic>` notebooks
    are created and retired per session; what happens when the NotebookLM
    account's notebook quota is reached mid-session is undecided — refuse the
    session, degrade to no notebook, or evict the oldest retired notebook.
@@ -437,7 +463,7 @@ staged topic's own; the fourth was raised while authoring this change.
    but risks deleting a retired notebook someone is still reading. The
    requirement already makes the notebook optional (`MAY carry ONE`), so this
    ruling changes tooling behaviour and no contract.
-4. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
+3. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
    could be made conditional on the topic's readiness recommendation having
    fired.
    *Recommendation: NO, and the requirement states it.* A draft pull request is

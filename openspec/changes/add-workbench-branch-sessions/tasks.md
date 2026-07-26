@@ -47,8 +47,15 @@ registry.
 
 - [ ] 2.1 Session branch naming derived deterministically from the TILE's scope
       identity (D2): `draft/<staging-id>` for a staged topic, scope kind + id
-      for a cluster or a possible. Never the actor. Open question 1's ruling
-      (session ordinal, recommended) lands here.
+      for a cluster or a possible. Never the actor. Ordinals (`-2`, `-3`) are
+      allocated only by D17's NEW continuation, as highest-existing-plus-one
+      computed against the REMOTE so two machines cannot disagree.
+- [ ] 2.1a Resume-or-new on a tile whose previous session was ABANDONED and
+      whose branch survives (D17): the first gate write MUST report the
+      abandoned branch and offer RESUME (re-materialize a worktree over the
+      existing branch, keeping its name) or NEW (next ordinal). Offered ONLY
+      while no live session holds the tile; once either choice opens a session,
+      later writers JOIN it, so the prompt can never fork one tile in two.
 - [ ] 2.2 Spawn on the FIRST gate write against a tile with no active session:
       create the branch and materialize a git WORKTREE for it. Idempotent — a
       second actor's first write JOINS the existing session (D2).
@@ -103,7 +110,7 @@ registry.
       pull request into the existing Merge-Master ritual, records the dispatch
       with the pull request as a `pull-request`-kind artifact. Cannot merge,
       approve, self-review, or bypass protection. Does NOT require the topic's
-      readiness gate (open question 4's recommendation). Re-invocation updates
+      readiness gate (open question 3's recommendation). Re-invocation updates
       and reports the existing PR rather than opening a second.
 - [ ] 4.4 Abandon route + CLI parity verb (D9): recorded with a reason, tears
       down session state only.
@@ -116,6 +123,10 @@ registry.
       Keys on the live session, NOT on branch existence, so a branch surviving
       an abandon does not block. No new verb: the two resolutions are the
       existing `open-pr`→merge path and `abandon-session`.
+- [ ] 4.7 Abandoned-branch cleanup once the topic's proposal exists (D17): a
+      HUMAN-invoked affordance, never automatic and never fired by the `propose`
+      dispatch alone — the commissioned authoring may not have produced a
+      proposal yet. Offered only for a branch whose session was abandoned.
 
 ## 5. Workbench surface (codexFactory)
 
@@ -184,6 +195,16 @@ registry.
       merge or approve; proceeds with no fired readiness gate; a second
       invocation updates rather than duplicating; merge tears the session down,
       DELETES the session branch, and refreshes the main view.
+- [ ] 8.11 Resume-or-new tests (D17): a first gate write on a tile with a
+      surviving abandoned branch reports it and offers both continuations
+      rather than choosing; RESUME re-materializes a worktree over the existing
+      branch and keeps its name; NEW allocates the next ordinal computed
+      against the REMOTE; a second writer arriving after the choice JOINS the
+      opened session instead of seeing the prompt; and a merged (not abandoned)
+      tile is reworked with NO prompt, since the merge deleted the branch.
+- [ ] 8.12 Abandoned-branch cleanup tests (D17): deletion is offered only once
+      the topic's proposal exists, is human-invoked, and is NOT triggered by a
+      `propose` dispatch whose authoring has not yet landed a proposal.
 - [ ] 8.10 Propose-gate tests (D15): `propose` refuses while a live session
       holds the tile, naming the branch and both resolutions, and persists
       nothing; it proceeds after the session ends by merge; it proceeds after
@@ -206,15 +227,16 @@ registry.
 
 ## 9. Dogfood
 
-- [ ] 9.1 Brett's rulings on the four open questions recorded in this change
-      before realization freezes them: (1) branch-name reuse after a merged
-      session — recommendation: suffix a session ordinal; (2) squash versus merge
-      for session pull requests — recommendation: merge commit, the history IS
-      the audit; (3) session-notebook quota behaviour — recommendation: degrade
-      to no notebook, loudly; (4) whether `open-pr` requires the topic's
-      readiness gate — recommendation: NO, the readiness gate guards propose,
-      not save. (A fifth, raised by the 2026-07-26 review, was RULED the same
-      day and is D16: the session notebook is RETIRED, never re-pointed.)
+- [ ] 9.1 Brett's rulings on the three open questions recorded in this change
+      before realization freezes them: (1) squash versus merge for session pull
+      requests — recommendation: merge commit, the history IS the audit;
+      (2) session-notebook quota behaviour — recommendation: degrade to no
+      notebook, loudly; (3) whether `open-pr` requires the topic's readiness
+      gate — recommendation: NO, the readiness gate guards propose, not save.
+      (Two further questions were raised and RULED on 2026-07-26: the session
+      notebook is RETIRED and never re-pointed (D16), and reworking a tile with
+      a surviving abandoned branch offers RESUME or NEW, with the branch
+      deletable once the topic's proposal exists (D17).)
 - [ ] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
       REAL session end to end. Create and edit documents on a session branch,
       watch the panels follow the worktree, use the session notebook, open the
