@@ -231,6 +231,28 @@ archive-sequencing list. No other forward transition is gated: mid-pipeline
 verbs leave the tile in staging where a session is legitimate working state,
 and only proposal ends the pipeline.
 
+### D16 — A session notebook is RETIRED at session end; it never survives
+**Decision** (Brett, 2026-07-26): retire the NotebookLM notebook when the
+session ends, by either route. There is no re-pointing at `main` and no
+surviving post-session notebook. This resolves the contradiction the adversarial
+review found between the staged claim 7 wording ("retired, or re-pointed at
+`main`") and the dashboard delta's unconditional teardown.
+
+**Rationale**: after D9 the notebook has no source to survive on — merge deletes
+the branch and tears down the worktree the notebook synced FROM. Re-pointing at
+`main` would also invent a notebook class the promoted spec does not govern: a
+re-pointed notebook is neither one of the three lifecycle books nor a §7 hybrid,
+which requires a Canon release line, an enumerated origin folder, and a
+`00 [hybrid charter]` seed. And it would duplicate a projection that already
+exists — once merged, the topic's documents project into the lifecycle books by
+the ordinary sync, which is what those books are for.
+
+**Consequence**: the notebook's life is exactly the session's life, as the
+requirement states. If a session's ANALYSIS (as distinct from its documents)
+ever needs to outlive the branch, the route is an explicit conversion to a §7
+hybrid under that section's existing charter and seeding rules — a future
+change, not a silent re-point. Nothing in this change creates that route.
+
 ### D10 — NO session-descriptor artifact; the session is derived state
 **Decision**: no new schema and no persisted session manifest. A session IS its
 branch, its worktree, its registry entry, and a notebook alias derived from the
@@ -380,9 +402,8 @@ the answer must be unambiguously no.
 
 ## Open Questions
 
-Five, each with a recommendation, all parked for Brett. The first three are the
-staged topic's own; the fourth was raised while authoring this change; the fifth
-was raised by the adversarial review of 2026-07-26.
+Four, each with a recommendation, all parked for Brett. The first three are the
+staged topic's own; the fourth was raised while authoring this change.
 
 1. **Branch-name reuse after a merged session.** `draft/<staging-id>` is stable
    by design, so a staging id worked again after its first session merged
@@ -426,25 +447,6 @@ was raised by the adversarial review of 2026-07-26.
    what it measures: readiness is derived FROM the documents a session
    produces. It would also strand a session's work unmergeable on a branch,
    which is the one state this whole change exists to eliminate.
-5. **Does a session notebook ever survive its session?** Staged claim 7 said the
-   notebook is "retired, or re-pointed at `main`" at session end, while claim 8
-   (decided the same day) said it is "cleaned up" on merge, and the dashboard
-   delta requires unconditionally that the notebook "be torn down" alongside the
-   worktree and the registry entry. The change had carried both readings, which
-   contradict: a re-pointed notebook survives in active use and is not torn down.
-   Brett's 2026-07-26 ruling settled the surrounding lifecycle — merge deletes
-   the branch and ends the session outright (D9) — which removes the notebook's
-   source: the worktree it synced FROM no longer exists. That leaves exactly two
-   coherent options, and only the notebook's disposition is still open.
-   *Recommendation: RETIRE, and the requirement now states it.* Once the merge
-   has landed, the topic's documents are on `main` and project into the three
-   lifecycle books by the ordinary sync, so a surviving session notebook
-   duplicates a projection that already exists. Re-pointing would also create a
-   notebook class the promoted spec does not govern — a re-pointed
-   `xf-session-*` notebook is neither a lifecycle book nor a hybrid (which
-   requires a Canon release line, an enumerated origin folder, and a
-   `00 [hybrid charter]` seed). If the session's ANALYSIS (as distinct from its
-   documents) should outlive the branch, the clean route is an explicit
-   CONVERSION to a §7 hybrid under that section's existing charter and seeding
-   rules, which this change would then need to state; silent re-pointing into an
-   ungoverned class is the option to avoid.
+(A fifth question — whether a session notebook ever survives its session — was
+raised by the 2026-07-26 adversarial review and RULED the same day. It is now
+D16, not an open question.)

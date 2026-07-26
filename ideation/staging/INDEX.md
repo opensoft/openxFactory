@@ -228,14 +228,15 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   rulings (merge DELETES the session branch — the work is on `main` and the
   branch is residue, while abandon still never deletes pushed history; and
   `propose` REFUSES while the tile carries an unresolved session, since
-  proposal ends the pipeline and the human must merge or discard first);
-  FIVE open questions parked with
+  proposal ends the pipeline and the human must merge or discard first; and
+  the session NotebookLM notebook is RETIRED at session end, never re-pointed
+  at `main` — D16, which closes the contradiction the adversarial review
+  found); FOUR open questions parked with
   recommendations in the change's design (branch-name reuse after a merged
   staging id → suffix a session ordinal; squash-vs-merge → merge commit, the
   history is the audit; session-notebook quota → degrade to no notebook;
   whether `open-pr` needs the readiness gate → NO, readiness guards propose,
-  not save; whether a session notebook survives its session → RETIRE, with
-  conversion to a §7 hybrid as the route if it should outlive the branch).
+  not save).
   SEQUENCED strictly after `add-dashboard-repo-selector`, which
   defines the seam this topic consumes
 - Exit: `add-workbench-branch-sessions` (code surface: codexFactory +

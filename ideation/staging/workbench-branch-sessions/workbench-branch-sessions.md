@@ -113,10 +113,14 @@ Target capabilities: ideation-dashboard (MODIFIED); lifecycle-notebook-projectio
      workbench manifest binds — which a session notebook, having no
      manifest by design, never can. The original name would have had a
      live session's notebook deleted mid-session by the routine sync.
-     Likewise "retired or re-pointed at main" below is now RETIRE: Brett's
-     2026-07-26 ruling deletes the branch at merge, so the worktree the
-     notebook synced from is gone; whether the analysis should instead
-     convert to a §7 hybrid is open question 5 in the change.] That is possible because NotebookLM knows uploaded
+     Likewise "retired or re-pointed at main" below is now RETIRE, DECIDED by
+     Brett 2026-07-26 (change design D16): the notebook never survives its
+     session. Merge deletes the branch, so the worktree the notebook synced
+     FROM is gone; re-pointing would also invent a notebook class the promoted
+     spec does not govern, and the merged documents already project into the
+     three lifecycle books. If a session's ANALYSIS should ever outlive the
+     branch, the route is an explicit conversion to a §7 hybrid — a future
+     change, not a silent re-point.] That is possible because NotebookLM knows uploaded
      SOURCES, not git — so this is a projection-TOOLING change only, with
      no contract consequence for the notebook family beyond declaring the
      rule. A session notebook is recreated on session start and, on
