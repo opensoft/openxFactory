@@ -110,7 +110,8 @@ registry.
       pull request into the existing Merge-Master ritual, records the dispatch
       with the pull request as a `pull-request`-kind artifact. Cannot merge,
       approve, self-review, or bypass protection. Does NOT require the topic's
-      readiness gate (open question 3's recommendation). Re-invocation updates
+      readiness gate (the one remaining open question's recommendation).
+      Re-invocation updates
       and reports the existing PR rather than opening a second.
 - [ ] 4.4 Abandon route + CLI parity verb (D9): recorded with a reason, tears
       down session state only.
@@ -227,16 +228,15 @@ registry.
 
 ## 9. Dogfood
 
-- [ ] 9.1 Brett's rulings on the three open questions recorded in this change
-      before realization freezes them: (1) squash versus merge for session pull
-      requests — recommendation: merge commit, the history IS the audit;
-      (2) session-notebook quota behaviour — recommendation: degrade to no
-      notebook, loudly; (3) whether `open-pr` requires the topic's readiness
-      gate — recommendation: NO, the readiness gate guards propose, not save.
-      (Two further questions were raised and RULED on 2026-07-26: the session
-      notebook is RETIRED and never re-pointed (D16), and reworking a tile with
-      a surviving abandoned branch offers RESUME or NEW, with the branch
-      deletable once the topic's proposal exists (D17).)
+- [ ] 9.1 Brett's ruling on the ONE remaining open question recorded in this
+      change before realization freezes it: whether `open-pr` requires the
+      topic's readiness gate — recommendation: NO, the readiness gate guards
+      propose, not save. (The staged topic's other three and the two raised by
+      the 2026-07-26 review were all RULED that day: D16 the session notebook is
+      retired and never re-pointed; D17 resume-or-new on rework, branch
+      deletable once the proposal exists; D18 merge commit, never squash,
+      because the commit series is FDA traceability evidence; D19 a full
+      notebook quota degrades the session rather than blocking it.)
 - [ ] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
       REAL session end to end. Create and edit documents on a session branch,
       watch the panels follow the worktree, use the session notebook, open the

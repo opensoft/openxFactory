@@ -112,10 +112,11 @@ FALLS OUT of version control. A reviewer reading the PR's commit series is
 reading the action log, and there is nothing to reconcile because there is only
 one artifact.
 
-**Consequence**: a long session produces many small commits, which is open
-question 1 (squash versus merge). Note that the recommendation there follows
-from this decision rather than from taste — squashing on merge would discard on
-`main` precisely the granularity this decision creates.
+**Consequence**: a long session produces many small commits, and they are KEPT —
+see D18. That is not a tolerance for noise: per Brett's 2026-07-26 ruling the
+commit series is traceability evidence for medical FDA clearance, so the
+granularity this decision creates is regulatory record and not merely a
+convenience for reviewers.
 
 ### D5 — `edit-document` is session-only; the redline path is untouched
 **Decision**: a new human-only gate verb `edit-document` rewrites an existing
@@ -182,7 +183,7 @@ the human's mental model is saving, and the honest implementation of saving in
 a governed system is offering work for review.
 
 **Consequence**: "save" is a slightly heavier gesture than a save button, and
-the readiness-gate question (open question 3) is a direct consequence — the
+the readiness-gate question (the one remaining open question) is a direct consequence — the
 recommendation is NO, because a draft PR is exploration and the readiness gate
 guards PROPOSE, not SAVE.
 
@@ -231,8 +232,59 @@ archive-sequencing list. No other forward transition is gated: mid-pipeline
 verbs leave the tile in staging where a session is legitimate working state,
 and only proposal ends the pipeline.
 
+### D18 — A session PR lands as a MERGE COMMIT; the series is never squashed
+**Decision** (Brett, 2026-07-26, closing the staged topic's SQUASH-VERSUS-MERGE
+question): session pull
+requests merge with a MERGE COMMIT, preserving every gate-action commit on
+`main`. A noisier `main` is accepted deliberately.
+
+**Rationale**: Brett's reason is external, not aesthetic — "these are docs and we
+are trying to have full traceability for medical FDA clearance, so keeping every
+commit is better." That converts the merge method from a history-hygiene
+preference into a constraint derived from a REGULATOR. Squashing would collapse
+the per-action granularity D4 exists to create and leave it only inside the pull
+request, which is a GitHub artifact rather than governed content — evidence
+custody delegated to a forge. Under a clearance regime that is the wrong place
+for it: the record must survive independently of the vendor hosting it.
+
+**Consequence**: this reason MUST travel with the decision, or a later change
+switches to squash for tidiness and silently deletes regulatory evidence. Note
+that NOTHING mechanically enforces it today — squash and rebase are both still
+enabled on `opensoft/openxFactory` and `opensoft/codexFactory`, and no org
+ruleset forbids them, so the protection is currently review-only. Closing that
+(disabling squash on the Tier-1 repositories) is a follow-up this change does
+not own, because the Merge-Master ritual is explicitly out of its scope.
+
+### D19 — A full notebook quota degrades the session; it never blocks it
+**Decision** (Brett, 2026-07-26, closing the staged topic's NOTEBOOK-QUOTA
+question): when the
+NotebookLM quota is exhausted, the session STARTS anyway, without a notebook,
+and the human is notified.
+
+**Rationale**: a session's governed value is its branch, its commits, and its
+pull request; the notebook is an L1 analysis convenience. Refusing to open a
+session because an external SaaS quota is full would let a third party block
+governed work — and under D18's clearance framing, block the creation of
+regulatory record. The requirement already makes the notebook optional (`MAY
+carry ONE`), so this changes tooling behaviour and no contract. The third
+original option, evicting the oldest RETIRED notebook, was removed by D16: a
+retired notebook is deleted, so there is no pool of retired notebooks to evict.
+
+**Consequence**: the notification must be honest about WHOSE limit was hit.
+Notebooks are per-TILE, not per-engineer (D2 — two humans on one tile share one
+session and therefore one notebook), and the quota is consumed from ONE shared
+NotebookLM account by three competing populations: the three lifecycle books,
+every live `xf-wb-*` reference-set notebook, and every live `xf-session-*`. So
+the count scales with CONCURRENT TILES ACROSS EVERYONE, not with the engineer
+who happens to trip it, and the message must say so rather than implying the
+human opened too many sessions. Note the shared-account model is an inference
+from the tooling (`nlm` takes no account parameter; credentials are one cookie
+jar under `~/.notebooklm-mcp-cli/`), not a documented decision — the account
+model is unspecified anywhere in the corpus, and worth deciding separately.
+
 ### D17 — Reworking a tile with an abandoned branch: RESUME or NEW, and the branch dies at the proposal
-**Decision** (Brett, 2026-07-26, closing what was open question 1): when the
+**Decision** (Brett, 2026-07-26, closing the staged topic's BRANCH-NAME-REUSE
+question): when the
 first gate write lands on a tile whose previous session was abandoned and whose
 branch survives, notify the human and offer two continuations — RESUME the
 abandoned branch under its existing name, or start NEW under the next ordinal
@@ -260,6 +312,18 @@ deletable. That is a retention rule, not a weakening of the abandon rule: abando
 still never deletes anything at abandon time, and nothing is destroyed on the
 strength of a `propose` DISPATCH, whose commissioned authoring may not have
 produced a proposal yet.
+
+**Reconciliation with D18's traceability requirement**: deleting anything can
+look like it contradicts "keep every commit for FDA clearance", so the line is
+stated rather than left implicit, because an auditor will ask. It follows from
+the already-ratified gates-happen-on-main rule: an unmerged transition is
+EXPLORATION, NOT STATUS. So merged history is the regulatory record and is
+preserved commit-by-commit under D18; an abandoned branch never became status at
+all, none of its gate actions were ever real, and the abandon ITSELF is a
+recorded gate action on `main` carrying a reason — which is the durable trace
+that the exploration happened and why it stopped. Deleting the branch therefore
+removes no evidence the record depends on. What would be a violation is deleting
+a MERGED session's commits, which D18 forbids.
 
 **Consequence**: the ordinal mechanism survives but now carries meaning — a
 `draft/<staging-id>-2` exists only where a previous attempt was abandoned AND
@@ -407,7 +471,7 @@ the answer must be unambiguously no.
   conflict path is the same one every engineering change already uses.
   Deliberately NOT in scope: automatic rebase or merge of `main` into a session
   branch, which would rewrite a human's working state under them.
-- **Commit-per-action inflates history (open question 1).** A long session
+- **Commit-per-action inflates history (settled by D18).** A long session
   opens a PR with many small commits. Mitigation: that granularity IS the audit
   trail (D4), the PR view collapses it for reading, and the recommendation is a
   merge commit rather than a squash for exactly this reason.
@@ -440,30 +504,11 @@ the answer must be unambiguously no.
 
 ## Open Questions
 
-Three, each with a recommendation, all parked for Brett. The first two are the
-staged topic's own; the third was raised while authoring this change.
+One, with a recommendation, parked for Brett. It was raised while authoring
+this change; the staged topic's own three were all ruled on 2026-07-26
+(D17 branch-name reuse, D18 merge-not-squash, D19 notebook quota).
 
-1. **Squash versus merge for a session pull request.** Commit-per-gate-action
-   makes the audit trail free, but it also means a long session's PR carries
-   many small commits.
-   *Recommendation: a MERGE COMMIT, preserving the series.* The history IS the
-   audit; squashing discards on `main` precisely the per-action granularity D4
-   exists to create, leaving it only in the PR record — a GitHub artifact rather
-   than a governed one. If a squash is ever required by a repository's protection
-   rules, the fallback is to require the squash message to enumerate the gate
-   actions, so the record survives in prose even when the commits do not.
-2. **Session-notebook quota behaviour.** Per-session `xf-session-<topic>` notebooks
-   are created and retired per session; what happens when the NotebookLM
-   account's notebook quota is reached mid-session is undecided — refuse the
-   session, degrade to no notebook, or evict the oldest retired notebook.
-   *Recommendation: DEGRADE to no notebook, loudly.* A session's governed value
-   is its branch, its commits, and its pull request; the notebook is an L1
-   analysis convenience, and refusing a session because an external SaaS quota
-   is full would let a third party block governed work. Eviction is attractive
-   but risks deleting a retired notebook someone is still reading. The
-   requirement already makes the notebook optional (`MAY carry ONE`), so this
-   ruling changes tooling behaviour and no contract.
-3. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
+1. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
    could be made conditional on the topic's readiness recommendation having
    fired.
    *Recommendation: NO, and the requirement states it.* A draft pull request is
