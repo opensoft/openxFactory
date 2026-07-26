@@ -50,7 +50,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); exit gated on a second domain instantiating (Adx agency agreement or Medx custody-bearing patient consent) |
 | [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
-| [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | Ready to iterate — nine decisions locked with Brett 2026-07-25/26; 3 open questions (branch-name collision after a merged staging id, session-notebook quota, squash-on-PR); SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
+| [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **Proposed 2026-07-26** as `add-workbench-branch-sessions` — nine decisions locked with Brett 2026-07-25/26; 4 open questions parked with recommendations (branch-name reuse after a merged staging id, squash-vs-merge, session-notebook quota, whether `open-pr` needs the readiness gate); SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
@@ -216,16 +216,21 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Source: Brett's live session decisions 2026-07-25/26 (the workbench
   dogfood pass that produced `add-workbench-bullseye-and-create`, then the
   branch-session design round the next day)
-- Readiness: ready to iterate — nine decisions locked (branch per tile,
-  commit per gate action, instant create on the branch, session-only draft
-  visibility, session snapshots through the (repository, ref) seam, the
-  tool triangle on the branch, PR-as-save, local-plane-only until
-  intent-plane §4, the snapshot registry as the one new server plumbing);
-  three open questions (branch-name collision after a merged staging id,
-  session-notebook quota, squash-on-PR). SEQUENCED strictly after
-  `add-dashboard-repo-selector`, which defines the seam this topic consumes
+- Readiness: **Proposed 2026-07-26** as `add-workbench-branch-sessions` —
+  nine decisions locked (branch per tile, commit per gate action, instant
+  create on the branch, session-only draft visibility, session snapshots
+  through the (repository, ref) seam, the tool triangle on the branch,
+  PR-as-save, local-plane-only until intent-plane §4, the snapshot registry
+  as the one new server plumbing); FOUR open questions parked with
+  recommendations in the change's design (branch-name reuse after a merged
+  staging id → suffix a session ordinal; squash-vs-merge → merge commit, the
+  history is the audit; session-notebook quota → degrade to no notebook;
+  whether `open-pr` needs the readiness gate → NO, readiness guards propose,
+  not save). SEQUENCED strictly after `add-dashboard-repo-selector`, which
+  defines the seam this topic consumes
 - Exit: `add-workbench-branch-sessions` (code surface: codexFactory +
-  openxFactory), raised after `add-dashboard-repo-selector` lands its seam
+  openxFactory + aggregation), raised 2026-07-26; archives on merged + green
+  realization evidence including a real end-to-end session
 
 ## client-credential-escrow-registry
 

@@ -183,6 +183,32 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
+  — authored 2026-07-26, the single exit of the `workbench-branch-sessions`
+  staged topic: the workbench becomes a place to CREATE and EDIT documents
+  without loosening a gate, because the working state moves onto a git branch
+  and the PULL REQUEST is the formal re-entry into the governed doc system.
+  The first gate write against a tile spawns `draft/<staging-id>` (named for
+  the TILE, so two humans join one session) and materializes a git WORKTREE —
+  the served checkout never switches branches, which dissolves the
+  shared-checkout hazard by construction. Every gate action is ONE commit
+  carrying its documents and its gate-action record together, so the audit
+  trail falls out of version control; on-branch edits arrive as a new gated
+  `edit-document` verb valid ONLY inside a session (the PR review is the
+  governance — the ratified gates-happen-on-main rule read forwards), while
+  the `edit-apply` redline path keeps its ceremony for main-resident
+  documents. Session panels read a snapshot addressed `(repository,
+  session-branch)` through the registry `add-dashboard-repo-selector` lands —
+  no overlay machinery — regenerated after every gate action, with the
+  freshness header naming the branch; drafts are visible ONLY inside their
+  session, so `main` stays the shared truth on the wheel, the funnel, and the
+  hosted site. "Saving" is a gated `open-pr` verb that pushes the branch into
+  the existing Merge-Master ritual and holds no approval authority; merge (or
+  explicit abandon) tears down the worktree, the registry entry, and the
+  session notebook. Canon notebooks stay MAIN-ONLY; per-session
+  `xf-wb-<topic>` notebooks sync from the worktree. Local plane only until
+  the intent plane's apply lane (§4) can produce a ref. Sequenced strictly
+  after `add-dashboard-repo-selector`.
 - [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
   — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
   topic: a repository selector whose roster is the project register (sparse
