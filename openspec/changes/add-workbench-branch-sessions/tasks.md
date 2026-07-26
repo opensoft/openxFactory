@@ -46,7 +46,7 @@ registry.
 ## 2. Branch session lifecycle (codexFactory)
 
 - [ ] 2.1 Session branch naming derived deterministically from the TILE's scope
-      identity (D2): `draft/<staging-id>` for a staged topic, scope kind + id
+      identity (D2): `draft/<topic-folder>` for a staged topic, scope kind + id
       for a cluster or a possible. Never the actor. Ordinals (`-2`, `-3`) are
       allocated only by D17's NEW continuation, as highest-existing-plus-one
       computed against the REMOTE so two machines cannot disagree.

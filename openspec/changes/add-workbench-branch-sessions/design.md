@@ -66,7 +66,7 @@ is still where authority is exercised, the Merge Master still merges.
 workbench rather than an accident, and the human gets somewhere to stand.
 
 ### D2 — The branch is named for the TILE, not the actor
-**Decision**: `draft/<staging-id>` for a staged topic, and the scope's kind
+**Decision**: `draft/<topic-folder>` for a staged topic, and the scope's kind
 and id for a cluster or a possible. Two humans working the same tile join the
 SAME session.
 
@@ -81,6 +81,11 @@ problem the staging packet exists to prevent.
 below rather than a surprise. Per-ACTOR variants remain a future option if
 collisions hurt in practice; the branch-naming rule is the only thing that
 would change.
+
+**Errata (F1, 2026-07-26)**: the ratified spelling `draft/<staging-id>` was an
+impossible git ref — a staging id is colon-qualified. The branch derives from
+the topic FOLDER name (the staging id's final segment): `draft/<topic-folder>`.
+Decision unchanged.
 
 ### D3 — A WORKTREE, never a checkout switch
 **Decision**: the session branch is materialized as a git worktree. The served
@@ -269,6 +274,37 @@ so it cannot deadlock — but the surface must not present a session-scoped
 readiness badge as the propose gate's verdict, in the same spirit as D6/D7's
 freshness header closing draft-view ambiguity.
 
+### D22 — The `open-pr` push identity follows the PLANE: the engineer's own credential locally, the openxfactory App hosted
+**Decision** (Brett, 2026-07-26, post-ratification, closing the one item this
+change had left gated to Speckit): on the LOCAL plane the push and
+pull-request identity is the human engineer's OWN credential — their existing
+`gh` auth, no App and no stored token. On the HOSTED plane the verb is
+normatively bound to the openxfactory domain App when that App arrives: hosted
+`open-pr` MUST use it and MUST NOT fall back to a personal credential.
+
+**Rationale**: the two planes have different identities available, so one rule
+for both would be wrong somewhere. On the local plane the dashboard is
+loopback-only and human-gated (D12), so the push is the human's own
+attributable act and belongs under the human's own identity — minting or
+storing a service identity for a local human action would weaken attribution
+(the record would name a robot for something a person did) and cut against this
+family's never-store-raw-credentials rule, which admits grant and binding
+templates only. On the hosted plane there is no per-human credential to borrow,
+and the ratified per-domain App convention (2026-07-16: one GitHub App per
+DomainxFactory carrying only that domain's authority, with openxfactory holding
+CONTENT) makes content pull requests from the hosted dashboard the openxfactory
+App's surface by construction — no other domain's App may be widened to cover
+them.
+
+**Consequence**: the Speckit feature's T057 human gate is satisfied and
+FR-034's clarification marker resolves, so the real `GhPullRequests` adapter is
+built against the engineer's own credential rather than waiting on an identity
+decision. The hosted binding is recorded NOW even though nothing hosted can
+exercise it yet, so the hosted realization — intent-plane §4 arriving at the
+`ref` binding point D12 names — inherits a RULING rather than a choice, which
+is the same reason D12 names its binding point in advance instead of leaving it
+to whoever gets there.
+
 ### D20 — A tile is a work surface OR a proposal, never both
 **Decision** (Brett, 2026-07-26): a tile carrying a live proposal REFUSES to open
 or resume a branch session. The route back is `demote` — "we have to demote back
@@ -354,7 +390,7 @@ question): when the
 first gate write lands on a tile whose previous session was abandoned and whose
 branch survives, notify the human and offer two continuations — RESUME the
 abandoned branch under its existing name, or start NEW under the next ordinal
-(`draft/<staging-id>-2`). Separately: once the topic's PROPOSAL exists, a
+(`draft/<topic-folder>-2`). Separately: once the topic's PROPOSAL exists, a
 surviving abandoned branch MAY be deleted.
 
 **Rationale**: the collision this resolves is much narrower than when the
@@ -392,7 +428,7 @@ removes no evidence the record depends on. What would be a violation is deleting
 a MERGED session's commits, which D18 forbids.
 
 **Consequence**: the ordinal mechanism survives but now carries meaning — a
-`draft/<staging-id>-2` exists only where a previous attempt was abandoned AND
+`draft/<topic-folder>-2` exists only where a previous attempt was abandoned AND
 the human chose not to resume it, which is real signal rather than a counter of
 how often a topic was worked. Two realization constraints follow: the highest
 existing ordinal MUST be computed against the REMOTE, or two machines allocate
@@ -575,6 +611,11 @@ the staged topic's own three (D17 branch-name reuse, D18 merge-not-squash,
 D19 notebook quota), the one raised while authoring this change (D21 readiness
 on `open-pr`), and two raised by the adversarial review of the same day
 (D16 session-notebook disposition, D20 a tile is a work surface or a proposal).
+
+One further item had been left GATED TO SPECKIT rather than open — the identity
+`open-pr` pushes under — and Brett ruled it the same day, after ratification:
+D22, the engineer's own credential on the local plane and the openxfactory
+domain App on the hosted one. Twenty-two decisions now stand (D1-D22).
 
 This change therefore carries no parked decision. What remains before archive is
 realization and evidence, not judgement — see tasks section 9.

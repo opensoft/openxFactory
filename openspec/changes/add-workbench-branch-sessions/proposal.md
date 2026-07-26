@@ -24,7 +24,7 @@ drafts a document through a sequence of proposed-then-applied diffs.
 Brett's 2026-07-26 decision takes the third path, and it loosens no rule:
 **move the working state onto a git branch and let THE PULL REQUEST be the
 formal re-entry into the governed doc system.** The first gate write against
-a tile spawns `draft/<staging-id>` and materializes a git WORKTREE for it; the
+a tile spawns `draft/<topic-folder>` and materializes a git WORKTREE for it; the
 served checkout NEVER switches branches, which dissolves the shared-checkout
 hazard this family has already been bitten by — by construction rather than by
 discipline. Every gate action is one commit, so the audit trail FALLS OUT of
@@ -47,7 +47,7 @@ the selector rather than beside it.
 ## What Changes
 
 - OPEN a BRANCH SESSION on the first gate write against a topic-bearing tile:
-  a branch named for the TILE (`draft/<staging-id>` for a staged topic; the
+  a branch named for the TILE (`draft/<topic-folder>` for a staged topic; the
   scope's kind and id for a cluster or a possible) plus a git WORKTREE. Named
   for the tile and never the actor, so two humans working the same topic join
   the SAME session. The served checkout is never switched, reset, or stashed
