@@ -97,6 +97,11 @@ The dashboard SHALL offer a refresh affordance, bound per plane, that grants NO 
 - **WHEN** a refresh cannot complete
 - **THEN** the previously rendered snapshot MUST remain rendered and the failure MUST be reported inline
 
+#### Scenario: Newer data is advertised passively
+- **WHEN** the served plane's background index poll (Brett's 2026-07-26 OQ2 ruling: passive hint, ~5-minute cadence) observes an index entry fresher than the loaded snapshot for the active repository
+- **THEN** a passive newer-data hint MUST show on the surface
+- **AND** the surface MUST NOT auto-reload — the view changes only when the viewer invokes refresh
+
 ### Requirement: Dispatchable publication, never from the served surface
 The snapshot publication lane SHALL be manually dispatchable in addition to its schedule, so that an off-cycle data refresh is a governed CI action a human or a session triggers with an attributable run. The served dashboard MUST NOT be able to trigger publication, an image build, or a rollout by any path: a serving surface dispatches recorded requests at most and never executes a final action. A recorded-dispatch verb that would commission a rebake from the dashboard SHALL be out of scope here and MUST arrive, if ever, as its own change at its own gate. Off-cycle dispatch MUST change nothing else about the lane — the same generator, the same per-repository snapshots, the same index, the same commit posture as the scheduled run.
 
