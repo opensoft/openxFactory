@@ -378,6 +378,22 @@ for stage 1: Brett inserts the row (psql, phase-1 runbook pattern) and the
 emit-only test re-dispatches — no Entra propagation involved, the row is
 read live.
 
+**STAGE 1 CLOSED (2026-07-26, run 30206131600).** The principal row was
+inserted on the QA stack by Brett's admin AI (preflights all PASS,
+transaction-verified, count 5→6, via the managed AKS command channel, no
+DSN displayed, nothing else touched). The immediate emit-only re-dispatch
+concluded `success` with the single clean notice "no
+merge_readiness_council convening found — nothing to emit": NO 403, no
+warning. A federated token now clears every gate live — GitHub assertion,
+Entra exchange, Hermes issuer/audience validation, both job scopes from
+`roles`, and the layer from the persisted row. The credential path for the
+lane is DONE end to end. Remaining before the recorded rehearsal (task
+5.1): verify the QA stack's materialized `review_council` content names
+`merge_readiness_council`, and stage a candidate that parks under
+`path_allowlist` with docs-class-only overflow (a healthy nightly refuses
+as `tier1_approve`). Stage 2 also gives `hermes.job.execute` its first live
+exercise (already proven present in the token by decode).
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
