@@ -41,12 +41,38 @@ Target capabilities: avatar-first-ui (MODIFIED or realization evidence) + avatar
    layer and per client scope — never raw platform credentials on the
    device.
 
+## Desktop target and test-phase bring-up (Brett, 2026-07-26)
+
+The client app targets **mobile AND desktop** — preferably one codebase
+with a desktop build target rather than a separate app (this weights
+open question 1 toward a cross-platform shell). Desktop is also the
+easiest test channel: a downloadable binary on **GitHub Releases**, no
+store gatekeeping. Phases:
+
+- **T1 — dashboard-first cut, no avatar**: sign-in, Hermes-layer
+  detection (party-ladder role → default surface), governed-surface
+  reads (the live worker-readiness surface is the day-one data source).
+  Artifacts on GitHub Releases: desktop binaries + Android APK
+  (sideload); iOS testing goes through TestFlight when it joins —
+  stated honestly, GitHub cannot carry installable iOS builds.
+- **T2 — connect flows**: the Ledgerx MSBC connect ceremony driven from
+  the app against a test estate, using the GitHub-released PTE build of
+  the BC extension (ledgerx:staging:external-client-connect T4 — the
+  two topics' test phases meet here).
+- **T3 — avatar layer joins** post `avatar-pilot-hardening`, upgrading
+  subject-layer surfaces from conventional-fallback to their ratified
+  avatar-first default.
+
+Each phase lands bring-up evidence per the usual discipline.
+
 ## Open questions
 
 1. Shell platform: does the avatar-client kernel (frozen AVC ports,
    contract-v1.7) host the mobile shell directly, or is the dashboard a
    second shell beside the avatar runtime? (Pilot-hardening is the last
-   staged successor — this topic must not fork authority work.)
+   staged successor — this topic must not fork authority work.) The
+   desktop target requirement weights this toward a cross-platform
+   shell with mobile + desktop builds from one codebase.
 2. Sequencing vs `avatar-pilot-hardening`: dashboard-first (readiness
    surface data, no avatar) as an early cut, avatar layer joins after
    the pilot?
