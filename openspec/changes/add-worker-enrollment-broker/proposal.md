@@ -5,6 +5,9 @@ target_release: next additive contract bundle (allocated at realization per docs
 
 # Proposal: add-worker-enrollment-broker
 
+Approved: 2026-07-26 by Brett Heap — D1-D10 recommendations adopted as
+decided; phase-1 contract realization authorized.
+
 ## Why
 
 The Worker Host App can build a worker host but cannot legitimately

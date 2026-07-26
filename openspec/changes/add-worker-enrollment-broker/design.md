@@ -89,11 +89,18 @@ naming the door it arrives through.
 
 Each decision below corresponds to an open question in the staged topic.
 Where the topic carried a leaning, it is stated as a recommendation.
-Decisions marked **NEEDS BRETT** are recommendations only — the contract
+APPROVAL 2026-07-26: Brett approved this change with the D1-D10
+recommendations adopted as decided ("add-worker-enrollment-broker is
+approved", clarifying session, same day as the rulings). The markers
+below are updated accordingly; D1's adopted answer (Opsx-owned repo,
+container app off the QA cluster) unblocks realization 2.
+
+Decisions marked **DECIDED (approval 2026-07-26)** were recommendations
+adopted wholesale by that approval — the contract
 in this change is deliberately written so none of them changes the
 protocol, only its parameters and its home.
 
-### D1 — Broker home and hosting **NEEDS BRETT** (first decision, blocks realization 2)
+### D1 — Broker home and hosting **DECIDED (approval 2026-07-26)** (was the blocking decision; realization 2 unblocked)
 **Recommendation**: a new dedicated repository owned by OpsxFactory's
 domain (the estate-operations owner), deployed as a container app on the
 existing platform subscription rather than into the QA AKS cluster —
@@ -113,7 +120,7 @@ plane being up.
 The reason this is the FIRST decision is that the repository is where the
 successor change lands; nothing else in phase 2 can start without it.
 
-### D2 — Lease cadence and grace window **NEEDS BRETT**
+### D2 — Lease cadence and grace window **DECIDED (approval 2026-07-26)**
 **Recommendation**: TTL 24 hours, renewal attempted hourly by the
 existing supervisor task, grace of 12 hours past expiry before the lease
 is treated as lapsed, and ±5 minutes of clock-skew tolerance on lease
@@ -129,7 +136,7 @@ TTL means a broker outage is invisible for a day.
 **Sensitivity**: the fail-closed bound in the contract is "cadence plus
 grace"; tightening either later is a policy edit, not a contract change.
 
-### D3 — Minimum-version policy home **NEEDS BRETT** (topic leaning recorded)
+### D3 — Minimum-version policy home **DECIDED (approval 2026-07-26; topic leaning adopted)**
 **Recommendation**: an OpsxFactory-owned policy instance the broker
 CONSUMES, not broker-local config — matching the topic's leaning and the
 managed-platform precedent that OpsxFactory owns estate policy. The
@@ -145,7 +152,7 @@ the merged policy and never accepts a floor from an ad-hoc call.
 This change ships the policy SCHEMA so the home decision is only about
 where the instance lives and who reviews it.
 
-### D4 — Enrollment approval flow **NEEDS BRETT**
+### D4 — Enrollment approval flow **DECIDED (approval 2026-07-26)**
 **Recommendation for v1**: auto-approve on Entra-group eligibility with
 the evidence recorded (who, which group, which policy version), and let
 the TRUST TIER carry the difference rather than a human gate. Brett's
@@ -161,7 +168,7 @@ LEASE decision, inserting a Hermes approval step later changes who
 answers the enrollment call, not the protocol — no contract delta is
 needed to add ceremony, only to add a tier that requires it.
 
-### D5 — Temp-worker manifest content and serving **NEEDS BRETT**
+### D5 — Temp-worker manifest content and serving **DECIDED (approval 2026-07-26)**
 **Recommendation**: the broker SERVES the temp manifest at enrollment
 (the fleet gets its manifest in the Intune package; the volunteer has no
 delivery plane, so enrollment is the only door), rendered from the policy
@@ -171,14 +178,14 @@ one worker, the general coding-patch profile, temp labels, no benches in
 v1 — bench pre-pull is a multi-gigabyte imposition on somebody's laptop
 and should be opt-in when temp workers have proven useful.
 
-### D6 — Engineer eligibility **NEEDS BRETT**
+### D6 — Engineer eligibility **DECIDED (approval 2026-07-26)**
 **Recommendation**: a single named Entra group for volunteers (start with
 the engineering staff group rather than inventing a new one, so eligibility
 is a membership fact rather than a second roster to maintain), with a cap
 of one volunteered machine per engineer in v1 — the cap being enforceable
 precisely because leases are per-machine records the broker holds.
 
-### D7 — Teardown semantics **NEEDS BRETT**
+### D7 — Teardown semantics **DECIDED (approval 2026-07-26)**
 **Recommendation**: three distinct outcomes, all audited.
 - **Voluntary uninstall** (volunteer estate): full cleanup of the
   engineer's own machine — runner removed via a brokered remove token,
@@ -194,7 +201,7 @@ precisely because leases are per-machine records the broker holds.
   removal is best-effort, because revocation must not depend on reaching
   the machine.
 
-### D8 — Trust-tier mechanics **NEEDS BRETT**
+### D8 — Trust-tier mechanics **DECIDED (approval 2026-07-26)**
 **Recommendation**: the trust tier is a first-class LEASE field (this
 change's schema carries it), projected into two places — the runner
 group/labels the lease binds (so GitHub-side targeting works today
@@ -204,7 +211,7 @@ were considered and rejected as the sole mechanism: a label is
 host-assertable and therefore not a governance boundary, while a tier on
 a broker-issued lease is.
 
-### D9 — Fleet per-host secret provisioning **NEEDS BRETT**
+### D9 — Fleet per-host secret provisioning **DECIDED (approval 2026-07-26)**
 **Recommendation**: issue the per-host broker-access secret at Intune
 enrollment time into the Opsx key vault under the escrow-at-birth rule
 the worker-host-app topic already made mandatory, one secret per host,
@@ -214,7 +221,7 @@ because the lease is not derived from the secret). This is the only
 standing secret in the design, it exists only on managed metal, and it
 buys nothing but broker ACCESS.
 
-### D10 — Heartbeat/readiness integration **NEEDS BRETT (sequencing)**
+### D10 — Heartbeat/readiness integration **DECIDED (approval 2026-07-26; sequencing as recommended)**
 **Recommendation**: lease state and `update_required` reach the readiness
 evaluator as a heartbeat delta that lands in publisher, service, and
 evaluator TOGETHER — the three-places rule, pinned by the parity-test
