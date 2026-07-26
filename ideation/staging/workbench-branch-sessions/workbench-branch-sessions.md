@@ -106,7 +106,17 @@ Target capabilities: ideation-dashboard (MODIFIED); lifecycle-notebook-projectio
      `xf-canon`) stay MAIN-ONLY, without exception: they are the
      lifecycle projection and a projection of unmerged work is a
      misprojection. Per-session notebooks (`xf-wb-<topic>`) sync FROM THE
-     BRANCH WORKTREE. That is possible because NotebookLM knows uploaded
+     BRANCH WORKTREE. [SUPERSEDED 2026-07-26 by the adversarial review of
+     `add-workbench-branch-sessions`: the session-notebook name is now
+     `xf-session-<topic>`. `xf-wb-*` is the workbench reference-set
+     namespace, and its orphan sweep deletes every `xf-wb-*` notebook no
+     workbench manifest binds — which a session notebook, having no
+     manifest by design, never can. The original name would have had a
+     live session's notebook deleted mid-session by the routine sync.
+     Likewise "retired or re-pointed at main" below is now RETIRE: Brett's
+     2026-07-26 ruling deletes the branch at merge, so the worktree the
+     notebook synced from is gone; whether the analysis should instead
+     convert to a §7 hybrid is open question 5 in the change.] That is possible because NotebookLM knows uploaded
      SOURCES, not git — so this is a projection-TOOLING change only, with
      no contract consequence for the notebook family beyond declaring the
      rule. A session notebook is recreated on session start and, on
@@ -120,7 +130,13 @@ Target capabilities: ideation-dashboard (MODIFIED); lifecycle-notebook-projectio
    into the EXISTING Merge-Master ritual — no new approval path, no new
    authority, no bypass. On merge the documents become real, the nightly
    snapshot picks them up on its own schedule, and the branch, the
-   worktree, and the session notebook are cleaned up.
+   worktree, and the session notebook are cleaned up. [CONFIRMED and made
+   explicit 2026-07-26: the branch IS deleted at merge. Abandon still never
+   deletes pushed history — the asymmetry is deliberate, since the merge
+   preserved the work and the abandon did not. Brett also ruled the same day
+   that `propose` REFUSES while a tile carries an unresolved session, because
+   proposal ends the pipeline and a proposal must not be commissioned from
+   drafts stranded on an unmerged branch.]
 9. **Local plane only, until intent-plane §4 (DECIDED 2026-07-26).**
    Branch sessions are a LOCAL-PLANE capability: the hosted plane cannot
    have them until the intent plane's apply lane (§4 of
@@ -148,8 +164,9 @@ Target capabilities: ideation-dashboard (MODIFIED); lifecycle-notebook-projectio
    collides with the merged (or still-present) name. Reuse the name after
    deletion, suffix a session ordinal, or refuse and require the human to
    name the continuation.
-2. **Session-notebook quota behavior.** Per-session `xf-wb-<topic>`
-   notebooks are created and retired per session; what happens when the
+2. **Session-notebook quota behavior.** Per-session `xf-session-<topic>`
+   notebooks (renamed 2026-07-26, see claim 7) are created and retired per
+   session; what happens when the
    NotebookLM account's notebook quota is reached mid-session (refuse the
    session, degrade to no notebook, or evict the oldest retired one) is
    undecided.

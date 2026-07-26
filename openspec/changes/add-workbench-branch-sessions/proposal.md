@@ -91,8 +91,15 @@ the selector rather than beside it.
 - END a session in exactly two ways — the pull request MERGES, or a human
   explicitly ABANDONS it — and on either ending tear down the worktree, the
   session's registry entry, and the session notebook, then refresh the main
-  view. Abandon is a recorded action carrying a reason; it ends the SESSION and
-  never deletes pushed history or closes a pull request on the human's behalf.
+  view. On a MERGE the session branch is ALSO deleted: the work is saved on
+  `main` and the branch is residue. Abandon is a recorded action carrying a
+  reason; it ends the SESSION and never deletes pushed history or closes a
+  pull request on the human's behalf.
+- REFUSE `propose` while the tile carries an unresolved branch session, naming
+  the session and both resolutions (merge the pull request, or abandon to
+  discard). Proposal ends the staging pipeline, so a tile whose drafts are
+  still unmerged on a branch must be cleared first. An abandoned session is
+  RESOLVED even if its pushed branch survives.
 - SYNC per-session NotebookLM notebooks (`xf-session-<topic>`, a namespace
   DISJOINT from the workbench's `xf-wb-*` reference-set notebooks so the
   reference-set orphan sweep can never delete a live session's notebook) FROM
@@ -174,9 +181,11 @@ the selector rather than beside it.
 - Archive sequencing, which must be deliberate rather than discovered:
   `add-ideation-dashboard` (owns `Delivery and regeneration`),
   `add-staging-workbench` (owns `Staging workbench scoped view`),
-  `add-workbench-bullseye-and-create` (last modified that requirement), and
+  `add-workbench-bullseye-and-create` (last modified that requirement),
   `add-dashboard-repo-selector` (last modified `Delivery and regeneration`, and
-  lands the seam this change consumes) MUST ALL archive BEFORE this change.
+  lands the seam this change consumes), and `add-propose-verb` (owns
+  `Staged-topic proposal commissioning`, which this change MODIFIES to add the
+  unresolved-session refusal) MUST ALL archive BEFORE this change.
   Archiving in any other order leaves a MODIFIED delta with nothing to modify.
 - Affected code (codexFactory, realization): branch creation and git worktree
   materialization/teardown with the served checkout pinned; session entries in

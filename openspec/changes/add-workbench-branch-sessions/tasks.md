@@ -59,9 +59,10 @@ registry.
       projection's scan scope already excludes (`<repo>-worktrees/`), plus
       teardown that removes the worktree, the session's registry entry, and the
       session notebook on both endings.
-- [ ] 2.5 Two endings (D9): merge (teardown + main-view refresh) and explicit
-      abandon (teardown + recorded reason). Abandon MUST NOT delete pushed
-      history or close a pull request.
+- [ ] 2.5 Two endings (D9): merge (teardown + DELETE the session branch +
+      main-view refresh) and explicit abandon (teardown + recorded reason).
+      Abandon MUST NOT delete pushed history or close a pull request — the
+      asymmetry is deliberate: the merge preserved the work, the abandon did not.
 - [ ] 2.6 Commit-per-gate-action write path (D4): one commit carrying the
       action's documents AND its gate-action record, with the record naming the
       commit as a `commit`-kind artifact. Refuse any path that would split them.
@@ -109,6 +110,12 @@ registry.
 - [ ] 4.5 `edit-apply` left untouched (D5): confirm by test that the
       main-resident AI-redline path is byte-identical in behaviour after this
       change.
+- [ ] 4.6 `propose` unresolved-session refusal (D15): the existing propose route
+      gains a precondition — refuse while the tile's session registry entry is
+      live, naming the branch and both resolutions (merge the PR, or abandon).
+      Keys on the live session, NOT on branch existence, so a branch surviving
+      an abandon does not block. No new verb: the two resolutions are the
+      existing `open-pr`→merge path and `abandon-session`.
 
 ## 5. Workbench surface (codexFactory)
 
@@ -175,11 +182,18 @@ registry.
       a session snapshot refuse; no overlay path exists.
 - [ ] 8.6 Save tests: `open-pr` pushes, opens the PR, and records it; cannot
       merge or approve; proceeds with no fired readiness gate; a second
-      invocation updates rather than duplicating; merge tears the session down
-      and refreshes the main view.
+      invocation updates rather than duplicating; merge tears the session down,
+      DELETES the session branch, and refreshes the main view.
+- [ ] 8.10 Propose-gate tests (D15): `propose` refuses while a live session
+      holds the tile, naming the branch and both resolutions, and persists
+      nothing; it proceeds after the session ends by merge; it proceeds after
+      the session ends by abandon EVEN IF the pushed branch still exists; the
+      existing missing-topic, duplicate-dispatch, and agent-rejection refusals
+      still hold.
 - [ ] 8.7 Notebook tests: a session notebook syncs from the worktree; NO
       lifecycle book ever contains a session source; retirement on session end;
-      an import lands on the branch with the unchanged header contract.
+      an import lands on the branch with the unchanged header contract; the
+      workbench orphan sweep leaves a live session notebook untouched.
 - [ ] 8.8 Full dashboard suite green, including the renderer pins unmodified
       beyond 5.4's arithmetic, plus the boundary validator reporting no
       undeclared output path (the worktree and the session snapshot are

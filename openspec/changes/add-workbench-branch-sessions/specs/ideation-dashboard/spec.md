@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Branch session lifecycle
-The workbench SHALL open a BRANCH SESSION on a topic-bearing tile the first time a gate write is performed against that tile, and the session's working state SHALL live on a git branch materialized as a git WORKTREE rather than in the served checkout. The session branch name SHALL be derived deterministically from the TILE's scope identity — `draft/<staging-id>` for a staged topic, and the scope's kind and id for a cluster or a possible — never from the actor, so two humans working the same tile join the SAME session rather than forking two. The served checkout MUST NEVER be switched, reset, stashed, or otherwise moved by any session operation: session writes reach the branch only through its own worktree, which dissolves the shared-checkout hazard by construction rather than by discipline. A branch session SHALL end in exactly one of two ways — its pull request MERGES, or a human explicitly ABANDONS it — and on either ending the worktree, the session's snapshot registry entry, and the session notebook SHALL be torn down and the main view refreshed. An abandon SHALL be a recorded human gate action carrying a reason, MUST end only the SESSION, and MUST NOT delete history that has already been pushed or close a pull request on the human's behalf — a pushed branch and its PR remain reviewable evidence. A BRANCH session is distinct from the workbench's UI-lifetime "workbench session" that scopes the checked-keyword selection: a branch session outlives page loads, spans actors, and is ended only by a merge or an abandon.
+The workbench SHALL open a BRANCH SESSION on a topic-bearing tile the first time a gate write is performed against that tile, and the session's working state SHALL live on a git branch materialized as a git WORKTREE rather than in the served checkout. The session branch name SHALL be derived deterministically from the TILE's scope identity — `draft/<staging-id>` for a staged topic, and the scope's kind and id for a cluster or a possible — never from the actor, so two humans working the same tile join the SAME session rather than forking two. The served checkout MUST NEVER be switched, reset, stashed, or otherwise moved by any session operation: session writes reach the branch only through its own worktree, which dissolves the shared-checkout hazard by construction rather than by discipline. A branch session SHALL end in exactly one of two ways — its pull request MERGES, or a human explicitly ABANDONS it — and on either ending the worktree, the session's snapshot registry entry, and the session notebook SHALL be torn down and the main view refreshed. On a MERGE the session BRANCH SHALL ALSO be deleted: the work is saved on `main`, so the branch holds nothing the merge did not preserve, and a surviving branch would only contend for its own deterministic name when the tile is worked again. An abandon SHALL be a recorded human gate action carrying a reason, MUST end only the SESSION, and MUST NOT delete history that has already been pushed or close a pull request on the human's behalf — a pushed branch and its PR remain reviewable evidence, and an abandoned session is RESOLVED even though its branch may survive. A BRANCH session is distinct from the workbench's UI-lifetime "workbench session" that scopes the checked-keyword selection: a branch session outlives page loads, spans actors, and is ended only by a merge or an abandon.
 
 #### Scenario: The first gate write on a tile opens a session
 - **WHEN** a human performs the first gate write against a topic-bearing tile that has no active branch session
@@ -27,6 +27,7 @@ The workbench SHALL open a BRANCH SESSION on a topic-bearing tile the first time
 #### Scenario: A session's pull request merges
 - **WHEN** a session's pull request merges
 - **THEN** the session MUST end: the worktree, the session registry entry, and the session notebook are torn down and the main view is refreshed
+- **AND** the session branch MUST be deleted, since the merge has preserved everything it held
 
 ### Requirement: One commit per gate action inside a branch session
 Every gate action performed inside a branch session SHALL produce exactly ONE commit on the session branch, carrying BOTH the documents that action wrote and the gate-action record that attests to it, and that record SHALL name the commit as a `commit`-kind artifact. A record and the artifact it attests to MUST NOT land through separate paths: riding the same commit is what keeps them inseparable, and it is why a session's audit trail FALLS OUT of version control instead of being reconstructed beside it. A gate verb whose effect reaches OUTSIDE the branch — a workflow dispatch that actually runs, a publication, an image build, or a rollout — MUST NOT be performed from inside a branch session, because it would act on state that is not yet governed; those verbs remain main-resident. A gate action whose artifacts are FILES is session-legal, and it becomes governed STATUS only when the session's pull request merges, exactly as the gates-happen-on-main rule requires of any unmerged transition.
@@ -248,3 +249,32 @@ The dashboard SHALL be delivered as a local generate-and-open command plus a pub
 #### Scenario: Backfill scope is exceeded
 - **WHEN** generation would fabricate register history for documents outside the worked-example fixtures
 - **THEN** it MUST NOT — legacy docs without `Possible feats:` sections simply carry no possibles
+
+### Requirement: Staged-topic proposal commissioning
+The gate console SHALL offer a human-only `propose` action on a staging topic that commissions proposal authoring as a recorded dispatch — a `workflow-job` descriptor naming the proposal-authoring workflow and targeting the topic's staging id, plus a gate-action record — without authoring anything itself; the commissioned authoring runs externally and lands as an ordinary OpenSpec change subject to the existing review and ratify gates. The console SHALL refuse a topic absent from the pinned checkout's staging area and SHALL refuse a duplicate commission while a dispatched `propose` job for the same topic remains undelivered. The console SHALL ALSO refuse `propose` while the topic's tile carries an UNRESOLVED branch session, and the refusal MUST name the session and the two resolutions available — merge its pull request, or abandon the session to discard it. Proposal is the end of the staging pipeline: commissioning it from a tile whose drafts are still scattered across an unmerged branch would propose from a state no reviewer can see, so the human SHALL clear the session first. A session is UNRESOLVED while its snapshot registry entry is live; a merged session and an abandoned session are both resolved, and a branch surviving an abandon MUST NOT block propose, because the abandon already recorded the human's decision to discard.
+
+#### Scenario: A staged tile is taken toward proposal
+- **WHEN** a human runs the propose action on a staging topic
+- **THEN** a `workflow-job` descriptor (workflow `proposal-authoring`, target `topic_id`) and a `propose` gate-action record are written through the human gate
+- **AND** no proposal artifact is authored by the console itself
+
+#### Scenario: A missing topic is refused
+- **WHEN** propose is invoked for a topic id with no directory under the checkout's `ideation/staging/`
+- **THEN** the console MUST refuse with the reason and persist nothing
+
+#### Scenario: A duplicate commission is refused
+- **WHEN** propose is invoked for a topic that already carries a dispatched, undelivered `propose` workflow-job
+- **THEN** the console MUST refuse, citing the existing dispatch
+
+#### Scenario: An agent invokes propose
+- **WHEN** any agent or automated path calls the propose action
+- **THEN** the call MUST be rejected and reported, like every gate action
+
+#### Scenario: Propose is invoked with a live branch session on the tile
+- **WHEN** propose is invoked for a topic whose tile holds a live branch session
+- **THEN** the console MUST refuse and persist nothing, naming the session branch and offering both resolutions — merge the session's pull request, or abandon the session
+- **AND** the refusal MUST clear once the session ends by either route, with no further action required of the human
+
+#### Scenario: A previously abandoned session leaves a branch behind
+- **WHEN** propose is invoked for a topic whose session was abandoned but whose pushed branch still exists
+- **THEN** propose MUST proceed — the session is resolved, and the surviving branch is reviewable evidence rather than unresolved working state

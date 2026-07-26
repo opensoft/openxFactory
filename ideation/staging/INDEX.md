@@ -212,7 +212,10 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Target capabilities: `ideation-dashboard` (MODIFIED — the workbench
   becomes a create/edit surface over a session branch); MODIFIED
   `lifecycle-notebook-projection` (canon notebooks stay main-only;
-  per-session `xf-wb-<topic>` notebooks sync from the branch worktree)
+  per-session `xf-session-<topic>` notebooks sync from the branch worktree —
+  renamed off the topic's original `xf-wb-<topic>` by the 2026-07-26
+  adversarial review, which found that prefix is swept by the workbench
+  reference-set orphan sweep)
 - Source: Brett's live session decisions 2026-07-25/26 (the workbench
   dogfood pass that produced `add-workbench-bullseye-and-create`, then the
   branch-session design round the next day)
@@ -221,7 +224,12 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   create on the branch, session-only draft visibility, session snapshots
   through the (repository, ref) seam, the tool triangle on the branch,
   PR-as-save, local-plane-only until intent-plane §4, the snapshot registry
-  as the one new server plumbing); FIVE open questions parked with
+  as the one new server plumbing); ELEVEN with Brett's 2026-07-26 session
+  rulings (merge DELETES the session branch — the work is on `main` and the
+  branch is residue, while abandon still never deletes pushed history; and
+  `propose` REFUSES while the tile carries an unresolved session, since
+  proposal ends the pipeline and the human must merge or discard first);
+  FIVE open questions parked with
   recommendations in the change's design (branch-name reuse after a merged
   staging id → suffix a session ordinal; squash-vs-merge → merge commit, the
   history is the audit; session-notebook quota → degrade to no notebook;

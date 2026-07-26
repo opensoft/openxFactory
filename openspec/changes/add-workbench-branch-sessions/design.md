@@ -187,19 +187,49 @@ recommendation is NO, because a draft PR is exploration and the readiness gate
 guards PROPOSE, not SAVE.
 
 ### D9 — A session ends by merge or by abandon; abandon ends the SESSION only
-**Decision**: two endings. On merge, teardown plus a main-view refresh. On
-abandon, teardown plus a recorded reason — but abandon MUST NOT delete pushed
-history or close a pull request on the human's behalf.
+**Decision**: two endings. On merge, teardown plus a main-view refresh, AND the
+session branch is DELETED. On abandon, teardown plus a recorded reason — but
+abandon MUST NOT delete pushed history or close a pull request on the human's
+behalf.
 
-**Rationale**: an abandon that deleted a pushed branch would destroy
-potentially auditable, potentially collaborative work with one click on a
-COLLABORATIVE branch — the worst possible pairing with D2. Ending the session
-(worktree, registry entry, notebook) reclaims all the local state that costs
-anything, while the pushed branch and its PR remain reviewable evidence. Actual
-branch deletion stays a deliberate git action outside this surface.
+**Rationale**: the two endings are asymmetric because their evidence is. A
+merge has already preserved everything the branch held, on `main`, under the
+Merge-Master ritual — so the branch is pure residue, and leaving it behind only
+contends for its own deterministic name the next time the tile is worked (the
+collision that open question 1 exists to handle). An abandon has preserved
+nothing: an abandon that deleted a pushed branch would destroy potentially
+auditable, potentially collaborative work with one click on a COLLABORATIVE
+branch — the worst possible pairing with D2. Ending the session (worktree,
+registry entry, notebook) reclaims all the local state that costs anything,
+while the pushed branch and its PR remain reviewable evidence.
 
 **Consequence**: abandon is recorded with a reason, like a demotion, because
-"why did this topic's session end without merging" is durable signal.
+"why did this topic's session end without merging" is durable signal. Branch
+deletion is in-surface for the merge path only; on the abandon path it stays a
+deliberate git action outside this surface. Because a surviving abandoned
+branch is evidence rather than working state, it does NOT hold the tile: D15's
+propose gate keys on the live session, not on branch existence.
+
+### D15 — An unresolved session blocks `propose`
+**Decision**: `propose` REFUSES while the tile carries a live branch session,
+naming the session and both resolutions (merge the PR, or abandon to discard).
+A session is unresolved while its snapshot registry entry is live; merged and
+abandoned sessions are both resolved.
+
+**Rationale**: proposal is the END of the staging pipeline — it commissions
+authoring against the topic as it stands. Commissioning that while a session's
+drafts sit unmerged on a branch proposes from a state the authoring workflow
+cannot see and no reviewer can review, and it silently strands the session's
+work: the proposal lands, the tile moves on, and the branch becomes orphaned
+working state nobody owns. Forcing the choice at the boundary is the cheapest
+place to catch it, and it needs no new verb — `open-pr`→merge and
+`abandon-session` are exactly the two resolutions and both already exist.
+
+**Consequence**: this change MODIFIES `add-propose-verb`'s "Staged-topic
+proposal commissioning" requirement, so `add-propose-verb` joins the
+archive-sequencing list. No other forward transition is gated: mid-pipeline
+verbs leave the tile in staging where a session is legitimate working state,
+and only proposal ends the pipeline.
 
 ### D10 — NO session-descriptor artifact; the session is derived state
 **Decision**: no new schema and no persisted session manifest. A session IS its
@@ -402,14 +432,19 @@ was raised by the adversarial review of 2026-07-26.
    delta requires unconditionally that the notebook "be torn down" alongside the
    worktree and the registry entry. The change had carried both readings, which
    contradict: a re-pointed notebook survives in active use and is not torn down.
-   *Recommendation: RETIRE, and the requirement now states it.* Teardown is the
-   reading the dashboard delta already mandates for the other two pieces of
-   session state, it keeps one rule for all three, and it avoids creating a
-   notebook class the promoted spec does not govern — a re-pointed `xf-session-*`
-   notebook is neither a lifecycle book nor a hybrid (which requires a Canon
-   release line, an enumerated origin folder, and a `00 [hybrid charter]` seed),
-   and its only import rule writes into the origin folder INSIDE the worktree
-   that teardown has just removed. If Brett wants a session's analysis to
-   outlive the branch, the clean route is an explicit CONVERSION to a §7 hybrid
-   under that section's existing charter and seeding rules, which this change
-   would then need to state; silent re-pointing is the option to avoid.
+   Brett's 2026-07-26 ruling settled the surrounding lifecycle — merge deletes
+   the branch and ends the session outright (D9) — which removes the notebook's
+   source: the worktree it synced FROM no longer exists. That leaves exactly two
+   coherent options, and only the notebook's disposition is still open.
+   *Recommendation: RETIRE, and the requirement now states it.* Once the merge
+   has landed, the topic's documents are on `main` and project into the three
+   lifecycle books by the ordinary sync, so a surviving session notebook
+   duplicates a projection that already exists. Re-pointing would also create a
+   notebook class the promoted spec does not govern — a re-pointed
+   `xf-session-*` notebook is neither a lifecycle book nor a hybrid (which
+   requires a Canon release line, an enumerated origin folder, and a
+   `00 [hybrid charter]` seed). If the session's ANALYSIS (as distinct from its
+   documents) should outlive the branch, the clean route is an explicit
+   CONVERSION to a §7 hybrid under that section's existing charter and seeding
+   rules, which this change would then need to state; silent re-pointing into an
+   ungoverned class is the option to avoid.

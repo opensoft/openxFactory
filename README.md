@@ -205,10 +205,16 @@ Active changes:
   hosted site. "Saving" is a gated `open-pr` verb that pushes the branch into
   the existing Merge-Master ritual and holds no approval authority; merge (or
   explicit abandon) tears down the worktree, the registry entry, and the
-  session notebook. Canon notebooks stay MAIN-ONLY; per-session
-  `xf-wb-<topic>` notebooks sync from the worktree. Local plane only until
-  the intent plane's apply lane (§4) can produce a ref. Sequenced strictly
-  after `add-dashboard-repo-selector`.
+  session notebook, and a MERGE additionally deletes the session branch, whose
+  work `main` now holds. Because proposal ends the staging pipeline, `propose`
+  REFUSES while a tile carries an unresolved session, naming both resolutions
+  — merge the pull request, or abandon to discard — so a proposal is never
+  commissioned from drafts stranded on an unmerged branch. Canon notebooks
+  stay MAIN-ONLY; per-session `xf-session-<topic>` notebooks sync from the
+  worktree, in a namespace deliberately disjoint from the workbench's swept
+  `xf-wb-*` scratch notebooks. Local plane only until the intent plane's apply
+  lane (§4) can produce a ref. Sequenced strictly after
+  `add-dashboard-repo-selector` and `add-propose-verb`.
 - [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
   — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
   topic: a repository selector whose roster is the project register (sparse
