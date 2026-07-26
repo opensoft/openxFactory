@@ -340,6 +340,23 @@ way (`security.py` falls back to the persisted row when the token carries no
 layer claim). Both temporary decode credentials deleted; lane-app password
 count 0.
 
+**Unassign tested (2026-07-26 12:29Z): native path ALSO empty — same
+mismatch, second mechanism.** Policy unassigned reversibly (Graph `$ref`
+delete; object intact); two decodes (12:30Z, 12:33Z) still carry both roles
+and no layer claim in either spelling. Confirmed cause: the directory
+extension value sits on application object `b63f2641…` and is ABSENT from
+service principal `037eb659…` — and the app-only optional-claims path reads
+the SP, which is the very object the token's `sub` names. Next targeted
+change (approved): set
+`extension_9783ac18e5c74b9dbd762e6d7d89d5be_layer =
+codexfactory-software-engineering` on SP `037eb659…`, decode, and only then
+re-dispatch the emit-only test. Wrinkle to check if the PATCH is refused:
+the extension definition's `targetObjects` must include `ServicePrincipal`
+(a definition created for `Application` only rejects SP writes — the fix is
+widening the definition, not another mechanism). Policy stays unassigned
+(provably contributed nothing, suppressed the native path). Credentials
+again at zero.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
