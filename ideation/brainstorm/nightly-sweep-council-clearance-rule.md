@@ -258,6 +258,47 @@ the pull-request resource is read twice (once in full, once for
 Relatedly `.head | .sha` is spelled that way deliberately — the harness
 asserts the literal `head.sha` is absent — so neither should be "tidied".
 
+## Registered (2026-07-26) — lane identity + federated runtime credential
+
+Brett completed the council-lane registration per codexFactory
+`docs/council-lane-app-registration.md` (through v3, `a99567a`): lane GitHub
+App installed on `opensoft/xFactory` (`checks: write` only), all six
+variables and both secrets set, no `HERMES_RUNTIME_TOKEN` secret (the lane
+federates per run, `eddf960`). Brett's admin AI then ran the federation
+diagnosis (session artifact
+`xFactory/council-lane-federation-diagnosis-prompt.md`) against the Entra
+side and reported:
+
+- **All pass**: Hermes resource app emits v2 tokens (issuer/audience match
+  the pins); the lane identity holds app roles `hermes.job.execute` AND
+  `hermes.job.read`, no client secret/certificate; federated credentials for
+  `repo:opensoft/xFactory:ref:refs/heads/main` and a
+  `job_workflow_ref`-shaped subject for `council-lane-reusable.yml@main`;
+  `id-token: write` granted.
+- **One blocking defect, FIXED by the admin AI 2026-07-26**: the Entra
+  claims-mapping policy (`hermes-layer-claim`,
+  `ef0259cb-6f9e-4dfc-823b-03611dbd39b2`) emitted `JwtClaimType: "layer"`,
+  but the aks-qa overlay pins the layer claim name as the flat key
+  `extn.layer` — Hermes reads the literal `extn.layer` key, so every token
+  would have 401'd despite correct federation and roles. Changed to
+  `extn.layer`, value `codexfactory-software-engineering`, policy still
+  assigned to the `opensoft-hermes-qa` service principal,
+  `acceptMappedClaims` enabled.
+
+**Not yet proven** (this is lane-wiring task 5.1, the recorded rehearsal):
+no live dispatch has run, so no federated token has actually been exchanged
+and accepted end to end. Two preconditions the diagnosis did NOT cover,
+both lane-side facts outside the admin AI's view:
+
+1. The clearability preflight REFUSES a healthy nightly (`tier1_approve` —
+   nothing to convene). The rehearsal candidate must park under
+   `path_allowlist` with docs-class-only overflow (rule inactive is fine:
+   the preflight accepts `report_only` + would-be-clearable).
+2. The QA stack's domain layer must carry materialized `review_council`
+   content naming `merge_readiness_council` — commission is admitted
+   fail-closed against it before any write (runbook §5). Unverified as of
+   this record.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
