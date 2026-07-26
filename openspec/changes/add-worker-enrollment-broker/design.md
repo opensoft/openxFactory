@@ -233,6 +233,25 @@ This change deliberately does NOT grow the heartbeat contract. What it
 does is make the states the heartbeat will need well-defined and named,
 so the delta is a projection rather than a design.
 
+## Custody-cadence ruling (2026-07-26, Brett — binding disposition)
+
+R3's custody clause ("human and domain approval before grant issuance")
+is RULED to attach at the GRANT and POLICY layers, never per mint: *No
+human approval per mint. Human and domain approval attaches to (1) the
+broker's key-access grant, re-approved at each deployment revision and
+each key rotation, and (2) policy changes through the governed lane.
+Every mint emits a schema-validated audit record and is only ever
+issued down-scoped and as the consequence of a valid lease plus pinned
+policy.* This is a recorded disposition against the ratified
+roles-authority-model custody clause; a MODIFIED delta naming the
+'control-plane service-minting' grant tier is scheduled as its own
+openxFactory change so the pattern exists in contract for the next
+service that needs it. Realization detail lives in OpsxFactory
+`add-worker-enrollment-broker-service` design B5/B5c (which also
+carries Brett's same-day identity ruling: the same opsxfactory App
+gains the runner scope, with mandatory down-scoped installation
+tokens).
+
 ## Risks / Trade-offs
 
 - **The broker becomes a control-plane dependency.** If it is down, no
