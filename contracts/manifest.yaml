@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.17
+contract_bundle_version: contract-v1.18
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -816,6 +816,30 @@ contracts:
       runtime layer roles (domain/client/customer), deliberately not
       directory names. Declared-path existence is enforced by the canonical
       validator when a repo path is supplied.
+  # ---- domain content manifest — add-hermes-domain-content-manifest realization ----
+  # The convention-then-contract successor to hermes-install increment 4a's
+  # well-known-path content-set list. A domain repo MAY declare its seedable
+  # content set (per content_kind, path or directory); absent manifest =>
+  # documented convention. The memory-binding schema realized by the same
+  # change lives in the memory-gateway contract family
+  # (contracts/memory-gateway/memory-binding.schema.yaml) and rides that
+  # family's manifest entry.
+  - id: hermes-domain-content-manifest
+    path: contracts/hermes-domain-overlay/content-manifest.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/content-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9511794f7a97828d1c072060ccb1bd3e26046f6b51d965b7f37bb3b7e879cc10
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A domain repo MAY ship hermes/domain/content-manifest.yaml against this
+      schema; absent, consumers (the hermes-install seeder) fall back to the
+      documented conventional content set. Content kinds are limited to the
+      ratified vocabulary; each declares exactly one of path or directory;
+      declared-location existence is enforced by the canonical validator
+      (scripts/validate-hermes-domain-overlay.py) when a repo path is
+      supplied, and a consumer never loads an undeclared kind silently.
   # ---- omnigent contract family + layer vocabulary — contract-v1.16 realization (add-omnigent-domain-overlay; adopt-subject-tenant-domain-vocabulary) ----
   # The Omnigent execution layer's domain tier: per-domain overlay payload
   # (five neutral worker archetypes, generalized permission matrix with

@@ -965,3 +965,89 @@ lane-status enrichment) paired with a codexFactory delta (backend seam +
 local/served implementations, repo picker, funnel scoping, frontend sweep).
 Bugs 6-8 (stage:null DoS, discarded diagnosis, stale-success status) are
 small, severable fixes that should not wait for v2 scoping.
+
+## Domain drive + the runtime plane (2026-07-25)
+
+Design session (Brett Heap, Claude) on the repo selector and where the
+dashboard ultimately lives, followed by a live drive of the v1 dashboard
+against three domain factories. This section records the decisions, the
+one genuinely open fork, and what the drive showed.
+
+### Decided 2026-07-25 (Brett)
+
+1. **The runtime plane is the real goal.** The dashboard becomes a
+   neutral xFactory capability that every DomainxFactory install ships: a
+   running MedxFactory serves its own wheel over its tenant's domain ideas
+   (e.g. patient-management ideas) held as governed content in that
+   install's stack — not as repo files. The dev dashboard (this doc's v1/v2
+   subject) is the dev instance of the same capability pointed at a
+   filesystem corpus. Structurally this makes the snapshot generator's data
+   source an adapter seam: filesystem-corpus adapter (dev) vs
+   governed-content adapter (runtime); the neutral snapshot schema is what
+   makes the seam possible.
+2. **The two planes are separate systems.** In the dev dashboard, setting
+   the selector to `xFactory` shows the dev-time code-and-ideas corpus of
+   ALL the submodule repos — but it has no access to what a running
+   install holds (a codexFactory dev dashboard never sees the installed
+   MedxFactory's patient ideas). No plane-crossing data path exists.
+3. **Per-repo snapshots + a thin index** (re-affirms the v2 sketch
+   default): the lane generates one snapshot per registered repository;
+   the selector switches snapshots; the aggregate view composes from the
+   index/client side. `serve.py` grows per-repository snapshot routes and
+   multi-root source confinement.
+4. **Sparse wheels are honest.** A repo shows whatever stations it has
+   data for; install repos with only `openspec/changes/` (hermes-install
+   etc.) render active/archived and nothing else. No convention adoption
+   is forced as a precondition of being selectable.
+
+### Open fork (named, undecided)
+
+One neutral dashboard living in openxFactory that handles all domains as
+is, OR a neutral core with per-domain overrides in each DomainxFactory
+(the digest-pinned overlay pattern the omnigent contract family uses).
+Driving the unmodified dashboard in the domains is the deliberate
+experiment to inform this split: whatever survives contact unchanged is
+neutral core; whatever feels wrong per domain is an override point.
+
+### Drive findings (2026-07-25)
+
+The v1 dashboard (codexFactory `scripts/ideation_dashboard/`, current
+wheel UI) was run unmodified against MedxFactory, AdxFactory, and
+LedgerxFactory: per-repo snapshots generated with `--repository` +
+`--project-register` pointed at the aggregation register, served as three
+session-local loopback instances; no repo was touched.
+
+1. **The generator is already repo-agnostic** — zero code changes to
+   snapshot Medx (31 documents / 1 change), Adx (7 / 1), Ledgerx (9 / 3).
+   Scan, snapshot schema, and wheel rendering all look like neutral core.
+2. **The funnel's middle is empty in every domain**: clusters, possibles,
+   and staged wheels feed from the ideation cross-reference index and
+   staging conventions that today exist only in openxFactory. Either
+   domains adopt those conventions (pure neutral core) or a domain
+   override redefines what feeds those stations. This is the biggest
+   neutral-vs-override pressure point found.
+3. **Post-render validation skipped cross-repo** ("no reachable
+   openxFactory checkout"): pinned-validator discovery assumes the
+   codexFactory checkout layout. The neutral version needs explicit
+   pinned-contract discovery, not positional.
+4. **The vocabulary test is the point of the drive**: whether the six
+   stations (documents → clusters → possibles → staged → active →
+   archived) and the action verbs (propose, gate, notebook) are neutral or
+   codex-specific is exactly what driving Medx/Adx/Ledgerx wheels should
+   answer. Caution for drivers: gate-console verbs are LIVE against the
+   selected checkout (they write gate-action records); drive the read
+   surfaces freely, treat gate verbs as armed.
+
+### Exit for this section
+
+Dev-plane findings fold into the v2 exit above (same two-repo split; the
+index contract and multi-root serving are already named there). The
+runtime plane routes separately when scoped: an openxFactory
+neutralization change defining the governed-content adapter seam and what
+an "idea" is as install content, registered as a domain-neutralization
+candidate.
+
+Organized 2026-07-25 into the
+[dashboard-repo-selector](../staging/dashboard-repo-selector/dashboard-repo-selector.md)
+staging topic (decisions, open fork, drive findings, and both exits carried
+there; this section stays as the brainstorm-side record).

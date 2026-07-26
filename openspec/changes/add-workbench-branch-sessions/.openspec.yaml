@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-07-26
+origin:
+  kind: staged
+  id: openxFactory:staging:workbench-branch-sessions
+  path: ideation/staging/workbench-branch-sessions
+  reason: >-
+    The single exit of the workbench-branch-sessions staged topic, organized
+    2026-07-26 from Brett's live design round in the same thread that landed
+    add-workbench-bullseye-and-create (the workbench's first write) the day
+    before. Every claim in the topic is recorded DECIDED; this change realizes
+    them. Raised immediately AFTER add-dashboard-repo-selector, which lands the
+    (repository, ref) seam and the snapshot registry this change consumes
+    rather than duplicates (topic claims 10-11).

@@ -46,13 +46,19 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
-| [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | First exit RAISED + IMPLEMENTED 2026-07-23 (`add-client-layer-tuning-contracts`, contract-v1.17: roles/ + FAO + cost_reporting_steward + client-content schemas + comparability validator) — codexFactory defaults (2b) and the wizard + client seeding (2c) next |
+| [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
+| [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); exit gated on a second domain instantiating (Adx agency agreement or Medx custody-bearing patient consent) |
+| [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
+| [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
+| [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **Proposed 2026-07-26** as `add-workbench-branch-sessions` — nine decisions locked with Brett 2026-07-25/26; 4 open questions parked with recommendations (branch-name reuse after a merged staging id, squash-vs-merge, session-notebook quota, whether `open-pr` needs the readiness gate); SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
+| [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
+| [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | Ready to iterate — pattern + material verified 2026-07-24; roster composition is the change-A gating decision (needs a decision round with Brett); no external gates (omnigent overlay realization archived at contract-v1.16) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
-| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 1 | Ready to iterate — build decision by Brett 2026-07-23; 6 open questions (Omni-001 admin path, runner-under-virtual-account, bench-manifest home hardest) |
+| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## ideation-action-plane
@@ -74,6 +80,157 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   the second-touch decision RESOLVED (custody-not-decision, batched
   auto-merge on approval); fragment 2 exits separately after the Drive↔NLM
   ingestion spike
+
+## consent-instrument-contract
+
+- Staging ID: `openxFactory:staging:consent-instrument-contract`
+- Repository context: openxFactory (neutral schema + vocabulary); proof
+  instruments: LedgerxFactory (first schema'd instance —
+  `docs/engagement-letter-template.md` +
+  `tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`,
+  2026-07-24), MedxFactory (patient consent + memory-gateway
+  consent-profile, not yet custody-bearing), Adx/Opsx/codex (implied,
+  unmodeled).
+- Source: the Meds Rx, Inc onboarding — drafting the
+  LedgerXCorp↔MedsRx engagement letter surfaced that the instrument is
+  the single record the whole authority chain resolves to (grants cite
+  it, gates verify it, adapters activate on it, termination cascades to
+  credential revoke+rotate); named by Brett Heap 2026-07-24.
+  Registered as DTN-016.
+- Claim: every domain's rung-1↔rung-2 relationship starts with a
+  consent instrument, and its shape is domain-invariant — parties by
+  party-ladder rung incl. third-party ESTATE HOSTS (the Medxcorp
+  pattern), scope/out-of-scope, delegation clauses carrying the
+  technical access shape, autonomy position, revocation SLA,
+  signed-original custody by opaque locator + sha256, status lifecycle.
+  It composes with (not competes with) memory-gateway consent-profile,
+  document-cataloging, and credential-contracts. Schema it; stop
+  treating it as prose.
+- Files:
+  - [consent-instrument-contract.md](consent-instrument-contract/consent-instrument-contract.md) — primary: per-domain instantiation table, 4 claims, open questions, exit.
+- Open questions: delta shape (new capability vs MODIFIED
+  memory-gateway — leaning new schema + declared consent-profile
+  mapping: instrument authorizes ACTION, profile governs DATA);
+  signature/execution modeling depth (distinct-signers SHOULD for
+  related-party cases?); amendment lifecycle; broker-side check host
+  (credential-contracts validator vs new validate-consent-instruments).
+- Exit: `add-consent-instrument` after a second domain instantiates;
+  the Ledgerx record declares conformance rather than being rewritten.
+
+## context-compression-runtime
+
+- Staging ID: `openxFactory:staging:context-compression-runtime`
+- Repository context: openxFactory (neutral capability + audit-tier
+  contract); Omnigent-Install (pilot wiring: pinned `headroom` in the
+  omnigent-worker image behind a build arg, worker-profile activation
+  block; later the egress-capture sidecar container); codexFactory
+  (pilot lane); Medx/Ledgerx (tier-3 consumers when activated).
+- Source: Headroom evaluation session 2026-07-25/26 (Brett Heap) —
+  a source audit of headroom v0.32.0 (upstream `4bd1214`) found the
+  CCR reversible-compression store is a session-scale correctness
+  cache (SQLite on worker disk, 30-min TTL, content-addressed
+  `sha256(original)[:24]` keys embedded LLM-visibly) with NO PHI/PII
+  exclusion anywhere in the compression path. That flipped the design
+  from "durable CCR audit backend" to RAM-only cache + three-tier
+  audit.
+- Claim: context compression is worker-lane infrastructure (pinned
+  dependency, never a submodule, invisible to the domain layer), and
+  its safety envelope is domain-invariant: (1) worker-host stores are
+  RAM-only; (2) sensitive-data exclusion is an upstream Hermes-ingress
+  obligation, never assumed of the compressor; (3) audit is
+  three-tier — envelope (authorized in), harness transcript (all
+  uncompressed originals, hash-joinable to compression markers),
+  optional egress-capture sidecar (exact disclosed bytes,
+  NetworkPolicy-enforced as the only provider egress, fail-closed) for
+  disclosure-accounting domains only.
+- Files:
+  - [context-compression-runtime.md](context-compression-runtime/context-compression-runtime.md) — primary: source-audit evidence table, 5 claims, pilot posture, open questions, exit.
+- Open questions: tier-3 knob home (omnigent overlay vs worker
+  profile vs both); sidecar implementation (mitmproxy vs Envoy tap,
+  SSE reassembly, capture retention per domain); whether the
+  three-tier audit model deserves its own neutral spec (generalizes
+  to any provider-traffic-transforming lane middleware);
+  upstream-exclusion mechanics (Hermes-boundary redaction vs tagged
+  spans via tag_protector); re-audit cadence for headroom version
+  bumps.
+- Exit: pilot evidence in Omnigent-Install →
+  `add-context-compression-runtime` (`code_surface:
+  installs/omnigent-install`), realization gated on the pilot lane
+  green with measured savings; tier-3 sidecar delta rides the same
+  change or a follow-on.
+
+## dashboard-repo-selector
+
+- Staging ID: `openxFactory:staging:dashboard-repo-selector`
+- Repository context: openxFactory (the `ideation-dashboard` capability delta
+  + the snapshot-index contract); codexFactory (lane iteration, the
+  (repository, ref) snapshot registry, multi-snapshot/multi-root serving,
+  selector UI, both refresh bindings); xFactory aggregation (project-register
+  instance = the selector roster; the published snapshot data source; the
+  dispatchable nightly job); install repos later (the runtime-plane
+  capability)
+- Files: `dashboard-repo-selector.md` (primary)
+- Target capabilities: `ideation-dashboard` (MODIFIED — selector,
+  (repository, ref) snapshot source, runtime fetch with baked fallback +
+  stale banner, freshness header, both refresh affordances, dispatchable
+  publication); ADDED snapshot-index contract (its own additive schema —
+  never grown into the snapshot schema); later ADDED runtime capability
+  (neutral install-shipped ideation surface; name open; DTN candidate at its
+  gate)
+- Source: `ideation/brainstorm/ideation-dashboard.md` — the v2 concept
+  sketch plus §"Domain drive + the runtime plane (2026-07-25)" (four
+  decisions Brett-locked 2026-07-25; same-day drive findings against
+  Medx/Adx/Ledgerx); the snapshot/image decoupling mission (Brett
+  2026-07-25, relayed via team003, with its motivating stale-doc incident)
+  and Brett's (repository, ref) keying decision (2026-07-26, live session)
+- Readiness: **exit 1 proposed 2026-07-26** as
+  `add-dashboard-repo-selector`; twelve decisions locked with Brett
+  2026-07-25/26 (the four original ones plus: bake the app not the
+  snapshot, the baked snapshot demoted to a first-boot/offline fallback
+  with a never-silent stale banner, one refresh affordance with two plane
+  bindings, off-cycle publication as a governed CI dispatch and never the
+  pod, (repository, ref) keying with `ref` defaulting to main, a displayed
+  freshness header, branch snapshots never published). Open: the
+  one-neutral-vs-domain-overrides fork (pending domain-drive vocabulary
+  evidence), the data-source ratification (recommendation:
+  aggregation-repo raw files), index polling cadence, and whether the local
+  regenerate action is gated. Exit 2 (runtime plane) stays staged and gates
+  on the content-kind design decision
+- Sibling: `workbench-branch-sessions` CONSUMES the (repository, ref) seam
+  defined here, so this change strictly precedes it
+
+## workbench-branch-sessions
+
+- Staging ID: `openxFactory:staging:workbench-branch-sessions`
+- Repository context: openxFactory (the `ideation-dashboard` capability
+  delta — branch sessions, the PR-as-save verb, session-local snapshots —
+  plus the `lifecycle-notebook-projection` delta for per-session notebooks);
+  codexFactory (worktree lifecycle, the (repository, ref) snapshot registry
+  shared with `dashboard-repo-selector`, branch-aware `/source`, the
+  chat-rail grounding set, the `open-pr` gate verb)
+- Files: `workbench-branch-sessions.md` (primary)
+- Target capabilities: `ideation-dashboard` (MODIFIED — the workbench
+  becomes a create/edit surface over a session branch); MODIFIED
+  `lifecycle-notebook-projection` (canon notebooks stay main-only;
+  per-session `xf-wb-<topic>` notebooks sync from the branch worktree)
+- Source: Brett's live session decisions 2026-07-25/26 (the workbench
+  dogfood pass that produced `add-workbench-bullseye-and-create`, then the
+  branch-session design round the next day)
+- Readiness: **Proposed 2026-07-26** as `add-workbench-branch-sessions` —
+  nine decisions locked (branch per tile, commit per gate action, instant
+  create on the branch, session-only draft visibility, session snapshots
+  through the (repository, ref) seam, the tool triangle on the branch,
+  PR-as-save, local-plane-only until intent-plane §4, the snapshot registry
+  as the one new server plumbing); FOUR open questions parked with
+  recommendations in the change's design (branch-name reuse after a merged
+  staging id → suffix a session ordinal; squash-vs-merge → merge commit, the
+  history is the audit; session-notebook quota → degrade to no notebook;
+  whether `open-pr` needs the readiness gate → NO, readiness guards propose,
+  not save). SEQUENCED strictly after `add-dashboard-repo-selector`, which
+  defines the seam this topic consumes
+- Exit: `add-workbench-branch-sessions` (code surface: codexFactory +
+  openxFactory + aggregation), raised 2026-07-26; archives on merged + green
+  realization evidence including a real end-to-end session
 
 ## client-credential-escrow-registry
 
@@ -174,6 +331,50 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   `openspec/` drafts are its provenance), then change B (councils/mixes/
   escalation/memory/catalog); the Omnigent extension rides change A.
 
+## deployment-handoff-boundary
+
+- Staging ID: `openxFactory:staging:deployment-handoff-boundary`
+- Repository context: openxFactory (neutral routing requirement);
+  OpsxFactory (QA deployment profile, subject-registry lookup,
+  evidence-correlation audit, ACR namespace scope map); codexFactory
+  (release exit step, first consumer); evidence surfaces in
+  omnigent-install / hermes-install.
+- Source: operator conversation 2026-07-24 (Brett, during worker-host-app
+  kickoff); standing evidence = OpsxFactory `workflows/deployment.yaml`,
+  the `cir-opensoft-qa-codexfactory-install` QA precedent, and
+  `client-infrastructure-request`'s `execution_binding.mode`.
+- Claim: deployment execution authority follows management of the target
+  surface, not the environment tier — the **managed-subject test**. A
+  release headed to any registered OpsxFactory subject (production OR the
+  managed QA stack) crosses as a governed `client_infrastructure_request`
+  that OpsxFactory executes; work inside the producing factory's own
+  execution lane (ephemeral CI/bench containers, no subject) self-serves.
+  The rule binds ALL actor classes — workers, human engineers, CI. Tier
+  calibrates approval depth and accepted risk, never the executor.
+  Enforced in layers: constitutional (Omnigent matrix), credential
+  non-possession (the teeth — only opsX identities hold standing keys;
+  human access is break-glass), structural GitOps pull-only + Intune,
+  detective correlation audit, human approvals.
+- Files:
+  - [deployment-handoff-boundary.md](deployment-handoff-boundary/deployment-handoff-boundary.md)
+    — primary: the rule + test, 6 claims, layered enforcement table,
+    7 clarifying resolutions (2026-07-24), residual decisions, exit.
+- Open questions: RESOLVED 2026-07-24 (clarifying session) — all-actor
+  scope; phased strip of human standing admin (never before tested
+  break-glass); grant-issuance + GitOps-merge as the mechanical gates;
+  correlation_id stamped into GitOps trailers / k8s annotations / Intune
+  metadata; benches on one standing maintenance request per period;
+  break-glass = retroactive request, custody per
+  client-credential-escrow-registry; codexFactory sole first consumer.
+  Residual (proposal gate/realization): capability home, QA approval
+  calibration, ACR namespace scope map, preview-environment threshold,
+  break-glass window.
+- Exit: openxFactory `add-deployment-handoff-boundary` (capability +
+  `release-realization` delta), then OpsxFactory + codexFactory
+  realization changes; archives on one real release crossing the rail
+  end-to-end onto the managed QA stack plus a clean (or dispositioned)
+  correlation-audit run.
+
 ## github-administration-plane
 
 - Staging ID: `openxFactory:staging:github-administration-plane`
@@ -264,6 +465,37 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   mechanical per-repo stack.yaml migrations; archives when every frozen
   identifier is migrated or explicitly retained as archived-only.
 
+## medxfactory-domain-hermes-content
+
+- Staging ID: `openxFactory:staging:medxfactory-domain-hermes-content`
+- Repository context: MedxFactory (`hermes/domain/` +
+  `omnigent/domain-overlay.yaml` + `omnigent/overlay-manifest.yaml` digest
+  re-pin in lockstep).
+- Source: team001 omnigent-program handoff next-unit mapping (2026-07-24);
+  MedxFactory `docs/` corpus (27 drafts) + the codexFactory
+  `domain-hermes-content` pattern; both trees inventoried 2026-07-24.
+- Claim: author the Medx Domain Hermes content the seeding runtime needs —
+  clinical Plane-1 personas directing the 11 ratified worker classes
+  (roster derivation base: the omnigent routing table's undefined domain
+  authorities + the MxD-MRR convener), the stored medical policy delta
+  (safety/root-truth corpus, store-the-delta filter), MxD-MRR formalized
+  as the domain review council, escalation elevation, memory boundaries in
+  the gateway vocabulary (patient-derived de-id), and the
+  `medx_practice_catalog`; `overlay.yaml` upgrades from pre-contract stub
+  to the v1.15 schema with two-way `medx_owns` closure; lockstep adds
+  `directed_by` to all 11 workers + re-pins the overlay-manifest digest.
+- Files:
+  - [medxfactory-domain-hermes-content.md](medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md) — primary: 7 claims, exit changes A/B, 6 open questions.
+- Open questions (carried): roster composition (change-A gating; candidate
+  seven-persona derivation offered as decision input); council placement
+  across layers (only MxD-MRR is domain-owned); specialist pods vs mixes;
+  practice-catalog seed set; explicit content manifest vs convention;
+  client-layer-defaults analog timing.
+- Exit: MedxFactory change A (`add-domain-hermes-roles-and-policies` —
+  roles + policies + `medx_owns` closure + Omnigent lockstep), then change
+  B (councils/mixes/escalation/memory/catalog), mirroring the codex
+  sequence; MxC-LOR/MxP-CIR machine surfaces ride their own layer changes.
+
 ## proposal-origin-contract
 
 - Staging ID: `openxFactory:staging:proposal-origin-contract`
@@ -302,10 +534,19 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Files:
   - [worker-host-app.md](worker-host-app/worker-host-app.md) — primary:
     7 claims, both manifest sketches, 4 decisions, 6 open questions, exit.
+  - [wsl-install-and-setup.md](worker-host-app/wsl-install-and-setup.md) —
+    WSL substrate focus (split out 2026-07-25): manifest `substrate:`
+    surface, the three observed truths + convergence actions as
+    implemented (`substrate_wsl`, Omnigent-Install PR #33), fail-closed
+    reboot semantics, 4 WSL-specific open questions (SYSTEM-context
+    distro registration is new).
 - Open questions (blocking): Omni-001 local-admin/provisioning-policy
-  inventory; actions-runner under virtual service accounts; bench-manifest
-  home (repo vs OCI artifact); heartbeat bench-inventory three-place
-  contract delta; WSL servicing owner; LLM-vault consolidation ordering.
+  inventory (now also carries the SYSTEM-context WSL distro-registration
+  fact-check); actions-runner under virtual service accounts;
+  bench-manifest home (repo vs OCI artifact); heartbeat bench-inventory
+  three-place contract delta; WSL servicing owner (plus kernel-update and
+  `.wslconfig` resource-limit ownership, see the WSL doc); LLM-vault
+  consolidation ordering.
 - Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
   (the app), OpsxFactory change (packaging); archives on Omni-001 green
   readiness via the app + a governed lane run on an Omni-001 worker +

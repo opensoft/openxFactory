@@ -1,0 +1,14 @@
+schema_version: 1
+kind: hermes_domain_content_manifest
+# The codexFactory conventional set, declared (identical to the documented
+# convention hermes-install increment 4a ships — a manifest that changes
+# nothing is the safest first instance).
+content_set:
+  role_authority: {directory: hermes/domain/roles}
+  policy_position: {directory: hermes/domain/policies}
+  review_council: {directory: hermes/domain/review-councils}
+  escalation_rule: {path: hermes/domain/escalation-rules.yaml}
+  deliberation_mix: {path: hermes/domain/agent-mixes.yaml}
+  memory_boundary: {path: hermes/domain/memory-boundaries.yaml}
+  practice_adoption: {path: hermes/domain/practice-catalog.yaml}
+omnigent_overlay_path: omnigent/domain-overlay.yaml

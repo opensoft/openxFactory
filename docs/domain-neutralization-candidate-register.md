@@ -42,6 +42,8 @@ implemented/promoted, `adopted` = adopted.
 | DTN-012 | Memory mapping coverage validator and template | `promote` | P2 | `seed` | mapping template and coverage validator |
 | DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
+| DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
+| DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 
 ## Candidate Details
 
@@ -334,9 +336,11 @@ add-ledgerx-counterparty-model) — three of five domains conform; all
 three dial-position archetypes (synthetic/domain, synthetic-aggregate/
 subject, real-entity/external-enforcement) are now proven live. Flips to
 `adopted` when domain stack pins advance to a ref containing the schema
-and the manifest entry lands — at the NEXT bundle cut: contract-v1.16
-was cut 2026-07-23 (omnigent family + layer vocabulary) before this
-schema registered, so the deferred items target contract-v1.17. The
+and the manifest entry lands. NOTE (2026-07-24): the v1.16, v1.17, AND
+v1.18 cuts each missed the registration (the deferral lived only in the
+archived change's tasks); a pending-registration item now sits at the
+top of `contracts/CHANGELOG.md` (Unreleased section) where the next
+cutter will see it. The
 former staging topic
 [governed-derived-model](../openspec/changes/archive/2026-07-23-add-governed-derived-model/supporting-docs/governed-derived-model.md)
 rides under the change's `supporting-docs/` (named during the
@@ -384,4 +388,56 @@ Evidence:
 Domain-local exclusions: the modeled party's kind and fields, signal/trait
 vocabularies, truth-store identity, benchmark content, approver roles,
 and person-modeling policy (aggregation rules, fair-credit constraints).
+
+### DTN-015: Learned handling rule / correction-promotion loop
+
+Reserved by the archived LedgerxFactory `add-ledgerx-ap-intake` change
+(tasks §7.2) and realized there as a first instance: per-counterparty
+handling rules — provenance-cited, review-stated, calibrated governed
+derived models of "how this party's paperwork behaves" — fed by a
+correction→promotion loop (human exception-fix → correction record →
+accumulated promotion candidate → reviewed rule; exception clusters no
+rule fixes route to ideation as evidence of a missing workflow). Every
+domain will want the loop: Adx per-channel creative-spec rules, Ops
+per-system remediation rules, Medx per-modality documentation rules.
+
+Evidence:
+
+- `xFactories/LedgerxFactory/templates/handling-rule.yaml` +
+  `templates/correction-record.yaml` (realized 2026-07-23; conformant
+  `calibrated` governed-derived-model family)
+- `xFactories/LedgerxFactory/openspec/specs/ledgerx-ap-intake/spec.md`
+  (Learned handling rules requirement)
+
+Domain-local exclusions: rule content, correction vocabularies,
+promotion review seats, calibration cadence.
+
+### DTN-016: Consent instrument (the rung-1↔rung-2 authority root as a schema'd object)
+
+Staged 2026-07-23→2026-07-24: staging topic
+[consent-instrument-contract](../ideation/staging/consent-instrument-contract/consent-instrument-contract.md)
+(named by Brett Heap during the Meds Rx, Inc onboarding). Every
+domain's rung-1↔rung-2 relationship starts with a consent instrument —
+engagement letter, patient consent, agency agreement, operating
+authorization — and it is the ROOT OF THE AUTHORITY CHAIN: credential
+grants cite it, engagement gates verify it, adapters activate on it,
+termination cascades to credential revoke+rotate. The shape is
+domain-invariant (parties by party-ladder rung incl. third-party estate
+hosts, scope, delegation clauses with technical access shapes, autonomy
+position, revocation SLA, signed-original custody by opaque locator +
+digest, status lifecycle) and composes with memory-gateway
+consent-profile (instrument authorizes ACTION; profile governs DATA),
+document-cataloging, and credential-contracts.
+
+Evidence:
+
+- `xFactories/LedgerxFactory/docs/engagement-letter-template.md` +
+  `xFactories/LedgerxFactory/tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`
+  (first schema'd instance, kind `ledgerx_engagement_consent_record`)
+- `xFactories/MedxFactory/hermes/patient/consent-model.yaml` +
+  `contracts/memory-gateway/consent-profile.schema.yaml`
+- `docs/party-ladder.md` (rung model; estate-host third parties)
+
+Domain-local exclusions: instrument names, legal form and execution
+mechanics, fee/term content, jurisdiction-specific clauses.
 

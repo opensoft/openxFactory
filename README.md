@@ -183,31 +183,67 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-client-layer-tuning-contracts](openspec/changes/add-client-layer-tuning-contracts/proposal.md)
-  — phase 2a of the layer activation path: the neutral house-team roster
-  (10 deciders incl. the Finance & Accounting Officer + the liaison as a
-  convened capability, voice floor locked), the client content schemas incl.
-  the seedable `hermes_client_overlay`, the `cost_reporting_steward`, and
-  `validate-client-content` implementing the stricter-only comparability
-  spec. Realized at `contract-v1.17`; unblocks codexFactory client defaults
-  (2b) and the hermes-install wizard + client seeding (2c).
-- [add-omnigent-domain-overlay](openspec/changes/add-omnigent-domain-overlay/proposal.md)
-  — **ratified 2026-07-22** (promotion of the omnigent-core-domain-split
-  staging topic): gives omnigent-install the domain tier it lacks. Two new
-  capabilities — `omnigent-domain-overlay` (per-domain content authored in
-  each DomainxFactory `omnigent/` tree, consumed by digest pin;
-  stricter-rule-wins payload composition; neutral five-archetype worker
-  vocabulary; generalized six-boolean permission matrix with constitutional
-  `execute_final_action`/`access_secrets` false; `never_assignable`
-  credential tier) and `omnigent-install-manifest` (Hermes runtime manifest
-  digest-pinned as shared stack identity; one tenant / one domain / N
-  subject workloads; subject-workload registry; fail-closed compose+verify
-  with seeding-vocabulary evidence; pre-rendered effective profiles;
-  canonical Subject/Tenant/Domain spellings from birth). Realizations in
-  omnigent-install, codexFactory, and the MedxFactory second-domain
-  fixture landed + archived 2026-07-23; contracts registered at
-  **contract-v1.16**; remaining before archive: the hermes-install
-  worker-readiness port (code surface: openxFactory)
+- [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
+  — authored 2026-07-26, the single exit of the `workbench-branch-sessions`
+  staged topic: the workbench becomes a place to CREATE and EDIT documents
+  without loosening a gate, because the working state moves onto a git branch
+  and the PULL REQUEST is the formal re-entry into the governed doc system.
+  The first gate write against a tile spawns `draft/<staging-id>` (named for
+  the TILE, so two humans join one session) and materializes a git WORKTREE —
+  the served checkout never switches branches, which dissolves the
+  shared-checkout hazard by construction. Every gate action is ONE commit
+  carrying its documents and its gate-action record together, so the audit
+  trail falls out of version control; on-branch edits arrive as a new gated
+  `edit-document` verb valid ONLY inside a session (the PR review is the
+  governance — the ratified gates-happen-on-main rule read forwards), while
+  the `edit-apply` redline path keeps its ceremony for main-resident
+  documents. Session panels read a snapshot addressed `(repository,
+  session-branch)` through the registry `add-dashboard-repo-selector` lands —
+  no overlay machinery — regenerated after every gate action, with the
+  freshness header naming the branch; drafts are visible ONLY inside their
+  session, so `main` stays the shared truth on the wheel, the funnel, and the
+  hosted site. "Saving" is a gated `open-pr` verb that pushes the branch into
+  the existing Merge-Master ritual and holds no approval authority; merge (or
+  explicit abandon) tears down the worktree, the registry entry, and the
+  session notebook. Canon notebooks stay MAIN-ONLY; per-session
+  `xf-wb-<topic>` notebooks sync from the worktree. Local plane only until
+  the intent plane's apply lane (§4) can produce a ref. Sequenced strictly
+  after `add-dashboard-repo-selector`.
+- [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
+  — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
+  topic: a repository selector whose roster is the project register (sparse
+  repositories render whatever stations they have data for and are never
+  refused), a snapshot source keyed on the PAIR (repository, ref) with
+  `ref` defaulting to `main` and one serving-side registry behind it, a new
+  additive snapshot-INDEX contract (its own schema — the snapshot schema is
+  not grown), and the snapshot/image decoupling Brett decided 2026-07-25
+  after a document landed minutes past a rebake and stayed invisible: bake
+  the APP and fetch the DATA at runtime, with the baked snapshot demoted to
+  a first-boot/offline fallback that shows a never-silent stale banner, a
+  freshness header (`repo @ ref · source_revision · generated-at`), one
+  refresh affordance with two plane bindings (served re-fetch; local
+  regenerate), and `workflow_dispatch` on the publication lane — the pod
+  gains no build or rollout authority by any path. Sequenced strictly
+  before `add-workbench-branch-sessions`, which consumes the seam.
+- [add-workbench-bullseye-and-create](openspec/changes/add-workbench-bullseye-and-create/proposal.md)
+  — authored 2026-07-25: two coupled deltas to the staged workbench — the
+  `lens` panel renders the match-count bullseye at tile scope (the scoped
+  derivation already computes the geometry) above the always-present matrix,
+  with the checked-keyword selection persisting across tab switches; and a
+  human-only `create-document` gate verb drives the existing tested
+  authoring scaffold (create-only; an existing target refuses) with per-tab
+  seeding — the tile's keywords on `docs`, the live checked set plus a
+  recipe citation on `lens` (the brainstorm's centre-ring gesture), a new
+  fragment in the topic on `outline` for staged scopes — recorded as a
+  gate-action record, rendered as copyable CLI descriptors where the gate
+  capability is off.
+- [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
+  — authored 2026-07-25: two human-only gate-console verbs executing the
+  keyword lens's plans through the tested engines (`lens-save-recipe` →
+  workbench manifest; `lens-add-as-cluster` → manifest + pending_review
+  human-seen submission), recorded dispatches with the engines' refusals
+  surfaced at the route; the generated cross-reference index stays
+  untouched; plan-only posture preserved where the gate capability is off.
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
@@ -320,6 +356,49 @@ Active changes:
   document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
+- [add-propose-verb](openspec/changes/add-propose-verb/proposal.md)
+  — gate-console verb `propose` (Brett's 2026-07-24 action-center direction:
+  take a staging tile to a proposal from the dashboard): kickoff's
+  recorded-dispatch mechanic at the staging→proposal boundary — a human-only
+  `workflow-job` commission (workflow `proposal-authoring`, target
+  `topic_id`) + gate-action record; the authoring runs externally and lands
+  as an ordinary change under the existing review/ratify gates. Additive
+  gate-intent / gate-action-record enum + `topic_id` target extension.
+  (code surface: codexFactory, openxFactory; release allocated at
+  realization)
+- [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
+  — four gate-verb rulings Brett made 2026-07-25 for the wheel's
+  expanded-tile action row: `demote` promoted from descriptor-only to an
+  executing dashboard verb (plan + record on the click, the corpus move stays
+  the separate human-run step), plus three recorded commissions on propose's
+  mechanic — `promote-to-staging` (an ACCEPTED possible organized into
+  `ideation/staging/<topic>/`; dispose-possible is a strict upstream and the
+  pick edge lands with the fragment, not at commission), `derive-possibles`
+  (a cluster-scoped run of the ratified possibles-derivation lane) and
+  `research-brief` (a pre-verdict evidence brief accompanying a possible,
+  never a precondition for disposing). Additive gate-intent /
+  gate-action-record enum + `cluster_id` target extension; the three
+  fulfilment lanes are out of scope (a terminal session fulfils dispatched
+  commissions in the interim, as with propose). (code surface: codexFactory,
+  openxFactory; release allocated at realization)
+- [add-staging-workbench](openspec/changes/add-staging-workbench/proposal.md)
+  — Brett's Track B ruling 2026-07-25 (the staging area is where the real
+  proposal gets developed): the workbench as that area's READ-ONLY
+  foundation. Derived-model growth first — a deterministic per-document
+  completeness signal computed at snapshot generation time (structure,
+  length, open markers, keyword coverage, link degree; fixed weights as v1
+  contract constants, no LLM judgment so it stays testable and
+  byte-identical) emitted as an additive `documents[].completeness` object,
+  informational only and never gating anything. Then the scoped view: a
+  full-screen workbench over ONE topic-bearing tile (cluster, possible, or
+  staged topic) with `docs` (the tile's doc set with completeness bars),
+  `lens` (interconnectedness re-scoped from the existing
+  keyword_index/degree derivation, no new analysis) and `outline` (the
+  topic's outline read through the viewer's `/source` pass-through) panels,
+  plus an ungated read-only `open workbench` row on the wheel's
+  expanded-tile action point. The AI chat layer — and outline editing, and
+  every workbench write path — is Track C, a later change. (code surface:
+  codexFactory, openxFactory; release allocated at realization)
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
@@ -359,6 +438,15 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-hermes-domain-content-manifest](openspec/changes/archive/2026-07-24-add-hermes-domain-content-manifest/proposal.md)
+  — **ratified, realized, and archived 2026-07-24** (seeding increment 4b,
+  contract half; released as `contract-v1.18`, annotated tag verified): the
+  optional `hermes_domain_content_manifest` declaring a domain repo's
+  seedable content set (convention-then-contract successor to increment
+  4a's well-known-path list) and the `hermes_memory_binding` record schema
+  formalizing increment 3's derived gateway-rails input; canonical
+  validator extensions green over fixtures and the real codexFactory tree,
+  with the live-derived opensoft bindings as the packaged example.
 - [add-governed-derived-model](openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
   — **ratified, realized, and archived 2026-07-23** (same-day promotion of
   the governed-derived-model staging topic; DTN-014): the

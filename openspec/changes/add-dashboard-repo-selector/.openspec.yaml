@@ -1,0 +1,12 @@
+schema: spec-driven
+created: 2026-07-26
+origin:
+  kind: staged
+  id: openxFactory:staging:dashboard-repo-selector
+  path: ideation/staging/dashboard-repo-selector
+  reason: >-
+    Exit 1 (the dev-plane change) of the dashboard-repo-selector staged topic,
+    raised with the snapshot/image decoupling mission (Brett 2026-07-25,
+    relayed via team003) and the (repository, ref) keying decision (Brett
+    2026-07-26) folded into the topic as claims 6-12 before this proposal was
+    authored.

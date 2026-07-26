@@ -34,10 +34,13 @@ description: >-
   — so, unlike the register's cross-snapshot transition rules, it is
   enforced structurally here rather than deferred. The gate console is
   authority-bearing (D16), so an authority-bearing record naming the wrong
-  action-to-artifact pairing is caught at write time. This does NOT narrow
-  the additive posture below: new action kinds and new artifact kinds stay
-  unconstrained; only `ratify`/`kickoff` carry a required companion
-  artifact.
+  action-to-artifact pairing is caught at write time. Later additive deltas
+  extended the same per-action shape to `dispose-possible`
+  (`register-update`), `propose` (`workflow-job`), and `create-document`
+  (`document`) — each safe at the time it landed because no existing record
+  carried that action. This does NOT narrow the additive posture below: new
+  action kinds and new artifact kinds stay unconstrained, and no
+  PRE-EXISTING action ever gains a required companion artifact.
 
   VALIDATOR-SIDE (cross-instance, not shape-expressible): kickoff is
   downstream of the ratify gate (D17) — the console MUST refuse a `kickoff`
@@ -75,13 +78,24 @@ properties:
     # this field is enforced by the console/authenticator, not here.
   action:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff, dispose-possible]
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
+           lens-save-recipe, lens-add-as-cluster, create-document]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
     # derived-possible disposition on the gate console") — the human
     # disposition of a pending_review ai-derived possible (ADDITIVE enum
-    # extension; every prior record stays valid).
+    # extension; every prior record stays valid). `propose`
+    # (add-propose-verb) commissions proposal authoring for a staging
+    # topic: kickoff's recorded-dispatch mechanic at the staging->proposal
+    # boundary (ADDITIVE, same posture). `create-document`
+    # (add-workbench-bullseye-and-create) brings a NEW ideation document
+    # into existence through the tested authoring scaffold, create-only —
+    # an existing target refuses as a source-edit and is never overwritten,
+    # so this action carries NO edit or delete authority. It targets
+    # `document` (allOf below) and references the created document as a
+    # `document`-kind artifact (ADDITIVE enum extension; every prior record
+    # stays valid).
   target: {$ref: "#/$defs/target"}
   at:
     type: string
@@ -158,6 +172,36 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
+  # A propose record targets a staging topic and MUST reference the
+  # workflow-job descriptor it dispatched (add-propose-verb: commissioning,
+  # never authoring).
+  - if: {properties: {action: {const: propose}}}
+    then:
+      properties:
+        target: {required: [topic_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  # A create-document record names the document it brought into existence
+  # (add-workbench-bullseye-and-create): a create record that does not name
+  # the created path audits nothing. Safe as a per-action conditional — no
+  # record has ever carried this action, so no prior record is invalidated.
+  # The created document rides as a `document`-kind artifact with the
+  # relpath as its `reference` (Brett's 2026-07-25 ruling on that change's
+  # open question 4 grew the artifact enum a first-class `document` value
+  # instead of overloading `other`), and that kind is REQUIRED here — a
+  # create record whose artifact list names no document is not an audit
+  # record of a creation. Unlike the enum growth itself this conditional is
+  # only safe per-action, which it is.
+  - if: {properties: {action: {const: create-document}}}
+    then:
+      properties:
+        target: {required: [document]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: document}}
 $defs:
   # --- what the action acted on ---
   target:
@@ -178,6 +222,20 @@ $defs:
         minLength: 1
         # The possibles-register entry a dispose-possible action targets
         # (matches a `register_entry.id`).
+      set:
+        type: string
+        minLength: 1
+        # The workbench reference-set slug a lens verb lands
+        # (add-lens-gate-verbs; ADDITIVE — every prior record stays
+        # valid): lens-save-recipe writes the manifest of this set,
+        # lens-add-as-cluster additionally submits its pending_review
+        # human-seen entry.
+      topic_id:
+        type: string
+        minLength: 1
+        # The staging topic a propose action commissions (matches a
+        # `ideation/staging/<topic_id>/` directory / staged tile
+        # `staging_id`).
       outcome:
         type: string
         enum: [accepted, rejected, deferred]
@@ -186,9 +244,13 @@ $defs:
       document:
         type: string
         minLength: 1
-        # Optional document path within the change — e.g. the concept
-        # `edit-apply` targeted; most relevant to action=edit-apply, but
-        # not restricted to it structurally.
+        # A repository-relative document path this action acted on. Two
+        # senses, both structurally unrestricted by action: the document
+        # WITHIN a change that an `edit-apply` redlined, and — REQUIRED for
+        # `create-document` (add-workbench-bullseye-and-create; allOf
+        # below) — the path the create-only authoring scaffold brought into
+        # existence. Broadened commentary only; the field, its type, and
+        # its optionality are unchanged, so every prior record stays valid.
   # --- an artifact this action produced ---
   artifact:
     type: object
@@ -202,11 +264,22 @@ $defs:
           - redline
           - workflow-job
           - register-update
+          - document
           - other
         # The manual-path artifact kinds an action can produce (spec: "the
         # same governed artifacts as the manual path"). SCHEMA-SIDE (allOf
         # above): a `ratify` record requires a `ratification-record` entry
         # and a `kickoff` record requires a `workflow-job` entry.
+        #
+        # `document` — an ideation/corpus document this action brought into
+        # existence or rewrote, referenced by repository-relative path
+        # (add-workbench-bullseye-and-create; Brett's 2026-07-25 ruling on
+        # that change's design open question 4, which rejected carrying a
+        # created document as `other`). ADDITIVE enum extension in the
+        # `add-lens-gate-verbs` shape: no `contract_schema_version` bump, and
+        # every prior record stays valid because no record is required to
+        # carry this kind — an audit consumer can now filter document-
+        # producing actions from the enum rather than only from `action`.
       reference:
         type: string
         minLength: 1

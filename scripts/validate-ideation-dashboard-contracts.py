@@ -11,10 +11,15 @@ comments ARE the requirements) on top of plain draft-2020-12 validation, and it
 attaches a `FormatChecker` so `date`/`date-time` are actually enforced rather
 than left as annotations.
 
-Five schemas under `contracts/schemas/` (all loaded into one offline registry
-so the register kernel's cross-file `$ref` into the snapshot's `evidence_pin`
-resolves):
+The schema family under `contracts/schemas/` (all loaded into one offline
+registry so the register kernel's cross-file `$ref` into the snapshot's
+`evidence_pin` resolves):
     ideation-dashboard-snapshot.schema.yaml   (kind: ideation-dashboard-snapshot)
+    ideation-dashboard-snapshot-index.schema.yaml
+                                              (kind:
+                                               ideation-dashboard-snapshot-index;
+                                               the (repository, ref) locator,
+                                               add-dashboard-repo-selector)
     ideation-workbench.schema.yaml            (kind: ideation-workbench)
     ideation-possibles-register.schema.yaml   (envelope-less $defs kernel;
                                                fixtures wrap it under a plain
@@ -29,6 +34,10 @@ Validator-side rules beyond plain schema conformance:
              `clusters[].id`; `option_set.members` -> existing `possibles[].id`.
              `keyword_index` consistency with declared topics is a WARNING
              (the generator may deliberately scope keywords), never an error.
+  Index      every (repository, ref) pair is UNIQUE within one snapshot index,
+             and the index carries NO projection data (documents/clusters/
+             possibles/staged_topics/changes/keyword_index, at the root or in an
+             entry) — it is a locator, not a projection (D3).
   Workbench  recipe `pinned` keywords must be a subset of `checked`;
              `recipe.new_candidates` must be disjoint from members ∪ excluded;
              AND — the committed-manifest guard — a well-formed workbench
@@ -106,6 +115,7 @@ EXAMPLES_DIR = ROOT / "examples" / "ideation-dashboard"
 
 SCHEMA_FILENAMES = [
     "ideation-dashboard-snapshot.schema.yaml",
+    "ideation-dashboard-snapshot-index.schema.yaml",
     "ideation-workbench.schema.yaml",
     "ideation-possibles-register.schema.yaml",
     "project-register.schema.yaml",
@@ -116,11 +126,21 @@ SCHEMA_FILENAMES = [
 # Whole-document schemas keyed by the hyphenated `kind` literal each declares.
 KIND_TO_SCHEMA = {
     "ideation-dashboard-snapshot": "ideation-dashboard-snapshot.schema.yaml",
+    "ideation-dashboard-snapshot-index": "ideation-dashboard-snapshot-index.schema.yaml",
     "ideation-workbench": "ideation-workbench.schema.yaml",
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
     "gate-intent": "gate-intent.schema.yaml",
 }
+
+# The snapshot's projection collections — the data an INDEX must never carry
+# (`ideation-dashboard-snapshot-index.schema.yaml`, design D3: the index is a
+# locator, not a projection).
+PROJECTION_KEYS = (
+    "documents", "clusters", "possibles", "staged_topics", "changes",
+    "keyword_index",
+)
+DEFAULT_REF = "main"  # a consumer that names no ref means `main` (D4)
 
 # The possibles register is an envelope-less `$defs` kernel (no kind/envelope of
 # its own — it is embedded as a section of the cross-reference index). Fixtures
@@ -282,6 +302,8 @@ def validate_instance(
 
     if tag == "ideation-dashboard-snapshot":
         check_snapshot_referential_integrity(f, label, doc)
+    elif tag == "ideation-dashboard-snapshot-index":
+        check_snapshot_index_rules(f, label, doc)
     elif tag == "ideation-workbench":
         check_workbench_rules(f, label, doc)
     elif tag == "project-register":
@@ -343,6 +365,43 @@ def check_snapshot_referential_integrity(f: Findings, label: str, doc: dict) -> 
             f.warn("keyword-index-drift",
                    f"{label}: keyword {kw!r} declared_doc_count={declared} but {actual} document(s) "
                    f"declare it as a Topics: subject")
+
+
+# --------------------------- snapshot-index rules ---------------------------
+
+def check_snapshot_index_rules(f: Findings, label: str, doc: dict) -> None:
+    """The two validator-side rules the index shape cannot express
+    (`ideation-dashboard-snapshot-index.schema.yaml`; add-dashboard-repo-selector
+    tasks 1.1-1.2):
+
+      * UNIQUE (repository, ref) — two entries for one pair make "which snapshot
+        is this repository's?" ambiguous; and
+      * NO PROJECTION DATA — the index is a locator, so a projection collection
+        at the root or inside an entry is refused (design D3).
+    """
+    seen: dict[tuple[str, str], int] = {}
+    for entry in doc.get("entries") or []:
+        if not isinstance(entry, dict):
+            continue
+        pair = (entry.get("repository"), entry.get("ref") or DEFAULT_REF)
+        seen[pair] = seen.get(pair, 0) + 1
+        _check_no_projection_data(f, label, entry, f"entry {pair[0]!r}@{pair[1]!r}")
+    for (repo, ref), n in sorted(seen.items(), key=lambda kv: [str(x) for x in kv[0]]):
+        if n > 1:
+            f.error("snapshot-index-duplicate-repo-ref",
+                    f"{label}: (repository, ref) pair ({repo!r}, {ref!r}) appears {n} times "
+                    f"(every pair is unique within one index)")
+    _check_no_projection_data(f, label, doc, "index root")
+
+
+def _check_no_projection_data(f: Findings, label: str, obj: dict, where: str) -> None:
+    """The locator-not-projection rule: none of the snapshot's projection
+    collections may appear in an index (root or entry)."""
+    for key in PROJECTION_KEYS:
+        if key in obj:
+            f.error("snapshot-index-carries-projection-data",
+                    f"{label}: {where} carries projection key {key!r} — the index locates "
+                    f"snapshots and never restates their contents (D3)")
 
 
 # --------------------------- workbench rules ---------------------------

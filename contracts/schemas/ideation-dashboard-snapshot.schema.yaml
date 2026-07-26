@@ -29,9 +29,13 @@ description: >-
   not-yet-landed upstream changes are optional until those changes land: cluster
   `readiness`/`conflict_flags` arrive verbatim from the ideation-cross-reference
   index (add-ideation-cross-reference-readiness); document `inferred_topics` and
-  keyword `inferred_doc_count` arrive from document-cataloging. The regenerated
-  projection carries no lifecycle `status` (it is overwritten nightly, not an
-  immutable `record` like the document catalog).
+  keyword `inferred_doc_count` arrive from document-cataloging; document
+  `completeness` (a deterministic per-document maturity signal) and staged-topic
+  `health` (a folder-scoped health aggregate derived from it) grow from
+  add-staging-workbench — the generator realization populates both, this schema
+  growth lands first. The regenerated projection carries no lifecycle `status`
+  (it is overwritten nightly, not an immutable `record` like the document
+  catalog).
 type: object
 required:
   - schema_version
@@ -159,6 +163,64 @@ $defs:
           staged_topics: {type: array, items: {type: string, minLength: 1}}  # staging ids
           changes: {type: array, items: {type: string, minLength: 1}}        # change ids
           capabilities: {type: array, items: {type: string, minLength: 1}}   # capability names
+      completeness:
+        type: object
+        # Deterministic per-document maturity signal (add-staging-workbench;
+        # design D1/D2; requirement "Deterministic per-document completeness
+        # signal"). `score` is a FIXED-weight combination of the five named
+        # signals below at a fixed decimal precision — both are v1 contract
+        # constants (see `completeness_signal` below), never a per-run input.
+        # Optional: absent on a pre-growth snapshot, on an excluded document
+        # (`_document_exclusion_reason`), or before the generator realization
+        # populates it — a renderer MUST treat absence as "no bars", never as
+        # a zero score (design D7). BOUNDED to judgment-free surfaces: this
+        # score and its signals MUST NOT feed the readiness recommendation
+        # gate and MUST NOT produce a doc-health finding; the ONE sanctioned
+        # gate consumer anywhere in the corpus is the staged-to-proposal
+        # readiness gate (add-staging-workbench), and even that gate never
+        # reads this object directly — it consumes document scores only
+        # indirectly, through the `staged_topic.health` aggregate below.
+        required: [score, structure, length, open_markers, keyword_coverage, link_degree]
+        properties:
+          score: {type: number, minimum: 0, maximum: 1}
+          structure: {$ref: "#/$defs/completeness_signal"}
+          length: {$ref: "#/$defs/completeness_signal"}
+          open_markers: {$ref: "#/$defs/completeness_signal"}
+          keyword_coverage: {$ref: "#/$defs/completeness_signal"}
+          link_degree: {$ref: "#/$defs/completeness_signal"}
+  # --- per-document completeness signal (add-staging-workbench design D1/D2) ---
+  completeness_signal:
+    type: object
+    # One NAMED completeness signal: a normalized `value` (0..1, saturating at
+    # a FIXED constant so padding past the threshold cannot outscore
+    # substance) beside the RAW `count` that produced it, so a rendered bar is
+    # always explainable in the signal's own terms. The five signals are:
+    # `structure` (fraction of the document's expected structural elements
+    # present — the expected set is fixed per `Kind:` with a common fallback:
+    # H1 title, the governance header block, at least one section); `length`
+    # (body size normalized against a fixed saturation threshold, so padding
+    # past it cannot outscore substance); `open_markers` (an INVERSE signal —
+    # the standing TODO/TBD/FIXME/open-question-marker count normalized
+    # against a fixed saturation count and subtracted from 1, so MORE
+    # standing markers yields a LOWER value, never higher); `keyword_coverage`
+    # (fraction of the document's declared `Topics:` subjects that resolve to
+    # the snapshot's keyword vocabulary); `link_degree` (the document's
+    # snapshot edge degree — cluster document edges plus `destinations` —
+    # normalized against a fixed saturation degree). All five weights, every
+    # saturation constant, and the decimal precision of `value`/`score` are
+    # FIXED v1 contract constants (design D2) — deterministic and
+    # reproducible from the pinned tree alone, with no model call, no wall
+    # clock, no network, and no judgment input of any kind (design D1); a
+    # tunable weight configuration is a possible successor, never a per-run
+    # input (open question 1).
+    required: [value, count]
+    properties:
+      value: {type: number, minimum: 0, maximum: 1}
+      count:
+        type: integer
+        minimum: 0
+        # The raw measurement behind `value` (element count, word count,
+        # marker count, resolved-topic count, or edge degree — per signal).
   # --- topic clusters (funnel column 2; D11/D12 working surface) ---
   cluster:
     type: object
@@ -265,6 +327,95 @@ $defs:
         type: string
         minLength: 1
         # Exit path — the change id this topic promotes into.
+      health:
+        type: object
+        # Per-staged-topic health aggregate (add-staging-workbench design D8;
+        # requirement "Staged-topic health signal"), derived EXCLUSIVELY from
+        # the topic FOLDER's own corpus documents — documents that merely
+        # declare the topic as a destination (a document's
+        # `destinations.staged_topics`) are inbound context, never health
+        # inputs. `status` is DERIVED from `blockers`, never scored directly:
+        # `ready` (blockers empty), `stub` (the folder carries no corpus
+        # documents), `developing` (otherwise) — so the icon and the gate can
+        # never disagree about WHY. The ready threshold (`READY_MIN_SCORE`,
+        # v1 = 0.60 per Brett's 2026-07-25 ruling, calibrated at realization)
+        # is a FIXED v1 contract constant, pinned beside the completeness
+        # weights — never a per-run input. Deterministic and reproducible
+        # from the pinned tree alone, exactly like `document.completeness`.
+        # NOT a readiness judgment: MUST NOT feed the readiness
+        # recommendation gate or re-score any readiness tier, and no cluster
+        # or possible gains any aggregate (design D3 — this is the ONE
+        # sanctioned aggregate in the whole snapshot). This object is the
+        # staged tile's display truth ONLY: the staged-to-proposal readiness
+        # gate re-evaluates health LIVE against the pinned checkout at
+        # request time through the same scoring module the generator uses,
+        # never against this field, so a stale snapshot can show `ready`
+        # while the live gate still refuses (design D9). Optional: absent on
+        # a pre-growth snapshot or before the generator realization
+        # populates it.
+        required: [standing_open_items, doc_score_min, doc_score_mean, blockers, status]
+        properties:
+          standing_open_items:
+            type: integer
+            minimum: 0
+            # Sum of the member documents' `open_markers` RAW counts (not
+            # the normalized `value`).
+          doc_score_min:
+            type: number
+            minimum: 0
+            maximum: 1
+            # Minimum `completeness.score` over the folder's member
+            # documents, at the same fixed decimal precision.
+          doc_score_mean:
+            type: number
+            minimum: 0
+            maximum: 1
+            # Mean `completeness.score` over the folder's member documents,
+            # at the same fixed decimal precision.
+          blockers:
+            type: array
+            items: {$ref: "#/$defs/health_blocker"}
+            # Empty array <=> status: ready.
+          status:
+            type: string
+            enum: [ready, developing, stub]
+  # --- staged-topic health blocker (add-staging-workbench design D8) ---
+  health_blocker:
+    type: object
+    # A named, countable reason a staged topic's health is not `ready` —
+    # always explainable in one hover or one gate-refusal message (design
+    # D8). The staged-to-proposal readiness gate cites these VERBATIM when it
+    # refuses.
+    required: [kind, document]
+    properties:
+      kind:
+        type: string
+        enum: [standing_open_items, below_ready_threshold]
+      document: {type: string, minLength: 1}  # the member document this blocker names
+      count:
+        type: integer
+        minimum: 0
+        # REQUIRED for kind=standing_open_items — the document's standing
+        # open-marker raw count.
+      score:
+        type: number
+        minimum: 0
+        maximum: 1
+        # REQUIRED for kind=below_ready_threshold — the document's
+        # completeness score (compare against the READY_MIN_SCORE constant).
+      threshold:
+        type: number
+        minimum: 0
+        maximum: 1
+        # Emitted beside `score` for kind=below_ready_threshold: the
+        # READY_MIN_SCORE constant the score fell short of, carried in the
+        # blocker so a renderer can show "score vs constant" verbatim
+        # without hardcoding the contract constant.
+    allOf:
+      - if: {properties: {kind: {const: standing_open_items}}}
+        then: {required: [count]}
+      - if: {properties: {kind: {const: below_ready_threshold}}}
+        then: {required: [score]}
   # --- changes (funnel columns 5-6: proposals + realized; D6 active + archived) ---
   change:
     type: object

@@ -247,7 +247,7 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [add-omnigent-domain-overlay](../openspec/changes/add-omnigent-domain-overlay/proposal.md)
+- [add-omnigent-domain-overlay](../openspec/changes/archive/2026-07-24-add-omnigent-domain-overlay/proposal.md)
   — fully promoted 2026-07-23: owns the former `omnigent-core-domain-split`
   staged topic under `supporting-docs/`. Both archive-gate halves proven
   the same day — the live coding-patch-worker binding renders

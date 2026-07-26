@@ -42,6 +42,11 @@ NEGATIVE_DIR = EXAMPLES_DIR / "negative"
 DESCRIPTOR_ROLES = {"domain", "client", "customer"}
 CONVENTION_PATHS = {"domain": "hermes/domain/overlay.yaml"}
 DESCRIPTOR_FILE = "hermes/overlay-descriptor.yaml"
+CONTENT_MANIFEST_FILE = "hermes/domain/content-manifest.yaml"
+CONTENT_KINDS = {
+    "role_authority", "policy_position", "escalation_rule", "deliberation_mix",
+    "review_council", "memory_boundary", "practice_adoption",
+}
 
 
 def _fail(findings: list[str], message: str) -> None:
@@ -114,6 +119,43 @@ def validate_descriptor(doc: object, findings: list[str], repo_path: Path | None
             _fail(findings, f"dangling declared path for role {role}: {path}")
 
 
+def validate_content_manifest(doc: object, findings: list[str], repo_path: Path | None) -> None:
+    if not isinstance(doc, dict):
+        return _fail(findings, "content manifest is not a mapping")
+    if doc.get("kind") != "hermes_domain_content_manifest":
+        return _fail(findings, "kind is not hermes_domain_content_manifest")
+    if not isinstance(doc.get("schema_version"), int) or doc["schema_version"] < 1:
+        _fail(findings, "schema_version must be an integer >= 1")
+    content_set = doc.get("content_set")
+    if not isinstance(content_set, dict) or not content_set:
+        return _fail(findings, "missing or empty content_set")
+    for kind_name, location in content_set.items():
+        if kind_name not in CONTENT_KINDS:
+            _fail(findings, f"unknown content kind: {kind_name} (allowed: {sorted(CONTENT_KINDS)})")
+        if not isinstance(location, dict):
+            _fail(findings, f"content_set.{kind_name} must be a mapping")
+            continue
+        forms = [form for form in ("path", "directory") if location.get(form)]
+        extra = set(location) - {"path", "directory"}
+        if len(forms) != 1 or extra:
+            _fail(findings, f"content_set.{kind_name} must declare exactly one of path or directory")
+            continue
+        declared = location[forms[0]]
+        if not isinstance(declared, str) or not declared:
+            _fail(findings, f"content_set.{kind_name}.{forms[0]} must be a non-empty string")
+        elif repo_path is not None:
+            target = repo_path / declared
+            exists = target.is_file() if forms[0] == "path" else target.is_dir()
+            if not exists:
+                _fail(findings, f"dangling declared {forms[0]} for {kind_name}: {declared}")
+    omnigent = doc.get("omnigent_overlay_path")
+    if omnigent is not None:
+        if not isinstance(omnigent, str) or not omnigent:
+            _fail(findings, "omnigent_overlay_path must be a non-empty string")
+        elif repo_path is not None and not (repo_path / omnigent).is_file():
+            _fail(findings, f"dangling omnigent_overlay_path: {omnigent}")
+
+
 def validate_document(path: Path, repo_path: Path | None) -> list[str]:
     findings: list[str] = []
     try:
@@ -125,6 +167,8 @@ def validate_document(path: Path, repo_path: Path | None) -> list[str]:
         validate_overlay(doc, findings)
     elif kind == "hermes_overlay_descriptor":
         validate_descriptor(doc, findings, repo_path)
+    elif kind == "hermes_domain_content_manifest":
+        validate_content_manifest(doc, findings, repo_path)
     else:
         findings.append(f"unknown kind: {kind}")
     return findings
@@ -179,6 +223,16 @@ def validate_repo(repo_path: Path) -> int:
         role_paths.update(declared)
     else:
         print(f"no descriptor at {DESCRIPTOR_FILE}; using documented convention")
+    manifest_path = repo_path / CONTENT_MANIFEST_FILE
+    if manifest_path.is_file():
+        findings = validate_document(manifest_path, repo_path)
+        if findings:
+            for finding in findings:
+                print(f"FAIL {CONTENT_MANIFEST_FILE}: {finding}", file=sys.stderr)
+            return 1
+        print(f"content manifest ok: {CONTENT_MANIFEST_FILE}")
+    else:
+        print(f"no content manifest at {CONTENT_MANIFEST_FILE}; consumers use the documented convention")
     validated = 0
     for role, rel_path in sorted(role_paths.items()):
         overlay_path = repo_path / rel_path

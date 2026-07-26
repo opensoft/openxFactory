@@ -1,0 +1,391 @@
+# Design: Branch Sessions — The Branch Is The Unit Of Working State
+
+## Context
+
+Two days of dogfooding produced this change. On 2026-07-25 the workbench
+learned to CREATE a document (`add-workbench-bullseye-and-create`), which
+immediately raised the next question: how does the human EDIT it? On
+2026-07-26 Brett decided the answer, and the whole design is one move —
+**the working state moves onto a git branch, and the PULL REQUEST is the
+formal re-entry into the governed doc system.**
+
+Everything else follows from that move plus three constraints already on the
+table:
+
+1. **The ratified gates-happen-on-main rule.** "A lifecycle transition SHALL
+   be performed against, and merged promptly to, the default branch to be
+   considered real; an unmerged transition on any branch is exploration, not
+   status, and MUST NOT be represented as the document's lifecycle state on
+   shared surfaces." Read forwards, that rule does not merely PERMIT branch
+   editing — it identifies an unmerged branch as the one place ordinary
+   editing is legal, and it also dictates the visibility rule (drafts stay
+   out of shared surfaces) and the authority rule (the merge is when
+   anything becomes status).
+2. **The (repository, ref) seam.** `add-dashboard-repo-selector` keyed the
+   snapshot source on the pair and gave the serve ONE registry behind it,
+   explicitly naming this change as the consumer the key exists for. So a
+   session's panels are not an overlay problem; they are a second registry
+   entry.
+3. **The family's shared-checkout scar tissue.** Multiple sessions share one
+   checkout, and this repository family has already paid for cross-session
+   clobbering and mid-review tree mutation. A design that switched branches
+   in the served checkout would re-open exactly that wound. A worktree
+   closes it by construction.
+
+## Goals / Non-Goals
+
+**Goals**: give the human a legitimate place to stand between an idea and a
+review; make editing possible without weakening a single gate; make the audit
+trail free rather than re-invented; keep `main` the shared truth on every
+shared surface; consume the (repository, ref) seam rather than build a second
+projection path; keep the served checkout immovable.
+
+**Non-Goals**: per-actor branches; a session-descriptor contract; delete
+authority; an in-panel outline editor; hosted sessions; publishing a session
+snapshot; relocating gate verbs other than `create-document` onto the branch;
+changing the Merge-Master ritual; Track C's chat rail (its grounding set is
+C1's change, and this change is what C1 will ground ON).
+
+## Decisions
+
+### D1 — The branch is the unit of working state; the PR is the re-entry
+**Decision**: a workbench session's working state lives on a git branch, and
+the formal re-entry of that work into the governed doc system is the pull
+request.
+
+**Rationale**: the alternatives are both worse in a way that is easy to state.
+Writing edits to `main` from the workbench publishes unreviewed work to every
+shared surface instantly — the exact failure gates-happen-on-main forbids. A
+redline round per edit-batch is the ceremony main-resident documents already
+carry, and it is unusable for AUTHORING: nobody drafts a document as a
+sequence of proposed-then-applied diffs. The branch is the third option, and
+it is the one where NOTHING relaxes: main is still where gates happen, review
+is still where authority is exercised, the Merge Master still merges.
+
+**Consequence**: "unmerged" becomes a first-class, legible state of the
+workbench rather than an accident, and the human gets somewhere to stand.
+
+### D2 — The branch is named for the TILE, not the actor
+**Decision**: `draft/<staging-id>` for a staged topic, and the scope's kind
+and id for a cluster or a possible. Two humans working the same tile join the
+SAME session.
+
+**Rationale**: Brett's 2026-07-26 decision. The unit of work in this system is
+a topic, not a person: the workbench is already scoped to exactly one
+topic-bearing tile, the staged topic is already the queue item, and the
+readiness gate is already folder-scoped. A per-actor branch would fragment one
+topic's drafts across N branches and N pull requests, which is the same
+problem the staging packet exists to prevent.
+
+**Consequence**: same-tile concurrent writing is possible, and is a named risk
+below rather than a surprise. Per-ACTOR variants remain a future option if
+collisions hurt in practice; the branch-naming rule is the only thing that
+would change.
+
+### D3 — A WORKTREE, never a checkout switch
+**Decision**: the session branch is materialized as a git worktree. The served
+checkout is never switched, reset, or stashed by any session operation.
+
+**Rationale**: this is the load-bearing safety decision. The served checkout is
+shared — by the serve, by the snapshot generator, by whatever other session is
+working in it — and a surface that switched its branch would break all of them
+at once, silently, in a way that looks like data loss. A worktree makes the
+hazard structurally impossible rather than merely forbidden, which matters more
+than usual here because this family has already been bitten by shared-checkout
+mutation and has the incident records to prove it.
+
+**Consequence**: worktrees are real directories that must be created, placed
+somewhere gitignored, and torn down. Teardown is therefore part of the
+lifecycle requirement and not an afterthought, and the notebook projection's
+existing worktree exclusion already anticipates the placement.
+
+### D4 — One commit per gate action, and the record names its commit
+**Decision**: every gate action inside a session is exactly one commit carrying
+both the documents it wrote and the gate-action record attesting to it, and the
+record references that commit as a `commit`-kind artifact.
+
+**Rationale**: the gate-action-record family has always wanted a record and its
+artifact to be inseparable, and it can only approximate that when records and
+documents land through different paths at different times. Riding one commit
+makes it structural. The bonus is larger than the mechanism: the audit trail
+FALLS OUT of version control. A reviewer reading the PR's commit series is
+reading the action log, and there is nothing to reconcile because there is only
+one artifact.
+
+**Consequence**: a long session produces many small commits, which is open
+question 2 (squash versus merge). Note that the recommendation there follows
+from this decision rather than from taste — squashing on merge would discard on
+`main` precisely the granularity this decision creates.
+
+### D5 — `edit-document` is session-only; the redline path is untouched
+**Decision**: a new human-only gate verb `edit-document` rewrites an existing
+document, valid ONLY inside an active branch session. The gate console's
+`edit-apply` AI-redline path remains exactly as it is for MAIN-RESIDENT
+documents outside a session.
+
+**Rationale**: the two acts differ in risk, so they differ in ceremony. Editing
+a document on `main` changes shared truth the moment it lands, and its
+protection is the redline a human must apply. Editing a document on an unmerged
+branch changes nothing anyone else sees, and its protection is the pull request
+review — which is a STRONGER control than a redline, applied once to the whole
+session rather than piecemeal. Keeping both is not redundancy; removing either
+would be a loss.
+
+**Consequence**: the verb must refuse outside a session, and that refusal is a
+requirement scenario rather than an implementation detail — it is the boundary
+that keeps the redline path meaningful.
+
+### D6 — The session snapshot is a registry entry, not an overlay
+**Decision**: the session's panels read a snapshot addressed `(repository,
+session-branch)` through the registry `add-dashboard-repo-selector` lands,
+generated from the worktree, regenerated after every gate action.
+
+**Rationale**: the tempting alternative — render `main` and overlay the
+branch's diff — invents a second projection path, a merge semantics, and a new
+class of bug where the overlay and the snapshot disagree. The seam already
+exists precisely to avoid that, and it was keyed for this consumer before this
+consumer existed. Generating a whole snapshot from a worktree is the same
+deterministic generator run against a different root, which is a configuration
+difference rather than a code path.
+
+**Consequence**: regeneration per gate action, which collides with the promoted
+"still no per-commit regeneration" clause of `Delivery and regeneration` — a
+clause that is true of the PUBLICATION lane and false of a session. The
+MODIFIED requirement scopes it rather than deleting it.
+
+### D7 — Draft visibility is confined to the session
+**Decision**: branch drafts appear ONLY inside their session. The wheel, the
+funnel, the pipeline board, the hosted dashboard, and every published
+projection render `main`.
+
+**Rationale**: this is gates-happen-on-main applied to the workbench. A shared
+surface that showed unmerged drafts would silently redefine what the team's
+pipeline picture MEANS — the wheel would stop answering "what is governed" and
+start answering "what has anyone typed", and no viewer would be told which
+question they were looking at.
+
+**Consequence**: a real usability edge, recorded as a risk: a human who "saved"
+in a session and then cannot see their work on the wheel needs the surface to
+say why. The freshness header naming the session ref (D6) is half the answer;
+the other half is that `open-pr` is called SAVE for exactly this reason.
+
+### D8 — `open-pr` is "save", and it hands off rather than deciding
+**Decision**: the save gesture is a gated `open-pr` verb that pushes the branch
+and opens the pull request into the EXISTING Merge-Master ritual, recording the
+dispatch. It cannot merge, approve, or bypass anything.
+
+**Rationale**: the recorded-dispatch discipline the whole gate console already
+follows — surfaces dispatch and never execute final actions. There is no new
+approval path to design because the right one already exists and is enforced
+outside the dashboard by branch protection. Calling it "save" is deliberate:
+the human's mental model is saving, and the honest implementation of saving in
+a governed system is offering work for review.
+
+**Consequence**: "save" is a slightly heavier gesture than a save button, and
+the readiness-gate question (open question 4) is a direct consequence — the
+recommendation is NO, because a draft PR is exploration and the readiness gate
+guards PROPOSE, not SAVE.
+
+### D9 — A session ends by merge or by abandon; abandon ends the SESSION only
+**Decision**: two endings. On merge, teardown plus a main-view refresh. On
+abandon, teardown plus a recorded reason — but abandon MUST NOT delete pushed
+history or close a pull request on the human's behalf.
+
+**Rationale**: an abandon that deleted a pushed branch would destroy
+potentially auditable, potentially collaborative work with one click on a
+COLLABORATIVE branch — the worst possible pairing with D2. Ending the session
+(worktree, registry entry, notebook) reclaims all the local state that costs
+anything, while the pushed branch and its PR remain reviewable evidence. Actual
+branch deletion stays a deliberate git action outside this surface.
+
+**Consequence**: abandon is recorded with a reason, like a demotion, because
+"why did this topic's session end without merging" is durable signal.
+
+### D10 — NO session-descriptor artifact; the session is derived state
+**Decision**: no new schema and no persisted session manifest. A session IS its
+branch, its worktree, its registry entry, and a notebook alias derived from the
+tile.
+
+**Rationale**: every fact about a session is already derivable from git plus
+the registry — the branch name derives from the tile, the worktree from `git
+worktree list`, the notebook alias from the tile, the action history from the
+commit series. A descriptor would be a second copy of all of that, capable of
+disagreeing with the first, and disagreement is precisely what the
+commit-per-action decision (D4) was designed to eliminate. Topic claim 10 says
+the snapshot registry is the whole server-side addition, and holding to that is
+worth more than a convenience.
+
+**Consequence**: recorded honestly — a descriptor becomes necessary if sessions
+ever need to carry facts git cannot answer (a session spanning repositories, a
+session with an owner distinct from its committers, a scheduled expiry). Until
+then, derived state cannot rot.
+
+### D11 — Session notebooks are the one surface allowed to read a worktree
+**Decision**: `xf-wb-<topic>` session notebooks sync FROM the worktree. The
+three lifecycle books (`xf-ideation`, `xf-drafts`, `xf-canon`) stay MAIN-ONLY
+without exception.
+
+**Rationale**: a lifecycle book IS the lifecycle projection, so a book
+containing unmerged sources is not a stale book — it is a WRONG book, asserting
+lifecycle states that do not exist. Session notebooks are not books; they are
+the same derived analysis workspace the promoted hybrid requirements already
+describe, pointed at a worktree instead of a checkout. And that pointing is
+possible only because NotebookLM knows uploaded SOURCES rather than git, which
+is why this is projection TOOLING and not a contract change to the notebook
+family beyond declaring the rule.
+
+**Consequence**: the promoted `Corpus scan scope` requirement must be modified,
+because its worktree exclusion currently reads as absolute across the whole
+projection. The modification narrows the exclusion's SCOPE to the lifecycle
+books while strengthening it there (naming branch-session worktrees explicitly)
+and states that session notebooks may never contribute to a book.
+
+### D12 — Local plane only, with `ref` as the future binding point
+**Decision**: branch sessions are local-plane only. The hosted dashboard
+exposes none of it until the intent plane's apply lane (§4 of
+`add-ideation-intent-plane`) exists.
+
+**Rationale**: a hosted session would need to apply writes the hosted surface
+holds no authority to make — the same constitutional boundary
+(`execute_final_action: false`) that keeps the pod from commissioning a rebake.
+The intent plane's apply lane is the mechanism that will eventually produce a
+ref legitimately, via its rolling PR.
+
+**Consequence**: the requirement states the hosted surface exposes NONE of
+this, rather than leaving it implicit, and the arrival path is named: bind the
+apply lane's ref through the existing (repository, ref) seam. No redesign, one
+binding.
+
+### D13 — Additive gate-action-record growth, and what CANNOT be schema-required
+**Decision**: `action` gains `edit-document`, `open-pr`, `abandon-session`;
+artifact `kind` gains `commit` and `pull-request`; `target` gains an optional
+`ref`; three per-action conditionals constrain only the new actions
+(`edit-document` → `document` + `ref` + a `commit` artifact; `open-pr` → `ref`
++ a `pull-request` artifact; `abandon-session` → `ref` + `reason`).
+
+**Rationale**: the shape `add-lens-gate-verbs` and
+`add-workbench-bullseye-and-create` both used, for the same reason — no
+`contract_schema_version` bump, no existing record invalidated, and a
+per-action conditional is safe precisely because no record has ever carried the
+new action. `commit` and `pull-request` are first-class kinds rather than
+`other` on the precedent Brett set on 2026-07-25 for `document`: an audit
+consumer should be able to filter for them from the enum.
+
+**Consequence**, stated because it is a real limit: the commit-per-gate-action
+rule CANNOT be made a schema conditional for `create-document`, because that
+action already exists and can legitimately be performed outside a session where
+no commit is produced. Requiring a `commit` artifact for it would invalidate
+the non-session case and narrow a pre-existing action — the one thing this
+schema's additive posture forbids. So the rule lives in the requirement and is
+enforced at the route, and `target.ref` stays OPTIONAL for the same reason even
+though the route must populate it for every in-session action.
+
+### D14 — "Branch session" and "workbench session" are different things, named apart
+**Decision**: the contract says BRANCH SESSION for the branch-and-worktree
+lifetime, and reserves "workbench session" for the UI-lifetime state
+`add-workbench-bullseye-and-create` defined (the checked-keyword selection's
+scope lifetime).
+
+**Rationale**: the same repository already had to keep two senses of
+"workbench" apart (`add-staging-workbench` D5), and this is the same hazard one
+level down. The two lifetimes genuinely differ: a workbench session dies when
+the human closes the view or opens another scope; a branch session survives
+page loads, machines, and actors, and dies only at a merge or an abandon.
+Conflating them would make "does closing the tab lose my work?" ambiguous — and
+the answer must be unambiguously no.
+
+## Risks / Trade-offs
+
+- **A collaborative branch invites concurrent worktree writes.** D2 puts two
+  humans on one branch, and this family has already had two live concurrency
+  incidents in a shared tree. Mitigation: each session gate action is a single
+  commit against the branch tip, so a losing race fails loudly at commit time
+  rather than silently clobbering; the worktree is per-machine, so the collision
+  surface is the branch rather than the filesystem; and per-ACTOR branches
+  remain one naming rule away (D2). Residual risk: two humans editing the SAME
+  document in one session still need to talk to each other, and no mechanism
+  here replaces that.
+- **Long-lived session branches drift from `main`.** A session open for weeks
+  produces a pull request against a moved target. Mitigation: `open-pr` is
+  positioned as SAVE precisely to make sessions short, and the ordinary PR
+  conflict path is the same one every engineering change already uses.
+  Deliberately NOT in scope: automatic rebase or merge of `main` into a session
+  branch, which would rewrite a human's working state under them.
+- **Commit-per-action inflates history (open question 2).** A long session
+  opens a PR with many small commits. Mitigation: that granularity IS the audit
+  trail (D4), the PR view collapses it for reading, and the recommendation is a
+  merge commit rather than a squash for exactly this reason.
+- **Regeneration cost per gate action.** Every gate action triggers a full
+  session-snapshot regeneration. Mitigation: the generator is deterministic and
+  already runs in the local loop; a session snapshot covers one repository; and
+  the cost is bounded by human action rate, not by commit rate on `main`.
+  Residual risk: on a very large corpus this becomes noticeable, and the fix
+  (incremental regeneration) is a generator optimization behind an unchanged
+  seam.
+- **"I saved it — why can't anyone see it?"** D7's invisibility is correct and
+  counter-intuitive. Mitigation: the freshness header names the session branch
+  (D6), the affordance is called SAVE and its effect is a pull request (D8), and
+  the merge is what makes work shared. This is a UX-honesty obligation, and it
+  is why the freshness header is a requirement rather than decoration.
+- **Worktrees accumulate.** An abandoned-but-not-abandoned session leaves a
+  directory and a registry entry behind. Mitigation: teardown is part of the
+  lifecycle requirement for both endings, and the container location is
+  gitignored and already excluded from the notebook projection's scan.
+- **An abandon can orphan an open pull request.** D9 deliberately leaves pushed
+  history alone, so abandoning after `open-pr` leaves a PR nobody is driving.
+  Mitigation: the abandon record carries a reason and names the branch, so the
+  orphan is attributable; closing the PR stays a deliberate human act in the
+  ordinary review surface.
+- **A gate record on an unmerged branch is not yet an audit fact on `main`.**
+  Anything recorded in a session becomes governed status only at the merge.
+  Mitigation: that is not a defect but the gates-happen-on-main rule holding,
+  and it is why verbs with effects OUTSIDE the branch are refused inside a
+  session — a dispatch cannot be un-dispatched if the session is abandoned.
+
+## Open Questions
+
+Four, each with a recommendation, all parked for Brett. The first three are the
+staged topic's own; the fourth was raised while authoring this change.
+
+1. **Branch-name reuse after a merged session.** `draft/<staging-id>` is stable
+   by design, so a staging id worked again after its first session merged
+   collides with the merged (or still-present) name. Options: reuse the name
+   after deletion; suffix a session ordinal; or refuse and require the human to
+   name the continuation.
+   *Recommendation: suffix a session ORDINAL* (`draft/<staging-id>` then
+   `draft/<staging-id>-2`). Reuse makes two different pull requests share a
+   name, which degrades exactly the git-native audit trail D4 buys; refusing
+   pushes a naming decision onto a human at the least useful moment. An ordinal
+   keeps the derivation deterministic (highest existing ordinal plus one), keeps
+   the tile identity legible in the name, and keeps D2's join-the-same-session
+   property — a second human joins the CURRENT ordinal.
+2. **Squash versus merge for a session pull request.** Commit-per-gate-action
+   makes the audit trail free, but it also means a long session's PR carries
+   many small commits.
+   *Recommendation: a MERGE COMMIT, preserving the series.* The history IS the
+   audit; squashing discards on `main` precisely the per-action granularity D4
+   exists to create, leaving it only in the PR record — a GitHub artifact rather
+   than a governed one. If a squash is ever required by a repository's protection
+   rules, the fallback is to require the squash message to enumerate the gate
+   actions, so the record survives in prose even when the commits do not.
+3. **Session-notebook quota behaviour.** Per-session `xf-wb-<topic>` notebooks
+   are created and retired per session; what happens when the NotebookLM
+   account's notebook quota is reached mid-session is undecided — refuse the
+   session, degrade to no notebook, or evict the oldest retired notebook.
+   *Recommendation: DEGRADE to no notebook, loudly.* A session's governed value
+   is its branch, its commits, and its pull request; the notebook is an L1
+   analysis convenience, and refusing a session because an external SaaS quota
+   is full would let a third party block governed work. Eviction is attractive
+   but risks deleting a retired notebook someone is still reading. The
+   requirement already makes the notebook optional (`MAY carry ONE`), so this
+   ruling changes tooling behaviour and no contract.
+4. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
+   could be made conditional on the topic's readiness recommendation having
+   fired.
+   *Recommendation: NO, and the requirement states it.* A draft pull request is
+   exploration offered for review — the readiness gate guards PROPOSE (the
+   staging-to-proposal boundary), not SAVE. Gating save on readiness would make
+   the readiness gate a precondition of WRITING anything down, which inverts
+   what it measures: readiness is derived FROM the documents a session
+   produces. It would also strand a session's work unmergeable on a branch,
+   which is the one state this whole change exists to eliminate.

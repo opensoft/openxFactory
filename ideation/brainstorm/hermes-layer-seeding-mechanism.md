@@ -20,7 +20,7 @@ materialization, digest-pinning, determinism, fail-closed, memory-gateway,
 runtime-records, hermes-install, lifecycle-verb
 Repository context: hermes-install runtime (consumes openxFactory/domain/client/project content)
 Captured: 2026-07-21
-Updated: 2026-07-22 (increment 1 realized; record-shape / compose-site / client-source decisions)
+Updated: 2026-07-24 (render-ownership + slim-4b decisions; increment 3 realized in hermes-install)
 
 ## Decided (2026-07-22)
 
@@ -47,6 +47,25 @@ Updated: 2026-07-22 (increment 1 realized; record-shape / compose-site / client-
   (`openspec/specs/layer-content-seeding/spec.md`): fail-closed digest verify,
   fail-closed missing-pin, role→path REFUSE for client/customer, per-layer
   independence under `--all`, idempotent evidence.
+
+## Decided (2026-07-24)
+
+- **Render ownership: install-repo lifecycle verbs.** The build-time render is
+  owned by hermes-install's operator-run verbs — `tune-client` today,
+  `provision-project` when the subject tier arrives — one render per composed
+  tier, output committed + digest-pinned + human-ratified (the proven
+  tune-client pattern). The domain and neutral tiers ship authored content and
+  never render; there is no release-pipeline render step and no compose verb
+  in the domain repo. (Brett, at the 4b scope gate.)
+- **4b is slim: manifest contract + render provenance.** The Core/xfactory
+  tiers are ops-structural (nothing to compose); the honest 4b slice is
+  (a) the deferred `hermes_domain_content_manifest` openxFactory contract
+  formalizing 4a's convention-loaded set (the `memory_binding` record shape
+  rides the same batch, in the memory-gateway family), then (b) hermes-install
+  render-provenance: the wizard stamps its input pins (defaults revision +
+  answers digest) into the committed overlay and seeding verifies the
+  composition chain — additive, legacy pins accepted until the next re-tune.
+  The Omnigent lane does not depend on 4b. (Brett, 2026-07-24.)
 
 ## Possible feats
 
@@ -215,8 +234,8 @@ ops tier below it (deploy) and the content overlays above it (govern).
   (§Decided). Still open: the exact `enforceable_payload` schema per
   `content_kind` (the §cut-list table is the draft).
 - ~~**Compose location**~~ — DECIDED 2026-07-22: build-time render + seed-time
-  verify (§Decided). Still open: which repo/step owns the render (the release
-  pipeline? a compose verb in the domain repo?).
+  verify (§Decided). ~~Still open: which repo/step owns the render~~ — DECIDED
+  2026-07-24: install-repo lifecycle verbs own the render (§Decided 2026-07-24).
 - **Reference-slice loading** — how do agents fetch pinned persona prose at job
   time — a governed read primitive, or a mounted pinned checkout?
 - **Partial re-seed** — can one content kind re-seed (e.g. just the practice

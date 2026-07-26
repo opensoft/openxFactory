@@ -6,9 +6,9 @@ Repository context: openxFactory
 
 **GENERATED FILE — do not edit by hand.** This is a deterministic Markdown projection of the source-of-truth `ideation/cross-reference.yaml`, produced by `scripts/render-ideation-cross-reference.py`. Edit the YAML and re-render; per the `add-ideation-cross-reference-readiness` spec the index is a generated projection over governed documents. See `ideation/README.md` for how this surface relates to the promoted requirements and to `staging/INDEX.md`.
 
-- Source revision: `b6c5b09d6e8faefd71bb9bb03fa77b000058e97b`
+- Source revision: `41e005ffa78a78c75c2a6a7d2a84f231b6e89643`
 - Generator: `ideation-xref-scorer-0.1.0`
-- Topic clusters: 75
+- Topic clusters: 90
 
 ## Accessibility
 
@@ -16,7 +16,7 @@ Repository context: openxFactory
 - topics: accessibility
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `avatar-reference-runtime` — The avatar-pilot-hardening staged doc is explicitly a hardening successor to the already-realized reference runtime: it replaces the reference runtime's 'static, fail-closed fixture adapters' (PolicyResolver/ConsentGate/OperationRunner) with real Hermes-backed adapters behind the identical frozen ports, and separately commissions the formal WCAG 2.2 AA audit that the reference runtime's lab predecessor deferred. This is the only clear promoted-capability extension in the cluster; the legal-compliance brainstorm document cites no promoted capability it extends and instead proposes a wholly new persona and panel.
+- no promoted fit — No promoted spec named in the catalog is a dedicated accessibility capability. `avatar-first-ui` and `avatar-client-lab` are the closest related promoted specs, but they cover the avatar UI/interaction baseline generally, not accessibility auditing itself; the WCAG 2.2 AA audit remains a pending, gate-blocking artifact inside the still-unproposed, still-blocked `avatar-pilot-hardening` staged change, which is not a promoted spec. No fit exists to cite.
 - readiness: domain unscored (no single owning DomainxFactory resolves for this cluster); company 3; project 2
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
@@ -31,9 +31,8 @@ Repository context: openxFactory
 - topics: activation-gate
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `avatar-client-lab` — qualify-avatar-live-voice.md explicitly names 'avatar-client-lab' as its staging-topic source and states it extends the offline lab's fail-closed SessionTransport port by swapping the FixtureScenarioTransport fixture adapter for a live WebRTC/broker transport 'with zero reducer or UI change,' qualifying gpt-realtime-2.1 for the internal-live ring. This fit applies only to that one member; the nightly-sweep-council-clearance-rule.md member has no corresponding promoted-capability fit — its parent 'add-merge-master-autonomous-approval' is not itself listed among the promoted capabilities.
-- readiness: domain unscored (The cluster's two members have no single owning domain. The brainstorm doc is explicitly scoped to codexFactory's Merge Master / Gate-Rules Council domain ('Repository context: codexFactory (envelope rules-as-code + per-repo gate rule); openxFactory (this leaf)'), while the staged doc is explicitly scoped to the avatar-client domain ('openxFactory owns the neutral live-voice acceptance ... the live transport ... is realized in the private xfactory-avatar-client repo'). These are two unrelated domain authorities joined only by the shared lexical tag 'activation-gate', so no owning domain resolves for the cluster as a whole.); company 2; project 2
-- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (output rejected: tier 'project': grounding passage is not found verbatim in any cluster member document (a cited passage must be real)); company unscored (output rejected: tier 'project': grounding passage is not found verbatim in any cluster member document (a cited passage must be real)); project unscored (output rejected: tier 'project': grounding passage is not found verbatim in any cluster member document (a cited passage must be real))
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -71,17 +70,17 @@ Repository context: openxFactory
 ## Agent Mixes
 
 - id: `cl-agent-mixes`
-- topics: agent-mixes, escalation-rules, review-councils
+- topics: agent-mixes
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `omnigent-domain-overlay` — The cluster's escalation-rules.yaml elevates and remaps the routing/stop_conditions currently in omnigent/domain-overlay.yaml onto the new roster personas, and the staged document states Change B's promotion is gated on the already-ratified add-omnigent-domain-overlay realization, requiring a lockstep extension of that overlay's codex_owns scope.
-- readiness: domain 8; company 5; project 8
-- recommendation: not flagged (pending_review) — gate not fired — minimum tier score is 5 (< 8): {'domain': 8, 'company': 5, 'project': 8}
+- extends promoted `omnigent-domain-overlay` — The cluster's escalation-rules.yaml explicitly elevates and remaps the routing: and stop_conditions: already present in omnigent/domain-overlay.yaml onto the domain roster personas, and Change B is stated to be gated on 'the add-omnigent-domain-overlay codexFactory realization (ratified 2026-07-22)' — a direct, named extension of that promoted capability rather than a fresh, unrelated proposal.
+- readiness: domain 8; company 6; project 8
+- recommendation: not flagged (pending_review) — gate not fired — minimum tier score is 6 (< 8): {'domain': 8, 'company': 6, 'project': 8}
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | agent-mixes, escalation-rules, review-councils |
-| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | agent-mixes, escalation-rules, review-councils |
+| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | agent-mixes |
+| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | agent-mixes |
 
 ## Authority Personas
 
@@ -89,8 +88,8 @@ Repository context: openxFactory
 - topics: authority-personas
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `hermes-domain-overlay` — codexfactory-domain-hermes-content.md targets the existing hermes-domain-overlay capability (today only overlay.yaml exists) and proposes extending it with roles/, policies/, review-councils/, agent-mixes.yaml, memory-boundaries.yaml, escalation-rules.yaml, and a practice catalog, while the roster drafts and character model separately reference roles-authority-model as the pattern the harvested personas must conform to.
-- readiness: domain unscored (no single owning domain resolves for this cluster during the Hermes-layer migration); company 7; project 6
+- extends promoted `client-infrastructure-liaison` — client-layer-roster-draft.md's §5 Client Infrastructure Liaison (CIL) persona explicitly builds on the already-promoted client-infrastructure-liaison capability, describing it as 'already live in opensoft's tree' and incorporating it into the Plane-1 house-team roster as a non-deciding convened coordination capability ('a capability the team convenes, not a seventh voice') rather than duplicating or re-implementing it.
+- readiness: domain unscored (No single owning domain resolves for this cluster: it spans openxFactory-neutral persona-model content, codexFactory-specific domain roster material, MedxFactory-specific domain roster material, and the neutral client/company house-team roster simultaneously.); company 6; project 6
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
@@ -99,6 +98,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | authority-personas |
 | `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | authority-personas |
 | `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | authority-personas |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | authority-personas |
 
 ## Auto Clear Envelope
 
@@ -106,8 +106,8 @@ Repository context: openxFactory
 - topics: auto-clear-envelope
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `client-layer-tuning` — The cluster's staging document carries the exact Staging ID `openxFactory:staging:client-layer-tuning`, matching the promoted capability `client-layer-tuning` in the registry. This cluster (the content schemas, the memory/policy/integration boundary shapes, the policy wizard, and the nightly-sweep auto-clear-envelope/council-clearance rule) is the next iteration extending that capability -- adding the Finance & Accounting Officer role, the stricter-only comparability spec, the avatar-assisted wizard, and a tier-2 council-clearance path onto the same auto-clear-envelope mechanism.
-- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster. The bulk of the material (client-layer-content-draft.md, client-policy-wizard.md, client-layer-tuning.md) is Client/Company-Policy-layer governance machinery -- scaffold roles, policy-override schemas, the wizard -- which is explicitly openxFactory/hermes-install content, not the output of any specific engineering-practice DomainxFactory. The remaining document (nightly-sweep-council-clearance-rule.md) is a codexFactory-internal gate rule reviewed by a Gate-Rules Council convening, but that convening itself spans domain/client/project seats rather than sitting inside one owning domain, and treating codexFactory-as-domain there would still leave the rest of the cluster without a domain owner.); company 7; project 8
+- extends promoted `client-layer-tuning` — The cluster's nightly-sweep-council-clearance-rule.md and practice-clearance-and-project-realization.md build the tier-2 council-clearance path and the project-layer realization flow directly on top of the client's auto_clear_envelope mechanics that client-layer-tuning defines (stricter-only comparability, wizard-drafted/human-ratified envelope); this is additive governance behavior layered onto that already-promoted capability rather than a restatement of it.
+- readiness: domain unscored (No owning DomainxFactory resolves for this cluster; the content is Client (Company Policy) Hermes and Project (Customer) Hermes governance/tuning material spanning openxFactory, codexFactory, and hermes-install rather than a single engineering domain's territory.); company 8; project 7
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
@@ -124,9 +124,10 @@ Repository context: openxFactory
 - topics: avatar-client
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `avatar-brokered-call-feasibility` — qualify-avatar-live-voice.md names the F0 brokered-call feasibility spike (specs/002-avc-f0-feasibility) as its direct predecessor and explicitly carries 'the feasible handshake across the non-qualification boundary F0 refuses to cross,' turning the promoted feasibility proof into an internal-live qualified provider profile (gpt-realtime-2.1) with real latency SLOs, AVC-09/AVC-10 contracts, and an activation gate — i.e., it is the qualification successor to the already-promoted avatar-brokered-call-feasibility capability, not a fresh capability.
-- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster; both member documents describe avatar-pilot-hardening and qualify-avatar-live-voice as neutral, openxFactory-owned capabilities, with per-domain (Med/Ledger/Ops/Ad/codex) involvement limited to future overlay/persona instances that are themselves an open, unresolved fork (whether it is one parameterized schema or five separate domain-owned overlay capabilities).); company 6; project 3
+- extends promoted `avatar-client-lab` — avatar-pilot-hardening explicitly names implement-avatar-client-lab as a hard precondition it hardens: it 'cannot propose until ... implement-avatar-client-lab lands the client it hardens,' and Claim 1 describes replacing the lab's static fail-closed fixture adapters with real Hermes-backed adapters behind the exact same frozen ports the lab established. This is a direct extension of the promoted avatar-client-lab capability rather than a fresh, unrelated capability.
+- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster; both member documents are openxFactory-owned neutral capabilities and the domain overlay/persona layer is explicitly future work, not yet assigned.); company 7; project 3
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
+- conflict: tier-spread spread=4 scored-tier spread is 4 (>= 4): company 7 vs project 3 — recorded as signal, not averaged away
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -136,17 +137,17 @@ Repository context: openxFactory
 ## Bench Manifest
 
 - id: `cl-bench-manifest`
-- topics: bench-manifest, cloudpc, dtn-candidate, intune, omni-001, tech-benches
+- topics: bench-manifest, cloudpc, dtn-candidate, tech-benches
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `omnigent-domain-overlay` — The cluster proposes populating the already-ratified `omnigent-domain-overlay` schema's existing `toolchain_bindings` payload_ref[] slot with bench-manifest entries (digest-pinned tech-stack benches per engineering stack), per the brainstorm doc's 'Contract fit (the slot already exists)' section citing `contracts/omnigent/omnigent-domain-overlay.schema.yaml` from the ratified `add-omnigent-domain-overlay` change.
-- readiness: domain unscored (no single owning DomainxFactory resolves for this cluster); company 7; project 5
+- extends promoted `omnigent-domain-overlay` — The cluster proposes populating the already-ratified add-omnigent-domain-overlay schema's existing toolchain_bindings payload_ref[] slot with concrete bench-manifest entries, rather than introducing a new overlay mechanism.
+- readiness: domain unscored (no single owning DomainxFactory resolves for this cluster); company 7; project 6
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | bench-manifest, cloudpc, dtn-candidate, intune, omni-001, tech-benches |
-| `ideation/staging/worker-host-app/worker-host-app.md` | staged | bench-manifest, cloudpc, dtn-candidate, intune, omni-001, tech-benches |
+| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | bench-manifest, cloudpc, dtn-candidate, tech-benches |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | bench-manifest, cloudpc, dtn-candidate, tech-benches |
 
 ## Break Glass
 
@@ -154,8 +155,8 @@ Repository context: openxFactory
 - topics: break-glass
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `credential-contracts` — The staged document explicitly names its target capability as 'credential-contracts (MODIFIED — escrow registry + break-glass custody; possibly a sixth canonical record kind)', extending the existing per-install vaultref:// runtime-secret contract with an operator-side, SOPS-encrypted break-glass escrow registry layer.
-- readiness: domain unscored (no owning domain resolves for this cluster — both member documents are explicitly framed as neutral/openxFactory-owned rather than belonging to a specific DomainxFactory); company 4; project 5
+- extends promoted `credential-contracts` — The credential-escrow document names this explicitly in its own header: 'Target capabilities: credential-contracts (MODIFIED — escrow registry + break-glass custody; possibly a sixth canonical record kind), client-infrastructure-liaison (touch — the client-assumption obligation)'. It proposes adding an escrow-registry record kind and break-glass custody rules as a delta to the already-promoted credential-contracts capability. The consent-path document, by contrast, does not cite any promoted spec by name — it names only an ideation-layer parent ('hermes-retrieval-primitives-contract.md'), not a promoted capability, so no comparable fit is established for that half of the cluster.
+- readiness: domain unscored (No owning DomainxFactory resolves for this cluster; both member documents self-identify their repository context as openxFactory (neutral), not any specific domain.); company 4; project 3
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
@@ -169,8 +170,8 @@ Repository context: openxFactory
 - topics: cerebras, evidence-rows
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `memory-gateway` — Both documents explicitly build on top of the ratified memory-gateway rather than duplicating it: the adapter contract says it 'composes the ratified memory-gateway provider contracts (provider-profile + provider-binding + consent-profile) rather than duplicating them, and adds the ingestion layer', and the architecture doc frames the whole cluster as adopting Cerebras' retrieval/ingestion mechanics 'inside the [ratified memory] gateway's governance rails', introducing a new evidence-row kernel that composes into the gateway's existing context-packet output.
-- readiness: domain unscored (no owning DomainxFactory resolves for this cluster); company 7; project 5
+- extends promoted `memory-gateway` — The cluster explicitly composes — rather than duplicates or amends — the ratified memory-gateway's provider-profile, provider-binding, and consent-profile contracts, adding a new evidence-row ingestion kernel, per-source ingestion adapters, structure-before-embed processing, and ranking mechanics that sit inside the gateway's existing governance rails (tenant isolation, consent, source-authority).
+- readiness: domain unscored (no owning DomainxFactory resolves for this cluster); company 7; project 6
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
@@ -181,16 +182,17 @@ Repository context: openxFactory
 ## Character Model
 
 - id: `cl-character-model`
-- topics: character-model, trait-framework
+- topics: character-model
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (output rejected: tier 'domain': grounding passage is not found verbatim in any cluster member document (a cited passage must be real)); company unscored (output rejected: tier 'domain': grounding passage is not found verbatim in any cluster member document (a cited passage must be real)); project unscored (output rejected: tier 'domain': grounding passage is not found verbatim in any cluster member document (a cited passage must be real))
+- extends promoted `hermes-domain-overlay` — The cluster's persona authority blocks are scoped against the domain overlay's `codex_owns` list (per `overlay.yaml`), and the roster's own authority-closure audit finds it claims ownership scope (system_architecture, security_posture, quality_gates, release_readiness, cadence) that the current hermes-domain-overlay does not yet grant — requiring `codex_owns` to be extended in the same promoting change.
+- readiness: domain 6; company 7; project 4
+- recommendation: not flagged (pending_review) — gate not fired — minimum tier score is 4 (< 8): {'domain': 6, 'company': 7, 'project': 4}
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | character-model, trait-framework |
-| `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | character-model, trait-framework |
+| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | character-model |
+| `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | character-model |
 
 ## Client Hermes
 
@@ -198,8 +200,8 @@ Repository context: openxFactory
 - topics: client-hermes
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `client-layer-tuning` — client-layer-tuning is already a promoted capability, and the staged client-layer-tuning.md member of this cluster is its direct source material (scaffold roles/, content schemas, the policy wizard). The remaining brainstorm members of this same cluster extend that promoted capability with material it does not yet cover: a Legal & Compliance Counsel persona and a Risk & Assurance bench (client-risk-and-assurance-model.md, hermes-legal-compliance-model.md), a cost-accountability/Finance & Accounting Officer seam (cost-accountability-and-efficiency-model.md), and a client-layer knowledge-base/ingestion-adapter mechanism (hermes-knowledge-base-architecture.md, client-ingestion-adapter-contract.md). Two other members are already tied to separate promoted capabilities rather than extending client-layer-tuning: workflow-visualization-tooling.md is cited evidence behind the promoted 'workflow-visualization' capability, and client-credential-escrow-registry.md targets the promoted 'credential-contracts' capability and touches the promoted 'client-infrastructure-liaison' capability.
-- readiness: domain unscored (No owning DomainxFactory resolves for this cluster — the documents themselves classify the Client ("Company Policy") layer as neutral, cross-domain scaffold content that is only *specialized* by a consuming domain (e.g. codexFactory) downstream, never domain-owned itself.); company 8; project 6
+- extends promoted `client-layer-tuning` — The provided promoted_capabilities list includes 'client-layer-tuning' as an already-promoted capability. This cluster's staging document (ideation/staging/client-layer-tuning/client-layer-tuning.md) and its five source brainstorm docs (client-layer-roster-draft, client-layer-scaffold, client-layer-content-draft, client-policy-wizard, hermes-legal-compliance-model, client-risk-and-assurance-model) are the direct ideation trail feeding that promoted capability. The remaining brainstorm docs in the cluster (client-ingestion-adapter-contract, cost-accountability-and-efficiency-model, hermes-knowledge-base-architecture, hermes-layer-content-seeding) extend that promoted surface into adjacent, not-yet-folded-in areas: source ingestion, cost/spend accounting, and knowledge-base retrieval mechanics for the same client layer.
+- readiness: domain unscored (No single owning domain resolves for this cluster; the client-layer material is explicitly neutral/cross-domain (openxFactory-owned), with codexFactory acting only as one possible specializer among many, not an owner.); company 7; project 6
 - recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
@@ -224,15 +226,29 @@ Repository context: openxFactory
 - topics: client-layer
 - tag sources: topics-header
 - origin: machine-derived
-- extends promoted `client-layer-tuning` — client-policy-wizard.md is the concrete elicitation/tuning mechanism for the promoted 'client-layer-tuning' capability — it specifies the bounded question set, the auto-clear-envelope generation, and the overlay-commit/digest-pin step that a tuning capability would need to operate. The cluster also touches the separately promoted 'client-infrastructure-liaison' capability, since client-layer-scaffold.md specifies its composed-from-stewards design and configured_but_inactive activation gate.
-- readiness: domain 6; company 7; project 5
-- recommendation: not flagged (pending_review) — gate not fired — minimum tier score is 5 (< 8): {'domain': 6, 'company': 7, 'project': 5}
+- extends promoted `client-layer-tuning` — The cluster's client-policy-wizard.md and client-layer-content-draft.md specify the concrete elicitation schema, per-client overlay write path, and auto-clear-envelope generation that instantiate the promoted client-layer-tuning capability for the policy-overrides, memory-boundaries, and integration-boundaries content files.
+- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster; the documents explicitly split ownership three ways — a domain-neutral scaffold in openxFactory, a domain specialization pattern in codexFactory (used only as the engineering-org example), and per-client tuning in hermes-install — with no one domain holding Domain Hermes authority over the whole cluster.); company 7; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/client-layer-content-draft.md` | brainstorm | client-layer |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | client-layer |
 | `ideation/brainstorm/client-policy-wizard.md` | brainstorm | client-layer |
+
+## Clinical Roster
+
+- id: `cl-clinical-roster`
+- topics: clinical-roster, mxd-mrr
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-clinical-roster); company unscored (worker failed: no remote result collected for cl-clinical-roster); project unscored (worker failed: no remote result collected for cl-clinical-roster)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | clinical-roster, mxd-mrr |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | clinical-roster, mxd-mrr |
 
 ## Codexfactory
 
@@ -252,6 +268,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | codexfactory |
 | `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | codexfactory |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | codexfactory |
+| `ideation/staging/deployment-handoff-boundary/deployment-handoff-boundary.md` | staged | codexfactory |
 
 ## Company Policy
 
@@ -313,6 +330,8 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/contract-release-and-stack-surface.md` | brainstorm | credential-contracts |
 | `ideation/brainstorm/keycloak-identity-brokering.md` | brainstorm | credential-contracts |
+| `ideation/staging/consent-instrument-contract/consent-instrument-contract.md` | staged | credential-contracts |
+| `ideation/staging/deployment-handoff-boundary/deployment-handoff-boundary.md` | staged | credential-contracts |
 
 ## Credentials
 
@@ -327,6 +346,20 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | credentials |
 | `ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md` | staged | credentials |
+
+## Delegation
+
+- id: `cl-delegation`
+- topics: delegation
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-delegation); company unscored (worker failed: no remote result collected for cl-delegation); project unscored (worker failed: no remote result collected for cl-delegation)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md` | staged | delegation |
+| `ideation/staging/consent-instrument-contract/consent-instrument-contract.md` | staged | delegation |
 
 ## Determinism
 
@@ -360,7 +393,7 @@ Repository context: openxFactory
 ## Doc Management
 
 - id: `cl-doc-management`
-- topics: doc-management, doc-workflow
+- topics: doc-management
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -368,20 +401,62 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/cloud-workstation-topology.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/cluster-combining-gui.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/dashboard-action-center.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/doc-health-pipeline.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/domain-to-neutral-promotion.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/ideation-cross-reference-readiness.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/ideation-dashboard.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/lens-brainstorm-session-launch.md` | brainstorm | doc-management, doc-workflow |
-| `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | doc-management, doc-workflow |
-| `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | doc-management, doc-workflow |
-| `ideation/brainstorm/openspec-speckit-release-flow.md` | staged | doc-management, doc-workflow |
-| `ideation/brainstorm/topic-compilation-tree.md` | brainstorm | doc-management, doc-workflow |
-| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | doc-management, doc-workflow |
-| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | doc-management, doc-workflow |
+| `ideation/brainstorm/cloud-workstation-topology.md` | staged | doc-management |
+| `ideation/brainstorm/cluster-combining-gui.md` | staged | doc-management |
+| `ideation/brainstorm/dashboard-action-center.md` | staged | doc-management |
+| `ideation/brainstorm/doc-health-pipeline.md` | staged | doc-management |
+| `ideation/brainstorm/domain-to-neutral-promotion.md` | staged | doc-management |
+| `ideation/brainstorm/ideation-cross-reference-readiness.md` | staged | doc-management |
+| `ideation/brainstorm/ideation-dashboard.md` | staged | doc-management |
+| `ideation/brainstorm/lens-brainstorm-session-launch.md` | brainstorm | doc-management |
+| `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | doc-management |
+| `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | doc-management |
+| `ideation/brainstorm/openspec-speckit-release-flow.md` | staged | doc-management |
+| `ideation/brainstorm/topic-compilation-tree.md` | brainstorm | doc-management |
+| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | doc-management |
+| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | doc-management |
+
+## Doc Workflow
+
+- id: `cl-doc-workflow`
+- topics: doc-workflow
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-doc-workflow); company unscored (worker failed: no remote result collected for cl-doc-workflow); project unscored (worker failed: no remote result collected for cl-doc-workflow)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/cloud-workstation-topology.md` | staged | doc-workflow |
+| `ideation/brainstorm/cluster-combining-gui.md` | staged | doc-workflow |
+| `ideation/brainstorm/dashboard-action-center.md` | staged | doc-workflow |
+| `ideation/brainstorm/doc-health-pipeline.md` | staged | doc-workflow |
+| `ideation/brainstorm/domain-to-neutral-promotion.md` | staged | doc-workflow |
+| `ideation/brainstorm/ideation-cross-reference-readiness.md` | staged | doc-workflow |
+| `ideation/brainstorm/ideation-dashboard.md` | staged | doc-workflow |
+| `ideation/brainstorm/lens-brainstorm-session-launch.md` | brainstorm | doc-workflow |
+| `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | doc-workflow |
+| `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | doc-workflow |
+| `ideation/brainstorm/openspec-speckit-release-flow.md` | staged | doc-workflow |
+| `ideation/brainstorm/topic-compilation-tree.md` | brainstorm | doc-workflow |
+| `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | doc-workflow |
+| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | doc-workflow |
+| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | doc-workflow |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | doc-workflow |
+
+## Document Cataloging
+
+- id: `cl-document-cataloging`
+- topics: document-cataloging
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-document-cataloging); company unscored (worker failed: no remote result collected for cl-document-cataloging); project unscored (worker failed: no remote result collected for cl-document-cataloging)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/topic-compilation-tree.md` | brainstorm | document-cataloging |
+| `ideation/staging/consent-instrument-contract/consent-instrument-contract.md` | staged | document-cataloging |
 
 ## Document Lifecycle
 
@@ -396,6 +471,7 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/immovable-leaf-ideation-lifecycle.md` | brainstorm | document-lifecycle |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | document-lifecycle |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | document-lifecycle |
 
 ## Domain Hermes
 
@@ -417,7 +493,9 @@ Repository context: openxFactory
 | `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | domain-hermes |
 | `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | domain-hermes |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | domain-hermes |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | domain-hermes |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | domain-hermes |
 
 ## Domain Memory
 
@@ -433,6 +511,21 @@ Repository context: openxFactory
 | `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | domain-memory |
 | `ideation/brainstorm/codexfactory-domain-policy-model.md` | brainstorm | domain-memory |
 
+## Escalation Rules
+
+- id: `cl-escalation-rules`
+- topics: escalation-rules, review-councils
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-escalation-rules); company unscored (worker failed: no remote result collected for cl-escalation-rules); project unscored (worker failed: no remote result collected for cl-escalation-rules)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | escalation-rules, review-councils |
+| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | escalation-rules, review-councils |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | escalation-rules, review-councils |
+
 ## Execution Lane
 
 - id: `cl-execution-lane`
@@ -446,6 +539,20 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | execution-lane |
 | `ideation/brainstorm/tech-stack-benches.md` | brainstorm | execution-lane |
+
+## External Enforcement
+
+- id: `cl-external-enforcement`
+- topics: external-enforcement
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-external-enforcement); company unscored (worker failed: no remote result collected for cl-external-enforcement); project unscored (worker failed: no remote result collected for cl-external-enforcement)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | external-enforcement |
+| `ideation/staging/context-compression-runtime/context-compression-runtime.md` | staged | external-enforcement |
 
 ## Fail Closed
 
@@ -480,7 +587,7 @@ Repository context: openxFactory
 ## Gate Console
 
 - id: `cl-gate-console`
-- topics: gate-console, intent-queue, interactivity-boundary
+- topics: gate-console
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -488,8 +595,9 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/dashboard-action-center.md` | staged | gate-console, intent-queue, interactivity-boundary |
-| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | gate-console, intent-queue, interactivity-boundary |
+| `ideation/brainstorm/dashboard-action-center.md` | staged | gate-console |
+| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | gate-console |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | gate-console |
 
 ## Gate Rules Council
 
@@ -640,8 +748,10 @@ Repository context: openxFactory
 | `ideation/brainstorm/lens-keyword-search-and-adhoc.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/lens-ring-combination-explorer.md` | brainstorm | ideation-dashboard |
 | `ideation/brainstorm/topic-compilation-tree.md` | brainstorm | ideation-dashboard |
+| `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | ideation-dashboard |
 | `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | ideation-dashboard |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | ideation-dashboard |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | ideation-dashboard |
 
 ## Ideation Lifecycle
 
@@ -688,6 +798,35 @@ Repository context: openxFactory
 | `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | identity-brokering |
 | `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | identity-brokering |
 
+## Intent Queue
+
+- id: `cl-intent-queue`
+- topics: intent-queue, interactivity-boundary
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-intent-queue); company unscored (worker failed: no remote result collected for cl-intent-queue); project unscored (worker failed: no remote result collected for cl-intent-queue)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/dashboard-action-center.md` | staged | intent-queue, interactivity-boundary |
+| `ideation/staging/ideation-action-plane/ideation-action-plane.md` | staged | intent-queue, interactivity-boundary |
+
+## Intune
+
+- id: `cl-intune`
+- topics: intune, omni-001
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-intune); company unscored (worker failed: no remote result collected for cl-intune); project unscored (worker failed: no remote result collected for cl-intune)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/tech-stack-benches.md` | brainstorm | intune, omni-001 |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | intune, omni-001 |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | intune, omni-001 |
+
 ## Keycloak
 
 - id: `cl-keycloak`
@@ -724,11 +863,12 @@ Repository context: openxFactory
 | `ideation/staging/client-layer-tuning/client-layer-tuning.md` | staged | layer-content-seeding |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | layer-content-seeding |
 | `ideation/staging/layer-content-materialization/layer-content-materialization.md` | staged | layer-content-seeding |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | layer-content-seeding |
 
 ## Lifecycle Projection
 
 - id: `cl-lifecycle-projection`
-- topics: lifecycle-projection, notebooklm-projection
+- topics: lifecycle-projection
 - tag sources: topics-header
 - origin: machine-derived
 - no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
@@ -736,9 +876,11 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
-| `ideation/brainstorm/cloud-workstation-topology.md` | staged | lifecycle-projection, notebooklm-projection |
-| `ideation/brainstorm/ideation-dashboard.md` | staged | lifecycle-projection, notebooklm-projection |
-| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | lifecycle-projection, notebooklm-projection |
+| `ideation/brainstorm/cloud-workstation-topology.md` | staged | lifecycle-projection |
+| `ideation/brainstorm/ideation-dashboard.md` | staged | lifecycle-projection |
+| `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | lifecycle-projection |
+| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | lifecycle-projection |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | lifecycle-projection |
 
 ## Manual Writer
 
@@ -766,6 +908,8 @@ Repository context: openxFactory
 | Member | Stage | Matched tags |
 | --- | --- | --- |
 | `ideation/brainstorm/medical-omnigent-harness-adaptation.md` | brainstorm | medxfactory |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | medxfactory |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | medxfactory |
 | `ideation/staging/proposal-origin-contract/fda-samd-traceability-rationale.md` | staged | medxfactory |
 
 ## Memory Boundaries
@@ -782,6 +926,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-layer-content-draft.md` | brainstorm | memory-boundaries |
 | `ideation/brainstorm/codexfactory-domain-memory-and-practices.md` | brainstorm | memory-boundaries |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | memory-boundaries |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | memory-boundaries |
 
 ## Memory Gateway
 
@@ -802,6 +947,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | memory-gateway |
 | `ideation/brainstorm/hermes-retrieval-primitives-contract.md` | brainstorm | memory-gateway |
 | `ideation/brainstorm/subject-recall-and-consent-path.md` | brainstorm | memory-gateway |
+| `ideation/staging/consent-instrument-contract/consent-instrument-contract.md` | staged | memory-gateway |
 
 ## Merge Master
 
@@ -817,6 +963,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | merge-master |
 | `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | merge-master |
 | `ideation/brainstorm/omnigent-lane-activation-path.md` | brainstorm | merge-master |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | merge-master |
 
 ## Merge Readiness Council
 
@@ -846,6 +993,36 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-governed-nightly-sweep.md` | brainstorm | nightly-sweep |
 | `ideation/brainstorm/nightly-sweep-council-clearance-rule.md` | brainstorm | nightly-sweep |
 
+## Notebooklm Projection
+
+- id: `cl-notebooklm-projection`
+- topics: notebooklm-projection
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-notebooklm-projection); company unscored (worker failed: no remote result collected for cl-notebooklm-projection); project unscored (worker failed: no remote result collected for cl-notebooklm-projection)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/cloud-workstation-topology.md` | staged | notebooklm-projection |
+| `ideation/brainstorm/ideation-dashboard.md` | staged | notebooklm-projection |
+| `ideation/staging/ideation-action-plane/drive-membrane.md` | staged | notebooklm-projection |
+
+## Omnigent Install
+
+- id: `cl-omnigent-install`
+- topics: omnigent-install
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-omnigent-install); company unscored (worker failed: no remote result collected for cl-omnigent-install); project unscored (worker failed: no remote result collected for cl-omnigent-install)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/omnigent-core-domain-split.md` | superseded | omnigent-install |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | omnigent-install |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | omnigent-install |
+
 ## Omnigent Lane
 
 - id: `cl-omnigent-lane`
@@ -871,8 +1048,10 @@ Repository context: openxFactory
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
+| `ideation/staging/deployment-handoff-boundary/deployment-handoff-boundary.md` | staged | opsxfactory |
 | `ideation/staging/github-administration-plane/multi-app-identity-and-github-administration.md` | superseded | opsxfactory |
 | `ideation/staging/worker-host-app/worker-host-app.md` | staged | opsxfactory |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | opsxfactory |
 
 ## Overlay Ref
 
@@ -916,8 +1095,10 @@ Repository context: openxFactory
 | `ideation/brainstorm/client-layer-roster-draft.md` | brainstorm | plane-1 |
 | `ideation/brainstorm/client-layer-scaffold.md` | brainstorm | plane-1 |
 | `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | plane-1 |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | plane-1 |
 | `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | plane-1 |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | plane-1 |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | plane-1 |
 
 ## Plane 2
 
@@ -946,6 +1127,20 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/codexfactory-domain-deliberation.md` | brainstorm | plane-3 |
 | `ideation/brainstorm/hermes-legal-compliance-model.md` | brainstorm | plane-3 |
+
+## Policies
+
+- id: `cl-policies`
+- topics: policies
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-policies); company unscored (worker failed: no remote result collected for cl-policies); project unscored (worker failed: no remote result collected for cl-policies)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | policies |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | policies |
 
 ## Policy Wizard
 
@@ -1010,6 +1205,7 @@ Repository context: openxFactory
 | `ideation/brainstorm/domain-practice-suggestion-generation.md` | brainstorm | practice-catalog |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | practice-catalog |
 | `ideation/staging/codexfactory-domain-hermes-content/codexfactory-domain-hermes-content.md` | staged | practice-catalog |
+| `ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md` | staged | practice-catalog |
 
 ## Project Hermes
 
@@ -1026,6 +1222,34 @@ Repository context: openxFactory
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | project-hermes |
 | `ideation/brainstorm/project-layer-scaffold.md` | brainstorm | project-hermes |
 | `ideation/brainstorm/project-type-template-library-draft.md` | brainstorm | project-hermes |
+
+## Release Realization
+
+- id: `cl-release-realization`
+- topics: release-realization
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-release-realization); company unscored (worker failed: no remote result collected for cl-release-realization); project unscored (worker failed: no remote result collected for cl-release-realization)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/openspec-speckit-release-flow.md` | staged | release-realization |
+| `ideation/staging/deployment-handoff-boundary/deployment-handoff-boundary.md` | staged | release-realization |
+
+## Revocation
+
+- id: `cl-revocation`
+- topics: revocation
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-revocation); company unscored (worker failed: no remote result collected for cl-revocation); project unscored (worker failed: no remote result collected for cl-revocation)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/subject-recall-and-consent-path.md` | brainstorm | revocation |
+| `ideation/staging/consent-instrument-contract/consent-instrument-contract.md` | staged | revocation |
 
 ## Roles Authority Model
 
@@ -1129,6 +1353,22 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/codexfactory-domain-hermes-content.md` | brainstorm | three-layer-hermes-runtime |
 | `ideation/brainstorm/hermes-layer-content-seeding.md` | brainstorm | three-layer-hermes-runtime |
+| `ideation/brainstorm/omnigent-core-domain-split.md` | superseded | three-layer-hermes-runtime |
+
+## Trait Framework
+
+- id: `cl-trait-framework`
+- topics: trait-framework
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-trait-framework); company unscored (worker failed: no remote result collected for cl-trait-framework); project unscored (worker failed: no remote result collected for cl-trait-framework)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/brainstorm/codexfactory-domain-roster-draft.md` | brainstorm | trait-framework |
+| `ideation/brainstorm/hermes-persona-character-model.md` | brainstorm | trait-framework |
+| `ideation/brainstorm/medxfactory-domain-roster-draft.md` | brainstorm | trait-framework |
 
 ## User Management
 
@@ -1157,6 +1397,21 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/cluster-combining-gui.md` | staged | workbench |
 | `ideation/brainstorm/lens-brainstorm-session-launch.md` | brainstorm | workbench |
+| `ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md` | staged | workbench |
+
+## Worker Host App
+
+- id: `cl-worker-host-app`
+- topics: worker-host-app, wsl
+- tag sources: topics-header
+- origin: machine-derived
+- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+- readiness: domain unscored (worker failed: no remote result collected for cl-worker-host-app); company unscored (worker failed: no remote result collected for cl-worker-host-app); project unscored (worker failed: no remote result collected for cl-worker-host-app)
+
+| Member | Stage | Matched tags |
+| --- | --- | --- |
+| `ideation/staging/worker-host-app/worker-host-app.md` | staged | worker-host-app, wsl |
+| `ideation/staging/worker-host-app/wsl-install-and-setup.md` | staged | worker-host-app, wsl |
 
 ## Workflow Visualization
 
@@ -1171,3 +1426,4 @@ Repository context: openxFactory
 | --- | --- | --- |
 | `ideation/brainstorm/ideation-dashboard.md` | staged | workflow-visualization |
 | `ideation/brainstorm/workflow-visualization-tooling.md` | staged | workflow-visualization |
+| `ideation/staging/dashboard-repo-selector/dashboard-repo-selector.md` | staged | workflow-visualization |

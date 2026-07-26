@@ -46,16 +46,20 @@ properties:
     # client-supplied).
   verb:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff, dispose-possible]
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose]
     # The gate-console verbs (mirrors gate-action-record.action; extended in
-    # lockstep when the console grows a verb).
+    # lockstep when the console grows a verb). `propose` (add-propose-verb)
+    # commissions proposal authoring for a staging topic — the same
+    # recorded-dispatch mechanic as kickoff, one boundary earlier.
   target:
     type: object
     # Mirrors gate-action-record.target: the change-lifecycle verbs address a
-    # change_id; dispose-possible addresses a possible_id (+ outcome in args).
+    # change_id; dispose-possible addresses a possible_id (+ outcome in args);
+    # propose addresses a staging topic_id.
     properties:
       change_id: {type: string, minLength: 1}
       possible_id: {type: string, minLength: 1}
+      topic_id: {type: string, minLength: 1}
       document: {type: string, minLength: 1}
   args:
     type: object
@@ -98,5 +102,7 @@ allOf:
     then: {required: [applied_record]}
   - if: {properties: {verb: {const: dispose-possible}}, required: [verb]}
     then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: propose}}, required: [verb]}
+    then: {properties: {target: {required: [topic_id]}}}
   - if: {properties: {verb: {enum: [demote, edit-apply, ratify, kickoff]}}, required: [verb]}
     then: {properties: {target: {required: [change_id]}}}
