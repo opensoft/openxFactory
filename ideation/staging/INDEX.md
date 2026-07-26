@@ -43,6 +43,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
+| [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
@@ -669,3 +670,25 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   - [qualify-avatar-live-voice.md](qualify-avatar-live-voice/qualify-avatar-live-voice.md) — primary: scope, claims (AVC-09/AVC-10, activation gate, latency budgets), open questions, exit.
 - Open questions (blocking): credential custody + spend cap; latency-budget derivation; the activation-gate scope; data-control/consent for evaluation audio; canary/rollback shape. Also gated on a released, code-signed client from the lab.
 - Exit: create `qualify-avatar-live-voice` (`code_surface: openxFactory, xfactory-avatar-client`); archives only on merged + green internal-live realization evidence.
+
+## mobile-dashboard-surface
+
+The mobile app realization of the ratified `avatar-first-ui` standard:
+one app whose sign-in determines the Hermes layer and whose layer
+determines the default surface (subject users avatar-first, tenant
+staff hybrid with the conventional dashboard primary, domain authority
+conventional with an avatar copilot — the ratified "Hermes-layer
+surface defaults" requirement). Also hosts per-domain org-connect
+onboarding ceremonies (first consumer: LedgerxFactory
+`ledgerx:staging:external-client-connect` — Entra admin-consent + BC
+Admin Center extension install driven from the app; Microsoft-native
+ceremonies only, no custom credential UI, no standing credentials on
+the device; dashboard reads ride token-gated surfaces per the
+worker-readiness-surface precedent).
+
+- Files: `mobile-dashboard-surface.md`
+- Target capabilities: `avatar-first-ui` (realization evidence or a
+  small ADDED requirement); avatar-client track work order
+  (post `avatar-pilot-hardening`); per-domain connect flows exit via
+  their DomainxFactory topics.
+- Source: team-010 LedgerxFactory session 2026-07-26 (Brett).
