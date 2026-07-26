@@ -86,6 +86,59 @@ orchestration in the Omnigent lane.
   tier-2 core, anti-normalization at 3, standing kill switch,
   per-clearance notice.
 
+## Adversarial review findings (2026-07-26)
+
+A 4-lens adversarial review of the landed lane wiring
+(`add-council-clearance-lane-wiring`) confirmed two defects IN the wiring —
+both fixed before any live leg, while the rule still ships `active: false`:
+
+- **Verdict check-run was trusted by NAME only.** Any App with
+  `checks: write` — including the content App that authors the candidate —
+  could have forged a unanimous `ready` verdict and obtained a real
+  approval once flipped, with no council convening; the forgery was
+  self-protecting because the lane's convene and emit guards also matched
+  on name alone, so a planted check-run made the genuine lane stand down.
+  Fixed: the transport binds to the configured lane App id
+  (`vars.COUNCIL_LANE_APP_ID`), a blessed name from any other identity
+  parks as malformed, and both lane guards carry the same predicate.
+- **The `neutral` conclusion self-blocked the clearance it certified.**
+  Tier-1 `require_all_checks` demands every non-excluded check-run conclude
+  `success`, so a genuine verdict made `_classify` return never-clearable.
+  Fixed lane-side (conclusion `success`, verdict value in the title) —
+  deliberately NOT by excluding the check in the tier-1 envelope, which the
+  ratified rule forbids weakening.
+
+**Flip-order precondition (not a defect — fail-closed by design):** the
+consecutive-clearance count derives from the preceding merged nightlies'
+approval reviews. Human approvals read as unknown, so today's history
+yields `countable: false` → at-threshold → every candidate parks with the
+fix-the-generator flag. Tier 2 therefore stays inert until tier-1's
+merge-master App has autonomously approved at least one nightly. Verified
+against the real module 2026-07-26. **The gate flip must follow tier-1
+realization, not merely accompany it.**
+
+Out of scope here, needing their own changes (tier-1 surfaces, pre-existing
+since 2026-07-16 unless noted):
+
+1. **Path gate reads a truncated file list** — `gh pr view --json files`
+   caps at 100 with no pagination, so a >100-file candidate can have
+   out-of-allowlist paths truncated out of `changed_paths` before the gate
+   sees them. A health-report tree can plausibly exceed 100. **Fail-open;
+   highest priority of these.**
+2. **Open-findings gate fails OPEN on query error** (`|| echo '[]'`): an
+   API failure reads as "no open regression finding".
+3. **Approval token minted org-wide** (no `repositories:` scoping) inside a
+   `pull_request_target` job.
+4. **Floating `@main` pins**: the rule + decision core are pulled from
+   `opensoft/codexFactory@main`, and the convening lane calls the reusable
+   at `@main` while passing the lane App key and runtime token — the
+   "base-branch pinned" property holds only for the envelope config. Needs
+   a pinning policy (`review-lane.yml` SHA-pins as the house pattern).
+5. **Rule binding unchecked**: the rule declares
+   `repository: opensoft/codexFactory` while the candidate lives in
+   `opensoft/xFactory`; `validate_rule` never reads the field. A council
+   amendment should correct the text.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
