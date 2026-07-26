@@ -162,7 +162,11 @@ duplicate filenames, rename cycles, an absent `changed_files`, a string
 total — and every case is fail-closed or benign.
 
 What the review DID find, all in the same fail-open class the change exists
-to close, none of it introduced by the change:
+to close, none of it introduced by the change. **Findings 1–3 were FIXED
+inside this change** (Brett's ruling: fix the gathers now and ratify text and
+code together, rather than narrow the requirement) — codexFactory `841ab26`,
+aggregation `af5b89d`, pin `bd52fba`, recorded as tasks §4. Findings 4 and 5
+remain open.
 
 1. **The commit-statuses gather is unpaginated** —
    `gh api "repos/$REPO/commits/$HEAD_SHA/status"` carries no `--paginate`
@@ -215,6 +219,31 @@ to close, none of it introduced by the change:
    SHA binding makes the worst case a wasted convening. (c) The head-SHA
    recheck cannot see base-branch movement, which also changes the diff —
    exploiting it needs push access to `main`.
+
+**Fix as landed (findings 1–3).** Both listings now paginate at
+`per_page=100` with `--paginate --slurp` and carry the `total_count` each
+endpoint declares for itself; the core requires `check_runs_total` /
+`check_runs_entry_count` and `statuses_total` / `statuses_entry_count` and
+parks under a new `check_facts_incomplete`. That precondition is ordered
+ahead of the PATH condition, not merely ahead of the check condition, because
+`_classify` re-runs `_checks_green` and `_open_finding` over the same facts
+when it admits a `path_allowlist` park — the identical re-derivation trap the
+changed-path ordering exists to prevent, and it is proven by test, not
+assumed. The open-findings window is gone rather than widened: exhaustive
+pagination of `repos/{repo}/issues?state=open` (no issues endpoint declares a
+total, so exhaustion is the proof) with pull requests dropped and the notice
+exclusion applied to the complete set. Requirement 4's title, which promised
+"every gather" while its scenarios pinned only the two surfaces, is retitled
+to what it governs and a new requirement states the per-listing discipline —
+so what Brett ratifies says exactly what the code does. Verified live before
+designing it: `check-runs?per_page=1 --paginate --slurp` over a real PR head
+gave 3 pages, `total_count` 3 on each, 3 entries. No commit in these
+repositories carries a legacy status, so the status listing is verified
+structurally; that caveat is recorded in-file, and a wrong assumption parks
+with both counts named rather than approving. Interop re-verified by
+execution: the live nightly still approves, 30-of-137 statuses parks, and a
+docs-only overflow with short statuses parks never-clearably instead of
+reaching tier 2.
 
 Two deviations beyond brief in `b0e86ef`, both defensible and documented
 in-file, flagged for the ratification decision: the `|| echo '[]'` removal
