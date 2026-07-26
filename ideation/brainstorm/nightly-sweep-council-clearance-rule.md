@@ -320,6 +320,26 @@ or, last resort, re-pointing the overlay's `oidc_layer_claim` (config
 change + redeploy). `hermes.job.execute` remains unproven until a commission
 runs (stage 2).
 
+**Refined root cause (admin AI, 2026-07-26, decoded real token).** The
+emitted token carries `iss`/`aud`/`ver: 2.0` correct and BOTH roles
+(`hermes.job.execute` too — so stage 2's scope is already proven present),
+but neither `extn.layer` nor `layer`. The claims-mapping policy
+(`Source: "application"`, `ExtensionID: extension_9783…_layer`,
+`JwtClaimType: "extn.layer"`) reads the client SERVICE PRINCIPAL, while the
+extension value sits on the lane APPLICATION object — no source value, claim
+omitted. Meanwhile the native path is already fully configured (directory
+extension `layer` exists, value on the lane application object, Hermes
+resource app requests it as an access-token optional claim, which v2 emits
+as `extn.<name>`) — but the ASSIGNED claims-mapping policy supersedes it.
+Next test: unassign (not delete) `hermes-layer-claim` from the
+`opensoft-hermes-qa` service principal and let the native optional-claim
+path emit. Safe by the decode itself: the policy currently contributes zero
+claims, so unassigning it cannot remove anything any client receives; and
+Hermes-side principals persisted with a DB `layer_id` are unaffected either
+way (`security.py` falls back to the persisted row when the token carries no
+layer claim). Both temporary decode credentials deleted; lane-app password
+count 0.
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
