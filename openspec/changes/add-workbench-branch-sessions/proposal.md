@@ -134,7 +134,7 @@ the selector rather than beside it.
   session lifecycle; one commit per gate action; the session-scoped
   `edit-document` verb; the session snapshot addressed by (repository, session
   ref); session-confined draft visibility; branch-aware source resolution; the
-  `open-pr` save verb; local-plane confinement) and TWO MODIFIED requirements.
+  `open-pr` save verb; local-plane confinement) and THREE MODIFIED requirements.
   `Staging workbench scoped view` is modified because its "ONLY write authority
   ... MUST NOT modify or delete any existing document, in any panel, by any
   path" clause is exactly what a session edit supersedes — inside a session and
@@ -142,7 +142,11 @@ the selector rather than beside it.
   worth stating: its "still no per-commit regeneration" clause is TRUE of the
   publication lane and FALSE of a session, where every gate action is a commit
   AND triggers a regeneration; the modified text scopes the prohibition to
-  published snapshots and states the session cadence beside it. Also
+  published snapshots and states the session cadence beside it.
+  `Staged-topic proposal commissioning` (of `add-propose-verb`) is modified
+  because proposal ends the staging pipeline: `propose` must refuse while the
+  tile carries an unresolved session, or it commissions authoring against
+  drafts that are still stranded on an unmerged branch (D15). Also
   `lifecycle-notebook-projection` — ONE ADDED requirement (branch-session
   notebooks) and ONE MODIFIED (`Corpus scan scope`, whose worktree exclusion
   must now say WHICH surfaces it protects, since session notebooks are the one
