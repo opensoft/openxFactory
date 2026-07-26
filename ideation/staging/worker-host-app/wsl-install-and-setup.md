@@ -114,15 +114,31 @@ nested virtualization (claim 3 of the primary doc); Omni-001
 
 ## Open questions (WSL-specific)
 
-1. **SYSTEM-context distro registration (raised by this doc, needs the
-   Omni-001 fact-check)**: WSL registers distros per-user in the
-   invoking user's registry hive. The app runs as SYSTEM, so the pinned
-   distro would register under SYSTEM's profile — but runner services
-   and benches must reach docker inside that distro from the worker
-   identities. Whether SYSTEM-registered distros are reachable from
-   service-account sessions (and whether `wsl.exe` is even on SYSTEM's
-   path pre-reboot) is untested — the fake-host suite cannot see this
-   class. Fold into the existing Omni-001 inventory fact-check.
+1. **SYSTEM-context distro registration and per-user isolation (raised
+   by this doc, needs the Omni-001 fact-check)**: WSL isolation is
+   per-user on every axis — a distro registers in the installing
+   account's registry hive, its `ext4.vhdx` filesystem lives under that
+   account's profile (default profile ACLs), and each Windows user runs
+   its own WSL utility VM. The upside is confidentiality: another
+   standard user on the box cannot list, start, or read our distro
+   (though administrators and SYSTEM can read anything — BitLocker
+   protects the disk at rest, not user-from-user; treat the distro as
+   hidden from standard users, not secret from admins). The downside is
+   the same wall facing inward: the app runs as SYSTEM, so the pinned
+   distro registers under SYSTEM's hive — invisible and unreachable
+   from the worker identities, whose runner services and benches must
+   reach docker inside it (`wsl -d` resolves per-hive; the docker
+   socket lives inside SYSTEM's utility VM). Candidate resolutions, in
+   preference order: (a) run the docker-needing worker processes under
+   the same identity that owns the distro; (b) the app registers the
+   distro under the designated worker account rather than SYSTEM —
+   which would grow an owner-identity notion in the `substrate:` block;
+   (c) a cross-account engine endpoint is REJECTED as authority
+   leakage. Whether SYSTEM-registered distros are reachable from
+   service-account sessions at all (and whether `wsl.exe` is on
+   SYSTEM's path pre-reboot) is untested — the fake-host suite cannot
+   see this class. Fold into the existing Omni-001 inventory
+   fact-check; the outcome shapes `worker_identities` (step 3/7).
 2. **Servicing owner** (carried from the primary doc): who patches the
    distro and engine — the app on reconcile, or Intune servicing policy?
 3. **WSL kernel updates**: `wsl --update` is unmanaged today; decide
