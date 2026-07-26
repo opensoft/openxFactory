@@ -70,6 +70,11 @@
       boundary; topology, in-process versus init container plus periodic
       sidecar, is realization's call). The data source is CONFIGURATION, so
       open question 1's ratification changes a fetcher and no contract.
+      RULED 2026-07-26: the hosted binding is the aggregation repo's RAW
+      FILES (raw GitHub URLs for `health/ideation-dashboard/`), with the
+      read-only token supplied as deploy-time config (an environment/secret
+      NAME) — never a credential in a repository and never reachable from the
+      browser.
 - [ ] 3.4 Baked snapshot demoted to first-boot/offline fallback with a
       stale banner naming its generated-at (design D6); the degradation is
       never silent, and the fallback path is exercised by a test that makes
@@ -81,14 +86,23 @@
       only); local = POST regenerate against the served checkout then
       re-render, loopback-only, no restart. A failed refresh leaves the
       previously rendered snapshot in place and reports inline. Posture of
-      the local route per open question 3's ruling (recommendation:
-      ungated, stated explicitly rather than inherited).
+      the local route RULED 2026-07-26: UNGATED and loopback-only (the
+      `open-workbench` precedent), stated explicitly at the requirement and
+      at the route rather than inherited.
 - [ ] 3.7 Renderer-bundle pins respected, never edited:
       `tests/ideation-dashboard/test_renderer.py` bans `https?://` and
       every network primitive bundle-wide and pins each `fetch(` to a
       same-origin backend route with per-file counts — the new fetches are
       same-origin by construction (3.3), and the pin's file set + counts are
       updated only as the arithmetic of new same-origin routes requires.
+- [ ] 3.8 PASSIVE FRESHNESS HINT (RULED 2026-07-26, open question 2): the
+      page polls the THIN index in the background (~5 minutes) and shows a
+      "newer data available" badge when the index's freshness beats the
+      loaded snapshot's; the viewer clicks refresh and the page NEVER
+      auto-reloads. The serving side answers those polls from a short-lived
+      index peek, so N viewers cost the data source at most one index read
+      per cache window. Additive to the freshness header (3.5) — the header
+      states what IS rendered, the badge advertises what EXISTS.
 
 ## 4. Aggregation wiring (xFactory)
 
@@ -98,14 +112,18 @@
 - [ ] 4.2 Declare the published data source's layout under
       `health/ideation-dashboard/` — per-repository snapshot filenames keyed
       by (repository, ref) plus the index — and publish both from the lane
-      (design D2, pending open question 1's ratification).
+      (design D2, RULED 2026-07-26: those raw files ARE the hosted data
+      source, so this layout is the fetcher's contract).
 - [ ] 4.3 `workflow_dispatch` on the nightly snapshot workflow (design D8),
       changing nothing else about the lane: same generator, same artifacts,
       same commit posture as a scheduled run.
-- [ ] 4.4 If open question 1 ratifies raw files: provision the read-only,
-      narrowly-scoped fetch credential for the serving side and record it
-      through the ordinary credential-contracts path — never a raw
-      credential in any repository, and never reachable from the browser.
+- [ ] 4.4 Open question 1 RULED raw files (2026-07-26): provision the
+      read-only, narrowly-scoped fetch credential for the serving side and
+      record it through the ordinary credential-contracts path — never a raw
+      credential in any repository, and never reachable from the browser. The
+      serving side takes the token from a named environment variable only
+      (`--data-source-token-env`), so this task is a deployment/credential
+      action, not a code change.
 
 ## 5. Verification
 
@@ -145,6 +163,11 @@
 - [ ] 6.1 Brett's rulings on the three open questions recorded in this
       change before realization freezes them: (1) the data source, (2) the
       index polling cadence, (3) whether the local regenerate is gated.
+      RULED 2026-07-26 (all three, binding) and recorded in design.md's Open
+      Questions plus D2/D7 and in tasks 3.3/3.6/3.8/4.4 above: (1)
+      aggregation-repo RAW FILES with a deploy-time read-only token; (2) a
+      PASSIVE "newer data available" badge on a ~5-minute index poll, never
+      an auto-reload; (3) the local regenerate is UNGATED and loopback-only.
 - [ ] 6.2 Brett's live pass: reproduce the motivating incident deliberately
       — land a document on `main`, dispatch the publication lane, click
       refresh on the hosted dashboard, and find the document — with no

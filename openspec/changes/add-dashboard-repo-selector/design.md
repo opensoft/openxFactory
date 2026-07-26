@@ -94,8 +94,10 @@ makes the deployment story honest — a rebake means the app changed.
 ### D2 — The data source is the aggregation repo's published raw files
 **Decision**: the declared data source is the aggregation repo's
 `health/ideation-dashboard/` tree — the per-repository snapshots and the
-index as raw files at a pinned path. Recommended, pending ratification
-(open question 1).
+index as raw files at a pinned path. RULED by Brett on 2026-07-26 (open
+question 1): the hosted fetcher binds raw GitHub URLs for that tree, with a
+read-only token supplied as deploy-time configuration (an environment/secret
+NAME, never a credential in a repository).
 
 **Rationale**: three candidates were named. Raw repo files win on
 provenance and on inventing nothing: the nightly ALREADY writes exactly
@@ -197,12 +199,15 @@ grants nothing. The local binding WRITES, but only the derived snapshot
 artifact, from a checkout the human already controls, on a loopback bind.
 Neither can publish, build, or roll out anything (D1).
 
-**Consequence**: whether the local regenerate is GATED is open question 3.
-Recommendation: ungated, on the `open-workbench` precedent — the snapshot
-is derived data and regeneration mutates nothing governed. The caveat that
-makes it a question rather than an assumption: it would be the first POST
-route that is not a gate verb, so the posture must be stated in the
-requirement rather than inherited.
+**Consequence**: whether the local regenerate is GATED was open question 3,
+RULED UNGATED (loopback-only) by Brett on 2026-07-26, on the
+`open-workbench` precedent — the snapshot is derived data and regeneration
+mutates nothing governed. Because it is the first POST route that is not a
+gate verb, the posture is stated in the requirement and at the route rather
+than inherited. The served plane additionally gains the PASSIVE freshness
+hint ruled in open question 2: a background poll of the thin index lights a
+"newer data available" badge and the viewer clicks refresh — the page never
+reloads itself.
 
 ### D8 — Off-cycle publication is `workflow_dispatch`, never the pod
 **Decision**: the nightly snapshot job gains manual dispatch. That is the
@@ -308,25 +313,45 @@ in the change that would otherwise entrench it is the cheapest moment.
 
 ## Open Questions
 
-1. **Data-source ratification.** Aggregation-repo raw files
-   (recommended — nothing new is invented, commit SHA = provenance, at the
-   cost of a read-only credential in the serving side), a blob container
-   (no repository credential; provenance becomes a pipeline promise), or a
-   ConfigMap the pipeline updates (no egress; couples data refresh to a
-   cluster write). **Recommendation: raw files**, with the credential
-   consequence recorded above. Brett decides.
-2. **Index polling cadence.** Fetch the index on load and on explicit
-   refresh only, or poll it on an interval so the page can advertise that
-   newer data EXISTS (a "newer snapshot available" hint). Polling makes
-   freshness proactive and makes the serving side chatty against the data
-   source. **Recommendation: explicit-refresh-only in v1**, because the
-   freshness header already answers the question that motivated the ask
-   and a hint can be added additively. Brett decides.
-3. **Whether the local regenerate is gated.** Gate verb (recorded
-   dispatch, human-only, actor-resolved) or ungated action like
-   `open-workbench`. **Recommendation: ungated** — the snapshot is derived
-   data, regeneration mutates nothing governed, and a gate record per
-   regeneration would be audit noise about a cache. The caveat: it is the
-   first non-gate POST route, so the requirement states the posture
-   (loopback-only, derived-artifact-only, no governed mutation) explicitly
-   rather than inheriting it. Brett decides.
+ALL THREE RULED by Brett on 2026-07-26 (binding), before realization froze
+them. The reasoning history below is kept deliberately: a ruling that
+supersedes a recommendation is worth more when the alternatives it declined
+are still legible.
+
+1. **Data-source ratification — RULED: AGGREGATION-REPO RAW FILES.** The
+   hosted fetcher binds to the raw URLs of the xFactory aggregation repo's
+   `health/ideation-dashboard/` files (`https://raw.githubusercontent.com/
+   <owner>/<repo>/<ref>/health/ideation-dashboard/`), and the READ-ONLY
+   GitHub token is deploy-time configuration — an environment/secret NAME the
+   operator supplies, never a credential in a repository and never anywhere
+   the browser can see it. This is the recommendation below, ratified: the
+   nightly already writes exactly there, and the fetched file's commit SHA IS
+   the `source_revision` the snapshot carries, so provenance stays a git
+   question. The fetcher seam remains source-agnostic (D5), so the declined
+   alternatives are still one flag away.
+   *The alternatives, as considered:* a blob container (no repository
+   credential; provenance becomes a pipeline promise) or a ConfigMap the
+   pipeline updates (no egress; couples data refresh to a cluster write).
+   Recommendation had been raw files, with the credential consequence
+   recorded above; the ruling adopts it.
+2. **Index polling cadence — RULED: PASSIVE HINT ON A ~5-MINUTE POLL.** The
+   page polls the THIN index in the background (~5 minutes) and shows a
+   "newer data available" badge when the index's freshness beats the loaded
+   snapshot's; the viewer then clicks refresh. It MUST NEVER auto-reload —
+   a page that reloads itself under a reader is a worse failure than a stale
+   one. The serving side answers those polls from a short-lived index PEEK
+   (cheap by construction, D3), so N viewers cost the data source at most one
+   index read per cache window.
+   *The alternative, as considered:* explicit-refresh-only in v1 (the earlier
+   recommendation, on the grounds that the freshness header already answers
+   the motivating question and a hint is additive). The ruling takes the hint
+   now, in its passive form.
+3. **Whether the local regenerate is gated — RULED: UNGATED, LOOPBACK-ONLY.**
+   The `open-workbench` precedent applies: the snapshot is derived data,
+   regeneration mutates nothing governed, and a gate record per regeneration
+   would be audit noise about a cache. Because it is the first non-gate POST
+   route, the posture is STATED rather than inherited — loopback-only,
+   derived-artifact-only, no governed mutation, no build/rollout/publication
+   path — in the requirement and again at the route itself.
+   *The alternative, as considered:* a gate verb (recorded dispatch,
+   human-only, actor-resolved).
