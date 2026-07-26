@@ -85,8 +85,8 @@ the selector rather than beside it.
   dispatch with the pull request as a `pull-request`-kind artifact. No new
   approval path, no new authority, no bypass; the verb cannot merge or approve
   its own pull request. It does NOT require the topic's readiness gate to have
-  fired (the one remaining open question's recommendation, carried into the
-  requirement): a
+  fired (D21, carried into the requirement — and neither does it consult the
+  BLOCKING staged-to-proposal readiness gate): a
   session PR is exploration offered for review, and the readiness gate guards
   PROPOSE, not SAVE.
 - END a session in exactly two ways — the pull request MERGES, or a human

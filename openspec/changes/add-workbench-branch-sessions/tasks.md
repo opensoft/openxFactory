@@ -116,8 +116,8 @@ registry.
       pull request into the existing Merge-Master ritual, records the dispatch
       with the pull request as a `pull-request`-kind artifact. Cannot merge,
       approve, self-review, or bypass protection. Does NOT require the topic's
-      readiness gate (the one remaining open question's recommendation).
-      Re-invocation updates
+      readiness gate — neither the blocking staged-to-proposal gate nor the
+      advisory recommendation gate (D21). Re-invocation updates
       and reports the existing PR rather than opening a second.
 - [ ] 4.4 Abandon route + CLI parity verb (D9): recorded with a reason, tears
       down session state only.
@@ -241,15 +241,15 @@ registry.
 
 ## 9. Dogfood
 
-- [ ] 9.1 Brett's ruling on the ONE remaining open question recorded in this
-      change before realization freezes it: whether `open-pr` requires the
-      topic's readiness gate — recommendation: NO, the readiness gate guards
-      propose, not save. (The staged topic's other three and the two raised by
-      the 2026-07-26 review were all RULED that day: D16 the session notebook is
-      retired and never re-pointed; D17 resume-or-new on rework, branch
-      deletable once the proposal exists; D18 merge commit, never squash,
-      because the commit series is FDA traceability evidence; D19 a full
-      notebook quota degrades the session rather than blocking it.)
+- [x] 9.1 Brett's rulings on ALL SIX open questions recorded before
+      realization can freeze them — DONE 2026-07-26, the change carries no
+      parked decision: D16 the session notebook is retired and never
+      re-pointed; D17 resume-or-new on rework, the abandoned branch deletable
+      once the proposal exists; D18 merge commit, never squash, because the
+      gate-action commit series is FDA traceability evidence; D19 a full
+      notebook quota degrades the session rather than blocking it; D20 a tile is
+      a work surface OR a proposal, `demote` being the route back; D21 `open-pr`
+      consults NO readiness signal.
 - [ ] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
       REAL session end to end. Create and edit documents on a session branch,
       watch the panels follow the worktree, use the session notebook, open the

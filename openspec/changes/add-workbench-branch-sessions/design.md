@@ -183,7 +183,7 @@ the human's mental model is saving, and the honest implementation of saving in
 a governed system is offering work for review.
 
 **Consequence**: "save" is a slightly heavier gesture than a save button, and
-the readiness-gate question (the one remaining open question) is a direct consequence — the
+the readiness-gate question (D21) is a direct consequence — the
 recommendation is NO, because a draft PR is exploration and the readiness gate
 guards PROPOSE, not SAVE.
 
@@ -231,6 +231,43 @@ proposal commissioning" requirement, so `add-propose-verb` joins the
 archive-sequencing list. No other forward transition is gated: mid-pipeline
 verbs leave the tile in staging where a session is legitimate working state,
 and only proposal ends the pipeline.
+
+### D21 — `open-pr` consults NO readiness signal; readiness guards propose, not save
+**Decision** (Brett, 2026-07-26): "`open-pr` should not require the readiness
+gate." The save verb consults neither readiness mechanism.
+
+**Rationale**: the system has TWO things called readiness and only one of them
+blocks, so the decision has to name both or it decides nothing. The advisory
+*readiness recommendation gate* (cross-reference capability) scores a CLUSTER
+across three Hermes tiers and is explicitly non-blocking — `pending_review`, no
+verb consults it. The *staged-to-proposal readiness gate*
+(`add-staging-workbench`) scores a topic FOLDER deterministically and DOES
+block: it refuses `propose` unless the topic is `ready`, with no override by
+Brett's 2026-07-25 ruling. Requiring the blocking one here would not merely be
+strict, it would DEADLOCK: it evaluates the served checkout, a session's
+documents reach the served checkout only when the pull request merges, so a
+topic worked from a new session scores `stub` forever and the only route out is
+the pull request the gate is refusing. Even reading the branch snapshot instead
+would not save it — that gate blocks on a single outstanding TODO/TBD marker
+anywhere in the folder, so an in-progress draft is by construction not ready and
+the human could only "save" finished work, which is not a save button and
+defeats the point of offering exploration for review.
+
+**Consequence**: the requirement now names BOTH mechanisms explicitly. It
+previously forbade only the "readiness recommendation gate" — the advisory one —
+which forbade nothing real and left a realizer free to wire `open-pr` to the
+blocking gate without violating a word of the spec. That was a live drafting
+defect, not a hypothetical. Readiness now lands exactly once in the pipeline,
+at `propose`, on `main`, on a tile that D15/D20 guarantee is in exactly one
+mode: the enforced order is save → merge → readiness → propose.
+
+One realization caution follows and is NOT a requirement: the session snapshot
+is generated from the worktree and carries its own branch-scoped health object,
+so a session panel can display a `ready` badge computed over a different tree
+than the gate that governs `propose`. Under this decision nothing gates on it,
+so it cannot deadlock — but the surface must not present a session-scoped
+readiness badge as the propose gate's verdict, in the same spirit as D6/D7's
+freshness header closing draft-view ambiguity.
 
 ### D20 — A tile is a work surface OR a proposal, never both
 **Decision** (Brett, 2026-07-26): a tile carrying a live proposal REFUSES to open
@@ -533,20 +570,11 @@ the answer must be unambiguously no.
 
 ## Open Questions
 
-One, with a recommendation, parked for Brett. It was raised while authoring
-this change; the staged topic's own three were all ruled on 2026-07-26
-(D17 branch-name reuse, D18 merge-not-squash, D19 notebook quota).
+NONE. All six were ruled by Brett on 2026-07-26 and are recorded as decisions:
+the staged topic's own three (D17 branch-name reuse, D18 merge-not-squash,
+D19 notebook quota), the one raised while authoring this change (D21 readiness
+on `open-pr`), and two raised by the adversarial review of the same day
+(D16 session-notebook disposition, D20 a tile is a work surface or a proposal).
 
-1. **Does `open-pr` require the topic's readiness gate to pass?** A session PR
-   could be made conditional on the topic's readiness recommendation having
-   fired.
-   *Recommendation: NO, and the requirement states it.* A draft pull request is
-   exploration offered for review — the readiness gate guards PROPOSE (the
-   staging-to-proposal boundary), not SAVE. Gating save on readiness would make
-   the readiness gate a precondition of WRITING anything down, which inverts
-   what it measures: readiness is derived FROM the documents a session
-   produces. It would also strand a session's work unmergeable on a branch,
-   which is the one state this whole change exists to eliminate.
-(A fifth question — whether a session notebook ever survives its session — was
-raised by the 2026-07-26 adversarial review and RULED the same day. It is now
-D16, not an open question.)
+This change therefore carries no parked decision. What remains before archive is
+realization and evidence, not judgement — see tasks section 9.
