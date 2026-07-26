@@ -115,6 +115,19 @@ workers wanted NOW, long-lived (months), staff-common.
 
 ## Exit
 
+**Exit 1 PROPOSED 2026-07-26** as
+[`add-worker-enrollment-broker`](../../../openspec/changes/add-worker-enrollment-broker/proposal.md)
+(`code_surface`: openxFactory only — the `contracts/worker-enrollment/`
+schema family, packaged examples, and `scripts/validate-worker-enrollment.py`;
+`target_release`: next additive contract bundle). The change ratifies the
+CONTRACT and names the three realizations as successor changes; the
+seven rulings above are carried as decided context in its `design.md`,
+and all ten open questions below are carried there as decisions D1–D10
+with recommendations — D1 (broker home + hosting) is the one that blocks
+the first realization. The heartbeat/readiness projection (question 10)
+is deliberately excluded from the contract delta and left to a
+coordinated three-places change.
+
 An openxFactory OpenSpec change (`add-worker-enrollment-broker`)
 ratifying the neutral enrollment/lease contract (enrollment request/
 response, lease renewal, version floor, revocation, trust tier), plus

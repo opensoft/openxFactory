@@ -183,6 +183,39 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
+  — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
+  topic: the neutral contract for how a machine becomes a governed worker and
+  stays one, ratified BEFORE its three realizations are built. The Worker Host
+  App cannot register a host today because the only way to hand it a runner
+  registration token is to put administration-tier minting authority on the
+  host, which the App identity tiers forbid — the decision parked at PRs
+  #36/#37. Brett resolved it on 2026-07-26 by widening the question to two
+  estates (the Intune fleet, and staff workstations volunteering as
+  long-lived temp workers) served by ONE enrollment point with two
+  authentication modes: fleet hosts by per-host identity in an Opsx key vault
+  (broker ACCESS, never minting), volunteers as the ENGINEER by device code
+  with no standing secret ever written to the machine. Minting authority — for
+  registration AND remove tokens — lives only in the broker, under the
+  ratified administration-tier custody shapes. The governing inversion is
+  ruling 4: enrollment grants a renewable LEASE (id, TTL, trust tier, runner
+  group) rather than a permanent registration, so staleness, revocation,
+  trust, and audit all become properties of a renewal decision the platform
+  re-takes — the only kind of control that works on hardware nobody manages.
+  Every renewal response carries the current minimum app version, and a
+  below-floor or revoked worker FAILS CLOSED (runner services stop, heartbeat
+  reports `update_required`) until the engineer updates; revocation is simply
+  refusing the next renewal, needing no reach into the machine. Package policy
+  splits by estate (fleet hard-pins version + sha256 with self-update off and
+  bumps ride manifest rollouts; temp workers self-update with the observed
+  version informational), volunteered hardware lands in a dedicated runner
+  group with a trust tier lanes can decline, and every enrollment, renewal,
+  refusal, and revocation is audited by a record shape in which no token value
+  can appear. Ships six schemas, packaged positive/negative examples, and a
+  canonical validator; the broker SERVICE (home unresolved — design D1, the
+  first decision), the Omnigent-Install registration/renewal integration, and
+  the OpsxFactory custody/policy/runner-group work are named successor
+  changes.
 - [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
   — authored 2026-07-26, the single exit of the `workbench-branch-sessions`
   staged topic: the workbench becomes a place to CREATE and EDIT documents

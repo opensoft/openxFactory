@@ -59,7 +59,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | Ready to iterate — pattern + material verified 2026-07-24; roster composition is the change-A gating decision (needs a decision round with Brett); no external gates (omnigent overlay realization archived at contract-v1.16) |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
-| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home TBD) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | Ready to iterate — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier); 10 open questions (broker home + lease cadence + eligibility hardest); OpenSpec change authoring commissioned same day |
+| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home TBD) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10 with recommendations, D1 (broker home + hosting) blocking the first realization; the contract ships six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## ideation-action-plane
@@ -596,15 +596,42 @@ document-lifecycle spec is a candidate for the next lifecycle change.
     — primary: 7 binding rulings, 4 claims, 10 open questions, exit with
     the volunteer-workstation acceptance test (first volunteer = Brett's
     machine, doubling as the NT SERVICE fact-check).
-- Open questions (blocking): broker home/hosting + credential custody;
-  lease cadence + grace; version-floor policy home; enrollment approval
-  (Entra-group auto vs Hermes gate); temp-worker manifest content +
-  serving; engineer eligibility; teardown semantics; trust-tier
-  mechanics; fleet per-host secret provisioning; heartbeat/readiness
-  lease-state integration (three-places rule).
-- Exit: `add-worker-enrollment-broker` OpenSpec change (contract) +
-  realization changes (broker service, Omnigent-Install, OpsxFactory);
-  acceptance = the end-to-end volunteer workstation scenario.
+- Open questions (all carried into the proposal's `design.md` as
+  decisions D1–D10 with recommendations; each still needs Brett's
+  ruling): broker home/hosting + credential custody (D1 — BLOCKS the
+  first realization; recommendation = dedicated Opsx-owned repo,
+  container app off the QA cluster); lease cadence + grace (D2 — 24h TTL,
+  hourly renewal, 12h grace); version-floor policy home (D3 —
+  OpsxFactory-owned policy the broker consumes, floor raises through the
+  governed lane); enrollment approval (D4 — Entra-group auto-approve in
+  v1, trust tier carries the difference, Hermes approval arrives through
+  the same door without a contract delta); temp-worker manifest content +
+  serving (D5 — broker-served at enrollment, one worker, no benches in
+  v1); engineer eligibility (D6 — existing engineering group, one machine
+  per engineer); teardown semantics (D7 — full cleanup on volunteer
+  uninstall, stop-only on expiry, immediate stop on revocation);
+  trust-tier mechanics (D8 — first-class lease field projected into
+  runner group/labels and the readiness attestation; labels alone
+  rejected as host-assertable); fleet per-host secret provisioning (D9 —
+  issued at Intune enrollment, escrow-at-birth, rotatable without
+  re-enrollment); heartbeat/readiness lease-state integration (D10 —
+  three-places rule, rides the bench-inventory heartbeat delta if it
+  lands first).
+- Readiness: **exit 1 proposed 2026-07-26** as
+  `add-worker-enrollment-broker` — the neutral contract (one enrollment
+  point / two auth modes, lease + short-lived token, minting authority
+  broker-only incl. remove tokens, renewal carrying the floor,
+  fail-closed below-floor and revoked workers, revocation as refusal,
+  estate package split, temp segregation + trust tier, audited decisions
+  with token values unrepresentable), shipping six schemas, packaged
+  positive/negative examples, and `scripts/validate-worker-enrollment.py`
+  at the next additive bundle. The heartbeat delta is deliberately
+  excluded.
+- Exit: `add-worker-enrollment-broker` OpenSpec change (contract,
+  PROPOSED 2026-07-26) + realization changes (broker service,
+  Omnigent-Install, OpsxFactory); acceptance = the end-to-end volunteer
+  workstation scenario on Brett's machine, which doubles as the
+  NT SERVICE fact-check.
 
 ## qualify-avatar-live-voice
 
