@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Validate the worker-enrollment contract family (add-worker-enrollment-broker).
 
-The openxFactory-owned canonical validator for the six kinds
+The openxFactory-owned canonical validator for the seven kinds
 `worker_enrollment_request`, `worker_lease`, `worker_enrollment_grant`,
-`worker_lease_renewal`, `worker_enrollment_policy`, and
-`worker_enrollment_audit_record` (`contracts/worker-enrollment/*.schema.yaml`).
+`worker_lease_renewal`, `worker_enrollment_policy`,
+`worker_enrollment_audit_record`, and `worker_removal_grant`
+(`contracts/worker-enrollment/*.schema.yaml`).
 Run from the pinned openxFactory checkout, never copied into the broker service,
 the host app, or a domain repo:
 
@@ -22,11 +23,12 @@ Two layers run:
    the invariant it is named for. The self-test fails closed if a positive
    example fails or a negative stops failing for its reason (spec R10).
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose `kind` is one of
-   the six family kinds is validated. Other kinds are skipped and counted; the
+   the seven family kinds is validated. Other kinds are skipped and counted; the
    packaged `examples/` tree is excluded, because the negatives there are
    deliberately invalid and layer 1 already asserts exactly how.
 
-The rules the shapes cannot express (change task 1.9):
+The rules the shapes cannot express (change task 1.9; rule (i), and rules (a), (b)
+and (e) reaching `worker_removal_grant`, came with task 2.5's contract delta):
 
   (a) NO TOKEN OR SECRET ANYWHERE. No token/secret/key-shaped property may appear
       in any record or lease at any depth, and no value may carry a secret shape.
@@ -34,7 +36,7 @@ The rules the shapes cannot express (change task 1.9):
       scanned against the shared `contracts/avatar-client/redaction/` denylist
       (bounded `SENTINEL_` forms exempt, the same reuse
       `scripts/validate-client-infrastructure.py` makes) plus a
-      registration-token entropy heuristic. The denylist is applied BY CLASS:
+      remove/registration-token entropy heuristic. The denylist is applied BY CLASS:
       `class: credential` (and the credential-shaped `jwt_token`) are errors,
       while the identifier-class patterns are advisory — an Intune device GUID
       really is a fleet `host_id` and an engineer UPN really is a subject `ref`,
@@ -42,12 +44,17 @@ The rules the shapes cannot express (change task 1.9):
       the family's own realistic records. CHUNKING is checked too: a token split
       across separators, across the items of an array, or across the entries of a
       bounded flag map defeats a per-value run test, so values are re-tested with
-      separators removed and containers are re-tested concatenated. The ONE
-      exemption is a grant's `registration_token` DECLARATION block — and a
-      `registration_token.value` present in a stored artifact is itself a
-      finding, since that value is wire-only by contract (spec R2, R9).
-  (b) TEMP LEASES ARE SEGREGATED. A temp-estate lease never names a standing
-      execution-lane runner group. With an enrollment policy in scope the check
+      separators removed and containers are re-tested concatenated. The ONLY
+      exemptions are the two DECLARATION blocks — an enrollment grant's
+      `registration_token` and a removal grant's `remove_token` — and a
+      `.value` present inside either in a stored artifact is itself a finding,
+      since that value is wire-only by contract (spec R2, R3, R9).
+  (b) TEMP LEASES ARE SEGREGATED, AND SO ARE TEMP REMOVAL GRANTS. A temp-estate
+      lease never names a standing execution-lane runner group, and neither does a
+      temp-estate `worker_removal_grant` — whose `binding.runner_group` is the BLAST
+      RADIUS of a remove token, so a standing group there is authority to deregister
+      FLEET workers. The removal grant names the field exactly as the lease does so
+      this rule needs no special case. With an enrollment policy in scope the check
       reads `standing_execution_lane_runner_groups` and `estates.temp.runner_group`
       from it. With NO policy in scope — the normal case for the host app and the
       broker checkouts, since the policy instance lives in the managed-platform
@@ -69,8 +76,9 @@ The rules the shapes cannot express (change task 1.9):
       turned a volunteered laptop into a managed-fleet worker in the standing
       execution lane, with an audit record corroborating it. The schemas now
       couple the four fields; this rule is the second layer, and it also names
-      the coupling for the estate the rule (b) segregation check keys off
-      (spec R1, R8).
+      the coupling for the estate the rule (b) segregation check keys off. It runs
+      on all THREE shapes that carry the four facts — the lease, the audit record,
+      and the removal grant (spec R1, R8).
   (f) THE RENEWAL EXCHANGE IS AUTHENTICATED, AND A DEVICE-CODE RENEWAL HOLDS NO
       STANDING SECRET. R1 extends the device-code identity to renewals and
       forbids escrow on the machine; a persisted refresh credential beside the
@@ -83,6 +91,14 @@ The rules the shapes cannot express (change task 1.9):
   (h) A STANDING EXECUTION LANE ACCEPTS NO VOLUNTEERED HARDWARE. The policy's
       lane declarations and its tier projections must agree with its own
       standing-group list (spec R8 scenario 3).
+  (i) THE REMOVE TOKEN IS SHORT-LIVED TOO. `worker_removal_grant` (task 2.5's
+      contract delta) declares the enrollment grant's transient discipline for a
+      token of the SAME administration-tier authority pointed the other way, so it
+      gets the same clock check: the `issued_at` -> `expires_at` span must be
+      positive, within the grant's own declared `lifetime`, and within the
+      contract's fifteen-minute ceiling. The registration token's hole — a 73-year
+      "single-use" token that validated cleanly — was a real finding, and it would
+      have reappeared verbatim on a shape whose bound nothing checked (spec R3).
 
 Two consistency checks are reported as WARNINGS rather than errors (they are
 cross-field readings, not contract rules): a renewal response that reports an
@@ -129,6 +145,7 @@ SCHEMA_FILENAMES = [
     "worker-lease-renewal.schema.yaml",
     "worker-enrollment-policy.schema.yaml",
     "worker-enrollment-audit-record.schema.yaml",
+    "worker-removal-grant.schema.yaml",
 ]
 
 KIND_TO_SCHEMA = {
@@ -138,6 +155,7 @@ KIND_TO_SCHEMA = {
     "worker_lease_renewal": "worker-lease-renewal.schema.yaml",
     "worker_enrollment_policy": "worker-enrollment-policy.schema.yaml",
     "worker_enrollment_audit_record": "worker-enrollment-audit-record.schema.yaml",
+    "worker_removal_grant": "worker-removal-grant.schema.yaml",
 }
 
 # date/date-time enforced, not merely annotated.
@@ -150,16 +168,26 @@ TOKEN_KEY_RX = re.compile(
     r"signature|sas)(?:$|_)",
     re.IGNORECASE,
 )
-# The only legitimate token-shaped property NAMES in the family, all three of them
+# The only legitimate token-shaped property NAMES in the family, all four of them
 # DECLARATIONS ABOUT tokens and secrets rather than places one could sit: a
-# grant's transient registration-token block (its `value` is checked separately),
-# the policy's lifetime ceiling for that token, and a renewal's assertion that no
+# grant's transient registration-token block, a removal grant's transient
+# remove-token block (each block's `value` is checked separately), the policy's
+# lifetime ceiling for the registration token, and a renewal's assertion that no
 # standing secret was escrowed on the host. Each is an exact (kind, path) pair, so
-# the exemption cannot widen to a sibling.
+# the exemption cannot widen to a sibling — a `registration_token` on a REMOVAL
+# grant is a finding precisely because the pair is not in this set.
 TOKEN_KEY_EXEMPT = {
     ("worker_enrollment_grant", "registration_token"),
     ("worker_enrollment_policy", "registration_token"),
+    ("worker_removal_grant", "remove_token"),
     ("worker_lease_renewal", "request.authentication.standing_secret_on_host"),
+}
+# The transient-token DECLARATION block each issuance shape carries. Its `value` is
+# `writeOnly` by contract — wire-only — so its presence in a stored, committed, or
+# scanned artifact is a finding whatever the block is called (spec R2, R3).
+TRANSIENT_TOKEN_PROPERTY = {
+    "worker_enrollment_grant": "registration_token",
+    "worker_removal_grant": "remove_token",
 }
 
 # Rule (a), value side: runs of the token alphabet. `/` and `.` and `:` are
@@ -196,7 +224,8 @@ HEX_BLOB_RX = re.compile(r"(?<![0-9a-fA-F])[0-9a-f]{32,}(?![0-9a-fA-F])")
 DIGEST_KEYS = {"sha256", "digest", "checksum", "fingerprint", "hash"}
 
 # The contract pattern caps a declared token lifetime at 15 minutes; with no
-# policy in scope that ceiling is what "short-lived" means (spec R2).
+# policy in scope that ceiling is what "short-lived" means for a registration
+# token, and it is ALWAYS what it means for a remove token (spec R2, R3).
 TOKEN_LIFETIME_CEILING_S = 15 * 60
 NAME_SEGMENT_RX = re.compile(r"([A-Za-z0-9_]+)(?:\[\d+\])*$")
 
@@ -385,9 +414,9 @@ def _scan_value(f: Findings, label: str, loc: str, value: str, scan: SecretScan)
     run = token_shaped(value) or chunked_token(value)
     if run is not None:
         f.error("embedded-secret",
-                f"{label}: {loc}: value carries a registration-token shape "
+                f"{label}: {loc}: value carries a registration- or remove-token shape "
                 f"({len(run)}-character mixed-case token alphabet run, separators "
-                f"removed) — token values live in no stored artifact (spec R2)")
+                f"removed) — token values live in no stored artifact (spec R2, R3)")
 
 
 def _scan_containers(f: Findings, label: str, doc: dict, scan: SecretScan) -> None:
@@ -433,13 +462,14 @@ def check_no_token(f: Findings, label: str, kind: str, doc: dict, scan: SecretSc
         if isinstance(value, str):
             _scan_value(f, label, loc, value, scan)
     _scan_containers(f, label, doc, scan)
-    if kind == "worker_enrollment_grant":
-        token = doc.get("registration_token")
+    prop = TRANSIENT_TOKEN_PROPERTY.get(kind)
+    if prop:
+        token = doc.get(prop)
         if isinstance(token, dict) and "value" in token:
             f.error("token-in-record",
-                    f"{label}: registration_token.value: the transient token value is "
+                    f"{label}: {prop}.value: the transient token value is "
                     f"wire-only — no stored, committed, or scanned artifact may carry "
-                    f"it (spec R2)")
+                    f"it (spec R2, R3)")
 
 
 # --------------------------- rule (e): estate coherence ---------------------------
@@ -493,17 +523,24 @@ def check_estate_coherence(f: Findings, label: str, kind: str, doc: dict) -> Non
 
 # --------------------------- rule (b): temp segregation ---------------------------
 
-def _is_temp_lease(lease: dict) -> bool:
-    """Any temp-shaped fact puts the lease in scope, not just the estate label:
+def _is_temp_scoped(record: dict) -> bool:
+    """Any temp-shaped fact puts the record in scope, not just the estate label:
     the segregation check must not be disarmable by relabelling one enum."""
-    estate, temp = _estate_signals(lease)
+    estate, temp = _estate_signals(record)
     return estate == "temp" or bool(temp)
 
 
-def check_temp_segregation(f: Findings, label: str, lease: dict, policy: dict | None) -> None:
-    if not isinstance(lease, dict) or not _is_temp_lease(lease):
+def check_temp_segregation(f: Findings, label: str, record: dict, policy: dict | None) -> None:
+    """Rule (b), over any record whose `binding.runner_group` is a GRANT of scope:
+    a `worker_lease` (the group the worker executes in) and a `worker_removal_grant`
+    (the group the remove token may deregister within). The removal grant names the
+    field exactly as the lease does so that this rule reads both without a special
+    case — and a remove token scoped to a standing execution lane is the larger
+    hazard of the two, because it removes FLEET workers rather than adding a
+    volunteered one."""
+    if not isinstance(record, dict) or not _is_temp_scoped(record):
         return
-    group = (lease.get("binding") or {}).get("runner_group")
+    group = (record.get("binding") or {}).get("runner_group")
     if not isinstance(group, str):
         return  # shape failure; the schema layer reports it
     if policy is not None:
@@ -513,8 +550,9 @@ def check_temp_segregation(f: Findings, label: str, lease: dict, policy: dict | 
             f.error("temp-lease-in-standing-group",
                     f"{label}: binding.runner_group {group!r} is a standing "
                     f"execution-lane group declared by policy "
-                    f"{policy.get('policy_version')!r} — a temp lease binds the "
-                    f"dedicated temp group (spec R8)")
+                    f"{policy.get('policy_version')!r} — a temp-estate lease BINDS, "
+                    f"and a temp-estate removal grant SCOPES ITS REMOVE TOKEN TO, the "
+                    f"dedicated temp group and never a standing one (spec R8)")
         elif isinstance(temp_group, str) and group != temp_group:
             f.error("temp-lease-in-standing-group",
                     f"{label}: binding.runner_group {group!r} is not the dedicated "
@@ -584,36 +622,66 @@ def check_package_split(f: Findings, label: str, grant: dict, policy: dict | Non
                     f"fail-closed control is the app-version floor (spec R7)")
 
 
-# --------------------------- rule (g): token lifetime + lease cadence ---------------------------
+# --------------------------- rules (g)/(i): token lifetime + lease cadence ---------------------------
+
+def _check_token_span(
+    f: Findings, label: str, token: dict, issued: datetime | None, ceiling: int,
+    code: str, prop: str, issued_prop: str, spec: str,
+) -> None:
+    """The clock half of "short-lived" (spec R2, R3), shared by the two transient
+    tokens this family issues. Kept as ONE function on purpose: the registration
+    token's 73-year hole was found by a review, and a remove token that carried its
+    own copy of this check would be free to drift out of step with the shape whose
+    discipline it claims to mirror."""
+    expires = parse_dt(token.get("expires_at"))
+    declared = parse_duration(token.get("lifetime"))
+    if issued is None or expires is None:
+        return  # shape failure; the schema layer reports it
+    actual = (expires - issued).total_seconds()
+    if actual <= 0:
+        f.error(code,
+                f"{label}: {prop}.expires_at is at or before {issued_prop} — the "
+                f"response ships an already-expired single-use token ({spec})")
+        return
+    if actual > ceiling:
+        f.error(code,
+                f"{label}: {prop} lives {int(actual)}s from {issued_prop}, past the "
+                f"{ceiling}s ceiling — 'short-lived' is a bound this family declares, "
+                f"not an adjective ({spec})")
+    if declared is not None and actual > declared:
+        f.error(code,
+                f"{label}: {prop}.expires_at is {int(actual)}s after {issued_prop} "
+                f"but the declared lifetime is {declared}s ({spec})")
+
 
 def check_token_lifetime(f: Findings, label: str, grant: dict, policy: dict | None) -> None:
+    """Rule (g), registration half: the policy declares the ESTATE ceiling, so it
+    overrides the contract's pattern cap when a policy is in scope."""
     token = grant.get("registration_token")
     if not isinstance(token, dict):
         return  # shape failure; the schema layer reports it
-    granted = parse_dt(grant.get("granted_at"))
-    expires = parse_dt(token.get("expires_at"))
-    declared = parse_duration(token.get("lifetime"))
     ceiling = parse_duration(
         (((policy or {}).get("registration_token")) or {}).get("max_lifetime")) \
         or TOKEN_LIFETIME_CEILING_S
-    if granted is None or expires is None:
-        return
-    actual = (expires - granted).total_seconds()
-    if actual <= 0:
-        f.error("registration-token-not-short-lived",
-                f"{label}: registration_token.expires_at is at or before "
-                f"granted_at — the grant ships an already-expired single-use token "
-                f"(spec R2)")
-        return
-    if actual > ceiling:
-        f.error("registration-token-not-short-lived",
-                f"{label}: registration_token lives {int(actual)}s from granted_at, "
-                f"past the {ceiling}s ceiling — 'short-lived' is a bound this family "
-                f"declares, not an adjective (spec R2 scenario 3)")
-    if declared is not None and actual > declared:
-        f.error("registration-token-not-short-lived",
-                f"{label}: registration_token.expires_at is {int(actual)}s after "
-                f"granted_at but the declared lifetime is {declared}s (spec R2)")
+    _check_token_span(
+        f, label, token, parse_dt(grant.get("granted_at")), ceiling,
+        "registration-token-not-short-lived", "registration_token", "granted_at",
+        "spec R2 scenario 3")
+
+
+def check_remove_token_lifetime(f: Findings, label: str, removal: dict) -> None:
+    """Rule (i). The remove token's ceiling is the CONTRACT's fifteen-minute bound —
+    the `short_lifetime` pattern both issuance shapes share. The policy's
+    `registration_token.max_lifetime` is deliberately NOT read here: it is the
+    estate's ceiling on ENROLLMENT tokens, and silently reusing it would let a
+    policy edit widen an authority it never mentions."""
+    token = removal.get("remove_token")
+    if not isinstance(token, dict):
+        return  # shape failure; the schema layer reports it
+    _check_token_span(
+        f, label, token, parse_dt(removal.get("issued_at")),
+        TOKEN_LIFETIME_CEILING_S, "remove-token-not-short-lived", "remove_token",
+        "issued_at", "spec R3 scenario 2")
 
 
 def check_lease_floor(f: Findings, label: str, lease: dict) -> None:
@@ -783,6 +851,14 @@ def validate_record(
         check_renewal(f, label, doc, policy)
     elif kind == "worker_enrollment_audit_record":
         check_estate_coherence(f, label, kind, doc)
+    elif kind == "worker_removal_grant":
+        # The removal grant carries the four coupled estate facts AND a
+        # `binding.runner_group` that is the remove token's blast radius, so it takes
+        # rules (e) and (b) exactly as a lease does — plus rule (i), the clock check
+        # its transient token declaration would otherwise only assert.
+        check_estate_coherence(f, label, kind, doc)
+        check_temp_segregation(f, label, doc, policy)
+        check_remove_token_lifetime(f, label, doc)
     elif kind == "worker_enrollment_policy":
         check_policy_lanes(f, label, doc)
 

@@ -123,7 +123,8 @@ Core domain-neutral docs:
 - [Worker Enrollment Contract Family](contracts/worker-enrollment/README.md)
   (one enrollment point / two authentication modes, renewable LEASES instead of
   registrations, fail-closed minimum-app-version floor, temp-estate segregation
-  by trust tier, and audit records no token value can enter; realized by
+  by trust tier, the brokered remove-token issuance shape, and audit records no
+  token value can enter; realized by
   `add-worker-enrollment-broker`, pending bundle registration)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
@@ -216,7 +217,11 @@ Active changes:
   version informational), volunteered hardware lands in a dedicated runner
   group with a trust tier lanes can decline, and every enrollment, renewal,
   refusal, and revocation is audited by a record shape in which no token value
-  can appear. Ships six schemas, packaged positive/negative examples, and a
+  can appear. Ships seven schemas — the seventh, `worker_removal_grant`, added by
+  the 2026-07-26 amendment that is task 2.5's contract half: the remove-token
+  issuance response, on the enrollment grant's transient-token discipline, with no
+  registration token and no runner package by shape, so drift repair can never
+  re-enrol a host — plus packaged positive/negative examples and a
   canonical validator; the broker SERVICE (home unresolved — design D1, the
   first decision), the Omnigent-Install registration/renewal integration, and
   the OpsxFactory custody/policy/runner-group work are named successor

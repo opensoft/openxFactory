@@ -45,10 +45,31 @@ The administration-tier GitHub App key that mints runner registration and runner
 #### Scenario: Drift repair brokers a remove token
 - **WHEN** a host must deregister a stale or orphaned runner registration
 - **THEN** it requests a remove token from the broker against its lease, receives a short-lived single-use token, and the request and its outcome are audited like an enrollment
+- **AND** the issuance is expressed as a `worker_removal_grant` from the contract bundle, never as a shape the broker and the host app agree on in code
 
 #### Scenario: A host attempting to mint directly is refused
 - **WHEN** any component other than the broker attempts to call the token-minting API path with an identity it holds locally
 - **THEN** it has no credential capable of the call, and the attempt is visible as a failed call rather than a silent success
+
+### Requirement: A brokered remove token is issued as a worker_removal_grant
+Remove-token brokering SHALL answer with a `worker_removal_grant` — the contract shape for the remove-token issuance — carrying the lease the removal was requested against, the requesting subject, the estate and trust tier, the worker/host binding and the runner group the token is scoped to, the reason class (`drift_repair` | `revocation` | `teardown`), the `policy_version` in force, and a REFERENCE to the `remove_token` audit record rather than a second copy of its facts. The remove token itself MUST be declared TRANSIENT on exactly the discipline the registration token carries — single-use, short-lived by a declared bound, `persist: forbidden`, `log: forbidden`, `derived_records: excluded`, and a `writeOnly` value present in no stored artifact. The removal grant MUST NOT carry a registration token or a runner package: a repair REMOVES a registration and never re-enrols a host, because returning a worker to service is a fresh lease decision. The request half needs no separate shape — R3 scenario 2 makes it a request AGAINST THE LEASE, whose whole content (lease id, authenticated subject, reason) the issuance echoes.
+
+#### Scenario: Drift repair is answered with a removal grant
+- **WHEN** a host with a live lease asks the broker to deregister a stale runner registration
+- **THEN** the broker answers with a `worker_removal_grant` naming that lease, the registration being removed, the reason class `drift_repair`, and a transient single-use remove token
+- **AND** the grant carries no registration token and no runner package, so the repair cannot re-enrol the host as a side effect
+
+#### Scenario: A revoked lease's removal rides the same shape
+- **WHEN** an operator removes the runner registration of a lease already revoked
+- **THEN** the issuance is the same `worker_removal_grant` with reason class `revocation`, and the revocation itself remains effective through the refused renewal whether or not the removal ever happens
+
+#### Scenario: A stored removal grant carries no token value
+- **WHEN** a removal grant is persisted, committed, or scanned
+- **THEN** it carries the transient declaration and no `remove_token.value`, and an artifact presenting one fails validation
+
+#### Scenario: The remove token is scoped to the lease's own runner group
+- **WHEN** a removal grant is issued for a temp-estate lease
+- **THEN** its runner group is the dedicated temp group and never a standing execution-lane group, because a remove token is authority over registrations in a group and a standing-group scope would let volunteered hardware deregister fleet workers
 
 ### Requirement: Leases renew on a cadence and every renewal response carries the version floor
 A worker's supervisor SHALL renew its lease on a declared cadence before expiry, and every renewal response MUST carry the current minimum app version (the floor) and the lease state the broker has decided. Renewal is the only mechanism that extends authority: a lease that is not renewed within its TTL plus the declared grace window expires, and an expired lease MUST NOT be repaired by anything on the host.
@@ -142,7 +163,7 @@ Every enrollment, renewal, refusal, and revocation SHALL emit an audit record ca
 - **THEN** the revocation record and the subsequent refusal records establish it without reference to host-side logs
 
 ### Requirement: The contract publishes as a versioned additive bundle its realizations pin
-The enrollment, grant, lease, renewal, policy, and audit-record schemas SHALL publish as a versioned additive contract bundle per the contract-versioning policy, with a canonical validator and positive and negative fixtures, so the broker service, the host-app integration, and the managed-platform policy each validate against a PINNED release rather than a copied shape.
+The enrollment, grant, lease, renewal, policy, audit-record, and removal-grant schemas SHALL publish as a versioned additive contract bundle per the contract-versioning policy, with a canonical validator and positive and negative fixtures, so the broker service, the host-app integration, and the managed-platform policy each validate against a PINNED release rather than a copied shape.
 
 #### Scenario: Realizations pin a release
 - **WHEN** the broker service, the Omnigent-Install integration, or the OpsxFactory policy instance adopts the contract

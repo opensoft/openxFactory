@@ -1,0 +1,336 @@
+schema_version: 1
+name: worker_removal_grant
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-removal-grant.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 2.5 contract
+# delta — the half the task PRE-SANCTIONS and this amendment ships; the broker-side
+# implementation remains phase 2). THE REMOVE-TOKEN ISSUANCE RESPONSE (spec R3
+# scenario 2).
+#
+# Why it exists. The phase-1 family shipped the AUDIT half of remove-token
+# brokering only (`worker_enrollment_audit_record` with `event: remove_token`), and
+# R3 scenario 2 — "it requests a remove token from the broker against its lease,
+# receives a short-lived single-use token, and the request and its outcome are
+# audited like an enrollment" — had no issuance shape. `worker_enrollment_grant`
+# cannot stand in: it REQUIRES a grant id, a request ref, an embedded lease and a
+# runner package, none of which a removal has. Without this shape the drift-repair
+# call was the one part of this protocol the broker and the host app would have
+# agreed on privately, in code, where the canonical validator cannot see a
+# divergence — which is precisely the failure the family exists to prevent.
+#
+# THE REQUEST HALF NEEDS NO SECOND SHAPE. R3 scenario 2 makes the request "against
+# its lease": its whole content is a lease id, the authenticated subject, and the
+# reason the caller is repairing. All three are echoed HERE, on the issuance, so
+# the exchange is fully determined by one shape and one audit record rather than by
+# three repositories each inventing a request body.
+#
+# THE TRANSIENT-TOKEN DISCIPLINE IS THE ENROLLMENT GRANT'S, EXACTLY (spec R2, R3):
+#   * `remove_token` carries `transient: true`, `single_use: true`, a `lifetime`
+#     the PATTERN caps at fifteen minutes, an `expires_at`, and an explicit
+#     handling block whose three constants are `persist: forbidden`,
+#     `log: forbidden`, `derived_records: excluded`;
+#   * `value` is `writeOnly` — it exists in the live response body ONLY. No
+#     derived record in this family has a property that could hold it, at any
+#     depth, and the canonical validator treats a `remove_token.value` present in
+#     any stored, committed, or scanned artifact as a finding;
+#   * the validator additionally checks the `issued_at` -> `expires_at` span
+#     against the declared lifetime and against the contract's fifteen-minute
+#     ceiling, because "short-lived" is a bound in this family and not an
+#     adjective — a 73-year single-use REGISTRATION token was a real finding here
+#     and a remove token is the same authority.
+#
+# A REMOVAL NEVER RE-ENROLLS. This shape carries no `registration_token` and no
+# `runner_package`, and `additionalProperties: false` at every level means neither
+# can be added: drift repair REMOVES a stale registration, and putting a host back
+# to work is a fresh enrollment — a new lease decision against eligibility, the
+# floor, and the policy — never a side effect of a repair call.
+#
+# THE BLAST RADIUS IS `binding.runner_group`, WHICH IS WHY THE SEGREGATION RULE
+# APPLIES HERE TOO (spec R8). A remove token is authority over registrations in a
+# runner group, so a removal grant scoped to a STANDING execution-lane group in the
+# hands of volunteered hardware could deregister FLEET workers — a strictly larger
+# hazard than the temp lease the segregation rule was written for. The field is
+# named `binding.runner_group` to match the lease deliberately: the canonical
+# validator's rule (b) reads a removal grant exactly as it reads a lease, with no
+# special case to keep in step.
+type: object
+required:
+  - schema_version
+  - kind
+  - removal_grant_id
+  - issued_at
+  - lease_id
+  - estate
+  - subject
+  - host
+  - worker
+  - binding
+  - trust_tier
+  - reason
+  - remove_token
+  - policy_version
+  - audit_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_removal_grant]
+  removal_grant_id: {$ref: '#/$defs/identifier'}
+  issued_at: {type: string, format: date-time}
+  requested_at:
+    # When the removal was requested against the lease. Optional, and a moment
+    # rather than a request body — see the header: the request half is the lease
+    # id, the subject, and the reason, all echoed here.
+    type: string
+    format: date-time
+  lease_id:
+    # THE LEASE THE REMOVAL WAS REQUESTED AGAINST (spec R3 scenario 2). A reference,
+    # not an embedded lease: the lease is the authority record and this document is
+    # not a place to re-state it — a second copy that could drift from the broker's
+    # store is exactly what the enrollment grant embeds the lease WHOLE to avoid.
+    $ref: '#/$defs/identifier'
+  estate:
+    type: string
+    enum: [fleet, temp]
+  subject:
+    # WHO REQUESTED THE REMOVAL — by reference, never a credential. `operator` is
+    # here because a revocation-driven removal is an operator action taken with the
+    # machine unreachable (design D7, spec R6), and the class and the mode are one
+    # fact rather than two.
+    type: object
+    required: [class, ref, authentication_mode]
+    additionalProperties: false
+    properties:
+      class:
+        type: string
+        enum: [host, engineer, operator]
+      ref: {$ref: '#/$defs/identifier'}
+      authentication_mode:
+        type: string
+        enum: [host_identity, device_code, operator_action]
+  host:
+    type: object
+    required: [host_id, managed]
+    additionalProperties: false
+    properties:
+      host_id: {$ref: '#/$defs/identifier'}
+      device_name: {$ref: '#/$defs/identifier'}
+      managed:
+        # REQUIRED, and locked to the estate by the coupling below — the same
+        # both-directions coupling the lease and the audit record carry, so a
+        # removal grant cannot corroborate a lie neither of those can tell.
+        type: boolean
+  worker:
+    # THE REGISTRATION BEING REMOVED. `runner_ref` is optional on purpose: an
+    # orphaned registration is often known only by the name it registered under,
+    # which is the case drift repair exists for.
+    type: object
+    required: [worker_id, runner_name]
+    additionalProperties: false
+    properties:
+      worker_id: {$ref: '#/$defs/identifier'}
+      runner_name: {$ref: '#/$defs/identifier'}
+      runner_ref: {$ref: '#/$defs/identifier'}
+  binding:
+    # THE SCOPE OF THE TOKEN, and the reason the segregation rule runs on this
+    # shape (see the header). Named to match `worker_lease.binding` so rule (b)
+    # needs no special case.
+    type: object
+    required: [runner_group]
+    additionalProperties: false
+    properties:
+      runner_group: {$ref: '#/$defs/runner_group'}
+  trust_tier:
+    # Carried so the removal is legible against the same tier the lease and the
+    # audit record carry, and so the estate coupling below has all four facts to
+    # hold together (design D8, spec R8).
+    type: string
+    enum: [managed_fleet, volunteered_hardware]
+  reason:
+    # THE REASON CLASS, coded and closed — the three outcomes design D7 rules on:
+    #   * `drift_repair` — a stale or orphaned registration is deregistered while
+    #     the lease stays live (spec R3 scenario 2);
+    #   * `revocation`   — a revoked lease's registration is additionally removed
+    #     (spec R6): the removal is a follow-on to the refused renewal, never the
+    #     mechanism of the revocation, which must not depend on reaching the host;
+    #   * `teardown`     — uninstall-time cleanup, full on a volunteered machine
+    #     (it is somebody's personal laptop) and lease-releasing either way.
+    type: string
+    enum: [drift_repair, revocation, teardown]
+  reason_detail:
+    # The only free-text field on this shape, bounded EXACTLY as the audit
+    # record's: 200 characters, a closed character set, and no unbroken run of 25
+    # or more token-alphabet characters WITH SEPARATORS COUNTED IN THE RUN CLASS —
+    # so `AAAA....BBBB` chunking does not break the run and a remove token cannot
+    # be smuggled into prose (spec R9).
+    $ref: '#/$defs/constrained_text'
+  remove_token:
+    # TRANSIENT BY CONTRACT, on the enrollment grant's discipline exactly. See the
+    # header: single-use, short-lived by a declared bound, never persisted, never
+    # logged, excluded from every derived record BY SHAPE.
+    type: object
+    required: [transient, single_use, lifetime, expires_at, handling]
+    additionalProperties: false
+    properties:
+      transient: {const: true}
+      single_use: {const: true}
+      lifetime:
+        # At most fifteen minutes, by the pattern. A lifetime that cannot be
+        # written down cannot be shipped (spec R2, R3).
+        $ref: '#/$defs/short_lifetime'
+      expires_at: {type: string, format: date-time}
+      handling:
+        type: object
+        required: [persist, log, derived_records]
+        additionalProperties: false
+        properties:
+          persist: {const: forbidden}
+          log: {const: forbidden}
+          derived_records: {const: excluded}
+      value:
+        # writeOnly: present in the LIVE response body only. Any stored,
+        # committed, or scanned artifact carrying it is a validator finding —
+        # including every packaged example in this family.
+        type: string
+        writeOnly: true
+        minLength: 16
+        maxLength: 256
+  policy_version:
+    # The `worker_enrollment_policy` version in force when the removal was
+    # brokered; the `remove_token` audit record cites the same value (design D3).
+    $ref: '#/$defs/policy_version'
+  audit_ref:
+    # THE AUDIT LINKAGE IS A REFERENCE, NOT A COPY (spec R3, R9).
+    # `worker_enrollment_audit_record` already owns the `remove_token` event, its
+    # `reason: remove_token_brokered`, and the subject/host/estate/tier/floor facts
+    # of the decision; restating any of them here would create a second trail that
+    # can disagree with the one R9 designates as the evidence. So this names the
+    # record and const-pins the event, which also means a removal grant cannot cite
+    # an `enroll` record and read as audited.
+    type: object
+    required: [event, record_id]
+    additionalProperties: false
+    properties:
+      event: {const: remove_token}
+      record_id: {$ref: '#/$defs/identifier'}
+      record_ref: {$ref: '#/$defs/locator'}
+
+allOf:
+  # ESTATE, SUBJECT, HOST MANAGEMENT AND TRUST TIER ARE ONE FACT (spec R1, R8) —
+  # the lease's and the audit record's coupling, repeated here because a remove
+  # token's blast radius makes a mislabelled estate WORSE on this shape than on
+  # either of those: the segregation rule that keeps volunteered hardware out of a
+  # standing runner group keys off the estate.
+  - if:
+      properties: {estate: {const: fleet}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: managed_fleet}
+        host:
+          properties: {managed: {const: true}}
+  - if:
+      properties: {estate: {const: temp}}
+      required: [estate]
+    then:
+      properties:
+        trust_tier: {const: volunteered_hardware}
+        host:
+          properties: {managed: {const: false}}
+  - if:
+      properties: {trust_tier: {const: volunteered_hardware}}
+      required: [trust_tier]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        host:
+          properties: {managed: {const: false}}
+          required: [managed]
+      required: [host]
+    then:
+      properties: {estate: {const: temp}}
+  # THE SUBJECT CLASS AND ITS AUTHENTICATION MODE ARE ONE FACT TOO. A host
+  # authenticates with its per-host identity, an engineer through device code, an
+  # operator by an operator action — and the two estate-bearing modes force the
+  # estate, so a device-code caller cannot request a removal scoped to fleet metal
+  # (spec R1, R3).
+  - if:
+      properties:
+        subject:
+          properties: {class: {const: host}}
+          required: [class]
+      required: [subject]
+    then:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: host_identity}}
+  - if:
+      properties:
+        subject:
+          properties: {class: {const: engineer}}
+          required: [class]
+      required: [subject]
+    then:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: device_code}}
+  - if:
+      properties:
+        subject:
+          properties: {class: {const: operator}}
+          required: [class]
+      required: [subject]
+    then:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: operator_action}}
+  - if:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: device_code}}
+          required: [authentication_mode]
+      required: [subject]
+    then:
+      properties: {estate: {const: temp}}
+  - if:
+      properties:
+        subject:
+          properties: {authentication_mode: {const: host_identity}}
+          required: [authentication_mode]
+      required: [subject]
+    then:
+      properties: {estate: {const: fleet}}
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  locator:
+    type: string
+    minLength: 3
+    maxLength: 256
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/+-]{2,255}$'
+  runner_group:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9 ._-]{1,63}$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  short_lifetime:
+    # The enrollment grant's bound, unchanged: an ISO-8601 duration the pattern
+    # itself caps at fifteen minutes, at most 999 seconds, and never zero.
+    type: string
+    pattern: '^PT(?:(?:[1-9]|1[0-5])M|[1-9][0-9]{0,2}S)$'
+  constrained_text:
+    # The audit record's bound, character for character (spec R9).
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

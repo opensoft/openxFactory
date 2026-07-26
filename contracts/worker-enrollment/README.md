@@ -95,10 +95,29 @@ protocol fork.
   returns silence and reads it as "no refusals occurred". The tier and the group
   travel on refusals and revocations too, since those are the records R9
   scenario 3 makes the sole evidence.
+- `worker-removal-grant.schema.yaml` — **the remove-token issuance response.**
+  It exists because R3 scenario 2 ("it requests a remove token from the broker
+  against its lease, receives a short-lived single-use token") had no shape:
+  `worker_enrollment_grant` requires a grant id, a request ref, an embedded lease
+  and a runner package, so it cannot represent a removal, and without this the
+  drift-repair call would be the one part of the protocol the broker and the host
+  app agreed on privately in code where this validator cannot see a divergence.
+  Shipped as the contract half of task 2.5, which pre-sanctioned it. Carries the
+  lease it was requested against (by reference), the requesting subject, estate
+  and trust tier, the worker/host binding, `binding.runner_group` as the token's
+  declared blast radius, the reason class
+  (`drift_repair` | `revocation` | `teardown` — design D7's three outcomes), the
+  remove token on the enrollment grant's transient discipline exactly, and the
+  audit linkage as a REFERENCE to the existing `remove_token` record. It carries
+  NO registration token and NO runner package by shape: a repair removes a
+  registration and never re-enrols a host, because returning a worker to service
+  is a fresh lease decision.
 - `examples/` — positive reference examples (both estates end to end — named
   `fleet-*` and `temp-*` after the estate VALUES the contract uses, so the two
   estates' fixtures sort together — a renewal carrying the floor, a below-floor
-  refusal, the refusal audit record, a revocation record, and the policy
+  refusal, the refusal audit record, a revocation record, a fleet drift-repair
+  removal grant and the revocation-driven removal that follows that same
+  revocation record, and the policy
   instance) plus self-testing negatives under `examples/negative/`, each
   declaring its `# expected_failure:` reason and, where a finding code alone is
   too coarse an anchor (`schema` is satisfied by any schema error at all), an
@@ -120,7 +139,11 @@ logging convention:
    `value` is `writeOnly` — present in the live response body only. The
    canonical validator treats a `registration_token.value` in any stored,
    committed, or scanned artifact as a finding, so "the token is never retained"
-   is testable rather than asserted.
+   is testable rather than asserted. The **removal grant's** `remove_token` is
+   the same declaration, character for character, because it is the same
+   administration-tier authority pointed the other way — and the family has
+   exactly these two token-shaped property names, both of them declarations
+   ABOUT a token rather than places one can sit.
 3. The **audit record** has no token/secret/key property, and every free-text
    field is bounded — 200 characters, a closed character set, and no unbroken
    run of 25 or more token-alphabet characters — so a token cannot be smuggled
@@ -142,7 +165,11 @@ logging convention:
    `registration_token.max_lifetime` as the estate ceiling, and the validator
    checks the actual `granted_at` → `expires_at` span against both — so R2
    scenario 3 (an expired token cannot register) is testable rather than
-   assumed, and a 73-year "single-use" token is a finding.
+   assumed, and a 73-year "single-use" token is a finding. The removal grant's
+   remove token gets the same clock check against `issued_at`, capped by the
+   contract's fifteen-minute pattern (the policy's registration ceiling is
+   deliberately NOT reused: it is the ceiling on ENROLLMENT tokens, and reading
+   it here would let a policy edit widen an authority it never mentions).
 
 Minting authority follows the same logic: the administration-tier App key that
 mints registration AND remove tokens is held only by the broker, under the
@@ -163,11 +190,20 @@ pinned openxFactory checkout, never copied):
    reference fields, because an Intune device GUID really is a fleet `host_id`
    and an engineer UPN really is a subject `ref` — both legal by shape, and
    flagging them would have failed the first real record in the broker's own CI.
-   The exemptions are three exact (kind, path) declarations ABOUT tokens: a
-   grant's transient `registration_token` block, the policy's lifetime ceiling
-   for it, and a renewal's `standing_secret_on_host` assertion.
-2. **Temp leases are segregated** — a temp-estate lease never names a standing
-   execution-lane runner group, and the check is armed by ANY temp-shaped fact
+   The exemptions are four exact (kind, path) declarations ABOUT tokens: a
+   grant's transient `registration_token` block, a removal grant's transient
+   `remove_token` block, the policy's lifetime ceiling for the registration
+   token, and a renewal's `standing_secret_on_host` assertion. Because the
+   exemption is an exact pair, a `registration_token` on a REMOVAL grant is a
+   finding — which is the shape of the mistake that would let drift repair
+   re-enrol a host silently.
+2. **Temp leases are segregated, and so are temp removal grants** — a temp-estate
+   lease never names a standing execution-lane runner group, and neither does a
+   temp-estate removal grant, whose `binding.runner_group` is the remove token's
+   blast radius: a standing-group scope there is authority to deregister FLEET
+   workers, a larger hazard than the temp lease the rule was written for. The
+   removal grant names the field exactly as the lease does so the rule reads both
+   without a special case. The check is armed by ANY temp-shaped fact
    (estate, tier, engineer subject, unmanaged host) rather than by the estate
    label alone. With a policy in scope it reads
    `standing_execution_lane_runner_groups` and `estates.temp.runner_group` from
@@ -185,10 +221,12 @@ pinned openxFactory checkout, never copied):
    because the renewal response is the only channel that reaches unmanaged
    hardware. A zero floor is a finding, and a floor claiming `source: policy` is
    checked against the floors declared by the policy version it cites.
-5. **Estate, subject, host management and trust tier agree** — on the lease and
-   on the audit record, in both directions. Relabelling one enum used to turn a
+5. **Estate, subject, host management and trust tier agree** — on all three
+   shapes that carry the four facts (the lease, the audit record, the removal
+   grant), in both directions. Relabelling one enum used to turn a
    volunteered laptop into a managed-fleet worker in the standing execution lane
-   with the audit trail corroborating it.
+   with the audit trail corroborating it; on a removal grant the same relabelling
+   would additionally disarm rule (2), which keys off the estate.
 6. **A device-code renewal holds no standing secret** — the renewal exchange
    names the identity that authenticated it and declares
    `standing_secret_on_host: none`, so escrowing a refresh credential beside the
@@ -200,6 +238,11 @@ pinned openxFactory checkout, never copied):
 8. **No standing execution lane accepts volunteered hardware** — the policy's
    lane declarations and tier projections must agree with its own standing-group
    list.
+9. **The remove token is short-lived too** — a removal grant's `issued_at` →
+   `expires_at` span is positive, within its own declared `lifetime`, and within
+   the contract's fifteen-minute ceiling. A remove token is the same
+   administration-tier authority as a registration token, and a stale REMOVAL
+   authority takes workers out of the standing lane rather than adding one to it.
 
 The validator self-tests the packaged examples first (every positive valid,
 every negative invalid for its declared reason and, where the code is a coarse
@@ -232,16 +275,17 @@ rather than copying a shape.
 
 ## What this family deliberately does not do
 
-**The remove-token exchange has no request/response shape here** — only its
-audit half (`event: remove_token`, `reason: remove_token_brokered`, an
-`evidence_ref` of class `lease_record`). R3 scenario 2 describes a request against
-the lease answered with a short-lived single-use token, and the only transient-token
-declaration in this bundle lives on `worker_enrollment_grant`, which requires a
-grant id, a request ref, a lease and a runner package and so cannot represent a
-remove-token issuance. That shape is a NAMED phase-2 contract delta (tasks 2.5 /
-3.5), not an omission the realizations should negotiate in code: until it lands,
-the drift-repair call is the one part of this protocol the broker and the host app
-would agree on privately, and the canonical validator would not see a divergence.
+**The remove-token exchange now HAS its issuance shape** —
+`worker_removal_grant`, added by the 2026-07-26 amendment to the active
+`add-worker-enrollment-broker` change, which is the contract half of task 2.5 and
+the reason this section no longer records that gap. What it does not add is a
+separate REQUEST shape, and that is a decision rather than an omission: R3
+scenario 2 makes the request one "against its lease", so its whole content is a
+lease id, the authenticated subject, and the reason class — all three echoed on
+the issuance, so the exchange is fully determined by one shape plus the
+`remove_token` audit record rather than by three repositories each inventing a
+request body. The BROKER-SIDE implementation of the exchange remains phase 2
+(task 2.5b), as does the host app's teardown use of it (task 3.5).
 
 The heartbeat/readiness contract does not grow here. Lease state and
 `update_required` reaching the readiness evaluator must land in publisher,

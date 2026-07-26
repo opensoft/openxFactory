@@ -1,0 +1,61 @@
+# expected_failure: embedded-secret
+# expected_failure_detail: reason_detail
+# VIOLATES spec R9 in the one field of this shape that accepts prose. This is
+# `removal-grant-token-persisted.yaml`'s exact scenario — keep the token "so a retry
+# can reuse it" — written into the free-text field instead of a property of its own,
+# with dots between the pieces so no single run reaches the bound.
+#
+# The lesson the family already paid for once (see
+# `audit-record-chunked-token-in-reason-detail.yaml`): a run bound that excludes
+# separators is a bound one `value.replace('.', '')` defeats. `constrained_text`
+# counts separators as part of a run, and the canonical validator re-tests every
+# value with separators stripped per word — so a token cannot ride prose here any
+# more than it can ride an audit record's `reason_detail`. That equivalence is the
+# point of reusing the audit record's `$def` character for character rather than
+# writing a new one for this shape.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-cpc-omni04-0002
+issued_at: "2026-08-04T10:20:00Z"
+
+lease_id: wl-cpc-omni04-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni04
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni04
+  device_name: CPC-Omni0-T3BVN
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni04
+  runner_name: xfactory-coding-cpc-omni04-stale
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: managed_fleet
+
+reason: drift_repair
+reason_detail: issued remove token ARCH7QK2WMZP4YDNVLB6TXE3.FGHJ5S8UC9ROIA2QZ1KDMWPL.TN6Y for the orphan
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-08-04T10:30:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-cpc-omni04-0062

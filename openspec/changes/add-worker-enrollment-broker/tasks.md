@@ -138,13 +138,39 @@ and are NOT executed by this change.
       state that refuses the next renewal (spec R4–R6).
 - [ ] 2.5 Remove-token brokering for drift repair, on the same authority
       and the same audit path as registration (spec R3). **Carries a
-      contract delta**: the phase-1 family ships the AUDIT half only
+      contract delta**: the phase-1 family shipped the AUDIT half only
       (`event: remove_token`), and R3 scenario 2's request/response shape
-      has no schema — `worker_enrollment_grant` requires a lease and a
+      had no schema — `worker_enrollment_grant` requires a lease and a
       runner package, so it cannot represent a remove-token issuance. Add
       that shape to the bundle in this phase rather than letting the
       broker and the host app agree on it in code, where the canonical
       validator cannot see a divergence (paired with task 3.5).
+      **The two halves are tracked separately below: the CONTRACT DELTA IS
+      DONE, the broker implementation is not, which is why this checkbox
+      stays open.**
+  - [x] 2.5a **Contract delta LANDED** by the amendment of 2026-07-26 to this
+        ACTIVE change (the shape this task pre-sanctioned):
+        `contracts/worker-enrollment/worker-removal-grant.schema.yaml`
+        (`kind: worker_removal_grant`) — the remove-token issuance response,
+        carrying the enrollment grant's transient discipline for the remove
+        token (single-use, a pattern-capped `lifetime`, a `writeOnly` value,
+        `persist`/`log` forbidden, `derived_records: excluded`), NO
+        registration token and NO runner package by shape, `binding.runner_group`
+        as the token's declared blast radius, and the audit linkage as a
+        REFERENCE to the existing `remove_token` record rather than a second
+        copy of its facts. Spec R3 gains the shape reference plus a
+        `worker_removal_grant` requirement with four scenarios, and R10's
+        bundle enumeration includes it. Two positives (a drift repair, a
+        revocation-driven removal) and six negatives are wired into the
+        canonical validator's self-test, which extends rule (a) (the
+        `remove_token` declaration exemption and the `.value` finding) and
+        rules (b) and (e) to the new kind, and adds rule (i): the remove token
+        is short-lived on the clock, not by adjective. Bundle registration
+        still rides task 1.11.
+  - [ ] 2.5b Broker-side implementation of the exchange against that shape —
+        the endpoint, the lease and eligibility checks, minting through the
+        custodied administration-tier key, and the `remove_token` audit
+        emission. Phase 2, unchanged.
 - [ ] 2.6 Audit emission for every decision, validated against the
       audit-record schema with the redaction rule enforced in code and in
       test (spec R9).
