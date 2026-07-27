@@ -420,6 +420,36 @@ secret (its tokens inherit the persisted-row layer binding), both removed in
 cleanup. Then emit-only re-dispatch, tier-2 report-only evidence, dated
 record, attestation packet.
 
+**CORRECTION + BLOCKED (2026-07-27, worker-leg attempt).** The "first live
+convening" claim above is WITHDRAWN: the admin AI's worker leg reached the
+claim step and got route-level 404s, and its Step-1 read shows the job's
+envelope carries NO runtime `convening` stamp and no provenance — the
+deployed QA image (`ghcr.io/opensoft/xfactory-hermes-install:0.1.0`)
+predates BOTH `add-worker-claim-loop` (claim route, 2026-07-24) and
+`add-council-orchestration` (admission/stamping/verdict conformance,
+2026-07-25). Yesterday's HTTP 201 was an ORDINARY job insert with the
+`council_convening` block riding along unvalidated, and the `queued`-not-
+`awaiting_authorization` observation is likewise just the old image
+predating the governed-job P2 gate — that open question is RESOLVED
+(no missing tenant content implied). Rehearsal state: worker
+`council-rehearsal-worker-2026-07-26` registered (kept, audit trail);
+no claim, no run, no verdict, no GitHub dispatch; Entra temporaries
+cleaned to zero both attempts. En route the QA upstream also threw a
+~5-minute nginx 503 (00:23–00:28Z, recovered alone — spot-pool posture).
+
+**Blocked on: upgrading the QA stack to a current hermes-install image**
+(`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
+compatibility → migrations → health gate; 30-min operator budget; needs a
+new image digest built from hermes-install main and a target runtime
+manifest — Brett's operator leg, same surface as phases 1–3). After the
+upgrade: the stale convening job does NOT block recommission
+(`find_convening` matches the runtime `convening` stamp, which the stale job
+lacks); the nightly will have moved the head, but the README overflow
+persists in the branch so every future head of PR #29 remains a
+docs-class-overflow candidate — recommission against the then-current pin
+with a green non-excluded check on it (`validate` fires only on
+human/App-authored pushes; SonarCloud covers nightly heads).
+
 ## The two tiers
 
 - **Tier 1 (exists, ratified 2026-07-16):** the rules-as-code envelope
