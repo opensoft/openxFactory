@@ -437,7 +437,25 @@ no claim, no run, no verdict, no GitHub dispatch; Entra temporaries
 cleaned to zero both attempts. En route the QA upstream also threw a
 ~5-minute nginx 503 (00:23–00:28Z, recovered alone — spot-pool posture).
 
-**Blocked on: upgrading the QA stack to a current hermes-install image**
+**REHEARSAL COMPLETE (2026-07-27) — task 5.1 + 5.2 DONE.** The upgrade
+unblocked it the same night: QA moved to image `6faa15d9` (built from
+hermes-install `a9bc7b3`; backup + zero migrations + health gate, no
+rollback), the recommission produced `CONVENE-27c32213aced-30232705131`
+(admitted + provenance-stamped, `awaiting_authorization` — the P2 gate
+engaged, retro-confirming the tenant envelope was materialized all along),
+the operator-relayed worker leg auto-cleared/claimed/resolved it with a
+unanimous-ready verdict through the runtime's conformance checks, the lane
+emitted `council-verdict/merge-readiness` `success` on pin `27c3221` under
+App 4397053 (== the configured identity), and the tier-2 report-only run
+parked "would be council-clearable" byte-identical to tier 1. Dated record +
+attestation packet: codexFactory
+`hermes/domain/review-councils/records/2026-07-27-merge-readiness-lane-rehearsal.md`
+(`9d6876c`). Lane-wiring tasks now open: 6.2 only (archive ordering). The
+flip-order precondition STANDS: tier 2 stays inert until the merge-master
+App bot-approves ≥1 nightly — the flip and the attestation are Brett's
+recorded events. Historical note below kept as written:
+
+**Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
 compatibility → migrations → health gate; 30-min operator budget; needs a
 new image digest built from hermes-install main and a target runtime
