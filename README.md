@@ -228,10 +228,22 @@ Active changes:
   changes.
 - [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
   — authored AND RATIFIED 2026-07-26, the single exit of the
-  `workbench-branch-sessions` staged topic; twenty-one decisions locked and no
-  open questions, after a five-lens adversarial review (two findings confirmed
-  and fixed) and a rename-completeness audit. Realization is unblocked; it
-  archives on merged plus green realization evidence, not on ratification.
+  `workbench-branch-sessions` staged topic; TWENTY-THREE decisions locked
+  (D1-D23) and no open questions, after a five-lens adversarial review (two
+  findings confirmed and fixed) and a rename-completeness audit. Realization is
+  unblocked; it archives on merged plus green realization evidence, not on
+  ratification. AMENDED 2026-07-27 by Brett's D23 ruling, after the adversarial
+  review of the realization: the human/agent boundary is a CONSOLE-PRESENCE
+  control (anti-CSRF / same-origin) and not authentication, so the residual — a
+  process running as the identified human, on the human's own machine, can read
+  the per-serve console token and act as the human — is ACCEPTED and deferred to
+  the xForge-host identity work under D22; the two ratified scenarios that
+  promised an agent-refusal the mechanism cannot deliver are NARROWED to what is
+  enforced (their superseded wording is quoted in design.md, not deleted); and
+  every gate-action record now carries OPTIONAL `provenance` naming the SURFACE
+  it arrived on (`http` | `cli`) and how console presence was shown
+  (`console-token` | `tty` | `declared`), which makes an accepted-but-invisible
+  residual auditable.
   The workbench becomes a place to CREATE and EDIT documents
   without loosening a gate, because the working state moves onto a git branch
   and the PULL REQUEST is the formal re-entry into the governed doc system.

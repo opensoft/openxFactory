@@ -81,6 +81,38 @@ description: >-
       artifact, which is why its conditional constrains `target.ref` +
       `reason` and imposes NO artifact-kind requirement at all.
 
+  GATEWAY PROVENANCE (`add-workbench-branch-sessions`, design D23; Brett's
+  2026-07-27 ruling, an ADDITIVE growth of `contract_schema_version: 1` —
+  no bump, no existing record invalidated). The gate console's human/agent
+  boundary is a CONSOLE-PRESENCE control — anti-CSRF / same-origin — and not
+  authentication: a process running as the identified human, on the human's own
+  machine, can read the per-serve console token or declare console presence on
+  the CLI and act as the human. Brett ACCEPTED that residual (distinguishing the
+  two needs the xForge-host identity work deferred under D22) and required the
+  event to be TAGGED WITH THE FACTS WE ACTUALLY KNOW instead: the OPTIONAL
+  `provenance` block names the SURFACE the action arrived on (`http` | `cli`)
+  and HOW the console-presence test was satisfied (`console-token` | `tty` |
+  `declared`). That converts an accepted-but-invisible residual into an
+  AUDITABLE one — if a process ever does act as the human, the record says which
+  door it came through.
+
+  `provenance` is OPTIONAL and NO conditional requires it, for ANY action —
+  deliberately, and this absence is a DECISION exactly like the
+  `create-document`/`commit` absence below. Gate-action records written BEFORE
+  this growth already exist: the `dispose-possible` records committed in this
+  corpus under `ideation/dashboard/gate-records/`, and every record the
+  realization under review on codexFactory PR #49 has already emitted, whose
+  per-gate-action commit series on a session branch is FDA TRACEABILITY EVIDENCE
+  under design D18. A conditional requiring `provenance` would invalidate those
+  records retroactively — a schema that rejects the evidence it exists to govern
+  destroys exactly what the strictness would be for. The obligation is a ROUTE
+  obligation: the CODE always emits `provenance`, and a codexFactory test pins
+  that. A later change MAY make it conditionally required once no pre-growth
+  record is live evidence. The growth precedent is this schema's own — the
+  `create-document` action enum value and the first-class `document` artifact
+  kind, both grown here on 2026-07-25 under Brett's ruling, and the three
+  branch-session actions grown on 2026-07-26.
+
   VALIDATOR-SIDE (cross-instance, not shape-expressible): kickoff is
   downstream of the ratify gate (D17) — the console MUST refuse a `kickoff`
   whose target change carries no recorded ratification (spec scenario "A
@@ -147,6 +179,7 @@ properties:
     # carries the durable "why", exactly as a demotion does. All three are
     # ADDITIVE enum extensions; every prior record stays valid.
   target: {$ref: "#/$defs/target"}
+  provenance: {$ref: "#/$defs/provenance"}
   at:
     type: string
     format: date-time
@@ -370,6 +403,38 @@ $defs:
         # narrow a pre-existing action. Inside a session the ROUTE populates it
         # for every action — a session record that does not name its branch
         # audits nothing — which is a route obligation, not a schema one.
+  # --- which gateway the action arrived through (add-workbench-branch-sessions,
+  # D23; Brett's 2026-07-27 ruling). OPTIONAL at the record level and required by
+  # NO conditional — see the description's GATEWAY PROVENANCE paragraph for why
+  # (pre-growth records on the PR #49 evidence branch must not be invalidated
+  # retroactively). Both fields are required WITHIN the block, which is safe for
+  # the same reason the per-action conditionals are: no record has ever carried
+  # this block, so a half-filled provenance has never been written. A record
+  # WITHOUT `provenance` stays valid; a record WITH it must say both things or it
+  # tags nothing.
+  provenance:
+    type: object
+    required: [surface, console_presence]
+    properties:
+      surface:
+        type: string
+        enum: [http, cli]
+        # The gateway the invocation arrived on: the loopback HTTP console, or
+        # the CLI parity verb. Recorded because the two doors have different
+        # presence tests and different residuals, and an auditor asking "how did
+        # this happen" needs the door named.
+      console_presence:
+        type: string
+        enum: [console-token, tty, declared]
+        # HOW the console-presence test was satisfied: the per-serve console
+        # token issued at `/capabilities` (`console-token`, the HTTP door), an
+        # interactive terminal (`tty`), or an explicit operator declaration
+        # (`declared`, e.g. `XF_HUMAN_CONSOLE=1`). There is deliberately NO
+        # value meaning "not shown": an invocation that cannot demonstrate
+        # console presence is REFUSED before a record is written, so no record
+        # can honestly carry one. `declared` is the WEAKEST of the three and is
+        # named as its own value rather than folded into the others precisely so
+        # an audit consumer can filter for it.
   # --- an artifact this action produced ---
   artifact:
     type: object

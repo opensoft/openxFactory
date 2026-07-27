@@ -13,7 +13,14 @@
 #     the audit trail falls out of version control rather than being re-invented;
 #   - no redline artifact appears and none is produced — the main-resident
 #     `edit-apply` redline path is untouched and stays the way a document on
-#     `main` is edited (D5).
+#     `main` is edited (D5);
+#   - `provenance` tags the GATEWAY (D23, Brett 2026-07-27): this action arrived
+#     on the loopback HTTP console and its console-presence test was satisfied by
+#     the per-serve console token. The block is OPTIONAL in the schema and
+#     required by no conditional — the sibling `open-pr` and `abandon-session`
+#     examples deliberately OMIT it to demonstrate that pre-growth records stay
+#     valid — while the ROUTE always emits it, which is a route obligation
+#     pinned by a codexFactory test rather than a schema one.
 schema_version: 1
 kind: gate-action-record
 actor: brett
@@ -21,6 +28,9 @@ action: edit-document
 target:
   document: ideation/staging/workbench-branch-sessions/workbench-branch-sessions.md
   ref: draft/workbench-branch-sessions
+provenance:
+  surface: http
+  console_presence: console-token
 at: "2026-07-26T14:05:00Z"
 artifacts:
   - kind: commit

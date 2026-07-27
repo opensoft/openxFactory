@@ -305,6 +305,75 @@ exercise it yet, so the hosted realization — intent-plane §4 arriving at the
 is the same reason D12 names its binding point in advance instead of leaving it
 to whoever gets there.
 
+### D23 — The human/agent boundary is a CONSOLE-PRESENCE control, not authentication: the residual is ACCEPTED, the overstating scenarios are AMENDED, and the gateway is TAGGED
+**Decision** (Brett, 2026-07-27, post-ratification, walking the mechanism and
+ruling in prose; this is a SHIPPED-FEATURE AMENDMENT of ratified text and is
+recorded here rather than applied silently). Three rulings, together:
+
+1. **The residual is ACCEPTED.** A process running as the identified human, on
+   the human's own machine, can read the per-serve console token from
+   `/capabilities` (or set `XF_HUMAN_CONSOLE=1` on the CLI) and act as the
+   human. The console test is an ANTI-CSRF / SAME-ORIGIN control, not
+   authentication. Distinguishing a human from a process holding identical
+   credentials requires the xForge-host identity work already deferred under
+   D22. No further hardening at this layer.
+2. **The ratified scenario text is AMENDED to what is enforced.** Brett
+   explicitly approved amending the ratified scenarios rather than leaving a
+   promise the build cannot keep.
+3. **The gateway is TAGGED.** Every gate-action record gains PROVENANCE naming
+   the SURFACE it came through (`http` or `cli`) and how the console-presence
+   test was satisfied (a token, a tty, or an explicit declaration). Brett's
+   words: *tag the event with the actual facts we know.*
+
+**Rationale**: a ratified MUST that overstates is the same defect class three
+repair waves removed from this feature's realization notes — the review's
+Finding 2 found the promise, and the honest fix is not to weaken the control
+(the control is correct for what it is) but to stop the contract claiming
+something the control cannot deliver. Ruling 3 is what converts an
+accepted-but-INVISIBLE residual into an AUDITABLE one: if a process ever does
+act as the human, the record at least says which door it came through, which is
+exactly the property D4's commit-per-action discipline exists to give the rest
+of the audit trail.
+
+**What the scenarios said before this amendment**, quoted so the history
+survives rather than being deleted — both are SUPERSEDED-BY-RULING (Brett,
+2026-07-27) and neither was satisfiable after ruling 1:
+
+```text
+#### Scenario: An agent invokes the edit verb
+- **WHEN** any agent or automated path calls `edit-document`
+- **THEN** the call MUST be rejected and reported
+
+#### Scenario: An agent invokes propose
+- **WHEN** any agent or automated path calls the propose action
+- **THEN** the call MUST be rejected and reported, like every gate action
+```
+
+Each is now keyed on what IS tested — a caller that cannot demonstrate it
+originates from the human console this serve started — and each states the
+undistinguished case and its deferral explicitly. Two REQUIREMENT clauses
+carried the same overstatement in prose and were narrowed identically (the
+`edit-document` requirement's "MUST reject and report any agent or automated
+invocation" and the `open-pr` requirement's "MUST reject and report any agent
+invocation"); leaving those while narrowing their scenarios would have left the
+requirement and its own scenario contradicting each other, which is the defect
+in a second form. The requirements' HUMAN-ONLY authority language stays
+untouched — the verbs ARE human-only in authority, and it was only the
+enforcement CLAIM that outran the mechanism.
+
+**Consequence**: the schema grows one OPTIONAL `provenance` block (surface +
+console-presence method) in the additive posture D13 established. It is
+deliberately NOT accompanied by a conditional requiring it, because records
+written before the growth already exist — the `dispose-possible` records
+committed in this corpus, and every record the realization under review on
+codexFactory PR #49 has already emitted, whose per-gate-action commit series is
+FDA-traceability evidence under D18. Invalidating those retroactively to gain a
+stricter schema would destroy the very evidence the strictness is for. The CODE
+always emits provenance and a codexFactory test
+pins that, so the obligation is a ROUTE obligation enforced at the route,
+exactly as the commit-per-gate-action rule is (D13). A future change MAY make
+it conditionally required once no pre-growth record is live evidence.
+
 ### D20 — A tile is a work surface OR a proposal, never both
 **Decision** (Brett, 2026-07-26): a tile carrying a live proposal REFUSES to open
 or resume a branch session. The route back is `demote` — "we have to demote back
@@ -604,6 +673,16 @@ the answer must be unambiguously no.
   and it is why verbs with effects OUTSIDE the branch are refused inside a
   session — a dispatch cannot be un-dispatched if the session is abandoned.
 
+## Complexity Tracking
+
+The adversarial review's skeptic asked for the accepted gap to be tracked rather
+than narrated, so it is a row with a named deferral and a named compensating
+control (D23):
+
+| Accepted gap | Why it is accepted | Deferred to | What makes it visible meanwhile |
+| --- | --- | --- | --- |
+| The gate console cannot distinguish a HUMAN from a process running as the identified human on the same machine. A local process that reads the per-serve console token from `/capabilities`, or sets `XF_HUMAN_CONSOLE=1` on the CLI, invokes `edit-document`, `open-pr`, `abandon-session`, `create-document`, and `propose` successfully under that human's identity and ambient GitHub authority. | The console-presence test is an anti-CSRF / same-origin control and was never authentication. Any control at THIS layer can only re-test the same ambient credentials, so hardening here buys nothing real; a genuine distinction needs a host identity this surface does not have. Ruled ACCEPTED by Brett, 2026-07-27 (D23 ruling 1). | The xForge-host identity work already deferred under D22 — the same place the hosted-plane push identity waits for the openxfactory domain App. Until it lands, no layer between the loopback socket and the record can tell the two apart. | Every gate-action record carries `provenance.surface` (`http` or `cli`) and `provenance.console_presence` (`console-token`, `tty`, or `declared`), so an act performed through the residual is attributable to a DOOR even where it is not attributable to a distinct identity (D23 ruling 3). The scenarios now state the gap instead of denying it (D23 ruling 2). |
+
 ## Open Questions
 
 NONE. All six were ruled by Brett on 2026-07-26 and are recorded as decisions:
@@ -615,7 +694,15 @@ on `open-pr`), and two raised by the adversarial review of the same day
 One further item had been left GATED TO SPECKIT rather than open — the identity
 `open-pr` pushes under — and Brett ruled it the same day, after ratification:
 D22, the engineer's own credential on the local plane and the openxfactory
-domain App on the hosted one. Twenty-two decisions now stand (D1-D22).
+domain App on the hosted one.
+
+A further ruling arrived on 2026-07-27, after the adversarial review of the
+realization: D23, which ACCEPTS the console-presence residual, AMENDS the two
+ratified scenarios that promised an agent-refusal the mechanism cannot deliver,
+and TAGS every gate-action record with the gateway it arrived through. It is a
+shipped-feature amendment of ratified text and is recorded as a decision with
+the superseded wording quoted, not applied silently. Twenty-three decisions now
+stand (D1-D23).
 
 This change therefore carries no parked decision. What remains before archive is
 realization and evidence, not judgement — see tasks section 9.

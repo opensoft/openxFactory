@@ -44,7 +44,36 @@ registry.
 - [ ] 1.6 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`, README contract index) at the next additive
       bundle cut, per `docs/contract-versioning-policy.md`
-      (registration-at-realization precedent).
+      (registration-at-realization precedent). Covers the D23 `provenance`
+      growth of 1.8 as well as the 1.1/1.2 growth.
+- [x] 1.7 AMENDMENT, 2026-07-27 (Brett's D23 ruling; a shipped-feature amendment
+      of RATIFIED text, recorded not silent): narrow the two ratified scenarios
+      that promised an agent-refusal the console-presence control cannot deliver
+      — "An agent invokes the edit verb" and "An agent invokes propose" — to the
+      caller that cannot demonstrate it originates from the human console this
+      serve started, each stating that a process running as the identified human
+      is NOT distinguished and that the distinction is deferred to the
+      xForge-host identity work under D22. Narrow the same overstatement where it
+      appeared in REQUIREMENT prose (`edit-document` and `open-pr`); the
+      human-only AUTHORITY language stays. Record the ruling as D23 in design.md
+      with the superseded wording quoted, plus a Complexity Tracking row naming
+      the accepted gap and its deferral.
+- [x] 1.8 Additive growth of `contracts/schemas/gate-action-record.schema.yaml`
+      for the same ruling (D23 ruling 3 — tag the gateway): an OPTIONAL
+      `provenance` block naming the SURFACE (`http` | `cli`) and how console
+      presence was shown (`console-token` | `tty` | `declared`), with both fields
+      required WITHIN the block and NO conditional requiring the block for any
+      action. Commentary names this change as the growth source, the
+      `create-document` / `document`-kind growths as the precedent, and states
+      why no conditional may require it: records predating the growth exist in
+      this corpus, and every record codexFactory PR #49's realization has already
+      emitted rides a per-gate-action commit series that is FDA-traceability
+      evidence under D18 — neither may be invalidated retroactively.
+      The ROUTE always emits it; a codexFactory test
+      pins that. Additivity proven by jsonschema probe (a record without
+      `provenance` validates; one with it validates) and by the packaged
+      examples, where `edit-document` carries the block and the sibling `open-pr`
+      / `abandon-session` examples deliberately do not.
 
 ## 2. Branch session lifecycle (codexFactory)
 
