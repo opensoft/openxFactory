@@ -406,8 +406,10 @@ $defs:
   # --- which gateway the action arrived through (add-workbench-branch-sessions,
   # D23; Brett's 2026-07-27 ruling). OPTIONAL at the record level and required by
   # NO conditional — see the description's GATEWAY PROVENANCE paragraph for why
-  # (pre-growth records on the PR #49 evidence branch must not be invalidated
-  # retroactively). Both fields are required WITHIN the block, which is safe for
+  # (pre-growth records already exist, in this corpus and among those PR #49's
+  # realization has emitted, and must not be invalidated retroactively; that
+  # commit series is FDA-traceability evidence under design D18). Both fields are
+  # required WITHIN the block, which is safe for
   # the same reason the per-action conditionals are: no record has ever carried
   # this block, so a half-filled provenance has never been written. A record
   # WITHOUT `provenance` stays valid; a record WITH it must say both things or it
