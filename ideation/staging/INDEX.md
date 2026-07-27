@@ -44,6 +44,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
 | [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
+| [workstation-app-shell](#workstation-app-shell) | `avatar-first-ui` realization (possibly a small ADDED requirement for the workstation shell) + MODIFIED `ideation-dashboard` (the local serve becomes app-managed) | 1 | Ready to iterate — layer defaults already ratified and the motivating defect verified; load-bearing content is the Worker Host App boundary (two OS principals, one shell) and codexFactory's missing subject surface; 5 open questions, the shell-platform fork blocks implementation |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
@@ -692,3 +693,49 @@ worker-readiness-surface precedent).
   (post `avatar-pilot-hardening`); per-domain connect flows exit via
   their DomainxFactory topics.
 - Source: team-010 LedgerxFactory session 2026-07-26 (Brett).
+
+## workstation-app-shell
+
+The workstation counterpart to `mobile-dashboard-surface`: an app on the
+engineer's own machine that OWNS the local dashboard serve — checkout
+binding, actor identity, console token, port, lifecycle — instead of a
+hand-typed `python3 -m … --repo-root … --repository … --actor …` line. The
+motivating defect is verified, not hypothetical: the T092 runbook's literal
+first command omitted two required flags and exited 2. The layer-shaped UI
+posture is NOT redecided — the ratified `avatar-first-ui` "Hermes-layer
+surface defaults" requirement already sets subject avatar-first, tenant
+hybrid, domain conventional-with-copilot. What this topic decides is the
+delivery vehicle and its BOUNDARY with the Worker Host App, which is the
+load-bearing claim: one workstation would host the agent workers AND the
+human console, whose whole purpose is to be distinguishable from an agent,
+so they run as SEPARATE OS PRINCIPALS in one shell with the console's token
+unreadable by the worker principal — using the escrow-before-account /
+rotate-don't-read machinery `worker_identities` already shipped. Brett
+accepted review finding 2's same-user residual on 2026-07-27 for a world
+where workers live elsewhere; bundling without separation would make agent
+co-residency the architecture rather than an edge case. Also names the gap
+the conversation exposed: codexFactory has NO subject surface. Its subject
+layer is `Project Hermes` — per project, not per client company, so consent
+and journey state are per-project — and every stakeholder feature maps onto
+a gate the funnel already has (intake → a possible with subject-requested
+provenance, status → narrated funnel position, approvals → recorded gate
+actions structurally like `ratify`, demos → the avatar carveout precedent).
+Subject visibility reuses the ratified branch-session rule (drafts
+session-only, `main` shared truth) one layer up. Sequencing claim: do not
+couple two mid-flight programs — finish the worker host as a host, ship the
+shell, stage each domain's subject surface separately.
+
+- Files: `workstation-app-shell.md`
+- Target capabilities: `avatar-first-ui` (realization evidence, possibly a
+  small ADDED requirement for the workstation shell); MODIFIED
+  `ideation-dashboard` (app-managed local serve); a later per-domain subject
+  surface (name open, codexFactory first consumer). The Worker Host App's
+  principal separation is a dependency satisfied in `Omnigent-Install`.
+- Open questions: shell platform (recommend sharing the mobile fork); one
+  installer vs two; the console token never persisted; which layer an
+  engineer's own app defaults to; where the codexFactory subject feature set
+  lives.
+- Recorded observation: `avatar-first-ui`'s ratified text still uses the
+  legacy `Customer`/`Client` layer spellings — legal as released, but the
+  next substantive revision should adopt subject/tenant/domain.
+- Source: team-004 session 2026-07-27 (Brett).
