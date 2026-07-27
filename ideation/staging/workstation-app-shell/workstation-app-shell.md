@@ -136,6 +136,123 @@ surface (name open; codexFactory first consumer)
     MedxFactory will teach the subject pattern more cheaply than
     codexFactory's project stakeholder will.
 
+
+11. **The console carries a COMPUTE SHARE VALVE, scoped to the TEMP/VOLUNTEER
+    ESTATE ONLY (DECIDED 2026-07-27).** An engineer works in the console AND
+    volunteers the same workstation as a worker, whose dispatched jobs may
+    belong to other projects entirely — the worker half just shares compute.
+    The console therefore offers a valve: share while doing light work, and
+    recover the machine when the work gets intense. Brett scoped it to the
+    temp estate, which is what makes it coherent with the Worker Host App
+    program rather than a reversal of it: that program moves PRODUCTION
+    riders off personal machines onto dedicated Cloud PCs, while enrollment
+    rule R8 already REFUSES AND AUDITS any attempt to bind a volunteer
+    lease into a standing execution-lane runner group
+    (`add-worker-enrollment-broker` spec, "a volunteer lease MUST NOT be
+    bound into a standing execution-lane runner group"). Volunteered
+    workstation compute is a separate, non-standing pool; production work
+    still goes to the CPC fleet. The estate coupling is already contracted
+    and bidirectional: `estate: temp` ⟺ `subject.class: engineer` ⟺
+    `host.managed: false` ⟺ `trust_tier: volunteered_hardware`, with
+    `host_class: service_rider` already meaning "pilot riders on a person's
+    machine".
+12. **SLOTS are the unit, and they already exist end to end — the valve
+    invents no new unit of account.** `max_concurrent_jobs` and
+    `current_jobs` are columns in the operational Postgres schema, fields on
+    the live worker registry, per-lane declarations, and are enforced by the
+    dispatcher; a three-level vocabulary (`normal_capacity` /
+    `max_concurrent_jobs` / `upper_bound`) is already validated against the
+    deployed environment. There is NO resource field — cpu, memory, share —
+    anywhere in the host manifest, bench manifest, worker profiles, lease
+    family or job envelope, and in the host manifest it is not merely absent
+    but unrepresentable (`additionalProperties: false`). A PERCENTAGE is
+    therefore schedulable nowhere: whole jobs go to whole runners by label,
+    and the only quantity any gate reads is an integer job count. The
+    percentage lives in the console's RECOMMENDATION TEXT and nowhere else.
+13. **DRAIN ONLY (DECIDED 2026-07-27) — the valve never touches running
+    work.** "Accept no more, let in-flight jobs finish" is nearly free: the
+    dispatcher already skips any worker whose status is not
+    `available`/`idle` (proven by an existing capacity smoke test), the
+    lease-renewal response already carries a `required_action: stop`, and the
+    per-runner `sc.exe stop` + `start= demand` pair with its exact inverse is
+    already designed (broker-integration design, task 3.5, unbuilt). EVICTION
+    is explicitly NOT funded: there is no job lease, no attempt counter, no
+    idempotency or resumability contract, no reassign path and no destination
+    host — and `current_jobs` decrements only on completion, so an abandoned
+    job would consume its slot FOREVER. The valve's user-visible promise is a
+    drain countdown bounded by the existing job timeout, never migration.
+    Precedent for the doctrine already exists in code: the heartbeat step
+    rebinds a runner's logon WITHOUT restarting it, because a restart "would
+    kill a job this step had no business ending".
+14. **A day-one DEFECT must be fixed before the valve is built.**
+    `release_worker_job()` recomputes worker status unconditionally as
+    available-or-busy from the slot count, and `assign_worker_job()` only ever
+    writes busy or preserves — neither respects operator intent. So a drain
+    expressed on `worker.status` is SILENTLY REVERTED by the next finishing
+    job. Operator intent must survive job churn before anything else is
+    built. Related: the valve is modelled as an ORTHOGONAL WORKER CONDITION
+    with an `observed_at`, a `policy_ref` and clearing evidence — the corpus's
+    own ratified modelling rule — not as a job state, not as a runner label,
+    and not as a new lease state (the lease's state reasons are all about
+    AUTHORITY, not capacity).
+15. **The valve is DESIRED STATE, because reconcile repairs everything else —
+    and a hand-stop is worse than merely undone.** A stopped-but-present
+    runner service sets both `needs_rebind` and `needs_restart`, and
+    `needs_rebind` plans a FULL ACCOUNT PASSWORD ROTATION (escrow a fresh
+    password, reset the local account, rebind the service logon and the
+    heartbeat task, rewrite the sidecars) before restarting. So the valve is
+    expressed as an additive per-worker `desired_state: active | paused` on
+    the broker-served temp manifest, plus an app-owned ProgramData intent
+    sidecar that reconcile READS instead of repairing, explicitly bounded so
+    it can NEVER override a lease `required_action: stop` (the renewal
+    contract states that no local flag, retry or configuration edit on the
+    host may override that decision). Reconcile is triggered ON DEMAND
+    (`AllowStartOnDemand` is already true) so the valve does not wait out the
+    hourly pass, and `paused` is realized only once the runner reports idle.
+    Reconcile also needs a PRUNE path: it iterates only declared workers, so
+    shrinking the set today would leave a runner service running and
+    registered but unmanaged.
+16. **Signalling joins the ALREADY-QUEUED heartbeat delta rather than opening
+    a parallel path.** Today `unavailable` means "something is broken" — it is
+    derived solely from service health — so operator intent has no spelling.
+    The valve adds `draining` to the readiness statuses, projects
+    `max_concurrent_jobs` into the sanitized read view (it is currently not
+    projected at all), and relaxes the lane gate from a hard
+    `current_jobs == 0` to a slot comparison. Per the broker change's D10 this
+    lands in publisher, service and evaluator TOGETHER with a parity test —
+    the valve rides that delta instead of growing the heartbeat contract
+    twice.
+17. **"Local work first" in v1 is ADMISSION CONTROL BY JOB CLASS, not a
+    scheduler weight.** A low always-on cgroup weight would be the right
+    mechanism — it reacts within one scheduler tick, cannot oscillate, needs
+    no telemetry — but it is impossible today: the runner is a WINDOWS
+    process, not a container, so there is no shared scheduling domain to
+    weight within, and no resource governor exists anywhere in either install
+    (no `--cpus`/`--memory`, no cgroup writes, no `.wslconfig` management).
+    The existing expression of the same intent is lane admission: coder lanes
+    are already forbidden full builds, full test suites, Compose stacks and
+    browser E2E, while tester lanes own heavy validation at capacity 1-2.
+    MEMORY is the asymmetry to respect regardless of mechanism: CPU yields to
+    a weight change, RAM does not — a running container cannot hand memory
+    back — so the never-shared memory reserve is a CONSTANT the engineer
+    declares once and the recommender never tunes (its failure mode is the
+    engineer's own build being OOM-killed).
+18. **The recommender is read-only and advisory.** The console watches local
+    usage over a window and SUGGESTS a slot count; it never adjusts silently.
+    No host telemetry exists in the dashboard today — `/capabilities` reports
+    action availability, not machine state — so this is entirely new console
+    surface. Note for whoever builds it: the existing governance agents
+    already own these concerns (HP owns `capacity_tradeoffs`, HD owns
+    `worker_status` and `stuck_work_detection`), so whether the recommender is
+    a delegated surface of those agents or a purely local advisory is open
+    question 10.
+19. **Today's only valve is global and binary.** `OMNIGENT_WORKER` is a single
+    GitHub variable that turns self-hosted dispatch on or off for the whole
+    factory, so an engineer wanting his machine back would close the window
+    FOR EVERYONE. That is the status quo this claim replaces, and it is worth
+    stating because it makes even a two-position per-host valve a strict
+    improvement.
+
 ## Open questions
 
 1. **Shell platform.** The mobile sibling already carries a "shell platform
@@ -164,6 +281,43 @@ surface (name open; codexFactory first consumer)
    neutral surface standard stays in openxFactory, the codex subject feature
    set stages in codexFactory as its own topic, first consumer of a later
    ADDED runtime capability.
+
+6. **H11 — does a temp/volunteer worker get a heartbeat write token?** Still
+   open on Brett's own gate in the broker-integration change. If it does not,
+   a volunteered workstation cannot publish readiness at all and the valve
+   needs a signalling path that is not the heartbeat. This is the one open
+   question that can invalidate claim 16's mechanism outright.
+7. **Does the valve get more than one slot?** D5 currently pins one worker,
+   the coding-patch profile, `max_concurrent_jobs: 1`, no benches — which
+   makes v1's valve BINARY (share or don't). Revisiting D5 is what would give
+   the dial real positions. Recommendation: accept the binary v1 and let the
+   percentage live only in the recommendation text (claim 12).
+8. **Tenant binding of a volunteered workstation.** codexFactory declares
+   repositories and secrets `per_tenant`. Recommendation: require a
+   volunteered workstation to be bound to exactly ONE `software_team` tenant
+   on its lease and refuse cross-tenant co-residency outright — the alternative
+   is one engineer's machine holding two tenants' content simultaneously.
+9. **Generalize the handling gate, or not?** A dispatch-time gate comparing
+   source-content policy to the target host's attested boundary already
+   exists, validated and ratified — but scoped to the `document-cataloging`
+   capability. Promoting it to the neutral job envelope would make "may this
+   content land on this host" answerable for ANY job, which is exactly the
+   question a volunteered workstation raises. Otherwise the valve ships with
+   per-capability gating and a named gap.
+10. **Who owns the recommendation?** A delegated surface of the governance
+    agents that already own capacity tradeoffs and worker status, or a local
+    advisory those agents never see? (Claim 18.)
+11. **Is "set share level" a governed authority verb?** The closed
+    `authority_action` enum — replicated in both the schema and the DDL — has
+    no job or capacity verb, so "recover my compute" as a GRANTED action has
+    nothing to bind to today. Either grow the enum or state deliberately that
+    the valve is a local capacity preference outside the grant model, which
+    the broker may ignore.
+12. **The five "yield to the human" task booleans** (`RunOnlyIfIdle`,
+    `StopOnIdleEnd`, `RestartOnIdle`, `DisallowStartIfOnBatteries`,
+    `StopIfGoingOnBatteries`) are all deliberately FALSE today so attestation
+    never goes quiet. Do they get revisited for a workstation host class, and
+    should the RUNNER service inherit them rather than only the supervisor?
 
 ## Adjacent work in flight (coordinate, do not duplicate)
 

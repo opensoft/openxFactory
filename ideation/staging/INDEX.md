@@ -725,6 +725,36 @@ session-only, `main` shared truth) one layer up. Sequencing claim: do not
 couple two mid-flight programs — finish the worker host as a host, ship the
 shell, stage each domain's subject surface separately.
 
+Extended 2026-07-27 with the COMPUTE SHARE VALVE (claims 11-19): an
+engineer volunteers the same workstation as a worker whose jobs may belong to
+other projects, so the console carries a valve — share while doing light work,
+recover the machine when work gets intense. Brett scoped it to the TEMP/VOLUNTEER
+ESTATE ONLY and ruled DRAIN ONLY, which makes it complementary to the Worker Host
+App program (that program moves PRODUCTION riders onto dedicated Cloud PCs; R8
+already refuses binding a volunteer lease into a standing runner group) rather
+than a reversal of it. Grounded: SLOTS are already the canonical unit end to end
+(`max_concurrent_jobs`/`current_jobs` in the operational schema, the live
+registry, per-lane declarations, dispatcher-enforced) and no resource field is
+representable anywhere, so a PERCENTAGE lives only in the console's
+recommendation text; the stop-accepting half is already built and smoke-tested;
+the lease-renewal response already carries `required_action: stop`; the per-runner
+`sc.exe stop` + `start= demand` pair and its exact inverse are already designed
+(task 3.5, unbuilt). EVICTION is deliberately unfunded — no job lease, no attempt
+counter, no idempotency contract, no destination host, and `current_jobs`
+decrements only on completion so an abandoned job would hold its slot forever.
+Two verified hazards the build must respect first: a drain expressed on
+`worker.status` is silently reverted by the next finishing job
+(`release_worker_job` recomputes it unconditionally), and a hand-stopped runner
+triggers a FULL ACCOUNT PASSWORD ROTATION via `needs_rebind` — so the valve is
+DESIRED STATE (`desired_state: active | paused` on the broker-served temp
+manifest plus an app-owned intent sidecar reconcile READS, never able to override
+a lease `stop`), signalled by joining the already-queued D10 three-places
+heartbeat delta. "Local work first" in v1 is admission control by job class, not a
+cgroup weight — the runner is a Windows process with no shared scheduling domain,
+and memory does not yield the way CPU does, so the never-shared RAM reserve is a
+constant the recommender never tunes. Today's only valve is `OMNIGENT_WORKER`, a
+global on/off that would close the window for everyone.
+
 - Files: `workstation-app-shell.md`
 - Target capabilities: `avatar-first-ui` (realization evidence, possibly a
   small ADDED requirement for the workstation shell); MODIFIED
