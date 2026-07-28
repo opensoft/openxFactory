@@ -462,7 +462,32 @@ evidence. Archive deferred by the 6.2 ordering (after
 blocked on the parked App-approval decision). Remaining on this whole
 track: that parked decision → tier-1 live approval → attestation → flip,
 plus the recorded tier-1 review findings (floating pins, org-wide token,
-rule `repository:` field) as their own changes. Historical note below kept as written:
+rule `repository:` field) as their own changes.
+
+**App-approval counting: RESOLVED EMPIRICALLY (2026-07-28, admin AI,
+sandboxed org experiments).** The minimum viable grant is
+`contents: write` — Case A (none) and Case B (`contents: read`) both leave
+the PR `REVIEW_REQUIRED`; Case C (`contents: write`) flips `reviewDecision`
+to `APPROVED`, proven with transition controls (A→C counted the EXISTING
+approval retroactively; C→B retracted it) and an independent fresh-PR
+replication. No zero-contents mechanism exists in current GitHub (bypass
+actors bypass rather than count; custom roles don't apply to Apps; the
+collaborators-permission endpoint is NOT authoritative for Apps — it read
+`none` even while Case C counted). Blast radius measured: App token push to
+ruleset-protected main refused (GH013); push to an unprotected branch
+succeeded — so the grant does NOT defeat main protection but WOULD let the
+approver write to `doc-health/nightly`, the branch it reviews. Decision
+package for Brett (admin AI recommendation, concurred): grant
+`contents: write` to App 4312542 + narrow its installation from `all` to
+selected `opensoft/xFactory` (the open task-2.2 fix) + a mandatory ruleset
+protecting `doc-health/**`/`bot/**` with bypass ONLY for the GitHub Actions
+integration (the nightly delivers via GITHUB_TOKEN — verified against the
+workflow design and last night's 2026-07-28 delivery) and repo-admin (for
+operator staging, as used in the rehearsal), no merge-master bypass. All
+scratch artifacts deleted; one discarded-evidence incident (bench HTTPS→SSH
+rewrite briefly authenticated as brettheap) honestly reported. Round 2
+(apply + live scratch-PR verification, never touching a real candidate)
+awaits Brett's GO. Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
