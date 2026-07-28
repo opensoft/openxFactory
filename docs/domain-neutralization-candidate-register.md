@@ -487,6 +487,19 @@ Evidence:
   the pipeline already has; terminal apply stays with external
   enforcement and its human authority)
 
+Second consumer DECIDED 2026-07-28 (Brett): **codexFactory
+new-project** — `project` is already a first-class codex subject kind
+and `check_profile` / `reviewer_group` are neutral-design elements
+wearing domain names, so the second instantiation structures existing
+material rather than inventing it, and codex brings an existing-subject
+population so the audit mirror gets exercised immediately. Its mapping
+surfaced the finding Ledgerx structurally could not: the DESIGNING
+domain and the APPLYING administrator can be different factories
+(GitHub administration is OpsxFactory's `github-administration-workflow`,
+not codexFactory's), so the realization artifact must be handoff-shaped
+with correlation between design, handoff, and applied result — very
+likely the same seam as the staged `deployment-handoff-boundary` topic.
+
 Composes rather than restates: DTN-016 (consent instrument), DTN-015
 (correction→promotion, the archetype-harvest loop), governed-derived-
 model (tiered conformance), workflow-gate-contract, credential-contracts.

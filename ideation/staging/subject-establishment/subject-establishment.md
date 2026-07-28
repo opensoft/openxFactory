@@ -150,15 +150,81 @@ Stated so the delta does not over-reach:
    `governed-derived-model` tiered conformance, `neutral-job-envelope`,
    `workflow-gate-contract`, `credential-contracts`. A good outcome is a
    thin capability that composes existing ones.
-4. **Second-domain proof before promotion.** Which domain instantiates
-   second — Medx new-patient (richest consent/custody constraints) or codex
-   new-project (fastest to realize, and codexFactory already has
-   governed-derived-model and GitHub administration in place)? The register
-   convention wants a second consumer before neutralizing.
+4. ~~Second-domain proof before promotion~~ **DECIDED (Brett, 2026-07-28):
+   codexFactory new-project is the second consumer.** See the section
+   below. Medx new-patient remains the richest consent/custody case and is
+   the natural third.
 5. **Does the neutral design artifact belong in Hermes memory** (Ledgerx's
    ruling: subject design in Subject Hermes memory, archetypes + standard in
    Tenant Hermes memory, applied version's digest/locator in the grant
    evidence) — is that storage rule itself neutral, or a Ledgerx choice?
+6. **NEW, raised by the codex mapping: the applying authority may be a
+   DIFFERENT FACTORY than the designing domain.** See "The cross-factory
+   apply seam" below — this is the most consequential thing the second
+   consumer exposed, and Ledgerx could not have surfaced it.
+
+## Second consumer: codexFactory new-project (decided 2026-07-28)
+
+Chosen for speed of proof: `project` is ALREADY a first-class subject kind
+in codexFactory's subject-Hermes template (`hermes/subject/template.yaml`:
+`project | repository | product | feature_initiative`), with
+`repository` already carrying `check_profile` and `reviewer_group` — which
+are exactly neutral-design elements wearing domain names. Much of the fact
+set and the design vocabulary therefore already exists; the work is
+structuring it, not inventing it.
+
+### The mapping
+
+| Neutral step | codex new-project |
+|---|---|
+| Fact set | language/stack, criticality tier, compliance regime, data sensitivity, team composition, release cadence, deployment targets — sourced from the requesting team (intake), org policy defaults, and a scan of any existing repo being adopted |
+| Reference archetype | project archetypes: internal service, public library, regulated product, prototype/spike |
+| Neutral design | branch and review policy, environment topology and promotion rules, quality-gate set, release discipline, access model, secret posture — as SEMANTIC ROLES (`reviewer_group`, `check_profile` are already this shape) |
+| System-of-record selection | GitHub (today), GitLab/Azure DevOps conceivable |
+| Platform realization | repository rulesets and branch protection, required status checks, environments + deployment protection rules, CODEOWNERS, workflow pins, App installation scopes |
+| Review + tiering | archetype-conforming project auto-approves; deviations (regulated data, external contributors, unusual release model) escalate to the domain's engineering authority |
+| Apply + verify | applied through GitHub, then read back and diffed — the same obligation, and GitHub is as capable as BC of quietly doing something other than what was asked |
+| Audit mirror | repo-hygiene audit: read an existing project's actual protection/checks/environments, lift to neutral, diff against its archetype, propose remediation |
+
+### What codex proves that Ledgerx cannot
+
+- **A second, structurally different platform** (GitHub vs MSBC) exercising
+  the same design/realization split — the core claim.
+- **An existing-subject population to audit.** Ledgerx's first subject was
+  an empty company; codex has many live repositories, so the audit mirror
+  (Claim 5) gets real exercise immediately rather than waiting for a second
+  client.
+- **Existing conformance machinery to compose with**, rather than new
+  mechanism: codexFactory already has `conformance-gate`,
+  `governed-review-lane`, and `doc-health-checker`. If the tiering dial
+  (Claim 3) cannot be expressed through those, that is evidence the dial is
+  wrong.
+
+### The cross-factory apply seam (the finding)
+
+**GitHub administration is an OpsxFactory capability**
+(`github-administration-workflow`), not a codexFactory one. So for codex,
+the DESIGNING domain and the APPLYING administrator are **different
+factories**: codex designs the project setup; Opsx holds the platform
+authority, the App identity tiers, and the credentials that actually
+change GitHub.
+
+Ledgerx hid this — it designs AND applies within its own estate — so the
+neutral contract as currently sketched quietly assumes one actor. It must
+not. Implications to work in the delta:
+
+- The realization artifact has to be **handoff-shaped**: a domain-authored
+  intent that another factory's administration capability executes, with
+  correlation between the design, the handoff, and the applied result.
+- This is very likely the same seam as the staged
+  `deployment-handoff-boundary` topic (managed-subject routing +
+  handoff-record correlation) — check before inventing a second mechanism.
+- Verify-by-read-back may be performed by the APPLIER, the DESIGNER, or
+  both; who owns the conformance verdict when they disagree is a real
+  governance question, not a detail.
+- Opsx is therefore a de facto third consumer of this capability (its own
+  new-managed-estate motion) AND the applier for codex's — worth naming
+  explicitly so the contract is not written as if consumers are isolated.
 
 ## Exit path
 
