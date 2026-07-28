@@ -508,7 +508,33 @@ letting the next clean nightly flow) is Brett's recorded first-merge event,
 after which the clearance history becomes countable and the flip-order
 precondition begins to clear. Footnote: the branch reset means the README
 governance note never reached main — re-land it via an ordinary PR when
-convenient. Historical note below kept as written:
+convenient.
+
+**Round 2 CLOSED (2026-07-28, admin AI final report).** Live state: App
+4312542 = contents/checks/PR write + metadata read; installation 146922215
+narrowed to selected [opensoft/xFactory] (task 2.2 DONE); mitigation ruleset
+19874574 active on `doc-health/**` + `bot/**` with bypass EXACTLY
+{content App 4253636, repo-admin} — the delivery identity was FIXED to push
+via the content App (codexFactory PR #54, doc-health-reusable.yml), which
+also un-suppresses pull_request events on nightly deliveries (validate now
+runs on nightly heads; merge-master-approval's dispatch chaining becomes
+redundant-but-harmless; its in-file GITHUB_TOKEN-suppression comments are
+now stale — minor doc drift to clean later). Counting proven live on
+scratch PR #43 (closed unmerged); PR #29 keeps the intact retroactive
+approval (review 4793476209), autoMerge null. Parent-change bookkeeping done
+BY THE ADMIN through codexFactory PRs #54/#55 (task 2.4 verification record
+`round-2-verification-2026-07-28.md`, spec/design/proposal updates); tasks
+2.2 + 2.4 ticked. Its exact-head review names THREE pre-canary controls,
+now the open tail (parent tasks 1.1, 2.3, 4.3, 4.4, 6.4, 7.1): (1) ratify a
+credential-contract path admitting the widened permission set + workflow;
+(2) narrow the per-mint workflow token from checks:write to checks:read;
+(3) stale-review dismissal or an independently required exact-head gate —
+without it a prior-head approval keeps counting after a push, which is the
+remaining fail-open. SAFETY HOLD: `doc-health-nightly` (309741090) and
+`merge-master-approval` (314135240) are reversibly `disabled_manually` so
+the first autonomous nightly stays a separately authorized event — NOTE the
+nightly corpus reports pause while held; re-enabling rides the canary
+authorization (task 7.1, Brett watching). Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
