@@ -360,6 +360,16 @@ Active proposals promoted from staging:
   foundations, ontology generation/maintenance/context compilation, bounded
   Omnigent task/routing/evaluation contracts, and the combined semantic
   routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
+- [Recurrence Crystallization Overview](brainstorm/crystallization-overview.md)
+  — anchors a nineteen-document packet (fifteen atomic docs + three arc
+  syntheses: Pattern Ledger, Crystallizer, Capability Steward) on turning
+  repeatedly-AI-solved task families into governed cheaper paths: an episode
+  ledger over existing audit/metering, recurrence + stability forecasting, a
+  budget-consented build decision on a seven-rung automation ladder,
+  episode-mined micro-specs with acceptance corpora and scope fences,
+  codexFactory-built capabilities under authority conservation, and
+  fence-guarded dispatch with sentinel sampling so learning, drift detection,
+  and savings claims stay honest (2026-07-28).
 - [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
   — six project archetypes (service, library, cli, application, infra-iac, spike)
   a project is provisioned from, each a bundle of default policy, expected
