@@ -601,12 +601,17 @@ ran → dispatched approver evaluated `tier1_approve` and `codexfactory[bot]`
 approved at `73e5fbd`, COUNTED → Brett enabled auto-merge (deliberate
 final consent) → MERGED 2026-07-28T20:00:16Z, merge commit `72fce71e`.
 Parent task 7.1 ticked with evidence URLs (codexFactory `79918a4`). ONE
-DEFECT for the unattended loop: the finalizer's designed
-`gh workflow run merge-master-approval.yml` chain fails HTTP 403 — the
-finalize job's `GITHUB_TOKEN` lacks `actions: write` — so unattended
-nights PARK for the human gate (fail-closed, safe, not autonomous) until
-the doc-health-nightly finalize permissions block is widened; its
-auto-merge re-enable also failed on a timing race (consent-preserving).
+DEFECT for the unattended loop, FIXED same day (codexFactory `34bfc2f`):
+the finalizer's designed `gh workflow run merge-master-approval.yml`
+chain failed HTTP 403 — root cause TOKEN CHOICE, not job permissions
+(the finalize block already granted `actions: write`): the delivery step
+runs `gh` on the content-App token for the branch-confined push, and
+that App has no `actions` permission. The dispatch now overrides to the
+job's GITHUB_TOKEN (workflow_dispatch is recursion-guard-exempt), pinned
+by `test_approval_dispatch_runs_on_job_token_not_app_token`; first
+unattended proof is tonight's 02:17 UTC cron. The finalizer's auto-merge
+re-enable also failed on a timing race (consent-preserving, non-fatal by
+design, left as-is).
 Remaining on the parent change: 7.2 (negative path live), 7.3 (retire the
 daily-chore wording), 7.4 (promote `merge-master-approval` + archive).
 Historical note below kept as written:
