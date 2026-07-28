@@ -44,6 +44,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
+| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
 
 ## Candidate Details
 
@@ -441,3 +442,56 @@ Evidence:
 Domain-local exclusions: instrument names, legal form and execution
 mechanics, fee/term content, jurisdiction-specific clauses.
 
+
+### DTN-017: Subject establishment (facts → neutral design → platform realization → verified apply)
+
+Staged 2026-07-28: staging topic
+[subject-establishment](../ideation/staging/subject-establishment/subject-establishment.md)
+(named by Brett Heap while designing LedgerxFactory's company
+provisioning). Every domain runs the same motion at the start of a
+subject's life — establish provenance-graded facts, design the
+best-practice setup for that subject IN DOMAIN TERMS, decide which
+external system of record it lives in, map the design into that
+system, review, apply, and verify by reading the result back. Ledgerx's
+new client company, Medx's new patient, codex's new engineering
+project, Opsx's new managed estate, and Adx's new campaign subject are
+the same pipeline with different nouns.
+
+The load-bearing neutral idea is the **design/realization split**: a
+platform-neutral design whose elements carry semantic roles, plus a
+per-platform overlay that maps them to concrete system objects. It buys
+portability (the design survives a platform migration), reviewability
+(an expert reviews domain judgment, not vendor trivia), and cheap
+support for a second platform (a mapping, not a redesign) — the same
+idiom as neutral contract + per-domain overlay, one level down. The
+mirror gives every domain an audit product: read the existing
+configuration, lift it to neutral, diff against the design the research
+would have produced, propose a migration.
+
+Two authority classes that must never share a grant: establishing a NEW
+subject in an empty environment (low risk — nothing to damage) versus
+MIGRATING an established subject with history (high risk — proposal,
+approval, apply, verify).
+
+Evidence:
+
+- `xFactories/LedgerxFactory/ideation/staging/company-provisioning/`
+  (first instantiation: `layered-books-design.md` neutral design then
+  MSBC realization; `provisioner-identity-model.md` the applying
+  identity)
+- `xFactories/LedgerxFactory/tenants/ledgerxcorp/ledger-estates/farheap-sandbox-rehearsal-evidence.md`
+  (the motivating discovery: an empty, unconfigured subject company —
+  and the platform lesson that BC validates before it authorizes, which
+  is why verify-by-read-back belongs in the contract)
+- `contracts/omnigent/` (the `generate`/`verify`/`challenge` archetypes
+  the pipeline already has; terminal apply stays with external
+  enforcement and its human authority)
+
+Composes rather than restates: DTN-016 (consent instrument), DTN-015
+(correction→promotion, the archetype-harvest loop), governed-derived-
+model (tiered conformance), workflow-gate-contract, credential-contracts.
+
+Domain-local exclusions: the CONTENT of any design or archetype (chart
+of accounts, care-plan template, branch-protection baseline), which
+external systems are supported and their mapping tables, and the expert
+seat that reviews a deviating design.

@@ -62,6 +62,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
 | [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
+| [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); 5 open questions (one-capability-or-two and how much it CONSUMES vs restates are the load-bearing ones); exit gated on a second domain naming its instance (Medx new-patient or codex new-project) |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 
 ## ideation-action-plane
@@ -660,6 +661,36 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   Omnigent-Install, OpsxFactory); acceptance = the end-to-end volunteer
   workstation scenario on Brett's machine, which doubles as the
   NT SERVICE fact-check.
+
+## subject-establishment
+
+- Staging ID: `openxFactory:staging:subject-establishment`
+- Repository context: openxFactory (neutral contracts); LedgerxFactory is
+  the first full instantiation (`ideation/staging/company-provisioning/` —
+  neutral books design then MSBC realization, prompted by an unconfigured
+  client company found during the FarHeap sandbox rehearsal);
+  MedxFactory (new patient), codexFactory (new engineering project),
+  OpsxFactory (new managed estate), AdxFactory (new campaign subject) are
+  the named same-shape consumers.
+- Source: Brett, 2026-07-28 — "this concept of intake is also a general
+  startup. it is the same as new patient or new engineering project. there
+  is a setup of facts and then the best practice way to setup that subject
+  in that domain. some of this neutral concept should be elevated to
+  openXfactory."
+- Files: `subject-establishment.md` (primary — the neutral pipeline, the
+  five-domain mapping table, 8 claims, an explicit not-neutral list)
+- Target capabilities: ADDED a neutral `subject-establishment` capability;
+  DTN-017. Deliberately thin — the good outcome COMPOSES DTN-016 (consent
+  instrument), DTN-015 (correction→promotion), `governed-derived-model`
+  (tiered conformance), `workflow-gate-contract` and `credential-contracts`
+  rather than restating them.
+- Readiness: Ready to iterate. The design/realization split is the
+  load-bearing neutral idea (same idiom as neutral contract + per-domain
+  overlay, one level down). Open: one capability or two (establishment and
+  migration differ by risk class); whether "system of record" is new or the
+  existing estate/client-infrastructure vocabulary generalized; how much is
+  consumed vs restated; which domain proves it second; whether the
+  Hermes-memory storage ruling is neutral or a Ledgerx choice.
 
 ## qualify-avatar-live-voice
 
