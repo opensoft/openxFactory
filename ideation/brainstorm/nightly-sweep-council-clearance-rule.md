@@ -557,10 +557,16 @@ workflows as part of task 7.1 with Brett watching.
 Ruleset 18962101 turned out ORGANIZATION-owned across seven repos, so the
 org toggle was rejected in favor of the scoped realization: repository
 ruleset 19887057 (`merge-master-stale-approval-dismissal`) on
-opensoft/xFactory alone — active, default branch, no bypass, required
-approvals 1 + dismiss-stale true; most-restrictive aggregation layers it
-over the org rule, read back live (codexFactory `26f30a1` ticks the
-change's 2.3). PR #29's retroactive approval stands until the next head
+opensoft/xFactory alone — active, default branch, required approvals 1 +
+dismiss-stale true; most-restrictive aggregation layers it over the org
+rule, read back live (codexFactory `26f30a1` ticks the change's 2.3).
+AMENDED minutes later: created with no bypass actors, it hard-blocked the
+aggregation repo's established direct-push-to-main pattern (the very next
+pin-sync push was rejected) — the session agent added the repository-admin
+bypass (actor role 5, always), matching the org rule's effective behavior.
+The dismissal function is untouched: dismissal fires on head updates
+regardless of bypass, and the merge-master App is not an admin. The App
+still cannot merge without a counted, current-head approval. PR #29's retroactive approval stands until the next head
 update, which will dismiss it — expected, it IS the fail-open closing.
 Remaining to the first autonomous nightly, all Brett's: ratify
 `add-merge-master-credential-contract` → re-enable `doc-health-nightly`
