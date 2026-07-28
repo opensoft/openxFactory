@@ -572,7 +572,24 @@ Remaining to the first autonomous nightly, all Brett's: ratify
 `add-merge-master-credential-contract` → re-enable `doc-health-nightly`
 (309741090) + `merge-master-approval` (314135240) → task 7.1 live canary,
 watching. (Optional, separate decision: the org-wide dismissal toggle as
-standalone hygiene for the other six repos.) Historical note below kept as written:
+standalone hygiene for the other six repos.)
+
+**Ratified + re-enabled — canary session open (2026-07-28).** Brett ratified
+`add-merge-master-credential-contract`; archived as codexFactory
+`2c4fbe7` (`archive/2026-07-28-add-merge-master-credential-contract`), pin
+synced (xFactory `aac73d6`), parent task 2.3 custody question CLOSED. Both
+held workflows re-enabled and read back `active`: `doc-health-nightly`
+(309741090) and `merge-master-approval` (314135240); the safety hold is
+lifted. PR #29 read back unchanged at the flip: open, APPROVED at
+`5caef6f`, `autoMergeRequest: null`. Task 7.1 canary now in flight — the
+authorized sequence, no workflow enables auto-merge: (1) nightly delivers
+(cron 02:17 UTC, or dispatched) → new head; (2) ruleset 19887057 dismisses
+the stale retroactive approval — expected, watch it happen; (3)
+`merge-master-approval` evaluates and `codexfactory[bot]` approves the
+fresh head — the approval now counts; (4) Brett re-enables auto-merge on
+PR #29, the deliberate final consent, and it merges. Capture the
+approving-review URL, run URL, and merge commit as 7.1 realization
+evidence. Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
