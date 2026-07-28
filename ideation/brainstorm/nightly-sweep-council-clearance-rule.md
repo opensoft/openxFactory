@@ -551,7 +551,22 @@ path). Control 3: Brett accepted the platform toggle — the admin AI applies
 `dismiss stale reviews on push` to ruleset 18962101 and reads it back
 (tracked as the new change's task 2.3). Remaining to canary: control-3
 application → ratify the credential contract → re-enable the two held
-workflows as part of task 7.1 with Brett watching. Historical note below kept as written:
+workflows as part of task 7.1 with Brett watching.
+
+**Control 3 APPLIED, all three pre-canary controls closed (2026-07-28).**
+Ruleset 18962101 turned out ORGANIZATION-owned across seven repos, so the
+org toggle was rejected in favor of the scoped realization: repository
+ruleset 19887057 (`merge-master-stale-approval-dismissal`) on
+opensoft/xFactory alone — active, default branch, no bypass, required
+approvals 1 + dismiss-stale true; most-restrictive aggregation layers it
+over the org rule, read back live (codexFactory `26f30a1` ticks the
+change's 2.3). PR #29's retroactive approval stands until the next head
+update, which will dismiss it — expected, it IS the fail-open closing.
+Remaining to the first autonomous nightly, all Brett's: ratify
+`add-merge-master-credential-contract` → re-enable `doc-health-nightly`
+(309741090) + `merge-master-approval` (314135240) → task 7.1 live canary,
+watching. (Optional, separate decision: the org-wide dismissal toggle as
+standalone hygiene for the other six repos.) Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
