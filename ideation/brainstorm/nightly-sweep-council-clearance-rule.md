@@ -589,7 +589,27 @@ the stale retroactive approval — expected, watch it happen; (3)
 fresh head — the approval now counts; (4) Brett re-enables auto-merge on
 PR #29, the deliberate final consent, and it merges. Capture the
 approving-review URL, run URL, and merge commit as 7.1 realization
-evidence. Historical note below kept as written:
+evidence.
+
+**CANARY LANDED (2026-07-28, Brett watching live).** The full authorized
+sequence executed on PR #29 within 50 minutes of the re-enable: nightly
+dispatched (run 30390881736) → head `5caef6f` → `73e5fbd` → ruleset
+19887057 dismissed the stale approval ON THE HEAD UPDATE (the contract's
+dismissal scenario, live-verified) → push-time evaluation parked
+fail-closed (`required_check_not_green`, sticky comment) while `validate`
+ran → dispatched approver evaluated `tier1_approve` and `codexfactory[bot]`
+approved at `73e5fbd`, COUNTED → Brett enabled auto-merge (deliberate
+final consent) → MERGED 2026-07-28T20:00:16Z, merge commit `72fce71e`.
+Parent task 7.1 ticked with evidence URLs (codexFactory `79918a4`). ONE
+DEFECT for the unattended loop: the finalizer's designed
+`gh workflow run merge-master-approval.yml` chain fails HTTP 403 — the
+finalize job's `GITHUB_TOKEN` lacks `actions: write` — so unattended
+nights PARK for the human gate (fail-closed, safe, not autonomous) until
+the doc-health-nightly finalize permissions block is widened; its
+auto-merge re-enable also failed on a timing race (consent-preserving).
+Remaining on the parent change: 7.2 (negative path live), 7.3 (retire the
+daily-chore wording), 7.4 (promote `merge-master-approval` + archive).
+Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
