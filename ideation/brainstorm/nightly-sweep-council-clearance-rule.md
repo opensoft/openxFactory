@@ -487,7 +487,28 @@ operator staging, as used in the rehearsal), no merge-master bypass. All
 scratch artifacts deleted; one discarded-evidence incident (bench HTTPS→SSH
 rewrite briefly authenticated as brettheap) honestly reported. Round 2
 (apply + live scratch-PR verification, never touching a real candidate)
-awaits Brett's GO. Historical note below kept as written:
+awaits Brett's GO.
+
+**Round 2 APPLIED (2026-07-28) — and tier-1 counting is LIVE, with one
+managed surprise.** Brett issued the amended GO; scratch verification
+succeeded and scratch artifacts were cleaned. The surprise: the 2026-07-28
+nightly delivery had RESET `doc-health/nightly` from main (the rehearsal's
+README overflow vanished from the diff), the envelope therefore HELD on the
+fresh head `5caef6f`, and the approval workflow had posted its usual
+exact-head APPROVE that morning — uncounted at the time. Granting
+`contents: write` made that pre-existing approval count RETROACTIVELY
+(exactly the Round-1 transition behavior): PR #29 went `APPROVED` with
+auto-merge enabled and `UNSTABLE` the only thing holding it. The admin AI
+mutated nothing and stopped to ask; the session agent disabled auto-merge on
+#29 immediately (reversible; the review evidence untouched) so the FIRST
+AUTONOMOUS MERGE stays a deliberate recorded event rather than an accident.
+State now: tier-1's App approval provably counts on the live repo; #29 sits
+`APPROVED` by `codexfactory[bot]` with auto-merge OFF; re-enabling it (or
+letting the next clean nightly flow) is Brett's recorded first-merge event,
+after which the clearance history becomes countable and the flip-order
+precondition begins to clear. Footnote: the branch reset means the README
+governance note never reached main — re-land it via an ordinary PR when
+convenient. Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
