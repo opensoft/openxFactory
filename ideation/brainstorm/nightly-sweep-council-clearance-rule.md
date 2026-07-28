@@ -534,7 +534,24 @@ remaining fail-open. SAFETY HOLD: `doc-health-nightly` (309741090) and
 `merge-master-approval` (314135240) are reversibly `disabled_manually` so
 the first autonomous nightly stays a separately authorized event — NOTE the
 nightly corpus reports pause while held; re-enabling rides the canary
-authorization (task 7.1, Brett watching). Historical note below kept as written:
+authorization (task 7.1, Brett watching).
+
+**Pre-canary controls 1+2 DONE, 3 accepted (2026-07-28).** Control 2:
+the approval workflow's mint is narrowed per-mint to
+`permission-pull-requests: write` + repository scoping (xFactory `efb4dbb`,
+pinned by test) — narrower than the review's suggested checks:read, since
+the eval step reads checks with GITHUB_TOKEN. Control 1: codexFactory
+`2c72edd` proposes `add-merge-master-credential-contract` — the
+`merge_master_approval` family (per-grant `pull_requests:write` alone; the
+App's standing contents:write admitted ONLY as the counting grant, bounded
+by the mint narrowing, ruleset 19874574, and stale-dismissal), four ADDED
+requirements, guards updated deliberately, credentialing.md row added; all
+gates green; awaits Brett's ratification (gives parent task 2.3 its custody
+path). Control 3: Brett accepted the platform toggle — the admin AI applies
+`dismiss stale reviews on push` to ruleset 18962101 and reads it back
+(tracked as the new change's task 2.3). Remaining to canary: control-3
+application → ratify the credential contract → re-enable the two held
+workflows as part of task 7.1 with Brett watching. Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
