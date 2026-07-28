@@ -355,6 +355,11 @@ Active proposals promoted from staging:
   + Project Manager) with the three-layer coordination boundary (domain Scrum
   Coordinator / project PM / client Delivery Lead), provisioning from an
   archetype, and the manual-writer as a Plane-2 worker (2026-07-21).
+- [Ontology and Omnigent Micro-Agent Exploration Map](brainstorm/ontology-and-micro-agent-exploration-map.md)
+  — anchors a twelve-document collection covering the ontology and micro-agent
+  foundations, ontology generation/maintenance/context compilation, bounded
+  Omnigent task/routing/evaluation contracts, and the combined semantic
+  routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
 - [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
   — six project archetypes (service, library, cli, application, infra-iac, spike)
   a project is provisioned from, each a bundle of default policy, expected
