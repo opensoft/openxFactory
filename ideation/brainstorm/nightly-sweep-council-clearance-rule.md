@@ -453,7 +453,16 @@ attestation packet: codexFactory
 (`9d6876c`). Lane-wiring tasks now open: 6.2 only (archive ordering). The
 flip-order precondition STANDS: tier 2 stays inert until the merge-master
 App bot-approves ≥1 nightly — the flip and the attestation are Brett's
-recorded events. Historical note below kept as written:
+recorded events.
+
+**RATIFIED (Brett, 2026-07-28):** `add-council-clearance-lane-wiring` —
+stamp in the proposal (codexFactory `69ac0d2`), ratified on the rehearsal
+evidence. Archive deferred by the 6.2 ordering (after
+`add-nightly-sweep-council-clearance`, after its parent — the parent still
+blocked on the parked App-approval decision). Remaining on this whole
+track: that parked decision → tier-1 live approval → attestation → flip,
+plus the recorded tier-1 review findings (floating pins, org-wide token,
+rule `repository:` field) as their own changes. Historical note below kept as written:
 
 **Was blocked on: upgrading the QA stack to a current hermes-install image**
 (`docs/runbooks/upgrade.md`, `hermes-lifecycle upgrade`: correlated backup →
