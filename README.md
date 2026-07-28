@@ -189,6 +189,38 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-domain-ontology-layer](openspec/changes/add-domain-ontology-layer/proposal.md)
+  — authored 2026-07-28: the ontology layer for the xFactory system. Two new
+  capabilities (`xfactory-semantic-kernel`, `domain-ontology-lifecycle`) plus
+  deltas to layer-vocabulary, hermes-domain-overlay, and memory-gateway.
+  openxFactory owns a small neutral semantic kernel — a kernel term PUBLISHES
+  only with two independent resolvable adopters, while draft terms may record
+  pending adoption so the initial kernel bootstraps before the pilot packages
+  exist; each DomainxFactory owns its domain ontology as an immutable
+  content-addressed package stewarded by Domain Hermes, which answers for
+  MEASURABLE quality: a per-release quality report with declared
+  numerators/denominators (intake coverage, unknown-term rate, mapping
+  resolution, classification fixture accuracy, open-candidate age), domain
+  thresholds acting as maintenance triggers and blocking publication absent a
+  recorded reviewed exception. Ontology is meaning, never authority — the
+  separation is enforced STRUCTURALLY (closed field vocabulary; no
+  authority-plane record as relation endpoint, mapping target, or attribute
+  value), not by reading prose. External terminologies map by REFERENCE with
+  license classes; packages never mirror licensed code systems (decisive for
+  Medx clinical terminologies). Bounded semantic-context artifacts — term
+  subsets closed over specialization ancestors and relation endpoints, or
+  explicitly truncated — are the consumption seam for every Hermes layer AND
+  for the Omnigent layer: worker-scoped profiles give each small bounded
+  worker only the term subset its archetype needs with the permission matrix
+  untouched (profile + compilation contract defined here; overlay declaration
+  and runtime wiring are the named follow-up omnigent change). Emitted
+  telemetry, candidate registers, reports, and fixtures sit under the same
+  privacy rules as packages, with a distinct-subject/distinct-tenant
+  aggregation floor on term-level signals. Hardened 2026-07-28 by a two-stage
+  adversarial review (22 findings fixed, including realization front matter,
+  retention/rollback mechanics, compatibility edge classification,
+  steward-attributed publication, and the generation determinism boundary).
+  Pilot pair: MedxFactory + codexFactory.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
