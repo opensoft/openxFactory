@@ -11,7 +11,7 @@ kernel_pin:
 package_pin:
   package_id: xf/medx
   package_version: 1.0.0
-  package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
+  package_digest: 344dcb456fd67a6d3f81077261108a4240d3ef3ed500eb716a47bbdc7c885b2a
 terms: [xf/medx/patient, xf/core/subject]
 closure:
   status: closed

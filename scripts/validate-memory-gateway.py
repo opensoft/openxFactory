@@ -41,6 +41,7 @@ REQUIRED_CONTRACTS = {
 }
 
 REQUIRED_EXAMPLES = {
+    "semantic-context-packet.example.yaml",
     "gbrain-provider-profile.yaml",
     "honcho-provider-profile.yaml",
     "agentmemory-provider-profile.yaml",
@@ -66,6 +67,14 @@ REQUIRED_EXAMPLES = {
 }
 
 REQUIRED_FIXTURE_IDS = {
+    "semantic_context_digest_mismatch_rejected",
+    "semantic_context_unpinned_package_rejected",
+    "semantic_context_retired_package_rejected",
+    "semantic_context_cross_purpose_rejected",
+    "semantic_context_tenant_binding_mismatch_rejected",
+    "semantic_context_unrestricted_corpus_refused",
+    "semantic_context_provider_replacement_stable",
+    "semantic_inference_cannot_authorize",
     "read_denied_missing_consent",
     "read_denied_withdrawn_consent",
     "write_denied_missing_source_refs",
@@ -268,6 +277,70 @@ def validate_memory_bindings(errors: list[str]) -> None:
         _binding_surface_violations(binding, "binding", errors, where)
 
 
+SEMANTIC_AUTHORITY_KEYS = {
+    "effect", "permission", "permissions", "grant", "grants", "credential",
+    "credentials", "scope", "scopes", "route", "routing", "token", "secret",
+    "binding", "approval",
+}
+
+
+def validate_semantic_context(errors: list[str]) -> None:
+    """Semantic-context preflight (add-domain-ontology-layer, tasks 6.2/6.3):
+    every example packet carrying a semantic_context block is checked the way
+    the gateway must check it BEFORE provider I/O — exact ids and digests,
+    published-or-deprecated package lifecycle (retired fails closed), purpose
+    agreement with the packet (cross-purpose reuse is a new-packet event),
+    and a non-empty bounded term subset. The block can never widen anything:
+    an authority-named key inside it is a violation."""
+    checked = 0
+    for example in sorted(EXAMPLE_DIR.glob("*.example.yaml")):
+        doc = load_yaml(example)
+        for packet_key in ("context_packet", "expert_context_packet"):
+            packet = doc.get(packet_key)
+            if not isinstance(packet, dict):
+                continue
+            ctx = packet.get("semantic_context")
+            if ctx is None:
+                continue
+            checked += 1
+            where = f"{example.name}:{packet_key}"
+            for key in ("semantic_context_id", "content_digest", "purpose",
+                        "kernel_pin", "package_pin", "term_subset", "lifecycle"):
+                if key not in ctx:
+                    errors.append(f"{where} semantic_context missing {key}")
+            import re as _re
+            if not _re.match(r"^[a-f0-9]{64}$", str(ctx.get("content_digest", ""))):
+                errors.append(f"{where} semantic_context content_digest is not a sha256")
+            for pin_name in ("kernel_pin", "package_pin"):
+                pin = ctx.get(pin_name) or {}
+                if not _re.match(r"^[a-f0-9]{64}$", str(pin.get("package_digest", ""))):
+                    errors.append(f"{where} {pin_name} lacks an exact digest; "
+                                  "an unpinned package fails closed")
+            if ctx.get("purpose") != packet.get("purpose"):
+                errors.append(f"{where} semantic_context purpose differs from the packet "
+                              "purpose; cross-purpose reuse requires a new packet")
+            state = (ctx.get("lifecycle") or {}).get("package_lifecycle_state")
+            if state not in ("published", "deprecated"):
+                errors.append(f"{where} semantic_context package lifecycle {state!r} "
+                              "rejected before provider I/O")
+            if not ctx.get("term_subset"):
+                errors.append(f"{where} semantic_context term_subset is empty; an "
+                              "unrestricted ontology corpus is never issued")
+            stack = [ctx]
+            while stack:
+                node = stack.pop()
+                if isinstance(node, dict):
+                    for k, v in node.items():
+                        if k.lower() in SEMANTIC_AUTHORITY_KEYS:
+                            errors.append(f"{where} semantic_context carries authority-named "
+                                          f"key {k!r}; semantic context never grants")
+                        stack.append(v)
+                elif isinstance(node, list):
+                    stack.extend(node)
+    if checked == 0:
+        errors.append("no example packet exercises semantic_context")
+
+
 def validate_fixtures(errors: list[str]) -> None:
     data = load_yaml(EXAMPLE_DIR / "conformance-fixtures.yaml")
     fixtures = data.get("fixtures", [])
@@ -362,6 +435,7 @@ def main() -> int:
     validate_provider_profiles(errors)
     validate_examples(errors)
     validate_memory_bindings(errors)
+    validate_semantic_context(errors)
     validate_fixtures(errors)
     validate_runtime_smoke(errors)
     if errors:

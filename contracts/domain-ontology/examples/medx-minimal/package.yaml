@@ -24,6 +24,8 @@ kernel_import:
   package_version: 0.1.0
   package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
 inventory:
+  - path: profile-verify.yaml
+    sha256: d21807472792003f39e9f9bef2abf68643967758039a53c7ea84413967ace39d
   - path: stewardship.yaml
     sha256: 48fc4cda9d280940ee9fafd7fc10ff7c26032172bfa6f634791bce321df0705e
   - path: concepts.yaml
@@ -32,7 +34,7 @@ inventory:
     sha256: b8dbe95dd3c2d25d5b5316591ae9df987063c2589ea13a5e4a4c06ce6fc8df65
   - path: sources.yaml
     sha256: cb56dd5258e363465519bf79695cfb8d252684d2b9061601042722b6c4c8fb93
-package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
+package_digest: 344dcb456fd67a6d3f81077261108a4240d3ef3ed500eb716a47bbdc7c885b2a
 compatibility:
   class: initial
   line: xf/medx@1

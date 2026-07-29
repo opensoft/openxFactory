@@ -20,6 +20,87 @@ properties:
       - audit_refs
       - usage_refs
     properties:
+      semantic_context:
+        # Optional bounded semantic context (add-domain-ontology-layer,
+        # task 6.2). When domain terms, mappings, classifications, or
+        # semantic relations are included, the packet carries the exact
+        # semantic-context identity and the kernel/domain pins used to
+        # interpret them; preflight rejects digest failure, an unpinned or
+        # retired package, or a purpose mismatch BEFORE provider I/O, and
+        # the presence of semantic context never changes any rail, grant,
+        # or permission (task 6.3).
+        type: object
+        required:
+          - semantic_context_id
+          - content_digest
+          - purpose
+          - kernel_pin
+          - package_pin
+          - term_subset
+          - lifecycle
+        additionalProperties: false
+        properties:
+          semantic_context_id:
+            type: string
+            pattern: "^ctx-[a-z0-9][a-z0-9-]{0,63}$"
+          content_digest:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+          purpose:
+            type: string
+          worker_scope:
+            type: object
+            additionalProperties: false
+            minProperties: 1
+            properties:
+              worker_archetype:
+                enum: [frame, generate, verify, challenge, assemble_for_admission]
+              worker_class:
+                type: string
+          kernel_pin:
+            type: object
+            required: [package_id, package_version, package_digest]
+            additionalProperties: false
+            properties:
+              package_id:
+                type: string
+              package_version:
+                type: string
+              package_digest:
+                type: string
+                pattern: "^[a-f0-9]{64}$"
+          package_pin:
+            type: object
+            required: [package_id, package_version, package_digest]
+            additionalProperties: false
+            properties:
+              package_id:
+                type: string
+              package_version:
+                type: string
+              package_digest:
+                type: string
+                pattern: "^[a-f0-9]{64}$"
+          tenant_binding_ref:
+            type: string
+          term_subset:
+            type: array
+            minItems: 1
+            items:
+              type: string
+          lifecycle:
+            type: object
+            required: [package_lifecycle_state]
+            additionalProperties: false
+            properties:
+              package_lifecycle_state:
+                type: string
+                enum: [published, deprecated]
+              compiled_at:
+                type: string
+              ttl_seconds:
+                type: integer
+                minimum: 1
       id:
         type: string
       issued_at:

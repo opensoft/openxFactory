@@ -15,7 +15,7 @@ instantiates and never publishes. The semantic plane describes; the control
 plane (grants, consent, approvals, bindings) decides — enforced
 structurally by closed shapes and the canonical validator, not by prose.
 
-## The thirteen kinds
+## The fourteen kinds
 
 | Schema | Kind | Carries |
 | --- | --- | --- |
@@ -32,6 +32,7 @@ structurally by closed shapes and the canonical validator, not by prose.
 | `ontology-stewardship-policy.schema.yaml` | `xfactory_ontology_stewardship_policy` | council, source-review cadence, the seven mode workflows, trigger thresholds, quality gate, standing privacy floor (inventoried content) |
 | `ontology-maintenance-input.schema.yaml` | `xfactory_ontology_maintenance_input` | governed, floor-respecting maintenance observations; `as_of` is data, never a clock |
 | `ontology-maintenance-report.schema.yaml` | `xfactory_ontology_maintenance_report` | append-only record of each trigger evaluation; a clean check is itself evidence |
+| `semantic-context-profile.schema.yaml` | `xfactory_semantic_context_profile` | the worker-scoped term subset per archetype/class (inventoried content); compiled per worker by the context compiler — the Omnigent seam |
 
 Package layout: `package.yaml` + inventoried CONTENT files (concepts,
 relations, mappings, sources, migration maps), digest-closed; RECORD files
@@ -59,7 +60,11 @@ python3 scripts/validate-domain-ontology.py --determinism
 python3 scripts/validate-domain-ontology.py --readiness <pkg-dir>   # ontology_ready | domain_scaffold_required
 ```
 
-Stewardship tooling: `scripts/ontology-maintenance.py` evaluates the policy
+`scripts/ontology-compile-context.py` compiles bounded semantic contexts
+(closure or itemized truncation, tenant-binding fail-closed, no
+unrestricted mode, deterministic digests); the memory-gateway packet
+contracts carry the block and `validate-memory-gateway.py` preflights it
+before provider I/O. Stewardship tooling: `scripts/ontology-maintenance.py` evaluates the policy
 triggers over a governed input and opens mode-mapped candidates append-only
 (a clean run records the completed check); `scripts/ontology-release.py`
 performs the governed version transition — accountable-steward gate
@@ -91,7 +96,7 @@ Stable finding codes (each with at least one indexed negative fixture):
 | ONT-CANDIDATE / ONT-RELEASE | run-identity, steward-disposition, and accountable-publication rules |
 | ONT-FLOOR / ONT-QUALITY | aggregation-floor and computable-signal rules |
 | ONT-CONTEXT-CLOSURE / ONT-CONTEXT-PIN / ONT-BINDING | subset closure, pin agreement, tenant-binding agreement |
-| ONT-POLICY / ONT-MAINTENANCE | council/quorum resolution; fired-trigger completeness and drift agreement |
+| ONT-POLICY / ONT-MAINTENANCE / ONT-PROFILE | council/quorum resolution; fired-trigger completeness; profile term resolution |
 | ONT-MANIFEST-PIN | content-manifest `domain_ontology` target missing or invalid |
 | ONT-SCHEMA | any other schema conformance failure |
 
@@ -101,7 +106,7 @@ Positive (`examples/`): `medx-minimal/` (medical specialization with a
 restricted-license by-reference mapping and beside-package release,
 candidate, worker-scoped context, quality report), `codex-minimal/`
 (engineering specialization of the same kernel), `generated-scaffold/`
-(starter-shaped draft). Negative (`examples/negative/`): 37 fixtures, one
+(starter-shaped draft). Negative (`examples/negative/`): 39 fixtures, one
 per finding rule — including two paired-revision cases (a parent added on
 a published concept and a relation range widened, each declared additive
 against retained prior bytes), each declaring `# expected_failure:` (and, where a code

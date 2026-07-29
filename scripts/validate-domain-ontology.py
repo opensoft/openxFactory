@@ -139,6 +139,7 @@ SCHEMA_FILES = {
     "xfactory_ontology_stewardship_policy": "ontology-stewardship-policy.schema.yaml",
     "xfactory_ontology_maintenance_input": "ontology-maintenance-input.schema.yaml",
     "xfactory_ontology_maintenance_report": "ontology-maintenance-report.schema.yaml",
+    "xfactory_semantic_context_profile": "semantic-context-profile.schema.yaml",
 }
 FAMILY_KINDS = set(SCHEMA_FILES)
 # Package CONTENT is inventoried and digest-covered. RECORD kinds reference
@@ -152,6 +153,7 @@ PACKAGE_CONTENT_KINDS = {
     "xfactory_ontology_source_inventory",
     "xfactory_ontology_migration_map",
     "xfactory_ontology_stewardship_policy",
+    "xfactory_semantic_context_profile",
 }
 PACKAGE_RECORD_KINDS = {
     "xfactory_ontology_candidate_record",
@@ -266,6 +268,7 @@ class Package:
         self.quality: list[tuple[Path, dict]] = []
         self.policy: dict | None = None
         self.maintenance: list[tuple[Path, dict]] = []
+        self.profiles: list[tuple[Path, dict]] = []
 
     @property
     def package_id(self) -> str:
@@ -345,6 +348,8 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
             pkg.migrations.append((fpath, doc))
         elif kind == "xfactory_ontology_stewardship_policy":
             pkg.policy = doc
+        elif kind == "xfactory_semantic_context_profile":
+            pkg.profiles.append((fpath, doc))
 
     # Beside-the-inventory records: candidates, releases, contexts, quality
     # reports found in the package dir attach without being digest-covered. A
@@ -672,6 +677,15 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                                     "policy declares a distinct-subject floor below two without a "
                                     "recorded, reviewed exception"))
 
+    # Worker-profile rules (ONT-PROFILE): every required term resolves in
+    # the package or its kernel, so a compiled worker context is well-defined.
+    for fpath, prof in pkg.profiles:
+        for tid in prof.get("required_terms", []):
+            if not resolvable(tid):
+                findings.append(Finding("ONT-PROFILE", rel(fpath),
+                                        f"profile {prof.get('profile_id')}: required term "
+                                        f"{tid} does not resolve"))
+
     # Maintenance-report rules (ONT-MAINTENANCE): a fired trigger names its
     # mode and the candidate(s) it opened.
     for fpath, mreport in pkg.maintenance:
@@ -803,7 +817,11 @@ def discover_units(base: Path):
             doc = load_yaml(f)
         except yaml.YAMLError:
             continue
-        if isinstance(doc, dict) and doc.get("kind") in FAMILY_KINDS:
+        if isinstance(doc, dict) and (
+                doc.get("kind") in FAMILY_KINDS
+                or "semantic_context" in doc
+                or any(isinstance(v, dict) and "semantic_context" in v
+                       for v in doc.values() if isinstance(v, dict))):
             loose.append(f)
     for d in packages:
         yield "package", d
@@ -818,6 +836,27 @@ def validate_unit(kind: str, path: Path, schemas, resolve_kernel) -> list[Findin
     else:
         doc = load_yaml(path)
         doc_kind = doc.get("kind")
+        if doc_kind not in FAMILY_KINDS:
+            # A non-family document carrying an embedded semantic_context
+            # block (task 6.4): typed claims, hypotheses, jobs, and derived
+            # artifacts that use domain semantics retain their exact
+            # semantic-context identity and pins.
+            blocks = []
+            if isinstance(doc.get("semantic_context"), dict):
+                blocks.append(doc["semantic_context"])
+            for v in doc.values():
+                if isinstance(v, dict) and isinstance(v.get("semantic_context"), dict):
+                    blocks.append(v["semantic_context"])
+            for block in blocks:
+                for key in ("semantic_context_id", "content_digest",
+                            "kernel_pin", "package_pin"):
+                    if key not in block:
+                        findings.append(Finding(
+                            "ONT-CONTEXT-PIN", rel(path),
+                            f"embedded semantic_context missing {key}; artifacts "
+                            "using domain semantics retain their exact identity"))
+            findings.extend(value_scan(doc, path))
+            return findings
         findings.extend(schema_findings(schemas[doc_kind], doc, path))
         findings.extend(value_scan(doc, path))
         if doc_kind == "xfactory_semantic_context":

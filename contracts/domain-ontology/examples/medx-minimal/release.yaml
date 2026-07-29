@@ -3,7 +3,7 @@ kind: xfactory_ontology_release_record
 release_id: rel-medx-initial
 package_id: xf/medx
 package_version: 1.0.0
-package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
+package_digest: 344dcb456fd67a6d3f81077261108a4240d3ef3ed500eb716a47bbdc7c885b2a
 compatibility_class: initial
 decided_by: medx-ontology-steward
 quality_report_ref: quality.yaml

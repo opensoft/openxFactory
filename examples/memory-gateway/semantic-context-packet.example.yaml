@@ -1,0 +1,44 @@
+schema_version: 1
+# Semantic-context packet example (add-domain-ontology-layer, task 6.2/6.3):
+# a customer context packet whose domain terms are interpreted under an
+# exact bounded semantic context — the verify-worker scope from the medx
+# reference profile. Preflight verifies digests, pins, lifecycle, and
+# purpose agreement BEFORE provider I/O; the block grants nothing.
+context_packet:
+  id: packet-medx-verify-0001
+  issued_at: "2026-07-29T00:00:00Z"
+  expires_at: "2026-07-29T01:00:00Z"
+  purpose: classification for a verify worker
+  workflow_ref: workflow://medx/intake_review
+  subject_refs:
+    - "urn:xfactory:subject:00000000-0000-4000-8000-000000000001"
+  redaction_class: customer_redacted
+  current_state_snapshot_refs: []
+  memory_item_refs: []
+  source_claim_refs: []
+  trace_refs:
+    - trace://medx/intake_review/0001
+  provider_refs: []
+  audit_refs:
+    - audit://medx/packet-medx-verify-0001
+  semantic_context:
+    semantic_context_id: ctx-medx-verify-0001
+    content_digest: 3f0b6c8f3a3f0e9b1d2c4a5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192
+    purpose: classification for a verify worker
+    worker_scope:
+      worker_archetype: verify
+    kernel_pin:
+      package_id: xf/core
+      package_version: 0.1.0
+      package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+    package_pin:
+      package_id: xf/medx
+      package_version: 1.0.0
+      package_digest: 96be8ff70e4be59b029e05dbcbbf1e6d8f8b19cf1b0c8e2a4d6f8091a2b3c4d5
+    term_subset:
+      - xf/medx/patient
+      - xf/core/subject
+    lifecycle:
+      package_lifecycle_state: published
+      compiled_at: "2026-07-29T00:00:00Z"
+      ttl_seconds: 3600

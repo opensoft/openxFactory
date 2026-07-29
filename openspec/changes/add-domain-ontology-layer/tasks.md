@@ -159,13 +159,45 @@ All proven by `scripts/test-ontology-stewardship.py` (22 checks green).
 
 ## 6. Semantic Context And Memory Gateway Integration
 
-- [ ] 6.1 Implement deterministic compilation of a purpose-bounded semantic-context artifact from exact kernel, domain package, and approved tenant-binding pins, closing the term subset over specialization ancestors and relation domain/range concepts or emitting an itemized truncation record, and failing closed on an unresolvable or wrong-package tenant binding.
-- [ ] 6.2 Extend customer and expert context-packet contracts to carry semantic-context ID/digest, exact ontology identities, lifecycle/freshness metadata, and the bounded term subset when semantics are included.
-- [ ] 6.3 Integrate semantic-context validation into memory gateway preflight before provider I/O while retaining all existing consent, privacy, purpose, authority, redaction, promotion, and audit rails.
-- [ ] 6.4 Require typed claims, workflow hypotheses, jobs, or derived artifacts that use domain semantics to retain their exact semantic-context or ontology package identity.
-- [ ] 6.5 Add tests for context/package mismatch, stale, expired, or retired-package context, digest-verification failure, unrestricted ontology requests, tenant-binding mismatch, unclosed subsets, provider replacement, and cross-purpose reuse.
-- [ ] 6.6 Add adversarial tests proving classification, equivalence, specialization, graph traversal, and inferred relations cannot grant access, approve work, promote data, create bindings, or authorize external action.
-- [ ] 6.7 Define the neutral worker-archetype/worker-class semantic-context profile artifact inside this change's contract family and prove by fixture that compilation yields only the declared closed term subset per worker with the permission matrix unchanged; record omnigent overlay declaration and worker runtime wiring as the follow-up omnigent change.
+Section 6 realized 2026-07-29. Evidence:
+`scripts/ontology-compile-context.py` deterministically compiles a bounded
+`xfactory_semantic_context` from exact kernel + package pins, CLOSING the
+subset over specialization ancestors and relation endpoints or emitting an
+itemized truncation only where the profile allows it, and failing closed
+on unrestricted requests, unresolvable terms, retired/superseded packages,
+and wrong-package or dangling tenant bindings (6.1). Both memory-gateway
+packet contracts carry an optional additive `semantic_context` block —
+exact context id/digest, kernel/domain pins, worker scope, bounded term
+subset, lifecycle/freshness — and `validate-memory-gateway.py` preflights
+it BEFORE provider I/O: digest and pin formats, published/deprecated
+lifecycle only (retired rejected), purpose agreement with the packet, and
+rejection of any authority-named key inside the block; eight new
+conformance-fixture scenarios registered (6.2/6.3, and the section-3.4
+memory-packet leg now active). The canonical validator enforces 6.4
+generically: any document carrying an embedded `semantic_context` without
+its exact identity and pins fails ONT-CONTEXT-PIN (fixture
+embedded-context-missing-pins). `scripts/test-semantic-context.py` (18
+checks) covers context/package mismatch, retired-package and
+digest/format failure, unrestricted-request refusal, tenant-binding
+mismatch and dangling targets, truncation rules, deterministic
+recompilation (provider-replacement stability), and cross-purpose reuse
+(6.5), plus the adversarial floor: an authority field on a worker profile
+fails ONT-AUTHORITY-FIELD and the compiled artifact carries no
+authority-named field at any depth — classification can describe and never
+authorize (6.6). The neutral `xfactory_semantic_context_profile` kind
+(family now fourteen) is inventoried package content with ONT-PROFILE
+resolution checks; the medx reference package ships `profile-verify.yaml`
+whose compilation yields exactly the closed verify-worker subset with the
+permission matrix untouched; omnigent overlay declaration and worker
+runtime wiring remain the named follow-up omnigent change (6.7).
+
+- [x] 6.1 Implement deterministic compilation of a purpose-bounded semantic-context artifact from exact kernel, domain package, and approved tenant-binding pins, closing the term subset over specialization ancestors and relation domain/range concepts or emitting an itemized truncation record, and failing closed on an unresolvable or wrong-package tenant binding.
+- [x] 6.2 Extend customer and expert context-packet contracts to carry semantic-context ID/digest, exact ontology identities, lifecycle/freshness metadata, and the bounded term subset when semantics are included.
+- [x] 6.3 Integrate semantic-context validation into memory gateway preflight before provider I/O while retaining all existing consent, privacy, purpose, authority, redaction, promotion, and audit rails.
+- [x] 6.4 Require typed claims, workflow hypotheses, jobs, or derived artifacts that use domain semantics to retain their exact semantic-context or ontology package identity.
+- [x] 6.5 Add tests for context/package mismatch, stale, expired, or retired-package context, digest-verification failure, unrestricted ontology requests, tenant-binding mismatch, unclosed subsets, provider replacement, and cross-purpose reuse.
+- [x] 6.6 Add adversarial tests proving classification, equivalence, specialization, graph traversal, and inferred relations cannot grant access, approve work, promote data, create bindings, or authorize external action.
+- [x] 6.7 Define the neutral worker-archetype/worker-class semantic-context profile artifact inside this change's contract family and prove by fixture that compilation yields only the declared closed term subset per worker with the permission matrix unchanged; record omnigent overlay declaration and worker runtime wiring as the follow-up omnigent change.
 
 ## 7. Existing-Domain Migration And Cross-Domain Pilots
 

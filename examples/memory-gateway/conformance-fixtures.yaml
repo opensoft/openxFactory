@@ -1,6 +1,69 @@
 schema_version: 1
 kind: xfactory_memory_gateway_conformance_fixtures
 fixtures:
+  - id: semantic_context_digest_mismatch_rejected
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: semantic_context_digest_mismatch
+    provider_io_attempted: false
+    asserts:
+      - a packet whose semantic context fails digest verification is rejected before provider I/O
+  - id: semantic_context_unpinned_package_rejected
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: semantic_context_unpinned
+    provider_io_attempted: false
+    asserts:
+      - a semantic context naming a package the installation does not pin fails closed
+  - id: semantic_context_retired_package_rejected
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: semantic_context_retired_package
+    provider_io_attempted: false
+    asserts:
+      - a retired ontology package is rejected for new classification before provider I/O
+  - id: semantic_context_cross_purpose_rejected
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: purpose_mismatch
+    provider_io_attempted: false
+    asserts:
+      - a semantic context issued for one purpose is rejected as input to another; a new packet re-runs the rails
+  - id: semantic_context_tenant_binding_mismatch_rejected
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: tenant_binding_package_mismatch
+    provider_io_attempted: false
+    asserts:
+      - a tenant binding pinned to a different package than the context fails closed at compilation
+  - id: semantic_context_unrestricted_corpus_refused
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: denied
+    expected_denial_reason: unrestricted_ontology_request
+    provider_io_attempted: false
+    asserts:
+      - no surface issues an unrestricted ontology corpus; compilation requires a purpose-bounded term subset or worker profile
+  - id: semantic_context_provider_replacement_stable
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - rebuilding the same pinned ontology in a different provider leaves identifiers, conformance results, and context digests unchanged
+  - id: semantic_inference_cannot_authorize
+    tier: M0
+    operation: xfactory.memory.context_packet
+    expected_decision: allowed
+    provider_io_attempted: true
+    asserts:
+      - classification, equivalence, specialization, and graph traversal results never grant access, approve work, promote data, create bindings, or authorize external action
+      - the consent, privacy, source-authority, binding, grant, purpose, redaction, promotion, and audit rails run unchanged when semantic context is present
   - id: read_denied_missing_consent
     tier: M0
     operation: xfactory.memory.query
