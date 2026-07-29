@@ -190,7 +190,10 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
-  — authored 2026-07-28, the exit of the `deployment-handoff-boundary`
+  — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
+  resolutions carried as design decisions; four residual questions
+  deliberately deferred to the successor realizations); the exit of the
+  `deployment-handoff-boundary`
   staged topic (fully promoted; primary doc under `supporting-docs/`): a
   release deployment is executed by the factory that manages the TARGET
   SURFACE, decided solely by the managed-subject test — never by the

@@ -26,6 +26,6 @@ explicit paths, `git status -sb` before every commit.
 
 ## 4. Ratification And Archive
 
-- [ ] 4.1 Obtain ratification approval and stamp the proposal front matter (`Status: ratified`, `Ratified by:`).
+- [x] 4.1 Obtain ratification approval and stamp the proposal front matter (`Status: ratified`, `Ratified by:`) — ratified by Brett 2026-07-29.
 - [ ] 4.2 At archive, package `supporting-docs/` as a deterministic bundle per the proposal-support archive gate; the change archives when its artifacts land (code_surface none).
 - [ ] 4.3 Verify the topic-exit conditions — one real release crossing the rail end-to-end and a clean or dispositioned correlation-audit run — are tracked on the OpsxFactory and codexFactory successor changes, not on this change.

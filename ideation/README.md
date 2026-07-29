@@ -248,7 +248,8 @@ staged file is added, removed, or promoted.
 Active proposals promoted from staging:
 
 - [add-deployment-handoff-boundary](../openspec/changes/add-deployment-handoff-boundary/proposal.md)
-  — fully promoted 2026-07-28: owns the former `deployment-handoff-boundary`
+  — fully promoted 2026-07-28, RATIFIED 2026-07-29: owns the former
+  `deployment-handoff-boundary`
   staged topic under `supporting-docs/`. The managed-subject test routes
   deployment execution — authority follows management of the target surface,
   never the environment tier — binding workers, CI, and human engineers
