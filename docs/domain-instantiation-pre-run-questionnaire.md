@@ -164,6 +164,32 @@ explicit for the target stack.
 - Which memories must never be promoted?
 - What de-identification, aggregation, or review is required before learning?
 
+### 3.4.5 Ontology Intake
+
+Machine-readable answers land in the `ontology:` section of the pre-run
+answer file (`xfactory_instantiation_prerun_answers`); the ontology-aware
+starter (v13+) seeds `hermes/domain/ontology/` deterministically from them
+per the `add-domain-ontology-layer` generation pipeline. Placeholder values
+in angle brackets are never seeded — each becomes an unresolved input in
+the starter rerun report and the coverage-gap report, and the draft package
+stays non-publishable until Domain Hermes review resolves it.
+
+- Which subject kinds does this domain serve? (each seeds a draft
+  specialization of `xf/core/subject`)
+- Which focal item kinds? (`xf/core/focal_item`)
+- Which primary workflows, activities, journey states, outcomes, and
+  interventions? (each list seeds its kernel specialization)
+- Which evidence types? (`xf/core/evidence`)
+- Which external terminologies or code systems, with license class and
+  permitted use? (registered by reference in the source inventory; content
+  is never mirrored)
+- Which governed internal sources feed the ontology?
+- What are the domain boundaries and prohibited interpretations?
+- Who is the accountable ontology steward, and which review council and
+  required reviewers gate high-impact semantic change? (a worker or agent
+  identity cannot publish)
+- Which semantic assumptions remain unresolved?
+
 ### 3.5 Workflows And Gates
 
 - What are the first three workflows?

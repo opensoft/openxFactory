@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 12  # v12: ideation capture-and-route guide stub
+STARTER_VERSION = 13  # v13: domain-ontology draft scaffold + content-manifest declaration (add-domain-ontology-layer §4)
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -47,6 +47,10 @@ class RunLog:
     skipped: list[tuple[str, str]]
     conflicts: list[tuple[str, str, str]]
     validation: list[str]
+    # Ontology pipeline (add-domain-ontology-layer §4): semantic inputs that
+    # were missing or placeholder-valued; each keeps the draft package
+    # non-publishable until Domain Hermes resolves it.
+    unresolved: list[tuple[str, str]]
 
 
 def slug_from_product(product_name: str) -> str:
@@ -400,6 +404,30 @@ customer-subject instantiation.
   care-affecting, destructive, or privileged work?
 - Which layer names are repo-declared?
 - Which layer names are inferred?
+
+## Ontology Intake
+
+Machine-readable answers land in the `ontology:` section of the pre-run
+answer file; the starter seeds `hermes/domain/ontology/` deterministically
+from them. Placeholder values in angle brackets are never seeded — each one
+is reported as unresolved and the draft package stays non-publishable until
+Domain Hermes review.
+
+- Subject kinds this domain serves (each becomes a draft specialization of
+  `xf/core/subject`):
+- Focal item kinds (specializing `xf/core/focal_item`):
+- Primary workflows, activities, journey states, outcomes, and
+  interventions (each list seeds its kernel specialization):
+- Evidence types (specializing `xf/core/evidence`):
+- External terminologies and code systems, WITH license class and permitted
+  use (registered by reference; content is never mirrored):
+- Governed ontology sources (internal documents, standards, registries):
+- Domain boundaries and prohibited interpretations (what this ontology must
+  not claim):
+- Accountable ontology steward and review council (Domain Hermes
+  stewardship; a worker or agent identity cannot publish):
+- Required reviewers for high-impact semantic change:
+- Unresolved semantic assumptions (carried into the coverage-gap report):
 
 ## Hermes Mixture Of Agents
 
@@ -2285,6 +2313,13 @@ schema:
     - credentials.raw_secrets_in_repo_allowed
     - validation.local_command
     - implementation_gaps.starter_placeholders_remaining
+    - ontology.answer_quality
+    - ontology.subject_kinds
+    - ontology.focal_item_kinds
+    - ontology.ontology_sources
+    - ontology.stewards
+    - ontology.domain_boundaries
+    - ontology.unresolved_assumptions
 """,
         "examples/README.md": md_header(ctx) + "# Examples\n\nExample packets and dry-run artifacts belong here.\n",
         "examples/instantiation-answers.example.yaml": yaml_header(ctx) + f"""schema_version: 1
@@ -2417,6 +2452,34 @@ installation_discovery:
     - calendar_and_scheduling
   bad_practice_migration_required: true
 
+ontology:
+  answer_quality: starter_placeholder
+  subject_kinds:
+    - <primary-subject-kind>
+  focal_item_kinds:
+    - <primary-focal-item-kind>
+  workflows:
+    - example_readonly
+    - example_privileged
+  activities: []
+  journey_states: []
+  outcomes: []
+  interventions: []
+  evidence_types: []
+  external_terminologies: []
+  ontology_sources:
+    - system_id: domain-intake-answers
+      name: {ctx.product_name} intake answers
+      source_kind: internal_document
+      license_class: open
+  domain_boundaries:
+    - <work this domain must not interpret>
+  prohibited_interpretations: []
+  stewards: []
+  required_reviewers: []
+  unresolved_assumptions:
+    - Replace ontology placeholders before Domain Hermes review.
+
 legacy_normalization:
   uses_legacy_subject_layer: false
   legacy_subject_layer_name: null
@@ -2540,6 +2603,11 @@ REQUIRED_FILES = [
     "schemas/instantiation-questionnaire.schema.yaml",
     "examples/instantiation-answers.example.yaml",
     "examples/golden-path/README.md",
+    "hermes/domain/content-manifest.yaml",
+    "hermes/domain/ontology/package.yaml",
+    "hermes/domain/ontology/concepts.yaml",
+    "hermes/domain/ontology/sources.yaml",
+    "hermes/domain/ontology/STARTER.yaml",
 ]
 
 SECRET_PATTERNS = [
@@ -2996,7 +3064,666 @@ def starter_owned_upgrade_reason(rel: str, existing: str) -> str | None:
         and "deliberative_council" not in existing
     ):
         return "upgraded starter-owned agent mixes schema"
+    if (
+        rel == "docs/pre-run-questionnaire.md"
+        and "starter_source: openxFactory/domain-factory-starter-pack" in existing
+        and "## Ontology Intake" not in existing
+    ):
+        return "upgraded starter-owned questionnaire with the ontology intake section"
+    if (
+        rel == "schemas/instantiation-questionnaire.schema.yaml"
+        and "source: openxFactory/domain-factory-starter-pack" in existing
+        and "ontology.subject_kinds" not in existing
+    ):
+        return "upgraded starter-owned pre-run answer schema with ontology paths"
+    if (
+        rel == "examples/instantiation-answers.example.yaml"
+        and "source: openxFactory/domain-factory-starter-pack" in existing
+        and "\nontology:" not in existing
+    ):
+        return "upgraded starter-owned pre-run answer example with the ontology section"
+    if (
+        rel == "scripts/validate-domain-factory.py"
+        and "hermes/domain/ontology" not in existing
+    ):
+        return "upgraded starter-owned domain validator with the ontology tree checks"
     return None
+
+
+# ---------------------------------------------------------------------------
+# Domain-ontology draft scaffold (add-domain-ontology-layer, tasks 4.1-4.8)
+#
+# Deterministic seeding: the ontology tree is a pure function of the answer
+# set, the domain context, and the pinned openxFactory kernel — no
+# timestamps, no randomness — so reruns over unchanged inputs are
+# byte-identical (task 4.4). Domain-owned content is never overwritten: an
+# existing file that differs from starter output is reported as a CONFLICT
+# and its bytes are what the package manifest digests (task 4.8). The
+# model-assisted path writes ONLY candidate records via --ingest-candidates
+# and never deletes, replaces, or resurrects a candidate or its disposition
+# (task 4.5).
+# ---------------------------------------------------------------------------
+
+import hashlib
+
+OPENX_ROOT = Path(__file__).resolve().parents[1]
+ONTOLOGY_DIR = "hermes/domain/ontology"
+ONTOLOGY_STARTER_KIND = "xfactory_ontology_starter_provenance"
+
+ONTOLOGY_SEEDS = [
+    ("subject_kinds", "xf/core/subject", "subject kind"),
+    ("focal_item_kinds", "xf/core/focal_item", "focal item kind"),
+    ("workflows", "xf/core/workflow", "workflow"),
+    ("activities", "xf/core/activity", "activity"),
+    ("journey_states", "xf/core/journey_state", "journey state"),
+    ("outcomes", "xf/core/outcome", "outcome"),
+    ("interventions", "xf/core/intervention", "intervention"),
+    ("evidence_types", "xf/core/evidence", "evidence type"),
+]
+
+
+def term_slug(text: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9]+", "_", str(text)).strip("_").lower()
+    return cleaned
+
+
+def source_slug(text: str) -> str:
+    # Source system_ids keep their hyphens (the schema slug allows them), so
+    # a registered id and a batch's source_refs compare byte-for-byte.
+    cleaned = re.sub(r"[^A-Za-z0-9_-]+", "-", str(text)).strip("-_").lower()
+    return cleaned
+
+
+def term_label(text: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9]+", " ", str(text)).strip()
+    return " ".join(word.capitalize() for word in cleaned.split()) or "Unnamed"
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def read_kernel_pin() -> tuple[str, str] | None:
+    core = OPENX_ROOT / "contracts" / "domain-ontology" / "core" / "package.yaml"
+    if yaml is None or not core.exists():
+        return None
+    data = yaml.safe_load(core.read_text(encoding="utf-8")) or {}
+    version = data.get("package_version")
+    digest = data.get("package_digest")
+    if not version or not digest:
+        return None
+    return str(version), str(digest)
+
+
+def resolve_ontology_answers(target: Path, args: argparse.Namespace,
+                             log: RunLog) -> dict:
+    candidates = []
+    if getattr(args, "answers", None):
+        candidates.append(Path(args.answers))
+    candidates.append(target / "instantiation-answers.yaml")
+    candidates.append(target / "examples" / "instantiation-answers.example.yaml")
+    for path in candidates:
+        if path.exists() and yaml is None:
+            log.unresolved.append((str(path), "PyYAML unavailable; answers unread"))
+            return {}
+        if path.exists():
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            except Exception as exc:  # noqa: BLE001
+                log.unresolved.append((str(path), f"answer file unparseable: {exc}"))
+                return {}
+            onto = data.get("ontology") if isinstance(data, dict) else None
+            if isinstance(onto, dict):
+                return onto
+            log.unresolved.append(
+                (str(path.name), "answer file has no ontology section; placeholders seeded"))
+            return {}
+    log.unresolved.append(("instantiation answers", "no answer file found; placeholders seeded"))
+    return {}
+
+
+def is_placeholder(value: object) -> bool:
+    text = str(value).strip()
+    return text.startswith("<") and text.endswith(">")
+
+
+def seed_concepts(domain_id: str, onto: dict, log: RunLog) -> tuple[list[dict], dict]:
+    concepts: list[dict] = []
+    seen: dict[str, str] = {}
+    gaps: dict[str, list] = {
+        "skipped_placeholders": [],
+        "duplicate_intake_items": [],
+        "unseeded_seed_lists": [],
+    }
+    for key, parent, kind_label in ONTOLOGY_SEEDS:
+        items = onto.get(key) or []
+        if not isinstance(items, list) or not items:
+            gaps["unseeded_seed_lists"].append(key)
+            if key in ("subject_kinds", "focal_item_kinds"):
+                log.unresolved.append(
+                    (f"ontology.{key}", f"no {kind_label} provided; required before publication"))
+            continue
+        for item in items:
+            if is_placeholder(item):
+                gaps["skipped_placeholders"].append({"list": key, "item": str(item)})
+                log.unresolved.append(
+                    (f"ontology.{key}", f"placeholder {item} unresolved"))
+                continue
+            slug = term_slug(item)
+            if not slug:
+                continue
+            tid = f"xf/{domain_id}/{slug}"
+            if tid in seen:
+                gaps["duplicate_intake_items"].append(
+                    {"id": tid, "kept_from": seen[tid], "also_in": key})
+                log.conflicts.append(
+                    (f"{ONTOLOGY_DIR}/concepts.yaml",
+                     f"intake item {item!r} in {key} collides with {seen[tid]} on {tid}",
+                     "rename one intake item or resolve via a candidate"))
+                continue
+            seen[tid] = key
+            concepts.append({
+                "id": tid,
+                "label": term_label(item),
+                "parent": parent,
+                "definition": (
+                    f"Starter-seeded {kind_label} specialization from intake item "
+                    f"'{term_label(item)}'; awaiting Domain Hermes review."),
+            })
+    if not concepts:
+        concepts.append({
+            "id": f"xf/{domain_id}/placeholder_subject",
+            "label": "Placeholder Subject",
+            "parent": "xf/core/subject",
+            "definition": ("Starter-seeded placeholder awaiting intake answers "
+                           "and Domain Hermes review."),
+        })
+    return concepts, gaps
+
+
+def seed_sources(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
+    sources: list[dict] = []
+    seen: set[str] = set()
+    for key in ("ontology_sources", "external_terminologies"):
+        for item in onto.get(key) or []:
+            if not isinstance(item, dict):
+                continue
+            sysid = source_slug(item.get("system_id") or item.get("name") or "")
+            if not sysid or sysid in seen or is_placeholder(item.get("system_id", "")):
+                continue
+            seen.add(sysid)
+            kind = item.get("source_kind") or (
+                "external_terminology" if key == "external_terminologies"
+                else "internal_document")
+            entry = {
+                "system_id": sysid,
+                "name": str(item.get("name") or sysid),
+                "source_kind": kind,
+                "license_class": item.get("license_class") or "open",
+            }
+            if item.get("version"):
+                entry["version"] = str(item["version"])
+            if item.get("permitted_use"):
+                entry["permitted_use"] = list(item["permitted_use"])
+            if str(kind).startswith("external_") and not item.get("license_class"):
+                log.unresolved.append(
+                    (f"ontology source {sysid}",
+                     "external source registered without an explicit license class"))
+            sources.append(entry)
+    if not sources:
+        sources.append({
+            "system_id": "domain-intake-answers",
+            "name": f"{ctx.product_name} intake answers",
+            "source_kind": "internal_document",
+            "license_class": "open",
+        })
+        log.unresolved.append(
+            ("ontology.ontology_sources",
+             "no governed sources registered; intake answers used as the only source"))
+    return sources
+
+
+def seed_stewards(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
+    stewards = []
+    for item in onto.get("stewards") or []:
+        if isinstance(item, dict) and item.get("steward_id") and \
+                not is_placeholder(item.get("steward_id")):
+            stewards.append({
+                "steward_id": term_slug(item["steward_id"]).replace("_", "-"),
+                "role": item.get("role") or "accountable_steward",
+                "identity_kind": item.get("identity_kind") or "human",
+                "name": str(item.get("name") or item["steward_id"]),
+            })
+    if not any(s["role"] == "accountable_steward" for s in stewards):
+        stewards.insert(0, {
+            "steward_id": f"{ctx.domain_id}-ontology-steward".replace("_", "-"),
+            "role": "accountable_steward",
+            "identity_kind": "human",
+            "name": "UNASSIGNED accountable ontology steward (placeholder)",
+        })
+        log.unresolved.append(
+            ("ontology.stewards",
+             "accountable ontology steward unassigned; required before publication"))
+    return stewards
+
+
+def render_concepts_yaml(domain_id: str, concepts: list[dict]) -> str:
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_concepts",
+        "# Starter-seeded DRAFT concept registry (deterministic; see",
+        "# hermes/domain/ontology/README.md). Domain Hermes reviews, edits,",
+        "# and publishes; the starter never overwrites this file.",
+        f"package_id: xf/{domain_id}",
+        "concepts:",
+    ]
+    for c in concepts:
+        lines += [
+            f"  - id: {c['id']}",
+            f"    label: \"{c['label']}\"",
+            f"    definition: \"{c['definition']}\"",
+            f"    parents: [{c['parent']}]",
+            "    lifecycle_state: draft",
+            "    effective_version: 0.1.0",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def render_sources_yaml(domain_id: str, sources: list[dict]) -> str:
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_source_inventory",
+        f"package_id: xf/{domain_id}",
+        "sources:",
+    ]
+    for s in sources:
+        lines += [
+            f"  - system_id: {s['system_id']}",
+            f"    name: \"{s['name']}\"",
+            f"    source_kind: {s['source_kind']}",
+            f"    license_class: {s['license_class']}",
+        ]
+        if s.get("version"):
+            lines.append(f"    version: \"{s['version']}\"")
+        if s.get("permitted_use"):
+            lines.append(f"    permitted_use: [{', '.join(s['permitted_use'])}]")
+    return "\n".join(lines) + "\n"
+
+
+def render_package_yaml(ctx: DomainContext, stewards: list[dict],
+                        inventory: list[tuple[str, str]], kernel: tuple[str, str],
+                        unresolved_count: int) -> str:
+    entries = sorted(f"{path} {digest}" for path, digest in inventory)
+    package_digest = sha256_text("\n".join(entries))
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_package_manifest",
+        "# Starter-generated DRAFT ontology package manifest",
+        "# (add-domain-ontology-layer §4). NOT PUBLISHABLE until Domain Hermes",
+        "# review resolves every unresolved input recorded in the rerun report",
+        "# and the coverage-gap report; publication is a governed release",
+        "# decision by the accountable steward, never a starter action.",
+        f"package_id: xf/{ctx.domain_id}",
+        "package_version: 0.1.0",
+        f"namespace: xf/{ctx.domain_id}",
+        "is_kernel: false",
+        "lifecycle_state: draft",
+        "owner:",
+        "  layer: domain_hermes",
+        f"  name: \"{ctx.domain_layer_name}\"",
+        "stewards:",
+    ]
+    for s in stewards:
+        lines += [
+            f"  - steward_id: {s['steward_id']}",
+            f"    role: {s['role']}",
+            f"    identity_kind: {s['identity_kind']}",
+            f"    name: \"{s['name']}\"",
+        ]
+    lines += [
+        "kernel_import:",
+        "  package_id: xf/core",
+        f"  package_version: {kernel[0]}",
+        f"  package_digest: {kernel[1]}",
+        "inventory:",
+    ]
+    for path, digest in inventory:
+        lines += [f"  - path: {path}", f"    sha256: {digest}"]
+    lines += [
+        f"package_digest: {package_digest}",
+        "compatibility:",
+        "  class: initial",
+        f"  line: xf/{ctx.domain_id}@1",
+        "notes: >-",
+        "  Starter-seeded draft awaiting Domain Hermes review; unresolved",
+        f"  semantic inputs at generation: {unresolved_count}.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def render_gap_report(ctx: DomainContext, gaps: dict, sources: list[dict],
+                      onto: dict, log: RunLog) -> str:
+    unseeded_kernel = ["xf/core/state", "xf/core/transition", "xf/core/gate",
+                       "xf/core/artifact", "xf/core/interaction", "xf/core/source",
+                       "xf/core/claim", "xf/core/hypothesis", "xf/core/observation",
+                       "xf/core/knowledge_atom"]
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_coverage_gap_report",
+        "# Starter-owned report; regenerated on rerun when inputs change.",
+        f"package_id: xf/{ctx.domain_id}",
+        "seed_gaps:",
+        f"  empty_seed_lists: [{', '.join(gaps['unseeded_seed_lists']) or ''}]".replace("[]", "[]"),
+        f"  skipped_placeholders: {len(gaps['skipped_placeholders'])}",
+        f"  duplicate_intake_items: {len(gaps['duplicate_intake_items'])}",
+        "kernel_concepts_without_domain_specialization:",
+    ]
+    for kid in unseeded_kernel:
+        lines.append(f"  - {kid}")
+    ext_wo_mappings = [s["system_id"] for s in sources
+                       if str(s["source_kind"]).startswith("external_")]
+    lines.append("external_systems_registered_without_mappings:")
+    if ext_wo_mappings:
+        lines += [f"  - {s}" for s in ext_wo_mappings]
+    else:
+        lines.append("  []")
+    lines.append("unresolved_inputs:")
+    onto_unresolved = [f"  - \"{ref}: {why}\"" for ref, why in log.unresolved]
+    lines += onto_unresolved or ["  []"]
+    lines.append("carried_assumptions:")
+    assumptions = [f"  - \"{a}\"" for a in (onto.get("unresolved_assumptions") or [])
+                   if not is_placeholder(a)]
+    lines += assumptions or ["  []"]
+    lines.append("domain_boundaries:")
+    bounds = [f"  - \"{b}\"" for b in (onto.get("domain_boundaries") or [])
+              if not is_placeholder(b)]
+    lines += bounds or ["  []"]
+    return "\n".join(lines) + "\n"
+
+
+def render_review_fixtures(domain_id: str, concepts: list[dict]) -> str:
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_review_fixtures",
+        "# Labeled classification fixtures for Domain Hermes review — every",
+        "# case is SYNTHETIC (starter-derived from intake labels); no subject",
+        "# or tenant material may ever be added here without de-identification",
+        "# through the promotion gates.",
+        f"package_id: xf/{domain_id}",
+        "cases:",
+    ]
+    ordered = sorted(concepts, key=lambda c: c["id"])
+    for i, c in enumerate(ordered):
+        slug = c["id"].rsplit("/", 1)[-1]
+        other = ordered[(i + 1) % len(ordered)]
+        lines += [
+            f"  - case_id: fx-{slug}-positive",
+            f"    text: \"synthetic intake mention of {c['label']}\"",
+            f"    expected: {c['id']}",
+            "    label: positive",
+        ]
+        if other["id"] != c["id"]:
+            lines += [
+                f"  - case_id: fx-{slug}-negative",
+                f"    text: \"synthetic intake mention of {other['label']}\"",
+                f"    expected_not: {c['id']}",
+                "    label: negative",
+            ]
+        lines += [
+            f"  - case_id: fx-{slug}-representative",
+            f"    text: \"synthetic representative case for {c['label']}\"",
+            f"    expected: {c['id']}",
+            "    label: representative",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def render_starter_marker(ctx: DomainContext) -> str:
+    return "\n".join([
+        "schema_version: 1",
+        f"kind: {ONTOLOGY_STARTER_KIND}",
+        "# The deterministic ontology-aware starter marker the generated-domain",
+        "# completeness check keys on (hermes-domain-overlay delta): a repo",
+        "# carrying this marker must declare domain_ontology in its content",
+        "# manifest.",
+        f"starter: {STARTER_NAME}",
+        f"starter_version: {STARTER_VERSION}",
+        "ontology_aware: true",
+        f"package_id: xf/{ctx.domain_id}",
+    ]) + "\n"
+
+
+def render_ontology_readme(ctx: DomainContext) -> str:
+    return md_header(ctx) + f"""# {ctx.display_name} Domain Ontology (DRAFT)
+
+Starter-seeded draft package under the openxFactory domain-ontology
+contract (`contracts/domain-ontology/`). Domain Hermes owns everything in
+this tree.
+
+Rules:
+
+1. `package.yaml`, `concepts.yaml`, and `sources.yaml` are digest-closed
+   package CONTENT. The starter seeds them once and never overwrites; a
+   rerun reports differences as conflicts.
+2. Candidate records (`candidate-*.yaml`) are APPEND-ONLY. Model-assisted
+   extraction enters only through
+   `apply-domain-starter.py --ingest-candidates <batch.yaml>` — proposals
+   from approved sources, carrying an extraction-run identity and
+   confidence; a rerun never deletes, replaces, or resurrects a candidate
+   or its recorded disposition.
+3. Publication is a governed Domain Hermes release decision by the
+   accountable steward. Validate with
+   `python3 scripts/validate-domain-ontology.py <this repo>` from the
+   pinned openxFactory checkout.
+4. `coverage-gap-report.yaml` is starter-owned and refreshed on rerun;
+   `review-fixtures.yaml` is seeded once and then review-owned.
+"""
+
+
+def generate_ontology(target: Path, ctx: DomainContext, args: argparse.Namespace,
+                      log: RunLog, dry_run: bool) -> None:
+    kernel = read_kernel_pin()
+    if kernel is None:
+        log.validation.append(
+            "ERROR ontology: openxFactory kernel package unreadable; scaffold skipped")
+        return
+    onto = resolve_ontology_answers(target, args, log)
+    concepts, gaps = seed_concepts(ctx.domain_id, onto, log)
+    sources = seed_sources(ctx, onto, log)
+    stewards = seed_stewards(ctx, onto, log)
+
+    onto_dir = target / ONTOLOGY_DIR
+    content_files = {
+        "concepts.yaml": render_concepts_yaml(ctx.domain_id, concepts),
+        "sources.yaml": render_sources_yaml(ctx.domain_id, sources),
+    }
+
+    def place(rel_name: str, content: str, preserve: bool, refresh: bool = False) -> str:
+        """Write one ontology file; return the bytes that END UP on disk."""
+        rel = f"{ONTOLOGY_DIR}/{rel_name}"
+        path = onto_dir / rel_name
+        if path.exists():
+            existing = path.read_text(encoding="utf-8")
+            if existing == content:
+                log.skipped.append((rel, "exists; identical"))
+                return existing
+            if refresh:
+                if not dry_run:
+                    path.write_text(content, encoding="utf-8")
+                log.updated.append((rel, "starter-owned report refreshed"))
+                return content
+            if preserve:
+                log.conflicts.append(
+                    (rel, "domain-owned ontology content differs from starter output",
+                     "review; the starter never overwrites — propose changes as candidates"))
+                log.skipped.append((rel, "exists; preserved (domain-owned)"))
+                return existing
+        if not dry_run:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        log.created.append((rel, "ontology scaffold"))
+        return content
+
+    final_bytes: dict[str, str] = {}
+    for name, content in content_files.items():
+        final_bytes[name] = place(name, content, preserve=True)
+
+    inventory = [(name, sha256_text(final_bytes[name]))
+                 for name in sorted(content_files)]
+    package_text = render_package_yaml(ctx, stewards, inventory, kernel,
+                                       unresolved_count=len(log.unresolved))
+    pkg_path = onto_dir / "package.yaml"
+    if pkg_path.exists():
+        log.skipped.append((f"{ONTOLOGY_DIR}/package.yaml",
+                            "exists; preserved (domain-owned)"))
+    else:
+        if not dry_run:
+            pkg_path.parent.mkdir(parents=True, exist_ok=True)
+            pkg_path.write_text(package_text, encoding="utf-8")
+        log.created.append((f"{ONTOLOGY_DIR}/package.yaml", "ontology scaffold"))
+
+    place("coverage-gap-report.yaml",
+          render_gap_report(ctx, gaps, sources, onto, log),
+          preserve=False, refresh=True)
+    place("review-fixtures.yaml", render_review_fixtures(ctx.domain_id, concepts),
+          preserve=True)
+    place("STARTER.yaml", render_starter_marker(ctx), preserve=False, refresh=True)
+    place("README.md", render_ontology_readme(ctx), preserve=True)
+
+
+def ensure_content_manifest(target: Path, ctx: DomainContext, log: RunLog,
+                            dry_run: bool) -> None:
+    rel = "hermes/domain/content-manifest.yaml"
+    path = target / rel
+    declaration = "  domain_ontology:\n    directory: hermes/domain/ontology\n"
+    if not path.exists():
+        content = "\n".join([
+            "schema_version: 1",
+            "kind: hermes_domain_content_manifest",
+            "# Starter-generated declaration (add-domain-ontology-layer §4):",
+            "# the seedable Domain Hermes content set. The ontology package is",
+            "# declared from generation; other kinds remain on the documented",
+            "# convention until this domain declares them.",
+            "content_set:",
+        ]) + "\n" + declaration
+        if not dry_run:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        log.created.append((rel, "content manifest with domain_ontology declaration"))
+        return
+    existing = path.read_text(encoding="utf-8")
+    if "domain_ontology" in existing:
+        log.skipped.append((rel, "domain_ontology already declared"))
+        return
+    marker = "content_set:\n"
+    if marker not in existing:
+        log.conflicts.append(
+            (rel, "existing content manifest has no content_set block",
+             "declare domain_ontology manually per the hermes-domain-overlay contract"))
+        return
+    updated = existing.replace(marker, marker + declaration, 1)
+    if not dry_run:
+        path.write_text(updated, encoding="utf-8")
+    log.updated.append((rel, "declared domain_ontology additively"))
+
+
+def ingest_candidates(target: Path, ctx: DomainContext, batch_path: Path,
+                      log: RunLog, dry_run: bool) -> None:
+    onto_dir = target / ONTOLOGY_DIR
+    if yaml is None:
+        log.validation.append("ERROR ingest: PyYAML is required")
+        return
+    if not (onto_dir / "sources.yaml").exists():
+        log.validation.append(
+            "ERROR ingest: no ontology scaffold; run the starter first")
+        return
+    try:
+        batch = yaml.safe_load(batch_path.read_text(encoding="utf-8")) or {}
+    except Exception as exc:  # noqa: BLE001
+        log.validation.append(f"ERROR ingest: batch unparseable: {exc}")
+        return
+    if batch.get("kind") != "xfactory_ontology_extraction_batch":
+        log.validation.append(
+            "ERROR ingest: batch kind must be xfactory_ontology_extraction_batch")
+        return
+    run_id = str(batch.get("extraction_run_id") or "")
+    if not re.match(r"^run-[a-z0-9][a-z0-9-]{0,63}$", run_id):
+        log.validation.append(
+            "ERROR ingest: model extraction requires an extraction_run_id (run-...)")
+        return
+    registered = set()
+    src_doc = yaml.safe_load((onto_dir / "sources.yaml").read_text(encoding="utf-8")) or {}
+    for s in src_doc.get("sources", []) or []:
+        if isinstance(s, dict) and s.get("system_id"):
+            registered.add(str(s["system_id"]))
+    source_refs = [str(s) for s in (batch.get("source_refs") or [])]
+    unapproved = [s for s in source_refs if s not in registered]
+    if not source_refs or unapproved:
+        log.validation.append(
+            "ERROR ingest: source_refs must name registered sources; "
+            f"unapproved: {unapproved or 'none given'}")
+        return
+    for prop in batch.get("proposals") or []:
+        if not isinstance(prop, dict):
+            continue
+        pid = str(prop.get("id") or "")
+        if not re.match(r"^xf/[a-z0-9_]+(/[a-z0-9_]+)+$", pid) or \
+                not pid.startswith(f"xf/{ctx.domain_id}/"):
+            log.conflicts.append(
+                (str(batch_path.name), f"proposal id {pid!r} outside xf/{ctx.domain_id}/",
+                 "fix the proposal id"))
+            continue
+        slug = pid.rsplit("/", 1)[-1].replace("_", "-")
+        rel = f"{ONTOLOGY_DIR}/candidate-{slug}.yaml"
+        cand_path = onto_dir / f"candidate-{slug}.yaml"
+        confidence = prop.get("confidence")
+        content_lines = [
+            "schema_version: 1",
+            "kind: xfactory_ontology_candidate_record",
+            f"candidate_id: cand-{slug}",
+            f"package_id: xf/{ctx.domain_id}",
+            "mode: extend",
+            "proposed:",
+            "  concepts:",
+            f"    - id: {pid}",
+            f"      label: \"{term_label(prop.get('label') or slug)}\"",
+            f"      definition: \"{str(prop.get('definition') or 'Proposed by model extraction; review required.')}\"",
+        ]
+        parents = prop.get("parents") or []
+        if parents:
+            content_lines.append(f"      parents: [{', '.join(str(p) for p in parents)}]")
+        content_lines += [
+            "provenance:",
+            "  method: model_extraction",
+            f"  extraction_run_id: {run_id}",
+        ]
+        if isinstance(confidence, (int, float)):
+            content_lines.append(f"  confidence: {confidence}")
+        content_lines.append(
+            f"  source_refs: [{', '.join(source_refs)}]")
+        conflicts_with = prop.get("conflicts_with") or []
+        if conflicts_with:
+            content_lines.append("conflicts:")
+            for cw in conflicts_with:
+                content_lines += [
+                    f"  - with_id: {cw}",
+                    "    description: \"declared by the extraction batch; resolve in review\"",
+                ]
+        content_lines.append("review_state: open")
+        content = "\n".join(content_lines) + "\n"
+        if cand_path.exists():
+            existing = cand_path.read_text(encoding="utf-8")
+            if existing == content:
+                log.skipped.append((rel, "duplicate candidate; unchanged"))
+            else:
+                log.conflicts.append(
+                    (rel, "existing candidate (or its disposition) differs from the new proposal",
+                     "existing record preserved; propose under a new id or resolve in review"))
+            continue
+        if not dry_run:
+            cand_path.parent.mkdir(parents=True, exist_ok=True)
+            cand_path.write_text(content, encoding="utf-8")
+        log.created.append((rel, f"candidate from {run_id}"))
 
 
 def maybe_create(target: Path, path: Path, content: str, log: RunLog, dry_run: bool) -> None:
@@ -3137,6 +3864,7 @@ Dry Run: {dry_run}
 - Updated: {len(log.updated)}
 - Skipped: {len(log.skipped)}
 - Conflicts: {len(log.conflicts)}
+- Unresolved semantic inputs: {len(log.unresolved)}
 - Validation: {'; '.join(log.validation) if log.validation else 'not run'}
 
 ## Created Files
@@ -3151,6 +3879,12 @@ Dry Run: {dry_run}
 ## Conflicts
 
 {conflict_body}
+## Unresolved Semantic Inputs
+
+{table(log.unresolved, ('Input', 'Why unresolved'))}
+The draft ontology package is NOT publishable while this table is
+non-empty; Domain Hermes review resolves each row (add-domain-ontology-layer).
+
 ## Validation
 
 ```text
@@ -3183,6 +3917,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--customer-layer-name")
     parser.add_argument("--orchestrator-profile")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--answers",
+        help="Pre-run answer file (kind xfactory_instantiation_prerun_answers); "
+             "defaults to <target>/instantiation-answers.yaml, then the "
+             "generated example",
+    )
+    parser.add_argument(
+        "--ingest-candidates",
+        help="Bounded model-extraction ingest: an xfactory_ontology_extraction_batch "
+             "file whose proposals are appended to the candidate register "
+             "(approved sources + extraction-run identity required; never "
+             "touches the active package or existing candidates)",
+    )
     return parser.parse_args()
 
 
@@ -3196,10 +3943,16 @@ def main() -> int:
         return 2
 
     ctx = infer_context(target, args)
-    log = RunLog(created=[], updated=[], skipped=[], conflicts=[], validation=[])
+    log = RunLog(created=[], updated=[], skipped=[], conflicts=[], validation=[],
+                 unresolved=[])
     for rel, content in templates(ctx).items():
         maybe_create(target, target / rel, content, log, args.dry_run)
     add_readme_links(target, log, args.dry_run)
+    generate_ontology(target, ctx, args, log, args.dry_run)
+    ensure_content_manifest(target, ctx, log, args.dry_run)
+    if args.ingest_candidates:
+        ingest_candidates(target, ctx, Path(args.ingest_candidates), log,
+                          args.dry_run)
     validate_yaml(target, log)
     validate_domain(target, log, args.dry_run)
     write_report(target, ctx, log, args.dry_run)

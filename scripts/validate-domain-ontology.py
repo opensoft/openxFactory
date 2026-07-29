@@ -858,12 +858,13 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
             scanned += 1
         for cm in sorted(repo_path.rglob("hermes/domain/content-manifest.yaml")):
             doc = load_yaml(cm)
-            decl = (doc or {}).get("content", {}).get("domain_ontology") \
-                if isinstance((doc or {}).get("content"), dict) else None
-            if decl is None and isinstance(doc, dict):
-                decl = doc.get("domain_ontology")
+            content_set = (doc or {}).get("content_set") if isinstance(doc, dict) else None
+            decl = content_set.get("domain_ontology") if isinstance(content_set, dict) else None
             if decl:
-                target = cm.parent / decl.get("directory", decl.get("path", ""))
+                # Declared locations are repo-root-relative; the manifest
+                # lives at <repo>/hermes/domain/content-manifest.yaml.
+                repo_root = cm.parent.parent.parent
+                target = repo_root / decl.get("directory", decl.get("path", ""))
                 if not (target / "package.yaml").is_file():
                     errors.append(Finding("ONT-MANIFEST-PIN", rel(cm),
                                           f"declared domain_ontology target {decl} has no package"))

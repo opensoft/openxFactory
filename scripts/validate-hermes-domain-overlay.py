@@ -46,6 +46,10 @@ CONTENT_MANIFEST_FILE = "hermes/domain/content-manifest.yaml"
 CONTENT_KINDS = {
     "role_authority", "policy_position", "escalation_rule", "deliberation_mix",
     "review_council", "memory_boundary", "practice_adoption",
+    # Additive kind ratified by add-domain-ontology-layer (task 5.1's
+    # vocabulary half): a directory holding an xFactory ontology package,
+    # validated by scripts/validate-domain-ontology.py before seeding.
+    "domain_ontology",
 }
 
 

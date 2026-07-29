@@ -64,15 +64,46 @@ misclassification cases against retained prior bytes (3.6, 3.8), each asserting 
 
 ## 4. Domain Ontology Generation
 
-- [ ] 4.1 Extend the domain pre-run questionnaire and its machine-readable answer model with subject/focal-item kinds, activities, states, outcomes, interventions, external terminologies, ontology sources, boundaries, stewards, reviewers, and unresolved semantic assumptions.
-- [ ] 4.2 Add starter templates for `hermes/domain/ontology/`, including manifest, concepts, relations, mappings, source inventory, candidate register, coverage-gap report, review fixtures, and Domain Hermes stewardship metadata.
-- [ ] 4.3 Extend `scripts/apply-domain-starter.py` to generate the ontology-aware draft scaffold for a new domain, record the ontology-aware starter version in the generated repository, and declare the package in the Domain Hermes content manifest.
-- [ ] 4.4 Implement deterministic seeding from the taxonomy tuple, layer aliases, existing domain models, workflow catalogs, evidence types, and approved structured vocabulary imports, and prove the seeded scaffold is byte-reproducible from the same answer set and pinned sources.
-- [ ] 4.5 Define a bounded candidate-ingest interface for model-assisted extraction that requires approved sources, provenance, confidence, ambiguity, conflicts, extraction-run identity, and draft review state; writes only to the candidate register; and never deletes, replaces, or resurrects an existing candidate or its recorded disposition.
-- [ ] 4.6 Implement entity-resolution, deduplication, core-specialization mapping, unsupported-term, and coverage-gap reports without silently resolving conflicts.
-- [ ] 4.7 Generate positive, negative, and representative labeled classification fixtures from the draft package for Domain Hermes review, carrying only de-identified or synthetic cases with their expected classification recorded.
-- [ ] 4.8 Preserve active or domain-owned ontology content on starter rerun and extend the rerun report with conflicting and unresolved categories beside created, updated, and skipped artifacts.
-- [ ] 4.9 Add starter tests for empty repositories, partial answer sets, idempotent reruns, a model-assisted rerun that proposes a different candidate set over unchanged sources, legacy repositories, conflicting domain content, and attempted active-package overwrite.
+Section 4 realized 2026-07-29. Evidence: `scripts/apply-domain-starter.py`
+v13 (ontology-aware). The pre-run questionnaire (openxFactory doc §3.4.5,
+the generated questionnaire's Ontology Intake section, the answer schema's
+`ontology.*` required paths, and the answer example's `ontology:` section)
+carries the full intake model (4.1). Generation renders the
+`hermes/domain/ontology/` templates — package manifest, concepts, source
+inventory, coverage-gap report, review fixtures, STARTER provenance marker,
+and tree README (4.2) — declares `domain_ontology` in the content manifest
+(created or merged additively; `domain_ontology` added to the
+content-manifest schema and overlay-validator vocabulary as ratified), and
+records the ontology-aware starter version in `STARTER.yaml` (4.3). Seeding
+is a pure function of the answer set, domain context, and the pinned
+openxFactory kernel (no timestamps or randomness); byte-reproducibility is
+proven by test scenario 3 (4.4). `--ingest-candidates` is the bounded
+model-extraction interface: registered-source approval, extraction-run
+identity, confidence, declared conflicts, open review state; writes only
+candidate records and never deletes, replaces, or resurrects one or its
+disposition (4.5). Dedup/conflict, placeholder-skip, unsupported-list, and
+coverage-gap reporting never silently resolve conflicts (4.6); review
+fixtures are synthetic labeled positive/negative/representative cases
+(4.7). Reruns preserve domain-owned content — a differing file is a
+Conflicts-table row and its preserved bytes are what the manifest digests —
+and the rerun report gains the Unresolved Semantic Inputs table beside
+created/updated/skipped/conflicts (4.8).
+`scripts/test-domain-starter-ontology.py` covers empty repo (with the
+canonical validator passing the generated package end-to-end), partial
+answers, idempotent rerun, model-ingest rerun with
+new/duplicate/conflicting classification and disposition preservation plus
+unapproved-source fail-closed, legacy repo additivity, conflicting domain
+content, and attempted overwrite (4.9) — all green.
+
+- [x] 4.1 Extend the domain pre-run questionnaire and its machine-readable answer model with subject/focal-item kinds, activities, states, outcomes, interventions, external terminologies, ontology sources, boundaries, stewards, reviewers, and unresolved semantic assumptions.
+- [x] 4.2 Add starter templates for `hermes/domain/ontology/`, including manifest, concepts, relations, mappings, source inventory, candidate register, coverage-gap report, review fixtures, and Domain Hermes stewardship metadata.
+- [x] 4.3 Extend `scripts/apply-domain-starter.py` to generate the ontology-aware draft scaffold for a new domain, record the ontology-aware starter version in the generated repository, and declare the package in the Domain Hermes content manifest.
+- [x] 4.4 Implement deterministic seeding from the taxonomy tuple, layer aliases, existing domain models, workflow catalogs, evidence types, and approved structured vocabulary imports, and prove the seeded scaffold is byte-reproducible from the same answer set and pinned sources.
+- [x] 4.5 Define a bounded candidate-ingest interface for model-assisted extraction that requires approved sources, provenance, confidence, ambiguity, conflicts, extraction-run identity, and draft review state; writes only to the candidate register; and never deletes, replaces, or resurrects an existing candidate or its recorded disposition.
+- [x] 4.6 Implement entity-resolution, deduplication, core-specialization mapping, unsupported-term, and coverage-gap reports without silently resolving conflicts.
+- [x] 4.7 Generate positive, negative, and representative labeled classification fixtures from the draft package for Domain Hermes review, carrying only de-identified or synthetic cases with their expected classification recorded.
+- [x] 4.8 Preserve active or domain-owned ontology content on starter rerun and extend the rerun report with conflicting and unresolved categories beside created, updated, and skipped artifacts.
+- [x] 4.9 Add starter tests for empty repositories, partial answer sets, idempotent reruns, a model-assisted rerun that proposes a different candidate set over unchanged sources, legacy repositories, conflicting domain content, and attempted active-package overwrite.
 
 ## 5. Domain Hermes Stewardship And Maintenance
 

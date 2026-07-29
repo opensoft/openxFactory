@@ -37,6 +37,12 @@ properties:
       review_council: {$ref: "#/definitions/location"}
       memory_boundary: {$ref: "#/definitions/location"}
       practice_adoption: {$ref: "#/definitions/location"}
+      # Additive content kind ratified by add-domain-ontology-layer: a
+      # directory holding a package that validates against the xFactory
+      # semantic-kernel contract (contracts/domain-ontology/); consumers
+      # validate manifest, exact kernel import, inventory, and digests
+      # before seeding, and fail closed on an invalid or drifted package.
+      domain_ontology: {$ref: "#/definitions/location"}
     additionalProperties: false
   omnigent_overlay_path:
     # Optional: where the archive's Omnigent overlay lives for the
