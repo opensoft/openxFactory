@@ -1,8 +1,5 @@
 # pattern-ledger Delta: Sensing Contracts for Recurrence Crystallization
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: Episode Capture Is Universal And Derived

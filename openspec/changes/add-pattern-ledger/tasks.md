@@ -1,8 +1,3 @@
-# Tasks (draft): add-pattern-ledger
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-
 ## 1. Contracts
 
 - [ ] 1.1 Add the five record schemas under `contracts/schemas/`
@@ -38,14 +33,14 @@ Draft slice of: ../recurrence-crystallization.md
 - [ ] 3.2 Add a pointer from `docs/knowledge-lifecycle-model.md`'s
       experiential path to the procedural promotion target (pointer only —
       no normative duplication; that doc is `Status: draft`).
-- [ ] 3.3 Update the staging INDEX row/detail on partial promotion (the
+- [x] 3.3 Update the staging INDEX row/detail on partial promotion (the
       `pattern-ledger-contracts.md` fragment moves to `supporting-docs/`).
 
 ## 4. Validation and realization evidence
 
 - [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate add-pattern-ledger
       --strict` and `--all --strict` green.
-- [ ] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
+- [x] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
 - [ ] 4.3 Realization evidence per `release-realization`: the declared
       code surface (schemas + validator) merged and green; contract version

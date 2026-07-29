@@ -1,11 +1,4 @@
-# Proposal (draft): add-pattern-ledger
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-Target repo at promotion: openxFactory `openspec/changes/add-pattern-ledger/`
-code_surface: openxFactory (contracts/schemas/ pattern-ledger record family +
-scripts/validate-pattern-ledger.py — schemas, examples, and validator only;
-the sweep worker and any runtime projection lanes are successor realizations)
+code_surface: openxFactory (contracts/schemas pattern-ledger record family + scripts/validate-pattern-ledger.py — schemas, examples, and validator only; sweep worker and runtime projection lanes are successor realizations)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 
 ## Why

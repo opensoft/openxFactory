@@ -1,7 +1,11 @@
-# Design (draft): add-pattern-ledger
+## Context
 
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
+The recurrence-crystallization staged topic fixed the sensing-arc rulings
+this change realizes — D2 (outcome labels as records now), D3 (tenant-scoped
+families), D4 (candidate as an own kind), V1 (memory-gateway consumed, not
+modified) — recorded in the topic's primary doc and carried here as design
+context. The change is contracts-only: schemas, examples, and a validator;
+the sweep worker is a successor realization.
 
 ## Record shapes (sketches — schemas are the deliverable)
 

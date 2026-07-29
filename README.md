@@ -194,6 +194,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-pattern-ledger](openspec/changes/add-pattern-ledger/proposal.md)
+  — authored 2026-07-29; exit 1 of the `recurrence-crystallization` staged
+  topic (partial promotion — the topic keeps its crystallizer, authority,
+  steward, and dials fragments): the five pattern-ledger sensing record
+  kinds (episode, outcome-label, recurrence-family, recurrence-forecast,
+  crystallization-candidate) as a governed derived projection over existing
+  audit/run/metering/label streams, tenant-scoped families with recorded
+  merge/split transitions, scored maturity-dated forecasts, default-deny
+  consent tiers, a bounded read-only sweep, and the candidate autonomy
+  boundary (nominate, never spend); schemas + validator are the declared
+  code surface.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions

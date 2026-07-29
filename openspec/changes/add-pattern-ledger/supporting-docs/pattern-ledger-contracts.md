@@ -16,10 +16,10 @@ Repository context: openxFactory (neutral schemas; codexFactory first
 conformer)
 Staging ID: `openxFactory:staging:recurrence-crystallization`
 Source: brainstorm docs
-[episode ledger](../../brainstorm/crystallization-episode-ledger.md),
-[task families](../../brainstorm/crystallization-task-families.md),
-[recurrence forecasting](../../brainstorm/crystallization-recurrence-forecasting.md),
-[Pattern Ledger synthesis](../../brainstorm/crystallization-synthesis-pattern-ledger.md);
+[episode ledger](../../../../ideation/brainstorm/crystallization-episode-ledger.md),
+[task families](../../../../ideation/brainstorm/crystallization-task-families.md),
+[recurrence forecasting](../../../../ideation/brainstorm/crystallization-recurrence-forecasting.md),
+[Pattern Ledger synthesis](../../../../ideation/brainstorm/crystallization-synthesis-pattern-ledger.md);
 rulings D2, D3, D4, V1 (primary doc, 2026-07-29).
 Target capabilities: `pattern-ledger` (ADDED)
 
@@ -80,7 +80,7 @@ Schemas for the five record kinds under `contracts/schemas/` (each with
 `schema_version` + `kind`); a deterministic validator; the derived-
 projection recipe declaration; the consent-flag capture rule; the
 nomination criteria as dials (see
-[dials-and-defaults.md](dials-and-defaults.md)); the autonomy-boundary
+[dials-and-defaults.md](../../../../ideation/staging/recurrence-crystallization/dials-and-defaults.md)); the autonomy-boundary
 requirement with a scenario proving a candidate cannot trigger spend.
 
 ## Open questions carried

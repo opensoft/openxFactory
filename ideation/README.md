@@ -247,6 +247,15 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-pattern-ledger](../openspec/changes/add-pattern-ledger/proposal.md)
+  — raised 2026-07-29 as exit 1 of the `recurrence-crystallization` staged
+  topic (partial promotion — the topic keeps its crystallizer, authority,
+  steward, and dials fragments for exits 2 and 3); owns the former
+  `pattern-ledger-contracts.md` fragment under `supporting-docs/` and
+  proposes the five sensing record kinds (episode, outcome-label,
+  recurrence-family, recurrence-forecast, crystallization-candidate), the
+  derived-projection posture, consent-scope gating, scored forecasts, and
+  the candidate autonomy boundary (nominate, never spend).
 - [add-deployment-handoff-boundary](../openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — fully promoted 2026-07-28, RATIFIED 2026-07-29: owns the former
   `deployment-handoff-boundary`
