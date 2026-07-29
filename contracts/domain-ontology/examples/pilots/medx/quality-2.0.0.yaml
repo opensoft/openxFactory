@@ -1,0 +1,14 @@
+schema_version: 1
+kind: xfactory_ontology_quality_report
+package_id: xf/medx
+package_version: 2.0.0
+package_digest: d849e31c9c7d6f0df7000af008b44f1b94caadfba6a9ee85b9095c4fe736f751
+window: {from: '2026-07-01', to: '2026-07-28'}
+signals:
+  - signal: intake_scope_coverage
+    numerator: 15
+    denominator: 16
+    procedure_ref: docs/domain-ontology-semantic-decisions.md
+aggregation_floor:
+  distinct_subjects: 5
+  distinct_tenants: 1

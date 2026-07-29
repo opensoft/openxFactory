@@ -23,17 +23,25 @@ stewards:
     name: openxFactory contract maintainers
 inventory:
   - path: concepts.yaml
-    sha256: 10dcdaff60c3ac7069d9f2c9174aa21d593aa2cc14e1963d40c7114c26fd8846
+    sha256: 504d99857000eab5d6afe00990dcf7e26d69f572e28e26e00a2a766db63f86ea
   - path: relations.yaml
     sha256: 37ed2b4b643fb9095a052aa8c920b9dbfa5e1e02b0ebf4bd89991866e5118c6b
   - path: sources.yaml
     sha256: c7a24dcc83052e03f5fa2b10233f3882a4f295be99880b866bf0af0a105ba715
-package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
 compatibility:
   class: initial
   line: xf/core@1
 adoption:
-  status: pending
+  status: evidenced
+  adopters:
+    - kind: domain_package
+      ref: xf/medx
+    - kind: domain_package
+      ref: xf/codex
 notes: >-
   Kernel v0.1.0 draft assembled from the approved semantic inventory; each
   term points at its authoritative contract and no domain-owned noun appears.
+  Adoption evidenced 2026-07-29 by the MedxFactory/codexFactory pilot
+  packages and the shared-subsystem surfaces recorded per term; the kernel
+  stays DRAFT until its governed publication at the bundle cut.

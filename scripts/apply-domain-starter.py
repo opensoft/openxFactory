@@ -3749,6 +3749,21 @@ def ingest_candidates(target: Path, ctx: DomainContext, batch_path: Path,
         rel = f"{ONTOLOGY_DIR}/candidate-{slug}.yaml"
         cand_path = onto_dir / f"candidate-{slug}.yaml"
         confidence = prop.get("confidence")
+        # Structured authoritative imports take precedence over model
+        # candidates: a proposal colliding with a seeded concept id is
+        # recorded as a CONFLICTING candidate, never a silent replacement.
+        seeded_ids: set[str] = set()
+        concepts_file = onto_dir / "concepts.yaml"
+        if concepts_file.exists():
+            cdoc = yaml.safe_load(concepts_file.read_text(encoding="utf-8")) or {}
+            seeded_ids = {c.get("id") for c in cdoc.get("concepts", []) or []}
+        conflicts_with = list(prop.get("conflicts_with") or [])
+        if pid in seeded_ids and pid not in conflicts_with:
+            conflicts_with.append(pid)
+            log.conflicts.append(
+                (rel, f"model proposal collides with structured import {pid}",
+                 "structured authoritative imports take precedence; the "
+                 "candidate stays a review blocker until dispositioned"))
         content_lines = [
             "schema_version: 1",
             "kind: xfactory_ontology_candidate_record",
@@ -3773,7 +3788,6 @@ def ingest_candidates(target: Path, ctx: DomainContext, batch_path: Path,
             content_lines.append(f"  confidence: {confidence}")
         content_lines.append(
             f"  source_refs: [{', '.join(source_refs)}]")
-        conflicts_with = prop.get("conflicts_with") or []
         if conflicts_with:
             content_lines.append("conflicts:")
             for cw in conflicts_with:

@@ -81,7 +81,9 @@ Core domain-neutral docs:
   (the kernel's term-by-term owners, collision/leak/gap registers, identifier
   grammar, compatibility rubric; realization record of `add-domain-ontology-layer`
   tasks 1.1–1.6 — the contract family lives at
-  [contracts/domain-ontology/](contracts/domain-ontology/README.md))
+  [contracts/domain-ontology/](contracts/domain-ontology/README.md);
+  pilot evidence: [Pilot Report](docs/domain-ontology-pilot-report.md) ·
+  [Adoption Handoff](docs/domain-ontology-adoption-handoff.md))
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)

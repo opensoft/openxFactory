@@ -1,0 +1,224 @@
+schema_version: 1
+kind: xfactory_ontology_review_fixtures
+# Labeled classification fixtures for Domain Hermes review — every
+# case is SYNTHETIC (starter-derived from intake labels); no subject
+# or tenant material may ever be added here without de-identification
+# through the promotion gates.
+package_id: xf/codex
+cases:
+  - case_id: fx-admitted-positive
+    text: "synthetic intake mention of Admitted"
+    expected: xf/codex/admitted
+    label: positive
+  - case_id: fx-admitted-negative
+    text: "synthetic intake mention of Code Review"
+    expected_not: xf/codex/admitted
+    label: negative
+  - case_id: fx-admitted-representative
+    text: "synthetic representative case for Admitted"
+    expected: xf/codex/admitted
+    label: representative
+  - case_id: fx-code_review-positive
+    text: "synthetic intake mention of Code Review"
+    expected: xf/codex/code_review
+    label: positive
+  - case_id: fx-code_review-negative
+    text: "synthetic intake mention of Decomposed"
+    expected_not: xf/codex/code_review
+    label: negative
+  - case_id: fx-code_review-representative
+    text: "synthetic representative case for Code Review"
+    expected: xf/codex/code_review
+    label: representative
+  - case_id: fx-decomposed-positive
+    text: "synthetic intake mention of Decomposed"
+    expected: xf/codex/decomposed
+    label: positive
+  - case_id: fx-decomposed-negative
+    text: "synthetic intake mention of Decomposition"
+    expected_not: xf/codex/decomposed
+    label: negative
+  - case_id: fx-decomposed-representative
+    text: "synthetic representative case for Decomposed"
+    expected: xf/codex/decomposed
+    label: representative
+  - case_id: fx-decomposition-positive
+    text: "synthetic intake mention of Decomposition"
+    expected: xf/codex/decomposition
+    label: positive
+  - case_id: fx-decomposition-negative
+    text: "synthetic intake mention of Escalation"
+    expected_not: xf/codex/decomposition
+    label: negative
+  - case_id: fx-decomposition-representative
+    text: "synthetic representative case for Decomposition"
+    expected: xf/codex/decomposition
+    label: representative
+  - case_id: fx-escalation-positive
+    text: "synthetic intake mention of Escalation"
+    expected: xf/codex/escalation
+    label: positive
+  - case_id: fx-escalation-negative
+    text: "synthetic intake mention of Execution Lane"
+    expected_not: xf/codex/escalation
+    label: negative
+  - case_id: fx-escalation-representative
+    text: "synthetic representative case for Escalation"
+    expected: xf/codex/escalation
+    label: representative
+  - case_id: fx-execution_lane-positive
+    text: "synthetic intake mention of Execution Lane"
+    expected: xf/codex/execution_lane
+    label: positive
+  - case_id: fx-execution_lane-negative
+    text: "synthetic intake mention of Feature"
+    expected_not: xf/codex/execution_lane
+    label: negative
+  - case_id: fx-execution_lane-representative
+    text: "synthetic representative case for Execution Lane"
+    expected: xf/codex/execution_lane
+    label: representative
+  - case_id: fx-feature-positive
+    text: "synthetic intake mention of Feature"
+    expected: xf/codex/feature
+    label: positive
+  - case_id: fx-feature-negative
+    text: "synthetic intake mention of In Execution"
+    expected_not: xf/codex/feature
+    label: negative
+  - case_id: fx-feature-representative
+    text: "synthetic representative case for Feature"
+    expected: xf/codex/feature
+    label: representative
+  - case_id: fx-in_execution-positive
+    text: "synthetic intake mention of In Execution"
+    expected: xf/codex/in_execution
+    label: positive
+  - case_id: fx-in_execution-negative
+    text: "synthetic intake mention of In Review"
+    expected_not: xf/codex/in_execution
+    label: negative
+  - case_id: fx-in_execution-representative
+    text: "synthetic representative case for In Execution"
+    expected: xf/codex/in_execution
+    label: representative
+  - case_id: fx-in_review-positive
+    text: "synthetic intake mention of In Review"
+    expected: xf/codex/in_review
+    label: positive
+  - case_id: fx-in_review-negative
+    text: "synthetic intake mention of Intake"
+    expected_not: xf/codex/in_review
+    label: negative
+  - case_id: fx-in_review-representative
+    text: "synthetic representative case for In Review"
+    expected: xf/codex/in_review
+    label: representative
+  - case_id: fx-intake-positive
+    text: "synthetic intake mention of Intake"
+    expected: xf/codex/intake
+    label: positive
+  - case_id: fx-intake-negative
+    text: "synthetic intake mention of Merged"
+    expected_not: xf/codex/intake
+    label: negative
+  - case_id: fx-intake-representative
+    text: "synthetic representative case for Intake"
+    expected: xf/codex/intake
+    label: representative
+  - case_id: fx-merged-positive
+    text: "synthetic intake mention of Merged"
+    expected: xf/codex/merged
+    label: positive
+  - case_id: fx-merged-negative
+    text: "synthetic intake mention of Project"
+    expected_not: xf/codex/merged
+    label: negative
+  - case_id: fx-merged-representative
+    text: "synthetic representative case for Merged"
+    expected: xf/codex/merged
+    label: representative
+  - case_id: fx-project-positive
+    text: "synthetic intake mention of Project"
+    expected: xf/codex/project
+    label: positive
+  - case_id: fx-project-negative
+    text: "synthetic intake mention of Repository"
+    expected_not: xf/codex/project
+    label: negative
+  - case_id: fx-project-representative
+    text: "synthetic representative case for Project"
+    expected: xf/codex/project
+    label: representative
+  - case_id: fx-repository-positive
+    text: "synthetic intake mention of Repository"
+    expected: xf/codex/repository
+    label: positive
+  - case_id: fx-repository-negative
+    text: "synthetic intake mention of Revert"
+    expected_not: xf/codex/repository
+    label: negative
+  - case_id: fx-repository-representative
+    text: "synthetic representative case for Repository"
+    expected: xf/codex/repository
+    label: representative
+  - case_id: fx-revert-positive
+    text: "synthetic intake mention of Revert"
+    expected: xf/codex/revert
+    label: positive
+  - case_id: fx-revert-negative
+    text: "synthetic intake mention of Reverted"
+    expected_not: xf/codex/revert
+    label: negative
+  - case_id: fx-revert-representative
+    text: "synthetic representative case for Revert"
+    expected: xf/codex/revert
+    label: representative
+  - case_id: fx-reverted-positive
+    text: "synthetic intake mention of Reverted"
+    expected: xf/codex/reverted
+    label: positive
+  - case_id: fx-reverted-negative
+    text: "synthetic intake mention of Review Lane"
+    expected_not: xf/codex/reverted
+    label: negative
+  - case_id: fx-reverted-representative
+    text: "synthetic representative case for Reverted"
+    expected: xf/codex/reverted
+    label: representative
+  - case_id: fx-review_lane-positive
+    text: "synthetic intake mention of Review Lane"
+    expected: xf/codex/review_lane
+    label: positive
+  - case_id: fx-review_lane-negative
+    text: "synthetic intake mention of Review Record"
+    expected_not: xf/codex/review_lane
+    label: negative
+  - case_id: fx-review_lane-representative
+    text: "synthetic representative case for Review Lane"
+    expected: xf/codex/review_lane
+    label: representative
+  - case_id: fx-review_record-positive
+    text: "synthetic intake mention of Review Record"
+    expected: xf/codex/review_record
+    label: positive
+  - case_id: fx-review_record-negative
+    text: "synthetic intake mention of Test Run"
+    expected_not: xf/codex/review_record
+    label: negative
+  - case_id: fx-review_record-representative
+    text: "synthetic representative case for Review Record"
+    expected: xf/codex/review_record
+    label: representative
+  - case_id: fx-test_run-positive
+    text: "synthetic intake mention of Test Run"
+    expected: xf/codex/test_run
+    label: positive
+  - case_id: fx-test_run-negative
+    text: "synthetic intake mention of Admitted"
+    expected_not: xf/codex/test_run
+    label: negative
+  - case_id: fx-test_run-representative
+    text: "synthetic representative case for Test Run"
+    expected: xf/codex/test_run
+    label: representative

@@ -6,7 +6,7 @@ purpose: fixture
 kernel_pin:
   package_id: xf/core
   package_version: 0.1.0
-  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+  package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
 package_pin:
   package_id: xf/negx
   package_version: 1.0.0

@@ -106,7 +106,9 @@ Positive (`examples/`): `medx-minimal/` (medical specialization with a
 restricted-license by-reference mapping and beside-package release,
 candidate, worker-scoped context, quality report), `codex-minimal/`
 (engineering specialization of the same kernel), `generated-scaffold/`
-(starter-shaped draft). Negative (`examples/negative/`): 39 fixtures, one
+(starter-shaped draft), plus the retained MedxFactory/codexFactory pilot
+packages under `pilots/` (full release history, retained versions, worker
+contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 39 fixtures, one
 per finding rule — including two paired-revision cases (a parent added on
 a published concept and a relation range widened, each declared additive
 against retained prior bytes), each declaring `# expected_failure:` (and, where a code

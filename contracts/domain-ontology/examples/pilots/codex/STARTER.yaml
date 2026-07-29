@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_starter_provenance
+# The deterministic ontology-aware starter marker the generated-domain
+# completeness check keys on (hermes-domain-overlay delta): a repo
+# carrying this marker must declare domain_ontology in its content
+# manifest.
+starter: openxFactory/domain-factory-starter-pack
+starter_version: 13
+ontology_aware: true
+package_id: xf/codex

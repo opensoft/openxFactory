@@ -1,0 +1,22 @@
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-codex-verify-pilot
+purpose: review classification for a verify worker
+worker_scope:
+  worker_archetype: verify
+kernel_pin:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
+package_pin:
+  package_id: xf/codex
+  package_version: 1.1.0
+  package_digest: 117990ae0f3d86f0bf568f7201dd07c19ba05f05e38c2356c8c7763b89729de5
+terms:
+  - xf/codex/code_review
+  - xf/codex/test_run
+  - xf/core/activity
+  - xf/core/evidence
+closure:
+  status: closed
+content_digest: c86c87e8b9b700173184ce44af8098565a3fb08072499fa45b9313971559bdd8

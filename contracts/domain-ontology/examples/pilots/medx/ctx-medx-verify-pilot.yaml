@@ -1,0 +1,23 @@
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-medx-verify-pilot
+purpose: classification for a verify worker
+worker_scope:
+  worker_archetype: verify
+kernel_pin:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
+package_pin:
+  package_id: xf/medx
+  package_version: 2.0.0
+  package_digest: d849e31c9c7d6f0df7000af008b44f1b94caadfba6a9ee85b9095c4fe736f751
+terms:
+  - xf/core/focal_item
+  - xf/core/intervention
+  - xf/core/subject
+  - xf/medx/patient
+  - xf/medx/treatment
+closure:
+  status: closed
+content_digest: b9b2b4d5fde98c55a3dbd493ed965a6ff88876b4bc21e528807350501fb31251

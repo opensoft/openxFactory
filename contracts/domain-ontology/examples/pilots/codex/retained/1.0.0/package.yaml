@@ -1,0 +1,42 @@
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+# Version 1.0.0 published by scripts/ontology-release.py;
+# supersedes 0.1.0 (retained at retained/0.1.0/).
+package_id: xf/codex
+package_version: 1.0.0
+namespace: xf/codex
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: "codexFactory Domain Hermes"
+stewards:
+  - steward_id: codex-ontology-steward
+    role: accountable_steward
+    identity_kind: human
+    name: "Codex Ontology Steward"
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
+inventory:
+  - path: concepts.yaml
+    sha256: 1c68862a38e9b0ecca8a753ce36f59756198fbce4366d078ffbe236baab871f8
+  - path: profile-assemble.yaml
+    sha256: 920946dc1a47da60976ea9fc32b6ce0e3981a7515ef8ee6b0a680649e043804b
+  - path: profile-verify.yaml
+    sha256: b3644b165b2bd81b6e77021262012c7c4fe9a4996adcd493efebdad78e6d8600
+  - path: sources.yaml
+    sha256: 37e1d6acd71ac655d57275466d17f2be3bfca3351d3aecc6b3d31c2c1e7d0a47
+  - path: stewardship.yaml
+    sha256: ca535d1665eedecc41ed5239d79320fd285b9a96966b1943a6f30151311930ef
+package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+compatibility:
+  class: additive
+  line: xf/codex@1
+  previous:
+    package_version: 0.1.0
+    package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+supersedes:
+  - package_version: 0.1.0
+    package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c

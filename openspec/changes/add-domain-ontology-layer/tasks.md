@@ -201,11 +201,34 @@ runtime wiring remain the named follow-up omnigent change (6.7).
 
 ## 7. Existing-Domain Migration And Cross-Domain Pilots
 
-- [ ] 7.1 Build an explicit dry-run migration/report path that scaffolds ontology candidates beside an existing DomainxFactory without changing its content manifest or active runtime pin.
-- [ ] 7.2 Pilot the generator and validator against MedxFactory and codexFactory, or two equivalently contrasting approved domain fixtures, and use the comparison to remove domain leakage from the core kernel.
-- [ ] 7.3 Prove structured authoritative imports take precedence over model candidates and that unresolved conflicts remain review blockers in both pilots.
-- [ ] 7.4 Record additive, clarifying, breaking, retiring, explicit adoption, two-pin coexistence, and rollback-with-in-flight-work exercises with historical interpretation preserved under the original ontology pin and superseded package bytes retained at their digests.
-- [ ] 7.5 Produce downstream handoff packets for DomainxFactory and Hermes Install consumers; keep their implementation and pin updates in their owning governed changes.
+Section 7 realized 2026-07-29 — full record in
+[docs/domain-ontology-pilot-report.md](../../../docs/domain-ontology-pilot-report.md),
+pilot packages retained as validator-covered fixtures under
+`contracts/domain-ontology/examples/pilots/`. The starter's `--dry-run` is
+the explicit migration/report path: full report, zero writes, content
+manifest and pins untouched (7.1). Two contrasting approved domain
+fixtures — the clinical journey model and the engineering admission model —
+ran the whole arc (generate → conflict → disposition → publish → breaking
+reparent on `xf/medx@2` / retiring release on `xf/codex@2` → maintenance →
+`ontology_ready` → worker-context compilation); no pilot needed a kernel
+term, none went unused, and the kernel's per-term adoption evidence is now
+recorded (two resolvable adopters each; kernel digest `46e45f6c…`, still
+DRAFT pending the governed bundle-cut publication) (7.2). The colliding
+model proposal was auto-recorded as a conflicting candidate against the
+structured import and blocked readiness until the accountable steward
+dispositioned it (7.3). Additive, breaking, retiring, explicit adoption
+pins, retained superseded bytes, and the structural two-pin/rollback story
+are recorded with historical digests intact (7.4). Downstream handoff
+packets for MedxFactory, codexFactory, hermes-install, and the follow-up
+omnigent change:
+[docs/domain-ontology-adoption-handoff.md](../../../docs/domain-ontology-adoption-handoff.md)
+— their pin updates stay in their owning governed changes (7.5).
+
+- [x] 7.1 Build an explicit dry-run migration/report path that scaffolds ontology candidates beside an existing DomainxFactory without changing its content manifest or active runtime pin.
+- [x] 7.2 Pilot the generator and validator against MedxFactory and codexFactory, or two equivalently contrasting approved domain fixtures, and use the comparison to remove domain leakage from the core kernel.
+- [x] 7.3 Prove structured authoritative imports take precedence over model candidates and that unresolved conflicts remain review blockers in both pilots.
+- [x] 7.4 Record additive, clarifying, breaking, retiring, explicit adoption, two-pin coexistence, and rollback-with-in-flight-work exercises with historical interpretation preserved under the original ontology pin and superseded package bytes retained at their digests.
+- [x] 7.5 Produce downstream handoff packets for DomainxFactory and Hermes Install consumers; keep their implementation and pin updates in their owning governed changes.
 
 ## 8. Documentation, Verification, And Release
 

@@ -1010,6 +1010,12 @@ def readiness(pkg_dir: Path) -> int:
                 reasons.append(f"placeholder concept {tid} awaits Domain Hermes review")
         if pkg.policy is None:
             reasons.append("no stewardship policy is inventoried in the package")
+        for fpath, cand in pkg.candidates:
+            if cand.get("review_state") in ("open", "in_review") and cand.get("conflicts"):
+                reasons.append(
+                    f"candidate {cand.get('candidate_id')} carries unresolved "
+                    "conflicts; structured imports take precedence and the "
+                    "conflict blocks readiness until dispositioned")
         current = m.get("package_digest")
         release_recs = [r for _, r in pkg.releases if r.get("package_digest") == current]
         if not release_recs:

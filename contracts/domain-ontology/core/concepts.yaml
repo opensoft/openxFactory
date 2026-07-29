@@ -23,7 +23,13 @@ concepts:
     category: party_layer
     lifecycle_state: draft
     owning_contract: contracts/policies/layer-vocabulary.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/policies/layer-vocabulary.yaml
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/layer-vocabulary/spec.md
     sources: [xfactory-policies]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -37,7 +43,13 @@ concepts:
     category: party_layer
     lifecycle_state: draft
     owning_contract: contracts/policies/layer-vocabulary.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/policies/layer-vocabulary.yaml
+            - kind: shared_subsystem_contract
+              ref: docs/party-ladder.md
     sources: [xfactory-policies]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -51,7 +63,13 @@ concepts:
     category: party_layer
     lifecycle_state: draft
     owning_contract: contracts/policies/layer-vocabulary.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/policies/layer-vocabulary.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-domain-overlay/hermes-domain-overlay.schema.yaml
     sources: [xfactory-policies]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -64,7 +82,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: contracts/schemas/xfactory-workflow.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/xfactory-workflow.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/hermes-job-envelope.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -76,7 +100,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: docs/domain-ontology-semantic-decisions.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/domain-ontology-semantic-decisions.md
+            - kind: domain_package
+              ref: xf/codex
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -88,7 +118,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/installation-lifecycle-event.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -100,7 +136,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/xfactory-idea-routing-record.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -112,7 +154,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: contracts/schemas/xfactory-workflow.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/xfactory-workflow.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/workflow-gate-contract/spec.md
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -124,7 +172,13 @@ concepts:
     category: work
     lifecycle_state: draft
     owning_contract: contracts/hermes-runtime/artifact-record.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/artifact-record.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/gate-action-record.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -137,7 +191,13 @@ concepts:
     category: subject_view
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/neutral-job-envelope/spec.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -150,7 +210,13 @@ concepts:
     category: subject_view
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: docs/customer-memory-fill-maintenance-taxonomy.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -164,7 +230,13 @@ concepts:
     lifecycle_state: draft
     parents: [xf/core/state]
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/layer-vocabulary/spec.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -177,7 +249,13 @@ concepts:
     category: subject_view
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: docs/customer-memory-fill-maintenance-taxonomy.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -190,7 +268,13 @@ concepts:
     category: subject_view
     lifecycle_state: draft
     owning_contract: docs/xfactory-domain-factory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/xfactory-domain-factory-model.md
+            - kind: shared_subsystem_contract
+              ref: templates/client-layer/product-service-scaffold.yaml
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -203,7 +287,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: contracts/memory-gateway/vocabularies.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/vocabularies.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/expert-knowledge-source.schema.yaml
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -216,7 +306,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: contracts/memory-gateway/vocabularies.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/vocabularies.yaml
+            - kind: shared_subsystem_contract
+              ref: docs/customer-hermes-memory-model.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -228,7 +324,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: contracts/memory-gateway/vocabularies.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/vocabularies.yaml
+            - kind: shared_subsystem_contract
+              ref: docs/traceability-model.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -241,7 +343,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: contracts/schemas/xfactory-derived-model-conformance.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/governed-derived-model/spec.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -254,7 +362,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: docs/customer-hermes-memory-model.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: docs/customer-hermes-memory-model.md
+            - kind: shared_subsystem_contract
+              ref: docs/customer-memory-fill-maintenance-taxonomy.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -268,7 +382,13 @@ concepts:
     category: knowledge
     lifecycle_state: draft
     owning_contract: contracts/memory-gateway/vocabularies.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/vocabularies.yaml
+            - kind: shared_subsystem_contract
+              ref: docs/knowledge-lifecycle-model.md
     sources: [xfactory-architecture-docs]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -280,7 +400,13 @@ concepts:
     category: governance
     lifecycle_state: draft
     owning_contract: openspec/specs/roles-authority-model/spec.md
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/roles-authority-model/spec.md
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/approval-decision-policy.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -293,7 +419,13 @@ concepts:
     category: governance
     lifecycle_state: draft
     owning_contract: contracts/memory-gateway/consent-profile.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/memory-gateway/consent-profile.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/avatar-client/registries/consent-purposes.registry.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -306,7 +438,13 @@ concepts:
     category: governance
     lifecycle_state: draft
     owning_contract: contracts/hermes-runtime/authority-grant.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/authority-grant.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: openspec/specs/roles-authority-model/spec.md
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -318,7 +456,13 @@ concepts:
     category: governance
     lifecycle_state: draft
     owning_contract: contracts/hermes-runtime/approval-decision.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/approval-decision.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/approval-request.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
@@ -331,7 +475,13 @@ concepts:
     category: governance
     lifecycle_state: draft
     owning_contract: contracts/hermes-runtime/traceability-edge.schema.yaml
-    adoption: {status: pending}
+    adoption:
+          status: evidenced
+          adopters:
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/traceability-edge.schema.yaml
+            - kind: shared_subsystem_contract
+              ref: contracts/hermes-runtime/hermes-job-run-v2.schema.yaml
     sources: [xfactory-contracts]
     steward: openxfactory-maintainers
     effective_version: 0.1.0
