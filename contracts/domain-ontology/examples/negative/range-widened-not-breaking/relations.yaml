@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_ontology_relations
+package_id: xf/negx
+relations:
+  - id: xf/negx/points_at
+    label: points at
+    definition: Fixture relation for range-widening comparison.
+    domain: [xf/negx/thing_a]
+    range: [xf/negx/thing_a, xf/negx/thing_b]
+    lifecycle_state: published
+    effective_version: 1.0.0

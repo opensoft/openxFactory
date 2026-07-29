@@ -1,0 +1,31 @@
+# expected_failure: ONT-MAPPING-UNREGISTERED
+# expected_failure_detail: externally identified
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+inventory:
+  - path: concepts.yaml
+    sha256: be89a6195723986b299afa94b9f9d4059c845527f5d1f85d0b6dc76678da214b
+  - path: mappings.yaml
+    sha256: a57871cb78368467a6266e6c33c9bd4f9de53e194a8e03ed31e1a3e623d93669
+  - path: sources.yaml
+    sha256: 3a5722991cb68ee90079d6e3f6c023edca2ddeec03f202dbdad3f8dd2449f270
+package_digest: 321cd8e8bc17798ce66fc0ce33c5223934abb06936ad6ffde150e222859d63be
+compatibility:
+  class: initial
+  line: xf/negx@1

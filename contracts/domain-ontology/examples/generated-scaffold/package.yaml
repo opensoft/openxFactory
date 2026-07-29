@@ -1,0 +1,27 @@
+# Positive fixture: a starter-generated draft scaffold for a new
+# domain (task 3.5) — valid as DRAFT, not publishable until review.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/newdomain
+package_version: 1.0.0
+namespace: xf/newdomain
+is_kernel: false
+lifecycle_state: draft
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: newdomain-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+inventory:
+  - path: concepts.yaml
+    sha256: d17384ee33329e21fd424e1c5649e96ded108dd50332d139c11c66c12647dd5b
+package_digest: 9003bb7e4d6a54e628b0a1e991b0d3808bde9ecf4041d6d73f6d44b31a56a9eb
+compatibility:
+  class: initial
+  line: xf/newdomain@1

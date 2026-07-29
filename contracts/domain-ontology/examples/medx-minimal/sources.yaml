@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_ontology_source_inventory
+package_id: xf/medx
+sources:
+  - system_id: example-clinical-terms
+    name: Example Clinical Terminology
+    source_kind: external_terminology
+    version: '2026-01'
+    license_class: no_redistribution
+    permitted_use: [reference]
+    review_by: '2027-01-01'

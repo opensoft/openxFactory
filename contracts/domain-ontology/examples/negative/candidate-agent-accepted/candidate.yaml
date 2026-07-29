@@ -1,0 +1,13 @@
+schema_version: 1
+kind: xfactory_ontology_candidate_record
+candidate_id: cand-negx-0002
+package_id: xf/negx
+mode: extend
+proposed:
+  retirements: [xf/negx/thing]
+provenance:
+  method: human_authored
+review_state: accepted
+disposition:
+  decided_by: negx-agent
+  decision: accepted

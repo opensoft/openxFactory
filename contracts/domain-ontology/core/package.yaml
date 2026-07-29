@@ -1,0 +1,39 @@
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+# The xFactory semantic kernel package manifest (add-domain-ontology-layer,
+# task 2.4). DRAFT by design: the kernel bootstraps before any domain package
+# exists, so adoption evidence is pending (ratified bootstrap scenario); the
+# package publishes only when every term's two adopters resolve — the
+# MedxFactory/codexFactory pilots (change task 7.2) are what first make the
+# core terms publishable. openxFactory alone classifies kernel revisions.
+# Digests are stamped by tooling and recomputed by the canonical validator;
+# the package digest is sha256 over the sorted "path sha256" inventory lines.
+package_id: xf/core
+package_version: 0.1.0
+namespace: xf/core
+is_kernel: true
+lifecycle_state: draft
+owner:
+  layer: openxfactory
+  name: openxFactory contract maintainers
+stewards:
+  - steward_id: openxfactory-maintainers
+    role: accountable_steward
+    identity_kind: council
+    name: openxFactory contract maintainers
+inventory:
+  - path: concepts.yaml
+    sha256: 10dcdaff60c3ac7069d9f2c9174aa21d593aa2cc14e1963d40c7114c26fd8846
+  - path: relations.yaml
+    sha256: 37ed2b4b643fb9095a052aa8c920b9dbfa5e1e02b0ebf4bd89991866e5118c6b
+  - path: sources.yaml
+    sha256: c7a24dcc83052e03f5fa2b10233f3882a4f295be99880b866bf0af0a105ba715
+package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+compatibility:
+  class: initial
+  line: xf/core@1
+adoption:
+  status: pending
+notes: >-
+  Kernel v0.1.0 draft assembled from the approved semantic inventory; each
+  term points at its authoritative contract and no domain-owned noun appears.

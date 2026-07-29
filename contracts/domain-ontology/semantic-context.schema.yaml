@@ -1,0 +1,126 @@
+schema_version: 1
+name: xfactory_semantic_context
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/semantic-context.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1; kernel spec
+# "Bounded semantic context"). One purpose-bounded compiled semantic-context
+# artifact — the ONLY way runtime work receives ontology, and the Omnigent
+# consumption seam (design decision 13): a worker-scoped profile compiles to
+# one of these per worker, never an unrestricted corpus.
+#
+# THE TERM SUBSET IS CLOSED OR EXPLICITLY TRUNCATED: closed means it contains
+# every included concept's specialization ancestors up to the kernel and every
+# included relation's domain/range concepts; truncated means each omitted
+# closure member is itemized so consumers know classifications are partial.
+# Compilation fails when neither holds (validator ONT-CONTEXT-CLOSURE).
+#
+# An included tenant binding declares the exact package identity it binds
+# against; a binding pinned to a different package than this context fails
+# closed (ONT-BINDING). Presence of semantic context never changes any
+# permission boolean or authority boundary.
+type: object
+required:
+  - schema_version
+  - kind
+  - context_id
+  - purpose
+  - kernel_pin
+  - package_pin
+  - terms
+  - closure
+  - content_digest
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_semantic_context
+  context_id:
+    type: string
+    pattern: "^ctx-[a-z0-9][a-z0-9-]{0,63}$"
+  purpose:
+    type: string
+    minLength: 1
+    maxLength: 200
+  worker_scope:
+    # Optional Omnigent worker scoping (design decision 13). The archetype
+    # vocabulary is the ratified omnigent-domain-overlay set; worker_class is
+    # the domain alias. Declaration surfaces for live workers land with the
+    # follow-up omnigent change; the artifact itself is defined here.
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      worker_archetype:
+        enum: [frame, generate, verify, challenge, assemble_for_admission]
+      worker_class:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+  kernel_pin:
+    $ref: "#/$defs/package_pin"
+  package_pin:
+    $ref: "#/$defs/package_pin"
+  tenant_binding:
+    type: object
+    required: [binding_id, package_id, package_digest]
+    additionalProperties: false
+    properties:
+      binding_id:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_digest:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+  terms:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  closure:
+    type: object
+    required: [status]
+    additionalProperties: false
+    properties:
+      status:
+        enum: [closed, truncated]
+      omitted:
+        # Required non-empty when status is truncated: each omitted closure
+        # member, itemized.
+        type: array
+        minItems: 1
+        items:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  freshness:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      compiled_at:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+      ttl_seconds:
+        type: integer
+        minimum: 1
+  content_digest:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+$defs:
+  package_pin:
+    type: object
+    required: [package_id, package_version, package_digest]
+    additionalProperties: false
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        type: string
+        pattern: "^[a-f0-9]{64}$"

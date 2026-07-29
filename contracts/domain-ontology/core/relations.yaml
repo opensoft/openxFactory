@@ -1,0 +1,112 @@
+schema_version: 1
+kind: xfactory_ontology_relations
+# The xFactory semantic kernel relation primitives (add-domain-ontology-layer,
+# task 2.4). Nine deterministic primitives over the kernel concepts; domains
+# specialize them or declare their own relations with exact domain/range over
+# their concepts. No relation carries an effect, permission, or rule — the
+# semantic plane describes, the control plane decides.
+package_id: xf/core
+relations:
+  - id: xf/core/part_of
+    label: part of
+    definition: >-
+      A component belongs to a composite unit of work: an activity is part of
+      a workflow.
+    domain: [xf/core/activity]
+    range: [xf/core/workflow]
+    characteristics: [transitive, asymmetric]
+    lifecycle_state: draft
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/has_state
+    label: has state
+    definition: >-
+      A governed thing currently holds a named lifecycle condition: a
+      workflow has a state; a focal item has a journey state.
+    domain: [xf/core/workflow, xf/core/focal_item]
+    range: [xf/core/state]
+    characteristics: [functional]
+    lifecycle_state: draft
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/transitions_to
+    label: transitions to
+    definition: >-
+      One state may move to another through a permitted transition.
+    domain: [xf/core/state]
+    range: [xf/core/state]
+    characteristics: [irreflexive]
+    lifecycle_state: draft
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/gated_by
+    label: gated by
+    definition: >-
+      A transition or activity requires a governed checkpoint before it is
+      admitted.
+    domain: [xf/core/transition, xf/core/activity]
+    range: [xf/core/gate]
+    lifecycle_state: draft
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/produces
+    label: produces
+    definition: >-
+      Work yields a tracked result: an activity or workflow produces an
+      artifact or reaches an outcome.
+    domain: [xf/core/activity, xf/core/workflow]
+    range: [xf/core/artifact, xf/core/outcome]
+    lifecycle_state: draft
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/concerns
+    label: concerns
+    definition: >-
+      A recorded exchange or statement is about a party or focal item: an
+      interaction, claim, or hypothesis concerns a subject or focal item.
+    domain: [xf/core/interaction, xf/core/claim, xf/core/hypothesis]
+    range: [xf/core/subject, xf/core/focal_item]
+    lifecycle_state: draft
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/supported_by
+    label: supported by
+    definition: >-
+      A claim or hypothesis is linked to evidence that bears on it; the link
+      is descriptive and never converts a hypothesis into authoritative
+      state.
+    domain: [xf/core/claim, xf/core/hypothesis]
+    range: [xf/core/evidence]
+    lifecycle_state: draft
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/derived_from
+    label: derived from
+    definition: >-
+      A knowledge item or artifact traces to what it was produced from, with
+      provenance preserved across steps.
+    domain: [xf/core/evidence, xf/core/observation, xf/core/knowledge_atom, xf/core/artifact]
+    range: [xf/core/source, xf/core/artifact]
+    characteristics: [transitive]
+    lifecycle_state: draft
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/targets
+    label: targets
+    definition: >-
+      An intervention aims at an outcome or journey state; aiming confers no
+      authority to act.
+    domain: [xf/core/intervention]
+    range: [xf/core/outcome, xf/core/journey_state]
+    lifecycle_state: draft
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0

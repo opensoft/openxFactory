@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_ontology_release_record
+release_id: rel-medx-initial
+package_id: xf/medx
+package_version: 1.0.0
+package_digest: e87869023ac41209aa386aba1c7a2c7eb0e6df8d6188433137629e26306c6503
+compatibility_class: initial
+decided_by: medx-ontology-steward
+quality_report_ref: quality.yaml

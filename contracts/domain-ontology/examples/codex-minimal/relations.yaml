@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_ontology_relations
+package_id: xf/codex
+relations:
+  - id: xf/codex/changes
+    label: changes
+    definition: A pull request proposes change to a repository.
+    domain: [xf/codex/pull_request]
+    range: [xf/codex/repository]
+    lifecycle_state: published
+    effective_version: 1.0.0

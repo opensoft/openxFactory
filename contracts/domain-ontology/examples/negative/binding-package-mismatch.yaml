@@ -1,0 +1,22 @@
+# expected_failure: ONT-BINDING
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-negx-binding
+purpose: fixture
+kernel_pin:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+package_pin:
+  package_id: xf/negx
+  package_version: 1.0.0
+  package_digest: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+tenant_binding:
+  binding_id: tenant-a-crm
+  package_id: xf/other
+  package_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+terms: [xf/negx/thing]
+closure:
+  status: truncated
+  omitted: [xf/core/subject]
+content_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

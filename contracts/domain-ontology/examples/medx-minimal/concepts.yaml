@@ -1,0 +1,19 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/medx
+concepts:
+  - id: xf/medx/patient
+    label: Patient
+    definition: The served person under care, specializing the neutral subject.
+    parents: [xf/core/subject]
+    sources: [example-clinical-terms]
+    steward: medx-ontology-steward
+    lifecycle_state: published
+    effective_version: 1.0.0
+  - id: xf/medx/treatment
+    label: Treatment
+    definition: A clinical focal item the patient journey is about.
+    parents: [xf/core/focal_item]
+    steward: medx-ontology-steward
+    lifecycle_state: published
+    effective_version: 1.0.0

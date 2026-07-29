@@ -1,31 +1,66 @@
 ## 1. Semantic Inventory And Decisions
 
-- [ ] 1.1 Inventory the neutral semantic concepts, relation vocabularies, lifecycle terms, and authoritative owners already present across xFactory schemas, policies, validators, and architecture documents.
-- [ ] 1.2 Record collisions, overloaded terms, domain-specific leaks, duplicate definitions, and contracts that must be referenced rather than restated by the semantic kernel.
-- [ ] 1.3 Finalize the stable core and domain namespace grammar, identifier immutability rules, the acyclic multi-parent specialization rule, and label/alias separation and in-namespace uniqueness with positive and negative examples.
-- [ ] 1.4 Finalize the `additive`, `clarifying`, `breaking`, and `retiring` compatibility rubric — including parent addition/removal, relation domain/range widening and narrowing, alias collision as a validation error, and external-mapping refresh — plus migration, retention, two-pin coexistence, and in-flight rollback requirements.
-- [ ] 1.5 Ratify the provider-neutral YAML/JSON canonical representation and record JSON-LD/RDF export as optional derivative interoperability unless first-release evidence justifies inclusion.
-- [ ] 1.6 Record the cross-domain shared-concept decision (kernel promotion vs governed cross-domain import vs deliberate duplication with mappings) or its explicit deferral with pilot evidence.
+Sections 1-3 realized 2026-07-29. Evidence for 1.1-1.6:
+[docs/domain-ontology-semantic-decisions.md](../../../docs/domain-ontology-semantic-decisions.md)
+— the term-by-term inventory with owners and adoption candidates (1.1), the
+collision/leak/gap registers (1.2), the identifier grammar with positive and
+negative examples (1.3), the edge-classified compatibility rubric with
+retention/two-pin/rollback (1.4), the YAML/JSON canonical-representation
+ruling with JSON-LD/RDF recorded as optional derivative (1.5), and the
+recorded cross-domain deferral with the three candidate mechanisms (1.6).
+
+- [x] 1.1 Inventory the neutral semantic concepts, relation vocabularies, lifecycle terms, and authoritative owners already present across xFactory schemas, policies, validators, and architecture documents.
+- [x] 1.2 Record collisions, overloaded terms, domain-specific leaks, duplicate definitions, and contracts that must be referenced rather than restated by the semantic kernel.
+- [x] 1.3 Finalize the stable core and domain namespace grammar, identifier immutability rules, the acyclic multi-parent specialization rule, and label/alias separation and in-namespace uniqueness with positive and negative examples.
+- [x] 1.4 Finalize the `additive`, `clarifying`, `breaking`, and `retiring` compatibility rubric — including parent addition/removal, relation domain/range widening and narrowing, alias collision as a validation error, and external-mapping refresh — plus migration, retention, two-pin coexistence, and in-flight rollback requirements.
+- [x] 1.5 Ratify the provider-neutral YAML/JSON canonical representation and record JSON-LD/RDF export as optional derivative interoperability unless first-release evidence justifies inclusion.
+- [x] 1.6 Record the cross-domain shared-concept decision (kernel promotion vs governed cross-domain import vs deliberate duplication with mappings) or its explicit deferral with pilot evidence.
 
 ## 2. Ontology Contract Family And Core Kernel
 
-- [ ] 2.1 Create `contracts/domain-ontology/` with shared definitions and schemas for the ontology package manifest, concepts, relations, external mappings, source/steward references, candidate changes, releases/adoptions, migration maps, and bounded semantic context.
-- [ ] 2.2 Define closed lifecycle, semantic-kind, mapping-kind, compatibility, fill/maintenance-mode, provenance, and finding-code vocabularies.
-- [ ] 2.3 Implement package inventory, ontology-family-only inventory membership, raw-content digest, and published-version retention rules consistent with the existing contract release and overlay-manifest conventions.
-- [ ] 2.4 Build the minimal xFactory core ontology from the approved inventory, with each term pointing to its authoritative contract, recording adoption evidence (two independent resolvable adopters, pending while draft and resolved via the pilot packages before publication), and adding no domain-owned nouns; record that openxFactory alone classifies kernel revisions.
-- [ ] 2.5 Register the new schemas, core package, validators, and fixture indexes in the canonical contract manifest and documentation indexes without allocating a release number early.
-- [ ] 2.6 Define the by-reference external-terminology mapping contract with license-class vocabulary, permitted-use recording, and refresh-as-mapping-revision semantics.
+Evidence for 2.1-2.6: `contracts/domain-ontology/` — ten schemas (2.1) with
+closed enum vocabularies in-shape and the finding-code vocabulary in the
+family README (2.2); inventory digest closure, ontology-family-only
+membership, beside-package record kinds, and `retained/<version>/` retention
+(2.3); the `core/` kernel package, 24 concepts + 9 relations, every term
+naming its authoritative contract, adoption pending-while-draft per the
+bootstrap scenario (2.4); registered in the contracts README
+Contracts-Pending-Realization table, the family README, and the repo doc
+index, with manifest/CHANGELOG registration deferred to the bundle cut per
+the documented convention (2.5); by-reference mapping + license-class +
+permitted-use contract with refresh-as-mapping-revision (2.6).
+
+- [x] 2.1 Create `contracts/domain-ontology/` with shared definitions and schemas for the ontology package manifest, concepts, relations, external mappings, source/steward references, candidate changes, releases/adoptions, migration maps, and bounded semantic context.
+- [x] 2.2 Define closed lifecycle, semantic-kind, mapping-kind, compatibility, fill/maintenance-mode, provenance, and finding-code vocabularies.
+- [x] 2.3 Implement package inventory, ontology-family-only inventory membership, raw-content digest, and published-version retention rules consistent with the existing contract release and overlay-manifest conventions.
+- [x] 2.4 Build the minimal xFactory core ontology from the approved inventory, with each term pointing to its authoritative contract, recording adoption evidence (two independent resolvable adopters, pending while draft and resolved via the pilot packages before publication), and adding no domain-owned nouns; record that openxFactory alone classifies kernel revisions.
+- [x] 2.5 Register the new schemas, core package, validators, and fixture indexes in the canonical contract manifest and documentation indexes without allocating a release number early.
+- [x] 2.6 Define the by-reference external-terminology mapping contract with license-class vocabulary, permitted-use recording, and refresh-as-mapping-revision semantics.
 
 ## 3. Canonical Semantic Validation
 
-- [ ] 3.1 Implement a canonical domain-ontology validator for schema conformance, package/import closure, exact digests, namespace ownership, identifier uniqueness, label/alias uniqueness, foreign-kind inventory exclusion, retention of referenced superseded versions, and stable-ID reuse.
-- [ ] 3.2 Add semantic checks for missing or circular specialization, multi-parent acyclicity, relation domain/range, lifecycle and supersession, mapping validity and mapping-target registration, kernel adoption evidence, steward/source completeness, and compatibility/migration evidence.
-- [ ] 3.3 Add privacy and control-plane checks that reject subject or tenant instance material in packages, candidates, reports, fixtures, and quality signals; enforce the term-signal aggregation floor; and reject any ontology record carrying a field outside the closed vocabulary or naming a grant, credential, consent record, approval decision, cross-layer binding, provider binding, or route, without depending on label or definition prose.
-- [ ] 3.4 Add cross-contract checks for ontology package, Domain Hermes content manifest, installation overlay, compiled semantic context (subset closure or recorded truncation, tenant-binding resolution), and memory context-packet pin agreement.
-- [ ] 3.5 Create indexed positive fixtures for at least one medical and one software-engineering specialization of the same core plus a generated new-domain scaffold.
-- [ ] 3.6 Create negative fixtures for digest drift, namespace collision, label/alias collision, ID reuse, invalid cycles, parent addition on a published concept, relation domain/range widening and mismatch, undeclared mappings, unregistered mapping targets, a foreign document inventoried as ontology content, missing sources/stewards, a deleted but still referenced superseded version, private-instance leakage, a below-floor term signal, an unclosed context subset, and semantic-authority bypass.
-- [ ] 3.7 Add deterministic automated tests that reproduce every indexed finding and prove repeated validation produces identical results.
-- [ ] 3.8 Add negative fixtures and validator findings for mirrored external terminologies and licensed source content beyond the recorded permitted use.
+Evidence for 3.1-3.8: `scripts/validate-domain-ontology.py` — 25 stable
+finding codes covering 3.1/3.2 structure+semantics, 3.3 privacy and
+control-plane rules (subject-URN and endpoint scans, aggregation floor,
+reserved authority fields aligned with the runtime's protected-word list,
+authority-plane instance references), and 3.4 cross-contract checks
+(semantic-context closure/pin/tenant-binding agreement plus the
+`domain_ontology` content-manifest cross-check; the memory context-packet
+leg activates when section 6 adds the packet fields). Fixtures: 3 positive
+packages (medical + engineering specializations of the same kernel + a
+generated scaffold, 3.5), 34 indexed negatives incl. mirrored-terminology,
+licensed-content, and paired-revision parent-add/range-widening
+misclassification cases against retained prior bytes (3.6, 3.8), each asserting its declared finding;
+`--determinism` proves identical findings on repeat (3.7).
+
+- [x] 3.1 Implement a canonical domain-ontology validator for schema conformance, package/import closure, exact digests, namespace ownership, identifier uniqueness, label/alias uniqueness, foreign-kind inventory exclusion, retention of referenced superseded versions, and stable-ID reuse.
+- [x] 3.2 Add semantic checks for missing or circular specialization, multi-parent acyclicity, relation domain/range, lifecycle and supersession, mapping validity and mapping-target registration, kernel adoption evidence, steward/source completeness, and compatibility/migration evidence.
+- [x] 3.3 Add privacy and control-plane checks that reject subject or tenant instance material in packages, candidates, reports, fixtures, and quality signals; enforce the term-signal aggregation floor; and reject any ontology record carrying a field outside the closed vocabulary or naming a grant, credential, consent record, approval decision, cross-layer binding, provider binding, or route, without depending on label or definition prose.
+- [x] 3.4 Add cross-contract checks for ontology package, Domain Hermes content manifest, installation overlay, compiled semantic context (subset closure or recorded truncation, tenant-binding resolution), and memory context-packet pin agreement.
+- [x] 3.5 Create indexed positive fixtures for at least one medical and one software-engineering specialization of the same core plus a generated new-domain scaffold.
+- [x] 3.6 Create negative fixtures for digest drift, namespace collision, label/alias collision, ID reuse, invalid cycles, parent addition on a published concept, relation domain/range widening and mismatch, undeclared mappings, unregistered mapping targets, a foreign document inventoried as ontology content, missing sources/stewards, a deleted but still referenced superseded version, private-instance leakage, a below-floor term signal, an unclosed context subset, and semantic-authority bypass.
+- [x] 3.7 Add deterministic automated tests that reproduce every indexed finding and prove repeated validation produces identical results.
+- [x] 3.8 Add negative fixtures and validator findings for mirrored external terminologies and licensed source content beyond the recorded permitted use.
 
 ## 4. Domain Ontology Generation
 

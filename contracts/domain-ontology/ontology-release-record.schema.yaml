@@ -1,0 +1,103 @@
+schema_version: 1
+name: xfactory_ontology_release_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-release-record.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1; lifecycle spec
+# "Domain Hermes ontology stewardship" and "Immutable ontology evolution and
+# compatibility"). One publication/adoption record for one package version.
+#
+# EVERY PUBLICATION NAMES THE ACCOUNTABLE STEWARD IDENTITY THAT DECIDED IT.
+# The canonical validator resolves `decided_by` against the manifest's steward
+# roster and FAILS a publication attributed to a worker or agent identity —
+# "advisory" is enforced, not asserted. A breaking release requires its
+# migration-map reference; consumers adopt only through the explicit pins
+# recorded under `adoptions`.
+type: object
+required:
+  - schema_version
+  - kind
+  - release_id
+  - package_id
+  - package_version
+  - package_digest
+  - compatibility_class
+  - decided_by
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_release_record
+  release_id:
+    type: string
+    pattern: "^rel-[a-z0-9][a-z0-9-]{0,63}$"
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  package_version:
+    type: string
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  package_digest:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  compatibility_class:
+    enum: [additive, clarifying, breaking, retiring, initial]
+  decided_by:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+  approvals:
+    type: array
+    items:
+      type: object
+      required: [approver, approval_kind]
+      additionalProperties: false
+      properties:
+        approver:
+          type: string
+          minLength: 1
+          maxLength: 120
+        approval_kind:
+          enum: [domain_authority, licensed_human, council, tenant_notice]
+        approval_ref:
+          type: string
+          minLength: 1
+          maxLength: 300
+  migration_map_ref:
+    # Required when compatibility_class is breaking or retiring (validator).
+    type: string
+    pattern: "^[A-Za-z0-9._/-]{1,200}$"
+  quality_report_ref:
+    type: string
+    pattern: "^[A-Za-z0-9._/-]{1,200}$"
+  quality_exception_ref:
+    # A recorded, reviewed exception releasing a missing/below-threshold
+    # quality signal (lifecycle spec: Measurable ontology quality
+    # accountability); never a silent bypass.
+    type: string
+    pattern: "^[A-Za-z0-9._/-]{1,200}$"
+  consumer_impact_ref:
+    # Domain-owned terms and consumer pins only — tenant bindings are
+    # tenant-private and never enumerated here.
+    type: string
+    pattern: "^[A-Za-z0-9._/-]{1,200}$"
+  adoptions:
+    type: array
+    items:
+      type: object
+      required: [consumer, pin_digest]
+      additionalProperties: false
+      properties:
+        consumer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        pin_digest:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+        adopted_at:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  notes:
+    type: string
+    minLength: 1
+    maxLength: 400

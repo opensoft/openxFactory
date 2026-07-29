@@ -1,0 +1,25 @@
+schema_version: 1
+kind: xfactory_ontology_quality_report
+package_id: xf/medx
+package_version: 1.0.0
+package_digest: e87869023ac41209aa386aba1c7a2c7eb0e6df8d6188433137629e26306c6503
+window: {from: '2026-07-01', to: '2026-07-28'}
+signals:
+  - signal: intake_scope_coverage
+    numerator: 18
+    denominator: 20
+    procedure_ref: docs/domain-ontology-semantic-decisions.md
+  - signal: fixture_accuracy
+    numerator: 46
+    denominator: 50
+    procedure_ref: docs/domain-ontology-semantic-decisions.md
+    fixture_set_digest: 79894ed9210c17e798dbb6d01bc9d4c6298d02a10186d2e0180a260ba5349fdc
+aggregation_floor:
+  distinct_subjects: 5
+  distinct_tenants: 2
+term_signals:
+  - term_form: example unmapped term
+    count: 14
+    distinct_subjects: 9
+    distinct_tenants: 3
+unreportable_count: 2

@@ -1,0 +1,28 @@
+# expected_failure: ONT-INVENTORY-FOREIGN
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+inventory:
+  - path: concepts.yaml
+    sha256: be89a6195723986b299afa94b9f9d4059c845527f5d1f85d0b6dc76678da214b
+  - path: overlay.yaml
+    sha256: d7ca0b42111794c81fedb85e0286d8c1886ad62af2eac48c6b9412b1e46bf907
+package_digest: 16f178e08a294bee8549b56bdfca98c512deb002f5597ae91f7c46aec6d928b8
+compatibility:
+  class: initial
+  line: xf/negx@1

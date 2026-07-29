@@ -1,0 +1,337 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+# The xFactory semantic kernel concept registry (add-domain-ontology-layer,
+# task 2.4) — the minimal upper model over existing neutral contracts (design
+# decision 5). Every term names the contract or governance doc that owns its
+# runtime shape; the kernel REFERENCES those owners, never restates them.
+# The package is DRAFT: every term records adoption.status pending per the
+# ratified bootstrap scenario ("The initial kernel is drafted before any
+# domain package exists"); publication requires two independent resolvable
+# adopters per term, which the MedxFactory/codexFactory pilots provide.
+# No domain-owned noun may appear here — a clinical, accounting, marketing,
+# operations, or engineering meaning belongs to its DomainxFactory.
+package_id: xf/core
+concepts:
+  - id: xf/core/subject
+    label: Subject
+    aliases: [served subject, work subject]
+    definition: >-
+      The served party or work subject a factory acts for — a patient, a
+      project, a managed system, an engagement, a campaign target. Subject
+      Hermes owns its private instances; the kernel owns only the neutral
+      concept.
+    category: party_layer
+    lifecycle_state: draft
+    owning_contract: contracts/policies/layer-vocabulary.yaml
+    adoption: {status: pending}
+    sources: [xfactory-policies]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/tenant
+    label: Tenant
+    aliases: [tenant operator]
+    definition: >-
+      The operating organization that runs a factory installation for its
+      subjects, owning local policy, staff, integrations, credentials, and
+      tenant semantic bindings.
+    category: party_layer
+    lifecycle_state: draft
+    owning_contract: contracts/policies/layer-vocabulary.yaml
+    adoption: {status: pending}
+    sources: [xfactory-policies]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/domain
+    label: Domain
+    aliases: [expert domain]
+    definition: >-
+      The reusable expert discipline a DomainxFactory encodes — its policy,
+      source authority, review standards, and ontology stewardship under
+      Domain Hermes.
+    category: party_layer
+    lifecycle_state: draft
+    owning_contract: contracts/policies/layer-vocabulary.yaml
+    adoption: {status: pending}
+    sources: [xfactory-policies]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/workflow
+    label: Workflow
+    definition: >-
+      A governed, contract-declared unit of factory work with activities,
+      states, transitions, and gates, executed under the neutral workflow
+      contract.
+    category: work
+    lifecycle_state: draft
+    owning_contract: contracts/schemas/xfactory-workflow.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/activity
+    label: Activity
+    definition: >-
+      A bounded step of work inside a workflow, performed by an authorized
+      actor and producing artifacts or outcomes.
+    category: work
+    lifecycle_state: draft
+    owning_contract: docs/domain-ontology-semantic-decisions.md
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/state
+    label: State
+    definition: >-
+      A named condition in a governed lifecycle — of a workflow, a document,
+      or a subject journey — whose transitions are contract-controlled.
+    category: work
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/transition
+    label: Transition
+    definition: >-
+      A permitted movement between states, optionally gated, recorded with
+      its trigger and actor.
+    category: work
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/gate
+    label: Gate
+    definition: >-
+      A governed checkpoint that admits or refuses a transition or activity,
+      producing a gate record with a closed outcome vocabulary.
+    category: work
+    lifecycle_state: draft
+    owning_contract: contracts/schemas/xfactory-workflow.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/artifact
+    label: Artifact
+    definition: >-
+      A produced, digest-addressable work product tracked through its
+      lifecycle events under the runtime artifact contract.
+    category: work
+    lifecycle_state: draft
+    owning_contract: contracts/hermes-runtime/artifact-record.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/focal_item
+    label: Focal Item
+    definition: >-
+      The domain-defined thing a subject's journey is about — a treatment, a
+      repository, an account, a campaign — instantiated per subject, defined
+      per domain.
+    category: subject_view
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/interaction
+    label: Interaction
+    definition: >-
+      A recorded exchange between the factory (or tenant staff) and a subject
+      or their systems, contributing claims and evidence to the subject
+      record.
+    category: subject_view
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/journey_state
+    label: Journey State
+    definition: >-
+      The governed current condition of a subject's journey over a focal
+      item, inferred from claims and evidence and accepted only through the
+      owning state contracts.
+    category: subject_view
+    lifecycle_state: draft
+    parents: [xf/core/state]
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/outcome
+    label: Outcome
+    definition: >-
+      A domain-meaningful result state a journey or workflow aims to reach or
+      avoid, distinct from a gate outcome, which belongs to the gate
+      contract.
+    category: subject_view
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/intervention
+    label: Intervention
+    definition: >-
+      A deliberate, governed act intended to move a subject's journey toward
+      an outcome; always subject to the domain's authority and approval
+      contracts, never authorized by classification.
+    category: subject_view
+    lifecycle_state: draft
+    owning_contract: docs/xfactory-domain-factory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/source
+    label: Source
+    definition: >-
+      An origin of claims or knowledge — a person, system, document, or
+      registered external authority — carrying source-authority standing
+      under the memory model.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: contracts/memory-gateway/vocabularies.yaml
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/claim
+    label: Claim
+    aliases: [source claim]
+    definition: >-
+      A source-attributed statement about a subject or the domain, held with
+      provenance and never treated as authoritative state by itself.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: contracts/memory-gateway/vocabularies.yaml
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/evidence
+    label: Evidence
+    definition: >-
+      Material linked into the evidence graph that supports or undermines
+      claims and hypotheses, with provenance and traceability preserved.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: contracts/memory-gateway/vocabularies.yaml
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/hypothesis
+    label: Hypothesis
+    definition: >-
+      A candidate interpretation — of state, cause, or classification — that
+      remains evidence-linked and non-authoritative until the owning state
+      and review contracts accept it.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/observation
+    label: Observation
+    definition: >-
+      A recorded signal from operation or telemetry — governed, bounded, and
+      attributable — from which claims or maintenance triggers may be
+      derived.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: docs/customer-hermes-memory-model.md
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/knowledge_atom
+    label: Knowledge Atom
+    aliases: [memory item, root truth atom]
+    definition: >-
+      The smallest reusable unit of expert knowledge the memory model stores
+      and the gateway serves in bounded context — always scoped, never an
+      unrestricted corpus.
+    category: knowledge
+    lifecycle_state: draft
+    owning_contract: contracts/memory-gateway/vocabularies.yaml
+    adoption: {status: pending}
+    sources: [xfactory-architecture-docs]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/policy
+    label: Policy
+    definition: >-
+      A governed rule set determining what actors may do; owned by the
+      roles-authority model and layer policy contracts, never by ontology.
+    category: governance
+    lifecycle_state: draft
+    owning_contract: openspec/specs/roles-authority-model/spec.md
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/consent
+    label: Consent
+    definition: >-
+      A recorded permission from the party entitled to give it, established
+      only through the consent contracts; semantic inference can never
+      establish it.
+    category: governance
+    lifecycle_state: draft
+    owning_contract: contracts/memory-gateway/consent-profile.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/authority
+    label: Authority
+    definition: >-
+      A granted, revocable power to act, carried by grants and bindings under
+      the runtime authority contracts; ontology may describe it and never
+      confer it.
+    category: governance
+    lifecycle_state: draft
+    owning_contract: contracts/hermes-runtime/authority-grant.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/approval
+    label: Approval
+    definition: >-
+      A recorded decision by an authorized approver admitting a proposed act
+      or change, under the approval contracts and their supersession rules.
+    category: governance
+    lifecycle_state: draft
+    owning_contract: contracts/hermes-runtime/approval-decision.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0
+  - id: xf/core/trace_reference
+    label: Trace Reference
+    definition: >-
+      A stable pointer tying a record, decision, or artifact to the exact
+      identities and evidence it derives from, as the job envelope and
+      traceability contracts define.
+    category: governance
+    lifecycle_state: draft
+    owning_contract: contracts/hermes-runtime/traceability-edge.schema.yaml
+    adoption: {status: pending}
+    sources: [xfactory-contracts]
+    steward: openxfactory-maintainers
+    effective_version: 0.1.0

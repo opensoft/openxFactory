@@ -1,0 +1,26 @@
+# expected_failure: ONT-CYCLE
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+inventory:
+  - path: concepts.yaml
+    sha256: a9af62995bc61085178aa97f22d544aaf6219b9d6bce5a5bd1309fffe5af9655
+package_digest: 45ceac2713d61ab4be501bc18f2887197d924e8ec4cc7bbd6e7cff689d8e6971
+compatibility:
+  class: initial
+  line: xf/negx@1

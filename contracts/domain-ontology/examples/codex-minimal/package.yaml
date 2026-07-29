@@ -1,0 +1,32 @@
+# Positive fixture: a minimal software-engineering specialization
+# of the same kernel (task 3.5) — proves two unlike domains share
+# the core without importing each other's vocabulary.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/codex
+package_version: 1.0.0
+namespace: xf/codex
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: codex-ontology-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+inventory:
+  - path: concepts.yaml
+    sha256: 3aa7d91136d1699b441e315f15bb44b6ddccff5fe0a80fad5a2451a911f08c63
+  - path: relations.yaml
+    sha256: 6f6a972be641caba496fa2fdc9efd370b63e39e03cb7fbec3c538ba10eca8fe0
+  - path: sources.yaml
+    sha256: c42238179f7a6e5d387f64d7d9e1332f0b8d73426833804978660c8b631e4da4
+package_digest: 17c9c44f968a8cdd57db0aee0247b3a03f7ee6df43c868ec183009c571a37af8
+compatibility:
+  class: initial
+  line: xf/codex@1

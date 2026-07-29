@@ -77,6 +77,11 @@ Core domain-neutral docs:
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
+- [Domain-Ontology Semantic Inventory And Decisions](docs/domain-ontology-semantic-decisions.md)
+  (the kernel's term-by-term owners, collision/leak/gap registers, identifier
+  grammar, compatibility rubric; realization record of `add-domain-ontology-layer`
+  tasks 1.1–1.6 — the contract family lives at
+  [contracts/domain-ontology/](contracts/domain-ontology/README.md))
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
