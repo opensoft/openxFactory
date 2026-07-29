@@ -247,6 +247,19 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-deployment-handoff-boundary](../openspec/changes/add-deployment-handoff-boundary/proposal.md)
+  — fully promoted 2026-07-28: owns the former `deployment-handoff-boundary`
+  staged topic under `supporting-docs/`. The managed-subject test routes
+  deployment execution — authority follows management of the target surface,
+  never the environment tier — binding workers, CI, and human engineers
+  alike; credential non-possession is the primary enforcement, correlation
+  stamping makes out-of-band change a first-class finding, cadenced
+  publication rides standing maintenance requests, and release-realization
+  evidence correlates to the completed handoff request. OpsxFactory (QA
+  profile, grant-issuance registry lookup, correlation audit, ACR scope map)
+  and codexFactory (release exit emits the request draft) are named
+  successor realization changes; break-glass custody stays with the
+  `client-credential-escrow-registry` topic.
 - [add-omnigent-domain-overlay](../openspec/changes/archive/2026-07-24-add-omnigent-domain-overlay/proposal.md)
   — fully promoted 2026-07-23: owns the former `omnigent-core-domain-split`
   staged topic under `supporting-docs/`. Both archive-gate halves proven

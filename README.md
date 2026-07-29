@@ -189,6 +189,36 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
+  — authored 2026-07-28, the exit of the `deployment-handoff-boundary`
+  staged topic (fully promoted; primary doc under `supporting-docs/`): a
+  release deployment is executed by the factory that manages the TARGET
+  SURFACE, decided solely by the managed-subject test — never by the
+  environment tier, which calibrates approval depth and accepted risk only.
+  The QA AKS stack is a managed subject, so QA deployments hand off exactly
+  as production does, while ephemeral CI/bench containers self-serve with no
+  request. The rule binds ALL actor classes (workers, CI, human engineers);
+  the crossing is the ratified `client_infrastructure_request`
+  (`execution_binding.mode`), no new record kind. Enforcement is layered
+  with credential non-possession as the teeth: only OpsxFactory execution
+  identities hold standing write credentials; deployment grants issue only
+  against an accepted request targeting a registered subject (the registry
+  lookup happens where the key is born); the structural channel is pull-only
+  GitOps reconciliation (merge IS the deployment) or Intune assignment;
+  `correlation_id` is stamped into commit trailers / deployment annotations /
+  endpoint metadata so the evidence-correlation audit is a join and any
+  uncorrelated change is a first-class finding. Benches ride one standing
+  maintenance request per policy period; break-glass is a retroactive
+  request within a policy window (custody owned by
+  `client-credential-escrow-registry`); adoption is phased-never-gapped
+  (standing admin stays a dispositioned exception until the tested checkout
+  path exists). MODIFIED `release-realization`: realization evidence for a
+  managed-subject deployment references the handoff request by correlation
+  identifier. All seven 2026-07-24 resolutions carried as design decisions;
+  codexFactory is the sole first consumer; OpsxFactory + codexFactory
+  realizations are named successor changes. Four open questions (QA approval
+  calibration, ACR scope map, preview threshold, break-glass window) are
+  deliberately deferred to realization.
 - [add-domain-ontology-layer](openspec/changes/add-domain-ontology-layer/proposal.md)
   — authored AND RATIFIED 2026-07-28: the ontology layer for the xFactory
   system. Realization is unblocked; with a non-none code surface it archives

@@ -54,7 +54,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
-| [deployment-handoff-boundary](#deployment-handoff-boundary) | ADDED `deployment-handoff-boundary` (managed-subject routing rule + layered enforcement); MODIFIED `release-realization` (handoff-record correlation); realization in OpsxFactory (QA deployment profile, correlation audit) + codexFactory (release exit step) | 1 | **Ready for proposal** — rule + all 7 clarifying resolutions locked with Brett 2026-07-24 (all-actor scope, creds-primary, grant-issuance gate, correlation stamping, benches on standing request, phased admin strip, codexFactory sole first consumer); residual decisions are proposal-gate/realization detail |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
 | [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
@@ -365,50 +364,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   delta on codexFactory main, strict validation green; the topic's
   `openspec/` drafts are its provenance), then change B (councils/mixes/
   escalation/memory/catalog); the Omnigent extension rides change A.
-
-## deployment-handoff-boundary
-
-- Staging ID: `openxFactory:staging:deployment-handoff-boundary`
-- Repository context: openxFactory (neutral routing requirement);
-  OpsxFactory (QA deployment profile, subject-registry lookup,
-  evidence-correlation audit, ACR namespace scope map); codexFactory
-  (release exit step, first consumer); evidence surfaces in
-  omnigent-install / hermes-install.
-- Source: operator conversation 2026-07-24 (Brett, during worker-host-app
-  kickoff); standing evidence = OpsxFactory `workflows/deployment.yaml`,
-  the `cir-opensoft-qa-codexfactory-install` QA precedent, and
-  `client-infrastructure-request`'s `execution_binding.mode`.
-- Claim: deployment execution authority follows management of the target
-  surface, not the environment tier — the **managed-subject test**. A
-  release headed to any registered OpsxFactory subject (production OR the
-  managed QA stack) crosses as a governed `client_infrastructure_request`
-  that OpsxFactory executes; work inside the producing factory's own
-  execution lane (ephemeral CI/bench containers, no subject) self-serves.
-  The rule binds ALL actor classes — workers, human engineers, CI. Tier
-  calibrates approval depth and accepted risk, never the executor.
-  Enforced in layers: constitutional (Omnigent matrix), credential
-  non-possession (the teeth — only opsX identities hold standing keys;
-  human access is break-glass), structural GitOps pull-only + Intune,
-  detective correlation audit, human approvals.
-- Files:
-  - [deployment-handoff-boundary.md](deployment-handoff-boundary/deployment-handoff-boundary.md)
-    — primary: the rule + test, 6 claims, layered enforcement table,
-    7 clarifying resolutions (2026-07-24), residual decisions, exit.
-- Open questions: RESOLVED 2026-07-24 (clarifying session) — all-actor
-  scope; phased strip of human standing admin (never before tested
-  break-glass); grant-issuance + GitOps-merge as the mechanical gates;
-  correlation_id stamped into GitOps trailers / k8s annotations / Intune
-  metadata; benches on one standing maintenance request per period;
-  break-glass = retroactive request, custody per
-  client-credential-escrow-registry; codexFactory sole first consumer.
-  Residual (proposal gate/realization): capability home, QA approval
-  calibration, ACR namespace scope map, preview-environment threshold,
-  break-glass window.
-- Exit: openxFactory `add-deployment-handoff-boundary` (capability +
-  `release-realization` delta), then OpsxFactory + codexFactory
-  realization changes; archives on one real release crossing the rail
-  end-to-end onto the managed QA stack plus a clean (or dispositioned)
-  correlation-audit run.
 
 ## github-administration-plane
 
