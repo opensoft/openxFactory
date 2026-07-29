@@ -390,28 +390,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
-  — re-proposed 2026-07-13 and **re-ratified 2026-07-14** (D1–D17; the
-  07-12 ratification was set aside at a design-round demotion);
-  staged-origin change for the generated ideation dashboard: realization
-  funnel snapshot over a possibles register, cluster canvas working
-  surface (D12), keyword lens set-builder with cluster-as-recipe
-  persistence (D13), project grouping roll-ups (D10), drill-down explorer
-  and read-only Markdown viewer (D14/D15), the human gate console and
-  next-step kickoff (D16/D17), per-actor authoring authority, non-mutating
-  machinery, and the nightly snapshot lane; web-based v1 served per
-  Option C on the internal xForge plane. **Realized + deployed
-  2026-07-14**: codexFactory feature 002-ideation-dashboard merged
-  (231 tests, adversarial review ACCEPT), nightly lane green (first
-  snapshot committed), live at ideation-dashboard.xforge.us (Nextest,
-  boundary validator PASSED). At 26/27 — remaining: task 3.5 human-seen
-  submission, gated on add-ideation-cross-reference-readiness's
-  pending_review intake contract (landed 2026-07-14 — 3.5 is now
-  unblocked pending its codexFactory implementation); archives on the archive-gate
-  ledger (contract registration + additive snapshot-schema deltas)
-  once those land (code surface: openxFactory, codexFactory, xFactory;
-  ideation-cross-reference delta sequenced with
-  add-ideation-cross-reference-readiness)
 - [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
   — staged-origin proposal requiring every OpenSpec change to declare one
   durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate
@@ -571,6 +549,27 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-ideation-dashboard](openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
+  — **re-ratified 2026-07-14 (D1–D17), realized, and archived 2026-07-29**:
+  promoted the `ideation-dashboard` capability (15 requirements), created
+  `ideation-cross-reference` (2), and grew doc-health and
+  document-lifecycle by one each. The generated dashboard: realization
+  funnel snapshot over a possibles register, cluster canvas, keyword lens
+  with cluster-as-recipe persistence, project grouping roll-ups, drill-down
+  explorer and read-only viewer, human gate console and next-step kickoff,
+  per-actor authoring authority, and the nightly snapshot lane; web-based
+  v1 on the internal xForge plane. Archive-gate evidence: codexFactory
+  feature 002 merged (231 tests + 34 contract fixtures, adversarial review
+  ACCEPT), doc-health-nightly green with fresh per-repository snapshots on
+  the archive date, live at ideation-dashboard.xforge.us (never-public
+  boundary answering 401 unauthenticated), the contract family registered
+  (`ideation-possibles-register` kernel in `contracts/manifest.yaml`, the
+  family in the contracts README doc index), and the supporting bundle
+  manifest hash-refreshed at preflight to cover the two post-transition
+  governance commits. Seven active changes stack MODIFIED deltas on the
+  promoted spec (repo-selector, branch-sessions, bullseye-and-create,
+  staging-workbench, and the lens/wheel/propose verbs) — all validating
+  strict against it (49/49).
 - [add-hermes-domain-content-manifest](openspec/changes/archive/2026-07-24-add-hermes-domain-content-manifest/proposal.md)
   — **ratified, realized, and archived 2026-07-24** (seeding increment 4b,
   contract half; released as `contract-v1.18`, annotated tag verified): the

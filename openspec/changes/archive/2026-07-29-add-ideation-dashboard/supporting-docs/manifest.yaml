@@ -1,0 +1,27 @@
+{
+  "change_id": "add-ideation-dashboard",
+  "origin": {
+    "kind": "staged",
+    "id": "openxFactory:staging:ideation-dashboard",
+    "path": "ideation/staging/ideation-dashboard"
+  },
+  "files": [
+    {
+      "path": "ideation-dashboard.md",
+      "sha256": "96688a327721a1167cf24f384f151290592219382cdf6b6a8848f9de14040997",
+      "source_path": "ideation/staging/ideation-dashboard/ideation-dashboard.md"
+    },
+    {
+      "path": "dashboard-mockup.html",
+      "sha256": "6588a9e26a6d28c928b6b6fd1fc944d054761f8d07126ec9c384b206ae54abbd",
+      "source_path": "ideation/staging/ideation-dashboard/dashboard-mockup.html"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/ideation-dashboard",
+  "remaining_paths": [],
+  "source_revision": "f9a55cd744b9cd6999331438d461b60898830a67",
+  "source_state": "Second full promotion (re-proposal after the 2026-07-13 design-round demotion): both topic files selected and the emptied topic folder removed; the openspec/ draft workspace returned to the change root with draft headers stripped. Hashes reflect the proposal-stage copies: the primary doc flipped to Status: draft / Proposed by: with D12-D13 decision rows and the satisfied-exit record; the mockup carries the click-to-pin trace and the cluster-canvas sketch added during the staging round. The first transition's manifest is retained beside this one as first-transition.manifest.yaml. Hash refresh at archive preflight 2026-07-29: the primary doc's sha256 was regenerated to cover the two governance commits that followed the second transition — the D14-D17 amendment (b2c7e2d) and the 2026-07-14 re-ratification record (8d37f6c); the mockup was untouched and its hash still verifies.",
+  "transitioned_at": "2026-07-13"
+}

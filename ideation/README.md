@@ -283,7 +283,7 @@ Active proposals promoted from staging:
   `validate-derived-models.py`. Canonical spec:
   `openspec/specs/governed-derived-model/`. Conformers: Medx
   (`governed`, declaration-only), Adx (`calibrated`, first).
-- [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
+- [add-ideation-dashboard](../openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 after a design-round demotion (second
   transition); owns the former `ideation-dashboard` staged packet (primary
   doc plus the interactive mockup) under `supporting-docs/` and defines
