@@ -19,11 +19,11 @@ Repository context: openxFactory (neutral schemas; codexFactory both first
 conformer and the cross-domain builder)
 Staging ID: `openxFactory:staging:recurrence-crystallization`
 Source: brainstorm docs
-[economics](../../../../ideation/brainstorm/crystallization-economics.md),
-[automation ladder](../../../../ideation/brainstorm/crystallization-automation-ladder.md),
-[requirements mining](../../../../ideation/brainstorm/crystallization-requirements-mining.md),
-[build pipeline](../../../../ideation/brainstorm/crystallization-build-pipeline.md),
-[Crystallizer synthesis](../../../../ideation/brainstorm/crystallization-synthesis-crystallizer.md);
+[economics](../../../../../ideation/brainstorm/crystallization-economics.md),
+[automation ladder](../../../../../ideation/brainstorm/crystallization-automation-ladder.md),
+[requirements mining](../../../../../ideation/brainstorm/crystallization-requirements-mining.md),
+[build pipeline](../../../../../ideation/brainstorm/crystallization-build-pipeline.md),
+[Crystallizer synthesis](../../../../../ideation/brainstorm/crystallization-synthesis-crystallizer.md);
 rulings D5, D7, D11 (primary doc, 2026-07-29).
 Target capabilities: `crystallization-decision` (ADDED),
 `crystallization-build` (ADDED)

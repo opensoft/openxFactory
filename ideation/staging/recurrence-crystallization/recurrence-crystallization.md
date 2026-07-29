@@ -64,11 +64,11 @@ contract-shaping rulings and the delta surfaces.
   and candidate records (ADDED `pattern-ledger`); promoted 2026-07-29 at
   the raise of `add-pattern-ledger`, now under the archived change's
   `supporting-docs/`.
-- [crystallizer-contracts.md](../../../openspec/changes/add-crystallizer-contracts/supporting-docs/crystallizer-contracts.md)
+- [crystallizer-contracts.md](../../../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/supporting-docs/crystallizer-contracts.md)
   — decision, spec mining, and governed build (ADDED
   `crystallization-decision`, `crystallization-build`); promoted 2026-07-29
   at the raise of `add-crystallizer-contracts`.
-- [authority-and-consent.md](../../../openspec/changes/add-crystallizer-contracts/supporting-docs/authority-and-consent.md)
+- [authority-and-consent.md](../../../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/supporting-docs/authority-and-consent.md)
   — authority conservation and consent tiers (MODIFIED
   `omnigent-domain-overlay`, ADDED `crystallization-consent`); promoted
   2026-07-29 at the raise of `add-crystallizer-contracts`.
@@ -123,8 +123,9 @@ pattern-ledger fragment moved to its `supporting-docs/` with a hashed
 manifest — a partial promotion; the topic keeps the crystallizer,
 authority, steward, and dials fragments for exits 2 and 3.
 
-Exit 2 was RAISED and RATIFIED 2026-07-29 as
-[add-crystallizer-contracts](../../../openspec/changes/add-crystallizer-contracts/proposal.md):
+Exit 2 was RAISED, RATIFIED, realized (`contract-v1.20`), and ARCHIVED
+2026-07-29 as
+[add-crystallizer-contracts](../../../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md):
 the draft slices moved to the change (draft headers stripped, front-matter
 restored, staged origin declared), and the crystallizer and authority
 fragments moved to its `supporting-docs/` with a hashed manifest — the

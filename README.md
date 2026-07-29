@@ -152,6 +152,16 @@ Core domain-neutral docs:
   `contracts/schemas/pattern-ledger-*.schema.yaml`, canonical validator
   `scripts/validate-pattern-ledger.py`, MVP fixture corpus
   `examples/pattern-ledger/`)
+- [Crystallizer Contracts](openspec/specs/crystallization-decision/spec.md)
+  ([decision](openspec/specs/crystallization-decision/spec.md) ·
+  [build](openspec/specs/crystallization-build/spec.md) ·
+  [consent](openspec/specs/crystallization-consent/spec.md) — the
+  only-path-to-spend decision, episode-mined build contracts, and
+  default-deny consent tiers; realized at `contract-v1.20` together with
+  the crystallized-executor + rung-ceiling additions to the
+  [omnigent overlay spec](openspec/specs/omnigent-domain-overlay/spec.md);
+  canonical validator `scripts/validate-crystallizer-contracts.py`, MVP
+  corpus continuation `examples/crystallizer/`)
 
 Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
 
@@ -201,28 +211,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-crystallizer-contracts](openspec/changes/add-crystallizer-contracts/proposal.md)
-  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
-  V1–V2 carried as design context); exit 2 of the `recurrence-crystallization` staged
-  topic (partial promotion — the topic keeps its steward and dials
-  fragments): the crystallization decision as the only path from candidate
-  to spend (ceilings resolve before valuation, deflation + survival
-  discounting with first-class non-token value, shape-not-boolean outputs,
-  the not-yet ledger, frozen L0–L6 rung vocabulary), the episode-mined
-  micro-spec with acceptance corpus / scope fence / declared effect class,
-  governed codexFactory builds with gapless provenance and dry-run +
-  leak-scan acceptance, the T1/T2/T3 consent tiers with the uncollapsible
-  approval braid, and a purely ADDED `omnigent-domain-overlay` delta
-  (crystallized-executor bindings on existing archetypes so the
-  constitutional matrix binds verbatim; rung ceilings with an L3 default
-  for undeclared categories); schemas + validators are the declared code
-  surface. Realized 2026-07-29: the four record schemas, the additive
-  overlay fields, `scripts/validate-crystallizer-contracts.py` (12 named
-  policy rules; self-testing 4 positives / 9 indexed negatives), the
-  extended omnigent validator (authority-conservation subset rules + 2 new
-  overlay negatives), and the MVP corpus continuation under
-  `examples/crystallizer/`; manifest/CHANGELOG registration at the archive
-  cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions
@@ -586,6 +574,19 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-crystallizer-contracts](openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-29** (same-day
+  full cycle; exit 2 of the `recurrence-crystallization` staged topic):
+  promoted `crystallization-decision` (7 requirements),
+  `crystallization-build` (8), and `crystallization-consent` (4), and grew
+  `omnigent-domain-overlay` by two — the crystallized-executor binding on
+  the EXISTING five archetypes (constitutional matrix binds verbatim;
+  authority conservation is a mechanical subset check) and per-category
+  rung ceilings with the conservative L3 default. Realized at
+  `contract-v1.20`; the MVP corpus now runs candidate → funded L3
+  decision → mined spec (real Topics-wrap counterexample) → consent
+  grants → accepted-build shape, end to end in fixtures. Successor exit
+  stays staged: `add-capability-steward`.
 - [add-pattern-ledger](openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
   — **authored, ratified, realized, and archived 2026-07-29** (same-day
   full cycle; exit 1 of the `recurrence-crystallization` staged topic):

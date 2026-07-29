@@ -67,7 +67,10 @@
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
 - [x] 4.3 Obtain ratification approval and stamp the proposal front matter
       (`Status: ratified`, `Ratified by:`) — ratified by Brett 2026-07-29.
-- [ ] 4.4 Realization evidence per `release-realization`: schemas +
+- [x] 4.4 Realization evidence per `release-realization`: schemas +
       validators merged and green; contract version allocated at the
       archive bundle cut with its annotated tag and release digest
-      inventory; archive follows evidence, never precedes it.
+      inventory; archive follows evidence, never precedes it. — Evidence:
+      realization commit a06acd4 merged and green (crystallizer 4/9,
+      omnigent all green, --all --strict 51/51); contract-v1.20 allocated
+      at the 2026-07-29 archive cut with its annotated tag and inventory.

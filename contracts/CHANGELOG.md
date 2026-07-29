@@ -11,8 +11,32 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
-- (nothing pending — the contract-v1.19 cut discharged the
-  `xfactory-derived-model-conformance` registration.)
+- (nothing pending.)
+
+## contract-v1.20 — 2026-07-29 (additive; crystallizer contracts + omnigent crystallized-executor extension)
+
+Realizes **add-crystallizer-contracts** (exit 2 of the
+`recurrence-crystallization` staged topic; ratified and archived
+2026-07-29): the four **crystallizer** record schemas —
+`contracts/schemas/crystallization-{decision,spec,build,consent}.schema.yaml`
+— the decision as the only path from candidate to spend
+(ceilings-before-valuation, deflation + survival discounting,
+shape-not-boolean outputs, the not-yet ledger, frozen L0–L6 rung
+vocabulary), the episode-mined micro-spec (acceptance corpus with declared
+equivalence predicates, scope fence, effect class), the governed build
+record (gapless provenance, dry-run + leak-scan acceptance, declared
+artifact residence per the rung→home lean), and the three-tier
+default-deny consent grant. Also extends **`omnigent-domain-overlay`**
+additively (manifest digest refreshed): the crystallized-executor binding
+on the EXISTING five archetypes — so the constitutional matrix binds
+verbatim — and per-category `rung_ceilings` with the conservative L3
+default, enforced by the extended `scripts/validate-omnigent-contracts.py`
+(authority-conservation subset rules: permissions and by_class credential
+families never exceed the replaced configuration). The canonical validator
+`scripts/validate-crystallizer-contracts.py` (12 named policy rules;
+self-testing 4 positives / 9 indexed negatives) and
+`examples/crystallizer/` are commit-content-addressed tools and fixtures,
+no per-file digest. Purely additive.
 
 ## contract-v1.19 — 2026-07-29 (additive; pattern-ledger sensing contracts + derived-model registration catch-up)
 

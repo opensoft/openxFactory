@@ -17,9 +17,9 @@ Repository context: openxFactory (the permission matrix and consent schemas
 are neutral; ceilings are domain overlay content)
 Staging ID: `openxFactory:staging:recurrence-crystallization`
 Source: brainstorm doc
-[authority and consent](../../../../ideation/brainstorm/crystallization-authority-and-consent.md)
+[authority and consent](../../../../../ideation/brainstorm/crystallization-authority-and-consent.md)
 (AU-C1..C5, AU-Q1..Q5); braid framing from the
-[Crystallizer synthesis](../../../../ideation/brainstorm/crystallization-synthesis-crystallizer.md);
+[Crystallizer synthesis](../../../../../ideation/brainstorm/crystallization-synthesis-crystallizer.md);
 ruling D11 (effect classes) interacts via the dispatch fragment.
 Target capabilities: `omnigent-domain-overlay` (MODIFIED),
 `crystallization-consent` (ADDED)

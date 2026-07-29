@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.19
+contract_bundle_version: contract-v1.20
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -860,7 +860,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-domain-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d5e090687b4da494e11bae0e1d7c663aa817c1125a75968639b1bc74f5286099
+    sha256: 04093e3590c29e2b6a5bc91b3d4fa044e7211fcca296d00ba1fe42e73e27efb0  # contract-v1.20 (additive: crystallized-executor binding + rung_ceilings)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1064,3 +1064,75 @@ contracts:
       scripts/validate-derived-models.py. DTN-014 flips implemented ->
       adopted in the candidate register as domain pins advance past this
       registering ref.
+  - id: crystallization-decision
+    path: contracts/schemas/crystallization-decision.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 89477dea9e6db92ea8b6c65da8c1ec3f76ac0e07f2f93c87288f19daf94e3bf4  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-spec
+    path: contracts/schemas/crystallization-spec.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-spec.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e95565dfeb7d66a32496e26708d965249853eb8692a19446efbab2c30949f310  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-build
+    path: contracts/schemas/crystallization-build.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-build.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 270472fb1d2d5ab6b83349cc0fe7513241958351612046a9a904c7eaf3c288b2  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-consent
+    path: contracts/schemas/crystallization-consent.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-consent.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fa600d3fc5db6b78a3bcd82f181a90dc981e53095e85a1add38bf3ff6207a3dc  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
