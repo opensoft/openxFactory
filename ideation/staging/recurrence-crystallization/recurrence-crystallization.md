@@ -59,10 +59,10 @@ contract-shaping rulings and the delta surfaces.
 
 ## Fragment map
 
-- [pattern-ledger-contracts.md](../../../openspec/changes/add-pattern-ledger/supporting-docs/pattern-ledger-contracts.md)
+- [pattern-ledger-contracts.md](../../../openspec/changes/archive/2026-07-29-add-pattern-ledger/supporting-docs/pattern-ledger-contracts.md)
   — the sensing contract family: episode, outcome-label, family, forecast,
   and candidate records (ADDED `pattern-ledger`); promoted 2026-07-29 at
-  the raise of `add-pattern-ledger`, now under that change's
+  the raise of `add-pattern-ledger`, now under the archived change's
   `supporting-docs/`.
 - [crystallizer-contracts.md](crystallizer-contracts.md) — decision, spec
   mining, and governed build (ADDED `crystallization-decision`,
@@ -112,8 +112,9 @@ A fourth, cross-tenant, follows in a later wave after a first domain proof.
 The dials register feeds all three as declared dials
 (governed-derived-model pattern).
 
-Exit 1 was RAISED and RATIFIED 2026-07-29 as
-[add-pattern-ledger](../../../openspec/changes/add-pattern-ledger/proposal.md):
+Exit 1 was RAISED, RATIFIED, realized (`contract-v1.19`), and ARCHIVED
+2026-07-29 as
+[add-pattern-ledger](../../../openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md):
 the draft slices moved to the change (draft headers stripped, front-matter
 restored, staged origin declared in `.openspec.yaml`), and the
 pattern-ledger fragment moved to its `supporting-docs/` with a hashed

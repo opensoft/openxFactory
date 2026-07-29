@@ -147,6 +147,11 @@ Core domain-neutral docs:
 - [Roles and Authority](docs/roles-and-authority.md)
 - [Repository Boundary Governance](openspec/specs/repo-boundary-governance/spec.md)
 - [Shared Contract Ownership](openspec/specs/shared-contract-ownership/spec.md)
+- [Pattern Ledger](openspec/specs/pattern-ledger/spec.md) (recurrence-crystallization
+  sensing contracts; realized at `contract-v1.19` — schemas
+  `contracts/schemas/pattern-ledger-*.schema.yaml`, canonical validator
+  `scripts/validate-pattern-ledger.py`, MVP fixture corpus
+  `examples/pattern-ledger/`)
 
 Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
 
@@ -196,22 +201,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-pattern-ledger](openspec/changes/add-pattern-ledger/proposal.md)
-  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
-  V1–V2 carried as design context); exit 1 of the `recurrence-crystallization` staged
-  topic (partial promotion — the topic keeps its crystallizer, authority,
-  steward, and dials fragments): the five pattern-ledger sensing record
-  kinds (episode, outcome-label, recurrence-family, recurrence-forecast,
-  crystallization-candidate) as a governed derived projection over existing
-  audit/run/metering/label streams, tenant-scoped families with recorded
-  merge/split transitions, scored maturity-dated forecasts, default-deny
-  consent tiers, a bounded read-only sweep, and the candidate autonomy
-  boundary (nominate, never spend); schemas + validator are the declared
-  code surface. Realized 2026-07-29: the five schemas, the canonical
-  validator (`scripts/validate-pattern-ledger.py`, self-testing 7 positives
-  / 7 negatives), and `examples/pattern-ledger/` incl. the MVP
-  packet-capture fixture corpus; manifest/CHANGELOG registration at the
-  archive cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions
@@ -575,6 +564,19 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-pattern-ledger](openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-29** (same-day
+  full cycle; exit 1 of the `recurrence-crystallization` staged topic):
+  promoted the `pattern-ledger` capability (8 requirements) — the five
+  sensing record schemas (episode / outcome-label / recurrence-family /
+  recurrence-forecast / crystallization-candidate), the canonical validator
+  with nine named policy rules (self-testing 7 positives / 7 indexed
+  negatives), and the MVP packet-capture fixture corpus hand-derived from
+  the real 2026-07-28/29 runs. Realized at `contract-v1.19`, whose cut also
+  discharged the standing `xfactory-derived-model-conformance`
+  registration. The candidate autonomy boundary — nominate, never spend —
+  is the wave's constitutional line; successor exits stay staged:
+  `add-crystallizer-contracts`, `add-capability-steward`.
 - [add-ideation-dashboard](openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
   — **re-ratified 2026-07-14 (D1–D17), realized, and archived 2026-07-29**:
   promoted the `ideation-dashboard` capability (15 requirements), created

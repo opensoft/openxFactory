@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.18
+contract_bundle_version: contract-v1.19
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -955,3 +955,112 @@ contracts:
       Consumed through the pinned openxFactory checkout at the contract-v1.17
       tag; per-file sha256 verified before any copy is treated as current.
       Comparability semantics live only in the canonical validator.
+  - id: pattern-ledger-episode
+    path: contracts/schemas/pattern-ledger-episode.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-episode.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d4d88973db1bc72a2e49bf46177f14ccdd0c6d7737228ea8337e8c109b93bd00  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-outcome-label
+    path: contracts/schemas/pattern-ledger-outcome-label.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-outcome-label.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b6fd69185fa684ec5e780333dd50a43fb6af3464fa32e652d54bb87846ac3a86  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-recurrence-family
+    path: contracts/schemas/pattern-ledger-recurrence-family.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-recurrence-family.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d487edb25a839ca795e3eb2804b7f5eba144a7c1e3bcc04831764ff71f04c0b3  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-recurrence-forecast
+    path: contracts/schemas/pattern-ledger-recurrence-forecast.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-recurrence-forecast.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ad76812fc633d1b53516359bce25cb1d72aef5003f86f5fc03ba54045c7f0224  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-crystallization-candidate
+    path: contracts/schemas/pattern-ledger-crystallization-candidate.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-crystallization-candidate.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9dbf08482c38da0e5e4ebaa2fe65d1845e190cfdb6c79aa3d94df0e95e4a339c  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: xfactory-derived-model-conformance
+    path: contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 90f3281718042dc0368beedf6e2803d52b56f618cb8c7e714f19541906a2397f  # registered at contract-v1.19 (realized 2026-07-23 by archived add-governed-derived-model; the v1.16-v1.18 cuts missed it)
+    intended_consumers:
+      - MedxFactory (governed tier)
+      - AdxFactory (calibrated tier)
+      - LedgerxFactory (calibrated tier)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Invariant and tier rules live only in the canonical validator
+      scripts/validate-derived-models.py. DTN-014 flips implemented ->
+      adopted in the candidate register as domain pins advance past this
+      registering ref.

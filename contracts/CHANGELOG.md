@@ -11,18 +11,33 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
-- **`xfactory-derived-model-conformance`**
-  (`contracts/schemas/xfactory-derived-model-conformance.schema.yaml`) —
-  realized and ratified 2026-07-23 by archived
-  `add-governed-derived-model` (canonical spec `governed-derived-model`;
-  three conforming domains: Medx `governed`, Adx + Ledgerx
-  `calibrated`), but never registered in `contracts/manifest.yaml`: the
-  deferral was recorded only in the archived change's tasks, and the
-  v1.16, v1.17, and v1.18 cuts each missed it. At the next cut:
-  register the schema (`adapter_owner: domain factory repos`, pin-only
-  consumption rule, sha256), and flip DTN-014 `implemented` → `adopted`
-  in the candidate register as domain pins advance past the registering
-  ref.
+- (nothing pending — the contract-v1.19 cut discharged the
+  `xfactory-derived-model-conformance` registration.)
+
+## contract-v1.19 — 2026-07-29 (additive; pattern-ledger sensing contracts + derived-model registration catch-up)
+
+Realizes **add-pattern-ledger** (exit 1 of the `recurrence-crystallization`
+staged topic; ratified and archived 2026-07-29): the five **pattern-ledger**
+record schemas —
+`contracts/schemas/pattern-ledger-{episode,outcome-label,recurrence-family,recurrence-forecast,crystallization-candidate}.schema.yaml`
+— episodes as derived projections over existing audit/run/metering/label
+streams with explicit default-deny consent tiers; append-only outcome
+labels (quality is a fold, never a stored verdict); tenant-scoped
+recurrence families with recorded merge/split transitions; maturity-dated,
+scored forecasts with declared cost-regime assumptions; and the
+nominate-never-spend crystallization candidate. The canonical validator
+`scripts/validate-pattern-ledger.py` (nine named policy rules; self-testing
+7 positives / 7 indexed negatives) and `examples/pattern-ledger/` (incl.
+the MVP packet-capture fixture corpus hand-derived from the real
+2026-07-28/29 runs) are commit-content-addressed tools and fixtures, no
+per-file digest. Purely additive.
+
+Also registers **`xfactory-derived-model-conformance`**
+(`contracts/schemas/xfactory-derived-model-conformance.schema.yaml`),
+realized 2026-07-23 by archived `add-governed-derived-model` but missed by
+the v1.16–v1.18 cuts — the standing Unreleased note is discharged by this
+cut. DTN-014 flips `implemented` → `adopted` in the candidate register as
+domain pins advance past this registering ref.
 
 ## contract-v1.18 — 2026-07-24 (additive; domain content manifest + memory binding)
 
