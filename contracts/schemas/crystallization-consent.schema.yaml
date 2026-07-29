@@ -1,0 +1,72 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "crystallization-consent.schema.yaml"
+title: "Crystallization consent grant (three tiers, default deny)"
+contract_schema_version: 1
+description: >-
+  One consent grant for one tier (add-crystallizer-contracts, requirements
+  "Consent Is Three Separately Grantable Tiers", "Automation Consent Is
+  Scoped And May Carry Conditions", "Subject-Affecting Automation Is
+  Subject-Visible", "The Approval Braid Cannot Be Collapsed"). Absence of
+  a grant is denial — default deny is the absence of records, never a
+  record kind. `episode_use` is per tenant; `automation` is per family
+  category and MAY carry a condition (for example a human spot-check rate)
+  that consuming decisions record among their proof obligations; `pooling`
+  is vocabulary-frozen now and consumer-less until the cross-tenant wave.
+  The automation-scope rule (an automation grant requires a family
+  category; other tiers carry none) is a named rule in the canonical
+  validator (automation-scope). Canonical validator:
+  scripts/validate-crystallizer-contracts.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - grant_id
+  - tenant_ref
+  - tier
+  - scope
+  - condition
+  - granted_by
+  - state
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: crystallization_consent
+  grant_id:
+    type: string
+    pattern: "^grant:"
+  tenant_ref:
+    type: string
+    minLength: 1
+  tier:
+    enum: [episode_use, automation, pooling]
+  scope:
+    type: ["object", "null"]
+    additionalProperties: false
+    required: [family_category]
+    properties:
+      family_category:
+        type: string
+        minLength: 1
+  condition:
+    type: ["object", "null"]
+    additionalProperties: false
+    properties:
+      spot_check:
+        type: object
+        additionalProperties: false
+        required: [rate]
+        properties:
+          rate:
+            type: number
+            exclusiveMinimum: 0
+            maximum: 1
+  granted_by:
+    type: string
+    minLength: 1
+  state:
+    enum: [granted, revoked]
+  at:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"

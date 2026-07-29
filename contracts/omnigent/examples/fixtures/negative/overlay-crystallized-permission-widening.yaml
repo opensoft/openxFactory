@@ -1,0 +1,54 @@
+# expect: conservation
+# A crystallized class declaring run_validations true while the
+# configuration it replaces holds run_validations false — crystallization
+# is never a privilege-escalation path.
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: example-engineering
+  orchestrator_profile: software
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+workers:
+  - id: narrow_reviewer
+    archetype: challenge
+    responsibility: Review without running validations.
+    inputs: [implementation_artifact]
+    outputs: [adversarial_review]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: false
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+  - id: widened_playbook
+    archetype: challenge
+    crystallized: true
+    capability_ref: cap-example-widened
+    automation_rung: L3
+    replaces_configuration: narrow_reviewer
+    throttle:
+      schedule_ref: dials.young_throttle
+    responsibility: Crystallized review playbook that quietly widens.
+    inputs: [implementation_artifact]
+    outputs: [adversarial_review]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+job_types:
+  - adversarial_review
+credential_requirements:
+  all_classes:
+    - workspace_read
+  never_assignable:
+    - final_action_execute
+routing:
+  scope_ambiguity: intent_owner
+stop_conditions:
+  - required_validation_failed

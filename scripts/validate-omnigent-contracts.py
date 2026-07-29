@@ -16,7 +16,14 @@ Checks, fail-closed:
      - canonical vocabulary lint: no mapping key in an instance document
        contains a ``customer`` or ``client`` word segment (legacy layer
        vocabulary; the pinned upstream Hermes runtime manifest is outside
-       these documents).
+       these documents);
+     - crystallized-executor bindings (add-crystallizer-contracts): a
+       class marked ``crystallized`` carries capability_ref /
+       automation_rung / replaces_configuration / throttle, resolves its
+       replaced class in the same overlay, and never exceeds it in
+       permissions or by_class credential families (authority
+       conservation);
+     - rung_ceilings categories are unique.
 
 Exit code 0 only if every check passes.
 """
@@ -94,6 +101,51 @@ def semantic_errors(kind: str, doc) -> list[str]:
                 f"$.credential_requirements: never_assignable family '{family}' "
                 "is also declared grantable (no approval path may override never_assignable)"
             )
+        workers_by_id = {w.get("id"): w for w in workers if isinstance(w, dict)}
+        by_class = creds.get("by_class") or {}
+        for worker in workers:
+            if not isinstance(worker, dict) or not worker.get("crystallized"):
+                continue
+            wid = worker.get("id")
+            for required_field in ("capability_ref", "automation_rung", "replaces_configuration", "throttle"):
+                if not worker.get(required_field):
+                    errors.append(
+                        f"$.workers[{wid}]: crystallized class missing '{required_field}'"
+                    )
+            replaced_id = worker.get("replaces_configuration")
+            replaced = workers_by_id.get(replaced_id) if replaced_id else None
+            if replaced_id and replaced is None:
+                errors.append(
+                    f"$.workers[{wid}]: replaces_configuration '{replaced_id}' "
+                    "does not name a worker class in this overlay"
+                )
+            if isinstance(replaced, dict):
+                own_perms = worker.get("permissions") or {}
+                replaced_perms = replaced.get("permissions") or {}
+                for perm, value in own_perms.items():
+                    if value is True and replaced_perms.get(perm) is not True:
+                        errors.append(
+                            f"$.workers[{wid}]: permission '{perm}' exceeds "
+                            f"replaces_configuration '{replaced_id}' "
+                            "(authority conservation: crystallization never widens)"
+                        )
+                own_families = set(by_class.get(wid) or [])
+                replaced_families = set(by_class.get(replaced_id) or [])
+                for family in sorted(own_families - replaced_families):
+                    errors.append(
+                        f"$.workers[{wid}]: credential family '{family}' exceeds "
+                        f"replaces_configuration '{replaced_id}' "
+                        "(authority conservation: crystallization never widens)"
+                    )
+        seen_categories: set[str] = set()
+        for entry in doc.get("rung_ceilings") or []:
+            if not isinstance(entry, dict):
+                continue
+            category = entry.get("category")
+            if category in seen_categories:
+                errors.append(f"$.rung_ceilings: duplicate category '{category}'")
+            if category is not None:
+                seen_categories.add(category)
     return errors
 
 

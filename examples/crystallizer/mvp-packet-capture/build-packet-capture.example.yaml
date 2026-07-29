@@ -1,0 +1,37 @@
+# Illustrative build record for the MVP family (the build itself is a
+# successor realization; this stub shows the accepted-build shape with
+# gapless provenance and declared residence per the rung->home lean).
+schema_version: 1
+kind: crystallization_build
+job_type: crystallization_build
+spec_ref: "cspec:packet-capture-mechanics:v1"
+consuming_domain: codexFactory
+budget:
+  cap: 500000
+  abort: "stop at 120% of estimate; persist partials; return actuals"
+acceptance:
+  corpus_green: true
+  dry_run_proven: true
+  leak_scan_clean: true
+  binding_reviewed: true
+provenance_manifest:
+  episodes:
+    - "sha256:3d65e6d1083d0abdea42edabc006b0f5b745f7fcfe81f31a2bc5afa8238bb5f1"
+    - "sha256:a7c981d009a50b754919a1e6aacd199cc89110739321aa3b2493bd75c5f95dd4"
+    - "sha256:0c91c4674f149f98b0837fff103df9b52712531e01671952e6db92843f2767d5"
+  corpus_digest: "sha256:af0cabdf6d518b46ffc65e3726726838cf479ba3e14b1783c6b2858765f95d06"
+  spec:
+    id: "cspec:packet-capture-mechanics:v1"
+    digest: "sha256:f59042fbdd6bd53ec1a69263327491f5bd687b1ed983971c55bac56512c50c58"
+  builder:
+    identity: "codexFactory:crystallization-build-lane"
+    version: "manual-0"
+  toolchain:
+    bench_pins: "bench:codex-doc-workflow@example-pin"
+artifact:
+  digest: "sha256:7ee0f553d2a4c51e67cb1f27781df5b166b628eb3286fccdaa25b835970eb78c"
+  packaging: playbook
+  residence: "codexFactory workflows/ (L3 playbook: workflow-contract instance, digest-pinned)"
+actuals:
+  spent: 410000
+  aborted: false

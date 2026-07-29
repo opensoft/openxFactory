@@ -1,0 +1,35 @@
+# expected_failure: ceiling-exceeded
+# A decision valuing L5 under an L3 ceiling — ceilings resolve before
+# valuation; ineligible rungs are never valued (no phantom ROI).
+schema_version: 1
+kind: crystallization_decision
+decision_id: "dec:opensoft:neg:above-ceiling"
+candidate_ref: "cand:opensoft:neg:above-ceiling"
+family_ref: "fam:opensoft:neg"
+ceiling:
+  rung: L3
+  source: default
+  reason_ref: null
+valuation:
+  - rung: L3
+    expected_value: 100000
+    deflation_factor: 0.85
+    survival_factor: 0.9
+  - rung: L5
+    expected_value: 900000
+    deflation_factor: 0.85
+    survival_factor: 0.9
+outcome: funded
+funded:
+  rung: L3
+  budget_cap: 100000
+  abort_rule: "stop at 120%"
+  proof_obligations: [replay-parity]
+not_yet: null
+approvals:
+  domain_fitness_ref: "gate:codexFactory:fitness"
+  tenant_budget_ref: "budget:opensoft:crystallization"
+  consent_check:
+    automation_tier: granted
+decision_ladder_rung: 1
+calibration_refs: []

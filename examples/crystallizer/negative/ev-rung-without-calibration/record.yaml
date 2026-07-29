@@ -1,0 +1,31 @@
+# expected_failure: ladder-maturity
+# A rung-3 expected-value decision with no calibration evidence — the EV
+# rung activates only once scored forecasts and estimate actuals exist.
+schema_version: 1
+kind: crystallization_decision
+decision_id: "dec:opensoft:neg:ev-uncalibrated"
+candidate_ref: "cand:opensoft:neg:ev-uncalibrated"
+family_ref: "fam:opensoft:neg"
+ceiling:
+  rung: L3
+  source: default
+  reason_ref: null
+valuation:
+  - rung: L3
+    expected_value: 100000
+    deflation_factor: 0.85
+    survival_factor: 0.9
+outcome: funded
+funded:
+  rung: L3
+  budget_cap: 100000
+  abort_rule: "stop at 120%"
+  proof_obligations: [replay-parity]
+not_yet: null
+approvals:
+  domain_fitness_ref: "gate:codexFactory:fitness"
+  tenant_budget_ref: "budget:opensoft:crystallization"
+  consent_check:
+    automation_tier: granted
+decision_ladder_rung: 3
+calibration_refs: []

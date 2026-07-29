@@ -79,6 +79,29 @@ workers:
       execute_final_action: false
       access_secrets: false
 
+  - id: packet_capture_playbook
+    archetype: generate
+    crystallized: true
+    capability_ref: cap-example-packet-capture
+    automation_rung: L3
+    replaces_configuration: change_author
+    throttle:
+      schedule_ref: dials.young_throttle
+    responsibility: >-
+      Crystallized L3 playbook serving the packet-capture mechanics family
+      previously solved by change_author runs; authoring judgment stays on
+      the AI path. Permissions and credential families are a subset of
+      change_author's (authority conservation).
+    inputs: [scope_frame]
+    outputs: [implementation_artifact]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+
 prompt_packs:
   - id: review_lanes
     path: prompts/review-lane-pack.yaml
@@ -97,6 +120,8 @@ credential_requirements:
   by_class:
     change_author:
       - workspace_write
+    packet_capture_playbook:
+      - workspace_write
     admission_assembler:
       - admission_submit
   unassigned_by_default:
@@ -113,3 +138,11 @@ stop_conditions:
   - missing_approved_scope
   - required_validation_failed
   - secret_detected
+
+rung_ceilings:
+  - category: doc_workflow
+    ceiling: L5
+    reason: Mechanically checkable outputs; no subject-affecting judgment.
+  - category: subject_affecting_judgment
+    ceiling: L3
+    reason: Judgment never crystallizes past a playbook in this domain.

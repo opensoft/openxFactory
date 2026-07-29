@@ -20,7 +20,13 @@ description: >-
   the `domain_installation_overlay` operations with
   `stricter_rule_wins: true`. Cross-file semantics the schema cannot
   express — tier disjointness, vocabulary lint, fixture behavior — are
-  enforced by `scripts/validate-omnigent-contracts.py`.
+  enforced by `scripts/validate-omnigent-contracts.py`. The
+  crystallized-executor binding and per-category rung ceilings
+  (`add-crystallizer-contracts`) are additive: a crystallized class maps
+  to an EXISTING archetype so the constitutional booleans bind verbatim,
+  and authority conservation (permissions and credential families never
+  exceed the replaced configuration) plus ceiling-category uniqueness are
+  validator-enforced.
 type: object
 additionalProperties: false
 required:
@@ -164,7 +170,31 @@ properties:
     uniqueItems: true
     items:
       $ref: "#/$defs/identifier"
+  rung_ceilings:
+    description: >-
+      Per-task-category crystallization rung ceilings with reasons
+      (`add-crystallizer-contracts`). Where a family's category carries no
+      declared ceiling the effective ceiling defaults to L3 — the code
+      rungs (L4-L6) are reachable only through an explicit, reasoned
+      declaration here. Category uniqueness is validator-enforced.
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [category, ceiling, reason]
+      properties:
+        category:
+          $ref: "#/$defs/identifier"
+        ceiling:
+          $ref: "#/$defs/automation_rung"
+        reason:
+          type: string
+          minLength: 1
 $defs:
+  automation_rung:
+    description: The frozen crystallization rung vocabulary (add-crystallizer-contracts D7).
+    enum: [L0, L1, L2, L3, L4, L5, L6]
   identifier:
     type: string
     pattern: "^[a-z][a-z0-9_-]*$"
@@ -211,6 +241,29 @@ $defs:
           class — the deciders-direct-workers linkage domains declare in
           their hermes/domain/roles tree.
         $ref: "#/$defs/identifier"
+      crystallized:
+        description: >-
+          Marks a crystallized-executor binding (`add-crystallizer-contracts`):
+          a capability serving work previously done by the
+          `replaces_configuration` class. Constitutional booleans bind
+          verbatim via this schema; the authority-conservation subset check
+          is enforced by the canonical validator.
+        type: boolean
+      capability_ref:
+        type: string
+        minLength: 1
+      automation_rung:
+        $ref: "#/$defs/automation_rung"
+      replaces_configuration:
+        $ref: "#/$defs/identifier"
+      throttle:
+        type: object
+        additionalProperties: false
+        required: [schedule_ref]
+        properties:
+          schedule_ref:
+            type: string
+            minLength: 1
       responsibility:
         type: string
         minLength: 1

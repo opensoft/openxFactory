@@ -216,7 +216,13 @@ Active changes:
   (crystallized-executor bindings on existing archetypes so the
   constitutional matrix binds verbatim; rung ceilings with an L3 default
   for undeclared categories); schemas + validators are the declared code
-  surface.
+  surface. Realized 2026-07-29: the four record schemas, the additive
+  overlay fields, `scripts/validate-crystallizer-contracts.py` (12 named
+  policy rules; self-testing 4 positives / 9 indexed negatives), the
+  extended omnigent validator (authority-conservation subset rules + 2 new
+  overlay negatives), and the MVP corpus continuation under
+  `examples/crystallizer/`; manifest/CHANGELOG registration at the archive
+  cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions
