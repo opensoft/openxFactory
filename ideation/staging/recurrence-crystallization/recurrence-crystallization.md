@@ -110,6 +110,12 @@ A fourth, cross-tenant, follows in a later wave after a first domain proof.
 The dials register feeds all three as declared dials
 (governed-derived-model pattern).
 
+Exit 1 is drafted in the topic's [openspec/](openspec/proposal.md) workspace
+(proposal, design, tasks, and the `pattern-ledger` delta slice, each
+`Status: draft`, 2026-07-29) — drafts iterate here and move to
+`openspec/changes/add-pattern-ledger/` at the proposal gate per the staging
+INDEX's draft-proposal workspace convention.
+
 ## Spanning open questions (carried, non-blocking)
 
 Dial tuning beyond staged defaults; adjudicator assignment by rung/risk
