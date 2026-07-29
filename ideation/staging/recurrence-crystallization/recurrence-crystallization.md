@@ -121,6 +121,14 @@ pattern-ledger fragment moved to its `supporting-docs/` with a hashed
 manifest — a partial promotion; the topic keeps the crystallizer,
 authority, steward, and dials fragments for exits 2 and 3.
 
+Exit 2 (`add-crystallizer-contracts`) was drafted 2026-07-29 in the topic's
+[openspec/](openspec/proposal.md) workspace — proposal, design, tasks, and
+four delta slices (`crystallization-decision`, `crystallization-build`,
+`crystallization-consent`, and the additive `omnigent-domain-overlay`
+delta: crystallized-executor binding + rung ceilings, archetype vocabulary
+deliberately unchanged), each `Status: draft` — awaiting the proposal
+gate.
+
 ## Spanning open questions (carried, non-blocking)
 
 Dial tuning beyond staged defaults; adjudicator assignment by rung/risk
