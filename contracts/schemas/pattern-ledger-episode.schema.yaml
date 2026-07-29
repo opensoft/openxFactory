@@ -1,0 +1,129 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "pattern-ledger-episode.schema.yaml"
+title: "Pattern-ledger episode record (one governed job, derived)"
+contract_schema_version: 1
+description: >-
+  One governed job solved on the expensive path, derived from the runtime's
+  existing audit, run-event, metering, and label streams — never a second
+  authoritative store (add-pattern-ledger, requirements "Episode Capture Is
+  Universal And Derived" and "The Ledger Is A Single Derived Substrate").
+  Multi-agent activity appears as sub-spans of the one job-level episode.
+  The plan is captured AS DATA (a digest ref) because the frozen-playbook
+  rung crystallizes exactly that artifact. Outcome quality is deliberately
+  absent from this record: it is a fold over the episode's append-only
+  outcome_label stream (referenced by labels_ref), so a stored verdict
+  field here is nonconformant ("mutable-verdict" in the canonical
+  validator). Consent carries the three independently grantable tiers,
+  default deny, stamped at capture; tool I/O is digested always, with
+  payload retention a tenant dial (payload_ref may be null after expiry
+  while io_digest remains). Canonical validator:
+  scripts/validate-pattern-ledger.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - episode_id
+  - tenant_ref
+  - envelope
+  - plan_ref
+  - spans
+  - cost
+  - replayability
+  - consent
+  - labels_ref
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: episode
+  episode_id:
+    type: string
+    pattern: "^ep:"
+  tenant_ref:
+    type: string
+    minLength: 1
+  envelope:
+    type: object
+    additionalProperties: false
+    required: [job_type]
+    properties:
+      job_type:
+        type: string
+        minLength: 1
+      domain:
+        type: ["string", "null"]
+      refs:
+        type: object
+        description: "Neutral references (neutral-job-envelope shapes), opaque here."
+  plan_ref:
+    $ref: "#/$defs/digest_ref"
+  spans:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [agent, steps]
+      properties:
+        agent:
+          type: string
+          minLength: 1
+        steps:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [tool, io_digest]
+            properties:
+              tool:
+                type: string
+                minLength: 1
+              io_digest:
+                type: string
+                pattern: "^sha256:[0-9a-f]{64}$"
+              payload_ref:
+                type: ["string", "null"]
+  cost:
+    type: object
+    additionalProperties: false
+    required: [credits, wall_ms, human_touches, meter_ref]
+    properties:
+      credits:
+        type: ["number", "null"]
+        description: "Null where unmetered (e.g. retrospective episodes)."
+      wall_ms:
+        type: ["integer", "null"]
+        minimum: 0
+      human_touches:
+        type: array
+        items:
+          type: string
+      meter_ref:
+        type: ["string", "null"]
+  replayability:
+    enum: [pure, record-replay, live-only]
+  consent:
+    type: object
+    additionalProperties: false
+    required: [episode_use, automation, pooling]
+    properties:
+      episode_use:
+        type: boolean
+      automation:
+        type: boolean
+      pooling:
+        type: boolean
+  labels_ref:
+    type: string
+    minLength: 1
+$defs:
+  digest_ref:
+    type: object
+    additionalProperties: false
+    required: [digest]
+    properties:
+      digest:
+        type: string
+        pattern: "^sha256:[0-9a-f]{64}$"

@@ -1,0 +1,9 @@
+# expected_failure: schema
+# An outcome label with a source outside the fixed four-value vocabulary.
+schema_version: 1
+kind: outcome_label
+episode_ref: "ep:opensoft:2026-07-28:ontology-packet-capture"
+source: applause
+actor_ref: "human:brett"
+grade: positive
+at: "2026-07-28"

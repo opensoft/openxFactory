@@ -1,0 +1,41 @@
+# Outcome-label streams for the MVP corpus episodes (append-only events;
+# episode quality is a fold over these, never a stored verdict).
+schema_version: 1
+kind: outcome_label
+episode_ref: "ep:opensoft:2026-07-28:ontology-packet-capture"
+source: gate_outcome
+actor_ref: "remote:github/opensoft/openxFactory"
+grade: positive
+at: "2026-07-28"
+evidence_ref: "commit:6c14bb8"
+note: "push accepted on main; packet indexed"
+---
+schema_version: 1
+kind: outcome_label
+episode_ref: "ep:opensoft:2026-07-28:crystallization-packet-capture"
+source: gate_outcome
+actor_ref: "remote:github/opensoft/openxFactory"
+grade: positive
+at: "2026-07-28"
+evidence_ref: "commit:05aec45"
+note: "push accepted on main; header contract verified 19/19"
+---
+schema_version: 1
+kind: outcome_label
+episode_ref: "ep:opensoft:2026-07-28:crystallization-packet-capture"
+source: praise
+actor_ref: "human:brett"
+grade: positive
+at: "2026-07-29"
+evidence_ref: null
+note: "packet reviewed and accepted for staging flesh-out"
+---
+schema_version: 1
+kind: outcome_label
+episode_ref: "ep:opensoft:2026-07-29:staging-topic-capture"
+source: gate_outcome
+actor_ref: "remote:github/opensoft/openxFactory"
+grade: positive
+at: "2026-07-29"
+evidence_ref: "commit:8e1a8be"
+note: "push accepted; INDEX + Organized bookkeeping verified clean"

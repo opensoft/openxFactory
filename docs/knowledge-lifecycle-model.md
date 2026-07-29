@@ -95,6 +95,15 @@ experiential pattern (Tenant Hermes memory)
   -> [promotion gate]    Root Truth atom, after domain review
 ```
 
+Pointer (2026-07-29): the experiential path is gaining a second,
+*procedural* promotion target — recurring solved-task episodes consolidate
+into executable capabilities rather than knowledge atoms. The sensing
+records (episode ledger, recurrence families, forecasts, crystallization
+candidates) are contracted by the ratified `add-pattern-ledger` change
+(`contracts/schemas/pattern-ledger-*.schema.yaml`); the promotion-gate
+machinery above is consumed unchanged, and the normative rules live in that
+change, not here.
+
 Gate contracts the xFactory layer defines; each domain fills in the criteria:
 
 - Extract gate: every claim carries source provenance and an evidence-strength

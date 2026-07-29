@@ -1,0 +1,22 @@
+# expected_failure: forecast-min-evidence
+# A forecast emitted from two instances — below the min_family_forecast
+# dial (staged default 3); the family stays forming instead.
+schema_version: 1
+kind: recurrence_forecast
+forecast_id: "fc:opensoft:premature:2026-07-28:h90"
+family_ref: "fam:opensoft:premature"
+horizon_days: 90
+evidence_window:
+  from: "2026-07-28"
+  to: "2026-07-28"
+  instances: 2
+distribution:
+  p50: 8
+cost_regime: "current-ai-pricing-2026Q3"
+stability_half_life_days: null
+volumes:
+  raw: 2
+  fence_eligible: null
+matures_at: "2026-10-26"
+score_ref: null
+scored_at: null

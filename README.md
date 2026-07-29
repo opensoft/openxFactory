@@ -205,7 +205,11 @@ Active changes:
   merge/split transitions, scored maturity-dated forecasts, default-deny
   consent tiers, a bounded read-only sweep, and the candidate autonomy
   boundary (nominate, never spend); schemas + validator are the declared
-  code surface.
+  code surface. Realized 2026-07-29: the five schemas, the canonical
+  validator (`scripts/validate-pattern-ledger.py`, self-testing 7 positives
+  / 7 negatives), and `examples/pattern-ledger/` incl. the MVP
+  packet-capture fixture corpus; manifest/CHANGELOG registration at the
+  archive cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions

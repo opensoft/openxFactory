@@ -1,0 +1,101 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "pattern-ledger-recurrence-family.schema.yaml"
+title: "Pattern-ledger recurrence-family register entry (tenant-scoped)"
+contract_schema_version: 1
+description: >-
+  One recurring task family as a governed register entry
+  (add-pattern-ledger, requirement "Recurrence Families Are Governed
+  Register Entries"). Families are tenant-scoped — structurally identical
+  work from two tenants lands in two entries, and a member carrying an
+  explicit tenant_ref must match the family's ("tenant-mismatch" in the
+  canonical validator). Merges and splits are recorded transitions with
+  provenance, never silent re-clusterings, because forecasts and corpora
+  are keyed by family identity. Two mining lanes exist (whole-job and
+  fragment — a fragment family is a step subsequence recurring inside
+  different whole-job families). The fingerprint is hybrid: structural
+  features for dispatch-time precision, a semantic_ref (embedding digest
+  now, ontology term refs when a domain ontology lands) for mining recall.
+  The matcher is a versioned artifact whose dispatch-time precision is a
+  visible quality metric. Canonical validator:
+  scripts/validate-pattern-ledger.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - family_id
+  - tenant_ref
+  - lane
+  - state
+  - fingerprint
+  - members
+  - transitions
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: recurrence_family
+  family_id:
+    type: string
+    pattern: "^fam:"
+  tenant_ref:
+    type: string
+    minLength: 1
+  lane:
+    enum: [whole-job, fragment]
+  state:
+    enum: [seed, forming, established, crystallizing, served, dormant]
+  fingerprint:
+    type: object
+    additionalProperties: false
+    required: [structural]
+    properties:
+      structural:
+        type: object
+        minProperties: 1
+      semantic_ref:
+        type: ["string", "null"]
+  members:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [episode_ref, confidence]
+      properties:
+        episode_ref:
+          type: string
+          pattern: "^ep:"
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        tenant_ref:
+          type: string
+          minLength: 1
+  transitions:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [kind, at, provenance]
+      properties:
+        kind:
+          enum: [merge, split, state]
+        at:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+        provenance:
+          type: string
+          minLength: 1
+  matcher:
+    type: object
+    additionalProperties: false
+    required: [version]
+    properties:
+      version:
+        type: string
+        minLength: 1
+      dispatch_precision:
+        type: ["number", "null"]
+        minimum: 0
+        maximum: 1
