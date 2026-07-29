@@ -1,0 +1,12 @@
+schema_version: 1
+kind: xfactory_ontology_maintenance_report
+package_id: xf/medx
+package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
+as_of: '2026-07-28'
+input_ref: "maintenance-input.example.yaml"
+triggers_evaluated:
+  - trigger: source_expiry
+    fired: false
+  - trigger: unknown_terms
+    fired: false
+drift_found: false

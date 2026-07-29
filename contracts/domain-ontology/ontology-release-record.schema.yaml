@@ -72,9 +72,11 @@ properties:
   quality_exception_ref:
     # A recorded, reviewed exception releasing a missing/below-threshold
     # quality signal (lifecycle spec: Measurable ontology quality
-    # accountability); never a silent bypass.
+    # accountability); never a silent bypass. Free-form reference (a review
+    # record URI or path), like other evidence refs.
     type: string
-    pattern: "^[A-Za-z0-9._/-]{1,200}$"
+    minLength: 1
+    maxLength: 300
   consumer_impact_ref:
     # Domain-owned terms and consumer pins only — tenant bindings are
     # tenant-private and never enumerated here.

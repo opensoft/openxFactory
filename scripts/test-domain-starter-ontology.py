@@ -156,7 +156,8 @@ def scenario_1_empty_repo(base: Path) -> Path:
     result = run_starter(target)
     check("s1 starter exits 0", result.returncode == 0, result.stdout[-400:])
     for rel in (f"{ONTO}/package.yaml", f"{ONTO}/concepts.yaml",
-                f"{ONTO}/sources.yaml", f"{ONTO}/STARTER.yaml",
+                f"{ONTO}/sources.yaml", f"{ONTO}/stewardship.yaml",
+                f"{ONTO}/STARTER.yaml",
                 f"{ONTO}/coverage-gap-report.yaml", f"{ONTO}/review-fixtures.yaml",
                 "hermes/domain/content-manifest.yaml"):
         check(f"s1 generates {rel}", (target / rel).is_file())

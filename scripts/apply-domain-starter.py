@@ -2607,6 +2607,7 @@ REQUIRED_FILES = [
     "hermes/domain/ontology/package.yaml",
     "hermes/domain/ontology/concepts.yaml",
     "hermes/domain/ontology/sources.yaml",
+    "hermes/domain/ontology/stewardship.yaml",
     "hermes/domain/ontology/STARTER.yaml",
 ]
 
@@ -3265,6 +3266,8 @@ def seed_sources(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
                 entry["version"] = str(item["version"])
             if item.get("permitted_use"):
                 entry["permitted_use"] = list(item["permitted_use"])
+            if item.get("review_by"):
+                entry["review_by"] = str(item["review_by"])
             if str(kind).startswith("external_") and not item.get("license_class"):
                 log.unresolved.append(
                     (f"ontology source {sysid}",
@@ -3347,6 +3350,8 @@ def render_sources_yaml(domain_id: str, sources: list[dict]) -> str:
             lines.append(f"    version: \"{s['version']}\"")
         if s.get("permitted_use"):
             lines.append(f"    permitted_use: [{', '.join(s['permitted_use'])}]")
+        if s.get("review_by"):
+            lines.append(f"    review_by: '{s['review_by']}'")
     return "\n".join(lines) + "\n"
 
 
@@ -3397,6 +3402,72 @@ def render_package_yaml(ctx: DomainContext, stewards: list[dict],
         "notes: >-",
         "  Starter-seeded draft awaiting Domain Hermes review; unresolved",
         f"  semantic inputs at generation: {unresolved_count}.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def render_stewardship_yaml(ctx: DomainContext, stewards: list[dict]) -> str:
+    members = [s["steward_id"] for s in stewards]
+    lines = [
+        "schema_version: 1",
+        "kind: xfactory_ontology_stewardship_policy",
+        "# Starter-seeded Domain Hermes stewardship policy (deterministic",
+        "# defaults; add-domain-ontology-layer §5). Domain Hermes tunes the",
+        "# council, cadence, mode workflows, trigger thresholds, quality gate,",
+        "# and privacy floor; the canonical validator resolves every steward",
+        "# reference and tools enforce the gate at release.",
+        f"package_id: xf/{ctx.domain_id}",
+        "council:",
+        f"  name: \"{ctx.display_name} Ontology Review Council\"",
+        "  members:",
+    ]
+    lines += [f"    - {m}" for m in members]
+    lines += [
+        "  quorum: 1",
+        "  high_impact_requires: [council]",
+        "source_review:",
+        "  default_review_days: 180",
+        "  expired_source_mode: refresh",
+        "modes:",
+    ]
+    mode_defaults = {
+        "seed": ("intake_answer_set", "steward_review", "package_revision"),
+        "extend": ("candidate_record", "steward_review", "candidate_disposition"),
+        "refresh": ("source_inventory_entry", "steward_review", "candidate_disposition"),
+        "reconcile": ("telemetry_observation", "council_review", "maintenance_report"),
+        "correct": ("appeal_record", "council_review", "package_revision"),
+        "deprecate": ("impact_report", "council_review", "deprecation_notice"),
+        "retire": ("migration_map", "council_review", "retirement_notice"),
+    }
+    for mode, (inp, evidence, output) in mode_defaults.items():
+        lines += [
+            f"  {mode}:",
+            f"    required_inputs: [{inp}]",
+            f"    review_evidence: [{evidence}]",
+            f"    outputs: [{output}]",
+            "    blocked_states: [awaiting_review]",
+        ]
+    lines += [
+        "triggers:",
+        "  unknown_term_count_threshold: 25",
+        "  mapping_failure_count_threshold: 10",
+        "  low_confidence_threshold: 0.5",
+        "  low_confidence_count_threshold: 20",
+        "  unknown_term_mode: extend",
+        "  mapping_failure_mode: refresh",
+        "  low_confidence_mode: reconcile",
+        "  workflow_drift_mode: reconcile",
+        "  subdomain_request_mode: extend",
+        "  appeal_mode: correct",
+        "  promotion_mode: extend",
+        "quality_gate:",
+        "  required_signals:",
+        "    - signal: intake_scope_coverage",
+        "      min_value: 0.5",
+        "  exception_requires: reviewed_exception_ref",
+        "aggregation_floor:",
+        "  distinct_subjects: 5",
+        "  distinct_tenants: 1",
     ]
     return "\n".join(lines) + "\n"
 
@@ -3536,6 +3607,7 @@ def generate_ontology(target: Path, ctx: DomainContext, args: argparse.Namespace
     content_files = {
         "concepts.yaml": render_concepts_yaml(ctx.domain_id, concepts),
         "sources.yaml": render_sources_yaml(ctx.domain_id, sources),
+        "stewardship.yaml": render_stewardship_yaml(ctx, stewards),
     }
 
     def place(rel_name: str, content: str, preserve: bool, refresh: bool = False) -> str:

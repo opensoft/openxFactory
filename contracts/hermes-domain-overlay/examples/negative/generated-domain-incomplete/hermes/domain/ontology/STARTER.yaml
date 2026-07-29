@@ -1,0 +1,7 @@
+# expected_failure: domain_ontology declaration
+schema_version: 1
+kind: xfactory_ontology_starter_provenance
+starter: openxFactory/domain-factory-starter-pack
+starter_version: 13
+ontology_aware: true
+package_id: xf/negx

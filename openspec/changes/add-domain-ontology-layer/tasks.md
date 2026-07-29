@@ -107,14 +107,55 @@ content, and attempted overwrite (4.9) — all green.
 
 ## 5. Domain Hermes Stewardship And Maintenance
 
-- [ ] 5.1 Extend the Hermes domain content-manifest schema and canonical validator with the additive `domain_ontology` content kind and generated-domain completeness rules.
-- [ ] 5.2 Add Domain Hermes templates for ontology steward assignments, review-council policy, source review cadence, candidate disposition, compatibility decision, release approval, and consumer adoption.
-- [ ] 5.3 Define machine-readable workflows for `seed`, `extend`, `refresh`, `reconcile`, `correct`, `deprecate`, and `retire`, including required inputs, review evidence, outputs, and blocked states.
-- [ ] 5.4 Implement candidate triggers and reports for source change/expiry, unknown terms, mapping failures, repeated low-confidence classification, conflicts, workflow drift, sub-domain expansion, appeals, and reviewed promotion candidates.
-- [ ] 5.5 Implement append-only ontology candidate, decision, publication, supersession, deprecation, retirement, and adoption evidence with no in-place mutation of active packages, each publication naming the accountable steward identity and any worker-attributed publication failing validation.
-- [ ] 5.6 Add generated-domain readiness checks that keep incomplete ontology scaffolds non-operational until sources, stewards, fixtures, ratification, publication, and exact pins pass.
-- [ ] 5.7 Prove agents and Omnigent workers can prepare diffs, impact reports, and fixtures but cannot promote or publish a package under any worker profile.
-- [ ] 5.8 Define the per-release quality report and governed quality-signal telemetry (intake-scope coverage, unknown-term rate, mapping resolution, classification fixture accuracy, open-candidate age), each declaring numerator, denominator, observation window, recorded procedure, and pinned fixture-set identity; keep pass/fail validator conformance separate from the accuracy ratio; wire domain thresholds into the maintenance triggers, the readiness baseline, and a publication block that only a recorded reviewed exception releases; and enforce the distinct-subject/distinct-tenant aggregation floor on term-level signals.
+Section 5 realized 2026-07-29. Evidence: the `domain_ontology` content kind
+is in the content-manifest schema and overlay-validator vocabulary (section
+4) and the generated-domain completeness rule is live —
+`validate-hermes-domain-overlay.py` fails a repo whose ontology-aware
+STARTER marker lacks a `domain_ontology` declaration, keyed on the recorded
+marker, with a repo-shaped negative fixture (5.1).
+`templates/domain-hermes-ontology/` carries the stewardship-policy,
+candidate-disposition, release-approval, consumer-adoption, and
+maintenance-input templates, and the starter seeds a live
+`stewardship.yaml` as inventoried package content (5.2). The
+`xfactory_ontology_stewardship_policy` contract makes the seven modes
+machine-readable — required inputs, review evidence, outputs, blocked
+states — plus council/quorum/high-impact reservations, source-review
+cadence, trigger thresholds, quality gate, and the standing aggregation
+floor, validated by ONT-POLICY/ONT-FLOOR rules (5.3).
+`scripts/ontology-maintenance.py` evaluates all nine trigger families over
+a governed `xfactory_ontology_maintenance_input` (`as_of` is data, never a
+clock), opens mode-mapped candidates append-only, fails closed on
+below-floor term entries, and records every evaluation as an append-only
+`xfactory_ontology_maintenance_report` — a clean check is itself evidence
+(5.4). Publication is mechanized by `scripts/ontology-release.py`:
+byte-identical retention of the superseded version, previous/supersedes
+pins, a new compatibility line on breaking, a shipped migration map joins
+the inventory, and the release record names the accountable steward —
+in-place mutation is structurally impossible and worker/agent-attributed
+publication fails both the tool and the validator (5.5). Readiness is
+`validate-domain-ontology.py --readiness`: `domain_scaffold_required`
+until the package validates clean, publishes via an accountable release,
+carries no placeholder stewards/concepts, ships its policy, and satisfies
+the quality gate (5.6). The 5.7 proof: the stewardship test suite shows an
+agent accountable identity refused at release while the same identities
+prepare candidates, diffs, and reports freely; validator fixtures
+release-agent-published and candidate-agent-accepted pin the rule.
+Quality wiring (5.8): policy-declared required signals with thresholds
+block release absent a recorded `quality_exception_ref` (recorded on the
+release record), readiness recomputes signals against the CURRENT digest,
+maintenance triggers consume the same policy, and the
+distinct-subject/distinct-tenant floor binds quality reports AND
+maintenance inputs (report floors may not be weaker than the policy's).
+All proven by `scripts/test-ontology-stewardship.py` (22 checks green).
+
+- [x] 5.1 Extend the Hermes domain content-manifest schema and canonical validator with the additive `domain_ontology` content kind and generated-domain completeness rules.
+- [x] 5.2 Add Domain Hermes templates for ontology steward assignments, review-council policy, source review cadence, candidate disposition, compatibility decision, release approval, and consumer adoption.
+- [x] 5.3 Define machine-readable workflows for `seed`, `extend`, `refresh`, `reconcile`, `correct`, `deprecate`, and `retire`, including required inputs, review evidence, outputs, and blocked states.
+- [x] 5.4 Implement candidate triggers and reports for source change/expiry, unknown terms, mapping failures, repeated low-confidence classification, conflicts, workflow drift, sub-domain expansion, appeals, and reviewed promotion candidates.
+- [x] 5.5 Implement append-only ontology candidate, decision, publication, supersession, deprecation, retirement, and adoption evidence with no in-place mutation of active packages, each publication naming the accountable steward identity and any worker-attributed publication failing validation.
+- [x] 5.6 Add generated-domain readiness checks that keep incomplete ontology scaffolds non-operational until sources, stewards, fixtures, ratification, publication, and exact pins pass.
+- [x] 5.7 Prove agents and Omnigent workers can prepare diffs, impact reports, and fixtures but cannot promote or publish a package under any worker profile.
+- [x] 5.8 Define the per-release quality report and governed quality-signal telemetry (intake-scope coverage, unknown-term rate, mapping resolution, classification fixture accuracy, open-candidate age), each declaring numerator, denominator, observation window, recorded procedure, and pinned fixture-set identity; keep pass/fail validator conformance separate from the accuracy ratio; wire domain thresholds into the maintenance triggers, the readiness baseline, and a publication block that only a recorded reviewed exception releases; and enforce the distinct-subject/distinct-tenant aggregation floor on term-level signals.
 
 ## 6. Semantic Context And Memory Gateway Integration
 

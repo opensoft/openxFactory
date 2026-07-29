@@ -209,8 +209,55 @@ def self_test() -> int:
             return 1
         print(f"negative ok ({reason}): {negative.name}")
         checked += 1
+    for negative_dir in sorted(p for p in NEGATIVE_DIR.iterdir() if p.is_dir()):
+        marker = negative_dir / ONTOLOGY_STARTER_MARKER
+        if not marker.is_file():
+            continue
+        reason = expected_failure(marker)
+        findings = validate_generated_domain(negative_dir)
+        if not findings or not any(reason in f for f in findings):
+            print(f"FAIL repo negative {negative_dir.name}: expected '{reason}', "
+                  f"got {findings}", file=sys.stderr)
+            return 1
+        print(f"negative ok ({reason}): {negative_dir.name}/")
+        checked += 1
     print(f"self-test ok: {checked} fixture(s)")
     return 0
+
+
+ONTOLOGY_STARTER_MARKER = "hermes/domain/ontology/STARTER.yaml"
+
+
+def validate_generated_domain(repo_path: Path) -> list[str]:
+    """Generated-domain completeness (add-domain-ontology-layer, task 5.1):
+    a repo recording an ontology-aware starter version MUST declare
+    `domain_ontology` in its content manifest — the check is keyed on the
+    recorded marker, never inferred. Legacy repos without the marker stay on
+    the documented convention with no new refusal class."""
+    findings: list[str] = []
+    marker_path = repo_path / ONTOLOGY_STARTER_MARKER
+    if not marker_path.is_file():
+        return findings
+    try:
+        marker = yaml.safe_load(marker_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        return [f"unparseable ontology starter marker: {exc}"]
+    if not marker.get("ontology_aware"):
+        return findings
+    manifest_path = repo_path / CONTENT_MANIFEST_FILE
+    if not manifest_path.is_file():
+        return ["ontology-aware starter marker without a content manifest: "
+                "the semantic scaffold is incomplete"]
+    try:
+        manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return []  # the manifest's own validation reports the parse failure
+    content_set = manifest.get("content_set")
+    if not isinstance(content_set, dict) or "domain_ontology" not in content_set:
+        findings.append(
+            "ontology-aware starter marker without a domain_ontology "
+            "declaration: the semantic scaffold is incomplete")
+    return findings
 
 
 def validate_repo(repo_path: Path) -> int:
@@ -237,6 +284,13 @@ def validate_repo(repo_path: Path) -> int:
         print(f"content manifest ok: {CONTENT_MANIFEST_FILE}")
     else:
         print(f"no content manifest at {CONTENT_MANIFEST_FILE}; consumers use the documented convention")
+    completeness = validate_generated_domain(repo_path)
+    if completeness:
+        for finding in completeness:
+            print(f"FAIL generated-domain completeness: {finding}", file=sys.stderr)
+        return 1
+    if (repo_path / ONTOLOGY_STARTER_MARKER).is_file():
+        print("generated-domain completeness ok: domain_ontology declared")
     validated = 0
     for role, rel_path in sorted(role_paths.items()):
         overlay_path = repo_path / rel_path

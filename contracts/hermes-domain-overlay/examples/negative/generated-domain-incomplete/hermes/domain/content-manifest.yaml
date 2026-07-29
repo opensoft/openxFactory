@@ -1,0 +1,5 @@
+schema_version: 1
+kind: hermes_domain_content_manifest
+content_set:
+  practice_adoption:
+    path: hermes/domain/practice-catalog.yaml

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Validate the domain-ontology contract family (add-domain-ontology-layer).
 
-The openxFactory-owned canonical validator for the ten kinds
+The openxFactory-owned canonical validator for the thirteen kinds
 `xfactory_ontology_package_manifest`, `xfactory_ontology_concepts`,
 `xfactory_ontology_relations`, `xfactory_ontology_external_mappings`,
 `xfactory_ontology_source_inventory`, `xfactory_ontology_candidate_record`,
 `xfactory_ontology_release_record`, `xfactory_ontology_migration_map`,
-`xfactory_semantic_context`, and `xfactory_ontology_quality_report`
+`xfactory_semantic_context`, `xfactory_ontology_quality_report`,
+`xfactory_ontology_stewardship_policy`, `xfactory_ontology_maintenance_input`,
+and `xfactory_ontology_maintenance_report`
 (`contracts/domain-ontology/*.schema.yaml`). Run from the openxFactory
 checkout:
 
@@ -85,6 +87,11 @@ The rules the shapes cannot express (stable finding codes):
                         the resolved package
   ONT-BINDING           a tenant binding pinned to a different package than
                         the context
+  ONT-POLICY            a stewardship policy whose council members do not
+                        resolve to the manifest roster or whose quorum
+                        exceeds the council
+  ONT-MAINTENANCE       a maintenance report whose fired triggers lack their
+                        mode/candidate refs or whose drift flag disagrees
   ONT-MANIFEST-PIN      a domain content manifest declaring an ontology tree
                         that is missing or invalid
   ONT-SCHEMA            any other schema conformance failure
@@ -129,6 +136,9 @@ SCHEMA_FILES = {
     "xfactory_ontology_migration_map": "ontology-migration-map.schema.yaml",
     "xfactory_semantic_context": "semantic-context.schema.yaml",
     "xfactory_ontology_quality_report": "ontology-quality-report.schema.yaml",
+    "xfactory_ontology_stewardship_policy": "ontology-stewardship-policy.schema.yaml",
+    "xfactory_ontology_maintenance_input": "ontology-maintenance-input.schema.yaml",
+    "xfactory_ontology_maintenance_report": "ontology-maintenance-report.schema.yaml",
 }
 FAMILY_KINDS = set(SCHEMA_FILES)
 # Package CONTENT is inventoried and digest-covered. RECORD kinds reference
@@ -141,12 +151,15 @@ PACKAGE_CONTENT_KINDS = {
     "xfactory_ontology_external_mappings",
     "xfactory_ontology_source_inventory",
     "xfactory_ontology_migration_map",
+    "xfactory_ontology_stewardship_policy",
 }
 PACKAGE_RECORD_KINDS = {
     "xfactory_ontology_candidate_record",
     "xfactory_ontology_release_record",
     "xfactory_semantic_context",
     "xfactory_ontology_quality_report",
+    "xfactory_ontology_maintenance_report",
+    "xfactory_ontology_maintenance_input",
 }
 PACKAGE_FILE_KINDS = PACKAGE_CONTENT_KINDS
 
@@ -251,6 +264,8 @@ class Package:
         self.migrations: list[tuple[Path, dict]] = []
         self.contexts: list[tuple[Path, dict]] = []
         self.quality: list[tuple[Path, dict]] = []
+        self.policy: dict | None = None
+        self.maintenance: list[tuple[Path, dict]] = []
 
     @property
     def package_id(self) -> str:
@@ -328,6 +343,8 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
                 pkg.sources.setdefault(s["system_id"], s)
         elif kind == "xfactory_ontology_migration_map":
             pkg.migrations.append((fpath, doc))
+        elif kind == "xfactory_ontology_stewardship_policy":
+            pkg.policy = doc
 
     # Beside-the-inventory records: candidates, releases, contexts, quality
     # reports found in the package dir attach without being digest-covered. A
@@ -357,6 +374,8 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
                 pkg.contexts.append((fpath, doc))
             elif kind == "xfactory_ontology_quality_report":
                 pkg.quality.append((fpath, doc))
+            elif kind == "xfactory_ontology_maintenance_report":
+                pkg.maintenance.append((fpath, doc))
 
     check_package(pkg, findings, resolve_kernel)
     return pkg
@@ -635,6 +654,37 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
             findings.append(Finding("ONT-RELEASE", rel(fpath),
                                     "release digest does not match the package it publishes"))
 
+    # Stewardship-policy rules (ONT-POLICY / ONT-FLOOR).
+    policy_floor = None
+    if pkg.policy is not None:
+        for member in pkg.policy.get("council", {}).get("members", []):
+            if member not in steward_ids:
+                findings.append(Finding("ONT-POLICY", rel(mpath),
+                                        f"council member {member!r} is not in the manifest steward roster"))
+        quorum = pkg.policy.get("council", {}).get("quorum", 1)
+        if quorum > len(pkg.policy.get("council", {}).get("members", [])):
+            findings.append(Finding("ONT-POLICY", rel(mpath),
+                                    "council quorum exceeds the member count"))
+        policy_floor = pkg.policy.get("aggregation_floor", {})
+        if policy_floor.get("distinct_subjects", 0) < 2 and \
+                not policy_floor.get("floor_exception_ref"):
+            findings.append(Finding("ONT-FLOOR", rel(mpath),
+                                    "policy declares a distinct-subject floor below two without a "
+                                    "recorded, reviewed exception"))
+
+    # Maintenance-report rules (ONT-MAINTENANCE): a fired trigger names its
+    # mode and the candidate(s) it opened.
+    for fpath, mreport in pkg.maintenance:
+        for entry in mreport.get("triggers_evaluated", []):
+            if entry.get("fired") and not (entry.get("mode") and entry.get("candidate_refs")):
+                findings.append(Finding("ONT-MAINTENANCE", rel(fpath),
+                                        f"fired trigger {entry.get('trigger')} must name its mode "
+                                        "and candidate_refs"))
+        fired_any = any(e.get("fired") for e in mreport.get("triggers_evaluated", []))
+        if mreport.get("drift_found") != fired_any:
+            findings.append(Finding("ONT-MAINTENANCE", rel(fpath),
+                                    "drift_found disagrees with the evaluated triggers"))
+
     # Quality report rules.
     for fpath, q in pkg.quality:
         floor = q.get("aggregation_floor", {})
@@ -644,6 +694,12 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
             findings.append(Finding("ONT-FLOOR", rel(fpath),
                                     "a distinct-subject floor below two requires a recorded, "
                                     "reviewed exception"))
+        if policy_floor:
+            if fs < policy_floor.get("distinct_subjects", 1) or \
+                    ft < policy_floor.get("distinct_tenants", 1):
+                findings.append(Finding("ONT-FLOOR", rel(fpath),
+                                        "report floor is weaker than the policy's standing "
+                                        "aggregation floor"))
         for sig in q.get("term_signals", []) or []:
             if sig.get("distinct_subjects", 0) < fs or sig.get("distinct_tenants", 0) < ft:
                 findings.append(Finding("ONT-FLOOR", rel(fpath),
@@ -880,6 +936,82 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
     return sorted(errors, key=lambda f: (f.code, f.path, f.message)), notes
 
 
+def readiness(pkg_dir: Path) -> int:
+    """Generated-domain readiness (task 5.6): `ontology_ready` only when the
+    package validates clean, is published by an accountable release record,
+    carries no placeholder stewards/concepts, ships a stewardship policy,
+    and satisfies the policy's quality gate (or the release records a
+    reviewed exception). Anything less is `domain_scaffold_required` — the
+    non-operational state consumers key on. Exit 0 ready, 3 scaffold."""
+    schemas = load_schemas()
+    findings: list[Finding] = []
+    kernel_cache: list = []
+
+    def resolve_kernel():
+        if not kernel_cache:
+            side: list[Finding] = []
+            kernel_cache.append(load_package(CORE_DIR, schemas, side, lambda: None))
+        return kernel_cache[0]
+
+    pkg = load_package(pkg_dir, schemas, findings, resolve_kernel)
+    reasons: list[str] = []
+    if findings:
+        reasons.append(f"package has {len(findings)} validation finding(s)")
+    if pkg is None:
+        reasons.append("package failed to load (digest drift fails closed)")
+    else:
+        m = pkg.manifest
+        if m.get("lifecycle_state") != "published":
+            reasons.append(f"lifecycle_state is {m.get('lifecycle_state')!r}, not published")
+        for s in m.get("stewards", []):
+            if "UNASSIGNED" in str(s.get("name", "")):
+                reasons.append(f"steward {s.get('steward_id')} is an unassigned placeholder")
+        for tid, c in sorted(pkg.concepts.items()):
+            if tid.endswith("/placeholder_subject") or c.get("label") == "Placeholder Subject":
+                reasons.append(f"placeholder concept {tid} awaits Domain Hermes review")
+        if pkg.policy is None:
+            reasons.append("no stewardship policy is inventoried in the package")
+        current = m.get("package_digest")
+        release_recs = [r for _, r in pkg.releases if r.get("package_digest") == current]
+        if not release_recs:
+            reasons.append("no release record publishes the current package digest")
+        else:
+            rel_rec = release_recs[0]
+            gate = (pkg.policy or {}).get("quality_gate", {})
+            if gate.get("required_signals") and not rel_rec.get("quality_exception_ref"):
+                qreports = [q for _, q in pkg.quality
+                            if q.get("package_digest") == current]
+                if not qreports:
+                    reasons.append("no quality report covers the current package digest")
+                else:
+                    sigmap: dict[str, float] = {}
+                    for q in qreports:
+                        for sig in q.get("signals", []):
+                            den = sig.get("denominator") or 0
+                            if den:
+                                sigmap[sig.get("signal")] = sig.get("numerator", 0) / den
+                    for req in gate["required_signals"]:
+                        name = req.get("signal")
+                        value = sigmap.get(name)
+                        if value is None:
+                            reasons.append(f"required quality signal {name} is missing "
+                                           "(a reviewed exception would release this block)")
+                            continue
+                        if "min_value" in req and value < req["min_value"]:
+                            reasons.append(f"quality signal {name} {value:.3f} below "
+                                           f"required {req['min_value']}")
+                        if "max_value" in req and value > req["max_value"]:
+                            reasons.append(f"quality signal {name} {value:.3f} above "
+                                           f"allowed {req['max_value']}")
+    if reasons:
+        print("READINESS domain_scaffold_required")
+        for r in sorted(set(reasons)):
+            print(f"REASON {r}")
+        return 3
+    print("READINESS ontology_ready")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("repo_path", nargs="?", default=None)
@@ -887,7 +1019,12 @@ def main() -> int:
                     help="reserved for parity with sibling validators; all checks already error")
     ap.add_argument("--determinism", action="store_true",
                     help="run the suite twice and fail on any output difference")
+    ap.add_argument("--readiness", metavar="PKG_DIR",
+                    help="evaluate generated-domain ontology readiness for one "
+                         "package dir (exit 0 ontology_ready, 3 domain_scaffold_required)")
     args = ap.parse_args()
+    if args.readiness:
+        return readiness(Path(args.readiness).resolve())
 
     repo = Path(args.repo_path).resolve() if args.repo_path else None
     findings, notes = run_suite(repo)

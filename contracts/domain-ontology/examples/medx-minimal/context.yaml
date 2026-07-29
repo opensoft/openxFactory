@@ -7,11 +7,11 @@ worker_scope:
 kernel_pin:
   package_id: xf/core
   package_version: 0.1.0
-  package_digest: 08de7da04910c57c93def203190d93b3917588c99ab3c41f8deb3ca4a3fcdc87
+  package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
 package_pin:
   package_id: xf/medx
   package_version: 1.0.0
-  package_digest: e87869023ac41209aa386aba1c7a2c7eb0e6df8d6188433137629e26306c6503
+  package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
 terms: [xf/medx/patient, xf/core/subject]
 closure:
   status: closed
