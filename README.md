@@ -202,7 +202,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-crystallizer-contracts](openspec/changes/add-crystallizer-contracts/proposal.md)
-  — authored 2026-07-29; exit 2 of the `recurrence-crystallization` staged
+  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
+  V1–V2 carried as design context); exit 2 of the `recurrence-crystallization` staged
   topic (partial promotion — the topic keeps its steward and dials
   fragments): the crystallization decision as the only path from candidate
   to spend (ceilings resolve before valuation, deflation + survival

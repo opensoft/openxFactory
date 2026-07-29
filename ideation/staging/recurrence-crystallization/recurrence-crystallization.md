@@ -123,7 +123,7 @@ pattern-ledger fragment moved to its `supporting-docs/` with a hashed
 manifest — a partial promotion; the topic keeps the crystallizer,
 authority, steward, and dials fragments for exits 2 and 3.
 
-Exit 2 was RAISED 2026-07-29 as
+Exit 2 was RAISED and RATIFIED 2026-07-29 as
 [add-crystallizer-contracts](../../../openspec/changes/add-crystallizer-contracts/proposal.md):
 the draft slices moved to the change (draft headers stripped, front-matter
 restored, staged origin declared), and the crystallizer and authority

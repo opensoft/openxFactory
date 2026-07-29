@@ -248,7 +248,7 @@ staged file is added, removed, or promoted.
 Active proposals promoted from staging:
 
 - [add-crystallizer-contracts](../openspec/changes/add-crystallizer-contracts/proposal.md)
-  — raised 2026-07-29 as exit 2 of the `recurrence-crystallization` staged
+  — raised and RATIFIED 2026-07-29 as exit 2 of the `recurrence-crystallization` staged
   topic (partial promotion — steward and dials fragments remain staged for
   exit 3); owns the former `crystallizer-contracts.md` and
   `authority-and-consent.md` fragments under `supporting-docs/` and

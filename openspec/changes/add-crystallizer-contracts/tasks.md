@@ -62,8 +62,8 @@
       --strict` and `--all --strict` green.
 - [x] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
-- [ ] 4.3 Obtain ratification approval and stamp the proposal front matter
-      (`Status: ratified`, `Ratified by:`).
+- [x] 4.3 Obtain ratification approval and stamp the proposal front matter
+      (`Status: ratified`, `Ratified by:`) — ratified by Brett 2026-07-29.
 - [ ] 4.4 Realization evidence per `release-realization`: schemas +
       validators merged and green; contract version allocated at the
       archive bundle cut with its annotated tag and release digest
