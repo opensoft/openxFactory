@@ -3,9 +3,10 @@
 Status: brainstorm
 Kind: architecture
 Summary: Feat request against the realized keyword lens — clicking ring k lists the checked keywords' combinations taken k at a time as tiles (ring 2 → all pairs, ring 3 → all triples), each tile showing its doc membership; clicking a combination tile focuses the view on exactly that keyword subset and offers the brainstorm-launch gesture there — turning the bullseye into a navigable lattice of keyword intersections, where EMPTY combinations read as unexplored-idea signals.
-Topics: feat-request, ideation-dashboard, keyword-lens, doc-management, doc-workflow
+Topics: dashboard-workbench, feat-request, ideation-dashboard, keyword-lens, doc-management, doc-workflow
 Repository context: openxFactory (capability owner; realization would be a codexFactory delta)
 Captured: 2026-07-14
+
 Origin: Brett, 2026-07-14, using the deployed dashboard.
 
 Brainstorm — contradiction and half-formed options are legal here.

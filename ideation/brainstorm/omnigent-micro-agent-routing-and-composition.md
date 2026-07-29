@@ -7,7 +7,7 @@ typed acyclic task graph, using deterministic artifact and semantic routing
 before model planning, parallelizing independent nodes, validating every edge,
 and escalating ambiguity instead of allowing workers to call peers or broaden
 their own scope invisibly.
-Topics: omnigent, omnigent-domain-overlay, micro-agents, routing,
+Topics: omnigent-micro-agent, omnigent, omnigent-domain-overlay, micro-agents, routing,
 task-graph, typed-handoff, semantic-routing, parallel-execution,
 failure-containment, escalation, model-tiering, feat-request
 Repository context: openxFactory (neutral Omnigent routing and task-graph

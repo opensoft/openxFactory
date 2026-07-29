@@ -3,9 +3,10 @@
 Status: brainstorm
 Kind: architecture
 Summary: Proposes self-hosted Keycloak as the family's identity broker — users log in with whatever upstream IdP their organization chooses (GitHub, Google, Entra ID, any OIDC/SAML), federated identities link/merge into ONE persistent persona per human, and organization membership (a user working at multiple companies or repo orgs) is modeled on the persona rather than fragmenting it — replacing the dashboard's htpasswd Basic Auth first and satisfying the gate console's authenticated-principal hardening prerequisite.
-Topics: identity-brokering, keycloak, user-management, single-persona, sso, ideation-dashboard, roles-authority-model, credential-contracts
+Topics: identity-custody, identity-brokering, keycloak, user-management, single-persona, sso, ideation-dashboard, roles-authority-model, credential-contracts
 Repository context: openxFactory (contract-level, cross-factory; deployment mechanics land in Omnigent-Install; identity operations ownership likely OpsxFactory)
 Captured: 2026-07-14
+
 Origin: Brett, 2026-07-14, after the ideation-dashboard deployment shipped
 with single-user htpasswd Basic Auth and the question "how do we manage
 users?" — and the final review's accepted risks named authenticated actor

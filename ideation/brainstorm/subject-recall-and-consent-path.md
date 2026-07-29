@@ -16,7 +16,7 @@ audited and dual-authorized, never a silent bypass. The machinery is neutral
 repo-subject barely exercises it). Parent:
 `hermes-retrieval-primitives-contract.md`; subject layer:
 `project-layer-scaffold.md`.
-Topics: subject-hermes, consent, recall, private-memory, per-query-consent,
+Topics: memory-retrieval, subject-hermes, consent, recall, private-memory, per-query-consent,
 purpose-binding, data-minimization, revocation, erasure, break-glass,
 patient-advocate, memory-gateway, medx
 Repository context: openxFactory (neutral consent path; person-subject is the stress case, e.g. MedxFactory)

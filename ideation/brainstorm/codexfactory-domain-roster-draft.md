@@ -11,11 +11,12 @@ rest. No house style — each persona is deliberately distinct. These are design
 drafts; they promote to `codexFactory hermes/domain/roles/*.yaml` via
 codexFactory OpenSpec later. Parent: `codexfactory-domain-hermes-content.md`;
 character model: `hermes-persona-character-model.md`.
-Topics: codexfactory, domain-hermes, plane-1, authority-personas, roster,
+Topics: codexfactory-domain, codexfactory, domain-hermes, plane-1, authority-personas, roster,
 trait-framework, persona-schema, lead-architect, lead-security, lead-quality,
 scrum-coordinator, character-model
 Repository context: openxFactory (drafts target codexFactory hermes/domain/roles/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (council-tier / ref-direction / deploy decisions; escalation audit; coverage + closure tables; cost-accountability capture)
 
 ## Decided (2026-07-22)

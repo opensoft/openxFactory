@@ -16,7 +16,7 @@ IDF + age decay) fused by reciprocal rank fusion. Primitives are exposed as
 governed MCP tools so orchestrators compose them. Parent:
 `hermes-knowledge-base-architecture.md`; ingestion side:
 `client-ingestion-adapter-contract.md`.
-Topics: retrieval, search-primitives, context-packet, planner-executor-synthesizer,
+Topics: memory-retrieval, hermes, retrieval, search-primitives, context-packet, planner-executor-synthesizer,
 hybrid-search, rrf, age-decay, source-authority, consent, tenant-isolation,
 who-knows, mcp, memory-gateway
 Repository context: openxFactory (neutral retrieval contract; gateway-adjacent, all layers)

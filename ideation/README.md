@@ -190,6 +190,53 @@ proposal):
 
 Brainstorm (active):
 
+### Three-tier packet overviews
+
+These overviews organize active brainstorm leaves into reusable atomic,
+synthesis, and whole-system tiers. They remain non-normative and may cite
+staged or proposed artifacts as read-only context.
+
+- [Recurrence Crystallization](brainstorm/crystallization-overview.md) —
+  pattern sensing, build decisions, governed dispatch, lifecycle, and savings
+  accounting.
+- [Ontology-Grounded Execution](brainstorm/ontology-overview.md) — semantic
+  context compilation, routing, caching, and maintenance proposals.
+- [Domain Ontology Lifecycle](brainstorm/domain-ontology-overview.md) —
+  governed generation, publication, drift, and renewal.
+- [Omnigent Micro-Agents](brainstorm/omnigent-micro-agent-overview.md) —
+  bounded task contracts, routing, composition, evaluation, and economics.
+- [Client Hermes Layer](brainstorm/client-overview.md) — tenant authority,
+  policy tuning, assurance, content, and source ingestion.
+- [codexFactory Domain Hermes](brainstorm/codexfactory-domain-overview.md) —
+  software-domain personas, deliberation, policy, memory, and practices.
+- [Three-Layer Hermes Runtime](brainstorm/hermes-overview.md) — deterministic
+  layer seeding, authority, personas, legal boundaries, retrieval, and
+  non-mutating learning.
+- [Hermes Memory and Retrieval](brainstorm/memory-retrieval-overview.md)
+  — source authority, per-query consent, minimized context, and recall audit.
+- [Governed Practice Adoption](brainstorm/practice-adoption-overview.md) —
+  domain suggestion, client clearance, project realization, outcomes, and
+  accounting.
+- [Project and Subject Hermes](brainstorm/project-overview.md) — template
+  provisioning, subject identity, scope, consent, acceptance, and catalog
+  boundaries.
+- [Dashboard Integrated Document Workbench](brainstorm/dashboard-workbench-overview.md)
+  — shared Outline/Document editing, subject-aware chat, model selection, and
+  human/AI draft turns.
+- [Identity and Custody](brainstorm/identity-custody-overview.md) — brokered
+  people, qualified agents, grants, vault tiers, and explainable access.
+- [Governed Worker Execution](brainstorm/worker-execution-overview.md) —
+  enrolled hosts, digest-pinned benches, bounded jobs, evidence, and external
+  enforcement.
+- [Medical Domain Hermes and Omnigent](brainstorm/medical-domain-overview.md)
+  — clinical-domain authority, bounded workers, safety, and clinician handoff.
+- [Contract Release and Document Lifecycle](brainstorm/release-lifecycle-overview.md)
+  — immutable source provenance, explicit promotion, signed releases, and
+  stack adoption.
+- [Avatar Live Voice](brainstorm/avatar-live-voice-overview.md) — visible
+  client states, privacy, brokered-call evidence, qualification, and hardening
+  boundaries.
+
 - [openxWallet — Wallets, Grants, and Certification](brainstorm/agent-certification-wallets.md)
   — every AI agent gets a DID wallet; certified qualification levels grant
   scoped autonomous authority bound to a quantified agent identity
@@ -355,6 +402,12 @@ Active proposals promoted from staging:
   + Project Manager) with the three-layer coordination boundary (domain Scrum
   Coordinator / project PM / client Delivery Lead), provisioning from an
   archetype, and the manual-writer as a Plane-2 worker (2026-07-21).
+- [Tenant Project Catalog and Engineer Workstation Projection](brainstorm/tenant-project-catalog-and-workstation-cache.md)
+  — separates the company runtime's authoritative project/repository catalog
+  and principal assignments from the engineer workstation's tenant-scoped
+  cache and local preferences; defines Company Projects, My Projects,
+  native Windows/WSL state locations, and the single-project request boundary
+  (2026-07-27).
 - [Ontology and Omnigent Micro-Agent Exploration Map](brainstorm/ontology-and-micro-agent-exploration-map.md)
   — anchors a twelve-document collection covering the ontology and micro-agent
   foundations, ontology generation/maintenance/context compilation, bounded

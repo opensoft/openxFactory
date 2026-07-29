@@ -9,7 +9,7 @@ a read-only gap scan over governed subjects, a structured suggestion
 record with idempotency and suppression, and a hard autonomy boundary —
 the domain may only ever SUGGEST. Umbrella:
 `hermes-governed-nightly-sweep.md`.
-Topics: practice-catalog, adoption-profile, gap-scan, suggestion-record,
+Topics: practice-adoption, practice-catalog, adoption-profile, gap-scan, suggestion-record,
 domain-autonomy, domain-hermes, practice-adoption
 Repository context: openxFactory (adoption-profile schema neutral; catalog content codexFactory)
 Captured: 2026-07-20

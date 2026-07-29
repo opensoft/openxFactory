@@ -11,11 +11,12 @@ everything parks for the human liaison, so an un-tuned client is safe. Re-runnin
 is idempotent re-tuning, and the liaison's accreted dispositions feed the next
 pass. Parent: `client-layer-scaffold.md`; writes the content shaped in
 `client-layer-content-draft.md`.
-Topics: client-hermes, policy-wizard, client-tuning, auto-clear-envelope,
+Topics: client, client-hermes, policy-wizard, client-tuning, auto-clear-envelope,
 operating-policy, approval-matrix, house-style, re-tuning, elicitation,
 client-layer, layer-content-seeding
 Repository context: openxFactory (wizard is a hermes-install runtime act writing config/clients/<client>/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (interface + envelope-scope decisions; ratification/facts/seeding sync; cost blocks; park-map)
 
 ## Decided (2026-07-22)
