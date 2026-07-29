@@ -339,7 +339,11 @@ Active changes:
   lane (§4) can produce a ref. Sequenced strictly after
   `add-dashboard-repo-selector` and `add-propose-verb`.
 - [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
-  — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
+  — authored 2026-07-26, RATIFIED 2026-07-29 on Brett's three binding
+  rulings of 2026-07-26 (raw-file data source, passive index-poll badge,
+  ungated loopback regenerate); realization was already under way on those
+  rulings and `add-workbench-branch-sessions` is formally unblocked. Exit 1
+  of the `dashboard-repo-selector` staged
   topic: a repository selector whose roster is the project register (sparse
   repositories render whatever stations they have data for and are never
   refused), a snapshot source keyed on the PAIR (repository, ref) with
