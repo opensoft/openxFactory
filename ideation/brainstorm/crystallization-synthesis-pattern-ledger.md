@@ -1,6 +1,6 @@
 # Synthesis: The Pattern Ledger — Sense Repetition, Predict Return — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The sensing arc's three atomic pieces — episode capture, family
 fingerprinting, and recurrence forecasting — compose into one standing
@@ -15,6 +15,9 @@ forecasting, domain-hermes, memory-gateway, suggestion-record, synthesis
 Repository context: openxFactory (the sensing-arc contract family as one
 subsystem)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 
@@ -77,7 +80,7 @@ nothing.
 
 ## The output contract: candidates on the suggestion rails
 
-When a family crosses nomination criteria (decision-ladder rung 1-2:
+When a family crosses nomination criteria (decision-ladder rungs 2–3:
 count/forecast thresholds — EC owns what happens after), the Ledger emits a
 `crystallization_candidate` — deliberately shaped like a
 `practice_adoption_suggestion` (idempotency key: family + evidence window;

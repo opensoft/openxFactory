@@ -383,7 +383,11 @@ Active proposals promoted from staging:
   episode-mined micro-specs with acceptance corpora and scope fences,
   codexFactory-built capabilities under authority conservation, and
   fence-guarded dispatch with sentinel sampling so learning, drift detection,
-  and savings claims stay honest (2026-07-28).
+  and savings claims stay honest (2026-07-28). Organized 2026-07-29 into the
+  [recurrence-crystallization staged topic](staging/recurrence-crystallization/recurrence-crystallization.md)
+  with decisions D1–D11 and verifications V1–V2 locked; the
+  [cross-tenant fragment](brainstorm/crystallization-cross-tenant.md) stays
+  active brainstorm for a later wave.
 - [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
   — six project archetypes (service, library, cli, application, infra-iac, spike)
   a project is provisioned from, each a bundle of default policy, expected

@@ -1,6 +1,6 @@
 # Parity Proof and Staged Cutover — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: A crystallized capability earns authority through three ordered
 proofs — replay parity against the acceptance corpus, shadow parity
@@ -16,6 +16,9 @@ adjudication, workflow-gate-contract, dry-run, demotion
 Repository context: openxFactory (neutral proof-stage vocabulary and gate
 profiles)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

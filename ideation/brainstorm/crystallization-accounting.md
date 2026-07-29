@@ -1,6 +1,6 @@
 # Crystallization Accounting: Realized Savings and Calibrated Predictions — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The ex-post half of the money brain: a savings ledger that only
 credits capabilities against sentinel-anchored counterfactuals (never
@@ -16,6 +16,9 @@ calibration, automation-share, cost-accountability, metering, portfolio
 Repository context: openxFactory (neutral ledger/calibration schemas; rides
 the cost-accountability chain)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

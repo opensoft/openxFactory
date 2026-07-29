@@ -1,6 +1,6 @@
 # Authority Conservation and Consent for Crystallized Capabilities — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Crystallization must never widen authority: a capability's
 permission binding is a subset of the AI configuration it replaces, the
@@ -18,6 +18,9 @@ layer-vocabulary, feat-request
 Repository context: openxFactory (extends omnigent-domain-overlay permission
 matrix and consent contracts)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

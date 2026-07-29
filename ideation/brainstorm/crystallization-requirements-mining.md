@@ -1,6 +1,6 @@
 # Requirements Mining: From Episode Corpus to Buildable Spec — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Hermes turns a family's episodes into a buildable spec by mining
 invariants, parameters, branches, and counterexamples; the curated episode
@@ -16,6 +16,9 @@ domain-hermes
 Repository context: openxFactory (neutral micro-spec and fence schemas;
 mining runs as a bounded domain worker)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

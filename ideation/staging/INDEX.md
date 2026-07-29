@@ -63,6 +63,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
+| [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 6 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger → add-crystallizer-contracts → add-capability-steward |
 
 ## ideation-action-plane
 
@@ -762,3 +763,43 @@ global on/off that would close the window for everyone.
   legacy `Customer`/`Client` layer spellings — legal as released, but the
   next substantive revision should adopt subject/tenant/domain.
 - Source: team-004 session 2026-07-27 (Brett).
+
+## recurrence-crystallization
+
+- Staging ID: `openxFactory:staging:recurrence-crystallization`
+- Repository context: openxFactory (neutral crystallization contract
+  family); codexFactory is the first conformer AND the cross-domain builder
+  (D5); composes memory-gateway (promotion consumed — V1: no delta),
+  workflow-gate-contract (proof stages), release-realization (build archive
+  evidence), credential-contracts (custody), and governed-derived-model
+  (capability provenance + derived dispatch index) rather than restating
+  them.
+- Source: the 19-doc recurrence-crystallization brainstorm packet anchored
+  at `brainstorm/crystallization-overview.md` (captured 2026-07-28);
+  decision session 2026-07-29 locking D1–D11 + verifications V1–V2,
+  recorded in the primary doc.
+- Files: `recurrence-crystallization.md` (primary — decision record,
+  fragment map, MVP slice, exit path), `pattern-ledger-contracts.md`,
+  `crystallizer-contracts.md`, `authority-and-consent.md`,
+  `steward-contracts.md`, `dials-and-defaults.md` (declared-dials
+  register).
+- Target capabilities: ADDED `pattern-ledger` (episode / outcome-label /
+  family / forecast / candidate records), `crystallization-decision`,
+  `crystallization-build`, `crystallization-consent` (T1/T2/T3 tiers,
+  default deny), `crystallized-capability-registry`,
+  `crystallization-dispatch`, `capability-health`; MODIFIED
+  `omnigent-domain-overlay` (crystallized-executor profile class +
+  per-category rung-ceiling declarations).
+- Readiness: Ready to iterate — the 84-claim source packet is individually
+  addressable (per-doc ID prefixes) and the load-bearing rulings are
+  locked: authority conservation with the constitutional falses at every
+  rung; fences + post-conditions + sentinels ("never silently wrong");
+  artifacts digest-pinned while authority status is live-read (D10); v1
+  dispatch admits only `pure`/`idempotent` effect classes (D11); sentinel
+  ε floor never zero. MVP: packet-capture mechanics at L3 under the first
+  two exit changes with manual steward stand-ins. Open (carried,
+  non-blocking): dial re-tuning by the calibration board, adjudicator
+  assignment, shadow statistics, Steward role-vs-contract, platform-actor
+  naming. Cross-tenant pooling + DTN promotion out of wave. Exit:
+  `add-pattern-ledger` → `add-crystallizer-contracts` →
+  `add-capability-steward`.

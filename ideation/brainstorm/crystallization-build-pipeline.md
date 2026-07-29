@@ -1,6 +1,6 @@
 # The Crystallization Build Pipeline: The Factory Builds Its Own Shortcuts — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: A crystallization build is an ordinary governed engineering job
 (`job_type: crystallization_build`) executed by codexFactory for every
@@ -17,6 +17,9 @@ tech-stack-benches, data-leak, dry-run
 Repository context: openxFactory (neutral build-job and provenance schemas;
 execution lives in codexFactory)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

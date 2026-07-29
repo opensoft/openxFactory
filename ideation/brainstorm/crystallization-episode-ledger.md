@@ -1,6 +1,6 @@
 # Episode Ledger: Outcome-Labeled Solution Traces — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Every governed job solved by the expensive AI path should leave an
 episode — a replayable, cost-carrying, outcome-labeled trace derived from
@@ -14,6 +14,9 @@ recurrence
 Repository context: openxFactory (neutral episode schema; capture rides the
 existing runtime evidence discipline)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

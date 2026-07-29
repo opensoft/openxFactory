@@ -1,6 +1,6 @@
 # Synthesis: The Crystallizer — Decide, Specify, Build — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The invest/build arc composes five atomic pieces — economics,
 the automation ladder, requirements mining, the build pipeline, and
@@ -17,6 +17,9 @@ synthesis
 Repository context: openxFactory (the invest/build-arc contract family as
 one subsystem)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 
@@ -124,8 +127,9 @@ parity, throttles, overlay ceilings). Synthesis-level additions:
 - **SYB-C1** — The Crystallizer's output is binary and honest: a
   registered, proof-obligated capability, or a not-yet record with reasons
   and re-nomination conditions — never a quiet drop.
-- **SYB-C2** — Rung is resolved before value is computed, and ceilings are
-  resolved before rung; the queue never carries phantom ROI.
+- **SYB-C2** — Ceilings are resolved before valuation, value is computed per
+  eligible rung, and only then is a rung selected; the queue never carries
+  phantom ROI.
 - **SYB-C3** — The approval braid is three-layer by construction; no layer
   can be collapsed into another without breaking the consent story.
 

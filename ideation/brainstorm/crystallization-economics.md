@@ -1,6 +1,6 @@
 # Crystallization Economics: When to Spend Tokens to Build Software — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The "over a threshold, build it" trigger is an investment decision
 under uncertainty with its own maturity ladder (human judgment → count
@@ -16,6 +16,9 @@ efficiency-audit
 Repository context: openxFactory (neutral decision-record schema; thresholds
 and budgets are tenant/domain policy content)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

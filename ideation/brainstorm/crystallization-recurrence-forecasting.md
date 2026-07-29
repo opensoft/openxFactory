@@ -1,6 +1,6 @@
 # Recurrence Forecasting: Predicting How Often a Task Returns — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The crystallization trigger needs, per family, a predictive
 distribution of future instance counts over a declared horizon plus a
@@ -16,6 +16,9 @@ episode-ledger
 Repository context: openxFactory (neutral forecast record schema; models are
 implementation detail behind it)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 
