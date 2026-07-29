@@ -46,3 +46,5 @@
       code surface (schemas + validator) merged and green; contract version
       allocated per `docs/contract-versioning-policy.md`; archive follows
       evidence, never precedes it.
+- [x] 4.4 Obtain ratification approval and stamp the proposal front matter
+      (`Status: ratified`, `Ratified by:`) — ratified by Brett 2026-07-29.

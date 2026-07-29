@@ -248,7 +248,7 @@ staged file is added, removed, or promoted.
 Active proposals promoted from staging:
 
 - [add-pattern-ledger](../openspec/changes/add-pattern-ledger/proposal.md)
-  — raised 2026-07-29 as exit 1 of the `recurrence-crystallization` staged
+  — raised and RATIFIED 2026-07-29 as exit 1 of the `recurrence-crystallization` staged
   topic (partial promotion — the topic keeps its crystallizer, authority,
   steward, and dials fragments for exits 2 and 3); owns the former
   `pattern-ledger-contracts.md` fragment under `supporting-docs/` and

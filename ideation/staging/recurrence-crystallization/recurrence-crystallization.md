@@ -112,7 +112,7 @@ A fourth, cross-tenant, follows in a later wave after a first domain proof.
 The dials register feeds all three as declared dials
 (governed-derived-model pattern).
 
-Exit 1 was RAISED 2026-07-29 as
+Exit 1 was RAISED and RATIFIED 2026-07-29 as
 [add-pattern-ledger](../../../openspec/changes/add-pattern-ledger/proposal.md):
 the draft slices moved to the change (draft headers stripped, front-matter
 restored, staged origin declared in `.openspec.yaml`), and the

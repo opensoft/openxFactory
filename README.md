@@ -195,7 +195,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-pattern-ledger](openspec/changes/add-pattern-ledger/proposal.md)
-  — authored 2026-07-29; exit 1 of the `recurrence-crystallization` staged
+  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
+  V1–V2 carried as design context); exit 1 of the `recurrence-crystallization` staged
   topic (partial promotion — the topic keeps its crystallizer, authority,
   steward, and dials fragments): the five pattern-ledger sensing record
   kinds (episode, outcome-label, recurrence-family, recurrence-forecast,

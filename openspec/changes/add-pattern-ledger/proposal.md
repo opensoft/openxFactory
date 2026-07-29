@@ -1,5 +1,7 @@
 code_surface: openxFactory (contracts/schemas pattern-ledger record family + scripts/validate-pattern-ledger.py — schemas, examples, and validator only; sweep worker and runtime projection lanes are successor realizations)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified by: Brett's approval of `add-pattern-ledger` on 2026-07-29, on the recurrence-crystallization staging decision record D1–D11 + verifications V1–V2 (locked 2026-07-29) carried as design context — notably D2 (outcome labels as records now, praise never a spend key), D3 (tenant-scoped families), D4 (candidate as an own suggestion-grammar kind), and the candidate autonomy boundary (nominate, never spend); the carried open design points (backfill depth, embedding governance, canonicalization ownership, fuzzy membership weighting, calendar ownership) are deliberately deferred to implementation and successor changes.
 
 ## Why
 
