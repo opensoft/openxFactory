@@ -64,12 +64,14 @@ contract-shaping rulings and the delta surfaces.
   and candidate records (ADDED `pattern-ledger`); promoted 2026-07-29 at
   the raise of `add-pattern-ledger`, now under the archived change's
   `supporting-docs/`.
-- [crystallizer-contracts.md](crystallizer-contracts.md) — decision, spec
-  mining, and governed build (ADDED `crystallization-decision`,
-  `crystallization-build`).
-- [authority-and-consent.md](authority-and-consent.md) — authority
-  conservation and consent tiers (MODIFIED `omnigent-domain-overlay`, ADDED
-  `crystallization-consent`).
+- [crystallizer-contracts.md](../../../openspec/changes/add-crystallizer-contracts/supporting-docs/crystallizer-contracts.md)
+  — decision, spec mining, and governed build (ADDED
+  `crystallization-decision`, `crystallization-build`); promoted 2026-07-29
+  at the raise of `add-crystallizer-contracts`.
+- [authority-and-consent.md](../../../openspec/changes/add-crystallizer-contracts/supporting-docs/authority-and-consent.md)
+  — authority conservation and consent tiers (MODIFIED
+  `omnigent-domain-overlay`, ADDED `crystallization-consent`); promoted
+  2026-07-29 at the raise of `add-crystallizer-contracts`.
 - [steward-contracts.md](steward-contracts.md) — registry, dispatch, proof,
   health, accounting (ADDED `crystallized-capability-registry`,
   `crystallization-dispatch`, `capability-health`).
@@ -121,13 +123,12 @@ pattern-ledger fragment moved to its `supporting-docs/` with a hashed
 manifest — a partial promotion; the topic keeps the crystallizer,
 authority, steward, and dials fragments for exits 2 and 3.
 
-Exit 2 (`add-crystallizer-contracts`) was drafted 2026-07-29 in the topic's
-[openspec/](openspec/proposal.md) workspace — proposal, design, tasks, and
-four delta slices (`crystallization-decision`, `crystallization-build`,
-`crystallization-consent`, and the additive `omnigent-domain-overlay`
-delta: crystallized-executor binding + rung ceilings, archetype vocabulary
-deliberately unchanged), each `Status: draft` — awaiting the proposal
-gate.
+Exit 2 was RAISED 2026-07-29 as
+[add-crystallizer-contracts](../../../openspec/changes/add-crystallizer-contracts/proposal.md):
+the draft slices moved to the change (draft headers stripped, front-matter
+restored, staged origin declared), and the crystallizer and authority
+fragments moved to its `supporting-docs/` with a hashed manifest — the
+topic keeps the steward and dials fragments for exit 3.
 
 ## Spanning open questions (carried, non-blocking)
 

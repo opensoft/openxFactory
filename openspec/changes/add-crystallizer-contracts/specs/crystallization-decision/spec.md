@@ -1,8 +1,5 @@
 # crystallization-decision Delta: The Only Path From Nomination To Spend
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: Decisions Are The Only Path To Spend

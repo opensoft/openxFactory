@@ -1,16 +1,4 @@
-# Proposal (draft): add-crystallizer-contracts
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-Target repo at promotion: openxFactory `openspec/changes/add-crystallizer-contracts/`
-code_surface: openxFactory (contracts/schemas crystallization-decision /
-crystallization-spec / crystallization-build / crystallization-consent
-record family + additive omnigent-domain-overlay schema fields
-(crystallized-executor binding, rung ceilings) + canonical validator
-scripts/validate-crystallizer-contracts.py and the
-validate-omnigent-contracts.py extension — contracts, examples, and
-validators only; the decision lane, miner, and build execution are
-successor realizations)
+code_surface: openxFactory (contracts/schemas crystallization-decision / crystallization-spec / crystallization-build / crystallization-consent record family + additive omnigent-domain-overlay schema fields (crystallized-executor binding, rung ceilings) + canonical validator scripts/validate-crystallizer-contracts.py and the validate-omnigent-contracts.py extension — contracts, examples, validators only; decision lane, miner, and build execution are successor realizations)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 
 ## Why

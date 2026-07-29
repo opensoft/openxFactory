@@ -1,8 +1,3 @@
-# Design (draft): add-crystallizer-contracts
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-
 ## Context
 
 The staged rulings this change realizes: SYB-C2's corrected evaluation

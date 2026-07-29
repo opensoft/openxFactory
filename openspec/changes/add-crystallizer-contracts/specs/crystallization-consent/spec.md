@@ -1,8 +1,5 @@
 # crystallization-consent Delta: Three Tiers And The Approval Braid
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: Consent Is Three Separately Grantable Tiers

@@ -1,8 +1,5 @@
 # omnigent-domain-overlay Delta: Crystallized Executors And Rung Ceilings
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: Crystallized Executor Bindings Conserve Authority

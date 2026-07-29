@@ -247,6 +247,16 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-crystallizer-contracts](../openspec/changes/add-crystallizer-contracts/proposal.md)
+  — raised 2026-07-29 as exit 2 of the `recurrence-crystallization` staged
+  topic (partial promotion — steward and dials fragments remain staged for
+  exit 3); owns the former `crystallizer-contracts.md` and
+  `authority-and-consent.md` fragments under `supporting-docs/` and
+  proposes the crystallization decision (the only path from candidate to
+  spend), the episode-mined build contracts (corpus, fence, effect class,
+  provenance), the T1/T2/T3 consent tiers with the approval braid, and the
+  crystallized-executor + rung-ceiling additions to the Omnigent overlay
+  under strict authority conservation.
 - [add-pattern-ledger](../openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
   — raised, RATIFIED, realized (`contract-v1.19`), and **archived
   2026-07-29** as exit 1 of the `recurrence-crystallization` staged

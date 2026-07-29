@@ -1,8 +1,5 @@
 # crystallization-build Delta: Episode-Mined Specs And Governed Builds
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: Specs Are Mined From Episodes

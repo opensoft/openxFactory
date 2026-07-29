@@ -201,6 +201,21 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-crystallizer-contracts](openspec/changes/add-crystallizer-contracts/proposal.md)
+  — authored 2026-07-29; exit 2 of the `recurrence-crystallization` staged
+  topic (partial promotion — the topic keeps its steward and dials
+  fragments): the crystallization decision as the only path from candidate
+  to spend (ceilings resolve before valuation, deflation + survival
+  discounting with first-class non-token value, shape-not-boolean outputs,
+  the not-yet ledger, frozen L0–L6 rung vocabulary), the episode-mined
+  micro-spec with acceptance corpus / scope fence / declared effect class,
+  governed codexFactory builds with gapless provenance and dry-run +
+  leak-scan acceptance, the T1/T2/T3 consent tiers with the uncollapsible
+  approval braid, and a purely ADDED `omnigent-domain-overlay` delta
+  (crystallized-executor bindings on existing archetypes so the
+  constitutional matrix binds verbatim; rung ceilings with an L3 default
+  for undeclared categories); schemas + validators are the declared code
+  surface.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions

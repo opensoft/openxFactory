@@ -1,0 +1,15 @@
+{
+  "change_id": "add-crystallizer-contracts",
+  "files": [
+    {
+      "path": "crystallizer-contracts.md",
+      "sha256": "38ec3bdb398c64501adc3c2b8c0f099ddc30e4cb0bf3debc2480cc983fd8de39",
+      "source_path": "ideation/staging/recurrence-crystallization/crystallizer-contracts.md"
+    },
+    {
+      "path": "authority-and-consent.md",
+      "sha256": "524d3d0761d13e8deff200fcbf051208b79ecf59d9400687b4eef292f04e9661",
+      "source_path": "ideation/staging/recurrence-crystallization/authority-and-consent.md"
+    }
+  ]
+}
