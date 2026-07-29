@@ -190,7 +190,9 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-domain-ontology-layer](openspec/changes/add-domain-ontology-layer/proposal.md)
-  — authored 2026-07-28: the ontology layer for the xFactory system. Two new
+  — authored AND RATIFIED 2026-07-28: the ontology layer for the xFactory
+  system. Realization is unblocked; with a non-none code surface it archives
+  on merged plus green realization evidence, not on ratification. Two new
   capabilities (`xfactory-semantic-kernel`, `domain-ontology-lifecycle`) plus
   deltas to layer-vocabulary, hermes-domain-overlay, and memory-gateway.
   openxFactory owns a small neutral semantic kernel — a kernel term PUBLISHES
