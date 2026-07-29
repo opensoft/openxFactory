@@ -19,10 +19,13 @@ publication rides the bundle cut). Contract family
 ## MedxFactory (pilot: `examples/pilots/medx`)
 
 1. Own change: adopt the ontology answer set (real roster replaces the
-   pilot's placeholder stewards — coordinate with the
-   `medxfactory-domain-hermes-content` roster decision round), run the v13
-   starter, review/disposition candidates, publish via
-   `ontology-release.py`, and pin `domain_ontology` in
+   pilot's placeholder stewards — DECIDED 2026-07-29 in the
+   `medxfactory-domain-hermes-content` roster round: a dedicated
+   `ontology-steward` persona in the eight-persona roster is the
+   accountable ontology steward; MxD-MRR wears the ontology review seats
+   and `high_impact_requires: [licensed_human]` carry as leanings to the
+   change-A gate), run the v13 starter, review/disposition candidates,
+   publish via `ontology-release.py`, and pin `domain_ontology` in
    `hermes/domain/content-manifest.yaml`.
 2. External terminologies register by reference with license classes
    (`no_redistribution` clinical systems never mirror); quality gate and

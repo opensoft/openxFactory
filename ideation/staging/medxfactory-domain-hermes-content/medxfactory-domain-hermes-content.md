@@ -137,11 +137,55 @@ verified against both trees 2026-07-24.
    defaults under the facts rule — this topic or a follow-on change once
    A+B land.
 
+## Decision record (round with Brett, 2026-07-29)
+
+The change-A gating decisions, ruled:
+
+1. **Roster (open question 1) — DECIDED: the derived seven personas PLUS a
+   dedicated ontology steward; eight total.** Medical-reasoning lead
+   (MxD-MRR convener), evidence curator (`domain_evidence_curator`, Root
+   Truth corpus), verification lead, safety lead (`safety_reviewer`),
+   compliance lead (`compliance_owner`), documentation lead, governance
+   coordinator (`hermes_governance_owner`), and — ruled over the
+   merge-into-evidence-curator recommendation — a dedicated
+   **ontology-steward persona** as the accountable ontology steward per the
+   ratified `add-domain-ontology-layer` (replacing the pilot placeholder).
+   Constraint holds: each of the 11 clinical workers gets exactly one
+   directing persona from the seven; the ontology steward directs no
+   Plane-2 worker today (its anchor is the `medx_owns` ontology items and
+   the release-record `decided_by` line; the brainstormed
+   ontology-maintenance micro-agent fleet is its future candidate-producing
+   staff, advisory only).
+   *Leanings carried to the change-A gate, not ruled:* the ontology review
+   council is MxD-MRR wearing ontology seats (no fourth council), and
+   `high_impact_requires: [licensed_human]` for clinical semantic change —
+   both consistent with the round but confirmable at authoring.
+2. **Council placement (open question 2) — DECIDED as the leaning:** change
+   B formalizes MxD-MRR in `hermes/domain/review-councils/` with the
+   convening-record pattern and the three-gate convergence-packet flow via
+   cross-layer references; MxC-LOR and MxP-CIR machine surfaces ride the
+   care-organization and patient layer changes.
+3. **Pods vs mixes (open question 3) — DECIDED as recommended:** Medx
+   deliberation IS the ratified convergence-packet flow with
+   specialty-parameterized pods inside it; `agent-mixes.yaml` reserves
+   `council_small`/`council_large` for review ensembles (MxD-MRR seats,
+   contested positions). The ratified worker plane stays untouched.
+4. **Content manifest (open question 5) — RESOLVED by ratified contract:**
+   Medx declares `hermes/domain/content-manifest.yaml` explicitly
+   (contract-v1.18 shape) including `domain_ontology`; the ontology-aware
+   starter's STARTER marker makes the declaration mandatory under the
+   generated-domain completeness rule.
+
+Still open (non-gating): practice-catalog seed set (question 4, change-B
+authoring input) and the care-organization defaults analog (question 6,
+follow-on change).
+
 ## Readiness
 
-**Ready to iterate** — pattern and material verified 2026-07-24; the roster
-composition (open question 1) is the change-A gating decision and needs a
-brainstorm/decision round with Brett; everything else is derivable from
-ratified material. Change B follows A per the codex sequence; no external
-gates (the omnigent overlay realization Medx depends on is already archived
-at `add-omnigent-domain-overlay`, contract-v1.16).
+**Change A UNBLOCKED (2026-07-29)** — the roster decision round is done
+(see the decision record); pattern and material verified 2026-07-24;
+everything else derives from ratified material. Change B follows A per the
+codex sequence; no external gates (the omnigent overlay realization Medx
+depends on is archived at `add-omnigent-domain-overlay`, contract-v1.16).
+The ontology adoption steps ride change A per
+[docs/domain-ontology-adoption-handoff.md](../../../docs/domain-ontology-adoption-handoff.md).
