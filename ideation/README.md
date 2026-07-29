@@ -313,7 +313,11 @@ Active proposals promoted from staging:
   grouping (D10), drill-down explorer, viewer, gate console, and next-step
   kickoff (D14–D17), per-actor authoring authority, workbench, and nightly
   snapshot lane; web-based v1 served per Option C alongside the
-  Hermes-stack surfaces; **re-ratified 2026-07-14**.
+  Hermes-stack surfaces; **re-ratified 2026-07-14, realized, and ARCHIVED
+  2026-07-29** — the `ideation-dashboard` capability spec is promoted (15
+  requirements, plus the created `ideation-cross-reference` spec and
+  doc-health/document-lifecycle additions) and the supporting bundle
+  manifest was hash-refreshed at the archive preflight.
 - [codexFactory Domain Hermes Content & Roster](brainstorm/codexfactory-domain-hermes-content.md)
   — fills the Software Engineering domain layer: the Plane-1 authority-persona
   roster (seven Leads + a Scrum Coordinator), domain policy/memory/practice-catalog
@@ -389,6 +393,12 @@ Active proposals promoted from staging:
   + Project Manager) with the three-layer coordination boundary (domain Scrum
   Coordinator / project PM / client Delivery Lead), provisioning from an
   archetype, and the manual-writer as a Plane-2 worker (2026-07-21).
+- [Tenant Project Catalog and Engineer Workstation Projection](brainstorm/tenant-project-catalog-and-workstation-cache.md)
+  — separates the company runtime's authoritative project/repository catalog
+  and principal assignments from the engineer workstation's tenant-scoped
+  cache and local preferences; defines Company Projects, My Projects,
+  native Windows/WSL state locations, and the single-project request boundary
+  (2026-07-27).
 - [Ontology and Omnigent Micro-Agent Exploration Map](brainstorm/ontology-and-micro-agent-exploration-map.md)
   — anchors a twelve-document collection covering the ontology and micro-agent
   foundations, ontology generation/maintenance/context compilation, bounded
