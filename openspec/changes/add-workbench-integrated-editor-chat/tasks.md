@@ -5,7 +5,19 @@
 - [ ] 1.3 Run one real-corpus acceptance sequence that independently satisfies `add-staging-workbench` 6.5, `add-workbench-bullseye-and-create` 7.2, `add-dashboard-repo-selector` 6.2, and `add-workbench-branch-sessions` 9.2, then completes `add-propose-verb` 4.3 from the merged/session-free ready topic; record evidence against every clause rather than treating one success as blanket closure.
 - [ ] 1.4 Complete each predecessor's pending contract-manifest/release registration and any dashboard-repository publication/credential wiring required by its own task list.
 - [ ] 1.5 Archive the predecessor chain in dependency order: `add-ideation-dashboard` → `add-propose-verb` → `add-staging-workbench` → `add-workbench-bullseye-and-create` → `add-dashboard-repo-selector` → `add-workbench-branch-sessions`; verify `openspec/specs/ideation-dashboard/spec.md` exists after the chain completes.
+      Progress 2026-07-30: the first chain element `add-ideation-dashboard`
+      archived on 2026-07-29 (openxFactory `main` commit `366f04f`, archive
+      entry `2026-07-29-add-ideation-dashboard`), promoting the base
+      `openspec/specs/ideation-dashboard/spec.md`. The remaining five
+      predecessors are still active with nine open tasks — four
+      contract-manifest registrations and five Brett live-pass /
+      first-commission clauses — so this task stays open.
 - [ ] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
+      Note 2026-07-30: this change branch is 81 commits behind openxFactory
+      `origin/main` and does not yet contain the promoted base capability;
+      the rebase must fold in `366f04f` and every later promotion before the
+      MODIFIED blocks are replaced with promoted source. Sequenced after 1.5
+      completes.
 - [x] 1.7 Brett ratified the proposal decisions and approved a narrow implementation-start exception on 2026-07-29: exact `doxBench` naming, local-only provider/data-handling posture, first-edit session materialization, two-buffer semantics, and no-autosave/no-force-apply stand. Tasks 1.3–1.6 remain open and mandatory before archive; the exception permits Speckit/code work to start without cutting a one-item predecessor bundle and does not permit realization merge before this change's own contract package is registered and pinned (design D0).
 
 ## 2. Contract-First Package (openxFactory)
