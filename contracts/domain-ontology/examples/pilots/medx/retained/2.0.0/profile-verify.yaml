@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_semantic_context_profile
+profile_id: prof-medx-verify
+package_id: xf/medx
+purpose: classification for a verify worker
+worker_scope:
+  worker_archetype: verify
+required_terms:
+  - xf/medx/patient
+  - xf/medx/treatment

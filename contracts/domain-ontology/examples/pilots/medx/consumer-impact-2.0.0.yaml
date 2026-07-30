@@ -1,0 +1,14 @@
+schema_version: 1
+kind: xfactory_ontology_consumer_impact_report
+from_package:
+  package_id: xf/medx
+  package_version: 1.0.0
+  package_digest: 6d3fec10e480ac6979b6cd65a23f244d187ede1c9e554e9d0c4af0fe5ce99196
+to_package:
+  package_id: xf/medx
+  package_version: 2.0.0
+affected_terms:
+  - xf/medx/treatment
+consumer_pins:
+  - consumer: MedxFactory hermes/domain/ontology
+    pin_digest: 6d3fec10e480ac6979b6cd65a23f244d187ede1c9e554e9d0c4af0fe5ce99196

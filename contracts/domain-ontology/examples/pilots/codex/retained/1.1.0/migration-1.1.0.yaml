@@ -1,0 +1,15 @@
+schema_version: 1
+kind: xfactory_ontology_migration_map
+from_package:
+  package_id: xf/codex
+  package_version: 1.0.0
+  package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+to_package:
+  package_id: xf/codex
+  package_version: 1.1.0
+  package_digest: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+compatibility_class: retiring
+migrations:
+  - from_id: xf/codex/decomposition
+    disposition: retired
+    note: decomposition folds into the execution-lane activity model

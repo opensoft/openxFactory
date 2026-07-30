@@ -1,0 +1,41 @@
+schema_version: 1
+name: xfactory_ontology_review_fixtures
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-review-fixtures.schema.yaml"
+# Labeled classification fixtures for Domain Hermes review (release-review
+# finding 4): SYNTHETIC or de-identified cases only — the closed shape and
+# the canonical value scan keep subject/tenant material out.
+type: object
+required: [schema_version, kind, package_id, cases]
+additionalProperties: false
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_ontology_review_fixtures}
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  cases:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [case_id, text, label]
+      additionalProperties: false
+      properties:
+        case_id:
+          type: string
+          # Underscores allowed: case ids conventionally embed the term slug
+          # they exercise (fx-<term_slug>-positive).
+          pattern: "^fx-[a-z0-9][a-z0-9_-]{0,80}$"
+        text:
+          type: string
+          minLength: 1
+          maxLength: 200
+        expected:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+        expected_not:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+        label:
+          enum: [positive, negative, representative]
