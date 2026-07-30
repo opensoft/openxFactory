@@ -178,6 +178,21 @@ compliance systems for regulated review records
 
 The enforcement system depends on the domain.
 
+## Semantic Plane
+
+Meaning is governed separately from authority: openxFactory owns the
+xFactory semantic kernel and the ontology meta-contract
+([contracts/domain-ontology/](../contracts/domain-ontology/README.md));
+each DomainxFactory's Domain Hermes owns its content-addressed ontology
+package and answers for its measurable quality; Tenant Hermes binds local
+codes; Subject Hermes instantiates and never publishes. Runtime work
+receives bounded, digest-pinned semantic contexts (closed term subsets,
+worker-scoped for Omnigent) — never an unrestricted corpus — and no
+semantic result can grant authority, consent, approval, or cross-layer
+access. Term-by-term ownership and the collision registers live in
+[Domain-Ontology Semantic Inventory And Decisions](domain-ontology-semantic-decisions.md);
+the lifecycle guide is [Domain-Ontology Guide](domain-ontology-guide.md).
+
 ## Authority Model
 
 ```text

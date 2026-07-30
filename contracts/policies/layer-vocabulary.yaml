@@ -25,8 +25,11 @@ canonical_layers:
     name: Domain Hermes
     legacy_id: domain
     role: >-
-      Reusable expert-domain policy, source authority, domain memory
-      boundaries, review standards, escalation.
+      Reusable expert-domain policy, source authority, domain ontology
+      stewardship (the accountable steward, review councils, and release
+      decisions of the domain's ontology package under the
+      contracts/domain-ontology/ contract), domain memory boundaries,
+      review standards, escalation.
 
 legacy_mapping:
   customer: subject

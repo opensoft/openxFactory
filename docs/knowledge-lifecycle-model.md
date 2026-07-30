@@ -72,6 +72,14 @@ pipeline cannot be good at both.
 
 ## 3. Knowledge States and Gates
 
+> Kernel alignment (ratified `add-domain-ontology-layer`): the Root Truth
+> atom and the subject-tier memory item both specialize the neutral
+> `xf/core/knowledge_atom` kernel concept; the domain's reusable MEANING
+> (concepts, relations, by-reference external mappings) lives in the
+> ontology package under Domain Hermes stewardship, while this model
+> governs knowledge INSTANCES. Corpus source registration carries license
+> classes per the ontology source-inventory contract.
+
 Knowledge moves through named states. Each arrow is a governed transition, not
 an implicit copy.
 

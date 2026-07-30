@@ -83,7 +83,8 @@ Core domain-neutral docs:
   tasks 1.1–1.6 — the contract family lives at
   [contracts/domain-ontology/](contracts/domain-ontology/README.md);
   pilot evidence: [Pilot Report](docs/domain-ontology-pilot-report.md) ·
-  [Adoption Handoff](docs/domain-ontology-adoption-handoff.md))
+  [Adoption Handoff](docs/domain-ontology-adoption-handoff.md) ·
+  [Guide](docs/domain-ontology-guide.md))
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
