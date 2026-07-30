@@ -436,12 +436,15 @@ Evidence:
   `xFactories/LedgerxFactory/tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`
   (first schema'd instance, kind `ledgerx_engagement_consent_record`)
 - `xFactories/MedxFactory/hermes/patient/consent-model.yaml` +
-  `contracts/memory-gateway/consent-profile.schema.yaml`; second
-  schema'd instance in flight —
-  `MedxFactory:openspec/changes/add-patient-consent-instrument`
-  (authored 2026-07-30, awaiting ratification; custody-bearing
-  `medx_patient_consent_record` with the declared consent-profile
-  derivation)
+  `contracts/memory-gateway/consent-profile.schema.yaml`; **second
+  schema'd instance COMPLETE** —
+  `add-patient-consent-instrument` authored, ratified, realized, and
+  archived 2026-07-30 (canonical Medx spec `patient-consent-instrument`,
+  8 requirements): custody-bearing `medx_patient_consent_record`
+  (template + schema pair + fictional example + negative-tested
+  validator cross-checks) with the declared consent-profile derivation.
+  The staged exit condition (second domain instantiates) is met —
+  `add-consent-instrument` is unblocked
 - `docs/party-ladder.md` (rung model; estate-host third parties)
 
 Domain-local exclusions: instrument names, legal form and execution

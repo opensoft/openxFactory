@@ -49,7 +49,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
-| [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); **second (Medx) instantiation authored 2026-07-30** — `MedxFactory:add-patient-consent-instrument`, awaiting ratification (custody-bearing `medx_patient_consent_record`, four-class instrument registry, declared consent-profile mapping); on its landing the exit condition is met and `add-consent-instrument` is unblocked |
+| [consent-instrument-contract](#consent-instrument-contract) | ADDED `consent-instrument` (neutral schema + vocabulary; or MODIFIED `memory-gateway` consent-profile family — open); DTN-016 | 1 | Ready to iterate — named 2026-07-24 during the Meds Rx onboarding; first schema'd instance live in LedgerxFactory (`ledgerx_engagement_consent_record`); **EXIT CONDITION MET 2026-07-30** — second (Medx) instantiation complete: `MedxFactory:add-patient-consent-instrument` authored, ratified, realized, and archived the same day (canonical Medx spec `patient-consent-instrument`, 8 requirements; custody-bearing `medx_patient_consent_record`, four-class instrument registry, declared consent-profile mapping); `add-consent-instrument` is unblocked and ready to author |
 | [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
@@ -92,11 +92,12 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   instruments: LedgerxFactory (first schema'd instance —
   `docs/engagement-letter-template.md` +
   `tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`,
-  2026-07-24), MedxFactory (second schema'd instance IN FLIGHT —
-  `add-patient-consent-instrument` authored 2026-07-30, awaiting
-  ratification: custody-bearing `medx_patient_consent_record` over the
-  existing consent model + memory-gateway consent-profile),
-  Adx/Opsx/codex (implied, unmodeled).
+  2026-07-24), MedxFactory (second schema'd instance COMPLETE —
+  `add-patient-consent-instrument` ratified, realized, and archived
+  2026-07-30: custody-bearing `medx_patient_consent_record` over the
+  existing consent model + memory-gateway consent-profile; canonical
+  Medx spec `patient-consent-instrument`), Adx/Opsx/codex (implied,
+  unmodeled).
 - Source: the Meds Rx, Inc onboarding — drafting the
   LedgerXCorp↔MedsRx engagement letter surfaced that the instrument is
   the single record the whole authority chain resolves to (grants cite
@@ -128,8 +129,10 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   outside credential-contracts (Medx has no broker).
 - Exit: `add-consent-instrument` after a second domain instantiates;
   the Ledgerx record declares conformance rather than being rewritten.
-  The Medx instantiation is authored (2026-07-30) — the exit condition
-  is met when it lands ratified + realized.
+  **The exit condition is MET (2026-07-30)** — the Medx instantiation
+  landed ratified + realized + archived; `add-consent-instrument` is
+  ready to author against two conformant instances (Ledgerx engagement
+  consent record, Medx patient consent record).
 
 ## context-compression-runtime
 
