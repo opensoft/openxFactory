@@ -13,6 +13,33 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.22 — 2026-07-29 (additive; domain-ontology family — the semantic plane lands)
+
+Realizes **add-domain-ontology-layer** (ratified 2026-07-28): the
+eighteen-kind `contracts/domain-ontology/` meta-contract (package manifest,
+concepts, relations, external mappings, source inventory, candidate/release
+records, migration map, semantic context + worker profile, quality report,
+stewardship policy, maintenance input/report, review fixtures, coverage-gap
+report, starter provenance, consumer-impact report) and the `xf/core`
+semantic kernel (24 concepts, 9 relation primitives; every term carries its
+owning contract and evidenced adoption; DRAFT pending the governed
+publication decision). Meaning never authority: closed shapes, reserved
+authority-name rejection, and the memory-gateway preflight keep the
+semantic plane descriptive; grants/consent/approvals are untouched.
+Canonical validator `scripts/validate-domain-ontology.py` (self-test: 8
+positive units incl. the retained MedxFactory/codexFactory pilots and the
+published-kernel adoption pair, 43 indexed negatives, determinism,
+readiness); tools
+`apply-domain-starter.py` (v13 ontology generation),
+`ontology-maintenance.py`, `ontology-release.py` (accountable-steward
+gate, per-signal quality exceptions, consumer-impact evidence, byte-true
+self-retention), `ontology-compile-context.py`. Memory-gateway packet
+contracts gain the closed `semantic_context` block (this bundle refreshes
+`context-packet` / `expert-context-packet` and the layer-vocabulary role
+text). First consumer: MedxFactory `hermes/domain/ontology/` (kernel
+digest-pinned); codexFactory / hermes-install / omnigent adoption recorded
+as explicit deferrals in the change's 8.6 evidence.
+
 ## contract-v1.21 — 2026-07-30 (additive; capability-steward contracts — the crystallization flywheel closes)
 
 Realizes **add-capability-steward** (exit 3, closing the

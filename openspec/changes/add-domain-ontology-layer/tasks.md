@@ -272,6 +272,31 @@ regression.
 - [x] 8.1 Update the architecture, domain-factory model, installation spine, knowledge lifecycle, memory gateway, domain starter, pre-run questionnaire, and contract README documents with the ratified ontology ownership and lifecycle, and update the machine-readable `contracts/policies/layer-vocabulary.yaml` role text so Domain Hermes ontology stewardship and Tenant Hermes semantic bindings do not drift from the promoted layer-vocabulary spec.
 - [x] 8.2 Document the semantic-plane/control-plane separation, generation pipeline, Domain Hermes stewardship model, maintenance triggers, compatibility rubric, migration path, and provider-neutral runtime consumption.
 - [x] 8.3 Run strict OpenSpec validation, schema and semantic fixture suites, domain-starter tests, domain-overlay validation, memory-gateway tests, privacy/isolation negatives, and existing repository regression checks.
-- [ ] 8.4 Obtain independent architecture, security, privacy, domain-stewardship, migration, and adversarial review and resolve every blocking finding against the exact release candidate.
+
+Independent review (8.4): a dedicated six-lens reviewer (architecture,
+security, privacy, domain-stewardship, migration, adversarial) ran four
+rounds, each re-running the ORIGINAL attack against the actual bytes
+rather than reading the fixes. Round 2 returned BLOCKED with 16 blocking
+findings (root cause: "rules attached to a location or shape rather than
+to the artifact"); the fix wave (7fafc90 + cd4105b) resolved 15/16 and
+introduced N1 (the shared package registry was read but never populated —
+three rules dead code, kernel publication unsatisfiable); the N1 wave
+(e4b047c) resolved N1/N2/N3 with order-independent registration and two
+sentinel fixtures the reviewer independently confirmed fail iff the
+mechanism breaks; round 4 raised N4 (loose-record roster resolved by
+first entry — a roster-confusion bypass and an honest-record
+misjudgment); the N4 wave (5d39bb4) closed both directions by exact-digest
+resolution AND repo-scoped registries, with the roster-twin sentinel pair.
+Final verdict: **APPROVED against release candidate 5d39bb4** — all 16
+original + N1–N4 resolved; independent battery reproduced (10 positives /
+44 negatives, zero rot, determinism across three hash seeds). Recorded
+for the bundle cut, per the reviewer: the kernel stays `draft` (flipping
+to `published` now validates clean — publication is unblocked but remains
+a governed Domain-Hermes/bundle decision not taken here), and eight
+non-blocking findings (F18–F21, F24–F27) carry to the follow-up omnigent/
+stewardship changes — F18 (term-level lifecycle enforcement) first before
+term retirement becomes load-bearing in a live domain.
+
+- [x] 8.4 Obtain independent architecture, security, privacy, domain-stewardship, migration, and adversarial review and resolve every blocking finding against the exact release candidate.
 - [ ] 8.5 Allocate the next available additive contract bundle only after integration order is known, generate the exact digest inventory, publish the immutable reviewed commit/tag, and independently verify remote bytes and provenance.
 - [ ] 8.6 Record consumer adoption or explicit deferral evidence and archive the change only after the implementation feature, release proof, and required downstream pins have landed.

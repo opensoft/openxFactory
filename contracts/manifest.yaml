@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.21
+contract_bundle_version: contract-v1.22
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -892,7 +892,7 @@ contracts:
     source_path: openxFactory/contracts/policies/layer-vocabulary.yaml
     type: policy
     schema_version: 1
-    sha256: 65f7c61a0f1338b41b479c6c0f96b82caa4f50322ca0726699484555640f26af
+    sha256: ab899563babc0840cd746a2101a77ee44b0918cf1cf1d502ff5b04360b269457  # contract-v1.22 (role text: ontology stewardship / semantic bindings)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1262,3 +1262,221 @@ contracts:
       Policy rules (digests-only, status-transition, demotion-bundle,
       effect-class-admission, sentinel-floor, savings-anchor, ...) live only
       in the canonical validator scripts/validate-capability-steward.py.
+  # ---- domain-ontology contract family — contract-v1.22 realization (add-domain-ontology-layer) ----
+  # The eighteen-kind semantic-plane meta-contract + the xf/core kernel
+  # (kernel digest 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5,
+  # DRAFT: publication is a Domain Hermes bundle decision). The canonical
+  # validator (scripts/validate-domain-ontology.py), the stewardship and
+  # compile tools, and examples/ (incl. the retained MedxFactory/
+  # codexFactory pilots and 43 indexed negatives) are content-addressed
+  # by commit; no per-file digest.
+  - id: ontology-package-manifest
+    path: contracts/domain-ontology/ontology-package-manifest.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-package-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b29cae1aa8ed6352111504cc4a3215e46148772fc6e382dc47bc887b84b1776a  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Identity, namespace, stewards, exact kernel import, digest-covered inventory, compatibility line, adoption evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-concepts
+    path: contracts/domain-ontology/ontology-concepts.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-concepts.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f217143f380c0f551f2483042cd6649e24e8592aa47c95272755ad0beee82548  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Concept registry: immutable ids, labels/aliases, definitions, acyclic multi-parent specialization. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-relations
+    path: contracts/domain-ontology/ontology-relations.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-relations.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e349c42687b68cf6d124aba12668b25c4ed82d9dd4f260c1c5ece2ef3b71a4a2  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Relation registry with exact domain/range, deterministic characteristics, owning contract, adoption evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-external-mappings
+    path: contracts/domain-ontology/ontology-external-mappings.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-external-mappings.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d83b6b02e72fb584822ed7a167181c37744364758d6a2ecb0f07a67591c52eb1  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      By-reference external code mappings; license-gated quoting, no mirrored content. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-source-inventory
+    path: contracts/domain-ontology/ontology-source-inventory.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-source-inventory.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 35717898977ef459602cde6f039bd59e314b01da47a70aa6c07f8e68ea1a8bad  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Registered authorities with license class, permitted use, review deadline. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-candidate-record
+    path: contracts/domain-ontology/ontology-candidate-record.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-candidate-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 45a433ea0f9073b7a89b20061f185f49637161d3f3d1fb93e4fc0f8585b05e57  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Append-only proposed changes; extraction run identity; steward-decided dispositions. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-release-record
+    path: contracts/domain-ontology/ontology-release-record.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-release-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 26895a9c3449e5595d66e62d5727f75c43cb39757b4f488db63464f43dc6ea1f  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Accountable publication record; per-signal quality exceptions; consumer-impact reference. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-migration-map
+    path: contracts/domain-ontology/ontology-migration-map.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-migration-map.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 39abd0ded94028d6f9e59ee4758bee21d8124853ec65307d239c5dc61b0ef245  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Breaking/retiring term dispositions across a compatibility line. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: semantic-context
+    path: contracts/domain-ontology/semantic-context.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/semantic-context.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 484efc41b2e32fc2cc35be4b9c13c4c1bf2664783da9e3f3175133da2bfd4910  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Bounded closed-or-truncated term subset with exact pins; the omnigent worker seam. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-quality-report
+    path: contracts/domain-ontology/ontology-quality-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-quality-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0afdb31992d186a3d65753cd3a99901bf31c3848986bc5f54c0da0603dc524a6  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Computable per-release quality signals under the privacy aggregation floor. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-stewardship-policy
+    path: contracts/domain-ontology/ontology-stewardship-policy.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-stewardship-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a3559a2cfd2e3b15588846df4aa165844c8298703b0b977c454350bc3e9ad79b  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Council, mode workflows, trigger thresholds, quality gate, standing privacy floor. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-maintenance-input
+    path: contracts/domain-ontology/ontology-maintenance-input.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-maintenance-input.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2e0452c8751105448e9c4d309aa4d465b16406ff13e30e83b977a128978d09ff  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Governed floor-respecting maintenance observations; as_of is data. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-maintenance-report
+    path: contracts/domain-ontology/ontology-maintenance-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-maintenance-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a134548ab87a7f89f9131810280140aff8d3c79bea7b78dc6cf0d9f2608f73c1  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Append-only trigger-evaluation record; a clean check is evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: semantic-context-profile
+    path: contracts/domain-ontology/semantic-context-profile.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/semantic-context-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ef8e4e53a642e8472a0e41b81d64874dc624ee16369d8f96b4b639ab0707dc9d  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Worker-scoped term subset per archetype/class, compiled per worker. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-review-fixtures
+    path: contracts/domain-ontology/ontology-review-fixtures.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-review-fixtures.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 61c7f826797c27910687f0b5391eb844fab948404442c43e344a15e0ada25df9  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Labeled positive/negative/representative review cases per term. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-coverage-gap-report
+    path: contracts/domain-ontology/ontology-coverage-gap-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-coverage-gap-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6a498d4d264bf53a7ee7bdead3e9045f2512b7e2baa7336f18ad046d92bd9136  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Starter-refreshed inventory of unanswered ontology scope. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-starter-provenance
+    path: contracts/domain-ontology/ontology-starter-provenance.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-starter-provenance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 828237c33e6e5b53292fb19091f592491b0fd8aadd8997ed2f14cd16b2293aa8  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The starter marker: generating starter version, ontology-aware. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-consumer-impact-report
+    path: contracts/domain-ontology/ontology-consumer-impact-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-consumer-impact-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1436375cf9c8412f4ef4d481e612282e2d0ec681f0f461a91d829eeba8949394  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Breaking/retiring impact: affected domain terms + consumer pins, never tenant bindings. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-manifest
+    path: contracts/domain-ontology/core/package.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/package.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: a8b217375014e641136e2c1862993b9e8ff6485977094aa7a62c59456c17e6b5  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The xf/core kernel package manifest (draft, digest-covered inventory). Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-concepts
+    path: contracts/domain-ontology/core/concepts.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/concepts.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: 504d99857000eab5d6afe00990dcf7e26d69f572e28e26e00a2a766db63f86ea  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The 24 kernel concept primitives, each naming its owning contract with evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-relations
+    path: contracts/domain-ontology/core/relations.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/relations.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: 2d36d107a55791ac7940c9983afea476214c2156f58b2df00c7939141b047b03  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The 9 kernel relation primitives with exact domain/range, owning contracts, evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
