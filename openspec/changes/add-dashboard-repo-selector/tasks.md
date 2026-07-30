@@ -35,6 +35,12 @@
       `contracts/CHANGELOG.md`, README contract index) at the next additive
       bundle cut, per `docs/contract-versioning-policy.md`
       (registration-at-realization precedent).
+      Candidate 2026-07-30 on `release/doxbench-predecessor-contracts`: the
+      snapshot-index manifest entry (per-file sha256), the contract-v1.26
+      CHANGELOG registration, and the new README contract index row are
+      prepared, with the digest inventory built. Open until the exact
+      candidate lands on published origin/main and the annotated
+      contract-v1.26 tag verifies.
 
 ## 2. Snapshot source seam and registry (codexFactory)
 

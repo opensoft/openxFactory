@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.25
+contract_bundle_version: contract-v1.26
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1481,3 +1481,70 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The 9 kernel relation primitives with exact domain/range, owning contracts, evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  # ---- ideation-dashboard workbench contract surface — contract-v1.26 realization (add-staging-workbench 1.7, add-workbench-bullseye-and-create 1.6, add-dashboard-repo-selector 1.6, add-workbench-branch-sessions 1.6) ----
+  # The family's FIRST manifest registration beyond contracts/README.md's doc
+  # index (the ideation-possibles-register precedent, contract-v1.14): the
+  # dashboard projection snapshot (staged-topic growth, add-staging-workbench),
+  # the gate-action record (create/document action growth per
+  # add-workbench-bullseye-and-create; session-verb 1.1/1.2 growth plus the
+  # D23 `provenance` block per add-workbench-branch-sessions 1.8), and the NEW
+  # snapshot-index locator (add-dashboard-repo-selector). All growth is
+  # additive — no contract_schema_version bump. Per-file sha256 over each
+  # schema's bytes. The delegated strict validator
+  # (scripts/validate-ideation-dashboard-contracts.py) stays content-addressed
+  # by commit; no per-file digest. Realized at the contract-v1.26 additive
+  # cut per docs/contract-versioning-policy.md.
+  - id: ideation-dashboard-snapshot
+    path: contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9fa47f6237358b0b61f6d50606b9788f25e067c79b8df462ea02fa14d438cd41
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The deterministic ideation-dashboard projection snapshot, including the
+      staging-workbench staged-topic growth (add-staging-workbench).
+      Consumers read snapshots emitted against this schema through their
+      pinned openxFactory checkout at the contract-v1.26 tag and MUST verify
+      the per-file sha256 before treating a copy as current. Snapshot referential integrity and every rule the shape
+      cannot express are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.
+  - id: gate-action-record
+    path: contracts/schemas/gate-action-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 15e2759fd6ed0cb1e95e4ece9a2e83e1ec5347b5217b08101a89d5dbfaa3e01b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The human-authenticated gate-console action audit record (D16/D17),
+      including the create/document action growth
+      (add-workbench-bullseye-and-create), the branch-session verb growth
+      (add-workbench-branch-sessions 1.1/1.2), and the D23 `provenance`
+      block — surface + console_presence, stamped where the fact is known
+      (add-workbench-branch-sessions 1.8). Consumed through the pinned
+      openxFactory checkout at the contract-v1.26 tag; per-file sha256
+      verified before any copy is treated as current.
+      The kickoff-ratification precondition and transition legality are
+      enforced by scripts/validate-ideation-dashboard-contracts.py (the
+      family's delegated owner), never re-implemented by consumers.
+  - id: ideation-dashboard-snapshot-index
+    path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 43acf0bb92abf95fc09b3705338b0fb68cfd0319a00bfc44d25811a6e2290000
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The thin (repository, ref) locator that enumerates available
+      ideation-dashboard snapshots and where each lives
+      (add-dashboard-repo-selector; design D3). The repository selector
+      renders this index and refresh re-fetches it. Consumed through the
+      pinned openxFactory checkout at the contract-v1.26 tag; per-file
+      sha256 verified before any copy is treated as current. Locator-side rules the shape cannot express are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.

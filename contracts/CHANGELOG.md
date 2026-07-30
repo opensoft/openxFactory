@@ -13,6 +13,26 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.26 — 2026-07-30 (additive; ideation-dashboard workbench family registration)
+
+Realizes the four predecessor registration tasks — `add-staging-workbench`
+1.7, `add-workbench-bullseye-and-create` 1.6, `add-dashboard-repo-selector`
+1.6, and `add-workbench-branch-sessions` 1.6 — as the family's first
+`contracts/manifest.yaml` registration beyond the README doc index (the
+ideation-possibles-register precedent, contract-v1.14). Per-file sha256
+entries for `ideation-dashboard-snapshot.schema.yaml` (staged-topic growth,
+add-staging-workbench), `gate-action-record.schema.yaml` (create/document
+action growth, add-workbench-bullseye-and-create; branch-session verb growth
+plus the D23 `provenance` block, add-workbench-branch-sessions 1.1/1.2/1.8),
+and the NEW `ideation-dashboard-snapshot-index.schema.yaml` locator
+(add-dashboard-repo-selector). README contract index rows updated. No schema
+bytes change at this cut — the growth landed additively with its owning
+changes; this cut registers the family's content-addressed identity in the
+manifest. No `contract_schema_version` bump; the delegated strict validator
+(`scripts/validate-ideation-dashboard-contracts.py`) stays content-addressed
+by commit. The four owning task checkboxes remain open until this exact
+candidate lands on published `origin/main` and the annotated tag verifies.
+
 ## contract-v1.25 — 2026-07-30 (additive; the semantic kernel publishes — the bootstrap window closes)
 
 Realizes **publish-semantic-kernel** (ratified 2026-07-30): the first
