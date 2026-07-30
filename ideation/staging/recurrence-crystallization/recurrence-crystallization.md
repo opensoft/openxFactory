@@ -133,7 +133,7 @@ restored, staged origin declared), and the crystallizer and authority
 fragments moved to its `supporting-docs/` with a hashed manifest — the
 topic keeps the steward and dials fragments for exit 3.
 
-Exit 3 was RAISED 2026-07-29 as
+Exit 3 was RAISED and RATIFIED 2026-07-29 as
 [add-capability-steward](../../../openspec/changes/add-capability-steward/proposal.md):
 the draft slices moved to the change (draft headers stripped, front-matter
 restored, staged origin declared), and the steward fragment moved to its

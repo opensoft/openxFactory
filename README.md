@@ -213,7 +213,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-capability-steward](openspec/changes/add-capability-steward/proposal.md)
-  — authored 2026-07-29; exit 3 (final) of the `recurrence-crystallization`
+  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
+  V1–V2 carried as design context); exit 3 (final) of the `recurrence-crystallization`
   staged topic (partial promotion — the dials register remains the topic's
   staged remainder): the crystallized-capability registry as the single
   source dispatch may read (proof-gated status spine; artifacts
