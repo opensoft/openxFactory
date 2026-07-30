@@ -11,7 +11,7 @@ kernel_pin:
 package_pin:
   package_id: xf/codex
   package_version: 1.1.0
-  package_digest: 117990ae0f3d86f0bf568f7201dd07c19ba05f05e38c2356c8c7763b89729de5
+  package_digest: d46024ae3de605ac3d377fbe082091b3a16b4f8bedc1a83a928e48fac828270e
 terms:
   - xf/codex/code_review
   - xf/codex/test_run
@@ -19,4 +19,4 @@ terms:
   - xf/core/evidence
 closure:
   status: closed
-content_digest: 48e4c19dfe54481ade1f4c79adae78c1bfab3893912bd47df7b9359c12b43938
+content_digest: b7af7e9d55785043ef87065073129e95646bca9fa134c5d879e36d80f744e2dd

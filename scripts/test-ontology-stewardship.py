@@ -150,6 +150,26 @@ def pkg_digest(pkg: Path) -> str:
     return yaml.safe_load((pkg / "package.yaml").read_text())["package_digest"]
 
 
+def stamp_package(pkg: Path) -> str:
+    """Restamp inventory sha256s + the package digest after a content edit
+    (the same rule the canonical validator recomputes)."""
+    import re
+    import yaml
+    mp = pkg / "package.yaml"
+    text = mp.read_text()
+    entries = []
+    for entry in yaml.safe_load(text)["inventory"]:
+        relp = entry["path"]
+        digest = hashlib.sha256((pkg / relp).read_bytes()).hexdigest()
+        pattern = re.compile(r"(- path: " + re.escape(relp) + r"\n(\s+)sha256: )[a-f0-9]+")
+        text = pattern.sub(lambda m: m.group(1) + digest, text)
+        entries.append(f"{relp} {digest}")
+    pd = hashlib.sha256("\n".join(sorted(entries)).encode()).hexdigest()
+    text = re.sub(r"(?m)^(package_digest: )[a-f0-9]+", r"\g<1>" + pd, text)
+    mp.write_text(text)
+    return pd
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ontology-stewardship-test-") as tmp:
         target = Path(tmp) / "repo"
@@ -212,6 +232,22 @@ def main() -> int:
                   "--quality-report", "quality-0.2.0.yaml")
         check("release: agent accountable identity refused (5.7)",
               res.returncode == 1 and "never publish" in res.stderr, res.stderr)
+
+        # -- release: draft terms cannot ride a publication (F18) -----------
+        res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
+                  "--compatibility-class", "additive",
+                  "--decided-by", "test-steward", "--release-id", "rel-draft-try",
+                  "--quality-report", "quality-0.2.0.yaml")
+        check("release: draft terms refuse publication (term-lifecycle)",
+              res.returncode == 1 and "draft term" in res.stderr, res.stderr)
+        # Steward act: mark every reviewed term published, restamp, and
+        # refresh the quality report over the new content digest.
+        concepts_path = pkg / "concepts.yaml"
+        concepts_path.write_text(concepts_path.read_text().replace(
+            "lifecycle_state: draft", "lifecycle_state: published"))
+        stamp_package(pkg)
+        old_digest = pkg_digest(pkg)
+        (pkg / "quality-0.2.0.yaml").write_text(GOOD_QUALITY.format(digest=old_digest))
 
         # -- release: quality gate blocks; exception releases ---------------
         (pkg / "poor-quality.yaml").write_text(POOR_QUALITY.format(digest=old_digest))

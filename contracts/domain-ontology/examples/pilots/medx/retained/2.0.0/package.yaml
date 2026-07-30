@@ -25,9 +25,9 @@ kernel_import:
   package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 inventory:
   - path: concepts.yaml
-    sha256: e70b531791beb34c14fcda7db22a085606999f08fa0df79764d6c39f0a281145
+    sha256: ca032f32f86ef60851e93d206cc351fb24a461898a0e8813fd77e5b1f66269b8
   - path: migration-2.0.0.yaml
-    sha256: af8cd562d2e33985650ad4744795c8d856ad4569f141c4a11a982fabe10f770c
+    sha256: ff7b1626fca86fefdbe9e8328840b9061e1d7bc9caa3c618a33c523818feb9ff
   - path: profile-generate.yaml
     sha256: 04399f8d5adec683d2400f86e93a596d879ca1bd5ee8c4194b9687a15a8ecb1a
   - path: profile-verify.yaml
@@ -36,16 +36,16 @@ inventory:
     sha256: 43df48ee9e7c87c1523c0e60eb0cfebf15e9eef19a17eb65535f16fc32f95f02
   - path: stewardship.yaml
     sha256: aaa9121eb251a75025b1976dc1989dbd4b637b851d94d8e9ff892cab64c4ac6e
-package_digest: d849e31c9c7d6f0df7000af008b44f1b94caadfba6a9ee85b9095c4fe736f751
+package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
 compatibility:
   class: breaking
   line: xf/medx@2
   previous:
     package_version: 1.0.0
-    package_digest: 6d3fec10e480ac6979b6cd65a23f244d187ede1c9e554e9d0c4af0fe5ce99196
+    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
   migration_map: migration-2.0.0.yaml
 supersedes:
   - package_version: 0.1.0
-    package_digest: 6d3fec10e480ac6979b6cd65a23f244d187ede1c9e554e9d0c4af0fe5ce99196
+    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
   - package_version: 1.0.0
-    package_digest: 6d3fec10e480ac6979b6cd65a23f244d187ede1c9e554e9d0c4af0fe5ce99196
+    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1

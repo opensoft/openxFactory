@@ -58,6 +58,12 @@ The rules the shapes cannot express (stable finding codes):
                         definition_quote permitted use
   ONT-COMPAT            a non-initial package without compatibility.previous,
                         or breaking/retiring without a migration map
+  ONT-TERM-LIFECYCLE    a draft term in a published/deprecated package, a
+                        term lifecycle moving backward across revisions, or
+                        a retired term in a profile or current-pin context
+  ONT-TERM-VERSION      meaning-bearing term content changed without an
+                        effective_version bump, or effective_version moving
+                        backward
   ONT-RETENTION         a referenced superseded/previous version whose
                         retained bytes are missing or digest-drifted
   ONT-PRIVATE           subject-instance URNs, tenant endpoints, or
@@ -180,6 +186,7 @@ RESERVED_FIELD_NAMES = {
     "token", "secret", "principal", "trust", "binding", "bindings",
     "authority_grant", "approval_effect", "executable_rule", "rule",
 }
+LIFECYCLE_ORDER = {"draft": 0, "published": 1, "deprecated": 2, "retired": 3}
 SUBJECT_URN = re.compile(r"urn:xfactory:subject:")
 OTHER_URN = re.compile(r"urn:xfactory:(?!subject:)")
 ENDPOINTISH = re.compile(r"://|\.internal\b|\.local\b|\.corp\b")
@@ -571,6 +578,17 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
     for dup in duplicate_ids(pkg):
         findings.append(Finding("ONT-ID-DUP", rel(mpath), f"duplicate identifier {dup}"))
 
+    # Term-level lifecycle discipline (add-ontology-term-lifecycle-enforcement):
+    # publication is a per-term steward decision — a published/deprecated
+    # package carries no draft term. A draft package stays the workshop.
+    if lifecycle in ("published", "deprecated"):
+        for tid, term in sorted(list(pkg.concepts.items()) + list(pkg.relations.items())):
+            if term.get("lifecycle_state") == "draft":
+                findings.append(Finding("ONT-TERM-LIFECYCLE", rel(mpath),
+                                        f"{lifecycle} package carries draft term {tid}; "
+                                        "mark each term published (or retire it) before "
+                                        "release"))
+
     # Label/alias uniqueness within the namespace.
     labels: dict[str, str] = {}
     for tid, term in list(pkg.concepts.items()) + list(pkg.relations.items()):
@@ -710,18 +728,22 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                                     "reproduce the referenced digest"))
 
     # Revision comparison: when the compatibility.previous version's retained
-    # content is resolvable, the declared class must match the edge rubric —
-    # a parent set change on a published concept, a relation domain/range
-    # change in EITHER direction, or a term removal is breaking (retiring for
-    # removals under a retiring release).
+    # content is resolvable, prior terms load for EVERY class — term
+    # lifecycle/version discipline (add-ontology-term-lifecycle-enforcement)
+    # applies to breaking and retiring revisions too. The edge rubric (a
+    # parent set change on a published concept, a relation domain/range
+    # change in EITHER direction, or a term removal is breaking) stays
+    # gated to non-breaking declared classes.
     prev_ref = compat.get("previous")
-    if prev_ref and compat.get("class") not in ("breaking", "retiring"):
+    if prev_ref:
         prev_dir = pkg.dir / "retained" / prev_ref.get("package_version", "?")
         prev_manifest = prev_dir / "package.yaml"
+        prior_concepts: dict[str, dict] = {}
+        prior_relations: dict[str, dict] = {}
+        prior_loaded = False
         if prev_manifest.is_file():
             prior = load_yaml(prev_manifest)
-            prior_concepts: dict[str, dict] = {}
-            prior_relations: dict[str, dict] = {}
+            prior_loaded = True
             for item in prior.get("inventory", []):
                 fp = prev_dir / item.get("path", "")
                 if not fp.is_file():
@@ -733,6 +755,59 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                     prior_concepts.setdefault(c["id"], c)
                 for r in doc.get("relations", []) or []:
                     prior_relations.setdefault(r["id"], r)
+        if prior_loaded:
+            # Term lifecycle moves only forward; meaning-bearing change bumps
+            # effective_version, which never moves backward (F18).
+            def semver(value) -> tuple:
+                try:
+                    return tuple(int(part) for part in str(value).split("."))
+                except ValueError:
+                    return (0,)
+
+            def check_term_discipline(tid: str, prev_term: dict, cur: dict,
+                                      meaning_fields: tuple) -> None:
+                old_state = prev_term.get("lifecycle_state")
+                new_state = cur.get("lifecycle_state")
+                if old_state in LIFECYCLE_ORDER and new_state in LIFECYCLE_ORDER \
+                        and LIFECYCLE_ORDER[new_state] < LIFECYCLE_ORDER[old_state]:
+                    findings.append(Finding("ONT-TERM-LIFECYCLE", rel(mpath),
+                                            f"{tid}: lifecycle moved backward "
+                                            f"({old_state} -> {new_state}); retirement is "
+                                            "permanent and identity reuse is breaking "
+                                            "under a new identifier"))
+                changed = []
+                for field in meaning_fields:
+                    old_v, new_v = prev_term.get(field), cur.get(field)
+                    if isinstance(old_v, list) or isinstance(new_v, list):
+                        if set(old_v or []) != set(new_v or []):
+                            changed.append(field)
+                    elif old_v != new_v:
+                        changed.append(field)
+                old_ver = semver(prev_term.get("effective_version"))
+                new_ver = semver(cur.get("effective_version"))
+                if new_ver < old_ver:
+                    findings.append(Finding("ONT-TERM-VERSION", rel(mpath),
+                                            f"{tid}: effective_version moved backward "
+                                            f"({prev_term.get('effective_version')} -> "
+                                            f"{cur.get('effective_version')})"))
+                elif changed and new_ver == old_ver:
+                    findings.append(Finding("ONT-TERM-VERSION", rel(mpath),
+                                            f"{tid}: meaning-bearing content changed "
+                                            f"({', '.join(changed)}) without an "
+                                            "effective_version bump"))
+
+            for tid, prev_term in sorted(prior_concepts.items()):
+                cur = pkg.concepts.get(tid)
+                if cur is not None:
+                    check_term_discipline(tid, prev_term, cur,
+                                          ("label", "aliases", "definition", "parents"))
+            for tid, prev_rel in sorted(prior_relations.items()):
+                cur = pkg.relations.get(tid)
+                if cur is not None:
+                    check_term_discipline(tid, prev_rel, cur,
+                                          ("label", "definition", "domain", "range",
+                                           "characteristics", "parents"))
+        if prior_loaded and compat.get("class") not in ("breaking", "retiring"):
             for tid, prev_term in sorted(prior_concepts.items()):
                 cur = pkg.concepts.get(tid)
                 if cur is None:
@@ -815,13 +890,25 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                                     "recorded, reviewed exception"))
 
     # Worker-profile rules (ONT-PROFILE): every required term resolves in
-    # the package or its kernel, so a compiled worker context is well-defined.
+    # the package or its kernel, so a compiled worker context is well-defined
+    # — and none of them is retired (retired terms refuse new compilation).
     for fpath, prof in pkg.profiles:
         for tid in prof.get("required_terms", []):
             if not resolvable(tid):
                 findings.append(Finding("ONT-PROFILE", rel(fpath),
                                         f"profile {prof.get('profile_id')}: required term "
                                         f"{tid} does not resolve"))
+                continue
+            tdef = pkg.concepts.get(tid) or pkg.relations.get(tid)
+            if tdef is None and not pkg.is_kernel and tid.startswith("xf/core/"):
+                k = resolve_kernel()
+                if k is not None:
+                    tdef = k.concepts.get(tid) or k.relations.get(tid)
+            if tdef is not None and tdef.get("lifecycle_state") == "retired":
+                findings.append(Finding("ONT-TERM-LIFECYCLE", rel(fpath),
+                                        f"profile {prof.get('profile_id')}: required term "
+                                        f"{tid} is retired; retired terms refuse new "
+                                        "worker contexts"))
 
     # Maintenance-report rules (ONT-MAINTENANCE): a fired trigger names its
     # mode and the candidate(s) it opened.
@@ -943,6 +1030,16 @@ def check_context(ctx: dict, fpath: Path, pkg: Package | None, resolve_kernel,
         return None
 
     terms = set(ctx.get("terms", []))
+    # Retired terms refuse new compilation: a context at the CURRENT package
+    # digest cannot carry one (add-ontology-term-lifecycle-enforcement);
+    # contexts pinned at prior digests keep their original interpretation.
+    if pin.get("package_digest") == pkg.manifest.get("package_digest"):
+        for tid in sorted(terms):
+            tdef = lookup_concept(tid) or lookup_relation(tid)
+            if tdef is not None and tdef.get("lifecycle_state") == "retired":
+                findings.append(Finding("ONT-TERM-LIFECYCLE", rel(fpath),
+                                        f"context subset includes retired term {tid}; "
+                                        "retired terms refuse new compilation"))
     closure = ctx.get("closure", {})
     omitted = set(closure.get("omitted", []) or [])
     missing: list[str] = []

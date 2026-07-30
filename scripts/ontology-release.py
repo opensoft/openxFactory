@@ -119,6 +119,26 @@ def main() -> int:
     if "UNASSIGNED" in str(steward.get("name", "")):
         return refuse("the accountable steward is an unassigned placeholder")
 
+    # Term-level lifecycle (add-ontology-term-lifecycle-enforcement):
+    # publication is a per-term steward decision — refuse while any term is
+    # draft rather than silently promoting it. Deprecation/retirement of the
+    # package itself is exempt (the package is leaving service, not landing).
+    if args.lifecycle == "published":
+        draft_terms: list[str] = []
+        for item in manifest.get("inventory", []):
+            fp = pkg_dir / item.get("path", "")
+            if fp.is_file():
+                doc = load(fp)
+                if isinstance(doc, dict):
+                    for term in (doc.get("concepts") or []) + (doc.get("relations") or []):
+                        if term.get("lifecycle_state") == "draft":
+                            draft_terms.append(str(term.get("id")))
+        if draft_terms:
+            shown = ", ".join(sorted(draft_terms)[:5])
+            more = f" (+{len(draft_terms) - 5} more)" if len(draft_terms) > 5 else ""
+            return refuse(f"draft term(s) cannot ride a publication: {shown}{more}; "
+                          "mark each term published (or retire it) before release")
+
     # Migration + consumer-impact evidence (breaking/retiring).
     if args.compatibility_class in ("breaking", "retiring"):
         if not args.migration_map:

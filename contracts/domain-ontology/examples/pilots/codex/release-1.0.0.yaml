@@ -3,7 +3,7 @@ kind: xfactory_ontology_release_record
 release_id: rel-codex-first
 package_id: xf/codex
 package_version: 1.0.0
-package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+package_digest: f2b5bde5880b155831b561cbfdea3656a22650aa27a35f34c6678b9258ba7b10
 compatibility_class: additive
 decided_by: codex-ontology-steward
 quality_report_ref: quality-first.yaml

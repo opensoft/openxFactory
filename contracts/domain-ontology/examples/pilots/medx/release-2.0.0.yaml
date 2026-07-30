@@ -3,7 +3,7 @@ kind: xfactory_ontology_release_record
 release_id: rel-medx-break
 package_id: xf/medx
 package_version: 2.0.0
-package_digest: d849e31c9c7d6f0df7000af008b44f1b94caadfba6a9ee85b9095c4fe736f751
+package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
 compatibility_class: breaking
 decided_by: medx-ontology-steward
 migration_map_ref: migration-2.0.0.yaml

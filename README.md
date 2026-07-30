@@ -255,6 +255,19 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
+- [add-ontology-term-lifecycle-enforcement](openspec/changes/add-ontology-term-lifecycle-enforcement/proposal.md)
+  — authored and ratified 2026-07-30, landing F18 (the first carried-forward
+  finding from the ontology release review): term-level `lifecycle_state`
+  and `effective_version` become enforced, never decorative. A published
+  package carries no draft term (the release tool refuses — publication is
+  a per-term steward decision), term lifecycle only moves forward across
+  revisions (resurrection fails validation, every compatibility class),
+  meaning-bearing changes bump `effective_version`, and retired terms
+  refuse new compilation at the compile tool, in worker profiles, and in
+  current-pin contexts. ADDED requirement in `domain-ontology-lifecycle`;
+  MODIFIED `Bounded semantic context` in `xfactory-semantic-kernel`. No
+  schema bytes change (target_release: none); archives on merged + green
+  realization evidence.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and

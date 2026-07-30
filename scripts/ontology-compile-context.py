@@ -155,6 +155,19 @@ def main() -> int:
                 subset.add(member)
                 queue.append(member)
 
+    # Retired terms refuse new compilation
+    # (add-ontology-term-lifecycle-enforcement): whether requested directly
+    # or pulled in by closure, a retired identifier keeps historical
+    # interpretation under its original pins only.
+    retired = sorted(
+        tid for tid in subset
+        if ((lookup_concept(tid) or lookup_relation(tid) or {})
+            .get("lifecycle_state") == "retired"))
+    if retired:
+        return refuse("retired term(s) in the requested subset or its closure: "
+                      + ", ".join(retired) + "; new classification against a "
+                      "retired identifier fails closed")
+
     # Tenant binding: exact package identity, every target resolves.
     binding_block: list[str] = []
     binding_ref = None

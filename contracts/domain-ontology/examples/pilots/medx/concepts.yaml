@@ -9,113 +9,113 @@ concepts:
     label: "Patient"
     definition: "Starter-seeded subject kind specialization from intake item 'Patient'; awaiting Domain Hermes review."
     parents: [xf/core/subject]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/treatment
     label: "Treatment"
     definition: "Starter-seeded focal item kind specialization from intake item 'Treatment'; awaiting Domain Hermes review."
     parents: [xf/core/focal_item, xf/core/intervention]
-    lifecycle_state: draft
-    effective_version: 0.1.0
+    lifecycle_state: published
+    effective_version: 0.2.0
   - id: xf/medx/care_plan
     label: "Care Plan"
     definition: "Starter-seeded focal item kind specialization from intake item 'Care Plan'; awaiting Domain Hermes review."
     parents: [xf/core/focal_item]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/condition
     label: "Condition"
     definition: "Starter-seeded focal item kind specialization from intake item 'Condition'; awaiting Domain Hermes review."
     parents: [xf/core/focal_item]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/intake_review
     label: "Intake Review"
     definition: "Starter-seeded workflow specialization from intake item 'Intake Review'; awaiting Domain Hermes review."
     parents: [xf/core/workflow]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/care_plan_review
     label: "Care Plan Review"
     definition: "Starter-seeded workflow specialization from intake item 'Care Plan Review'; awaiting Domain Hermes review."
     parents: [xf/core/workflow]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/chart_review
     label: "Chart Review"
     definition: "Starter-seeded activity specialization from intake item 'Chart Review'; awaiting Domain Hermes review."
     parents: [xf/core/activity]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/triage_assessment
     label: "Triage Assessment"
     definition: "Starter-seeded activity specialization from intake item 'Triage Assessment'; awaiting Domain Hermes review."
     parents: [xf/core/activity]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/intake
     label: "Intake"
     definition: "Starter-seeded journey state specialization from intake item 'Intake'; awaiting Domain Hermes review."
     parents: [xf/core/journey_state]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/diagnosis
     label: "Diagnosis"
     definition: "Starter-seeded journey state specialization from intake item 'Diagnosis'; awaiting Domain Hermes review."
     parents: [xf/core/journey_state]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/treatment_planning
     label: "Treatment Planning"
     definition: "Starter-seeded journey state specialization from intake item 'Treatment Planning'; awaiting Domain Hermes review."
     parents: [xf/core/journey_state]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/active_treatment
     label: "Active Treatment"
     definition: "Starter-seeded journey state specialization from intake item 'Active Treatment'; awaiting Domain Hermes review."
     parents: [xf/core/journey_state]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/monitoring
     label: "Monitoring"
     definition: "Starter-seeded journey state specialization from intake item 'Monitoring'; awaiting Domain Hermes review."
     parents: [xf/core/journey_state]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/stabilized
     label: "Stabilized"
     definition: "Starter-seeded outcome specialization from intake item 'Stabilized'; awaiting Domain Hermes review."
     parents: [xf/core/outcome]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/care_gap_closed
     label: "Care Gap Closed"
     definition: "Starter-seeded outcome specialization from intake item 'Care Gap Closed'; awaiting Domain Hermes review."
     parents: [xf/core/outcome]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/follow_up_call
     label: "Follow Up Call"
     definition: "Starter-seeded intervention specialization from intake item 'Follow Up Call'; awaiting Domain Hermes review."
     parents: [xf/core/intervention]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/clinician_review_packet
     label: "Clinician Review Packet"
     definition: "Starter-seeded intervention specialization from intake item 'Clinician Review Packet'; awaiting Domain Hermes review."
     parents: [xf/core/intervention]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/lab_report
     label: "Lab Report"
     definition: "Starter-seeded evidence type specialization from intake item 'Lab Report'; awaiting Domain Hermes review."
     parents: [xf/core/evidence]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0
   - id: xf/medx/encounter_note
     label: "Encounter Note"
     definition: "Starter-seeded evidence type specialization from intake item 'Encounter Note'; awaiting Domain Hermes review."
     parents: [xf/core/evidence]
-    lifecycle_state: draft
+    lifecycle_state: published
     effective_version: 0.1.0

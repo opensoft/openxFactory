@@ -79,12 +79,19 @@ triggers over a governed input and opens mode-mapped candidates append-only
 anywhere in the input fails the run closed before any bytes land);
 `scripts/ontology-release.py` performs the governed version transition —
 accountable-steward gate (worker/agent identities prepare, never publish),
-migration AND consumer-impact evidence for breaking/retiring, the policy
+the per-term publication gate (draft terms cannot ride a publication:
+Domain Hermes marks each term published or retires it first —
+add-ontology-term-lifecycle-enforcement), migration AND consumer-impact
+evidence for breaking/retiring, the policy
 quality gate (a report is always required; each `--quality-exception
 SIGNAL=REF` releases exactly one signal's threshold with its recorded
 review — there is no blanket exception), byte-true self-retention of the
 published version at publication, and a new compatibility line on
-breaking. Exercised end-to-end by `scripts/test-ontology-stewardship.py`.
+breaking. Term lifecycle only moves forward across revisions and
+meaning-bearing changes bump `effective_version`; retired terms refuse
+new compilation at the compile tool, in worker profiles, and in
+current-pin contexts. Exercised end-to-end by
+`scripts/test-ontology-stewardship.py`.
 
 Stable finding codes (each with at least one indexed negative fixture):
 
@@ -103,6 +110,7 @@ Stable finding codes (each with at least one indexed negative fixture):
 | ONT-MAPPING-UNREGISTERED | mapping to an unregistered or non-external system |
 | ONT-LICENSE | quoted definition without a `definition_quote` permitted use |
 | ONT-COMPAT / ONT-RETENTION | missing previous/migration map; missing retained bytes |
+| ONT-TERM-LIFECYCLE / ONT-TERM-VERSION | draft term in a published package; backward term lifecycle; retired term in a profile or current-pin context; meaning change without an effective_version bump |
 | ONT-PRIVATE | subject-instance URNs or endpoint-shaped values in content |
 | ONT-AUTHORITY-FIELD / ONT-AUTHORITY-TARGET | reserved authority field; authority-plane instance reference |
 | ONT-CANDIDATE / ONT-RELEASE | run-identity, steward-disposition, and accountable-publication rules |
@@ -125,18 +133,21 @@ fixture coverage), `roster-twin-pair/` (two same-id packages with distinct
 digests and rosters — loose records resolve by exact digest, never first
 match), plus the retained MedxFactory/codexFactory pilot
 packages under `pilots/` (full release history, retained versions, worker
-contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 44 fixtures, one
-per finding rule — including two paired-revision cases (a parent added on
-a published concept and a relation range widened, each declared additive
+contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 49 fixtures, one
+per finding rule — including four paired-revision cases (a parent added on
+a published concept, a relation range widened, a retired term resurrected,
+and a meaning change without an `effective_version` bump, each judged
 against retained prior bytes), a prose identifier/endpoint leak, a
 duplicated kernel adopter counted once, a domain package squatting the
-kernel namespace, and two loose worker-attributed release records whose
+kernel namespace, two loose worker-attributed release records whose
 packages ARE in the tree (the roster rule, not the orphan rule — one
-single-package, one requiring digest disambiguation between the twins) —
+single-package, one requiring digest disambiguation between the twins),
+and the term-lifecycle set (a draft term in a published package, a retired
+term in a worker profile, a retired term in a current-pin context) —
 each declaring `# expected_failure:` (and, where a code covers several
 rules, `# expected_failure_detail:`); the self-test fails closed if a
 positive fails, a negative stops failing for its declared reason, or the
-corpus drops below its pinned minimum of 44. Repo scans run in their own
+corpus drops below its pinned minimum of 49. Repo scans run in their own
 registry scope: a consumer's loose records resolve against the consumer's
 packages only, never against these fixtures.
 

@@ -1,0 +1,16 @@
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-negx-retired
+purpose: fixture
+kernel_pin:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+package_pin:
+  package_id: xf/negx
+  package_version: 1.0.0
+  package_digest: 7343e2791a26d3553d5ab3d1ad97828541db8817014dd2f4f187f2c96c475eaf
+terms: [xf/negx/old_thing]
+closure:
+  status: closed
+content_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

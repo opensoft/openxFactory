@@ -3,7 +3,7 @@ kind: xfactory_ontology_consumer_impact_report
 from_package:
   package_id: xf/codex
   package_version: 1.0.0
-  package_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+  package_digest: f2b5bde5880b155831b561cbfdea3656a22650aa27a35f34c6678b9258ba7b10
 to_package:
   package_id: xf/codex
   package_version: 1.1.0
@@ -11,4 +11,4 @@ affected_terms:
   - xf/codex/decomposition
 consumer_pins:
   - consumer: codexFactory hermes/domain/ontology
-    pin_digest: c49c33069694fac934f8df81779abe5d24210dbc128f722812c8fda192eaa99c
+    pin_digest: f2b5bde5880b155831b561cbfdea3656a22650aa27a35f34c6678b9258ba7b10

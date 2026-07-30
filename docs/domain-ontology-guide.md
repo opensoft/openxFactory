@@ -98,8 +98,14 @@ error, not a class. Breaking/retiring ships a migration map (which joins
 the digest-covered inventory), starts a new compatibility line, and
 requires explicit consumer re-pins. The validator compares revisions
 against retained prior bytes, so a misdeclared edge is caught
-(`ONT-COMPAT`). The kernel follows the same rubric; only openxFactory
-classifies kernel revisions.
+(`ONT-COMPAT`). Term-level state is enforced the same way
+(add-ontology-term-lifecycle-enforcement): a published package carries no
+draft term (the release tool refuses — publication is a per-term steward
+decision), term lifecycle only moves forward (`draft → published →
+deprecated → retired`; resurrection fails validation), and a
+meaning-bearing change bumps that term's `effective_version`
+(`ONT-TERM-LIFECYCLE` / `ONT-TERM-VERSION`). The kernel follows the same
+rubric; only openxFactory classifies kernel revisions.
 
 ## 6. Migration, retention, rollback
 
@@ -123,7 +129,9 @@ No surface issues an unrestricted ontology corpus.
 contexts — closed over specialization ancestors and relation endpoints,
 or itemized-truncated where the profile allows — with exact kernel and
 package pins, tenant bindings failing closed on any mismatch, and
-retired packages refusing new compilation. Worker-scoped profiles
+retired packages AND retired terms refusing new compilation (a retired
+identifier keeps historical interpretation under its original pins only;
+prior-pin contexts are never retroactively invalidated). Worker-scoped profiles
 (`xfactory_semantic_context_profile`, per archetype or class) are the
 Omnigent seam: one small digest-pinned context per worker, permission
 matrix untouched. Compiled projections (graph, relational, vector,
@@ -137,7 +145,7 @@ contracts and preflights it before provider I/O.
 
 `validate-domain-ontology.py --determinism` (10 positive units incl. the
 Medx/codex pilots, the published-kernel adoption pair, and the roster
-twins, 44 indexed negatives),
+twins, 49 indexed negatives),
 `test-domain-starter-ontology.py`, `test-ontology-stewardship.py`,
 `test-semantic-context.py`, the overlay validator's generated-domain
 completeness rule, and the pilot record

@@ -31,6 +31,7 @@ medx generate: exit 0            (19 concepts seeded across 8 kernel parents)
 medx ingest (colliding + clean): exit 1 (conflict recorded: True)
 medx readiness with unresolved conflict: blocked (domain_scaffold_required)
 medx conflict dispositioned: rejected by medx-ontology-steward
+medx steward act: seeded terms marked published before release
 medx first publication 0.1.0 -> 1.0.0 additive: exit 0
 medx breaking 1.0.0 -> 2.0.0 (reparent, migration + consumer impact shipped): exit 0, line xf/medx@2
 medx maintenance no-drift check recorded: exit 0
@@ -38,6 +39,7 @@ medx readiness: ontology_ready
 medx worker contexts (verify, generate): compiled, closed subsets
 medx canonical validation over pilot repo: exit 0
 codex generate: exit 0           (18 concepts seeded)
+codex steward act: seeded terms marked published before release
 codex first publication 0.1.0 -> 1.0.0 additive: exit 0
 codex below-gate release WITHOUT the per-signal exception refused: yes
 codex retiring 1.0.0 -> 1.1.0 (term retired, migration + consumer impact shipped): exit 0, line xf/codex@2
@@ -98,6 +100,12 @@ gateway expert example gains the same real semantic context
   report — there is no blanket exception form.
 - The memory-gateway semantic examples are stamped from the compiled medx
   pilot context, so every packet digest resolves against the pilot tree.
+- Term lifecycle is enforced (add-ontology-term-lifecycle-enforcement):
+  both pilots publish their seeded terms as an explicit steward act before
+  first release (the release tool refuses draft terms), the medx reparent
+  bumps `xf/medx/treatment` to `effective_version` 0.2.0, and the retired
+  `xf/codex/decomposition` refuses new context compilation while the
+  retained 1.0.0 pin keeps its original interpretation.
 - Pilot stewards are named placeholders for the real Domain Hermes rosters;
   the realized Medx roster now lives in MedxFactory
   (`hermes/domain/roles/`, ontology-steward persona + MxD-MRR council).

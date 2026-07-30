@@ -1,0 +1,25 @@
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+inventory:
+  - path: concepts.yaml
+    sha256: 68491a3bfa0aa206f31e75eb9bd0f0539ec7eb349659aa318c48a77f325e8c64
+package_digest: 282e6dc5e6206dc056d23a198a98132d1ce36ef044d82c74a3f3515e6c7a1066
+compatibility:
+  class: initial
+  line: xf/negx@1
