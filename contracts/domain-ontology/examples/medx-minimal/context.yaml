@@ -15,4 +15,4 @@ package_pin:
 terms: [xf/medx/patient, xf/core/subject]
 closure:
   status: closed
-content_digest: c7ce30d9c6d8e26a9746842b6e1c065ed1ce6566d6e4e0894d5a5f0925d13440
+content_digest: ed060800dc91e1df8c6969fd0a864f7e72668352755a782ddb57250649ec25d3

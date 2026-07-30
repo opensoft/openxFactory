@@ -40,5 +40,31 @@ memory gateway, MedxFactory validate, OpenSpec strict — all green.
 - [x] 3.2 Truncation itemization is transitive in the compile tool, and `validate-domain-ontology.py` fails a truncated context whose itemization omits a transitive closure member; new negative `truncation-not-transitive`; ratchet 49 → 50 (F19).
 - [x] 4.1 MedxFactory: two worker-scoped profiles inventoried into the draft ontology package (verify archetype-scoped; `case_framing_agent` class-scoped), `semantic_context` declared on `data_reverification_agent` and `case_framing_agent`, overlay-manifest re-pinned, repo-mode + `make validate` green; codexFactory and install repos recorded as deferrals through their own governed changes.
 - [x] 4.2 Battery: omnigent validator (schemas, wired examples, negatives), new wiring test suite, ontology self-test + determinism (50 negatives), compile-tool suites, memory gateway, MedxFactory validate, OpenSpec strict all green.
-- [ ] 4.3 Cut contract-v1.23 (omnigent schema bytes changed): manifest digests refreshed, CHANGELOG entry, digest inventory, annotated tag pushed, remote bytes independently verified.
+Release + review (4.3–4.4): contract-v1.23 cut bfa57d1, inventory + tag
+3a99bfa, `verify-tag`/`verify-commit` pass against origin; the reviewer
+independently recomputed all 179 inventory entries (0 mismatches) and
+both refreshed omnigent schema digests. Round-1 verification at 3a99bfa:
+areas 1–8 PASS (six overlay attacks incl. class-equality-wins; install
+checks both directions; F19 verified on a 4-ring chain both tool- and
+validator-side; F20 verified against the real kernel drifted in place;
+MedxFactory consumer; disclosed gateway-example repair independently
+confirmed) — BLOCKED on **N5**: the artifact `content_digest` was
+compared but never recomputed, so a body widened after sealing passed
+every gate; plus non-blocking N6 (standalone duplicate collapse) and N7
+(pre-existing stale `contracts/manifest.yaml` digest with no checker).
+The N5 wave: `install_wiring_errors` AND the canonical ontology
+validator recompute the digest from artifact bytes with the compile
+tool's own derivation ("a seal, not a label"); the ratified requirement
+amended from "declared content_digest" to recomputed, with the
+body-widened scenario; every fixture context now carries a REAL seal
+(generator derivation shared); new negative `context-body-widened`
+(corpus 51, ratchet 51); wiring suite gains the widened-body and
+standalone-duplicate probes (16 checks). N6: duplicate `worker_class`
+counted before the dict collapses. N7: entry refreshed
+(content-manifest.schema.yaml, stale since 403c2b5) and
+`scripts/validate-manifest-digests.py` added — recomputes every per-file
+sha256 in `contracts/manifest.yaml` (104 verify; it reproduced the 1/104
+mismatch before the refresh), closing the class.
+
+- [x] 4.3 Cut contract-v1.23 (omnigent schema bytes changed): manifest digests refreshed, CHANGELOG entry, digest inventory, annotated tag pushed, remote bytes independently verified.
 - [ ] 4.4 Reviewer verification against the release candidate; docs (omnigent README, ontology guide seam section, adoption handoff) updated; archive on green evidence with README moved Active → Archived.

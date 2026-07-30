@@ -1,6 +1,6 @@
 schema_version: 1
 kind: xfactory_semantic_context
-context_id: ctx-negx-unclosed
+context_id: ctx-negx-widened
 purpose: fixture
 kernel_pin:
   package_id: xf/core
@@ -9,8 +9,8 @@ kernel_pin:
 package_pin:
   package_id: xf/negx
   package_version: 1.0.0
-  package_digest: a6871eec24b091454a711966163167af036d59f36f2823c56cac86b184bc6dfe
-terms: [xf/negx/thing]
+  package_digest: 2f63f4890c9e9a27749e8c5d2ceddc8a494a810d0b35ac94cd71675478daec9a
+terms: [xf/negx/thing, xf/negx/smuggled, xf/core/subject]
 closure:
   status: closed
-content_digest: d646338f6eb0310b4093df834d6275f3ad32115f45128a77cc13c8acfe646785
+content_digest: 0801b3a881b01cd32903ffb48d2d27050166666dc5a9e717d14c0a596935b50b

@@ -39,6 +39,7 @@ Exit code 0 only if every check passes.
 
 from __future__ import annotations
 
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -219,8 +220,14 @@ def install_wiring_errors(manifest: dict, overlay: dict,
     canonical ontology validator over the same artifact bytes."""
     errors: list[str] = []
     sem = (manifest or {}).get("semantic_contexts") or {}
-    entries = {str(e.get("worker_class")): e
-               for e in sem.get("contexts") or [] if isinstance(e, dict)}
+    entry_list = [e for e in sem.get("contexts") or [] if isinstance(e, dict)]
+    classes = [str(e.get("worker_class")) for e in entry_list]
+    for wc in sorted({c for c in classes if classes.count(c) > 1}):
+        # Standalone parity with semantic_errors (review finding N6): the
+        # canonical function must not silently collapse duplicates.
+        errors.append(f"$.semantic_contexts: duplicate worker_class '{wc}' "
+                      "(one compiled context per declaring worker)")
+    entries = {str(e.get("worker_class")): e for e in entry_list}
     declaring = {str(w.get("id")): w for w in (overlay or {}).get("workers") or []
                  if isinstance(w, dict) and w.get("semantic_context")}
     for wid in sorted(set(declaring) - set(entries)):
@@ -248,6 +255,17 @@ def install_wiring_errors(manifest: dict, overlay: dict,
         if doc.get("content_digest") != entry.get("content_digest"):
             errors.append(f"$.semantic_contexts[{wid}]: artifact content_digest "
                           "disagrees with the pinned entry")
+        # The digest is a SEAL, not a label (review finding N5): recompute it
+        # from the artifact bytes with the compile tool's own derivation, so
+        # a widened body with an untouched digest line fails closed.
+        raw = fp.read_text(encoding="utf-8")
+        body, sep, _tail = raw.rpartition("\ncontent_digest: ")
+        recomputed = (hashlib.sha256((body + "\ncontent_digest:").encode("utf-8"))
+                      .hexdigest() if sep else None)
+        if recomputed != entry.get("content_digest"):
+            errors.append(f"$.semantic_contexts[{wid}]: content_digest does not "
+                          "recompute from the artifact bytes — the worker would "
+                          "receive terms its profile never authorized")
         for pin_name, pin in (("kernel_pin", kernel_pin),
                               ("package_pin", package_pin)):
             embedded = doc.get(pin_name) or {}

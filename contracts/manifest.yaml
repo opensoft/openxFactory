@@ -829,7 +829,7 @@ contracts:
     source_path: openxFactory/contracts/hermes-domain-overlay/content-manifest.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9511794f7a97828d1c072060ccb1bd3e26046f6b51d965b7f37bb3b7e879cc10
+    sha256: d45a8c89dd404e35f85e3778bb01ea5573b72cecc0823f3067456f5c65c13b29  # refreshed 2026-07-30 — stale since 403c2b5 (domain_ontology content kind, add-domain-ontology-layer §4); caught by review finding N7
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

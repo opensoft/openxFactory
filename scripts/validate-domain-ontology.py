@@ -981,6 +981,20 @@ def check_context(ctx: dict, fpath: Path, pkg: Package | None, resolve_kernel,
     closure = ctx.get("closure", {})
     # Package-independent rules run FIRST (release-review finding 7): a
     # travelling context is checked wherever it lands.
+    # The content digest is a SEAL, not a label (release-review finding N5):
+    # recompute it from the artifact bytes with the compile tool's own
+    # derivation — a widened body with an untouched digest line fails here.
+    try:
+        raw = fpath.read_text()
+    except OSError:
+        raw = ""
+    body, sep, _tail = raw.rpartition("\ncontent_digest: ")
+    if sep:
+        recomputed = hashlib.sha256((body + "\ncontent_digest:").encode("utf-8")).hexdigest()
+        if recomputed != str(ctx.get("content_digest")):
+            findings.append(Finding("ONT-CONTEXT-PIN", rel(fpath),
+                                    "content_digest does not recompute from the artifact "
+                                    "bytes; the digest is a seal, not a label"))
     if closure.get("status") == "truncated" and not (closure.get("omitted") or []):
         findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
                                 "truncated context must itemize each omitted member"))
@@ -1289,10 +1303,10 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 50:
+    if neg_count < 51:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 50"))
+                              "pinned minimum of 51"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
     # Layer 2: optional repo scan. The scan gets its OWN registry scope

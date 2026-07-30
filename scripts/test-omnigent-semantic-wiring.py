@@ -268,6 +268,27 @@ def main() -> int:
               any("matches neither" in e for e in errors),
               "; ".join(errors))
 
+        # N5: widen the artifact BODY while leaving the digest line alone —
+        # the declared digest still matches the pinned entry, so only
+        # recomputation can catch it.
+        sealed = artifact.read_text()
+        widened = sealed.replace("terms:\n", "terms:\n  - xf/wired/smuggled\n", 1)
+        assert widened != sealed
+        artifact.write_text(widened)
+        errors = module.install_wiring_errors(manifest, overlay, install)
+        check("install wiring: widened body with untouched digest fails (N5)",
+              any("does not recompute" in e for e in errors),
+              "; ".join(errors))
+        artifact.write_text(sealed)
+
+        dup = yaml.safe_load(yaml.safe_dump(manifest))
+        dup["semantic_contexts"]["contexts"].append(
+            dict(dup["semantic_contexts"]["contexts"][0], context_id="ctx-dup"))
+        errors = module.install_wiring_errors(dup, overlay, install)
+        check("install wiring: duplicate worker_class entries fail standalone (N6)",
+              any("duplicate worker_class" in e for e in errors),
+              "; ".join(errors))
+
         # -- F20: drifted package bytes refuse compilation -------------------
         (pkg / "concepts.yaml").write_text(
             (pkg / "concepts.yaml").read_text() + "# drift\n")
