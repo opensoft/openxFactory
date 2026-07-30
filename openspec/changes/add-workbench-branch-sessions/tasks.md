@@ -41,18 +41,22 @@ registry.
       add-workbench-branch-sessions --strict` and `--all --strict`, plus the
       repo's contract validators green (0 errors, 0 warnings) with the new
       examples included.
-- [ ] 1.6 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.6 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`, README contract index) at the next additive
       bundle cut, per `docs/contract-versioning-policy.md`
       (registration-at-realization precedent). Covers the D23 `provenance`
       growth of 1.8 as well as the 1.1/1.2 growth.
-      Candidate 2026-07-30 on `release/doxbench-predecessor-contracts`: the
-      gate-action-record manifest entry (per-file sha256, covering the
-      1.1/1.2 session-verb growth and the 1.8 D23 `provenance` block), the
-      contract-v1.26 CHANGELOG registration, and the README contract index
-      attribution are prepared, with the digest inventory built. Open until
-      the exact candidate lands on published origin/main and the annotated
-      contract-v1.26 tag verifies.
+      Realized at contract-v1.26 (2026-07-30): the gate-action-record
+      manifest entry (per-file sha256, covering the 1.1/1.2 session-verb
+      growth and the 1.8 D23 `provenance` block), the contract-v1.26
+      CHANGELOG registration, and the README contract index attribution
+      landed through PR #43, published merge
+      `4efa9d0e2c7d21f2abf3cd7e55f41b74afed97f9` (tree byte-identical to
+      the reviewed candidate). Annotated tag object
+      `bf20357d8452e7e02ff15811f1912ec691d01cfb` dereferences to that
+      merge; verify-promotion and verify-tag pass. Gates at the merge SHA:
+      verify-commit over the 179-entry release inventory, manifest digests
+      107/107, strict family validator 0/0, OpenSpec --all --strict 57/57.
 - [x] 1.7 AMENDMENT, 2026-07-27 (Brett's D23 ruling; a shipped-feature amendment
       of RATIFIED text, recorded not silent): narrow the two ratified scenarios
       that promised an agent-refusal the console-presence control cannot deliver

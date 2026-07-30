@@ -34,14 +34,17 @@
       (`scripts/validate-ideation-dashboard-contracts.py`) plus
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`; every
       packaged snapshot example still validates unchanged.
-- [ ] 1.7 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.7 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`) at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`.
-      Candidate 2026-07-30 on `release/doxbench-predecessor-contracts`: the
-      snapshot schema's manifest entry (per-file sha256) is registered at
-      the allocated contract-v1.26 cut (CHANGELOG heading + digest
-      inventory). Open until the exact candidate lands on published
-      origin/main and the annotated contract-v1.26 tag verifies.
+      Realized at contract-v1.26 (2026-07-30): the snapshot schema's
+      manifest entry (per-file sha256) landed through PR #43, published
+      merge `4efa9d0e2c7d21f2abf3cd7e55f41b74afed97f9` (tree byte-identical
+      to the reviewed candidate). Annotated tag object
+      `bf20357d8452e7e02ff15811f1912ec691d01cfb` dereferences to that merge;
+      verify-promotion and verify-tag pass. Gates at the merge SHA:
+      verify-commit over the 179-entry release inventory, manifest digests
+      107/107, strict family validator 0/0, OpenSpec --all --strict 57/57.
 
 ## 2. Generator scoring + health (codexFactory — Speckit-side realization)
 

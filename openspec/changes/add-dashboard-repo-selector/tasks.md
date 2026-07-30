@@ -31,16 +31,19 @@
       add-dashboard-repo-selector --strict` and `--all --strict`, plus
       `python3 scripts/validate-ideation-dashboard-contracts.py . --strict`
       green (0 errors, 0 warnings) with the new examples included.
-- [ ] 1.6 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.6 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`, README contract index) at the next additive
       bundle cut, per `docs/contract-versioning-policy.md`
       (registration-at-realization precedent).
-      Candidate 2026-07-30 on `release/doxbench-predecessor-contracts`: the
-      snapshot-index manifest entry (per-file sha256), the contract-v1.26
-      CHANGELOG registration, and the new README contract index row are
-      prepared, with the digest inventory built. Open until the exact
-      candidate lands on published origin/main and the annotated
-      contract-v1.26 tag verifies.
+      Realized at contract-v1.26 (2026-07-30): the snapshot-index manifest
+      entry (per-file sha256), the contract-v1.26 CHANGELOG registration,
+      and the new README contract index row landed through PR #43,
+      published merge `4efa9d0e2c7d21f2abf3cd7e55f41b74afed97f9` (tree
+      byte-identical to the reviewed candidate). Annotated tag object
+      `bf20357d8452e7e02ff15811f1912ec691d01cfb` dereferences to that merge;
+      verify-promotion and verify-tag pass. Gates at the merge SHA:
+      verify-commit over the 179-entry release inventory, manifest digests
+      107/107, strict family validator 0/0, OpenSpec --all --strict 57/57.
 
 ## 2. Snapshot source seam and registry (codexFactory)
 
