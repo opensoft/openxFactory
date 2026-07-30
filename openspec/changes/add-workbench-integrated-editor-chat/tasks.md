@@ -8,7 +8,20 @@
       evidence slots under `evidence/d10/`. Preparation only — this task
       stays open until the pass runs and every clause records its own
       evidence and sign-off.
-- [ ] 1.4 Complete each predecessor's pending contract-manifest/release registration and any dashboard-repository publication/credential wiring required by its own task list.
+- [x] 1.4 Complete each predecessor's pending contract-manifest/release registration and any dashboard-repository publication/credential wiring required by its own task list.
+      Realized 2026-07-30: all four owning registration tasks
+      (`add-staging-workbench` 1.7, `add-workbench-bullseye-and-create` 1.6,
+      `add-dashboard-repo-selector` 1.6, `add-workbench-branch-sessions`
+      1.6) landed in contract-v1.26 through PR #43, published merge
+      `4efa9d0e2c7d21f2abf3cd7e55f41b74afed97f9`; the annotated tag object
+      `bf20357d8452e7e02ff15811f1912ec691d01cfb` dereferences to that merge,
+      with verify-promotion, verify-tag, and every release gate passing
+      (179-entry inventory, manifest digests 107/107, family validator 0/0,
+      OpenSpec 57/57). Evidence closure landed through PR #44, merge
+      `589343b8c3453f816b24ebd3b29190343412559a`. No predecessor
+      registration, publication, or credential-wiring task remains open in
+      any predecessor ledger; only the Brett live-pass clauses (this
+      change's 1.3) and the archive chain (1.5/1.6) remain.
 - [ ] 1.5 Archive the predecessor chain in dependency order: `add-ideation-dashboard` → `add-propose-verb` → `add-staging-workbench` → `add-workbench-bullseye-and-create` → `add-dashboard-repo-selector` → `add-workbench-branch-sessions`; verify `openspec/specs/ideation-dashboard/spec.md` exists after the chain completes.
       Progress 2026-07-30: the first chain element `add-ideation-dashboard`
       archived on 2026-07-29 (openxFactory `main` commit `366f04f`, archive
