@@ -25,7 +25,7 @@ context_packet:
     - audit://medx/packet-medx-verify-0001
   semantic_context:
     semantic_context_id: ctx-medx-verify-pilot
-    content_digest: 32eac5a8f141e564d1cbc270bf192bda9c4cfff9c01e536403cbe66285315eec
+    content_digest: 144d5df3a0364e853202b9b9bdac58e056146a26766da200f1f5930963673227
     purpose: classification for a verify worker
     worker_scope:
       worker_archetype: verify
@@ -36,7 +36,7 @@ context_packet:
     package_pin:
       package_id: xf/medx
       package_version: 2.0.0
-      package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
+      package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
     term_subset:
       - xf/core/focal_item
       - xf/core/intervention

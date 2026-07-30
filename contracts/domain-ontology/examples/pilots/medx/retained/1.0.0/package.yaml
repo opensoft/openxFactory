@@ -6,7 +6,7 @@ package_id: xf/medx
 package_version: 1.0.0
 namespace: xf/medx
 is_kernel: false
-lifecycle_state: published
+lifecycle_state: superseded
 owner:
   layer: domain_hermes
   name: "MedxFactory Domain Hermes"
@@ -24,6 +24,8 @@ kernel_import:
   package_version: 0.1.0
   package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 inventory:
+  - path: STARTER.yaml
+    sha256: 55be4ae0ca33a9a9bb02be40e337dd3495d539e011fdcc40c7de631e57b7d756
   - path: concepts.yaml
     sha256: aae92ef4e9b98c6bfb19173e97411ccc1e925816c93326e720540dcea04b946a
   - path: profile-generate.yaml
@@ -34,13 +36,14 @@ inventory:
     sha256: 43df48ee9e7c87c1523c0e60eb0cfebf15e9eef19a17eb65535f16fc32f95f02
   - path: stewardship.yaml
     sha256: aaa9121eb251a75025b1976dc1989dbd4b637b851d94d8e9ff892cab64c4ac6e
-package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
 compatibility:
   class: additive
   line: xf/medx@1
   previous:
     package_version: 0.1.0
-    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+    package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
 supersedes:
   - package_version: 0.1.0
-    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+    package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
+notes: "Starter-seeded draft awaiting Domain Hermes review; unresolved semantic inputs at generation: 0."

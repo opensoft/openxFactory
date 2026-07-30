@@ -65,7 +65,8 @@ The rules the shapes cannot express (stable finding codes):
                         effective_version bump, or effective_version moving
                         backward
   ONT-RETENTION         a referenced superseded/previous version whose
-                        retained bytes are missing or digest-drifted
+                        retained bytes are missing or digest-drifted, or a
+                        retained snapshot not marked superseded
   ONT-PRIVATE           subject-instance URNs, tenant endpoints, or
                         identifier-bearing values in ontology content
   ONT-FLOOR             a term-level quality signal below the aggregation
@@ -162,6 +163,11 @@ PACKAGE_CONTENT_KINDS = {
     "xfactory_ontology_migration_map",
     "xfactory_ontology_stewardship_policy",
     "xfactory_semantic_context_profile",
+    # The starter marker is digest-covered CONTENT
+    # (add-ontology-stewardship-hardening, F25): deleting it breaks the
+    # package digest, so a generated domain can never silently shed its
+    # generated status.
+    "xfactory_ontology_starter_provenance",
 }
 PACKAGE_RECORD_KINDS = {
     "xfactory_ontology_candidate_record",
@@ -172,7 +178,6 @@ PACKAGE_RECORD_KINDS = {
     "xfactory_ontology_maintenance_input",
     "xfactory_ontology_review_fixtures",
     "xfactory_ontology_coverage_gap_report",
-    "xfactory_ontology_starter_provenance",
     "xfactory_ontology_consumer_impact_report",
 }
 PACKAGE_FILE_KINDS = PACKAGE_CONTENT_KINDS
@@ -699,6 +704,13 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                                     "bytes are missing"))
             continue
         prev = load_yaml(retained)
+        # A snapshot is history from birth (F21): its manifest declares
+        # superseded, never the lifecycle it had while active.
+        if prev.get("lifecycle_state") != "superseded":
+            findings.append(Finding("ONT-RETENTION", rel(retained),
+                                    f"retained snapshot declares lifecycle_state "
+                                    f"{prev.get('lifecycle_state')!r}; a snapshot is "
+                                    "born superseded"))
         if prev.get("package_digest") != ref.get("package_digest"):
             findings.append(Finding("ONT-RETENTION", rel(retained),
                                     f"retained version {version} digest differs from the reference"))
@@ -888,6 +900,16 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
             findings.append(Finding("ONT-FLOOR", rel(mpath),
                                     "policy declares a distinct-subject floor below two without a "
                                     "recorded, reviewed exception"))
+        # Cadence applicability (add-ontology-stewardship-hardening, F26):
+        # the policy's source-review cadence needs a deadline to apply to —
+        # every external-kind source carries review_by.
+        for sysid, src in sorted(pkg.sources.items()):
+            if str(src.get("source_kind", "")).startswith("external_") and \
+                    not src.get("review_by"):
+                findings.append(Finding("ONT-POLICY", rel(mpath),
+                                        "policy declares a source-review cadence but "
+                                        f"external source {sysid!r} has no review_by "
+                                        "deadline for it to apply to"))
 
     # Worker-profile rules (ONT-PROFILE): every required term resolves in
     # the package or its kernel, so a compiled worker context is well-defined
@@ -1303,10 +1325,10 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 51:
+    if neg_count < 55:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 51"))
+                              "pinned minimum of 55"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
     # Layer 2: optional repo scan. The scan gets its OWN registry scope
@@ -1375,6 +1397,24 @@ def readiness(pkg_dir: Path) -> int:
         m = pkg.manifest
         if m.get("lifecycle_state") != "published":
             reasons.append(f"lifecycle_state is {m.get('lifecycle_state')!r}, not published")
+        # Structural placeholder detection (add-ontology-stewardship-
+        # hardening, F24): the starter marker RECORDS what it seeded, so a
+        # renamed placeholder never reads ready. The string heuristics below
+        # remain as defense-in-depth only.
+        marker = next((doc for doc in pkg.files.values()
+                       if doc.get("kind") == "xfactory_ontology_starter_provenance"),
+                      None)
+        if marker is not None:
+            recorded = marker.get("placeholders") or {}
+            roster_ids = {s.get("steward_id") for s in m.get("stewards", [])}
+            for tid in recorded.get("terms") or []:
+                if tid in pkg.concepts or tid in pkg.relations:
+                    reasons.append(f"marker-recorded placeholder term {tid} "
+                                   "awaits Domain Hermes review")
+            for sid in recorded.get("stewards") or []:
+                if sid in roster_ids:
+                    reasons.append(f"marker-recorded placeholder steward {sid} "
+                                   "awaits assignment")
         for s in m.get("stewards", []):
             if "UNASSIGNED" in str(s.get("name", "")):
                 reasons.append(f"steward {s.get('steward_id')} is an unassigned placeholder")

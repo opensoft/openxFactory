@@ -3,7 +3,7 @@ kind: xfactory_ontology_release_record
 release_id: rel-codex-retire
 package_id: xf/codex
 package_version: 1.1.0
-package_digest: d46024ae3de605ac3d377fbe082091b3a16b4f8bedc1a83a928e48fac828270e
+package_digest: 624f6bd589691ffb86e7f7291defedf064de2a87baaccdbd0ad55f211e22be83
 compatibility_class: retiring
 decided_by: codex-ontology-steward
 migration_map_ref: migration-1.1.0.yaml

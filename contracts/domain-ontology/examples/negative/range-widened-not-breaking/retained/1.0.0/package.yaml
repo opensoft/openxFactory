@@ -4,7 +4,7 @@ package_id: xf/negx
 package_version: 1.0.0
 namespace: xf/negx
 is_kernel: false
-lifecycle_state: published
+lifecycle_state: superseded
 owner:
   layer: domain_hermes
   name: Fixture owner

@@ -1,7 +1,7 @@
 schema_version: 1
 kind: xfactory_ontology_maintenance_report
 package_id: xf/medx
-package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
+package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
 as_of: '2026-07-29'
 input_ref: "no-drift.yaml"
 triggers_evaluated:

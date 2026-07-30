@@ -249,6 +249,20 @@ def main() -> int:
         old_digest = pkg_digest(pkg)
         (pkg / "quality-0.2.0.yaml").write_text(GOOD_QUALITY.format(digest=old_digest))
 
+        # -- release: evidence paths cannot escape the package (F21) --------
+        res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
+                  "--compatibility-class", "additive",
+                  "--decided-by", "test-steward", "--release-id", "rel-escape-try",
+                  "--quality-report", "../escape.yaml")
+        check("release: evidence path escaping the package refused (F21)",
+              res.returncode == 1 and "outside the package" in res.stderr,
+              res.stderr)
+        # A declared manifest field must survive the rewrite (F21): notes is
+        # manifest metadata, outside the inventory digest.
+        manifest_path = pkg / "package.yaml"
+        manifest_path.write_text(manifest_path.read_text()
+                                 + 'notes: "governed stewardship test package"\n')
+
         # -- release: quality gate blocks; exception releases ---------------
         (pkg / "poor-quality.yaml").write_text(POOR_QUALITY.format(digest=old_digest))
         res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
@@ -293,6 +307,14 @@ def main() -> int:
         check("release: published version self-retained at publication",
               (pkg / "retained/0.2.0/package.yaml").is_file()
               and pkg_digest(pkg) in (pkg / "retained/0.2.0/package.yaml").read_text())
+        check("release: retained snapshots born superseded (F21)",
+              "lifecycle_state: superseded"
+              in (pkg / "retained/0.2.0/package.yaml").read_text()
+              and "lifecycle_state: superseded"
+              in (pkg / "retained/0.1.0/package.yaml").read_text())
+        check("release: declared manifest fields survive the rewrite (F21)",
+              "governed stewardship test package"
+              in (pkg / "package.yaml").read_text())
 
         # -- release: breaking requires migration; new line -----------------
         res = run(str(RELEASE), str(pkg), "--new-version", "1.0.0",

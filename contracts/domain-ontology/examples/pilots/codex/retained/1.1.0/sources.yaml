@@ -7,3 +7,4 @@ sources:
     source_kind: external_standard
     license_class: open
     permitted_use: [reference, definition_quote]
+    review_by: '2027-01-01'

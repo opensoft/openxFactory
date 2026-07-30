@@ -40,9 +40,10 @@ structurally by closed shapes and the canonical validator, not by prose.
 
 Package layout: `package.yaml` + inventoried CONTENT files (concepts,
 relations, mappings, sources, migration maps, profiles, stewardship
-policy), digest-closed; RECORD files (candidates, releases, contexts,
-quality/maintenance/coverage/consumer-impact reports, review fixtures,
-starter provenance) sit BESIDE the inventory — they reference the package
+policy, and the STARTER provenance marker — inventoried so deleting it
+breaks the digest), digest-closed; RECORD files (candidates, releases,
+contexts, quality/maintenance/coverage/consumer-impact reports, review
+fixtures) sit BESIDE the inventory — they reference the package
 digest, so covering them would be self-referential. Superseded versions
 are retained under `retained/<version>/` while referenced; since the
 self-retention release flow, each release also snapshots the bytes it
@@ -86,7 +87,10 @@ evidence for breaking/retiring, the policy
 quality gate (a report is always required; each `--quality-exception
 SIGNAL=REF` releases exactly one signal's threshold with its recorded
 review — there is no blanket exception), byte-true self-retention of the
-published version at publication, and a new compatibility line on
+published version at publication (snapshots BORN lifecycle superseded —
+history self-describes), a faithful manifest rewrite that carries every
+declared field (adoption, notes), evidence paths contained inside the
+package (`../` escapes refuse), and a new compatibility line on
 breaking. Term lifecycle only moves forward across revisions and
 meaning-bearing changes bump `effective_version`; retired terms refuse
 new compilation at the compile tool, in worker profiles, and in
@@ -116,7 +120,7 @@ Stable finding codes (each with at least one indexed negative fixture):
 | ONT-CANDIDATE / ONT-RELEASE | run-identity, steward-disposition, and accountable-publication rules |
 | ONT-FLOOR / ONT-QUALITY | aggregation-floor and computable-signal rules |
 | ONT-CONTEXT-CLOSURE / ONT-CONTEXT-PIN / ONT-BINDING | subset closure, pin agreement, tenant-binding agreement |
-| ONT-POLICY / ONT-MAINTENANCE / ONT-PROFILE | council/quorum resolution; fired-trigger completeness; profile term resolution |
+| ONT-POLICY / ONT-MAINTENANCE / ONT-PROFILE | council/quorum resolution; a declared source-review cadence with no external review_by deadline; fired-trigger completeness; profile term resolution |
 | ONT-MANIFEST-PIN | content-manifest `domain_ontology` target missing or invalid |
 | ONT-SCHEMA | any other schema conformance failure |
 
@@ -133,7 +137,7 @@ fixture coverage), `roster-twin-pair/` (two same-id packages with distinct
 digests and rosters — loose records resolve by exact digest, never first
 match), plus the retained MedxFactory/codexFactory pilot
 packages under `pilots/` (full release history, retained versions, worker
-contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 49 fixtures, one
+contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 55 fixtures, one
 per finding rule — including four paired-revision cases (a parent added on
 a published concept, a relation range widened, a retired term resurrected,
 and a meaning change without an `effective_version` bump, each judged
@@ -142,12 +146,15 @@ duplicated kernel adopter counted once, a domain package squatting the
 kernel namespace, two loose worker-attributed release records whose
 packages ARE in the tree (the roster rule, not the orphan rule — one
 single-package, one requiring digest disambiguation between the twins),
-and the term-lifecycle set (a draft term in a published package, a retired
-term in a worker profile, a retired term in a current-pin context) —
+the term-lifecycle set (a draft term in a published package, a retired
+term in a worker profile, a retired term in a current-pin context), and
+the stewardship-hardening set (a retained snapshot not born superseded, a
+beside-package starter marker, an unbounded required quality signal, an
+external source with no review deadline) —
 each declaring `# expected_failure:` (and, where a code covers several
 rules, `# expected_failure_detail:`); the self-test fails closed if a
 positive fails, a negative stops failing for its declared reason, or the
-corpus drops below its pinned minimum of 49. Repo scans run in their own
+corpus drops below its pinned minimum of 55. Repo scans run in their own
 registry scope: a consumer's loose records resolve against the consumer's
 packages only, never against these fixtures.
 

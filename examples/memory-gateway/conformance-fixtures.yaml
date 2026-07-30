@@ -2,6 +2,12 @@ schema_version: 1
 kind: xfactory_memory_gateway_conformance_fixtures
 fixtures:
   - id: semantic_context_digest_mismatch_rejected
+    probe:
+      # add-ontology-stewardship-hardening (F27): executed against the
+      # canonical example packet — a pin whose digest resolves to no
+      # package manifest fails digest verification before provider I/O.
+      set:
+        semantic_context.package_pin.package_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -10,6 +16,9 @@ fixtures:
     asserts:
       - a packet whose semantic context fails digest verification is rejected before provider I/O
   - id: semantic_context_unpinned_package_rejected
+    probe:
+      delete:
+        - semantic_context.kernel_pin.package_digest
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -18,6 +27,9 @@ fixtures:
     asserts:
       - a semantic context naming a package the installation does not pin fails closed
   - id: semantic_context_retired_package_rejected
+    probe:
+      set:
+        semantic_context.lifecycle.package_lifecycle_state: retired
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -26,6 +38,9 @@ fixtures:
     asserts:
       - a retired ontology package is rejected for new classification before provider I/O
   - id: semantic_context_cross_purpose_rejected
+    probe:
+      set:
+        semantic_context.purpose: a different issuance purpose
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -34,6 +49,9 @@ fixtures:
     asserts:
       - a semantic context issued for one purpose is rejected as input to another; a new packet re-runs the rails
   - id: semantic_context_tenant_binding_mismatch_rejected
+    # Compile-time behavior: executed by the canonical ontology
+    # negative fixture, whose self-test asserts the rejection.
+    executed_by: contracts/domain-ontology/examples/negative/binding-package-mismatch.yaml
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -42,6 +60,9 @@ fixtures:
     asserts:
       - a tenant binding pinned to a different package than the context fails closed at compilation
   - id: semantic_context_unrestricted_corpus_refused
+    probe:
+      set:
+        semantic_context.term_subset: []
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: denied
@@ -50,6 +71,9 @@ fixtures:
     asserts:
       - no surface issues an unrestricted ontology corpus; compilation requires a purpose-bounded term subset or worker profile
   - id: semantic_context_provider_replacement_stable
+    # Determinism behavior: executed by the semantic-context suite's
+    # provider-replacement checks over recompiled artifacts.
+    executed_by: scripts/test-semantic-context.py
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: allowed
@@ -57,6 +81,11 @@ fixtures:
     asserts:
       - rebuilding the same pinned ontology in a different provider leaves identifiers, conformance results, and context digests unchanged
   - id: semantic_inference_cannot_authorize
+    probe:
+      # an authority-named key smuggled into the semantic block is
+      # rejected by the closed shape AND the authority walk.
+      set:
+        semantic_context.grant: repo_admin
     tier: M0
     operation: xfactory.memory.context_packet
     expected_decision: allowed

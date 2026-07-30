@@ -42,9 +42,15 @@ Hermes instantiates privately and never publishes. The full term-by-term
 inventory, collision/leak registers, identifier grammar, and recorded
 deferrals: [domain-ontology-semantic-decisions.md](domain-ontology-semantic-decisions.md).
 
-## 2. Generation: the ontology-aware starter (v13)
+## 2. Generation: the ontology-aware starter (v14)
 
-A new domain's pre-run answers (`ontology:` section — subject/focal-item
+Adoption runs on existing repositories use `--ontology-only`: only the
+ontology tree and the content-manifest declaration are written, the
+whole-repo scaffold never sprays, and the rerun report prints to
+stdout. The STARTER provenance marker is inventoried, digest-covered
+content (deleting it fails closed) and structurally records every
+seeded placeholder — readiness blocks on the RECORD, so a renamed
+placeholder never reads ready. A new domain's pre-run answers (`ontology:` section — subject/focal-item
 kinds, workflows, activities, journey states, outcomes, interventions,
 evidence types, external terminologies WITH license classes, governed
 sources, boundaries, stewards, reviewers) deterministically seed
@@ -111,6 +117,8 @@ rubric; only openxFactory classifies kernel revisions.
 
 Published bytes stay retrievable at their digest under
 `retained/<version>/` while referenced (`ONT-RETENTION` on deletion);
+every snapshot manifest is BORN `lifecycle_state: superseded` — history
+self-describes, and a snapshot claiming an active lifecycle fails;
 two pins may coexist during a migration window when every artifact
 records its exact pin; rollback re-pins new work and never rewrites a
 recorded identity. Existing domains migrate additively: the starter's
@@ -152,7 +160,7 @@ contracts and preflights it before provider I/O.
 
 `validate-domain-ontology.py --determinism` (10 positive units incl. the
 Medx/codex pilots, the published-kernel adoption pair, and the roster
-twins, 49 indexed negatives),
+twins, 55 indexed negatives),
 `test-domain-starter-ontology.py`, `test-ontology-stewardship.py`,
 `test-semantic-context.py`, the overlay validator's generated-domain
 completeness rule, and the pilot record

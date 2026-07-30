@@ -11,7 +11,7 @@ kernel_pin:
 package_pin:
   package_id: xf/medx
   package_version: 2.0.0
-  package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
+  package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
 terms:
   - xf/core/focal_item
   - xf/core/journey_state
@@ -20,4 +20,4 @@ terms:
   - xf/medx/intake
 closure:
   status: closed
-content_digest: 5892b4285a84e5cc7e5bbfaff9a59839bf17af765ba5df91a3754a5af3208343
+content_digest: 3e51625c6955f76a27bd3de9996d0942e417a275af8090843762c9dd4bf01dce

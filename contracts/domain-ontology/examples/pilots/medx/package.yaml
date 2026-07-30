@@ -24,10 +24,12 @@ kernel_import:
   package_version: 0.1.0
   package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 inventory:
+  - path: STARTER.yaml
+    sha256: 55be4ae0ca33a9a9bb02be40e337dd3495d539e011fdcc40c7de631e57b7d756
   - path: concepts.yaml
     sha256: ca032f32f86ef60851e93d206cc351fb24a461898a0e8813fd77e5b1f66269b8
   - path: migration-2.0.0.yaml
-    sha256: ff7b1626fca86fefdbe9e8328840b9061e1d7bc9caa3c618a33c523818feb9ff
+    sha256: 1438ee2098d532df211abba698351ef48aa534b40308157bc9294d8336763094
   - path: profile-generate.yaml
     sha256: 04399f8d5adec683d2400f86e93a596d879ca1bd5ee8c4194b9687a15a8ecb1a
   - path: profile-verify.yaml
@@ -36,16 +38,17 @@ inventory:
     sha256: 43df48ee9e7c87c1523c0e60eb0cfebf15e9eef19a17eb65535f16fc32f95f02
   - path: stewardship.yaml
     sha256: aaa9121eb251a75025b1976dc1989dbd4b637b851d94d8e9ff892cab64c4ac6e
-package_digest: f46816aafdcd9e45d15112246b1d64bb4de0e75264e890bbf7be8b38e8479971
+package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
 compatibility:
   class: breaking
   line: xf/medx@2
   previous:
     package_version: 1.0.0
-    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+    package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
   migration_map: migration-2.0.0.yaml
 supersedes:
   - package_version: 0.1.0
-    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+    package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
   - package_version: 1.0.0
-    package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+    package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
+notes: "Starter-seeded draft awaiting Domain Hermes review; unresolved semantic inputs at generation: 0."

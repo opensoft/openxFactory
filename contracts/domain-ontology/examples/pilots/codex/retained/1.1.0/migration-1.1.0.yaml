@@ -3,7 +3,7 @@ kind: xfactory_ontology_migration_map
 from_package:
   package_id: xf/codex
   package_version: 1.0.0
-  package_digest: f2b5bde5880b155831b561cbfdea3656a22650aa27a35f34c6678b9258ba7b10
+  package_digest: ffe3961f3eee434f9e2c04e82d5798b2478f20bbb25d144b3e3a13962b8df8b8
 to_package:
   package_id: xf/codex
   package_version: 1.1.0

@@ -2,7 +2,7 @@ schema_version: 1
 kind: xfactory_ontology_quality_report
 package_id: xf/medx
 package_version: 1.0.0
-package_digest: 9b44c8d941f95b7d2508ac0f776e562862e26c4c3c020ddfaa1b06854aff91b1
+package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
 window: {from: '2026-07-01', to: '2026-07-28'}
 signals:
   - signal: intake_scope_coverage

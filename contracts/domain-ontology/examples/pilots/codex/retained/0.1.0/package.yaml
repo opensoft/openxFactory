@@ -9,7 +9,7 @@ package_id: xf/codex
 package_version: 0.1.0
 namespace: xf/codex
 is_kernel: false
-lifecycle_state: draft
+lifecycle_state: superseded
 owner:
   layer: domain_hermes
   name: "codexFactory Domain Hermes"
@@ -27,13 +27,15 @@ inventory:
     sha256: 920946dc1a47da60976ea9fc32b6ce0e3981a7515ef8ee6b0a680649e043804b
   - path: profile-verify.yaml
     sha256: b3644b165b2bd81b6e77021262012c7c4fe9a4996adcd493efebdad78e6d8600
+  - path: STARTER.yaml
+    sha256: b3bdb2bfdce1c1afc0b892a21ad0ad1471c9135cdd71a85e9fc2e10b21cf2823
   - path: concepts.yaml
     sha256: 4652f9bb1c92b5b1feb18c86245a51faf970ceec57508952222c24ad299375c6
   - path: sources.yaml
-    sha256: 37e1d6acd71ac655d57275466d17f2be3bfca3351d3aecc6b3d31c2c1e7d0a47
+    sha256: a37b1d3ad377570274d882aa5b285acac5a28d8f5167be94922ea0541a2e1c9e
   - path: stewardship.yaml
     sha256: ca535d1665eedecc41ed5239d79320fd285b9a96966b1943a6f30151311930ef
-package_digest: f2b5bde5880b155831b561cbfdea3656a22650aa27a35f34c6678b9258ba7b10
+package_digest: ffe3961f3eee434f9e2c04e82d5798b2478f20bbb25d144b3e3a13962b8df8b8
 compatibility:
   class: initial
   line: xf/codex@1

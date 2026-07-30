@@ -89,7 +89,10 @@ REQUIRED_EXAMPLES = {
     "memory-binding.example.yaml",
 }
 
-REQUIRED_FIXTURE_IDS = {
+# The semantic-context fixture family is EXECUTED, never merely declared
+# (add-ontology-stewardship-hardening, F27): each carries a probe run
+# through the same preflight the examples get, or names its executed proof.
+SEMANTIC_FIXTURE_IDS = {
     "semantic_context_digest_mismatch_rejected",
     "semantic_context_unpinned_package_rejected",
     "semantic_context_retired_package_rejected",
@@ -98,6 +101,9 @@ REQUIRED_FIXTURE_IDS = {
     "semantic_context_unrestricted_corpus_refused",
     "semantic_context_provider_replacement_stable",
     "semantic_inference_cannot_authorize",
+}
+
+REQUIRED_FIXTURE_IDS = SEMANTIC_FIXTURE_IDS | {
     "read_denied_missing_consent",
     "read_denied_withdrawn_consent",
     "write_denied_missing_source_refs",
@@ -350,6 +356,59 @@ def _known_package_digests() -> dict[str, set[str]]:
     return known
 
 
+def packet_semantic_errors(packet: dict, where: str,
+                           known: dict[str, set[str]]) -> list[str]:
+    """The per-packet semantic preflight core — the SAME checks whether the
+    packet comes from an example file or a conformance-fixture probe
+    (add-ontology-stewardship-hardening, F27)."""
+    import re as _re
+    errors: list[str] = []
+    ctx = packet.get("semantic_context")
+    if ctx is None:
+        return errors
+    for key in ("semantic_context_id", "content_digest", "purpose",
+                "kernel_pin", "package_pin", "term_subset", "lifecycle"):
+        if key not in ctx:
+            errors.append(f"{where} semantic_context missing {key}")
+    if not _re.match(r"^[a-f0-9]{64}$", str(ctx.get("content_digest", ""))):
+        errors.append(f"{where} semantic_context content_digest is not a sha256")
+    for pin_name in ("kernel_pin", "package_pin"):
+        pin = ctx.get(pin_name) or {}
+        digest = str(pin.get("package_digest", ""))
+        if not _re.match(r"^[a-f0-9]{64}$", digest):
+            errors.append(f"{where} {pin_name} lacks an exact digest; "
+                          "an unpinned package fails closed")
+        elif digest not in known.get(str(pin.get("package_id")), set()):
+            errors.append(f"{where} {pin_name} {pin.get('package_id')}@"
+                          f"{digest[:12]}... does not resolve to any package "
+                          "manifest under contracts/domain-ontology; a pin "
+                          "that resolves nowhere fails closed")
+    if ctx.get("purpose") != packet.get("purpose"):
+        errors.append(f"{where} semantic_context purpose differs from the packet "
+                      "purpose; cross-purpose reuse requires a new packet")
+    state = (ctx.get("lifecycle") or {}).get("package_lifecycle_state")
+    if state not in ("published", "deprecated"):
+        errors.append(f"{where} semantic_context package lifecycle {state!r} "
+                      "rejected before provider I/O")
+    if not ctx.get("term_subset"):
+        errors.append(f"{where} semantic_context term_subset is empty; an "
+                      "unrestricted ontology corpus is never issued")
+    # The whole packet, not only the semantic block, is walked for
+    # authority-named keys (release-review finding 11).
+    stack: list[Any] = [packet]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k.lower() in SEMANTIC_AUTHORITY_KEYS:
+                    errors.append(f"{where} packet carries authority-named "
+                                  f"key {k!r}; semantic context never grants")
+                stack.append(v)
+        elif isinstance(node, list):
+            stack.extend(node)
+    return errors
+
+
 def validate_semantic_context(errors: list[str]) -> None:
     """Semantic-context preflight (add-domain-ontology-layer, tasks 6.2/6.3):
     every example packet carrying a semantic_context block is checked the way
@@ -368,55 +427,77 @@ def validate_semantic_context(errors: list[str]) -> None:
             packet = doc.get(packet_key)
             if not isinstance(packet, dict):
                 continue
-            ctx = packet.get("semantic_context")
-            if ctx is None:
+            if packet.get("semantic_context") is None:
                 continue
             checked_kinds.add(packet_key)
-            where = f"{example.name}:{packet_key}"
-            for key in ("semantic_context_id", "content_digest", "purpose",
-                        "kernel_pin", "package_pin", "term_subset", "lifecycle"):
-                if key not in ctx:
-                    errors.append(f"{where} semantic_context missing {key}")
-            import re as _re
-            if not _re.match(r"^[a-f0-9]{64}$", str(ctx.get("content_digest", ""))):
-                errors.append(f"{where} semantic_context content_digest is not a sha256")
-            for pin_name in ("kernel_pin", "package_pin"):
-                pin = ctx.get(pin_name) or {}
-                digest = str(pin.get("package_digest", ""))
-                if not _re.match(r"^[a-f0-9]{64}$", digest):
-                    errors.append(f"{where} {pin_name} lacks an exact digest; "
-                                  "an unpinned package fails closed")
-                elif digest not in known.get(str(pin.get("package_id")), set()):
-                    errors.append(f"{where} {pin_name} {pin.get('package_id')}@"
-                                  f"{digest[:12]}... does not resolve to any package "
-                                  "manifest under contracts/domain-ontology; a pin "
-                                  "that resolves nowhere fails closed")
-            if ctx.get("purpose") != packet.get("purpose"):
-                errors.append(f"{where} semantic_context purpose differs from the packet "
-                              "purpose; cross-purpose reuse requires a new packet")
-            state = (ctx.get("lifecycle") or {}).get("package_lifecycle_state")
-            if state not in ("published", "deprecated"):
-                errors.append(f"{where} semantic_context package lifecycle {state!r} "
-                              "rejected before provider I/O")
-            if not ctx.get("term_subset"):
-                errors.append(f"{where} semantic_context term_subset is empty; an "
-                              "unrestricted ontology corpus is never issued")
-            # The whole packet, not only the semantic block, is walked for
-            # authority-named keys (release-review finding 11).
-            stack: list[Any] = [packet]
-            while stack:
-                node = stack.pop()
-                if isinstance(node, dict):
-                    for k, v in node.items():
-                        if k.lower() in SEMANTIC_AUTHORITY_KEYS:
-                            errors.append(f"{where} packet carries authority-named "
-                                          f"key {k!r}; semantic context never grants")
-                        stack.append(v)
-                elif isinstance(node, list):
-                    stack.extend(node)
+            errors.extend(packet_semantic_errors(
+                packet, f"{example.name}:{packet_key}", known))
     for packet_key in ("context_packet", "expert_context_packet"):
         if packet_key not in checked_kinds:
             errors.append(f"no {packet_key} example exercises semantic_context")
+
+
+def _apply_probe(packet: dict, probe: dict) -> dict:
+    """Apply a fixture probe (dotted-path set/delete mutations) to a deep
+    copy of the canonical packet."""
+    import copy
+    mutated = copy.deepcopy(packet)
+
+    def walk(path: str):
+        parts = path.split(".")
+        node = mutated
+        for part in parts[:-1]:
+            node = node.setdefault(part, {})
+        return node, parts[-1]
+
+    for path, value in (probe.get("set") or {}).items():
+        node, leaf = walk(str(path))
+        node[leaf] = value
+    for path in probe.get("delete") or []:
+        node, leaf = walk(str(path))
+        node.pop(leaf, None)
+    return mutated
+
+
+def validate_fixture_probes(errors: list[str]) -> None:
+    """Executable conformance fixtures (add-ontology-stewardship-hardening,
+    F27): every semantic-context fixture either carries a probe — a mutation
+    of the canonical example packet EXECUTED through the same preflight the
+    examples get, asserting rejection — or names the artifact that executes
+    the behavior, whose resolution is verified. Declarative-only semantic
+    fixtures fail."""
+    data = load_yaml(EXAMPLE_DIR / "conformance-fixtures.yaml")
+    fixtures = {f.get("id"): f for f in data.get("fixtures", [])}
+    canonical = load_yaml(EXAMPLE_DIR / "semantic-context-packet.example.yaml")
+    base_packet = canonical.get("context_packet") or {}
+    known = _known_package_digests()
+    schema = _packet_schemas()["context_packet"]
+    validator = jsonschema.validators.validator_for(schema)(schema)
+    for fixture_id in sorted(SEMANTIC_FIXTURE_IDS):
+        fixture = fixtures.get(fixture_id)
+        if fixture is None:
+            continue  # absence reported by validate_fixtures
+        probe = fixture.get("probe")
+        executed_by = fixture.get("executed_by")
+        if probe:
+            mutated = _apply_probe(base_packet, probe)
+            probe_errors = packet_semantic_errors(mutated, fixture_id, known)
+            probe_errors += [e.message for e in
+                             validator.iter_errors({"schema_version": 1,
+                                                    "context_packet": mutated})]
+            if not probe_errors:
+                errors.append(f"fixture {fixture_id}: probe executed but the "
+                              "mutated packet was NOT rejected — the fixture "
+                              "promises behavior nothing enforces")
+        elif executed_by:
+            if not (ROOT / str(executed_by)).exists():
+                errors.append(f"fixture {fixture_id}: executed_by "
+                              f"{executed_by!r} does not resolve — a dangling "
+                              "delegate is a declarative fixture")
+        else:
+            errors.append(f"fixture {fixture_id}: neither probe nor executed_by "
+                          "— semantic-context fixtures are executed, never "
+                          "merely declared")
 
 
 def validate_fixtures(errors: list[str]) -> None:
@@ -516,6 +597,7 @@ def main() -> int:
     validate_packet_schemas(errors)
     validate_semantic_context(errors)
     validate_fixtures(errors)
+    validate_fixture_probes(errors)
     validate_runtime_smoke(errors)
     if errors:
         for error in errors:

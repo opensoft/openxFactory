@@ -100,6 +100,19 @@ def main() -> int:
     old_version = str(manifest.get("package_version"))
     old_digest = str(manifest.get("package_digest"))
 
+    # Evidence-path containment (add-ontology-stewardship-hardening, F21):
+    # every release-evidence reference resolves INSIDE the package.
+    for flag_name, value in (("--migration-map", args.migration_map),
+                             ("--quality-report", args.quality_report),
+                             ("--consumer-impact", args.consumer_impact)):
+        if value is None:
+            continue
+        try:
+            (pkg_dir / value).resolve().relative_to(pkg_dir)
+        except ValueError:
+            return refuse(f"{flag_name} {value!r} resolves outside the package "
+                          "directory; evidence lives inside the package")
+
     if not re.match(r"^[0-9]+\.[0-9]+\.[0-9]+$", args.new_version):
         return refuse("new version must be semver-shaped")
     if args.new_version == old_version:
@@ -237,7 +250,16 @@ def main() -> int:
                               "releasing — history is never rewritten")
         if not args.dry_run:
             retained_old.mkdir(parents=True)
-            shutil.copy2(manifest_path, retained_old / "package.yaml")
+            # A snapshot is history from BIRTH (F21): its manifest declares
+            # superseded so no consumer mistakes it for the active state.
+            # Content bytes are copied verbatim; only the snapshot manifest's
+            # lifecycle line differs, and it is never mutated afterward.
+            retained_manifest = re.sub(r"(?m)^lifecycle_state: .*$",
+                                       "lifecycle_state: superseded",
+                                       manifest_path.read_text(encoding="utf-8"),
+                                       count=1)
+            (retained_old / "package.yaml").write_text(retained_manifest,
+                                                       encoding="utf-8")
             for rel in inventory_paths:
                 src = pkg_dir / rel
                 dst = retained_old / rel
@@ -307,6 +329,20 @@ def main() -> int:
     for ref in supersedes:
         lines += [f"  - package_version: {ref['package_version']}",
                   f"    package_digest: {ref['package_digest']}"]
+    # Faithful rewrite (add-ontology-stewardship-hardening, F21): every
+    # declared field of the ratified shape survives the transition — a
+    # kernel release never sheds its adoption evidence.
+    if manifest.get("adoption") is not None:
+        adoption = manifest["adoption"]
+        lines.append("adoption:")
+        lines.append(f"  status: {adoption.get('status')}")
+        if adoption.get("adopters"):
+            lines.append("  adopters:")
+            for adopter in adoption["adopters"]:
+                lines += [f"    - kind: {adopter.get('kind')}",
+                          f"      ref: {adopter.get('ref')}"]
+    if manifest.get("notes"):
+        lines.append(f"notes: {json.dumps(str(manifest['notes']))}")
     manifest_text = "\n".join(lines) + "\n"
 
     release_lines = [
@@ -339,9 +375,13 @@ def main() -> int:
         manifest_path.write_text(manifest_text, encoding="utf-8")
         release_path.write_text(release_text, encoding="utf-8")
         # Self-retention: the published bytes become their own history NOW,
-        # so no later edit can ever masquerade as this version.
+        # so no later edit can ever masquerade as this version. The snapshot
+        # manifest is born superseded (F21) — history from birth.
         retained_new.mkdir(parents=True)
-        (retained_new / "package.yaml").write_text(manifest_text, encoding="utf-8")
+        (retained_new / "package.yaml").write_text(
+            re.sub(r"(?m)^lifecycle_state: .*$", "lifecycle_state: superseded",
+                   manifest_text, count=1),
+            encoding="utf-8")
         for rel in new_inventory:
             src = pkg_dir / rel
             dst = retained_new / rel

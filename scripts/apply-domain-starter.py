@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover - friendly CLI failure
     yaml = None
 
 
-STARTER_VERSION = 13  # v13: domain-ontology draft scaffold + content-manifest declaration (add-domain-ontology-layer §4)
+STARTER_VERSION = 14  # v14: --ontology-only adoption mode, inventoried STARTER marker, structural placeholders (add-ontology-stewardship-hardening); v13: domain-ontology draft scaffold + content-manifest declaration (add-domain-ontology-layer §4)
 STARTER_NAME = "openxFactory/domain-factory-starter-pack"
 
 
@@ -3188,7 +3188,8 @@ def is_placeholder(value: object) -> bool:
     return text.startswith("<") and text.endswith(">")
 
 
-def seed_concepts(domain_id: str, onto: dict, log: RunLog) -> tuple[list[dict], dict]:
+def seed_concepts(domain_id: str, onto: dict,
+                  log: RunLog) -> tuple[list[dict], dict, list[str]]:
     concepts: list[dict] = []
     seen: dict[str, str] = {}
     gaps: dict[str, list] = {
@@ -3231,15 +3232,21 @@ def seed_concepts(domain_id: str, onto: dict, log: RunLog) -> tuple[list[dict], 
                     f"Starter-seeded {kind_label} specialization from intake item "
                     f"'{term_label(item)}'; awaiting Domain Hermes review."),
             })
+    placeholder_terms: list[str] = []
     if not concepts:
+        placeholder_id = f"xf/{domain_id}/placeholder_subject"
         concepts.append({
-            "id": f"xf/{domain_id}/placeholder_subject",
+            "id": placeholder_id,
             "label": "Placeholder Subject",
             "parent": "xf/core/subject",
             "definition": ("Starter-seeded placeholder awaiting intake answers "
                            "and Domain Hermes review."),
         })
-    return concepts, gaps
+        # Structural record (add-ontology-stewardship-hardening, F24): the
+        # marker lists what was seeded as placeholder, so readiness never
+        # depends on the placeholder keeping its name.
+        placeholder_terms.append(placeholder_id)
+    return concepts, gaps, placeholder_terms
 
 
 def seed_sources(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
@@ -3286,7 +3293,8 @@ def seed_sources(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
     return sources
 
 
-def seed_stewards(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
+def seed_stewards(ctx: DomainContext, onto: dict,
+                  log: RunLog) -> tuple[list[dict], list[str]]:
     stewards = []
     for item in onto.get("stewards") or []:
         if isinstance(item, dict) and item.get("steward_id") and \
@@ -3297,17 +3305,20 @@ def seed_stewards(ctx: DomainContext, onto: dict, log: RunLog) -> list[dict]:
                 "identity_kind": item.get("identity_kind") or "human",
                 "name": str(item.get("name") or item["steward_id"]),
             })
+    placeholder_stewards: list[str] = []
     if not any(s["role"] == "accountable_steward" for s in stewards):
+        placeholder_id = f"{ctx.domain_id}-ontology-steward".replace("_", "-")
         stewards.insert(0, {
-            "steward_id": f"{ctx.domain_id}-ontology-steward".replace("_", "-"),
+            "steward_id": placeholder_id,
             "role": "accountable_steward",
             "identity_kind": "human",
             "name": "UNASSIGNED accountable ontology steward (placeholder)",
         })
+        placeholder_stewards.append(placeholder_id)
         log.unresolved.append(
             ("ontology.stewards",
              "accountable ontology steward unassigned; required before publication"))
-    return stewards
+    return stewards, placeholder_stewards
 
 
 def render_concepts_yaml(domain_id: str, concepts: list[dict]) -> str:
@@ -3549,19 +3560,32 @@ def render_review_fixtures(domain_id: str, concepts: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render_starter_marker(ctx: DomainContext) -> str:
-    return "\n".join([
+def render_starter_marker(ctx: DomainContext, placeholder_terms: list[str],
+                          placeholder_stewards: list[str]) -> str:
+    lines = [
         "schema_version: 1",
         f"kind: {ONTOLOGY_STARTER_KIND}",
         "# The deterministic ontology-aware starter marker the generated-domain",
         "# completeness check keys on (hermes-domain-overlay delta): a repo",
         "# carrying this marker must declare domain_ontology in its content",
-        "# manifest.",
+        "# manifest. INVENTORIED package content (add-ontology-stewardship-",
+        "# hardening, F25): deleting it breaks the package digest. The",
+        "# placeholders block is the STRUCTURAL record readiness blocks on",
+        "# (F24) — resolution is a Domain Hermes review edit, never a rename.",
         f"starter: {STARTER_NAME}",
         f"starter_version: {STARTER_VERSION}",
         "ontology_aware: true",
         f"package_id: xf/{ctx.domain_id}",
-    ]) + "\n"
+    ]
+    if placeholder_terms or placeholder_stewards:
+        lines.append("placeholders:")
+        if placeholder_terms:
+            lines.append("  terms:")
+            lines += [f"    - {t}" for t in placeholder_terms]
+        if placeholder_stewards:
+            lines.append("  stewards:")
+            lines += [f"    - {s}" for s in placeholder_stewards]
+    return "\n".join(lines) + "\n"
 
 
 def render_ontology_readme(ctx: DomainContext) -> str:
@@ -3599,15 +3623,19 @@ def generate_ontology(target: Path, ctx: DomainContext, args: argparse.Namespace
             "ERROR ontology: openxFactory kernel package unreadable; scaffold skipped")
         return
     onto = resolve_ontology_answers(target, args, log)
-    concepts, gaps = seed_concepts(ctx.domain_id, onto, log)
+    concepts, gaps, placeholder_terms = seed_concepts(ctx.domain_id, onto, log)
     sources = seed_sources(ctx, onto, log)
-    stewards = seed_stewards(ctx, onto, log)
+    stewards, placeholder_stewards = seed_stewards(ctx, onto, log)
 
     onto_dir = target / ONTOLOGY_DIR
     content_files = {
         "concepts.yaml": render_concepts_yaml(ctx.domain_id, concepts),
         "sources.yaml": render_sources_yaml(ctx.domain_id, sources),
         "stewardship.yaml": render_stewardship_yaml(ctx, stewards),
+        # The marker is INVENTORIED content (F25): digest-covered from birth,
+        # seeded once and review-owned thereafter.
+        "STARTER.yaml": render_starter_marker(ctx, placeholder_terms,
+                                              placeholder_stewards),
     }
 
     def place(rel_name: str, content: str, preserve: bool, refresh: bool = False) -> str:
@@ -3659,7 +3687,6 @@ def generate_ontology(target: Path, ctx: DomainContext, args: argparse.Namespace
           preserve=False, refresh=True)
     place("review-fixtures.yaml", render_review_fixtures(ctx.domain_id, concepts),
           preserve=True)
-    place("STARTER.yaml", render_starter_marker(ctx), preserve=False, refresh=True)
     place("README.md", render_ontology_readme(ctx), preserve=True)
 
 
@@ -3917,11 +3944,14 @@ def validate_domain(target: Path, log: RunLog, dry_run: bool) -> None:
         log.validation.append(f"ERROR domain validator failed:\n{output or f'exit code {result.returncode}'}")
 
 
-def write_report(target: Path, ctx: DomainContext, log: RunLog, dry_run: bool) -> None:
+def write_report(target: Path, ctx: DomainContext, log: RunLog, dry_run: bool,
+                 to_file: bool = True) -> None:
     report_path = target / "docs/starter-rerun-report.md"
     now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    report_status = "would write starter rerun report" if dry_run else "wrote starter rerun report"
-    log.updated.append((str(report_path.relative_to(target)), report_status))
+    if to_file:
+        report_status = ("would write starter rerun report" if dry_run
+                         else "wrote starter rerun report")
+        log.updated.append((str(report_path.relative_to(target)), report_status))
 
     def table(rows: list[tuple[str, str]], headers: tuple[str, str]) -> str:
         if not rows:
@@ -3985,7 +4015,7 @@ non-empty; Domain Hermes review resolves each row (add-domain-ontology-layer).
 4. Fill client instantiation examples.
 5. Replace placeholders with domain-owned content.
 """
-    if not dry_run:
+    if to_file and not dry_run:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(report, encoding="utf-8")
     print(report)
@@ -4016,6 +4046,16 @@ def parse_args() -> argparse.Namespace:
              "(approved sources + extraction-run identity required; never "
              "touches the active package or existing candidates)",
     )
+    parser.add_argument(
+        "--ontology-only", action="store_true",
+        help="Adoption mode for existing repositories "
+             "(add-ontology-stewardship-hardening): write ONLY "
+             "hermes/domain/ontology/** and the content-manifest "
+             "domain_ontology declaration (candidate ingestion included); "
+             "the whole-repo scaffold and README-link stages do not run, "
+             "and the rerun report prints to stdout instead of landing in "
+             "docs/",
+    )
     return parser.parse_args()
 
 
@@ -4031,9 +4071,10 @@ def main() -> int:
     ctx = infer_context(target, args)
     log = RunLog(created=[], updated=[], skipped=[], conflicts=[], validation=[],
                  unresolved=[])
-    for rel, content in templates(ctx).items():
-        maybe_create(target, target / rel, content, log, args.dry_run)
-    add_readme_links(target, log, args.dry_run)
+    if not args.ontology_only:
+        for rel, content in templates(ctx).items():
+            maybe_create(target, target / rel, content, log, args.dry_run)
+        add_readme_links(target, log, args.dry_run)
     generate_ontology(target, ctx, args, log, args.dry_run)
     ensure_content_manifest(target, ctx, log, args.dry_run)
     if args.ingest_candidates:
@@ -4041,7 +4082,8 @@ def main() -> int:
                           args.dry_run)
     validate_yaml(target, log)
     validate_domain(target, log, args.dry_run)
-    write_report(target, ctx, log, args.dry_run)
+    write_report(target, ctx, log, args.dry_run,
+                 to_file=not args.ontology_only)
     return 1 if any(item.startswith("ERROR") for item in log.validation) or log.conflicts else 0
 
 

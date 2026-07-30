@@ -1,6 +1,6 @@
 <!--
 starter_source: openxFactory/domain-factory-starter-pack
-starter_version: 13
+starter_version: 14
 domain_id: medx
 managed_mode: scaffold
 -->

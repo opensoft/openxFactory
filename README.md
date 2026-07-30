@@ -255,6 +255,17 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
+- [add-ontology-stewardship-hardening](openspec/changes/add-ontology-stewardship-hardening/proposal.md)
+  — authored and ratified 2026-07-30: the stewardship pass closing the
+  release review's carried-forward findings (F21 release-tool
+  housekeeping — faithful manifest rewrite, evidence-path containment,
+  snapshots born superseded; F24 structural placeholder detection; F25
+  inventoried STARTER marker; F26 min-or-max quality bounds + cadence
+  deadlines; F27 executable gateway conformance probes) plus the starter's
+  `--ontology-only` adoption mode (v14) so mature repositories adopt the
+  ontology without the whole-repo scaffold spray. Two schema files change
+  → contract-v1.24, which also carries the recorded v1.23 erratum
+  correction to consumers.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and

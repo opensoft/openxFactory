@@ -138,7 +138,14 @@ properties:
         minItems: 1
         items:
           type: object
-          required: [signal, min_value]
+          # At least one bound (add-ontology-stewardship-hardening, review
+          # F26): a floor for coverage-style signals, a ceiling for
+          # rate-style signals (unknown_term_rate must stay LOW), or both.
+          # A required signal declaring neither bound is vacuous and fails.
+          required: [signal]
+          anyOf:
+            - required: [min_value]
+            - required: [max_value]
           additionalProperties: false
           properties:
             signal:

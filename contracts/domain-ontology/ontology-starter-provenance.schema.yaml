@@ -16,3 +16,21 @@ properties:
   package_id:
     type: string
     pattern: "^xf/[a-z0-9_]+$"
+  placeholders:
+    # Structural placeholder record (add-ontology-stewardship-hardening,
+    # review F24): the term ids and steward ids the run SEEDED as
+    # placeholders. Readiness blocks on any entry still present in the
+    # package — renaming a placeholder never makes a scaffold read ready.
+    type: object
+    additionalProperties: false
+    properties:
+      terms:
+        type: array
+        items:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+      stewards:
+        type: array
+        items:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"

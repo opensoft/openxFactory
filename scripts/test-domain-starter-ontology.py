@@ -96,6 +96,7 @@ FULL_ANSWERS = """ontology:
       version: '2026'
       license_class: no_redistribution
       permitted_use: [reference]
+      review_by: '2027-01-01'
   ontology_sources:
     - system_id: intake-notes
       name: Intake design notes
@@ -165,7 +166,7 @@ def scenario_1_empty_repo(base: Path) -> Path:
     check("s1 manifest declares domain_ontology", "domain_ontology" in manifest)
     marker = (target / ONTO / "STARTER.yaml").read_text()
     check("s1 marker records ontology-aware version",
-          "ontology_aware: true" in marker and "starter_version: 13" in marker)
+          "ontology_aware: true" in marker and "starter_version: 14" in marker)
     concepts = (target / ONTO / "concepts.yaml").read_text()
     check("s1 seeds subject specialization", "xf/testx/patient" in concepts
           and "xf/core/subject" in concepts)
