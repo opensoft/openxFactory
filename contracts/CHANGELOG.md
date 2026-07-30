@@ -13,6 +13,31 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.24 — 2026-07-30 (additive; ontology stewardship hardening — guarantees move from procedure to tool)
+
+Realizes **add-ontology-stewardship-hardening** (ratified 2026-07-30), the
+stewardship pass closing the domain-ontology release review's
+carried-forward findings. Schema bytes: `ontology-stewardship-policy`
+(a required quality signal declares `min_value` OR `max_value` — rate
+ceilings are expressible directly, vacuous signals fail; F26) and
+`ontology-starter-provenance` (the optional `placeholders` block —
+readiness blocks on the structural record, never a name; F24). Rides the
+same change without schema bytes: the starter's `--ontology-only`
+adoption mode (v14; mature repositories adopt without the whole-repo
+scaffold), the inventoried STARTER marker (deleting it breaks the package
+digest; F25), release-tool housekeeping (faithful manifest rewrite incl.
+`adoption`/`notes`, evidence-path containment, retained snapshots born
+`lifecycle_state: superseded`; F21), the cadence-deadline rule, and
+EXECUTED memory-gateway semantic conformance fixtures (probes run through
+the canonical preflight or resolution-verified delegates; F27). Ontology
+negative corpus 55. **This cut also delivers the contract-v1.23 erratum
+correction**: `contracts/hermes-domain-overlay/content-manifest.schema.yaml`
+now records its true digest in `contracts/manifest.yaml`
+(`d45a8c89…`, stale v1.18→v1.23), and `scripts/validate-manifest-digests.py`
+guards the consumption contract so the class cannot recur. First
+consumers: MedxFactory f4ca313 + codexFactory 11777a9 (inventoried
+markers).
+
 ## contract-v1.23 — 2026-07-30 (additive; omnigent semantic wiring — the worker seam closes)
 
 > **Erratum (2026-07-30, recorded per the release review):** the bundle at

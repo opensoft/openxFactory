@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.23
+contract_bundle_version: contract-v1.24
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1375,7 +1375,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/ontology-stewardship-policy.schema.yaml
     type: schema
     schema_version: 1
-    sha256: a3559a2cfd2e3b15588846df4aa165844c8298703b0b977c454350bc3e9ad79b  # contract-v1.22 (add-domain-ontology-layer)
+    sha256: c27c1cd48fae9992b7d9e1a4593a61cc4de1b89c7a59c8fa2f3e1cd5deae17a8  # contract-v1.24 (additive: min-or-max quality bounds; add-ontology-stewardship-hardening)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1435,7 +1435,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/ontology-starter-provenance.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 828237c33e6e5b53292fb19091f592491b0fd8aadd8997ed2f14cd16b2293aa8  # contract-v1.22 (add-domain-ontology-layer)
+    sha256: 135e74205584cc44e72f62675ea1062d8b5fc3c14cd40668f12e20905310c9f9  # contract-v1.24 (additive: structural placeholders; add-ontology-stewardship-hardening)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
