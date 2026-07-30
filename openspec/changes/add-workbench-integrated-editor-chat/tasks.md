@@ -3,6 +3,11 @@
 - [x] 1.1 Baseline recorded 2026-07-28: `add-staging-workbench` landed through codexFactory PR #42 (`4e7b7b7`); `add-workbench-bullseye-and-create` through PR #46 (`9d59ac0`); `add-dashboard-repo-selector` through PR #47 (`fae38d2`) plus PR #48 hardening (`5546ff2`); and `add-workbench-branch-sessions` through PR #49 (`7440bed`) plus dashboard hardening PRs #51 (`fec8ab5`) and #52 (`b42b9cb`). The current clean common baseline is codexFactory `main` at `34bfc2f`; `python3 -m pytest tests/ideation-dashboard -q` passed **1467 tests** there in the `py-bench` dev container.
 - [x] 1.2 codexFactory `008-fix-dashboard-edit` landed through PR #56 as merge commit `d2c16b1` and is an ancestor of the recorded `34bfc2f` common baseline. Its worktree is clean; the external-editor escape hatch is therefore a merged baseline rather than unresolved feature work.
 - [ ] 1.3 Run one real-corpus acceptance sequence that independently satisfies `add-staging-workbench` 6.5, `add-workbench-bullseye-and-create` 7.2, `add-dashboard-repo-selector` 6.2, and `add-workbench-branch-sessions` 9.2, then completes `add-propose-verb` 4.3 from the merged/session-free ready topic; record evidence against every clause rather than treating one success as blanket closure.
+      Prepared 2026-07-30: the combined-pass runbook/evidence template is
+      `d10-acceptance-runbook.md` in this change directory, with per-clause
+      evidence slots under `evidence/d10/`. Preparation only — this task
+      stays open until the pass runs and every clause records its own
+      evidence and sign-off.
 - [ ] 1.4 Complete each predecessor's pending contract-manifest/release registration and any dashboard-repository publication/credential wiring required by its own task list.
 - [ ] 1.5 Archive the predecessor chain in dependency order: `add-ideation-dashboard` → `add-propose-verb` → `add-staging-workbench` → `add-workbench-bullseye-and-create` → `add-dashboard-repo-selector` → `add-workbench-branch-sessions`; verify `openspec/specs/ideation-dashboard/spec.md` exists after the chain completes.
       Progress 2026-07-30: the first chain element `add-ideation-dashboard`
