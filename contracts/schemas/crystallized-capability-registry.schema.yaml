@@ -1,0 +1,124 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "crystallized-capability-registry.schema.yaml"
+title: "Crystallized-capability registry record (git truth; derived dispatch index)"
+contract_schema_version: 1
+description: >-
+  One governed record per crystallized capability (add-capability-steward,
+  requirements "The Registry Is Governed Truth With A Derived Index",
+  "Dispatch Reads Only The Registry", "Records Reference And Never Embed",
+  "The Status Spine Advances Only Through Proof Gates", "Artifacts Are
+  Pinned While Authority Is Live", "Field Writes Follow The Authority
+  Matrix"). The status spine deliberately mirrors the document lifecycle;
+  every transition cites its gate outcome. D10 is encoded as the record's
+  two halves: `artifact.digest` is the pinned identity consumers re-pin
+  deliberately, while `authority` is live-read at every dispatch decision
+  — a demotion takes effect at the next junction decision, never waiting
+  for a re-pin. Records carry digests and references only (a registry leak
+  leaks no tenant data); the digests-only rule, spine-transition legality,
+  authority/status coherence, and the demotion-trigger requirement for
+  serving capabilities are named rules in the canonical validator
+  scripts/validate-capability-steward.py. Field writers (build: identity/
+  artifact/provenance once; proof gates: status; steward: health;
+  accounting: cost profile) are an authority matrix enforced at the write
+  path, recorded here as the declared ownership.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - capability_id
+  - family_refs
+  - tenant_ref
+  - rung
+  - version
+  - artifact
+  - fence_ref
+  - effect_class
+  - provenance_ref
+  - permission_binding_ref
+  - consent_scope
+  - cost_profile
+  - health_ref
+  - status
+  - status_history
+  - authority
+  - demotion_triggers_ref
+  - owner
+  - dry_run
+properties:
+  schema_version: {const: 1}
+  kind: {const: crystallized_capability}
+  capability_id: {type: string, pattern: "^cap:"}
+  family_refs:
+    type: array
+    minItems: 1
+    items: {type: string, pattern: "^fam:"}
+  tenant_ref: {type: string, minLength: 1}
+  rung: {enum: [L2, L3, L4, L5, L6]}
+  version: {type: integer, minimum: 1}
+  artifact:
+    type: object
+    additionalProperties: false
+    required: [digest, packaging, residence]
+    properties:
+      digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+      packaging: {enum: [playbook, profile, program]}
+      residence: {type: string, minLength: 1}
+  fence_ref:
+    type: object
+    additionalProperties: false
+    required: [digest]
+    properties:
+      digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+  effect_class: {enum: [pure, idempotent, compensable, irreversible]}
+  provenance_ref:
+    type: object
+    additionalProperties: false
+    required: [digest]
+    properties:
+      digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+  permission_binding_ref: {type: string, minLength: 1}
+  consent_scope:
+    type: object
+    additionalProperties: false
+    required: [episode_use, automation, pooling]
+    properties:
+      episode_use: {type: boolean}
+      automation: {type: boolean}
+      pooling: {type: boolean}
+  cost_profile:
+    type: object
+    additionalProperties: false
+    required: [measured_marginal, baseline_ai]
+    properties:
+      measured_marginal: {type: ["number", "null"]}
+      baseline_ai: {type: ["number", "null"]}
+  health_ref: {type: ["string", "null"]}
+  status: {enum: [candidate, building, shadow, canary, active, degraded, retired]}
+  status_history:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [to, at, gate_ref]
+      properties:
+        to: {enum: [candidate, building, shadow, canary, active, degraded, retired]}
+        at: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+        gate_ref: {type: string, minLength: 1}
+  authority:
+    type: object
+    additionalProperties: false
+    required: [serving, demoted_reason]
+    properties:
+      serving: {type: boolean}
+      demoted_reason: {type: ["string", "null"]}
+  demotion_triggers_ref: {type: ["string", "null"]}
+  owner:
+    type: object
+    additionalProperties: false
+    required: [fitness, budget]
+    properties:
+      fitness: {type: string, minLength: 1}
+      budget: {type: string, minLength: 1}
+  dry_run: {enum: [supported, unsupported]}

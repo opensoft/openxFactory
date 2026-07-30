@@ -228,7 +228,14 @@ Active changes:
   the cost-ordered drift ladder with hysteresis, auto/contested findings,
   disuse retirement, sentinel-anchored accounting, and the contractual
   renewal write-backs that close the flywheel); schemas + validator are
-  the declared code surface.
+  the declared code surface. Realized 2026-07-29: the seven record
+  schemas, `scripts/validate-capability-steward.py` (11 named policy
+  rules; self-testing 6 positives / 10 indexed negatives), and the MVP
+  corpus completion under `examples/capability-steward/` — the
+  packet-capture family's story now runs episode → candidate → decision →
+  spec → build → registry → dispatch → adjudication → health → verified
+  savings, end to end in fixtures; manifest/CHANGELOG registration at the
+  archive cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions

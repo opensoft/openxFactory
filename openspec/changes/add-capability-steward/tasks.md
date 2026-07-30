@@ -1,13 +1,13 @@
 ## 1. Contracts
 
-- [ ] 1.1 Add the record schemas under `contracts/schemas/`
+- [x] 1.1 Add the record schemas under `contracts/schemas/`
       (`crystallized-capability-registry` record, `dispatch-record`,
       `adjudication-record`, `sentinel-policy`,
       `capability-health-report`, `savings-entry` + `calibration-score`),
       each with `schema_version` + `kind`, the status spine and fallback-
       cause vocabularies, and shape-only posture (policy in the canonical
       validator).
-- [ ] 1.2 Add positive and negative examples per kind — negatives MUST
+- [x] 1.2 Add positive and negative examples per kind — negatives MUST
       include: a registry record embedding episode payloads, an illegal
       status transition (candidate → active skipping proofs), a served
       dispatch record with unevaluated post-conditions, a fallback without
@@ -16,19 +16,20 @@
       sentinel ε at zero, a savings entry claiming `verified` without a
       fresh sentinel anchor, and a promotion without its demotion trigger
       bundle.
-- [ ] 1.3 Complete the MVP fixture corpus: the packet-capture capability's
+- [x] 1.3 Complete the MVP fixture corpus: the packet-capture capability's
       registry record in `shadow`, three dispatch records (served,
       fence-miss fallback, sentinel dual-run), the ε=0.20-no-decay
       sentinel policy, one bidirectional adjudication, a health report
       with one auto and one contested finding, and a sentinel-anchored
       savings entry.
-- [ ] 1.4 Register per the "Contracts Pending Realization" policy:
+- [x] 1.4 Register per the "Contracts Pending Realization" policy:
       contracts/README rows now; manifest + CHANGELOG + version allocation
-      at the archive bundle cut (contract-v1.21 expected).
+      at the archive bundle cut (contract-v1.21 expected). — Rows added
+      2026-07-29; manifest + CHANGELOG + version at archive.
 
 ## 2. Validator
 
-- [ ] 2.1 Implement `scripts/validate-capability-steward.py`
+- [x] 2.1 Implement `scripts/validate-capability-steward.py`
       (jsonschema-based, self-testing positives + intended-reason
       negatives): digests-only rule, status-transition legality (spine
       order; proofs before authority), pins-vs-live-authority shape (D10),
@@ -38,7 +39,7 @@
       rule (verified requires a fresh anchor ref), demotion-bundle rule
       (no `active` without triggers armed), adjudication verdict/
       consequence pairing.
-- [ ] 2.2 Validator fixtures/tests wired into the `validate-*.py`
+- [x] 2.2 Validator fixtures/tests wired into the `validate-*.py`
       discipline.
 
 ## 3. Documentation
@@ -54,8 +55,9 @@
 
 ## 4. Validation and realization evidence
 
-- [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate add-capability-steward
-      --strict` and `--all --strict` green.
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate add-capability-steward
+      --strict` and `--all --strict` green — verified at raise, ratify, and
+      realization (2026-07-29).
 - [x] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
 - [x] 4.3 Obtain ratification approval and stamp the proposal front matter

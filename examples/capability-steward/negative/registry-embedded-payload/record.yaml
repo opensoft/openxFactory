@@ -1,0 +1,44 @@
+# expected_failure: digests-only
+# A registry record embedding episode payloads — records carry digests and
+# references only; a registry leak must leak no tenant data.
+schema_version: 1
+kind: crystallized_capability
+capability_id: "cap:opensoft:neg"
+family_refs: ["fam:opensoft:neg"]
+tenant_ref: "tenant:opensoft"
+rung: L3
+version: 1
+artifact:
+  digest: "sha256:7ee0f553d2a4c51e67cb1f27781df5b166b628eb3286fccdaa25b835970eb78c"
+  packaging: playbook
+  residence: "codexFactory workflows/"
+fence_ref:
+  digest: "sha256:be150f4ad7ad6938a3963658c93565f71306eb3b721e690f8fa371b40bdcde44"
+effect_class: idempotent
+provenance_ref:
+  digest: "sha256:44cf7dca75c194888af2010feb490af7631da28aa4675b5e1d1981aaef8d7b92"
+permission_binding_ref: "overlay:codexFactory:neg"
+consent_scope:
+  episode_use: true
+  automation: true
+  pooling: false
+cost_profile:
+  measured_marginal: null
+  baseline_ai: null
+health_ref: null
+status: shadow
+status_history:
+  - {to: candidate, at: "2026-07-29", gate_ref: "gate:nomination"}
+  - {to: building, at: "2026-07-29", gate_ref: "gate:funded"}
+  - {to: shadow, at: "2026-07-29", gate_ref: "gate:replay-green"}
+authority:
+  serving: false
+  demoted_reason: null
+demotion_triggers_ref: null
+owner:
+  fitness: codexFactory
+  budget: "tenant:opensoft"
+dry_run: supported
+episode_payloads:
+  - "raw tool output including a tenant account number"
+

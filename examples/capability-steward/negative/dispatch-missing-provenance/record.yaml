@@ -1,0 +1,23 @@
+# expected_failure: provenance-required
+# A crystallized-path record without its served-by line — provenance is
+# the only difference an auditor sees between paths, so it must exist.
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:neg:0001"
+envelope_ref: "env:opensoft:neg:0001"
+family_match:
+  family_ref: "fam:opensoft:neg"
+  confidence: 0.95
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:neg"
+effect_class: idempotent
+path: crystallized
+fallback_cause: null
+postconditions:
+  evaluated: true
+  passed: true
+  breaches: []
+provenance: null
+overhead:
+  decision_ms: 40
+  decision_credits: null

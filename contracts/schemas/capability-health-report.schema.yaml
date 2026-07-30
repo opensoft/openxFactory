@@ -1,0 +1,62 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "capability-health-report.schema.yaml"
+title: "Capability-health report (standing scorecard; doc-health's operational sibling)"
+contract_schema_version: 1
+description: >-
+  The standing per-capability scorecard (add-capability-steward,
+  requirements "Drift Responds Up A Cost-Ordered Ladder", "Findings Split
+  Auto-Actionable And Contested", "Disused Capabilities Retire With
+  Lineage"): drift signals (fallback rate, post-condition breaches,
+  sentinel disagreement, corrections, dormancy), findings in exactly two
+  classes — auto (fence shrink within policy, sentinel rate bump,
+  regeneration under budget; executed without approval) and contested
+  (demotion, retirement, spend beyond policy; requiring a cited decision
+  or disposition) — and the chosen drift response from the cost-ordered
+  ladder observe -> shrink-fence -> regenerate -> demote -> retire, with
+  hysteresis owned by the dials register. Canonical validator:
+  scripts/validate-capability-steward.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - report_id
+  - capability_ref
+  - window
+  - signals
+  - findings
+  - drift_response
+properties:
+  schema_version: {const: 1}
+  kind: {const: capability_health_report}
+  report_id: {type: string, pattern: "^health:"}
+  capability_ref: {type: string, pattern: "^cap:"}
+  window:
+    type: object
+    additionalProperties: false
+    required: [from, to]
+    properties:
+      from: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+      to: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+  signals:
+    type: object
+    additionalProperties: false
+    required: [fallback_rate, postcondition_breaches, sentinel_disagreement, corrections, dormant_days]
+    properties:
+      fallback_rate: {type: ["number", "null"], minimum: 0, maximum: 1}
+      postcondition_breaches: {type: integer, minimum: 0}
+      sentinel_disagreement: {type: ["number", "null"], minimum: 0, maximum: 1}
+      corrections: {type: integer, minimum: 0}
+      dormant_days: {type: integer, minimum: 0}
+  findings:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [class, rule, action_or_disposition]
+      properties:
+        class: {enum: [auto, contested]}
+        rule: {type: string, minLength: 1}
+        action_or_disposition: {type: ["string", "null"]}
+  drift_response:
+    enum: [observe, shrink-fence, regenerate, demote, retire, null]

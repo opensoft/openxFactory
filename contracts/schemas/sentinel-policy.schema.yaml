@@ -1,0 +1,38 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "sentinel-policy.schema.yaml"
+title: "Sentinel policy (mandatory while a capability holds authority)"
+contract_schema_version: 1
+description: >-
+  The per-capability sentinel regime (add-capability-steward, requirement
+  "Sentinels Are Mandatory While Authoritative"): an epsilon fraction of
+  the family's instances still runs the AI path — adaptive, floored
+  strictly above zero, in a declared per-family mode — serving triple duty
+  as drift detector, fresh-corpus source, and the savings counterfactual's
+  anchor. Sentinel spend is declared exploration expense, never hidden in
+  savings. The strictly-positive floor is the named validator rule
+  "sentinel-floor" (the shape permits zero so the refusal is a policy act,
+  matching the family's shape-vs-policy split). Canonical validator:
+  scripts/validate-capability-steward.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - capability_ref
+  - epsilon
+  - mode
+  - expense_ref
+properties:
+  schema_version: {const: 1}
+  kind: {const: sentinel_policy}
+  capability_ref: {type: string, pattern: "^cap:"}
+  epsilon:
+    type: object
+    additionalProperties: false
+    required: [current, floor, schedule]
+    properties:
+      current: {type: number, minimum: 0, maximum: 1}
+      floor: {type: number, minimum: 0, maximum: 1}
+      schedule: {type: string, minLength: 1}
+  mode: {enum: [dual-run, async-replay, takeover]}
+  expense_ref: {type: string, minLength: 1}

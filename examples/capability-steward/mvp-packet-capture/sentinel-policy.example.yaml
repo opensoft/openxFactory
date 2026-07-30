@@ -1,0 +1,12 @@
+# MVP posture from the dials register: epsilon 0.20 WITHOUT decay for the
+# first family's whole life — its job is honest counterfactuals, not
+# maximum savings. Floor 0.02 is the neutral constitutional minimum.
+schema_version: 1
+kind: sentinel_policy
+capability_ref: "cap:opensoft:packet-capture-playbook"
+epsilon:
+  current: 0.20
+  floor: 0.02
+  schedule: "no-decay (MVP posture; dials register sentinel_epsilon_start)"
+mode: dual-run
+expense_ref: "budget:opensoft:crystallization:exploration"

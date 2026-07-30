@@ -1,0 +1,33 @@
+# Accounting with counterfactual discipline: verified only against the
+# fresh sentinel anchor (the dual-run adjudication above), full costs
+# deducted; plus the first calibration score — the build estimate graded
+# against actuals (spent 410000 vs cap 500000).
+schema_version: 1
+kind: savings_entry
+entry_id: "sav:opensoft:packet-capture-playbook:2026-08"
+capability_ref: "cap:opensoft:packet-capture-playbook"
+window:
+  from: "2026-08-01"
+  to: "2026-08-05"
+instances:
+  served: 12
+  sentinel: 3
+  fallback: 2
+counterfactual:
+  anchor_ref: "adj:opensoft:packet-capture:2026-08-05:0001"
+  anchored_at: "2026-08-05"
+net:
+  savings_per_instance: 21000
+  volume: 12
+  full_cost_deductions: 46000   # build amortization + sentinel spend + overhead
+verdict: verified
+---
+schema_version: 1
+kind: calibration_score
+score_id: "cal:opensoft:build-estimate:packet-capture:0001"
+prediction_ref: "dec:opensoft:packet-capture-mechanics:2026-07-29"
+prediction_kind: build_estimate
+actual: 410000
+score: 0.82
+feeds: prior-update
+at: "2026-07-29"

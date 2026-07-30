@@ -1,0 +1,23 @@
+# expected_failure: fallback-cause
+# An AI-path record for a family with a matched capability and no cause —
+# fallbacks are frontier evidence, not noise.
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:neg:0001"
+envelope_ref: "env:opensoft:neg:0001"
+family_match:
+  family_ref: "fam:opensoft:neg"
+  confidence: 0.95
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:neg"
+effect_class: idempotent
+path: ai
+fallback_cause: null
+postconditions:
+  evaluated: false
+  passed: null
+  breaches: []
+provenance: null
+overhead:
+  decision_ms: 40
+  decision_credits: null

@@ -1,0 +1,23 @@
+# expected_failure: postconditions-required
+# A crystallized output counted as done without evaluated post-conditions —
+# the never-silently-wrong backstop cannot be skipped.
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:neg:0001"
+envelope_ref: "env:opensoft:neg:0001"
+family_match:
+  family_ref: "fam:opensoft:neg"
+  confidence: 0.95
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:neg"
+effect_class: idempotent
+path: crystallized
+fallback_cause: null
+postconditions:
+  evaluated: false
+  passed: null
+  breaches: []
+provenance: "served by cap:opensoft:neg@1 (rung L3)"
+overhead:
+  decision_ms: 40
+  decision_credits: null

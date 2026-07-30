@@ -1,0 +1,62 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "savings-entry.schema.yaml"
+title: "Savings entry (sentinel-anchored counterfactual discipline)"
+contract_schema_version: 1
+description: >-
+  One accounting window for one capability (add-capability-steward,
+  requirement "Savings Are Sentinel-Anchored And Predictions Are Scored").
+  A `verified` verdict requires a fresh sentinel-anchored counterfactual —
+  a stale or missing anchor reports `unverifiable`, never an estimate
+  dressed as fact ("savings-anchor" in the canonical validator) — and net
+  savings deduct full costs: build amortization, maintenance, sentinel
+  spend, and dispatch overhead. Per-instance and volume report separately
+  so demand growth never masquerades as efficiency. Canonical validator:
+  scripts/validate-capability-steward.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - entry_id
+  - capability_ref
+  - window
+  - instances
+  - counterfactual
+  - net
+  - verdict
+properties:
+  schema_version: {const: 1}
+  kind: {const: savings_entry}
+  entry_id: {type: string, pattern: "^sav:"}
+  capability_ref: {type: string, pattern: "^cap:"}
+  window:
+    type: object
+    additionalProperties: false
+    required: [from, to]
+    properties:
+      from: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+      to: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+  instances:
+    type: object
+    additionalProperties: false
+    required: [served, sentinel, fallback]
+    properties:
+      served: {type: integer, minimum: 0}
+      sentinel: {type: integer, minimum: 0}
+      fallback: {type: integer, minimum: 0}
+  counterfactual:
+    type: object
+    additionalProperties: false
+    required: [anchor_ref, anchored_at]
+    properties:
+      anchor_ref: {type: ["string", "null"]}
+      anchored_at: {type: ["string", "null"], pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}
+  net:
+    type: object
+    additionalProperties: false
+    required: [savings_per_instance, volume, full_cost_deductions]
+    properties:
+      savings_per_instance: {type: ["number", "null"]}
+      volume: {type: integer, minimum: 0}
+      full_cost_deductions: {type: ["number", "null"]}
+  verdict: {enum: [verified, unverifiable]}
