@@ -212,8 +212,9 @@ ran the whole arc (generate → conflict → disposition → publish → breakin
 reparent on `xf/medx@2` / retiring release on `xf/codex@2` → maintenance →
 `ontology_ready` → worker-context compilation); no pilot needed a kernel
 term, none went unused, and the kernel's per-term adoption evidence is now
-recorded (two resolvable adopters each; kernel digest `46e45f6c…`, still
-DRAFT pending the governed bundle-cut publication) (7.2). The colliding
+recorded (two resolvable adopters each, relations included; kernel digest
+`9d4ea5fa…` after the adoption restamp, still DRAFT pending the governed
+bundle-cut publication) (7.2). The colliding
 model proposal was auto-recorded as a conflicting candidate against the
 structured import and blocked readiness until the accountable steward
 dispositioned it (7.3). Additive, breaking, retiring, explicit adoption

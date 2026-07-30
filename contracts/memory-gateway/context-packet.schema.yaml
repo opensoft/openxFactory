@@ -16,6 +16,10 @@ properties:
       - redaction_class
       - trace_refs
       - audit_refs
+    # Closed shape (add-domain-ontology-layer, task 6.3 / release-review
+    # finding 11): an undeclared key — including any authority-named one —
+    # cannot ride into provider I/O inside a packet.
+    additionalProperties: false
     properties:
       id:
         type: string

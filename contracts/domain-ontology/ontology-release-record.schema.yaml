@@ -69,14 +69,27 @@ properties:
   quality_report_ref:
     type: string
     pattern: "^[A-Za-z0-9._/-]{1,200}$"
-  quality_exception_ref:
-    # A recorded, reviewed exception releasing a missing/below-threshold
-    # quality signal (lifecycle spec: Measurable ontology quality
-    # accountability); never a silent bypass. Free-form reference (a review
-    # record URI or path), like other evidence refs.
-    type: string
-    minLength: 1
-    maxLength: 300
+  quality_exceptions:
+    # Per-signal recorded, reviewed exceptions (lifecycle spec: Measurable
+    # ontology quality accountability; release-review finding 9). Each
+    # exception names the ONE signal it releases and the review that decided
+    # it — there is no blanket exception, and an exception releases a
+    # threshold, never the measurement (a quality report over the current
+    # digest is still required).
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [signal, review_ref]
+      additionalProperties: false
+      properties:
+        signal:
+          type: string
+          pattern: "^[a-z][a-z0-9_]{0,63}$"
+        review_ref:
+          type: string
+          minLength: 1
+          maxLength: 300
   consumer_impact_ref:
     # Domain-owned terms and consumer pins only — tenant bindings are
     # tenant-private and never enumerated here.

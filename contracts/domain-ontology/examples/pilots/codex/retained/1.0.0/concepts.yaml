@@ -45,7 +45,7 @@ concepts:
     label: "Decomposition"
     definition: "Starter-seeded activity specialization from intake item 'Decomposition'; awaiting Domain Hermes review."
     parents: [xf/core/activity]
-    lifecycle_state: retired
+    lifecycle_state: draft
     effective_version: 0.1.0
   - id: xf/codex/intake
     label: "Intake"

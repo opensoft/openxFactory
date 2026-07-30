@@ -9,9 +9,9 @@ which pins, through its OWN governed change (adoption never lands from
 here; repo-boundary governance holds).
 
 Common pins: kernel `xf/core` 0.1.0, digest
-`46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7` (DRAFT;
+`9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5` (DRAFT;
 publication rides the bundle cut). Contract family
-`contracts/domain-ontology/` (fourteen kinds), canonical validator
+`contracts/domain-ontology/` (eighteen kinds), canonical validator
 `scripts/validate-domain-ontology.py`, tools `apply-domain-starter.py`
 (v13, `--answers`/`--ingest-candidates`), `ontology-maintenance.py`,
 `ontology-release.py`, `ontology-compile-context.py`.

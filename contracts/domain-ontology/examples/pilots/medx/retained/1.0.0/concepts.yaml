@@ -14,7 +14,7 @@ concepts:
   - id: xf/medx/treatment
     label: "Treatment"
     definition: "Starter-seeded focal item kind specialization from intake item 'Treatment'; awaiting Domain Hermes review."
-    parents: [xf/core/focal_item, xf/core/intervention]
+    parents: [xf/core/focal_item]
     lifecycle_state: draft
     effective_version: 0.1.0
   - id: xf/medx/care_plan

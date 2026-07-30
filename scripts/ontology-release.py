@@ -7,30 +7,37 @@ Mechanizes the append-only release transition the lifecycle spec requires:
         --new-version 1.1.0 --compatibility-class additive \
         --decided-by <steward-id> --release-id rel-... \
         [--quality-report <beside-package file>] \
-        [--quality-exception <recorded-review ref>] \
-        [--migration-map <package-relative path>] [--dry-run]
+        [--quality-exception SIGNAL=<recorded-review ref>]... \
+        [--migration-map <package-relative path>] \
+        [--consumer-impact <beside-package file>] [--dry-run]
 
 What it enforces before touching anything (all fail-closed):
 
   * `decided_by` resolves to an ACCOUNTABLE steward in the package manifest
     whose identity_kind is human or council — a worker/agent identity can
     prepare everything and publish nothing (tasks 5.5/5.7).
-  * breaking/retiring requires a migration map present in the package.
-  * The stewardship policy's quality gate: every required signal present in
-    the named quality report (covering the CURRENT content digest) and
-    inside its threshold — or an explicit `--quality-exception` reviewed
-    reference, which is recorded on the release (task 5.8).
+  * breaking/retiring requires a migration map present in the package AND a
+    prepared consumer-impact report (`--consumer-impact`) whose from-pin
+    matches the active version exactly (release-review finding 16).
+  * The stewardship policy's quality gate: when the policy requires signals,
+    a quality report is ALWAYS required — an exception releases a threshold,
+    never the measurement. Each `--quality-exception SIGNAL=REF` releases
+    exactly one named signal with its recorded review; there is no blanket
+    exception (task 5.8; release-review finding 9).
   * Accepted candidates must carry steward dispositions (validator rules);
     this tool never merges content — Domain Hermes edits content, the tool
     only performs the governed version transition.
 
-What it does (append-only): copies the ACTIVE version byte-identically to
-`retained/<old-version>/`, rewrites `package.yaml` for the new version
-(previous pin, supersedes chain, compatibility line — breaking/retiring
-starts a new line), restamps inventory digests over the CURRENT content
-bytes, and writes the release record naming the accountable steward. No
-published bytes are ever deleted or rewritten; historical artifacts keep
-their original pins.
+What it does (append-only): writes `retained/<new-version>/` from the exact
+bytes it publishes (so history never depends on later edits), rewrites
+`package.yaml` for the new version (previous pin, supersedes chain,
+compatibility line — breaking/retiring starts a new line), restamps
+inventory digests over the CURRENT content bytes, and writes the release
+record naming the accountable steward. When the previous version predates
+this self-retention (no `retained/<old-version>/`), the tool falls back to
+copying the current bytes — but only after verifying each file still hashes
+to the previous manifest's recorded digest; an in-place edit of published
+bytes is REFUSED, never silently retained as history.
 
 Exit codes: 0 released, 1 refused, 2 harness error.
 """
@@ -38,6 +45,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import re
 import shutil
 import sys
@@ -72,8 +80,14 @@ def main() -> int:
     ap.add_argument("--decided-by", required=True)
     ap.add_argument("--release-id", required=True)
     ap.add_argument("--quality-report")
-    ap.add_argument("--quality-exception")
+    ap.add_argument("--quality-exception", action="append", default=[],
+                    metavar="SIGNAL=REF",
+                    help="release ONE named quality signal with its recorded "
+                         "review reference; repeatable, never blanket")
     ap.add_argument("--migration-map")
+    ap.add_argument("--consumer-impact",
+                    help="prepared xfactory_ontology_consumer_impact_report "
+                         "beside the package (required for breaking/retiring)")
     ap.add_argument("--lifecycle", default="published",
                     choices=["published", "deprecated", "retired"])
     ap.add_argument("--dry-run", action="store_true")
@@ -105,12 +119,29 @@ def main() -> int:
     if "UNASSIGNED" in str(steward.get("name", "")):
         return refuse("the accountable steward is an unassigned placeholder")
 
-    # Migration evidence (breaking/retiring).
+    # Migration + consumer-impact evidence (breaking/retiring).
     if args.compatibility_class in ("breaking", "retiring"):
         if not args.migration_map:
             return refuse(f"{args.compatibility_class} requires --migration-map")
         if not (pkg_dir / args.migration_map).is_file():
             return refuse(f"migration map {args.migration_map} not found in the package")
+        if not args.consumer_impact:
+            return refuse(f"{args.compatibility_class} requires --consumer-impact "
+                          "(a prepared consumer-impact report beside the package)")
+        cpath = pkg_dir / args.consumer_impact
+        if not cpath.is_file():
+            return refuse(f"consumer-impact report {args.consumer_impact} not found in the package")
+        impact = load(cpath)
+        if impact.get("kind") != "xfactory_ontology_consumer_impact_report":
+            return refuse("consumer-impact report has the wrong kind")
+        fpin = impact.get("from_package", {})
+        if (str(fpin.get("package_id")), str(fpin.get("package_version")),
+                str(fpin.get("package_digest"))) != (package_id, old_version, old_digest):
+            return refuse("consumer-impact from_package must pin the active version exactly")
+        if str(impact.get("to_package", {}).get("package_version")) != args.new_version:
+            return refuse("consumer-impact to_package must name the new version")
+        if not impact.get("affected_terms"):
+            return refuse("consumer-impact report names no affected terms")
 
     # Quality gate (5.8): policy-required signals over the CURRENT content.
     policy = None
@@ -122,10 +153,23 @@ def main() -> int:
                 policy = doc
     gate = (policy or {}).get("quality_gate", {})
     required = gate.get("required_signals", [])
-    if required and not args.quality_exception:
+    exceptions: dict[str, str] = {}
+    for spec in args.quality_exception:
+        signal, sep, review_ref = spec.partition("=")
+        if not sep or not signal or not review_ref:
+            return refuse(f"--quality-exception must be SIGNAL=REF, got {spec!r}")
+        if signal in exceptions:
+            return refuse(f"duplicate --quality-exception for signal {signal}")
+        exceptions[signal] = review_ref
+    required_names = {r.get("signal") for r in required}
+    for signal in exceptions:
+        if signal not in required_names:
+            return refuse(f"--quality-exception names {signal}, which the policy "
+                          "quality gate does not require")
+    if required:
         if not args.quality_report:
-            return refuse("the policy quality gate requires --quality-report "
-                          "or a recorded --quality-exception")
+            return refuse("the policy quality gate requires --quality-report; an "
+                          "exception releases a threshold, never the measurement")
         qpath = pkg_dir / args.quality_report
         if not qpath.is_file():
             return refuse(f"quality report {args.quality_report} not found")
@@ -139,30 +183,46 @@ def main() -> int:
                 sigmap[sig.get("signal")] = sig.get("numerator", 0) / den
         for req in required:
             name = req.get("signal")
+            if name in exceptions:
+                continue
             value = sigmap.get(name)
             if value is None:
-                return refuse(f"required quality signal {name} missing from the report")
+                return refuse(f"required quality signal {name} missing from the report; "
+                              "a reviewed per-signal --quality-exception is the only release")
             if "min_value" in req and value < req["min_value"]:
                 return refuse(f"quality signal {name} {value:.3f} below required "
-                              f"{req['min_value']}; a recorded reviewed exception "
-                              "is the only release")
+                              f"{req['min_value']}; a reviewed per-signal "
+                              "--quality-exception is the only release")
             if "max_value" in req and value > req["max_value"]:
                 return refuse(f"quality signal {name} {value:.3f} above allowed "
                               f"{req['max_value']}")
 
-    # Append-only retention: the active version's bytes move to retained/.
-    retained_dir = pkg_dir / "retained" / old_version
-    if retained_dir.exists():
-        return refuse(f"retained/{old_version} already exists; releases never overwrite history")
+    # Append-only retention. This release self-retains the bytes it publishes
+    # under retained/<new-version>/ below; the previous version normally has
+    # its own snapshot already. The fallback (previous version published
+    # before self-retention existed) copies current bytes ONLY when they
+    # still hash to the previous manifest's recorded digests — an in-place
+    # edit of published bytes would rewrite history and is refused.
+    retained_new = pkg_dir / "retained" / args.new_version
+    if retained_new.exists():
+        return refuse(f"retained/{args.new_version} already exists; "
+                      "releases never overwrite history")
+    retained_old = pkg_dir / "retained" / old_version
     inventory_paths = [item["path"] for item in manifest.get("inventory", [])]
-    if not args.dry_run:
-        retained_dir.mkdir(parents=True)
-        shutil.copy2(manifest_path, retained_dir / "package.yaml")
-        for rel in inventory_paths:
-            src = pkg_dir / rel
-            dst = retained_dir / rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+    if not retained_old.exists():
+        for item in manifest.get("inventory", []):
+            if sha256_file(pkg_dir / item["path"]) != item.get("sha256"):
+                return refuse(f"{item['path']} no longer hashes to the digest recorded "
+                              f"for {old_version}; restore the published bytes before "
+                              "releasing — history is never rewritten")
+        if not args.dry_run:
+            retained_old.mkdir(parents=True)
+            shutil.copy2(manifest_path, retained_old / "package.yaml")
+            for rel in inventory_paths:
+                src = pkg_dir / rel
+                dst = retained_old / rel
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
 
     # New manifest over the CURRENT content bytes. A shipped migration map is
     # package CONTENT (digest-covered), so a breaking/retiring release
@@ -243,8 +303,13 @@ def main() -> int:
         release_lines.append(f"migration_map_ref: {args.migration_map}")
     if args.quality_report:
         release_lines.append(f"quality_report_ref: {args.quality_report}")
-    if args.quality_exception:
-        release_lines.append(f"quality_exception_ref: {args.quality_exception}")
+    if exceptions:
+        release_lines.append("quality_exceptions:")
+        for signal in sorted(exceptions):
+            release_lines += [f"  - signal: {signal}",
+                              f"    review_ref: {json.dumps(exceptions[signal])}"]
+    if args.consumer_impact:
+        release_lines.append(f"consumer_impact_ref: {args.consumer_impact}")
     release_text = "\n".join(release_lines) + "\n"
     release_path = pkg_dir / f"release-{args.new_version}.yaml"
     if release_path.exists():
@@ -253,11 +318,20 @@ def main() -> int:
     if not args.dry_run:
         manifest_path.write_text(manifest_text, encoding="utf-8")
         release_path.write_text(release_text, encoding="utf-8")
+        # Self-retention: the published bytes become their own history NOW,
+        # so no later edit can ever masquerade as this version.
+        retained_new.mkdir(parents=True)
+        (retained_new / "package.yaml").write_text(manifest_text, encoding="utf-8")
+        for rel in new_inventory:
+            src = pkg_dir / rel
+            dst = retained_new / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
     print(f"RELEASED {package_id} {old_version} -> {args.new_version} "
           f"({args.compatibility_class}, line {line}) decided_by {args.decided_by}")
     print(f"RETAINED retained/{old_version}/ ({old_digest})")
-    if args.quality_exception:
-        print(f"QUALITY-EXCEPTION recorded: {args.quality_exception}")
+    for signal in sorted(exceptions):
+        print(f"QUALITY-EXCEPTION {signal} released by review: {exceptions[signal]}")
     return 0
 
 

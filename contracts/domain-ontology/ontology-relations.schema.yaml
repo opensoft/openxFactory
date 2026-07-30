@@ -72,6 +72,30 @@ properties:
           minItems: 1
           items:
             $ref: "#/$defs/term_id"
+        owning_contract:
+          # Kernel relations name the contract/doc owning their runtime
+          # semantics, exactly like concepts (release-review finding 14).
+          type: string
+          pattern: "^[A-Za-z0-9._/-]{1,200}$"
+        adoption:
+          type: object
+          required: [status]
+          additionalProperties: false
+          properties:
+            status:
+              enum: [pending, evidenced]
+            adopters:
+              type: array
+              items:
+                type: object
+                required: [kind, ref]
+                additionalProperties: false
+                properties:
+                  kind:
+                    enum: [domain_package, shared_subsystem_contract]
+                  ref:
+                    type: string
+                    pattern: "^[A-Za-z0-9._/@-]{1,200}$"
         sources:
           type: array
           items:

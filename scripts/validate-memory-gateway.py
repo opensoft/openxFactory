@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 from typing import Any
@@ -13,9 +14,31 @@ except ImportError:
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+try:
+    import jsonschema
+except ImportError:
+    print("ERROR jsonschema is required", file=sys.stderr)
+    sys.exit(2)
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_DIR = ROOT / "contracts" / "memory-gateway"
 EXAMPLE_DIR = ROOT / "examples" / "memory-gateway"
+ONTOLOGY_DIR = ROOT / "contracts" / "domain-ontology"
+
+
+def _load_ontology_validator():
+    """The canonical ontology validator owns the reserved authority-name set
+    (release-review finding 22): one definition, imported here, so the two
+    validators can never drift apart silently."""
+    spec = importlib.util.spec_from_file_location(
+        "ontology_validator", ROOT / "scripts" / "validate-domain-ontology.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["ontology_validator"] = module  # dataclasses resolve __module__
+    spec.loader.exec_module(module)
+    return module
+
+
+_ONTOLOGY_VALIDATOR = _load_ontology_validator()
 
 REQUIRED_CONTRACTS = {
     "README.md",
@@ -277,22 +300,68 @@ def validate_memory_bindings(errors: list[str]) -> None:
         _binding_surface_violations(binding, "binding", errors, where)
 
 
-SEMANTIC_AUTHORITY_KEYS = {
-    "effect", "permission", "permissions", "grant", "grants", "credential",
-    "credentials", "scope", "scopes", "route", "routing", "token", "secret",
-    "binding", "approval",
-}
+# Reserved authority names come from the canonical ontology validator
+# (release-review finding 22) plus the gateway's own "approval"; the
+# gateway rejects them anywhere inside a packet, not only in the
+# semantic_context block (release-review finding 11).
+SEMANTIC_AUTHORITY_KEYS = set(_ONTOLOGY_VALIDATOR.RESERVED_FIELD_NAMES) | {"approval"}
+
+
+def _packet_schemas() -> dict[str, Any]:
+    return {
+        "context_packet": load_yaml(CONTRACT_DIR / "context-packet.schema.yaml"),
+        "expert_context_packet": load_yaml(CONTRACT_DIR / "expert-context-packet.schema.yaml"),
+    }
+
+
+def validate_packet_schemas(errors: list[str]) -> None:
+    """Apply the packet schemas to every example packet (release-review
+    finding 11): the closed shapes are enforced by an actual validator run,
+    not asserted in prose — an undeclared key anywhere in a packet fails."""
+    schemas = _packet_schemas()
+    checked = 0
+    for example in sorted(EXAMPLE_DIR.glob("*.yaml")):
+        doc = load_yaml(example)
+        if not isinstance(doc, dict):
+            continue
+        for packet_key, schema in schemas.items():
+            if packet_key not in doc:
+                continue
+            checked += 1
+            validator = jsonschema.validators.validator_for(schema)(schema)
+            for err in sorted(validator.iter_errors(doc), key=lambda e: str(e.path)):
+                loc = "/".join(str(p) for p in err.absolute_path)
+                errors.append(f"{example.name} {packet_key} schema: {loc}: {err.message}")
+    if checked == 0:
+        errors.append("no example exercises the packet schemas")
+
+
+def _known_package_digests() -> dict[str, set[str]]:
+    """Every package manifest under contracts/domain-ontology (kernel,
+    examples, retained history) by package_id -> digests. Example packet pins
+    must resolve here (release-review finding 12): a fabricated pin that
+    resolves nowhere fails closed exactly as the runtime gateway would fail
+    it against the consumer's pinned tree."""
+    known: dict[str, set[str]] = {}
+    for manifest_path in sorted(ONTOLOGY_DIR.rglob("package.yaml")):
+        doc = load_yaml(manifest_path)
+        if isinstance(doc, dict) and doc.get("package_id") and doc.get("package_digest"):
+            known.setdefault(str(doc["package_id"]), set()).add(str(doc["package_digest"]))
+    return known
 
 
 def validate_semantic_context(errors: list[str]) -> None:
     """Semantic-context preflight (add-domain-ontology-layer, tasks 6.2/6.3):
     every example packet carrying a semantic_context block is checked the way
     the gateway must check it BEFORE provider I/O — exact ids and digests,
+    pins resolving to real package manifests in this repo's ontology tree,
     published-or-deprecated package lifecycle (retired fails closed), purpose
     agreement with the packet (cross-purpose reuse is a new-packet event),
     and a non-empty bounded term subset. The block can never widen anything:
-    an authority-named key inside it is a violation."""
-    checked = 0
+    an authority-named key anywhere in the packet is a violation, and both
+    packet kinds (customer and expert) must exercise the block."""
+    checked_kinds: set[str] = set()
+    known = _known_package_digests()
     for example in sorted(EXAMPLE_DIR.glob("*.example.yaml")):
         doc = load_yaml(example)
         for packet_key in ("context_packet", "expert_context_packet"):
@@ -302,7 +371,7 @@ def validate_semantic_context(errors: list[str]) -> None:
             ctx = packet.get("semantic_context")
             if ctx is None:
                 continue
-            checked += 1
+            checked_kinds.add(packet_key)
             where = f"{example.name}:{packet_key}"
             for key in ("semantic_context_id", "content_digest", "purpose",
                         "kernel_pin", "package_pin", "term_subset", "lifecycle"):
@@ -313,9 +382,15 @@ def validate_semantic_context(errors: list[str]) -> None:
                 errors.append(f"{where} semantic_context content_digest is not a sha256")
             for pin_name in ("kernel_pin", "package_pin"):
                 pin = ctx.get(pin_name) or {}
-                if not _re.match(r"^[a-f0-9]{64}$", str(pin.get("package_digest", ""))):
+                digest = str(pin.get("package_digest", ""))
+                if not _re.match(r"^[a-f0-9]{64}$", digest):
                     errors.append(f"{where} {pin_name} lacks an exact digest; "
                                   "an unpinned package fails closed")
+                elif digest not in known.get(str(pin.get("package_id")), set()):
+                    errors.append(f"{where} {pin_name} {pin.get('package_id')}@"
+                                  f"{digest[:12]}... does not resolve to any package "
+                                  "manifest under contracts/domain-ontology; a pin "
+                                  "that resolves nowhere fails closed")
             if ctx.get("purpose") != packet.get("purpose"):
                 errors.append(f"{where} semantic_context purpose differs from the packet "
                               "purpose; cross-purpose reuse requires a new packet")
@@ -326,19 +401,22 @@ def validate_semantic_context(errors: list[str]) -> None:
             if not ctx.get("term_subset"):
                 errors.append(f"{where} semantic_context term_subset is empty; an "
                               "unrestricted ontology corpus is never issued")
-            stack = [ctx]
+            # The whole packet, not only the semantic block, is walked for
+            # authority-named keys (release-review finding 11).
+            stack: list[Any] = [packet]
             while stack:
                 node = stack.pop()
                 if isinstance(node, dict):
                     for k, v in node.items():
                         if k.lower() in SEMANTIC_AUTHORITY_KEYS:
-                            errors.append(f"{where} semantic_context carries authority-named "
+                            errors.append(f"{where} packet carries authority-named "
                                           f"key {k!r}; semantic context never grants")
                         stack.append(v)
                 elif isinstance(node, list):
                     stack.extend(node)
-    if checked == 0:
-        errors.append("no example packet exercises semantic_context")
+    for packet_key in ("context_packet", "expert_context_packet"):
+        if packet_key not in checked_kinds:
+            errors.append(f"no {packet_key} example exercises semantic_context")
 
 
 def validate_fixtures(errors: list[str]) -> None:
@@ -435,6 +513,7 @@ def main() -> int:
     validate_provider_profiles(errors)
     validate_examples(errors)
     validate_memory_bindings(errors)
+    validate_packet_schemas(errors)
     validate_semantic_context(errors)
     validate_fixtures(errors)
     validate_runtime_smoke(errors)

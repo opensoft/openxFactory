@@ -19,7 +19,17 @@ properties:
       - prohibited_uses
       - audit_refs
       - usage_refs
+    # Closed shape (add-domain-ontology-layer, task 6.3 / release-review
+    # finding 11): an undeclared key — including any authority-named one —
+    # cannot ride into provider I/O inside a packet.
+    additionalProperties: false
     properties:
+      purpose:
+        # Optional issuance purpose (release-review finding 13): when the
+        # packet carries semantic_context, the preflight requires the two
+        # purposes to agree, so an expert packet with semantic context
+        # declares its purpose explicitly.
+        type: string
       semantic_context:
         # Optional bounded semantic context (add-domain-ontology-layer,
         # task 6.2). When domain terms, mappings, classifications, or

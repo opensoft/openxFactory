@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """Validate the domain-ontology contract family (add-domain-ontology-layer).
 
-The openxFactory-owned canonical validator for the thirteen kinds
-`xfactory_ontology_package_manifest`, `xfactory_ontology_concepts`,
-`xfactory_ontology_relations`, `xfactory_ontology_external_mappings`,
-`xfactory_ontology_source_inventory`, `xfactory_ontology_candidate_record`,
-`xfactory_ontology_release_record`, `xfactory_ontology_migration_map`,
-`xfactory_semantic_context`, `xfactory_ontology_quality_report`,
-`xfactory_ontology_stewardship_policy`, `xfactory_ontology_maintenance_input`,
-and `xfactory_ontology_maintenance_report`
+The openxFactory-owned canonical validator for the eighteen family kinds
+(package manifest, concepts, relations, external mappings, source
+inventory, candidate, release, migration map, semantic context, quality
+report, stewardship policy, maintenance input/report, semantic-context
+profile, review fixtures, coverage-gap report, starter provenance, and
+consumer-impact report)
 (`contracts/domain-ontology/*.schema.yaml`). Run from the openxFactory
 checkout:
 
@@ -140,6 +138,10 @@ SCHEMA_FILES = {
     "xfactory_ontology_maintenance_input": "ontology-maintenance-input.schema.yaml",
     "xfactory_ontology_maintenance_report": "ontology-maintenance-report.schema.yaml",
     "xfactory_semantic_context_profile": "semantic-context-profile.schema.yaml",
+    "xfactory_ontology_review_fixtures": "ontology-review-fixtures.schema.yaml",
+    "xfactory_ontology_coverage_gap_report": "ontology-coverage-gap-report.schema.yaml",
+    "xfactory_ontology_starter_provenance": "ontology-starter-provenance.schema.yaml",
+    "xfactory_ontology_consumer_impact_report": "ontology-consumer-impact-report.schema.yaml",
 }
 FAMILY_KINDS = set(SCHEMA_FILES)
 # Package CONTENT is inventoried and digest-covered. RECORD kinds reference
@@ -162,6 +164,10 @@ PACKAGE_RECORD_KINDS = {
     "xfactory_ontology_quality_report",
     "xfactory_ontology_maintenance_report",
     "xfactory_ontology_maintenance_input",
+    "xfactory_ontology_review_fixtures",
+    "xfactory_ontology_coverage_gap_report",
+    "xfactory_ontology_starter_provenance",
+    "xfactory_ontology_consumer_impact_report",
 }
 PACKAGE_FILE_KINDS = PACKAGE_CONTENT_KINDS
 
@@ -236,7 +242,25 @@ def walk_strings(node, trail=""):
         yield trail, node
 
 
-def value_scan(doc, path: Path, mapping_fields_only: bool = False) -> list[Finding]:
+PROSE_TRAIL_KEYS = {
+    "definition", "notes", "label", "quoted_definition", "name", "term_form",
+    "code", "description", "text", "position", "applicability", "realization",
+    "note", "detail", "purpose",
+}
+IDENTIFIER_PATTERNS = [
+    re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),          # SSN-shaped
+    re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),  # email
+    re.compile(r"\d{7,}"),                         # long digit run (MRN-shaped)
+]
+
+
+def prose_trail(trail: str) -> bool:
+    last = trail.rsplit("/", 1)[-1]
+    last = last.split("[", 1)[0]
+    return last in PROSE_TRAIL_KEYS
+
+
+def value_scan(doc, path: Path) -> list[Finding]:
     found = []
     for trail, value in walk_strings(doc):
         if SUBJECT_URN.search(value):
@@ -245,10 +269,15 @@ def value_scan(doc, path: Path, mapping_fields_only: bool = False) -> list[Findi
         elif OTHER_URN.search(value):
             found.append(Finding("ONT-AUTHORITY-TARGET", rel(path),
                                  f"{trail}: authority-plane instance reference in ontology content"))
-        if ENDPOINTISH.search(value) and "/system_id" in trail or (
-                ENDPOINTISH.search(value) and ("/code" in trail or "/term_form" in trail)):
-            found.append(Finding("ONT-PRIVATE", rel(path),
-                                 f"{trail}: endpoint-shaped value is not a registered external system"))
+        if prose_trail(trail):
+            if ENDPOINTISH.search(value):
+                found.append(Finding("ONT-PRIVATE", rel(path),
+                                     f"{trail}: endpoint/hostname-shaped value in prose content"))
+            for pat in IDENTIFIER_PATTERNS:
+                if pat.search(value):
+                    found.append(Finding("ONT-PRIVATE", rel(path),
+                                         f"{trail}: identifier-bearing value in prose content"))
+                    break
     return found
 
 
@@ -269,6 +298,8 @@ class Package:
         self.policy: dict | None = None
         self.maintenance: list[tuple[Path, dict]] = []
         self.profiles: list[tuple[Path, dict]] = []
+        self.maintenance_inputs: list[tuple[Path, dict]] = []
+        self.impacts: list[tuple[Path, dict]] = []
 
     @property
     def package_id(self) -> str:
@@ -282,6 +313,9 @@ class Package:
 def compute_package_digest(entries: list[tuple[str, str]]) -> str:
     lines = sorted(f"{p} {d}" for p, d in entries)
     return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+
+
+PACKAGE_REGISTRY: dict[str, list["Package"]] = {}
 
 
 def load_package(pkg_dir: Path, schemas, findings: list[Finding],
@@ -362,7 +396,9 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
             continue
         try:
             doc = load_yaml(fpath)
-        except yaml.YAMLError:
+        except yaml.YAMLError as exc:
+            findings.append(Finding("ONT-SCHEMA", rel(fpath),
+                                    f"unparseable YAML beside the package: {exc}"))
             continue
         kind = doc.get("kind") if isinstance(doc, dict) else None
         if kind in PACKAGE_CONTENT_KINDS:
@@ -381,9 +417,74 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
                 pkg.quality.append((fpath, doc))
             elif kind == "xfactory_ontology_maintenance_report":
                 pkg.maintenance.append((fpath, doc))
+            elif kind == "xfactory_ontology_maintenance_input":
+                pkg.maintenance_inputs.append((fpath, doc))
+            elif kind == "xfactory_ontology_consumer_impact_report":
+                pkg.impacts.append((fpath, doc))
+        else:
+            # An unrecognized kind beside a package is a finding, never a
+            # blind spot — and it is scanned regardless (release-review
+            # finding 4).
+            findings.append(Finding("ONT-INVENTORY-FOREIGN", rel(fpath),
+                                    f"unrecognized kind {kind!r} beside the package"))
+            findings.extend(value_scan(doc, fpath))
 
     check_package(pkg, findings, resolve_kernel)
     return pkg
+
+
+def check_candidate_record(cand: dict, fpath: Path, steward_ids: dict,
+                           findings: list[Finding]) -> None:
+    prov = cand.get("provenance", {})
+    if prov.get("method") == "model_extraction" and not prov.get("extraction_run_id"):
+        findings.append(Finding("ONT-CANDIDATE", rel(fpath),
+                                "model extraction requires an extraction_run_id"))
+    if cand.get("review_state") == "accepted":
+        disp = cand.get("disposition")
+        if not disp:
+            findings.append(Finding("ONT-CANDIDATE", rel(fpath),
+                                    "accepted candidate has no recorded disposition"))
+        else:
+            steward = steward_ids.get(disp.get("decided_by"))
+            if steward is None:
+                findings.append(Finding("ONT-CANDIDATE", rel(fpath),
+                                        f"disposition decided_by {disp.get('decided_by')!r} is not a "
+                                        "manifest steward"))
+            elif steward.get("identity_kind") in ("worker", "agent"):
+                findings.append(Finding("ONT-CANDIDATE", rel(fpath),
+                                        "a worker/agent identity cannot accept a candidate"))
+
+
+def check_release_record(relrec: dict, fpath: Path, steward_ids: dict,
+                         findings: list[Finding]) -> None:
+    steward = steward_ids.get(relrec.get("decided_by"))
+    if steward is None:
+        findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                f"decided_by {relrec.get('decided_by')!r} is not a manifest steward"))
+    elif steward.get("role") != "accountable_steward":
+        findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                f"decided_by {relrec.get('decided_by')!r} is not an accountable steward"))
+    elif steward.get("identity_kind") in ("worker", "agent"):
+        findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                "a worker/agent identity cannot publish a package"))
+    if relrec.get("compatibility_class") in ("breaking", "retiring") and \
+            not relrec.get("migration_map_ref"):
+        findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                "breaking/retiring release requires migration_map_ref"))
+    # Per-signal quality exceptions (release-review finding 9): an exception
+    # releases ONE named threshold, never the measurement itself.
+    exceptions = relrec.get("quality_exceptions") or []
+    if exceptions and not relrec.get("quality_report_ref"):
+        findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                "quality_exceptions release thresholds, never the measurement — "
+                                "quality_report_ref is required beside them"))
+    seen_signals: set[str] = set()
+    for exc in exceptions:
+        sig = str(exc.get("signal"))
+        if sig in seen_signals:
+            findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                    f"duplicate quality exception for signal {sig}"))
+        seen_signals.add(sig)
 
 
 def duplicate_ids(pkg: Package) -> list[str]:
@@ -421,6 +522,18 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                 if kernel.manifest.get("package_digest") != ki.get("package_digest"):
                     findings.append(Finding("ONT-KERNEL-IMPORT", rel(mpath),
                                             "kernel_import digest does not match the resolved kernel"))
+
+    # F15: the declared namespace IS the package identity, xf/core is
+    # kernel-only, and the openxfactory owner layer is kernel-only.
+    if manifest.get("namespace") != pkg.package_id:
+        findings.append(Finding("ONT-NAMESPACE", rel(mpath),
+                                f"namespace {manifest.get('namespace')!r} must equal package_id"))
+    if manifest.get("namespace") == "xf/core" and not pkg.is_kernel:
+        findings.append(Finding("ONT-NAMESPACE", rel(mpath),
+                                "a domain package cannot squat the kernel namespace xf/core"))
+    if (manifest.get("owner", {}).get("layer") == "openxfactory") != pkg.is_kernel:
+        findings.append(Finding("ONT-NAMESPACE", rel(mpath),
+                                "owner layer openxfactory is kernel-only (and required for the kernel)"))
 
     # package_id agreement across files + namespace ownership of every term.
     for fname, doc in pkg.files.items():
@@ -548,6 +661,30 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
         if prev.get("package_digest") != ref.get("package_digest"):
             findings.append(Finding("ONT-RETENTION", rel(retained),
                                     f"retained version {version} digest differs from the reference"))
+            continue
+        # F3: retained bytes are VERIFIED, not trusted — recompute every
+        # retained file digest and the package digest so rewritten history
+        # fails as a retention violation.
+        rentries = []
+        rdrift = False
+        for item in prev.get("inventory", []):
+            rf = retained.parent / item.get("path", "")
+            if not rf.is_file():
+                findings.append(Finding("ONT-RETENTION", rel(retained),
+                                        f"retained file missing: {item.get('path')}"))
+                rdrift = True
+                continue
+            actual = hashlib.sha256(rf.read_bytes()).hexdigest()
+            if actual != item.get("sha256"):
+                findings.append(Finding("ONT-RETENTION", rel(rf),
+                                        "retained bytes differ from the recorded sha256; "
+                                        "history is rewritten"))
+                rdrift = True
+            rentries.append((item.get("path", ""), item.get("sha256", "")))
+        if not rdrift and compute_package_digest(rentries) != ref.get("package_digest"):
+            findings.append(Finding("ONT-RETENTION", rel(retained),
+                                    f"retained version {version} inventory does not "
+                                    "reproduce the referenced digest"))
 
     # Revision comparison: when the compatibility.previous version's retained
     # content is resolvable, the declared class must match the edge rubric —
@@ -597,62 +734,39 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                                                 f"{tid}: {end} change in either direction requires "
                                                 f"breaking, declared {compat.get('class')}"))
 
-    # Kernel adoption evidence at publication.
+    # Kernel adoption evidence at publication (F14: relations included,
+    # adopters deduped by identity, domain_package refs resolved against the
+    # shared registry).
     if pkg.is_kernel and lifecycle != "draft":
         units = [("package", manifest.get("adoption"))] + \
-                [(tid, t.get("adoption")) for tid, t in pkg.concepts.items()]
+                [(tid, term.get("adoption"))
+                 for tid, term in list(pkg.concepts.items()) + list(pkg.relations.items())]
         for name, adoption in units:
             adoption = adoption or {}
             adopters = adoption.get("adopters", [])
-            if adoption.get("status") != "evidenced" or len(adopters) < 2:
+            distinct = {(a.get("kind"), a.get("ref")) for a in adopters}
+            if adoption.get("status") != "evidenced" or len(distinct) < 2:
                 findings.append(Finding("ONT-ADOPTION", rel(mpath),
-                                        f"published kernel {name}: needs two independent resolvable "
-                                        "adopters, found "
-                                        f"{len(adopters)} ({adoption.get('status', 'absent')})"))
+                                        f"published kernel {name}: needs two independent "
+                                        f"resolvable adopters, found {len(distinct)} distinct "
+                                        f"({adoption.get('status', 'absent')})"))
                 continue
-            for adopter in adopters:
-                ref = adopter.get("ref", "")
-                if adopter.get("kind") == "shared_subsystem_contract" and not (ROOT / ref).exists():
+            for kind_a, ref in sorted(distinct):
+                if kind_a == "shared_subsystem_contract" and not (ROOT / str(ref)).exists():
                     findings.append(Finding("ONT-ADOPTION", rel(mpath),
                                             f"published kernel {name}: adopter {ref} does not resolve"))
+                if kind_a == "domain_package" and str(ref) not in PACKAGE_REGISTRY:
+                    findings.append(Finding("ONT-ADOPTION", rel(mpath),
+                                            f"published kernel {name}: domain_package adopter "
+                                            f"{ref} does not resolve to a scanned package"))
 
     # Candidate rules.
     for fpath, cand in pkg.candidates:
-        prov = cand.get("provenance", {})
-        if prov.get("method") == "model_extraction" and not prov.get("extraction_run_id"):
-            findings.append(Finding("ONT-CANDIDATE", rel(fpath),
-                                    "model extraction requires an extraction_run_id"))
-        if cand.get("review_state") == "accepted":
-            disp = cand.get("disposition")
-            if not disp:
-                findings.append(Finding("ONT-CANDIDATE", rel(fpath),
-                                        "accepted candidate has no recorded disposition"))
-            else:
-                steward = steward_ids.get(disp.get("decided_by"))
-                if steward is None:
-                    findings.append(Finding("ONT-CANDIDATE", rel(fpath),
-                                            f"disposition decided_by {disp.get('decided_by')!r} is not a "
-                                            "manifest steward"))
-                elif steward.get("identity_kind") in ("worker", "agent"):
-                    findings.append(Finding("ONT-CANDIDATE", rel(fpath),
-                                            "a worker/agent identity cannot accept a candidate"))
+        check_candidate_record(cand, fpath, steward_ids, findings)
 
     # Release rules.
     for fpath, relrec in pkg.releases:
-        steward = steward_ids.get(relrec.get("decided_by"))
-        if steward is None:
-            findings.append(Finding("ONT-RELEASE", rel(fpath),
-                                    f"decided_by {relrec.get('decided_by')!r} is not a manifest steward"))
-        elif steward.get("role") != "accountable_steward":
-            findings.append(Finding("ONT-RELEASE", rel(fpath),
-                                    f"decided_by {relrec.get('decided_by')!r} is not an accountable steward"))
-        elif steward.get("identity_kind") in ("worker", "agent"):
-            findings.append(Finding("ONT-RELEASE", rel(fpath),
-                                    "a worker/agent identity cannot publish a package"))
-        if relrec.get("compatibility_class") in ("breaking", "retiring") and \
-                not relrec.get("migration_map_ref"):
-            findings.append(Finding("ONT-RELEASE", rel(fpath),
-                                    "breaking/retiring release requires migration_map_ref"))
+        check_release_record(relrec, fpath, steward_ids, findings)
         if relrec.get("package_id") == pkg.package_id and \
                 relrec.get("package_version") == pkg.manifest.get("package_version") and \
                 relrec.get("package_digest") != pkg.manifest.get("package_digest"):
@@ -724,6 +838,28 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                 findings.append(Finding("ONT-QUALITY", rel(fpath),
                                         "fixture_accuracy requires the pinned fixture-set digest"))
 
+    # Beside-package maintenance INPUTS respect the policy's standing
+    # floor (release-review finding 6, validator leg).
+    if policy_floor:
+        for fpath, mi in pkg.maintenance_inputs:
+            for entry in mi.get("unknown_terms") or []:
+                if entry.get("distinct_subjects", 0) < policy_floor.get("distinct_subjects", 1) \
+                        or entry.get("distinct_tenants", 0) < policy_floor.get("distinct_tenants", 1):
+                    findings.append(Finding("ONT-FLOOR", rel(fpath),
+                                            f"maintenance input term {entry.get('term_form')!r} "
+                                            "is below the policy aggregation floor"))
+
+    # F16: breaking/retiring releases carry their consumer-impact report.
+    for fpath, relrec in pkg.releases:
+        if relrec.get("compatibility_class") in ("breaking", "retiring"):
+            ciref = relrec.get("consumer_impact_ref")
+            if not ciref:
+                findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                        "breaking/retiring release requires consumer_impact_ref"))
+            elif not (pkg.dir / str(ciref)).is_file():
+                findings.append(Finding("ONT-RELEASE", rel(fpath),
+                                        f"consumer_impact_ref {ciref} not found beside the package"))
+
     # Semantic contexts compiled against this package.
     for fpath, ctx in pkg.contexts:
         check_context(ctx, fpath, pkg, resolve_kernel, findings)
@@ -732,17 +868,41 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
 def check_context(ctx: dict, fpath: Path, pkg: Package | None, resolve_kernel,
                   findings: list[Finding]) -> None:
     pin = ctx.get("package_pin", {})
-    if pkg is not None and pin.get("package_id") == pkg.package_id and \
-            pin.get("package_digest") != pkg.manifest.get("package_digest"):
+    closure = ctx.get("closure", {})
+    # Package-independent rules run FIRST (release-review finding 7): a
+    # travelling context is checked wherever it lands.
+    if closure.get("status") == "truncated" and not (closure.get("omitted") or []):
+        findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
+                                "truncated context must itemize each omitted member"))
+    kctx = resolve_kernel()
+    kpin = ctx.get("kernel_pin", {})
+    if kctx is not None and kpin.get("package_digest") not in (
+            None, kctx.manifest.get("package_digest")):
         findings.append(Finding("ONT-CONTEXT-PIN", rel(fpath),
-                                "package pin digest does not match the resolved package"))
+                                "kernel pin digest does not match the resolved kernel"))
     binding = ctx.get("tenant_binding")
     if binding and binding.get("package_id") != pin.get("package_id"):
         findings.append(Finding("ONT-BINDING", rel(fpath),
                                 f"tenant binding is pinned to {binding.get('package_id')} but the "
                                 f"context is compiled against {pin.get('package_id')}"))
     if pkg is None:
-        return
+        # Loose context: resolve its package through the shared registry.
+        candidates = PACKAGE_REGISTRY.get(str(pin.get("package_id")), [])
+        match = next((c for c in candidates
+                      if c.manifest.get("package_digest") == pin.get("package_digest")), None)
+        if match is not None:
+            pkg = match
+        elif candidates:
+            findings.append(Finding("ONT-CONTEXT-PIN", rel(fpath),
+                                    "package pin digest does not match any scanned package "
+                                    f"with id {pin.get('package_id')}"))
+            return
+        else:
+            return  # package not present in this tree; closure unverifiable here
+    if pin.get("package_id") == pkg.package_id and \
+            pin.get("package_digest") != pkg.manifest.get("package_digest"):
+        findings.append(Finding("ONT-CONTEXT-PIN", rel(fpath),
+                                "package pin digest does not match the resolved package"))
     kernel = resolve_kernel() if not pkg.is_kernel else pkg
 
     def lookup_concept(tid: str) -> dict | None:
@@ -786,9 +946,6 @@ def check_context(ctx: dict, fpath: Path, pkg: Package | None, resolve_kernel,
         findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
                                 "subset declared closed but omits closure members: "
                                 + "; ".join(sorted(missing))))
-    if closure.get("status") == "truncated" and not omitted:
-        findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
-                                "truncated context must itemize each omitted member"))
 
 
 def expected_failure(path: Path) -> tuple[str | None, str | None]:
@@ -811,6 +968,8 @@ def discover_units(base: Path):
         packages.append(manifest.parent)
     pkg_dirs = set(packages)
     for f in sorted(list(base.rglob("*.yaml")) + list(base.rglob("*.yml"))):
+        if ".template." in f.name:
+            continue  # instantiation stubs carry placeholders by design
         if any(parent in pkg_dirs for parent in f.parents):
             continue
         try:
@@ -838,9 +997,9 @@ def validate_unit(kind: str, path: Path, schemas, resolve_kernel) -> list[Findin
         doc_kind = doc.get("kind")
         if doc_kind not in FAMILY_KINDS:
             # A non-family document carrying an embedded semantic_context
-            # block (task 6.4): typed claims, hypotheses, jobs, and derived
-            # artifacts that use domain semantics retain their exact
-            # semantic-context identity and pins.
+            # block (task 6.4): the ontology rules govern the BLOCK, not the
+            # host document (release-review finding 2) — packet fields like
+            # subject_refs are the memory-gateway contract's jurisdiction.
             blocks = []
             if isinstance(doc.get("semantic_context"), dict):
                 blocks.append(doc["semantic_context"])
@@ -855,10 +1014,28 @@ def validate_unit(kind: str, path: Path, schemas, resolve_kernel) -> list[Findin
                             "ONT-CONTEXT-PIN", rel(path),
                             f"embedded semantic_context missing {key}; artifacts "
                             "using domain semantics retain their exact identity"))
-            findings.extend(value_scan(doc, path))
+                findings.extend(value_scan(block, path))
             return findings
         findings.extend(schema_findings(schemas[doc_kind], doc, path))
         findings.extend(value_scan(doc, path))
+        if doc_kind in ("xfactory_ontology_release_record",
+                        "xfactory_ontology_candidate_record"):
+            # F10: governance records are governed by ARTIFACT, not location —
+            # resolve the roster through the registry and apply the same rules.
+            pkgs = PACKAGE_REGISTRY.get(str(doc.get("package_id")), [])
+            if not pkgs:
+                code = ("ONT-RELEASE" if doc_kind.endswith("release_record")
+                        else "ONT-CANDIDATE")
+                findings.append(Finding(code, rel(path),
+                                        f"record for {doc.get('package_id')!r} does not "
+                                        "resolve to any package in the scanned tree"))
+            else:
+                roster = {s["steward_id"]: s
+                          for s in pkgs[0].manifest.get("stewards", [])}
+                if doc_kind.endswith("release_record"):
+                    check_release_record(doc, path, roster, findings)
+                else:
+                    check_candidate_record(doc, path, roster, findings)
         if doc_kind == "xfactory_semantic_context":
             check_context(doc, path, None, resolve_kernel, findings)
         if doc_kind == "xfactory_ontology_quality_report":
@@ -889,6 +1066,7 @@ def check_package_quality_only(pkg: Package, findings: list[Finding]) -> None:
 
 
 def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
+    PACKAGE_REGISTRY.clear()
     schemas = load_schemas()
     errors: list[Finding] = []
     notes: list[str] = []
@@ -941,6 +1119,10 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
+    if neg_count < 42:
+        errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
+                              f"negative fixture count {neg_count} fell below the "
+                              "pinned minimum of 42"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
     # Layer 2: optional repo scan.
@@ -1023,11 +1205,17 @@ def readiness(pkg_dir: Path) -> int:
         else:
             rel_rec = release_recs[0]
             gate = (pkg.policy or {}).get("quality_gate", {})
-            if gate.get("required_signals") and not rel_rec.get("quality_exception_ref"):
+            if gate.get("required_signals"):
+                # Per-signal exceptions (release-review finding 9): each
+                # releases exactly one signal's threshold; the measurement —
+                # a quality report over the CURRENT digest — is never excused.
+                excepted = {str(e.get("signal"))
+                            for e in rel_rec.get("quality_exceptions") or []}
                 qreports = [q for _, q in pkg.quality
                             if q.get("package_digest") == current]
                 if not qreports:
-                    reasons.append("no quality report covers the current package digest")
+                    reasons.append("no quality report covers the current package digest "
+                                   "(an exception releases a threshold, never the measurement)")
                 else:
                     sigmap: dict[str, float] = {}
                     for q in qreports:
@@ -1037,10 +1225,13 @@ def readiness(pkg_dir: Path) -> int:
                                 sigmap[sig.get("signal")] = sig.get("numerator", 0) / den
                     for req in gate["required_signals"]:
                         name = req.get("signal")
+                        if name in excepted:
+                            continue
                         value = sigmap.get(name)
                         if value is None:
                             reasons.append(f"required quality signal {name} is missing "
-                                           "(a reviewed exception would release this block)")
+                                           "(a per-signal reviewed exception would release "
+                                           "this block)")
                             continue
                         if "min_value" in req and value < req["min_value"]:
                             reasons.append(f"quality signal {name} {value:.3f} below "

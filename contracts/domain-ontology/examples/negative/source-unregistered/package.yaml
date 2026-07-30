@@ -17,7 +17,7 @@ stewards:
 kernel_import:
   package_id: xf/core
   package_version: 0.1.0
-  package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 inventory:
   - path: concepts.yaml
     sha256: 0fa2805b105e4beff00e07c078ca47488b0f336f65783e0b5b8b570da770565e

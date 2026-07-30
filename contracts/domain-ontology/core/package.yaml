@@ -25,10 +25,10 @@ inventory:
   - path: concepts.yaml
     sha256: 504d99857000eab5d6afe00990dcf7e26d69f572e28e26e00a2a766db63f86ea
   - path: relations.yaml
-    sha256: 37ed2b4b643fb9095a052aa8c920b9dbfa5e1e02b0ebf4bd89991866e5118c6b
+    sha256: 2d36d107a55791ac7940c9983afea476214c2156f58b2df00c7939141b047b03
   - path: sources.yaml
     sha256: c7a24dcc83052e03f5fa2b10233f3882a4f295be99880b866bf0af0a105ba715
-package_digest: 46e45f6c2da2bb8fbad910fb2aa14d667b60319cc17ecf049658453b8dd898b7
+package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 compatibility:
   class: initial
   line: xf/core@1

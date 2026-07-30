@@ -19,6 +19,10 @@ Hard rules (lifecycle spec "Domain Hermes ontology stewardship" /
     re-proposal is a skip, a differing one is a reported conflict.
   * A below-floor term-level entry in the input fails closed (the
     aggregation floor is the package policy's standing floor).
+  * An identifier-shaped string anywhere in the input (SSN/email/long digit
+    run) fails the run closed BEFORE any candidate bytes are written — a
+    governed maintenance input carries aggregate, de-identified forms only
+    (release-review finding 6).
   * When nothing fires, the report records the completed check and the
     active package and pins stay untouched.
 
@@ -28,6 +32,8 @@ Exit codes: 0 evaluated (report written), 1 conflicts or fail-closed input,
 from __future__ import annotations
 
 import argparse
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -40,6 +46,15 @@ except ImportError:  # pragma: no cover
 TRIGGER_ORDER = [
     "source_expiry", "unknown_terms", "mapping_failures", "low_confidence",
     "workflow_drift", "subdomain_requests", "appeals", "promotion_candidates",
+]
+
+# Mirrors the canonical validator's identifier heuristics: an SSN shape, an
+# email address, or a 7+ digit run has no place in a governed, aggregate
+# maintenance input.
+IDENTIFIER_PATTERNS = [
+    re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
+    re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
+    re.compile(r"\d{7,}"),
 ]
 
 
@@ -84,14 +99,14 @@ class Emitter:
             lines += [
                 "  concepts:",
                 f"    - id: {self.package_id}/{slug.replace('-', '_')}",
-                f"      label: \"{slug.replace('-', ' ').title()}\"",
-                f"      definition: \"{description}\"",
+                f"      label: {json.dumps(slug.replace('-', ' ').title())}",
+                f"      definition: {json.dumps(description)}",
             ]
         lines += [
             "provenance:",
             f"  method: {provenance_method}",
             "  source_refs:",
-            f"    - \"{source_ref}\"",
+            f"    - {json.dumps(source_ref)}",
             "review_state: open",
         ]
         content = "\n".join(lines) + "\n"
@@ -145,6 +160,27 @@ def main() -> int:
         print("ERROR input package_id does not match the package", file=sys.stderr)
         return 1
     as_of = str(data.get("as_of"))
+
+    # De-identification fail-closed (release-review finding 6): candidate
+    # prose embeds input strings verbatim, so an identifier-shaped value
+    # anywhere in the input refuses the whole run before any bytes land.
+    def scan_identifiers(node, path):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                yield from scan_identifiers(v, f"{path}.{k}")
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                yield from scan_identifiers(v, f"{path}[{i}]")
+        elif isinstance(node, str):
+            if any(p.search(node) for p in IDENTIFIER_PATTERNS):
+                yield path
+
+    leaks = list(scan_identifiers(data, "input"))
+    if leaks:
+        print("ERROR input carries identifier-shaped values (SSN/email/long "
+              f"digit run) at: {', '.join(leaks[:5])}; de-identify the input "
+              "before evaluation", file=sys.stderr)
+        return 1
 
     # Privacy fail-closed: every term-level entry meets the standing floor.
     fs = floor.get("distinct_subjects", 1)
@@ -290,14 +326,14 @@ def main() -> int:
         f"package_id: {package_id}",
         f"package_digest: {manifest.get('package_digest')}",
         f"as_of: '{as_of}'",
-        f"input_ref: \"{args.input.name}\"",
+        f"input_ref: {json.dumps(args.input.name)}",
         "triggers_evaluated:",
     ]
     for e in evaluated:
         report_lines += [f"  - trigger: {e['trigger']}",
                          f"    fired: {'true' if e['fired'] else 'false'}"]
         if e.get("detail"):
-            report_lines.append(f"    detail: \"{e['detail']}\"")
+            report_lines.append(f"    detail: {json.dumps(e['detail'])}")
         if e.get("mode"):
             report_lines.append(f"    mode: {e['mode']}")
         if e.get("candidate_refs"):

@@ -7,7 +7,7 @@ worker_scope:
 kernel_pin:
   package_id: xf/core
   package_version: 0.1.0
-  package_digest: 448889b88f4c647b718b372a2fafc4e6574b9a3916e126a7009146f75a62664d
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
 package_pin:
   package_id: xf/medx
   package_version: 1.0.0

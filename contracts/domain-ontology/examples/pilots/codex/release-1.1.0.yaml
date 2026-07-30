@@ -7,4 +7,8 @@ package_digest: 117990ae0f3d86f0bf568f7201dd07c19ba05f05e38c2356c8c7763b89729de5
 compatibility_class: retiring
 decided_by: codex-ontology-steward
 migration_map_ref: migration-1.1.0.yaml
-quality_exception_ref: review://codex/exception-retire
+quality_report_ref: quality-1.0.0.yaml
+quality_exceptions:
+  - signal: intake_scope_coverage
+    review_ref: "review://codex/exception-coverage"
+consumer_impact_ref: consumer-impact-1.1.0.yaml

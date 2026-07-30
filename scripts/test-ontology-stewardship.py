@@ -220,19 +220,43 @@ def main() -> int:
                   "--decided-by", "test-steward", "--release-id", "rel-poor",
                   "--quality-report", "poor-quality.yaml")
         check("release: below-threshold quality blocks publication",
-              res.returncode == 1 and "reviewed exception" in res.stderr, res.stderr)
+              res.returncode == 1 and "per-signal" in res.stderr, res.stderr)
+        # A blanket exception no longer exists (release-review finding 9):
+        # the old form is malformed, an exception without the measurement is
+        # refused, and only signal=ref beside the report releases the block.
         res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
                   "--compatibility-class", "additive",
                   "--decided-by", "test-steward", "--release-id", "rel-exception",
                   "--quality-exception", "review://exception/9")
-        check("release: recorded reviewed exception releases the block",
+        check("release: blanket exception form refused as malformed",
+              res.returncode == 1 and "SIGNAL=REF" in res.stderr, res.stderr)
+        res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
+                  "--compatibility-class", "additive",
+                  "--decided-by", "test-steward", "--release-id", "rel-exception",
+                  "--quality-exception",
+                  "intake_scope_coverage=review://exception/9")
+        check("release: exception without the measurement refused",
+              res.returncode == 1 and "never the measurement" in res.stderr,
+              res.stderr)
+        res = run(str(RELEASE), str(pkg), "--new-version", "0.2.0",
+                  "--compatibility-class", "additive",
+                  "--decided-by", "test-steward", "--release-id", "rel-exception",
+                  "--quality-report", "poor-quality.yaml",
+                  "--quality-exception",
+                  "intake_scope_coverage=review://exception/9")
+        check("release: per-signal reviewed exception beside the report releases the block",
               res.returncode == 0, res.stderr)
-        check("release: exception recorded on the release record",
-              "quality_exception_ref: review://exception/9"
-              in (pkg / "release-0.2.0.yaml").read_text())
+        release_record = (pkg / "release-0.2.0.yaml").read_text()
+        check("release: per-signal exception recorded on the release record",
+              "quality_exceptions:" in release_record
+              and "signal: intake_scope_coverage" in release_record
+              and "review://exception/9" in release_record)
         check("release: previous version retained byte-identically",
               (pkg / "retained/0.1.0/package.yaml").is_file()
               and old_digest in (pkg / "retained/0.1.0/package.yaml").read_text())
+        check("release: published version self-retained at publication",
+              (pkg / "retained/0.2.0/package.yaml").is_file()
+              and pkg_digest(pkg) in (pkg / "retained/0.2.0/package.yaml").read_text())
 
         # -- release: breaking requires migration; new line -----------------
         res = run(str(RELEASE), str(pkg), "--new-version", "1.0.0",
@@ -258,8 +282,26 @@ def main() -> int:
                   "--compatibility-class", "breaking",
                   "--decided-by", "test-steward", "--release-id", "rel-break",
                   "--migration-map", "migration.yaml",
-                  "--quality-exception", "review://exception/10")
-        check("release: breaking with migration publishes on a new line",
+                  "--quality-report", "quality-0.2.0.yaml")
+        check("release: breaking without consumer impact refused (finding 16)",
+              res.returncode == 1 and "consumer-impact" in res.stderr, res.stderr)
+        (pkg / "consumer-impact-1.0.0.yaml").write_text("\n".join([
+            "schema_version: 1",
+            "kind: xfactory_ontology_consumer_impact_report",
+            "from_package:", "  package_id: xf/testx",
+            "  package_version: 0.2.0",
+            f"  package_digest: {pkg_digest(pkg)}",
+            "to_package:", "  package_id: xf/testx",
+            "  package_version: 1.0.0",
+            "affected_terms:", "  - xf/testx/in_intake",
+        ]) + "\n")
+        res = run(str(RELEASE), str(pkg), "--new-version", "1.0.0",
+                  "--compatibility-class", "breaking",
+                  "--decided-by", "test-steward", "--release-id", "rel-break",
+                  "--migration-map", "migration.yaml",
+                  "--quality-report", "quality-0.2.0.yaml",
+                  "--consumer-impact", "consumer-impact-1.0.0.yaml")
+        check("release: breaking with migration + consumer impact publishes on a new line",
               res.returncode == 0 and "line xf/testx@2" in res.stdout, res.stderr)
 
         # -- readiness after publication + quality over current digest -----

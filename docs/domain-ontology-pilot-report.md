@@ -21,7 +21,7 @@ journey states) and codexFactory's from the engineering domain model
 (project subject; repository/feature focal items; execution/review lanes,
 admission journey). Every step below is reproducible from the pinned tools
 in this repository; the pilot packages import kernel `xf/core` 0.1.0 at
-digest `46e45f6c…d898b7`.
+digest `9d4ea5fa…d505a5`.
 
 ## Evidence log
 
@@ -32,17 +32,20 @@ medx ingest (colliding + clean): exit 1 (conflict recorded: True)
 medx readiness with unresolved conflict: blocked (domain_scaffold_required)
 medx conflict dispositioned: rejected by medx-ontology-steward
 medx first publication 0.1.0 -> 1.0.0 additive: exit 0
-medx breaking 1.0.0 -> 2.0.0 (reparent, migration shipped): exit 0, line xf/medx@2
+medx breaking 1.0.0 -> 2.0.0 (reparent, migration + consumer impact shipped): exit 0, line xf/medx@2
 medx maintenance no-drift check recorded: exit 0
 medx readiness: ontology_ready
 medx worker contexts (verify, generate): compiled, closed subsets
 medx canonical validation over pilot repo: exit 0
 codex generate: exit 0           (18 concepts seeded)
 codex first publication 0.1.0 -> 1.0.0 additive: exit 0
-codex retiring 1.0.0 -> 1.1.0 (term retired, migration shipped): exit 0, line xf/codex@2
+codex below-gate release WITHOUT the per-signal exception refused: yes
+codex retiring 1.0.0 -> 1.1.0 (term retired, migration + consumer impact shipped): exit 0, line xf/codex@2
 codex readiness: ontology_ready
 codex worker context (verify): compiled, closed subset
 codex canonical validation over pilot repo: exit 0
+gateway example semantic-context-packet stamped from the compiled medx pilot context
+gateway expert example gains the same real semantic context
 ```
 
 ## Findings
@@ -56,13 +59,16 @@ codex canonical validation over pilot repo: exit 0
 2. **Every compatibility class exercised with history intact (7.4).**
    Additive first publications on both domains; a breaking reparent
    (`xf/medx/treatment` gains `xf/core/intervention`) shipping its
-   migration map and opening line `xf/medx@2`; a retiring release
-   (`xf/codex/decomposition` retired with its migration disposition)
-   opening `xf/codex@2`. Superseded versions are retained byte-identically
-   under `retained/<version>/` in both pilot fixtures — the two-pin
-   coexistence and rollback story is structural: every historical release
-   record and retained manifest keeps its original digest, so re-pinning
-   the prior version is a pointer change with no rewrite anywhere.
+   migration map AND consumer-impact report and opening line `xf/medx@2`;
+   a retiring release (`xf/codex/decomposition` retired with its migration
+   disposition and consumer-impact report) opening `xf/codex@2`. Versions
+   are retained byte-identically under `retained/<version>/` in both pilot
+   fixtures — each release self-retains the bytes it publishes at
+   publication time, and the validator recomputes retained bytes against
+   their recorded digests, so the two-pin coexistence and rollback story is
+   structural: every historical release record and retained manifest keeps
+   its original digest, and re-pinning the prior version is a pointer
+   change with no rewrite anywhere.
 3. **Kernel minimization (7.2): no domain leakage; adoption evidenced.**
    All 37 pilot concepts landed in `xf/medx`/`xf/codex` namespaces; no
    pilot needed a new kernel term, no kernel term went unused as a
@@ -83,10 +89,15 @@ codex canonical validation over pilot repo: exit 0
 
 ## Residual observations for the domain adoptions
 
-- The medx quality gate passed at 15/16 intake coverage; the breaking and
-  retiring releases used recorded reviewed exceptions
-  (`review://medx/exception-break`, `review://codex/exception-retire`) —
-  live domains should prefer fresh quality reports over exceptions.
+- The quality gate is measured, never excused: both breaking/retiring
+  releases carried real quality reports over the active version. Medx
+  passed at 15/16 intake coverage with no exception; codex measured 7/16
+  (below the 0.5 gate), the release WITHOUT an exception was refused, and
+  the published release records the per-signal exception
+  (`intake_scope_coverage=review://codex/exception-coverage`) beside the
+  report — there is no blanket exception form.
+- The memory-gateway semantic examples are stamped from the compiled medx
+  pilot context, so every packet digest resolves against the pilot tree.
 - Pilot stewards are named placeholders for the real Domain Hermes rosters;
-  the Medx roster composition is an open decision round
-  (`medxfactory-domain-hermes-content`).
+  the realized Medx roster now lives in MedxFactory
+  (`hermes/domain/roles/`, ontology-steward persona + MxD-MRR council).
