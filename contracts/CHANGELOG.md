@@ -13,6 +13,30 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.23 — 2026-07-30 (additive; omnigent semantic wiring — the worker seam closes)
+
+Realizes **add-omnigent-semantic-wiring** (ratified 2026-07-30), the
+follow-up named at add-domain-ontology-layer task 6.7: the two omnigent
+schemas gain the worker semantic seam. `omnigent-domain-overlay` — a
+worker class MAY declare `semantic_context: {profile_id, package_id}`
+(identity only, authority-free; repo-mode resolution against the domain's
+inventoried `xfactory_semantic_context_profile` documents with
+worker_scope archetype-or-class agreement). `omnigent-install-manifest` —
+optional `semantic_contexts` section pinning exact kernel + domain
+ontology digests and one compiled `xfactory_semantic_context` artifact
+per declaring worker (both-direction completeness and per-artifact
+digest/pin/scope agreement via the canonical `install_wiring_errors`,
+exercised by `scripts/test-omnigent-semantic-wiring.py`). Seam hardening
+rides the same change without schema bytes: the context compiler refuses
+drifted package bytes (review F20) and itemizes truncation transitively
+with a validator completeness rule (review F19; ontology negative corpus
+50). Permission matrices and the constitutional
+`execute_final_action`/`access_secrets` booleans are untouched. First
+consumer: MedxFactory 80a81af (two profiles, declarations on
+`data_reverification_agent` and `case_framing_agent`, overlay-manifest
+re-pinned); codexFactory and install repositories adopt through their own
+governed changes.
+
 ## contract-v1.22 — 2026-07-29 (additive; domain-ontology family — the semantic plane lands)
 
 Realizes **add-domain-ontology-layer** (ratified 2026-07-28): the

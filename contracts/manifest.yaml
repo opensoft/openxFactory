@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.22
+contract_bundle_version: contract-v1.23
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -860,7 +860,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-domain-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 04093e3590c29e2b6a5bc91b3d4fa044e7211fcca296d00ba1fe42e73e27efb0  # contract-v1.20 (additive: crystallized-executor binding + rung_ceilings)
+    sha256: bb1cc4dd32f49e2c4ec63bc8163d7364b05849b6ccaab10f6a13764c05cd5b45  # contract-v1.23 (additive: worker semantic_context declaration; add-omnigent-semantic-wiring)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -876,7 +876,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-install-manifest.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 27a36744c580545e2d7ede606e54bbccf0576d80ecda3016ee9a8093ea616626
+    sha256: 25ce9cfcfe451bed5e0b5ffce4cb782ebb17f33838091f45d49519d0b80e1233  # contract-v1.23 (additive: semantic_contexts install pins; add-omnigent-semantic-wiring)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
