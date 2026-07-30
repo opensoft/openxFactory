@@ -255,21 +255,6 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
-- [add-omnigent-semantic-wiring](openspec/changes/add-omnigent-semantic-wiring/proposal.md)
-  — authored and ratified 2026-07-30, realizing the follow-up named at
-  add-domain-ontology-layer task 6.7 / design decision 13: the Omnigent
-  seam becomes wireable in a real stack. The domain overlay declares each
-  worker's semantic-context profile by identity
-  (`semantic_context: {profile_id, package_id}`, resolved in repo mode
-  against the domain's inventoried profiles with archetype-or-class scope
-  agreement); the install manifest pins the compiled per-worker artifacts
-  (`semantic_contexts`: exact kernel/package pins, both-direction
-  completeness fail-closed, per-artifact digest/pin/scope agreement).
-  Seam hardening rides along: the compile tool refuses drifted package
-  bytes (F20) and truncation itemizes the closure transitively with a
-  validator completeness rule (F19). Permission matrices untouched. First
-  consumer MedxFactory (80a81af). Omnigent schema bytes change →
-  contract-v1.23.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -566,6 +551,27 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-omnigent-semantic-wiring](openspec/changes/archive/2026-07-30-add-omnigent-semantic-wiring/proposal.md)
+  — **authored, ratified, realized, cut at contract-v1.23, and archived
+  2026-07-30**, closing the follow-up named at add-domain-ontology-layer
+  6.7 / design decision 13: the Omnigent seam is wired end to end. The
+  domain overlay declares each worker's semantic-context profile by
+  identity (repo-mode resolution against inventoried profiles,
+  archetype-or-class scope agreement); the install manifest pins the
+  compiled per-worker artifacts with exact kernel/package digests,
+  both-direction completeness fail-closed, and — after the review's N5 —
+  the content digest RECOMPUTED from artifact bytes at both gates (the
+  install pin catches tampering even when an artifact is self-consistent;
+  the ontology validator catches drift wherever a context lands). Seam
+  hardening landed F19 (transitive truncation itemization, tool +
+  validator) and F20 (drifted package bytes refuse compilation); the
+  review also surfaced N7 — a stale `contracts/manifest.yaml` digest
+  carried v1.18→v1.23 with no checker — fixed with
+  `scripts/validate-manifest-digests.py` (104/104) and a recorded v1.23
+  erratum. Ontology corpus 51 negatives / 10 positives; wiring suite 16
+  checks. First consumer MedxFactory (80a81af: two profiles, two
+  declarations, overlay-manifest re-pinned); tag `contract-v1.23`
+  remote-verified; reviewer APPROVED at 792afd2.
 - [add-ontology-term-lifecycle-enforcement](openspec/changes/archive/2026-07-30-add-ontology-term-lifecycle-enforcement/proposal.md)
   — **authored, ratified, realized, and archived 2026-07-30**, landing F18
   (the first carried-forward finding from the ontology release review):

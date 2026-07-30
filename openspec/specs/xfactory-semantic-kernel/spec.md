@@ -143,12 +143,21 @@ xFactory SHALL materialize purpose-bounded semantic-context artifacts rather
 than exposing an unrestricted ontology corpus to every workflow or worker. A
 semantic context SHALL identify the exact kernel and domain package pins, any
 approved tenant binding, the requested purpose and term subset, lifecycle and
-freshness metadata, and its own content digest. A term subset SHALL be closed:
+freshness metadata, and its own content digest. Compilation SHALL verify the
+kernel and domain package bytes against their recorded per-file and package
+digests before compiling and SHALL refuse a drifted package — a worker
+context is never compiled from bytes the package manifest does not
+attest. A term subset SHALL be closed:
 it SHALL contain the specialization ancestors of every included concept up to
 the kernel and the domain and range concepts of every included relation, or
-record an explicit itemized truncation naming each omitted closure member, so
-consumers can treat the artifact's classifications as partial. Compilation
-SHALL fail when a subset is neither closed nor explicitly truncated. A term
+record an explicit itemized truncation naming each omitted closure member
+TRANSITIVELY — the ancestors and endpoint concepts of omitted members are
+closure members too, and an itemization that stops at the first ring is
+incomplete — so consumers can treat the artifact's classifications as
+partial. Compilation
+SHALL fail when a subset is neither closed nor explicitly truncated, and
+validation SHALL fail a truncated context whose itemization omits a
+transitive closure member it does not name. A term
 subset SHALL NOT include a term the pinned package retires: compilation
 refuses a retired term in the requested set or the computed closure, a worker
 profile naming a retired required term is invalid, and the canonical
@@ -164,9 +173,17 @@ pin SHALL fail closed.
 - **WHEN** an approved workflow needs domain classification or entity-resolution context
 - **THEN** xFactory supplies a bounded artifact containing only the required terms and exact package identities
 
+#### Scenario: Compilation refuses drifted package bytes
+- **WHEN** any inventoried file of the kernel or the pinned domain package no longer hashes to its recorded digest at compile time
+- **THEN** compilation MUST refuse naming the drifted file — the compiled context would otherwise attest pins its content does not honor
+
 #### Scenario: A requested subset is not closed
 - **WHEN** a requested or profiled term subset omits a specialization ancestor of an included concept or a domain or range concept of an included relation
 - **THEN** compilation MUST close the subset over those members or emit an explicit truncation record naming each omitted member, and MUST fail when it can do neither
+
+#### Scenario: A truncated itemization is not transitive
+- **WHEN** a truncated context names an omitted member but not that member's own specialization ancestors or relation endpoints, which are closure members of the included terms
+- **THEN** compilation MUST name them all, and the canonical validator MUST fail a truncated context whose itemization stops short
 
 #### Scenario: A requested subset includes a retired term
 - **WHEN** a requested or profiled term subset, or its computed closure, includes a term whose `lifecycle_state` is `retired` in the pinned package version
