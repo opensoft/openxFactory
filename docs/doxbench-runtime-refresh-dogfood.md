@@ -35,7 +35,11 @@ The acceptance pass is complete when the hosted snapshot:
 1. names the `openxFactory` commit containing this record as its source
    revision;
 2. lists this exact path in `documents`; and
-3. serves the file through the confined same-origin source route.
+3. makes the record available in the snapshot-backed document view.
+
+The separately governed `/source` pass-through reads from the served checkout;
+it is not the runtime snapshot-backed document view and is not an acceptance
+criterion for this refresh pass.
 
 The OpenSpec task ledger and deployment evidence carry the resulting revisions
-and timestamps; this record remains immutable evidence of the document used.
+and timestamps; this record remains durable evidence of the document used.
