@@ -20,7 +20,7 @@ one shell, with the console's token unreadable by the worker principal.
 Also names the gap this conversation exposed: codexFactory has no subject
 surface at all. Its subject layer is `Project Hermes`, and every feature a
 project stakeholder needs maps onto a gate the funnel already has.
-Topics: avatar-first-ui, ideation-dashboard, client-surface, hermes-layers, worker-host, workstation, gate-console, two-plane, identity
+Topics: avatar-first-ui, doxbench, ideation-dashboard, client-surface, hermes-layers, worker-host, workstation, gate-console, two-plane, identity
 Repository context: openxFactory owns the neutral surface standard
 (`avatar-first-ui`, ratified) and this topic; the shell platform decision is
 shared with the avatar-client track (private `xfactory-avatar-client` repo);
@@ -103,9 +103,9 @@ surface (name open; codexFactory first consumer)
    session ref is never published.
 7. **The engineer's hybrid surface is largely already shipped.** The
    ideation dashboard IS the tenant-layer hybrid surface — wheel, funnel,
-   staged workbench, gate console, health. The missing piece is Track C's
-   chat rail. Nothing in this topic asks for a new tenant UI; it asks for a
-   host for the one that exists.
+   staged workbench, gate console, health. The missing piece is doxBench's
+   integrated editor/chat surface (historically Track C). Nothing in this topic
+   asks for a new tenant UI; it asks for a host for the one that exists.
 8. **codexFactory's subject surface is undefined, and its feature set maps
    onto gates the funnel already has.** MedxFactory has the pattern
    (avatar patient intake, shipped as the client-lab carveout);

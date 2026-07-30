@@ -168,7 +168,8 @@ reference set and the scratch notebook where they are.
   notebook in the same gesture — and the `lens-launch` action recording in
   the manifest history they imply; any EDIT or delete path (the workbench
   still never rewrites an existing document, and the engine refuses it);
-  outline editing; Track C's AI chat layer and any generated content; any
+  outline editing; doxBench's integrated AI editor/chat layer (then called
+  Track C) and any generated content; any
   new snapshot field; a per-row "seed from this document" affordance (open
   question 3).
 - Related but NOT covered: the three keyword-lens feat requests captured
