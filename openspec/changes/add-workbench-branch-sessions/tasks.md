@@ -46,6 +46,13 @@ registry.
       bundle cut, per `docs/contract-versioning-policy.md`
       (registration-at-realization precedent). Covers the D23 `provenance`
       growth of 1.8 as well as the 1.1/1.2 growth.
+      Candidate 2026-07-30 on `release/doxbench-predecessor-contracts`: the
+      gate-action-record manifest entry (per-file sha256, covering the
+      1.1/1.2 session-verb growth and the 1.8 D23 `provenance` block), the
+      contract-v1.26 CHANGELOG registration, and the README contract index
+      attribution are prepared, with the digest inventory built. Open until
+      the exact candidate lands on published origin/main and the annotated
+      contract-v1.26 tag verifies.
 - [x] 1.7 AMENDMENT, 2026-07-27 (Brett's D23 ruling; a shipped-feature amendment
       of RATIFIED text, recorded not silent): narrow the two ratified scenarios
       that promised an agent-refusal the console-presence control cannot deliver
