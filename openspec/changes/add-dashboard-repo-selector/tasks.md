@@ -199,4 +199,6 @@
       repositories with explicit honest empty states. The separately governed
       `/source` pass-through remains bound to the served checkout and does not
       expose this post-image file; that known plane boundary is not used as
-      evidence for this task.
+      evidence for this task. The governing distinction is preserved in
+      `docs/doxbench-runtime-refresh-dogfood-erratum.md` while the original
+      dogfood evidence record remains immutable.
