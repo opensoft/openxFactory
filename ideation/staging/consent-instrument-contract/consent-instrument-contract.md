@@ -46,7 +46,7 @@ mechanically trigger the credentials `engagement_end` cascade.
 | Domain | Instrument | State |
 | --- | --- | --- |
 | LedgerxFactory | engagement letter (firm↔client company) | **first schema'd instance**: `docs/engagement-letter-template.md` + `tenants/ledgerxcorp/clients/medsrx/consent-record.yaml` (kind `ledgerx_engagement_consent_record`, 2026-07-24) |
-| MedxFactory | patient consent (`hermes/patient/consent-model.yaml`) + the memory-gateway consent-profile | modeled for memory/data; not yet an instrument record with custody/signatures |
+| MedxFactory | patient consent (`hermes/patient/consent-model.yaml`) + the memory-gateway consent-profile | **second schema'd instance in flight**: `add-patient-consent-instrument` authored 2026-07-30, awaiting ratification — custody-bearing `medx_patient_consent_record` (parties by rung incl. estate hosts, closed four-class instrument registry with `executed_by.authority_basis`, purposes resolving to the consent model, out-of-scope required, revocation SLA, opaque locator + sha256 custody, five-state lifecycle, fixed `hypothesis_only` autonomy, declared consent-profile derivation) |
 | AdxFactory | agency↔advertiser services agreement (advertiser sign-off machinery exists: persona `advertiser_approved`, launch approval) | implied, unmodeled as an instrument |
 | OpsxFactory | client operating/authorization agreement (`opsxfactory_executed` obligations, client-infrastructure requests) | implied, unmodeled as an instrument |
 | codexFactory | project/engagement authorization (intent owner, execution-lane contract) | implied, unmodeled as an instrument |
@@ -108,3 +108,13 @@ implies it), or MedxFactory upgrading patient consent to a custody-
 bearing instrument record. Register entry: DTN-016. The Ledgerx
 `ledgerx_engagement_consent_record` is the reference instance; on
 ratification it declares conformance rather than being rewritten.
+
+**Second instantiation in flight (2026-07-30):** MedxFactory authored
+`add-patient-consent-instrument` (awaiting ratification) — the
+custody-bearing patient consent branch of this exit path. Its
+design.md §Feedback records Medx positions on all four open questions
+(supports the new-schema leaning; authority-basis first-class;
+amendments as transitions-with-deltas; the executed-record check must
+be hostable outside credential-contracts — Medx has no broker). When
+it lands ratified + realized, the exit condition is met and
+`add-consent-instrument` is unblocked.
