@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.24
+contract_bundle_version: contract-v1.25
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1264,8 +1264,9 @@ contracts:
       in the canonical validator scripts/validate-capability-steward.py.
   # ---- domain-ontology contract family — contract-v1.22 realization (add-domain-ontology-layer) ----
   # The eighteen-kind semantic-plane meta-contract + the xf/core kernel
-  # (kernel digest 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5,
-  # DRAFT: publication is a Domain Hermes bundle decision). The canonical
+  # (PUBLISHED 1.0.0 at digest
+  # 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038 —
+  # first governed publication 2026-07-30, publish-semantic-kernel). The canonical
   # validator (scripts/validate-domain-ontology.py), the stewardship and
   # compile tools, and examples/ (incl. the retained MedxFactory/
   # codexFactory pilots and 43 indexed negatives) are content-addressed
@@ -1455,7 +1456,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/core/package.yaml
     type: semantic_kernel
     schema_version: 1
-    sha256: a8b217375014e641136e2c1862993b9e8ff6485977094aa7a62c59456c17e6b5  # contract-v1.22 (add-domain-ontology-layer)
+    sha256: 502b8d4d24eaa2ac7fd861b3efc04db0e203f2922b6ac6992249475290349019  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1465,7 +1466,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/core/concepts.yaml
     type: semantic_kernel
     schema_version: 1
-    sha256: 504d99857000eab5d6afe00990dcf7e26d69f572e28e26e00a2a766db63f86ea  # contract-v1.22 (add-domain-ontology-layer)
+    sha256: 07ba15b6146dec5fb417d147fac43513800f04bdc249ea7abf77c25877fd54a5  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1475,7 +1476,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/core/relations.yaml
     type: semantic_kernel
     schema_version: 1
-    sha256: 2d36d107a55791ac7940c9983afea476214c2156f58b2df00c7939141b047b03  # contract-v1.22 (add-domain-ontology-layer)
+    sha256: 9034114930ca7a3c197ec97777e5c5e252d051ee55c42ca0a50c959fc5250205  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

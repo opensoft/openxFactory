@@ -13,6 +13,26 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.25 — 2026-07-30 (additive; the semantic kernel publishes — the bootstrap window closes)
+
+Realizes **publish-semantic-kernel** (ratified 2026-07-30): the first
+governed publication of the xFactory semantic kernel. `xf/core` releases
+0.1.0 → 1.0.0 (additive, same compatibility line) through
+`ontology-release.py`, decided by the accountable
+`openxfactory-maintainers` council — every one of the 24 concepts and 9
+relations published with evidenced adoption (two independent resolvable
+adopters each), the per-term steward act explicit under the F18 gate, the
+package-level adoption block carried through the faithful rewrite (the
+F21 kernel scenario in production), and both retained snapshots born
+`lifecycle_state: superseded`. Published digest `37090ba2…369038`; the
+three kernel registrations refresh accordingly. Spec delta: the
+`xfactory-semantic-kernel` bootstrap allowance CLOSES — the active kernel
+line never regresses to pending adoption; new terms in future revisions
+may record pending only while their revision is unpublished. Consumers:
+MedxFactory d01ae62 + codexFactory de60c0c re-pin `kernel_import` to the
+published digest. No term's meaning changed: publication moved lifecycle
+and version, never label, definition, parents, domain, or range.
+
 ## contract-v1.24 — 2026-07-30 (additive; ontology stewardship hardening — guarantees move from procedure to tool)
 
 Realizes **add-ontology-stewardship-hardening** (ratified 2026-07-30), the
