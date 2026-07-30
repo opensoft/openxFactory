@@ -255,19 +255,6 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
-- [add-ontology-term-lifecycle-enforcement](openspec/changes/add-ontology-term-lifecycle-enforcement/proposal.md)
-  — authored and ratified 2026-07-30, landing F18 (the first carried-forward
-  finding from the ontology release review): term-level `lifecycle_state`
-  and `effective_version` become enforced, never decorative. A published
-  package carries no draft term (the release tool refuses — publication is
-  a per-term steward decision), term lifecycle only moves forward across
-  revisions (resurrection fails validation, every compatibility class),
-  meaning-bearing changes bump `effective_version`, and retired terms
-  refuse new compilation at the compile tool, in worker profiles, and in
-  current-pin contexts. ADDED requirement in `domain-ontology-lifecycle`;
-  MODIFIED `Bounded semantic context` in `xfactory-semantic-kernel`. No
-  schema bytes change (target_release: none); archives on merged + green
-  realization evidence.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -564,6 +551,24 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-ontology-term-lifecycle-enforcement](openspec/changes/archive/2026-07-30-add-ontology-term-lifecycle-enforcement/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-30**, landing F18
+  (the first carried-forward finding from the ontology release review):
+  term-level `lifecycle_state`/`effective_version` are enforced, never
+  decorative. A published package carries no draft term — publication is a
+  per-term steward act refused by both the validator
+  (`ONT-TERM-LIFECYCLE`) and `ontology-release.py`; term lifecycle only
+  moves forward across revisions (resurrection fails for every
+  compatibility class); meaning-bearing changes bump `effective_version`
+  (`ONT-TERM-VERSION`); retired terms refuse new compilation at the
+  compile tool (requested OR closure-pulled), in worker profiles, and in
+  current-pin contexts, while prior-pin contexts keep their original
+  interpretation. Five new indexed negatives (corpus 49, ratchet 49);
+  pilots publish their terms as recorded steward acts. Reviewer-verified
+  by construction and APPROVED at 0033d7c. No schema bytes changed
+  (target_release: none). ADDED requirement promoted into
+  `domain-ontology-lifecycle`; `Bounded semantic context` updated in
+  `xfactory-semantic-kernel`.
 - [add-domain-ontology-layer](openspec/changes/archive/2026-07-30-add-domain-ontology-layer/proposal.md)
   — **ratified 2026-07-28, realized 2026-07-28/29, archived 2026-07-30 at
   contract-v1.22**: the semantic plane. Promoted `xfactory-semantic-kernel`

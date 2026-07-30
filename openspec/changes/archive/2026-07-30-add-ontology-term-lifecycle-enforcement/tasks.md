@@ -31,4 +31,22 @@ ontology_ready, MedxFactory `make validate`, OpenSpec 58/58 strict.
 - [x] 3.1 Five new indexed negatives — draft-term-in-published-package, term-resurrected (paired-revision), term-changed-no-bump (paired-revision), profile-requires-retired-term, context-includes-retired-term — and ratchet the self-test minimum 44 → 49.
 - [x] 3.2 Pilots: publish seeded terms as an explicit steward act before first release; bump the reparented medx term's `effective_version`; keep the codex retirement flip; regenerate the corpus and pilots green.
 - [x] 3.3 `test-ontology-stewardship.py`: probe the draft-term publication refusal, then publish terms and proceed; full battery (self-test + repo scan + determinism + suites + gateway + MedxFactory validate + OpenSpec strict) green.
-- [ ] 3.4 Update the family README (codes table, fixture counts) and the guide's proof-surfaces line; reviewer verification of F18 against the release candidate; archive on merged + green realization evidence (target_release: none).
+Reviewer verification (3.4): the same six-lens reviewer that raised F18
+re-tested every mechanism at 0033d7c by CONSTRUCTION (draft relation in a
+published package; deprecated→published and retired→deprecated backward
+moves; characteristics-only and aliases-only changes without bumps;
+backward effective_version; a published child whose retired PARENT is
+pulled in by closure — refused; the same retired-term context at a prior
+digest — correctly silent; --lifecycle retired exempt from the draft
+gate; legitimate deprecation and newly-added terms fire nothing). Verdict:
+**F18 RESOLVED, APPROVED for archive at 0033d7c**, with one non-blocking
+correction landed in the archive commit: the self-test ratchet had been
+claimed at 49 but still read 44 — now 49 in the bytes, closing the five
+silent-deletion slots the claim had left open. Two benign multi-codes
+recorded (parent-added/range-widened paired fixtures now also emit
+ONT-TERM-VERSION legitimately; declared codes still assert). Remaining
+carried-forward findings (F19–F21, F24–F27) stay with the follow-up
+omnigent/stewardship changes — none touches a stated contract lacking
+enforcement.
+
+- [x] 3.4 Update the family README (codes table, fixture counts) and the guide's proof-surfaces line; reviewer verification of F18 against the release candidate; archive on merged + green realization evidence (target_release: none).
