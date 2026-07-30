@@ -1456,7 +1456,7 @@ contracts:
     source_path: openxFactory/contracts/domain-ontology/core/package.yaml
     type: semantic_kernel
     schema_version: 1
-    sha256: 502b8d4d24eaa2ac7fd861b3efc04db0e203f2922b6ac6992249475290349019  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
+    sha256: 10105bd76dbdc87ca1d8eb244df886634127691eb146c6cbce6e707fe09e7058  # refreshed post-v1.25 (P3 notes correction; the v1.25 inventory is a tag snapshot)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

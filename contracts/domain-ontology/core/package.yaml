@@ -39,4 +39,4 @@ adoption:
       ref: xf/medx
     - kind: domain_package
       ref: xf/codex
-notes: "Kernel v0.1.0 draft assembled from the approved semantic inventory; each term points at its authoritative contract and no domain-owned noun appears. Adoption evidenced 2026-07-29 by the MedxFactory/codexFactory pilot packages and the shared-subsystem surfaces recorded per term; the kernel stays DRAFT until its governed publication at the bundle cut."
+notes: "First governed publication 2026-07-30 (publish-semantic-kernel): xf/core 1.0.0, every term adoption-evidenced, released by the accountable openxfactory-maintainers council."

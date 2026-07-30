@@ -307,11 +307,11 @@ def main() -> int:
         check("release: published version self-retained at publication",
               (pkg / "retained/0.2.0/package.yaml").is_file()
               and pkg_digest(pkg) in (pkg / "retained/0.2.0/package.yaml").read_text())
-        check("release: retained snapshots born superseded (F21)",
+        check("release: retention truthful in both directions (F21/P1)",
               "lifecycle_state: superseded"
-              in (pkg / "retained/0.2.0/package.yaml").read_text()
-              and "lifecycle_state: superseded"
-              in (pkg / "retained/0.1.0/package.yaml").read_text())
+              in (pkg / "retained/0.1.0/package.yaml").read_text()
+              and "lifecycle_state: published"
+              in (pkg / "retained/0.2.0/package.yaml").read_text())
         check("release: declared manifest fields survive the rewrite (F21)",
               "governed stewardship test package"
               in (pkg / "package.yaml").read_text())
@@ -361,6 +361,11 @@ def main() -> int:
                   "--consumer-impact", "consumer-impact-1.0.0.yaml")
         check("release: breaking with migration + consumer impact publishes on a new line",
               res.returncode == 0 and "line xf/testx@2" in res.stdout, res.stderr)
+        check("release: supersession flips exactly the prior snapshot's lifecycle (P1)",
+              "lifecycle_state: superseded"
+              in (pkg / "retained/0.2.0/package.yaml").read_text()
+              and "lifecycle_state: published"
+              in (pkg / "retained/1.0.0/package.yaml").read_text())
 
         # -- readiness after publication + quality over current digest -----
         new_digest = pkg_digest(pkg)

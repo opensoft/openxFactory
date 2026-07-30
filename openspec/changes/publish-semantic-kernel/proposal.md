@@ -13,7 +13,7 @@ Ratified by: Brett's direction on 2026-07-30 ("lets do kernel-publication decisi
 the ratified bootstrap scenario allowed pending adoption while the
 kernel proved itself, and publication was recorded as "a governed
 decision for a future cut". Every publication condition is now met and
-machine-checked: all 24 concepts and 9 relations carry evidenced
+machine-checked: all 25 concepts and 9 relations carry evidenced
 adoption with two independent resolvable adopters each (deduped by
 identity), two real domain packages import the kernel by exact digest
 (MedxFactory, codexFactory — no longer fixtures), the six-lens reviewer

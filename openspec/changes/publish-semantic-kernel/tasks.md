@@ -25,5 +25,5 @@ codexFactory de60c0c re-pin `kernel_import` to the published digest
 - [x] 2. Governed release 0.1.0 → 1.0.0 (additive) via `ontology-release.py` as `openxfactory-maintainers`: release record beside the kernel, both snapshots born superseded, adoption block carried through the rewrite.
 - [x] 3. Regenerate the fixture corpus, pilots, and gateway examples against the published kernel; update the omnigent install example's kernel pin; full battery green.
 - [x] 4. Re-pin MedxFactory and codexFactory `kernel_import` to the published digest (one-line manifest changes); both repos validate green; push.
-- [ ] 5. Cut contract-v1.25 (three kernel digests refreshed, section comment updated to published 1.0.0, CHANGELOG decision record), tag, remote-verify; manifest digests 104/104.
+- [x] 5. Cut contract-v1.25 (three kernel digests refreshed, section comment updated to published 1.0.0, CHANGELOG decision record), tag, remote-verify; manifest digests 104/104.
 - [ ] 6. Reviewer capstone verification of the publication against the release candidate; archive on green evidence with README updated.

@@ -55,11 +55,17 @@ YAML dates must be quoted strings.
 `core/` is the xFactory semantic kernel package (`xf/core`, **PUBLISHED
 1.0.0** — first governed publication 2026-07-30, decided by the
 accountable `openxfactory-maintainers` council; `publish-semantic-kernel`):
-24 concepts and 9 relation primitives, every term published with
+25 concepts and 9 relation primitives, every term published with
 `evidenced` adoption — two independent resolvable adopters each (deduped
 by identity). The bootstrap window is CLOSED: the active kernel line
 never regresses to pending adoption; new terms in future revisions may
-record pending only while their revision is unpublished. The inventory
+record pending only while their revision is unpublished. The kernel
+carries NO stewardship-policy document by explicit scoping decision
+(`publish-semantic-kernel`): its stewardship policy is openxFactory's own
+change governance — kernel revisions are gated by adoption evidence,
+compatibility discipline, and ratified review, and the domain
+quality-signal vocabulary measures telemetry the kernel does not
+generate. The inventory
 behind every owner pointer is
 [docs/domain-ontology-semantic-decisions.md](../../docs/domain-ontology-semantic-decisions.md).
 
@@ -89,8 +95,10 @@ evidence for breaking/retiring, the policy
 quality gate (a report is always required; each `--quality-exception
 SIGNAL=REF` releases exactly one signal's threshold with its recorded
 review — there is no blanket exception), byte-true self-retention of the
-published version at publication (snapshots BORN lifecycle superseded —
-history self-describes), a faithful manifest rewrite that carries every
+published version at publication (the active snapshot truthfully states
+published; supersession flips exactly that lifecycle line — retention is
+truthful in both directions and orphan snapshots fail), a faithful
+manifest rewrite that carries every
 declared field (adoption, notes), evidence paths contained inside the
 package (`../` escapes refuse), and a new compatibility line on
 breaking. Term lifecycle only moves forward across revisions and
@@ -139,7 +147,7 @@ fixture coverage), `roster-twin-pair/` (two same-id packages with distinct
 digests and rosters — loose records resolve by exact digest, never first
 match), plus the retained MedxFactory/codexFactory pilot
 packages under `pilots/` (full release history, retained versions, worker
-contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 55 fixtures, one
+contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 57 fixtures, one
 per finding rule — including four paired-revision cases (a parent added on
 a published concept, a relation range widened, a retired term resurrected,
 and a meaning change without an `effective_version` bump, each judged
@@ -152,11 +160,13 @@ the term-lifecycle set (a draft term in a published package, a retired
 term in a worker profile, a retired term in a current-pin context), and
 the stewardship-hardening set (a retained snapshot not born superseded, a
 beside-package starter marker, an unbounded required quality signal, an
-external source with no review deadline) —
+external source with no review deadline), and the publication pair (an
+unreferenced orphan snapshot; a kernel_import version drifting behind a
+matching digest) —
 each declaring `# expected_failure:` (and, where a code covers several
 rules, `# expected_failure_detail:`); the self-test fails closed if a
 positive fails, a negative stops failing for its declared reason, or the
-corpus drops below its pinned minimum of 55. Repo scans run in their own
+corpus drops below its pinned minimum of 57. Repo scans run in their own
 registry scope: a consumer's loose records resolve against the consumer's
 packages only, never against these fixtures.
 

@@ -34,7 +34,7 @@ access, approves work, promotes data, creates bindings, or authorizes
 external action — those continue through the existing grant, consent,
 approval, and promotion contracts unchanged.
 
-Ownership (four strata): openxFactory owns the kernel (`xf/core`, 24
+Ownership (four strata): openxFactory owns the kernel (`xf/core`, 25
 concepts + 9 relation primitives, each naming its owning contract);
 Domain Hermes owns each domain package and its quality; Tenant Hermes
 binds local codes (never redefining the published package); Subject
@@ -117,8 +117,10 @@ rubric; only openxFactory classifies kernel revisions.
 
 Published bytes stay retrievable at their digest under
 `retained/<version>/` while referenced (`ONT-RETENTION` on deletion);
-every snapshot manifest is BORN `lifecycle_state: superseded` — history
-self-describes, and a snapshot claiming an active lifecycle fails;
+retention is truthful in BOTH directions: a superseded version's
+snapshot declares `superseded`, the active version's own self-retention
+declares `published` (supersession flips exactly that one line at the
+next release), and orphan snapshots fail validation;
 two pins may coexist during a migration window when every artifact
 records its exact pin; rollback re-pins new work and never rewrites a
 recorded identity. Existing domains migrate additively: the starter's
@@ -160,7 +162,7 @@ contracts and preflights it before provider I/O.
 
 `validate-domain-ontology.py --determinism` (10 positive units incl. the
 Medx/codex pilots, the published-kernel adoption pair, and the roster
-twins, 55 indexed negatives),
+twins, 57 indexed negatives),
 `test-domain-starter-ontology.py`, `test-ontology-stewardship.py`,
 `test-semantic-context.py`, the overlay validator's generated-domain
 completeness rule, and the pilot record

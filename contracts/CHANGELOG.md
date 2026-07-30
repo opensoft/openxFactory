@@ -19,8 +19,7 @@ Realizes **publish-semantic-kernel** (ratified 2026-07-30): the first
 governed publication of the xFactory semantic kernel. `xf/core` releases
 0.1.0 → 1.0.0 (additive, same compatibility line) through
 `ontology-release.py`, decided by the accountable
-`openxfactory-maintainers` council — every one of the 24 concepts and 9
-relations published with evidenced adoption (two independent resolvable
+`openxfactory-maintainers` council — every one of the 25 concepts and 9 relations published with evidenced adoption (two independent resolvable
 adopters each), the per-term steward act explicit under the F18 gate, the
 package-level adoption block carried through the faithful rewrite (the
 F21 kernel scenario in production), and both retained snapshots born

@@ -191,6 +191,7 @@ RESERVED_FIELD_NAMES = {
     "token", "secret", "principal", "trust", "binding", "bindings",
     "authority_grant", "approval_effect", "executable_rule", "rule",
 }
+NEGATIVE_RATCHET = 57
 LIFECYCLE_ORDER = {"draft": 0, "published": 1, "deprecated": 2, "retired": 3}
 SUBJECT_URN = re.compile(r"urn:xfactory:subject:")
 OTHER_URN = re.compile(r"urn:xfactory:(?!subject:)")
@@ -557,6 +558,15 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                 if kernel.manifest.get("package_digest") != ki.get("package_digest"):
                     findings.append(Finding("ONT-KERNEL-IMPORT", rel(mpath),
                                             "kernel_import digest does not match the resolved kernel"))
+                # Version AND digest agree (review P2): content-identical
+                # releases must not let a stale declared version hide behind
+                # a matching digest.
+                elif str(kernel.manifest.get("package_version")) != \
+                        str(ki.get("package_version")):
+                    findings.append(Finding("ONT-KERNEL-IMPORT", rel(mpath),
+                                            f"kernel_import version {ki.get('package_version')!r} "
+                                            "does not match the resolved kernel version "
+                                            f"{kernel.manifest.get('package_version')!r}"))
 
     # F15: the declared namespace IS the package identity, xf/core is
     # kernel-only, and the openxfactory owner layer is kernel-only.
@@ -738,6 +748,33 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
             findings.append(Finding("ONT-RETENTION", rel(retained),
                                     f"retained version {version} inventory does not "
                                     "reproduce the referenced digest"))
+
+    # Reverse direction (review P1): every retained snapshot is either a
+    # REFERENCED superseded version or the active version's own
+    # self-retention — and the active version's snapshot states the truth
+    # (published, digest-identical to the active manifest); an orphan
+    # snapshot, or one asserting the LIVE version is superseded, fails.
+    referenced_versions = {str(r.get("package_version")) for r in retained_refs}
+    active_version = str(manifest.get("package_version"))
+    retained_root = pkg.dir / "retained"
+    if retained_root.is_dir():
+        for snap_dir in sorted(p for p in retained_root.iterdir() if p.is_dir()):
+            snap_manifest = snap_dir / "package.yaml"
+            snap = load_yaml(snap_manifest) if snap_manifest.is_file() else {}
+            if snap_dir.name == active_version:
+                if snap.get("package_digest") != manifest.get("package_digest"):
+                    findings.append(Finding("ONT-RETENTION", rel(snap_manifest),
+                                            "self-retained snapshot of the active version "
+                                            "diverges from the active manifest"))
+                if snap.get("lifecycle_state") == "superseded":
+                    findings.append(Finding("ONT-RETENTION", rel(snap_manifest),
+                                            "snapshot asserts the LIVE version is "
+                                            "superseded; the active version's "
+                                            "self-retention states the truth"))
+            elif snap_dir.name not in referenced_versions:
+                findings.append(Finding("ONT-RETENTION", rel(snap_dir),
+                                        f"unreferenced retained snapshot {snap_dir.name}: "
+                                        "retention serves references, never orphans"))
 
     # Revision comparison: when the compatibility.previous version's retained
     # content is resolvable, prior terms load for EVERY class — term
@@ -1325,11 +1362,38 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 55:
+    if neg_count < NEGATIVE_RATCHET:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 55"))
+                              f"pinned minimum of {NEGATIVE_RATCHET}"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
+
+    # Prose-count lint (review P4 — the third stale-count slip becomes a
+    # rule): the family README's stated corpus and kernel counts must match
+    # the bytes, so documentation can never trail the corpus again.
+    readme = CONTRACT_DIR / "README.md"
+    if readme.is_file():
+        prose = readme.read_text()
+        stated_fixtures = re.search(r"(\d+) fixtures, one\b", prose)
+        if stated_fixtures and int(stated_fixtures.group(1)) != neg_count:
+            errors.append(Finding("ONT-SELFTEST", rel(readme),
+                                  f"README states {stated_fixtures.group(1)} negative "
+                                  f"fixtures; the corpus is {neg_count}"))
+        stated_min = re.search(r"pinned minimum of (\d+)", prose)
+        if stated_min and int(stated_min.group(1)) != NEGATIVE_RATCHET:
+            errors.append(Finding("ONT-SELFTEST", rel(readme),
+                                  f"README states a pinned minimum of "
+                                  f"{stated_min.group(1)}; the ratchet is {NEGATIVE_RATCHET}"))
+        kernel_pkg = resolve_kernel()
+        stated_kernel = re.search(r"(\d+) concepts and (\d+) relation", prose)
+        if kernel_pkg is not None and stated_kernel and \
+                (int(stated_kernel.group(1)) != len(kernel_pkg.concepts)
+                 or int(stated_kernel.group(2)) != len(kernel_pkg.relations)):
+            errors.append(Finding("ONT-SELFTEST", rel(readme),
+                                  f"README states {stated_kernel.group(1)} concepts / "
+                                  f"{stated_kernel.group(2)} relations; the kernel "
+                                  f"carries {len(kernel_pkg.concepts)} / "
+                                  f"{len(kernel_pkg.relations)}"))
 
     # Layer 2: optional repo scan. The scan gets its OWN registry scope
     # (release-review finding N4): a consumer's loose records must resolve

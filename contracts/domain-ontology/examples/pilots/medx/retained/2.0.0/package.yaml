@@ -6,7 +6,7 @@ package_id: xf/medx
 package_version: 2.0.0
 namespace: xf/medx
 is_kernel: false
-lifecycle_state: superseded
+lifecycle_state: published
 owner:
   layer: domain_hermes
   name: "MedxFactory Domain Hermes"

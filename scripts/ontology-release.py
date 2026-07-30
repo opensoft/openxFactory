@@ -29,7 +29,9 @@ What it enforces before touching anything (all fail-closed):
     only performs the governed version transition.
 
 What it does (append-only): writes `retained/<new-version>/` from the exact
-bytes it publishes (so history never depends on later edits), rewrites
+bytes it publishes (so history never depends on later edits; the active
+version's snapshot truthfully states `published`, and the NEXT release
+flips exactly that lifecycle line to `superseded` — review P1), rewrites
 `package.yaml` for the new version (previous pin, supersedes chain,
 compatibility line — breaking/retiring starts a new line), restamps
 inventory digests over the CURRENT content bytes, and writes the release
@@ -375,13 +377,23 @@ def main() -> int:
         manifest_path.write_text(manifest_text, encoding="utf-8")
         release_path.write_text(release_text, encoding="utf-8")
         # Self-retention: the published bytes become their own history NOW,
-        # so no later edit can ever masquerade as this version. The snapshot
-        # manifest is born superseded (F21) — history from birth.
+        # so no later edit can ever masquerade as this version. The ACTIVE
+        # version's snapshot states the truth — published (review P1); the
+        # supersession flip below happens when the NEXT release lands.
         retained_new.mkdir(parents=True)
-        (retained_new / "package.yaml").write_text(
-            re.sub(r"(?m)^lifecycle_state: .*$", "lifecycle_state: superseded",
-                   manifest_text, count=1),
-            encoding="utf-8")
+        (retained_new / "package.yaml").write_text(manifest_text,
+                                                   encoding="utf-8")
+        # Supersession flip (review P1): the OLD version's snapshot, written
+        # published at ITS release, now becomes history — exactly one
+        # lifecycle line changes under this governed transition; every
+        # content byte of the snapshot stays verified untouched.
+        old_snapshot = retained_old / "package.yaml"
+        if old_snapshot.is_file():
+            old_snapshot.write_text(
+                re.sub(r"(?m)^lifecycle_state: .*$",
+                       "lifecycle_state: superseded",
+                       old_snapshot.read_text(encoding="utf-8"), count=1),
+                encoding="utf-8")
         for rel in new_inventory:
             src = pkg_dir / rel
             dst = retained_new / rel
