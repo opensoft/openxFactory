@@ -118,17 +118,22 @@ Positive (`examples/`): `medx-minimal/` (medical specialization with a
 restricted-license by-reference mapping and beside-package release,
 candidate, worker-scoped context, quality report), `codex-minimal/`
 (engineering specialization of the same kernel), `generated-scaffold/`
-(starter-shaped draft), plus the retained MedxFactory/codexFactory pilot
+(starter-shaped draft), `kernel-adoption-pair/` (a PUBLISHED kernel whose
+domain_package adopter resolves through the shared package registry —
+proving kernel publication satisfiable and keeping the registry live under
+fixture coverage), plus the retained MedxFactory/codexFactory pilot
 packages under `pilots/` (full release history, retained versions, worker
-contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 42 fixtures, one
+contexts — see `docs/domain-ontology-pilot-report.md`). Negative (`examples/negative/`): 43 fixtures, one
 per finding rule — including two paired-revision cases (a parent added on
 a published concept and a relation range widened, each declared additive
 against retained prior bytes), a prose identifier/endpoint leak, a
-duplicated kernel adopter counted once, and a domain package squatting the
-kernel namespace — each declaring `# expected_failure:` (and, where a code
-covers several rules, `# expected_failure_detail:`); the self-test fails
-closed if a positive fails, a negative stops failing for its declared
-reason, or the corpus drops below its pinned minimum of 42.
+duplicated kernel adopter counted once, a domain package squatting the
+kernel namespace, and a loose worker-attributed release record whose
+package IS in the tree (the roster rule, not the orphan rule) — each
+declaring `# expected_failure:` (and, where a code covers several rules,
+`# expected_failure_detail:`); the self-test fails closed if a positive
+fails, a negative stops failing for its declared reason, or the corpus
+drops below its pinned minimum of 43.
 
 ## What this family is not
 

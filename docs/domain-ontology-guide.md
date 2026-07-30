@@ -135,8 +135,9 @@ contracts and preflights it before provider I/O.
 
 ## Proof surfaces
 
-`validate-domain-ontology.py --determinism` (6 positive units incl. the
-Medx/codex pilots, 42 indexed negatives),
+`validate-domain-ontology.py --determinism` (8 positive units incl. the
+Medx/codex pilots and the published-kernel adoption pair, 43 indexed
+negatives),
 `test-domain-starter-ontology.py`, `test-ontology-stewardship.py`,
 `test-semantic-context.py`, the overlay validator's generated-domain
 completeness rule, and the pilot record

@@ -316,6 +316,10 @@ def compute_package_digest(entries: list[tuple[str, str]]) -> str:
 
 
 PACKAGE_REGISTRY: dict[str, list["Package"]] = {}
+# Sibling-family kinds that may legitimately sit beside an ontology package
+# without being this validator's jurisdiction (finding N2). Everything else
+# with a kind is flagged and scanned.
+ALLOWED_SIBLING_KINDS = {"hermes_domain_overlay"}
 
 
 def load_package(pkg_dir: Path, schemas, findings: list[Finding],
@@ -350,6 +354,16 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
         drifted = True
     if drifted:
         return None
+
+    # Digest-true packages join the shared registry (the resolution
+    # substrate for loose contexts, loose governance records, and kernel
+    # domain_package adoption — release-review finding N1: reading an
+    # unpopulated registry made three rules dead code). Deduped by
+    # directory so the registration prepass and the validation pass never
+    # double-register.
+    known = PACKAGE_REGISTRY.get(pkg.package_id, [])
+    if not any(existing.dir == pkg.dir for existing in known):
+        PACKAGE_REGISTRY.setdefault(pkg.package_id, []).append(pkg)
 
     # Inventory membership: ontology-family documents only.
     for item in manifest.get("inventory", []):
@@ -421,6 +435,11 @@ def load_package(pkg_dir: Path, schemas, findings: list[Finding],
                 pkg.maintenance_inputs.append((fpath, doc))
             elif kind == "xfactory_ontology_consumer_impact_report":
                 pkg.impacts.append((fpath, doc))
+        elif kind is None or kind in ALLOWED_SIBLING_KINDS:
+            # Kind-less files (comment-only, lockfiles) and declared sibling
+            # families are other jurisdictions, not blind spots of this one
+            # (release-review finding N2).
+            continue
         else:
             # An unrecognized kind beside a package is a finding, never a
             # blind spot — and it is scanned regardless (release-review
@@ -755,7 +774,7 @@ def check_package(pkg: Package, findings: list[Finding], resolve_kernel) -> None
                 if kind_a == "shared_subsystem_contract" and not (ROOT / str(ref)).exists():
                     findings.append(Finding("ONT-ADOPTION", rel(mpath),
                                             f"published kernel {name}: adopter {ref} does not resolve"))
-                if kind_a == "domain_package" and str(ref) not in PACKAGE_REGISTRY:
+                if kind_a == "domain_package" and not PACKAGE_REGISTRY.get(str(ref)):
                     findings.append(Finding("ONT-ADOPTION", rel(mpath),
                                             f"published kernel {name}: domain_package adopter "
                                             f"{ref} does not resolve to a scanned package"))
@@ -1078,6 +1097,27 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
             kernel_cache.append(load_package(CORE_DIR, schemas, side, lambda: None))
         return kernel_cache[0]
 
+    # Registration prepass (finding N1): the registry is complete BEFORE
+    # any unit validates, so resolution never depends on discovery order —
+    # the real kernel's domain_package adopters live in the examples/pilot
+    # tree that would otherwise load after it. Findings are discarded here;
+    # every package is re-validated for real in its own pass.
+    prepass_dirs: list[Path] = []
+    if EXAMPLES_DIR.is_dir():
+        prepass_dirs += [p for k, p in discover_units(EXAMPLES_DIR)
+                         if k == "package" and NEGATIVE_DIR not in p.parents
+                         and p != NEGATIVE_DIR]
+    if repo_path is not None:
+        prepass_dirs += [p for k, p in discover_units(repo_path)
+                         if k == "package" and CONTRACT_DIR not in p.parents
+                         and p != CORE_DIR]
+    for pdir in prepass_dirs:
+        discard: list[Finding] = []
+        try:
+            load_package(pdir, schemas, discard, resolve_kernel)
+        except Exception:
+            pass  # a broken unit registers nothing; its own pass reports it
+
     # Core kernel package validates positive.
     core_findings: list[Finding] = []
     load_package(CORE_DIR, schemas, core_findings, lambda: None)
@@ -1119,10 +1159,10 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 42:
+    if neg_count < 43:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 42"))
+                              "pinned minimum of 43"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
     # Layer 2: optional repo scan.

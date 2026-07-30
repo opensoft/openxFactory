@@ -233,9 +233,45 @@ omnigent change:
 
 ## 8. Documentation, Verification, And Release
 
-- [ ] 8.1 Update the architecture, domain-factory model, installation spine, knowledge lifecycle, memory gateway, domain starter, pre-run questionnaire, and contract README documents with the ratified ontology ownership and lifecycle, and update the machine-readable `contracts/policies/layer-vocabulary.yaml` role text so Domain Hermes ontology stewardship and Tenant Hermes semantic bindings do not drift from the promoted layer-vocabulary spec.
-- [ ] 8.2 Document the semantic-plane/control-plane separation, generation pipeline, Domain Hermes stewardship model, maintenance triggers, compatibility rubric, migration path, and provider-neutral runtime consumption.
-- [ ] 8.3 Run strict OpenSpec validation, schema and semantic fixture suites, domain-starter tests, domain-overlay validation, memory-gateway tests, privacy/isolation negatives, and existing repository regression checks.
+Docs (8.1, commit c2943ef): `docs/architecture.md` (Semantic Plane
+section), `docs/xfactory-domain-factory-model.md` (Domain Ontology
+Ownership), `docs/openxfactory-installation-spine.md`
+(domain_ontology_seeding row), `docs/knowledge-lifecycle-model.md`
+(knowledge_atom kernel alignment), `docs/customer-memory-gateway-architecture.md`
+(rails preflight), `contracts/policies/layer-vocabulary.yaml` (role TEXT
+only — Domain Hermes ontology stewardship, Tenant Hermes semantic
+bindings; frozen keys untouched), the starter/pre-run surfaces in
+`scripts/apply-domain-starter.py` v13, and the family README
+(`contracts/domain-ontology/README.md`, rewritten again at the fix wave:
+eighteen kinds, self-retention, per-signal exceptions). Consolidated
+walk-through (8.2): [docs/domain-ontology-guide.md](../../../docs/domain-ontology-guide.md)
+(seven parts: plane separation, generation, stewardship, maintenance,
+compatibility, migration/retention/rollback, runtime consumption), linked
+from the repo README doc index.
+
+Verification battery (8.3, re-run after the registry fix wave):
+`validate-domain-ontology.py` self-test 8 positive units + 43 indexed
+negatives, repo scan + content-manifest cross-check, `--determinism`
+identical findings on repeat, `--readiness` ontology_ready on both pilot
+packages; `test-domain-starter-ontology.py`,
+`test-ontology-stewardship.py` (incl. blanket-exception refusal,
+exception-without-measurement refusal, per-signal release, self-retention,
+consumer-impact refusal), `test-semantic-context.py` (privacy/isolation
+negatives incl. authority-field rejection and cross-purpose/retired
+preflights); `validate-hermes-domain-overlay.py` self-test (11 fixtures) +
+MedxFactory `make validate` green against the re-pinned kernel (Medx
+613591f); `validate-memory-gateway.py` green (closed packet schemas
+applied, pins resolved against the ontology tree);
+`validate-domain-openxfactory-pins.py` green;
+`OPENSPEC_TELEMETRY=0 openspec validate --all --strict` 56/56. The
+`referencing`-dependent validators (avatar-client, document-catalog,
+hermes-runtime, ideation-*, worker-enrollment) fail in this jsonschema-4.10
+environment identically before and after the change — environmental, not
+regression.
+
+- [x] 8.1 Update the architecture, domain-factory model, installation spine, knowledge lifecycle, memory gateway, domain starter, pre-run questionnaire, and contract README documents with the ratified ontology ownership and lifecycle, and update the machine-readable `contracts/policies/layer-vocabulary.yaml` role text so Domain Hermes ontology stewardship and Tenant Hermes semantic bindings do not drift from the promoted layer-vocabulary spec.
+- [x] 8.2 Document the semantic-plane/control-plane separation, generation pipeline, Domain Hermes stewardship model, maintenance triggers, compatibility rubric, migration path, and provider-neutral runtime consumption.
+- [x] 8.3 Run strict OpenSpec validation, schema and semantic fixture suites, domain-starter tests, domain-overlay validation, memory-gateway tests, privacy/isolation negatives, and existing repository regression checks.
 - [ ] 8.4 Obtain independent architecture, security, privacy, domain-stewardship, migration, and adversarial review and resolve every blocking finding against the exact release candidate.
 - [ ] 8.5 Allocate the next available additive contract bundle only after integration order is known, generate the exact digest inventory, publish the immutable reviewed commit/tag, and independently verify remote bytes and provenance.
 - [ ] 8.6 Record consumer adoption or explicit deferral evidence and archive the change only after the implementation feature, release proof, and required downstream pins have landed.

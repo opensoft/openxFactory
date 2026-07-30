@@ -3,7 +3,7 @@
 schema_version: 1
 kind: xfactory_ontology_package_manifest
 package_id: xf/negx
-package_version: 1.0.0
+package_version: 2.0.0
 namespace: xf/negx
 is_kernel: false
 lifecycle_state: published
@@ -27,4 +27,4 @@ compatibility:
   line: xf/negx@2
   previous:
     package_version: 1.0.0
-    package_digest: cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd
+    package_digest: a6871eec24b091454a711966163167af036d59f36f2823c56cac86b184bc6dfe
