@@ -255,17 +255,6 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
-- [add-ontology-stewardship-hardening](openspec/changes/add-ontology-stewardship-hardening/proposal.md)
-  — authored and ratified 2026-07-30: the stewardship pass closing the
-  release review's carried-forward findings (F21 release-tool
-  housekeeping — faithful manifest rewrite, evidence-path containment,
-  snapshots born superseded; F24 structural placeholder detection; F25
-  inventoried STARTER marker; F26 min-or-max quality bounds + cadence
-  deadlines; F27 executable gateway conformance probes) plus the starter's
-  `--ontology-only` adoption mode (v14) so mature repositories adopt the
-  ontology without the whole-repo scaffold spray. Two schema files change
-  → contract-v1.24, which also carries the recorded v1.23 erratum
-  correction to consumers.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -562,6 +551,29 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-ontology-stewardship-hardening](openspec/changes/archive/2026-07-30-add-ontology-stewardship-hardening/proposal.md)
+  — **authored, ratified, realized, cut at contract-v1.24, and archived
+  2026-07-30**, closing the ENTIRE carried-forward set from the
+  domain-ontology release review. F21: the release tool's manifest
+  rewrite carries every declared field, evidence paths are contained
+  inside the package, and retained snapshots are born
+  `lifecycle_state: superseded` (the F3 byte seal independently
+  re-verified intact across all 13 snapshots). F24: readiness blocks on
+  the starter marker's STRUCTURAL placeholder record — a rename can never
+  launder a scaffold into readiness. F25: the marker is inventoried,
+  digest-covered content. F26: quality signals declare min OR max (rate
+  ceilings expressible directly) and a declared source-review cadence
+  requires external review deadlines — a rule that caught a real defect
+  in the codex pilot's own sources on first run. F27: the eight semantic
+  gateway conformance fixtures are EXECUTED (all six probes proven
+  load-bearing; delegates resolution-verified). Plus starter v14's
+  `--ontology-only` adoption mode: mature repositories adopt the ontology
+  without the whole-repo scaffold spray. Corpus 55 negatives / 10
+  positives; contract-v1.24 remote-verified and DELIVERING the v1.23
+  erratum correction; reviewer APPROVED at 55a6202. Consumers MedxFactory
+  f4ca313 + codexFactory 11777a9 (inventoried markers; their v13 markers
+  gain the placeholders block when a publication-driving change
+  regenerates them).
 - [add-omnigent-semantic-wiring](openspec/changes/archive/2026-07-30-add-omnigent-semantic-wiring/proposal.md)
   — **authored, ratified, realized, cut at contract-v1.23, and archived
   2026-07-30**, closing the follow-up named at add-domain-ontology-layer

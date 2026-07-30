@@ -546,7 +546,14 @@ The system SHALL provide conformance fixtures or checks for provider profiles,
 rail denials, caller identity, credential custody, fail modes, break-glass,
 context-packet metadata, packet leash behavior, expert context-packet
 metadata, consent contract behavior, promotion review, revocation, erasure,
-migration, and audit, mapped to the conformance tiers.
+migration, and audit, mapped to the conformance tiers. Semantic-context
+conformance fixtures SHALL be EXECUTED, never merely declared: each fixture
+either carries a probe — a recorded mutation of the canonical example packet
+that the canonical gateway validator applies and runs through its own
+preflight, asserting the expected rejection — or names the exact existing
+artifact or suite that executes the behavior, whose resolution the validator
+verifies. A fixture that neither executes nor resolves its delegate SHALL
+fail validation.
 
 #### Scenario: Domain stack declares xFactory memory gateway provider
 
@@ -567,6 +574,16 @@ migration, and audit, mapped to the conformance tiers.
   against the gateway contract schemas, and MUST flag provider endpoints or
   connection references found inside Hermes overlay files as direct-binding
   violations
+
+#### Scenario: A semantic-context fixture executes its promise
+
+- **WHEN** a semantic-context conformance fixture carries a probe
+- **THEN** the gateway validator applies the probe to the canonical example packet, runs the result through the same preflight it applies to examples, and fails unless the packet is rejected as the fixture promises
+
+#### Scenario: A fixture delegates to an executed proof
+
+- **WHEN** a fixture's behavior is executed elsewhere (a canonical negative fixture or a named test suite) rather than by an inline probe
+- **THEN** the fixture names the executing artifact and the validator verifies it exists — a dangling delegate fails validation
 
 ### Requirement: Derived memory bindings validate against the neutral schema
 A `hermes_memory_binding` record — the normalized, gateway-vocabulary-expressed projection of a layer's seeded memory boundary that the gateway's rails consume — SHALL validate against the neutral memory-binding schema: `layer_role`, `scopes[]` with per-scope `subject_scope` and an optional promotion block whose `gateway` MUST be `customer_memory_gateway` and whose `accepted_authority_level` MUST be drawn from the ratified `authority_levels` vocabulary, `denied_scopes[]`, `invariants[]`, `derived_from: memory_boundary`, and `vocabulary_bundle_tag` provenance — and a binding declaring a provider endpoint, credential, or any raw secret SHALL fail validation (a binding is rails input, never a provider binding and never a store).
