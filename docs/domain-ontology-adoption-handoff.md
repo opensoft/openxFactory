@@ -33,11 +33,21 @@ publication rides the bundle cut). Contract family
 3. Acceptance: `validate-domain-ontology.py <repo>` green and
    `--readiness` returning `ontology_ready`.
 
-## codexFactory (pilot: `examples/pilots/codex`)
+## codexFactory (ADOPTED — `adopt-domain-ontology-package`, 2026-07-30)
 
-Same steps with the engineering answer set; the pilot demonstrates the
-retiring flow (`xf/codex@2`) and the `verify`/`assemble_for_admission`
-worker profiles its lanes will consume.
+Landed at codexFactory 135f761 through its own governed change: the
+approved engineering answer set drove the v13 starter's
+existing-repository migration path — draft `xf/codex` package (19 seeded
+concepts, kernel digest-pinned) with the EXISTING `lead-architect`
+(accountable) and `lead-quality` (reviewer) personas as stewards, the
+explicit content-manifest `domain_ontology` declaration, two inventoried
+worker-scoped profiles (archetype-scoped verify; class-scoped
+branch-review), `semantic_context` declarations on `test_agent` and
+`branch_review_agent` per contract-v1.23, and the stack pin refreshed to
+the aggregation pointer. Readiness `domain_scaffold_required` by design;
+publication stays a governed Domain Hermes release. The retained pilot
+(`examples/pilots/codex`) continues to demonstrate the retiring flow
+(`xf/codex@2`).
 
 ## hermes-install
 
