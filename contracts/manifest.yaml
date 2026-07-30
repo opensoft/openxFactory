@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.20
+contract_bundle_version: contract-v1.21
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1136,3 +1136,129 @@ contracts:
       Policy rules (candidate-required, ceiling-exceeded, braid-complete,
       counterexample-floor, byte-golden, ...) live only in the canonical
       validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallized-capability-registry
+    path: contracts/schemas/crystallized-capability-registry.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallized-capability-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: eb6b25754e10bb6f2409dfb38cb1d7b6f62d493fee90c19943c620b3fcb4bdc7  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: dispatch-record
+    path: contracts/schemas/dispatch-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/dispatch-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b5f30c3b01f8097f62eaf4ee30df086df72dad84d05609f52a3402771428376d  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: adjudication-record
+    path: contracts/schemas/adjudication-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/adjudication-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4a0d2eea86dfad0dd6cecc66e909aded3c4f3ebf10fb53cd73b06de6b80dcbda  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: sentinel-policy
+    path: contracts/schemas/sentinel-policy.schema.yaml
+    source_path: openxFactory/contracts/schemas/sentinel-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 621ec7482cf1b761439a3aefa90eba1cb15ba2fa7a50666bfc91870d0ab139a4  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: capability-health-report
+    path: contracts/schemas/capability-health-report.schema.yaml
+    source_path: openxFactory/contracts/schemas/capability-health-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1985360570d1f619c75185c06a8c9d837c293eee38b7f00d4c8ce24764861cf2  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: savings-entry
+    path: contracts/schemas/savings-entry.schema.yaml
+    source_path: openxFactory/contracts/schemas/savings-entry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1cf832f99f8c605058d812237f3da67bcfb4f2551a9c65bae19a7fa87ff8ef3c  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: calibration-score
+    path: contracts/schemas/calibration-score.schema.yaml
+    source_path: openxFactory/contracts/schemas/calibration-score.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7aee1c807dfbf9ebd908f7ebca3bb9c9780d94dc88970c3df3d165744ea6c208  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.

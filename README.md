@@ -163,6 +163,16 @@ Core domain-neutral docs:
   [omnigent overlay spec](openspec/specs/omnigent-domain-overlay/spec.md);
   canonical validator `scripts/validate-crystallizer-contracts.py`, MVP
   corpus continuation `examples/crystallizer/`)
+- [Capability Steward](openspec/specs/crystallized-capability-registry/spec.md)
+  ([registry](openspec/specs/crystallized-capability-registry/spec.md) ·
+  [dispatch](openspec/specs/crystallization-dispatch/spec.md) ·
+  [health](openspec/specs/capability-health/spec.md) — the single-source
+  registry with pins-vs-live-authority (D10), the dispatch junction with
+  deterministic fences and pure/idempotent admission (D11), and the
+  proof/sentinel/drift/accounting surface with contractual renewal
+  write-backs; realized at `contract-v1.21`; canonical validator
+  `scripts/validate-capability-steward.py`, MVP corpus completion
+  `examples/capability-steward/`)
 
 Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
 
@@ -212,30 +222,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-capability-steward](openspec/changes/add-capability-steward/proposal.md)
-  — authored, raised, and RATIFIED 2026-07-29 (staging decisions D1–D11 +
-  V1–V2 carried as design context); exit 3 (final) of the `recurrence-crystallization`
-  staged topic (partial promotion — the dials register remains the topic's
-  staged remainder): the crystallized-capability registry as the single
-  source dispatch may read (proof-gated status spine; artifacts
-  digest-pinned while authority is live-read, D10), the dispatch junction
-  as the single entry before planning (deterministic fences,
-  pure/idempotent admission per D11, six-cause fallback taxonomy feeding
-  the frontier queue, metered overhead, the L2 cache behind the junction,
-  path-invariant audit shape), and capability-health (the replay → shadow
-  → canary proof ladder with demotion triggers armed at promotion,
-  bidirectional adjudication, mandatory sentinels with a nonzero floor,
-  the cost-ordered drift ladder with hysteresis, auto/contested findings,
-  disuse retirement, sentinel-anchored accounting, and the contractual
-  renewal write-backs that close the flywheel); schemas + validator are
-  the declared code surface. Realized 2026-07-29: the seven record
-  schemas, `scripts/validate-capability-steward.py` (11 named policy
-  rules; self-testing 6 positives / 10 indexed negatives), and the MVP
-  corpus completion under `examples/capability-steward/` — the
-  packet-capture family's story now runs episode → candidate → decision →
-  spec → build → registry → dispatch → adjudication → health → verified
-  savings, end to end in fixtures; manifest/CHANGELOG registration at the
-  archive cut.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions
@@ -599,6 +585,21 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-capability-steward](openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
+  — **authored, ratified, and realized 2026-07-29; archived 2026-07-30**,
+  closing the `recurrence-crystallization` program: promoted
+  `crystallized-capability-registry` (6 requirements),
+  `crystallization-dispatch` (8), and `capability-health` (9) — the
+  single-source registry with the proof-gated spine and
+  pins-vs-live-authority (D10), the dispatch junction with deterministic
+  fences and pure/idempotent admission (D11), and the
+  proof/sentinel/drift/accounting surface with contractual renewal
+  write-backs. Realized at `contract-v1.21`; with `v1.19` (pattern-ledger)
+  and `v1.20` (crystallizer), all three crystallization waves went
+  brainstorm → canon in three days, and the MVP packet-capture corpus runs
+  the entire flywheel in fixtures — episode to verified savings. The dials
+  register remains the topic's staged living remainder; cross-tenant is
+  the deliberate brainstorm remainder for the pooling wave.
 - [add-crystallizer-contracts](openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
   — **authored, ratified, realized, and archived 2026-07-29** (same-day
   full cycle; exit 2 of the `recurrence-crystallization` staged topic):

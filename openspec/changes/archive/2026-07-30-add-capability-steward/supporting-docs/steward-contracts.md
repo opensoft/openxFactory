@@ -19,13 +19,13 @@ Repository context: openxFactory (neutral contracts; hermes-install
 admission is the first dispatch realization per D9)
 Staging ID: `openxFactory:staging:recurrence-crystallization`
 Source: brainstorm docs
-[capability registry](../../../../ideation/brainstorm/crystallization-capability-registry.md),
-[dispatch and fences](../../../../ideation/brainstorm/crystallization-dispatch-and-fences.md),
-[parity and cutover](../../../../ideation/brainstorm/crystallization-parity-and-cutover.md),
-[drift and lifecycle](../../../../ideation/brainstorm/crystallization-drift-and-lifecycle.md),
-[learning loop](../../../../ideation/brainstorm/crystallization-learning-loop.md),
-[accounting](../../../../ideation/brainstorm/crystallization-accounting.md),
-[Steward synthesis](../../../../ideation/brainstorm/crystallization-synthesis-steward.md);
+[capability registry](../../../../../ideation/brainstorm/crystallization-capability-registry.md),
+[dispatch and fences](../../../../../ideation/brainstorm/crystallization-dispatch-and-fences.md),
+[parity and cutover](../../../../../ideation/brainstorm/crystallization-parity-and-cutover.md),
+[drift and lifecycle](../../../../../ideation/brainstorm/crystallization-drift-and-lifecycle.md),
+[learning loop](../../../../../ideation/brainstorm/crystallization-learning-loop.md),
+[accounting](../../../../../ideation/brainstorm/crystallization-accounting.md),
+[Steward synthesis](../../../../../ideation/brainstorm/crystallization-synthesis-steward.md);
 rulings D6, D9, D10, D11, V2 (primary doc, 2026-07-29).
 Target capabilities: `crystallized-capability-registry` (ADDED),
 `crystallization-dispatch` (ADDED), `capability-health` (ADDED)

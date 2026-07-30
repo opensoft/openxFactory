@@ -49,9 +49,11 @@
 - [x] 3.2 Update the staging INDEX row/detail on partial promotion (the
       `steward-contracts.md` fragment moves to `supporting-docs/`; the
       dials register remains staged as the topic's living remainder).
-- [ ] 3.3 Close the topic's exit-path record: all three waves archived;
+- [x] 3.3 Close the topic's exit-path record: all three waves archived;
       note the cross-tenant fragment as the deliberate brainstorm
-      remainder for a later wave.
+      remainder for a later wave. — Closed 2026-07-30 in the topic primary
+      doc: v1.19 + v1.20 + v1.21 archived; dials register is the staged
+      living remainder.
 
 ## 4. Validation and realization evidence
 
@@ -62,7 +64,11 @@
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
 - [x] 4.3 Obtain ratification approval and stamp the proposal front matter
       (`Status: ratified`, `Ratified by:`) — ratified by Brett 2026-07-29.
-- [ ] 4.4 Realization evidence per `release-realization`: schemas +
+- [x] 4.4 Realization evidence per `release-realization`: schemas +
       validator merged and green; contract version allocated at the
       archive bundle cut with its annotated tag and release digest
-      inventory; archive follows evidence, never precedes it.
+      inventory; archive follows evidence, never precedes it. — Evidence:
+      realization commit 3e01ee8 merged and green (steward 6/10; all four
+      family validators green; --all --strict 54/54); contract-v1.21
+      allocated at the 2026-07-30 archive cut with its annotated tag and
+      inventory.

@@ -13,6 +13,29 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.21 — 2026-07-30 (additive; capability-steward contracts — the crystallization flywheel closes)
+
+Realizes **add-capability-steward** (exit 3, closing the
+`recurrence-crystallization` staged topic; ratified 2026-07-29, archived
+2026-07-30): the seven **capability-steward** record schemas —
+`contracts/schemas/{crystallized-capability-registry,dispatch-record,adjudication-record,sentinel-policy,capability-health-report,savings-entry,calibration-score}.schema.yaml`
+— the registry record (proof-gated status spine mirroring the document
+lifecycle; artifacts digest-pinned while authority is live-read, D10;
+digests-never-payloads), the path-invariant dispatch record (six-cause
+fallback taxonomy, metered overhead, pure/idempotent admission per D11),
+the shared parity/sentinel adjudication record (bidirectional
+verdict↔consequence pairing), the strictly-positive-floor sentinel policy,
+the capability-health report (auto vs contested findings, cost-ordered
+drift responses), and the sentinel-anchored savings entry with the
+maturity-graded calibration score. The canonical validator
+`scripts/validate-capability-steward.py` (11 named policy rules;
+self-testing 6 positives / 10 indexed negatives) and
+`examples/capability-steward/` (completing the MVP packet-capture corpus:
+the full flywheel now runs in fixtures) are commit-content-addressed
+tools and fixtures, no per-file digest. With `contract-v1.19`
+(pattern-ledger) and `contract-v1.20` (crystallizer), all three
+crystallization waves are canon. Purely additive.
+
 ## contract-v1.20 — 2026-07-29 (additive; crystallizer contracts + omnigent crystallized-executor extension)
 
 Realizes **add-crystallizer-contracts** (exit 2 of the

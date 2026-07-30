@@ -247,8 +247,9 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [add-capability-steward](../openspec/changes/add-capability-steward/proposal.md)
-  — raised and RATIFIED 2026-07-29 as exit 3 (final) of the `recurrence-crystallization`
+- [add-capability-steward](../openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
+  — raised and RATIFIED 2026-07-29, realized (`contract-v1.21`), and
+  **archived 2026-07-30** as exit 3 (final) of the `recurrence-crystallization`
   staged topic (partial promotion — the dials register remains staged as
   the topic's living remainder); owns the former `steward-contracts.md`
   fragment under `supporting-docs/` and proposes the
