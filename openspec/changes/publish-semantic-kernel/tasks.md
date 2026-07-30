@@ -26,4 +26,39 @@ codexFactory de60c0c re-pin `kernel_import` to the published digest
 - [x] 3. Regenerate the fixture corpus, pilots, and gateway examples against the published kernel; update the omnigent install example's kernel pin; full battery green.
 - [x] 4. Re-pin MedxFactory and codexFactory `kernel_import` to the published digest (one-line manifest changes); both repos validate green; push.
 - [x] 5. Cut contract-v1.25 (three kernel digests refreshed, section comment updated to published 1.0.0, CHANGELOG decision record), tag, remote-verify; manifest digests 104/104.
-- [ ] 6. Reviewer capstone verification of the publication against the release candidate; archive on green evidence with README updated.
+
+Capstone verification (task 6, two rounds): round 1 at ac1efd2 confirmed
+the publication SOUND on every gate (34/34 terms published with adoption
+evidenced incl. relations; the adoption gate broken in place and watched
+fail closed; meaning untouched — every effective_version still 0.1.0;
+package adoption structurally identical through the rewrite; accountable
+council identity; both seals recomputed; 60 downstream pins + 10 contexts
+on the published digest; bundle 179/179) and BLOCKED on two false
+statements in the record: P1 (an orphan snapshot asserting the LIVE
+version superseded, with retention never checked in reverse) and P2 (both
+consumers declaring version 0.1.0 behind the content-identical 1.0.0
+digest), plus riders P3 (stale DRAFT notes) and P4 (24-vs-25 concept
+count — the third stale-count slip, "worth a lint"). The P-wave (ce95d27
++ Medx 516bac9 + codex 6f037d5) resolved all four: retention made
+TRUTHFUL IN BOTH DIRECTIONS via the open change's
+domain-ontology-lifecycle delta (active snapshot states published;
+supersession flips exactly one line — verified by the reviewer as a
+2-line diff with the seal intact; orphans and live-superseded claims
+fail; the reviewer's deletion preference was declined for the F3
+deadlock it would have re-created, and round 2 records "they were right
+and I was wrong"); kernel-import checks version AND digest
+(kernel-import-version-drift negative); notes corrected without
+disturbing the package digest; counts corrected everywhere current and
+the COUNT LINT added (README fixture count, pinned minimum, kernel term
+counts vs the bytes; NEGATIVE_RATCHET single constant) — it caught its
+author's own stale counts on introduction. The kernel-stewardship-policy
+question became an explicit ratified scoping decision with a reopening
+trigger ("explicit scoping — not omission"). Round 2 at ce95d27:
+workspace-wide truthfulness audit (10 packages, zero orphans), the flip
+simulated byte-for-byte, post-tag doctrine confirmed correctly applied
+(v1.25 tag internally true 179/179), 57 negatives 0 rot / 10 positives 0
+failures. Verdict: **APPROVED for archive at ce95d27, no new findings**.
+Carried forward (non-gating): the two consumers' v13 markers gain the
+placeholders block at their publication-driving change.
+
+- [x] 6. Reviewer capstone verification of the publication against the release candidate; archive on green evidence with README updated.
