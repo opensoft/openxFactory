@@ -255,40 +255,6 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
-- [add-domain-ontology-layer](openspec/changes/add-domain-ontology-layer/proposal.md)
-  — authored AND RATIFIED 2026-07-28: the ontology layer for the xFactory
-  system. Realization is unblocked; with a non-none code surface it archives
-  on merged plus green realization evidence, not on ratification. Two new
-  capabilities (`xfactory-semantic-kernel`, `domain-ontology-lifecycle`) plus
-  deltas to layer-vocabulary, hermes-domain-overlay, and memory-gateway.
-  openxFactory owns a small neutral semantic kernel — a kernel term PUBLISHES
-  only with two independent resolvable adopters, while draft terms may record
-  pending adoption so the initial kernel bootstraps before the pilot packages
-  exist; each DomainxFactory owns its domain ontology as an immutable
-  content-addressed package stewarded by Domain Hermes, which answers for
-  MEASURABLE quality: a per-release quality report with declared
-  numerators/denominators (intake coverage, unknown-term rate, mapping
-  resolution, classification fixture accuracy, open-candidate age), domain
-  thresholds acting as maintenance triggers and blocking publication absent a
-  recorded reviewed exception. Ontology is meaning, never authority — the
-  separation is enforced STRUCTURALLY (closed field vocabulary; no
-  authority-plane record as relation endpoint, mapping target, or attribute
-  value), not by reading prose. External terminologies map by REFERENCE with
-  license classes; packages never mirror licensed code systems (decisive for
-  Medx clinical terminologies). Bounded semantic-context artifacts — term
-  subsets closed over specialization ancestors and relation endpoints, or
-  explicitly truncated — are the consumption seam for every Hermes layer AND
-  for the Omnigent layer: worker-scoped profiles give each small bounded
-  worker only the term subset its archetype needs with the permission matrix
-  untouched (profile + compilation contract defined here; overlay declaration
-  and runtime wiring are the named follow-up omnigent change). Emitted
-  telemetry, candidate registers, reports, and fixtures sit under the same
-  privacy rules as packages, with a distinct-subject/distinct-tenant
-  aggregation floor on term-level signals. Hardened 2026-07-28 by a two-stage
-  adversarial review (22 findings fixed, including realization front matter,
-  retention/rollback mechanics, compatibility edge classification,
-  steward-attributed publication, and the generation determinism boundary).
-  Pilot pair: MedxFactory + codexFactory.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -585,6 +551,30 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-domain-ontology-layer](openspec/changes/archive/2026-07-30-add-domain-ontology-layer/proposal.md)
+  — **ratified 2026-07-28, realized 2026-07-28/29, archived 2026-07-30 at
+  contract-v1.22**: the semantic plane. Promoted `xfactory-semantic-kernel`
+  and `domain-ontology-lifecycle` plus deltas to layer-vocabulary,
+  hermes-domain-overlay, and memory-gateway. Realized: the eighteen-kind
+  `contracts/domain-ontology/` family with the `xf/core` kernel (24 concepts,
+  9 relations, per-term owning contracts + evidenced adoption; DRAFT pending
+  the governed publication decision); canonical validator
+  `validate-domain-ontology.py` (10 positives incl. the retained
+  MedxFactory/codexFactory pilots, 44 indexed negatives, determinism,
+  readiness, repo-scoped registry); starter v13 ontology generation with
+  conflict-preserving candidate ingestion; stewardship tooling
+  (accountable-steward releases with per-signal quality exceptions,
+  consumer-impact evidence, byte-true self-retention; maintenance triggers
+  with identifier fail-closed inputs); purpose-bounded semantic-context
+  compilation + memory-gateway packet preflight (closed packet shapes,
+  real pilot-stamped example digests). Guide:
+  [docs/domain-ontology-guide.md](docs/domain-ontology-guide.md); pilots:
+  [docs/domain-ontology-pilot-report.md](docs/domain-ontology-pilot-report.md).
+  Released through a four-round independent adversarial review (16 blocking
+  findings + N1–N4 all resolved, APPROVED at 5d39bb4); bundle tag
+  `contract-v1.22` remote-verified. MedxFactory adopted (kernel
+  digest-pinned); codexFactory/hermes-install/omnigent adoption recorded as
+  explicit deferrals with the follow-up omnigent change named.
 - [add-capability-steward](openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
   — **authored, ratified, and realized 2026-07-29; archived 2026-07-30**,
   closing the `recurrence-crystallization` program: promoted
