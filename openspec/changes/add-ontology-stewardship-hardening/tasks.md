@@ -63,5 +63,31 @@ cut refreshes them.
 
 - [x] 5.1 Regenerate fixtures + pilots under the new semantics (superseded retained manifests, inventoried markers); full battery green.
 - [x] 5.2 MedxFactory + codexFactory follow-on commits: inventory the STARTER marker, restamp (kernel pins unchanged), validate green, push.
-- [ ] 5.3 Cut contract-v1.24 (two schema digests refreshed; the cut carries the recorded v1.23 erratum correction — note it in the CHANGELOG entry), tag, remote-verify.
-- [ ] 5.4 Reviewer verification of F21/F24–F27 + the adoption mode against the release candidate; docs updated (family README, guide, versioning notes); archive with README moved Active → Archived.
+- [x] 5.3 Cut contract-v1.24 (two schema digests refreshed; the cut carries the recorded v1.23 erratum correction — note it in the CHANGELOG entry), tag, remote-verify.
+Reviewer verification (5.4, at 55a6202): every finding re-tested by
+construction — F21(a) adoption/notes survive a real pilot release; F21(b)
+all three evidence flags refuse `../../` escapes; F21(c) snapshots born
+superseded, a hand-flipped snapshot fails, and the F3 seal re-verified
+independently (13 snapshots, per-file sha256 + reproduced digests, 0
+bad); F24 blocks on the recorded identifier (label-rename attack still
+blocks; the reviewer's original no-name-steward bypass is structurally
+gone); F25 both directions (deleted marker → digest break; de-inventoried
+marker → flagged); F26 anyOf behaves exactly (max-only PASSES, neither
+fails) and the cadence rule fires; F27 "resolved, and better covered than
+claimed" — neutralizing the probe applier showed ALL SIX probes
+load-bearing, a single-probe neutralization names exactly that fixture,
+dangling delegates fail. Adoption mode verified against a pre-populated
+repo incl. additive content-manifest merge preserving a pre-existing
+content kind. Bundle v1.24 recomputed (179 entries, 0 mismatch) and
+DELIVERS the v1.23 erratum correction; manifest digests 104/104; ratchet
+55 in the bytes with guide/README counts corrected ("third time asked" —
+closed). Corpus audit 55 negatives 0 rot / 10 positives 0 failures.
+Verdict: **APPROVED for archive at 55a6202**. One non-blocking
+observation carried forward: MedxFactory (f4ca313) and codexFactory
+(11777a9) hold `starter_version: 13` markers without the `placeholders`
+block — inventoried per F25 but not regenerated at v14; both are draft
+and correctly refuse readiness, so this is scaffold hygiene, folded into
+whichever change first drives a real domain toward publication (the
+kernel-publication / domain-publication line).
+
+- [x] 5.4 Reviewer verification of F21/F24–F27 + the adoption mode against the release candidate; docs updated (family README, guide, versioning notes); archive with README moved Active → Archived.
