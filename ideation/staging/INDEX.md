@@ -289,6 +289,14 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Source: named by Brett Heap during track-1 QA secret-custody design
   (2026-07-19); first concrete case = the opensoft self-client QA
   install's `kv-opensoft-xfactory-qa` secrets + the Flux deploy key.
+- Coordination (recorded 2026-07-30 by `add-deployment-handoff-boundary`
+  task 2.2): break-glass CUSTODY, the checkout realization and its test,
+  and the retroactive-request POLICY WINDOW are owned HERE and consumed
+  by the ratified `deployment-handoff-boundary` capability — its
+  phased-never-gapped adoption keeps existing standing admin as a named,
+  dispositioned exception until this topic's checkout path is realized
+  and TESTED, then a dated milestone removes standing assignments.
+  Coordinate, never fork.
 - Claim: per-client SOPS/age-encrypted credential escrow, written at
   secret create/rotate and read only at break-glass; exactly ONE
   break-glass key per operator scope in the password manager (public

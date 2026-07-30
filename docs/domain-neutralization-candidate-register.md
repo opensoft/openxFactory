@@ -502,8 +502,12 @@ surfaced the finding Ledgerx structurally could not: the DESIGNING
 domain and the APPLYING administrator can be different factories
 (GitHub administration is OpsxFactory's `github-administration-workflow`,
 not codexFactory's), so the realization artifact must be handoff-shaped
-with correlation between design, handoff, and applied result — very
-likely the same seam as the staged `deployment-handoff-boundary` topic.
+with correlation between design, handoff, and applied result — the seam
+is now RATIFIED as the `deployment-handoff-boundary` capability
+(`add-deployment-handoff-boundary`, 2026-07-29): the codexFactory second
+consumer's realization artifacts cross as `client_infrastructure_request`
+handoffs with correlation identifiers, exactly the crossing that
+capability defines (linkage recorded 2026-07-30, its task 2.3).
 
 Composes rather than restates: DTN-016 (consent instrument), DTN-015
 (correction→promotion, the archetype-harvest loop), governed-derived-

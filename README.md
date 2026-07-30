@@ -85,6 +85,10 @@ Core domain-neutral docs:
   pilot evidence: [Pilot Report](docs/domain-ontology-pilot-report.md) ·
   [Adoption Handoff](docs/domain-ontology-adoption-handoff.md) ·
   [Guide](docs/domain-ontology-guide.md))
+- [Deployment-Handoff Realization Handoff](docs/deployment-handoff-realization-handoff.md)
+  (the OpsxFactory + codexFactory successor-change packets for the ratified
+  `deployment-handoff-boundary` capability, with the deferred decisions and
+  topic-exit conditions)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
@@ -222,39 +226,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
-  — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
-  resolutions carried as design decisions; four residual questions
-  deliberately deferred to the successor realizations); the exit of the
-  `deployment-handoff-boundary`
-  staged topic (fully promoted; primary doc under `supporting-docs/`): a
-  release deployment is executed by the factory that manages the TARGET
-  SURFACE, decided solely by the managed-subject test — never by the
-  environment tier, which calibrates approval depth and accepted risk only.
-  The QA AKS stack is a managed subject, so QA deployments hand off exactly
-  as production does, while ephemeral CI/bench containers self-serve with no
-  request. The rule binds ALL actor classes (workers, CI, human engineers);
-  the crossing is the ratified `client_infrastructure_request`
-  (`execution_binding.mode`), no new record kind. Enforcement is layered
-  with credential non-possession as the teeth: only OpsxFactory execution
-  identities hold standing write credentials; deployment grants issue only
-  against an accepted request targeting a registered subject (the registry
-  lookup happens where the key is born); the structural channel is pull-only
-  GitOps reconciliation (merge IS the deployment) or Intune assignment;
-  `correlation_id` is stamped into commit trailers / deployment annotations /
-  endpoint metadata so the evidence-correlation audit is a join and any
-  uncorrelated change is a first-class finding. Benches ride one standing
-  maintenance request per policy period; break-glass is a retroactive
-  request within a policy window (custody owned by
-  `client-credential-escrow-registry`); adoption is phased-never-gapped
-  (standing admin stays a dispositioned exception until the tested checkout
-  path exists). MODIFIED `release-realization`: realization evidence for a
-  managed-subject deployment references the handoff request by correlation
-  identifier. All seven 2026-07-24 resolutions carried as design decisions;
-  codexFactory is the sole first consumer; OpsxFactory + codexFactory
-  realizations are named successor changes. Four open questions (QA approval
-  calibration, ACR scope map, preview threshold, break-glass window) are
-  deliberately deferred to realization.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -551,6 +522,26 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-deployment-handoff-boundary](openspec/changes/archive/2026-07-30-add-deployment-handoff-boundary/proposal.md)
+  — **ratified 2026-07-29, realized and archived 2026-07-30** (doc-only;
+  supporting bundle packaged per the proposal-support archive gate).
+  Promoted the `deployment-handoff-boundary` capability (7 requirements):
+  the managed-subject test is the sole deployment router (tier calibrates
+  governance depth, never the executor; binds workers, CI, and human
+  engineers alike); the crossing is the ratified
+  `client_infrastructure_request` requirements-profile; credential
+  non-possession is the primary enforcement (grants issue only against
+  accepted requests targeting registered subjects; break-glass is a
+  retroactive request with escrow-owned custody); structural channels
+  (merge IS the deployment); correlation stamping makes out-of-band
+  change a first-class audit finding; benches ride standing requests;
+  adoption is phased-never-gapped. MODIFIED `release-realization`:
+  managed-subject deployment evidence references the handoff correlation
+  identifier. Successor packets for OpsxFactory and codexFactory (with
+  the four deferred decisions and the topic-exit conditions):
+  [docs/deployment-handoff-realization-handoff.md](docs/deployment-handoff-realization-handoff.md);
+  escrow coordination and the DTN-017 seam linkage recorded in their
+  owning registers.
 - [publish-semantic-kernel](openspec/changes/archive/2026-07-30-publish-semantic-kernel/proposal.md)
   — **the capstone: ratified, realized, cut at contract-v1.25, and
   archived 2026-07-30**. The xFactory semantic kernel's first governed

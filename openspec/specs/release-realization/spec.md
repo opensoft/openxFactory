@@ -23,7 +23,11 @@ without the declarations is a doc-only change (`code_surface: none`,
 A change with a non-empty code surface SHALL NOT archive until realization
 evidence exists: its code merged on the implemented target through the
 owning domain's engineering gates, and — where the surface is runnable — a
-green run of that surface. Until then the change remains active as
+green run of that surface. Where realization deploys onto a surface that is
+a registered managed subject of another factory, the realization evidence
+SHALL reference the completed deployment handoff request by correlation
+identifier — correlation, not duplication: the request record remains with
+the executing factory. Until then the change remains active as
 approved-but-unrealized intent, preserving the invariant that promoted
 specs describe what the code does.
 
@@ -35,6 +39,11 @@ specs describe what the code does.
 #### Scenario: Realization completes
 - **WHEN** merge evidence and a green run exist on the implemented target
 - **THEN** the change archives and its deltas promote, exactly as doc-only changes do on landing
+
+#### Scenario: Realization deploys onto a managed subject
+- **WHEN** a change's realization includes deployment onto a registered managed subject of another factory
+- **THEN** the realization evidence references the completed handoff request's correlation identifier
+- **AND** a deployment claim with no correlatable accepted request MUST NOT count as realization evidence
 
 ### Requirement: Decomposition scale rule
 A ratified code-surface change SHALL be an admitted engineering intent
