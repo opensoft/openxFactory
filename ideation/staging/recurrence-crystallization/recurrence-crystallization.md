@@ -72,9 +72,11 @@ contract-shaping rulings and the delta surfaces.
   — authority conservation and consent tiers (MODIFIED
   `omnigent-domain-overlay`, ADDED `crystallization-consent`); promoted
   2026-07-29 at the raise of `add-crystallizer-contracts`.
-- [steward-contracts.md](steward-contracts.md) — registry, dispatch, proof,
-  health, accounting (ADDED `crystallized-capability-registry`,
-  `crystallization-dispatch`, `capability-health`).
+- [steward-contracts.md](../../../openspec/changes/add-capability-steward/supporting-docs/steward-contracts.md)
+  — registry, dispatch, proof, health, accounting (ADDED
+  `crystallized-capability-registry`, `crystallization-dispatch`,
+  `capability-health`); promoted 2026-07-29 at the raise of
+  `add-capability-steward`.
 - [dials-and-defaults.md](dials-and-defaults.md) — the declared-dials
   register (defaults now, tenant/domain tuning later; no deltas).
 
@@ -131,12 +133,13 @@ restored, staged origin declared), and the crystallizer and authority
 fragments moved to its `supporting-docs/` with a hashed manifest — the
 topic keeps the steward and dials fragments for exit 3.
 
-Exit 3 (`add-capability-steward`) was drafted 2026-07-29 in the topic's
-[openspec/](openspec/proposal.md) workspace — proposal, design, tasks, and
-three delta slices (`crystallized-capability-registry`,
-`crystallization-dispatch`, `capability-health` — the proof ladder,
-mandatory sentinels, drift responses, and sentinel-anchored accounting
-fold into health), each `Status: draft` — awaiting the proposal gate.
+Exit 3 was RAISED 2026-07-29 as
+[add-capability-steward](../../../openspec/changes/add-capability-steward/proposal.md):
+the draft slices moved to the change (draft headers stripped, front-matter
+restored, staged origin declared), and the steward fragment moved to its
+`supporting-docs/` with a hashed manifest — the topic's staged remainder
+is the dials register (feeding all three waves) and, in brainstorm, the
+deliberate cross-tenant fragment for a later wave.
 
 ## Spanning open questions (carried, non-blocking)
 

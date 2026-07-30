@@ -1,8 +1,3 @@
-# Design (draft): add-capability-steward
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-
 ## Context
 
 The staged rulings this change realizes: D9 (neutral dispatch contract;

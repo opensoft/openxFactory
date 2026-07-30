@@ -1,8 +1,5 @@
 # capability-health Delta: Proofs, Sentinels, Drift, And Honest Accounting
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: The Proof Ladder Precedes Authority

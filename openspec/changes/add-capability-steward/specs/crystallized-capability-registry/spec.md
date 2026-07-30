@@ -1,8 +1,5 @@
 # crystallized-capability-registry Delta: The Spine Dispatch May Trust
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: The Registry Is Governed Truth With A Derived Index

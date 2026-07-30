@@ -1,8 +1,3 @@
-# Tasks (draft): add-capability-steward
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-
 ## 1. Contracts
 
 - [ ] 1.1 Add the record schemas under `contracts/schemas/`
@@ -50,7 +45,7 @@ Draft slice of: ../recurrence-crystallization.md
 
 - [ ] 3.1 OpenSpec Records entry at raise; doc-index links land with the
       promoted specs at archive.
-- [ ] 3.2 Update the staging INDEX row/detail on partial promotion (the
+- [x] 3.2 Update the staging INDEX row/detail on partial promotion (the
       `steward-contracts.md` fragment moves to `supporting-docs/`; the
       dials register remains staged as the topic's living remainder).
 - [ ] 3.3 Close the topic's exit-path record: all three waves archived;
@@ -61,7 +56,7 @@ Draft slice of: ../recurrence-crystallization.md
 
 - [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate add-capability-steward
       --strict` and `--all --strict` green.
-- [ ] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
+- [x] 4.2 Declare staged origin (`openxFactory:staging:recurrence-crystallization`)
       in `.openspec.yaml`; verify the supporting-docs manifest and hashes.
 - [ ] 4.3 Obtain ratification approval and stamp the proposal front matter
       (`Status: ratified`, `Ratified by:`).

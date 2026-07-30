@@ -1,8 +1,5 @@
 # crystallization-dispatch Delta: One Junction, Fences First, AI Intact
 
-Status: draft
-Draft slice of: ../../../recurrence-crystallization.md
-
 ## ADDED Requirements
 
 ### Requirement: The Junction Is The Single Entry Before Planning

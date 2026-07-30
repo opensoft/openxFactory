@@ -212,6 +212,22 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-capability-steward](openspec/changes/add-capability-steward/proposal.md)
+  — authored 2026-07-29; exit 3 (final) of the `recurrence-crystallization`
+  staged topic (partial promotion — the dials register remains the topic's
+  staged remainder): the crystallized-capability registry as the single
+  source dispatch may read (proof-gated status spine; artifacts
+  digest-pinned while authority is live-read, D10), the dispatch junction
+  as the single entry before planning (deterministic fences,
+  pure/idempotent admission per D11, six-cause fallback taxonomy feeding
+  the frontier queue, metered overhead, the L2 cache behind the junction,
+  path-invariant audit shape), and capability-health (the replay → shadow
+  → canary proof ladder with demotion triggers armed at promotion,
+  bidirectional adjudication, mandatory sentinels with a nonzero floor,
+  the cost-ordered drift ladder with hysteresis, auto/contested findings,
+  disuse retirement, sentinel-anchored accounting, and the contractual
+  renewal write-backs that close the flywheel); schemas + validator are
+  the declared code surface.
 - [add-deployment-handoff-boundary](openspec/changes/add-deployment-handoff-boundary/proposal.md)
   — authored 2026-07-28, RATIFIED 2026-07-29 (the seven 2026-07-24
   resolutions carried as design decisions; four residual questions

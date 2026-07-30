@@ -1,14 +1,4 @@
-# Proposal (draft): add-capability-steward
-
-Status: draft
-Draft slice of: ../recurrence-crystallization.md
-Target repo at promotion: openxFactory `openspec/changes/add-capability-steward/`
-code_surface: openxFactory (contracts/schemas crystallized-capability-registry
-/ crystallization-dispatch / capability-health record family + canonical
-validator scripts/validate-capability-steward.py — contracts, examples, and
-validators only; the runtime dispatch junction (hermes-install admission per
-D9), the derived-index regeneration lane, proof orchestration, and the
-sweep/accounting lanes are successor realizations)
+code_surface: openxFactory (contracts/schemas crystallized-capability-registry / crystallization-dispatch / capability-health record family + canonical validator scripts/validate-capability-steward.py — contracts, examples, validators only; the runtime junction (hermes-install admission per D9), derived-index regeneration, proof orchestration, and sweep/accounting lanes are successor realizations)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 
 ## Why

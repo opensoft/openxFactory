@@ -247,6 +247,16 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-capability-steward](../openspec/changes/add-capability-steward/proposal.md)
+  — raised 2026-07-29 as exit 3 (final) of the `recurrence-crystallization`
+  staged topic (partial promotion — the dials register remains staged as
+  the topic's living remainder); owns the former `steward-contracts.md`
+  fragment under `supporting-docs/` and proposes the
+  crystallized-capability registry (proof-gated status spine, artifacts
+  pinned while authority is live-read), the dispatch junction (fences,
+  effect-class admission, fallback taxonomy, audit-shape parity), and
+  capability-health (proof ladder, mandatory sentinels, drift responses,
+  sentinel-anchored accounting, renewal write-backs).
 - [add-crystallizer-contracts](../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
   — raised, RATIFIED, realized (`contract-v1.20`), and **archived
   2026-07-29** as exit 2 of the `recurrence-crystallization` staged
