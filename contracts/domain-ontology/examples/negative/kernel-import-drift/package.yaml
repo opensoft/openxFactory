@@ -16,7 +16,7 @@ stewards:
     identity_kind: human
 kernel_import:
   package_id: xf/core
-  package_version: 0.1.0
+  package_version: 1.0.0
   package_digest: abababababababababababababababababababababababababababababababab
 inventory:
   - path: concepts.yaml

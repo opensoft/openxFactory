@@ -8,12 +8,12 @@ Purpose: the downstream handoff packets — what each consumer adopts, with
 which pins, through its OWN governed change (adoption never lands from
 here; repo-boundary governance holds).
 
-Common pins: kernel `xf/core` 0.1.0, digest
-`9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5` (DRAFT;
-publication rides the bundle cut). Contract family
+Common pins: kernel `xf/core` **1.0.0 (published)**, digest
+`37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038`
+(first governed publication 2026-07-30; contract-v1.25). Contract family
 `contracts/domain-ontology/` (eighteen kinds), canonical validator
 `scripts/validate-domain-ontology.py`, tools `apply-domain-starter.py`
-(v13, `--answers`/`--ingest-candidates`), `ontology-maintenance.py`,
+(v14, `--answers`/`--ingest-candidates`/`--ontology-only`), `ontology-maintenance.py`,
 `ontology-release.py`, `ontology-compile-context.py`.
 
 ## MedxFactory (pilot: `examples/pilots/medx`)

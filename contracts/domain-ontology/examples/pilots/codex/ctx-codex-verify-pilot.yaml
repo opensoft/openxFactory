@@ -6,8 +6,8 @@ worker_scope:
   worker_archetype: verify
 kernel_pin:
   package_id: xf/core
-  package_version: 0.1.0
-  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
 package_pin:
   package_id: xf/codex
   package_version: 1.1.0
@@ -19,4 +19,4 @@ terms:
   - xf/core/evidence
 closure:
   status: closed
-content_digest: a720bedf66123eba2633be1e882a04347f1fdcc05d41b6a078f2c2b4d02af7dc
+content_digest: d47fa506d8e8a750dcbb75a19dd49f37b141cb537cc9f131d6e07a3c01f50ce6

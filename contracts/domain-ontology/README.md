@@ -52,12 +52,14 @@ YAML dates must be quoted strings.
 
 ## The kernel
 
-`core/` is the xFactory semantic kernel package (`xf/core`, DRAFT):
-24 concepts and 9 relation primitives, each naming the contract that owns
-its runtime shape. The ratified bootstrap scenario allows `pending`
-adoption while the kernel is draft; every concept AND relation now records
-`evidenced` adoption with two independent resolvable adopters (deduped by
-identity — two copies of one adopter count once). The inventory
+`core/` is the xFactory semantic kernel package (`xf/core`, **PUBLISHED
+1.0.0** — first governed publication 2026-07-30, decided by the
+accountable `openxfactory-maintainers` council; `publish-semantic-kernel`):
+24 concepts and 9 relation primitives, every term published with
+`evidenced` adoption — two independent resolvable adopters each (deduped
+by identity). The bootstrap window is CLOSED: the active kernel line
+never regresses to pending adoption; new terms in future revisions may
+record pending only while their revision is unpublished. The inventory
 behind every owner pointer is
 [docs/domain-ontology-semantic-decisions.md](../../docs/domain-ontology-semantic-decisions.md).
 

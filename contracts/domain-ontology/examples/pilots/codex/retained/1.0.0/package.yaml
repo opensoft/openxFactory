@@ -17,8 +17,8 @@ stewards:
     name: "Codex Ontology Steward"
 kernel_import:
   package_id: xf/core
-  package_version: 0.1.0
-  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
 inventory:
   - path: STARTER.yaml
     sha256: b3bdb2bfdce1c1afc0b892a21ad0ad1471c9135cdd71a85e9fc2e10b21cf2823

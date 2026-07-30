@@ -20,8 +20,8 @@ items; intake→diagnosis→treatment-planning→active-treatment→monitoring
 journey states) and codexFactory's from the engineering domain model
 (project subject; repository/feature focal items; execution/review lanes,
 admission journey). Every step below is reproducible from the pinned tools
-in this repository; the pilot packages import kernel `xf/core` 0.1.0 at
-digest `9d4ea5fa…d505a5`.
+in this repository; the pilot packages import the published kernel
+`xf/core` 1.0.0 at digest `37090ba2…369038`.
 
 ## Evidence log
 
@@ -78,8 +78,8 @@ gateway expert example gains the same real semantic context
    share the core without importing each other's vocabulary. The kernel's
    per-term adoption evidence was recorded (two resolvable adopters per
    term from the semantic-decisions inventory, plus the two pilot packages
-   at package level); the kernel remains DRAFT — publication is the
-   governed bundle-cut decision, now unblocked.
+   at package level); the kernel published at 1.0.0 on 2026-07-30
+   (`publish-semantic-kernel`), closing the bootstrap window.
 4. **The Omnigent seam works end-to-end (design decision 13).** Worker
    profiles (`verify`, `generate`, `assemble_for_admission`) compiled to
    closed, digest-pinned per-worker contexts on both domains — a verify

@@ -4,8 +4,8 @@ context_id: ctx-negx-drift
 purpose: fixture
 kernel_pin:
   package_id: xf/core
-  package_version: 0.1.0
-  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
 package_pin:
   package_id: xf/negx
   package_version: 1.0.0
@@ -13,4 +13,4 @@ package_pin:
 terms: [xf/negx/thing, xf/core/subject]
 closure:
   status: closed
-content_digest: 89cd19d4f6cbe66107963d782729da8c56e793d47070d053d16d0b9b13a75326
+content_digest: 3d10359769bf726aa8af378771fcbb7ba71f8c6e2c70585c231f1d0b620d4212
