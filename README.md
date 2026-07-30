@@ -255,6 +255,21 @@ Active changes:
   realizations are named successor changes. Four open questions (QA approval
   calibration, ACR scope map, preview threshold, break-glass window) are
   deliberately deferred to realization.
+- [add-omnigent-semantic-wiring](openspec/changes/add-omnigent-semantic-wiring/proposal.md)
+  — authored and ratified 2026-07-30, realizing the follow-up named at
+  add-domain-ontology-layer task 6.7 / design decision 13: the Omnigent
+  seam becomes wireable in a real stack. The domain overlay declares each
+  worker's semantic-context profile by identity
+  (`semantic_context: {profile_id, package_id}`, resolved in repo mode
+  against the domain's inventoried profiles with archetype-or-class scope
+  agreement); the install manifest pins the compiled per-worker artifacts
+  (`semantic_contexts`: exact kernel/package pins, both-direction
+  completeness fail-closed, per-artifact digest/pin/scope agreement).
+  Seam hardening rides along: the compile tool refuses drifted package
+  bytes (F20) and truncation itemizes the closure transitively with a
+  validator completeness rule (F19). Permission matrices untouched. First
+  consumer MedxFactory (80a81af). Omnigent schema bytes change →
+  contract-v1.23.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and

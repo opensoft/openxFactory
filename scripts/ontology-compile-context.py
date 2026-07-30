@@ -58,6 +58,26 @@ def refuse(message: str) -> int:
     return 1
 
 
+def drifted_file(pkg_dir: Path, manifest: dict, label: str) -> str | None:
+    """Verify package bytes against the recorded digests before compiling
+    (add-omnigent-semantic-wiring; review finding F20): a compiled context
+    must never attest pins its content does not honor."""
+    entries = []
+    for item in manifest.get("inventory", []) or []:
+        fp = pkg_dir / item.get("path", "")
+        if not fp.is_file():
+            return f"{label}: inventoried file missing: {item.get('path')}"
+        digest = hashlib.sha256(fp.read_bytes()).hexdigest()
+        if digest != item.get("sha256"):
+            return (f"{label}: {item.get('path')} no longer hashes to its "
+                    "recorded digest; compilation from drifted bytes fails closed")
+        entries.append(f"{item.get('path')} {item.get('sha256')}")
+    recomputed = hashlib.sha256("\n".join(sorted(entries)).encode("utf-8")).hexdigest()
+    if recomputed != manifest.get("package_digest"):
+        return f"{label}: package_digest does not match the inventory"
+    return None
+
+
 def load_terms(pkg_dir: Path, manifest: dict) -> tuple[dict, dict]:
     concepts: dict[str, dict] = {}
     relations: dict[str, dict] = {}
@@ -97,6 +117,11 @@ def main() -> int:
                       "classification against it fails closed — re-pin a live version")
 
     kernel_manifest = load(CORE_DIR / "package.yaml")
+    for pdir, pman, label in ((CORE_DIR, kernel_manifest, "kernel xf/core"),
+                              (pkg_dir, manifest, f"package {package_id}")):
+        drift = drifted_file(pdir, pman, label)
+        if drift:
+            return refuse(drift)
     kernel_concepts, kernel_relations = load_terms(CORE_DIR, kernel_manifest)
     concepts, relations = load_terms(pkg_dir, manifest)
 
@@ -150,7 +175,11 @@ def main() -> int:
             if member in subset or member in omitted:
                 continue
             if truncation_allowed:
+                # Itemization is TRANSITIVE (review finding F19): an omitted
+                # member's own ancestors and endpoints are closure members
+                # too, so the walk continues through it.
                 omitted.add(member)
+                queue.append(member)
             else:
                 subset.add(member)
                 queue.append(member)

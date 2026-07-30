@@ -1,0 +1,16 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/negx
+concepts:
+  - id: xf/negx/a_leaf
+    label: A Leaf
+    definition: A fixture concept.
+    parents: [xf/negx/b_mid]
+    lifecycle_state: published
+    effective_version: 1.0.0
+  - id: xf/negx/b_mid
+    label: B Mid
+    definition: A fixture concept.
+    parents: [xf/core/subject]
+    lifecycle_state: published
+    effective_version: 1.0.0

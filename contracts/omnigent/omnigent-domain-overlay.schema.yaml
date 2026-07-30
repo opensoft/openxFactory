@@ -264,6 +264,28 @@ $defs:
           schedule_ref:
             type: string
             minLength: 1
+      semantic_context:
+        description: >-
+          Optional worker-scoped semantic-context declaration
+          (`add-omnigent-semantic-wiring`; the Omnigent seam of
+          add-domain-ontology-layer design decision 13). Identity ONLY —
+          the profile lives inventoried in the domain's own ontology
+          package and package pins belong to consumers and compiled
+          artifacts, so the declaration stays valid across compatible
+          ontology releases. Repo-mode validation resolves the profile and
+          requires worker_scope agreement (archetype or class). Carries no
+          permission field; the six-boolean matrix is unchanged by its
+          presence.
+        type: object
+        additionalProperties: false
+        required: [profile_id, package_id]
+        properties:
+          profile_id:
+            type: string
+            pattern: "^prof-[a-z0-9][a-z0-9-]{0,63}$"
+          package_id:
+            type: string
+            pattern: "^xf/[a-z0-9_]+$"
       responsibility:
         type: string
         minLength: 1

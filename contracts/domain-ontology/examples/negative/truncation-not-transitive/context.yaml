@@ -1,0 +1,17 @@
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-negx-shallow
+purpose: fixture
+kernel_pin:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+package_pin:
+  package_id: xf/negx
+  package_version: 1.0.0
+  package_digest: 2d7152b87fa4c3646e00a9cde9720ee1d4006deb7f18f6ff20ce68cc1dc04b3c
+terms: [xf/negx/a_leaf]
+closure:
+  status: truncated
+  omitted: [xf/negx/b_mid]
+content_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

@@ -131,10 +131,17 @@ or itemized-truncated where the profile allows — with exact kernel and
 package pins, tenant bindings failing closed on any mismatch, and
 retired packages AND retired terms refusing new compilation (a retired
 identifier keeps historical interpretation under its original pins only;
-prior-pin contexts are never retroactively invalidated). Worker-scoped profiles
+prior-pin contexts are never retroactively invalidated). Compilation
+verifies kernel and package bytes against their recorded digests first
+(drifted bytes refuse), and truncation itemizes the closure TRANSITIVELY
+— an omitted member's own ancestors are named too. Worker-scoped profiles
 (`xfactory_semantic_context_profile`, per archetype or class) are the
-Omnigent seam: one small digest-pinned context per worker, permission
-matrix untouched. Compiled projections (graph, relational, vector,
+Omnigent seam, now wired end-to-end (`add-omnigent-semantic-wiring`): the
+omnigent domain overlay declares each worker's profile by identity, the
+omnigent install manifest pins the compiled per-worker artifacts with
+exact kernel/package digests (both-direction completeness fail-closed),
+and one small digest-pinned context reaches each worker with the
+permission matrix untouched. Compiled projections (graph, relational, vector,
 JSON-LD/RDF export) are derivative, reproducible from the pinned
 package, and unable to change canonical meaning — rebuilding on a
 different provider leaves identifiers, conformance results, and context

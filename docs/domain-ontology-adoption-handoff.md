@@ -48,15 +48,25 @@ generated-domain completeness rule are already promoted/realized here).
 Own change: seeding increment that validates and materializes the package
 and records the runtime pin.
 
-## Omnigent (the named follow-up change)
+## Omnigent (REALIZED — `add-omnigent-semantic-wiring`, 2026-07-30)
 
-The seam is ready: `xfactory_semantic_context_profile` (per-archetype /
-per-class term subsets, `truncation_allowed`) + deterministic compilation
-producing closed, digest-pinned per-worker contexts, proven by fixture and
-pilots. The follow-up change decides the declaration surface (leading:
-the omnigent domain overlay declares worker-class profiles; the ontology
-validator proves the referenced subsets exist), wires worker runtimes to
-consume compiled contexts through memory-gateway packets (the
-`semantic_context` block is live in both packet contracts), and leaves the
-permission matrix untouched — `execute_final_action` and `access_secrets`
-stay constitutionally false.
+The named follow-up landed at contract-v1.23. The declaration surface is
+the omnigent domain overlay: a worker class MAY carry
+`semantic_context: {profile_id, package_id}` (identity only; digests ride
+compiled contexts), resolved in repo mode by
+`validate-omnigent-contracts.py <domain-repo>` against the repo's
+inventoried `xfactory_semantic_context_profile` documents with
+worker_scope archetype-or-class agreement. The install surface is the
+omnigent install manifest's `semantic_contexts` section: exact kernel and
+domain package pins plus one compiled artifact per declaring worker,
+both-direction completeness and per-artifact pin/digest/scope agreement
+fail-closed (`install_wiring_errors`, exercised by
+`test-omnigent-semantic-wiring.py`). Workers consume the artifact through
+memory-gateway packets (the `semantic_context` block live in both packet
+contracts), the compile tool refuses drifted package bytes and itemizes
+truncation transitively, and the permission matrix stays untouched —
+`execute_final_action` and `access_secrets` constitutionally false.
+First consumer: MedxFactory (80a81af) — two inventoried profiles,
+declarations on `data_reverification_agent` (archetype-scoped) and
+`case_framing_agent` (class-scoped). Install repositories adopt through
+their own governed changes.

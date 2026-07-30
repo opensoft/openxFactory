@@ -23,7 +23,16 @@ Checks, fail-closed:
        replaced class in the same overlay, and never exceeds it in
        permissions or by_class credential families (authority
        conservation);
-     - rung_ceilings categories are unique.
+     - rung_ceilings categories are unique;
+     - install ``semantic_contexts`` entries are unique per worker class
+       (add-omnigent-semantic-wiring).
+  5. Repo mode: ``validate-omnigent-contracts.py <domain-repo>`` validates
+     the repo's omnigent/domain-overlay.yaml (schema + semantics) and,
+     when hermes/domain/ontology/ exists, resolves every worker
+     ``semantic_context`` declaration to an inventoried
+     xfactory_semantic_context_profile with the declared package_id whose
+     worker_scope matches the worker (archetype or class equality) —
+     unresolved or scope-mismatched declarations fail.
 
 Exit code 0 only if every check passes.
 """
@@ -146,7 +155,138 @@ def semantic_errors(kind: str, doc) -> list[str]:
                 errors.append(f"$.rung_ceilings: duplicate category '{category}'")
             if category is not None:
                 seen_categories.add(category)
+    if kind == "omnigent_install_manifest" and isinstance(doc, dict):
+        sem = doc.get("semantic_contexts") or {}
+        entries = sem.get("contexts") or []
+        classes = [e.get("worker_class") for e in entries if isinstance(e, dict)]
+        for wc in sorted({c for c in classes if classes.count(c) > 1}):
+            errors.append(f"$.semantic_contexts: duplicate worker_class '{wc}' "
+                          "(one compiled context per declaring worker)")
     return errors
+
+
+def overlay_profile_errors(overlay: dict, ontology_dir: Path) -> list[str]:
+    """Repo-mode cross-check (add-omnigent-semantic-wiring): every worker
+    semantic_context declaration resolves to an inventoried profile of the
+    declared package whose worker_scope matches the worker."""
+    errors: list[str] = []
+    manifest = load_yaml(ontology_dir / "package.yaml") or {}
+    profiles: dict[str, dict] = {}
+    for item in manifest.get("inventory", []) or []:
+        fp = ontology_dir / item.get("path", "")
+        if not fp.is_file():
+            continue
+        doc = load_yaml(fp)
+        if isinstance(doc, dict) and doc.get("kind") == "xfactory_semantic_context_profile":
+            profiles[str(doc.get("profile_id"))] = doc
+    for worker in overlay.get("workers") or []:
+        if not isinstance(worker, dict):
+            continue
+        sem = worker.get("semantic_context")
+        if not sem:
+            continue
+        wid = worker.get("id")
+        prof = profiles.get(str(sem.get("profile_id")))
+        if prof is None:
+            errors.append(
+                f"$.workers[{wid}]: semantic_context profile "
+                f"'{sem.get('profile_id')}' is not an inventoried profile of "
+                "the domain ontology package")
+            continue
+        if prof.get("package_id") != sem.get("package_id"):
+            errors.append(
+                f"$.workers[{wid}]: profile '{sem.get('profile_id')}' belongs to "
+                f"package '{prof.get('package_id')}', declared "
+                f"'{sem.get('package_id')}'")
+        scope = prof.get("worker_scope") or {}
+        if scope.get("worker_archetype") != worker.get("archetype") and \
+                scope.get("worker_class") != wid:
+            errors.append(
+                f"$.workers[{wid}]: profile '{sem.get('profile_id')}' worker_scope "
+                f"(archetype={scope.get('worker_archetype')!r}, "
+                f"class={scope.get('worker_class')!r}) matches neither the "
+                f"worker's archetype '{worker.get('archetype')}' nor its class")
+    return errors
+
+
+def install_wiring_errors(manifest: dict, overlay: dict,
+                          install_root: Path) -> list[str]:
+    """Canonical install-side wiring checks (add-omnigent-semantic-wiring):
+    both-direction completeness against the pinned overlay's declaring
+    workers, and per-artifact pin/digest/scope agreement. The caller
+    supplies the resolved overlay document (installs keep exact pinned
+    copies per the consumption rule); deep context semantics stay with the
+    canonical ontology validator over the same artifact bytes."""
+    errors: list[str] = []
+    sem = (manifest or {}).get("semantic_contexts") or {}
+    entries = {str(e.get("worker_class")): e
+               for e in sem.get("contexts") or [] if isinstance(e, dict)}
+    declaring = {str(w.get("id")): w for w in (overlay or {}).get("workers") or []
+                 if isinstance(w, dict) and w.get("semantic_context")}
+    for wid in sorted(set(declaring) - set(entries)):
+        errors.append(f"$.semantic_contexts: declaring worker '{wid}' has no "
+                      "pinned compiled context — a worker never launches "
+                      "without the bounded meaning its overlay declares")
+    for wid in sorted(set(entries) - set(declaring)):
+        errors.append(f"$.semantic_contexts: context entry '{wid}' names no "
+                      "declaring worker in the pinned overlay")
+    kernel_pin = sem.get("kernel") or {}
+    package_pin = sem.get("ontology_package") or {}
+    for wid in sorted(set(declaring) & set(entries)):
+        entry = entries[wid]
+        worker = declaring[wid]
+        fp = install_root / str(entry.get("path"))
+        if not fp.is_file():
+            errors.append(f"$.semantic_contexts[{wid}]: committed artifact "
+                          f"missing: {entry.get('path')}")
+            continue
+        doc = load_yaml(fp) or {}
+        if doc.get("kind") != "xfactory_semantic_context":
+            errors.append(f"$.semantic_contexts[{wid}]: artifact is not an "
+                          "xfactory_semantic_context document")
+            continue
+        if doc.get("content_digest") != entry.get("content_digest"):
+            errors.append(f"$.semantic_contexts[{wid}]: artifact content_digest "
+                          "disagrees with the pinned entry")
+        for pin_name, pin in (("kernel_pin", kernel_pin),
+                              ("package_pin", package_pin)):
+            embedded = doc.get(pin_name) or {}
+            if embedded.get("package_id") != pin.get("package_id") or \
+                    embedded.get("package_digest") != pin.get("package_digest"):
+                errors.append(f"$.semantic_contexts[{wid}]: artifact {pin_name} "
+                              "disagrees with the section pin")
+        scope = doc.get("worker_scope") or {}
+        if scope.get("worker_archetype") != worker.get("archetype") and \
+                scope.get("worker_class") != wid:
+            errors.append(f"$.semantic_contexts[{wid}]: artifact worker_scope "
+                          "matches neither the worker's archetype nor its class")
+    return errors
+
+
+def validate_repo(repo: Path, validators: dict[str, Draft202012Validator]) -> None:
+    overlay_path = repo / "omnigent" / "domain-overlay.yaml"
+    if not overlay_path.is_file():
+        fail(f"repo mode: {overlay_path} not found")
+        return
+    overlay = load_yaml(overlay_path)
+    violations = all_violations(validators["omnigent_domain_overlay"],
+                                "omnigent_domain_overlay", overlay)
+    ontology_dir = repo / "hermes" / "domain" / "ontology"
+    if ontology_dir.is_dir():
+        violations.extend(overlay_profile_errors(overlay, ontology_dir))
+    else:
+        for worker in (overlay or {}).get("workers") or []:
+            if isinstance(worker, dict) and worker.get("semantic_context"):
+                violations.append(
+                    f"$.workers[{worker.get('id')}]: semantic_context declared "
+                    "but the repository has no hermes/domain/ontology package "
+                    "to resolve it against")
+    if violations:
+        fail(f"repo overlay rejected: {overlay_path}")
+        for violation in violations:
+            print(f"       {violation}")
+    else:
+        print(f"ok   repo overlay validates: {overlay_path}")
 
 
 def all_violations(validator: Draft202012Validator, kind: str, doc) -> list[str]:
@@ -198,6 +338,9 @@ def main() -> int:
                 print(f"       {violation}")
         else:
             print(f"ok   negative fixture rejected as expected ({expected}): {path.relative_to(ROOT)}")
+
+    for repo_arg in sys.argv[1:]:
+        validate_repo(Path(repo_arg).resolve(), validators)
 
     if failures:
         print(f"\n{len(failures)} check(s) failed")

@@ -1,0 +1,27 @@
+# expected_failure: ONT-CONTEXT-CLOSURE
+# expected_failure_detail: does not itemize
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+inventory:
+  - path: concepts.yaml
+    sha256: ad03121b4cee75152718397346f9e5330bc8d42c37922f1cf3766569157f02b3
+package_digest: 2d7152b87fa4c3646e00a9cde9720ee1d4006deb7f18f6ff20ce68cc1dc04b3c
+compatibility:
+  class: initial
+  line: xf/negx@1

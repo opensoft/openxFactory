@@ -44,6 +44,12 @@ workers:
       access_secrets: false
   - id: check_runner
     archetype: verify
+    # Worker-scoped semantic seam (add-omnigent-semantic-wiring): identity
+    # only — the profile lives inventoried in the domain ontology package;
+    # exact digests ride the compiled context, never this declaration.
+    semantic_context:
+      profile_id: prof-example-verify
+      package_id: xf/example
     responsibility: Run deterministic validations and produce reports.
     inputs: [implementation_artifact]
     outputs: [validation_report]

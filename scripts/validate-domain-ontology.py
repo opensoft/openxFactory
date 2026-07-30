@@ -1042,29 +1042,39 @@ def check_context(ctx: dict, fpath: Path, pkg: Package | None, resolve_kernel,
                                         "retired terms refuse new compilation"))
     closure = ctx.get("closure", {})
     omitted = set(closure.get("omitted", []) or [])
+    # Walk the FULL transitive closure graph of the included terms — the
+    # ancestors and endpoints of omitted members are closure members too
+    # (add-omnigent-semantic-wiring; review finding F19), so the walk
+    # continues through terms AND omitted members alike.
     missing: list[str] = []
-    for tid in sorted(terms):
+    seen_walk: set[str] = set()
+    walk = sorted(terms)
+    while walk:
+        tid = walk.pop()
+        if tid in seen_walk:
+            continue
+        seen_walk.add(tid)
+        members: list[tuple[str, str]] = []
         cdef = lookup_concept(tid)
         if cdef is not None:
-            queue = list(cdef.get("parents", []))
-            while queue:
-                parent = queue.pop()
-                if parent in terms or parent in omitted:
-                    continue
-                missing.append(f"{tid}: ancestor {parent}")
-                pdef = lookup_concept(parent)
-                if pdef:
-                    queue.extend(pdef.get("parents", []))
-            continue
-        rdef = lookup_relation(tid)
-        if rdef is not None:
-            for end in ("domain", "range"):
-                for cid in rdef.get(end, []):
-                    if cid not in terms and cid not in omitted:
-                        missing.append(f"{tid}: {end} concept {cid}")
+            members = [("ancestor", p) for p in cdef.get("parents", [])]
+        else:
+            rdef = lookup_relation(tid)
+            if rdef is not None:
+                for end in ("domain", "range"):
+                    members += [(f"{end} concept", c) for c in rdef.get(end, [])]
+        for label, member in members:
+            if member not in terms and member not in omitted:
+                missing.append(f"{tid}: {label} {member}")
+            walk.append(member)
     if missing and closure.get("status") == "closed":
         findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
                                 "subset declared closed but omits closure members: "
+                                + "; ".join(sorted(missing))))
+    elif missing and closure.get("status") == "truncated":
+        findings.append(Finding("ONT-CONTEXT-CLOSURE", rel(fpath),
+                                "truncated context omits closure members it does not "
+                                "itemize (itemization is transitive): "
                                 + "; ".join(sorted(missing))))
 
 
@@ -1279,10 +1289,10 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 49:
+    if neg_count < 50:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 49"))
+                              "pinned minimum of 50"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
     # Layer 2: optional repo scan. The scan gets its OWN registry scope

@@ -1,6 +1,4 @@
-# Conforming example: an Omnigent install manifest pinning the Hermes
-# runtime manifest as shared stack identity, one domain overlay, one
-# bootstrap subject workload. Instantiation stub.
+# expect: duplicate worker_class
 schema_version: 1
 kind: omnigent_install_manifest
 
@@ -36,11 +34,6 @@ effective_profiles:
 evidence:
   records_root: evidence/omnigent-compose
 
-# Install-pinned worker semantic contexts (add-omnigent-semantic-wiring):
-# exact kernel/package pins plus one compiled artifact per worker class
-# the pinned overlay declares. Both-direction completeness and per-artifact
-# pin agreement are cross-checked over the pinned overlay by the canonical
-# validator's wiring checks, not by this schema.
 semantic_contexts:
   kernel:
     package_id: xf/core
@@ -55,3 +48,7 @@ semantic_contexts:
       context_id: ctx-example-verify
       content_digest: 4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c
       path: rendered/semantic-contexts/ctx-example-verify.yaml
+    - worker_class: check_runner
+      context_id: ctx-example-verify-b
+      content_digest: 5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d
+      path: rendered/semantic-contexts/ctx-example-verify-b.yaml
