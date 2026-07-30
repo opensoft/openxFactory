@@ -131,6 +131,13 @@ restored, staged origin declared), and the crystallizer and authority
 fragments moved to its `supporting-docs/` with a hashed manifest — the
 topic keeps the steward and dials fragments for exit 3.
 
+Exit 3 (`add-capability-steward`) was drafted 2026-07-29 in the topic's
+[openspec/](openspec/proposal.md) workspace — proposal, design, tasks, and
+three delta slices (`crystallized-capability-registry`,
+`crystallization-dispatch`, `capability-health` — the proof ladder,
+mandatory sentinels, drift responses, and sentinel-anchored accounting
+fold into health), each `Status: draft` — awaiting the proposal gate.
+
 ## Spanning open questions (carried, non-blocking)
 
 Dial tuning beyond staged defaults; adjudicator assignment by rung/risk
