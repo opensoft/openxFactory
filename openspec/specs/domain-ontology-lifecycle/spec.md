@@ -182,14 +182,18 @@ pins MAY coexist during a migration window provided every artifact records the
 exact pin it used. A consumer-impact report SHALL name affected domain-owned
 terms and consumer pins only; tenant bindings are tenant-private, and each
 tenant SHALL re-validate its own bindings against the new pin at adoption.
-A retained snapshot SHALL declare `lifecycle_state: superseded` from its
-creation — a snapshot is history from birth and is never mutated afterward —
-and a retained manifest claiming an active lifecycle SHALL fail validation.
-The governed release transition SHALL rewrite the manifest faithfully,
-carrying every declared field of the ratified shape (including `adoption`
-and `notes`), and every release-evidence reference (migration map, quality
-report, consumer-impact report) SHALL resolve INSIDE the package directory —
-a path escaping the package fails the release.
+Retention SHALL be truthful in both directions: the ACTIVE version's
+self-retained snapshot states `published` (a snapshot never asserts the
+live version is superseded), the governed release transition flips exactly
+that snapshot's lifecycle line to `superseded` when the next version
+publishes — every other snapshot byte stays immutable and digest-verified —
+and every retained snapshot SHALL be either a referenced superseded version
+or the active version's own self-retention; an orphan snapshot fails
+validation. The rewrite SHALL carry every declared manifest field
+(including `adoption` and `notes`), and every release-evidence reference
+(migration map, quality report, consumer-impact report) SHALL resolve
+INSIDE the package directory — a path escaping the package fails the
+release.
 
 #### Scenario: An additive concept is published
 - **WHEN** a reviewed concept adds a non-conflicting specialization and leaves existing valid classifications unchanged
@@ -203,10 +207,14 @@ a path escaping the package fails the release.
 - **WHEN** a revision adds or removes a specialization parent of an already published concept
 - **THEN** it MUST be classified as breaking with a migration map, because ancestor traversal and valid classification change for existing consumers
 
-#### Scenario: A retained snapshot is honest about being history
+#### Scenario: Retention is truthful in both directions
 - **WHEN** a consumer reads `retained/<version>/package.yaml`
-- **THEN** its `lifecycle_state` is `superseded`, distinguishing the snapshot from the active manifest without consulting anything else
-- **AND** a retained manifest claiming `published` or `draft` fails validation
+- **THEN** a superseded version's snapshot declares `superseded` and the active version's own snapshot declares `published` — the repository never simultaneously asserts a live version is history
+- **AND** a snapshot claiming the live version is superseded, and a retained directory that is neither referenced nor the active version, each fail validation
+
+#### Scenario: Supersession flips exactly one line
+- **WHEN** the next version publishes over a self-retained active snapshot
+- **THEN** the governed release transition changes exactly that snapshot's `lifecycle_state` line to `superseded`, and every other snapshot byte remains immutable and digest-verified
 
 #### Scenario: A kernel release keeps its adoption evidence
 - **WHEN** the release transition rewrites a manifest that declares `adoption` or `notes`

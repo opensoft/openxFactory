@@ -14,10 +14,28 @@ traceability. Every kernel term SHALL name the contract that owns its runtime
 shape. A published kernel term SHALL record cross-factory adoption evidence —
 at least two independent resolvable adopters, each an exact DomainxFactory
 package identity or shared-subsystem contract identity that specializes or
-references the term; a draft kernel term MAY record pending adoption instead,
-and kernel publication SHALL fail for any term still lacking its adopters.
-openxFactory SHALL own kernel revision classification; no DomainxFactory
-classifies a kernel change.
+references the term. The bootstrap window is CLOSED: the kernel's initial
+publication is complete (`xf/core` 1.0.0, every term's adoption evidenced
+under an accountable governed release), and the active kernel line SHALL
+NOT regress to a pending-adoption state. In subsequent kernel revisions a
+NEW draft term MAY record pending adoption while the revision is
+unpublished, and kernel publication SHALL fail for any term still lacking
+its adopters. openxFactory SHALL own kernel revision classification; no
+DomainxFactory classifies a kernel change. The kernel's stewardship policy
+IS openxFactory's own change governance: the package-level
+stewardship-policy document (council, telemetry triggers, quality gate)
+remains a Domain Hermes artifact and is deliberately NOT required of the
+kernel, whose revisions are gated instead by per-term adoption evidence,
+compatibility discipline, and ratified OpenSpec review — the domain
+quality-signal vocabulary measures domain telemetry the kernel does not
+generate. A kernel-level quality gate MAY be introduced by a future
+revision if kernel-level telemetry (for example, cross-domain kernel-term
+request pressure) gains governed plumbing worth measuring.
+
+#### Scenario: The kernel publishes without a stewardship-policy document
+- **WHEN** the governed kernel release runs and the package inventories no stewardship policy
+- **THEN** the quality gate is vacuously satisfied by explicit scoping — not omission — and publication is gated by adoption evidence, the per-term steward act, and the accountable council identity
+- **AND** a DomainxFactory package remains subject to the full stewardship-policy machinery unchanged
 
 #### Scenario: A domain specializes a neutral concept
 - **WHEN** MedxFactory declares Patient as a specialization of the neutral Subject concept and Treatment as a specialization of Focal Item
@@ -28,10 +46,10 @@ classifies a kernel change.
 - **THEN** kernel publication MUST reject the term with a stable finding
 - **AND** review MUST move the term to the owning DomainxFactory rather than admit it under a promise of future adoption
 
-#### Scenario: The initial kernel is drafted before any domain package exists
-- **WHEN** the core kernel is assembled from the semantic inventory before any DomainxFactory ontology package exists
-- **THEN** draft kernel terms MAY record pending adoption in place of resolved adopters
-- **AND** the kernel package MUST NOT publish until every term's adopters resolve, such as through the two contrasting pilot packages
+#### Scenario: A kernel revision proposes a new term after first publication
+- **WHEN** a kernel revision drafts a new neutral term after the 1.0.0 publication
+- **THEN** the term MAY record pending adoption only while the revision is unpublished, and the revision MUST NOT publish until the term's two independent adopters resolve
+- **AND** the published kernel line never regresses to a pending-adoption state
 
 ### Requirement: Content-addressed ontology package contract
 The semantic kernel SHALL define a provider-neutral ontology package contract

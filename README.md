@@ -551,6 +551,25 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [publish-semantic-kernel](openspec/changes/archive/2026-07-30-publish-semantic-kernel/proposal.md)
+  — **the capstone: ratified, realized, cut at contract-v1.25, and
+  archived 2026-07-30**. The xFactory semantic kernel's first governed
+  publication: all 34 terms published by explicit per-term steward act
+  (25 concepts + 9 relations, every one adoption-evidenced), released
+  0.1.0 → 1.0.0 by the accountable `openxfactory-maintainers` council
+  through `ontology-release.py`, meaning untouched. The bootstrap window
+  closes in ratified text (the active kernel line never regresses to
+  pending adoption), the kernel's stewardship policy is an EXPLICIT
+  scoping decision (openxFactory change governance; reopening trigger
+  recorded), and the capstone review's P-wave made retention TRUTHFUL IN
+  BOTH DIRECTIONS (active snapshots state published; supersession flips
+  exactly one governed line; orphans fail), added version-AND-digest
+  kernel-import checking, and turned the recurring stale-count slip into
+  a validator lint that caught its own author on introduction. Reviewer
+  APPROVED at ce95d27 with zero new findings — every finding from the
+  original release review and all subsequent waves is closed. Consumers
+  MedxFactory 516bac9 + codexFactory 6f037d5 declare and pin kernel
+  1.0.0. Corpus 57 negatives / 10 positives.
 - [add-ontology-stewardship-hardening](openspec/changes/archive/2026-07-30-add-ontology-stewardship-hardening/proposal.md)
   — **authored, ratified, realized, cut at contract-v1.24, and archived
   2026-07-30**, closing the ENTIRE carried-forward set from the
