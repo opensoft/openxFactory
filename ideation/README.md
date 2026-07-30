@@ -416,6 +416,12 @@ Active proposals promoted from staging:
   foundations, ontology generation/maintenance/context compilation, bounded
   Omnigent task/routing/evaluation contracts, and the combined semantic
   routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
+- [Polyglot Graph Memory Overview](brainstorm/polyglot-graph-memory-overview.md)
+  — anchors a nine-document packet (six atomic docs + two syntheses) on using
+  purpose-specific graph providers across doxBench, the three Hermes layers,
+  DomainxFactories, and Omnigent while standardizing identity, provenance,
+  bounded context, routing roles, derived-projection authority, disagreement,
+  promotion, and migration through the Memory Gateway (2026-07-30).
 - [Recurrence Crystallization Overview](brainstorm/crystallization-overview.md)
   — anchors a nineteen-document packet (fifteen atomic docs + three arc
   syntheses: Pattern Ledger, Crystallizer, Capability Steward) on turning
