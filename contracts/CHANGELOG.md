@@ -15,6 +15,21 @@ without fabricating historical tags.
 
 ## contract-v1.23 — 2026-07-30 (additive; omnigent semantic wiring — the worker seam closes)
 
+> **Erratum (2026-07-30, recorded per the release review):** the bundle at
+> tag `contract-v1.23` ships a stale digest inside `contracts/manifest.yaml`
+> for `contracts/hermes-domain-overlay/content-manifest.schema.yaml`
+> (`9511794f…`, stale since 403c2b5 — the add-domain-ontology-layer §4 edit
+> that added the `domain_ontology` content kind; the schema's true digest is
+> `d45a8c89…`). The tag itself is internally honest (its digest inventory
+> matches its own bytes); the defect predates the bundle (carried
+> v1.18→v1.23 because nothing verified `contracts/manifest.yaml` digests).
+> Corrected in main at commit 792afd2, which also adds
+> `scripts/validate-manifest-digests.py` so the class cannot recur; the
+> correction rides the next bundle cut. Consumers verifying that schema
+> against the v1.23 bundle's manifest should use the corrected digest.
+> Note: `contracts/releases/*.digests.yaml` files are TAG SNAPSHOTS —
+> verify them against their tag, not against a later HEAD.
+
 Realizes **add-omnigent-semantic-wiring** (ratified 2026-07-30), the
 follow-up named at add-domain-ontology-layer task 6.7: the two omnigent
 schemas gain the worker semantic seam. `omnigent-domain-overlay` — a

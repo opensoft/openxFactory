@@ -67,4 +67,27 @@ sha256 in `contracts/manifest.yaml` (104 verify; it reproduced the 1/104
 mismatch before the refresh), closing the class.
 
 - [x] 4.3 Cut contract-v1.23 (omnigent schema bytes changed): manifest digests refreshed, CHANGELOG entry, digest inventory, annotated tag pushed, remote bytes independently verified.
-- [ ] 4.4 Reviewer verification against the release candidate; docs (omnigent README, ontology guide seam section, adoption handoff) updated; archive on green evidence with README moved Active → Archived.
+Final verification (4.4, round 2 at 792afd2): N5 RESOLVED at both gates —
+the reviewer re-ran the 5→9 widening (fails both), a re-sealed body with a
+stale pinned entry (fails the install gate on entry disagreement AND
+recompute-vs-pin), a removed digest line (fails both), and their own
+crafted SELF-CONSISTENT widened artifact — which passes the ontology
+self-consistency check by construction and is still refused by the
+install pin, confirming the intended division of labor (ontology gate =
+drift detection, install gate = tamper detection against the external
+pin). Corpus audit: 10 standalone contexts, exactly ONE unsealed — the
+`context-body-widened` negative whose job is to be unsealed; 51
+negatives 0 rot, 10 positives 0 failures, ratchet 51 in the bytes. N6
+RESOLVED (standalone parity, both duplicate variants). N7 RESOLVED in
+main (manifest digest refreshed; the new checker reproduced 1/104 before
+and reports 104/104 after; the reviewer's independent recompute agrees).
+Verdict: **APPROVED for archive at 792afd2**. One non-blocking
+release-bookkeeping item recorded as prescribed: the v1.23 tag is
+internally honest but ships the pre-existing stale
+content-manifest.schema.yaml digest — erratum recorded in
+contracts/CHANGELOG.md naming the entry and fix commit, with the
+tag-snapshot verification note; the correction rides the next bundle
+cut. Carried-forward non-blocking set is now F21 + F24–F27, none leaving
+a stated contract without enforcement.
+
+- [x] 4.4 Reviewer verification against the release candidate; docs (omnigent README, ontology guide seam section, adoption handoff) updated; archive on green evidence with README moved Active → Archived.
