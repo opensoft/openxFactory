@@ -476,6 +476,10 @@ def check_candidate_record(cand: dict, fpath: Path, steward_ids: dict,
 
 def check_release_record(relrec: dict, fpath: Path, steward_ids: dict,
                          findings: list[Finding]) -> None:
+    # DECISION (round-4 review observation): a roster MAY list an agent
+    # identity, even as accountable_steward — preparation is worker work by
+    # design. The invariant lives HERE, at every consequential usage:
+    # publication and disposition check identity_kind and fail closed.
     steward = steward_ids.get(relrec.get("decided_by"))
     if steward is None:
         findings.append(Finding("ONT-RELEASE", rel(fpath),
@@ -1040,17 +1044,39 @@ def validate_unit(kind: str, path: Path, schemas, resolve_kernel) -> list[Findin
         if doc_kind in ("xfactory_ontology_release_record",
                         "xfactory_ontology_candidate_record"):
             # F10: governance records are governed by ARTIFACT, not location —
-            # resolve the roster through the registry and apply the same rules.
+            # resolve the roster through the registry and apply the same
+            # rules. Resolution is by EXACT DIGEST for release records and by
+            # unambiguous package_id for candidates (which carry no digest);
+            # an arbitrary first-entry roster re-opened the bypass as
+            # roster confusion (release-review finding N4).
+            code = ("ONT-RELEASE" if doc_kind.endswith("release_record")
+                    else "ONT-CANDIDATE")
             pkgs = PACKAGE_REGISTRY.get(str(doc.get("package_id")), [])
+            match = None
             if not pkgs:
-                code = ("ONT-RELEASE" if doc_kind.endswith("release_record")
-                        else "ONT-CANDIDATE")
                 findings.append(Finding(code, rel(path),
                                         f"record for {doc.get('package_id')!r} does not "
                                         "resolve to any package in the scanned tree"))
+            elif doc_kind.endswith("release_record"):
+                match = next((p for p in pkgs
+                              if p.manifest.get("package_digest")
+                              == doc.get("package_digest")), None)
+                if match is None:
+                    findings.append(Finding(code, rel(path),
+                                            "record digest does not match any scanned "
+                                            f"package with id {doc.get('package_id')!r}; a "
+                                            "loose record resolves by exact digest, never "
+                                            "by first match"))
+            elif len(pkgs) == 1:
+                match = pkgs[0]
             else:
+                findings.append(Finding(code, rel(path),
+                                        f"{len(pkgs)} scanned packages share id "
+                                        f"{doc.get('package_id')!r}; a loose candidate "
+                                        "cannot prove its roster and fails closed"))
+            if match is not None:
                 roster = {s["steward_id"]: s
-                          for s in pkgs[0].manifest.get("stewards", [])}
+                          for s in match.manifest.get("stewards", [])}
                 if doc_kind.endswith("release_record"):
                     check_release_record(doc, path, roster, findings)
                 else:
@@ -1102,21 +1128,18 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
     # the real kernel's domain_package adopters live in the examples/pilot
     # tree that would otherwise load after it. Findings are discarded here;
     # every package is re-validated for real in its own pass.
-    prepass_dirs: list[Path] = []
+    def prepass(dirs: list[Path]) -> None:
+        for pdir in dirs:
+            discard: list[Finding] = []
+            try:
+                load_package(pdir, schemas, discard, resolve_kernel)
+            except Exception:
+                pass  # a broken unit registers nothing; its own pass reports it
+
     if EXAMPLES_DIR.is_dir():
-        prepass_dirs += [p for k, p in discover_units(EXAMPLES_DIR)
-                         if k == "package" and NEGATIVE_DIR not in p.parents
-                         and p != NEGATIVE_DIR]
-    if repo_path is not None:
-        prepass_dirs += [p for k, p in discover_units(repo_path)
-                         if k == "package" and CONTRACT_DIR not in p.parents
-                         and p != CORE_DIR]
-    for pdir in prepass_dirs:
-        discard: list[Finding] = []
-        try:
-            load_package(pdir, schemas, discard, resolve_kernel)
-        except Exception:
-            pass  # a broken unit registers nothing; its own pass reports it
+        prepass([p for k, p in discover_units(EXAMPLES_DIR)
+                 if k == "package" and NEGATIVE_DIR not in p.parents
+                 and p != NEGATIVE_DIR])
 
     # Core kernel package validates positive.
     core_findings: list[Finding] = []
@@ -1159,14 +1182,21 @@ def run_suite(repo_path: Path | None) -> tuple[list[Finding], list[str]]:
                                       + (f" (detail {detail!r})" if detail else "")
                                       + f"; got: {got}"))
             neg_count += 1
-    if neg_count < 43:
+    if neg_count < 44:
         errors.append(Finding("ONT-SELFTEST", rel(NEGATIVE_DIR),
                               f"negative fixture count {neg_count} fell below the "
-                              "pinned minimum of 43"))
+                              "pinned minimum of 44"))
     notes.append(f"{neg_count} negative fixture(s) asserted")
 
-    # Layer 2: optional repo scan.
+    # Layer 2: optional repo scan. The scan gets its OWN registry scope
+    # (release-review finding N4): a consumer's loose records must resolve
+    # against the consumer's packages only — never against openxFactory's
+    # example fixtures, whose rosters have nothing to do with the record.
     if repo_path is not None:
+        PACKAGE_REGISTRY.clear()
+        prepass([p for k, p in discover_units(repo_path)
+                 if k == "package" and CONTRACT_DIR not in p.parents
+                 and p != CORE_DIR])
         scanned = 0
         for kind, path in discover_units(repo_path):
             if CONTRACT_DIR in path.parents or path == CORE_DIR:

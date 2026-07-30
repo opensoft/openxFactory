@@ -1,0 +1,28 @@
+# Positive fixture (finding N4): first of two same-id
+# packages; its roster has NO agent identity, so it can never
+# satisfy the loose twin record's expected failure.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negq
+package_version: 1.0.0
+namespace: xf/negq
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negq-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 0.1.0
+  package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+inventory:
+  - path: concepts.yaml
+    sha256: 645fdc7e24eec9f73563e7b7c768c8bb37bb95dbf1ef8996b5aa195d7dc3759f
+package_digest: c919f74411f7281dc895bad08eae27b18920e7b7bdb0a23ea61a20457c1363cb
+compatibility:
+  class: initial
+  line: xf/negq@1

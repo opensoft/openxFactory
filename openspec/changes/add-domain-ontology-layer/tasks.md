@@ -249,8 +249,8 @@ walk-through (8.2): [docs/domain-ontology-guide.md](../../../docs/domain-ontolog
 compatibility, migration/retention/rollback, runtime consumption), linked
 from the repo README doc index.
 
-Verification battery (8.3, re-run after the registry fix wave):
-`validate-domain-ontology.py` self-test 8 positive units + 43 indexed
+Verification battery (8.3, re-run after the registry fix waves):
+`validate-domain-ontology.py` self-test 10 positive units + 44 indexed
 negatives, repo scan + content-manifest cross-check, `--determinism`
 identical findings on repeat, `--readiness` ontology_ready on both pilot
 packages; `test-domain-starter-ontology.py`,
