@@ -106,24 +106,35 @@
 
 ## 4. Aggregation wiring (xFactory)
 
-- [ ] 4.1 Project-register instance grows the repositories to be offered
+- [x] 4.1 Project-register instance grows the repositories to be offered
       (the selector's roster; adding a repository stays a register edit plus
       a lane run — no code and no image change, design D9).
-- [ ] 4.2 Declare the published data source's layout under
+      Realized in xFactory's `project-register.yaml`; the live hosted selector
+      offered all 11 registered repositories during the 2026-07-29 dogfood,
+      including the sparse stations.
+- [x] 4.2 Declare the published data source's layout under
       `health/ideation-dashboard/` — per-repository snapshot filenames keyed
       by (repository, ref) plus the index — and publish both from the lane
       (design D2, RULED 2026-07-26: those raw files ARE the hosted data
       source, so this layout is the fetcher's contract).
-- [ ] 4.3 `workflow_dispatch` on the nightly snapshot workflow (design D8),
+      Realized and documented in
+      `health/ideation-dashboard/README.md`; the live provenance validator
+      fetched all 11 indexed snapshots from that layout successfully.
+- [x] 4.3 `workflow_dispatch` on the nightly snapshot workflow (design D8),
       changing nothing else about the lane: same generator, same artifacts,
       same commit posture as a scheduled run.
-- [ ] 4.4 Open question 1 RULED raw files (2026-07-26): provision the
+      Realized in `.github/workflows/doc-health-nightly.yml` and exercised by
+      workflow run `30503605213`.
+- [x] 4.4 Open question 1 RULED raw files (2026-07-26): provision the
       read-only, narrowly-scoped fetch credential for the serving side and
       record it through the ordinary credential-contracts path — never a raw
       credential in any repository, and never reachable from the browser. The
       serving side takes the token from a named environment variable only
       (`--data-source-token-env`), so this task is a deployment/credential
       action, not a code change.
+      Realized through the deployed Key Vault/CSI reference-only credential
+      path; validation exercised the hosted fetch without exposing the secret
+      value to the browser, repository, or evidence log.
 
 ## 5. Verification
 
@@ -168,9 +179,24 @@
       aggregation-repo RAW FILES with a deploy-time read-only token; (2) a
       PASSIVE "newer data available" badge on a ~5-minute index poll, never
       an auto-reload; (3) the local regenerate is UNGATED and loopback-only.
-- [ ] 6.2 Brett's live pass: reproduce the motivating incident deliberately
+- [x] 6.2 Brett's live pass: reproduce the motivating incident deliberately
       — land a document on `main`, dispatch the publication lane, click
       refresh on the hosted dashboard, and find the document — with no
       image rebake anywhere in the sequence; then drive the selector across
       Medx/Adx/Ledgerx and confirm the sparse wheels read as honest rather
       than broken.
+      Passed 2026-07-29/30: openxFactory PR #40 landed
+      `docs/doxbench-runtime-refresh-dogfood.md` as `f5c5a8b`; the publication
+      source revision was the later descendant `3e01ee8`. xFactory workflow
+      run `30503605213` published all 11 repositories, publication PR #47
+      head `4dcd9c4` merged as `ffcb943`, and the hosted `refetch` refresh
+      returned `ok: true`. The refreshed snapshot-backed document view
+      contained the marker, while the deployment retained image digest
+      `sha256:b602380e6f07ddc7d4eff7a7e1680fc37082e274f2cd947085898329ecdb02c3`
+      and pod UID `c99d5139-218a-4e30-b320-8a97c480e0ff` (created
+      `2026-07-30T00:10:51Z`, zero restarts). The selector had already passed
+      across all 11 repositories, including Medx/Adx/Ledgerx and sparse
+      repositories with explicit honest empty states. The separately governed
+      `/source` pass-through remains bound to the served checkout and does not
+      expose this post-image file; that known plane boundary is not used as
+      evidence for this task.
