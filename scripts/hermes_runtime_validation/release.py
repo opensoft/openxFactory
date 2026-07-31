@@ -233,6 +233,16 @@ class _WorkingTreeSource:
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
         target = self.root / path
+        # Defense in depth beneath the membership guard: a normalized path
+        # outside the repository root is refused here too, so no caller of
+        # this source can ever digest bytes from beyond the tree.
+        try:
+            target.resolve().relative_to(self.root.resolve())
+        except ValueError:
+            raise ReleaseDependencyError(
+                f"release member path escapes the repository root: {path}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            ) from None
         if target.is_symlink() or not target.is_file():
             raise ContentResolutionError(
                 f"release member is not a regular file: {path}"

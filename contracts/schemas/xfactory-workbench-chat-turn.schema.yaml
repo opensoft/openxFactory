@@ -56,7 +56,12 @@ $defs:
     properties:
       kind: { enum: [outline, document] }
       repository: { type: string, minLength: 1, maxLength: 128 }
-      path: { $ref: "#/$defs/confined_path" }
+      # Nullable: a not-yet-created artifact has no path until its first Save
+      # (the null-path -> create lifecycle, data-model S4).
+      path:
+        oneOf:
+          - { type: "null" }
+          - { $ref: "#/$defs/confined_path" }
       base_ref: { type: string, minLength: 1, maxLength: 256 }
       base_revision: { type: string, minLength: 1, maxLength: 128 }
       base_hash: { $ref: "#/$defs/content_hash" }

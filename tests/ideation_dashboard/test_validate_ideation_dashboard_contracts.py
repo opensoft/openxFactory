@@ -182,3 +182,31 @@ def test_websocket_endpoints_are_caught_by_the_spelling_scan(vidc, registry_docs
     doc["models"][0]["data_handling"] = "streams via wss://provider.internal/live"
     f = _validate(vidc, registry_docs, "wss-mutant", doc)
     assert any("endpoint" in e for e in f.errors), f.errors
+
+
+def test_reversed_buffer_order_is_not_a_turn_id_conflict(vidc, tmp_path):
+    """PR #45 Copilot blocker 3: the duplicate-turn sweep canonicalizes buffer
+    order by kind before hashing — a retransmission that merely reorders
+    [outline, document] is the SAME request, not an FR-019 conflict."""
+    doc = _example("workbench-chat-turn-unsaved-edits.example.yaml")
+    rev = copy.deepcopy(doc)
+    rev["buffers"] = list(reversed(rev["buffers"]))
+    a = tmp_path / "a.yaml"
+    b = tmp_path / "b.yaml"
+    a.write_text(yaml.safe_dump(doc), encoding="utf-8")
+    b.write_text(yaml.safe_dump(rev), encoding="utf-8")
+    f = vidc.Findings()
+    vidc.check_turn_id_uniqueness(f, [a, b])
+    assert not f.errors, f.errors
+
+
+def test_a_new_artifact_buffer_may_carry_a_null_path(vidc, registry_docs):
+    """PR #45 Copilot blocker 4: a not-yet-created artifact has no path yet
+    (the null-path -> create lifecycle, data-model §4); the buffer's path is
+    nullable while every other identity field stays required."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["buffers"][1]["path"] = None
+    ctx = vidc.catalog_model_ids_from(_example(
+        "workbench-model-catalog-local.example.yaml"))
+    f = _validate(vidc, registry_docs, "null-path", doc, ctx)
+    assert not f.errors, f.errors

@@ -977,3 +977,14 @@ def test_an_index_path_escaping_the_repo_fails_closed(tmp_path: Path) -> None:
     with pytest.raises(release.ReleaseDependencyError) as excinfo:
         release.release_membership(repo)
     assert "escape" in str(excinfo.value)
+
+
+def test_working_tree_source_fails_closed_outside_the_repo(tmp_path: Path) -> None:
+    """PR #45 Copilot blocker 2: the working-tree source itself refuses a
+    normalized path outside the repository root — defense in depth beneath the
+    membership guard."""
+    repo, _ = _synthetic_repo(tmp_path)
+    (tmp_path / "outside.txt").write_text("x", encoding="utf-8")
+    source = release._WorkingTreeSource(repo)
+    with pytest.raises(release.ReleaseDependencyError):
+        source.read_member("../outside.txt")

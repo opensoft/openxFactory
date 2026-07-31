@@ -771,6 +771,11 @@ def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
 
 
 def _confined(f: Findings, label: str, where: str, path_value) -> None:
+    if path_value is None:
+        # A not-yet-created artifact has no path yet (the null-path -> create
+        # lifecycle); nullability is the schema's decision, confinement only
+        # judges paths that exist.
+        return
     text = str(path_value)
     if text.startswith("/") or ".." in text.split("/"):
         f.error("path", f"{label}: {where}: path escapes the checkout: {text!r}")
@@ -838,8 +843,15 @@ def check_turn_id_uniqueness(f: Findings, paths) -> None:
         if not (isinstance(doc, dict) and doc.get("kind") == "workbench-chat-turn"):
             continue
         tid = str(doc.get("client_turn_id"))
+        # Canonicalize buffer order by kind before hashing: a retransmission
+        # that merely reorders [outline, document] is the SAME request, not an
+        # FR-019 conflict.
+        canonical = dict(doc)
+        canonical["buffers"] = sorted(
+            (b for b in doc.get("buffers") or [] if isinstance(b, dict)),
+            key=lambda b: str(b.get("kind")))
         digest = _hashlib.sha256(
-            _json.dumps(doc, sort_keys=True).encode()).hexdigest()
+            _json.dumps(canonical, sort_keys=True).encode()).hexdigest()
         if tid in seen and seen[tid][0] != digest:
             f.error("duplicate-turn",
                     f"{path.name}: duplicate-turn id {tid!r} with different "

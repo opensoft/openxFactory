@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:50ce31ca7c0dda98373eda0cdad6820a136081938695e4aa40ae8ba2665957db
+  digest: sha256:d306267b3a04adfac40531bd0002856b5b3fb9ea102a4814476c04cbbfb17b9e
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -836,7 +836,7 @@ entries:
   git_mode: '100644'
   schema_id: xfactory-workbench-chat-turn
   schema_version: 1
-  digest: sha256:4c08b5e7b08b0d8cb23fdb6c4d5f351206d2801d38929cf5bdeaa02087dd1fb4
+  digest: sha256:7dc9f90091c8168623ca8f9ab2baa2dd1ea11c2016f5c567e64a5f638778ed8c
 - artifact_id: xfactory-workbench-model-catalog
   path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
   type: schema
@@ -888,7 +888,7 @@ entries:
   path: scripts/hermes_runtime_validation/catalog.py
   type: validator
   git_mode: '100644'
-  digest: sha256:4c48886e17400337392b8437334c379d73f2d000ea8a50f639115e0106c1abff
+  digest: sha256:0f59a4b4e7d743854f77f67286165ec9bd7b0028e52619ea3017442ac36a790f
 - artifact_id: scripts-hermes_runtime_validation-consumer_handoff.py
   path: scripts/hermes_runtime_validation/consumer_handoff.py
   type: validator
@@ -923,7 +923,7 @@ entries:
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:023eb4572d898365c8135e2cc2a0da996d7929ce1260709f67865375e265b8dc
+  digest: sha256:ae2d9de148c77a8401b6621fed38bf7222088d32c833bd3d3bfcf982ce283a2a
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator
