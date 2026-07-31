@@ -10,7 +10,8 @@ origin:
     developed, and its READ-ONLY foundation — a scoped per-tile workbench over
     the tile's documents, its interconnectedness, and its outline, plus a
     per-document completeness signal to see at a glance how far each doc has
-    come — lands first, before the AI chat layer (Track C). The lineage is the
+    come — lands first, before doxBench, the integrated AI editor/chat layer
+    then called Track C. The lineage is the
     ideation-action-plane staged topic (whose exits were
     add-ideation-intent-plane, then add-propose-verb, then
     add-wheel-action-verbs), but no staged fragment describes a workbench view

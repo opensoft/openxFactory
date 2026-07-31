@@ -19,6 +19,7 @@ from pathlib import Path
 import subprocess
 from typing import Iterable, Mapping
 
+import posixpath
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
@@ -232,6 +233,16 @@ class _WorkingTreeSource:
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
         target = self.root / path
+        # Defense in depth beneath the membership guard: a normalized path
+        # outside the repository root is refused here too, so no caller of
+        # this source can ever digest bytes from beyond the tree.
+        try:
+            target.resolve().relative_to(self.root.resolve())
+        except ValueError:
+            raise ReleaseDependencyError(
+                f"release member path escapes the repository root: {path}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            ) from None
         if target.is_symlink() or not target.is_file():
             raise ContentResolutionError(
                 f"release member is not a regular file: {path}"
@@ -341,7 +352,29 @@ def _collect_members(
         relative = entry.get("path")
         if not isinstance(relative, str):
             continue
-        repo_path = FAMILY_PREFIX + relative
+        # Catalog paths are family-relative; `..` segments let the canonical
+        # index name cross-family release members (the doxBench wire schemas
+        # live in contracts/schemas/). Normalized here so both the working-tree
+        # and the git-object sources see one canonical repo path.
+        repo_path = posixpath.normpath(FAMILY_PREFIX + relative)
+        # Fail closed on a path that would leave the repository: content from
+        # outside the tree must never be digested into a release inventory
+        # (PR #45 review finding 1).
+        if repo_path == ".." or repo_path.startswith("../"):
+            raise ReleaseDependencyError(
+                "catalog path escapes the repository after normalization: "
+                f"{relative}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            )
+        # Two DISTINCT entries normalizing to one repository file would let a
+        # silent overwrite swap catalog metadata inside the closed membership
+        # (PR #45 review blocker 5) — refuse loudly instead.
+        if repo_path in catalog_map:
+            raise ReleaseDependencyError(
+                "two catalog entries normalize to the same release member: "
+                f"{relative!r} -> {repo_path}",
+                code="HGR-RELEASE-MEMBER-COLLISION",
+            )
         catalog_map[repo_path] = entry
         members.add(repo_path)
 

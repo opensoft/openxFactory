@@ -223,10 +223,11 @@ the selector rather than beside it.
   verb other than `create-document` onto the branch; automatic rebase or merge
   of `main` into a session branch; and the Merge-Master ritual itself, which
   this change hands work TO and changes in no way.
-- Related but NOT covered: Track C's chat rail. Topic claim 7 decides that all
+- Related but NOT covered: doxBench's chat rail (the successor then called
+  Track C). Topic claim 7 decides that all
   three grounding surfaces follow the branch, and this change lands two of them
   (the canvas outline via branch-aware `/source`, and NotebookLM via session
-  notebooks). The chat rail's server-side grounding set is Track C's C1 — its
+  notebooks). The chat rail's server-side grounding set is doxBench's C1 — its
   own future change — and this change requires nothing of the chat layer; what
   it provides is the branch-resident working state C1 will ground on and edit.
 - Compatibility: additive throughout. Every existing gate-action record stays

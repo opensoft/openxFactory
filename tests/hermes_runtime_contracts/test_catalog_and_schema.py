@@ -203,3 +203,66 @@ def test_yaml_aliases_are_rejected_before_schema_registration(api, tmp_path: Pat
     path.write_text("root: &root {type: string}\ncopy: *root\n", encoding="utf-8")
     with pytest.raises(loader.YamlLoadError):
         loader.load_yaml_document(path)
+
+
+# ---- cross-family catalog members (PR #45 Copilot blocker 1) -----------------
+#
+# The doxBench wire schemas live in contracts/schemas/ and are catalogued from
+# the family index via `../schemas/...`. The loader accepts a LEADING `..` run
+# that resolves inside the repository root (two levels above the family root);
+# interior traversal stays forbidden and an escape beyond the repository stays
+# a CatalogError — HRC-CATALOG-INVALID semantics preserved either way.
+
+def _family_root(tmp_path: Path) -> Path:
+    family = tmp_path / "contracts" / "hermes-runtime"
+    family.mkdir(parents=True)
+    return family
+
+
+def test_cross_family_member_paths_resolve_inside_the_repository(api, tmp_path: Path) -> None:
+    _, catalog, _ = api
+    family = _family_root(tmp_path)
+    first = _write_schema(family, "first.schema.yaml")
+    _write_schema(tmp_path / "contracts" / "schemas", "wire.schema.yaml")
+    index = _write_catalog(family, [first])
+    doc = json.loads(index.read_text(encoding="utf-8"))
+    doc["contracts"].append({
+        "contract_id": "wire", "path": "../schemas/wire.schema.yaml",
+        "type": "schema", "contract_schema_version": 2,
+        "consumers": ["openxfactory-validator"],
+        "semantic_member": True, "release_member": True,
+    })
+    index.write_text(json.dumps(doc), encoding="utf-8")
+    loaded = catalog.load_contract_catalog(index, family)
+    assert any(entry.path == "../schemas/wire.schema.yaml"
+               for entry in loaded.entries)
+
+
+def test_interior_traversal_segments_stay_forbidden(api, tmp_path: Path) -> None:
+    _, catalog, _ = api
+    family = _family_root(tmp_path)
+    first = _write_schema(family, "first.schema.yaml")
+    index = _write_catalog(family, [first])
+    doc = json.loads(index.read_text(encoding="utf-8"))
+    doc["contracts"][0]["path"] = "sub/../first.schema.yaml"
+    index.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(catalog.CatalogError):
+        catalog.load_contract_catalog(index, family)
+
+
+def test_cross_family_escape_beyond_the_repository_fails_closed(api, tmp_path: Path) -> None:
+    _, catalog, _ = api
+    family = _family_root(tmp_path)
+    first = _write_schema(family, "first.schema.yaml")
+    index = _write_catalog(family, [first])
+    doc = json.loads(index.read_text(encoding="utf-8"))
+    doc["contracts"].append({
+        "contract_id": "outside", "path": "../../../outside.schema.yaml",
+        "type": "schema", "contract_schema_version": 2,
+        "consumers": ["openxfactory-validator"],
+        "semantic_member": True, "release_member": True,
+    })
+    index.write_text(json.dumps(doc), encoding="utf-8")
+    (tmp_path.parent / "outside.schema.yaml").write_text("{}", encoding="utf-8")
+    with pytest.raises(catalog.CatalogError):
+        catalog.load_contract_catalog(index, family)

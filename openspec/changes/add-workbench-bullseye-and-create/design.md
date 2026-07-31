@@ -46,7 +46,8 @@ gate path, recorded, human-only, loopback-only, and reversible by the
 ordinary means (the document is a new file, nothing existing was touched).
 
 **Non-Goals**: any EDIT or delete path; the brainstorm's recipe-seeded
-reference set and scratch notebook; Track C's chat layer and any generated
+reference set and scratch notebook; doxBench's chat layer (then called Track C)
+and any generated
 prose; new snapshot fields; new analysis or scoring; the other two
 keyword-lens feat requests; row-level "seed from this document" (open
 question 3).
@@ -219,7 +220,7 @@ Unchanged as a non-goal here.
 **Rationale**: the seeding exists to stop the human retyping what the
 workbench already knows; it does not exist to guess. `Topics:` and the area
 are derivable with certainty from the scope; a summary is not, and a
-generated one would be prose the dashboard invented — squarely Track C
+generated one would be prose the dashboard invented — squarely doxBench
 territory. Citing the recipe at the snapshot's `source_revision` (rather
 than at wall-clock time) is what makes the `Source:` line reproducible: the
 recorded keywords plus that revision re-derive the exact membership that
@@ -362,16 +363,16 @@ staging topic, as their own Exit sections propose.
 
 - **The first write on a surface that shipped as read-only.** The
   read-only guarantee was load-bearing — it is what let
-  `add-staging-workbench` say Track C would inherit "a clean, already-proven
+  `add-staging-workbench` say doxBench would inherit "a clean, already-proven
   foundation". Mitigation: the write is ONE verb, on the gate path, recorded,
   human-only, loopback-only, and create-only — it cannot alter or remove
   anything that exists. The read-only guarantee is not weakened for EDITS,
-  which is the guarantee Track C actually depends on.
+  which is the guarantee doxBench actually depends on.
 - **"Create" will be read as an invitation to draft.** A create dialog two
   clicks from a scope full of related documents makes a generated summary
   feel like the obvious next feature. Mitigation: D7's explicit rule that
   `Summary:` and `Title:` have no machine seed, and the non-goal naming
-  generated prose as Track C's.
+  generated prose as doxBench's.
 - **Seeded areas can put a document in a surprising place.** A cluster-scoped
   create lands in `ideation/brainstorm/` even when the human was thinking
   about a staged topic the cluster feeds. Mitigation: `area` is editable in

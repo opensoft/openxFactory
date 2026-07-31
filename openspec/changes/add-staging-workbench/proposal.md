@@ -38,8 +38,9 @@ workbench cannot exist until the snapshot grows.
 
 This change lands the read-only foundation: the derived-model growth that
 makes completeness visible, the scoped view that reads it, and the tile
-action that opens it. The AI chat layer that will make the workbench
-generative is Track C — deliberately a LATER change (see out of scope).
+action that opens it. The later integrated editor/chat layer that will make the
+workbench generative is now named **doxBench** (historically Track C; see out of
+scope).
 
 ## What Changes
 
@@ -147,12 +148,12 @@ generative is Track C — deliberately a LATER change (see out of scope).
   tile health chrome model) and `views/wheel.js` (`ACTION_MOUNTERS` entry;
   focused-tile indicator + expanded health block), `app.js` nav wiring,
   tests.
-- NOT in scope — **Track C, a later change**: the AI chat layer over the
+- NOT in scope — **doxBench, a later change historically called Track C**: the AI chat layer over the
   workbench (a conversational partner that reads the scoped tile and
   drafts material with the human) and everything it implies — outline
   EDITING, writing staging fragments from the workbench, composing or
   revising documents in place, and any workbench write path at all. This
-  change is deliberately the read-only foundation Track C will be built
+  change is deliberately the read-only foundation doxBench will be built
   on; nothing here may be designed as if the chat layer already exists.
 - NOT in scope: a tunable weight or threshold configuration (v1 weights
   and `READY_MIN_SCORE` are contract constants); any aggregate for

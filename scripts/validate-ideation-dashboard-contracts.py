@@ -118,6 +118,8 @@ SCHEMA_FILENAMES = [
     "ideation-dashboard-snapshot-index.schema.yaml",
     "ideation-workbench.schema.yaml",
     "ideation-possibles-register.schema.yaml",
+    "xfactory-workbench-model-catalog.schema.yaml",
+    "xfactory-workbench-chat-turn.schema.yaml",
     "project-register.schema.yaml",
     "gate-action-record.schema.yaml",
     "gate-intent.schema.yaml",
@@ -131,6 +133,13 @@ KIND_TO_SCHEMA = {
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
     "gate-intent": "gate-intent.schema.yaml",
+    # doxBench wire family (add-workbench-integrated-editor-chat task 2.1):
+    # instance kinds use the retained `workbench-*` identifier family; the
+    # chat-turn file holds three envelopes discriminated by a oneOf.
+    "workbench-model-catalog": "xfactory-workbench-model-catalog.schema.yaml",
+    "workbench-chat-turn": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-success": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-failure": "xfactory-workbench-chat-turn.schema.yaml",
 }
 
 # The snapshot's projection collections — the data an INDEX must never carry
@@ -276,7 +285,7 @@ def load_context(path: Path | None) -> tuple[set[str] | None, list[str]]:
 
 def validate_instance(
     f: Findings, label: str, doc: Any, registry: Registry, docs: dict[str, dict],
-    ratified_changes: set[str] | None,
+    ratified_changes: set[str] | None, model_ctx: dict[str, int] | None = None,
 ) -> str | None:
     """Validate one loaded document by detected kind: schema conformance plus
     the family's single-instance validator-side rules. Returns the routing tag
@@ -310,6 +319,14 @@ def validate_instance(
         check_project_register_rules(f, label, doc)
     elif tag == "gate-action-record":
         check_gate_precondition(f, label, doc, ratified_changes)
+    elif tag == "workbench-model-catalog":
+        check_model_catalog(f, label, doc)
+    elif tag == "workbench-chat-turn":
+        check_turn_request(f, label, doc, model_ctx)
+    elif tag == "workbench-chat-turn-success":
+        check_turn_success(f, label, doc)
+    elif tag == "workbench-chat-turn-failure":
+        check_turn_failure(f, label, doc)
     return tag
 
 
@@ -680,6 +697,168 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
            f"(examples/ excluded), {offenders} committed workbench manifest(s) found")
 
 
+
+
+# --------------------- doxBench wire family (task 2.4 rules) ---------------------
+#
+# Layered on schema conformance, mirroring each schema's own comments:
+#   Catalog   model_id uniqueness; a credential/endpoint SPELLING scan over
+#             every public string value (the schema already refuses extra
+#             fields structurally; this catches leakage THROUGH allowed ones).
+#   Request   exactly one outline + one document buffer; segment-wise path
+#             confinement; EXACT content-hash parity (the validator recomputes
+#             SHA-256 over each buffer's content, so a mismatched identity is
+#             refused rather than trusted); with a catalog context (packaged
+#             examples, or --context) unknown-model and per-model input-budget
+#             checks — without one those two are SKIPPED, never silently
+#             passed.
+#   Success   unique proposal targets.
+#   Failure   the limit-pairing rule (`limit` appears IFF the error is the
+#             budget refusal) and the same spelling scan on the message.
+#   Sweep     duplicate client_turn_id with DIFFERENT request content across a
+#             file set is refused (idempotency's conflict half, FR-019).
+
+import hashlib as _hashlib
+import json as _json
+import re as _re
+
+_CREDENTIAL_RE = _re.compile(
+    r"(?i)(bearer\s+\S|api[-_]?key|authorization\s*:|sk-[A-Za-z0-9]{6,}|"
+    r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
+_ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
+
+
+def _string_values(node):
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for v in node.values():
+            yield from _string_values(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _string_values(v)
+
+
+def catalog_model_ids_from(doc: Any) -> dict[str, int]:
+    """{model_id: input_limit_bytes} from one catalog instance (context for
+    the turn-request budget/unknown-model checks)."""
+    out: dict[str, int] = {}
+    if isinstance(doc, dict) and doc.get("kind") == "workbench-model-catalog":
+        for entry in doc.get("models") or []:
+            if isinstance(entry, dict) and entry.get("model_id"):
+                out[str(entry["model_id"])] = int(entry.get("input_limit_bytes") or 0)
+    return out
+
+
+def _scan_public_strings(f: Findings, label: str, node: Any) -> None:
+    for value in _string_values(node):
+        if _CREDENTIAL_RE.search(value):
+            f.error("credential",
+                    f"{label}: credential spelling in a public field: {value[:60]!r}")
+        if _ENDPOINT_RE.search(value):
+            f.error("endpoint",
+                    f"{label}: raw endpoint in a public field: {value[:60]!r}")
+
+
+def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
+    seen = set()
+    for entry in doc.get("models") or []:
+        mid = entry.get("model_id") if isinstance(entry, dict) else None
+        if mid in seen:
+            f.error("catalog", f"{label}: duplicate model_id {mid!r}")
+        seen.add(mid)
+    _scan_public_strings(f, label, doc.get("models"))
+
+
+def _confined(f: Findings, label: str, where: str, path_value) -> None:
+    if path_value is None:
+        # A not-yet-created artifact has no path yet (the null-path -> create
+        # lifecycle); nullability is the schema's decision, confinement only
+        # judges paths that exist.
+        return
+    text = str(path_value)
+    if text.startswith("/") or ".." in text.split("/"):
+        f.error("path", f"{label}: {where}: path escapes the checkout: {text!r}")
+
+
+def check_turn_request(f: Findings, label: str, doc: dict,
+                       model_ctx: dict[str, int] | None) -> None:
+    buffers = doc.get("buffers") or []
+    kinds = sorted(str(b.get("kind")) for b in buffers if isinstance(b, dict))
+    if kinds != ["document", "outline"]:
+        f.error("buffers", f"{label}: exactly one outline and one document "
+                           f"buffer required, got {kinds}")
+    _confined(f, label, "active_document_path", doc.get("active_document_path", ""))
+    total_bytes = 0
+    for b in buffers:
+        if not isinstance(b, dict):
+            continue
+        _confined(f, label, f"buffers/{b.get('kind')}/path", b.get("path", ""))
+        content = str(b.get("content", ""))
+        total_bytes += len(content.encode("utf-8"))
+        declared = str(b.get("content_hash", ""))
+        actual = _hashlib.sha256(content.encode("utf-8")).hexdigest()
+        if declared != actual:
+            f.error("hash", f"{label}: buffers/{b.get('kind')}: content_hash "
+                            f"mismatch (declared {declared[:12]}…, actual {actual[:12]}…)")
+    if model_ctx is None:
+        f.warnings.append(f"{label}: model context unavailable — unknown-model "
+                          f"and budget checks SKIPPED (supply a catalog instance)")
+        return
+    mid = str(doc.get("model_id", ""))
+    if mid not in model_ctx:
+        f.error("unknown-model",
+                f"{label}: model_id {mid!r} is not in the approved catalog")
+        return
+    limit = model_ctx[mid]
+    if limit and total_bytes > limit:
+        f.error("budget", f"{label}: request buffers total {total_bytes} bytes "
+                          f"over model {mid!r} input limit {limit}")
+
+
+def check_turn_success(f: Findings, label: str, doc: dict) -> None:
+    targets = [p.get("target") for p in doc.get("proposals") or []
+               if isinstance(p, dict)]
+    if len(targets) != len(set(targets)):
+        f.error("proposal", f"{label}: proposal targets must be unique, got {targets}")
+
+
+def check_turn_failure(f: Findings, label: str, doc: dict) -> None:
+    has_limit = "limit" in doc
+    is_budget = doc.get("error") == "request_limit_exceeded"
+    if has_limit != is_budget:
+        f.error("failure-limit",
+                f"{label}: `limit` appears iff error is request_limit_exceeded "
+                f"(error={doc.get('error')!r}, "
+                f"limit={'present' if has_limit else 'absent'})")
+    _scan_public_strings(f, label, doc.get("message"))
+
+
+def check_turn_id_uniqueness(f: Findings, paths) -> None:
+    """Sweep rule: the same client_turn_id with DIFFERENT request content is
+    the idempotency conflict FR-019 refuses before dispatch."""
+    seen: dict[str, tuple[str, str]] = {}
+    for path in paths:
+        doc = load_yaml(path)
+        if not (isinstance(doc, dict) and doc.get("kind") == "workbench-chat-turn"):
+            continue
+        tid = str(doc.get("client_turn_id"))
+        # Canonicalize buffer order by kind before hashing: a retransmission
+        # that merely reorders [outline, document] is the SAME request, not an
+        # FR-019 conflict.
+        canonical = dict(doc)
+        canonical["buffers"] = sorted(
+            (b for b in doc.get("buffers") or [] if isinstance(b, dict)),
+            key=lambda b: str(b.get("kind")))
+        digest = _hashlib.sha256(
+            _json.dumps(canonical, sort_keys=True).encode()).hexdigest()
+        if tid in seen and seen[tid][0] != digest:
+            f.error("duplicate-turn",
+                    f"{path.name}: duplicate-turn id {tid!r} with different "
+                    f"content (first seen in {seen[tid][1]})")
+        seen.setdefault(tid, (digest, path.name))
+
+
 # --------------------- layer 1: packaged reference examples ---------------------
 
 def check_examples(f: Findings, registry: Registry, docs: dict[str, dict]) -> None:
@@ -692,14 +871,17 @@ def check_examples(f: Findings, registry: Registry, docs: dict[str, dict]) -> No
 
     # The snapshot example doubles as ratification context for the gate examples.
     ratified_ctx: set[str] = set()
+    model_ctx: dict[str, int] = {}
     valid_docs: list[tuple[str, Any, str | None]] = []
     for path in sorted(EXAMPLES_DIR.glob("*.example.yaml")):
         doc = load_yaml(path)
         ratified_ctx |= ratified_change_ids_from(doc)
+        model_ctx.update(catalog_model_ids_from(doc))
     for path in sorted(EXAMPLES_DIR.glob("*.example.yaml")):
         sub = Findings()
         doc = load_yaml(path)
-        tag = validate_instance(sub, path.name, doc, registry, docs, ratified_ctx)
+        tag = validate_instance(sub, path.name, doc, registry, docs, ratified_ctx,
+                                model_ctx=model_ctx)
         valid_docs.append((path.name, doc, tag))
         if sub.errors:
             for e in sub.errors:
@@ -707,7 +889,8 @@ def check_examples(f: Findings, registry: Registry, docs: dict[str, dict]) -> No
         f.warnings.extend(sub.warnings)
     valid_count = len(valid_docs)
 
-    invalid_count = check_negative_examples(f, registry, docs, ratified_ctx)
+    invalid_count = check_negative_examples(f, registry, docs, ratified_ctx,
+                                            model_ctx)
     pairs = check_transition_examples(f, registry)
 
     f.note(f"examples: {valid_count} valid example(s) confirmed valid, "
@@ -717,6 +900,7 @@ def check_examples(f: Findings, registry: Registry, docs: dict[str, dict]) -> No
 
 def check_negative_examples(
     f: Findings, registry: Registry, docs: dict[str, dict], ratified_ctx: set[str],
+    model_ctx: dict[str, int] | None = None,
 ) -> int:
     neg_dir = EXAMPLES_DIR / "negative"
     if not neg_dir.is_dir():
@@ -728,12 +912,25 @@ def check_negative_examples(
         doc = load_yaml(path)
         # Negatives are validated WITH the example ratification context so the
         # context-dependent kickoff-precondition negative can fail as intended.
-        validate_instance(sub, f"negative/{path.name}", doc, registry, docs, ratified_ctx)
+        validate_instance(sub, f"negative/{path.name}", doc, registry, docs,
+                          ratified_ctx, model_ctx=model_ctx)
         if not sub.errors:
             f.error("example-should-fail",
                     f"negative/{path.name}: expected invalid, produced no error")
             continue
         checked += 1
+    # The duplicate-turn PAIR negative: two files whose shared client_turn_id
+    # carries different content — refused by the sweep rule, not per-file.
+    pair_dir = neg_dir / "duplicate-turn-pair"
+    if pair_dir.is_dir():
+        sub = Findings()
+        check_turn_id_uniqueness(sub, sorted(pair_dir.glob("*.yaml")))
+        if sub.errors:
+            checked += 1
+        else:
+            f.error("example-should-fail",
+                    "negative/duplicate-turn-pair: expected the duplicate-turn "
+                    "sweep to refuse, produced no error")
     return checked
 
 

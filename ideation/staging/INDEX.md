@@ -279,6 +279,10 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 - Exit: `add-workbench-branch-sessions` (code surface: codexFactory +
   openxFactory + aggregation), raised 2026-07-26; archives on merged + green
   realization evidence including a real end-to-end session
+- Governed successor: **doxBench**, the named integrated editor/chat evolution
+  of the staging workbench, is defined by
+  `openspec/changes/add-workbench-integrated-editor-chat/`. It consumes this
+  topic's branch-session substrate and does not alter this topic retroactively.
 
 ## client-credential-escrow-registry
 

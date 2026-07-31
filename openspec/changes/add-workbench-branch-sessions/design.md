@@ -43,8 +43,9 @@ projection path; keep the served checkout immovable.
 **Non-Goals**: per-actor branches; a session-descriptor contract; delete
 authority; an in-panel outline editor; hosted sessions; publishing a session
 snapshot; relocating gate verbs other than `create-document` onto the branch;
-changing the Merge-Master ritual; Track C's chat rail (its grounding set is
-C1's change, and this change is what C1 will ground ON).
+changing the Merge-Master ritual; doxBench's chat rail (the successor then
+called Track C; its grounding set is C1's change, and this change is what C1
+will ground ON).
 
 ## Decisions
 

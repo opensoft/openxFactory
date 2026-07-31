@@ -190,6 +190,13 @@ proposal):
 
 Brainstorm (active):
 
+- [doxBench Overview](brainstorm/doxbench-overview.md) — entry point for the
+  three-tier doxBench packet: six atomic documents describe surface/scope,
+  dual buffers, grounded chat, typed proposal review, governed persistence,
+  and the provider boundary; two syntheses relate the human/AI authoring loop
+  and governed runtime. The packet is non-normative design exploration; the
+  active `add-workbench-integrated-editor-chat` change owns proposed
+  requirements and implementation gates (2026-07-28).
 - [openxWallet — Wallets, Grants, and Certification](brainstorm/agent-certification-wallets.md)
   — every AI agent gets a DID wallet; certified qualification levels grant
   scoped autonomous authority bound to a quantified agent identity

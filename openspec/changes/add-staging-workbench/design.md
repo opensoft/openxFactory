@@ -4,9 +4,9 @@
 
 Brett's Track B ruling (2026-07-25, live against the running wheel):
 **the staging area is where the real proposal gets developed**, and the
-workbench is its read-only foundation. Track C — the AI chat layer that
-makes the workbench generative — is a LATER change, and this one must not
-be designed as if it already exists.
+workbench is its read-only foundation. **doxBench** — the integrated editor/chat
+layer then called Track C that makes the workbench generative — is a LATER
+change, and this one must not be designed as if it already exists.
 
 Brett's second ruling (2026-07-25, after PR #41 landed): **a gate must
 hold the staging→proposal move until the topic's open questions are
@@ -43,10 +43,11 @@ Three facts about the existing surfaces set the shape:
 **Goals**: make per-document maturity visible at a glance, deterministically
 and testably; put one topic's documents, connections, and outline on one
 scoped surface; grow the snapshot additively so no existing artifact is
-invalidated; keep the whole surface read-only so Track C inherits a clean,
+invalidated; keep the whole surface read-only so doxBench inherits a clean,
 already-proven foundation.
 
-**Non-Goals**: the AI chat layer (Track C) and every write it implies —
+**Non-Goals**: doxBench (the integrated AI editor/chat layer historically
+called Track C) and every write it implies —
 outline editing, fragment authoring, in-place document composition, any
 workbench write path at all; tunable weights or thresholds (v1 constants);
 aggregate completeness for clusters and possibles (the staged-topic health
@@ -146,12 +147,12 @@ clicking propose after the gate clears.
   (the feat-spec-shaped declaration of target capability, delta type,
   claims, open questions, exit path). Read-only in this change.
 
-**Editing and chat arrive in Track C.** The `outline` panel is deliberately
+**Editing and chat arrive in doxBench.** The `outline` panel is deliberately
 a renderer, not an editor, and the workbench has no writing panel of any
-kind. Track C is where the conversational layer lands — reading the scoped
+kind. doxBench is where the conversational layer lands — reading the scoped
 tile, drafting with the human, and (under whatever gates that change
 defines) proposing material back. Keeping the foundation read-only means
-Track C is a purely additive change on a surface already proven live, and
+doxBench is a purely additive change on a surface already proven live, and
 it means this change carries no new write authority to review.
 
 ### D5 — Two senses of "workbench", deliberately kept apart
@@ -285,7 +286,7 @@ never a silent client-side recomputation.
   section scans are the first full-body passes in the generator. Mitigation:
   single-pass counting over already-loaded text; the nightly lane's runtime
   is watched at realization (task 5.1).
-- **Track C temptation.** A read-only workbench with an outline panel will
+- **doxBench temptation.** A read-only workbench with an outline panel will
   invite "just let me fix this line here". Mitigation: the read-only rule is
   a requirement with its own scenario, and the existing select-to-edit
   escape hatch already gives the human a legitimate editor path.
