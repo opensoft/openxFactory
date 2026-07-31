@@ -1,6 +1,26 @@
 schema_version: 1
 kind: openxfactory-hermes-runtime-contract-index
 contracts:
+- contract_id: xfactory-workbench-model-catalog
+  path: ../schemas/xfactory-workbench-model-catalog.schema.yaml
+  type: schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-doxbench
+  semantic_member: true
+  release_member: true
+- contract_id: xfactory-workbench-chat-turn
+  path: ../schemas/xfactory-workbench-chat-turn.schema.yaml
+  type: schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-doxbench
+  semantic_member: true
+  release_member: true
 - contract_id: hermes-runtime-acceptance-map
   path: acceptance-map.yaml
   type: acceptance-map

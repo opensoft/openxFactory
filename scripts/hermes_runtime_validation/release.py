@@ -19,6 +19,7 @@ from pathlib import Path
 import subprocess
 from typing import Iterable, Mapping
 
+import posixpath
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
@@ -341,7 +342,11 @@ def _collect_members(
         relative = entry.get("path")
         if not isinstance(relative, str):
             continue
-        repo_path = FAMILY_PREFIX + relative
+        # Catalog paths are family-relative; `..` segments let the canonical
+        # index name cross-family release members (the doxBench wire schemas
+        # live in contracts/schemas/). Normalized here so both the working-tree
+        # and the git-object sources see one canonical repo path.
+        repo_path = posixpath.normpath(FAMILY_PREFIX + relative)
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
