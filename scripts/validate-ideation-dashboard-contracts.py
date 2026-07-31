@@ -725,7 +725,7 @@ import re as _re
 _CREDENTIAL_RE = _re.compile(
     r"(?i)(bearer\s+\S|api[-_]?key|authorization\s*:|sk-[A-Za-z0-9]{6,}|"
     r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
-_ENDPOINT_RE = _re.compile(r"(?i)\bhttps?://")
+_ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
 
 
 def _string_values(node):

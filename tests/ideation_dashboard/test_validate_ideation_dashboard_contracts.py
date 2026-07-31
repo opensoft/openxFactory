@@ -173,3 +173,12 @@ def test_end_to_end_self_test_passes(tmp_path):
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "0 error(s)" in proc.stdout
+
+
+def test_websocket_endpoints_are_caught_by_the_spelling_scan(vidc, registry_docs):
+    """Hardening (PR #45 review finding 2): the endpoint scan covers ws/wss
+    alongside http/https — a streaming endpoint is as raw as a REST one."""
+    doc = copy.deepcopy(_example("workbench-model-catalog-local.example.yaml"))
+    doc["models"][0]["data_handling"] = "streams via wss://provider.internal/live"
+    f = _validate(vidc, registry_docs, "wss-mutant", doc)
+    assert any("endpoint" in e for e in f.errors), f.errors

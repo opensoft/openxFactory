@@ -934,3 +934,46 @@ def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:
     repo, _ = _synthetic_repo(tmp_path)
     result = _run_cli("verify-commit", "--commit", "0" * 40, repo=repo)
     assert result.returncode == 2
+
+
+# ---- cross-family membership paths (contract-v1.27 hardening) ---------------
+#
+# The doxBench wire schemas live in contracts/schemas/, named from the catalog
+# via family-relative `../schemas/...` paths. Two pins: normalization RESOLVES
+# a legitimate cross-family member into the repo, and a path that would escape
+# the repository after normalization FAILS CLOSED as a dependency error rather
+# than digesting content from outside the tree.
+
+def _append_index_entry(repo: Path, path_value: str) -> None:
+    import yaml
+    index_path = repo / "contracts" / "hermes-runtime" / "contract-index.yaml"
+    index = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+    index["contracts"].append({
+        "contract_id": "cross-family-entry",
+        "path": path_value,
+        "type": "schema",
+        "contract_schema_version": 1,
+        "consumers": ["openxfactory-validator"],
+        "semantic_member": True,
+        "release_member": True,
+    })
+    index_path.write_text(yaml.safe_dump(index, sort_keys=False), encoding="utf-8")
+
+
+def test_cross_family_index_paths_normalize_into_the_repo(tmp_path: Path) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    (repo / "contracts" / "schemas").mkdir(parents=True)
+    (repo / "contracts" / "schemas" / "extra.schema.yaml").write_text(
+        "kind: extra\n", encoding="utf-8")
+    _append_index_entry(repo, "../schemas/extra.schema.yaml")
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    assert "contracts/schemas/extra.schema.yaml" in members
+    assert not any(m.startswith("contracts/hermes-runtime/..") for m in members)
+
+
+def test_an_index_path_escaping_the_repo_fails_closed(tmp_path: Path) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    _append_index_entry(repo, "../../../outside.yaml")
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release.release_membership(repo)
+    assert "escape" in str(excinfo.value)

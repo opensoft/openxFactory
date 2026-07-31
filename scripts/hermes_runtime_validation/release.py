@@ -347,6 +347,15 @@ def _collect_members(
         # live in contracts/schemas/). Normalized here so both the working-tree
         # and the git-object sources see one canonical repo path.
         repo_path = posixpath.normpath(FAMILY_PREFIX + relative)
+        # Fail closed on a path that would leave the repository: content from
+        # outside the tree must never be digested into a release inventory
+        # (PR #45 review finding 1).
+        if repo_path == ".." or repo_path.startswith("../"):
+            raise ReleaseDependencyError(
+                "catalog path escapes the repository after normalization: "
+                f"{relative}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            )
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
