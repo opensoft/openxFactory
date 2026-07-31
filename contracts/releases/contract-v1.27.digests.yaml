@@ -923,7 +923,7 @@ entries:
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:ae2d9de148c77a8401b6621fed38bf7222088d32c833bd3d3bfcf982ce283a2a
+  digest: sha256:3910746120412014a0cff20bbe30b6002df49cd1183ee138af8f3f9eb2a0d9c1
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator

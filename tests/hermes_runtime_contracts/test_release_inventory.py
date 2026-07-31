@@ -988,3 +988,17 @@ def test_working_tree_source_fails_closed_outside_the_repo(tmp_path: Path) -> No
     source = release._WorkingTreeSource(repo)
     with pytest.raises(release.ReleaseDependencyError):
         source.read_member("../outside.txt")
+
+
+def test_two_entries_normalizing_to_one_member_fail_closed(tmp_path: Path) -> None:
+    """PR #45 Copilot blocker 5: two DISTINCT catalog entries whose paths
+    normalize to the same repository file must refuse loudly — a silent
+    overwrite would let one entry's metadata masquerade as the other's in the
+    closed membership."""
+    repo, _ = _synthetic_repo(tmp_path)
+    # `../hermes-runtime/contract-index.yaml` normalizes onto the raw
+    # `contract-index.yaml` member already in the synthetic catalog.
+    _append_index_entry(repo, "../hermes-runtime/contract-index.yaml")
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release.release_membership(repo)
+    assert "normalize" in str(excinfo.value) or "collision" in str(excinfo.value)

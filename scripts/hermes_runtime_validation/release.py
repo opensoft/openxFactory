@@ -366,6 +366,15 @@ def _collect_members(
                 f"{relative}",
                 code="HGR-RELEASE-MEMBER-ESCAPES",
             )
+        # Two DISTINCT entries normalizing to one repository file would let a
+        # silent overwrite swap catalog metadata inside the closed membership
+        # (PR #45 review blocker 5) — refuse loudly instead.
+        if repo_path in catalog_map:
+            raise ReleaseDependencyError(
+                "two catalog entries normalize to the same release member: "
+                f"{relative!r} -> {repo_path}",
+                code="HGR-RELEASE-MEMBER-COLLISION",
+            )
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
