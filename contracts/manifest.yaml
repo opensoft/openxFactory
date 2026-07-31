@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.26
+contract_bundle_version: contract-v1.27
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1511,6 +1511,46 @@ contracts:
       cannot express are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+  - id: xfactory-workbench-model-catalog
+    path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The doxBench approved-model catalog wire envelope
+      (add-workbench-integrated-editor-chat 2.1): the GET
+      /workbench/model-catalog success body, public seven-field allowlist
+      only, structurally closed against credentials/endpoints/secret names.
+      An empty models array is the successful editor-only posture. Consumed
+      through the pinned openxFactory checkout at the contract-v1.27 tag;
+      per-file sha256 verified before any copy is treated as current.
+      Catalog rules the shape cannot express are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.
+  - id: xfactory-workbench-chat-turn
+    path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4c08b5e7b08b0d8cb23fdb6c4d5f351206d2801d38929cf5bdeaa02087dd1fb4
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The doxBench grounded chat-turn wire family
+      (add-workbench-integrated-editor-chat 2.1): one file, three closed
+      envelopes discriminated by kind — request, validated success, fixed
+      redacted failure. Exact-UTF-8 SHA-256 content identity; exactly one
+      outline and one document buffer per request; working_subject is
+      non-identity by type; only limit failures carry measured data.
+      Consumed through the pinned openxFactory checkout at the
+      contract-v1.27 tag; per-file sha256 verified before any copy is
+      treated as current. Hash parity, budget, unknown-model, duplicate
+      turn-id, proposal-target, and failure-pairing rules are enforced by
+      scripts/validate-ideation-dashboard-contracts.py, never
+      re-implemented by consumers.
   - id: gate-action-record
     path: contracts/schemas/gate-action-record.schema.yaml
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml

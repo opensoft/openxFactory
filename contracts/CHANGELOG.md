@@ -13,6 +13,28 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.27 — 2026-07-30 (additive; doxBench model-catalog and chat-turn wire contracts)
+
+Realizes `add-workbench-integrated-editor-chat` task 2.5: the doxBench
+contract-first package lands as two NEW canonical schemas —
+`xfactory-workbench-model-catalog.schema.yaml` (the GET
+/workbench/model-catalog success envelope; public seven-field allowlist,
+structurally closed, empty-catalog = editor-only posture) and
+`xfactory-workbench-chat-turn.schema.yaml` (the POST
+/actions/workbench/chat-turn family: request / validated success / fixed
+redacted failure, exact-UTF-8 SHA-256 content identity, non-identity
+`working_subject`, closed envelopes throughout). Instance kinds use the
+retained `workbench-*` identifier family (`workbench-model-catalog`,
+`workbench-chat-turn`, `-success`, `-failure`) per the compatibility ruling;
+file names carry the manifest's `xfactory-` artifact prefix. Six positive and
+eight single-violation negative examples land under
+`examples/ideation-dashboard/` (plus the duplicate-turn-id pair), and the
+delegated family validator grows the catalog/request/success/failure and
+turn-id-sweep rules with its own pytest suite
+(`tests/ideation_dashboard/`). Existing dashboard/session artifacts remain
+valid; no pre-growth snapshot or gate record is invalidated (task 2.4).
+Per-file sha256 inventory: `contracts/releases/contract-v1.27.digests.yaml`.
+
 ## contract-v1.26 — 2026-07-30 (additive; ideation-dashboard workbench family registration)
 
 Realizes the four predecessor registration tasks — `add-staging-workbench`

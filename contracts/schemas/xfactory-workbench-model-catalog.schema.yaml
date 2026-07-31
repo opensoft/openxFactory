@@ -1,0 +1,50 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-workbench-model-catalog.schema.yaml"
+title: "doxBench approved model catalog (wire envelope)"
+contract_schema_version: 1
+description: >-
+  The GET /workbench/model-catalog success envelope
+  (add-workbench-integrated-editor-chat task 2.1; consumer contract
+  codexFactory specs/010-doxbench-editor-chat/contracts/model-catalog.md).
+  PUBLIC-ONLY BY CONSTRUCTION: every object is closed
+  (additionalProperties: false), so credentials, raw endpoints, secret or
+  environment-variable names, request templates, provider-native options, and
+  deployment resource names are structurally impossible rather than merely
+  discouraged; the delegated validator additionally scans string values for
+  credential/endpoint spellings. An empty `models` array is a SUCCESSFUL
+  editor-only posture (FR-025/SC-008), never an error. Model ids are opaque
+  UI handles, not provider model names; selecting one grants no lasting
+  authority (the id is revalidated on every turn). Instance kinds use the
+  retained `workbench-*` identifier family (compatibility-migration checklist
+  NOTES); the file name carries the manifest's `xfactory-` artifact prefix.
+type: object
+additionalProperties: false
+required: [schema_version, kind, models]
+properties:
+  schema_version: { const: 1 }
+  kind: { const: workbench-model-catalog }
+  models:
+    type: array
+    maxItems: 64
+    items: { $ref: "#/$defs/model_entry" }
+$defs:
+  model_entry:
+    # The seven-field public allowlist, exactly (data-model.md Section 6).
+    type: object
+    additionalProperties: false
+    required: [model_id, label, provider_class, available,
+               input_limit_bytes, output_limit_bytes, data_handling]
+    properties:
+      model_id:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+      label: { type: string, minLength: 1, maxLength: 200 }
+      provider_class: { type: string, minLength: 1, maxLength: 64 }
+      available: { type: boolean }
+      # A catalog entry may only NARROW the server ceilings (plan.md
+      # Constraints): request bound 1,048,576 bytes; output bound 900,000.
+      input_limit_bytes: { type: integer, minimum: 1, maximum: 1048576 }
+      output_limit_bytes: { type: integer, minimum: 1, maximum: 900000 }
+      data_handling: { type: string, minLength: 1, maxLength: 500 }

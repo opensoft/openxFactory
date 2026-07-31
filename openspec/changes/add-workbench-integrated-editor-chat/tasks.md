@@ -40,11 +40,24 @@
 
 ## 2. Contract-First Package (openxFactory)
 
-- [ ] 2.1 Add `xfactory-workbench-model-catalog` and `xfactory-workbench-chat-turn` JSON Schemas with reusable definitions for buffer state, bounded transcript turns, content hashes, typed edit proposals, limits, fixed redacted failures, and the non-identity `working_subject` field.
-- [ ] 2.2 Add schema-valid examples for an empty model catalog, a local/on-tenant model, an explicitly enabled zero-retention hosted model, a turn with unsaved outline/document edits, a prose-only response, and independent outline/document proposals.
-- [ ] 2.3 Add one-violation negative fixtures for exposed credentials/endpoints, unknown model ids, mismatched content hashes, out-of-scope paths, over-budget requests, duplicate turn ids with different content, untyped replacement content, and identity semantics attached to `working_subject`.
-- [ ] 2.4 Extend the delegated contract validator and tests so every positive validates, each negative fails for its intended reason, existing dashboard/session artifacts remain valid, and no pre-growth snapshot or gate record is invalidated.
+- [x] 2.1 Add `xfactory-workbench-model-catalog` and `xfactory-workbench-chat-turn` JSON Schemas with reusable definitions for buffer state, bounded transcript turns, content hashes, typed edit proposals, limits, fixed redacted failures, and the non-identity `working_subject` field.
+- [x] 2.2 Add schema-valid examples for an empty model catalog, a local/on-tenant model, an explicitly enabled zero-retention hosted model, a turn with unsaved outline/document edits, a prose-only response, and independent outline/document proposals.
+- [x] 2.3 Add one-violation negative fixtures for exposed credentials/endpoints, unknown model ids, mismatched content hashes, out-of-scope paths, over-budget requests, duplicate turn ids with different content, untyped replacement content, and identity semantics attached to `working_subject`.
+- [x] 2.4 Extend the delegated contract validator and tests so every positive validates, each negative fails for its intended reason, existing dashboard/session artifacts remain valid, and no pre-growth snapshot or gate record is invalidated.
 - [ ] 2.5 Register the schemas/examples in the contract manifest and changelog, allocate the additive release, and land/tag that contract package before codexFactory implementation merges.
+      2026-07-30: registration and allocation are DONE on this branch —
+      manifest entries with per-file sha256, README index rows, CHANGELOG
+      entry, and `contracts/releases/contract-v1.27.digests.yaml`, with the
+      bundle version allocated as `contract-v1.27` (2.1-2.4 evidence: six
+      positives, eight negatives plus the duplicate-turn pair, the delegated
+      validator's doxBench rules, and `tests/ideation_dashboard/` — validator
+      self-test 0 errors/0 warnings; family suites 65 passed). Instance kinds
+      use the retained `workbench-*` family per the compatibility ruling; the
+      catalog planning doc's `xfactory-`-prefixed kind is reconciled at
+      codexFactory T007. STAYS OPEN for its final clause: LAND (merge to
+      main) and TAG `contract-v1.27` — the immutable release identifier must
+      name content that exists on main (research R13), so the tag is cut on
+      the merge commit, not on this branch.
 
 ## 3. Speckit Handoff (codexFactory)
 

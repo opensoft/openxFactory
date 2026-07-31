@@ -1,0 +1,16 @@
+# VALID: one approved local/on-tenant model, public seven-field allowlist only.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "local-authoring-1",
+      "label": "Approved authoring model",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    }
+  ]
+}

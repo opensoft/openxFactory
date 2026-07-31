@@ -1,0 +1,20 @@
+# INVALID (proposal): replacement content with NO target — untyped is refused.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-success",
+  "client_turn_id": "turn-0007",
+  "assistant_turn_id": "srv-0007",
+  "model_id": "local-authoring-1",
+  "observed_hashes": {
+    "outline": "9bfe55abe3acd24090930bacb8ddaff972bf86e32e46180b1b1e9bf8e6380b9c",
+    "document": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "Here is a full replacement.",
+  "proposals": [
+    {
+      "base_hash": "9bfe55abe3acd24090930bacb8ddaff972bf86e32e46180b1b1e9bf8e6380b9c",
+      "summary": "replacement",
+      "content": "# Whole new doc\n"
+    }
+  ]
+}
