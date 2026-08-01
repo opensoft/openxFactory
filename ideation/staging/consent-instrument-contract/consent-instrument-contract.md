@@ -2,35 +2,12 @@
 
 Status: staged
 Kind: architecture
-Summary: Every domain's rung-2 relationship starts with a consent
-instrument — the engagement letter, the patient consent, the agency
-agreement, the operating/authorization agreement — and the factory
-should treat it as a schema'd governed object, not prose. It is the
-ROOT OF THE AUTHORITY CHAIN: credential grants cite it, engagement/
-scope gates verify it, adapters activate on it, and its termination
-cascades to credential revocation and rotation. Target: a neutral
-consent-instrument schema (parties by party-ladder rung including
-third-party estate hosts, scope/out-of-scope, delegation clauses with
-technical access shapes, autonomy position, revocation SLA, signed-
-original custody by opaque locator + digest, status lifecycle) that
-domain instruments instantiate, mapped to the existing memory-gateway
-consent-profile contract.
-Topics: consent-instrument, engagement-letter, authority-chain,
-party-ladder, delegation, revocation, memory-gateway, consent-profile,
-document-cataloging, credential-contracts
-Repository context: openxFactory (neutral schema + vocabulary; proof
-instruments in MedxFactory, LedgerxFactory — first schema'd instance —
-and implied-but-unmodeled instruments in AdxFactory, OpsxFactory,
-codexFactory)
+Summary: Every domain's rung-2 relationship starts with a consent instrument — the engagement letter, the patient consent, the agency agreement — and the factory treats it as a schema'd governed object, not prose: the ROOT OF THE AUTHORITY CHAIN that credential grants cite, gates verify, adapters activate on, and whose termination cascades to revocation. All nine design questions RULED 2026-07-31; the ranked record is consent-instrument-design-decisions.md beside this doc.
+Topics: consent-instrument, engagement-letter, authority-chain, party-ladder, delegation, revocation, memory-gateway, consent-profile, document-cataloging, credential-contracts
+Repository context: openxFactory (neutral schema + vocabulary; proof instruments in MedxFactory and LedgerxFactory; implied-but-unmodeled instruments in AdxFactory, OpsxFactory, codexFactory)
 Staging ID: openxFactory:staging:consent-instrument-contract
-Source: Meds Rx, Inc onboarding (LedgerxFactory, 2026-07-24) — drafting
-the LedgerXCorp↔MedsRx engagement letter surfaced that the letter is
-the single record the whole authority chain resolves to, and that the
-same is true in every domain; named by Brett Heap ("this is what
-allows xFactory to act for the tenant on the client").
-Target capabilities: ADDED `consent-instrument` (neutral schema +
-vocabulary + guidance; or MODIFIED `memory-gateway` extending the
-consent-profile family — open question below)
+Source: Meds Rx, Inc onboarding (LedgerxFactory, 2026-07-24) — drafting the LedgerXCorp↔MedsRx engagement letter surfaced that the letter is the single record the whole authority chain resolves to; named by Brett Heap ("this is what allows xFactory to act for the tenant on the client").
+Target capabilities: ADDED `consent-instrument` — RULED 2026-07-31: a new neutral capability with its own schema plus a DECLARED mapping to the memory-gateway consent-profile family.
 
 ## Target capability
 
@@ -46,7 +23,7 @@ mechanically trigger the credentials `engagement_end` cascade.
 | Domain | Instrument | State |
 | --- | --- | --- |
 | LedgerxFactory | engagement letter (firm↔client company) | **first schema'd instance**: `docs/engagement-letter-template.md` + `tenants/ledgerxcorp/clients/medsrx/consent-record.yaml` (kind `ledgerx_engagement_consent_record`, 2026-07-24) |
-| MedxFactory | patient consent (`hermes/patient/consent-model.yaml`) + the memory-gateway consent-profile | **second schema'd instance COMPLETE**: `add-patient-consent-instrument` authored, ratified, realized, and archived 2026-07-30 (canonical Medx spec `patient-consent-instrument`, 8 requirements) — custody-bearing `medx_patient_consent_record` (`templates/patient-consent-record.yaml` + schema pair + fictional example: parties by rung incl. estate hosts, closed four-class instrument registry with `executed_by.authority_basis`, purposes resolving to the consent model, out-of-scope required, revocation SLA, opaque locator + sha256 custody, five-state lifecycle, fixed `hypothesis_only` autonomy, declared consent-profile derivation; real records never enter the repo) |
+| MedxFactory | patient consent (`hermes/patient/consent-model.yaml`) + the memory-gateway consent-profile | **second schema'd instance COMPLETE**: `add-patient-consent-instrument` authored, ratified, realized, and archived 2026-07-30 (canonical Medx spec `patient-consent-instrument`, 8 requirements) — custody-bearing `medx_patient_consent_record` (parties by rung incl. estate hosts, closed four-class instrument registry with `executed_by.authority_basis`, purposes resolving to the consent model, out-of-scope required, revocation SLA, opaque locator + sha256 custody, five-state lifecycle, fixed `hypothesis_only` autonomy, declared consent-profile derivation; real records never enter the repo) |
 | AdxFactory | agency↔advertiser services agreement (advertiser sign-off machinery exists: persona `advertiser_approved`, launch approval) | implied, unmodeled as an instrument |
 | OpsxFactory | client operating/authorization agreement (`opsxfactory_executed` obligations, client-infrastructure requests) | implied, unmodeled as an instrument |
 | codexFactory | project/engagement authorization (intent owner, execution-lane contract) | implied, unmodeled as an instrument |
@@ -80,46 +57,70 @@ mechanically trigger the credentials `engagement_end` cascade.
    instrument with distinct signers is what makes the conflict record
    read as disclosed-and-consented instead of implicit.
 
-## Open questions
+## Open questions — all resolved 2026-07-31
 
-- Delta shape: new `consent-instrument` capability with a schema under
-  `contracts/schemas/`, or a MODIFIED `memory-gateway` extending the
-  consent-profile family? Leaning new schema + a declared mapping to
-  consent-profile (the instrument authorizes ACTION; the profile
-  governs DATA — related but not the same object).
-- Signature/execution modeling: how much does the neutral schema say
-  about signers (distinct-signers-across-rungs as a SHOULD for
-  related-party cases?) versus leaving execution mechanics to domain
-  policy?
-- Amendment lifecycle: are amendments new instruments referencing the
-  parent, or status transitions with deltas? (Ledgerx's "AR by
-  amendment" note is the first concrete case.)
-- Does the broker-side check (grant's consent citation resolves to an
-  executed instrument covering the requested scope) belong in the
-  neutral credential-contracts validator or a new
-  `validate-consent-instruments.py`?
+Rulings by Brett Heap during the D10 live session; the ranked record with
+rationale and instantiation grounding is
+[consent-instrument-design-decisions.md](consent-instrument-design-decisions.md).
+
+1. Delta shape — RESOLVED (Brett, 2026-07-31): a NEW `consent-instrument`
+   capability with its own schema under `contracts/schemas/`, plus a
+   DECLARED mapping to the consent-profile family. The instrument
+   authorizes ACTION; the profile governs DATA.
+2. Signature/execution modeling — RESOLVED (Brett, 2026-07-31): the
+   neutral schema carries the AUTHORITY BASIS first-class; signer and
+   execution mechanics belong to domain policy, with
+   distinct-signers-across-rungs a SHOULD for related-party cases.
+3. Amendment lifecycle — RESOLVED (Brett, 2026-07-31): amendments are
+   status transitions carrying deltas on the existing instrument, not new
+   instruments referencing a parent (fits Ledgerx's "AR by amendment").
+4. Broker-side check home — RESOLVED (Brett, 2026-07-31): a new standalone
+   `validate-consent-instruments.py`, hostable outside
+   credential-contracts (Medx constraint: no broker).
+5. Instrument-class registry (surfaced 2026-07-31) — RESOLVED (Brett,
+   2026-07-31): DOMAIN-OWNED closed registries under neutral constraints —
+   every class declares its custody-anchor kind and execution-evidence
+   kind; Medx's four medical classes and Ledgerx's
+   `internal_beta_authorization` both conform as-is.
+6. Lifecycle enum vs real spellings (surfaced 2026-07-31) — RESOLVED
+   (Brett, 2026-07-31): the five-state enum is closed and normative;
+   domain spellings map via a DECLARED alias at conformance time (Ledgerx
+   `active` → `executed`); non-signature classes may enter `executed`
+   directly — class-appropriate skipping, never silent.
+7. Scope-coverage semantics (surfaced 2026-07-31) — RESOLVED (Brett,
+   2026-07-31): the neutral executed-instrument check verifies PURPOSE
+   resolution (requested purpose → record purposes → domain-declared
+   purpose model, the Medx pattern); technical access shapes stay
+   credential-contracts enforcement.
+8. Termination/withdrawal cascade (surfaced 2026-07-31) — RESOLVED
+   (Brett, 2026-07-31): cascade targets are FIRST-CLASS dependent-artifact
+   references on the record (derived consent profiles, credential grants,
+   adapter activations), each governed by the record's revocation SLA and
+   evidence obligation; cascade mechanics stay in the owning families.
+9. Real-record placement (surfaced 2026-07-31) — RESOLVED (Brett,
+   2026-07-31): neutrally mandatory that the SIGNED ORIGINAL never enters
+   a product repo (opaque locator + sha256 only); record-instance
+   placement (repo tenant tree vs governed store) is declared domain
+   policy driven by data sensitivity.
 
 ## Exit path
 
 OpenSpec change in openxFactory (`add-consent-instrument` shape) after
-one more domain instantiates — the natural second is AdxFactory's
-agency↔advertiser agreement (its advertiser sign-off machinery already
-implies it), or MedxFactory upgrading patient consent to a custody-
-bearing instrument record. Register entry: DTN-016. The Ledgerx
+one more domain instantiates. Register entry: DTN-016. The Ledgerx
 `ledgerx_engagement_consent_record` is the reference instance; on
 ratification it declares conformance rather than being rewritten.
 
 **EXIT CONDITION MET (2026-07-30):** MedxFactory's
 `add-patient-consent-instrument` landed — authored, ratified, realized,
-and archived the same day (canonical Medx spec
-`patient-consent-instrument`, 8 requirements) — the custody-bearing
-patient consent branch of this exit path. Its design.md §Feedback
-records Medx positions on all four open questions (supports the
-new-schema leaning; authority-basis first-class over signer mechanics;
-amendments as transitions-with-deltas; the executed-record check must
-be hostable outside credential-contracts — Medx has no broker).
-`add-consent-instrument` is unblocked and ready to author against two
-conformant instances: the Ledgerx engagement consent record (with its
-instrument-class registry generalization) and the Medx patient consent
-record (with the instrument/profile ACTION-vs-DATA split proven and
-the stricter no-real-records-in-repo custody posture).
+and archived the same day (canonical Medx spec `patient-consent-instrument`,
+8 requirements). Its design.md §Feedback records Medx positions on the four
+originally listed questions, all adopted by the 2026-07-31 rulings above.
+`add-consent-instrument` is ready to author against two conformant
+instances: the Ledgerx engagement consent record (instrument-class registry
+generalization) and the Medx patient consent record (instrument/profile
+ACTION-vs-DATA split proven; stricter no-real-records-in-repo custody
+posture — now a declared domain policy under ruling 9).
+
+**RULINGS RECORDED (2026-07-31):** all nine design questions resolved
+during the D10 live session; this packet is proposal-ready pending the
+`propose` commission.
