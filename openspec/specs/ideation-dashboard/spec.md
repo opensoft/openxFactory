@@ -359,7 +359,7 @@ The snapshot generator SHALL compute a per-staged-topic health aggregate at gene
 - **THEN** it MUST NOT — health is a structural doneness signal for staged topics, and the governed readiness judgment keeps its own authorities
 
 ### Requirement: Staging workbench scoped view
-The dashboard SHALL provide a staging workbench: a full-screen view scoped to exactly ONE topic-bearing tile — a cluster, a possible, or a staged topic — presenting three tabbed panels over that one scope. The `docs` panel SHALL list the tile's document set derived strictly from the snapshot's own edges (a cluster's `document_edges`; a possible's `supporting_evidence` documents, with any claiming-cluster member documents shown as a separately labelled inherited section, never conflated with cited evidence; a staged topic's files that are corpus documents plus every document whose `destinations.staged_topics` names it, plus — Brett's 2026-07-25 dogfood ruling — the member documents of the topic's linked clusters as a THIRD, separately labelled cluster-neighbourhood section, inherited via clusters, never conflated with the topic's own material, and never an input to the topic's health or the readiness gate, which stay folder-scoped) and SHALL render each row's completeness bar and named signals verbatim from the snapshot, never recomputing them. The `lens` panel SHALL render interconnectedness scoped to that tile's keywords and documents by RE-SCOPING the existing keyword-lens and edge-degree derivation — the same `keyword_index` seed and the same edge/degree computation the funnel and wheel already use, filtered to the tile's scope — and MUST NOT introduce a new analysis, a new score, or a new snapshot field. The `outline` panel SHALL render the topic's outline when one exists — for a staged topic, the fragment's outline material — read through the same read-only `/source` pass-through the document viewer uses, and MUST show an explicit empty state when the scope carries no outline. The workbench SHALL be read-only in every panel: it MUST write no document, no register entry, no workbench manifest, and no gate artifact, and outline editing is out of scope here.
+The dashboard SHALL provide a staging workbench: a full-screen view scoped to exactly ONE topic-bearing tile — a cluster, a possible, or a staged topic — presenting three tabbed panels over that one scope. The `docs` panel SHALL list the tile's document set derived strictly from the snapshot's own edges (a cluster's `document_edges`; a possible's `supporting_evidence` documents, with any claiming-cluster member documents shown as a separately labelled inherited section, never conflated with cited evidence; a staged topic's files that are corpus documents plus every document whose `destinations.staged_topics` names it, plus — Brett's 2026-07-25 dogfood ruling — the member documents of the topic's linked clusters as a THIRD, separately labelled cluster-neighbourhood section, inherited via clusters, never conflated with the topic's own material, and never an input to the topic's health or the readiness gate, which stay folder-scoped) and SHALL render each row's completeness bar and named signals verbatim from the snapshot, never recomputing them. The `lens` panel SHALL render interconnectedness scoped to that tile's keywords and documents by RE-SCOPING the existing keyword-lens and edge-degree derivation — the same `keyword_index` seed and the same edge/degree computation the funnel and wheel already use, filtered to the tile's scope — and MUST NOT introduce a new analysis, a new score, or a new snapshot field. The `outline` panel SHALL render the topic's outline when one exists — for a staged topic, the fragment's outline material — read through the same read-only `/source` pass-through the document viewer uses, and MUST show an explicit empty state when the scope carries no outline. The workbench's ONLY write authority SHALL be the human-only `create-document` gate verb: it MUST write no register entry, no workbench manifest, and no gate artifact beyond that verb's own gate-action record; it MUST NOT modify or delete any existing document, in any panel, by any path; and outline EDITING remains out of scope. With the gate capability absent the workbench SHALL be read-only in every panel, as it is on the served static image.
 
 #### Scenario: The workbench opens on a cluster
 - **WHEN** a human opens the workbench from a cluster tile
@@ -394,9 +394,13 @@ The dashboard SHALL provide a staging workbench: a full-screen view scoped to ex
 - **WHEN** the opened tile has no outline material
 - **THEN** the `outline` panel MUST render an explicit empty state rather than fabricating or drafting one
 
-#### Scenario: The workbench is asked to write
-- **WHEN** any workbench panel would write a document, a register entry, a workbench manifest, or a gate artifact
-- **THEN** the write MUST be rejected and reported — this surface is read-only and every write path arrives in a later change
+#### Scenario: The workbench is asked to modify an existing document
+- **WHEN** any workbench panel would edit or delete an existing corpus document, or write a register entry, a workbench manifest, or any gate artifact other than the `create-document` verb's own gate-action record
+- **THEN** the write MUST be rejected and reported — the workbench's only write is the create-only gated document creation, and every other write path arrives in a later change
+
+#### Scenario: The workbench renders without the gate capability
+- **WHEN** the workbench runs on a surface where the gate capability is absent
+- **THEN** every panel MUST be read-only and no write MUST be reachable from the page
 
 ### Requirement: Workbench tile action
 The wheel's expanded tile SHALL offer an `open workbench` action on the clusters, possibles, and staged wheels, mounted through the wheel's established per-wheel action-row extension point (one row in the pure action table plus one mounter entry, as `add-wheel-action-verbs` describes — not re-specified here), and the action SHALL carry NO gate capability requirement because it writes nothing: it is a read-only navigation verb like the existing read, lens, canvas, and landed verbs, offered whether or not the gate capability is live and therefore present on the deployed static image, where content-dependent panels degrade inline. The action SHALL open the workbench scoped to the tile it was activated from, and the wheels whose tiles are not topic-bearing SHALL NOT offer it.
@@ -455,4 +459,99 @@ The wheel's staged tiles SHALL surface the topic's health at two levels matching
 #### Scenario: The display disagrees with the gate
 - **WHEN** a tile shows `ready` from a stale snapshot but the live gate refuses the propose
 - **THEN** the refusal's cited blockers are the authoritative account and the display MUST NOT suppress or restate the refusal
+
+### Requirement: Workbench lens bullseye at tile scope
+The staging workbench's `lens` panel SHALL render the match-count bullseye — the same rings-by-match-count, sectored-by-matched-subset, dotted geometry the keyword lens renders (rings index how many checked keywords a document matches, innermost = all) — at TILE SCOPE, above the always-present flat matrix, from the SAME scoped keyword-lens derivation the panel already performs. The bullseye MUST introduce no new analysis, no new score, and no new snapshot field: it renders the geometry the scoped derivation already returns, and each rail row's declared count stays the snapshot's corpus-wide number verbatim, labelled as such. The flat matrix SHALL remain always present and MUST NOT become a toggle-only alternate. There SHALL be exactly ONE bullseye renderer serving both the keyword-lens view and the workbench panel, so the two surfaces cannot drift. The human's checked-keyword selection SHALL persist across tab switches within one workbench session, and SHALL reset to the scope's seed when a different scope is opened or the workbench is closed.
+
+#### Scenario: The workbench lens panel renders the bullseye
+- **WHEN** a human opens the workbench's `lens` tab on any topic-bearing tile
+- **THEN** the match-count bullseye MUST render at that tile's scope, above the flat matrix
+- **AND** the flat matrix MUST still render, as the always-available view of the same membership
+
+#### Scenario: The scoped bullseye introduces no new number
+- **WHEN** the workbench bullseye renders
+- **THEN** its rings, sectors, and dots MUST come from the existing scoped keyword-lens derivation
+- **AND** no new snapshot field, score, or recount of the keyword vocabulary is introduced
+
+#### Scenario: A checked selection survives a tab switch
+- **WHEN** a human checks keywords in the workbench `lens` tab, visits `docs` or `outline`, and returns to `lens`
+- **THEN** the checked selection MUST be exactly the one they left
+
+#### Scenario: A new scope reseeds the selection
+- **WHEN** the workbench is closed, or opened on a different tile
+- **THEN** the checked selection MUST reset to that scope's seed keywords rather than carrying the previous scope's keywords forward
+
+### Requirement: Gated document creation verb
+The gate console SHALL offer a human-only `create-document` verb that brings a NEW ideation document into existence through the EXISTING tested authoring engine, enforced at the route so the workbench affordance, the CLI parity subcommand, and a direct request are gated identically. The verb SHALL accept an area, title, summary, topics, and optional repository context, kind, status, possible-feat seeds, and source citation, defaulting the repository context from the served snapshot's repository, and SHALL write the document through the authoring scaffold with its controlled header block (`Status`, `Kind`, `Summary`, `Topics`, `Repository context`, `Captured`) in the declared order. A created document's `Status:` SHALL default to `brainstorm` in EVERY area — the verb MUST NOT derive a lifecycle status from the area it writes into, because a document's tie to a staging packet is carried by its PLACEMENT inside that packet's folder and not by its status header, and a just-captured thought is `brainstorm` wherever it sits. A human-supplied status MUST be accepted only from the create-legal set (`brainstorm`, `staged`, `draft`), so no document can be born already approved. The write MUST be create-only: an EXISTING target refuses as a source-edit refusal and is never overwritten, and this verb grants NO edit or delete authority over any existing document. Every successful create SHALL persist a gate-action record naming the created document's repository-relative path in its target and referencing the created document as a `document`-kind artifact. The verb MUST be loopback-only and MUST fail closed on an unresolved actor, and any agent or automated invocation MUST be rejected and reported, like every gate action. The verb SHALL make no engine change beyond the status and source passthrough the header block requires: the header contract, the filename normalization, and every refusal are the authoring engine's, surfaced verbatim at the route.
+
+#### Scenario: A human creates a document through the gate
+- **WHEN** a human invokes `create-document` with an area, title, summary, and topics
+- **THEN** a header-compliant document is written into that area with the controlled header block in the declared order
+- **AND** a gate-action record is persisted naming the created document's repository-relative path and referencing it as a `document`-kind artifact
+
+#### Scenario: A create into a staging topic folder
+- **WHEN** a human creates a document with the area set to a staging topic folder and supplies no status
+- **THEN** the document MUST be written with `Status: brainstorm`, exactly as a create into the brainstorm area is
+- **AND** its membership of that staging packet MUST come from its placement in the topic folder, which is what the folder-scoped health and readiness derivations already read
+
+#### Scenario: A create asks to be born approved
+- **WHEN** a create supplies a status outside the create-legal set — `ratified`, `standard`, or any other promoted stage
+- **THEN** the call MUST refuse and persist nothing
+
+#### Scenario: The target already exists
+- **WHEN** the verb targets a path that already holds a document
+- **THEN** the call MUST refuse as a source-edit refusal, persist nothing, and leave the existing document byte-identical
+
+#### Scenario: An agent invokes the verb
+- **WHEN** any agent or automated path calls `create-document`
+- **THEN** the call MUST be rejected and reported — document creation by an agent remains the separate agent-capture surface with its own header enforcement
+
+#### Scenario: The gate capability is unavailable
+- **WHEN** the verb is reached on a non-loopback bind, or with no resolved human actor
+- **THEN** the route MUST refuse and persist nothing
+
+#### Scenario: The CLI reaches the same law
+- **WHEN** the parity subcommand invokes the verb
+- **THEN** it MUST be gated identically to the browser affordance, drive the same engine, and produce the same gate-action record
+
+### Requirement: Workbench creation affordances and seeding
+The staging workbench SHALL offer the `create-document` verb from each of its three tabs, seeded from the material that tab is showing, and the seeded values SHALL remain editable before the create fires. On the `docs` tab the affordance SHALL be a button on the pane's actions row, seeding topics from the tile's keywords, repository context from the snapshot's repository, the area from the scope (a staged scope's own staging topic folder; the brainstorm area for a cluster or possible scope), and a source citation naming the workbench scope by kind and id. On the `lens` tab the affordance SHALL be a button on the forming-set pane AND an activation of ANY region of the bullseye — its matches-ALL centre zone or any ring SECTOR — all opening the SAME dialog with the same seeding rule and a source citation naming the recipe (the checked and pinned keywords) at the snapshot's source revision, so the membership that motivated the document re-derives from the record. The topics seed SHALL be the activated region's own matched keyword combination: the LIVE checked keyword set for the forming-set button and the centre zone, and that sector's matched SUBSET of the checked set for a ring sector — the bullseye is already sectored by which checked keywords a document matched, so a sector names a combination the human can act on without re-deriving it. Every activatable region MUST be keyboard-reachable and focusable on the same terms as the centre zone, and MUST NOT be the only path to the dialog. The bullseye renderer serving the keyword-lens view SHALL receive no activation handler, and with no handler supplied every region MUST be inert and the rendered output MUST be identical to the unactivatable bullseye. On the `outline` tab the affordance SHALL be offered for staged scopes ONLY, as a new fragment in that topic with the area set to the staging topic folder, and MUST be hidden for cluster and possible scopes, which have no topic folder to write into. When the gate capability is absent the affordances SHALL render as COPYABLE CLI DESCRIPTORS carrying the seeded values and MUST NOT render as live buttons, and no write MUST be reachable from the page. On a successful create the workbench SHALL open the created document in the read-only viewer. The workbench's posture indicator SHALL state `read-only` when the gate capability is off and the gate-bearing posture when the capabilities grant gate, and MUST NOT claim a posture the surface does not have.
+
+#### Scenario: Creating from the docs tab
+- **WHEN** a human uses the create affordance on the workbench `docs` tab
+- **THEN** the dialog opens seeded with the tile's keywords as topics, the snapshot's repository as repository context, the scope-derived area, and a source citation naming the scope's kind and id
+- **AND** every seeded value is editable before the create fires
+
+#### Scenario: Creating from the centre ring
+- **WHEN** a human clicks the bullseye's matches-ALL centre ring, or the forming-set pane's create button
+- **THEN** the SAME create dialog opens, seeded with the LIVE checked keyword set as topics
+- **AND** the source citation names the checked and pinned keywords at the snapshot's source revision
+
+#### Scenario: Creating from a ring sector
+- **WHEN** a human activates a ring SECTOR of the workbench bullseye, by click or by keyboard
+- **THEN** the SAME create dialog opens, seeded with exactly that sector's matched keyword combination as topics — the subset of the checked set the sector represents, not the whole checked set
+- **AND** every sector MUST be focusable and keyboard-activatable, on the same terms as the centre zone
+
+#### Scenario: The bullseye outside the workbench stays inert
+- **WHEN** the bullseye renders on the keyword-lens view, which supplies no activation handler
+- **THEN** no region MUST be activatable or focusable, and the rendered output MUST be identical to the bullseye rendered before any create affordance existed
+
+#### Scenario: The outline affordance is scope-bound
+- **WHEN** the workbench `outline` tab renders for a cluster or a possible
+- **THEN** the create affordance MUST be hidden — there is no staging topic folder to write a fragment into
+- **AND** for a staged scope it MUST be offered, writing into that topic's folder
+
+#### Scenario: The gate capability is off
+- **WHEN** the workbench renders on a surface without the gate capability
+- **THEN** every create affordance MUST render as a copyable CLI descriptor carrying the seeded values
+- **AND** no live create button and no write path MUST be reachable from the page
+
+#### Scenario: A create succeeds
+- **WHEN** a create lands through the gate
+- **THEN** the workbench MUST open the created document in the read-only viewer
+
+#### Scenario: The posture indicator is honest
+- **WHEN** the workbench renders with the gate capability granted
+- **THEN** its posture indicator MUST state the gate-bearing posture rather than `read-only`
+- **AND** with the gate capability absent it MUST state `read-only`
 
