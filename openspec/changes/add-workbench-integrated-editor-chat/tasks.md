@@ -2,12 +2,21 @@
 
 - [x] 1.1 Baseline recorded 2026-07-28: `add-staging-workbench` landed through codexFactory PR #42 (`4e7b7b7`); `add-workbench-bullseye-and-create` through PR #46 (`9d59ac0`); `add-dashboard-repo-selector` through PR #47 (`fae38d2`) plus PR #48 hardening (`5546ff2`); and `add-workbench-branch-sessions` through PR #49 (`7440bed`) plus dashboard hardening PRs #51 (`fec8ab5`) and #52 (`b42b9cb`). The current clean common baseline is codexFactory `main` at `34bfc2f`; `python3 -m pytest tests/ideation-dashboard -q` passed **1467 tests** there in the `py-bench` dev container.
 - [x] 1.2 codexFactory `008-fix-dashboard-edit` landed through PR #56 as merge commit `d2c16b1` and is an ancestor of the recorded `34bfc2f` common baseline. Its worktree is clean; the external-editor escape hatch is therefore a merged baseline rather than unresolved feature work.
-- [ ] 1.3 Run one real-corpus acceptance sequence that independently satisfies `add-staging-workbench` 6.5, `add-workbench-bullseye-and-create` 7.2, `add-dashboard-repo-selector` 6.2, and `add-workbench-branch-sessions` 9.2, then completes `add-propose-verb` 4.3 from the merged/session-free ready topic; record evidence against every clause rather than treating one success as blanket closure.
+- [x] 1.3 Run one real-corpus acceptance sequence that independently satisfies `add-staging-workbench` 6.5, `add-workbench-bullseye-and-create` 7.2, `add-dashboard-repo-selector` 6.2, and `add-workbench-branch-sessions` 9.2, then completes `add-propose-verb` 4.3 from the merged/session-free ready topic; record evidence against every clause rather than treating one success as blanket closure.
       Prepared 2026-07-30: the combined-pass runbook/evidence template is
       `d10-acceptance-runbook.md` in this change directory, with per-clause
-      evidence slots under `evidence/d10/`. Preparation only — this task
-      stays open until the pass runs and every clause records its own
-      evidence and sign-off.
+      evidence slots under `evidence/d10/`.
+      RUN AND SIGNED 2026-07-31 → 2026-08-01: the pass executed A→B→C→D→E
+      on the real corpus with `consent-instrument-contract` as P5 for all
+      three write steps, every clause recorded its own evidence, and Brett
+      signed the matrix — 6.2 and 4.3 PASS; 6.5, 7.2, 9.2 PASS WITH
+      FINDINGS (each finding named, caused, and dispositioned; register
+      F1–F12). The evidence set landed via PR #48 (`93ea5c1`); the five
+      owning-ledger boxes are checked by the same governance commit as
+      this one. Session outputs beyond acceptance: nine consent-instrument
+      design rulings recorded in the merged packet (session PR #47,
+      merge commit `52153ce`) and the first real `proposal-authoring`
+      commission — `add-consent-instrument` is dispatched.
 - [x] 1.4 Complete each predecessor's pending contract-manifest/release registration and any dashboard-repository publication/credential wiring required by its own task list.
       Realized 2026-07-30: all four owning registration tasks
       (`add-staging-workbench` 1.7, `add-workbench-bullseye-and-create` 1.6,
@@ -30,6 +39,12 @@
       predecessors are still active with nine open tasks — four
       contract-manifest registrations and five Brett live-pass /
       first-commission clauses — so this task stays open.
+      Update 2026-08-01: ZERO open tasks now remain in any predecessor
+      ledger — the four registrations closed at contract-v1.26 (task 1.4)
+      and the five live-pass/first-commission clauses closed with the
+      signed D10 pass (task 1.3, same governance commit as this note).
+      The archive chain is fully unblocked and is this task's remaining
+      work.
 - [ ] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
       Note 2026-07-30: this change branch is 81 commits behind openxFactory
       `origin/main` and does not yet contain the promoted base capability;

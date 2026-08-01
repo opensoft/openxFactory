@@ -326,12 +326,28 @@ registry.
       notebook quota degrades the session rather than blocking it; D20 a tile is
       a work surface OR a proposal, `demote` being the route back; D21 `open-pr`
       consults NO readiness signal.
-- [ ] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
+- [x] 9.2 Brett's live pass — the archive evidence the staged topic names: run a
       REAL session end to end. Create and edit documents on a session branch,
       watch the panels follow the worktree, use the session notebook, open the
       pull request, merge it, and find the merged documents on `main` and in the
       next published snapshot — with the served checkout never having moved and
       the wheel never having shown a draft.
+      PASSED WITH FINDINGS 2026-07-31 (D10 combined pass, Brett sign-off
+      2026-08-01): session `draft/consent-instrument-contract` ran real
+      work end to end — create `b280542` + edits `8599f60`/`9674dc8` as
+      gate-action commits (the packet went 0.458/2-blockers →
+      ready/0.925/0), panels followed the worktree via the session
+      snapshot, the wheel showed no draft on either plane (hosted refuses
+      non-main refs outright), PR #47 merged as MERGE COMMIT `52153ce`
+      preserving the series, and both documents were found on `main` and
+      in the published snapshot (aggregation run `30677000612`, PR #68)
+      through separate read paths — four fingerprints, HEAD/branch never
+      moved. Findings: session notebook not exercised (F8 nlm CLI drift +
+      dedicated-serve layout), the open-pr/abandon records land untracked
+      in the served checkout (F10), and the merge-ending observation was
+      environmentally blocked in the multi-session tree, resolved via the
+      sanctioned abandon path (F12). Evidence:
+      `add-workbench-integrated-editor-chat/evidence/d10/d-92-*`.
 
 ---
 
