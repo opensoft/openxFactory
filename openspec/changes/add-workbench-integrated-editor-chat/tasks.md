@@ -31,7 +31,18 @@
       registration, publication, or credential-wiring task remains open in
       any predecessor ledger; only the Brett live-pass clauses (this
       change's 1.3) and the archive chain (1.5/1.6) remain.
-- [ ] 1.5 Archive the predecessor chain in dependency order: `add-ideation-dashboard` → `add-propose-verb` → `add-staging-workbench` → `add-workbench-bullseye-and-create` → `add-dashboard-repo-selector` → `add-workbench-branch-sessions`; verify `openspec/specs/ideation-dashboard/spec.md` exists after the chain completes.
+- [x] 1.5 Archive the predecessor chain in dependency order: `add-ideation-dashboard` → `add-propose-verb` → `add-staging-workbench` → `add-workbench-bullseye-and-create` → `add-dashboard-repo-selector` → `add-workbench-branch-sessions`; verify `openspec/specs/ideation-dashboard/spec.md` exists after the chain completes.
+      COMPLETED 2026-08-01: the remaining five elements archived in exact
+      dependency order as `2026-08-01-add-propose-verb` →
+      `2026-08-01-add-staging-workbench` →
+      `2026-08-01-add-workbench-bullseye-and-create` →
+      `2026-08-01-add-dashboard-repo-selector` →
+      `2026-08-01-add-workbench-branch-sessions`, one commit each, strict
+      validation green at every step (58 → 53 items). VERIFIED:
+      `openspec/specs/ideation-dashboard/spec.md` exists and carries the
+      promoted capability — 40 requirements after the chain. README
+      entries moved Active → Archived. Task 1.6 (the rebase onto the
+      promoted capability) is now the sole remaining Start-Gate item.
       Progress 2026-07-30: the first chain element `add-ideation-dashboard`
       archived on 2026-07-29 (openxFactory `main` commit `366f04f`, archive
       entry `2026-07-29-add-ideation-dashboard`), promoting the base
