@@ -263,86 +263,9 @@ Active changes:
   first decision), the Omnigent-Install registration/renewal integration, and
   the OpsxFactory custody/policy/runner-group work are named successor
   changes.
-- [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
-  — authored AND RATIFIED 2026-07-26, the single exit of the
-  `workbench-branch-sessions` staged topic; TWENTY-THREE decisions locked
-  (D1-D23) and no open questions, after a five-lens adversarial review (two
-  findings confirmed and fixed) and a rename-completeness audit. Realization is
-  unblocked; it archives on merged plus green realization evidence, not on
-  ratification. AMENDED 2026-07-27 by Brett's D23 ruling, after the adversarial
-  review of the realization: the human/agent boundary is a CONSOLE-PRESENCE
-  control (anti-CSRF / same-origin) and not authentication, so the residual — a
-  process running as the identified human, on the human's own machine, can read
-  the per-serve console token and act as the human — is ACCEPTED and deferred to
-  the xForge-host identity work under D22; the two ratified scenarios that
-  promised an agent-refusal the mechanism cannot deliver are NARROWED to what is
-  enforced (their superseded wording is quoted in design.md, not deleted); and
-  every gate-action record now carries OPTIONAL `provenance` naming the SURFACE
-  it arrived on (`http` | `cli`) and how console presence was shown
-  (`console-token` | `tty` | `declared`), which makes an accepted-but-invisible
-  residual auditable.
-  The workbench becomes a place to CREATE and EDIT documents
-  without loosening a gate, because the working state moves onto a git branch
-  and the PULL REQUEST is the formal re-entry into the governed doc system.
-  The first gate write against a tile spawns `draft/<topic-folder>` (named for
-  the TILE, so two humans join one session) and materializes a git WORKTREE —
-  the served checkout never switches branches, which dissolves the
-  shared-checkout hazard by construction. Every gate action is ONE commit
-  carrying its documents and its gate-action record together, so the audit
-  trail falls out of version control; on-branch edits arrive as a new gated
-  `edit-document` verb valid ONLY inside a session (the PR review is the
-  governance — the ratified gates-happen-on-main rule read forwards), while
-  the `edit-apply` redline path keeps its ceremony for main-resident
-  documents. Session panels read a snapshot addressed `(repository,
-  session-branch)` through the registry `add-dashboard-repo-selector` lands —
-  no overlay machinery — regenerated after every gate action, with the
-  freshness header naming the branch; drafts are visible ONLY inside their
-  session, so `main` stays the shared truth on the wheel, the funnel, and the
-  hosted site. "Saving" is a gated `open-pr` verb that pushes the branch into
-  the existing Merge-Master ritual and holds no approval authority; merge (or
-  explicit abandon) tears down the worktree, the registry entry, and the
-  session notebook, and a MERGE additionally deletes the session branch, whose
-  work `main` now holds. Because proposal ends the staging pipeline, `propose`
-  REFUSES while a tile carries an unresolved session, naming both resolutions
-  — merge the pull request, or abandon to discard — so a proposal is never
-  commissioned from drafts stranded on an unmerged branch. Canon notebooks
-  stay MAIN-ONLY; per-session `xf-session-<topic>` notebooks sync from the
-  worktree, in a namespace deliberately disjoint from the workbench's swept
-  `xf-wb-*` scratch notebooks. Local plane only until the intent plane's apply
-  lane (§4) can produce a ref. Sequenced strictly after
-  `add-dashboard-repo-selector` and `add-propose-verb`.
-- [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
-  — authored 2026-07-26, RATIFIED 2026-07-29 on Brett's three binding
-  rulings of 2026-07-26 (raw-file data source, passive index-poll badge,
-  ungated loopback regenerate); realization was already under way on those
-  rulings and `add-workbench-branch-sessions` is formally unblocked. Exit 1
-  of the `dashboard-repo-selector` staged
-  topic: a repository selector whose roster is the project register (sparse
-  repositories render whatever stations they have data for and are never
-  refused), a snapshot source keyed on the PAIR (repository, ref) with
-  `ref` defaulting to `main` and one serving-side registry behind it, a new
-  additive snapshot-INDEX contract (its own schema — the snapshot schema is
-  not grown), and the snapshot/image decoupling Brett decided 2026-07-25
-  after a document landed minutes past a rebake and stayed invisible: bake
-  the APP and fetch the DATA at runtime, with the baked snapshot demoted to
-  a first-boot/offline fallback that shows a never-silent stale banner, a
-  freshness header (`repo @ ref · source_revision · generated-at`), one
-  refresh affordance with two plane bindings (served re-fetch; local
-  regenerate), and `workflow_dispatch` on the publication lane — the pod
-  gains no build or rollout authority by any path. Sequenced strictly
-  before `add-workbench-branch-sessions`, which consumes the seam.
-- [add-workbench-bullseye-and-create](openspec/changes/add-workbench-bullseye-and-create/proposal.md)
-  — authored 2026-07-25: two coupled deltas to the staged workbench — the
-  `lens` panel renders the match-count bullseye at tile scope (the scoped
-  derivation already computes the geometry) above the always-present matrix,
-  with the checked-keyword selection persisting across tab switches; and a
-  human-only `create-document` gate verb drives the existing tested
-  authoring scaffold (create-only; an existing target refuses) with per-tab
-  seeding — the tile's keywords on `docs`, the live checked set plus a
-  recipe citation on `lens` (the brainstorm's centre-ring gesture), a new
-  fragment in the topic on `outline` for staged scopes — recorded as a
-  gate-action record, rendered as copyable CLI descriptors where the gate
-  capability is off.
+
+
+
 - [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
   — authored 2026-07-25: two human-only gate-console verbs executing the
   keyword lens's plans through the tested engines (`lens-save-recipe` →
@@ -440,16 +363,7 @@ Active changes:
   document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
-- [add-propose-verb](openspec/changes/add-propose-verb/proposal.md)
-  — gate-console verb `propose` (Brett's 2026-07-24 action-center direction:
-  take a staging tile to a proposal from the dashboard): kickoff's
-  recorded-dispatch mechanic at the staging→proposal boundary — a human-only
-  `workflow-job` commission (workflow `proposal-authoring`, target
-  `topic_id`) + gate-action record; the authoring runs externally and lands
-  as an ordinary change under the existing review/ratify gates. Additive
-  gate-intent / gate-action-record enum + `topic_id` target extension.
-  (code surface: codexFactory, openxFactory; release allocated at
-  realization)
+
 - [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
   — four gate-verb rulings Brett made 2026-07-25 for the wheel's
   expanded-tile action row: `demote` promoted from descriptor-only to an
@@ -465,24 +379,7 @@ Active changes:
   fulfilment lanes are out of scope (a terminal session fulfils dispatched
   commissions in the interim, as with propose). (code surface: codexFactory,
   openxFactory; release allocated at realization)
-- [add-staging-workbench](openspec/changes/add-staging-workbench/proposal.md)
-  — Brett's Track B ruling 2026-07-25 (the staging area is where the real
-  proposal gets developed): the workbench as that area's READ-ONLY
-  foundation. Derived-model growth first — a deterministic per-document
-  completeness signal computed at snapshot generation time (structure,
-  length, open markers, keyword coverage, link degree; fixed weights as v1
-  contract constants, no LLM judgment so it stays testable and
-  byte-identical) emitted as an additive `documents[].completeness` object,
-  informational only and never gating anything. Then the scoped view: a
-  full-screen workbench over ONE topic-bearing tile (cluster, possible, or
-  staged topic) with `docs` (the tile's doc set with completeness bars),
-  `lens` (interconnectedness re-scoped from the existing
-  keyword_index/degree derivation, no new analysis) and `outline` (the
-  topic's outline read through the viewer's `/source` pass-through) panels,
-  plus an ungated read-only `open workbench` row on the wheel's
-  expanded-tile action point. The AI chat layer — and outline editing, and
-  every workbench write path — is Track C, a later change. (code surface:
-  codexFactory, openxFactory; release allocated at realization)
+
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
@@ -521,6 +418,37 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-workbench-branch-sessions](openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/proposal.md)
+  Promoted branch-per-tile working sessions into `ideation-dashboard`:
+  commit-per-gate-action on a `draft/` branch, session-local snapshots the
+  panels follow, PR-as-save carrying the D18 merge-commit-never-squash
+  series, and the human-only session verbs. Archived 2026-08-01 after the
+  D10 live pass ran a real session end to end (9.2 PASS WITH FINDINGS
+  F8/F10/F12).
+- [add-dashboard-repo-selector](openspec/changes/archive/2026-08-01-add-dashboard-repo-selector/proposal.md)
+  Promoted the (repository, ref) snapshot registry, the repository
+  selector, serving-side runtime fetch with the baked-snapshot fallback,
+  both refresh bindings, and the dispatchable publication lane. Archived
+  2026-08-01 with the hosted acceptance AND the deliberate human
+  observation complete (6.2 PASS; image digest byte-identical).
+- [add-workbench-bullseye-and-create](openspec/changes/archive/2026-08-01-add-workbench-bullseye-and-create/proposal.md)
+  Promoted the bullseye scope reading (rings/sectors over the checked
+  keyword set) and the create gesture with its per-tab create affordances
+  (header-compliant, create-only gate verb). Archived 2026-08-01 after the
+  D10 live creation pass (7.2 PASS WITH FINDINGS F5).
+- [add-staging-workbench](openspec/changes/archive/2026-08-01-add-staging-workbench/proposal.md)
+  Promoted the staging workbench: scoped docs/lens context, per-document
+  completeness bars over the five-signal scorer, and the
+  `READY_MIN_SCORE` 0.60 staged-to-proposal gate with typed, explainable
+  blockers. Archived 2026-08-01 after the D10 calibration pass (6.5 PASS
+  WITH FINDINGS F2/F3 — the scorer-depth V2 register).
+- [add-propose-verb](openspec/changes/archive/2026-08-01-add-propose-verb/proposal.md)
+  Promoted the `propose` verb: the human-gated staged-topic commission
+  emitting a workflow-job descriptor plus gate-action record behind the
+  live readiness guard. Archived 2026-08-01 after the first REAL
+  commission (4.3 PASS — `add-consent-instrument` dispatched from the
+  D10 pass).
 
 - [add-deployment-handoff-boundary](openspec/changes/archive/2026-07-30-add-deployment-handoff-boundary/proposal.md)
   — **ratified 2026-07-29, realized and archived 2026-07-30** (doc-only;
