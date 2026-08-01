@@ -35,5 +35,18 @@
       commission, agent-path rejection) green.
 - [x] 4.2 Live browser check on the local dashboard (button renders on a
       staged focus under gate capability, actor resolved; zero page errors).
-- [ ] 4.3 First real commission by Brett recorded end-to-end (descriptor +
+- [x] 4.3 First real commission by Brett recorded end-to-end (descriptor +
       record in the checkout).
+      PASSED 2026-08-01 (D10 combined pass Step E, Brett sign-off same
+      day): `▶ draft proposal` on the merged, session-free, honestly-ready
+      `consent-instrument-contract` (live health 0.925 / 0 blockers)
+      commissioned workflow `proposal-authoring` — descriptor
+      `ideation/dashboard/gate-records/consent-instrument-contract/propose-20260801T012134Z.workflow-job.yaml`
+      and gate-action record
+      `propose-20260801T012134Z.gate-action.yaml` (`actor: brettheap`),
+      both landed on `main` by this governance commit (the verb records
+      without committing — F10). The first click's FR-023 refusal over the
+      then-live session is preserved as evidence of the guard working.
+      The commissioned change is `add-consent-instrument` (DTN-016 exit).
+      Evidence:
+      `add-workbench-integrated-editor-chat/evidence/d10/e-43-commission.md`.

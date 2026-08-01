@@ -211,3 +211,15 @@
       evidence for this task. The governing distinction is preserved in
       `docs/doxbench-runtime-refresh-dogfood-erratum.md` while the original
       dogfood evidence record remains immutable.
+      DELIBERATE HUMAN OBSERVATION COMPLETED 2026-07-31/08-01 (the final
+      dogfood step this note left open; D10 combined pass Step C, Brett
+      sign-off PASS 2026-08-01): a distinct marker
+      (`docs/d10-hosted-refresh-marker.md`, PR #46 → `ae3f9c7`) landed on
+      `main`, pointer-sync `2bf51fd` + dispatched lane run `30672928437`
+      published it (rolling PR xFactory#65), Brett clicked refresh on the
+      hosted dashboard and FOUND the marker, and the image digest was
+      byte-identical before and after
+      (`sha256:b602380e…`, pod spot-reschedule within the same ReplicaSet
+      noted). Selector sweep verbatim: "Medx populated fine, Adx and
+      Ledgerx sparse but honest, nothing looked broken." Evidence:
+      `add-workbench-integrated-editor-chat/evidence/d10/c-62-*`.

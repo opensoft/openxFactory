@@ -224,10 +224,22 @@ Recorded deviations from the design, all additive and reasoned:
       **Q4 — the artifact `kind` vocabulary GROWS a first-class `document`
       value now** (the `other` recommendation rejected); the create record's
       artifact uses `kind: document`.
-- [ ] 7.2 Brett's live pass: work a real staged topic in the workbench,
+- [x] 7.2 Brett's live pass: work a real staged topic in the workbench,
       read its scope in the bullseye, create the document the scope made him
       want, and find it where the dialog said — with a `Source:` line that
       actually re-derives the membership that motivated it.
+      PASSED WITH FINDINGS 2026-07-31 (D10 combined pass, Brett sign-off
+      2026-08-01): on `consent-instrument-contract`, the scope reading
+      (global lens, checked {consent, party-ladder, credential-contracts,
+      delegation}) showed 7 docs all outer-ring — the empty centre read as
+      the motivating gap — and the created
+      `consent-instrument-design-decisions.md` landed exactly where the
+      dialog declared, with a live re-deriving `Source:` line (commit
+      `b280542`). Finding F5: the tile-scoped bullseye cannot form for
+      staging-only-keyword topics and the global lens is display-only, so
+      creation used the sanctioned "＋ new document from the checked set"
+      affordance. Evidence:
+      `add-workbench-integrated-editor-chat/evidence/d10/b-72-creation.md`.
 
 ## 8. Ruling application (post-7.1, 2026-07-25)
 

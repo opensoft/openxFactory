@@ -169,9 +169,19 @@
       action is offered with the gate capability off, `docs` and `lens`
       render, `outline` reports the missing `/source` route inline, and a
       pre-growth snapshot shows no health chrome.
-- [ ] 6.5 Brett's live pass on the real corpus: completeness bars are
+- [x] 6.5 Brett's live pass on the real corpus: completeness bars are
       credible on documents he knows well; `READY_MIN_SCORE` (starting at
       0.60 per his 2026-07-25 ruling) is calibrated against fragments he
       has actually taken to proposal; the gate's first refusals are ones
       he agrees with; and the read-only posture holds — nothing in the
       corpus changed by the session.
+      PASSED WITH FINDINGS 2026-07-31 (D10 combined pass, Brett sign-off
+      2026-08-01): bars credible 5/5 across 0.4–0.74; refusals endorsed on
+      two specimens (repo-selector remainder 0.4, consent-instrument 0.458,
+      both judged accurate); read-only proven byte-identical. The
+      taken-to-proposal should-pass cell is structurally untestable
+      (partial promotion moves exactly those fragments out of staging) and
+      yielded calibration findings F2/F3 instead — the 0.60 threshold is
+      affirmed; the scorer's severity-blind open-question counting is the
+      V2 work. Evidence: `add-workbench-integrated-editor-chat/evidence/d10/`
+      (`a-65-*`, `session-findings.md`, `signoff-matrix.md`).
