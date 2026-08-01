@@ -1,0 +1,9 @@
+Captured 2026-07-31T08:16Z via az aks command invoke (read-only), before Step C.
+
+Deployment image (deploy/ideation-dashboard, ns xfactory-control):
+acropensoftxfactoryqa.azurecr.io/ideation-dashboard@sha256:b602380e6f07ddc7d4eff7a7e1680fc37082e274f2cd947085898329ecdb02c3
+
+Running pod imageID (ideation-dashboard-54b78cbbc7-4f6cc, 1/1 Running, 0 restarts):
+acropensoftxfactoryqa.azurecr.io/ideation-dashboard@sha256:b602380e6f07ddc7d4eff7a7e1680fc37082e274f2cd947085898329ecdb02c3
+
+Identical to the §11.11 forward-repair digest — no image movement since 2026-07-30.
