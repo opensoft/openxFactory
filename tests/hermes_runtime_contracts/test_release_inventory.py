@@ -955,17 +955,23 @@ def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:
 # the repository after normalization FAILS CLOSED as a dependency error rather
 # than digesting content from outside the tree.
 
-def _append_index_entry(repo: Path, path_value: str) -> None:
+def _append_index_entry(
+    repo: Path,
+    path_value: str,
+    *,
+    member_type: str = "schema",
+    semantic_member: bool = True,
+) -> None:
     import yaml
     index_path = repo / "contracts" / "hermes-runtime" / "contract-index.yaml"
     index = yaml.safe_load(index_path.read_text(encoding="utf-8"))
     index["contracts"].append({
         "contract_id": "cross-family-entry",
         "path": path_value,
-        "type": "schema",
+        "type": member_type,
         "contract_schema_version": 1,
         "consumers": ["openxfactory-validator"],
-        "semantic_member": True,
+        "semantic_member": semantic_member,
         "release_member": True,
     })
     index_path.write_text(yaml.safe_dump(index, sort_keys=False), encoding="utf-8")
@@ -980,6 +986,37 @@ def test_cross_family_index_paths_normalize_into_the_repo(tmp_path: Path) -> Non
     members = {path.as_posix() for path in release.release_membership(repo)}
     assert "contracts/schemas/extra.schema.yaml" in members
     assert not any(m.startswith("contracts/hermes-runtime/..") for m in members)
+
+
+def test_release_only_schema_carries_and_verifies_its_catalog_pin(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    (repo / "contracts" / "schemas").mkdir(parents=True)
+    (repo / "contracts" / "schemas" / "extra.schema.yaml").write_text(
+        "kind: extra\n", encoding="utf-8"
+    )
+    _append_index_entry(
+        repo,
+        "../schemas/extra.schema.yaml",
+        member_type="release-schema",
+        semantic_member=False,
+    )
+    commit = _commit_all(repo, "add release-only schema")
+
+    inventory = _canonical_inventory(repo)
+    entry = next(
+        item for item in inventory["entries"]
+        if item["artifact_id"] == "cross-family-entry"
+    )
+    assert entry["type"] == "release-schema"
+    assert entry["schema_id"] == "cross-family-entry"
+    assert entry["schema_version"] == 1
+
+    entry["schema_version"] = 2
+    assert "HGR-RELEASE-SCHEMA-PIN-MISMATCH" in _codes(
+        release.verify_inventory_against_commit(repo, commit, inventory)
+    )
 
 
 def test_an_index_path_escaping_the_repo_fails_closed(tmp_path: Path) -> None:

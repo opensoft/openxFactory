@@ -426,7 +426,7 @@ def _entry_for(
             "type": artifact_type,
             "git_mode": git_mode,
         }
-        if artifact_type == "schema":
+        if artifact_type in {"schema", "release-schema"}:
             entry["schema_id"] = str(catalog_entry.get("contract_id"))
             entry["schema_version"] = int(catalog_entry.get("contract_schema_version"))
         entry["digest"] = digest
@@ -836,7 +836,7 @@ def _catalog_pin_findings(
         if (
             isinstance(entry, Mapping)
             and entry.get("release_member")
-            and entry.get("type") == "schema"
+            and entry.get("type") in {"schema", "release-schema"}
         ):
             schema_pins[str(entry.get("contract_id"))] = int(
                 entry.get("contract_schema_version")
@@ -845,7 +845,7 @@ def _catalog_pin_findings(
         str(entry.get("schema_id")): entry.get("schema_version")
         for entry in (inventory.get("entries", []) or [])
         if isinstance(entry, Mapping)
-        and entry.get("type") == "schema"
+        and entry.get("type") in {"schema", "release-schema"}
         and entry.get("schema_id")
     }
     findings: list[dict[str, str]] = []
