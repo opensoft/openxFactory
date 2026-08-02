@@ -37,4 +37,3 @@ Target capabilities: none (supporting defaults register — no deltas)
 **Evidence-driven re-tuning:** The accounting calibration board scores predictions these dials gate. A dial producing bad calls is flagged for re-tuning, not accepted as fact.
 
 **MVP carve-out:** The MVP packet-capture family runs with these values as-is except `sentinel_epsilon_start`, which stays at 0.20 *without decay* for the MVP's lifetime — the first family's role is generating honest counterfactuals, not maximizing savings.
-- run3 stale probe

@@ -160,5 +160,3 @@ contract (SYC-Q1); dashboard/gate-console surfacing of capability-health
 (SYC-Q3); praise vocabulary maturation beyond the v1 label enum (LC-Q3);
 per-instance mixed-rung dispatch (AL-Q4); distillation as an L4 refinement
 (AL-Q5); chargeback and the k-threshold (cross-tenant wave).
-
-- run3 outline probe: dials ranked by decision weight
