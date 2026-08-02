@@ -18,9 +18,13 @@
 - [x] 1.4 Validate: the delegated dashboard-contract validator
       (`scripts/validate-ideation-dashboard-contracts.py`) plus
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`.
-- [ ] 1.5 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.5 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`) at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`.
+      Realized 2026-08-02 in the `contract-v1.28` candidate together with
+      `add-ideation-intent-plane` 2.4 and `add-worker-enrollment-broker`
+      1.11: gate-intent first registration, gate-action-record digest refresh,
+      README index update, changelog entry, and closed release digest inventory.
 
 ## 2. Engine + routes (codexFactory — Speckit-side realization)
 

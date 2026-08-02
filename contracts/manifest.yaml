@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.27
+contract_bundle_version: contract-v1.28
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1551,12 +1551,21 @@ contracts:
       turn-id, proposal-target, and failure-pairing rules are enforced by
       scripts/validate-ideation-dashboard-contracts.py, never
       re-implemented by consumers.
+  # ---- action-plane + worker-enrollment contract surface — contract-v1.28 realization ----
+  # Registers add-ideation-intent-plane 2.4, add-wheel-action-verbs 1.5,
+  # and add-worker-enrollment-broker 1.11 in one additive bundle. The
+  # gate-action record grows three commission actions and cluster_id without
+  # invalidating any prior record; gate-intent is registered for the first
+  # time at its wheel-expanded shape. Worker enrollment publishes seven
+  # schema kinds for the contract-first broker/host/policy realization.
+  # Canonical validators and packaged fixtures are content-addressed by the
+  # exact release commit; every schema below carries a raw-byte sha256.
   - id: gate-action-record
     path: contracts/schemas/gate-action-record.schema.yaml
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 15e2759fd6ed0cb1e95e4ece9a2e83e1ec5347b5217b08101a89d5dbfaa3e01b
+    sha256: 835e2a1c13dd4043636f0dc7b4facca1d84e805dc96b2da422bee263ac9ebfa4
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1565,12 +1574,91 @@ contracts:
       (add-workbench-bullseye-and-create), the branch-session verb growth
       (add-workbench-branch-sessions 1.1/1.2), and the D23 `provenance`
       block — surface + console_presence, stamped where the fact is known
-      (add-workbench-branch-sessions 1.8). Consumed through the pinned
-      openxFactory checkout at the contract-v1.26 tag; per-file sha256
-      verified before any copy is treated as current.
-      The kickoff-ratification precondition and transition legality are
+      (add-workbench-branch-sessions 1.8) — plus the contract-v1.28 wheel
+      commissions `promote-to-staging`, `derive-possibles`, and
+      `research-brief`, with verb-specific targets and required workflow-job
+      companions. Consumed through the pinned openxFactory checkout at the
+      contract-v1.28 tag; per-file sha256 verified before any copy is treated
+      as current. The kickoff-ratification precondition, transition legality,
+      and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
       family's delegated owner), never re-implemented by consumers.
+  - id: gate-intent
+    path: contracts/schemas/gate-intent.schema.yaml
+    source_path: openxFactory/contracts/schemas/gate-intent.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 8914cd2358dc97846cccae4bc79c345cb7596015abb5c10d8578b75b2835bd70
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The attributed request envelope for zero-write-authority dashboard and
+      mobile actions: actor, verb, target, args, snapshot revision, idempotency
+      key, and pending/applied/refused lifecycle. Registered for the first time
+      at contract-v1.28 with the three wheel commission verbs in lockstep with
+      gate-action-record. Consumers MUST pin the release commit and verify this
+      digest; status conditionals, request-to-record linkage, and verb-specific
+      targets are enforced by scripts/validate-ideation-dashboard-contracts.py.
+  - id: worker-enrollment-audit-record
+    path: contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4b6fc81aa1e2a80e6a8a8dcbc1162182bb041b1891864bcecb40703291d61b88
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The redaction-by-shape audit record for enrollment, renewal, refusal,
+      revocation, and remove-token decisions. Consumers pin contract-v1.28
+      and run scripts/validate-worker-enrollment.py from that checkout.
+  - id: worker-enrollment-grant
+    path: contracts/worker-enrollment/worker-enrollment-grant.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9a86604a55fa29b97d8b6487040d7511cb87a49d387ed770ee018276b993f0d3
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-enrollment-policy
+    path: contracts/worker-enrollment/worker-enrollment-policy.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b4f98d5406ef073b656a3976e51d2cb71d2cfa0236229ede73accb30c514a597
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-enrollment-request
+    path: contracts/worker-enrollment/worker-enrollment-request.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-request.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d33c82288112033fabd88e5a36c9aa395bb714f761af7379ccb3da3621716739
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-lease-renewal
+    path: contracts/worker-enrollment/worker-lease-renewal.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-lease-renewal.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b77fb5ce5668f4319082e4c309797ff01c199f8ad755fe4b6bcae0a7424e7735
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-lease
+    path: contracts/worker-enrollment/worker-lease.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-lease.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9c293401c8c75c5da3bb1e9ce3b26b114ef0e1055aa2de64a73bc655b55872c8
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-removal-grant
+    path: contracts/worker-enrollment/worker-removal-grant.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-removal-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fead90e6ae91430ded30c449a2b0523c778e626bc634584165c1c2f9c5a2384c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
   - id: ideation-dashboard-snapshot-index
     path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml

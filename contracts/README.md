@@ -63,19 +63,14 @@ Planned contracts:
 | `merge-readiness-report.schema.yaml` | Merge council readiness report contract | To define |
 | `repo-boundary-release-map.schema.yaml` | Mapping between `openxFactory` release and install repo commits | To define |
 
-### Contracts Pending Realization
+### Native Contract Index And Pending Realization
 
-Schemas already committed under `contracts/schemas/` for an **active, not yet
-archived** OpenSpec change. Following the avatar-client kernel precedent
-(`contracts/avatar-client/` existed for the whole `define-avatar-client-
-contract-kernel` change before its `contracts/manifest.yaml` entries and
-`contract-v1.7` tag were cut at realization), and the
-[Contract Versioning Policy](../docs/contract-versioning-policy.md)'s rule
-that `contract_bundle_version` is "allocated at realization after merge order
-is known" and "a bundle is not published until its tag exists," these files
-are **not yet** registered in `contracts/manifest.yaml` or
-`contracts/CHANGELOG.md`. Registration happens when the owning change
-archives, at the registration task named in that family's note below.
+This table indexes native contract artifacts whether published or still owned
+by an active OpenSpec change. A row that names a `contract-v*` release is in
+`contracts/manifest.yaml` and the matching changelog; an untagged active row
+remains pending until its owning registration task realizes it. Bundle numbers
+are allocated late under the
+[Contract Versioning Policy](../docs/contract-versioning-policy.md).
 
 | Contract | Purpose | Owning change |
 |---|---|---|
@@ -92,7 +87,8 @@ archives, at the registration task named in that family's note below.
 | `schemas/ideation-workbench.schema.yaml` | Gitignored user-assembled workbench reference-set manifest | `add-ideation-dashboard` |
 | `schemas/ideation-possibles-register.schema.yaml` | Possibles-register consolidation `$defs` kernel (embedded in the cross-reference index); AI-derivation intake delta (`origin` + `derivation`) registered at `contract-v1.14` | `add-ideation-dashboard`, `add-possibles-derivation-lane` |
 | `schemas/project-register.schema.yaml` | Repository → project → project-group navigation hierarchy (D10) | `add-ideation-dashboard` |
-| `schemas/gate-action-record.schema.yaml` | Human-authenticated gate-console action audit record (D16/D17); create/document action growth, branch-session verbs, and the D23 `provenance` block registered at `contract-v1.26` | `add-ideation-dashboard`, `add-workbench-bullseye-and-create`, `add-workbench-branch-sessions` |
+| `schemas/gate-action-record.schema.yaml` | Human-authenticated gate-console action audit record (D16/D17); create/document action growth, branch-session verbs, and the D23 `provenance` block registered at `contract-v1.26`; wheel commissions (`promote-to-staging`, `derive-possibles`, `research-brief`) with verb-specific targets and required workflow-job companions registered at `contract-v1.28` | `add-ideation-dashboard`, `add-workbench-bullseye-and-create`, `add-workbench-branch-sessions`, `add-wheel-action-verbs` |
+| `schemas/gate-intent.schema.yaml` | Attributed request envelope for zero-write-authority dashboard/mobile actions; pending/applied/refused lifecycle and request-to-record linkage, first registered at `contract-v1.28` with the wheel verbs | `add-ideation-intent-plane`, `add-wheel-action-verbs` |
 | `scripts/validate-ideation-dashboard-contracts.py` | Strict validator: schema conformance (FormatChecker-enforced), snapshot referential integrity, workbench recipe/override + committed-manifest guard, possibles-register id-uniqueness + transition legality, project-register single-parent hierarchy, gate-action kickoff-ratification precondition | `add-ideation-dashboard` |
 | `domain-ontology/` | Neutral ontology meta-contract family (thirteen kinds): content-addressed ontology packages with immutable namespaced identifiers, acyclic multi-parent specialization, and label/alias uniqueness; the `core/` xFactory semantic kernel (24 concepts + 9 relation primitives, DRAFT with pending adoption until the pilot packages resolve two adopters per term); by-reference external mappings with license classes and no mirrored content; append-only candidate records carrying model extraction-run identity; steward-attributed release records (a worker/agent-attributed publication fails); breaking/retiring migration maps with retained-version bytes; the bounded semantic-context artifact (closed-or-truncated term subsets, exact kernel+package pins, tenant-binding agreement — the Omnigent worker-scope seam); and the quality report with computable signals under the distinct-subject/distinct-tenant aggregation floor. Semantic plane only: closed shapes carry no effect/permission/grant field and no authority-plane instance reference | `add-domain-ontology-layer` |
 | `scripts/validate-domain-ontology.py` | Canonical domain-ontology validator: schema conformance plus digest closure (fail closed on drift), ontology-family-only inventory, namespace/ID/label uniqueness, specialization acyclicity, relation domain/range resolution, exact kernel-import agreement, kernel adoption evidence at publication, source/steward completeness, mapping registration + license permitted-use, compatibility/migration/retention, subject-URN and endpoint privacy scans, aggregation-floor enforcement, reserved authority-field and authority-target rejection, candidate/release stewardship rules, semantic-context closure/pin/binding agreement, and the `domain_ontology` content-manifest cross-check; self-testing over 4 positive units and 37 indexed negatives (incl. paired-revision misclassification, council resolution, floor and maintenance-report rules), plus the `--readiness` generated-domain gate with a `--determinism` repeat-identity mode | `add-domain-ontology-layer` |
@@ -105,16 +101,16 @@ archives, at the registration task named in that family's note below.
 | `schemas/ideation-cross-reference.schema.yaml` | Unified cross-stage cross-reference readiness index (source of truth `ideation/cross-reference.yaml`; `.md` is a generated projection); four-schema co-load, embeds the possibles-register kernel | `add-ideation-cross-reference-readiness` |
 | `scripts/validate-ideation-cross-reference.py` | Strict validator: four-schema-registry conformance (FormatChecker-enforced), extension-fit citation resolution against promoted/active-change capabilities, min>=8 gate arithmetic, spread-conflict consistency, topic-entry id uniqueness; delegates register-entry shape/transitions to `validate-ideation-dashboard-contracts.py` | `add-ideation-cross-reference-readiness` |
 | `scripts/render-ideation-cross-reference.py` / `scripts/bootstrap-ideation-cross-reference.py` | Deterministic YAML→Markdown projection renderer, and the one-time header-derived bootstrap generator that seeds `ideation/cross-reference.yaml` + `.md` | `add-ideation-cross-reference-readiness` |
-| `worker-enrollment/` | Neutral worker-enrollment contract family — one enrollment point serving both estates through two authentication modes (`host_identity` / `device_code`) as FIELDS of one request shape; the `worker_lease` authority record that carries no token field at all (leases over registrations, so staleness/revocation/trust are renewal decisions rather than facts on a machine); the grant with its estate-split runner package (fleet hard pin + sha256 + self-update disabled vs temp self-update, no pin) and its TRANSIENT `writeOnly` registration token; the renewal exchange whose response always carries the minimum-app-version floor; the OpsxFactory-owned policy instance shape; the audit record whose shape — no token/secret/key property, bounded free text — IS the redaction rule; and the `worker_removal_grant` remove-token issuance response (added by the 2026-07-26 amendment as task 2.5's contract half), which repeats that transient-token discipline for the remove token and carries NO registration token and NO runner package by shape, so drift repair removes a registration and never re-enrols a host | `add-worker-enrollment-broker` |
-| `scripts/validate-worker-enrollment.py` | Strict validator: schema conformance (FormatChecker-enforced, `$id`-keyed registry for the grant's embedded lease `$ref`) plus the cross-shape rules — no token/secret-shaped property or value in any record or lease, chunk-resistant (separator-stripped values, concatenated arrays and bounded flag maps) and class-filtered against the shared `avatar-client/redaction/` denylist; temp leases — AND temp removal grants, whose `binding.runner_group` is the remove token's blast radius — never bound into a standing execution-lane runner group (declared policy facts, else a fail-closed naming fallback that says so); the estate runner-package split, with the fleet pin checked against the policy's declared package; a MEANINGFUL floor on every renewal response; estate/subject/host-management/trust-tier coherence on all three shapes that carry the four facts; a device-code renewal holding no standing secret; lease expiry consistent with the cadence and short-lived registration AND remove tokens (checked on the clock, not asserted); and no standing execution lane accepting volunteered hardware | `add-worker-enrollment-broker` |
+| `worker-enrollment/` | Neutral worker-enrollment contract family, registered at `contract-v1.28` — one enrollment point serving both estates through two authentication modes (`host_identity` / `device_code`) as FIELDS of one request shape; the `worker_lease` authority record that carries no token field at all (leases over registrations, so staleness/revocation/trust are renewal decisions rather than facts on a machine); the grant with its estate-split runner package (fleet hard pin + sha256 + self-update disabled vs temp self-update, no pin) and its TRANSIENT `writeOnly` registration token; the renewal exchange whose response always carries the minimum-app-version floor; the OpsxFactory-owned policy instance shape; the audit record whose shape — no token/secret/key property, bounded free text — IS the redaction rule; and the `worker_removal_grant` remove-token issuance response (added by the 2026-07-26 amendment as task 2.5's contract half), which repeats that transient-token discipline for the remove token and carries NO registration token and NO runner package by shape, so drift repair removes a registration and never re-enrols a host | `add-worker-enrollment-broker` |
+| `scripts/validate-worker-enrollment.py` | Canonical validator published by exact commit with `contract-v1.28`: schema conformance (FormatChecker-enforced, `$id`-keyed registry for the grant's embedded lease `$ref`) plus the cross-shape rules — no token/secret-shaped property or value in any record or lease, chunk-resistant (separator-stripped values, concatenated arrays and bounded flag maps) and class-filtered against the shared `avatar-client/redaction/` denylist; temp leases — AND temp removal grants, whose `binding.runner_group` is the remove token's blast radius — never bound into a standing execution-lane runner group (declared policy facts, else a fail-closed naming fallback that says so); the estate runner-package split, with the fleet pin checked against the policy's declared package; a MEANINGFUL floor on every renewal response; estate/subject/host-management/trust-tier coherence on all three shapes that carry the four facts; a device-code renewal holding no standing secret; lease expiry consistent with the cadence and short-lived registration AND remove tokens (checked on the clock, not asserted); and no standing execution lane accepting volunteered hardware | `add-worker-enrollment-broker` |
 
-Reference examples for the ideation-dashboard family (8 valid + 21 invalid
-fixtures + 5 register-transition pairs) live at `examples/ideation-dashboard/`;
+Reference examples for the ideation-dashboard family (28 valid + 50 invalid
+fixtures + 8 transition pairs) live at `examples/ideation-dashboard/`;
 `scripts/validate-ideation-dashboard-contracts.py` self-tests them, validates a
 given file/directory by kind detection, runs register transitions via
 `--transition OLD NEW`, and scans the checkout for committed workbench manifests.
-Per this section's rule, these entries move to `contracts/manifest.yaml` and
-`contracts/CHANGELOG.md` when `add-ideation-dashboard` archives (its task 2.5).
+The wheel-expanded gate-intent and gate-action-record surface is registered at
+`contract-v1.28`; remaining untagged family rows retain their owning task.
 
 Reference examples for the ideation-routing family (8 valid + 8 invalid
 fixtures, one violation per negative file) live at
@@ -156,9 +152,10 @@ overview, the two authentication modes, and the redaction rule:
 [contracts/worker-enrollment/README.md](worker-enrollment/README.md); the
 requirements these schemas realize are in
 `openspec/changes/add-worker-enrollment-broker/specs/worker-enrollment-broker/spec.md`.
-Per this section's rule, these entries move to `contracts/manifest.yaml` and
-`contracts/CHANGELOG.md` at the next additive bundle cut
-(`add-worker-enrollment-broker` task 1.11).
+The seven schemas and their raw-byte digests are registered in
+`contracts/manifest.yaml` and `contracts/CHANGELOG.md` at `contract-v1.28`
+(`add-worker-enrollment-broker` task 1.11); validator and fixtures are pinned
+by the exact release commit.
 
 ## Contract Manifest
 
