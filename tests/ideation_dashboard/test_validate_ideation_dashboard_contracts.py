@@ -83,6 +83,7 @@ DOXBENCH_POSITIVES = (
     "workbench-model-catalog-local.example.yaml",
     "workbench-model-catalog-hosted-zero-retention.example.yaml",
     "workbench-chat-turn-unsaved-edits.example.yaml",
+    "workbench-chat-turn-outline-only.example.yaml",
     "workbench-chat-turn-prose-only.example.yaml",
     "workbench-chat-turn-both-proposals.example.yaml",
 )
@@ -198,6 +199,34 @@ def test_reversed_buffer_order_is_not_a_turn_id_conflict(vidc, tmp_path):
     f = vidc.Findings()
     vidc.check_turn_id_uniqueness(f, [a, b])
     assert not f.errors, f.errors
+
+
+def test_a_turn_may_carry_a_null_active_document_path(vidc, registry_docs):
+    """G-1 (codexFactory PR #63 re-verification, 2026-08-02): a tile whose ONLY
+    editable path is its own primary fragment — which the canvas loads as the
+    OUTLINE — has no separate document to name, and 16 of 21 real staged topics
+    are that shape. The request's `active_document_path` is therefore nullable,
+    MIRRORING `buffer_state.path` exactly: still a required key, `null` when no
+    document backs the buffer. Additive: every instance that names a path is
+    unaffected, and confinement still judges only paths that exist."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["active_document_path"] = None
+    doc["buffers"][1]["path"] = None
+    ctx = vidc.catalog_model_ids_from(_example(
+        "workbench-model-catalog-local.example.yaml"))
+    f = _validate(vidc, registry_docs, "null-active-document", doc, ctx)
+    assert not f.errors, f.errors
+
+
+def test_an_escaping_active_document_path_is_still_refused(vidc, registry_docs):
+    """The nullability above widens the shape by exactly one value. A path that
+    EXISTS is judged exactly as before."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["active_document_path"] = "../outside/note.md"
+    ctx = vidc.catalog_model_ids_from(_example(
+        "workbench-model-catalog-local.example.yaml"))
+    f = _validate(vidc, registry_docs, "escaping-active-document", doc, ctx)
+    assert any("path" in e for e in f.errors), f.errors
 
 
 def test_a_new_artifact_buffer_may_carry_a_null_path(vidc, registry_docs):

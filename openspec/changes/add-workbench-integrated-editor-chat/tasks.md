@@ -84,6 +84,25 @@
       main) and TAG `contract-v1.27` — the immutable release identifier must
       name content that exists on main (research R13), so the tag is cut on
       the merge commit, not on this branch.
+      2026-08-02 AMENDMENT (G-1), pending the NEXT cut: the chat-turn
+      request's `active_document_path` becomes nullable, mirroring
+      `buffer_state.path` — the same additive shape the PR #45 review already
+      applied to buffer paths, for the same reason. Growth source is the
+      codexFactory PR #63 re-verification (reviewer Brett Heap): measured
+      against the real corpus with the consumer's own scope authority, 16 of
+      21 staged topics have exactly ONE editable path — the topic's own
+      primary fragment, which doxBench loads as the OUTLINE — so requiring a
+      non-null value made a legal turn impossible on ~76% of real topics.
+      Landed here as schema + one packaged positive example + two delegated
+      validator tests (validator code unchanged: `_confined` already judges
+      only paths that exist). No spec-delta edit: this change's own
+      requirement already says a buffer carries a "repository-relative path or
+      `null` for a not-yet-created artifact" and never required the request's
+      active document path to be non-null — the schema realized it more
+      narrowly than the requirement, which is what G-1 measured. Recorded in
+      CHANGELOG "Unreleased — pending bundle registration"; the manifest
+      sha256 refresh, version allocation, digest inventory and tag belong to
+      the operator's cut.
 
 ## 3. Speckit Handoff (codexFactory)
 
