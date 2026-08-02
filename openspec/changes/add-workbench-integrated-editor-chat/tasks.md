@@ -683,3 +683,54 @@ operator artifact held outside this repository.
           exists this task stays open, and with it the realization-evidence
           precondition 7.8 depends on.
 - [ ] 7.8 Roll out with the model catalog empty/off by default, verify editor-only and hosted read-only postures, enable approved models per deployment policy, complete Brett's live pass, sync the promoted spec, and archive this change only after the realization and release evidence have landed.
+
+## 8. Merge / promotion / archive gate confirmation (T106, 2026-08-02)
+
+STATUS UNCHANGED BY THIS SECTION. This change's front-matter still reads
+`status: proposed`; nothing here archives the change, promotes a delta, or
+edits anything under `openspec/specs/`. T106's own wording is to CONFIRM the
+gates "before changing the OpenSpec change status", so the confirmation is the
+deliverable and the status change is not part of it — and it would be
+premature, because two gates below are PENDING.
+
+Each gate names where its requirement comes from and how its current state was
+checked. Checks were run on 2026-08-02 from a clean worktree off openxFactory
+`origin/main` (`ff64e81`) and against codexFactory PR #63 as it then stood.
+
+### (a) Before PR #63 merges
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| a1 | Implementation Start Gate closed — tasks 1.1-1.7 (this ledger; proposal's "Start Gate" clause) | **PASS** | 1.6 was the last open item; closed on this branch at `bb62197` with both strict validations green. 1.1-1.5 and 1.7 were already closed with their own dated notes. |
+| a2 | Contract package landed and tagged BEFORE the realization merges — task 2.5; design D0 ("does not permit realization merge before this change's own contract package is registered and pinned") | **PASS** | `contract-v1.27` tag `fb912b9` -> `d09d582` and `contract-v1.28` tag `a6f49bb` -> `ff64e81`, both ancestors of `origin/main` (`git for-each-ref`, `git merge-base --is-ancestor`); manifest digests 109/109 verify; PR #63 is still OPEN, so the ordering is a fact rather than an intention. |
+| a3 | Consumer pins the exact released bytes — task 7.1 / the immutable-pin clause | **PASS** | codexFactory `stack.yaml` `contract_ref: ff64e81…` with the `contract-v1.28` tag object recorded beside it, advanced in `9dbe941`. |
+| a4 | Independent review obtained and dispositioned — task 7.7; CHK026 (author self-approval forbidden) | **PASS** | Independent two-pass review of frozen head `7b63c6a`: 128 raised, 106 confirmed after three-vote refutation, 84 distinct (15 P1). Brett Heap recorded the dispositions himself. F1-F4 landed (`21d408f`, `4b71845`, `673eb33`, `a57f6af`) and were re-verified fixed on the live surface; the re-verification's own new blocker G-1 is closed (contract-v1.28 + codexFactory `b8cdf73`, `9dbe941`). |
+| a5 | Engineering gates green on the PR head | **PENDING** | `gh pr checks 63` on head `a3780da`: `validate` **pass**; `sonar` **fail**; `SonarCloud Code Analysis` **cancelled**. The Sonar failure is a configuration conflict, not a code verdict — the run log ends `ERROR You are running CI analysis while Automatic Analysis is enabled. Please consider disabling one or the other.` Clearing it is the operator's SonarCloud AutoScan toggle; the analysis has produced no quality verdict yet. |
+| a6 | Human review decision | **PENDING** | `gh pr view 63`: state OPEN, mergeable MERGEABLE, `reviewDecision: REVIEW_REQUIRED`. Automated reviewers have run on this head (`chatgpt-codex-connector` at 18:33:59Z after Brett's `@codex review`, `copilot-pull-request-reviewer` at 18:36:22Z, "Running Copilot Code Review" workflow success). Brett's merge is the gate. |
+
+### (b) Before capability promotion (spec update)
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| b1 | Deltas rebased onto the promoted capability — task 1.6 | **PASS** | Both MODIFIED blocks sit on the exact promoted source (promotion introduced no drift: byte-identical to the `add-workbench-branch-sessions` text they were written against). |
+| b2 | The delta APPLIES cleanly to the promoted spec | **PASS** | Measured on a scratch copy of `openspec/` (real spec untouched): `openspec archive` reports `+ 6, ~ 2, - 0, → 1` and "Specs updated successfully", leaving exactly one scoped-view requirement. Before the `## RENAMED Requirements` fix landed at `bb62197`, the same command ABORTED with `ideation-dashboard MODIFIED failed for header "### Requirement: doxBench scoped view" - not found`. |
+| b3 | Strict validation | **PASS** | `openspec validate add-workbench-integrated-editor-chat --strict` valid; `openspec validate --all --strict` 53 passed / 0 failed. |
+| b4 | Promotion happens only through the archive step | **NOT RUN, BY DESIGN** | Task 7.8 owns "sync the promoted spec"; no file under `openspec/specs/` is touched by T105 or T106. |
+
+### (c) Before archive
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| c1 | Realization archive gate — `openspec/specs/release-realization/spec.md`: a change with a non-empty code surface SHALL NOT archive until its code is merged on the implemented target AND, where runnable, a green run exists. This change declares `code_surface: codexFactory …, openxFactory …` | **PENDING (merge half)** | openxFactory half MERGED (`ff64e81`, contract-v1.28). codexFactory half NOT merged — PR #63 open at `a3780da`. The runnable half IS green on the branch (`pytest tests/ -q` 3236 passed / 26 skipped; dashboard 2314 / 19; T100's ten SC-012 clauses on the real corpus), but "merged on the implemented target" is unmet, so archiving now would be the spec's own contested-class act. |
+| c2 | Workflow protocol: "Archive the OpenSpec change only after the corresponding Speckit work and PR have landed" | **PENDING** | Same fact as c1: PR #63 has not landed. |
+| c3 | Task 7.8's own clause — archive "only after the realization and release evidence have landed" | **PENDING** | Release evidence has landed (both contract bundles). Realization evidence has not: 7.7's scenario-by-scenario mapping does not exist, and 7.4's screen-reader legs (CHK034 Narrator primary, NVDA secondary) are declared but not exercised. |
+| c4 | `target_release` satisfied — "next additive contract bundle after the five predecessor dashboard changes archive" | **PASS** | The five predecessors archived 2026-08-01; the additive bundles that followed are contract-v1.27 and contract-v1.28, both tagged. |
+
+### What remains, in order
+
+1. The operator's SonarCloud AutoScan toggle, then a green `sonar` run on the
+   PR head (a5).
+2. Brett's review decision and merge of PR #63 (a6, c1, c2).
+3. Post-merge: assemble 7.7's scenario-by-scenario realization mapping and
+   exercise 7.4's declared screen-reader legs (c3).
+4. Only then task 7.8: sync the promoted spec and archive.
