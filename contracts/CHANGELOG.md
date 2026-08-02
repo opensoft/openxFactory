@@ -11,7 +11,37 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
-- (nothing pending.)
+- **`xfactory-workbench-chat-turn` request: `active_document_path` is
+  nullable** (additive; no `contract_schema_version` bump). The request key
+  stays REQUIRED and its value becomes `oneOf: [null, confined_path]`,
+  mirroring `buffer_state.path` exactly — the same shape, for the same reason:
+  a path that does not exist yet is `null`, never a fabricated string. Growth
+  source: **G-1**, the codexFactory PR #63 re-verification finding (2026-08-02,
+  reviewer Brett Heap), measured against the real corpus with the consumer's
+  own scope authority — 16 of 21 staged topics have exactly ONE editable path,
+  the topic's own primary fragment, which doxBench loads as the OUTLINE. With a
+  non-null value required, no legal turn existed on ~76% of real topics and the
+  chat surface refused on all of them. Realizes part of
+  `add-workbench-integrated-editor-chat` task 2.5's contract package (see that
+  change's ledger note); the consumer contract is codexFactory
+  `specs/010-doxbench-editor-chat/contracts/chat-turn.md`.
+  - Compatibility: strictly widening. Every instance valid before this change
+    is still valid; no producer must change; a consumer that already handles
+    `buffer_state.path: null` handles the same fact here. Domain repos pinned
+    to `contract-v1.27` are unaffected until they choose to advance.
+  - Rides with it: a new packaged positive example
+    (`examples/ideation-dashboard/workbench-chat-turn-outline-only.example.yaml`
+    — the outline-only turn) and two delegated-validator tests (a null
+    `active_document_path` validates; an ESCAPING one is still refused). The
+    delegated family validator needed no change: its `_confined` helper already
+    judges only paths that exist, which is how `buffer_state.path` nullability
+    landed.
+  - **Operator's cut still owes:** the `contracts/manifest.yaml` per-file
+    sha256 refresh for the amended schema (`validate-manifest-digests.py`
+    currently reports 1/109 failing, by design in this pending state), the
+    version allocation, the realized digest inventory, and the annotated tag —
+    none of which a proposal may reserve ahead of merge order (Contract
+    Versioning Policy, "Bundle Realization Order").
 
 ## contract-v1.27 — 2026-07-30 (additive; doxBench model-catalog and chat-turn wire contracts)
 
