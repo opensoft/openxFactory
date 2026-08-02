@@ -650,7 +650,7 @@ operator artifact held outside this repository.
           no API key, endpoint, or credential-shaped value in the adapter, its
           environment, or the evidence; deployment authorization is Brett's
           recorded 2026-07-31 subscription-primary ruling; local serve only.
-- [ ] 7.7 Assemble doxBench realization evidence mapped to every OpenSpec scenario and Speckit acceptance criterion, obtain independent review, merge the contract package before the codexFactory realization, and update this ledger with exact revisions.
+- [x] 7.7 Assemble doxBench realization evidence mapped to every OpenSpec scenario and Speckit acceptance criterion, obtain independent review, merge the contract package before the codexFactory realization, and update this ledger with exact revisions.
       NOT TICKED — annotated 2026-08-02 (T105). Three of this task's four
       clauses are evidenced; the first is not, and it is the one the task is
       named for.
@@ -682,6 +682,29 @@ operator artifact held outside this repository.
           with their scenarios) against named evidence. Until that mapping
           exists this task stays open, and with it the realization-evidence
           precondition 7.8 depends on.
+      CLOSED 2026-08-02 — the mapping now exists at
+      `evidence/realization-mapping.md`, written after codexFactory PR #63
+      merged as `c80264c`. Its item list is built MECHANICALLY, not by eye:
+      every `#### Scenario:` under this change's `specs/` (52, across the 6
+      ADDED and 2 MODIFIED requirements) and every `- **FR-nnn**:` /
+      `- **SC-nnn**:` in the merged Speckit spec read at
+      `git show origin/main:specs/010-doxbench-editor-chat/spec.md` (45 FRs,
+      FR-001..FR-045 with no gaps; 12 SCs). 109 items, 109 rows, each naming
+      the implementing code path (file + symbol), the test or operator record
+      that proves it, and the commit where it landed — the T104 wave
+      (`21d408f`, `4b71845`, `673eb33`, `a57f6af`), G-1 (`b8cdf73`,
+      `9dbe941`), the merge `c80264c`, and `contract-v1.27`/`contract-v1.28`
+      where the wire contract is what makes the row true. Every cited test
+      name and file was verified to exist at `c80264c` with `git grep`.
+      104 rows EVIDENCED; 5 PARTIAL, each named with its carrier rather than
+      papered over: FR-041 + SC-010 (no screen reader has spoken this surface
+      — CHK034a Edge+Narrator and CHK034b Firefox+NVDA are declared but not
+      exercised; operator-gated, and the same gap that keeps 7.4 open),
+      FR-038 (after a single-buffer Save the next turn is still refused —
+      R-12, awaiting a reviewer ruling because moving `base_ref` changes what
+      the field claims), FR-010 (selection/scroll not restored — T104 family
+      F6), and FR-045 (content-derived text direction realized only on the
+      chat rail — T104 family F9).
 - [ ] 7.8 Roll out with the model catalog empty/off by default, verify editor-only and hosted read-only postures, enable approved models per deployment policy, complete Brett's live pass, sync the promoted spec, and archive this change only after the realization and release evidence have landed.
 
 ## 8. Merge / promotion / archive gate confirmation (T106, 2026-08-02)
