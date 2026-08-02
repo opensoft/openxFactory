@@ -112,7 +112,7 @@
 - [x] 2.2 Add schema-valid examples for an empty model catalog, a local/on-tenant model, an explicitly enabled zero-retention hosted model, a turn with unsaved outline/document edits, a prose-only response, and independent outline/document proposals.
 - [x] 2.3 Add one-violation negative fixtures for exposed credentials/endpoints, unknown model ids, mismatched content hashes, out-of-scope paths, over-budget requests, duplicate turn ids with different content, untyped replacement content, and identity semantics attached to `working_subject`.
 - [x] 2.4 Extend the delegated contract validator and tests so every positive validates, each negative fails for its intended reason, existing dashboard/session artifacts remain valid, and no pre-growth snapshot or gate record is invalidated.
-- [ ] 2.5 Register the schemas/examples in the contract manifest and changelog, allocate the additive release, and land/tag that contract package before codexFactory implementation merges.
+- [x] 2.5 Register the schemas/examples in the contract manifest and changelog, allocate the additive release, and land/tag that contract package before codexFactory implementation merges.
       2026-07-30: registration and allocation are DONE on this branch —
       manifest entries with per-file sha256, README index rows, CHANGELOG
       entry, and `contracts/releases/contract-v1.27.digests.yaml`, with the
@@ -145,6 +145,40 @@
       CHANGELOG "Unreleased — pending bundle registration"; the manifest
       sha256 refresh, version allocation, digest inventory and tag belong to
       the operator's cut.
+      CLOSED 2026-08-02 (T105). Both clauses of this task are now evidenced:
+        * LAND + TAG `contract-v1.27` — annotated tag `fb912b9`
+          dereferencing to `d09d582`, which is an ancestor of `origin/main`
+          (verified with `git for-each-ref` + `git merge-base --is-ancestor`
+          in a clean worktree off `origin/main`);
+        * LAND + TAG the G-1 amendment as `contract-v1.28` — merged through
+          openxFactory PR #53, annotated tag `a6f49bb` dereferencing to
+          `ff64e81` on `origin/main`. The CHANGELOG's "Unreleased — pending
+          bundle registration" section is back to "(nothing pending.)" and
+          `python3 scripts/validate-manifest-digests.py` reports
+          "OK contracts/manifest.yaml: 109 per-file digest(s) verify", so the
+          per-file identity consumers pin matches the released bytes.
+        * BEFORE codexFactory implementation merges — the ordering clause
+          HOLDS as a fact, not a promise: codexFactory PR #63 is still OPEN
+          (head `a3780da`) while both bundles are tagged on main, and the
+          consumer pinned the released commit ahead of its own merge
+          (`stack.yaml` `contract_ref: ff64e81…`, codexFactory `9dbe941`).
+
+## 2a. Evidenced verification records (T105, 2026-08-02)
+
+Three operator/reviewer records are the evidence base for the ticks and
+annotations in section 7. They are cited by NAME throughout; each is an
+operator artifact held outside this repository.
+
+- `doxbench-t099-evidence.md` — the approved-model fixture smoke (2026-08-01,
+  Brett Heap operating, local human console; subscription-primary adapter held
+  outside every repo).
+- `doxbench-t100-evidence.md` — the real-corpus SC-012 acceptance chain
+  (four runs) plus the measured accessibility sheet and the operator's binding
+  CHK034 AT/browser-matrix declaration.
+- `doxbench-t104-review.md`, `doxbench-t104-families.md`,
+  `doxbench-t104-dispositions.md`, `doxbench-t104-reverify.md` — the
+  independent two-pass review, its merged defect families, Brett's binding
+  dispositions, and the re-verification on the fixed head.
 
 ## 3. Speckit Handoff (codexFactory)
 
@@ -541,7 +575,111 @@
       turn, chat, and Save transports actually exist and their own arithmetic
       is proven.
 - [ ] 7.4 Run keyboard/screen-reader/reduced-motion/high-contrast/responsive checks over the named doxBench surface, context, tabs, editors, chat, proposal comparison, Save/Discard, failure states, and focus restoration; verify visible and accessible names use exact `doxBench` casing and close every release-gating checklist item.
+      NOT TICKED — annotated 2026-08-02 (T105). Evidence
+      `doxbench-t100-evidence.md`, measured with a retained Playwright script
+      on head `9c90b35` (re-verified after the tablist work). What HOLDS:
+      CHK007 roving keyboard PASS across every visible `[role=tablist]` —
+      three strips (`.tabs`, `.swb-tabs`, `.doxbench-tabs`), one tabbable tab
+      each, Left/Right AND Up/Down moving selection with focus, Home/End
+      reaching the ends; CHK024 focus + legibility PASS with a recorded gap
+      (measured contrast 6.0:1 status, 6.0:1 save note, 14.87:1 rail header
+      against the AA 4.5:1 bar; indicators are the UA default rather than a
+      designed token); CHK025 forced colors PASS (selected/unselected survives
+      without colour, weight 400 vs 600); CHK026 zoom + reflow PASS (no
+      page-level horizontal scrolling at 100%, 200%, 200%-narrow); CHK035
+      announcement surfaces PASS ON STRUCTURE ONLY — three named landmarks and
+      correct live-region politeness, with zero unlabelled buttons after the
+      `repohint` nit closed.
+      WHY IT STAYS OPEN — the task's own wording asks for SCREEN-READER checks
+      and to "close every release-gating checklist item", and two legs of the
+      operator's own binding CHK034 AT/browser matrix are DECLARED BUT NOT
+      EXERCISED: the Narrator primary leg (Edge/Chromium on Windows 11) and
+      the NVDA secondary spot-check (Firefox). Only the keyboard-only Chromium
+      leg is exercised. CHK035 therefore stands as a structural PROXY — no
+      screen reader has spoken this surface — and full sign-off requires the
+      Narrator pass. Recorded, not force-ticked.
 - [ ] 7.5 Run the full codexFactory suites, dashboard suite, document validation, lint/quality gates, and a scratch-checkout Playwright flow covering: select document → edit outline → chat → edit document → next turn sees both edits → apply proposal → stale refusal → Save → refresh → PR/merge/cleanup.
-- [ ] 7.6 Run an approved-model live smoke first on non-sensitive fixtures, confirm the catalog badge and redacted failure posture, then run one authorized real-corpus branch session without exposing credentials or using an unapproved hosted model.
+      NOT TICKED — annotated 2026-08-02 (T105). What HOLDS: the whole
+      named FLOW ran on the REAL corpus, four runs, and every one of the ten
+      SC-012 clauses is green (`doxbench-t100-evidence.md`): outline edit;
+      real chat turns with the data-handling badge shown at the send moment;
+      document edit through the active-document picker; the later turn seeing
+      BOTH unsaved edits (proven rigorously — a stray character planted in the
+      unsaved document title was found and named by the next turn, and a
+      weaker observation was explicitly rejected as inadmissible); Apply
+      reaching its terminal state; a card going visibly stale and being
+      Rejected; Save landing TWO gate-action commits in the specified
+      outline-then-document order on `draft/recurrence-crystallization`
+      (`efb8d32`, `ddca5ad`, branched from `555747a`, verified in git rather
+      than from the UI) with the served checkout never moving; refresh showing
+      the session; the pull-request lifecycle through `opensoft/openxFactory#51`
+      merged as `235423d`; and published visibility plus a real merge-ending
+      cleanup (`torn_down: [worktree, registry-entry]`, branch deleted,
+      snapshot index back to `main`). Suites: the codexFactory feature branch
+      runs green at `b8cdf73` — `python3 -m pytest tests/ -q` 3236 passed, 26
+      skipped, and the dashboard suite 2314 passed, 19 skipped.
+      WHY IT STAYS OPEN — three named clauses have no evidence to cite: the
+      flow was operator-driven in a real browser rather than a SCRATCH-CHECKOUT
+      PLAYWRIGHT script (Playwright was used only for the accessibility sheet),
+      and neither the DOCUMENT VALIDATION nor the LINT/QUALITY-GATE runs this
+      task names are recorded anywhere I can point at. The PR's own `validate`
+      check passes on head `a3780da`, which is adjacent evidence, not this
+      clause.
+- [x] 7.6 Run an approved-model live smoke first on non-sensitive fixtures, confirm the catalog badge and redacted failure posture, then run one authorized real-corpus branch session without exposing credentials or using an unapproved hosted model.
+      CLOSED 2026-08-02 (T105) — every clause of this task, in its own order,
+      has a named record.
+        * FIXTURE SMOKE FIRST — `doxbench-t099-evidence.md` (2026-08-01, Brett
+          Heap operating): scratch FIXTURE corpus only, one approved catalog
+          entry served through the released `workbench-model-catalog` envelope,
+          TWO real turns dispatched through the operator's own subscription.
+        * CATALOG BADGE — shown and confirmed verbatim at the SEND MOMENT,
+          naming the provider class and stating plainly that it is consumer
+          subscription terms and NOT an enterprise zero-retention agreement.
+        * REDACTED FAILURE POSTURE — proven twice: in-process, an adapter
+          raising with a planted marker plus a fake endpoint and fake key
+          produced exactly the fixed `model_failed` / "the provider failed and
+          its details are withheld by design" outcome with the marker leaked
+          False; in the browser, the same drill rendered only "the model
+          request failed". Serve stdout/stderr marker count 0.
+        * THEN THE AUTHORIZED REAL-CORPUS SESSION — `doxbench-t100-evidence.md`:
+          the same operator harness pointed at a real `openxFactory` clone,
+          real turns over real scope, ending in a real branch session whose
+          pull request merged as `235423d`.
+        * NO CREDENTIAL EXPOSURE, NO UNAPPROVED HOSTED MODEL — the adapter is a
+          subscription-primary local CLI dispatch held OUTSIDE every repo, with
+          no API key, endpoint, or credential-shaped value in the adapter, its
+          environment, or the evidence; deployment authorization is Brett's
+          recorded 2026-07-31 subscription-primary ruling; local serve only.
 - [ ] 7.7 Assemble doxBench realization evidence mapped to every OpenSpec scenario and Speckit acceptance criterion, obtain independent review, merge the contract package before the codexFactory realization, and update this ledger with exact revisions.
+      NOT TICKED — annotated 2026-08-02 (T105). Three of this task's four
+      clauses are evidenced; the first is not, and it is the one the task is
+      named for.
+        * INDEPENDENT REVIEW — DONE, and unusually deep: an independent
+          two-pass review of the frozen head `7b63c6a` (`doxbench-t104-review.md`,
+          `doxbench-t104-families.md`) raised 128 findings, confirmed 106 after
+          three-vote adversarial refutation, and de-duplicated to 84 distinct
+          (15 P1 / 49 P2 / 20 P3) across ten families. Brett Heap recorded the
+          binding dispositions himself (`doxbench-t104-dispositions.md`,
+          author self-approval forbidden, CHK026): F1-F4 FIX-FIRST, F5-F10 a
+          recorded follow-up wave. The four families landed as codexFactory
+          `21d408f` (F4), `4b71845` (F3), `673eb33` (F2), `a57f6af` (F1), each
+          with RED-then-GREEN evidence in its own commit body, and the operator
+          re-verified all four fixed on the live surface
+          (`doxbench-t104-reverify.md`). That re-verification raised ONE new
+          blocker, G-1, which is also closed: the contract-v1.28 nullability
+          amendment (openxFactory PR #53, tag `a6f49bb` -> `ff64e81`) plus the
+          consumer's outline-only turn (codexFactory `b8cdf73`) and pin advance
+          (`9dbe941`).
+        * MERGE THE CONTRACT PACKAGE BEFORE THE CODEXFACTORY REALIZATION —
+          HOLDS, see 2.5: both bundles are tagged on `origin/main` while
+          codexFactory PR #63 is still open at head `a3780da`.
+        * UPDATE THIS LEDGER WITH EXACT REVISIONS — done by this T105 pass;
+          every claim above names a commit, a tag, or a record.
+        * REALIZATION EVIDENCE MAPPED TO EVERY OPENSPEC SCENARIO AND SPECKIT
+          ACCEPTANCE CRITERION — NOT DONE. The records above are organized by
+          run and by defect family, not scenario by scenario, and no artifact
+          exists that walks this delta's requirements (6 ADDED + 2 MODIFIED,
+          with their scenarios) against named evidence. Until that mapping
+          exists this task stays open, and with it the realization-evidence
+          precondition 7.8 depends on.
 - [ ] 7.8 Roll out with the model catalog empty/off by default, verify editor-only and hosted read-only postures, enable approved models per deployment policy, complete Brett's live pass, sync the promoted spec, and archive this change only after the realization and release evidence have landed.
