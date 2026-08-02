@@ -155,22 +155,26 @@ def test_packaged_wheel_negatives_fail_for_the_declared_schema_rule(
     vidc, registry_docs,
 ):
     expected = {
-        "intent-promote-to-staging-without-possible-id.yaml": ("required", "target"),
-        "intent-derive-possibles-without-cluster-id.yaml": ("required", "target"),
-        "intent-research-brief-without-possible-id.yaml": ("required", "target"),
+        "intent-promote-to-staging-without-possible-id.yaml":
+            ("required", "target", "'possible_id'"),
+        "intent-derive-possibles-without-cluster-id.yaml":
+            ("required", "target", "'cluster_id'"),
+        "intent-research-brief-without-possible-id.yaml":
+            ("required", "target", "'possible_id'"),
         "gate-action-promote-to-staging-without-workflow-job.yaml":
-            ("contains", "artifacts"),
+            ("contains", "artifacts", None),
         "gate-action-derive-possibles-without-workflow-job.yaml":
-            ("contains", "artifacts"),
+            ("contains", "artifacts", None),
         "gate-action-derive-possibles-without-cluster-id.yaml":
-            ("required", "target"),
+            ("required", "target", "'cluster_id'"),
         "gate-action-research-brief-without-workflow-job.yaml":
-            ("contains", "artifacts"),
+            ("contains", "artifacts", None),
     }
-    for name, (validator_name, path_head) in expected.items():
+    for name, (validator_name, path_head, message_fragment) in expected.items():
         errors = _schema_errors(vidc, registry_docs, _yaml(NEGATIVE / name))
         assert any(error.validator == validator_name and
-                   tuple(error.absolute_path)[:1] == (path_head,)
+                   tuple(error.absolute_path)[:1] == (path_head,) and
+                   (message_fragment is None or message_fragment in error.message)
                    for error in errors), (name, errors)
 
 

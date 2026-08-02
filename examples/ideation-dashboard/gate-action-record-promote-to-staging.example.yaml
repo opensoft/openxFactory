@@ -5,9 +5,9 @@ kind: gate-action-record
 actor: brett
 action: promote-to-staging
 target:
-  possible_id: pos-cluster-canvas
+  possible_id: pos-derived-lens-recipe
 at: "2026-07-25T14:01:00Z"
 artifacts:
   - kind: workflow-job
-    reference: workflow-jobs/staging-fragment-authoring-pos-cluster-canvas-0001
+    reference: workflow-jobs/staging-fragment-authoring-pos-derived-lens-recipe-0001
 notes: Accepted possible dispatched for staging-fragment authoring.

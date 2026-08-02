@@ -6,11 +6,11 @@ kind: gate-intent
 actor: brett
 verb: promote-to-staging
 target:
-  possible_id: pos-cluster-canvas
+  possible_id: pos-derived-lens-recipe
 args:
-  topic: cluster-canvas
+  topic: persisted-lens-recipe
   note: Organize the accepted possible into a reviewable staging fragment.
 requested_at: "2026-07-25T14:00:00Z"
-snapshot_rev_seen: 235423d64963
+snapshot_rev_seen: "563ea35d066d"
 status: pending
-idempotency_key: brett/promote-to-staging/pos-cluster-canvas/235423d64963
+idempotency_key: brett/promote-to-staging/pos-derived-lens-recipe/563ea35d066d

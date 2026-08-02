@@ -5,9 +5,9 @@ kind: gate-action-record
 actor: brett
 action: research-brief
 target:
-  possible_id: pos-derived-wheel-honesty
+  possible_id: pos-set-builder
 at: "2026-07-25T14:11:00Z"
 artifacts:
   - kind: workflow-job
-    reference: workflow-jobs/possible-research-brief-pos-derived-wheel-honesty-0001
+    reference: workflow-jobs/possible-research-brief-pos-set-builder-0001
 notes: Non-binding research brief dispatched before disposition.

@@ -33,6 +33,8 @@ ideation-dashboard/
 ├── gate-action-record-edit-document.example.yaml      # BRANCH SESSION: document + ref + commit artifact
 ├── gate-action-record-open-pr.example.yaml            # BRANCH SESSION: ref + pull-request artifact (no commit)
 ├── gate-action-record-abandon-session.example.yaml    # BRANCH SESSION: ref + reason (no artifact kind required)
+├── gate-intent-pending.example.yaml                   # INTENT PLANE: pending dispose request
+├── gate-intent-applied.example.yaml                   # INTENT PLANE: applied request + record link
 ├── gate-intent-promote-to-staging.example.yaml        # WHEEL: accepted-possible staging commission
 ├── gate-intent-derive-possibles.example.yaml           # WHEEL: cluster-scoped derivation commission
 ├── gate-intent-research-brief.example.yaml             # WHEEL: pre-verdict research commission
@@ -72,6 +74,8 @@ ideation-dashboard/
 │   ├── gate-action-edit-document-no-ref.yaml          #   edit-document naming no session branch
 │   ├── gate-action-open-pr-no-pull-request-artifact.yaml  # open-pr without a pull-request artifact
 │   ├── gate-action-abandon-session-unreasoned.yaml    #   abandon-session without a reason
+│   ├── intent-applied-without-record.yaml             # applied intent without its record link
+│   ├── intent-refused-without-reason.yaml             # refused intent without its reason
 │   ├── intent-promote-to-staging-without-possible-id.yaml # wheel intent missing possible target
 │   ├── intent-derive-possibles-without-cluster-id.yaml    # wheel intent missing cluster target
 │   ├── intent-research-brief-without-possible-id.yaml     # wheel intent missing possible target
