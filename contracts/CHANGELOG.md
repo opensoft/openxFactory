@@ -11,6 +11,19 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
+- (nothing pending.)
+
+## contract-v1.28 — 2026-08-02 (additive; the chat-turn request's `active_document_path` is nullable)
+
+Cut in response to codexFactory PR #63 re-verification finding **G-1**
+(reviewer Brett Heap, 2026-08-02): measured against the real corpus with
+the consumer's own scope authority, 16 of 21 staged topics have exactly
+ONE editable path — the topic's own primary fragment, which doxBench loads
+as the OUTLINE — so requiring a non-null `active_document_path` made a
+legal turn impossible on ~76% of real topics and the chat surface refused
+on all of them. Strictly widening: every instance valid before this cut is
+still valid.
+
 - **`xfactory-workbench-chat-turn` request: `active_document_path` is
   nullable** (additive; no `contract_schema_version` bump). The request key
   stays REQUIRED and its value becomes `oneOf: [null, confined_path]`,

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.27
+contract_bundle_version: contract-v1.28
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1535,7 +1535,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 7dc9f90091c8168623ca8f9ab2baa2dd1ea11c2016f5c567e64a5f638778ed8c
+    sha256: 8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
