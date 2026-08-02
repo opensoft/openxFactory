@@ -843,6 +843,17 @@ def test_inventory_never_encodes_a_host_local_source_path(tmp_path: Path) -> Non
     assert inventory["repository"] == "opensoft/openxFactory"
 
 
+def test_inventory_schema_accepts_release_only_schema_members(tmp_path: Path) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    inventory = _canonical_inventory(repo)
+    schema_entry = next(
+        entry for entry in inventory["entries"] if entry["type"] == "schema"
+    )
+    schema_entry["type"] = "release-schema"
+
+    assert release.inventory_schema_findings(inventory, path="candidate") == []
+
+
 # --- CLI ----------------------------------------------------------------------
 
 

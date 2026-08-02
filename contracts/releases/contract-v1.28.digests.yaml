@@ -829,7 +829,7 @@ entries:
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
   git_mode: '100644'
-  digest: sha256:cc20382cb8cb60a19ff0d6ec6026fcfb918f93e3b28472b9ad8163a241f5bcc9
+  digest: sha256:b6d67d1f1605df35ad1ac46a9b8b0b4732ab529c88a5173388ccb34a7189d2ae
 - artifact_id: gate-action-record
   path: contracts/schemas/gate-action-record.schema.yaml
   type: release-schema
