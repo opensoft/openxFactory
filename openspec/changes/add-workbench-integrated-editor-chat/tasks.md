@@ -56,12 +56,54 @@
       signed D10 pass (task 1.3, same governance commit as this note).
       The archive chain is fully unblocked and is this task's remaining
       work.
-- [ ] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
+- [x] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
       Note 2026-07-30: this change branch is 81 commits behind openxFactory
       `origin/main` and does not yet contain the promoted base capability;
       the rebase must fold in `366f04f` and every later promotion before the
       MODIFIED blocks are replaced with promoted source. Sequenced after 1.5
       completes.
+      DONE 2026-08-02, rebased onto the promoted capability at openxFactory
+      `ff64e81` (`origin/main`, 40 requirements after the 2026-08-01 archive
+      chain; the head that also carries contract-v1.28). Both MODIFIED blocks
+      — `Session-scoped document editing verb` and the scoped-view
+      requirement — now sit on the EXACT promoted source with this change's
+      edits on top. The promotion introduced NO drift to fold in: the
+      promoted text of both requirements is byte-identical to the
+      `add-workbench-branch-sessions` delta text they were originally written
+      against (measured with a block-level diff of
+      `openspec/specs/ideation-dashboard/spec.md` against
+      `openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/specs/
+      ideation-dashboard/spec.md`), so no requirement body changed and each
+      block's diff against the promoted spec is exactly this change's own
+      delta:
+        * `Session-scoped document editing verb` — the verb becomes reachable
+          as doxBench's eligible FIRST save (atomically materialize/join the
+          session, revalidate base ref/revision/hash, commit only in the
+          worktree), the tile's-own-material refusal is stated explicitly, and
+          three scenarios are added (first save, first-save validation failure,
+          context owned by another scope) while the outside-a-session scenario
+          is re-worded to exempt that first save.
+        * scoped view — the three-panel staging workbench becomes doxBench's
+          three coordinated regions (retained docs/lens context, the two-tab
+          Outline/Document authoring canvas, the chat region), with editing,
+          chat, Apply and the create-backed outline buffer added under the
+          local-console posture, and two scenarios added (a document becomes
+          active; the narrow-viewport stack).
+      MAPPING RECORDED (not guessed): this change RENAMES the promoted
+      `Staging workbench scoped view` to `doxBench scoped view` per design
+      D11 — the human-facing SURFACE is renamed; the capability
+      `ideation-dashboard` and every `workbench-*` technical identifier are
+      not. The delta now declares it in a `## RENAMED Requirements` section
+      (`FROM:`/`TO:`), which is load-bearing rather than cosmetic: measured on
+      a scratch copy of `openspec/` on 2026-08-02, `openspec archive` aborted
+      with `ideation-dashboard MODIFIED failed for header "### Requirement:
+      doxBench scoped view" - not found`, and with the RENAMED section it
+      applies cleanly (`+ 6, ~ 2, - 0, → 1`, one scoped-view requirement in
+      the result, the old header gone). Observed tool behaviour worth knowing
+      at 7.8: a renamed requirement is re-appended rather than kept in place,
+      so its position in the promoted spec moves. Validation on the rebased
+      delta: `openspec validate add-workbench-integrated-editor-chat --strict`
+      valid, and `openspec validate --all --strict` 53 passed / 0 failed.
 - [x] 1.7 Brett ratified the proposal decisions and approved a narrow implementation-start exception on 2026-07-29: exact `doxBench` naming, local-only provider/data-handling posture, first-edit session materialization, two-buffer semantics, and no-autosave/no-force-apply stand. Tasks 1.3–1.6 remain open and mandatory before archive; the exception permits Speckit/code work to start without cutting a one-item predecessor bundle and does not permit realization merge before this change's own contract package is registered and pinned (design D0).
 
 ## 2. Contract-First Package (openxFactory)

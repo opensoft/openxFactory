@@ -1,12 +1,18 @@
 # ideation-dashboard Delta: doxBench Integrated Editor and Chat
 
-This delta is stacked on the latest requirements in
-`add-workbench-branch-sessions`. It MUST NOT archive until
-`add-ideation-dashboard`, `add-propose-verb`, `add-staging-workbench`,
-`add-workbench-bullseye-and-create`, `add-dashboard-repo-selector`, and
-`add-workbench-branch-sessions` have archived in their declared dependency
-order. Before this delta archives, its MODIFIED requirements MUST be rebased
-from the resulting promoted `openspec/specs/ideation-dashboard/spec.md`.
+REBASED onto the PROMOTED capability (task 1.6, 2026-08-02). The six
+predecessors — `add-ideation-dashboard`, `add-propose-verb`,
+`add-staging-workbench`, `add-workbench-bullseye-and-create`,
+`add-dashboard-repo-selector`, and `add-workbench-branch-sessions` — archived
+in their declared dependency order on 2026-08-01 (task 1.5), so this delta is
+no longer stacked on another change's delta: both MODIFIED requirement bodies
+below are the EXACT text of `openspec/specs/ideation-dashboard/spec.md` at
+openxFactory `ff64e81` with this change's edits reapplied on top, and a reader
+diffing MODIFIED against the promoted spec sees only this change's own delta.
+The promotion introduced no drift to fold in — the promoted text of both
+requirements is byte-identical to the `add-workbench-branch-sessions` text
+they were originally written against — so the rebase changed no requirement
+body; what it DID change is recorded in `## RENAMED Requirements` below.
 
 ## ADDED Requirements
 
@@ -176,6 +182,22 @@ doxBench SHALL keep `working_subject`, selected model id, and bounded transcript
 - **WHEN** a human types a customer, patient, tenant, or other identity-shaped value into Working subject
 - **THEN** the system MUST continue to treat it only as free-form prompt focus
 - **AND** it MUST NOT bind, validate, route, or persist it as an identity subject
+
+## RENAMED Requirements
+
+The promoted capability names this requirement `Staging workbench scoped
+view`; this change renames the human-facing surface to **doxBench** (design
+D11 — the SURFACE is renamed, the capability `ideation-dashboard` and every
+`workbench-*` technical identifier are not). Declaring the rename is not
+bookkeeping: `openspec archive` applies RENAMED before MODIFIED, and without
+it the archive of this change aborts with
+`ideation-dashboard MODIFIED failed for header "### Requirement: doxBench
+scoped view" - not found` (measured 2026-08-02 against the promoted spec).
+The MODIFIED block below therefore carries the NEW header, as the tool
+requires.
+
+- FROM: `### Requirement: Staging workbench scoped view`
+- TO: `### Requirement: doxBench scoped view`
 
 ## MODIFIED Requirements
 
