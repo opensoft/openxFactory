@@ -1,0 +1,14 @@
+# VALID gate-intent: commission a cluster-scoped derive-possibles run. The
+# apply lane revalidates that the cluster exists in the pinned snapshot.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: derive-possibles
+target:
+  cluster_id: cl-ideation-dashboard
+args:
+  note: Derive another bounded set of candidates for this cluster.
+requested_at: "2026-07-25T14:05:00Z"
+snapshot_rev_seen: 235423d64963
+status: pending
+idempotency_key: brett/derive-possibles/cl-ideation-dashboard/235423d64963

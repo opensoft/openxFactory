@@ -1,0 +1,9 @@
+# INVALID gate-intent: promote-to-staging must target a possible_id.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: promote-to-staging
+target: {}
+requested_at: "2026-07-25T14:00:00Z"
+snapshot_rev_seen: 235423d64963
+status: pending

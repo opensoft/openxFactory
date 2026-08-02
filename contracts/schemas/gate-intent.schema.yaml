@@ -29,6 +29,14 @@ description: >-
     pending -> applied | refused.  Neither applied nor refused ever returns
   to pending; a re-decision is a NEW intent.
 
+  WHEEL ACTION COMMISSIONS (`add-wheel-action-verbs`; additive growth of
+  `contract_schema_version: 1`): `promote-to-staging`, `derive-possibles`,
+  and `research-brief` request governed workflow dispatches. Their targets
+  are respectively a possible, a cluster, and a possible. `demote` is
+  unchanged by that change: it was already enumerated here with a
+  `change_id` target and remains the request for the existing two-step
+  plan-and-record / human-execute path.
+
   ADDITIVE / forward-compatible: objects stay open (no
   additionalProperties: false), consumers ignore unknown properties, and
   additive growth needs no contract_schema_version bump (the
@@ -46,19 +54,25 @@ properties:
     # client-supplied).
   verb:
     type: string
-    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose]
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
+           promote-to-staging, derive-possibles, research-brief]
     # The gate-console verbs (mirrors gate-action-record.action; extended in
     # lockstep when the console grows a verb). `propose` (add-propose-verb)
     # commissions proposal authoring for a staging topic — the same
-    # recorded-dispatch mechanic as kickoff, one boundary earlier.
+    # recorded-dispatch mechanic as kickoff, one boundary earlier. The three
+    # `add-wheel-action-verbs` commissions extend that mechanic without
+    # changing `demote`, which was already present in this enum.
   target:
     type: object
     # Mirrors gate-action-record.target: the change-lifecycle verbs address a
     # change_id; dispose-possible addresses a possible_id (+ outcome in args);
-    # propose addresses a staging topic_id.
+    # propose addresses a staging topic_id; promote-to-staging and
+    # research-brief address a possible_id; derive-possibles addresses a
+    # cluster_id.
     properties:
       change_id: {type: string, minLength: 1}
       possible_id: {type: string, minLength: 1}
+      cluster_id: {type: string, minLength: 1}
       topic_id: {type: string, minLength: 1}
       document: {type: string, minLength: 1}
   args:
@@ -104,5 +118,11 @@ allOf:
     then: {properties: {target: {required: [possible_id]}}}
   - if: {properties: {verb: {const: propose}}, required: [verb]}
     then: {properties: {target: {required: [topic_id]}}}
+  - if: {properties: {verb: {const: promote-to-staging}}, required: [verb]}
+    then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: derive-possibles}}, required: [verb]}
+    then: {properties: {target: {required: [cluster_id]}}}
+  - if: {properties: {verb: {const: research-brief}}, required: [verb]}
+    then: {properties: {target: {required: [possible_id]}}}
   - if: {properties: {verb: {enum: [demote, edit-apply, ratify, kickoff]}}, required: [verb]}
     then: {properties: {target: {required: [change_id]}}}

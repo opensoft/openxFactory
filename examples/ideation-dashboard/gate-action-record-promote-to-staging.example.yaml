@@ -1,0 +1,13 @@
+# VALID gate-action record: promote-to-staging commissions work through a
+# workflow-job; it neither creates the fragment nor records the pick edge.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: promote-to-staging
+target:
+  possible_id: pos-cluster-canvas
+at: "2026-07-25T14:01:00Z"
+artifacts:
+  - kind: workflow-job
+    reference: workflow-jobs/staging-fragment-authoring-pos-cluster-canvas-0001
+notes: Accepted possible dispatched for staging-fragment authoring.

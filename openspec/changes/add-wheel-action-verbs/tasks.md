@@ -2,20 +2,20 @@
 
 ## 1. Contracts (openxFactory)
 
-- [ ] 1.1 Extend `gate-intent.schema.yaml`: `promote-to-staging`,
+- [x] 1.1 Extend `gate-intent.schema.yaml`: `promote-to-staging`,
       `derive-possibles`, `research-brief` in the verb enum; `cluster_id` on
       `target`; conditionals `promote-to-staging → target.possible_id`,
       `research-brief → target.possible_id`, `derive-possibles →
       target.cluster_id`. Document in the header comment that `demote` is
       unchanged (already enumerated, `change_id` target).
-- [ ] 1.2 Extend `gate-action-record.schema.yaml`: the same three actions in
+- [x] 1.2 Extend `gate-action-record.schema.yaml`: the same three actions in
       the action enum; `cluster_id` on the `target` $def; conditionals
       requiring each action's target field AND an `artifacts contains
       workflow-job` companion (the propose/kickoff pattern).
-- [ ] 1.3 Keep the additive posture explicit: no `contract_schema_version`
+- [x] 1.3 Keep the additive posture explicit: no `contract_schema_version`
       bump, no `additionalProperties: false`, header notes naming this change
       as the growth source; confirm every packaged example still validates.
-- [ ] 1.4 Validate: the delegated dashboard-contract validator
+- [x] 1.4 Validate: the delegated dashboard-contract validator
       (`scripts/validate-ideation-dashboard-contracts.py`) plus
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`.
 - [ ] 1.5 Contract registration (`contracts/manifest.yaml`,

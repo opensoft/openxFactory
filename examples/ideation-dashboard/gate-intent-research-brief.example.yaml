@@ -1,0 +1,14 @@
+# VALID gate-intent: commission a non-binding research brief before the human
+# disposition. The request carries no disposition or register mutation.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: research-brief
+target:
+  possible_id: pos-derived-wheel-honesty
+args:
+  note: Check prior art and overlap before disposition.
+requested_at: "2026-07-25T14:10:00Z"
+snapshot_rev_seen: 235423d64963
+status: pending
+idempotency_key: brett/research-brief/pos-derived-wheel-honesty/235423d64963
