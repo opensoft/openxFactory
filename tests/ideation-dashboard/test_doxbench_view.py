@@ -2606,13 +2606,17 @@ out.postureText = (one('swb-posture') || {}).textContent || '';
 // (a) the NEXT turn carries the session ref. The operator picks a model and
 // sends; the rail must still be able to (a re-key that left it with an empty
 // selector would be a different dead end).
-const selector = one('doxchat-model');
+// The model is picked from the PROMPT PANEL's menu now, not a <select>
+// (2026-08-03): the top-of-rail dropdown moved into the composer panel, so
+// picking is "open the menu, activate a row" rather than "set .value".
+const menu = one('doxchat-menu');
 const composer = one('doxchat-composer');
 out.railAfter = composer ? 1 : 0;
-if (selector && composer) {
-  await until(() => selector.children.length > 1, 'the adopted catalog');
-  selector.value = 'model-a';
-  await fire(selector, 'change');
+const rowsOf = (host) => host ? host.walk().filter(
+  (n) => String(n.className).split(' ').includes('doxchat-menuitem')) : [];
+if (menu && composer) {
+  await until(() => rowsOf(menu).length > 0, 'the adopted catalog');
+  await fire(rowsOf(menu)[0], 'click');
   composer.value = 'what should we close next?';
   await fire(composer, 'input');
   await fire(one('doxchat-send'), 'click');
@@ -2665,8 +2669,15 @@ await until(() => inSecond('doxchat-subject') !== null, 'the reopened rail');
 for (let i = 0; i < 60; i += 1) await settle();
 out.restoredSubject = (inSecond('doxchat-subject') || {}).value || '';
 out.restoredComposer = (inSecond('doxchat-composer') || {}).value || '';
-out.restoredModelOptions = (inSecond('doxchat-model') || { children: [] })
-  .children.length;
+// Menu ROWS, not <option>s: an empty catalog renders zero selectable rows
+// (the menu states "no approved model" instead) where it used to render one
+// placeholder option.
+out.restoredModelRows = (() => {
+  const m = inSecond('doxchat-menu');
+  if (!m) return 0;
+  return m.walk().filter(
+    (n) => String(n.className).split(' ').includes('doxchat-menuitem')).length;
+})();
 out.restoredDocumentText = (reopened.walk().filter(
   (n) => String(n.className).split(' ').includes('doxbench-textarea'))[1]
   || {}).value || '';
@@ -2768,9 +2779,11 @@ def test_the_restored_chat_state_is_applied_on_a_plane_with_no_approved_models(
     assert shell_results["persistedKeys"], "nothing was persisted to reopen from"
     assert shell_results["restoredSubject"] == "the acceptance boundary"
     assert shell_results["restoredComposer"] == "and a half-written question"
-    # the empty catalog really is empty: only the placeholder option renders,
-    # so the count-changed branch could not have carried this
-    assert shell_results["restoredModelOptions"] == 1
+    # the empty catalog really is empty: NO selectable menu row renders (the
+    # menu states "no approved model" instead), so the count-changed branch
+    # could not have carried this. Was "exactly one placeholder <option>"
+    # until the prompt panel replaced the select, 2026-08-03.
+    assert shell_results["restoredModelRows"] == 0
 
 
 def test_the_shell_itself_follows_the_session_after_a_save(shell_results):

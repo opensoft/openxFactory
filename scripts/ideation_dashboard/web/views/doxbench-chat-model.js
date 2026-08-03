@@ -369,3 +369,136 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
   return currentHashes ? refreshProposalCurrency(restored, currentHashes)
     : restored;
 }
+
+// ---- the prompt panel's model families and effort levels ---------------------
+//
+// WHY EFFORT IS A MODEL_ID AND NOT A FIELD. The released chat-turn request
+// envelope is CLOSED and its properties are fixed; there is no effort field,
+// and the catalog entry is closed too. So an effort level cannot travel as its
+// own value without changing the released contract. `model_id` is the one
+// channel whose MEANING the catalog owns, so an effort level is advertised as
+// a separate entry: `<family>:<effort>`.
+//
+// That turns out to be the stronger arrangement rather than a workaround. A
+// slider over catalog entries can only ever offer a configuration the plane
+// already published as approved AND available — withdraw an entry and the
+// position disappears. An effort field would have been a free parameter the
+// console asserted; this is a choice among things the plane advertised.
+//
+// The grouping below is a DISPLAY convention and nothing more. Two rules keep
+// it honest, and both are pinned by tests: the console only ever sends an id it
+// was handed (it never composes one), and when the catalog advertises no
+// variants no slider is rendered at all.
+
+// The runtime's own set, read off the CLI's refusal message ("Valid values:
+// low, medium, high, xhigh, max"). Ordered weakest to strongest, because a
+// slider's positions have to ascend and a catalog is a set, not a sequence.
+export const EFFORT_LEVELS = Object.freeze(
+  ["low", "medium", "high", "xhigh", "max"]);
+
+// The separator is a DOT, and that is the released schema's choice, not a
+// preference: `model_id` is constrained to `^[A-Za-z0-9][A-Za-z0-9._-]*$`, so a
+// colon is illegal and the catalog route refuses an envelope carrying one. Of
+// the three legal punctuation marks, `-` already appears inside every family id
+// and `_` in none of them, so `.` is the one that reads as a separator.
+//
+// A dot is SAFE here only because of the membership guard below: a provider id
+// like `claude-haiku-4.5` has the suffix `5`, which is not an effort level, so
+// it stays one whole family exactly as it should.
+const EFFORT_SEPARATOR = ".";
+
+function splitModelId(modelIdValue) {
+  const id = typeof modelIdValue === "string" ? modelIdValue : "";
+  const cut = id.lastIndexOf(EFFORT_SEPARATOR);
+  if (cut <= 0) return { familyId: id, effort: null };
+  const suffix = id.slice(cut + 1);
+  // ONLY a real level counts. A provider is free to put dots in its own
+  // identifiers, and reading `claude-haiku-4.5` as an effort would invent a
+  // family the catalog never advertised.
+  if (!EFFORT_LEVELS.includes(suffix)) return { familyId: id, effort: null };
+  return { familyId: id.slice(0, cut), effort: suffix };
+}
+
+// The effort a model id names, or null when it names none.
+export function effortOfModelId(modelIdValue) {
+  return splitModelId(modelIdValue).effort;
+}
+
+// The family a model id belongs to — itself, when it carries no effort.
+export function familyOfModelId(modelIdValue) {
+  return splitModelId(modelIdValue).familyId;
+}
+
+// The catalog's AVAILABLE entries, collapsed into families in catalog order.
+// Each family carries its advertised efforts (ascending) and, when it has one,
+// the plain no-effort entry.
+export function modelFamilies(modelsValue) {
+  const order = [];
+  const byId = new Map();
+  for (const entry of modelsValue || []) {
+    // `available: false` is the plane WITHDRAWING a configuration; it must not
+    // become a menu row or a slider position.
+    if (!entry || entry.available !== true) continue;
+    const { familyId, effort } = splitModelId(entry.model_id);
+    if (!familyId) continue;
+    let family = byId.get(familyId);
+    if (!family) {
+      family = { familyId, label: "", handling: "", variants: [], plainId: null };
+      byId.set(familyId, family);
+      order.push(family);
+    }
+    // Variants of one family share a label and handling text by convention —
+    // the effort lives in the id, not the prose. First one wins if they differ.
+    if (!family.label) family.label = String(entry.label || familyId);
+    if (!family.handling && entry.data_handling) {
+      family.handling = String(entry.data_handling);
+    }
+    if (effort === null) family.plainId = entry.model_id;
+    else family.variants.push({ effort, modelId: entry.model_id });
+  }
+  return order.map((family) => Object.freeze({
+    familyId: family.familyId,
+    label: family.label,
+    handling: family.handling,
+    plainId: family.plainId,
+    efforts: Object.freeze(EFFORT_LEVELS.filter(
+      (level) => family.variants.some((v) => v.effort === level))),
+    variants: Object.freeze(family.variants.map(Object.freeze)),
+  }));
+}
+
+// The ADVERTISED id for one effort of a family, or null when the catalog does
+// not offer it. Returning the entry's own id — never a composed string — is
+// what keeps the slider inside what the plane approved.
+export function modelIdForEffort(familyValue, effortValue) {
+  if (!familyValue || !familyValue.variants) return null;
+  const hit = familyValue.variants.find((v) => v.effort === effortValue);
+  return hit ? hit.modelId : null;
+}
+
+// The family a state's selection belongs to, or null.
+export function selectedFamily(stateValue, familiesValue) {
+  const wanted = familyOfModelId(stateValue && stateValue.selectedModelId);
+  if (!wanted) return null;
+  return (familiesValue || []).find((f) => f.familyId === wanted) || null;
+}
+
+// Switching family keeps the effort the human already chose when the new
+// family advertises it; otherwise it lands on that family's strongest offer
+// below the current one, and failing that its plain entry. Never null when the
+// family has anything selectable at all.
+export function modelIdOnFamilyChange(familyValue, currentEffortValue) {
+  if (!familyValue) return null;
+  const efforts = familyValue.efforts || [];
+  if (!efforts.length) return familyValue.plainId;
+  if (efforts.includes(currentEffortValue)) {
+    return modelIdForEffort(familyValue, currentEffortValue);
+  }
+  const wantedRank = EFFORT_LEVELS.indexOf(currentEffortValue);
+  if (wantedRank < 0) return modelIdForEffort(familyValue, efforts[0]);
+  let best = efforts[0];
+  for (const level of efforts) {
+    if (EFFORT_LEVELS.indexOf(level) <= wantedRank) best = level;
+  }
+  return modelIdForEffort(familyValue, best);
+}

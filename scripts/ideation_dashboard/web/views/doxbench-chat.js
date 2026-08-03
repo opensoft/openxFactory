@@ -19,7 +19,8 @@ import {
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, rekeyChatState, proposalsOf, refreshProposalCurrency,
   rejectProposal, markProposalApplied, chatSnapshot, restoreChatState,
-  canSend,
+  canSend, modelFamilies, selectedFamily, effortOfModelId,
+  modelIdForEffort, modelIdOnFamilyChange,
 } from "./doxbench-chat-model.js";
 
 const CHAT_TURN_KIND = "workbench-chat-turn";
@@ -421,8 +422,6 @@ export function mountDoxBenchChatRail(host, options = {}) {
   subjectInput.setAttribute("aria-label", "working subject");
   subjectInput.setAttribute("autocomplete", "off");
   subjectInput.setAttribute("dir", "auto");
-  const selector = el("select", "doxchat-model");
-  selector.setAttribute("aria-label", "approved model");
   const transcriptList = el("ul", "doxchat-transcript");
   transcriptList.setAttribute("aria-label", "chat transcript");
   const failureNote = el("div", "doxchat-failure");
@@ -434,18 +433,59 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // visually-hidden assertive-free live region beside the cards.
   const announce = el("div", "doxchat-announce");
   announce.setAttribute("aria-live", "polite");
+  // ---- THE PROMPT PANEL (Brett, 2026-08-03) --------------------------------
+  //
+  // The composer, the model picker and the effort slider in ONE bordered panel
+  // at the foot of the rail, the way ChatGPT desktop and Codex arrange it. The
+  // model <select> used to sit at the TOP of the rail, above the transcript,
+  // spending full width on a control touched once a session; moving it into
+  // the panel is where the space comes back.
+  const prompt = el("div", "doxchat-prompt");
   const composer = el("textarea", "doxchat-composer");
   composer.setAttribute("aria-label", "chat message");
   composer.setAttribute("autocomplete", "off");
   composer.setAttribute("dir", "auto");
+  composer.rows = 3;
+
+  const tools = el("div", "doxchat-tools");
+
+  // The model picker: a menu button, not a <select>, because each row carries
+  // its model's handling terms and a native option cannot be structured.
+  const modelWrap = el("div", "doxchat-modelwrap");
+  const modelPill = el("button", "doxchat-modelpill");
+  modelPill.type = "button";
+  modelPill.setAttribute("aria-haspopup", "listbox");
+  modelPill.setAttribute("aria-expanded", "false");
+  const modelMenu = el("div", "doxchat-menu");
+  modelMenu.setAttribute("role", "listbox");
+  modelMenu.setAttribute("aria-label", "approved models");
+  modelMenu.hidden = true;
+  modelWrap.append(modelPill, modelMenu);
+
+  // The effort slider. A NATIVE range: it arrives with keyboard control,
+  // and `aria-valuetext` is what stops a reader announcing a meaningless "3"
+  // instead of the level. Rendered only when the selected family advertises
+  // more than one effort (see `renderTools`).
+  const effortWrap = el("div", "doxchat-effort");
+  const effortLabel = el("span", "doxchat-effortlabel", "effort");
+  const effortInput = el("input", "doxchat-effortrange");
+  effortInput.type = "range";
+  effortInput.min = "0";
+  effortInput.step = "1";
+  effortInput.setAttribute("aria-label", "reasoning effort");
+  const effortValue = el("span", "doxchat-effortvalue");
+  effortWrap.append(effortLabel, effortInput, effortValue);
+
   // T101 ux CHK015 + PR #63 review: the send-moment disclosure sits beside
   // Send and always names the SELECTED model's server-declared handling.
   const disclosure = el("div", "doxchat-disclosure");
   disclosure.setAttribute("aria-live", "polite");
   const sendBtn = el("button", "doxchat-send", "Send");
   sendBtn.type = "button";
-  host.append(header, subjectInput, selector, transcriptList, cardsHost,
-              announce, failureNote, composer, disclosure, sendBtn);
+  tools.append(modelWrap, effortWrap, sendBtn);
+  prompt.append(composer, tools, disclosure);
+  host.append(header, subjectInput, transcriptList, cardsHost,
+              announce, failureNote, prompt);
 
   function renderHeader() {
     const es = typeof editorState === "function" ? editorState() : editorState;
@@ -504,27 +544,151 @@ export function mountDoxBenchChatRail(host, options = {}) {
     }
   }
 
+  // ---- the prompt panel's two controls -------------------------------------
+
+  let menuOpen = false;
+
+  function closeMenu(restore) {
+    if (!menuOpen) return;
+    menuOpen = false;
+    modelMenu.hidden = true;
+    modelPill.setAttribute("aria-expanded", "false");
+    if (restore) restoreFocus(modelPill);
+  }
+
+  function openMenu() {
+    if (menuOpen) return;
+    menuOpen = true;
+    modelMenu.hidden = false;
+    modelPill.setAttribute("aria-expanded", "true");
+    const current = modelMenu.querySelector('[aria-selected="true"]')
+      || modelMenu.firstElementChild;
+    restoreFocus(current);
+  }
+
+  function chooseFamily(family) {
+    const nextId = modelIdOnFamilyChange(
+      family, effortOfModelId(state.selectedModelId));
+    closeMenu(true);
+    if (nextId) adopt(selectModel(state, nextId));
+  }
+
+  function renderMenu(families) {
+    modelMenu.textContent = "";
+    const selected = selectedFamily(state, families);
+    for (const family of families) {
+      const row = el("div", "doxchat-menuitem");
+      row.setAttribute("role", "option");
+      row.tabIndex = -1;
+      const chosen = selected && selected.familyId === family.familyId;
+      row.setAttribute("aria-selected", chosen ? "true" : "false");
+      row.appendChild(el("span", "doxchat-menuname", family.label));
+      // PR #63 review (Codex P2): each selectable model carries its handling
+      // text, reviewable BEFORE selection. The old <option> concatenated it
+      // into one unreadable line; a menu row can give it its own line.
+      if (family.handling) {
+        row.appendChild(el("span", "doxchat-menuterms", family.handling));
+      }
+      row.addEventListener("click", () => chooseFamily(family));
+      row.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          chooseFamily(family);
+        }
+      });
+      modelMenu.appendChild(row);
+    }
+    if (!families.length) {
+      const empty = el("div", "doxchat-menuempty",
+        "this plane advertises no approved model");
+      modelMenu.appendChild(empty);
+    }
+  }
+
+  function renderTools() {
+    const families = modelFamilies(state.models || []);
+    renderMenu(families);
+    const family = selectedFamily(state, families);
+    modelPill.textContent = family ? family.label : "select a model";
+    modelPill.classList.toggle("doxchat-modelpill-unset", !family);
+
+    // THE HONEST-DEGRADATION RULE. A slider is rendered only when the SELECTED
+    // family actually advertises more than one effort. Today's live catalog
+    // advertises none, so nothing shows — a control wired to nothing would be
+    // the surface claiming a capability the plane never offered.
+    const efforts = family ? family.efforts : [];
+    effortWrap.hidden = efforts.length < 2;
+    if (efforts.length < 2) return;
+    const current = effortOfModelId(state.selectedModelId);
+    const at = Math.max(0, efforts.indexOf(current));
+    effortInput.max = String(efforts.length - 1);
+    effortInput.value = String(at);
+    // The NUMBER is an index into what this family advertises and means
+    // nothing on its own; the LEVEL is the fact a reader needs.
+    effortInput.setAttribute("aria-valuetext", efforts[at]);
+    effortInput.disabled = state.phase !== "idle";
+    effortValue.textContent = efforts[at];
+  }
+
+  modelPill.addEventListener("click", () => {
+    if (menuOpen) closeMenu(true);
+    else openMenu();
+  });
+  modelPill.addEventListener("keydown", (ev) => {
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+      ev.preventDefault();
+      openMenu();
+    }
+  });
+  modelMenu.addEventListener("keydown", (ev) => {
+    const rows = [...modelMenu.querySelectorAll('[role="option"]')];
+    if (!rows.length) return;
+    const at = rows.indexOf(doc.activeElement);
+    // MEASURED DEFECT (2026-08-03): every key this menu handles must STOP
+    // HERE. Escape without stopPropagation reached the workbench overlay's own
+    // close handler and tore the entire rail down — the rig found the whole
+    // `.doxchat-menu` element gone after one Escape. "Never mind, close this
+    // little menu" must never mean "discard my authoring session".
+    ev.stopPropagation();
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      closeMenu(true);
+    } else if (ev.key === "ArrowDown") {
+      ev.preventDefault();
+      restoreFocus(rows[Math.min(rows.length - 1, at + 1)] || rows[0]);
+    } else if (ev.key === "ArrowUp") {
+      ev.preventDefault();
+      restoreFocus(rows[Math.max(0, at - 1)] || rows[0]);
+    } else if (ev.key === "Home") {
+      ev.preventDefault();
+      restoreFocus(rows[0]);
+    } else if (ev.key === "End") {
+      ev.preventDefault();
+      restoreFocus(rows[rows.length - 1]);
+    }
+  });
+
+  effortInput.addEventListener("input", () => {
+    const families = modelFamilies(state.models || []);
+    const family = selectedFamily(state, families);
+    if (!family) return;
+    const level = family.efforts[Number(effortInput.value)];
+    // The catalog's OWN id for that level — never a string this view built.
+    const nextId = modelIdForEffort(family, level);
+    if (nextId) adopt(selectModel(state, nextId));
+  });
+
   function render() {
     renderHeader();
     subjectInput.value = state.workingSubject;
     composer.value = state.composer;
-    selector.textContent = "";
-    const placeholder = el("option", "", "select an approved model");
-    placeholder.value = "";
-    selector.appendChild(placeholder);
-    for (const entry of state.models || []) {
-      if (entry.available !== true) continue;
-      // PR #63 review (Codex P2): each selectable model carries its
-      // handling text, reviewable before selection.
-      const handling = entry.data_handling ? String(entry.data_handling) : "";
-      const opt = el("option", "",
-        handling ? entry.label + " — " + handling : String(entry.label));
-      opt.value = entry.model_id;
-      selector.appendChild(opt);
-    }
-    disclosure.textContent = sendDisclosure(state) || "";
-    disclosure.hidden = !sendDisclosure(state);
-    selector.value = state.selectedModelId || "";
+    renderTools();
+    const handling = sendDisclosure(state) || "";
+    disclosure.textContent = handling;
+    // The full text is clamped to two lines visually; `title` is how a mouse
+    // reader gets the rest back without the panel paying for it in height.
+    disclosure.title = handling;
+    disclosure.hidden = !handling;
     transcriptList.textContent = "";
     for (const turn of transcriptWindow(state)) {
       const item = el("li", "doxchat-turn doxchat-" + turn.role, turn.content);
@@ -557,8 +721,10 @@ export function mountDoxBenchChatRail(host, options = {}) {
     () => adopt(editSubject(state, subjectInput.value)));
   composer.addEventListener("input",
     () => adopt(editComposer(state, composer.value)));
-  selector.addEventListener("change",
-    () => adopt(selectModel(state, selector.value)));
+  // Clicking anywhere else closes the model menu, as a menu button must.
+  doc.addEventListener("click", (ev) => {
+    if (menuOpen && !modelWrap.contains(ev.target)) closeMenu(false);
+  }, true);
   sendBtn.addEventListener("click", async () => {
     const focused = doc.activeElement;
     let settled = false;
