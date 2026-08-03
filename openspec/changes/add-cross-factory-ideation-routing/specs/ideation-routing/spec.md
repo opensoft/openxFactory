@@ -282,8 +282,8 @@ routing ownership, destination acceptance, or lifecycle authority.
 - **THEN** the normal central ID allocation and routing-record workflow MAY begin with the snapshot cited as evidence
 
 ### Requirement: Organizer execution, persistence, and readiness isolation
-openxFactory SHALL own the organizer contract and schemas; codexFactory SHALL
-own selection, orchestration adapters, validation, and report integration;
+openxFactory SHALL own the organizer contract and schemas, and SHALL also own
+selection, orchestration adapters, validation, and report integration;
 xFactory SHALL host dispatch and durable reporting; a dedicated
 `ideation-organizer` Omnigent worker profile SHALL perform bounded read-only
 analysis on the existing document-analysis host; and owning Domain Hermes,

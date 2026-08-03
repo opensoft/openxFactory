@@ -15,7 +15,7 @@ workspaces:
     purpose: derived projection of brainstorm and staged governance docs
     default_authority_level: L1_notebook_synthesis
     created_at: "2026-07-08T20:00:00Z"
-    managed_by: codexFactory/scripts/sync-notebooklm-books.py
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
   - kind: external_source_workspace
     schema_version: 1
     id: workspace-xfactory-lifecycle-drafts
@@ -29,7 +29,7 @@ workspaces:
     purpose: derived projection of draft governance docs
     default_authority_level: L1_notebook_synthesis
     created_at: "2026-07-08T20:00:00Z"
-    managed_by: codexFactory/scripts/sync-notebooklm-books.py
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
   - kind: external_source_workspace
     schema_version: 1
     id: workspace-xfactory-lifecycle-canon
@@ -43,4 +43,4 @@ workspaces:
     purpose: derived projection of ratified and standard docs plus promoted specs
     default_authority_level: L1_notebook_synthesis
     created_at: "2026-07-08T20:00:00Z"
-    managed_by: codexFactory/scripts/sync-notebooklm-books.py
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py

@@ -13,7 +13,7 @@ description: >-
   snapshot simply omitting the removed entry's locator key (spec scenario
   "Document is deleted or renamed") — there is no tombstone field.
 
-  Field names follow the realized codexFactory mechanical catalog
+  Field names follow the realized in-repo mechanical catalog
   (`scripts/doc_health/inventory.py` / `catalog.py`): flat entry fields
   (`repo`, `content_hash`, `handling`, ...) and a snapshot-level `taxonomy`
   block (`digest` + ordered `inputs`) that sits beside `run`, not nested
@@ -53,7 +53,7 @@ $defs:
   # --- shared evidence-reference item ---
   evidence_ref:
     description: >-
-      One `evidence_refs` array element. The realized codexFactory
+      One `evidence_refs` array element. The realized in-repo
       cataloger (`scripts/doc_health/cataloger.py`) legitimately records
       two shapes under this same field name: an opaque non-empty string
       (worker-emitted classifier citation, e.g. a passage or external

@@ -19,8 +19,9 @@ This contract covers the **deterministic pass only**: same inputs, same
 findings, no model calls. The agentic/semantic sweep (untagged normative
 prose, prose-vs-spec contradiction) is a separate active change
 (`openspec/changes/add-doc-health-semantic-sweep/`). Implementation lives in
-codexFactory; the nightly runner is hosted by the xFactory aggregation
-repo; this document and the `doc-health` spec own the contract.
+this repository (`scripts/doc_health/`, adopted from codexFactory by
+`adopt-neutral-tooling-home`); the nightly runner is hosted by the xFactory
+aggregation repo; this document and the `doc-health` spec own the contract.
 
 ## Check Families
 
@@ -114,10 +115,9 @@ machine-parseable so a later dashboard consumes the same files.
 ## Ownership
 
 ```text
-openxFactory      owns the CONTRACT: this document, the doc-health spec,
-                  the report schema
-codexFactory      owns the IMPLEMENTATION: checker scripts, report
-                  generator, reusable workflow
+openxFactory      owns the CONTRACT (this document, the doc-health spec,
+                  the report schema) AND the IMPLEMENTATION: checker
+                  scripts, report generator, reusable workflow
 xFactory (root)   HOSTS the nightly runner and health/reports/ (the only
                   repo pinning every submodule)
 each domain repo  owns APPROVAL of its own content: the pipeline reports

@@ -1,0 +1,189 @@
+"""Corpus discovery and document metadata for the doc-health suite.
+
+Governed roots follow the staged status-check rules (openxFactory
+ideation/staging/doc-health-checks/status-check-rules.md): governance
+Markdown lives under docs/, templates/, contracts/, examples/, and
+ideation/. Promoted specs (openspec/specs/*/spec.md) are counted toward
+canon but checked only by the families that name them. `tests/` and
+`installs/` (nested submodules) are never scanned.
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
+
+GOVERNED_ROOTS = ("contracts", "docs", "examples", "ideation", "templates")
+EXCLUDED_PARTS = {".git", "installs", "node_modules", "tests", "__pycache__"}
+STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
+STATUS_SCAN_LINES = 15
+
+
+@dataclass
+class Doc:
+    repo: str
+    path: str          # repo-relative, posix
+    text: str
+    status: str | None  # raw header value, None if absent
+    kind: str | None = None  # Kind: header value, None if absent
+
+    @property
+    def words(self) -> int:
+        return len(self.text.split())
+
+
+def discover_repos(repo_root: Path) -> list[tuple[str, Path]]:
+    """Family repos inside an aggregation checkout: openxFactory plus every
+    xFactories/* the aggregation repo pins."""
+    repos: list[tuple[str, Path]] = []
+    openx = repo_root / "openxFactory"
+    if openx.is_dir():
+        repos.append(("openxFactory", openx))
+    factories = repo_root / "xFactories"
+    if factories.is_dir():
+        for child in sorted(factories.iterdir()):
+            if child.is_dir() and (child / ".git").exists():
+                repos.append((child.name, child))
+    return repos
+
+
+def _excluded(rel: Path) -> bool:
+    return any(part in EXCLUDED_PARTS for part in rel.parts)
+
+
+def iter_doc_paths(repo_path: Path) -> list[Path]:
+    paths: list[Path] = []
+    for root in GOVERNED_ROOTS:
+        base = repo_path / root
+        if not base.is_dir():
+            continue
+        for md in base.rglob("*.md"):
+            rel = md.relative_to(repo_path)
+            if not _excluded(rel):
+                paths.append(rel)
+    return sorted(paths)
+
+
+def parse_status(text: str) -> str | None:
+    for line in text.splitlines()[:STATUS_SCAN_LINES]:
+        m = STATUS_RE.match(line)
+        if m:
+            return m.group(1)
+    return None
+
+
+def parse_kind(text: str) -> str | None:
+    for line in text.splitlines()[:STATUS_SCAN_LINES]:
+        if line.startswith("Kind: "):
+            return line[len("Kind: "):].strip() or None
+    return None
+
+
+def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:
+    docs = []
+    for rel in iter_doc_paths(repo_path):
+        text = (repo_path / rel).read_text(encoding="utf-8", errors="replace")
+        docs.append(Doc(repo_name, rel.as_posix(), text, parse_status(text),
+                        parse_kind(text)))
+    return docs
+
+
+def promoted_spec_paths(repo_path: Path) -> list[Path]:
+    base = repo_path / "openspec" / "specs"
+    if not base.is_dir():
+        return []
+    return sorted(base.glob("*/spec.md"))
+
+
+def spec_capabilities(repo_path: Path) -> set[str]:
+    caps = {p.parent.name for p in promoted_spec_paths(repo_path)}
+    changes = repo_path / "openspec" / "changes"
+    if changes.is_dir():
+        for change in changes.iterdir():
+            if change.name == "archive" or not change.is_dir():
+                continue
+            for spec in change.glob("specs/*/spec.md"):
+                caps.add(spec.parent.name)
+    return caps
+
+
+def change_ids(repo_path: Path) -> set[str]:
+    ids: set[str] = set()
+    changes = repo_path / "openspec" / "changes"
+    if not changes.is_dir():
+        return ids
+    for child in changes.iterdir():
+        if child.is_dir() and child.name != "archive":
+            ids.add(child.name)
+    archive = changes / "archive"
+    if archive.is_dir():
+        for child in archive.iterdir():
+            if child.is_dir():
+                ids.add(child.name)
+                # archived folders are date-prefixed: YYYY-MM-DD-<id>
+                m = re.match(r"\d{4}-\d{2}-\d{2}-(.+)", child.name)
+                if m:
+                    ids.add(m.group(1))
+    return ids
+
+
+class RealGit:
+    """Git-derived facts. Every method degrades to None on failure so
+    families can skip-with-notice instead of crashing."""
+
+    def _run(self, repo: Path, *args: str) -> str | None:
+        proc = subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, text=True)
+        return proc.stdout if proc.returncode == 0 else None
+
+    def last_commit_date(self, repo: Path, relpath: str) -> date | None:
+        out = self._run(repo, "log", "-1", "--format=%cs", "--", relpath)
+        return date.fromisoformat(out.strip()) if out and out.strip() else None
+
+    def line_commit_date(self, repo: Path, relpath: str, line: int) -> date | None:
+        out = self._run(repo, "blame", "--porcelain",
+                        f"-L{line},{line}", "--", relpath)
+        if not out:
+            return None
+        for row in out.splitlines():
+            if row.startswith("committer-time "):
+                from datetime import datetime, timezone
+                ts = int(row.split()[1])
+                return datetime.fromtimestamp(ts, tz=timezone.utc).date()
+        return None
+
+    def capture_blob(self, repo: Path, relpath: str, predicate) -> str | None:
+        """Earliest blob of relpath whose text satisfies predicate."""
+        out = self._run(repo, "log", "--reverse", "--format=%H", "--", relpath)
+        if not out:
+            return None
+        for sha in out.split():
+            blob = self._run(repo, "show", f"{sha}:{relpath}")
+            if blob is not None and predicate(blob):
+                return blob
+        return None
+
+    def gitlink_pins(self, agg_root: Path) -> dict[str, str] | None:
+        out = self._run(agg_root, "ls-tree", "-r", "HEAD")
+        if out is None:
+            return None
+        pins = {}
+        for row in out.splitlines():
+            meta, _, path = row.partition("\t")
+            parts = meta.split()
+            if len(parts) == 3 and parts[1] == "commit":
+                pins[path] = parts[2]
+        return pins
+
+    def remote_main_sha(self, repo: Path) -> str | None:
+        out = self._run(repo, "ls-remote", "origin", "refs/heads/main")
+        if out and out.strip():
+            return out.split()[0]
+        return None
+
+    def head_sha(self, repo: Path) -> str | None:
+        out = self._run(repo, "rev-parse", "HEAD")
+        return out.strip() if out else None
