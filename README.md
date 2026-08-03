@@ -138,6 +138,14 @@ Core domain-neutral docs:
   by trust tier, the brokered remove-token issuance shape, and audit records no
   token value can enter; realized by
   `add-worker-enrollment-broker`, pending bundle registration)
+- [Consent Instrument Contract Family](examples/consent-instrument/README.md)
+  (the neutral rung-1↔rung-2 consent instrument — the authority-chain root
+  credential grants cite and termination cascades from: schemas
+  `contracts/schemas/consent-instrument.schema.yaml`,
+  `consent-instrument-class-registry.schema.yaml`, and
+  `consent-purpose-model.schema.yaml`; canonical validator
+  `scripts/validate-consent-instruments.py`; realized by
+  `add-consent-instrument`, pending bundle registration)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
@@ -226,6 +234,14 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
+  — authored 2026-08-03, the `consent-instrument-contract` staged topic's
+  exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
+  the root of the authority chain that credential grants cite, gates
+  verify, and whose termination cascades through declared dependent refs.
+  Nine design rulings (Brett, 2026-07-31) carried as D1–D9 with zero open
+  questions; the Ledgerx engagement consent record and the Medx patient
+  consent record declare conformance rather than being rewritten.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and

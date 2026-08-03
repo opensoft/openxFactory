@@ -1,0 +1,62 @@
+# VALID consent instrument: an executed ENGAGEMENT LETTER (the Ledgerx-shaped
+# reference case; spec "The Instrument Is A Neutral Governed Record"). The
+# third-party estate host is a PARTY at its party-ladder rung (the Medxcorp
+# pattern), the delegation clause carries a free-shape technical access block
+# the canonical validator never inspects (ruling D4), the revocation right
+# carries its SLA, the dependent credential grant is a first-class reference
+# (ruling D5), and the transition trace shows the signature phase its class
+# declares (ruling D3). data_consent declares `mapping: none` EXPLICITLY —
+# no silent omission (spec "The Consent-Profile Mapping Is Declared").
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0001"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+  - party: "Northwind Estate Systems"
+    rung: 3
+    role: estate_host
+    authority_basis: delegated
+scope:
+  purposes: [bookkeeping, monthly-close]
+  out_of_scope: [payroll-support, tax-filing]
+delegation_clauses:
+  - clause_id: "dc-1"
+    summary: "Read-write ledger access for bookkeeping, subject-scoped."
+    access:
+      # Free-shape technical block (D4): credential-contracts enforcement
+      # territory — the consent validator passes it over untouched.
+      permission: "ledger:read-write"
+      constraint: "subject-scoped; no cross-subject reads"
+      read_only: false
+      verification: "broker-verified credential grant citing this instrument"
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0001"
+  sha256: "9c1185a5c5e9fc54612808977ee8f548b2258d31a537b2c0b1c1b1e4f7a2d9c3"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-21T15:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+effective:
+  executed_on: "2026-07-24"
+dependent_refs:
+  - kind: credential_grant
+    ref: "credentials/grants/meridian-bookkeeping-grant.yaml"
+data_consent:
+  mapping: none

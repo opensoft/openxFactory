@@ -1,0 +1,15 @@
+{
+  "change_id": "add-consent-instrument",
+  "files": [
+    {
+      "path": "consent-instrument-contract.md",
+      "sha256": "e7bf5ec7678ddc220d425c2c671a0c876d638b34ebbb582ed613b9563dd453be",
+      "source_path": "ideation/staging/consent-instrument-contract/consent-instrument-contract.md"
+    },
+    {
+      "path": "consent-instrument-design-decisions.md",
+      "sha256": "4843d3782c692ef7dcf9f8aa2565b2a1bf12279200dd0e778e2de186db530375",
+      "source_path": "ideation/staging/consent-instrument-contract/consent-instrument-design-decisions.md"
+    }
+  ]
+}

@@ -254,6 +254,12 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-consent-instrument](../openspec/changes/add-consent-instrument/proposal.md)
+  — raised 2026-08-03 as the full promotion of the
+  `consent-instrument-contract` staged topic (both docs moved to
+  `supporting-docs/`): the neutral consent-instrument capability, DTN-016,
+  authored against the nine 2026-07-31 rulings with two conformant
+  instances (Ledgerx engagement consent, Medx patient consent).
 - [add-capability-steward](../openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
   — raised and RATIFIED 2026-07-29, realized (`contract-v1.21`), and
   **archived 2026-07-30** as exit 3 (final) of the `recurrence-crystallization`
