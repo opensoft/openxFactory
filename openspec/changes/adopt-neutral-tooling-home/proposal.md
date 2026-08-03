@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (receives scripts/doc_health/ incl. routing/organizer/possibles lanes, scripts/doc-health.py, scripts/sync-notebooklm-books.py, scripts/ideation_dashboard/ + web/ + nightly entrypoints, their test suites, and .github/workflows/doc-health-reusable.yml), codexFactory (sheds the moved trees; README/stack.yaml redirect), xFactory aggregation (nightly caller repointed; CloudPC readiness evaluators adopted)
 target_release: none
+Status: ratified
+Ratified by: Brett's approval of `adopt-neutral-tooling-home` on 2026-08-03, with design D1-D8 carried as decided (copy-with-provenance, tranche order, readiness split to aggregation, pre-promotion routing amendment)
 ---
 
 # Proposal: adopt-neutral-tooling-home
