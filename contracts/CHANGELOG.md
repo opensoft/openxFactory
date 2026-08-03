@@ -13,9 +13,9 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
-## contract-v1.28 — 2026-08-02 (additive; wheel action verbs, gate intents, and worker enrollment)
+## contract-v1.29 — 2026-08-03 (additive; wheel action verbs, gate intents, and worker enrollment)
 
-Realizes `add-wheel-action-verbs` task 1.5 and
+Realizes `add-wheel-action-verbs` tasks 1.5–1.6 and
 `add-ideation-intent-plane` task 2.4. The existing
 `gate-action-record.schema.yaml` adds the human-only commission actions
 `promote-to-staging`, `derive-possibles`, and `research-brief`, the
@@ -36,17 +36,62 @@ redaction-by-shape audit evidence. Consumers pin this release and run
 `scripts/validate-worker-enrollment.py` from the pinned checkout; packaged
 fixtures comprise 11 valid and 27 intended-invalid examples.
 
-This release also corrects a `contract-v1.27` catalog defect without moving or
-rewriting that immutable tag. Its two doxBench wire schemas were mistakenly
-typed as Hermes semantic `schema` members even though they do not carry the
-Hermes-only root annotations, causing the Hermes catalog loader to reject the
-published catalog. They are now `release-schema` members with
-`semantic_member: false`: still closed and digest-pinned in the release
-inventory, but correctly excluded from the Hermes semantic registry. Migration
-is simply to pin `contract-v1.28`; the doxBench wire-schema bytes are unchanged.
+This release also corrects a catalog defect present in `contract-v1.27` AND
+republished unchanged by `contract-v1.28`, without moving or rewriting either
+immutable tag. The two doxBench wire schemas were mistakenly typed as Hermes
+semantic `schema` members even though they do not carry the Hermes-only root
+annotations, causing the Hermes catalog loader to reject the published
+catalog. They are now `release-schema` members with `semantic_member: false`:
+still closed and digest-pinned in the release inventory, but correctly
+excluded from the Hermes semantic registry. Migration is to pin
+`contract-v1.29` (the first release whose catalog loads cleanly); the doxBench
+wire-schema bytes are unchanged.
 
 Per-file sha256 inventory:
-`contracts/releases/contract-v1.28.digests.yaml`.
+`contracts/releases/contract-v1.29.digests.yaml`.
+
+## contract-v1.28 — 2026-08-02 (additive; the chat-turn request's `active_document_path` is nullable)
+
+Cut in response to codexFactory PR #63 re-verification finding **G-1**
+(reviewer Brett Heap, 2026-08-02): measured against the real corpus with
+the consumer's own scope authority, 16 of 21 staged topics have exactly
+ONE editable path — the topic's own primary fragment, which doxBench loads
+as the OUTLINE — so requiring a non-null `active_document_path` made a
+legal turn impossible on ~76% of real topics and the chat surface refused
+on all of them. Strictly widening: every instance valid before this cut is
+still valid.
+
+- **`xfactory-workbench-chat-turn` request: `active_document_path` is
+  nullable** (additive; no `contract_schema_version` bump). The request key
+  stays REQUIRED and its value becomes `oneOf: [null, confined_path]`,
+  mirroring `buffer_state.path` exactly — the same shape, for the same reason:
+  a path that does not exist yet is `null`, never a fabricated string. Growth
+  source: **G-1**, the codexFactory PR #63 re-verification finding (2026-08-02,
+  reviewer Brett Heap), measured against the real corpus with the consumer's
+  own scope authority — 16 of 21 staged topics have exactly ONE editable path,
+  the topic's own primary fragment, which doxBench loads as the OUTLINE. With a
+  non-null value required, no legal turn existed on ~76% of real topics and the
+  chat surface refused on all of them. Realizes part of
+  `add-workbench-integrated-editor-chat` task 2.5's contract package (see that
+  change's ledger note); the consumer contract is codexFactory
+  `specs/010-doxbench-editor-chat/contracts/chat-turn.md`.
+  - Compatibility: strictly widening. Every instance valid before this change
+    is still valid; no producer must change; a consumer that already handles
+    `buffer_state.path: null` handles the same fact here. Domain repos pinned
+    to `contract-v1.27` are unaffected until they choose to advance.
+  - Rides with it: a new packaged positive example
+    (`examples/ideation-dashboard/workbench-chat-turn-outline-only.example.yaml`
+    — the outline-only turn) and two delegated-validator tests (a null
+    `active_document_path` validates; an ESCAPING one is still refused). The
+    delegated family validator needed no change: its `_confined` helper already
+    judges only paths that exist, which is how `buffer_state.path` nullability
+    landed.
+  - **Operator's cut still owes:** the `contracts/manifest.yaml` per-file
+    sha256 refresh for the amended schema (`validate-manifest-digests.py`
+    currently reports 1/109 failing, by design in this pending state), the
+    version allocation, the realized digest inventory, and the annotated tag —
+    none of which a proposal may reserve ahead of merge order (Contract
+    Versioning Policy, "Bundle Realization Order").
 
 ## contract-v1.27 — 2026-07-30 (additive; doxBench model-catalog and chat-turn wire contracts)
 

@@ -1,6 +1,6 @@
 ---
 code_surface: codexFactory (gate-console verbs + engine guards, executing loopback routes, CLI entrypoints, the wheel's WHEEL_ACTIONS / ACTION_MOUNTERS expanded-tile rows), openxFactory (gate-intent + gate-action-record additive enum/target extension)
-target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+target_release: contract-v1.29 (allocated at realization per docs/contract-versioning-policy.md; the branch's original contract-v1.28 allocation was consumed by the published chat-turn release)
 ---
 
 # Proposal: add-wheel-action-verbs

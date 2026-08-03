@@ -20,7 +20,13 @@ description: >-
   over the full text (R4); the validator recomputes request-buffer hashes, so
   a mismatched content_hash is refused rather than trusted. Exactly one
   outline and one document buffer accompany every request (FR-013): both
-  complete, never truncated, selected, summarized, or omitted.
+  complete, never truncated, selected, summarized, or omitted. A path that
+  does not exist yet is `null`, never a fabricated or guessed string: that
+  holds for `buffer_state.path` (the not-yet-created artifact, data-model S4)
+  and, since G-1, for the request's `active_document_path` (a turn grounded on
+  the outline alone, because the tile has no separate editable document).
+  Both are REQUIRED keys with a nullable value — absent and null are
+  different facts, and only null is expressible.
 oneOf:
   - $ref: "#/$defs/request"
   - $ref: "#/$defs/success"
@@ -99,7 +105,19 @@ $defs:
       kind: { const: workbench-chat-turn }
       client_turn_id: { type: string, minLength: 1, maxLength: 128 }
       scope: { $ref: "#/$defs/scope_key" }
-      active_document_path: { $ref: "#/$defs/confined_path" }
+      # Nullable, MIRRORING `buffer_state.path` exactly: required key, and
+      # `null` when the turn grounds on the outline alone because the tile has
+      # no separate editable document (growth source: codexFactory PR #63
+      # re-verification finding G-1, 2026-08-02 — measured on the real corpus,
+      # 16 of 21 staged topics have exactly ONE editable path, the topic's own
+      # primary fragment, which the canvas loads as the OUTLINE; requiring a
+      # non-null value here made a legal turn impossible on ~76% of them).
+      # A `null` here is the SAME fact `buffer_state.path: null` already
+      # states: no document buffer is backed by a path yet.
+      active_document_path:
+        oneOf:
+          - { type: "null" }
+          - { $ref: "#/$defs/confined_path" }
       # NON-IDENTITY prompt focus (FR-012). A string only.
       working_subject: { type: string, maxLength: 512 }
       message: { type: string, minLength: 1, maxLength: 65536 }

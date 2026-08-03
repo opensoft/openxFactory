@@ -40,9 +40,11 @@ this change.
 - [x] 2.4 Register the delta in contracts/manifest.yaml / CHANGELOG.md /
       README.md at the realization commit (registration-at-realization
       precedent).
-      Realized 2026-08-02 in the `contract-v1.28` candidate: the gate-intent
-      kernel is registered for the first time at its wheel-expanded shape,
-      with raw-byte digest and closed release-inventory membership.
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`): the gate-intent kernel is registered for
+      the first time at its wheel-expanded shape, with raw-byte digest and
+      closed release-inventory membership.
 
 ## 3. Local Action Center (codexFactory Speckit realization — D5 first)
 

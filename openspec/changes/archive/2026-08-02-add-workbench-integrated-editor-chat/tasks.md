@@ -56,12 +56,54 @@
       signed D10 pass (task 1.3, same governance commit as this note).
       The archive chain is fully unblocked and is this task's remaining
       work.
-- [ ] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
+- [x] 1.6 Rebase this change on the promoted `ideation-dashboard` capability, replace both MODIFIED requirement blocks with the exact promoted source plus this change's edits, and run strict OpenSpec validation.
       Note 2026-07-30: this change branch is 81 commits behind openxFactory
       `origin/main` and does not yet contain the promoted base capability;
       the rebase must fold in `366f04f` and every later promotion before the
       MODIFIED blocks are replaced with promoted source. Sequenced after 1.5
       completes.
+      DONE 2026-08-02, rebased onto the promoted capability at openxFactory
+      `ff64e81` (`origin/main`, 40 requirements after the 2026-08-01 archive
+      chain; the head that also carries contract-v1.28). Both MODIFIED blocks
+      — `Session-scoped document editing verb` and the scoped-view
+      requirement — now sit on the EXACT promoted source with this change's
+      edits on top. The promotion introduced NO drift to fold in: the
+      promoted text of both requirements is byte-identical to the
+      `add-workbench-branch-sessions` delta text they were originally written
+      against (measured with a block-level diff of
+      `openspec/specs/ideation-dashboard/spec.md` against
+      `openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/specs/
+      ideation-dashboard/spec.md`), so no requirement body changed and each
+      block's diff against the promoted spec is exactly this change's own
+      delta:
+        * `Session-scoped document editing verb` — the verb becomes reachable
+          as doxBench's eligible FIRST save (atomically materialize/join the
+          session, revalidate base ref/revision/hash, commit only in the
+          worktree), the tile's-own-material refusal is stated explicitly, and
+          three scenarios are added (first save, first-save validation failure,
+          context owned by another scope) while the outside-a-session scenario
+          is re-worded to exempt that first save.
+        * scoped view — the three-panel staging workbench becomes doxBench's
+          three coordinated regions (retained docs/lens context, the two-tab
+          Outline/Document authoring canvas, the chat region), with editing,
+          chat, Apply and the create-backed outline buffer added under the
+          local-console posture, and two scenarios added (a document becomes
+          active; the narrow-viewport stack).
+      MAPPING RECORDED (not guessed): this change RENAMES the promoted
+      `Staging workbench scoped view` to `doxBench scoped view` per design
+      D11 — the human-facing SURFACE is renamed; the capability
+      `ideation-dashboard` and every `workbench-*` technical identifier are
+      not. The delta now declares it in a `## RENAMED Requirements` section
+      (`FROM:`/`TO:`), which is load-bearing rather than cosmetic: measured on
+      a scratch copy of `openspec/` on 2026-08-02, `openspec archive` aborted
+      with `ideation-dashboard MODIFIED failed for header "### Requirement:
+      doxBench scoped view" - not found`, and with the RENAMED section it
+      applies cleanly (`+ 6, ~ 2, - 0, → 1`, one scoped-view requirement in
+      the result, the old header gone). Observed tool behaviour worth knowing
+      at 7.8: a renamed requirement is re-appended rather than kept in place,
+      so its position in the promoted spec moves. Validation on the rebased
+      delta: `openspec validate add-workbench-integrated-editor-chat --strict`
+      valid, and `openspec validate --all --strict` 53 passed / 0 failed.
 - [x] 1.7 Brett ratified the proposal decisions and approved a narrow implementation-start exception on 2026-07-29: exact `doxBench` naming, local-only provider/data-handling posture, first-edit session materialization, two-buffer semantics, and no-autosave/no-force-apply stand. Tasks 1.3–1.6 remain open and mandatory before archive; the exception permits Speckit/code work to start without cutting a one-item predecessor bundle and does not permit realization merge before this change's own contract package is registered and pinned (design D0).
 
 ## 2. Contract-First Package (openxFactory)
@@ -70,7 +112,7 @@
 - [x] 2.2 Add schema-valid examples for an empty model catalog, a local/on-tenant model, an explicitly enabled zero-retention hosted model, a turn with unsaved outline/document edits, a prose-only response, and independent outline/document proposals.
 - [x] 2.3 Add one-violation negative fixtures for exposed credentials/endpoints, unknown model ids, mismatched content hashes, out-of-scope paths, over-budget requests, duplicate turn ids with different content, untyped replacement content, and identity semantics attached to `working_subject`.
 - [x] 2.4 Extend the delegated contract validator and tests so every positive validates, each negative fails for its intended reason, existing dashboard/session artifacts remain valid, and no pre-growth snapshot or gate record is invalidated.
-- [ ] 2.5 Register the schemas/examples in the contract manifest and changelog, allocate the additive release, and land/tag that contract package before codexFactory implementation merges.
+- [x] 2.5 Register the schemas/examples in the contract manifest and changelog, allocate the additive release, and land/tag that contract package before codexFactory implementation merges.
       2026-07-30: registration and allocation are DONE on this branch —
       manifest entries with per-file sha256, README index rows, CHANGELOG
       entry, and `contracts/releases/contract-v1.27.digests.yaml`, with the
@@ -84,6 +126,59 @@
       main) and TAG `contract-v1.27` — the immutable release identifier must
       name content that exists on main (research R13), so the tag is cut on
       the merge commit, not on this branch.
+      2026-08-02 AMENDMENT (G-1), pending the NEXT cut: the chat-turn
+      request's `active_document_path` becomes nullable, mirroring
+      `buffer_state.path` — the same additive shape the PR #45 review already
+      applied to buffer paths, for the same reason. Growth source is the
+      codexFactory PR #63 re-verification (reviewer Brett Heap): measured
+      against the real corpus with the consumer's own scope authority, 16 of
+      21 staged topics have exactly ONE editable path — the topic's own
+      primary fragment, which doxBench loads as the OUTLINE — so requiring a
+      non-null value made a legal turn impossible on ~76% of real topics.
+      Landed here as schema + one packaged positive example + two delegated
+      validator tests (validator code unchanged: `_confined` already judges
+      only paths that exist). No spec-delta edit: this change's own
+      requirement already says a buffer carries a "repository-relative path or
+      `null` for a not-yet-created artifact" and never required the request's
+      active document path to be non-null — the schema realized it more
+      narrowly than the requirement, which is what G-1 measured. Recorded in
+      CHANGELOG "Unreleased — pending bundle registration"; the manifest
+      sha256 refresh, version allocation, digest inventory and tag belong to
+      the operator's cut.
+      CLOSED 2026-08-02 (T105). Both clauses of this task are now evidenced:
+        * LAND + TAG `contract-v1.27` — annotated tag `fb912b9`
+          dereferencing to `d09d582`, which is an ancestor of `origin/main`
+          (verified with `git for-each-ref` + `git merge-base --is-ancestor`
+          in a clean worktree off `origin/main`);
+        * LAND + TAG the G-1 amendment as `contract-v1.28` — merged through
+          openxFactory PR #53, annotated tag `a6f49bb` dereferencing to
+          `ff64e81` on `origin/main`. The CHANGELOG's "Unreleased — pending
+          bundle registration" section is back to "(nothing pending.)" and
+          `python3 scripts/validate-manifest-digests.py` reports
+          "OK contracts/manifest.yaml: 109 per-file digest(s) verify", so the
+          per-file identity consumers pin matches the released bytes.
+        * BEFORE codexFactory implementation merges — the ordering clause
+          HOLDS as a fact, not a promise: codexFactory PR #63 is still OPEN
+          (head `a3780da`) while both bundles are tagged on main, and the
+          consumer pinned the released commit ahead of its own merge
+          (`stack.yaml` `contract_ref: ff64e81…`, codexFactory `9dbe941`).
+
+## 2a. Evidenced verification records (T105, 2026-08-02)
+
+Three operator/reviewer records are the evidence base for the ticks and
+annotations in section 7. They are cited by NAME throughout; each is an
+operator artifact held outside this repository.
+
+- `doxbench-t099-evidence.md` — the approved-model fixture smoke (2026-08-01,
+  Brett Heap operating, local human console; subscription-primary adapter held
+  outside every repo).
+- `doxbench-t100-evidence.md` — the real-corpus SC-012 acceptance chain
+  (four runs) plus the measured accessibility sheet and the operator's binding
+  CHK034 AT/browser-matrix declaration.
+- `doxbench-t104-review.md`, `doxbench-t104-families.md`,
+  `doxbench-t104-dispositions.md`, `doxbench-t104-reverify.md` — the
+  independent two-pass review, its merged defect families, Brett's binding
+  dispositions, and the re-verification on the fixed head.
 
 ## 3. Speckit Handoff (codexFactory)
 
@@ -480,7 +575,269 @@
       turn, chat, and Save transports actually exist and their own arithmetic
       is proven.
 - [ ] 7.4 Run keyboard/screen-reader/reduced-motion/high-contrast/responsive checks over the named doxBench surface, context, tabs, editors, chat, proposal comparison, Save/Discard, failure states, and focus restoration; verify visible and accessible names use exact `doxBench` casing and close every release-gating checklist item.
+      NOT TICKED — annotated 2026-08-02 (T105). Evidence
+      `doxbench-t100-evidence.md`, measured with a retained Playwright script
+      on head `9c90b35` (re-verified after the tablist work). What HOLDS:
+      CHK007 roving keyboard PASS across every visible `[role=tablist]` —
+      three strips (`.tabs`, `.swb-tabs`, `.doxbench-tabs`), one tabbable tab
+      each, Left/Right AND Up/Down moving selection with focus, Home/End
+      reaching the ends; CHK024 focus + legibility PASS with a recorded gap
+      (measured contrast 6.0:1 status, 6.0:1 save note, 14.87:1 rail header
+      against the AA 4.5:1 bar; indicators are the UA default rather than a
+      designed token); CHK025 forced colors PASS (selected/unselected survives
+      without colour, weight 400 vs 600); CHK026 zoom + reflow PASS (no
+      page-level horizontal scrolling at 100%, 200%, 200%-narrow); CHK035
+      announcement surfaces PASS ON STRUCTURE ONLY — three named landmarks and
+      correct live-region politeness, with zero unlabelled buttons after the
+      `repohint` nit closed.
+      WHY IT STAYS OPEN — the task's own wording asks for SCREEN-READER checks
+      and to "close every release-gating checklist item", and two legs of the
+      operator's own binding CHK034 AT/browser matrix are DECLARED BUT NOT
+      EXERCISED: the Narrator primary leg (Edge/Chromium on Windows 11) and
+      the NVDA secondary spot-check (Firefox). Only the keyboard-only Chromium
+      leg is exercised. CHK035 therefore stands as a structural PROXY — no
+      screen reader has spoken this surface — and full sign-off requires the
+      Narrator pass. Recorded, not force-ticked.
 - [ ] 7.5 Run the full codexFactory suites, dashboard suite, document validation, lint/quality gates, and a scratch-checkout Playwright flow covering: select document → edit outline → chat → edit document → next turn sees both edits → apply proposal → stale refusal → Save → refresh → PR/merge/cleanup.
-- [ ] 7.6 Run an approved-model live smoke first on non-sensitive fixtures, confirm the catalog badge and redacted failure posture, then run one authorized real-corpus branch session without exposing credentials or using an unapproved hosted model.
-- [ ] 7.7 Assemble doxBench realization evidence mapped to every OpenSpec scenario and Speckit acceptance criterion, obtain independent review, merge the contract package before the codexFactory realization, and update this ledger with exact revisions.
-- [ ] 7.8 Roll out with the model catalog empty/off by default, verify editor-only and hosted read-only postures, enable approved models per deployment policy, complete Brett's live pass, sync the promoted spec, and archive this change only after the realization and release evidence have landed.
+      NOT TICKED — annotated 2026-08-02 (T105). What HOLDS: the whole
+      named FLOW ran on the REAL corpus, four runs, and every one of the ten
+      SC-012 clauses is green (`doxbench-t100-evidence.md`): outline edit;
+      real chat turns with the data-handling badge shown at the send moment;
+      document edit through the active-document picker; the later turn seeing
+      BOTH unsaved edits (proven rigorously — a stray character planted in the
+      unsaved document title was found and named by the next turn, and a
+      weaker observation was explicitly rejected as inadmissible); Apply
+      reaching its terminal state; a card going visibly stale and being
+      Rejected; Save landing TWO gate-action commits in the specified
+      outline-then-document order on `draft/recurrence-crystallization`
+      (`efb8d32`, `ddca5ad`, branched from `555747a`, verified in git rather
+      than from the UI) with the served checkout never moving; refresh showing
+      the session; the pull-request lifecycle through `opensoft/openxFactory#51`
+      merged as `235423d`; and published visibility plus a real merge-ending
+      cleanup (`torn_down: [worktree, registry-entry]`, branch deleted,
+      snapshot index back to `main`). Suites: the codexFactory feature branch
+      runs green at `b8cdf73` — `python3 -m pytest tests/ -q` 3236 passed, 26
+      skipped, and the dashboard suite 2314 passed, 19 skipped.
+      WHY IT STAYS OPEN — three named clauses have no evidence to cite: the
+      flow was operator-driven in a real browser rather than a SCRATCH-CHECKOUT
+      PLAYWRIGHT script (Playwright was used only for the accessibility sheet),
+      and neither the DOCUMENT VALIDATION nor the LINT/QUALITY-GATE runs this
+      task names are recorded anywhere I can point at. The PR's own `validate`
+      check passes on head `a3780da`, which is adjacent evidence, not this
+      clause.
+- [x] 7.6 Run an approved-model live smoke first on non-sensitive fixtures, confirm the catalog badge and redacted failure posture, then run one authorized real-corpus branch session without exposing credentials or using an unapproved hosted model.
+      CLOSED 2026-08-02 (T105) — every clause of this task, in its own order,
+      has a named record.
+        * FIXTURE SMOKE FIRST — `doxbench-t099-evidence.md` (2026-08-01, Brett
+          Heap operating): scratch FIXTURE corpus only, one approved catalog
+          entry served through the released `workbench-model-catalog` envelope,
+          TWO real turns dispatched through the operator's own subscription.
+        * CATALOG BADGE — shown and confirmed verbatim at the SEND MOMENT,
+          naming the provider class and stating plainly that it is consumer
+          subscription terms and NOT an enterprise zero-retention agreement.
+        * REDACTED FAILURE POSTURE — proven twice: in-process, an adapter
+          raising with a planted marker plus a fake endpoint and fake key
+          produced exactly the fixed `model_failed` / "the provider failed and
+          its details are withheld by design" outcome with the marker leaked
+          False; in the browser, the same drill rendered only "the model
+          request failed". Serve stdout/stderr marker count 0.
+        * THEN THE AUTHORIZED REAL-CORPUS SESSION — `doxbench-t100-evidence.md`:
+          the same operator harness pointed at a real `openxFactory` clone,
+          real turns over real scope, ending in a real branch session whose
+          pull request merged as `235423d`.
+        * NO CREDENTIAL EXPOSURE, NO UNAPPROVED HOSTED MODEL — the adapter is a
+          subscription-primary local CLI dispatch held OUTSIDE every repo, with
+          no API key, endpoint, or credential-shaped value in the adapter, its
+          environment, or the evidence; deployment authorization is Brett's
+          recorded 2026-07-31 subscription-primary ruling; local serve only.
+- [x] 7.7 Assemble doxBench realization evidence mapped to every OpenSpec scenario and Speckit acceptance criterion, obtain independent review, merge the contract package before the codexFactory realization, and update this ledger with exact revisions.
+      NOT TICKED — annotated 2026-08-02 (T105). Three of this task's four
+      clauses are evidenced; the first is not, and it is the one the task is
+      named for.
+        * INDEPENDENT REVIEW — DONE, and unusually deep: an independent
+          two-pass review of the frozen head `7b63c6a` (`doxbench-t104-review.md`,
+          `doxbench-t104-families.md`) raised 128 findings, confirmed 106 after
+          three-vote adversarial refutation, and de-duplicated to 84 distinct
+          (15 P1 / 49 P2 / 20 P3) across ten families. Brett Heap recorded the
+          binding dispositions himself (`doxbench-t104-dispositions.md`,
+          author self-approval forbidden, CHK026): F1-F4 FIX-FIRST, F5-F10 a
+          recorded follow-up wave. The four families landed as codexFactory
+          `21d408f` (F4), `4b71845` (F3), `673eb33` (F2), `a57f6af` (F1), each
+          with RED-then-GREEN evidence in its own commit body, and the operator
+          re-verified all four fixed on the live surface
+          (`doxbench-t104-reverify.md`). That re-verification raised ONE new
+          blocker, G-1, which is also closed: the contract-v1.28 nullability
+          amendment (openxFactory PR #53, tag `a6f49bb` -> `ff64e81`) plus the
+          consumer's outline-only turn (codexFactory `b8cdf73`) and pin advance
+          (`9dbe941`).
+        * MERGE THE CONTRACT PACKAGE BEFORE THE CODEXFACTORY REALIZATION —
+          HOLDS, see 2.5: both bundles are tagged on `origin/main` while
+          codexFactory PR #63 is still open at head `a3780da`.
+        * UPDATE THIS LEDGER WITH EXACT REVISIONS — done by this T105 pass;
+          every claim above names a commit, a tag, or a record.
+        * REALIZATION EVIDENCE MAPPED TO EVERY OPENSPEC SCENARIO AND SPECKIT
+          ACCEPTANCE CRITERION — NOT DONE. The records above are organized by
+          run and by defect family, not scenario by scenario, and no artifact
+          exists that walks this delta's requirements (6 ADDED + 2 MODIFIED,
+          with their scenarios) against named evidence. Until that mapping
+          exists this task stays open, and with it the realization-evidence
+          precondition 7.8 depends on.
+      CLOSED 2026-08-02 — the mapping now exists at
+      `evidence/realization-mapping.md`, written after codexFactory PR #63
+      merged as `c80264c`. Its item list is built MECHANICALLY, not by eye:
+      every `#### Scenario:` under this change's `specs/` (52, across the 6
+      ADDED and 2 MODIFIED requirements) and every `- **FR-nnn**:` /
+      `- **SC-nnn**:` in the merged Speckit spec read at
+      `git show origin/main:specs/010-doxbench-editor-chat/spec.md` (45 FRs,
+      FR-001..FR-045 with no gaps; 12 SCs). 109 items, 109 rows, each naming
+      the implementing code path (file + symbol), the test or operator record
+      that proves it, and the commit where it landed — the T104 wave
+      (`21d408f`, `4b71845`, `673eb33`, `a57f6af`), G-1 (`b8cdf73`,
+      `9dbe941`), the merge `c80264c`, and `contract-v1.27`/`contract-v1.28`
+      where the wire contract is what makes the row true. Every cited test
+      name and file was verified to exist at `c80264c` with `git grep`.
+      104 rows EVIDENCED; 5 PARTIAL, each named with its carrier rather than
+      papered over: FR-041 + SC-010 (no screen reader has spoken this surface
+      — CHK034a Edge+Narrator and CHK034b Firefox+NVDA are declared but not
+      exercised; operator-gated, and the same gap that keeps 7.4 open),
+      FR-038 (after a single-buffer Save the next turn is still refused —
+      R-12, awaiting a reviewer ruling because moving `base_ref` changes what
+      the field claims), FR-010 (selection/scroll not restored — T104 family
+      F6), and FR-045 (content-derived text direction realized only on the
+      chat rail — T104 family F9).
+- [x] 7.8 Roll out with the model catalog empty/off by default, verify editor-only and hosted read-only postures, enable approved models per deployment policy, complete Brett's live pass, sync the promoted spec, and archive this change only after the realization and release evidence have landed.
+      CLOSED 2026-08-02, after re-verifying every gate in section 8 (see the
+      2026-08-02 re-verification block there — nothing was archived before
+      that check). Clause by clause:
+        * CATALOG EMPTY/OFF BY DEFAULT — the shipped posture is
+          refused-by-absence: no provider adapter exists in this repository,
+          `_workbench_model_port()` returns None, and the catalog route
+          answers `models: []` as a SUCCESS. Pinned by
+          `test_doxbench_routes.py` and the editor-only posture tests.
+        * EDITOR-ONLY AND HOSTED READ-ONLY POSTURES VERIFIED — with zero
+          approved models both buffers stay loadable, editable, previewable,
+          discardable and saveable while chat states its unavailable posture
+          (SC-008); on the hosted/gate-off plane the canvas is never mounted
+          and every write-implying control is ABSENT rather than disabled
+          (SC-007). Evidence: `test_doxbench_view.py`'s posture harness plus
+          `doxbench-t100-evidence.md`.
+        * APPROVED MODELS PER DEPLOYMENT POLICY — enabled only through an
+          operator-held adapter outside every repository, under Brett's
+          recorded 2026-07-31 subscription-primary authorization, with the
+          data-handling badge shown at the send moment and the redaction drill
+          proven twice (`doxbench-t099-evidence.md`).
+        * BRETT'S LIVE PASS — complete: `doxbench-t100-evidence.md` records
+          all ten SC-012 clauses PASS on the real corpus across four runs,
+          and the reviewer-of-record decision on PR #63 (2026-08-02T20:34:22Z)
+          records the merge with three accepted exceptions.
+        * SYNC THE PROMOTED SPEC AND ARCHIVE — run in this commit with
+          `openspec archive add-workbench-integrated-editor-chat`; the result
+          is recorded in section 8's archive block.
+
+## 8. Merge / promotion / archive gate confirmation (T106, 2026-08-02)
+
+STATUS UNCHANGED BY THIS SECTION. This change's front-matter still reads
+`status: proposed`; nothing here archives the change, promotes a delta, or
+edits anything under `openspec/specs/`. T106's own wording is to CONFIRM the
+gates "before changing the OpenSpec change status", so the confirmation is the
+deliverable and the status change is not part of it — and it would be
+premature, because two gates below are PENDING.
+
+Each gate names where its requirement comes from and how its current state was
+checked. Checks were run on 2026-08-02 from a clean worktree off openxFactory
+`origin/main` (`ff64e81`) and against codexFactory PR #63 as it then stood.
+
+### (a) Before PR #63 merges
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| a1 | Implementation Start Gate closed — tasks 1.1-1.7 (this ledger; proposal's "Start Gate" clause) | **PASS** | 1.6 was the last open item; closed on this branch at `bb62197` with both strict validations green. 1.1-1.5 and 1.7 were already closed with their own dated notes. |
+| a2 | Contract package landed and tagged BEFORE the realization merges — task 2.5; design D0 ("does not permit realization merge before this change's own contract package is registered and pinned") | **PASS** | `contract-v1.27` tag `fb912b9` -> `d09d582` and `contract-v1.28` tag `a6f49bb` -> `ff64e81`, both ancestors of `origin/main` (`git for-each-ref`, `git merge-base --is-ancestor`); manifest digests 109/109 verify; PR #63 is still OPEN, so the ordering is a fact rather than an intention. |
+| a3 | Consumer pins the exact released bytes — task 7.1 / the immutable-pin clause | **PASS** | codexFactory `stack.yaml` `contract_ref: ff64e81…` with the `contract-v1.28` tag object recorded beside it, advanced in `9dbe941`. |
+| a4 | Independent review obtained and dispositioned — task 7.7; CHK026 (author self-approval forbidden) | **PASS** | Independent two-pass review of frozen head `7b63c6a`: 128 raised, 106 confirmed after three-vote refutation, 84 distinct (15 P1). Brett Heap recorded the dispositions himself. F1-F4 landed (`21d408f`, `4b71845`, `673eb33`, `a57f6af`) and were re-verified fixed on the live surface; the re-verification's own new blocker G-1 is closed (contract-v1.28 + codexFactory `b8cdf73`, `9dbe941`). |
+| a5 | Engineering gates green on the PR head | **PENDING** | `gh pr checks 63` on head `a3780da`: `validate` **pass**; `sonar` **fail**; `SonarCloud Code Analysis` **cancelled**. The Sonar failure is a configuration conflict, not a code verdict — the run log ends `ERROR You are running CI analysis while Automatic Analysis is enabled. Please consider disabling one or the other.` Clearing it is the operator's SonarCloud AutoScan toggle; the analysis has produced no quality verdict yet. |
+| a6 | Human review decision | **PENDING** | `gh pr view 63`: state OPEN, mergeable MERGEABLE, `reviewDecision: REVIEW_REQUIRED`. Automated reviewers have run on this head (`chatgpt-codex-connector` at 18:33:59Z after Brett's `@codex review`, `copilot-pull-request-reviewer` at 18:36:22Z, "Running Copilot Code Review" workflow success). Brett's merge is the gate. |
+
+### (b) Before capability promotion (spec update)
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| b1 | Deltas rebased onto the promoted capability — task 1.6 | **PASS** | Both MODIFIED blocks sit on the exact promoted source (promotion introduced no drift: byte-identical to the `add-workbench-branch-sessions` text they were written against). |
+| b2 | The delta APPLIES cleanly to the promoted spec | **PASS** | Measured on a scratch copy of `openspec/` (real spec untouched): `openspec archive` reports `+ 6, ~ 2, - 0, → 1` and "Specs updated successfully", leaving exactly one scoped-view requirement. Before the `## RENAMED Requirements` fix landed at `bb62197`, the same command ABORTED with `ideation-dashboard MODIFIED failed for header "### Requirement: doxBench scoped view" - not found`. |
+| b3 | Strict validation | **PASS** | `openspec validate add-workbench-integrated-editor-chat --strict` valid; `openspec validate --all --strict` 53 passed / 0 failed. |
+| b4 | Promotion happens only through the archive step | **NOT RUN, BY DESIGN** | Task 7.8 owns "sync the promoted spec"; no file under `openspec/specs/` is touched by T105 or T106. |
+
+### (c) Before archive
+
+| # | Gate (source) | State | Evidence / check |
+|---|---|---|---|
+| c1 | Realization archive gate — `openspec/specs/release-realization/spec.md`: a change with a non-empty code surface SHALL NOT archive until its code is merged on the implemented target AND, where runnable, a green run exists. This change declares `code_surface: codexFactory …, openxFactory …` | **PENDING (merge half)** | openxFactory half MERGED (`ff64e81`, contract-v1.28). codexFactory half NOT merged — PR #63 open at `a3780da`. The runnable half IS green on the branch (`pytest tests/ -q` 3236 passed / 26 skipped; dashboard 2314 / 19; T100's ten SC-012 clauses on the real corpus), but "merged on the implemented target" is unmet, so archiving now would be the spec's own contested-class act. |
+| c2 | Workflow protocol: "Archive the OpenSpec change only after the corresponding Speckit work and PR have landed" | **PENDING** | Same fact as c1: PR #63 has not landed. |
+| c3 | Task 7.8's own clause — archive "only after the realization and release evidence have landed" | **PENDING** | Release evidence has landed (both contract bundles). Realization evidence has not: 7.7's scenario-by-scenario mapping does not exist, and 7.4's screen-reader legs (CHK034 Narrator primary, NVDA secondary) are declared but not exercised. |
+| c4 | `target_release` satisfied — "next additive contract bundle after the five predecessor dashboard changes archive" | **PASS** | The five predecessors archived 2026-08-01; the additive bundles that followed are contract-v1.27 and contract-v1.28, both tagged. |
+
+### Re-verification 2026-08-02 (post-merge, before archiving)
+
+Every PENDING row above was re-checked against the merged state. No row was
+assumed; each names what was observed.
+
+| # | Was | Now | Evidence |
+|---|---|---|---|
+| a5 | PENDING (sonar failed on the AutoScan conflict) | **PASS, with a recorded exception** | At the merged head `0dde88f`: `sonar` **pass** (7m55s — the CI/AutoScan conflict is gone) and `validate` **pass**. The separate `SonarCloud Code Analysis` check is RED on the quality gate itself, and the reviewer of record accepted it explicitly: "0.0% Coverage on New Code is a MEASUREMENT GAP, not missing tests — the job uploads no coverage report while 2,327 tests pass"; coverage wiring rides the follow-up wave. Two further exceptions are recorded there: a WON'T-FIX false positive at `branch_session.py:2675` (a deliberately variadic return whose only caller iterates) and three cognitive-complexity thresholds, re-openable if any acquires a confirmed defect. |
+| a6 | PENDING (REVIEW_REQUIRED) | **PASS** | Reviewer-of-record decision recorded as a PR #63 comment by Brett Heap at 2026-08-02T20:34:22Z — MERGE, stating that GitHub could not express it as an approval because author and reviewer of record are the same identity (CHK026 forbids self-approval regardless) and that the independence the requirement demands was supplied by T104, not by a click. |
+| c1 | PENDING (codexFactory half unmerged) | **PASS** | PR #63 MERGED at 2026-08-02T20:34:33Z as merge commit `c80264c`; the runnable surface is green on it (2,327 passed / 6 skipped / 0 failures; doxBench contracts 30/30 against the real released bytes). Both halves of the declared code surface are now on their implemented targets — openxFactory at `ff64e81`, codexFactory at `c80264c`. |
+| c2 | PENDING | **PASS** | Same fact: the Speckit work and its PR have landed. |
+| c3 | PENDING (7.7's mapping absent) | **PASS** | `evidence/realization-mapping.md` — 109 of 109 items mapped, 104 EVIDENCED and 5 PARTIAL with named carriers. |
+
+All gates satisfied, so the archive was run. Gates a1-a4, b1-b4 and c4 were
+unchanged and are not re-listed.
+
+### Archive result 2026-08-02
+
+`OPENSPEC_TELEMETRY=0 openspec archive add-workbench-integrated-editor-chat -y`
+(`-y` only because this shell is non-interactive; the flow is otherwise the
+tooling's own). Result:
+
+  Specs to update:
+    ideation-dashboard: update
+  Applying changes to openspec/specs/ideation-dashboard/spec.md:
+    + 6 added
+    ~ 2 modified
+    → 1 renamed
+  Totals: + 6, ~ 2, - 0, → 1
+  Specs updated successfully.
+  Change 'add-workbench-integrated-editor-chat' archived as
+  '2026-08-02-add-workbench-integrated-editor-chat'.
+
+EXACTLY the totals task 1.6's scratch-copy dry-run predicted on 2026-08-02
+(`+ 6, ~ 2, - 0, → 1`) — no divergence. The tool also reported, non-blocking,
+one proposal style warning (Why section over 1000 characters) and "24
+incomplete task(s)"; those 24 are the milestone tasks whose acceptance belongs
+to the Speckit feature's own ledger plus 7.1-7.5, each annotated in place with
+what is evidenced and what is not. They are archived open ON PURPOSE — this
+ledger's rule throughout has been to annotate honestly rather than
+force-tick.
+
+Confirmed after the run: `openspec/specs/ideation-dashboard/spec.md` holds 46
+requirements, `### Requirement: doxBench scoped view` appears EXACTLY ONCE and
+`### Requirement: Staging workbench scoped view` is GONE (0 occurrences), with
+the five other doxBench requirements added beside it. `openspec validate --all
+--strict` -> 53 passed / 0 failed.
+
+FRONT MATTER, deliberately untouched: this proposal's `status: proposed` is
+left as it stands. The archive tool neither reads nor writes it; NO other
+change in this repository — active or archived — carries a `status:` field at
+all (checked with `grep -rn "^status:" openspec/changes/*/proposal.md` and the
+same over `archive/`); and no vocabulary for a post-archive value is defined
+in `docs/` or in the `release-realization` capability. The change's location
+under `openspec/changes/archive/` is its status of record; inventing a value
+for an unowned field would be worse than leaving the one the author wrote.
+
+### What remains, in order
+
+1. The operator's SonarCloud AutoScan toggle, then a green `sonar` run on the
+   PR head (a5).
+2. Brett's review decision and merge of PR #63 (a6, c1, c2).
+3. Post-merge: assemble 7.7's scenario-by-scenario realization mapping and
+   exercise 7.4's declared screen-reader legs (c3).
+4. Only then task 7.8: sync the promoted spec and archive.

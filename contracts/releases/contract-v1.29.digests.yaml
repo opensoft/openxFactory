@@ -1,6 +1,6 @@
 schema_version: 1
 kind: openxfactory-contract-release-digest-inventory
-bundle_tag: contract-v1.28
+bundle_tag: contract-v1.29
 repository: opensoft/openxFactory
 digest_algorithm: sha256
 digest_source: raw_git_blob
@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:a1cde77d8c97260d531fe8ae9a103715d0f9a62d63a3798baa2fc0f9dd374a2e
+  digest: sha256:5c1e220458b6663c2dcc196fe23861c9b1fbdb073b6bbb1ff57cee577afe4839
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:785f7e17abf521ea80f1555d09eb07677f851def2f99a9488e84ab79b313f16a
+  digest: sha256:82977ac8bc5287cdd402fbb5e235ec005f599e4a4e84bd93b617364e99480311
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
@@ -93,7 +93,7 @@ entries:
   path: contracts/hermes-runtime/contract-index.yaml
   type: contract-index
   git_mode: '100644'
-  digest: sha256:5e94643c596a458ee3702b8c4a267486d38dd0ed4aca4db491ffd0166b940e0c
+  digest: sha256:a2d1c62ebff85e69a9564a5652737774966548373f5b7524f66a1cbd8062af57
 - artifact_id: cross-layer-binding-revocation
   path: contracts/hermes-runtime/cross-layer-binding-revocation.schema.yaml
   type: schema
@@ -824,26 +824,89 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:a7947a989370bb1005e0b3034f1f406d37af2503e00ddffceee41783c2487577
+  digest: sha256:24dda7e8955b4f2ac53417d07f346cdc24cc5d6a22f41359188bb1f974f7f4fc
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
   git_mode: '100644'
-  digest: sha256:cc20382cb8cb60a19ff0d6ec6026fcfb918f93e3b28472b9ad8163a241f5bcc9
+  digest: sha256:b6d67d1f1605df35ad1ac46a9b8b0b4732ab529c88a5173388ccb34a7189d2ae
+- artifact_id: gate-action-record
+  path: contracts/schemas/gate-action-record.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: gate-action-record
+  schema_version: 1
+  digest: sha256:21a6fc98cdaa8ad76304b9cd9a24039ccb2e5fa8605ff236a9bb4258d6aec4ea
+- artifact_id: gate-intent
+  path: contracts/schemas/gate-intent.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: gate-intent
+  schema_version: 1
+  digest: sha256:9831a3baf033605d4a1a9351b613960d8208be9b6c351b3bd80c6ab80cc39646
 - artifact_id: xfactory-workbench-chat-turn
   path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
-  type: schema
+  type: release-schema
   git_mode: '100644'
   schema_id: xfactory-workbench-chat-turn
   schema_version: 1
   digest: sha256:8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb
 - artifact_id: xfactory-workbench-model-catalog
   path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
-  type: schema
+  type: release-schema
   git_mode: '100644'
   schema_id: xfactory-workbench-model-catalog
   schema_version: 1
   digest: sha256:0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0
+- artifact_id: worker-enrollment-audit-record
+  path: contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-enrollment-audit-record
+  schema_version: 1
+  digest: sha256:4b6fc81aa1e2a80e6a8a8dcbc1162182bb041b1891864bcecb40703291d61b88
+- artifact_id: worker-enrollment-grant
+  path: contracts/worker-enrollment/worker-enrollment-grant.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-enrollment-grant
+  schema_version: 1
+  digest: sha256:9a86604a55fa29b97d8b6487040d7511cb87a49d387ed770ee018276b993f0d3
+- artifact_id: worker-enrollment-policy
+  path: contracts/worker-enrollment/worker-enrollment-policy.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-enrollment-policy
+  schema_version: 1
+  digest: sha256:b4f98d5406ef073b656a3976e51d2cb71d2cfa0236229ede73accb30c514a597
+- artifact_id: worker-enrollment-request
+  path: contracts/worker-enrollment/worker-enrollment-request.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-enrollment-request
+  schema_version: 1
+  digest: sha256:d33c82288112033fabd88e5a36c9aa395bb714f761af7379ccb3da3621716739
+- artifact_id: worker-lease-renewal
+  path: contracts/worker-enrollment/worker-lease-renewal.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-lease-renewal
+  schema_version: 1
+  digest: sha256:b77fb5ce5668f4319082e4c309797ff01c199f8ad755fe4b6bcae0a7424e7735
+- artifact_id: worker-lease
+  path: contracts/worker-enrollment/worker-lease.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-lease
+  schema_version: 1
+  digest: sha256:9c293401c8c75c5da3bb1e9ce3b26b114ef0e1055aa2de64a73bc655b55872c8
+- artifact_id: worker-removal-grant
+  path: contracts/worker-enrollment/worker-removal-grant.schema.yaml
+  type: release-schema
+  git_mode: '100644'
+  schema_id: worker-removal-grant
+  schema_version: 1
+  digest: sha256:fead90e6ae91430ded30c449a2b0523c778e626bc634584165c1c2f9c5a2384c
 - artifact_id: docs-contract-versioning-policy.md
   path: docs/contract-versioning-policy.md
   type: documentation
@@ -923,7 +986,7 @@ entries:
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:3910746120412014a0cff20bbe30b6002df49cd1183ee138af8f3f9eb2a0d9c1
+  digest: sha256:d31ff9276763c74a86b0e5444481d01f4e61f0713b1ad562216503b51cc63fbc
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator

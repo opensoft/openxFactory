@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.28
+contract_bundle_version: contract-v1.29
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1535,7 +1535,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 7dc9f90091c8168623ca8f9ab2baa2dd1ea11c2016f5c567e64a5f638778ed8c
+    sha256: 8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1551,7 +1551,7 @@ contracts:
       turn-id, proposal-target, and failure-pairing rules are enforced by
       scripts/validate-ideation-dashboard-contracts.py, never
       re-implemented by consumers.
-  # ---- action-plane + worker-enrollment contract surface — contract-v1.28 realization ----
+  # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----
   # Registers add-ideation-intent-plane 2.4, add-wheel-action-verbs 1.5,
   # and add-worker-enrollment-broker 1.11 in one additive bundle. The
   # gate-action record grows three commission actions and cluster_id without
@@ -1574,11 +1574,11 @@ contracts:
       (add-workbench-bullseye-and-create), the branch-session verb growth
       (add-workbench-branch-sessions 1.1/1.2), and the D23 `provenance`
       block — surface + console_presence, stamped where the fact is known
-      (add-workbench-branch-sessions 1.8) — plus the contract-v1.28 wheel
+      (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
       commissions `promote-to-staging`, `derive-possibles`, and
       `research-brief`, with verb-specific targets and required workflow-job
       companions. Consumed through the pinned openxFactory checkout at the
-      contract-v1.28 tag; per-file sha256 verified before any copy is treated
+      contract-v1.29 tag; per-file sha256 verified before any copy is treated
       as current. The kickoff-ratification precondition, transition legality,
       and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
@@ -1595,7 +1595,7 @@ contracts:
       The attributed request envelope for zero-write-authority dashboard and
       mobile actions: actor, verb, target, args, snapshot revision, idempotency
       key, and pending/applied/refused lifecycle. Registered for the first time
-      at contract-v1.28 with the three wheel commission verbs in lockstep with
+      at contract-v1.29 with the three wheel commission verbs in lockstep with
       gate-action-record. Consumers MUST pin the release commit and verify this
       digest; status conditionals, request-to-record linkage, and verb-specific
       targets are enforced by scripts/validate-ideation-dashboard-contracts.py.
@@ -1609,7 +1609,7 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The redaction-by-shape audit record for enrollment, renewal, refusal,
-      revocation, and remove-token decisions. Consumers pin contract-v1.28
+      revocation, and remove-token decisions. Consumers pin contract-v1.29
       and run scripts/validate-worker-enrollment.py from that checkout.
   - id: worker-enrollment-grant
     path: contracts/worker-enrollment/worker-enrollment-grant.schema.yaml

@@ -21,7 +21,9 @@
 - [x] 1.5 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`) at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`.
-      Realized 2026-08-02 in the `contract-v1.28` candidate together with
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`) together with
       `add-ideation-intent-plane` 2.4 and `add-worker-enrollment-broker`
       1.11: gate-intent first registration, gate-action-record digest refresh,
       README index update, changelog entry, and closed release digest inventory.
