@@ -926,12 +926,12 @@ entries:
   path: requirements/hermes-runtime-contracts.in
   type: requirements
   git_mode: '100644'
-  digest: sha256:0fedfd692337b61822558b05e327cff88c050c08ca74961b80e1971fe580c69c
+  digest: sha256:d11a833510864817101aba94f29019d5cd51ca3b801237bd45897f65b4c612e0
 - artifact_id: requirements-hermes-runtime-contracts.lock
   path: requirements/hermes-runtime-contracts.lock
   type: requirements
   git_mode: '100644'
-  digest: sha256:56f6970be99c69e64b0307393aa1773dd7be39046aec36942c8dd38c2f1d5310
+  digest: sha256:5558f14c22437dceee36d26f2c59c3d4d7d243b838c622388d4f2813fbd2608e
 - artifact_id: scripts-hermes-runtime-dataset-digest.py
   path: scripts/hermes-runtime-dataset-digest.py
   type: validator
