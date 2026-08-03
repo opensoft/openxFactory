@@ -33,6 +33,14 @@ ideation-dashboard/
 ├── gate-action-record-edit-document.example.yaml      # BRANCH SESSION: document + ref + commit artifact
 ├── gate-action-record-open-pr.example.yaml            # BRANCH SESSION: ref + pull-request artifact (no commit)
 ├── gate-action-record-abandon-session.example.yaml    # BRANCH SESSION: ref + reason (no artifact kind required)
+├── gate-intent-pending.example.yaml                   # INTENT PLANE: pending dispose request
+├── gate-intent-applied.example.yaml                   # INTENT PLANE: applied request + record link
+├── gate-intent-promote-to-staging.example.yaml        # WHEEL: accepted-possible staging commission
+├── gate-intent-derive-possibles.example.yaml           # WHEEL: cluster-scoped derivation commission
+├── gate-intent-research-brief.example.yaml             # WHEEL: pre-verdict research commission
+├── gate-action-record-promote-to-staging.example.yaml # WHEEL: possible target + workflow-job
+├── gate-action-record-derive-possibles.example.yaml    # WHEEL: cluster target + workflow-job
+├── gate-action-record-research-brief.example.yaml      # WHEEL: possible target + workflow-job
 ├── negative/                                          # one violation per file
 │   ├── snapshot-dangling-document-edge.yaml           #   edge → missing document id
 │   ├── snapshot-dangling-claiming-cluster.yaml        #   claiming_clusters → missing cluster id
@@ -65,7 +73,16 @@ ideation-dashboard/
 │   ├── gate-action-edit-document-no-commit-artifact.yaml  # edit-document without a commit artifact
 │   ├── gate-action-edit-document-no-ref.yaml          #   edit-document naming no session branch
 │   ├── gate-action-open-pr-no-pull-request-artifact.yaml  # open-pr without a pull-request artifact
-│   └── gate-action-abandon-session-unreasoned.yaml    #   abandon-session without a reason
+│   ├── gate-action-abandon-session-unreasoned.yaml    #   abandon-session without a reason
+│   ├── intent-applied-without-record.yaml             # applied intent without its record link
+│   ├── intent-refused-without-reason.yaml             # refused intent without its reason
+│   ├── intent-promote-to-staging-without-possible-id.yaml # wheel intent missing possible target
+│   ├── intent-derive-possibles-without-cluster-id.yaml    # wheel intent missing cluster target
+│   ├── intent-research-brief-without-possible-id.yaml     # wheel intent missing possible target
+│   ├── gate-action-promote-to-staging-without-workflow-job.yaml # wheel record missing job
+│   ├── gate-action-derive-possibles-without-workflow-job.yaml    # wheel record missing job
+│   ├── gate-action-derive-possibles-without-cluster-id.yaml      # wheel record missing cluster
+│   └── gate-action-research-brief-without-workflow-job.yaml      # wheel record missing job
 └── transitions/                                       # register (old, new) pairs; valid-* pass, invalid-* fail
     ├── valid-pick-and-reject.{before,after}.yaml      #   latent→picked, latent→rejected, plus a new entry
     ├── valid-derived-disposition.{before,after}.yaml  #   derived accept→latent (origin retained) + reject→rejected
@@ -86,7 +103,8 @@ ideation-dashboard/
 | `ideation-workbench.schema.yaml` | `ideation-workbench-cluster-seeded`, `ideation-workbench-adhoc-human-seen` | `workbench-override-without-reason`, `workbench-excluded-without-reason`, `workbench-pinned-not-checked`, `workbench-candidate-in-members` |
 | `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |
-| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned` |
+| `gate-intent.schema.yaml` | `gate-intent-pending`, `gate-intent-applied`, `gate-intent-promote-to-staging`, `gate-intent-derive-possibles`, `gate-intent-research-brief` | `intent-applied-without-record`, `intent-refused-without-reason`, `intent-promote-to-staging-without-possible-id`, `intent-derive-possibles-without-cluster-id`, `intent-research-brief-without-possible-id` |
+| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session`, `gate-action-record-promote-to-staging`, `gate-action-record-derive-possibles`, `gate-action-record-research-brief` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned`, `gate-action-promote-to-staging-without-workflow-job`, `gate-action-derive-possibles-without-workflow-job`, `gate-action-derive-possibles-without-cluster-id`, `gate-action-research-brief-without-workflow-job` |
 
 ## Named cases from task 2.4
 
@@ -172,6 +190,32 @@ outside one, where no commit is produced, so the commit-per-action rule is a
 ROUTE obligation for it and never a schema conditional (D13). For the same
 reason `target.ref` stays optional even though the route populates it for every
 in-session action.
+
+## Wheel action commissions (add-wheel-action-verbs)
+
+The three generative wheel verbs extend both gate schemas additively without a
+`contract_schema_version` bump. `promote-to-staging` and `research-brief`
+target `possible_id`; `derive-possibles` targets the new optional
+`cluster_id`. Every corresponding action record must contain a `workflow-job`
+artifact because the dashboard commissions the work and never performs it.
+`demote` is unchanged: it was already represented by `change_id` plus a
+required `reason`.
+
+- **Valid intents** — `gate-intent-promote-to-staging`,
+  `gate-intent-derive-possibles`, and `gate-intent-research-brief` prove the
+  target mapping while remaining ordinary pending requests.
+- **Valid records** — the three matching `gate-action-record-*` examples each
+  carry the governed `workflow-job` descriptor and no authored result.
+- **Target negatives** — the three `intent-*-without-*` examples plus
+  `gate-action-derive-possibles-without-cluster-id` prove that the new
+  conditionals bite only for their own verbs.
+- **Artifact negatives** — each new action has a
+  `gate-action-*-without-workflow-job` example proving that a narrative or
+  other artifact cannot stand in for the dispatched job.
+
+Both schema objects remain open: unknown properties are still accepted for
+forward-compatible additive growth, and every pre-wheel packaged positive
+continues to validate through the same delegated validator.
 
 ## The register is an envelope-less kernel
 

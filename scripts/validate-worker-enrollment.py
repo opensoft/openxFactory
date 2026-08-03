@@ -158,8 +158,20 @@ KIND_TO_SCHEMA = {
     "worker_removal_grant": "worker-removal-grant.schema.yaml",
 }
 
-# date/date-time enforced, not merely annotated.
+# date/date-time enforced, not merely annotated. jsonschema only registers the
+# date-time checker when rfc3339-validator is importable, so a bare
+# environment would silently accept malformed timestamps — fail closed
+# instead of validating vacuously.
 FORMAT_CHECKER = FormatChecker()
+if not {"date", "date-time"} <= set(FORMAT_CHECKER.checkers):  # pragma: no cover
+    print(
+        "ERROR jsonschema is missing its date/date-time format checkers; "
+        "install rfc3339-validator (see "
+        "requirements/hermes-runtime-contracts.in) so `format: date` and "
+        "`format: date-time` are enforced",
+        file=sys.stderr,
+    )
+    sys.exit(2)
 
 # Rule (a), property side: names a token/secret/key could plausibly hide behind.
 TOKEN_KEY_RX = re.compile(

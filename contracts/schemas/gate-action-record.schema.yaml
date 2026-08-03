@@ -45,6 +45,15 @@ description: >-
   and new artifact kinds stay unconstrained, and no PRE-EXISTING action ever
   gains a required companion artifact.
 
+  WHEEL ACTION COMMISSIONS (`add-wheel-action-verbs`; additive growth of
+  `contract_schema_version: 1`): `promote-to-staging`, `derive-possibles`,
+  and `research-brief` each record a governed dispatch and therefore MUST
+  reference a `workflow-job` artifact. The first and third target a
+  `possible_id`; the cluster-scoped derivation targets a `cluster_id`.
+  `demote` is unchanged by that change: it was already enumerated with a
+  `change_id` target and required `reason`, and it still records a plan whose
+  execution is a separate human act.
+
   BRANCH SESSIONS (`add-workbench-branch-sessions`, design D13; landed
   2026-07-26 as an ADDITIVE growth of `contract_schema_version: 1` — no bump,
   no existing record invalidated): the workbench's working state moved onto a
@@ -151,7 +160,8 @@ properties:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            lens-save-recipe, lens-add-as-cluster, create-document,
-           edit-document, open-pr, abandon-session]
+           edit-document, open-pr, abandon-session, promote-to-staging,
+           derive-possibles, research-brief]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -177,7 +187,10 @@ properties:
     # approve, self-review, or bypass protection, and consults NO readiness
     # signal — D21); `abandon-session` ends a session without saving and
     # carries the durable "why", exactly as a demotion does. All three are
-    # ADDITIVE enum extensions; every prior record stays valid.
+    # ADDITIVE enum extensions; every prior record stays valid. The three
+    # `add-wheel-action-verbs` values are also ADDITIVE recorded commissions:
+    # they require a workflow-job below but add no authoring or disposition
+    # authority to the record.
   target: {$ref: "#/$defs/target"}
   provenance: {$ref: "#/$defs/provenance"}
   at:
@@ -266,6 +279,33 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
+  # The three wheel generative actions are commissions, never the work. Each
+  # therefore targets its governed source and MUST reference the workflow-job
+  # descriptor it dispatched (`add-wheel-action-verbs`, design D2).
+  - if: {properties: {action: {const: promote-to-staging}}, required: [action]}
+    then:
+      properties:
+        target: {required: [possible_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  - if: {properties: {action: {const: derive-possibles}}, required: [action]}
+    then:
+      properties:
+        target: {required: [cluster_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  - if: {properties: {action: {const: research-brief}}, required: [action]}
+    then:
+      properties:
+        target: {required: [possible_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
   # A create-document record names the document it brought into existence
   # (add-workbench-bullseye-and-create): a create record that does not name
   # the created path audits nothing. Safe as a per-action conditional — no
@@ -342,8 +382,10 @@ $defs:
     type: object
     # Per-action required fields live in the allOf conditionals above: the
     # four change-lifecycle actions require `change_id`; `dispose-possible`
-    # requires `possible_id` + `outcome`; `edit-document` requires `document`
-    # + `ref`; `open-pr` and `abandon-session` require `ref`. (The
+    # requires `possible_id` + `outcome`; the wheel commissions require
+    # `possible_id`, `cluster_id`, and `possible_id` respectively;
+    # `edit-document` requires `document` + `ref`; `open-pr` and
+    # `abandon-session` require `ref`. (The
     # unconditional `change_id` requirement moved into the conditional when the
     # disposition action landed — every previously valid record stays valid.)
     properties:
@@ -355,8 +397,15 @@ $defs:
       possible_id:
         type: string
         minLength: 1
-        # The possibles-register entry a dispose-possible action targets
-        # (matches a `register_entry.id`).
+        # The possibles-register entry a dispose-possible,
+        # promote-to-staging, or research-brief action targets (matches a
+        # `register_entry.id`).
+      cluster_id:
+        type: string
+        minLength: 1
+        # The cross-reference cluster a derive-possibles action scopes. The
+        # console revalidates its existence against the pinned snapshot; this
+        # schema records the target identity only.
       set:
         type: string
         minLength: 1

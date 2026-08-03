@@ -1,0 +1,9 @@
+# INVALID gate-intent: research-brief must target a possible_id.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: research-brief
+target: {}
+requested_at: "2026-07-25T14:10:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending

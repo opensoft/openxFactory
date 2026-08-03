@@ -160,8 +160,20 @@ REGISTER_CONTAINER_KEY = "possibles_register"
 REGISTER_SECTION_REF = f"{REGISTER_SCHEMA}#/$defs/possibles_register"
 
 # A single FormatChecker shared by every validator: the ledger's first rule is
-# that date/date-time must be enforced, not merely annotated.
+# that date/date-time must be enforced, not merely annotated. jsonschema only
+# registers the date-time checker when rfc3339-validator is importable, so a
+# bare environment would silently accept malformed timestamps — fail closed
+# instead of validating vacuously.
 FORMAT_CHECKER = FormatChecker()
+if not {"date", "date-time"} <= set(FORMAT_CHECKER.checkers):  # pragma: no cover
+    print(
+        "ERROR jsonschema is missing its date/date-time format checkers; "
+        "install rfc3339-validator (see "
+        "requirements/hermes-runtime-contracts.in) so `format: date` and "
+        "`format: date-time` are enforced",
+        file=sys.stderr,
+    )
+    sys.exit(2)
 
 # Legal possibles-register state transitions (documented in the schema).
 LEGAL_TRANSITIONS: dict[str, set[str]] = {

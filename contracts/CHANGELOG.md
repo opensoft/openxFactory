@@ -13,6 +13,43 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.29 — 2026-08-03 (additive; wheel action verbs, gate intents, and worker enrollment)
+
+Realizes `add-wheel-action-verbs` tasks 1.5–1.6 and
+`add-ideation-intent-plane` task 2.4. The existing
+`gate-action-record.schema.yaml` adds the human-only commission actions
+`promote-to-staging`, `derive-possibles`, and `research-brief`, the
+`cluster_id` target, verb-specific target requirements, and a required
+`workflow-job` companion for each new action. The previously unpublished
+`gate-intent.schema.yaml` is registered at the same wheel-expanded shape, so
+request and applied-record vocabularies remain in lockstep. The growth is
+additive, keeps `contract_schema_version: 1`, and invalidates no prior intent
+or action record.
+
+Realizes `add-worker-enrollment-broker` task 1.11 by registering the seven
+contract-first worker schemas: enrollment request, lease, enrollment grant,
+lease renewal, policy, audit record, and removal grant. Together they define
+one enrollment point for fleet and volunteer estates, lease-based authority,
+the minimum-app-version renewal floor, estate-specific runner packaging,
+trust-tier segregation, transient registration/remove tokens, and
+redaction-by-shape audit evidence. Consumers pin this release and run
+`scripts/validate-worker-enrollment.py` from the pinned checkout; packaged
+fixtures comprise 11 valid and 27 intended-invalid examples.
+
+This release also corrects a catalog defect present in `contract-v1.27` AND
+republished unchanged by `contract-v1.28`, without moving or rewriting either
+immutable tag. The two doxBench wire schemas were mistakenly typed as Hermes
+semantic `schema` members even though they do not carry the Hermes-only root
+annotations, causing the Hermes catalog loader to reject the published
+catalog. They are now `release-schema` members with `semantic_member: false`:
+still closed and digest-pinned in the release inventory, but correctly
+excluded from the Hermes semantic registry. Migration is to pin
+`contract-v1.29` (the first release whose catalog loads cleanly); the doxBench
+wire-schema bytes are unchanged.
+
+Per-file sha256 inventory:
+`contracts/releases/contract-v1.29.digests.yaml`.
+
 ## contract-v1.28 — 2026-08-02 (additive; the chat-turn request's `active_document_path` is nullable)
 
 Cut in response to codexFactory PR #63 re-verification finding **G-1**

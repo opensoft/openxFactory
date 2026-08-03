@@ -529,6 +529,49 @@ def test_verify_rejects_type_and_schema_pin_drift(tmp_path: Path) -> None:
     )
 
 
+def test_catalog_pin_findings_cover_release_only_schemas() -> None:
+    # Pins the working-tree gate directly: narrowing _catalog_pin_findings
+    # back to `type == "schema"` (dropping release-schema members) must fail
+    # here even though every other suite path goes through
+    # verify_inventory_against_commit.
+    catalog = {
+        "contracts": [
+            {
+                "contract_id": "wire-only",
+                "type": "release-schema",
+                "release_member": True,
+                "contract_schema_version": 1,
+            }
+        ]
+    }
+    matching = {
+        "entries": [
+            {"type": "release-schema", "schema_id": "wire-only", "schema_version": 1}
+        ]
+    }
+    assert release._catalog_pin_findings(catalog, matching) == []
+    for tampered_entries in (
+        [{"type": "release-schema", "schema_id": "wire-only", "schema_version": 2}],
+        [],
+    ):
+        findings = release._catalog_pin_findings(
+            catalog, {"entries": tampered_entries}
+        )
+        assert [f["code"] for f in findings] == ["HGR-RELEASE-SCHEMA-PIN-MISMATCH"]
+
+
+def test_missing_catalog_schema_pin_is_a_clean_dependency_error() -> None:
+    entry = {
+        "contract_id": "wire-only",
+        "type": "release-schema",
+        "release_member": True,
+    }
+    with pytest.raises(release.ReleaseDependencyError):
+        release._require_schema_pin(entry)
+    with pytest.raises(release.ReleaseDependencyError):
+        release._catalog_pin_findings({"contracts": [entry]}, {"entries": []})
+
+
 def test_verify_rejects_symlink_submodule_and_traversal(tmp_path: Path) -> None:
     repo, _ = _synthetic_repo(tmp_path)
     os.symlink(
@@ -843,6 +886,17 @@ def test_inventory_never_encodes_a_host_local_source_path(tmp_path: Path) -> Non
     assert inventory["repository"] == "opensoft/openxFactory"
 
 
+def test_inventory_schema_accepts_release_only_schema_members(tmp_path: Path) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    inventory = _canonical_inventory(repo)
+    schema_entry = next(
+        entry for entry in inventory["entries"] if entry["type"] == "schema"
+    )
+    schema_entry["type"] = "release-schema"
+
+    assert release.inventory_schema_findings(inventory, path="candidate") == []
+
+
 # --- CLI ----------------------------------------------------------------------
 
 
@@ -944,17 +998,23 @@ def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:
 # the repository after normalization FAILS CLOSED as a dependency error rather
 # than digesting content from outside the tree.
 
-def _append_index_entry(repo: Path, path_value: str) -> None:
+def _append_index_entry(
+    repo: Path,
+    path_value: str,
+    *,
+    member_type: str = "schema",
+    semantic_member: bool = True,
+) -> None:
     import yaml
     index_path = repo / "contracts" / "hermes-runtime" / "contract-index.yaml"
     index = yaml.safe_load(index_path.read_text(encoding="utf-8"))
     index["contracts"].append({
         "contract_id": "cross-family-entry",
         "path": path_value,
-        "type": "schema",
+        "type": member_type,
         "contract_schema_version": 1,
         "consumers": ["openxfactory-validator"],
-        "semantic_member": True,
+        "semantic_member": semantic_member,
         "release_member": True,
     })
     index_path.write_text(yaml.safe_dump(index, sort_keys=False), encoding="utf-8")
@@ -969,6 +1029,37 @@ def test_cross_family_index_paths_normalize_into_the_repo(tmp_path: Path) -> Non
     members = {path.as_posix() for path in release.release_membership(repo)}
     assert "contracts/schemas/extra.schema.yaml" in members
     assert not any(m.startswith("contracts/hermes-runtime/..") for m in members)
+
+
+def test_release_only_schema_carries_and_verifies_its_catalog_pin(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    (repo / "contracts" / "schemas").mkdir(parents=True)
+    (repo / "contracts" / "schemas" / "extra.schema.yaml").write_text(
+        "kind: extra\n", encoding="utf-8"
+    )
+    _append_index_entry(
+        repo,
+        "../schemas/extra.schema.yaml",
+        member_type="release-schema",
+        semantic_member=False,
+    )
+    commit = _commit_all(repo, "add release-only schema")
+
+    inventory = _canonical_inventory(repo)
+    entry = next(
+        item for item in inventory["entries"]
+        if item["artifact_id"] == "cross-family-entry"
+    )
+    assert entry["type"] == "release-schema"
+    assert entry["schema_id"] == "cross-family-entry"
+    assert entry["schema_version"] == 1
+
+    entry["schema_version"] = 2
+    assert "HGR-RELEASE-SCHEMA-PIN-MISMATCH" in _codes(
+        release.verify_inventory_against_commit(repo, commit, inventory)
+    )
 
 
 def test_an_index_path_escaping_the_repo_fails_closed(tmp_path: Path) -> None:

@@ -92,6 +92,22 @@ def _finding(code: str, path: str, message: str) -> dict[str, str]:
     return {"code": code, "severity": "error", "path": path, "message": message}
 
 
+def _require_schema_pin(catalog_entry: Mapping[str, object]) -> int:
+    """The catalog is read as raw YAML here, so a schema/release-schema member
+    missing `contract_schema_version` must become a clean dependency error,
+    not an int(None) traceback."""
+
+    raw = catalog_entry.get("contract_schema_version")
+    try:
+        return int(raw)  # type: ignore[arg-type]
+    except (TypeError, ValueError) as exc:
+        raise ReleaseDependencyError(
+            "catalog entry "
+            f"{catalog_entry.get('contract_id')!r} declares no usable "
+            f"contract_schema_version (got {raw!r})"
+        ) from exc
+
+
 def _sorted(findings: Iterable[Mapping[str, object]]) -> list[dict[str, str]]:
     return sorted(
         (dict(item) for item in findings),
@@ -426,9 +442,9 @@ def _entry_for(
             "type": artifact_type,
             "git_mode": git_mode,
         }
-        if artifact_type == "schema":
+        if artifact_type in {"schema", "release-schema"}:
             entry["schema_id"] = str(catalog_entry.get("contract_id"))
-            entry["schema_version"] = int(catalog_entry.get("contract_schema_version"))
+            entry["schema_version"] = _require_schema_pin(catalog_entry)
         entry["digest"] = digest
         return entry
     return {
@@ -836,16 +852,14 @@ def _catalog_pin_findings(
         if (
             isinstance(entry, Mapping)
             and entry.get("release_member")
-            and entry.get("type") == "schema"
+            and entry.get("type") in {"schema", "release-schema"}
         ):
-            schema_pins[str(entry.get("contract_id"))] = int(
-                entry.get("contract_schema_version")
-            )
+            schema_pins[str(entry.get("contract_id"))] = _require_schema_pin(entry)
     inventory_pins = {
         str(entry.get("schema_id")): entry.get("schema_version")
         for entry in (inventory.get("entries", []) or [])
         if isinstance(entry, Mapping)
-        and entry.get("type") == "schema"
+        and entry.get("type") in {"schema", "release-schema"}
         and entry.get("schema_id")
     }
     findings: list[dict[str, str]] = []

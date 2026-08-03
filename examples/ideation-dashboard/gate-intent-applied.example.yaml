@@ -10,7 +10,7 @@ target:
 args:
   outcome: accepted
 requested_at: "2026-07-23T20:00:00Z"
-snapshot_rev_seen: 563ea35d066d
+snapshot_rev_seen: "563ea35d066d"
 status: applied
 applied_at: "2026-07-23T20:04:12Z"
 applied_record: ideation/dashboard/gate-records/pos-derived-wheel-honesty/dispose-possible-20260723T200412Z.gate-action.yaml

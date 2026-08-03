@@ -2,25 +2,41 @@
 
 ## 1. Contracts (openxFactory)
 
-- [ ] 1.1 Extend `gate-intent.schema.yaml`: `promote-to-staging`,
+- [x] 1.1 Extend `gate-intent.schema.yaml`: `promote-to-staging`,
       `derive-possibles`, `research-brief` in the verb enum; `cluster_id` on
       `target`; conditionals `promote-to-staging → target.possible_id`,
       `research-brief → target.possible_id`, `derive-possibles →
       target.cluster_id`. Document in the header comment that `demote` is
       unchanged (already enumerated, `change_id` target).
-- [ ] 1.2 Extend `gate-action-record.schema.yaml`: the same three actions in
+- [x] 1.2 Extend `gate-action-record.schema.yaml`: the same three actions in
       the action enum; `cluster_id` on the `target` $def; conditionals
       requiring each action's target field AND an `artifacts contains
       workflow-job` companion (the propose/kickoff pattern).
-- [ ] 1.3 Keep the additive posture explicit: no `contract_schema_version`
+- [x] 1.3 Keep the additive posture explicit: no `contract_schema_version`
       bump, no `additionalProperties: false`, header notes naming this change
       as the growth source; confirm every packaged example still validates.
-- [ ] 1.4 Validate: the delegated dashboard-contract validator
+- [x] 1.4 Validate: the delegated dashboard-contract validator
       (`scripts/validate-ideation-dashboard-contracts.py`) plus
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`.
-- [ ] 1.5 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.5 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`) at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`.
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`) together with
+      `add-ideation-intent-plane` 2.4 and `add-worker-enrollment-broker`
+      1.11: gate-intent first registration, gate-action-record digest refresh,
+      README index update, changelog entry, and closed release digest inventory.
+- [x] 1.6 Bundle-cut side repair carried by the same registration commit
+      (a6e7563/10d5165/5a1cdc8): the two doxBench wire schemas published at
+      `contract-v1.27` re-typed from Hermes semantic members (`type: schema`,
+      `semantic_member: true`) to closed release members
+      (`type: release-schema`, `semantic_member: false`), `release-schema`
+      added to the release-digest-inventory type enum, and the bundle
+      verifier widened so release-only schemas carry raw digests AND catalog
+      version pins. Wire-schema bytes unchanged; recorded here so the
+      catalog-membership correction has an OpenSpec trail (it was previously
+      only CHANGELOG prose).
 
 ## 2. Engine + routes (codexFactory — Speckit-side realization)
 
@@ -84,9 +100,13 @@
       non-promotable possible (each refused state), undisposed-possible
       research brief ACCEPTED, duplicate commission, unreasoned demote,
       agent-path rejection, and demote leaving the corpus untouched.
-- [ ] 4.2 Schema conformance tests: one valid intent and one valid record per
+- [x] 4.2 Schema conformance tests: one valid intent and one valid record per
       new verb; a record missing its `workflow-job` companion rejected; a
       `derive-possibles` record without `cluster_id` rejected.
+      (Realized 2026-08-02 in openxFactory as
+      `tests/ideation_dashboard/test_wheel_action_contracts.py`: per-verb
+      positive intent/record cases, workflow-job-companion rejection, and the
+      `cluster_id` rejection, all against the packaged examples/negatives.)
 - [ ] 4.3 Live browser check on the local dashboard: each button renders on
       its column's expanded tile under the gate capability with the actor
       resolved, and does not render with the capability off; zero page

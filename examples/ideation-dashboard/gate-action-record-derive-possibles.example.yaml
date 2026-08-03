@@ -1,0 +1,13 @@
+# VALID gate-action record: derive-possibles commissions the existing bounded
+# lane for one cluster and creates no possible itself.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: derive-possibles
+target:
+  cluster_id: cl-ideation-dashboard
+at: "2026-07-25T14:06:00Z"
+artifacts:
+  - kind: workflow-job
+    reference: workflow-jobs/derive-possibles-cl-ideation-dashboard-0001
+notes: Cluster-scoped derivation dispatched; candidates remain pending review.
