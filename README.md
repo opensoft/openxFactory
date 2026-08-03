@@ -226,6 +226,14 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
+  — authored 2026-08-03, the `consent-instrument-contract` staged topic's
+  exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
+  the root of the authority chain that credential grants cite, gates
+  verify, and whose termination cascades through declared dependent refs.
+  Nine design rulings (Brett, 2026-07-31) carried as D1–D9 with zero open
+  questions; the Ledgerx engagement consent record and the Medx patient
+  consent record declare conformance rather than being rewritten.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
