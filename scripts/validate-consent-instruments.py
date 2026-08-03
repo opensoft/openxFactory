@@ -206,6 +206,12 @@ def validator_for(kind: str, docs: dict[str, dict]) -> Draft202012Validator:
 
 # --------------------------- adjudication context ---------------------------
 
+# Sentinel distinguishing "several documents claim this domain" from "none in
+# scope" — both skip the domain-owned checks, but the operator remedy differs
+# (dedupe the registries/models vs scan them alongside the instruments).
+AMBIGUOUS: dict = {}
+
+
 class Context:
     """The domain-owned adjudication documents in scope: class registries and
     purpose models, keyed by `domain`. An instrument is checked against ITS
@@ -220,7 +226,7 @@ class Context:
     def _add(store: dict[str, dict | None], domain: Any, doc: dict) -> None:
         if not isinstance(domain, str):
             return
-        store[domain] = None if domain in store else doc
+        store[domain] = AMBIGUOUS if domain in store else doc
 
     def add(self, doc: dict) -> None:
         if doc.get("kind") == "xfactory_consent_instrument_class_registry":
@@ -230,11 +236,14 @@ class Context:
 
 
 def model_map(model: dict) -> dict[str, str | None]:
-    """purpose name -> resolves_to (or None for a root purpose)."""
+    """purpose name -> resolves_to (or None for a root purpose). A non-string
+    resolves_to is stored as None so a schema-invalid model surfaces as its
+    schema finding instead of a TypeError inside resolve_purpose()."""
     out: dict[str, str | None] = {}
     for entry in model.get("purposes") or []:
         if isinstance(entry, dict) and isinstance(entry.get("purpose"), str):
-            out[entry["purpose"]] = entry.get("resolves_to")
+            target = entry.get("resolves_to")
+            out[entry["purpose"]] = target if isinstance(target, str) else None
     return out
 
 
@@ -258,6 +267,12 @@ def resolve_purpose(requested: str, record_purposes: set[str],
 def check_class(f: Findings, label: str, doc: dict, registry: dict | None) -> None:
     domain = doc.get("domain")
     cls_name = doc.get("instrument_class")
+    if registry is AMBIGUOUS:
+        f.note(f"several instrument-class registries claim domain {domain!r} "
+               f"in this scope: class-membership and declared-skip checks "
+               f"skipped — deduplicate the registries so exactly one owns "
+               f"the domain (D2)")
+        return
     if registry is None:
         f.note(f"no instrument-class registry in scope for domain {domain!r}: "
                f"class-membership and declared-skip checks skipped — the "
@@ -400,6 +415,11 @@ def check_purposes(f: Findings, label: str, doc: dict, model: dict | None) -> No
         if isinstance(doc.get("scope"), dict) else None
     if not isinstance(purposes, list):
         return  # shape failure; the schema layer reports it
+    if model is AMBIGUOUS:
+        f.note(f"several consent purpose models claim domain {domain!r} in "
+               f"this scope: purpose-resolution checks skipped — deduplicate "
+               f"the models so exactly one owns the domain (D4)")
+        return
     if model is None:
         f.note(f"no consent purpose model in scope for domain {domain!r}: "
                f"purpose-resolution checks skipped — the model is "
@@ -422,10 +442,12 @@ def check_requested_purpose(f: Findings, label: str, doc: dict,
         if isinstance(doc.get("scope"), dict) else None
     if not isinstance(purposes, list):
         return
-    if model is None:
+    if model is None or model is AMBIGUOUS:
+        why = ("several purpose models claim" if model is AMBIGUOUS
+               else "no purpose model in scope for")
         f.error("purpose-not-covered",
                 f"{label}: requested purpose {requested!r} cannot be "
-                f"adjudicated — no purpose model in scope for domain "
+                f"adjudicated — {why} domain "
                 f"{doc.get('domain')!r} (spec R7)")
         return
     record_purposes = {p for p in purposes if isinstance(p, str)}
