@@ -78,6 +78,14 @@ it.
   for all three — the same lockstep growth `propose` performed for
   `topic_id`. `demote` needs no schema change: it is already in both enums
   with its `change_id` target and required `reason`.
+- REGISTER (realization bookkeeping at the allocated bundle): gate-intent's
+  first `contracts/manifest.yaml` registration, gate-action-record's digest
+  refresh, the seven worker-enrollment schemas' inventory rows, and a
+  catalog-defect correction the same cut carries: the two doxBench wire
+  schemas published at `contract-v1.27` are re-typed from Hermes semantic
+  members to closed `release-schema` members (bytes unchanged), with the
+  release-digest-inventory type enum and the bundle verifier widened to
+  match (tasks 1.5–1.6).
 - GUARDS (every verb): human-only (HumanGate); target existence in the
   pinned checkout / snapshot; structured refusal that persists nothing; no
   duplicate commission — a second dispatch is refused while an earlier

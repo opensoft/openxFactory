@@ -529,6 +529,49 @@ def test_verify_rejects_type_and_schema_pin_drift(tmp_path: Path) -> None:
     )
 
 
+def test_catalog_pin_findings_cover_release_only_schemas() -> None:
+    # Pins the working-tree gate directly: narrowing _catalog_pin_findings
+    # back to `type == "schema"` (dropping release-schema members) must fail
+    # here even though every other suite path goes through
+    # verify_inventory_against_commit.
+    catalog = {
+        "contracts": [
+            {
+                "contract_id": "wire-only",
+                "type": "release-schema",
+                "release_member": True,
+                "contract_schema_version": 1,
+            }
+        ]
+    }
+    matching = {
+        "entries": [
+            {"type": "release-schema", "schema_id": "wire-only", "schema_version": 1}
+        ]
+    }
+    assert release._catalog_pin_findings(catalog, matching) == []
+    for tampered_entries in (
+        [{"type": "release-schema", "schema_id": "wire-only", "schema_version": 2}],
+        [],
+    ):
+        findings = release._catalog_pin_findings(
+            catalog, {"entries": tampered_entries}
+        )
+        assert [f["code"] for f in findings] == ["HGR-RELEASE-SCHEMA-PIN-MISMATCH"]
+
+
+def test_missing_catalog_schema_pin_is_a_clean_dependency_error() -> None:
+    entry = {
+        "contract_id": "wire-only",
+        "type": "release-schema",
+        "release_member": True,
+    }
+    with pytest.raises(release.ReleaseDependencyError):
+        release._require_schema_pin(entry)
+    with pytest.raises(release.ReleaseDependencyError):
+        release._catalog_pin_findings({"contracts": [entry]}, {"entries": []})
+
+
 def test_verify_rejects_symlink_submodule_and_traversal(tmp_path: Path) -> None:
     repo, _ = _synthetic_repo(tmp_path)
     os.symlink(

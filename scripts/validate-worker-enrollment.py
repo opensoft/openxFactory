@@ -158,8 +158,18 @@ KIND_TO_SCHEMA = {
     "worker_removal_grant": "worker-removal-grant.schema.yaml",
 }
 
-# date/date-time enforced, not merely annotated.
+# date/date-time enforced, not merely annotated. jsonschema only registers the
+# date-time checker when rfc3339-validator is importable, so a bare
+# environment would silently accept malformed timestamps — fail closed
+# instead of validating vacuously.
 FORMAT_CHECKER = FormatChecker()
+if "date-time" not in FORMAT_CHECKER.checkers:  # pragma: no cover
+    print(
+        "ERROR rfc3339-validator is required so `format: date-time` is "
+        "enforced (pip install rfc3339-validator)",
+        file=sys.stderr,
+    )
+    sys.exit(2)
 
 # Rule (a), property side: names a token/secret/key could plausibly hide behind.
 TOKEN_KEY_RX = re.compile(

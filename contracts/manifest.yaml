@@ -1565,7 +1565,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 835e2a1c13dd4043636f0dc7b4facca1d84e805dc96b2da422bee263ac9ebfa4
+    sha256: 21a6fc98cdaa8ad76304b9cd9a24039ccb2e5fa8605ff236a9bb4258d6aec4ea
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1588,7 +1588,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-intent.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 8914cd2358dc97846cccae4bc79c345cb7596015abb5c10d8578b75b2835bd70
+    sha256: 9831a3baf033605d4a1a9351b613960d8208be9b6c351b3bd80c6ab80cc39646
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

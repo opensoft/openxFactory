@@ -282,7 +282,7 @@ allOf:
   # The three wheel generative actions are commissions, never the work. Each
   # therefore targets its governed source and MUST reference the workflow-job
   # descriptor it dispatched (`add-wheel-action-verbs`, design D2).
-  - if: {properties: {action: {const: promote-to-staging}}}
+  - if: {properties: {action: {const: promote-to-staging}}, required: [action]}
     then:
       properties:
         target: {required: [possible_id]}
@@ -290,7 +290,7 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
-  - if: {properties: {action: {const: derive-possibles}}}
+  - if: {properties: {action: {const: derive-possibles}}, required: [action]}
     then:
       properties:
         target: {required: [cluster_id]}
@@ -298,7 +298,7 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
-  - if: {properties: {action: {const: research-brief}}}
+  - if: {properties: {action: {const: research-brief}}, required: [action]}
     then:
       properties:
         target: {required: [possible_id]}

@@ -56,8 +56,13 @@ properties:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            promote-to-staging, derive-possibles, research-brief]
-    # The gate-console verbs (mirrors gate-action-record.action; extended in
-    # lockstep when the console grows a verb). `propose` (add-propose-verb)
+    # The intent-transportable subset of gate-action-record.action: only the
+    # console verbs the zero-write-authority request plane carries. The
+    # record enum is wider (session/document verbs like create-document,
+    # edit-document, open-pr, abandon-session, and the lens-* pair are
+    # record-only) — grow this enum only when a verb becomes requestable
+    # through the intent plane, not on every record-enum growth.
+    # `propose` (add-propose-verb)
     # commissions proposal authoring for a staging topic — the same
     # recorded-dispatch mechanic as kickoff, one boundary earlier. The three
     # `add-wheel-action-verbs` commissions extend that mechanic without

@@ -156,25 +156,29 @@ def test_packaged_wheel_negatives_fail_for_the_declared_schema_rule(
 ):
     expected = {
         "intent-promote-to-staging-without-possible-id.yaml":
-            ("required", "target", "'possible_id'"),
+            ("required", "target", "possible_id"),
         "intent-derive-possibles-without-cluster-id.yaml":
-            ("required", "target", "'cluster_id'"),
+            ("required", "target", "cluster_id"),
         "intent-research-brief-without-possible-id.yaml":
-            ("required", "target", "'possible_id'"),
+            ("required", "target", "possible_id"),
         "gate-action-promote-to-staging-without-workflow-job.yaml":
             ("contains", "artifacts", None),
         "gate-action-derive-possibles-without-workflow-job.yaml":
             ("contains", "artifacts", None),
         "gate-action-derive-possibles-without-cluster-id.yaml":
-            ("required", "target", "'cluster_id'"),
+            ("required", "target", "cluster_id"),
         "gate-action-research-brief-without-workflow-job.yaml":
             ("contains", "artifacts", None),
     }
-    for name, (validator_name, path_head, message_fragment) in expected.items():
+    # required_property is matched against error.validator_value (the schema's
+    # own required list) rather than the human-readable message, which is not
+    # a stable jsonschema API.
+    for name, (validator_name, path_head, required_property) in expected.items():
         errors = _schema_errors(vidc, registry_docs, _yaml(NEGATIVE / name))
         assert any(error.validator == validator_name and
                    tuple(error.absolute_path)[:1] == (path_head,) and
-                   (message_fragment is None or message_fragment in error.message)
+                   (required_property is None or
+                    required_property in error.validator_value)
                    for error in errors), (name, errors)
 
 
