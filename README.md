@@ -138,6 +138,14 @@ Core domain-neutral docs:
   by trust tier, the brokered remove-token issuance shape, and audit records no
   token value can enter; realized by
   `add-worker-enrollment-broker`, pending bundle registration)
+- [Consent Instrument Contract Family](examples/consent-instrument/README.md)
+  (the neutral rung-1↔rung-2 consent instrument — the authority-chain root
+  credential grants cite and termination cascades from: schemas
+  `contracts/schemas/consent-instrument.schema.yaml`,
+  `consent-instrument-class-registry.schema.yaml`, and
+  `consent-purpose-model.schema.yaml`; canonical validator
+  `scripts/validate-consent-instruments.py`; realized by
+  `add-consent-instrument`, pending bundle registration)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)

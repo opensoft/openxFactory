@@ -1,0 +1,20 @@
+# VALID consent purpose model for the demo-advisory domain (spec "The
+# Neutral Check Verifies Purpose Resolution Only", ruling D4 — the Medx
+# pattern): the domain-declared vocabulary record purposes resolve into,
+# directly or through a resolves_to chain. The canonical validator's
+# self-test probes both directions against the engagement-letter example:
+# requested `reconcile-bank-feeds` RESOLVES (-> bookkeeping, which is in the
+# record's purposes) and requested `payroll-support` REFUSES (in the model,
+# but reaching no record purpose).
+schema_version: 1
+kind: xfactory_consent_purpose_model
+domain: demo-advisory
+purposes:
+  - purpose: bookkeeping
+  - purpose: monthly-close
+    resolves_to: bookkeeping
+  - purpose: reconcile-bank-feeds
+    resolves_to: bookkeeping
+  - purpose: payroll-support
+  - purpose: portal-messaging
+  - purpose: marketing-contact
