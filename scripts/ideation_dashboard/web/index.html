@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>xFactory Ideation Dashboard</title>
+  <!-- Empty inline favicon: suppresses the browser's automatic /favicon.ico
+       request (a stray 404 in the console) without any external asset. -->
+  <link rel="icon" href="data:,">
+  <link rel="apple-touch-icon" href="data:,">
+  <!-- All assets are local/vendored: no CDN, no external fonts, no remote
+       scripts. The renderer's only data fetch is the generated snapshot JSON
+       (see app.js). -->
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="brand">xFactory <span class="dim">/</span> ideation dashboard</span>
+    <span class="repochip" id="repochip">—</span>
+    <!-- The REPOSITORY SELECTOR + the one refresh affordance
+         (add-dashboard-repo-selector): populated from the snapshot index by
+         views/repo-selector.js, and left EMPTY when the serving side offers no
+         index — a static image then renders exactly today's dashboard. -->
+    <span id="repopicker"></span>
+    <input class="search" id="globalsearch" type="search" autocomplete="off"
+           placeholder="search docs, clusters, changes…" aria-label="search docs, clusters, changes…">
+    <!-- The freshness header (design D11): repo @ ref · source_revision short
+         SHA · generated-at, so "did my doc make it in?" is answerable at a
+         glance rather than by reasoning about deployment times. -->
+    <span class="freshness" id="freshness"></span>
+    <span class="asof" id="asof">loading snapshot…</span>
+    <button class="themebtn" id="themebtn" type="button" title="Toggle colour theme">◐ auto</button>
+    <!-- The settings gear: opens the anchored preferences panel (views/settings.js,
+         wired in app.js beside initTheme). The panel itself is created by script
+         and appended to <body>, so the app shell's overflow cannot clip it. -->
+    <button class="themebtn settingsbtn" id="settingsbtn" type="button"
+            title="settings" aria-label="settings"
+            aria-expanded="false" aria-controls="settingspanel">⚙</button>
+  </header>
+
+  <!-- The STALE-FALLBACK banner (design D6) and the sparse-station note (D10).
+       A baked fallback never renders silently: a dashboard quietly serving last
+       week's governance state is the failure this change exists to end. -->
+  <div class="stalebanner" id="stalebanner" hidden></div>
+
+  <div id="rollup"></div>
+  <div class="tiles" id="stats"></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-funnel" aria-selected="true" aria-controls="view-funnel">realization funnel</button>
+    <button class="tab" role="tab" id="tab-wheel" aria-selected="false" aria-controls="view-wheel">the wheel</button>
+    <button class="tab" role="tab" id="tab-board" aria-selected="false" aria-controls="view-board">pipeline board</button>
+    <button class="tab" role="tab" id="tab-canvas" aria-selected="false" aria-controls="view-canvas">cluster canvas</button>
+    <button class="tab" role="tab" id="tab-lens" aria-selected="false" aria-controls="view-lens">keyword lens</button>
+    <button class="tab" role="tab" id="tab-docs" aria-selected="false" aria-controls="view-docs">doc list</button>
+    <button class="tab" role="tab" id="tab-lineage" aria-selected="false" aria-controls="view-lineage">lineage &amp; readiness</button>
+  </div>
+
+  <div class="docstatus" id="loadstatus">loading the snapshot…</div>
+
+  <section class="view" id="view-funnel" role="tabpanel" aria-labelledby="tab-funnel"></section>
+  <section class="view" id="view-wheel" role="tabpanel" aria-labelledby="tab-wheel" hidden></section>
+  <section class="view" id="view-board" role="tabpanel" aria-labelledby="tab-board" hidden></section>
+  <section class="view" id="view-canvas" role="tabpanel" aria-labelledby="tab-canvas" hidden></section>
+  <section class="view" id="view-lens" role="tabpanel" aria-labelledby="tab-lens" hidden></section>
+  <section class="view" id="view-docs" role="tabpanel" aria-labelledby="tab-docs" hidden></section>
+  <section class="view" id="view-lineage" role="tabpanel" aria-labelledby="tab-lineage" hidden></section>
+
+  <p class="foot">
+    A read-only projection of one repository's ideation governance state,
+    rendered from a single generated <code>snapshot.json</code>. The funnel reads
+    the snapshot's link tallies and readiness verbatim — it never rescans the
+    repository or re-scores anything. Cluster↔possible links are many-to-many:
+    one doc's <code>Topics:</code> list feeds several clusters and one possible
+    can be claimed by several clusters (dashed violet edges). Regenerate the
+    snapshot to refresh; dashboard artifacts are never hand-edited.
+  </p>
+</div>
+
+<!-- The drill-down explorer + read-only viewer overlay (T017/T018) mounts
+     here, outside `.wrap`, so its backdrop can cover the full viewport. -->
+<div id="explorer-root"></div>
+
+<!-- The staging-workbench overlay (add-staging-workbench): the full-screen
+     read-only scoped view the wheel's `open workbench` verb opens. Kept BELOW
+     the explorer overlay in stacking terms (lower z-index in CSS), so a docs
+     row's jump into the explorer/viewer overlay paints above it. -->
+<div id="staging-workbench-root"></div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

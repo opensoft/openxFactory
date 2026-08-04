@@ -7,7 +7,21 @@ pytest's default (prepend) import mode puts this file's directory
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import pytest
+
+# The STRUCTURAL hermeticity guard (`tests/hermeticity.py`) is registered here
+# as well as in `tests/conftest.py`, because a pytest run that makes this
+# directory the rootdir excludes the suite-wide conftest from collection
+# (FR-043; hookup set pinned by tests/ideation-dashboard/test_hermeticity.py).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
+    hermetic_binary_path,
+    hermetic_external_runners,
+)
 
 from xfactory.avatar_runtime import build_runtime
 from xfactory.avatar_runtime.clocks import ManualClock

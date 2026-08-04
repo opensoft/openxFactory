@@ -36,6 +36,34 @@ anything — the workspace never has zero homes for a tool.
 readiness. That is CI-host infrastructure: it moves to the aggregation
 repo (which hosts the runners and the nightly), not openxFactory.
 
+**D3 refinement (2026-08-03, tranche B execution).** The two modules are
+not the same kind of thing, and D3's aggregation-bound scope narrows to
+`readiness.py` only. Read at the adoption pin
+(codexFactory main@e4caa03bf48655b54bc96fc5450d9ad5bddf4886):
+
+- `readiness.py` is exactly what D3 describes — its docstring is
+  "Fail-closed readiness evaluation for bounded Cloud PC workers", and its
+  single `evaluate()` checks GitHub runner-group state, host heartbeats,
+  attestation labels, and worker policy versions. It imports nothing from
+  the doc_health package. It rides tranche D to the aggregation repo,
+  together with `tests/doc-health/test_readiness.py` and the
+  `check-worker-readiness.py` CLI half of `test_security_boundaries.py`.
+- `readiness_dispatch.py` is NOT CloudPC infrastructure: its docstring is
+  "Nightly ideation-readiness lane dispatch orchestration (openxFactory
+  `add-ideation-cross-reference-readiness`; change tasks 4.1-4.3)" and it
+  is "pure orchestration over the already-tested `ideation_readiness.py`
+  primitives". Its only package imports are `from . import corpus` and
+  `from . import ideation_readiness as ir` (plus a lazy
+  `from . import report` in `main()`) — all three already adopted by
+  tranche A — and it never imports `readiness.py`; the two modules share
+  only the word "readiness". `scripts/ideation-readiness-nightly.py`
+  (tranche B, task 2.1) is a thin wrapper around
+  `doc_health.readiness_dispatch.main`, so the lane dispatch must live
+  where the nightly entrypoint lives. It is adopted into
+  `scripts/doc_health/` with tranche B, together with
+  `tests/doc-health/test_readiness_dispatch.py` and the cross-lane
+  register-carry test restored in `test_derive_possibles_dispatch.py`.
+
 ## D4. The one engineering default stays a config default
 
 `kickoff.py`'s `DEFAULT_WORKFLOW = "speckit-realization"` is retained as

@@ -1,0 +1,370 @@
+"""The SHARED bullseye widget (views/bullseye.js; openxFactory
+`add-workbench-bullseye-and-create` design D1/D6).
+
+There is exactly ONE match-count bullseye renderer in the bundle, lifted out of
+`views/lens.js` so the keyword-lens tab and the staging workbench's lens panel
+cannot drift. Python-side only — no browser automation: the ACTUAL module runs in
+node against a minimal DOM stub (skipped when node is absent), rendering a real
+`buildLensModel` result, so the assertions are about the widget's OWN output
+rather than a re-implementation of it.
+
+What is pinned here:
+
+  geometry -> DOM     one ring circle + one ring label per ring, one divider +
+                      one label per sector, one dot group per dot — the counts
+                      come from the model, never from a second layout rule.
+  the no-checked case  a single "check a keyword" label and NO rings, so an
+                      empty selection can never render a misleading target.
+  the centre gesture   `onActivate` renders ONE focusable, role=button hit
+                      region over the matches-ALL zone (design D6); with no
+                      callback the region is ABSENT entirely, which is what
+                      keeps the keyword-lens tab's SVG byte-identical to what it
+                      drew before the lift.
+  consumers            both surfaces import the widget, and neither keeps a
+                      private `bullseye(` renderer.
+  no transport         the widget is pure DOM over a model: no fetch, no dynamic
+                      import, no external URL beyond the SVG XML namespace.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import shutil
+import subprocess
+
+import pytest
+
+from conftest import REPO_ROOT  # noqa: F401 (sys.path side effect)
+
+WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+BULLSEYE_JS = WEB / "views" / "bullseye.js"
+LENS_MODEL_JS = WEB / "views" / "lens-model.js"
+LENS_JS = WEB / "views" / "lens.js"
+WORKBENCH_JS = WEB / "views" / "staging-workbench.js"
+NODE = shutil.which("node")
+
+# A minimal SVG-only DOM: every node records its tag, attributes, text, wired
+# event types, and children, so the harness can report the tree as JSON. The
+# widget touches nothing else (createElementNS + setAttribute + appendChild +
+# textContent + addEventListener).
+_NODE_HARNESS = """
+globalThis.document = {
+  createElementNS(ns, tag) {
+    return {
+      tag, attrs: {}, children: [], text: null, events: [], handlers: {},
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      appendChild(child) { this.children.push(child); return child; },
+      // handlers are KEPT (not just their type names) so the harness can fire a
+      // region and pin what it hands the caller, not merely that it is wired
+      addEventListener(type, fn) { this.events.push(type); this.handlers[type] = fn; },
+      set textContent(v) { this.text = v; },
+      get textContent() { return this.text; },
+    };
+  },
+};
+const EV = { preventDefault() {} };
+const { renderBullseye } = await import('./bullseye.js');
+const { buildLensModel } = await import('./lens-model.js');
+import { readFileSync } from 'node:fs';
+
+function flatten(node, out) {
+  out.push({ tag: node.tag, cls: node.attrs.class || null, attrs: node.attrs,
+             text: node.text, events: node.events, node });
+  for (const child of node.children) flatten(child, out);
+  return out;
+}
+
+// Fire one region the way a human would: a click, then Enter, then Space, and
+// report every region object the widget handed back. `keydown` with an ignored
+// key must hand back nothing.
+function fireAll(hit, sink) {
+  const before = sink.length;
+  hit.node.handlers.click(EV);
+  hit.node.handlers.keydown({ ...EV, key: 'Enter' });
+  hit.node.handlers.keydown({ ...EV, key: ' ' });
+  hit.node.handlers.keydown({ ...EV, key: 'a' });
+  return sink.slice(before);
+}
+
+const cases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const out = {};
+for (const [id, snapshot, checked, wire] of cases) {
+  const model = buildLensModel(snapshot, { checked });
+  // every region reports the subset it would seed a create with, so the harness
+  // pins the sector -> keywords mapping (open question 2's ruling) and not just
+  // the presence of a hit node
+  const activations = [];
+  const node = renderBullseye(model, wire
+    ? { onActivate: (region) => activations.push(region), centreLabel: 'create here' }
+    : null);
+  const nodes = flatten(node, []);
+  const centre = nodes.filter((n) => n.cls === 'bullseye-centre');
+  const hits = nodes.filter((n) => n.cls === 'bullseye-sector');
+  out[id] = {
+    root: { tag: node.tag, cls: node.attrs.class, aria: node.attrs['aria-label'] },
+    counts: {
+      rings: nodes.filter((n) => n.cls === 'ring' || n.cls === 'ring zone0').length,
+      centreRings: nodes.filter((n) => n.cls === 'ring zone0').length,
+      ringLabels: nodes.filter((n) => n.cls === 'ringlab').length,
+      sectors: nodes.filter((n) => n.cls === 'sector').length,
+      sectorLabels: nodes.filter((n) => n.cls === 'seclab').length,
+      dots: nodes.filter((n) => n.cls === 'lensdot').length,
+      centre: centre.length,
+      sectorHits: hits.length,
+    },
+    centre: centre.length ? {
+      tag: centre[0].tag, role: centre[0].attrs.role,
+      tabindex: centre[0].attrs.tabindex, aria: centre[0].attrs['aria-label'],
+      events: centre[0].events, r: centre[0].attrs.r,
+    } : null,
+    sectorHits: hits.map((n) => ({
+      tag: n.tag, role: n.attrs.role, tabindex: n.attrs.tabindex,
+      aria: n.attrs['aria-label'], events: n.events, d: n.attrs.d,
+      // the widget's own <title> child, the hover affordance
+      title: (n.node.children[0] || {}).text || null,
+      // what activating THIS region hands the caller: click, Enter, Space each
+      // once; an ignored key adds nothing
+      regions: fireAll(n, activations),
+    })),
+    centreRegions: centre.length ? fireAll(centre[0], activations) : [],
+    labels: nodes.filter((n) => n.cls === 'ringlab').map((n) => n.text),
+    docLabels: nodes.filter((n) => n.cls === 'doclab').map((n) => n.text),
+    model: {
+      rings: model.rings.length, sectors: model.sectors.length,
+      dots: model.dots.length, checked: model.checked,
+      centreRadius: (model.rings.find((r) => r.isCenter) || {}).outerRadius,
+      sectorList: model.sectors.map((s) => ({
+        subsetKey: s.subsetKey, keywords: s.keywords, matchCount: s.matchCount,
+        isCenter: s.isCenter, spanDeg: s.spanDeg,
+        outerRadius: s.outerRadius, innerRadius: s.innerRadius,
+      })),
+    },
+  };
+}
+console.log(JSON.stringify(out));
+"""
+
+
+def _hand_snapshot():
+    return {
+        "repository": "fixture-repo",
+        "generation": {"source_revision": "a" * 40},
+        "documents": [
+            {"id": "a.md", "path": "a.md", "topics": ["alpha", "beta"]},
+            {"id": "b.md", "path": "b.md", "topics": ["alpha"]},
+            {"id": "c.md", "path": "c.md", "topics": ["beta"]},
+            {"id": "d.md", "path": "d.md", "topics": ["gamma"]},
+        ],
+        "keyword_index": [
+            {"keyword": "alpha", "declared_doc_count": 2},
+            {"keyword": "beta", "declared_doc_count": 2},
+            {"keyword": "gamma", "declared_doc_count": 1},
+        ],
+    }
+
+
+SNAP = _hand_snapshot()
+CASES = [
+    # (id, snapshot, checked, wire the centre gesture)
+    ("two-checked", SNAP, ["alpha", "beta"], False),
+    ("two-checked-wired", SNAP, ["alpha", "beta"], True),
+    ("one-checked", SNAP, ["alpha"], False),
+    ("none-checked", SNAP, [], False),
+    ("none-checked-wired", SNAP, [], True),
+]
+
+
+def _render(tmp_path):
+    if NODE is None:
+        pytest.skip("node not available for the JS renderer probe")
+    shutil.copy(BULLSEYE_JS, tmp_path / "bullseye.js")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.js")
+    # ESM without renaming to .mjs: the widget imports "./lens-model.js" by name
+    (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    (tmp_path / "harness.mjs").write_text(_NODE_HARNESS, encoding="utf-8")
+    cases_path = tmp_path / "cases.json"
+    cases_path.write_text(json.dumps(CASES), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "harness.mjs"), str(cases_path)],
+                          capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, f"node harness failed:\n{proc.stderr}"
+    return json.loads(proc.stdout)
+
+
+def test_bullseye_renders_the_models_geometry(tmp_path):
+    r = _render(tmp_path)["two-checked"]
+    assert r["root"]["tag"] == "svg" and r["root"]["cls"] == "bullseye"
+    assert "rings by number of checked keywords matched" in r["root"]["aria"]
+    # one ring circle + one label per ring; one divider + one label per sector;
+    # one group per dot — every count is the model's own
+    assert r["counts"]["rings"] == r["model"]["rings"] == 2
+    assert r["counts"]["ringLabels"] == r["model"]["rings"]
+    assert r["counts"]["sectors"] == r["model"]["sectors"]
+    assert r["counts"]["sectorLabels"] == r["model"]["sectors"]
+    assert r["counts"]["dots"] == r["model"]["dots"] == 3
+    # exactly ONE shaded centre zone, labelled "all N ✓"
+    assert r["counts"]["centreRings"] == 1
+    assert "all 2 ✓" in r["labels"]
+    # the dots carry the document basenames, textContent-bound
+    assert set(r["docLabels"]) == {"a.md", "b.md", "c.md"}
+
+
+def test_no_checked_keywords_renders_a_prompt_and_no_rings(tmp_path):
+    r = _render(tmp_path)["none-checked"]
+    assert r["counts"]["rings"] == 0
+    assert r["counts"]["dots"] == 0
+    assert r["labels"] == ["check a keyword to stratify the corpus"]
+    # and with the gesture wired there is still nothing to activate
+    wired = _render(tmp_path)["none-checked-wired"]
+    assert wired["counts"]["centre"] == 0
+
+
+def test_centre_gesture_is_present_only_when_wired(tmp_path):
+    out = _render(tmp_path)
+    # the keyword-lens tab supplies no callback: the region is ABSENT, so its SVG
+    # is what it was before the widget lift (design D6)
+    assert out["two-checked"]["counts"]["centre"] == 0
+    wired = out["two-checked-wired"]
+    assert wired["counts"]["centre"] == 1
+    centre = wired["centre"]
+    assert centre["tag"] == "circle"
+    # focusable + announced + keyboard-reachable, not a bare click target
+    assert centre["role"] == "button" and centre["tabindex"] == "0"
+    assert centre["aria"] == "create here"
+    assert set(centre["events"]) == {"click", "keydown"}
+    # it covers the matches-ALL zone: the centre ring's own outer radius
+    assert float(centre["r"]) == pytest.approx(
+        round(wired["model"]["centreRadius"] * 100) / 100)
+    # and it hands back the WHOLE checked set — click, Enter, and Space alike,
+    # while an ignored key hands back nothing
+    regions = wired["centreRegions"]
+    assert len(regions) == 3
+    for region in regions:
+        assert region["kind"] == "centre"
+        assert region["keywords"] == wired["model"]["checked"] == ["alpha", "beta"]
+
+
+# ---- ring-sector activation (open question 2's ruling) --------------------------
+
+def test_sector_regions_are_activatable_only_when_wired(tmp_path):
+    """Brett's 2026-07-25 ruling on open question 2: activating ANY ring sector
+    opens the create dialog seeded with that sector's matched combination, on the
+    same keyboard terms as the centre region. The keyword-lens tab supplies no
+    handler, so NO region exists there and its SVG is unchanged."""
+    out = _render(tmp_path)
+    # inert on the main lens tab: no centre region and no sector region at all
+    assert out["two-checked"]["counts"]["centre"] == 0
+    assert out["two-checked"]["counts"]["sectorHits"] == 0
+    # the DRAWN sectors (dividers + labels) are identical either way — only the
+    # hit regions appear, so the visible bullseye does not change
+    for key in ("sectors", "sectorLabels", "rings", "ringLabels", "dots"):
+        assert out["two-checked"]["counts"][key] == out["two-checked-wired"]["counts"][key]
+
+    wired = out["two-checked-wired"]
+    # three distinct matched subsets — alpha∧beta (the matches-ALL one), alpha,
+    # beta — and the matches-ALL sector is left to the CENTRE region, so exactly
+    # the two PROPER subsets get their own hit region
+    subsets = wired["model"]["sectorList"]
+    assert [s["subsetKey"] for s in subsets] == ["alpha ∧ beta", "alpha", "beta"]
+    assert [s["isCenter"] for s in subsets] == [True, False, False]
+    assert wired["counts"]["sectorHits"] == 2
+    for hit in wired["sectorHits"]:
+        assert hit["tag"] == "path"
+        assert hit["role"] == "button" and hit["tabindex"] == "0"
+        assert set(hit["events"]) == {"click", "keydown"}
+        assert hit["aria"] and hit["aria"] == hit["title"]
+        assert hit["d"].startswith("M ") and hit["d"].endswith(" Z")
+
+
+def test_sector_activation_hands_back_that_sectors_keywords(tmp_path):
+    """The sector -> keywords mapping: each region reports its OWN matched subset,
+    so the caller seeds `Topics:` from it without re-deriving anything from the
+    geometry or re-splitting the joined label."""
+    wired = _render(tmp_path)["two-checked-wired"]
+    by_key = {}
+    for hit in wired["sectorHits"]:
+        # click + Enter + Space all fire; the ignored key does not
+        assert len(hit["regions"]) == 3
+        kinds = {r["kind"] for r in hit["regions"]}
+        keys = {r["subsetKey"] for r in hit["regions"]}
+        assert kinds == {"sector"} and len(keys) == 1
+        by_key[hit["regions"][0]["subsetKey"]] = hit["regions"][0]["keywords"]
+    # exactly the two proper subsets, each carrying its own keyword list — NOT
+    # the whole checked set
+    assert by_key == {"alpha": ["alpha"], "beta": ["beta"]}
+    # every sector's aria label names its own combination
+    arias = sorted(hit["aria"] for hit in wired["sectorHits"])
+    assert arias == ["create a document from the alpha combination (1 of 2 checked)",
+                     "create a document from the beta combination (1 of 2 checked)"]
+
+
+def test_sector_geometry_puts_each_subset_on_its_own_ring_band(tmp_path):
+    """A sector is one distinct subset, so it lives on the ring for its own size:
+    the band between that match count's outer radius and the next one in. The hit
+    shape and the dots inside it come from ONE derivation."""
+    wired = _render(tmp_path)["two-checked-wired"]
+    subsets = {s["subsetKey"]: s for s in wired["model"]["sectorList"]}
+    # three distinct subsets share the 360 degrees evenly
+    assert {s["spanDeg"] for s in subsets.values()} == {120.0}
+    # the matches-ALL subset reaches the centre; a 1-match subset sits in the
+    # outer band, bounded inside by the centre ring's radius
+    centre_r = wired["model"]["centreRadius"]
+    assert subsets["alpha ∧ beta"]["matchCount"] == 2
+    assert subsets["alpha ∧ beta"]["innerRadius"] == 0
+    assert subsets["alpha ∧ beta"]["outerRadius"] == pytest.approx(centre_r)
+    for key in ("alpha", "beta"):
+        assert subsets[key]["matchCount"] == 1
+        assert subsets[key]["innerRadius"] == pytest.approx(centre_r)
+        assert subsets[key]["outerRadius"] > centre_r
+
+
+def test_only_the_workbench_wires_the_activation_handler():
+    """The main keyword-lens tab must keep passing NO handler — that is what makes
+    its bullseye byte-identical and every region inert there (design D6)."""
+    # comments may DISCUSS the seam; only a wired property counts as supplying it
+    lens = "\n".join(ln for ln in LENS_JS.read_text(encoding="utf-8").splitlines()
+                     if not ln.lstrip().startswith("//"))
+    workbench = WORKBENCH_JS.read_text(encoding="utf-8")
+    assert "onActivate" not in lens, "the lens tab must supply no activation handler"
+    assert "renderBullseye(model)" in lens, "the lens tab must pass no opts at all"
+    assert "onActivate:" in workbench, "the workbench must wire the create gesture"
+    # and the workbench routes a SECTOR's own keywords into the seed
+    assert 'region.kind === "sector"' in workbench
+    assert "subset: [...region.keywords]" in workbench
+
+
+def test_one_checked_keyword_centre_covers_the_whole_field(tmp_path):
+    """With a single checked keyword the matches-ALL zone IS the outer circle —
+    the gesture still resolves to exactly one region, never zero or two."""
+    r = _render(tmp_path)["one-checked"]
+    assert r["counts"]["rings"] == 1 and r["counts"]["centreRings"] == 1
+
+
+# ---- one renderer, two consumers ------------------------------------------------
+
+def test_both_surfaces_consume_the_shared_widget():
+    lens = LENS_JS.read_text(encoding="utf-8")
+    workbench = WORKBENCH_JS.read_text(encoding="utf-8")
+    for name, body in (("lens.js", lens), ("staging-workbench.js", workbench)):
+        assert 'from "./bullseye.js"' in body, f"{name} does not import the widget"
+        assert "renderBullseye(" in body, f"{name} does not render the widget"
+    # neither view keeps a private renderer: no local `function bullseye(` and no
+    # second createElementNS-based SVG layout
+    for name, body in (("lens.js", lens), ("staging-workbench.js", workbench)):
+        assert "function bullseye(" not in body, f"{name} kept a private renderer"
+        assert "createElementNS" not in body, f"{name} builds SVG of its own"
+
+
+def test_bullseye_widget_has_no_network_primitive_and_no_markup_sink():
+    body = BULLSEYE_JS.read_text(encoding="utf-8")
+    assert "fetch(" not in body
+    assert "import(" not in body
+    # the widget only ever BUILDS nodes — it never assigns innerHTML at all
+    assert not re.findall(r"\.innerHTML\s*=", body)
+    external = re.compile(
+        r"https?://(?!www\.w3\.org)|unpkg|jsdelivr|googleapis|cdnjs|"
+        r"XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon", re.IGNORECASE)
+    offenders = [ln for ln in body.splitlines() if external.search(ln)]
+    assert not offenders, f"external network primitive in bullseye.js: {offenders}"
+    # every dynamic value binds through the svg() helper's textContent assignment
+    assert "node.textContent = text" in body

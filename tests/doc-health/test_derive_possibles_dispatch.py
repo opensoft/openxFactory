@@ -18,6 +18,7 @@ from conftest import AS_OF, FakeGit, REPO_ROOT  # noqa: F401 (sys.path side effe
 
 from doc_health import derive_possibles as dp
 from doc_health import derive_possibles_dispatch as dpd
+from doc_health import readiness_dispatch as rd
 from doc_health import report as report_mod
 
 REV = "a7aac777bedfb83dbb957819a7753436bdabd334"
@@ -348,11 +349,36 @@ def test_stale_register_between_read_and_merge_is_refused(tmp_path,
 
 
 # --- integration: the readiness re-score preserves the register -------------
-# `test_readiness_merge_carries_the_possibles_register_through` moved out with
-# `doc_health.readiness_dispatch` (adopt-neutral-tooling-home design D3: the
-# readiness modules ride tranche D to the aggregation repo, not this one). The
-# cross-lane invariant it proved — a readiness re-score never drops this lane's
-# possibles_register — travels with that module's suite.
+
+def test_readiness_merge_carries_the_possibles_register_through(tmp_path,
+                                                                monkeypatch):
+    monkeypatch.setenv("OPENXFACTORY_ROOT",
+                       str(_write_fake_renderer(tmp_path / "fake-openx")))
+    register = [undisposed_derived("cl-alpha")]
+    agg = make_agg_root(tmp_path, register=register)
+
+    def tier_output(passage):
+        return {"tiers": [
+            {"tier": name, "score": 9, "section": "Body", "passage": passage,
+             "rationale": "judged", "confidence": 0.8, "alternatives": []}
+            for name in ("domain", "company", "project")],
+            "extension_fit": {"has_promoted_fit": False,
+                              "statement": "no promoted capability."}}
+    findings_path = tmp_path / "readiness-findings.json"
+    findings_path.write_text(json.dumps({
+        "cl-alpha": {"output": tier_output(PASSAGE_A)},
+        "cl-beta": {"output": tier_output(PASSAGE_B)},
+    }), encoding="utf-8")
+    meta = rd.merge_readiness_findings(
+        agg, as_of=AS_OF, run_id="readiness-1",
+        findings_path=findings_path, validator=fake_validator(tmp_path),
+        git=FakeGit(heads={"openxFactory": REV}))
+    assert meta.ok, meta.skipped_reason
+    import yaml
+    index = yaml.safe_load(
+        (agg / "openxFactory/ideation/cross-reference.yaml").read_text())
+    # the readiness re-score NEVER drops the derive-possibles lane's register
+    assert index["possibles_register"] == register
 
 
 # --- CLI ---------------------------------------------------------------------

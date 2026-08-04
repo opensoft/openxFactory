@@ -1,5 +1,6 @@
-"""Ideation-dashboard engineering surface (codexFactory realization of the
-ratified openxFactory `add-ideation-dashboard` change, section 3).
+"""Ideation-dashboard surface: the in-repo realization of the ratified
+openxFactory `add-ideation-dashboard` change, section 3 (adopted from
+codexFactory by `adopt-neutral-tooling-home`).
 
 A deterministic snapshot generator over `ideation/` plus active and archived
 OpenSpec changes, a static repo-tracked renderer, and a bounded human/agent

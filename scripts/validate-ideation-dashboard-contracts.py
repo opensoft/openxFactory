@@ -982,14 +982,17 @@ def check_repo_tree(
     f: Findings, registry: Registry, docs: dict[str, dict], repo: Path, context: set[str] | None,
 ) -> None:
     """Validate any real instances of the five kinds committed under the repo
-    (excluding the reference examples tree and the schema files), and run the
+    (excluding the reference examples tree, the schema files, and the test
+    trees — `tests/` carries deliberately-INVALID negative fixtures for the
+    dashboard runtime suite adopted by `adopt-neutral-tooling-home`, and a
+    test fixture is not a real instance), and run the
     committed-workbench-manifest guard."""
     check_committed_manifests(f, repo)
 
     checked = 0
     for path in sorted(list(repo.rglob("*.yaml")) + list(repo.rglob("*.yml"))):
         rel = path.relative_to(repo).as_posix()
-        if rel.startswith("examples/") or rel.startswith("contracts/schemas/") or "/__pycache__/" in rel:
+        if rel.startswith(("examples/", "contracts/schemas/", "tests/")) or "/__pycache__/" in rel:
             continue
         try:
             doc = load_yaml(path)

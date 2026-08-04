@@ -114,8 +114,22 @@ REFUSAL_EXIT_CODE = 97
 # real-binary stand-in, three invocations landed, ledger empty; measured in
 # `tests/notebooklm/` and `tests/merge-master/`). See `pytest.ini` for why an
 # inifile is the right instrument and a per-directory conftest is not.
-CONFTEST_HOOKUPS = ("conftest.py", "doc-health/conftest.py",
+CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "conftest.py",
+                    "doc-health/conftest.py",
                     "ideation-dashboard/conftest.py")
+
+# Conftests under `tests/` that exist but CANNOT register the guard themselves
+# (adopt-neutral-tooling-home tranche B, 2026-08-03). The Hermes
+# runtime-contracts suite's files are digest-indexed PostgreSQL conformance
+# INPUTS: `validate-hermes-runtime-contracts.py` pins their result-source
+# identity (HGR-FIXTURE-DATABASE-RESULT-SOURCE) and collects the suite inside
+# a repository snapshot that carries no `tests/hermeticity.py`, so adding the
+# guard import both invalidates the pinned evidence and breaks snapshot
+# collection (measured, 2026-08-03). Those directories are still guarded
+# through `tests/conftest.py` whenever the conftest chain reaches `tests/`,
+# which the `pytest.ini` rootdir anchor guarantees for in-repo invocations.
+CONFTEST_EXEMPT_HOOKUPS = ("hermes_runtime_contracts/conftest.py",
+                           "hermes_runtime_contracts/postgres/conftest.py")
 
 # The rootdir anchor's filename, pinned by test_hermeticity: without an inifile
 # somewhere at or above the invocation, rootdir falls back to the arguments' common

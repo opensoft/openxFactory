@@ -109,19 +109,140 @@
 
 ## 2. Tranche B — ideation dashboard runtime (openxFactory receives)
 
-- [ ] 2.1 Copy with provenance note: `scripts/ideation_dashboard/`,
+- [x] 2.1 Copy with provenance note: `scripts/ideation_dashboard/`,
       `web/`, `scripts/ideation-dashboard-nightly.py`,
       `ideation-readiness-nightly.py`, `derive-possibles-nightly.py`,
       `docs/ideation-dashboard-session-runbook.md`,
       `tests/ideation-dashboard/`.
-- [ ] 2.2 Keep `kickoff.py` `DEFAULT_WORKFLOW` as the documented
+      Evidence 2026-08-03: copied via `git archive` from codexFactory
+      main@e4caa03bf48655b54bc96fc5450d9ad5bddf4886 (same pin as tranche
+      A). `web/` lives INSIDE the package at
+      `scripts/ideation_dashboard/web/` (38 files), so the full-package
+      copy carries it. The two tranche-A riders (`__init__.py`,
+      `boundary.py`) were overwritten byte-identically (sha256 verified
+      before/after). 168 files, ~98.4k LOC total (package py 25.5k, web
+      18.0k, tests 53.7k, nightlies+runbook 0.5k, D3 dispatch+test 0.8k).
+      **D3 REFINEMENT (needs Brett's eyes — dated note appended to
+      design.md D3):** `readiness_dispatch.py` is NOT CloudPC
+      infrastructure — its docstring opens "Nightly ideation-readiness
+      lane dispatch orchestration (openxFactory
+      add-ideation-cross-reference-readiness)", it imports only
+      `doc_health.corpus` + `doc_health.ideation_readiness` (+ lazy
+      `report`), never `readiness.py`, and
+      `ideation-readiness-nightly.py` wraps
+      `doc_health.readiness_dispatch.main` — so it was adopted HERE with
+      `tests/doc-health/test_readiness_dispatch.py` (29 tests) and the
+      cross-lane register-carry test restored byte-identically in
+      `test_derive_possibles_dispatch.py`. D3's aggregation-bound scope
+      narrows to `readiness.py` only (rides tranche D with
+      `test_readiness.py` and the `check-worker-readiness.py` CLI half of
+      `test_security_boundaries.py`, which is CloudPC-side, not lane
+      dispatch). Tranche A's two already-repointed
+      `ideation-readiness-nightly` lines in `doc-health-reusable.yml` are
+      now functional with no further edit.
+      Cross-repo pins whose SUBJECTS stay in codexFactory were left
+      behind with dated tombstones in the moved copies (originals remain
+      in codexFactory until tranche C): the three `docs/check-matrix.md`
+      pins in `test_session_runbook.py` (one whole test + the matrix
+      halves of two both-docs tests), the `scripts/validate-docs.sh`
+      source pin in `test_hermeticity.py`, the
+      `specs/007-workbench-branch-sessions/playwright-smoke.py` oracle
+      pin in `test_smoke_signals.py` (NOTE for tranche C: that smoke
+      imports `smoke_signals` from this now-moved suite), the
+      `execution_lane.result` half of one `test_session_commits.py` test
+      (D6 keeps that lane in codexFactory), the session-ports.md half of
+      one `test_session_notebook.py` test, and
+      `test_doxbench_contracts.py`'s committed-stack-pin test — **OPEN
+      ITEM for Brett/tranche D:** `doxbench_contracts.verify_stack_pin`
+      requires the HOSTING repo's `stack.yaml` consumption pin;
+      openxFactory is the publisher and has none, so from a publisher
+      checkout serve's two doxbench model routes fail CLOSED
+      (fail-closed refusal, server otherwise unaffected) until a ruled
+      publisher-side declaration lands. Receiving-repo reconciliation:
+      the FR-043 guard was registered in `tests/avatar_runtime/conftest.py`
+      and `tests/hermeticity.py` `CONFTEST_HOOKUPS` extended, with the two
+      `tests/hermes_runtime_contracts/` conftests DECLARED exempt
+      (`CONFTEST_EXEMPT_HOOKUPS`) — their bytes are digest-indexed
+      PostgreSQL conformance inputs (editing them tripped
+      HGR-FIXTURE-DATABASE-RESULT-SOURCE and snapshot collection;
+      measured, then reverted); they stay guarded via `tests/conftest.py`.
+      `validate-ideation-dashboard-contracts.py` `check_repo_tree` now
+      also skips `tests/` (the moved suite's deliberately-INVALID
+      negative fixtures are not "real instances"; same class as its
+      `examples/` exclusion).
+- [x] 2.2 Keep `kickoff.py` `DEFAULT_WORKFLOW` as the documented
       domain-supplied default (D4); no behavior change anywhere — this
       tranche is relocation only.
-- [ ] 2.3 Gates: dashboard test suite green in openxFactory; a snapshot
+      Evidence 2026-08-03: `kickoff.py` is byte-identical to the pin
+      (all four of its codexFactory mentions kept, incl. the
+      `DEFAULT_WORKFLOW` comment and the line-172 outline literal).
+      Full-tree byte diff vs the pin: exactly 14 files differ, all
+      deliberate; `serve.py`, `web/` (all 38), `boundary.py`,
+      `readiness_dispatch.py`, `test_readiness_dispatch.py`, and the
+      restored `test_derive_possibles_dispatch.py` are byte-identical.
+      Path hygiene (tranche-A 1.2 classification style) — fixed as
+      moved-entrypoint/repo-shape: `test_nightly_lane.py:443` asserted
+      workflow command → `openxFactory/scripts/…` (matches the
+      tranche-A-repointed `doc-health-reusable.yml` line 2143);
+      `test_aggregation_register_instance.py` `AGG_ROOT` becomes
+      `REPO_ROOT.parent` (openxFactory sits directly under the
+      aggregation root). Fixed as ownership prose:
+      `ideation_dashboard/__init__.py` (in-repo realization + adoption
+      note), `nightly_lane.py` line 5 (the reusable workflow is now
+      in-repo), `workbench.py` ×3 ("in-repo doc-health machinery"),
+      `generator.py`/dashboard `conftest.py` ("fixture base-repo lives
+      inside the openxFactory git repo"). Left as legitimate:
+      `kickoff.py` ×4 (D4), `session_pr.py` D22 App-ruling history,
+      `branch_session.py` Speckit worktree-root citation,
+      `test_doxbench_routes.py` PR #63 citation, and every test-fixture
+      workspace naming codexFactory as a pinned factory
+      (`test_branch_session.py`, `test_session_harness.py`,
+      `test_gate_console.py`, `test_authoring_agent.py`
+      `repository_context` values, `test_repo_root_guard.py` example
+      prose, the real seed-register row in
+      `test_aggregation_register_instance.py`). Session runbook: only
+      self-referential/context edits — `Repository context:` header now
+      `openxFactory` (the runtime's home; the serve commands it documents
+      are repo-root-relative and stay correct verbatim), and its four
+      codexFactory-resident citations (`specs/007…` ×2,
+      `docs/check-matrix.md`, `docs/pr-admission-merge-readiness.md`)
+      are qualified as codexFactory's; no other content rewritten.
+- [x] 2.3 Gates: dashboard test suite green in openxFactory; a snapshot
       generation run over the workspace matches the prior codexFactory
       output for the same corpus revision; serve smoke (`serve.py`
       starts, renders the funnel against the packaged snapshot);
       existing `tests/ideation_dashboard/` contract suites still green.
+      Evidence 2026-08-03: `python3 -m pytest tests/ideation-dashboard
+      -q` → 2522 passed, 23 skipped (all environment-conditional:
+      4 doxbench released-checkout probes want `OPENXFACTORY_ROOT`,
+      4 aggregation-scope register tests skip in this worktree — the
+      worktree's parent is not the aggregation root — and the balance
+      are the suite's own pre-existing conditional skips; identical skip
+      count on the first post-copy run). `tests/doc-health
+      tests/notebooklm` → 610 passed, 0 skipped: tranche A's 551, plus
+      the 3 `find_spec` probes activating (the two module-level skips
+      expand to 6 + 38 collected tests, the hermeticity-guard layer-2
+      probe passes), plus `test_readiness_dispatch.py`'s 13 and the 1
+      restored cross-lane test — 551 + 45 + 14 = 610. Pre-existing
+      suites unaffected:
+      `tests/ideation_dashboard` 45,
+      document_catalog+ideation_routing+avatar_client_validator 146
+      (191 in one run), avatar_runtime 97,
+      hermes `test_validator_cli.py` 21 (green only after the exemption
+      rework above). Snapshot: `cli.py generate --repo-root <this
+      checkout> --repository openxFactory` (read-only, scratchpad
+      output; with `--project-register` pointed at the aggregation
+      register) → validation 0 errors/0 warnings; vs the committed
+      `health/ideation-dashboard/openxFactory-snapshot.json` the SHAPE is
+      identical (same top-level keys incl. `project: xfactory`, same
+      document entry fields, same generator_version 0.1.0); deltas are
+      corpus drift only (source_revision ede1656e→385dfaff: changes
+      67 vs 65, clusters/keywords 265 vs 270, staged_topics 20 vs 21,
+      documents 240 both). Serve smoke: `serve.py --snapshot <generated>
+      --checkout-root <this checkout> --port 8763` → GET /index.html and
+      GET / both HTTP 200, 5473-byte dashboard page, process killed
+      clean. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` →
+      54 passed, 0 failed.
 
 ## 3. Tranche C — codexFactory sheds (own repo, after A+B are green)
 
