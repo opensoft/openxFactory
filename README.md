@@ -247,6 +247,14 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-neutrality-drift-lane](openspec/changes/add-neutrality-drift-lane/proposal.md)
+  — proposed 2026-08-04 (Brett's directive): a nightly doc-health lane
+  that scouts the five domain factories for content that belongs in
+  openxFactory — deterministic pre-filter signals plus a model scout
+  under a prompt contract — and files each candidate as a drafted
+  DTN-register seed through the rolling health PR for Brett's approval;
+  movement itself always follows the domain-to-neutral promotion
+  process. Awaiting ratification.
 - [adopt-neutral-utility-pack](openspec/changes/adopt-neutral-utility-pack/proposal.md)
   — authored 2026-08-03: the neutral utility pack comes home
   (DTN-018/019/021): the three domain-repo conformance checks (inventory
