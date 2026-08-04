@@ -1,0 +1,36 @@
+schema_version: 1
+kind: xfactory_schema
+$id: https://example.invalid/schemas/generic-envelope.schema.yaml
+title: Generic queue item envelope
+description: >-
+  PLANTED neutral-shaped fixture: a queue-item envelope with zero
+  domain vocabulary anywhere in its body. Any factory would need this
+  essentially unchanged, so the lexicon-absence signal must select it.
+type: object
+required:
+  - item_id
+  - queue_name
+  - submitted_at
+  - body_digest
+properties:
+  item_id:
+    type: string
+    pattern: "^QI-[0-9]{8}$"
+  queue_name:
+    type: string
+    minLength: 1
+  submitted_at:
+    type: string
+    format: date-time
+  body_digest:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  retry_budget:
+    type: integer
+    minimum: 0
+    maximum: 5
+  labels:
+    type: array
+    items:
+      type: string
+additionalProperties: false

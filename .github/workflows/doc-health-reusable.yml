@@ -73,6 +73,23 @@ on:
           trigger). Empty reviews qualifying inputs only.
         type: string
         default: ""
+      neutrality-drift:
+        description: >-
+          Run the neutrality-drift lane (add-neutrality-drift-lane): the
+          deterministic stage-1 pre-filter over the pinned xFactories/*
+          domain repos plus the bounded model scout over its survivors.
+          Default on (opt-out input); with no omnigent worker host the
+          lane records a graceful skip note and stage-1 counts only.
+        type: boolean
+        default: true
+      neutrality-baseline:
+        description: >-
+          Optional domain repo name (e.g. MedxFactory) for a one-time
+          manual FULL neutrality sweep of that repo, ignoring its recorded
+          baseline marker; the lane records a fresh baseline marker when
+          the sweep queue drains. Empty means incremental as usual.
+        type: string
+        default: ""
     secrets:
       XFACTORY_APP_ID:
         description: App ID of the openxFactory GitHub App (factory identity).
@@ -1228,6 +1245,8 @@ jobs:
           ORGANIZER_TENANT: ${{ inputs.worker-tenant-boundary }}
           ORGANIZER_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
           ORGANIZER_HANDLING: ${{ inputs.worker-handling-class }}
+          NEUTRALITY_ENABLED: ${{ inputs.neutrality-drift }}
+          NEUTRALITY_BASELINE_INPUT: ${{ inputs.neutrality-baseline }}
         run: |
           RUN_DATE="$(date -u +%F)"
           PREV="$(ls health/reports/[0-9]*.md 2>/dev/null | sort | tail -1 || true)"
@@ -1331,6 +1350,32 @@ jobs:
             ORGANIZER=(--organizer-unavailable-reason "$ORGANIZER_REASON" \
               "${ORGANIZER_MANUAL[@]}" "${ORGANIZER_HOST[@]}")
           fi
+          # Neutrality-drift lane (add-neutrality-drift-lane task 1.4):
+          # engaged by default, opted out via the neutrality-drift input.
+          # Stage 1 is deterministic and always reported; stage 2 rides
+          # the same artifact-only dispatch seam as the organizer
+          # (NEUTJOB-*.json, named after its dispatched job id). With no
+          # worker host (OMNIGENT_WORKER=false) no collector runs, the
+          # reason defaults to worker_unavailable, and the lane records a
+          # graceful skip NOTE — never an error. More than one artifact
+          # match fails closed, mirroring the sibling lanes.
+          NEUTRALITY=()
+          if [ "$NEUTRALITY_ENABLED" = "true" ]; then
+            NEUTRALITY_REASON="$(cat findings/neutrality-unavailable-reason.txt 2>/dev/null || echo worker_unavailable)"
+            mapfile -t NEUTRALITY_FILES < <(ls findings/NEUTJOB-*.json 2>/dev/null || true)
+            if [ "${#NEUTRALITY_FILES[@]}" -eq 1 ]; then
+              NEUTRALITY=(--neutrality-findings-in "${NEUTRALITY_FILES[0]}" \
+                --neutrality-unavailable-reason "$NEUTRALITY_REASON")
+            else
+              if [ "${#NEUTRALITY_FILES[@]}" -gt 1 ]; then
+                NEUTRALITY_REASON="multiple_recommendation_artifacts"
+              fi
+              NEUTRALITY=(--neutrality-unavailable-reason "$NEUTRALITY_REASON")
+            fi
+            if [ -n "$NEUTRALITY_BASELINE_INPUT" ]; then
+              NEUTRALITY+=(--neutrality-baseline "$NEUTRALITY_BASELINE_INPUT")
+            fi
+          fi
           python3 openxFactory/scripts/doc-health.py \
             --repo-root . "${SKIPS[@]}" "${GATE[@]}" \
             --report-out "$REPORT_OUT" \
@@ -1341,6 +1386,7 @@ jobs:
             "${SWEEP[@]}" \
             "${CATALOG[@]}" \
             "${ORGANIZER[@]}" \
+            "${NEUTRALITY[@]}" \
             --new-findings-out new-findings.json
           echo "run_date=${RUN_DATE}" >> "$GITHUB_OUTPUT"
           echo "report_out=${REPORT_OUT}" >> "$GITHUB_OUTPUT"
@@ -1351,6 +1397,65 @@ jobs:
         with:
           name: doc-health-report-${{ steps.run.outputs.run_date }}
           path: ${{ steps.run.outputs.report_out }}
+      - name: Neutrality-drift lane commit-back (rolling PR; dormant until first scout run)
+        # add-neutrality-drift-lane task 1.4 / design D3: when — and only
+        # when — the neutrality merge inside "Run doc-health suite" above
+        # PERSISTED lane writes into the openxFactory checkout (drafted
+        # DTN-seed evidence, lane state, a recorded baseline marker under
+        # health/neutrality-drift/), commit them inside the SUBMODULE and
+        # deliver via the same force-free rolling-PR pattern the
+        # derive-possibles lane uses. The drafted seed TEXT rides this PR;
+        # Brett's approval of a seed is his merge of the register
+        # addition — this step never edits the register, any domain repo,
+        # or any contract (design D4). Dormant while no worker host
+        # advertises the neutrality-scout profile (the merge records a
+        # worker_unavailable skip and writes nothing).
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+        run: |
+          cd openxFactory
+          git status --porcelain health/neutrality-drift/ | grep -q . \
+            || { echo "no neutrality lane writes — nothing to commit back"; exit 0; }
+          BRANCH="doc-health/neutrality-drift"
+          git config user.name "openxfactory[bot]"
+          git config user.email "openxfactory[bot]@users.noreply.github.com"
+          git add health/neutrality-drift/
+          git diff --cached --quiet && { echo "no submodule changes staged"; exit 0; }
+          git commit -m "neutrality-drift: drafted seeds + lane state (${RUN_DATE})"
+          NEW_COMMIT="$(git rev-parse HEAD)"
+          if git ls-remote --exit-code origin "refs/heads/${BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${BRANCH}"
+            OPEN_PR="$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)"
+            if [ "${OPEN_PR}" != "0" ]; then
+              # Preserve the open PR: advance the branch by a merge commit
+              # whose FIRST parent is the remote tip (a fast-forward push)
+              # and whose tree is this run's content.
+              MERGE="$(git commit-tree "${NEW_COMMIT}^{tree}" \
+                -p "$(git rev-parse FETCH_HEAD)" -p "${NEW_COMMIT}" \
+                -m "neutrality-drift: drafted seeds + lane state (${RUN_DATE})")"
+              git push origin "${MERGE}:refs/heads/${BRANCH}"
+            else
+              # Stale branch left by a merged/closed PR: ref deletion is
+              # unrestricted; recreate the branch fresh (a creation push,
+              # never a non-fast-forward).
+              git push origin --delete "${BRANCH}" || true
+              git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+            fi
+          else
+            git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+          fi
+          if [ "$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)" = "0" ]; then
+            gh pr create --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" \
+              --title "Neutrality-drift drafted seeds ${RUN_DATE}" \
+              --body "Nightly neutrality-drift lane output: drafted DTN-register seed candidates + lane state (add-neutrality-drift-lane). Approving a seed = merging its register addition; rejection = a disposition in health/dispositions.yaml keyed (repo, path, content digest)." \
+              || true
+          fi
       # Ideation readiness lane (openxFactory
       # add-ideation-cross-reference-readiness, change tasks 4.1/4.3).
       # Clones the cataloger lane's own readiness-check/dispatch/collect

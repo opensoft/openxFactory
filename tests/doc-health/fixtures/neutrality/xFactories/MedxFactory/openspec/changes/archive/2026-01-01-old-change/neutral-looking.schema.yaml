@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_schema
+title: Frozen archived schema
+description: >-
+  Lives under openspec/changes/archive/ — a frozen record. It carries
+  zero domain vocabulary on purpose: the pre-filter must never select a
+  frozen record as a subject.
+type: object
+properties:
+  anything:
+    type: string

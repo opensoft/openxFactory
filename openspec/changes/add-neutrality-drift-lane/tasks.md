@@ -2,42 +2,42 @@
 
 ## 1. Lane implementation (openxFactory, after ratification)
 
-- [ ] 1.1 `scripts/doc_health/neutrality.py`: stage-1 deterministic
+- [x] 1.1 `scripts/doc_health/neutrality.py`: stage-1 deterministic
       pre-filter — near-duplicate similarity vs the openxFactory tree
       (generalize the contract-copy-drift machinery), domain-lexicon
       absence for schemas/scripts (each factory's ontology/term
       registry as the lexicon source), cross-repo consumer detection,
       stack.yaml-uninventoried tooling mass; per-repo incremental
       state (changed-since-last-run) with a recorded baseline marker.
-- [ ] 1.2 `scripts/doc_health/neutrality-prompt.md`: the versioned
+- [x] 1.2 `scripts/doc_health/neutrality-prompt.md`: the versioned
       prompt contract — the sweep rubric ("would another domain need
       this essentially unchanged?"), required structured output
       (paths, neutrality evidence, counter-evidence, domain-local
       exclusions, suggested decision promote/split), refusal rules
       (no judgment from location alone; frozen records excluded).
-- [ ] 1.3 `scripts/doc_health/neutrality_dispatch.py`: bounded batch
+- [x] 1.3 `scripts/doc_health/neutrality_dispatch.py`: bounded batch
       dispatch over stage-1 survivors + changed content, structured
       output validation, register-seed drafting (row + detail section
       in the register's format), ranked-plan items, dispositions
       suppression keyed (repo, path, content digest).
-- [ ] 1.4 Reusable workflow: `neutrality-drift` opt-out input (default
+- [x] 1.4 Reusable workflow: `neutrality-drift` opt-out input (default
       on) + `neutrality-baseline` manual full-sweep input; runner.py
       wiring beside the organizer/cataloger lanes.
-- [ ] 1.5 Tests under `tests/doc-health/`: pre-filter signal fixtures
+- [x] 1.5 Tests under `tests/doc-health/`: pre-filter signal fixtures
       (one per signal class), dispatch selection/suppression, seed
       drafting format (validates against the register's row/section
       shape), authority boundary (the lane's write surface is the
       rolling-PR content + its state file, nothing else).
-- [ ] 1.6 Record the codexFactory 2026-08-03 manual sweep as that
+- [x] 1.6 Record the codexFactory 2026-08-03 manual sweep as that
       repo's baseline marker so the lane starts incremental there.
 
 ## 2. Docs and register
 
-- [ ] 2.1 `docs/doc-health.md`: lane section (families/lanes table row,
+- [x] 2.1 `docs/doc-health.md`: lane section (families/lanes table row,
       approval flow, dispositions keying).
-- [ ] 2.2 `docs/domain-to-neutral-promotion-process.md`: note the lane
+- [x] 2.2 `docs/domain-to-neutral-promotion-process.md`: note the lane
       as a register intake path (machine-drafted seeds, human-approved).
-- [ ] 2.3 README doc-index + OpenSpec Records entry.
+- [x] 2.3 README doc-index + OpenSpec Records entry.
 
 ## 3. Verification
 

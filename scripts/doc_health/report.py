@@ -369,3 +369,73 @@ def insert_derive_possibles_section(report_text: str, meta) -> str:
     idx = report_text.index(FINDINGS_BY_FAMILY_HEADING)
     section = "\n".join(build_derive_possibles_section(meta)) + "\n"
     return report_text[:idx] + section + report_text[idx:]
+
+
+def build_neutrality_section(meta) -> list[str]:
+    """Render the "## Neutrality Drift" section lines (openxFactory
+    add-neutrality-drift-lane task 1.3): stage-1 signal counts per domain
+    repo, the incremental selection outcome, and each drafted DTN-register
+    seed with its evidence reference — the rolling-PR surface Brett
+    approves seeds from (design D3)."""
+    lines = ["", "## Neutrality Drift", ""]
+    if meta.skipped_reason:
+        lines.append(f"Skipped: {meta.skipped_reason}")
+    per_repo = ", ".join(
+        f"{repo}={meta.candidates.get(repo, 0)}"
+        for repo in sorted(meta.scope)) or "none"
+    total_files = sum(meta.scanned_files.values())
+    lines.append(f"- stage 1: {sum(meta.candidates.values())} candidate(s) "
+                 f"from {total_files} scanned file(s) ({per_repo})")
+    totals: dict[str, int] = {}
+    for counts in meta.signal_counts.values():
+        for name, n in counts.items():
+            totals[name] = totals.get(name, 0) + n
+    lines.append("- signals: " + (", ".join(
+        f"{name}={totals[name]}" for name in sorted(totals)) or "none"))
+    register_cited = sum(meta.register_cited.values())
+    lines.append(f"- selection: {meta.selected} new/changed survivor(s); "
+                 f"{meta.dispatched} dispatched, {meta.carried_over} "
+                 f"carried over; {meta.suppressed} disposition-suppressed, "
+                 f"{meta.baseline_skipped} baseline-covered, "
+                 f"{register_cited} already register-cited")
+    if meta.seeds:
+        lines.append(f"- drafted seeds ({len(meta.seeds)}; approval = "
+                     "merging the register addition):")
+        for dtn, repo, path, decision, seed_ref in meta.seeds:
+            lines.append(f"  - {dtn} `{decision}` — {repo}:{path} "
+                         f"(drafted seed: {seed_ref})")
+    else:
+        lines.append("- drafted seeds: none this run")
+    for repo in sorted(meta.lexicon_notes):
+        lines.append(f"- lexicon [{repo}]: {meta.lexicon_notes[repo]}")
+    prompt_version = (meta.prompt_version
+                      if meta.prompt_version is not None else "(n/a)")
+    lines.append(f"- scout: prompt contract v{prompt_version}, model "
+                 f"{meta.model or '(none)'}, run {meta.run_id or '(n/a)'}")
+    if meta.baseline_recorded:
+        lines.append(f"- baseline marker recorded: {meta.baseline_recorded}")
+    if meta.deviations:
+        lines.append("- non-default configuration: "
+                     + "; ".join(meta.deviations))
+    return lines
+
+
+def insert_neutrality_section(report_text: str, meta) -> str:
+    """Insert the Neutrality Drift section before '## Findings By Family'
+    and fold `meta.findings` — the drafted seeds' ranked-plan items
+    (WARNING/contested proposals, never regression-eligible) — into the
+    existing '## Ranked Plan' section, exactly the
+    `insert_readiness_section` mechanics."""
+    idx = report_text.index(FINDINGS_BY_FAMILY_HEADING)
+    section = "\n".join(build_neutrality_section(meta)) + "\n"
+    report_text = report_text[:idx] + section + report_text[idx:]
+
+    if meta.findings:
+        plan_lines = "\n".join(
+            plan_line(f) for f in sorted(meta.findings, key=Finding.sort_key))
+        if NO_FINDINGS_LINE in report_text:
+            report_text = report_text.replace(
+                NO_FINDINGS_LINE, plan_lines + "\n", 1)
+        else:
+            report_text = report_text.rstrip("\n") + "\n" + plan_lines + "\n"
+    return report_text

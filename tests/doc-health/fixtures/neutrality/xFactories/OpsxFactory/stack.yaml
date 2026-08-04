@@ -1,0 +1,8 @@
+schema_version: 1
+kind: xfactory_domain_stack
+
+domain:
+  id: opsx
+  product_name: OpsxFactory
+  display_name: Opsx Factory
+  category: operations
