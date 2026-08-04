@@ -1,0 +1,282 @@
+"""Proposal supporting-document lifecycle tests."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+from tempfile import TemporaryDirectory
+import unittest
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT = REPO_ROOT / "scripts" / "proposal-support.py"
+spec = importlib.util.spec_from_file_location("proposal_support", SCRIPT)
+support = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+sys.modules[spec.name] = support
+spec.loader.exec_module(support)
+
+
+class ProposalSupportTests(unittest.TestCase):
+    def fixture(self, root: Path) -> None:
+        (root / "openspec/changes/change-a").mkdir(parents=True)
+        topic = root / "ideation/staging/topic-a"
+        topic.mkdir(parents=True)
+        (root / "ideation/brainstorm").mkdir(parents=True)
+        (root / "ideation/brainstorm/source.md").write_text(
+            "# Source\n\nStatus: brainstorm\n"
+        )
+        (topic / "one.md").write_text(
+            "# One\n\nStatus: staged\nKind: architecture\n\n"
+            "[source](../../brainstorm/source.md)\n"
+        )
+        (topic / "two.md").write_text(
+            "# Two\n\nStatus: record\nKind: report\n"
+        )
+
+    def test_dry_run_does_not_move(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            manifest = support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, False,
+            )
+            self.assertEqual(len(manifest["files"]), 2)
+            self.assertTrue((root / "ideation/staging/topic-a/one.md").exists())
+            self.assertFalse((root / "openspec/changes/change-a/supporting-docs").exists())
+
+    def test_complete_transition_updates_status_links_and_manifest(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], "nlm-1",
+                "2026-07-09", False, True,
+            )
+            destination = root / "openspec/changes/change-a/supporting-docs"
+            text = (destination / "one.md").read_text()
+            self.assertIn("Status: draft", text)
+            self.assertIn("Proposed by: change-a", text)
+            self.assertIn("../../../ideation/brainstorm/source.md", text)
+            self.assertIn("Status: record", (destination / "two.md").read_text())
+            manifest = support.load_manifest(destination / "manifest.yaml")
+            self.assertEqual(manifest["notebook_workspace"], "nlm-1")
+            self.assertEqual(manifest["remaining_paths"], [])
+            source = "# One\n\nStatus: staged\nKind: architecture\n\n" \
+                "[source](../../brainstorm/source.md)\n"
+            self.assertEqual(
+                manifest["files"][0]["source_sha256"],
+                hashlib.sha256(source.encode()).hexdigest(),
+            )
+            self.assertNotEqual(
+                manifest["files"][0]["source_sha256"],
+                manifest["files"][0]["sha256"],
+            )
+            snapshot = destination / manifest["files"][0]["source_snapshot_path"]
+            self.assertEqual(snapshot.read_text(), source)
+            self.assertFalse((root / "ideation/staging/topic-a").exists())
+            self.assertEqual(support.verify_active_support(destination.parent), [])
+
+    def test_committed_source_checksum_is_verified(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(
+                ["git", "-c", "user.name=Test", "-c",
+                 "user.email=test@example.invalid", "commit", "-qm",
+                 "fixture"], cwd=root, check=True,
+            )
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            destination = root / "openspec/changes/change-a/supporting-docs"
+            manifest_path = destination / "manifest.yaml"
+            manifest = support.load_manifest(manifest_path)
+            manifest["files"][0]["source_sha256"] = "0" * 64
+            manifest_path.write_text(support.manifest_text(manifest))
+            errors = support.verify_active_support(destination.parent)
+            self.assertTrue(any(
+                "staging source checksum mismatch" in error
+                for error in errors
+            ))
+
+    def test_source_snapshot_verifies_when_git_revision_is_unavailable(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(
+                ["git", "-c", "user.name=Test", "-c",
+                 "user.email=test@example.invalid", "commit", "-qm",
+                 "fixture"], cwd=root, check=True,
+            )
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            destination = root / "openspec/changes/change-a/supporting-docs"
+            manifest_path = destination / "manifest.yaml"
+            manifest = support.load_manifest(manifest_path)
+            manifest["source_revision"] = "f" * 40
+            manifest_path.write_text(support.manifest_text(manifest))
+            self.assertEqual(support.verify_active_support(destination.parent), [])
+
+    def test_tampered_source_snapshot_is_rejected(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            destination = root / "openspec/changes/change-a/supporting-docs"
+            manifest = support.load_manifest(destination / "manifest.yaml")
+            snapshot = destination / manifest["files"][0]["source_snapshot_path"]
+            snapshot.write_text("tampered")
+            errors = support.verify_active_support(destination.parent)
+            self.assertTrue(any(
+                "source snapshot checksum mismatch" in error for error in errors
+            ))
+
+    def test_partial_transition_leaves_remainder(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            manifest = support.transition(
+                root, "change-a", "ideation/staging/topic-a", ["one.md"],
+                None, "2026-07-09", False, True,
+            )
+            self.assertTrue((root / "ideation/staging/topic-a/two.md").exists())
+            self.assertEqual(
+                manifest["remaining_paths"],
+                ["ideation/staging/topic-a/two.md"],
+            )
+
+    def test_rejects_unsafe_and_broken_sources(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            with self.assertRaises(support.SupportError):
+                support.transition(
+                    root, "change-a", "ideation/staging/topic-a", ["../x"],
+                    None, "2026-07-09", False, False,
+                )
+            (root / "ideation/staging/topic-a/one.md").write_text(
+                "# One\n\nStatus: staged\n\n[missing](missing.md)\n"
+            )
+            with self.assertRaises(support.SupportError):
+                support.transition(
+                    root, "change-a", "ideation/staging/topic-a", ["one.md"],
+                    None, "2026-07-09", False, False,
+                )
+
+    def test_archived_transition_preserves_superseded_status(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            archive = root / "openspec/changes/archive/2026-07-09-change-a"
+            archive.mkdir(parents=True)
+            topic = root / "ideation/staging/topic-a"
+            topic.mkdir(parents=True)
+            (topic / "history.md").write_text(
+                "# History\n\nStatus: superseded\nKind: reference\n"
+            )
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", True, True,
+            )
+            self.assertIn(
+                "Status: superseded",
+                (archive / "supporting-docs/history.md").read_text(),
+            )
+
+    def test_package_is_reproducible_and_verifiable(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            directory = root / "openspec/changes/change-a"
+            first, _ = support.deterministic_bundle(directory / "supporting-docs")
+            second, _ = support.deterministic_bundle(directory / "supporting-docs")
+            self.assertEqual(first, second)
+            support.package(
+                root, "change-a", "2026-07-09", False, False, True
+            )
+            self.assertEqual(support.verify_archive(directory), [])
+            bundle = directory / "supporting-docs.tar.gz"
+            bundle.write_bytes(bundle.read_bytes() + b"corrupt")
+            self.assertTrue(support.verify_archive(directory))
+
+    @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
+    def test_archive_wrapper_preserves_bundle(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(
+                ["openspec", "init", str(root), "--tools", "none"],
+                check=True, capture_output=True, text=True,
+            )
+            subprocess.run(
+                ["openspec", "new", "change", "change-a"], cwd=root,
+                check=True, capture_output=True, text=True,
+            )
+            change = root / "openspec/changes/change-a"
+            (change / "proposal.md").write_text(
+                "## Why\n\nTest archive support.\n\n"
+                "## What Changes\n\n- Add test capability.\n\n"
+                "## Capabilities\n\n### New Capabilities\n\n"
+                "- `test-capability`: test\n\n"
+                "### Modified Capabilities\n\n- None.\n\n"
+                "## Impact\n\n- Tests only.\n"
+            )
+            (change / "design.md").write_text(
+                "## Context\n\nTest.\n\n## Goals / Non-Goals\n\n"
+                "**Goals:** archive.\n\n**Non-Goals:** none.\n\n"
+                "## Decisions\n\nUse support bundle.\n\n"
+                "## Risks / Trade-offs\n\nNone.\n"
+            )
+            spec_dir = change / "specs/test-capability"
+            spec_dir.mkdir(parents=True)
+            (spec_dir / "spec.md").write_text(
+                "## ADDED Requirements\n\n"
+                "### Requirement: Archive fixture\n"
+                "The fixture SHALL archive.\n\n"
+                "#### Scenario: Archive\n"
+                "- **WHEN** the change archives\n"
+                "- **THEN** the fixture MUST remain\n"
+            )
+            (change / "tasks.md").write_text(
+                "## 1. Test\n\n- [x] 1.1 Complete fixture\n"
+            )
+            topic = root / "ideation/staging/topic-a"
+            topic.mkdir(parents=True)
+            (topic / "source.md").write_text(
+                "# Source\n\nStatus: staged\nKind: reference\n"
+            )
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            support.archive_change(
+                root, "change-a", "2026-07-09", False, True
+            )
+            archived = list((root / "openspec/changes/archive").glob(
+                "????-??-??-change-a"
+            ))
+            self.assertEqual(len(archived), 1)
+            self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
+            self.assertEqual(support.verify_archive(archived[0]), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

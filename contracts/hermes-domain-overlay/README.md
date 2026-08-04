@@ -25,6 +25,13 @@ from a domain repo pin (capability `layer-content-seeding`, realized
   manifest, consumers fall back to the documented conventional set the
   hermes-install seeder ships (increment 4a); an undeclared kind never loads
   silently.
+- `hermes-layer-template.schema.json` — the subject/tenant Hermes layer
+  template shape (kinds `subject_hermes_template` / `client_hermes_template`,
+  which carry no top-level domain object; the domain layer stays under
+  `hermes-domain-overlay.schema.yaml`). JSON Schema draft 2020-12, retained
+  in JSON format as adopted from codexFactory's
+  `schemas/hermes-template.schema.json` with a neutralized `$id`
+  (DTN-021, adopt-neutral-utility-pack).
 - `examples/` — positive reference examples plus self-testing negatives
   (each declares its `# expected_failure:` reason).
 

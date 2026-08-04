@@ -224,6 +224,14 @@ Every DomainxFactory must validate against the canonical contract:
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
   neutral shape (DTN-001/002).
+- Domain conformance checks + proposal support (the neutral utility pack,
+  DTN-018/019/021): `scripts/check-inventory-consistency.py <domain-repo>`,
+  `scripts/check-workflow-state-parity.py <domain-repo>/workflows`, and
+  `scripts/check-openxfactory-pin.py <domain-repo>` — inventory/parity/pin
+  checks run from the pinned openxFactory checkout, never copied into
+  domain repos — plus `scripts/proposal-support.py <repo-root>`, the
+  canonical supporting-document mover whose manifests doc-health family 5
+  checks (adopt-neutral-utility-pack).
 - Memory gateway: [contracts/memory-gateway](contracts/memory-gateway/README.md)
   and `scripts/validate-memory-gateway.py` validate the canonical gateway
   schemas, provider examples, conformance fixtures, and first runtime smoke
@@ -239,6 +247,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-neutral-utility-pack](openspec/changes/adopt-neutral-utility-pack/proposal.md)
+  — authored 2026-08-03: the neutral utility pack comes home
+  (DTN-018/019/021): the three domain-repo conformance checks (inventory
+  consistency, workflow state parity, openxFactory pin ancestry) and the
+  proposal-support supporting-document mover move from codexFactory to
+  openxFactory with their test suites — the run-from-pinned rule's owner
+  now hosts what domain repos consume, and doc-health family 5's producer
+  joins its checker — and the subject/tenant Hermes layer-template schema
+  joins `contracts/hermes-domain-overlay/` with a neutralized `$id`.
+  Provenance pin codexFactory main@1568c54b; codexFactory sheds in the
+  named follow-up (change/shed-neutral-utility-pack).
 - [adopt-neutral-tooling-home](openspec/changes/adopt-neutral-tooling-home/proposal.md)
   — authored 2026-08-03: the doc-health checker suite, the ideation
   dashboard runtime, the cross-factory routing/organizer lanes, and the
