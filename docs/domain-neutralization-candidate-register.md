@@ -45,6 +45,12 @@ implemented/promoted, `adopted` = adopted.
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 | DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
+| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `seed` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
+| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `seed` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
+| DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
+| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `seed` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
+| DTN-022 | Avatar client lab neutral home | `split` | P2 | `seed` | home fork open: own repo vs aggregation (avatar-reference-runtime forbids deployable surfaces in openxFactory) |
+| DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 
 ## Candidate Details
 
@@ -520,3 +526,129 @@ Domain-local exclusions: the CONTENT of any design or archetype (chart
 of accounts, care-plan template, branch-protection baseline), which
 external systems are supported and their mapping tables, and the expert
 seat that reviews a deviating design.
+
+### DTN-018: Domain-repo conformance-gate check pack
+
+Surfaced by the 2026-08-03 codexFactory neutrality sweep (evidence record
+under the merged `adopt-neutral-tooling-home` change's `supporting-docs/`).
+Three generic domain-repo conformance checks live in codexFactory with no
+engineering vocabulary: stack.yaml ↔ on-disk ↔ README required-artifact
+agreement, workflow `.md` transition targets ↔ `.yaml` gate `produces[]`
+parity, and stack.yaml `contract_ref` ancestry vs the aggregation pin.
+Every domain factory has a `stack.yaml`, workflow doc pairs, and an
+openxFactory pin; the workflow-gate-contract rule already says canonical
+validators run from the pinned checkout, never copied into domain repos,
+and `check-openxfactory-pin.py` partially duplicates
+`validate-domain-openxfactory-pins.py`.
+
+Evidence:
+
+- `xFactories/codexFactory/scripts/check-inventory-consistency.py`,
+  `check-workflow-state-parity.py`, `check-openxfactory-pin.py`
+  (~310 LOC + `tests/conformance-gate/`)
+- `openxFactory/scripts/validate-domain-openxfactory-pins.py` (the
+  neutral home for exactly this class)
+
+Domain-local exclusions: `scripts/validate-docs.sh` (the codex wrapper
+and its required-files list stay).
+
+### DTN-019: Proposal-support lifecycle tool
+
+Surfaced by the same sweep; sharpened by `adopt-neutral-tooling-home`:
+the doc-health checker (family 5, proposal supporting-document
+integrity) now lives in openxFactory while the only producer of the
+artifacts it checks remains a codexFactory script. The tool moves staged
+supporting documents into an active change, rewrites links, and
+preserves the bundle through OpenSpec archive with sha256 manifests —
+zero domain vocabulary in 545 LOC.
+
+Evidence:
+
+- `xFactories/codexFactory/scripts/proposal-support.py` +
+  `tests/proposal-support/`
+- `openxFactory/docs/doc-health.md` family 5 (the in-repo consumer)
+
+Domain-local exclusions: none identified — the tool is pure lifecycle
+mechanics.
+
+### DTN-020: Change-ratification workflow contract
+
+Surfaced by the same sweep. codexFactory's `change-ratification`
+workflow pair is a pre-implementation governance sidecar (its own
+README's words): inputs are committed change, strict validation
+evidence, governed review record, dispositions, human ratifier; output a
+ratification record. Zero engineering vocabulary; every domain factory
+ratifies OpenSpec changes. The promotion shape is a neutral REFERENCE
+contract upstream (DTN-001/002 lineage) with the codex instance
+declaring conformance — not a relocation.
+
+Evidence:
+
+- `xFactories/codexFactory/workflows/change-ratification.md` + `.yaml`
+- `openxFactory/contracts/schemas/xfactory-workflow.schema.yaml` (the
+  neutral workflow contract family it instantiates)
+
+Domain-local exclusions: the nine engineering workflows beside it
+(branch-review, pr-admission, merge-readiness, spec-kit-execution, …).
+
+### DTN-021: Subject/tenant Hermes layer template schema
+
+Surfaced by the same sweep. `hermes-template.schema.json` carries no
+domain vocabulary at all — `subject_kinds`, `required_subject_fields`,
+`layer_name`, `role`, `owns`, `must_not_own` — and the neutral home
+family already exists (`contracts/hermes-domain-overlay/`,
+`domain-installation-overlay.schema.yaml`).
+
+Evidence:
+
+- `xFactories/codexFactory/schemas/hermes-template.schema.json` (2.4 KB)
+- `openxFactory/contracts/hermes-domain-overlay/` (receiving family)
+
+Domain-local exclusions: the `$id` host string and codex layer
+instances under `hermes/`.
+
+### DTN-022: Avatar client lab neutral home
+
+Surfaced by the same sweep as the special case: the lab (240 files,
+~22.9k LOC Dart) is the reference client of the NEUTRAL avatar-first-ui
+standard and even ships a MedxFactory patient-intake profile from inside
+the engineering repo — but openxFactory's `avatar-reference-runtime`
+spec FORBIDS deployable surfaces (no network listener, deployment
+manifest, live provider SDK) in its reference package, so the neutral
+home cannot be openxFactory. The open fork this entry carries: a
+dedicated repo vs the aggregation layer. Upstream drafts already flowed
+from the lab into `contracts/avatar-client-lab/` by provenance note.
+
+Evidence:
+
+- `xFactories/codexFactory/apps/avatar-client-lab/` +
+  `specs/002-avatar-client-lab/upstream-drafts/`
+- `openxFactory/contracts/avatar-client-lab/avatar-state-derivation-table.md`
+  (provenance: adopted from the lab)
+
+Domain-local exclusions: codex-specific lab pilots and engineering CI
+wiring.
+
+### DTN-023: Governance change-review lane
+
+Surfaced by the same sweep; this entry is the designed revisit hook for
+the credential tax `adopt-neutral-tooling-home` design D6 explicitly
+accepted. The review lane's change-review half reviews GOVERNANCE
+documents — its ten dimensions are normative-coverage,
+vocabulary-conformance, authority-isolation, provenance,
+scenario-completeness, evidence-levels, security, ownership-boundaries,
+traceability, open-questions — and resolves `change:<repo>:<change-id>`
+targets across every submodule from the aggregation's committed
+`.gitmodules`, proven on an accepted OpsxFactory record. The
+PR-admission half (PR verdicts, changed-path allowlists) is legitimately
+engineering and stays.
+
+Evidence:
+
+- `xFactories/codexFactory/scripts/review_lane/` (change-review half of
+  2,085 LOC) + `.github/workflows/review-lane-reusable.yml`
+- `xFactory/.github/workflows/review-lane.yml` (the aggregation caller
+  paying the private-sibling token cost)
+
+Domain-local exclusions: `pr:`/`candidate:` target types, PR verdict
+vocabulary, `merge_master`, the execution lane.
