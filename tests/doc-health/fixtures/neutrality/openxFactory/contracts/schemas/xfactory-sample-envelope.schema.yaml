@@ -1,0 +1,47 @@
+schema_version: 1
+kind: xfactory_schema
+$id: https://openxfactory.example/schemas/xfactory-sample-envelope.schema.yaml
+title: Sample neutral work envelope
+description: >-
+  A deliberately neutral fixture schema: a bounded work envelope any
+  factory could carry. Used by the neutrality-drift tests as the
+  canonical openxFactory comparison source for the near-duplicate
+  signal.
+type: object
+required:
+  - envelope_id
+  - issued_by
+  - work_kind
+  - payload_digest
+  - stop_conditions
+properties:
+  envelope_id:
+    type: string
+    pattern: "^ENV-[0-9a-f]{12}$"
+  issued_by:
+    type: string
+  work_kind:
+    type: string
+  priority:
+    type: integer
+    minimum: 0
+    maximum: 9
+  payload_digest:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  routing_policy:
+    type: string
+    enum:
+      - single_bounded_worker
+      - fan_out_bounded
+  stop_conditions:
+    type: object
+    required:
+      - timeout_seconds
+      - max_writes
+    properties:
+      timeout_seconds:
+        type: integer
+      max_writes:
+        type: integer
+additionalProperties: false

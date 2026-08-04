@@ -1,0 +1,22 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/medx
+concepts:
+  - id: xf/medx/patient
+    label: "Patient"
+    definition: "Fixture subject kind."
+    parents: [xf/core/subject]
+    lifecycle_state: draft
+    effective_version: 0.1.0
+  - id: xf/medx/treatment
+    label: "Treatment"
+    definition: "Fixture focal item kind."
+    parents: [xf/core/focal_item]
+    lifecycle_state: draft
+    effective_version: 0.1.0
+  - id: xf/medx/care_plan
+    label: "Care Plan"
+    definition: "Fixture focal item kind."
+    parents: [xf/core/focal_item]
+    lifecycle_state: draft
+    effective_version: 0.1.0

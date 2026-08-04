@@ -158,6 +158,24 @@ def _organizer_host(args):
     return None
 
 
+def _neutrality_scope(ctx, args):
+    """The neutrality-drift lane's subject scope and roots
+    (add-neutrality-drift-lane design D5): the pinned `xFactories/*`
+    domain repos only — enforced structurally by checkout location, so
+    openxFactory, openAvatar, and the installs can never become subjects.
+    openxFactory is the comparison tree and the lane-state home; a
+    single-repo run has no domain factory in scope BY CONSTRUCTION (empty
+    scope, whatever the lone repo is) and the lane records that as a skip
+    note. Dispositions ride the aggregation checkout's existing
+    health/dispositions.yaml."""
+    if ctx.agg_root is None:
+        return {}, Path(args.single_repo).resolve(), None
+    scope = {name: path for name, path in ctx.repo_paths.items()
+             if Path(path).parent.name == "xFactories"}
+    return (scope, ctx.agg_root / "openxFactory",
+            ctx.agg_root / "health" / "dispositions.yaml")
+
+
 def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
     result = RunResult()
     if only_family is None:
@@ -280,6 +298,30 @@ def main(argv=None) -> int:
     ap.add_argument("--organizer-handling-class", default=None,
                     help="attested host handling class for organizer "
                          "authorization")
+    # add-neutrality-drift-lane tasks 1.3-1.4: the neutrality-drift lane
+    # (neutrality_dispatch.py), wired beside the organizer/cataloger lanes
+    # with the same prepare/merge CLI shape; dispatch-only (the scout's
+    # model call happens only in an artifact-only child or an injected
+    # test invoke), and a run with neither flag never touches the lane.
+    ap.add_argument("--neutrality-prepare", metavar="DIR",
+                    help="write the neutrality scout's self-contained "
+                         "batch bundle here and exit (dispatch mode, "
+                         "prepare phase)")
+    ap.add_argument("--neutrality-findings-in", metavar="FILE",
+                    help="merge a validated neutrality-scout artifact "
+                         "(dispatch mode, merge phase); named after the "
+                         "dispatched job id (NEUTJOB-*.json)")
+    ap.add_argument("--neutrality-unavailable-reason",
+                    help="auditable reason a dispatched neutrality-scout "
+                         "artifact is unavailable (the lane records a "
+                         "graceful skip note, never an error)")
+    ap.add_argument("--neutrality-model", default=None,
+                    help="pinned model id for the neutrality scout")
+    ap.add_argument("--neutrality-baseline", default=None, metavar="REPO",
+                    help="manual one-time full neutrality sweep of the "
+                         "named domain repo (ignores its recorded "
+                         "baseline; records a new baseline marker when "
+                         "the sweep queue drains)")
     args = ap.parse_args(argv)
 
     ctx = build_context(args)
@@ -358,6 +400,27 @@ def main(argv=None) -> int:
               f"({meta['idea_count']} idea(s) of {meta['dispatchable']} "
               f"dispatchable; {meta['authorized']} authorized, "
               f"{meta['authorization_denied']} denied)")
+        return 0
+
+    if args.neutrality_prepare:
+        from . import neutrality_dispatch as _neutrality_dispatch
+        # Deterministic-first, async-second (add-neutrality-drift-lane
+        # design D2): the full family suite completes before the scout
+        # bundle is built — identical to the sibling prepare branches.
+        run_suite(ctx, args.family, set(args.skip_family))
+        bundle_root = ctx.agg_root or Path(args.single_repo).resolve()
+        bundle_out = _contained_cli_path(
+            args.neutrality_prepare, bundle_root, "neutrality bundle output")
+        scope, openx_root, dispo = _neutrality_scope(ctx, args)
+        meta = _neutrality_dispatch.prepare_neutrality_bundle(
+            scope, ctx.as_of, bundle_out,
+            args.neutrality_model or _neutrality_dispatch.DEFAULT_MODEL,
+            openx_root=openx_root, allowed_output_root=bundle_root,
+            dispositions_path=dispo,
+            baseline_repo=args.neutrality_baseline or None)
+        print(f"neutrality bundle written: {args.neutrality_prepare} "
+              f"({meta['subject_count']} subject(s) of {meta['selected']} "
+              f"selected; {meta['carried_over']} carried over)")
         return 0
 
     result = run_suite(ctx, args.family, set(args.skip_family))
@@ -491,6 +554,31 @@ def main(argv=None) -> int:
             manual_idea_ids=args.organizer_manual_idea,
             thresholds=ctx.thresholds, host=_organizer_host(args))
 
+    # Neutrality-drift merge phase (--neutrality-findings-in /
+    # --neutrality-unavailable-reason; add-neutrality-drift-lane task 1.4).
+    # Engaged only when one of the two lane flags is present, so a plain
+    # run never touches neutrality_dispatch — neutrality_meta stays None
+    # and the report gains no section, exactly like the organizer lane. An
+    # unavailable worker (the OMNIGENT_WORKER=false nightly) records a
+    # graceful skip NOTE with stage-1 counts, never an error.
+    neutrality_meta = None
+    if args.neutrality_findings_in or args.neutrality_unavailable_reason:
+        from . import neutrality_dispatch as _neutrality_dispatch
+        scope, openx_root, dispositions_path = _neutrality_scope(ctx, args)
+        findings_path = None
+        if args.neutrality_findings_in:
+            findings_root = ctx.agg_root or Path(args.single_repo).resolve()
+            findings_path = _contained_cli_path(
+                args.neutrality_findings_in, findings_root,
+                "neutrality scout artifact")
+        neutrality_meta = _neutrality_dispatch.merge_neutrality_findings(
+            scope, ctx.as_of,
+            args.neutrality_model or _neutrality_dispatch.DEFAULT_MODEL,
+            openx_root=openx_root, dispositions_path=dispositions_path,
+            git=ctx.git, findings_path=findings_path,
+            unavailable_reason=args.neutrality_unavailable_reason,
+            baseline_repo=args.neutrality_baseline or None)
+
     previous_keys = previous_contested = None
     if args.previous_report and Path(args.previous_report).is_file():
         previous_keys, previous_contested = report.parse_previous(
@@ -519,6 +607,13 @@ def main(argv=None) -> int:
     # findings' lifecycle; the deterministic pass never adjudicates them.
     from . import ideation_readiness as _ir
     unavailable_families.add(_ir.FAMILY_ID)
+    # The neutrality-drift lane's contested ranked-plan items are proposals
+    # folded in AFTER this render (report.insert_neutrality_section) — the
+    # same exclusion the readiness lane needs, so a seed absent from a
+    # later report (approved, dispositioned, or a skipped lane) is never an
+    # uncited-resolution error and never opens a regression issue.
+    from . import neutrality as _neutrality
+    unavailable_families.add(_neutrality.LANE_ID)
     result.findings += report.uncited_resolutions(
         result.findings, previous_contested, dispositions,
         unavailable_families=unavailable_families)
@@ -533,6 +628,11 @@ def main(argv=None) -> int:
                          result.preflight, ctx.docs, spec_words,
                          ctx.deviations, new, semantic_meta=semantic_meta,
                          catalog_meta=catalog_meta, organizer_meta=organizer_meta)
+    if neutrality_meta is not None:
+        # Folded in post-render like the readiness/derive lanes: its own
+        # section plus contested WARNING plan items, never a finding the
+        # deterministic pass adjudicates (add-neutrality-drift-lane D3/D4).
+        text = report.insert_neutrality_section(text, neutrality_meta)
     if args.report_out:
         Path(args.report_out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.report_out).write_text(text, encoding="utf-8")

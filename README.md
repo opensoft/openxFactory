@@ -114,7 +114,11 @@ Core domain-neutral docs:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
   workflow, and `scripts/sync-notebooklm-books.py`; the ideation dashboard
   runtime lives at `scripts/ideation_dashboard/` with its
-  [session runbook](docs/ideation-dashboard-session-runbook.md))
+  [session runbook](docs/ideation-dashboard-session-runbook.md); the
+  neutrality-drift lane — the nightly scout that drafts DTN-register
+  seeds from domain-factory content, `add-neutrality-drift-lane` — lives
+  at `scripts/doc_health/neutrality.py` + `neutrality_dispatch.py` with
+  its state under `health/neutrality-drift/`)
 - [Document Catalog Adoption Guide](docs/document-catalog-adoption.md)
 - [Cross-Factory Ideation Routing Adoption Guide](docs/ideation-routing-adoption.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
@@ -247,6 +251,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-neutrality-drift-lane](openspec/changes/add-neutrality-drift-lane/proposal.md)
+  — ratified 2026-08-04 (Brett's directive; PR #64 review): a nightly
+  doc-health lane that scouts the five domain factories for content that
+  belongs in openxFactory — deterministic pre-filter signals plus a model
+  scout under a prompt contract — and files each candidate as a drafted
+  DTN-register seed through the rolling health PR for Brett's approval;
+  movement itself always follows the domain-to-neutral promotion process.
+  Lane implementation landed (tasks 1.x/2.x: `scripts/doc_health/
+  neutrality.py`, `neutrality-prompt.md`, `neutrality_dispatch.py`,
+  runner + reusable-workflow wiring, the codexFactory 2026-08-03 baseline
+  marker); verification 3.x awaits the first live nightly.
 - [adopt-neutral-utility-pack](openspec/changes/adopt-neutral-utility-pack/proposal.md)
   — authored 2026-08-03: the neutral utility pack comes home
   (DTN-018/019/021): the three domain-repo conformance checks (inventory

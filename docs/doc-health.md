@@ -133,6 +133,44 @@ active support folders without valid manifests, `staged` status below an
 active proposal, unverifiable archived bundles, and bundles misplaced below
 `openspec/specs/`.
 
+## Neutrality-Drift Lane
+
+Ratified by `add-neutrality-drift-lane` (2026-08-04) as a MODIFIED
+`doc-health` requirement: a nightly, incremental, model-driven lane beside
+the deterministic families — the standing scout for domain-factory content
+that belongs in openxFactory. Families/lanes overview row:
+
+| Lane | Scope | Stage 1 (deterministic) | Stage 2 (model) | Output |
+| --- | --- | --- | --- | --- |
+| `neutrality-drift` | pinned `xFactories/*` domain repos only (never openxFactory, openAvatar, or installs in v1) | near-duplicate of a neutral artifact (token-set similarity, `contract-copy-drift` generalized), zero domain-lexicon hits in a schema/script (lexicon from the repo's own identity + ontology), cross-repo consumers, stack.yaml-uninventoried `scripts/` tooling | bounded batch of new/changed survivors judged under `scripts/doc_health/neutrality-prompt.md` ("would another domain need this essentially unchanged?") | drafted DTN-register seed (row + detail section, the register's own format) + ranked-plan items |
+
+**Approval flow** (nothing moves automatically — ever): candidates land in
+the rolling health PR as drafted register-seed text (persisted under
+`health/neutrality-drift/seeds/` in this repo) plus contested WARNING
+ranked-plan items. Brett's approval of a seed is his merge of the register
+addition; movement then follows the
+[Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md)
+(staged topic → OpenSpec change → tranche moves), never the nightly. The
+lane's write surface is exactly its own `health/neutrality-drift/` tree
+(state, baseline markers, drafted seeds) plus the dated report — it never
+edits a domain repo, the register, or any contract.
+
+**Dispositions keying**: a rejected candidate gets an entry in the
+aggregation repo's existing `health/dispositions.yaml` — the same
+vocabulary every contested resolution uses, extended for this lane with a
+content digest — keyed `family: neutrality-drift`, `repo`, `path`,
+`content_sha256`, plus the required `cite`. Suppression holds while the
+content is unchanged; a changed digest re-files the candidate.
+
+**Incremental state**: `health/neutrality-drift/state.yaml` records each
+repo's last-run commit and judged content digests;
+`health/neutrality-drift/baseline/<repo>.yaml` is the recorded baseline
+marker for a completed full sweep (codexFactory's cites the 2026-08-03
+manual sweep). The reusable nightly exposes `neutrality-drift` (opt-out,
+default on) and `neutrality-baseline` (manual full-sweep repo) inputs; with
+no omnigent worker host the lane records a skip note and stage-1 counts
+only, never an error.
+
 ## Related Documents
 
 - [Document Lifecycle](document-lifecycle.md) — states, taxonomy, marker

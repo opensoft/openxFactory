@@ -93,6 +93,25 @@ rg -n "provenance|citation|source authority|reliability|stale|reverification|ris
 Use narrower follow-up reads on the most relevant files. Capture source paths
 and line numbers for every candidate.
 
+## Machine-Drafted Seed Intake
+
+The manual search pass above is no longer the only register intake path.
+The nightly doc-health **neutrality-drift lane** (ratified by
+`add-neutrality-drift-lane`; see the lane section of
+[doc-health.md](doc-health.md)) scouts the pinned domain factories with
+deterministic pre-filter signals plus a bounded model review, and files
+each finding as a MACHINE-DRAFTED register seed — a ready-to-merge
+candidate row plus `### DTN-NNN:` detail section in this register's own
+format — delivered through the rolling health PR.
+
+A machine-drafted seed is an intake artifact, nothing more: it enters the
+register lifecycle only when a human (Brett) approves it by merging the
+register addition, and every later step — classification, scoring,
+evidence packet, OpenSpec handoff, adoption, retirement — is exactly this
+process, unchanged. Rejecting a seed records a disposition in the
+aggregation repo's `health/dispositions.yaml` (keyed repo, path, content
+digest) so the lane does not re-file it while the content is unchanged.
+
 ## Candidate Rule
 
 Create a promotion candidate when one of these is true:
