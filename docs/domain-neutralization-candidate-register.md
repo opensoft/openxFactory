@@ -49,7 +49,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
 | DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `adopted` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
-| DTN-022 | Avatar client lab neutral home | `split` | P2 | `seed` | home fork open: own repo vs aggregation (avatar-reference-runtime forbids deployable surfaces in openxFactory) |
+| DTN-022 | Avatar client lab neutral home | `split` | P2 | `adopted` | own repo `opensoft/openAvatar` (ruled 2026-08-03); domain descendants are pin-and-profile distributions |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 
 ## Candidate Details
@@ -634,6 +634,16 @@ Evidence:
 
 Domain-local exclusions: codex-specific lab pilots and engineering CI
 wiring.
+
+**Resolution (2026-08-03, Brett):** own repo. `opensoft/openAvatar`
+carries the lab with full subtree-split history (codexFactory
+main@25e46fd1 -> openAvatar main@1998dcf8), pinned at the aggregation's
+neutral root (xFactory@6a2f418); codexFactory shed as PR #74 (a461cabd).
+MedxAvatar / LedgerxAvatar and kin are pin-and-profile DISTRIBUTIONS
+(branding + avatar-first-ui profile bundle + deployment overlay over a
+pinned openAvatar version), never code forks. Follow-up: whether the
+promoted codexFactory `avatar-patient-intake-demo` capability follows the
+lab is its own change.
 
 ### DTN-023: Governance change-review lane
 
