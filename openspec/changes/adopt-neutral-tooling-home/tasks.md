@@ -246,36 +246,60 @@
 
 ## 3. Tranche C — codexFactory sheds (own repo, after A+B are green)
 
-- [ ] 3.1 Remove the moved trees; README rewrites its tooling sections to
+- [x] 3.1 Remove the moved trees; README rewrites its tooling sections to
       point at openxFactory; `validate-docs.sh` keeps only its
       codex-specific checks plus the three conformance-gate scripts
       (whose own neutralization is DTN follow-up, not this change).
-- [ ] 3.2 Redirect stubs where sessions have muscle memory: a one-line
+- [x] 3.2 Redirect stubs where sessions have muscle memory: a one-line
       `scripts/doc-health.py` and `scripts/sync-notebooklm-books.py`
       exec-shim OR a clear removal notice in README — pick one, never a
       silent 404.
-- [ ] 3.3 codexFactory `stack.yaml`/inventory untouched (the moved trees
+- [x] 3.3 codexFactory `stack.yaml`/inventory untouched (the moved trees
       were never inventoried — verified 2026-08-03).
 
 ## 4. Tranche D — aggregation repoints (own repo)
 
-- [ ] 4.1 `.github/workflows/doc-health-nightly.yml` `uses:` moves to
+- [x] 4.1 `.github/workflows/doc-health-nightly.yml` `uses:` moves to
       `opensoft/openxFactory/.github/workflows/doc-health-reusable.yml@main`;
       drop the App-token mint for codexFactory reads IF doc-health was
       its only reader (verify against merge-master/council callers
       first — D6 keeps those lanes in codexFactory).
-- [ ] 4.2 Workspace `CLAUDE.md` sync command becomes
+- [x] 4.2 Workspace `CLAUDE.md` sync command becomes
       `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply`.
-- [ ] 4.3 Adopt `readiness.py` + `readiness_dispatch.py` into the
+- [x] 4.3 Adopt `readiness.py` + `readiness_dispatch.py` into the
       aggregation repo beside the nightly (D3).
-- [ ] 4.4 Submodule pointer syncs for all three repos.
+- [x] 4.4 Submodule pointer syncs for all three repos.
 
 ## 5. Close-out
 
-- [ ] 5.1 README doc index + OpenSpec Records entry; session-runbook and
+- [x] 5.1 README doc index + OpenSpec Records entry; session-runbook and
       dashboard docs linked from the openxFactory doc index.
 - [ ] 5.2 Nightly evidence: one full doc-health nightly and one dashboard
       nightly complete green from the new homes.
-- [ ] 5.3 Memory/handoff note for other live sessions (the dashboard
+- [x] 5.3 Memory/handoff note for other live sessions (the dashboard
       serve path changes) — recorded in the aggregation repo's handoff
       convention if one is active.
+
+## Tranche C+D execution record (2026-08-03)
+
+- Tranche C realized as codexFactory PR #72 (merge 1568c54b65, branch
+  change/shed-neutral-tooling@247203e): 280 files / −130,486 lines;
+  README "Relocated Tooling" removal notices (no exec-shims — the 3.2
+  pick); 13 reference fixes incl. tests/hermeticity.py runner_seams,
+  validate-docs.sh, execution/review reusable workflows repointed to the
+  aggregation-adopted readiness CLI, sonar exclusions; remaining suites
+  316 passed / 7 pre-existing skips; inventory check unchanged (3.3).
+  Follow-up flagged: retiring codexFactory's promoted doc-health-checker
+  spec needs its own codexFactory OpenSpec change.
+- Tranche D realized as xFactory@1302f7e (readiness pair adopted:
+  scripts/worker_readiness.py + scripts/check-worker-readiness.py, one
+  import-line change) and xFactory@3c764aa (nightly uses: repointed to
+  openxFactory's reusable workflow, CLAUDE.md sync command updated,
+  openxFactory pin advanced); openxFactory PR #58 (fd0e9b32) repointed
+  the workflow's five readiness invocations. App-token audit: the mint
+  stays for merge-master/council lanes (still codexFactory-hosted, D6).
+- 5.2 remains open pending tonight's nightly (cron 02:17 UTC) and the
+  next dashboard nightly from the new homes.
+- 5.3 handoff: relocation recorded in this ledger + the change README
+  entry; the codexFactory README Relocated Tooling section is the
+  in-repo pointer for sessions with muscle memory.

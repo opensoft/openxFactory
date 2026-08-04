@@ -110,6 +110,11 @@ Core domain-neutral docs:
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [Doc-Health Contract](docs/doc-health.md)
+  (implementation in-repo since `adopt-neutral-tooling-home`:
+  `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
+  workflow, and `scripts/sync-notebooklm-books.py`; the ideation dashboard
+  runtime lives at `scripts/ideation_dashboard/` with its
+  [session runbook](docs/ideation-dashboard-session-runbook.md))
 - [Document Catalog Adoption Guide](docs/document-catalog-adoption.md)
 - [Cross-Factory Ideation Routing Adoption Guide](docs/ideation-routing-adoption.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
