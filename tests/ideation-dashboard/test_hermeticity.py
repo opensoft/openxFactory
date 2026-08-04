@@ -1,0 +1,405 @@
+"""The suite's hermeticity is STRUCTURAL, and this file is what proves it
+(FR-043; PR #49 adversarial review finding 17).
+
+FR-043 — "Tests MUST NOT create real NotebookLM notebooks; the adapter MUST be
+stubbed" — used to rest entirely on per-test discipline at the injection seams.
+`cli._notebook_port()` DEFAULTS to the real `nlm`-backed
+`workbench.NotebookAdapter()` (and `serve._make_adapter()` did too, until PR #49
+hardening item 1 made the library default ABSENCE — see
+`test_session_notebook.py`), and three tests reached it: two CLI
+scoped creates ran `nlm notebook list` + `nlm notebook create
+xf-session-openxfactory-demo-topic` and uploaded the fixture staging fragment as
+a source, and the CLI abandon then ran `nlm notebook delete --confirm` by TITLE
+MATCH against the shared account. It was silent in BOTH directions, because every
+call site wraps the runner in `except Exception` and degrades (FR-042): the tests
+passed identically whether `nlm` was absent, present-and-failing, or
+present-and-succeeding.
+
+`tests/hermeticity.py` removes the class rather than the three instances, and
+every test below is a REGRESSION on the guard itself — delete or weaken any part
+of the guard and these fail:
+
+  * the shim `PATH` layer (the real binary is not reachable by ANY route,
+    including a child process), and its refusal names the offending test;
+  * the in-process runner layer (`workbench._default_runner`,
+    `session_pr.SubprocessCommandRunner.run`), which is what makes an escape LOUD
+    instead of a silent degradation;
+  * `HermeticityViolation` being a `BaseException`, asserted through the real
+    adapter's own `except Exception` degradation path and through
+    `branch_session.open_session_notebook`, whose whole job is to swallow
+    notebook failures;
+  * the guard NOT weakening anything: an explicitly injected double still works,
+    and `available()` is untouched;
+  * the hookup set, so the guard cannot be silently dropped from a directory.
+"""
+
+from __future__ import annotations
+
+import shutil
+import subprocess
+import sys
+import types
+from pathlib import Path
+
+import pytest
+
+import hermeticity
+from conftest import REPO_ROOT
+
+from session_fixtures import build_scratch_repo
+
+from ideation_dashboard import branch_session as bs
+from ideation_dashboard import cli as cli_mod
+from ideation_dashboard import session_pr as session_pr_mod
+from ideation_dashboard import workbench as wb
+
+SESSION_ALIAS = bs.notebook_alias("openxFactory", "draft/demo-topic")
+
+
+# --------------------------------------------------------------------------
+# layer 1 — the real binaries are not on PATH, and the refusal is loud
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("binary", hermeticity.GUARDED_BINARIES)
+def test_the_real_binary_is_not_what_the_suite_resolves(binary, hermetic_binary_path):
+    """`shutil.which` is what `NotebookAdapter.available()` and every ambient
+    lookup consults. It must resolve INSIDE the shim dir — not to
+    `/usr/local/bin/<binary>`, which is installed on the hosts this suite runs
+    on and is exactly how finding 17 reached the live account."""
+    resolved = shutil.which(binary)
+    assert resolved is not None, f"the {binary} shim must be on PATH"
+    assert Path(resolved).parent == hermetic_binary_path, resolved
+    assert Path(resolved).resolve() != Path(f"/usr/local/bin/{binary}")
+
+
+@pytest.mark.parametrize("binary", hermeticity.GUARDED_BINARIES)
+def test_an_invocation_of_the_binary_is_refused_and_names_this_test(binary):
+    """Any route to the binary — including a child process, which no in-process
+    patch can intercept — exits non-zero and says why, naming FR-043 and the
+    offending test so the escape is attributable rather than mysterious."""
+    done = subprocess.run([binary, "notebook", "list", "--json"],
+                          capture_output=True, text=True)
+    assert done.returncode == hermeticity.REFUSAL_EXIT_CODE, done
+    assert hermeticity.MARKER in done.stderr, done.stderr
+    assert "test_an_invocation_of_the_binary_is_refused_and_names_this_test" in done.stderr
+    assert done.stdout == "", "a refusal must produce no parseable output"
+    # and the refusal is RECORDED, so a whole run leaves an attributable inventory
+    # of what tried to escape rather than only a message in one test's captured
+    # stderr. Asserted as CONTAINMENT, never as the whole file: the ledger is
+    # append-only across the session and an exact-contents assertion here would
+    # itself be order-dependent.
+    ledger = hermeticity.refusal_log()
+    assert ledger is not None and ledger.is_file(), ledger
+    lines = ledger.read_text(encoding="utf-8").splitlines()
+    # keyed on the invocation and this test's own NAME, never on the full nodeid:
+    # the nodeid's prefix depends on the run's rootdir (`test_hermeticity.py::…`
+    # from inside the directory, `tests/ideation-dashboard/test_hermeticity.py::…`
+    # from the repo root), and a run-shape-dependent assertion is the same class of
+    # fragility as finding 19a.
+    assert any(line.startswith(f"{binary} notebook list --json :: ")
+               and "test_an_invocation_of_the_binary_is_refused" in line
+               for line in lines), lines
+
+
+# --------------------------------------------------------------------------
+# layer 2 — the in-process default runners RAISE, and the raise is not swallowed
+# --------------------------------------------------------------------------
+
+def test_the_default_notebook_runner_refuses_instead_of_running_nlm():
+    with pytest.raises(hermeticity.HermeticityViolation) as raised:
+        wb._default_runner("notebook", "create", SESSION_ALIAS, "--json")
+    message = str(raised.value)
+    assert hermeticity.MARKER in message
+    assert "test_the_default_notebook_runner_refuses_instead_of_running_nlm" in message
+
+
+def test_the_default_pull_request_runner_refuses_instead_of_running_gh():
+    with pytest.raises(hermeticity.HermeticityViolation) as raised:
+        session_pr_mod.SubprocessCommandRunner().run("gh", "pr", "create",
+                                                    cwd=REPO_ROOT)
+    assert hermeticity.MARKER in str(raised.value)
+
+
+def test_the_violation_survives_the_adapters_own_degradation_clause():
+    """The discriminating assertion for the `BaseException` choice.
+
+    `NotebookAdapter._create_titled` wraps the runner in `except Exception` and
+    returns `skipped=True` — that is FR-042's "a notebook never blocks a session"
+    and it is correct production behaviour. It is also why a guard raising an
+    ordinary exception would be ABSORBED: the escape would return a plausible
+    `NotebookResult` and the test would stay green while real `nlm` ran. Only a
+    `BaseException` reaches the runner."""
+    adapter = wb.NotebookAdapter()                 # the production default
+    assert adapter.available() is True, (
+        "the shim keeps `available()` TRUE, so the guard is proved on the path "
+        "that actually calls the runner rather than on the unavailable shortcut")
+    with pytest.raises(hermeticity.HermeticityViolation):
+        adapter.create_session(SESSION_ALIAS)
+
+
+def test_the_violation_survives_open_session_notebooks_degradation_clause():
+    """`branch_session.open_session_notebook` catches `Exception` and turns EVERY
+    failure into an FR-042 notice — the outermost swallow on the create path."""
+    with pytest.raises(hermeticity.HermeticityViolation):
+        bs.open_session_notebook(wb.NotebookAdapter(), alias=SESSION_ALIAS,
+                                 branch="draft/demo-topic", worktree=REPO_ROOT,
+                                 repository="openxFactory")
+
+
+def test_an_unguarded_cli_scoped_create_is_refused(scratch_repo):
+    """Finding 17's own reproduction, inverted into a regression.
+
+    This is the exact invocation that ran `nlm notebook create` against the
+    shared account: a scoped `gate create-document` with NOTHING injected at
+    `cli._notebook_port`. It must now REFUSE. If the guard is removed this test
+    does not merely fail — it creates a real notebook, which is what makes it the
+    right regression to keep."""
+    with pytest.raises(hermeticity.HermeticityViolation):
+        cli_mod.main([
+            "gate", "create-document", "--repo-root", str(scratch_repo.root),
+            "--actor", "brett", "--title", "Unguarded", "--summary", "No fake.",
+            "--topics", "alpha", "--repository-context", scratch_repo.repository,
+            "--area", "ideation/staging/demo-topic/",
+            "--scope-kind", bs.STAGED_TOPIC, "--scope-id", scratch_repo.topic_id])
+
+
+# --------------------------------------------------------------------------
+# the guard weakens nothing — an injected double still works
+# --------------------------------------------------------------------------
+
+def test_an_explicitly_injected_runner_is_untouched_by_the_guard():
+    """Requirement (c): the guard poisons only the DEFAULTS. A test that
+    legitimately exercises the real adapter code still injects its own runner,
+    and the adapter behaves exactly as before."""
+    calls: list[tuple] = []
+
+    def fake(*args, parse: bool = True, **kwargs):
+        calls.append(args)
+        return {"id": "nb-1", "title": SESSION_ALIAS}
+
+    result = wb.NotebookAdapter(fake, available=True).create_session(SESSION_ALIAS)
+    assert result.ok is True and result.skipped is False
+    assert calls == [("notebook", "create", SESSION_ALIAS, "--json")]
+
+
+def test_the_cli_seam_with_a_fake_port_reaches_no_binary(scratch_repo, capsys,
+                                                         fake_cli_notebook):
+    """The seam `cli._notebook_port`'s docstring already promised, exercised
+    through the harness fixture the three repaired CLI tests now request: with a
+    fake injected the same scoped create succeeds AND the notebook is created on
+    the fake, so the guard costs the suite no coverage."""
+    code = cli_mod.main([
+        "gate", "create-document", "--repo-root", str(scratch_repo.root),
+        "--actor", "brett", "--title", "Guarded", "--summary", "With a fake.",
+        "--topics", "alpha", "--repository-context", scratch_repo.repository,
+        "--area", "ideation/staging/demo-topic/",
+        "--scope-kind", bs.STAGED_TOPIC, "--scope-id", scratch_repo.topic_id])
+    assert code == 0, capsys.readouterr().err
+    assert fake_cli_notebook.live_aliases() == (SESSION_ALIAS,)
+
+
+# --------------------------------------------------------------------------
+# the hookup set — the guard cannot be silently dropped from a directory
+# --------------------------------------------------------------------------
+
+def test_every_conftest_under_tests_registers_the_guard():
+    """Every `conftest.py` under `tests/` registers the guard, and this pin fails
+    when a new directory's conftest forgets. The reason is `confcutdir`: a conftest
+    is only loaded if it sits between the rootdir and the argument, so a hookup can
+    go out of scope without anything changing in the file itself. (Wave 2 anchored
+    the rootdir at the repository with `pytest.ini`, which is what keeps
+    `tests/conftest.py` in scope for the seven directories that have no conftest of
+    their own — see `test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope`.
+    This pin covers the directories that DO have one.)
+
+    It also pins the SET, because adding a conftest.py is not free: `conftest` is
+    an ambient module name, so a new one hijacks it for sibling directories whose
+    test modules import through it (`tests/notebooklm/conftest.py` broke all 18
+    doc-health modules in `scripts/validate-docs.sh`). A new entry here must be
+    accompanied by a green gate run.
+
+    `CONFTEST_EXEMPT_HOOKUPS` (adopt-neutral-tooling-home tranche B) names the
+    conftests that exist but cannot carry the registration — their bytes are
+    digest-indexed conformance inputs — so the exemption is itself pinned: a
+    new unregistered conftest still fails here unless it is DECLARED."""
+    tests_root = REPO_ROOT / "tests"
+    found = sorted(str(p.relative_to(tests_root))
+                   for p in tests_root.rglob("conftest.py"))
+    assert found == sorted(hermeticity.CONFTEST_HOOKUPS
+                           + hermeticity.CONFTEST_EXEMPT_HOOKUPS), found
+    for relative in hermeticity.CONFTEST_HOOKUPS:
+        text = (tests_root / relative).read_text(encoding="utf-8")
+        assert "from hermeticity import" in text, relative
+        assert "hermetic_binary_path" in text and "hermetic_external_runners" in text, relative
+
+
+# --------------------------------------------------------------------------
+# finding 17, wave 2 — the two routes that ran with the guard switched OFF
+# --------------------------------------------------------------------------
+
+PROBE = "tests/notebooklm/test_hermeticity_guard.py"
+PROBE_DIR = "tests/notebooklm"
+
+
+def _probe_run(args, *, cwd) -> subprocess.CompletedProcess:
+    """Run a child interpreter over the conftest-less-directory probe.
+
+    `-p no:cacheprovider` because this writes nothing into the real checkout, and
+    the probe itself only READS `PATH` and two module attributes."""
+    return subprocess.run([sys.executable, *args], cwd=str(cwd),
+                          capture_output=True, text=True, timeout=300)
+
+
+def test_a_pytest_run_started_inside_a_conftestless_directory_is_guarded():
+    """Residue (1) of finding 17, closed. `tests/notebooklm/` has no conftest.py of
+    its own, and with no inifile anywhere a run started THERE made that directory
+    the rootdir — so `confcutdir` excluded `tests/conftest.py` and neither layer of
+    the guard was installed. Measured: `which nlm` resolved to a real-binary
+    stand-in, three invocations landed, and the refusal ledger stayed empty.
+
+    The repo-root `pytest.ini` anchors rootdir at the repository instead, so the
+    hookup is always in the conftest chain. The oracle is the probe TestCase living
+    in that directory: it asserts both layers, and it fails when the anchor is
+    removed (measured in a scratch copy with a stand-in `nlm` on PATH — the
+    stand-in's own text is what the assertion reports)."""
+    proc = _probe_run(["-m", "pytest", "-q", "-p", "no:cacheprovider",
+                       "test_hermeticity_guard.py"],
+                      cwd=REPO_ROOT / PROBE_DIR)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "2 passed" in proc.stdout
+
+
+def test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope():
+    """The mechanism, asserted rather than assumed: a run started inside the
+    conftest-less directory resolves its rootdir to the REPOSITORY and names the
+    anchor as its configfile. Without that, `tests/conftest.py` is out of scope
+    however correct the conftest itself is."""
+    anchor = REPO_ROOT / hermeticity.ROOTDIR_ANCHOR
+    assert anchor.is_file(), f"{hermeticity.ROOTDIR_ANCHOR} is the rootdir anchor"
+
+    proc = _probe_run(["-m", "pytest", "-p", "no:cacheprovider", "--collect-only",
+                       "test_hermeticity_guard.py"], cwd=REPO_ROOT / PROBE_DIR)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert f"rootdir: {REPO_ROOT}" in proc.stdout, proc.stdout
+    assert f"configfile: {hermeticity.ROOTDIR_ANCHOR}" in proc.stdout, proc.stdout
+
+
+def test_the_unittest_fallback_route_installs_the_same_guard():
+    """Residue (2), closed. `scripts/validate-docs.sh` falls back to
+    `unittest discover` when pytest is unavailable, and a conftest fixture cannot
+    apply to a runner that loads no conftests: a unittest-style probe in
+    `tests/notebooklm/` reached the real-binary stand-in TWICE with no ledger entry.
+
+    `tests/hermetic_unittest.py` installs the same two layers from the SAME
+    declarations (`install_binary_shim`, `runner_seams`), so the routes cannot
+    guard different seams, and runs the identical discovery."""
+    proc = _probe_run(["tests/hermetic_unittest.py", PROBE_DIR], cwd=REPO_ROOT)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "OK" in proc.stderr, proc.stderr        # unittest reports on stderr
+
+
+def test_the_bare_unittest_route_is_detected_as_unguarded():
+    """The negative control that makes the test above mean something: the SAME
+    probe, run through bare `python3 -m unittest`, FAILS — which is what the gate's
+    old fallback was doing silently. If this ever starts passing, either the probe
+    stopped asserting anything or the guard became ambient (and then the assertion
+    above proves nothing)."""
+    proc = _probe_run(["-m", "unittest", "discover", "-s", PROBE_DIR,
+                       "-t", PROBE_DIR, "-p", "test_hermeticity_guard.py"],
+                      cwd=REPO_ROOT)
+
+    assert proc.returncode != 0
+    assert "FAILED" in proc.stderr, proc.stderr
+
+
+# `test_the_gate_runs_its_unittest_fallback_through_the_guarded_runner` stayed
+# with `scripts/validate-docs.sh` in codexFactory (adopt-neutral-tooling-home
+# tranche B, 2026-08-03): that shell gate is codexFactory's own and keeps its
+# codex-specific checks there (change task 3.1), so its source pin lives beside
+# it. openxFactory's unittest fallback route is still proved above by
+# `test_the_unittest_fallback_route_installs_the_same_guard` and its negative
+# control.
+
+
+def test_no_production_handler_swallows_a_baseexception():
+    """The invariant the WHOLE guard rests on, as a test instead of a stale comment.
+
+    `HermeticityViolation` derives from `BaseException` precisely so the production
+    `except Exception` degradation clauses cannot absorb it. `tests/hermeticity.py`
+    asserted in prose that "nothing in scripts/ideation_dashboard/ catches
+    BaseException or uses a bare except: (checked)" — and that went stale within a
+    day: the wave-1 repair added two `except BaseException` handlers (both
+    re-raising, so the guard still propagated) and the PR #49 completeness critic
+    found the comment still claiming otherwise. A handler that did NOT re-raise
+    would disable the entire mechanism with a green suite.
+
+    So: every `except BaseException` (and every bare `except:`) in the package must
+    contain a `raise`. Parsed, not grepped, so a handler nested in a helper counts
+    the same as a top-level one."""
+    import ast
+
+    offenders = []
+    package = REPO_ROOT / "scripts" / "ideation_dashboard"
+    for path in sorted(package.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ExceptHandler):
+                continue
+            caught = node.type
+            bare = caught is None
+            base = isinstance(caught, ast.Name) and caught.id == "BaseException"
+            tupled = isinstance(caught, ast.Tuple) and any(
+                isinstance(e, ast.Name) and e.id == "BaseException"
+                for e in caught.elts)
+            if not (bare or base or tupled):
+                continue
+            reraises = any(isinstance(inner, ast.Raise)
+                           for inner in ast.walk(ast.Module(body=node.body,
+                                                            type_ignores=[])))
+            if not reraises:
+                offenders.append(f"{path.relative_to(REPO_ROOT)}:{node.lineno}")
+
+    assert offenders == [], (
+        "these handlers catch BaseException (or bare) WITHOUT re-raising, so they "
+        "would swallow HermeticityViolation and silently disable the FR-043 "
+        f"guard: {offenders}")
+
+
+# --------------------------------------------------------------------------
+# finding 19a — the harness no longer resolves its shapes through `conftest`
+# --------------------------------------------------------------------------
+
+def test_the_scratch_harness_does_not_depend_on_the_ambient_conftest_name(tmp_path,
+                                                                          monkeypatch):
+    """`build_scratch_repo` used to run `from conftest import staging_fragment`
+    inside its own body. pytest deletes `sys.modules["conftest"]` before importing
+    each directory's conftest, so that name resolves to whichever conftest was
+    imported LAST: running this suite AFTER `tests/doc-health` in one process
+    raised `ImportError: cannot import name 'staging_fragment' from 'conftest'` at
+    SETUP, making the branch's evidence counts depend on collection order.
+
+    Here the ambient name is deliberately pointed at a module that has no shapes
+    at all — the harness must not notice."""
+    decoy = types.ModuleType("conftest")
+    decoy.__file__ = "<decoy: a conftest with no staging shapes>"
+    monkeypatch.setitem(sys.modules, "conftest", decoy)
+
+    repo = build_scratch_repo(tmp_path)
+    fragment = (repo.root / f"ideation/staging/{repo.topic_id}/README.md").read_text(
+        encoding="utf-8")
+    assert "Kind: staging-packet" in fragment
+    assert repo.origin_branches() == ("main",)
+
+
+def test_the_harness_imports_its_shapes_from_the_plainly_named_module():
+    """The source pin behind the behaviour above: `session_fixtures` names
+    `staging_shapes`, never the ambient `conftest`."""
+    text = (REPO_ROOT / "tests" / "ideation-dashboard"
+            / "session_fixtures.py").read_text(encoding="utf-8")
+    assert "from staging_shapes import staging_fragment" in text
+    ambient = [line for line in text.splitlines()
+               if line.strip().startswith("from conftest import")]
+    assert ambient == [], ambient

@@ -234,6 +234,15 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-neutral-tooling-home](openspec/changes/adopt-neutral-tooling-home/proposal.md)
+  — authored 2026-08-03: the doc-health checker suite, the ideation
+  dashboard runtime, the cross-factory routing/organizer lanes, and the
+  NotebookLM lifecycle sync move from codexFactory to openxFactory — the
+  contract owner adopts its implementations, ending the neutral-schema →
+  domain-repo path citations and the private-sibling credential tax, and
+  setting up the public/private Sonar split for open-sourcing. Evidence:
+  the 2026-08-03 neutrality sweep (~73k neutral LOC hosted in the
+  engineering repo) under supporting-docs/.
 - [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
   — authored 2026-08-03, the `consent-instrument-contract` staged topic's
   exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —

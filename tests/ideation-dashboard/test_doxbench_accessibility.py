@@ -1,0 +1,159 @@
+"""T086/T087 (010-doxbench-editor-chat, US5): the accessible-surface contract.
+
+Conformance target: **WCAG 2.1 AA** for the doxBench surface (SC-010 as
+clarified 2026-07-30), evidenced by the FR-041 mode checklist rather than a
+formal external audit. This suite pins the SEMANTIC layer statically — live
+regions, dialog semantics, focus discipline markers, responsive/mode CSS —
+while the behavioral halves (keyboard order, focus trap and restoration,
+guard flows) are exercised by the node harnesses in test_doxbench_view.py,
+which this suite deliberately does not duplicate.
+
+Split by ownership, per the wave's fences:
+  * doxbench-editor.js assertions pin what US1-US4 already built (green
+    tripwires — a regression here is a real accessibility loss);
+  * staging-workbench.js / styles.css assertions pin what T092/T093 must add
+    (TRUE REDS until realized; hypothesized surfaces follow the wave's
+    negotiable-spec rule — adjust THESE tests only if realization forces it,
+    and report the delta).
+"""
+
+from __future__ import annotations
+
+import re
+
+from conftest import REPO_ROOT
+
+WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+EDITOR_JS = WEB / "views" / "doxbench-editor.js"
+SHELL_JS = WEB / "views" / "staging-workbench.js"
+STYLES_CSS = WEB / "styles.css"
+
+WCAG_TARGET = "WCAG 2.1 AA"
+
+
+def _editor() -> str:
+    return EDITOR_JS.read_text(encoding="utf-8")
+
+
+def _shell() -> str:
+    return SHELL_JS.read_text(encoding="utf-8")
+
+
+def _styles() -> str:
+    return STYLES_CSS.read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# T086 — semantic regions, accessible names, live status, focus discipline
+# ---------------------------------------------------------------------------
+
+def test_editor_status_regions_are_live_regions():
+    # The per-buffer status line announces politely; the guard announces
+    # assertively. Both exist today (US1/US4) — this is a tripwire.
+    editor = _editor()
+    assert 'setAttribute("aria-live", "polite")' in editor
+    assert 'aria-live", "assertive"' in editor.replace("setAttribute(\"", "")
+
+
+def test_editor_disabled_controls_carry_the_aria_state_and_a_reason():
+    editor = _editor()
+    assert 'aria-disabled' in editor
+    assert "SAVE_UNAVAILABLE_REASON" in editor  # the stated reason, not bare disablement
+
+
+def test_editor_busy_state_is_announced_not_only_styled():
+    # US4's wired posture: an in-flight Save is announced via aria-busy and a
+    # visible "saving" status (pinned behaviorally by T073; the marker is the
+    # semantic contract).
+    editor = _editor()
+    assert 'aria-busy' in editor
+
+
+def test_shell_names_its_three_regions_semantically():
+    # T092 (TRUE RED until realized): docs/lens context, authoring canvas, and
+    # the (future) chat rail are labelled semantic regions, so assistive
+    # navigation can land on them by name (FR-003/FR-041).
+    shell = _shell()
+    assert shell.count('setAttribute("role", "region")') >= 2, (
+        "shell regions must be labelled")
+    assert 'setAttribute("aria-label"' in shell
+
+
+def test_shell_announces_posture_and_session_status_via_a_live_region():
+    # T092 (TRUE RED until realized): posture/session changes are announced,
+    # not merely repainted.
+    assert 'setAttribute("aria-live"' in _shell()
+
+
+def test_shell_dialogs_declare_dialog_semantics():
+    # T092 (TRUE RED until realized): any shell modal/confirm surface carries
+    # dialog semantics; focus containment is asserted behaviorally in the view
+    # suite once the surface exists.
+    # green-on-arrival: the overlay already declares dialog semantics and a
+    # labelled title (aria-labelledby) — pinned here so it cannot regress.
+    shell = _shell()
+    assert 'setAttribute("role", "dialog")' in shell
+    assert 'setAttribute("aria-modal", "true")' in shell
+
+
+# ---------------------------------------------------------------------------
+# T087 — narrow, zoom, reduced motion, forced colors, long text, overflow
+# ---------------------------------------------------------------------------
+
+def test_narrow_layout_media_queries_exist():
+    # Narrow viewports are already handled for the workbench family — tripwire.
+    assert len(re.findall(r"@media \(max-width", _styles())) >= 1
+
+
+def test_reduced_motion_is_honored():
+    # Two prefers-reduced-motion blocks exist today — tripwire (FR-041).
+    assert "prefers-reduced-motion" in _styles()
+
+
+def test_forced_colors_high_contrast_is_handled():
+    # T093 (TRUE RED until realized): forced-colors/high-contrast mode must
+    # keep status and authority boundaries visible (FR-041, US5 edge case).
+    assert "forced-colors" in _styles()
+
+
+def test_doxbench_canvas_has_narrow_and_zoom_safe_rules():
+    # T093 (TRUE RED until realized): the doxBench canvas itself participates
+    # in the narrow/zoom story rather than inheriting desktop-only sizing.
+    styles = _styles()
+    media_blocks = re.findall(r"@media[^{]+\{[\s\S]*?\n\}", styles)
+    assert any("doxbench" in block for block in media_blocks), (
+        "no @media block addresses the doxbench canvas"
+    )
+
+
+def test_long_text_wraps_instead_of_overflowing():
+    # T093 (TRUE RED until realized): unusually long unbroken text in buffers,
+    # titles, and status lines wraps or scrolls inside its region (FR-041's
+    # long-text/overflow mode; US5 edge case).
+    styles = _styles()
+    assert re.search(r"(overflow-wrap|word-break)[^;]*;", styles), (
+        "no wrapping rule anywhere in the stylesheet"
+    )
+
+
+# ---------------------------------------------------------------------------
+# CHK007 (T100 AT measurement 2026-08-02 FAILED it): the WAI-ARIA APG tablist
+# pattern on the buffer tab strip — roving tabindex plus Arrow/Home/End
+# selection, with the arrows consumed so they no longer scroll the page.
+# The live-DOM proof is the T098 smoke's step 10c; these are the source and
+# structure pins that keep the wiring from silently regressing.
+# ---------------------------------------------------------------------------
+
+def test_the_buffer_tablist_implements_the_apg_roving_pattern():
+    source = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+              / "doxbench-editor.js").read_text(encoding="utf-8")
+    # roving tabindex maintained by the one function that owns tab state
+    assert "tabIndex = isActive ? 0 : -1" in source
+    # every APG key, including the Up/Down the operator reached for first
+    for key in ("ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
+                "Home", "End"):
+        assert key in source, key
+    # the arrows must be consumed, or the page scrolls instead (the observed
+    # T100 failure mode)
+    assert "ev.preventDefault()" in source
+    assert 'tabBtn.addEventListener("keydown"' in source

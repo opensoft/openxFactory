@@ -12,7 +12,9 @@ are framed against the running system, and how the sync is operated.
 
 Authority model: [NotebookLM Source Workspaces](notebooklm-source-workspaces.md).
 Lifecycle states: [Document Lifecycle](document-lifecycle.md).
-Reference implementation: `codexFactory/scripts/sync-notebooklm-books.py`.
+Reference implementation: `scripts/sync-notebooklm-books.py` (in this
+repository; invoked from the workspace root as
+`openxFactory/scripts/sync-notebooklm-books.py`).
 
 ## 1. The Books
 
@@ -113,8 +115,8 @@ local derived state — not committed; safe to delete, next apply rebuilds it).
 nlm login
 
 # 2. Preview, then apply, from the workspace root.
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . 
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . --apply
+python3 openxFactory/scripts/sync-notebooklm-books.py . 
+python3 openxFactory/scripts/sync-notebooklm-books.py . --apply
 
 # 3. Books are aliased: xf-ideation, xf-drafts, xf-canon (tags: xfactory,lifecycle).
 nlm source list xf-canon
@@ -166,16 +168,16 @@ set.
 The operator supplies the origin folder explicitly:
 
 ```bash
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --import-new-sources "<hybrid-notebook-id-or-alias>" \
   --target-path "openxFactory/ideation/brainstorm/<topic>"
 
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --import-new-sources "<hybrid-notebook-id-or-alias>" \
   --target-path "openxFactory/ideation/staging/<topic>" \
   --apply
 
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --import-new-sources "<hybrid-notebook-id-or-alias>" \
   --target-path "openxFactory/openspec/changes/<change-id>/supporting-docs" \
   --apply
@@ -243,15 +245,15 @@ Sourced from the worktree, not the served checkout:
 ```bash
 # Preview, then apply, from the workspace root. --session-repository is the
 # tie-break when the same branch is live in more than one repository.
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --session-ref draft/workbench-branch-sessions
 
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --session-ref draft/workbench-branch-sessions --apply
 
 # Retire at session end (both endings; the workbench's session teardown
 # performs this — the flag is the manual equivalent).
-python3 xFactories/codexFactory/scripts/sync-notebooklm-books.py . \
+python3 openxFactory/scripts/sync-notebooklm-books.py . \
   --session-ref draft/workbench-branch-sessions --session-retire --apply
 ```
 

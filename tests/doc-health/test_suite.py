@@ -1,0 +1,196 @@
+"""Suite-level guarantees: determinism, fixture isolation, report schema,
+regression matching, and threshold deviation reporting."""
+
+from __future__ import annotations
+
+from datetime import date
+
+from conftest import REPO_ROOT, FakeGit, make_ctx
+
+from doc_health import CRITICAL, ERROR, WARNING, DEFAULT_THRESHOLDS, Finding
+from doc_health import catalog_dispatch, corpus, report
+from doc_health.families import FAMILIES
+
+
+def test_determinism_identical_runs():
+    a = FAMILIES["tag-hygiene"](make_ctx("tag-hygiene"))
+    b = FAMILIES["tag-hygiene"](make_ctx("tag-hygiene"))
+    assert [f.__dict__ for f in sorted(a, key=Finding.sort_key)] == \
+           [f.__dict__ for f in sorted(b, key=Finding.sort_key)]
+
+
+def test_real_repo_scan_excludes_fixtures():
+    paths = corpus.iter_doc_paths(REPO_ROOT)
+    assert paths, "governed corpus should not be empty"
+    assert not [p for p in paths if p.as_posix().startswith("tests/")], \
+        "fixture corpora must never enter a real scan"
+
+
+def test_report_conforms_to_contract_schema():
+    findings = [Finding(ERROR, "status-validity", "alpha", "docs/x.md",
+                        "missing status header", "add a Status: header")]
+    docs = make_ctx("status-validity").docs
+    text = report.render(date(2026, 7, 9), findings, [], [], docs, 100, [], [])
+    assert text.startswith("# Doc-Health Report — 2026-07-09")
+    for element in ("Status: record", "Kind: report", "Canon share by words",
+                    "## Per-Stage Counts", "## Findings By Family",
+                    "## Ranked Plan"):
+        assert element in text, element
+    # Ranked-plan items are machine-parseable (severity, repo, path, action).
+    lines = [l for l in text.splitlines() if l.startswith("- severity=")]
+    assert len(lines) == 1
+    m = report.PLAN_RE.match(lines[0])
+    assert m and m.group(1) == ERROR and m.group(3) == "alpha"
+
+
+def test_regression_matching_by_family_and_path():
+    prev = report.render(
+        date(2026, 7, 8),
+        [Finding(ERROR, "tag-hygiene", "alpha", "docs/old.md", "r", "a")],
+        [], [], [], 0, [], [])
+    keys, contested = report.parse_previous(prev)
+    now = [
+        Finding(ERROR, "tag-hygiene", "alpha", "docs/old.md", "r", "a"),
+        Finding(CRITICAL, "standard-backing", "alpha", "docs/new.md", "r", "a"),
+        Finding(WARNING, "submodule-pin-drift", "x", "sub", "r", "a"),
+    ]
+    new = report.regressions(now, keys)
+    assert [f.path for f in new] == ["docs/new.md"]  # persistent + warning excluded
+
+
+def test_no_previous_report_is_baseline():
+    findings = [Finding(CRITICAL, "standard-backing", "a", "p", "r", "a")]
+    assert report.regressions(findings, None) == []
+
+
+def test_threshold_override_is_reported_as_deviation():
+    thresholds = dict(DEFAULT_THRESHOLDS, draft_warning_days=10)
+    git = FakeGit(last_dates={("alpha", "docs/good.md"): date(2026, 6, 20)})
+    ctx = make_ctx("status-validity", git=git, thresholds=thresholds)
+    got = FAMILIES["staged-candidate-aging"](ctx)
+    assert any(f.severity == WARNING and "draft without transition" in f.rule
+               for f in got)  # 19 days >= overridden 10
+    text = report.render(date(2026, 7, 9), got, [], [], ctx.docs, 0,
+                         ["threshold draft_warning_days=10 (default 60)"], [])
+    assert "Non-default configuration" in text
+    assert "draft_warning_days=10" in text
+
+
+def test_uncited_contested_resolution_becomes_finding():
+    prev = report.render(
+        date(2026, 7, 8),
+        [Finding(ERROR, "location-conformance", "alpha", "docs/reg.md",
+                 "r", "a", resolution="contested")],
+        [], [], [], 0, [], [])
+    keys, contested = report.parse_previous(prev)
+    assert contested == {("location-conformance", "alpha", "docs/reg.md")}
+    # vanished without disposition -> new error finding
+    got = report.uncited_resolutions([], contested, dispositions=set())
+    assert [(f.family, f.path) for f in got] == [
+        ("uncited-resolution", "docs/reg.md")]
+    # vanished WITH disposition -> clean
+    assert report.uncited_resolutions(
+        [], contested,
+        dispositions={("location-conformance", "alpha", "docs/reg.md")}) == []
+
+
+def _fixture_catalog_meta(**overrides):
+    fields = {
+        "snapshot_refs": [
+            "health/document-catalog/runs/2026-07-09/abc/alpha.yaml"],
+        "total_docs": 10, "cataloged": 6,
+        "state_counts": {"pending": 2, "suggested": 3, "reviewed": 1,
+                        "overridden": 0, "unclassified": 0,
+                        "policy_blocked": 0},
+        "new_count": 2, "changed_count": 1, "deleted_count": 1,
+        "stale_count": 1,
+        "rejected_count": 1, "inventory_version": "inv-abc123",
+        "taxonomy_digest": "deadbeef",
+        "classifier_version": "document-cataloger/1",
+        "prompt_version": 1, "model": "claude-sonnet-5",
+        "recommendation_refs": [
+            "health/document-catalog/recommendations/2026-07-09/CATJOB-1.yaml"],
+        "skipped_reason": "child_timeout",
+        "baseline_progress": {"cataloged": 9, "total": 15,
+                              "repos_complete": 1, "repos_total": 2,
+                              "percent": 60.0, "complete": False},
+        "pending_aging": {"warning": 2, "error": 1},
+        "deviations": ["catalog shard budget=10 (default 25)"],
+    }
+    fields.update(overrides)
+    return catalog_dispatch.CatalogMeta(**fields)
+
+
+def test_catalog_meta_report_section_renders_the_full_field_table():
+    # T020/T022: every data-model.md CatalogMeta field renders somewhere in
+    # the "## Document Catalog" section, positioned before Findings By
+    # Family (mirrors "## Semantic Sweep"'s existing placement/style).
+    meta = _fixture_catalog_meta()
+    text = report.render(date(2026, 7, 9), [], [], [], [], 0, [], [],
+                         catalog_meta=meta)
+    assert "## Document Catalog" in text
+    assert "Skipped: child_timeout" in text
+    assert ("snapshots: health/document-catalog/runs/2026-07-09/abc/"
+           "alpha.yaml") in text
+    assert "coverage: 6 of 10 docs cataloged" in text
+    assert ("facet states: pending=2, suggested=3, reviewed=1, "
+           "overridden=0, unclassified=0, policy_blocked=0") in text
+    assert ("changes: 2 new, 1 changed, 1 deleted, 1 stale, "
+           "1 rejected") in text
+    assert "inventory: inv-abc123, taxonomy digest deadbeef" in text
+    assert ("classifier: document-cataloger/1, prompt contract v1, "
+           "model claude-sonnet-5") in text
+    assert ("recommendation evidence: health/document-catalog/"
+           "recommendations/2026-07-09/CATJOB-1.yaml") in text
+    assert ("baseline progress: 9/15 entries (60.0%) across "
+           "1/2 repositories") in text
+    assert "pending-aging: warning=2, error=1" in text
+    assert ("non-default configuration: catalog shard budget=10 "
+           "(default 25)") in text
+    assert text.index("## Document Catalog") < \
+        text.index("## Findings By Family")
+
+
+def test_catalog_meta_omits_optional_sections_when_absent():
+    meta = _fixture_catalog_meta(skipped_reason=None, baseline_progress=None,
+                                 deviations=[], recommendation_refs=[])
+    text = report.render(date(2026, 7, 9), [], [], [], [], 0, [], [],
+                         catalog_meta=meta)
+    assert "Skipped:" not in text
+    assert "baseline progress:" not in text
+    assert "non-default configuration:" not in text
+    assert "recommendation evidence: (none)" in text
+
+
+def test_catalog_meta_never_leaks_into_the_ranked_plan():
+    # FR-012 hard invariant: CatalogMeta is read-only render input -- no
+    # recommendation-derived content (job/recommendation refs, skip reason,
+    # model id) ever becomes a Ranked Plan line, even when real Findings
+    # from an UNRELATED family are also present in the same report.
+    meta = _fixture_catalog_meta()
+    findings = [Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md",
+                        "missing status header", "add a Status: header")]
+    text = report.render(date(2026, 7, 9), findings, [], [], [], 0, [], [],
+                         catalog_meta=meta)
+    assert "## Document Catalog" in text  # the section itself did render
+    plan_lines = [l for l in text.splitlines() if l.startswith("- severity=")]
+    assert len(plan_lines) == 1  # only the one real Finding
+    m = report.PLAN_RE.match(plan_lines[0])
+    assert m and m.group(2) == "tag-hygiene" and m.group(3) == "alpha"
+    for field in (meta.model, meta.skipped_reason, *meta.recommendation_refs,
+                 *meta.snapshot_refs, meta.inventory_version,
+                 meta.taxonomy_digest):
+        assert not any(field in l for l in plan_lines)
+
+
+def test_unavailable_semantic_family_does_not_fake_a_resolution():
+    contested = {
+        ("semantic-normative-prose", "alpha", "docs/a.md"),
+        ("location-conformance", "alpha", "docs/reg.md"),
+    }
+    got = report.uncited_resolutions(
+        [], contested, dispositions=set(),
+        unavailable_families={"semantic-normative-prose",
+                              "semantic-contradiction"})
+    assert [(finding.family, finding.path) for finding in got] == [
+        ("uncited-resolution", "docs/reg.md")]

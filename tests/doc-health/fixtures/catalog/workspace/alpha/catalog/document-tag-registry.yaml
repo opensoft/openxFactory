@@ -1,0 +1,19 @@
+# Domain registry fixture, shaped per the add-document-cataloging
+# supporting template. Ownership of the alpha namespace is registered
+# canonically in the neutral registry
+# (openxFactory/contracts/document-tag-registry.yaml); this registry makes
+# no ownership claim (a second claim would be a duplicate) and only defines
+# tags in its owned namespace, per the document-cataloging contract.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces: []
+tags:
+  - id: alpha.widgets
+    namespace: alpha
+    label: Widgets
+    description: Widget domain material.
+    aliases: []
+    status: active
+proposed_tags: []
+retired_tags: []

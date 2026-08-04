@@ -1,0 +1,5 @@
+# Stray
+
+Status: brainstorm
+
+Body.

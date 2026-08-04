@@ -54,3 +54,16 @@
 - [ ] 8.2 Record destination-owner acceptance, routed-claim provenance, organizer evidence, and an authorized accept/edit/reject disposition for each pilot.
 - [ ] 8.3 Run strict routing validation, codexFactory tests, skipped/offline and successful organizer runs, protected-output tests, and the full nightly workflow with no new critical/error regressions.
 - [ ] 8.4 Promote routing contracts and guidance, re-pin consumers, archive this change with its verified supporting-document bundle, and confirm untouched sources retain no fabricated history.
+
+## Amendments
+
+- 2026-08-03 — Pre-promotion amendment under `adopt-neutral-tooling-home`
+  (ratified; design D5): the "Organizer execution, persistence, and
+  readiness isolation" requirement's implementation-ownership clause now
+  names openxFactory (selection, orchestration adapters, validation, and
+  report integration moved home with the `scripts/doc_health/` package that
+  hosts them; provenance codexFactory
+  main@e4caa03bf48655b54bc96fc5450d9ad5bddf4886). xFactory aggregation
+  keeps dispatch hosting and durable reporting. Edited in place in this
+  change's `specs/ideation-routing/spec.md` because the requirement is
+  active and unpromoted — no canon exists yet to carry a MODIFIED delta.

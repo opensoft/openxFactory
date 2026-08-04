@@ -1,0 +1,191 @@
+# Ideation cross-reference index — LANDED shape fixture (kind: ideation-cross-reference).
+#
+# This is the source-of-truth index the generator reads through register.py's
+# CrossReferenceIndexAdapter. It exercises the data-spine bindings the dashboard
+# lights up FROM the index:
+#
+#   * topic_entries[].name  -> the snapshot cluster's DISPLAY NAME (the cluster id
+#     `cl-<topic>` joins the topic entry id). cl-keyword-lens is DELIBERATELY
+#     ABSENT so the generator falls back to the titleized topic ("Keyword Lens").
+#   * topic_entries[].readiness -> the snapshot cluster's readiness. cl-doc-health
+#     is SCORED (projects to the flat {tier: score} heat map funnel.js renders);
+#     the rest are UNSCORED (bootstrap) and are OMITTED from the snapshot until the
+#     scoring worker emits numbers.
+#   * topic_entries[].conflict_flags -> copied verbatim (cl-ideation-governance).
+#   * possibles_register -> the embedded consolidated register (R4 worked-example
+#     backfill). A cross-reference index with NO possibles_register is the
+#     bootstrap state (empty possibles); this fixture carries it so the projection
+#     is exercised end to end.
+#
+# GENERATOR-INPUT SCOPE: the readiness tiers below carry only the fields the
+# generator projects (`tier` + `score` / `unscored_reason`); a full governed index
+# instance also attaches per-score organizer evidence, omitted here for
+# readability (nothing validates this fixture against the cross-reference schema —
+# it is a read-through input to the deterministic generator).
+#
+# R4 BACKFILL DISCIPLINE: register entries exist ONLY for the four worked examples
+# (doc-health, avatar, ideation-governance, DTN register). Legacy docs
+# (legacy-note.md, keyword-lens/README.md) declare no `Possible feats:` and get NO
+# entry — no register history is fabricated for them.
+schema_version: 1
+kind: ideation-cross-reference
+repository: fixture-repo
+generation:
+  source_revision: abcd1234abcd1234abcd1234abcd1234abcd1234
+  generator_version: ideation-xref-fixture-0.1.0
+
+topic_entries:
+  # human name differs from titleize("avatar")="Avatar" -> proves the name flows
+  # from the index rather than the topic slug.
+  - id: cl-avatar
+    name: Avatar Client Lab
+    topics: [avatar]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - {path: ideation/brainstorm/avatar-client-lab.md, stage: brainstorm, matched_tags: [avatar]}
+    extension_fit:
+      has_promoted_fit: false
+      statement: 'Bootstrap: extension-fit not yet evaluated (no promoted-fit claim).'
+    readiness:
+      tiers:
+        - {tier: domain, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: company, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: project, unscored_reason: bootstrap — scoring worker not yet realized}
+
+  # SCORED -> projects to the flat {domain,company,project: score} heat map.
+  - id: cl-doc-health
+    name: Doc Health
+    topics: [doc-health]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - {path: ideation/brainstorm/doc-health-checks.md, stage: brainstorm, matched_tags: [doc-health]}
+    extension_fit:
+      has_promoted_fit: true
+      promoted_spec: doc-health
+      how_extends: extends the promoted doc-health checker with a scheduled semantic sweep
+    readiness:
+      tiers:
+        - {tier: domain, score: 9}
+        - {tier: company, score: 8}
+        - {tier: project, score: 8}
+      recommendation: {flagged: true, disposition: pending_review}
+
+  # human name differs from titleize("dtn")="Dtn".
+  - id: cl-dtn
+    name: DTN Candidate Register
+    topics: [dtn]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - {path: ideation/brainstorm/dtn-register.md, stage: brainstorm, matched_tags: [dtn]}
+    extension_fit:
+      has_promoted_fit: false
+      statement: 'Bootstrap: extension-fit not yet evaluated (no promoted-fit claim).'
+    readiness:
+      tiers:
+        - {tier: domain, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: company, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: project, unscored_reason: bootstrap — scoring worker not yet realized}
+
+  - id: cl-ideation-dashboard
+    name: Ideation Dashboard
+    topics: [ideation-dashboard]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - {path: ideation/brainstorm/legacy-note.md, stage: brainstorm, matched_tags: [ideation-dashboard]}
+      - {path: ideation/brainstorm/avatar-client-lab.md, stage: brainstorm, matched_tags: [ideation-dashboard]}
+      - {path: ideation/staging/keyword-lens/README.md, stage: staged, matched_tags: [ideation-dashboard]}
+    extension_fit:
+      has_promoted_fit: false
+      statement: 'Bootstrap: extension-fit not yet evaluated (no promoted-fit claim).'
+    readiness:
+      tiers:
+        - {tier: domain, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: company, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: project, unscored_reason: bootstrap — scoring worker not yet realized}
+
+  # UNSCORED readiness (omitted from the snapshot) but carries a conflict flag
+  # (copied verbatim) -> the two bindings are independent.
+  - id: cl-ideation-governance
+    name: Ideation Governance
+    topics: [ideation-governance]
+    tag_sources: [topics-header]
+    origin: machine-derived
+    members:
+      - {path: ideation/brainstorm/doc-health-checks.md, stage: brainstorm, matched_tags: [ideation-governance]}
+      - {path: ideation/brainstorm/dtn-register.md, stage: brainstorm, matched_tags: [ideation-governance]}
+      - {path: ideation/staging/ideation-governance/README.md, stage: staged, matched_tags: [ideation-governance]}
+    extension_fit:
+      has_promoted_fit: false
+      statement: 'Bootstrap: extension-fit not yet evaluated (no promoted-fit claim).'
+    readiness:
+      tiers:
+        - {tier: domain, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: company, unscored_reason: bootstrap — scoring worker not yet realized}
+        - {tier: project, unscored_reason: bootstrap — scoring worker not yet realized}
+    conflict_flags:
+      - {kind: tier-spread, tiers: [domain, project], detail: domain and project tiers diverge}
+
+# cl-keyword-lens is intentionally omitted above -> its snapshot name falls back
+# to the titleized topic slug ("Keyword Lens").
+
+possibles_register:
+  # multi-cluster possible: claimed by cl-doc-health AND cl-ideation-governance
+  - id: pos-health-sweep
+    title: Semantic health sweep
+    claim: A scheduled semantic sweep consolidates contested findings across the corpus.
+    state: latent
+    provenance: {document: ideation/brainstorm/doc-health-checks.md, section: Possible feats}
+    claiming_clusters: [cl-doc-health, cl-ideation-governance]
+    supporting_evidence:
+      - document: ideation/brainstorm/doc-health-checks.md
+        section: Possible feats
+        passage_sha256: bf96b93773a6e9afdcf3f437c8d291355aac20734c074789ac275fbc669c6aa6
+
+  # picked possible: pick edge cites the staging id and inherits the change id
+  - id: pos-ideation-governance
+    title: Ideation governance lifecycle
+    claim: The ideation area gets a controlled lifecycle and a work queue.
+    state: picked
+    provenance: {document: ideation/staging/ideation-governance/README.md, section: Possible feats}
+    claiming_clusters: [cl-ideation-governance]
+    pick: {staging_id: ideation-governance, change_id: add-ideation-governance}
+    supporting_evidence:
+      - document: ideation/staging/ideation-governance/README.md
+        section: Possible feats
+        passage_sha256: beb4392e9150768ffcfc40241298a2ea92940a223aa2bde931c1d20536205c35
+
+  # option set os-avatar-shape: chosen member proceeds, sibling is superseded
+  - id: pos-avatar-lab
+    title: Avatar client lab
+    claim: A first-class avatar-driven client lab surface.
+    state: latent
+    provenance: {document: ideation/brainstorm/avatar-client-lab.md, section: Possible feats}
+    claiming_clusters: [cl-avatar]
+    option_set: {id: os-avatar-shape, members: [pos-avatar-lab, pos-avatar-inline]}
+    supporting_evidence:
+      - document: ideation/brainstorm/avatar-client-lab.md
+        section: Possible feats
+        passage_sha256: b84eedbdb0fb1a06caeb9cd7aec23b3da877563b37fbbf5cc3e44dad01317e71
+  - id: pos-avatar-inline
+    title: Inline avatar widget
+    claim: Render the avatar inline instead of a dedicated lab.
+    state: superseded
+    reason: The option-set sibling pos-avatar-lab was chosen at the canvas.
+    citation: pos-avatar-lab
+    provenance: {document: ideation/brainstorm/avatar-client-lab.md, section: Possible feats}
+    claiming_clusters: [cl-avatar]
+    option_set: {id: os-avatar-shape, members: [pos-avatar-lab, pos-avatar-inline]}
+
+  # cited rejection
+  - id: pos-dtn-autopromote
+    title: Auto-promote DTN candidates
+    claim: Automatically promote register candidates without a human gate.
+    state: rejected
+    reason: Promotion is a human gate; auto-promotion violates the interactivity boundary.
+    citation: openspec/changes/archive/2026-07-12-add-document-cataloging/proposal.md#non-goals
+    provenance: {document: ideation/brainstorm/dtn-register.md, section: Possible feats}
+    claiming_clusters: [cl-dtn]
