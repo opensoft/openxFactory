@@ -54,24 +54,24 @@
 
 ## 2. codexFactory sheds (named follow-up PR: change/shed-neutral-utility-pack)
 
-- [ ] 2.1 Remove the moved surface: `scripts/check-inventory-consistency.py`,
+- [x] 2.1 Remove the moved surface: `scripts/check-inventory-consistency.py`,
       `scripts/check-workflow-state-parity.py`,
       `scripts/check-openxfactory-pin.py`, `scripts/proposal-support.py`,
       `schemas/hermes-template.schema.json`, `tests/conformance-gate/`,
       `tests/proposal-support/`.
-- [ ] 2.2 `scripts/validate-docs.sh` repoints (path-only, D2): the three
+- [x] 2.2 `scripts/validate-docs.sh` repoints (path-only, D2): the three
       conformance-check invocations move from `python3 scripts/<name>` to
       the resolved `$OPENX/scripts/<name>` copies (the
       `resolve_openxfactory()` block already exists; the checks join the
       canonical-validator section and fail closed in CI when no checkout
       resolves); drop `tests/proposal-support/` and `tests/conformance-gate/`
       from the pytest and hermetic_unittest suite lists.
-- [ ] 2.3 Inventory edit — REQUIRED, verified at the pin: `stack.yaml`
+- [x] 2.3 Inventory edit — REQUIRED, verified at the pin: `stack.yaml`
       `schemas.required` lists `hermes-template.schema.json` (line 122) and
       `schemas/README.md` carries its table row (line 18: "Hermes layer
       templates (subject/client)"); both entries must drop with the file or
       the now-pinned-checkout inventory check fails the shed PR itself.
-- [ ] 2.4 Repoint the remaining in-repo references found at the pin
+- [x] 2.4 Repoint the remaining in-repo references found at the pin
       (CONTRIBUTING.md, workflows/README.md mentions of the moved scripts)
       and retire/redirect codexFactory's promoted `conformance-gate` spec
       text that names local script paths — its own codexFactory OpenSpec
@@ -99,3 +99,14 @@
       --strict` and `--all --strict` green.
 - [x] 4.4 Existing quick suite unaffected: `tests/ideation_dashboard` 45
       passed.
+
+## Shed execution record (2026-08-03)
+
+Realized as codexFactory PR #73 (merge 25e46fd1bf, branch
+change/shed-utility-pack@4d90eec): 18 files / -1,963 lines; validate-docs.sh
+repointed to the pinned checkout with explicit targets; stack.yaml re-pinned
+ff64e81 -> 45129cf7 (required for the shed's own CI; v1.29 ancestry + doxBench
+digests verified); hermes-template inventory entries dropped; the council-lane
+runbook deletion rode along (aggregation adoption xFactory@19b06ba).
+DTN-018/019/021 -> adopted (domain re-pin + local-copy retirement complete).
+Deferred per task 2.4: retiring codexFactory's conformance-gate spec.

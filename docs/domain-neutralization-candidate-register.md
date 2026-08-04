@@ -45,10 +45,10 @@ implemented/promoted, `adopted` = adopted.
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 | DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
-| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `implemented` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
-| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `implemented` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
+| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
+| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
-| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `implemented` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
+| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `adopted` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
 | DTN-022 | Avatar client lab neutral home | `split` | P2 | `seed` | home fork open: own repo vs aggregation (avatar-reference-runtime forbids deployable surfaces in openxFactory) |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 
