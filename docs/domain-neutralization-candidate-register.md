@@ -45,10 +45,10 @@ implemented/promoted, `adopted` = adopted.
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 | DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
-| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `seed` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
-| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `seed` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
+| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `implemented` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
+| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `implemented` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
-| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `seed` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
+| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `implemented` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
 | DTN-022 | Avatar client lab neutral home | `split` | P2 | `seed` | home fork open: own repo vs aggregation (avatar-reference-runtime forbids deployable surfaces in openxFactory) |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 
@@ -552,6 +552,8 @@ Evidence:
 Domain-local exclusions: `scripts/validate-docs.sh` (the codex wrapper
 and its required-files list stay).
 
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` (adopted at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed + validate-docs.sh repoint, change/shed-neutral-utility-pack).
+
 ### DTN-019: Proposal-support lifecycle tool
 
 Surfaced by the same sweep; sharpened by `adopt-neutral-tooling-home`:
@@ -570,6 +572,8 @@ Evidence:
 
 Domain-local exclusions: none identified — the tool is pure lifecycle
 mechanics.
+
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` (adopted byte-identical at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed, change/shed-neutral-utility-pack).
 
 ### DTN-020: Change-ratification workflow contract
 
@@ -606,6 +610,8 @@ Evidence:
 
 Domain-local exclusions: the `$id` host string and codex layer
 instances under `hermes/`.
+
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` as `contracts/hermes-domain-overlay/hermes-layer-template.schema.json` (neutralized `$id`, JSON retained; adopted at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed — its stack.yaml/schemas README inventory entries drop with the file — and a later additive bundle release).
 
 ### DTN-022: Avatar client lab neutral home
 
