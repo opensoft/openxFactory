@@ -319,7 +319,7 @@ jobs:
           fi
           ENABLED=()
           [ "$PROBE" = "true" ] && ENABLED=(--enabled)
-          python3 xFactories/codexFactory/scripts/check-worker-readiness.py \
+          python3 scripts/check-worker-readiness.py \
             --runner-group runner-group.json \
             --heartbeat heartbeat.json \
             "${ENABLED[@]}" \
@@ -496,7 +496,7 @@ jobs:
           fi
           ENABLED=()
           [ "$PROBE" = "true" ] && ENABLED=(--enabled)
-          python3 xFactories/codexFactory/scripts/check-worker-readiness.py \
+          python3 scripts/check-worker-readiness.py \
             --runner-group catalog-runner-group.json \
             --heartbeat catalog-heartbeat.json \
             "${ENABLED[@]}" \
@@ -714,7 +714,7 @@ jobs:
           fi
           ENABLED=()
           [ "$PROBE" = "true" ] && ENABLED=(--enabled)
-          python3 xFactories/codexFactory/scripts/check-worker-readiness.py \
+          python3 scripts/check-worker-readiness.py \
             --runner-group organizer-runner-group.json \
             --heartbeat organizer-heartbeat.json \
             "${ENABLED[@]}" \
@@ -1483,7 +1483,7 @@ jobs:
           fi
           ENABLED=()
           [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
-          python3 xFactories/codexFactory/scripts/check-worker-readiness.py \
+          python3 scripts/check-worker-readiness.py \
             --runner-group xref-runner-group.json \
             --heartbeat xref-heartbeat.json \
             "${ENABLED[@]}" \
@@ -1842,7 +1842,7 @@ jobs:
           fi
           ENABLED=()
           [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
-          python3 xFactories/codexFactory/scripts/check-worker-readiness.py \
+          python3 scripts/check-worker-readiness.py \
             --runner-group dposs-runner-group.json \
             --heartbeat dposs-heartbeat.json \
             "${ENABLED[@]}" \
