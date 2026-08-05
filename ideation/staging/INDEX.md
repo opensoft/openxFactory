@@ -51,6 +51,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
+| [dashboard-project-scoping](#dashboard-project-scoping) | MODIFIED `ideation-dashboard` (project CRUD affordance, project-scoped selection, per-tile repository binding); possibly MODIFIED `project-register` schema | 1 | Ready to iterate — named by Brett 2026-08-02. The grouping machinery is BUILT AND IDLE (register declares `projects[].repositories[]`, generator resolves repository→project→group, surface renders three toggles) but content-starved: one project holding all eleven repos, zero groups. Three layers: L1 register CRUD from the surface (small, but the write crosses into the AGGREGATION repo), L2 project as a filter (Q1: merged view vs filtered one-at-a-time — the single-active-snapshot assumption is load-bearing), L3 per-tile repository binding (LARGE — reopens `session_repository`, confinement, and the worktree layout that `add-workbench-branch-sessions` ratified). 5 open questions; Q1 and Q3 decide whether this is a selector change or a plane change. Twin of the `tenant-project-catalog-and-workstation-cache` brainstorm (runtime-authoritative version) — must not fork it |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
@@ -125,6 +126,34 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   installs/omnigent-install`), realization gated on the pilot lane
   green with measured savings; tier-3 sidecar delta rides the same
   change or a follow-on.
+
+## dashboard-project-scoping
+
+- Staging ID: `openxFactory:staging:dashboard-project-scoping`
+- Repository context: the register instance is aggregation-owned
+  (`xFactory/project-register.yaml`); openxFactory owns the neutral
+  `project-register` schema; codexFactory owns the dashboard, the selector,
+  and the session/gate plane L3 would change
+- Files: `dashboard-project-scoping.md` (primary)
+- Target capabilities: MODIFIED `ideation-dashboard`; possibly MODIFIED
+  `project-register` if a project acquires state beyond navigation
+- Source: Brett, 2026-08-02 — "lists existing projects and allows for use to
+  create new project ... then allow the user to later select the project,
+  then a repo in that project or all repos in that project ... when i click
+  on a tile on a wheel, that is tied to a repo and my dashboard operations
+  for that tile are in that repo"
+- Open questions: Q1 all-repos view shape (merged vs filtered); Q2 where the
+  register write lands and under what authority (the file is in ANOTHER
+  repo than the served corpus); Q3 whether a tile operation in a non-served
+  repository proceeds or refuses (this is the L3 fork); Q4 whether project
+  groups are used at all; Q5 authority once the tenant project catalog exists
+- Exit path: content first (Brett names real projects in the register — an
+  aggregation edit that makes by-project navigation live and reveals how much
+  of the ask was content), then rule Q1/Q3, then an OpenSpec change for
+  L1+L2 at the scope those rulings set. L3, if wanted, is a SEPARATE change
+  against the session plane
+- Related: `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md`
+  — the runtime-authoritative twin; reconcile before either lands
 
 ## dashboard-repo-selector
 
