@@ -330,3 +330,48 @@ def test_the_session_host_cannot_reclaim_the_panel():
     assert "overflow-y: auto" in declared, (
         "the session host is capped without a scroll — that HIDES the CLI "
         "descriptors rather than thinning them")
+
+
+def test_narrow_railed_expansion_still_works_and_the_column_owns_scrolling():
+    """W-12 (wave re-review): the F9-5 narrow flex:none block ties the
+    is-expanded geometry on specificity (0,3,0 both) and, being later in
+    source, beat it — so under 900px with the rail the expand controls
+    toggled aria-pressed and moved nothing. And with all three regions at
+    natural height inside `.swb-panel { overflow: hidden }`, a tall
+    transcript pushed the canvas below the fold with NO scrollbar anywhere.
+    This pins the repair's three load-bearing facts: a narrow block AFTER
+    the flex:none override (source order is the whole contest) re-declares
+    the expanded pane's growth, compresses the other panes to bounded
+    scrollable strips, and hands `.swb-regions.has-rail` a scroll owner."""
+    styles = STYLES.read_text(encoding="utf-8")
+    narrow_none = re.search(
+        r"@media \(max-width: 900px\)\s*\{\s*"
+        r"\.swb-regions\.has-rail \.swb-context,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-canvas,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-rail\s*\{[^}]*flex: none",
+        styles)
+    assert narrow_none, "the F9-5 narrow override is gone"
+    scroll_owner = re.search(
+        r"@media \(max-width: 900px\)[^@]*"
+        r"\.swb-regions\.has-rail\s*\{[^}]*overflow-y: auto",
+        styles)
+    assert scroll_owner, (
+        "no narrow scroll owner: natural-height regions under the panel's "
+        "overflow:hidden leave the canvas unreachable below the fold")
+    narrow_expand = re.search(
+        r"@media \(max-width: 900px\)[^@]*"
+        r"\.swb-regions\.is-expanded-canvas \.doxbench-canvas\s*\{[^}]*flex: 1 1 auto",
+        styles)
+    assert narrow_expand, (
+        "no narrow is-expanded re-declaration: the flex:none block wins the "
+        "cascade and the expand controls stay inert under 900px")
+    assert narrow_expand.start() > narrow_none.start(), (
+        "the narrow expand rules sit BEFORE the flex:none block; with equal "
+        "specificity source order hands flex:none the win again")
+    compressed = re.search(
+        r"@media \(max-width: 900px\)[^@]*\.swb-regions\.is-expanded-canvas "
+        r"\.swb-context[^{]*\{[^}]*max-height",
+        styles)
+    assert compressed, (
+        "the non-expanded panes keep their natural height, so expansion "
+        "still moves nothing when a tall transcript fills the column")

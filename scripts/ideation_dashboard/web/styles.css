@@ -1831,3 +1831,28 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   .swb-regions.has-rail .doxbench-canvas,
   .swb-regions.has-rail .doxbench-rail { flex: none; }
 }
+
+/* W-12 (wave re-review): the flex:none block above ties the is-expanded
+   geometry on specificity (0,3,0 both) and, later in source, BEAT it — so
+   under 900px with the rail the expand controls toggled aria-pressed and
+   moved nothing. And with all three regions at natural height inside
+   .swb-panel's overflow:hidden, a tall transcript pushed the canvas below
+   the fold with no scrollbar anywhere. In the stacked column, expansion
+   means HEIGHT: the expanded pane takes the column's share, the others
+   compress to bounded, still-scrollable strips — and the railed column owns
+   its own scrolling. Later in source than the flex:none block, because with
+   equal specificity source order is the whole contest. Append-only. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail { overflow-y: auto; }
+  .swb-regions.is-expanded-context .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-rail,
+  .swb-regions.is-expanded-canvas .doxbench-canvas { flex: 1 1 auto; }
+  .swb-regions.is-expanded-context .doxbench-rail,
+  .swb-regions.is-expanded-context .doxbench-canvas,
+  .swb-regions.is-expanded-rail .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-canvas,
+  .swb-regions.is-expanded-canvas .swb-context,
+  .swb-regions.is-expanded-canvas .doxbench-rail {
+    flex: none; max-height: 20vh; overflow-y: auto;
+  }
+}
