@@ -1192,6 +1192,24 @@ def test_a_buffer_declaring_the_serving_snapshots_revision_grounds_too():
         )
 
 
+def test_a_reader_failure_never_grounds_a_hashless_buffer():
+    # Wave re-review (R-12 machinery): `_session_text_identity` fails CLOSED
+    # by returning None -- and a direct caller's TurnBuffer with
+    # base_hash=None (dataclass fields are unenforced) then satisfied
+    # None == None and was ACCEPTED on a reader failure. Unreachable over
+    # HTTP (the parser requires str and step 6 enforces hex64 first), but a
+    # guard this load-bearing does not get to depend on its callers.
+    def _throwing_reader(_path):
+        raise OSError("the worktree read failed")
+    hashless = dataclasses.replace(
+        _pre_session_buffers()[1], base_hash=None)
+    with pytest.raises(TurnScopeError):
+        doxbench_turns._require_buffer_binding(
+            hashless, DOCUMENT_PATH, _key(),
+            doxbench_turns.SessionBase(
+                ref="main", revision="base-rev-1", text_of=_throwing_reader))
+
+
 def test_a_matching_ref_name_alone_never_grounds_a_pre_session_buffer():
     # Acceptance is on the REVISION: a buffer naming the branched-from ref at
     # some OTHER revision is exactly the conflation the ruling removes.

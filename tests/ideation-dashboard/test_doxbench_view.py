@@ -2951,9 +2951,13 @@ const storage = new FakeStorage();
 
 const container = document.createElement('div');
 const doxbench = {
+  // PRODUCTION SHAPE (wave re-review, R-12 machinery): app.js's source
+  // loader returns {content, ref} and NOTHING ELSE — no per-file revision
+  // exists on the wire. This fake used to return one, exercising a dead arm
+  // of baseRevisionOf and masking that a real client's base_revision is the
+  // PROJECTION's source_revision (the W-4 finding's whole mechanism).
   loadSource: async (path) => ({
-    content: '# ' + path + '\n\nloaded from main.\n',
-    ref: 'main', revision: '1'.repeat(40) }),
+    content: '# ' + path + '\n\nloaded from main.\n', ref: 'main' }),
   // the governed Save: the OUTLINE lands on a freshly opened session branch,
   // the DOCUMENT is refused, so its unsaved text is exactly what must survive
   // the re-key that follows
@@ -3062,6 +3066,10 @@ out.turnOutlineBaseRef = chatRequests.length
   ? chatRequests[0].buffers[0].base_ref : null;
 out.turnDocumentBaseRef = chatRequests.length
   ? chatRequests[0].buffers[1].base_ref : null;
+// the value a REAL client declares: the projection's source_revision, since
+// the production loader carries no per-file revision (W-4's mechanism)
+out.turnDocumentBaseRevision = chatRequests.length
+  ? chatRequests[0].buffers[1].base_revision : null;
 out.turnFailureNote = (one('doxchat-failure') || {}).textContent || '';
 
 // ---- R-1, the restore half (F1 P1 staging-workbench.js:787 / :898) ----
@@ -3265,6 +3273,12 @@ def test_the_post_save_turn_still_declares_the_pre_session_base_for_unsaved_buff
     ::test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document)."""
     assert shell_results["turnDocumentBaseRef"] == "main"
     assert shell_results["turnScopeRef"] == "draft/topic-x"
+    # and the revision a REAL client declares is the PROJECTION's
+    # source_revision — the production loader returns no per-file revision,
+    # which is exactly why W-4 records the serving snapshot's revision as an
+    # accepted alias at open (this harness used to fake a loader revision,
+    # masking the whole mechanism)
+    assert shell_results["turnDocumentBaseRevision"] == "1" * 40
 
 
 def test_the_restored_chat_state_is_applied_on_a_plane_with_no_approved_models(

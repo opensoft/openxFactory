@@ -481,14 +481,18 @@ def _require_buffer_binding(
         )
     if buffer.base_ref == request_scope.ref:
         return
-    if (
-        session_base is not None
-        and buffer.base_ref == session_base.ref
-        and (buffer.base_revision == session_base.revision
-             or buffer.base_revision in session_base.alias_revisions)
-        and buffer.base_hash == _session_text_identity(session_base, expected_path)
+    if session_base is not None and buffer.base_ref == session_base.ref and (
+        buffer.base_revision == session_base.revision
+        or buffer.base_revision in session_base.alias_revisions
     ):
-        return
+        # The byte clause fails CLOSED twice over: a reader failure yields
+        # None, and None never equals a base identity -- including a direct
+        # caller's base_hash=None (dataclass fields are unenforced), which
+        # once satisfied None == None and grounded a buffer on the very
+        # failure that should refuse it (wave re-review, R-12 machinery).
+        identity = _session_text_identity(session_base, expected_path)
+        if identity is not None and buffer.base_hash == identity:
+            return
     raise TurnScopeError(
         "working buffer is not bound to the validated scope projection"
     )

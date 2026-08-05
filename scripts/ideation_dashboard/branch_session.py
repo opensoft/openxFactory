@@ -1849,7 +1849,8 @@ def normalize_continuation(continuation: str | None) -> str | None:
 
 
 def _recover_session_base(git: SessionGit, base: str, branch: str,
-                          root: Path | str) -> tuple[str, str] | None:
+                          root: Path | str, *,
+                          prefer_git: bool = False) -> tuple[str, str] | None:
     """The `(base_ref, base_revision)` this session grounds pre-session
     buffers against (T104 R-12): the durable marker when the OPEN left one,
     else git's own fork point — a session branch is created FROM its base
@@ -1857,15 +1858,28 @@ def _recover_session_base(git: SessionGit, base: str, branch: str,
     `merge-base <base> <branch>` IS the branch point. ADVISORY like the
     owner marker: None when neither source can answer, which degrades the
     binding check to its original name-equality shape rather than to a
-    failure."""
-    recorded = read_base_marker(root, branch)
-    if recorded is not None:
-        return recorded
-    try:
-        revision = git.merge_base(base, branch)
-    except (SessionGitRefused, GitError, OSError):
-        return None
-    return (base, revision) if revision else None
+    failure.
+
+    `prefer_git=True` is for the arms that JUST created (or re-materialized)
+    the branch, where git's fork point is ground truth: a marker there can
+    only be crash residue from a PREVIOUS session of the same deterministic
+    name, and reading it first resurrected a dead session's base and
+    re-persisted it — self-healing never occurred (wave re-review, R-12
+    machinery). The JOIN and bootstrap arms stay marker-first: the marker is
+    the one source that remembers a non-default base."""
+    def _from_marker() -> tuple[str, str] | None:
+        return read_base_marker(root, branch)
+
+    def _from_git() -> tuple[str, str] | None:
+        try:
+            revision = git.merge_base(base, branch)
+        except (SessionGitRefused, GitError, OSError):
+            return None
+        return (base, revision) if revision else None
+
+    first, second = ((_from_git, _from_marker) if prefer_git
+                     else (_from_marker, _from_git))
+    return first() or second()
 
 
 def _session_base_aliases(registry: Any, repository: str, branch: str,
@@ -1887,9 +1901,14 @@ def _session_base_aliases(registry: Any, repository: str, branch: str,
     like everything else here: () costs only the alias acceptance."""
     if session_base is None:
         return ()
-    aliases = read_base_marker_aliases(root, branch)
-    if aliases:
-        return aliases
+    # The marker's aliases are trusted ONLY when its base agrees with the
+    # recovered one: a crash-orphaned marker whose base a prefer-git arm just
+    # overrode must not smuggle its aliases back in (wave re-review, R-12
+    # machinery — one rule here rather than per-arm plumbing).
+    if read_base_marker(root, branch) == session_base:
+        aliases = read_base_marker_aliases(root, branch)
+        if aliases:
+            return aliases
     try:
         entry = getattr(registry, "get", lambda *_: None)(
             repository, session_base[0])
@@ -2107,7 +2126,8 @@ def open_session(git: SessionGit, registry: Any, *, repository: str,
         clear_ending_marker(root, branch)
         joined = False
 
-    session_base = _recover_session_base(git, base, branch, root)
+    session_base = _recover_session_base(git, base, branch, root,
+                                         prefer_git=not joined)
     entry = register_session_entry(registry, repository=repository, branch=branch,
                                    worktree=worktree, checkout_root=root, tile=tile,
                                    # Known HERE and nowhere later (T104 R-12): a
@@ -2189,7 +2209,8 @@ def _continue_abandoned(git: SessionGit, registry: Any, *, repository: str,
                 "(FR-026) — retry, and the next ordinal is recomputed.")
         git.worktree_add(branch, worktree, base)
         clear_ending_marker(root, branch)
-    session_base = _recover_session_base(git, base, branch, root)
+    session_base = _recover_session_base(git, base, branch, root,
+                                         prefer_git=True)
     entry = register_session_entry(registry, repository=repository, branch=branch,
                                    worktree=worktree, checkout_root=root, tile=tile,
                                    # A RESUME recovers the branch point it was

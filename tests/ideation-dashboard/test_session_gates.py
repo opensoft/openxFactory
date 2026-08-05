@@ -1042,6 +1042,30 @@ def test_the_session_base_is_recorded_at_open_and_survives_the_next_process(
     assert entry is not None and entry.session_base == ("main", fork)
 
 
+def test_a_fresh_open_prefers_gits_fork_point_over_a_crash_orphaned_marker(
+        scratch_repo, tmp_path):
+    """Wave re-review (R-12 machinery): the fresh-open arm consulted the
+    marker FIRST, so a crash-orphaned marker — a previous session of the same
+    deterministic branch name, ended by hand without `clear_owner_marker` —
+    was read back as the NEW session's base and re-persisted by the register:
+    the record was wrong and self-healing never occurred. The arms that JUST
+    created (or re-materialized) the branch now prefer git's own fork point,
+    stale marker ALIASES are distrusted whenever the marker's base disagrees
+    with the recovered one, and the register heals the marker."""
+    registry = _registry(scratch_repo, tmp_path)
+    bs.write_owner_marker(scratch_repo.root, DRAFT,
+                          bs.Tile(bs.STAGED_TOPIC, TOPIC),
+                          base=("main", "f" * 40), base_aliases=("e" * 40,))
+    _create(scratch_repo, registry)
+
+    fork = sg.SessionGit(scratch_repo.root).head(ref="main")
+    entry = registry.get(REPO, DRAFT)
+    assert entry is not None and entry.session_base == ("main", fork)
+    assert "e" * 40 not in entry.session_base_aliases
+    # the marker is healed to the truth the open just derived
+    assert bs.read_base_marker(scratch_repo.root, DRAFT) == ("main", fork)
+
+
 def test_the_serving_snapshots_revision_is_recorded_as_a_base_alias(
         scratch_repo, tmp_path):
     """W-4 (wave re-review): a real client's `base_revision` is the serving
