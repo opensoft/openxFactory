@@ -54,6 +54,13 @@ export function createChatState(keyValue) {
     kind: DOXBENCH_CHAT_STATE_KIND,
     key: frozenKey(keyValue),
     models: null,            // null = catalog not adopted yet (distinct from [])
+    // T104 F10-1: WHY there is no catalog, when the reason is a failure.
+    // `models: null` alone cannot distinguish a catalog not fetched yet
+    // against a fetch that was refused, so every failure rendered as the
+    // configured-none posture. Fixed two-value vocabulary
+    // ("console_required" | "unreadable"), set only by recordCatalogFailure
+    // below, cleared by a successful adoption.
+    catalogFailure: null,
     selectedModelId: null,
     workingSubject: "",
     composer: "",
@@ -89,6 +96,9 @@ export function adoptCatalog(stateValue, envelopeValue) {
     (entry) => Object.freeze({ ...entry })));
   return next(stateValue, {
     models,
+    // A catalog that adopted IS readable: any earlier failure posture is
+    // over (T104 F10-1).
+    catalogFailure: null,
     // T104 F5-7's second half: the ARRIVING catalog re-validates whatever id
     // is held. A restore that ran before any catalog keeps its persisted id
     // on trust (see restoreChatState); this is where that trust is settled —
@@ -97,6 +107,21 @@ export function adoptCatalog(stateValue, envelopeValue) {
     // server refuses as model_unavailable.
     selectedModelId: catalogVouchesFor(models, stateValue.selectedModelId)
       ? stateValue.selectedModelId : null,
+  });
+}
+
+// T104 F10-1: a model-catalog FAILURE, recorded in the same fixed two-value
+// vocabulary the transport's distinguished markers speak. Anything that is
+// not the recoverable pre-identity console refusal is "unreadable" — the
+// reason arrives as a marker chosen from the released error code, never as
+// echoed server text (FR-020/FR-022), and this function re-normalizes so no
+// third spelling can ever reach the view. The failure is a fact about the
+// PLANE (which catalog answer this page got), not about the conversation, so
+// chatSnapshot deliberately never persists it.
+export function recordCatalogFailure(stateValue, reasonValue) {
+  return next(stateValue, {
+    catalogFailure: reasonValue === "console_required"
+      ? "console_required" : "unreadable",
   });
 }
 

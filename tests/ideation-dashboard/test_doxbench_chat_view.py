@@ -788,13 +788,24 @@ def test_a_stale_record_never_reaches_the_apply_seam(card_results):
     assert s["status"] == "stale"
 
 
-def test_focus_restoration_is_wired_after_card_actions():
-    """Source-level pin (the live behavior is the Playwright pass's): the
-    card action handler captures the active element and restores focus after
-    the state adoption re-render."""
+def test_focus_restoration_is_by_identity_not_by_captured_node():
+    """T104 F7-3+F7-4 (stated choice): the old pin asserted only
+    `"restoreFocus" in source` and `".focus()" in source`, which stayed green
+    with the behaviour broken -- and it WAS broken: the handlers captured
+    `doc.activeElement`, renderCards() detached that node, and `.focus()` on
+    a detached node no-ops, dropping focus to <body>. The behaviour is now
+    pinned in the mounted-DOM harness below
+    (`focus_throw_results` -- rebuilt-control focus after a refused Apply,
+    the composer fallback after a terminal Apply/Reject); this source pin
+    keeps only the identity discipline: card actions restore by proposal
+    target + role, never by the captured node."""
     source = CHAT_VIEW_JS.read_text(encoding="utf-8")
-    assert "restoreFocus" in source
-    assert ".focus()" in source
+    assert "restoreCardFocus(card.target" in source
+    card_actions = source.split('el("button", "doxchat-card-apply"', 1)[1]
+    card_actions = card_actions.split("function render()", 1)[0]
+    assert "doc.activeElement" not in card_actions, (
+        "a card action must not capture the node renderCards() is about to "
+        "detach -- identity (target + role) is what survives the rebuild")
 
 
 # ---------------------------------------------------------------------------
@@ -1096,14 +1107,12 @@ def test_a_stale_console_token_refusal_settles_recoverably(wedge_results):
     assert "reload" in s["message"]
 
 
-def test_the_send_handler_is_throw_proof_by_construction():
-    """Source pin for the wedge class the harness cannot reproduce: whatever
-    throws inside the mounted send path, the handler's finally-discipline
-    returns the rail to a visible failed-idle state instead of a dead
-    button."""
-    source = CHAT_VIEW_JS.read_text(encoding="utf-8")
-    assert "SEND_PATH_FAILED" in source
-    assert source.count("finally") >= 2  # dispatcher slot + send handler
+# (T104 F7-3: the old `test_the_send_handler_is_throw_proof_by_construction`
+# asserted `source.count("finally") >= 2`, which stayed green with the
+# settlement behaviour removed. Its replacement drives the MOUNTED rail --
+# `test_a_throwing_chat_turn_seam_settles_the_mounted_rail_back_to_idle` and
+# `test_an_unexpected_throw_inside_the_send_path_still_settles_visibly`
+# below, against the focus_throw_results harness.)
 
 
 # ---------------------------------------------------------------------------
@@ -1739,3 +1748,477 @@ def test_a_refused_apply_renders_a_failure_note_and_announces_it(
     assert r["status"] == "current"
     assert r["transcript"] == 2
     assert r["composer"] == ""
+
+
+# ---------------------------------------------------------------------------
+# T104 F7-3 + F7-4 + F10-1 (rail half) + F10-2/4: the MOUNTED rail, driven
+# against a fake DOM that models the two browser facts the findings turn on:
+#
+#   * FOCUS follows connectedness. `focus()` on a detached node no-ops, and a
+#     focused node that is detached loses focus (activeElement -> null here,
+#     <body> in a browser). This is what made the old captured-node
+#     restoreFocus a silent no-op after every card action (F7-4).
+#   * textContent = "" DETACHES the previous children -- renderCards()'s
+#     rebuild is exactly that.
+#
+# One node process, one JSON blob, same instrument as _RAIL_DOM_HARNESS.
+# ---------------------------------------------------------------------------
+
+_FOCUS_THROW_HARNESS = """
+const doc = { activeElement: null };
+
+function isConnected(node) {
+  let n = node;
+  while (n) {
+    if (n.__root) return true;
+    n = n.parentNode;
+  }
+  return false;
+}
+
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = ''; this.parentNode = null;
+    this.title = ''; this.type = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) {
+    for (const child of this.children) child._detach();
+    this.children = []; this._text = String(value);
+  }
+  _detach() {
+    this.parentNode = null;
+    if (doc.activeElement === this) doc.activeElement = null;
+    for (const child of this.children) child._detach();
+  }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {
+    // a real browser refuses focus on detached or disabled controls
+    if (!isConnected(this) || this.disabled === true) return;
+    doc.activeElement = this;
+  }
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+doc.createElement = (tag) => new Node(tag);
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const fire = async (node, type) => {
+  for (const fn of node.listeners[type] || []) await fn({});
+};
+
+import { mountDoxBenchChatRail } from "./doxbench-chat.mjs";
+import { MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const GOOD_CATALOG = async () => ({ schema_version: 1,
+  kind: "workbench-model-catalog", models: [ENTRY] });
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+  client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+  observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+  assistant_prose: "answer",
+  proposals: [{ target: "outline", base_hash: "d".repeat(64),
+                summary: "Rework the outline", content: "# New outline" }] };
+
+function mountRail(overrides = {}) {
+  const host = new Node("div");
+  host.__root = true;
+  host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: overrides.catalog || GOOD_CATALOG,
+      chatTurn: overrides.chatTurn
+        || (async () => ({ ok: true, status: 200, payload: SUCCESS })) },
+    editorState, activeDocumentPath: () => "docs/detail.md",
+    applyProposal: overrides.applyProposal || (async () => ({ ok: true })),
+    onState: overrides.onState });
+  return { host, rail };
+}
+
+async function propose(host) {
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "please propose"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+}
+
+// ---- F7-4(a): a REFUSED Apply restores focus to the REBUILT Apply control ----
+{
+  const { host, rail } = mountRail({
+    applyProposal: async () => ({ ok: false }) });
+  await rail.ready;
+  await propose(host);
+  const applyBefore = byClass(host, "doxchat-card-apply")[0];
+  applyBefore.focus();
+  await fire(applyBefore, "click");
+  const applyAfter = byClass(host, "doxchat-card-apply")[0];
+  out.refusedApplyFocus = {
+    rebuilt: applyAfter !== applyBefore,
+    afterEnabled: applyAfter.disabled === false,
+    activeIsRebuiltApply: doc.activeElement === applyAfter,
+    activeIsStaleNode: doc.activeElement === applyBefore,
+    activeIsNull: doc.activeElement === null,
+  };
+}
+
+// ---- F7-4(b): a SUCCESSFUL Apply terminalizes the card (both actions
+// disabled), so focus falls back to the stated survivor: the composer ----
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  await propose(host);
+  const apply = byClass(host, "doxchat-card-apply")[0];
+  apply.focus();
+  await fire(apply, "click");
+  out.appliedFocus = {
+    applyDisabled: byClass(host, "doxchat-card-apply")[0].disabled,
+    activeIsComposer:
+      doc.activeElement === byClass(host, "doxchat-composer")[0],
+    activeIsNull: doc.activeElement === null,
+  };
+}
+
+// ---- F7-4(c): Reject terminalizes too -- same composer fallback ----
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  await propose(host);
+  const reject = byClass(host, "doxchat-card-reject")[0];
+  reject.focus();
+  await fire(reject, "click");
+  out.rejectedFocus = {
+    rejectDisabled: byClass(host, "doxchat-card-reject")[0].disabled,
+    activeIsComposer:
+      doc.activeElement === byClass(host, "doxchat-composer")[0],
+  };
+}
+
+// ---- F7-3(a): a THROWING chatTurn seam settles the mounted rail ----
+{
+  const { host, rail } = mountRail({
+    chatTurn: async () => { throw new Error("socket died: private detail"); } });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "still here?"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-failure")[0];
+  const send = byClass(host, "doxchat-send")[0];
+  out.throwingTurn = {
+    phase: rail.state().phase,
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+    noteHidden: note.hidden,
+    noteText: note.textContent,
+    composer: composer.value,
+    sendDisabled: send.disabled,
+    sendLabel: send.textContent,
+  };
+}
+
+// ---- F7-3(b): an UNEXPECTED throw past the dispatcher's own catches (here:
+// a render callback exploding mid-flight) still settles to the visible
+// failed-idle state -- the finally-discipline, exercised rather than
+// grepped-for ----
+{
+  let armed = true;
+  const mounted = mountRail({
+    onState: (s) => {
+      if (armed && s.phase === "in_flight") {
+        armed = false;
+        throw new Error("render exploded mid-flight");
+      }
+    } });
+  await mounted.rail.ready;
+  const selector = byClass(mounted.host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(mounted.host, "doxchat-composer")[0];
+  composer.value = "does this wedge?"; await fire(composer, "input");
+  let escaped = null;
+  try {
+    await fire(byClass(mounted.host, "doxchat-send")[0], "click");
+  } catch (error) {
+    escaped = String((error && error.message) || error);
+  }
+  const note = byClass(mounted.host, "doxchat-failure")[0];
+  const send = byClass(mounted.host, "doxchat-send")[0];
+  out.sendPathThrow = {
+    escaped,
+    phase: mounted.rail.state().phase,
+    error: mounted.rail.state().lastFailure
+      && mounted.rail.state().lastFailure.error,
+    noteHidden: note.hidden,
+    composer: composer.value,
+    sendDisabled: send.disabled,
+    sendLabel: send.textContent,
+  };
+}
+
+// ---- F10-1: the catalog loader's DISTINGUISHED failures render honest
+// postures (the transport contract: { failed: "console_required" | "unreadable" }) ----
+async function catalogPosture(catalog) {
+  const { host, rail } = mountRail({ catalog });
+  await rail.ready;
+  const note = byClass(host, "doxchat-unavailable")[0];
+  const selector = byClass(host, "doxchat-model")[0];
+  return {
+    noteHidden: note.hidden,
+    noteText: note.textContent,
+    selectorHidden: selector.hidden,
+    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+  };
+}
+out.staleTokenCatalog = await catalogPosture(
+  async () => ({ failed: "console_required" }));
+out.unreadableCatalog = await catalogPosture(
+  async () => ({ failed: "unreadable" }));
+out.throwingCatalog = await catalogPosture(
+  async () => { throw new Error("connection refused: private detail"); });
+out.configuredNoneCatalog = await catalogPosture(
+  async () => ({ schema_version: 1, kind: "workbench-model-catalog",
+                 models: [] }));
+
+// ---- F10-2/4: the over-bound paste is refused VISIBLY, never truncated ----
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  const composer = byClass(host, "doxchat-composer")[0];
+  const subject = byClass(host, "doxchat-subject")[0];
+  const note = byClass(host, "doxchat-failure")[0];
+
+  // an in-bound edit first: no failure invented
+  composer.value = "a fair question"; await fire(composer, "input");
+  out.inBoundEdit = {
+    composer: rail.state().composer,
+    failure: rail.state().lastFailure,
+  };
+
+  // the over-bound paste: refused, reverted, and SAID
+  composer.value = "x".repeat(MAX_MESSAGE_BYTES + 1);
+  await fire(composer, "input");
+  out.overBoundComposer = {
+    noteHidden: note.hidden,
+    noteText: note.textContent,
+    ariaLive: note.attributes["aria-live"],
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+    domReverted: composer.value,
+    stateComposer: rail.state().composer,
+    echoed: note.textContent.includes("xxx"),
+  };
+
+  // the subject bound gets its own naming
+  subject.value = "y".repeat(MAX_WORKING_SUBJECT_BYTES + 1);
+  await fire(subject, "input");
+  out.overBoundSubject = {
+    noteText: note.textContent,
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+    domReverted: subject.value,
+    stateSubject: rail.state().workingSubject,
+    echoed: note.textContent.includes("yyy"),
+  };
+
+  // an in-bound edit AFTER a refusal follows the existing lastFailure
+  // lifecycle: the edit lands, and nothing new is invented or cleared here
+  composer.value = "a shorter question"; await fire(composer, "input");
+  out.inBoundAfterRefusal = {
+    composer: rail.state().composer,
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+  };
+}
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def focus_throw_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the mounted-rail focus/throw probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-focus-throw")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "focus-throw-harness.mjs"
+    harness.write_text(_FOCUS_THROW_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_refused_apply_keeps_focus_on_the_rebuilt_apply_control(
+        focus_throw_results):
+    """F7-4: the card stays reviewable after a refused Apply, so the REBUILT
+    Apply button (same proposal target, same role) is where keyboard focus
+    must land -- the old captured-node restore no-opped on the detached node
+    and focus fell to <body>."""
+    f = focus_throw_results["refusedApplyFocus"]
+    assert f["rebuilt"] is True, "precondition: renderCards really rebuilt"
+    assert f["afterEnabled"] is True, "precondition: the card stays actionable"
+    assert f["activeIsStaleNode"] is False
+    assert f["activeIsNull"] is False, "focus dropped to <body> -- the finding"
+    assert f["activeIsRebuiltApply"] is True
+
+
+def test_a_terminal_apply_falls_back_to_the_composer(focus_throw_results):
+    """F7-4, the stated fallback: an applied card disables both its actions,
+    so the equivalent control cannot take focus -- the composer is the
+    surviving control the operator acts through next (every terminal note
+    names a NEW TURN as the only continuation)."""
+    a = focus_throw_results["appliedFocus"]
+    assert a["applyDisabled"] is True, "precondition: the card terminalized"
+    assert a["activeIsNull"] is False
+    assert a["activeIsComposer"] is True
+
+
+def test_a_reject_falls_back_to_the_composer_too(focus_throw_results):
+    r = focus_throw_results["rejectedFocus"]
+    assert r["rejectDisabled"] is True
+    assert r["activeIsComposer"] is True
+
+
+def test_a_throwing_chat_turn_seam_settles_the_mounted_rail_back_to_idle(
+        focus_throw_results):
+    """F7-3 replacement, half one: the mounted rail driven with a THROWING
+    chatTurn seam. The phase settles back to idle, the composer is preserved
+    verbatim, Send re-enables (labelled Send again, not a dead Sending...),
+    the fixed failure note renders, and the seam's own error text is dropped
+    unread."""
+    t = focus_throw_results["throwingTurn"]
+    assert t["phase"] == "idle"
+    assert t["error"] == "transport_refused"
+    assert t["noteHidden"] is False
+    assert "socket died" not in t["noteText"], "the throw's text must be dropped"
+    assert t["composer"] == "still here?"
+    assert t["sendDisabled"] is False
+    assert t["sendLabel"] == "Send"
+
+
+def test_an_unexpected_throw_inside_the_send_path_still_settles_visibly(
+        focus_throw_results):
+    """F7-3 replacement, half two -- the wedge class the old
+    `count("finally") >= 2` grep claimed to cover: a throw PAST the
+    dispatcher's own catches (a render callback exploding mid-flight) must
+    never leave the rail wedged in_flight with a dead Send. The
+    finally-discipline settles it to the fixed failed-idle state, composer
+    preserved."""
+    s = focus_throw_results["sendPathThrow"]
+    assert s["escaped"], "precondition: the throw really escaped the dispatcher"
+    assert s["phase"] == "idle"
+    assert s["error"] == "send_path_failed"
+    assert s["noteHidden"] is False
+    assert s["composer"] == "does this wedge?"
+    assert s["sendDisabled"] is False
+    assert s["sendLabel"] == "Send"
+
+
+def test_a_stale_console_token_catalog_failure_names_the_reload_remedy(
+        focus_throw_results):
+    """F10-1: a 403 console_required/agent_invocation catalog refusal (the
+    transport's { failed: "console_required" }) renders the SAME recoverable
+    stale-token vocabulary R-3 uses on the chat-turn path -- never the
+    configured-none misdiagnosis."""
+    s = focus_throw_results["staleTokenCatalog"]
+    assert s["noteHidden"] is False
+    assert "console token is stale" in s["noteText"]
+    assert "reload" in s["noteText"]
+    assert "no approved model" not in s["noteText"]
+    assert s["selectorHidden"] is True
+    assert s["sendDisabled"] is True
+
+
+def test_an_unreadable_catalog_gets_its_own_fixed_sentence(focus_throw_results):
+    """F10-1: a 500 (or any other non-token failure) renders the
+    could-not-be-read posture -- a fixed sentence DISTINCT from "no approved
+    model is configured", because "nothing is configured" and "the answer
+    could not be read" are different facts with different remedies."""
+    u = focus_throw_results["unreadableCatalog"]
+    assert u["noteHidden"] is False
+    assert "could not be read" in u["noteText"]
+    assert "no approved model" not in u["noteText"]
+    assert u["selectorHidden"] is True
+    assert u["sendDisabled"] is True
+
+
+def test_a_throwing_catalog_transport_reads_as_unreadable_not_configured_none(
+        focus_throw_results):
+    t = focus_throw_results["throwingCatalog"]
+    assert t["noteHidden"] is False
+    assert "could not be read" in t["noteText"]
+    assert "connection refused" not in t["noteText"], "no echoed error text"
+    assert "no approved model" not in t["noteText"]
+
+
+def test_an_empty_catalog_keeps_the_configured_none_note(focus_throw_results):
+    """models: [] is a SUCCESS (FR-025) and keeps the existing editor-only
+    sentence -- the two failure postures above must not absorb it."""
+    e = focus_throw_results["configuredNoneCatalog"]
+    assert e["noteHidden"] is False
+    assert "no approved model is configured" in e["noteText"]
+    assert "could not be read" not in e["noteText"]
+
+
+def test_an_over_bound_composer_paste_renders_and_announces_the_bound(
+        focus_throw_results):
+    """F10-2: the over-bound paste was refused by the model (identical state)
+    and reverted by render()'s value reassignment -- correct, but SILENT: the
+    pasted text vanished with nothing said. The refusal now lands on the
+    aria-live failure note in fixed vocabulary naming the BOUND, never the
+    text; refused-never-truncated stands."""
+    o = focus_throw_results["overBoundComposer"]
+    assert o["noteHidden"] is False
+    assert o["ariaLive"] == "polite", "the note must be an announced region"
+    assert str(16_384) in o["noteText"], "the note names the message bound"
+    assert o["error"] == "message_over_bound"
+    assert o["echoed"] is False, "the pasted text must never be echoed"
+    # refused, never truncated: the state held nothing of the paste, and the
+    # DOM reverted to the last accepted text
+    assert o["stateComposer"] == "a fair question"
+    assert o["domReverted"] == "a fair question"
+
+
+def test_an_over_bound_subject_paste_names_its_own_bound(focus_throw_results):
+    o = focus_throw_results["overBoundSubject"]
+    assert str(512) in o["noteText"], "the note names the subject bound"
+    assert o["error"] == "subject_over_bound"
+    assert o["echoed"] is False
+    assert o["stateSubject"] == ""
+    assert o["domReverted"] == ""
+
+
+def test_in_bound_edits_follow_the_existing_last_failure_lifecycle(
+        focus_throw_results):
+    """F10-2's other half: an ordinary in-bound edit invents no failure, and
+    an in-bound edit AFTER a refusal simply lands -- lastFailure keeps the
+    existing lifecycle (cleared by the next successful settlement, exactly
+    like every other failure note)."""
+    clean = focus_throw_results["inBoundEdit"]
+    assert clean["composer"] == "a fair question"
+    assert clean["failure"] is None
+    after = focus_throw_results["inBoundAfterRefusal"]
+    assert after["composer"] == "a shorter question"
+    assert after["error"] == "subject_over_bound", (
+        "the existing lifecycle: an input event neither clears nor replaces "
+        "the standing failure note")

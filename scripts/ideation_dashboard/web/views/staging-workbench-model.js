@@ -1296,6 +1296,28 @@ export function presentationPosture(input) {
         "state inline.",
     };
   }
+  // T104 F10-1: the catalog-FAILURE rungs, above editor-only because a
+  // failed catalog also reports zero approved models — the count alone
+  // cannot tell "nothing is configured" from "the answer could not be
+  // read", and those are different facts with different remedies. Two fixed
+  // postures, matching the transport's two distinguished markers: the
+  // pre-identity console refusal is RECOVERABLE (R-3's reload vocabulary),
+  // everything else is the unreadable catalog. The canvas stays offered in
+  // both — chat is what failed, not editing (FR-025).
+  if (facts.catalogFailure === "console_required") {
+    return {
+      kind: "console-token-stale", canvas: true,
+      note: "chat is unavailable — this page's console token is stale; " +
+        "reload the page to continue. Both editors remain fully usable.",
+    };
+  }
+  if (facts.catalogFailure) {
+    return {
+      kind: "catalog-unreadable", canvas: true,
+      note: "chat is unavailable — the model catalog could not be read; " +
+        "both editors remain fully usable.",
+    };
+  }
   if (approvedModels === 0) {
     return {
       kind: "editor-only", canvas: true,

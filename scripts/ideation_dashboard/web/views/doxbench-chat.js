@@ -19,8 +19,8 @@ import {
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
-  recordLocalFailure, chatSnapshot, restoreChatState,
-  canSend,
+  recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
+  canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
 } from "./doxbench-chat-model.js";
 
 const CHAT_TURN_KIND = "workbench-chat-turn";
@@ -98,6 +98,45 @@ const PROPOSAL_APPLY_REFUSED = Object.freeze({
 const CHAT_UNAVAILABLE_NOTE =
   "chat is unavailable — no approved model is configured; both editors "
   + "remain fully usable.";
+
+// T104 F10-1: the rail's OTHER two unavailability postures, each its own
+// fixed sentence. The configured-none note above answered for EVERY catalog
+// failure — but a 403 stale console token is recoverable (the SAME reload
+// vocabulary R-3 gave the chat-turn path names the remedy), and a 500 broken
+// catalog is "the answer could not be read", not "nothing is configured".
+// One selector, so the note and the model's fixed failure vocabulary can
+// never drift.
+const CATALOG_UNREADABLE_NOTE =
+  "chat is unavailable — the model catalog could not be read; both editors "
+  + "remain fully usable.";
+
+function unavailabilityNote(stateValue) {
+  if (stateValue.catalogFailure === "console_required") {
+    return CONSOLE_TOKEN_STALE.message;
+  }
+  if (stateValue.catalogFailure) return CATALOG_UNREADABLE_NOTE;
+  return CHAT_UNAVAILABLE_NOTE;
+}
+
+// T104 F10-2/4: the over-bound paste, refused VISIBLY. The pure model
+// refuses by returning the IDENTICAL state (refused, never truncated) and
+// render()'s unconditional value reassignment reverts the DOM — correct, but
+// silent: the pasted text vanished with nothing said. Each fixed note names
+// its BOUND and never the text (the editor's own visible "refused" line is
+// the idiom); recordLocalFailure puts it on the same aria-live channel every
+// other refusal renders through.
+const MESSAGE_OVER_BOUND = Object.freeze({
+  error: "message_over_bound",
+  message: "this message exceeds the " + MAX_MESSAGE_BYTES
+    + "-byte message bound — refused, never truncated; shorten it and try "
+    + "again",
+});
+
+const SUBJECT_OVER_BOUND = Object.freeze({
+  error: "subject_over_bound",
+  message: "this working subject exceeds the " + MAX_WORKING_SUBJECT_BYTES
+    + "-byte subject bound — refused, never truncated; shorten it",
+});
 
 // The ACTIONABLE half of the same refusal (T104 F2: "the refusal names no
 // document the operator could pick instead"). When the tile HAS usable
@@ -508,8 +547,34 @@ export function mountDoxBenchChatRail(host, options = {}) {
     if (node && typeof node.focus === "function") node.focus();
   }
 
+  // T104 F7-4: focus after a card action is restored by IDENTITY (proposal
+  // target + role), never by the captured node — renderCards() rebuilds the
+  // whole cards host, so the node a handler captured is detached by the time
+  // the action settles, and `.focus()` on a detached node no-ops, dropping
+  // focus to <body>. The editor solves this class the same way (it remembers
+  // WHICH buffer held focus, not the node). `cardControls` is rebuilt by
+  // every renderCards pass, so the lookup always answers with the LIVE
+  // control for that identity.
+  let cardControls = { outline: null, document: null };
+
+  function restoreCardFocus(targetValue, roleValue) {
+    const rebuilt = cardControls[targetValue];
+    const control = rebuilt && rebuilt[roleValue];
+    if (control && control.disabled !== true) {
+      control.focus();
+      return;
+    }
+    // The stated FALLBACK: the card reached a terminal state (applied /
+    // rejected) and both its actions are disabled, so the equivalent control
+    // cannot take focus. The composer is the surviving control the operator
+    // acts through next — every terminal note names a NEW TURN as the only
+    // continuation, and the composer is where one starts.
+    composer.focus();
+  }
+
   function renderCards() {
     cardsHost.textContent = "";
+    cardControls = { outline: null, document: null };
     for (const card of proposalCardModel(state)) {
       const item = el("div", "doxchat-card doxchat-card-" + card.status);
       item.setAttribute("role", "group");
@@ -524,7 +589,6 @@ export function mountDoxBenchChatRail(host, options = {}) {
       applyBtn.type = "button";
       applyBtn.disabled = !card.applyEnabled;
       applyBtn.addEventListener("click", async () => {
-        const focused = doc.activeElement;
         const before = proposalsOf(state)[card.target];
         const failureBefore = state.lastFailure;
         adopt(await proposalActions.apply(state, card.target));
@@ -540,17 +604,17 @@ export function mountDoxBenchChatRail(host, options = {}) {
           // sighted operator might spot.
           announce.textContent = state.lastFailure.message;
         }
-        restoreFocus(focused);
+        restoreCardFocus(card.target, "apply");
       });
       const rejectBtn = el("button", "doxchat-card-reject", "Reject");
       rejectBtn.type = "button";
       rejectBtn.disabled = !card.rejectEnabled;
       rejectBtn.addEventListener("click", async () => {
-        const focused = doc.activeElement;
         adopt(await proposalActions.reject(state, card.target));
-        restoreFocus(focused);
+        restoreCardFocus(card.target, "reject");
       });
       item.append(applyBtn, rejectBtn);
+      cardControls[card.target] = { apply: applyBtn, reject: rejectBtn };
       cardsHost.appendChild(item);
     }
   }
@@ -578,11 +642,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // T104 F5-9: exactly one of {selector, unavailability note} shows. No
     // available entry — a null catalog (not yet adopted or refused) or an
     // adopted empty one (FR-025 editor-only) — is the note's condition, the
-    // same fact that keeps canSend false.
+    // same fact that keeps canSend false. WHICH sentence the note carries is
+    // the model's catalogFailure fact (T104 F10-1): stale token, unreadable
+    // catalog, or the configured-none default.
     const selectable = (state.models || []).some(
       (entry) => entry.available === true);
     selector.hidden = !selectable;
     unavailableNote.hidden = selectable;
+    unavailableNote.textContent = unavailabilityNote(state);
     selector.value = state.selectedModelId || "";
     transcriptList.textContent = "";
     for (const turn of transcriptWindow(state)) {
@@ -612,10 +679,22 @@ export function mountDoxBenchChatRail(host, options = {}) {
     render();
   }
 
-  subjectInput.addEventListener("input",
-    () => adopt(editSubject(state, subjectInput.value)));
-  composer.addEventListener("input",
-    () => adopt(editComposer(state, composer.value)));
+  // T104 F10-2/4: the model refuses an over-bound edit by returning the
+  // IDENTICAL state object — the one case an input event can produce it,
+  // since an in-bound edit always builds a new state (even for equal text).
+  // The refusal lands on the visible channel (recordLocalFailure), naming
+  // the bound; the render that follows reverts the DOM to the last accepted
+  // text, which is the refused-never-truncated posture made visible.
+  subjectInput.addEventListener("input", () => {
+    const next = editSubject(state, subjectInput.value);
+    adopt(next === state
+      ? recordLocalFailure(state, SUBJECT_OVER_BOUND) : next);
+  });
+  composer.addEventListener("input", () => {
+    const next = editComposer(state, composer.value);
+    adopt(next === state
+      ? recordLocalFailure(state, MESSAGE_OVER_BOUND) : next);
+  });
   selector.addEventListener("change",
     () => adopt(selectModel(state, selector.value)));
   sendBtn.addEventListener("click", async () => {
@@ -655,11 +734,26 @@ export function mountDoxBenchChatRail(host, options = {}) {
       try {
         envelope = await transports.catalog();
       } catch (unused) {
-        envelope = null;  // refusal → editor-only posture, fail closed
+        envelope = null;  // a THROWN transport: the answer was not read
       }
-      if (envelope) {
-        catalogEnvelope = envelope;
-        adopt(adoptCatalog(state, envelope));
+      // T104 F10-1: the transport's outcomes, each to its honest posture.
+      // A distinguished failure ({ failed }) carries its fixed reason; a
+      // null (thrown transport, unparseable 200) IS a catalog that could
+      // not be read; a 200 body that is not the released envelope shape
+      // (adoptCatalog refuses it, fail closed) is the same fact. Only a
+      // real adoption clears the failure and lights the selector.
+      if (envelope && envelope.failed) {
+        adopt(recordCatalogFailure(state, envelope.failed));
+      } else if (envelope) {
+        const adopted = adoptCatalog(state, envelope);
+        if (adopted === state) {
+          adopt(recordCatalogFailure(state, "unreadable"));
+        } else {
+          catalogEnvelope = envelope;
+          adopt(adopted);
+        }
+      } else {
+        adopt(recordCatalogFailure(state, "unreadable"));
       }
     }
   })();
@@ -675,9 +769,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
       // proposals and failure all cleared — FR-011), but the plane's already
       // fetched catalog is re-adopted so the rail can still be used. Only
       // reached when the key really moved: `rekeyChatState` returns the same
-      // state object for an unchanged key.
+      // state object for an unchanged key. A catalog FAILURE is a fact about
+      // the PLANE, exactly like the catalog itself, so it survives the
+      // conversation reset too (T104 F10-1) — otherwise a re-key would
+      // silently downgrade the honest failure posture to configured-none.
       if (next !== state && catalogEnvelope) {
         next = adoptCatalog(next, catalogEnvelope);
+      } else if (next !== state && state.catalogFailure) {
+        next = recordCatalogFailure(next, state.catalogFailure);
       }
       adopt(next);
     },

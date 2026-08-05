@@ -2881,16 +2881,32 @@ const reopened = document.createElement('div');
 const emptyCatalogDoxbench = { ...doxbench,
   catalog: async () => ({ schema_version: 1,
                           kind: 'workbench-model-catalog', models: [] }) };
+// The second mount is ALSO the FR-039 stage (T104 F7-7): its roster
+// advertises the session ref (a live session is an ordinary roster row,
+// FR-014/FR-045), its fetcher can answer the abandon verb, and its
+// onSessionEnded hands back the surviving main view — the three things a
+// session ENDING through the mounted shell needs.
+const ABANDON_RESULT = {
+  ok: true, ref: SESSION_REF, reason: 'the spike answered its question',
+  torn_down: ['worktree', 'registry-entry', 'notebook'], branch_retained: true,
+  record: 'ideation/dashboard/gate-records/draft-topic-x/abandon.yaml',
+};
 const second = mountStagingWorkbench(reopened, snapshot, {
   caps,
-  fetcher: async () => ({ ok: false }),
+  fetcher: async () => ({ status: 200, json: async () => ABANDON_RESULT }),
   active: { repository: 'fixture-repo', ref: SESSION_REF },
-  index: { entries: [] },
+  index: { entries: [{ repository: 'fixture-repo', ref: SESSION_REF }] },
   doxbench: emptyCatalogDoxbench,
   sourceBase: '/source/' + SESSION_REF + '/',
   edit: null,
   onSessionRekey: async () => null,
-  onSessionEnded: async () => null,
+  // the surviving main view; the refetched roster still advertises the ended
+  // ref for a while (sessionPosture's own "session ended" label documents
+  // exactly this window)
+  onSessionEnded: async () => ({
+    snapshot, active: { repository: 'fixture-repo', ref: 'main' },
+    index: { entries: [{ repository: 'fixture-repo', ref: SESSION_REF }] },
+    sourceBase: '/source/' }),
   onScopeOpened: () => null,
 });
 second.open('staged', 'topic-x');
@@ -2905,6 +2921,43 @@ out.restoredModelOptions = (inSecond('doxchat-model') || { children: [] })
 out.restoredDocumentText = (reopened.walk().filter(
   (n) => String(n.className).split(' ').includes('doxbench-textarea'))[1]
   || {}).value || '';
+
+// ---- T104 F7-7: a session END through the mounted shell clears the
+// FakeStorage record (FR-039). The shell's onSessionEnded handler calls
+// clearDoxBenchSession at the one moment the dying ref is still known; with
+// the seam unthreaded the clear silently targeted ambient
+// window.sessionStorage — absent here, exactly as absent as it is on any
+// non-window plane — and the ended session's record survived. ----
+const { scopeStorageKey } = await import('./doxbench-state.js');
+const SESSION_RECORD_KEY = scopeStorageKey({
+  repository: 'fixture-repo', ref: SESSION_REF,
+  tile_kind: 'staged', tile_id: 'topic-x' });
+out.sessionKeyedBeforeEnd = [...storage.values.keys()]
+  .filter((k) => k === SESSION_RECORD_KEY).length;
+
+const abandonBtn = inSecond('swb-sessionbtn')
+  ? reopened.walk().filter((n) =>
+      String(n.className).split(' ').includes('swb-sessionbtn'))
+      .find((b) => b.textContent.toLowerCase().includes('abandon'))
+  : null;
+out.abandonOffered = Boolean(abandonBtn && abandonBtn.disabled !== true);
+if (abandonBtn) {
+  await fire(abandonBtn, 'click');
+  const reason = reopened.walk().find(
+    (n) => n.attributes && n.attributes['aria-label'] === 'Reason');
+  if (reason) reason.value = ABANDON_RESULT.reason;
+  const submit = reopened.walk().filter((n) =>
+    String(n.className).split(' ').includes('cbtn'))
+    .find((b) => b.textContent === 'abandon-session');
+  out.abandonSubmitFound = Boolean(submit);
+  if (submit) await fire(submit, 'click');
+  for (let i = 0; i < 60; i += 1) await settle();
+}
+out.endingReported = reopened.walk().some((n) =>
+  String(n.className).split(' ').includes('swb-clanded'));
+out.sessionKeyedAfterEnd = [...storage.values.keys()]
+  .filter((k) => k === SESSION_RECORD_KEY).length;
+out.storageKeysAfterEnd = [...storage.values.keys()];
 
 console.log(JSON.stringify(out));
 """
@@ -3013,6 +3066,29 @@ def test_the_shell_itself_follows_the_session_after_a_save(shell_results):
     view that is now reading the session branch as if it were main."""
     assert "draft/topic-x" in shell_results["postureText"] or \
         "draft" in shell_results["postureText"].lower()
+
+
+def test_a_session_end_through_the_mounted_shell_clears_the_working_record(
+        shell_results):
+    """T104 F7-7 (FR-039): the shell's onSessionEnded handler called
+    `clearDoxBenchSession({...})` with ONE argument, silently targeting
+    ambient window.sessionStorage instead of the injected `doxbench.storage`
+    seam — so under any injected storage (this harness's FakeStorage; the
+    editor threads the seam correctly at its own re-key clear,
+    doxbench-editor.js) the ended session's record was never removed. The
+    abandon here runs through the REAL mounted shell: the affordance row, the
+    gate verb, the onSessionEnded rebind — and the session-keyed record must
+    be gone afterwards."""
+    assert shell_results["sessionKeyedBeforeEnd"] >= 1, (
+        "precondition: the session's working record was persisted")
+    assert shell_results["abandonOffered"] is True, (
+        "precondition: the mounted shell offered the abandon verb")
+    assert shell_results["abandonSubmitFound"] is True
+    assert shell_results["endingReported"] is True, (
+        "precondition: the ending really landed and was reported")
+    assert shell_results["sessionKeyedAfterEnd"] == 0, (
+        f"the ended session's record survived in the injected storage: "
+        f"{shell_results['storageKeysAfterEnd']}")
 
 
 # ==========================================================================

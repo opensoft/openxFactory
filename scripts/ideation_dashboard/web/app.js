@@ -74,6 +74,23 @@ function storeKey(key) {
   }
 }
 
+// The doxBench storage seam's ONE read of the storage global (T104 F7-2).
+// Under blocked site data the GETTER ITSELF throws SecurityError — the same
+// fact the stored-key helper above documents and guards — yet the seam
+// bundle read `window.sessionStorage` bare, inside main()'s single try, so a
+// browser blocking cookies replaced the ENTIRE dashboard with a false "Could not
+// load the snapshot" error. Guarded to null, blocked storage degrades to the
+// documented no-persistence posture: the views treat an absent storage seam
+// as "no persistence", and everything else still renders. Exported so the
+// Node suite can drive the guard with a throwing getter.
+export function guardedSessionStorage() {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;  // blocked site data / no window: no persistence, no error
+  }
+}
+
 // The snapshot URL for an active key: the same same-origin route, with the key
 // as query parameters the serving-side registry resolves. No key (no index) is
 // exactly today's request.
@@ -179,14 +196,31 @@ export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
     const response = injectedFetch
       ? await injectedFetch(CATALOG_ROUTE, options)
       : await fetch(CATALOG_ROUTE, options);
-    // A refusal yields null so the caller keeps its own honest editor-only
-    // state. An EMPTY approved list is NOT a refusal -- the released schema
-    // calls it a success (FR-025/SC-008) -- so it comes back as the envelope it
-    // is, never collapsed to null here.
-    if (!response.ok) return null;
+    // A refusal is a DISTINGUISHED fixed failure, never a bare null (T104
+    // F10-1): null collapsed a 403 stale console token (recoverable — reload)
+    // and a 500 broken catalog (could not be read) into one misdiagnosis,
+    // "no approved model is configured". The body's released error code picks
+    // between exactly TWO fixed markers — the pre-identity console refusals
+    // (`console_required` on the doxBench routes, `agent_invocation` on the
+    // gate-action route: the R-3 pair) map to the stale-token posture,
+    // everything else to unreadable — and NOTHING else from the body is
+    // carried (FR-020/FR-022: no message, no echo). This is still a
+    // transport-shaped answer: one error-code read to pick a marker, no
+    // envelope field interpreted, nothing rendered or persisted. An EMPTY
+    // approved list is NOT a refusal -- the released schema calls it a
+    // success (FR-025/SC-008) -- so it comes back as the envelope it is.
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      const code = body && body.error;
+      return Object.freeze({
+        failed: code === "console_required" || code === "agent_invocation"
+          ? "console_required" : "unreadable",
+      });
+    }
     // A 200 with an unparseable body fails CLOSED to the editor-only
     // posture, matching the turn submitter's own catch below (PR #63
-    // triage item 14).
+    // triage item 14); the rail reads that null as its own
+    // could-not-be-read posture.
     return response.json().catch(() => null);
   };
 }
@@ -559,8 +593,11 @@ async function main() {
       // R-1 (2026-08-02): the per-key working-state store. Injected here, at
       // the composition root, exactly like every other seam — the views never
       // reach for a storage global (the privacy needles ban that), and a
-      // caller that supplies none simply gets no persistence.
-      storage: window.sessionStorage,
+      // caller that supplies none simply gets no persistence. The VALUE is
+      // guarded (T104 F7-2): the sessionStorage getter throws under blocked
+      // site data, and unguarded it took the whole dashboard down as a false
+      // snapshot error; null here is the honest no-persistence posture.
+      storage: guardedSessionStorage(),
       loadSource: createDoxBenchSourceLoader(() => workbenchSourceBase),
       hash: contentIdentity,
       save: (request) => runSave(

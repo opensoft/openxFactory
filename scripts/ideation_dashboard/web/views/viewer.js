@@ -67,7 +67,11 @@ function mdRenderer() {
     const src = token.attrGet("src") || "";
     if (!isExternalImageSrc(src)) return renderImage(tokens, idx, options, env, self);
     const label = token.content || src;
-    return '<span class="ext-img" data-src="' + escForMarkup(src) + '">'
+    // `data-label` STORES the derived label (T104 F7-6): it used to be
+    // rendered into the visible text and thrown away, so the click-time
+    // replacement <img> had nothing to carry as alt.
+    return '<span class="ext-img" data-src="' + escForMarkup(src)
+      + '" data-label="' + escForMarkup(label) + '">'
       + "\u{1F5BC} external image not loaded — " + escForMarkup(label)
       + ' <button type="button" class="ext-img-load">load image</button></span>';
   };
@@ -75,20 +79,91 @@ function mdRenderer() {
   return sharedMarkdownRenderer;
 }
 
+// LOAD CONSENT, per container per src (T104 F6-5). mountSafeMarkdown rebuilds
+// via innerHTML on every doxBench preview re-render (per debounced
+// keystroke), which reverted an image the human explicitly loaded to a
+// placeholder. The human's click is remembered HERE — a WeakMap so a
+// discarded container takes its consent with it — and the rebuild re-loads
+// exactly the srcs already consented to in THAT container; a NEW src still
+// requires its own click, and a FAILED load revokes the consent (never an
+// endless auto-retry of a dead URL).
+const loadedExternalSrcs = new WeakMap();
+
+function consentSetFor(container) {
+  let set = loadedExternalSrcs.get(container);
+  if (!set) {
+    set = new Set();
+    loadedExternalSrcs.set(container, set);
+  }
+  return set;
+}
+
+function placeholderLabel(holder) {
+  return holder.dataset.label || holder.dataset.src || "";
+}
+
+// The RETRY placeholder a failed load restores (T104 F7-6): same classes and
+// same data attributes as the rendered one, built as nodes (textContent
+// binding — no markup string outside the render rule), so a failed external
+// image is a labeled, retriable state instead of an empty broken-image box.
+function retryPlaceholder(container, src, label) {
+  const holder = document.createElement("span");
+  holder.className = "ext-img";
+  holder.dataset.src = src;
+  holder.dataset.label = label;
+  holder.textContent = "\u{1F5BC} external image failed to load — " + label + " ";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "ext-img-load";
+  btn.textContent = "retry load";
+  holder.appendChild(btn);
+  wireLoadButton(container, btn);
+  return holder;
+}
+
+// The loaded replacement: the derived label rides along as alt (T104 F7-6 —
+// it used to be dropped, leaving an unlabeled image), and a load failure
+// swaps back to the labeled retry placeholder above.
+function loadedExternalImage(container, src, label) {
+  const img = document.createElement("img");
+  img.src = src;
+  img.className = "ext-img-loaded";
+  img.alt = label;
+  img.addEventListener("error", () => {
+    consentSetFor(container).delete(src);
+    img.replaceWith(retryPlaceholder(container, src, label));
+  });
+  return img;
+}
+
+function wireLoadButton(container, btn) {
+  btn.addEventListener("click", () => {
+    const holder = btn.closest(".ext-img");
+    if (!holder) return;
+    const src = holder.dataset.src;
+    consentSetFor(container).add(src);
+    holder.replaceWith(
+      loadedExternalImage(container, src, placeholderLabel(holder)));
+  });
+}
+
 // Wire the click-to-load affordance on every stripped external image. Loading
 // is USER-INITIATED — the default render made no off-origin request; a click
-// (and only a click) sets the src and lets the image load in place.
+// (and only a click) sets the src and lets the image load in place. After a
+// REBUILD of a container the human already loaded images in, the consented
+// srcs are re-loaded without a second click (F6-5): the consent was given per
+// src in this container, and a re-render must not revoke it.
 function wireExternalImages(container) {
   for (const btn of container.querySelectorAll(".ext-img-load")) {
-    btn.addEventListener("click", () => {
-      const holder = btn.closest(".ext-img");
-      if (!holder) return;
-      const img = document.createElement("img");
-      img.src = holder.dataset.src;
-      img.className = "ext-img-loaded";
-      img.alt = "";
-      holder.replaceWith(img);
-    });
+    wireLoadButton(container, btn);
+  }
+  const consented = loadedExternalSrcs.get(container);
+  if (!consented || consented.size === 0) return;
+  for (const holder of [...container.querySelectorAll(".ext-img")]) {
+    if (consented.has(holder.dataset.src)) {
+      holder.replaceWith(loadedExternalImage(
+        container, holder.dataset.src, placeholderLabel(holder)));
+    }
   }
 }
 
