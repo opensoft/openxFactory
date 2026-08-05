@@ -123,10 +123,27 @@ here. Verified item-by-item against the adopted tree 2026-08-04.
       `tests/ideation_dashboard/test_wheel_action_contracts.py`: per-verb
       positive intent/record cases, workflow-job-companion rejection, and the
       `cluster_id` rejection, all against the packaged examples/negatives.)
-- [ ] 4.3 Live browser check on the local dashboard: each button renders on
+- [x] 4.3 Live browser check on the local dashboard: each button renders on
       its column's expanded tile under the gate capability with the actor
       resolved, and does not render with the capability off; zero page
       errors.
+      (Verified 2026-08-04, headless Chromium via Playwright against three
+      loopback `generate-and-open` serves of this checkout. GATE ON (actor
+      `brettheap` resolved from git): `derive-possibles` on expanded cluster
+      tiles, `promote-to-staging` on the three promotable latent possibles,
+      `demote` on expanded active-change tiles. `research-brief`'s pre-verdict
+      host has no live corpus tile (all three possibles carry accepted
+      verdicts), so a second serve used a `--possibles` override register —
+      a temp-dir copy plus one synthetic undisposed derived entry, never
+      committed — where `research-brief` rendered on the undisposed tile,
+      `promote-to-staging` correctly did NOT, and both stayed hidden on
+      disposed tiles. GATE OFF (actor suppressed via GIT_CONFIG_GLOBAL=
+      /dev/null; probe returned gate:false/actor:null): all four verbs absent
+      on the same columns' expanded tiles. Zero console errors, zero uncaught
+      page errors, and zero >=400 responses across every instrumented run;
+      one 500 seen once during the first serve's warmup did not reproduce
+      across five later instrumented drives, including the same four cluster
+      tiles it followed.)
 - [ ] 4.4 First real commission of each verb by Brett recorded end-to-end
       (descriptor + record in the checkout), and one dashboard demote planned
       + executed as two deliberate steps.
