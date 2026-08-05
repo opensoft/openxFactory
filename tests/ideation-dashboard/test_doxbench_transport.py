@@ -802,3 +802,96 @@ def test_the_shell_still_creates_no_transport_of_its_own_with_the_seam_wired():
     assert "XMLHttpRequest" not in view
     assert "doFetch" not in view
     assert "sendBeacon" not in view
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-1 (doxBench review, 2026-08-04): the verdict mapping put the
+# server's own create-vs-edit resolution on the WRONG branch. The route's
+# SUCCESS payload is what carries `verb` (gate_routes.first_edit_response:
+# `"verb": outcome.action`); its refusals carry none — yet `firstEditVerdict`
+# attached `action` only to the ok:false return, where doxbench-save's
+# readVerdict never reads it, and OMITTED it from ok:true, where readVerdict
+# adopts `answer.action` into the committed row. The server's answer could
+# therefore never override the client's prediction. Same site, second bug:
+# the ok:false branch dereferenced `payload.verb` after the `!payload` guard
+# had already matched, so a transport that produced NO payload at all threw a
+# TypeError instead of mapping to the fixed refusal.
+# ---------------------------------------------------------------------------
+
+_VERDICT_HARNESS = """
+import { firstEditVerdict } from "./staging-workbench-model.mjs";
+
+const out = {};
+const SUCCESS = {
+  ok: true, verb: "create-document", ref: "draft/topic-x",
+  commit: "c".repeat(40), document: "ideation/staging/topic-x/detail.md",
+  record: "ideation/dashboard/gate-records/draft-topic-x/create.yaml",
+  content_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  session: "opened",
+};
+out.success = firstEditVerdict(SUCCESS);
+out.successWithoutVerb = firstEditVerdict({ ...SUCCESS, verb: undefined });
+try {
+  out.nullPayload = firstEditVerdict(null);
+  out.nullThrew = null;
+} catch (error) {
+  out.nullThrew = String((error && error.message) || error);
+}
+out.refusal = firstEditVerdict({ ok: false, message: "the base moved" });
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def verdict_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the first-edit verdict probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-verdict")
+    shutil.copy(WEB / "views" / "staging-workbench-model.js",
+                tmp_path / "staging-workbench-model.mjs")
+    harness = tmp_path / "verdict-harness.mjs"
+    harness.write_text(_VERDICT_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_success_verdict_carries_the_servers_own_verb_as_action(verdict_results):
+    """The half readVerdict actually reads: `answer.action` on a COMMITTED row
+    is the server's `verb`, so the server's create-vs-edit answer — decided
+    against the tree it wrote — overrides the client's prediction."""
+    v = verdict_results["success"]
+    assert v["ok"] is True
+    assert v["action"] == "create-document"
+    assert v["revision"] == "c" * 40
+    assert v["ref"] == "draft/topic-x"
+    assert v["content_hash"] == {"algorithm": "sha256", "hex": "d" * 64}
+
+
+def test_a_success_without_a_verb_reports_action_null_not_invented(verdict_results):
+    assert verdict_results["successWithoutVerb"]["action"] is None
+
+
+def test_a_null_transport_payload_maps_to_the_fixed_refusal_not_a_typeerror(
+        verdict_results):
+    """The `!payload` guard must protect the WHOLE ok:false branch: a transport
+    that produced no payload at all yields the mapped fixed refusal, never a
+    null dereference."""
+    assert verdict_results["nullThrew"] is None, (
+        f"firstEditVerdict(null) still throws: {verdict_results['nullThrew']!r}")
+    refused = verdict_results["nullPayload"]
+    assert refused["ok"] is False
+    assert refused["message"] == (
+        "the Save transport returned no verdict for this buffer")
+    # The refusal branch carries NO action field at all: the route's refusals
+    # carry no verb (only success does), and the Save seam's reader keeps the
+    # client's own plan row for a refused buffer anyway.
+    assert "action" not in refused
+
+
+def test_a_refusals_own_message_still_passes_through(verdict_results):
+    r = verdict_results["refusal"]
+    assert r["ok"] is False
+    assert r["message"] == "the base moved"
+    assert "action" not in r

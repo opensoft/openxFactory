@@ -1556,6 +1556,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px dashed var(--border); border-radius: 6px;
 }
 .doxchat-disclosure[hidden] { display: none; }
+/* T104 F5-9: the rail's own posture when no model is selectable — it stands
+   in for the selector, so it reads as the same class of quiet inline note as
+   the disclosure, never as an error. */
+.doxchat-unavailable {
+  font-size: 12px; color: var(--muted); padding: 6px 8px;
+  border: 1px dashed var(--border); border-radius: 6px;
+}
+.doxchat-unavailable[hidden] { display: none; }
 .doxchat-transcript {
   flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0;
   list-style: none; display: flex; flex-direction: column; gap: 8px;

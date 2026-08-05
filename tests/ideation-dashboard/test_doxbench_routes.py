@@ -1292,6 +1292,75 @@ def test_uppercase_base_hash_refuses_content_identity_mismatch(tmp_path):
     _assert_refusal(status, payload, "content_identity_mismatch")
 
 
+# ---- lone-surrogate (encoding) refusals (T104 F5-8) --------------------------
+#
+# JSON's `"\ud800"` escape decodes to a Python str holding a LONE UTF-16
+# surrogate — text that cannot be encoded to UTF-8, so it cannot be
+# represented identically across runtimes. `doxbench_hash` refuses it with
+# `ContentEncodingError`, a plain ValueError SIBLING of `doxbench_turns.
+# TurnError` (pinned in test_doxbench_turns.py), so before the F5-8 fix no
+# `except` on the route caught it: the handler died mid-request and the
+# browser got a DROPPED CONNECTION instead of any HTTP envelope. The released
+# schema accepts the escape (jsonschema checks structure, not encodability),
+# so this is reachable from any conforming client. The route now refuses it
+# as the fixed `invalid_turn_request` — such a request is malformed — and the
+# refusal must be an HTTP envelope, never a killed handler. One test per
+# field class the handler measures or hashes; each surrogate rides NEXT TO a
+# sentinel so the no-echo sweep still proves refusals never quote request
+# content.
+
+_LONE_SURROGATE = "\ud800"
+
+
+def _surrogate_buf(kind, path, content):
+    """A buffer envelope whose content holds a lone surrogate. `_buf` cannot
+    build this one: it hashes its content via `content_identity`, which would
+    trip `ContentEncodingError` in the TEST process. The hashes here are
+    well-formed 64-char lowercase hex that simply do not match — deliberately,
+    to prove the route refuses on the ENCODING (invalid_turn_request) before
+    it ever reaches a hash comparison (content_identity_mismatch)."""
+    return {"kind": kind, "repository": "fixture-repo", "path": path,
+            "base_ref": "main", "base_revision": PINNED_REVISION,
+            "base_hash": "0" * 64, "content_hash": "0" * 64,
+            "content": content, "dirty": True}
+
+
+def test_lone_surrogate_in_buffer_content_refuses_invalid_turn_request(tmp_path):
+    body = _turn(
+        buffers=[
+            _surrogate_buf("outline", OUTLINE_PATH,
+                           "# Outline\n\n" + _LONE_SURROGATE + _S_OUTLINE),
+            _buf("document", None, "# Document\n\n" + _S_DOCUMENT),
+        ],
+    )
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_message_refuses_invalid_turn_request(tmp_path):
+    body = _turn(message="Which question next? " + _LONE_SURROGATE + _S_MESSAGE)
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_working_subject_refuses_invalid_turn_request(tmp_path):
+    body = _turn(working_subject="Acceptance boundary " + _LONE_SURROGATE + _S_SUBJECT)
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_a_transcript_turn_refuses_invalid_turn_request(tmp_path):
+    body = _turn(transcript=[
+        {"role": "human",
+         "content": "An earlier question " + _LONE_SURROGATE + _S_TRANSCRIPT}])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
 # ---- model refusals ------------------------------------------------------------
 
 def test_unknown_model_id_refuses_model_unavailable(tmp_path):

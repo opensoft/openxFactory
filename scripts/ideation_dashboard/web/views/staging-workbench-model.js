@@ -1337,19 +1337,29 @@ export function firstEditBody(repository, key, request) {
 
 export function firstEditVerdict(payload) {
   if (!payload || payload.ok !== true) {
+    // T104 F5-1: NO action field here, deliberately. The route's refusals
+    // carry no `verb` at all (only the success body does), and the Save
+    // seam's reader keeps the client's own plan row for a refused buffer —
+    // so an action on this branch was dead weight that additionally
+    // dereferenced `payload.verb` AFTER the `!payload` guard had matched,
+    // turning a payload-less transport into a TypeError instead of the
+    // mapped fixed refusal below.
     return {
       ok: false,
       message: (payload && typeof payload.message === "string")
         ? payload.message
         : "the Save transport returned no verdict for this buffer",
-    // Triage item 13: the server's OWN create-vs-edit resolution (the
-    // route reports it as `verb`) so doxbench-save's answer.action can
-    // override the client prediction.
-    action: typeof payload.verb === "string" ? payload.verb : null,
-  };
+    };
   }
   return {
     ok: true,
+    // Triage item 13, landed on the RIGHT branch by T104 F5-1: the server's
+    // OWN create-vs-edit resolution rides the SUCCESS payload as `verb`
+    // (gate_routes.first_edit_response reports `outcome.action` there), and
+    // doxbench-save's readVerdict adopts `answer.action` only into a
+    // COMMITTED row — so this is the only place surfacing it lets the
+    // server's answer override the client's prediction.
+    action: typeof payload.verb === "string" ? payload.verb : null,
     ref: payload.ref,
     revision: payload.commit,
     content_hash: payload.content_hash,

@@ -688,6 +688,28 @@ const refusingActions = createProposalActions({
   applyProposal: async () => null });
 const afterRefusal = await refusingActions.apply(s, "outline");
 out.applyRefused = proposalsOf(afterRefusal).outline.status;
+// T104 F5-5: the refusal is VISIBLE — a fixed local failure lands on
+// lastFailure (the same channel every other refusal renders through), while
+// everything else stays exactly as it was: the record stays reviewable, the
+// sibling untouched, the phase idle.
+out.applyRefusedFailure = {
+  error: afterRefusal.lastFailure && afterRefusal.lastFailure.error,
+  message: afterRefusal.lastFailure && afterRefusal.lastFailure.message,
+  status: proposalsOf(afterRefusal).outline.status,
+  sibling: proposalsOf(afterRefusal).document.status,
+  phase: afterRefusal.phase,
+  composerUnchanged: afterRefusal.composer === s.composer,
+};
+// The throwing seam maps to the SAME fixed failure — and its own detail is
+// dropped unread, never echoed into the note.
+const throwingActions = createProposalActions({
+  applyProposal: async () => {
+    throw new Error("buffer-side detail that must never surface"); } });
+const afterThrow = await throwingActions.apply(s, "outline");
+out.applyThrew = {
+  error: afterThrow.lastFailure && afterThrow.lastFailure.error,
+  message: afterThrow.lastFailure && afterThrow.lastFailure.message,
+};
 const afterReject = (await refusingActions.reject(s, "document"));
 out.rejected = proposalsOf(afterReject).document.status;
 // a stale record never reaches the seam at all
@@ -1197,3 +1219,523 @@ def test_the_stale_console_token_mapping_covers_both_route_spellings():
     assert '=== "console_required"' in source
     from ideation_dashboard import serve as serve_mod
     assert serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED == "console_required"
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-2 (doxBench review, 2026-08-04): the DISPLAY transcript and the
+# WIRE window are different bounds. A single LEGAL pair (message <= 16,384 +
+# assistant prose <= 65,536 = up to 81,920 bytes) exceeds the 64,000-byte
+# bound, which mirrors the SERVER's REQUEST-side transcript bound
+# (doxbench_turns.MAX_TRANSCRIPT_BYTES) and therefore belongs to the wire.
+# The old boundedAppend applied it to the display and evicted from the front
+# until it held — emptying the transcript INCLUDING the answer that had just
+# arrived. The operator's answer must never vanish; the next request's
+# transcript must still fit the wire.
+# ---------------------------------------------------------------------------
+
+_OVERSIZED_HARNESS = """
+import { buildTurnRequest } from "./doxbench-chat.mjs";
+import { createChatState, adoptCatalog, selectModel, editComposer, beginTurn,
+         settleTurnSuccess, transcriptWindow, transcriptWireWindow,
+         MAX_MESSAGE_BYTES, MAX_TRANSCRIPT_BYTES }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
+                   models: [ENTRY] };
+const success = (prose) => ({
+  schema_version: 1, kind: "workbench-chat-turn-success",
+  client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+  observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
+  assistant_prose: prose, proposals: [] });
+const bytesOf = (turns) => turns.reduce(
+  (n, t) => n + Buffer.byteLength(t.content, "utf8"), 0);
+const base = selectModel(adoptCatalog(createChatState(KEY), ENVELOPE), "model-a");
+
+// A LEGAL oversized pair: 16,000-byte message (under MAX_MESSAGE_BYTES),
+// 60,000-byte answer (under the server's 65,536 prose bound) — 76,000 bytes
+// together, over the 64,000-byte wire bound.
+const BIG_Q = "m".repeat(16000);
+const BIG_A = "a".repeat(60000);
+let s = settleTurnSuccess(beginTurn(editComposer(base, BIG_Q)), success(BIG_A));
+const displayed = transcriptWindow(s);
+out.oversizedDisplayed = {
+  turns: displayed.length,
+  roles: displayed.map((t) => t.role),
+  humanBytes: displayed.length ? Buffer.byteLength(displayed[0].content, "utf8") : 0,
+  assistantBytes: displayed.length > 1
+    ? Buffer.byteLength(displayed[1].content, "utf8") : 0,
+  totalBytes: bytesOf(displayed),
+};
+
+// The wire window over the SAME state: what fits — here nothing, because
+// even the newest pair alone exceeds the bound — while the display keeps it.
+const wire = transcriptWireWindow(s);
+out.wire = { turns: wire.length, bytes: bytesOf(wire) };
+
+// And the actual next REQUEST uses the wire window, not the display.
+const bufferOf = (kind, path) => ({
+  kind, path, base_ref: "main", base_revision: "r1",
+  base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  content: "# " + kind, dirty: false });
+const req = buildTurnRequest({
+  state: editComposer(s, "follow-up"), scopeKey: KEY, clientTurnId: "turn-n",
+  activeDocumentPath: "docs/detail.md",
+  editorState: { buffers: { outline: bufferOf("outline", "docs/outline.md"),
+                            document: bufferOf("document", "docs/detail.md") } } });
+out.requestTranscript = { turns: req.transcript.length,
+                          bytes: bytesOf(req.transcript) };
+
+// Once a NEWER pair lands, the oversized pair is oldest and evictable: the
+// display drops it and keeps the new answer.
+const after = settleTurnSuccess(beginTurn(editComposer(s, "next question")),
+                                success("short answer"));
+const afterWin = transcriptWindow(after);
+out.afterNextTurn = { turns: afterWin.length,
+                      human: afterWin.length ? afterWin[0].content : null,
+                      totalBytes: bytesOf(afterWin) };
+
+// Ordinary pairs behave exactly as before: display and wire agree.
+let ord = base;
+for (let i = 0; i < 3; i += 1) {
+  ord = settleTurnSuccess(beginTurn(editComposer(ord, "q" + i)),
+                          success("answer " + i));
+}
+out.ordinary = {
+  displayTurns: transcriptWindow(ord).length,
+  wireTurns: transcriptWireWindow(ord).length,
+  identical: transcriptWireWindow(ord) === transcriptWindow(ord)
+    || JSON.stringify(transcriptWireWindow(ord))
+       === JSON.stringify(transcriptWindow(ord)),
+};
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def oversized_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the oversized-pair probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-oversized")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "oversized-harness.mjs"
+    harness.write_text(_OVERSIZED_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_an_oversized_legal_pair_stays_displayed(oversized_results):
+    """The operator's answer never vanishes: the newest pair survives the
+    display window even when it alone exceeds the wire bound."""
+    d = oversized_results["oversizedDisplayed"]
+    assert d["turns"] == 2, "the just-arrived pair was evicted from the display"
+    assert d["roles"] == ["human", "assistant"]
+    assert d["humanBytes"] == 16_000
+    assert d["assistantBytes"] == 60_000
+    assert d["totalBytes"] == 76_000  # legal, and over the 64,000 wire bound
+
+
+def test_the_wire_window_still_respects_the_request_side_bound(oversized_results):
+    """The 64,000-byte bound mirrors the server's REQUEST-side transcript
+    bound and is enforced where the request is built: when even the newest
+    pair alone exceeds it, the wire transcript is empty — sent, not lied
+    about — while the display keeps the pair."""
+    w = oversized_results["wire"]
+    assert w["bytes"] <= 64_000
+    assert w["turns"] == 0
+    r = oversized_results["requestTranscript"]
+    assert r["bytes"] <= 64_000
+    assert r["turns"] == 0
+
+
+def test_the_oversized_pair_is_evicted_once_a_newer_pair_lands(oversized_results):
+    a = oversized_results["afterNextTurn"]
+    assert a["turns"] == 2
+    assert a["human"] == "next question"
+    assert a["totalBytes"] <= 64_000
+
+
+def test_ordinary_pairs_display_and_wire_identically(oversized_results):
+    o = oversized_results["ordinary"]
+    assert o["displayTurns"] == 6
+    assert o["wireTurns"] == 6
+    assert o["identical"] is True
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-7 (doxBench review, 2026-08-04): a PERSISTED `selectedModelId` is a
+# claim about a catalog that may have changed while the tile was closed.
+# `restoreChatState` adopted it on a bare typeof check, bypassing
+# `selectModel`'s only-available-entries rule — so after the R-1 restore a
+# stale id rendered the selector's PLACEHOLDER while `canSend` said true and
+# the dispatcher shipped an id the server refuses as model_unavailable, with
+# no data-handling disclosure shown. The invariant pinned here: canSend is
+# never true while the selector would show the placeholder — i.e. the send
+# gate requires the selected id to name an AVAILABLE catalog entry, restore
+# only adopts an id its catalog can vouch for, and a catalog arriving later
+# (adoptCatalog) re-validates whatever id is held.
+# ---------------------------------------------------------------------------
+
+_STALE_MODEL_HARNESS = """
+import { createChatState, adoptCatalog, selectModel, editComposer,
+         restoreChatState, canSend }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "r", ref: "main", tile_kind: "staged", tile_id: "t" };
+const entry = (id, available) => ({ model_id: id, label: "Approved " + id,
+  provider_class: "on-tenant", available, input_limit_bytes: 800000,
+  output_limit_bytes: 900000, data_handling: "on-tenant" });
+const envelope = (models) => ({ schema_version: 1,
+  kind: "workbench-model-catalog", models });
+const snapshot = (modelId) => ({
+  schema_version: 1, kind: "doxbench-chat-working-state",
+  workingSubject: "subject", selectedModelId: modelId,
+  composer: "ready to send", transcript: [], proposals: [] });
+
+// 1) restore into a state whose catalog does NOT carry the persisted id
+const withCatalog = adoptCatalog(createChatState(KEY),
+                                 envelope([entry("model-a", true)]));
+const stale = restoreChatState(withCatalog, snapshot("model-gone"), null);
+out.staleId = { selected: stale.selectedModelId, canSend: canSend(stale) };
+
+// 2) restore of an id the catalog vouches for survives
+const valid = restoreChatState(withCatalog, snapshot("model-a"), null);
+out.validId = { selected: valid.selectedModelId, canSend: canSend(valid) };
+
+// 3) the persisted id names an entry the catalog carries but marks
+//    UNAVAILABLE: same refusal as absent
+const offCatalog = adoptCatalog(createChatState(KEY),
+                                envelope([entry("model-a", false)]));
+const off = restoreChatState(offCatalog, snapshot("model-a"), null);
+out.unavailableId = { selected: off.selectedModelId, canSend: canSend(off) };
+
+// 4) restore BEFORE any catalog (models === null): the id is kept for the
+//    catalog to re-validate, but the send gate stays closed until it does —
+//    the placeholder and the disabled Send agree in the meantime
+const early = restoreChatState(createChatState(KEY), snapshot("model-a"), null);
+out.noCatalogYet = { selected: early.selectedModelId, canSend: canSend(early) };
+
+// 5) the catalog then arrives CARRYING the id: it lights up
+const vouched = adoptCatalog(early, envelope([entry("model-a", true)]));
+out.catalogVouches = { selected: vouched.selectedModelId,
+                       canSend: canSend(vouched) };
+
+// 6) the catalog then arrives WITHOUT the id: adoptCatalog closes the other
+//    half — the held id is dropped, never shipped
+const revoked = adoptCatalog(early, envelope([entry("model-b", true)]));
+out.catalogRevokes = { selected: revoked.selectedModelId,
+                       canSend: canSend(revoked) };
+
+// 7) a live selection is untouched by a catalog that still vouches for it
+const live = editComposer(selectModel(withCatalog, "model-a"), "hello");
+const readopted = adoptCatalog(live, envelope([entry("model-a", true)]));
+out.liveKept = { selected: readopted.selectedModelId,
+                 canSend: canSend(readopted) };
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def stale_model_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the stale-model restore probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-stale-model")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "stale-model-harness.mjs"
+    harness.write_text(_STALE_MODEL_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_stale_persisted_model_id_is_not_adopted_on_restore(stale_model_results):
+    s = stale_model_results["staleId"]
+    assert s["selected"] is None, (
+        "a persisted id the restored catalog cannot vouch for must fall back "
+        "to the placeholder, not silently arm Send")
+    assert s["canSend"] is False
+
+
+def test_a_vouched_persisted_model_id_survives_restore(stale_model_results):
+    v = stale_model_results["validId"]
+    assert v["selected"] == "model-a"
+    assert v["canSend"] is True
+
+
+def test_an_unavailable_entry_is_refused_like_an_absent_one(stale_model_results):
+    u = stale_model_results["unavailableId"]
+    assert u["selected"] is None
+    assert u["canSend"] is False
+
+
+def test_restore_before_any_catalog_keeps_the_id_but_never_arms_send(
+        stale_model_results):
+    """The decided posture for the models === null window: the id is KEPT so
+    the operator's choice survives the reopen (R-1 continuity), and the send
+    gate stays closed until a catalog vouches for it — so canSend is never
+    true while the selector shows the placeholder."""
+    n = stale_model_results["noCatalogYet"]
+    assert n["selected"] == "model-a"
+    assert n["canSend"] is False
+
+
+def test_a_later_catalog_revalidates_the_held_id_both_ways(stale_model_results):
+    assert stale_model_results["catalogVouches"] == {
+        "selected": "model-a", "canSend": True}
+    assert stale_model_results["catalogRevokes"] == {
+        "selected": None, "canSend": False}
+
+
+def test_a_live_selection_survives_a_catalog_that_still_vouches_for_it(
+        stale_model_results):
+    assert stale_model_results["liveKept"] == {
+        "selected": "model-a", "canSend": True}
+
+
+def test_a_refused_apply_records_a_visible_fixed_failure(card_results):
+    """T104 F5-5: a refused Apply used to return the identical state — zero
+    visible change, the operator left staring at an armed button that did
+    nothing. The refusal now lands on lastFailure in the rail's own fixed
+    vocabulary; the record stays reviewable and nothing else moves."""
+    f = card_results["applyRefusedFailure"]
+    assert f["error"] == "proposal_apply_refused"
+    assert "no longer matches the buffer" in f["message"]
+    assert "new turn" in f["message"], "the note must name the only recovery"
+    assert f["status"] == "current", "the record stays reviewable"
+    assert f["sibling"] == "current", "the other target's record is untouched"
+    assert f["phase"] == "idle"
+    assert f["composerUnchanged"] is True
+
+
+def test_a_throwing_apply_seam_maps_to_the_same_fixed_failure(card_results):
+    t = card_results["applyThrew"]
+    assert t["error"] == "proposal_apply_refused"
+    assert "buffer-side detail" not in (t["message"] or ""), (
+        "the seam's own error text must be dropped unread, never echoed")
+    assert "no longer matches the buffer" in t["message"]
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-5 + F5-9 (doxBench review, 2026-08-04): the MOUNTED rail, driven
+# against a minimal DOM (the same instrument test_staging_workbench.py's
+# ending-replay harness uses).
+#
+# F5-5: clicking Apply on a proposal the injected seam refuses must RENDER a
+# failure note and ANNOUNCE it — the old path returned the identical state,
+# so a refused Apply produced zero visible change.
+#
+# F5-9 residual: with no selectable model, the shell's posture line says
+# "chat is unavailable" while a fully-rendered rail mounts beside it. The
+# rail now carries its OWN posture — an in-rail unavailability note shown
+# whenever state.models has no available entry, replaced by the live
+# selector when a catalog with one arrives (the rail is never unmounted, so
+# the existing onState path still lights it up).
+# ---------------------------------------------------------------------------
+
+_RAIL_DOM_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) { this.children = []; this._text = String(value); }
+  appendChild(child) { this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const fire = async (node, type) => {
+  for (const fn of node.listeners[type] || []) await fn({});
+};
+
+import { mountDoxBenchChatRail } from "./doxbench-chat.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+// ---- F5-9: empty catalog -> in-rail unavailability note ----
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [] }),
+      chatTurn: async () => null },
+    editorState, activeDocumentPath: () => "docs/detail.md" });
+  await rail.ready;
+  const note = byClass(host, "doxchat-unavailable")[0] || null;
+  const selector = byClass(host, "doxchat-model")[0];
+  out.emptyCatalog = {
+    noteExists: Boolean(note),
+    noteHidden: note ? note.hidden : null,
+    noteText: note ? note.textContent : null,
+    selectorHidden: selector.hidden,
+    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+  };
+}
+
+// ---- F5-9: a catalog arriving later replaces the note with the selector ----
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  let resolveCatalog;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: () => new Promise((res) => { resolveCatalog = res; }),
+      chatTurn: async () => null },
+    editorState, activeDocumentPath: () => "docs/detail.md" });
+  const note = byClass(host, "doxchat-unavailable")[0] || null;
+  const selector = byClass(host, "doxchat-model")[0];
+  const beforeCatalog = { noteHidden: note ? note.hidden : null,
+                          selectorHidden: selector.hidden };
+  resolveCatalog({ schema_version: 1, kind: "workbench-model-catalog",
+                   models: [ENTRY] });
+  await rail.ready;
+  out.lateCatalog = {
+    beforeCatalog,
+    noteHidden: note ? note.hidden : null,
+    selectorHidden: selector.hidden,
+    options: selector.children.map((o) => o.value),
+  };
+}
+
+// ---- F5-5: a refused Apply renders a failure note and announces it ----
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+    client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+    observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+    assistant_prose: "answer",
+    proposals: [{ target: "outline", base_hash: "d".repeat(64),
+                  summary: "Rework the outline", content: "# New outline" }] };
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS }) },
+    editorState, activeDocumentPath: () => "docs/detail.md",
+    applyProposal: async () => ({ ok: false,
+      error: "this proposal no longer matches the buffer" }) });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "please propose"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const stateBefore = rail.state();
+  await fire(byClass(host, "doxchat-card-apply")[0], "click");
+  const failureNote = byClass(host, "doxchat-failure")[0];
+  const announce = byClass(host, "doxchat-announce")[0];
+  out.refusedApply = {
+    cardsBefore: stateBefore.proposals.outline
+      && stateBefore.proposals.outline.status,
+    noteHidden: failureNote.hidden,
+    noteText: failureNote.textContent,
+    announced: announce.textContent,
+    status: rail.state().proposals.outline.status,
+    transcript: rail.state().transcript.length,
+    composer: rail.state().composer,
+  };
+}
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def rail_dom_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the mounted-rail DOM probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-rail-dom")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "rail-dom-harness.mjs"
+    harness.write_text(_RAIL_DOM_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_an_empty_catalog_mount_renders_the_in_rail_unavailability_note(
+        rail_dom_results):
+    """F5-9 residual: the rail beside the shell's "chat is unavailable"
+    posture line must not look fully live. The in-rail note states the same
+    posture in the rail's own fixed vocabulary and stands in for the
+    selector; Send stays disabled (that half was already fixed)."""
+    e = rail_dom_results["emptyCatalog"]
+    assert e["noteExists"] is True
+    assert e["noteHidden"] is False
+    assert "chat is unavailable" in e["noteText"]
+    assert "no approved model" in e["noteText"]
+    assert e["selectorHidden"] is True, (
+        "an empty selector rendered beside the unavailability posture is the "
+        "contradiction this finding names")
+    assert e["sendDisabled"] is True
+
+
+def test_a_catalog_arriving_later_replaces_the_note_with_the_live_selector(
+        rail_dom_results):
+    l = rail_dom_results["lateCatalog"]
+    # before the catalog resolves the rail is honest about having no model
+    assert l["beforeCatalog"] == {"noteHidden": False, "selectorHidden": True}
+    # the rail was never unmounted, so the arriving catalog lights it up
+    assert l["noteHidden"] is True
+    assert l["selectorHidden"] is False
+    assert "model-a" in l["options"]
+
+
+def test_a_refused_apply_renders_a_failure_note_and_announces_it(
+        rail_dom_results):
+    """F5-5's pin: clicking Apply on a proposal the seam refuses produces a
+    VISIBLE, non-echoing failure — the note renders, the live region
+    announces, and the state is otherwise unchanged (the record stays
+    reviewable, the transcript and composer untouched)."""
+    r = rail_dom_results["refusedApply"]
+    assert r["cardsBefore"] == "current", "precondition: an applicable card"
+    assert r["noteHidden"] is False
+    assert "no longer matches the buffer" in r["noteText"]
+    assert r["announced"] == r["noteText"], (
+        "the announcement carries the same fixed sentence the note renders")
+    # non-echoing: the proposal's own content never appears in the refusal
+    assert "New outline" not in r["noteText"]
+    assert r["status"] == "current"
+    assert r["transcript"] == 2
+    assert r["composer"] == ""

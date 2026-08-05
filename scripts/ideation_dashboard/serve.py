@@ -168,10 +168,21 @@ _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh"
 
 # The ROUTE-SPECIFIC bound (research R7): NOT a second global cap.
 # `_MAX_BODY_BYTES` above stays the EXISTING tiny 65,536-byte tile-action cap
-# for every route that already exists — R7 explicitly rejects widening it,
-# because that would weaken every unrelated action and lose measured limit
-# errors. The doxBench chat-turn route declares this bound for ITSELF, sized
-# to plan.md's Constraints total (1,048,576 UTF-8 bytes).
+# — R7 explicitly rejects widening IT, because that would weaken every
+# unrelated action and lose measured limit errors. The doxBench chat-turn
+# route declares this bound for ITSELF, sized to plan.md's Constraints total
+# (1,048,576 UTF-8 bytes).
+#
+# T104 F5-6 UPDATE to that record: "every route that already exists keeps the
+# tiny cap" is no longer quite the rule, because one already-existing verb was
+# found to carry a declared LARGE payload. The gate verb `first-edit` (the
+# governed Save) posts a document's full replacement text, whose bound both
+# sides declare at `doxbench_hash.MAX_BUFFER_BYTES` (400,000) — over the tiny
+# cap by design, so the transport refused a legal Save with a misleading
+# message. That ONE verb now reads through `_read_bounded_json_body` at THIS
+# same bound (see the branch in `_handle_gate_action` for the full record);
+# every other pre-existing route keeps `_read_json_body` and the tiny cap,
+# exactly as R7 decided.
 DOXBENCH_MAX_REQUEST_BYTES = 1_048_576
 
 # ---- released wire identifiers (T024/T050/T051 wire clause) ----
@@ -1453,6 +1464,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         try:
             doxbench_turns.verify_buffer_identity(outline)
             doxbench_turns.verify_buffer_identity(document)
+        except doxbench_hash.ContentEncodingError:
+            # T104 F5-8: a lone UTF-16 surrogate in buffer content. JSON's
+            # `"\ud800"` escape decodes to a str no runtime can encode to
+            # UTF-8, so `utf8_size`/`content_identity` inside
+            # `verify_buffer_identity` raise `ContentEncodingError` -- a plain
+            # ValueError SIBLING of `TurnError`, which the two turn-shaped
+            # clauses below therefore never caught: the handler died and the
+            # browser got a dropped connection instead of any HTTP envelope.
+            # The released schema accepts the escape (jsonschema checks
+            # structure, not encodability), so this is reachable from any
+            # conforming client. A request whose text cannot be represented
+            # identically across runtimes is MALFORMED -- the fixed
+            # `invalid_turn_request`, refused before any hash comparison.
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id)
+            return
         except doxbench_turns.TurnIdentityMismatchError:
             self._refuse_turn(validators, DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH,
                               turn_id)
@@ -1492,13 +1519,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             server_maximum=doxbench_model.SERVER_MAX_OUTPUT_LIMIT_BYTES,
             entry_limit=model_entry.output_limit_bytes)
 
-        outline_bytes = doxbench_hash.utf8_size(outline.content)
-        document_bytes = doxbench_hash.utf8_size(document.content)
-        message_bytes = doxbench_hash.utf8_size(message)
-        working_subject_bytes = doxbench_hash.utf8_size(working_subject)
-        transcript_byte_total = doxbench_turns.transcript_bytes(transcript_turns)
-
+        # T104 F5-8: these measurements sat OUTSIDE any try, so a lone
+        # surrogate in `message`, `working_subject`, or a transcript turn's
+        # text raised `ContentEncodingError` straight through the handler (the
+        # buffer sizes are re-measured here too, but a surrogate in buffer
+        # content was already refused at step 6). Measured and validated under
+        # ONE try so every field class gets the same fixed refusal.
         try:
+            outline_bytes = doxbench_hash.utf8_size(outline.content)
+            document_bytes = doxbench_hash.utf8_size(document.content)
+            message_bytes = doxbench_hash.utf8_size(message)
+            working_subject_bytes = doxbench_hash.utf8_size(working_subject)
+            transcript_byte_total = doxbench_turns.transcript_bytes(transcript_turns)
             doxbench_turns.validate_working_subject(working_subject)
             doxbench_turns.validate_message(message)
             doxbench_turns.validate_transcript(transcript_turns)
@@ -1506,6 +1538,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 outline_bytes=outline_bytes, document_bytes=document_bytes,
                 message_bytes=message_bytes, working_subject_bytes=working_subject_bytes,
                 transcript_bytes=transcript_byte_total)
+        except doxbench_hash.ContentEncodingError:
+            # The same sibling-ValueError verdict as step 6's clause: text no
+            # runtime can carry identically is a malformed request, answered
+            # with an HTTP envelope rather than a killed handler.
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id)
+            return
         except doxbench_turns.TurnLimitError as exc:
             self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
                               turn_id, limit=exc.as_public_dict())
@@ -1633,6 +1672,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except doxbench_turns.TurnIdentityMismatchError:
             outcome_code = DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH
         except doxbench_turns.TurnBufferKindError:
+            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
+        except doxbench_hash.ContentEncodingError:
+            # T104 F5-8, the step-9 re-verification leg: `build_prompt_envelope`
+            # re-runs exact identity, so it re-raises the same sibling
+            # ValueError the pre-reserve legs above already refuse. With those
+            # legs in place no surrogate should survive to here -- but this
+            # boundary maps EVERY re-verification failure to a fixed code, and
+            # leaving one class to kill the handler mid-lease (dropping the
+            # connection AND stranding the reserved slot) is exactly the
+            # defect. Same verdict as the earlier legs: `invalid_turn_request`.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
 
         if prompt_envelope is not None and callable(getattr(port, "dispatch", None)):
@@ -2143,7 +2192,39 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         provenance = (gate_console.HTTP_CONSOLE_TOKEN
                       if console_refusal is None else None)
-        body = self._read_json_body()
+        # T104 F5-6: `first-edit` is the governed Save -- its body carries the
+        # document's FULL replacement text, and both sides declare the buffer
+        # bound at `doxbench_hash.MAX_BUFFER_BYTES` (400,000 UTF-8 bytes;
+        # doxbench-state.js `DOXBENCH_MAX_BUFFER_BYTES` agrees). The global
+        # `_MAX_BODY_BYTES` reader below (65,536 -- "a tile-action body is
+        # tiny") therefore refused a legal ~70KB Save at the TRANSPORT, and
+        # with the misleading "a JSON object body is required" because that
+        # reader collapses "too large" into the same bare None as any other
+        # malformation. This ONE verb -- branched on the URL-path verb, before
+        # any body byte is read -- goes through the widened route-specific
+        # reader instead. The cap REUSES `DOXBENCH_MAX_REQUEST_BYTES`
+        # (1,048,576) rather than minting a new number: that constant is
+        # already sized to carry a full declared buffer plus JSON-escaping
+        # inflation and envelope overhead for the chat-turn route, and a Save
+        # posts exactly that payload class (the derivation is pinned by
+        # test_the_first_edit_cap_accommodates_the_declared_buffer_bound).
+        # Every OTHER gate verb keeps the tiny cap deliberately: their bodies
+        # ARE tiny, and widening them would weaken unrelated actions
+        # (research R7's reasoning, unchanged).
+        if verb == "first-edit":
+            body, size_refusal = self._read_bounded_json_body(
+                DOXBENCH_MAX_REQUEST_BYTES, "request_body_bytes")
+            if size_refusal is not None:
+                # The honest measured verdict for a genuinely oversize Save:
+                # names the size problem (fixed message + measured limit
+                # block), never the "JSON object body" misdirection.
+                self._send_json(
+                    doxbench_error_status(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED),
+                    doxbench_error_body(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+                                        limit=size_refusal))
+                return
+        else:
+            body = self._read_json_body()
         if not isinstance(body, dict):
             self._send_json(400, {"ok": False, "error": "invalid_body",
                                   "message": JSON_OBJECT_BODY_REQUIRED})
@@ -2243,7 +2324,26 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", "0"))
         except (TypeError, ValueError):
             return None
-        if length <= 0 or length > _MAX_BODY_BYTES:
+        if length <= 0:
+            return None
+        if length > _MAX_BODY_BYTES:
+            # DRAIN the refused body before answering (T104 F5/F8 — the
+            # carried "65kb test" flake, closed at its root). Refusing with
+            # every byte unread closed the socket on a client still mid-body,
+            # and the kernel's reset could destroy the queued 400 before the
+            # client read it — the refusal raced its own transport. Drained
+            # in cap-sized chunks (never buffering what it refuses to parse)
+            # and bounded by the widest bound any route declares, so a lying
+            # gigabyte Content-Length still cannot make this read forever.
+            remaining = min(length, DOXBENCH_MAX_REQUEST_BYTES)
+            try:
+                while remaining > 0:
+                    chunk = self.rfile.read(min(remaining, _MAX_BODY_BYTES))
+                    if not chunk:
+                        break
+                    remaining -= len(chunk)
+            except OSError:
+                pass
             return None
         try:
             return json.loads(self.rfile.read(length).decode("utf-8"))

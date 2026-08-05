@@ -17,8 +17,9 @@
 import {
   createChatState, adoptCatalog, selectModel, editSubject, editComposer,
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
-  transcriptWindow, rekeyChatState, proposalsOf, refreshProposalCurrency,
-  rejectProposal, markProposalApplied, chatSnapshot, restoreChatState,
+  transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
+  refreshProposalCurrency, rejectProposal, markProposalApplied,
+  recordLocalFailure, chatSnapshot, restoreChatState,
   canSend,
 } from "./doxbench-chat-model.js";
 
@@ -74,6 +75,29 @@ const NO_ACTIVE_DOCUMENT = Object.freeze({
   message: "a turn grounds on a document you may edit, and none is active; "
     + "pick one in the Document tab first",
 });
+
+// T104 F5-5: the FIXED refusal for an Apply the buffer seam would not take.
+// The seam's dominant refusal is staleness caught at the swap itself
+// (doxbench-editor.applyProposal revalidates the base against the SETTLED
+// current identity), and its own error text — like anything a throwing seam
+// carries — is dropped unread, same discipline as TRANSPORT_REFUSED: this
+// sentence, the canvas's own vocabulary for that condition, is the whole
+// failure surface, and it names the only recovery.
+const PROPOSAL_APPLY_REFUSED = Object.freeze({
+  error: "proposal_apply_refused",
+  message: "this proposal no longer matches the buffer — ask again in a "
+    + "new turn",
+});
+
+// T104 F5-9 residual: the rail's OWN posture when it is offered (the
+// transports exist, so it is mounted) but no model is selectable. The same
+// sentence the shell's posture line derives (presentationPosture's
+// editor-only note), restated in the rail so the two adjacent surfaces
+// agree — the old rail rendered a fully-live-looking selector and composer
+// right beside "chat is unavailable".
+const CHAT_UNAVAILABLE_NOTE =
+  "chat is unavailable — no approved model is configured; both editors "
+  + "remain fully usable.";
 
 // The ACTIONABLE half of the same refusal (T104 F2: "the refusal names no
 // document the operator could pick instead"). When the tile HAS usable
@@ -167,7 +191,11 @@ export function buildTurnRequest(options) {
     message: state.composer,
     model_id: state.selectedModelId === null ? "" : state.selectedModelId,
     last_assistant_turn_id: null,
-    transcript: transcriptWindow(state).map(
+    // T104 F5-2: the WIRE window, not the display transcript. The display
+    // may legally hold a newest pair larger than the request-side transcript
+    // bound (the server's 64,000 bytes); the request carries what fits,
+    // oldest evicted first — possibly nothing — while the display keeps it.
+    transcript: transcriptWireWindow(state).map(
       (turn) => ({ role: turn.role, content: turn.content })),
     buffers: [
       wireBuffer(buffers.outline, "outline", scopeKey.repository),
@@ -371,7 +399,15 @@ export function createProposalActions(options) {
         result = null;  // the buffer side's own detail is dropped unread
       }
       if (!result || result.ok !== true) {
-        return stateValue;  // the swap refused; the record stays reviewable
+        // T104 F5-5: the swap refused, and the refusal is VISIBLE. The old
+        // return of the identical state meant a clicked Apply produced zero
+        // change on the surface — no note, no announcement — leaving the
+        // operator to wonder whether anything ran. The record itself stays
+        // reviewable (no status transition: a stale re-score belongs to
+        // refreshProposalCurrency, which the next settled identity runs);
+        // only the fixed local failure lands, on the same channel every
+        // other refusal renders through.
+        return recordLocalFailure(stateValue, PROPOSAL_APPLY_REFUSED);
       }
       return markProposalApplied(stateValue, targetValue);
     },
@@ -423,6 +459,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
   subjectInput.setAttribute("dir", "auto");
   const selector = el("select", "doxchat-model");
   selector.setAttribute("aria-label", "approved model");
+  // T104 F5-9 residual: the rail's own unavailability posture. It stands in
+  // for the selector while the catalog has no available entry (including
+  // before any catalog has adopted), so the rail never looks fully live
+  // beside the shell's "chat is unavailable" posture line; a catalog that
+  // arrives later swaps it back for the live selector through the ordinary
+  // render — the rail is never unmounted for this.
+  const unavailableNote = el("div", "doxchat-unavailable",
+                             CHAT_UNAVAILABLE_NOTE);
   const transcriptList = el("ul", "doxchat-transcript");
   transcriptList.setAttribute("aria-label", "chat transcript");
   const failureNote = el("div", "doxchat-failure");
@@ -444,8 +488,8 @@ export function mountDoxBenchChatRail(host, options = {}) {
   disclosure.setAttribute("aria-live", "polite");
   const sendBtn = el("button", "doxchat-send", "Send");
   sendBtn.type = "button";
-  host.append(header, subjectInput, selector, transcriptList, cardsHost,
-              announce, failureNote, composer, disclosure, sendBtn);
+  host.append(header, subjectInput, selector, unavailableNote, transcriptList,
+              cardsHost, announce, failureNote, composer, disclosure, sendBtn);
 
   function renderHeader() {
     const es = typeof editorState === "function" ? editorState() : editorState;
@@ -482,12 +526,19 @@ export function mountDoxBenchChatRail(host, options = {}) {
       applyBtn.addEventListener("click", async () => {
         const focused = doc.activeElement;
         const before = proposalsOf(state)[card.target];
+        const failureBefore = state.lastFailure;
         adopt(await proposalActions.apply(state, card.target));
         const after = proposalsOf(state)[card.target];
         if (before && after && before.status !== "applied"
             && after.status === "applied") {
           announce.textContent =
             "Proposal applied to the working copy. Save remains the only exit.";
+        } else if (state.lastFailure && state.lastFailure !== failureBefore) {
+          // T104 F5-5: the refused Apply is ANNOUNCED like the applied
+          // transition above, with the same fixed sentence the failure note
+          // renders — a change a screen reader hears, not just a note a
+          // sighted operator might spot.
+          announce.textContent = state.lastFailure.message;
         }
         restoreFocus(focused);
       });
@@ -524,6 +575,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
     }
     disclosure.textContent = sendDisclosure(state) || "";
     disclosure.hidden = !sendDisclosure(state);
+    // T104 F5-9: exactly one of {selector, unavailability note} shows. No
+    // available entry — a null catalog (not yet adopted or refused) or an
+    // adopted empty one (FR-025 editor-only) — is the note's condition, the
+    // same fact that keeps canSend false.
+    const selectable = (state.models || []).some(
+      (entry) => entry.available === true);
+    selector.hidden = !selectable;
+    unavailableNote.hidden = selectable;
     selector.value = state.selectedModelId || "";
     transcriptList.textContent = "";
     for (const turn of transcriptWindow(state)) {

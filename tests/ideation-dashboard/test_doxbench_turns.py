@@ -39,6 +39,7 @@ import pytest
 from conftest import FIXTURES, REPO_ROOT
 
 from ideation_dashboard.doxbench_hash import (
+    ContentEncodingError,
     ContentIdentity,
     content_identity,
     sha256_hex,
@@ -518,6 +519,32 @@ def test_identity_mismatch_error_never_echoes_the_buffer_content():
     with pytest.raises(TurnIdentityMismatchError) as raised:
         verify_buffer_identity(buffer)
     assert sentinel not in str(raised.value)
+
+
+def test_lone_surrogate_buffer_content_raises_content_encoding_error_not_a_turn_error():
+    """The SIBLING-EXCEPTION contract the route relies on (T104 F5-8).
+
+    A lone UTF-16 surrogate in buffer content makes `utf8_size` inside
+    `verify_buffer_identity` raise `doxbench_hash.ContentEncodingError` —
+    which is a plain ValueError and deliberately NOT a `TurnError`, so an
+    `except` written for the turn hierarchy does not catch it. serve.py's
+    chat-turn route catches this class EXPLICITLY at every site that
+    measures or hashes request text; this pin is what makes silently
+    rehoming the exception under `TurnError` (which would change what those
+    handlers catch) a visible contract change rather than a drive-by.
+    Constructed directly rather than via `_buffer`, whose own
+    `content_identity` call would trip the same error in the test process.
+    The hashes are well-formed hex so the encoding refusal is proven to fire
+    BEFORE any hash comparison could."""
+    buffer = TurnBuffer(
+        kind="document", repository=REPOSITORY, path=DOCUMENT_PATH,
+        base_ref=REF, base_revision="abc123",
+        base_hash="0" * 64, content_hash="0" * 64,
+        content="broken \ud800 text", dirty=True)
+    with pytest.raises(ContentEncodingError):
+        verify_buffer_identity(buffer)
+    assert not issubclass(ContentEncodingError, TurnError)
+    assert issubclass(ContentEncodingError, ValueError)
 
 
 def test_build_prompt_envelope_refuses_on_content_hash_mismatch_for_either_buffer():

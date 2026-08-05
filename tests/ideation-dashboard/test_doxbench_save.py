@@ -909,3 +909,103 @@ def test_every_emitted_first_edit_scope_kind_is_a_server_scope_kind(emitted_scop
             f"tile kind {tile_kind!r} emits scope_kind {emitted!r}, which the "
             f"server's session vocabulary {sorted(server_kinds)} refuses — "
             "the T100 run-3 Save blocker")
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-1 (doxBench review, 2026-08-04): the WHOLE client chain, composed
+# the way production composes it — the transport's answer is
+# `firstEditVerdict(<route payload>)` (swb-session.firstEditTransport), and
+# `runSave`'s readVerdict adopts `answer.action` into a committed row. The
+# verdict mapping used to carry `action` only on its ok:false return (where
+# readVerdict ignores it) and omit it from ok:true (where readVerdict reads
+# it), so the server's own create-vs-edit resolution — the SUCCESS payload's
+# `verb` — could never override the client's prediction. This harness drives
+# the two real modules together across that seam.
+# ---------------------------------------------------------------------------
+
+_SERVER_VERB_HARNESS = """
+import { runSave } from "./doxbench-save.mjs";
+import { firstEditVerdict } from "./staging-workbench-model.mjs";
+
+const out = {};
+const documentBuffer = {
+  kind: "document", path: "ideation/staging/topic-x/detail.md", owned: true,
+  base_ref: "main", base_revision: "r1",
+  base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  base_content: "# Detail", content: "# Detail edited", dirty: true,
+  hash_pending: false, hash_generation: 1,
+};
+const state = {
+  key: { repository: "fixture-repo", ref: "main",
+         tile_kind: "staged", tile_id: "topic-x" },
+  active_buffer: "document",
+  buffers: { document: documentBuffer },
+};
+
+// The realistic divergence: the buffer HAS a path, so the client plans the
+// edit action — but the branch session's own tree does not carry the file
+// yet, so the server resolved and reports the CREATE verb.
+const SERVER_PAYLOAD = {
+  ok: true, verb: "create-document", ref: "draft/topic-x",
+  commit: "e".repeat(40), document: documentBuffer.path,
+  record: "ideation/dashboard/gate-records/draft-topic-x/create.yaml",
+  content_hash: { algorithm: "sha256", hex: "f".repeat(64) },
+  session: "opened",
+};
+{
+  const requests = [];
+  const outcome = await runSave(state, {
+    transport: async (req) => { requests.push(req);
+      return firstEditVerdict(SERVER_PAYLOAD); } });
+  out.serverVerb = {
+    plannedAction: requests[0] && requests[0].action,
+    committedAction: outcome.buffers.find((b) => b.kind === "document").action,
+    status: outcome.buffers.find((b) => b.kind === "document").status,
+  };
+}
+{
+  // The null-payload arm of the same finding: a transport that produced no
+  // verdict at all maps to the FIXED refusal — never a TypeError mid-Save.
+  const outcome = await runSave(state, {
+    transport: async () => firstEditVerdict(null) });
+  const row = outcome.buffers.find((b) => b.kind === "document");
+  out.nullVerdict = { status: row.status, message: row.message };
+}
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def server_verb_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the server-verb save probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-server-verb")
+    shutil.copy(SAVE_JS, tmp_path / "doxbench-save.mjs")
+    shutil.copy(MODEL_JS, tmp_path / "staging-workbench-model.mjs")
+    harness = tmp_path / "server-verb-harness.mjs"
+    harness.write_text(_SERVER_VERB_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_committed_row_reports_the_servers_verb_not_the_clients_guess(
+        server_verb_results):
+    """SC: the client predicted edit (the path exists in ITS buffer), the
+    server answered create (the path was new to the tree it wrote) — and the
+    committed row reports the SERVER's answer."""
+    s = server_verb_results["serverVerb"]
+    assert s["plannedAction"] == "edit-document", "precondition: client planned edit"
+    assert s["status"] == "committed"
+    assert s["committedAction"] == "create-document", (
+        "the committed row must adopt the server's own resolved verb")
+
+
+def test_a_transport_with_no_payload_yields_the_mapped_refusal_mid_save(
+        server_verb_results):
+    n = server_verb_results["nullVerdict"]
+    assert n["status"] == "refused"
+    assert n["message"] == (
+        "the Save transport returned no verdict for this buffer")

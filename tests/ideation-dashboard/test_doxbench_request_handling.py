@@ -187,7 +187,13 @@ def test_existing_action_route_still_enforces_the_global_65kb_cap_unchanged(tmp_
     test_edit_action.py) refuses exactly as it does today: 400 `invalid_body`,
     because `_read_json_body` returns bare `None` for ANY malformation,
     including "too large", and `_edit_request_fields(None)` reports the fixed
-    `JSON_OBJECT_BODY_REQUIRED` message."""
+    `JSON_OBJECT_BODY_REQUIRED` message.
+
+    (T104 F5-6 later carved out ONE gate verb — `first-edit`, the governed
+    Save, whose body legitimately carries a full document — onto the widened
+    route-specific reader; see section D below. That carve-out changes
+    nothing this test pins: `/actions/edit` and every other verb keep the
+    tiny global cap.)"""
     with _serving(tmp_path) as (httpd, host, port):
         caps = _capabilities(host, port)
         big_body = {
@@ -202,6 +208,32 @@ def test_existing_action_route_still_enforces_the_global_65kb_cap_unchanged(tmp_
     assert status == 400
     assert payload == {"ok": False, "error": "invalid_body",
                         "message": serve_mod.JSON_OBJECT_BODY_REQUIRED}
+
+
+def test_the_tiny_reader_drains_an_over_cap_body_before_refusing():
+    """T104 F5/F8 follow-through — the carried '65kb test' flake, closed at
+    its root. `_read_json_body` used to return bare None for an over-cap body
+    while leaving EVERY byte of it unread; the handler then wrote the 400 and
+    closed a socket whose client was still mid-body, and the kernel's reset
+    could destroy the queued refusal before the client read it — the refusal
+    raced its own transport, intermittently, under load. The reader now
+    DRAINS the refused body first: fully for anything a real client sends
+    (bounded by `DOXBENCH_MAX_REQUEST_BYTES`), in small chunks so the drain
+    never buffers what it refuses to parse."""
+    body = b"x" * (serve_mod._MAX_BODY_BYTES + 200)
+    fake = _FakeRequest(_headers_for(body), body)
+    result = serve_mod.DashboardHandler._read_json_body(fake)
+    assert result is None
+    assert fake.rfile.read_sizes, "the over-cap body was left entirely unread"
+    assert sum(fake.rfile.read_sizes) >= len(body), \
+        "the drain stopped short of the declared body"
+    assert all(n <= serve_mod._MAX_BODY_BYTES for n in fake.rfile.read_sizes), \
+        "the drain buffered more per read than the cap it refused"
+    # and the drain itself is bounded: a lying gigabyte Content-Length is
+    # never read to completion
+    liar = _FakeRequest({"Content-Length": str(10**9)}, b"x" * 1024)
+    assert serve_mod.DashboardHandler._read_json_body(liar) is None
+    assert sum(liar.rfile.read_sizes) <= serve_mod.DOXBENCH_MAX_REQUEST_BYTES
 
 
 def test_bounded_reader_accepts_exactly_the_boundary_and_refuses_one_byte_over():
@@ -622,3 +654,103 @@ def test_compute_capabilities_still_returns_its_exact_pre_existing_dict():
         "actor": "brett",
         "refresh": no_refresh,
     }
+
+
+# ============================================================================
+# D. the first-edit Save body bound (T104 F5-6)
+#
+# The governed Save verb `first-edit` posts the document's FULL replacement
+# text to `/actions/gate/first-edit`, and both sides declare the buffer bound
+# at `doxbench_hash.MAX_BUFFER_BYTES` (400,000 UTF-8 bytes; doxbench-state.js
+# `DOXBENCH_MAX_BUFFER_BYTES` agrees). Reading that body through the global
+# 65,536-byte `_read_json_body` refused a perfectly legal ~70KB Save at the
+# TRANSPORT — with the misleading "a JSON object body is required", because
+# that reader collapses "too large" into the same bare `None` as any other
+# malformation. The fix routes this ONE verb through the widened
+# `_read_bounded_json_body` at `DOXBENCH_MAX_REQUEST_BYTES` (reused, not a
+# new bound — see the comment at the branch in `_handle_gate_action`); every
+# other gate verb keeps the tiny cap deliberately.
+# ============================================================================
+
+def _first_edit_body(content: str) -> dict:
+    """A first-edit body that DELIBERATELY omits the required tile scope, so
+    the verb refuses in `_edit_body`'s own shape check — a refusal that can
+    only be produced AFTER the transport has read and parsed the whole body,
+    and that never opens a session or touches git in the fixture checkout."""
+    return {"document": "ideation/staging/ideation-governance/README.md",
+            "content": content}
+
+
+def test_a_70kb_first_edit_save_passes_the_transport_and_reaches_the_verb(tmp_path):
+    """The declared-bound Save (F5-6's reproducer): ~70KB of replacement text
+    is UNDER the buffer bound both sides declare, so the transport must admit
+    it. The verb then refuses for its own (deliberately planted) reason — a
+    message only `_edit_body` produces — proving the body was read, parsed,
+    and inspected rather than dropped at the cap. What this asserts NOT to
+    happen is the old failure: the bare transport `invalid_body` with the
+    fixed `JSON_OBJECT_BODY_REQUIRED` message, or any oversize refusal."""
+    assert 70_000 > serve_mod._MAX_BODY_BYTES  # the old cap refused this Save
+    from ideation_dashboard import doxbench_hash
+    assert 70_000 < doxbench_hash.MAX_BUFFER_BYTES  # both sides declare it legal
+    with _serving(tmp_path) as (httpd, host, port):
+        caps = _capabilities(host, port)
+        status, payload = _request(
+            host, port, "POST", "/actions/gate/first-edit",
+            body=_first_edit_body("x" * 70_000),
+            headers=_console_headers(caps))
+    assert payload.get("error") != "request_limit_exceeded"
+    assert payload.get("message") != serve_mod.JSON_OBJECT_BODY_REQUIRED
+    # The refusal that proves arrival: _edit_body's own tile-scope shape check.
+    assert status == 400
+    assert "scope" in payload.get("message", "")
+
+
+def test_an_over_cap_first_edit_body_gets_an_honest_measured_size_refusal(tmp_path):
+    """A genuinely oversize Save must be refused as a SIZE problem — the fixed
+    `request_limit_exceeded` with its measured limit block — never as "a JSON
+    object body is required", which misdirects the caller into reshaping a
+    body whose only defect is its byte count. The content carries a sentinel
+    so the refusal is also proven not to echo request text."""
+    sentinel = "FIRST-EDIT-OVERSIZE-SENTINEL-4c1d"
+    content = sentinel + ("x" * serve_mod.DOXBENCH_MAX_REQUEST_BYTES)
+    with _serving(tmp_path) as (httpd, host, port):
+        caps = _capabilities(host, port)
+        status, payload = _request(
+            host, port, "POST", "/actions/gate/first-edit",
+            body=_first_edit_body(content),
+            headers=_console_headers(caps))
+    assert status == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED)
+    assert payload["error"] == "request_limit_exceeded"
+    assert payload["message"] == serve_mod._DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED
+    assert payload["limit"]["dimension"] == "request_body_bytes"
+    assert payload["limit"]["maximum"] == serve_mod.DOXBENCH_MAX_REQUEST_BYTES
+    assert payload["limit"]["measured"] > serve_mod.DOXBENCH_MAX_REQUEST_BYTES
+    assert sentinel not in json.dumps(payload)
+
+
+def test_the_first_edit_cap_accommodates_the_declared_buffer_bound():
+    """The cap is DERIVED, not minted: `DOXBENCH_MAX_REQUEST_BYTES` must keep
+    admitting a full declared buffer (`doxbench_hash.MAX_BUFFER_BYTES`) plus
+    JSON-escaping inflation and envelope overhead. If either constant moves so
+    that a maximal legal Save no longer fits, this pin makes the collision a
+    test failure instead of a rediscovered F5-6."""
+    from ideation_dashboard import doxbench_hash
+    assert serve_mod.DOXBENCH_MAX_REQUEST_BYTES > doxbench_hash.MAX_BUFFER_BYTES
+
+
+def test_other_gate_verbs_keep_the_tiny_global_cap(tmp_path):
+    """The carve-out is ONE verb wide. `ratify` (a pre-existing, non-session
+    gate verb whose body really is tiny) still reads through `_read_json_body`:
+    an over-65-KiB body refuses with the bare transport `invalid_body`, exactly
+    as before F5-6 — widening every verb would weaken unrelated actions for no
+    declared payload (research R7's reasoning, unchanged)."""
+    with _serving(tmp_path) as (httpd, host, port):
+        caps = _capabilities(host, port)
+        status, payload = _request(
+            host, port, "POST", "/actions/gate/ratify",
+            body={"padding": "x" * (serve_mod._MAX_BODY_BYTES + 1)},
+            headers=_console_headers(caps))
+    assert status == 400
+    assert payload == {"ok": False, "error": "invalid_body",
+                       "message": serve_mod.JSON_OBJECT_BODY_REQUIRED}
