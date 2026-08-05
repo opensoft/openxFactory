@@ -842,12 +842,14 @@ def owner_marker_path(checkout_root: Path | str, branch: str) -> Path:
 
 def write_owner_marker(checkout_root: Path | str, branch: str,
                        tile: "Tile",
-                       base: tuple[str, str] | None = None) -> Path | None:
+                       base: tuple[str, str] | None = None,
+                       base_aliases: tuple[str, ...] = ()) -> Path | None:
     """Record WHICH TILE this session belongs to — and, when the OPEN knew it,
-    WHAT the session branched from as `(base_ref, base_revision)` (T104 R-12:
-    the durable half of the entry's `session_base`, read back by the next
-    process's bootstrap). Contained: returns None when it could not be
-    written (see the note above)."""
+    WHAT the session branched from as `(base_ref, base_revision)` plus the
+    base's other recorded revision spellings (T104 R-12 / W-4: the durable
+    half of the entry's `session_base`/`session_base_aliases`, read back by
+    the next process's bootstrap). Contained: returns None when it could not
+    be written (see the note above)."""
     try:
         path = owner_marker_path(checkout_root, branch)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -856,6 +858,8 @@ def write_owner_marker(checkout_root: Path | str, branch: str,
         if base:
             payload["base_ref"] = str(base[0])
             payload["base_revision"] = str(base[1])
+            if base_aliases:
+                payload["base_revision_aliases"] = [str(a) for a in base_aliases]
         path.write_text(json.dumps(payload, sort_keys=True) + "\n",
                         encoding="utf-8")
         return path
@@ -908,6 +912,23 @@ def read_base_marker(checkout_root: Path | str, branch: str
             isinstance(base_revision, str) and base_revision:
         return (base_ref, base_revision)
     return None
+
+
+def read_base_marker_aliases(checkout_root: Path | str, branch: str
+                             ) -> tuple[str, ...]:
+    """The base's other recorded revision spellings (W-4), or () — same file,
+    same branch verification, same advisory posture as the readers above."""
+    try:
+        raw = owner_marker_path(checkout_root, branch).read_text(encoding="utf-8")
+        loaded = json.loads(raw)
+    except (OSError, SessionRefused, ValueError):
+        return ()
+    if not isinstance(loaded, dict) or loaded.get("branch") != branch:
+        return ()
+    aliases = loaded.get("base_revision_aliases")
+    if isinstance(aliases, list):
+        return tuple(str(a) for a in aliases if isinstance(a, str) and a)
+    return ()
 
 
 def clear_owner_marker(checkout_root: Path | str, branch: str) -> None:
@@ -1612,7 +1633,8 @@ class SessionOpen:
 def session_entry(repository: str, branch: str, worktree: Path | str, *,
                   snapshot_path: Path | str | None = None,
                   tile: "Tile | None" = None,
-                  session_base: tuple[str, str] | None = None) -> Any:
+                  session_base: tuple[str, str] | None = None,
+                  session_base_aliases: tuple[str, ...] = ()) -> Any:
     """The `(repository, session-branch)` registry entry whose `source_root` is
     the worktree — the AUTHORITATIVE liveness signal (FR-008, FR-009).
 
@@ -1635,7 +1657,8 @@ def session_entry(repository: str, branch: str, worktree: Path | str, *,
                          snapshot_path=Path(snapshot_path) if snapshot_path else None,
                          display_name=f"{repository} @ {branch}",
                          session_tile=tile_key(tile),
-                         session_base=session_base)
+                         session_base=session_base,
+                         session_base_aliases=tuple(session_base_aliases))
 
 
 # --------------------------------------------------------------------------
@@ -1648,7 +1671,8 @@ def register_session_entry(registry: Any, *, repository: str, branch: str,
                            regenerate: bool = True, generator: Any = None,
                            project_register: Path | str | None = None,
                            tile: "Tile | None" = None,
-                           session_base: tuple[str, str] | None = None) -> Any:
+                           session_base: tuple[str, str] | None = None,
+                           session_base_aliases: tuple[str, ...] = ()) -> Any:
     """Register the session's entry and point it at the session's OWN snapshot
     (FR-009, T033).
 
@@ -1686,10 +1710,12 @@ def register_session_entry(registry: Any, *, repository: str, branch: str,
             source_root=Path(worktree), display_name=f"{repository} @ {branch}")
         candidate.session_tile = tile_key(tile)
         candidate.session_base = session_base
+        candidate.session_base_aliases = tuple(session_base_aliases)
     else:
         candidate = session_entry(repository, branch, worktree,
                                   snapshot_path=snapshot_path, tile=tile,
-                                  session_base=session_base)
+                                  session_base=session_base,
+                                  session_base_aliases=session_base_aliases)
     entry = _register_without_stealing_active(registry, candidate)
     if regenerate:
         _refresh_or_report(registry, repository=repository, branch=branch,
@@ -1701,6 +1727,7 @@ def register_session_entry(registry: Any, *, repository: str, branch: str,
         # re-stamp below), so the base rides the same suppression.
         with contextlib.suppress(AttributeError):
             entry.session_base = session_base
+            entry.session_base_aliases = tuple(session_base_aliases)
     if tile is not None:
         # RE-STAMP after the refresh: `SnapshotSource._regenerate` registers a FRESH
         # entry for the ref it regenerates, which would otherwise drop the owner and
@@ -1709,7 +1736,8 @@ def register_session_entry(registry: Any, *, repository: str, branch: str,
         # entries from worktrees and cannot know whose session this is.
         with contextlib.suppress(AttributeError):
             entry.session_tile = tile_key(tile)
-        write_owner_marker(checkout_root, branch, tile, base=session_base)
+        write_owner_marker(checkout_root, branch, tile, base=session_base,
+                           base_aliases=tuple(session_base_aliases))
     return entry
 
 
@@ -1838,6 +1866,39 @@ def _recover_session_base(git: SessionGit, base: str, branch: str,
     except (SessionGitRefused, GitError, OSError):
         return None
     return (base, revision) if revision else None
+
+
+def _session_base_aliases(registry: Any, repository: str, branch: str,
+                          root: Path | str,
+                          session_base: tuple[str, str] | None
+                          ) -> tuple[str, ...]:
+    """The base's OTHER recorded revision spellings (W-4, wave re-review).
+
+    A real client's `base_revision` is not the branch point: the browser
+    never receives a per-file revision, so it declares the serving
+    projection's `source_revision` — the checkout HEAD at snapshot
+    GENERATION time — while the branch point is the HEAD at OPEN time. Any
+    main movement between snapshot bake and session open made the two
+    differ forever, silently reverting R-12's acceptance to the refusal it
+    closed (executed in the wave re-review, both directions). So the OPEN
+    records the serving snapshot's revision beside the merge-base, the
+    marker persists it, and the bootstrap reads it back verbatim — it can
+    never be re-derived later, because the snapshot regenerates. Advisory
+    like everything else here: () costs only the alias acceptance."""
+    if session_base is None:
+        return ()
+    aliases = read_base_marker_aliases(root, branch)
+    if aliases:
+        return aliases
+    try:
+        entry = getattr(registry, "get", lambda *_: None)(
+            repository, session_base[0])
+        revision = getattr(entry, "source_revision", None)
+    except Exception:  # noqa: BLE001 - advisory, never the reason an open fails
+        return ()
+    if isinstance(revision, str) and revision and revision != session_base[1]:
+        return (revision,)
+    return ()
 
 
 def open_session(git: SessionGit, registry: Any, *, repository: str,
@@ -1978,8 +2039,10 @@ def open_session(git: SessionGit, registry: Any, *, repository: str,
             # can still recover its branch point from git, here where a real
             # worktree is guaranteed.
             with contextlib.suppress(AttributeError):
-                joined_entry.session_base = _recover_session_base(
-                    git, base, branch, root)
+                recovered = _recover_session_base(git, base, branch, root)
+                joined_entry.session_base = recovered
+                joined_entry.session_base_aliases = _session_base_aliases(
+                    registry, repository, branch, root, recovered)
         return SessionOpen(repository=repository, tile=tile, branch=branch,
                            worktree=worktree, joined=True,
                            entry=registry.get(repository, branch),
@@ -2044,14 +2107,18 @@ def open_session(git: SessionGit, registry: Any, *, repository: str,
         clear_ending_marker(root, branch)
         joined = False
 
+    session_base = _recover_session_base(git, base, branch, root)
     entry = register_session_entry(registry, repository=repository, branch=branch,
                                    worktree=worktree, checkout_root=root, tile=tile,
                                    # Known HERE and nowhere later (T104 R-12): a
                                    # fresh branch's merge base with `base` is the
                                    # tip it was just created from, and an adopted
-                                   # one recovers marker-first.
-                                   session_base=_recover_session_base(
-                                       git, base, branch, root))
+                                   # one recovers marker-first. The serving
+                                   # snapshot's revision rides beside it (W-4).
+                                   session_base=session_base,
+                                   session_base_aliases=_session_base_aliases(
+                                       registry, repository, branch, root,
+                                       session_base))
     return SessionOpen(repository=repository, tile=tile, branch=branch,
                        worktree=worktree, joined=joined, entry=entry,
                        notebook_alias=alias, registry=registry,
@@ -2122,14 +2189,18 @@ def _continue_abandoned(git: SessionGit, registry: Any, *, repository: str,
                 "(FR-026) — retry, and the next ordinal is recomputed.")
         git.worktree_add(branch, worktree, base)
         clear_ending_marker(root, branch)
+    session_base = _recover_session_base(git, base, branch, root)
     entry = register_session_entry(registry, repository=repository, branch=branch,
                                    worktree=worktree, checkout_root=root, tile=tile,
                                    # A RESUME recovers the branch point it was
                                    # abandoned with (marker-first, then git);
                                    # a NEW ordinal was just created from `base`
-                                   # (T104 R-12).
-                                   session_base=_recover_session_base(
-                                       git, base, branch, root))
+                                   # (T104 R-12), with the serving snapshot's
+                                   # revision recorded beside it (W-4).
+                                   session_base=session_base,
+                                   session_base_aliases=_session_base_aliases(
+                                       registry, repository, branch, root,
+                                       session_base))
     # BOTH continuations are an OPEN, not a join: a RESUME re-materializes a
     # worktree whose notebook was retired when the session was abandoned (D16),
     # and a NEW ordinal is a different session with a different alias — so each
@@ -2509,7 +2580,13 @@ def bootstrap_sessions(registry: Any, *, repository: str,
             # the branch point rides the same marker the owner does; a session
             # opened before the marker carried it recovers from git's own fork
             # point against the default base (T104 R-12, advisory)
-            session_base=_recover_session_base(git, DEFAULT_BASE, branch, root)))
+            session_base=(recovered := _recover_session_base(
+                git, DEFAULT_BASE, branch, root)),
+            # aliases can only come from the marker here: the snapshot has
+            # regenerated since the open, so its CURRENT revision proves
+            # nothing about what clients of that session hold (W-4)
+            session_base_aliases=read_base_marker_aliases(root, branch)
+            if recovered else ()))
 
     stale += _missing_worktree_directories(known, root)
     stale += _branches_without_worktrees(git, root, claimed, errors)

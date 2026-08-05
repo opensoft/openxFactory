@@ -1459,7 +1459,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     session_base = doxbench_turns.SessionBase(
                         ref=str(recorded_base[0]),
                         revision=str(recorded_base[1]),
-                        text_of=_session_text)
+                        text_of=_session_text,
+                        # W-4: the base's other recorded revision spellings —
+                        # the serving snapshot's revision at open time, which
+                        # is what a real client's base_revision carries.
+                        alias_revisions=tuple(
+                            str(a) for a in
+                            (getattr(entry, "session_base_aliases", ()) or ())))
                 snapshot = json.loads(entry.read_bytes())
                 # THE CREATED-IN-SESSION RECORD (T107; FR-043, CHK012). Every
                 # input is the ENTRY's — the repository, the ref and the worktree

@@ -221,11 +221,22 @@ class SessionBase:
     worktree -- never from anything the request supplied -- and absent
     (``None`` in ``build_prompt_envelope``) for a non-session scope or a
     session whose base was never recorded, where the binding check keeps
-    its original name-equality shape."""
+    its original name-equality shape.
+
+    ``alias_revisions`` (W-4, wave re-review) are the OTHER spellings of
+    the same base the OPEN recorded -- concretely, the serving snapshot's
+    ``source_revision`` at open time, which is what a real client's
+    ``base_revision`` actually carries (the browser never receives a
+    per-file revision; it declares the projection's generation-time HEAD,
+    while the branch point is the open-time HEAD). Without the alias, any
+    main movement between snapshot bake and session open silently reverted
+    R-12 to the refusal it closed. Aliases widen ONLY the revision
+    comparison; the ref name and the base-bytes clauses are untouched."""
 
     ref: str
     revision: str
     text_of: Callable[[str], str | None]
+    alias_revisions: tuple[str, ...] = ()
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -473,7 +484,8 @@ def _require_buffer_binding(
     if (
         session_base is not None
         and buffer.base_ref == session_base.ref
-        and buffer.base_revision == session_base.revision
+        and (buffer.base_revision == session_base.revision
+             or buffer.base_revision in session_base.alias_revisions)
         and buffer.base_hash == _session_text_identity(session_base, expected_path)
     ):
         return

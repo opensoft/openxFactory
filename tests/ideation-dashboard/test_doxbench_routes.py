@@ -1913,14 +1913,16 @@ def _session_worktree(tmp_path, *, documents=(SESSION_CREATED_PATH,),
 
 
 def _register_session(httpd, tmp_path, worktree, *, branch=SESSION_BRANCH,
-                      tile_id=SESSION_TILE_ID, session_base=None):
+                      tile_id=SESSION_TILE_ID, session_base=None,
+                      session_base_aliases=()):
     """Register the session's registry entry: liveness IS the entry (FR-008),
     and its `source_root` is the worktree (`branch_session.session_entry`).
 
     Nothing is opened, no git runs, and no request could have caused this -- it
     is the server-side fact the derivation reads. `session_base` is the
-    `(base_ref, base_revision)` the OPEN would have recorded (T104 R-12);
-    None is the pre-wave shape and the degradation posture."""
+    `(base_ref, base_revision)` the OPEN would have recorded (T104 R-12),
+    `session_base_aliases` its other recorded revision spellings (W-4);
+    None/() is the pre-wave shape and the degradation posture."""
     registry = _handler_class(httpd).source.registry
     snap = Path(tmp_path) / f"session-snapshot-{branch.replace('/', '-')}.json"
     snap.write_text(json.dumps(_snapshot()), encoding="utf-8")
@@ -1928,7 +1930,8 @@ def _register_session(httpd, tmp_path, worktree, *, branch=SESSION_BRANCH,
         "fixture-repo", branch, worktree, snapshot_path=snap,
         tile=(branch_session.Tile(branch_session.STAGED_TOPIC, tile_id)
               if tile_id else None),
-        session_base=session_base)
+        session_base=session_base,
+        session_base_aliases=tuple(session_base_aliases))
     registry.register(entry)
     return entry
 
@@ -1952,12 +1955,14 @@ def _session_turn(document=SESSION_CREATED_PATH, *, branch=SESSION_BRANCH, **ove
 
 
 def _post_session_turn(tmp_path, body, *, worktree, register=True, branch=SESSION_BRANCH,
-                       tile_id=SESSION_TILE_ID, session_base=None):
+                       tile_id=SESSION_TILE_ID, session_base=None,
+                       session_base_aliases=()):
     fake = _port()
     with _serving(tmp_path, model_port_factory=(lambda: fake)) as (httpd, host, prt):
         if register:
             _register_session(httpd, tmp_path, worktree, branch=branch,
-                              tile_id=tile_id, session_base=session_base)
+                              tile_id=tile_id, session_base=session_base,
+                              session_base_aliases=session_base_aliases)
         caps = _capabilities(host, prt)
         status, payload, _headers, _raw = _request(
             host, prt, "POST", CHAT_ROUTE, body=body,
@@ -2093,6 +2098,30 @@ def test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document(tmp
         tmp_path, body, worktree=worktree,
         session_base=("main", "pre-session-rev-1"))
     _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
+
+
+def test_the_post_partial_save_turn_grounds_on_the_snapshots_revision_alias(tmp_path):
+    """W-4 (wave re-review): a REAL client's `base_revision` is the serving
+    snapshot's generation-time revision, not the open-time merge-base — the
+    browser never receives a per-file revision. Whenever main moved between
+    snapshot bake and session open the two differed forever, and the R-12
+    acceptance silently reverted to the refusal it closed (executed in the
+    re-review). The OPEN records the snapshot's revision as an accepted
+    ALIAS; the name and base-bytes clauses are untouched."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "\nunsaved work\n",
+        base_ref="main", base_revision="snapshot-rev-at-open",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "merge-base-at-open"),
+        session_base_aliases=("snapshot-rev-at-open",))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
     _assert_no_sentinels(payload)
 
 

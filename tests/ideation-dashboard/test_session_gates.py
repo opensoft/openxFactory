@@ -1042,6 +1042,43 @@ def test_the_session_base_is_recorded_at_open_and_survives_the_next_process(
     assert entry is not None and entry.session_base == ("main", fork)
 
 
+def test_the_serving_snapshots_revision_is_recorded_as_a_base_alias(
+        scratch_repo, tmp_path):
+    """W-4 (wave re-review): a real client's `base_revision` is the serving
+    snapshot's generation-time HEAD — the browser never receives a per-file
+    revision — while the branch point is the OPEN-time HEAD. When main moves
+    between snapshot bake and session open, the two differ forever, and
+    R-12's revision-equality acceptance silently reverted to the refusal it
+    closed (executed in the re-review, both directions). The OPEN now
+    records the serving snapshot's revision beside the merge-base, durably:
+    it can never be re-derived later, because the snapshot regenerates."""
+    registry = _registry(scratch_repo, tmp_path)
+    snap_rev = registry.get(REPO, reg.DEFAULT_REF).source_revision
+
+    # main moves AFTER the snapshot is baked and BEFORE the session opens —
+    # the exact window that reverted R-12 on a real plane
+    scratch_repo.write("ideation/brainstorm/later-note.md",
+                       "Status: brainstorm\n\n# Later\n")
+    scratch_repo.commit("Advance main past the baked snapshot",
+                        "ideation/brainstorm/later-note.md")
+    _create(scratch_repo, registry)
+
+    fork = sg.SessionGit(scratch_repo.root).head(ref="main")
+    assert fork != snap_rev, "the window under test requires real movement"
+    entry = registry.get(REPO, DRAFT)
+    assert entry is not None and entry.session_base == ("main", fork)
+    assert entry.session_base_aliases == (snap_rev,)
+    assert bs.read_base_marker_aliases(scratch_repo.root, DRAFT) == (snap_rev,)
+
+    # the alias survives the next process — read back from the marker, never
+    # re-derived from a snapshot that has since regenerated
+    fresh = reg.SnapshotRegistry()
+    bs.bootstrap_sessions(fresh, repository=REPO, checkout_root=scratch_repo.root)
+    rederived = fresh.get(REPO, DRAFT)
+    assert rederived is not None
+    assert rederived.session_base_aliases == (snap_rev,)
+
+
 def test_an_ownerless_live_ordinal_is_an_ambiguity_and_never_an_absence(
         scratch_repo, tmp_path):
     """With no owner recorded anywhere — a session that predates the marker, or a

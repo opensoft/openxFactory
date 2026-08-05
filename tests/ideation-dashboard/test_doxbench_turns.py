@@ -1101,13 +1101,15 @@ def test_buffer_binding_refusal_precedes_identity_verification_and_prompt_assemb
 
 
 def _session_base(*, ref: str = "main", revision: str = "base-rev-1",
-                  documents: dict | None = None) -> doxbench_turns.SessionBase:
+                  documents: dict | None = None,
+                  alias_revisions: tuple = ()) -> doxbench_turns.SessionBase:
     """A SessionBase whose reader serves the session's CURRENT text for a
     path out of a plain dict -- the same duck the route builds from the
     session worktree, with no filesystem involved."""
     held = dict(documents or {})
     return doxbench_turns.SessionBase(
-        ref=ref, revision=revision, text_of=lambda path: held.get(path))
+        ref=ref, revision=revision, text_of=lambda path: held.get(path),
+        alias_revisions=tuple(alias_revisions))
 
 
 def _pre_session_buffers(*, document_content: str = DOCUMENT_CONTENT,
@@ -1151,6 +1153,43 @@ def test_a_pre_session_buffer_is_refused_once_the_session_diverged_past_its_base
     assert envelopes_returned == []
     assert sentinel not in str(raised.value)
     assert sentinel not in repr(raised.value)
+
+
+def test_a_buffer_declaring_the_serving_snapshots_revision_grounds_too():
+    # W-4 (wave re-review): the CLIENT never receives a per-file revision --
+    # its `base_revision` is the projection's `source_revision`, the checkout
+    # HEAD at snapshot GENERATION time, while the session records the
+    # merge-base at OPEN time. Any main movement between snapshot bake and
+    # session open made those differ forever, silently reverting R-12 to the
+    # refusal it closed. The OPEN now records the serving snapshot's revision
+    # beside the merge-base as an accepted ALIAS; acceptance still demands
+    # the name AND a listed revision AND the base bytes.
+    envelope = _build_envelope(
+        buffers=_pre_session_buffers(base_revision="snapshot-rev-at-open"),
+        session_base=_session_base(
+            documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
+            alias_revisions=("snapshot-rev-at-open",)),
+    )
+    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+
+    # an alias never relaxes the byte clause ...
+    with pytest.raises(TurnScopeError):
+        _build_envelope(
+            buffers=_pre_session_buffers(
+                document_content="SENTINEL-ALIAS-DIVERGED",
+                base_revision="snapshot-rev-at-open"),
+            session_base=_session_base(
+                documents={DOCUMENT_PATH: "# moved in-session\n"},
+                alias_revisions=("snapshot-rev-at-open",)),
+        )
+    # ... and an unlisted revision still refuses
+    with pytest.raises(TurnScopeError):
+        _build_envelope(
+            buffers=_pre_session_buffers(base_revision="never-recorded"),
+            session_base=_session_base(
+                documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
+                alias_revisions=("snapshot-rev-at-open",)),
+        )
 
 
 def test_a_matching_ref_name_alone_never_grounds_a_pre_session_buffer():
