@@ -982,6 +982,20 @@ async function pickerDuringLoadScenario() {
   };
 }
 
+// W-10 (wave re-review): the editor's apply refusals carry fixed CODES the
+// rail maps to its own vocabulary -- staleness and an unavailable target are
+// different recoveries and must stop sharing one sentence.
+async function applyRefusalCodesScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const stale = await controller.applyProposal('document', {
+    base_hash: 'f'.repeat(64), content: '# other\n' });
+  const unavailable = await controller.applyProposal('document', null);
+  return { stale, unavailable };
+}
+
 // B3: once a buffer has ANY typed content, that content must render and the
 // dirty fact must be reported -- load_state alone (which the state module
 // preserves across every edit on purpose) must never keep showing the
@@ -1485,6 +1499,7 @@ const results = {
   editThenSwitchBeforeSettle: await editThenSwitchBeforeSettleScenario(),
   inputRefusal: await inputRefusalScenario(),
   pickerDuringLoad: await pickerDuringLoadScenario(),
+  applyRefusalCodes: await applyRefusalCodesScenario(),
   typedOutlineOverridesEmpty: await typedOutlineOverridesEmptyScenario(),
   typedDocumentOverridesUnavailable: await typedDocumentOverridesUnavailableScenario(),
   outOfScopeSelectDocument: await outOfScopeSelectDocumentScenario(),
@@ -3626,3 +3641,15 @@ def test_the_shell_posture_note_follows_the_catalog_failure(shell_results):
     posture = shell_results["staleTokenPosture"]
     assert "console token is stale" in posture, posture
     assert "no approved model is configured" not in posture
+
+
+def test_the_editors_apply_refusals_carry_their_fixed_codes(editor_results):
+    """W-10 (wave re-review): the rail's refusal vocabulary is chosen by the
+    seam's CODE, so the editor must spell them — staleness advises a new
+    turn, an unavailable target does not, and neither ever again claims the
+    other's condition."""
+    codes = editor_results["applyRefusalCodes"]
+    assert codes["stale"]["ok"] is False
+    assert codes["stale"]["code"] == "stale"
+    assert codes["unavailable"]["ok"] is False
+    assert codes["unavailable"]["code"] == "unavailable"

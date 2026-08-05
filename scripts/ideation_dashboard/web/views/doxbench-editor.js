@@ -1414,14 +1414,33 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // mismatch the apply refuses fixed and the buffer is untouched. Recovery
   // is a new turn — no force path exists.
   async function applyProposal(kind, proposal) {
-    if (destroyed) return { ok: false, error: DESTROYED_REASON };
+    // W-10 (wave re-review): every refusal used to collapse into one
+    // staleness sentence, so a click while a keystroke's hash was still
+    // settling -- or during a Save, or a load -- was advised "ask again in a
+    // new turn", which is false in both halves: the proposal matched, and a
+    // moment's wait was the recovery. Each refusal now carries a fixed CODE
+    // (never free text) the rail maps to its own vocabulary; the sentences
+    // here remain the canvas's and are never echoed by the rail.
+    if (destroyed) {
+      return { ok: false, code: "unavailable", error: DESTROYED_REASON };
+    }
     // T104 F6-2/F6-6: no state, no identity to gate against -- a stated
     // refusal, never a TypeError.
-    if (!state) return { ok: false, error: unloadedReason() };
+    if (!state) {
+      return { ok: false, code: "unavailable", error: unloadedReason() };
+    }
     const buffer = state.buffers[kind];
-    if (!buffer || buffer.hash_pending || !buffer.current_hash
-        || !proposal || proposal.base_hash !== buffer.current_hash.hex) {
-      return { ok: false, error: "this proposal no longer matches the buffer" };
+    if (!buffer || !proposal) {
+      return { ok: false, code: "unavailable",
+               error: "this proposal has nothing to apply to" };
+    }
+    if (buffer.hash_pending || !buffer.current_hash) {
+      return { ok: false, code: "unsettled",
+               error: "the buffer identity is still settling" };
+    }
+    if (proposal.base_hash !== buffer.current_hash.hex) {
+      return { ok: false, code: "stale",
+               error: "this proposal no longer matches the buffer" };
     }
     // W-2 (wave re-review): a proposal enters through the SAME EOL lens as
     // a keystroke. Models typically emit LF regardless of the document's

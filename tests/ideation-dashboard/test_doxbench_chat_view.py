@@ -685,7 +685,7 @@ out.applySeam = { calls: applied,
                   status: proposalsOf(afterApply).outline.status,
                   sibling: proposalsOf(afterApply).document.status };
 const refusingActions = createProposalActions({
-  applyProposal: async () => null });
+  applyProposal: async () => ({ ok: false, code: "stale" }) });
 const afterRefusal = await refusingActions.apply(s, "outline");
 out.applyRefused = proposalsOf(afterRefusal).outline.status;
 // T104 F5-5: the refusal is VISIBLE — a fixed local failure lands on
@@ -700,8 +700,17 @@ out.applyRefusedFailure = {
   phase: afterRefusal.phase,
   composerUnchanged: afterRefusal.composer === s.composer,
 };
-// The throwing seam maps to the SAME fixed failure — and its own detail is
-// dropped unread, never echoed into the note.
+// W-10: an unsettled buffer is advised a MOMENT, never a new turn
+const unsettledActions = createProposalActions({
+  applyProposal: async () => ({ ok: false, code: "unsettled" }) });
+const afterUnsettled = await unsettledActions.apply(s, "outline");
+out.applyUnsettled = {
+  error: afterUnsettled.lastFailure && afterUnsettled.lastFailure.error,
+  message: afterUnsettled.lastFailure && afterUnsettled.lastFailure.message,
+  status: proposalsOf(afterUnsettled).outline.status,
+};
+// The throwing seam maps to the GENERIC failure (W-10) — and its own detail
+// is dropped unread, never echoed into the note.
 const throwingActions = createProposalActions({
   applyProposal: async () => {
     throw new Error("buffer-side detail that must never surface"); } });
@@ -1588,12 +1597,29 @@ def test_a_refused_apply_records_a_visible_fixed_failure(card_results):
     assert f["composerUnchanged"] is True
 
 
-def test_a_throwing_apply_seam_maps_to_the_same_fixed_failure(card_results):
+def test_a_throwing_apply_seam_maps_to_the_generic_failure(card_results):
+    """W-10 (wave re-review): a throw is an internal failure, not staleness —
+    the old shared sentence advised "ask again in a new turn" for a condition
+    a new turn cannot fix, looping the false advice on a persistently
+    throwing seam. The generic sentence is honest and still never echoes."""
     t = card_results["applyThrew"]
-    assert t["error"] == "proposal_apply_refused"
+    assert t["error"] == "proposal_apply_failed"
     assert "buffer-side detail" not in (t["message"] or ""), (
         "the seam's own error text must be dropped unread, never echoed")
-    assert "no longer matches the buffer" in t["message"]
+    assert "stays reviewable" in t["message"]
+    assert "new turn" not in t["message"]
+
+
+def test_an_unsettled_apply_is_advised_a_moment_not_a_new_turn(card_results):
+    """W-10: the dominant NON-stale refusal — a click while a keystroke's
+    identity is still settling — used to claim the proposal no longer
+    matched. It matches; a moment's wait is the recovery, and the record
+    stays reviewable."""
+    u = card_results["applyUnsettled"]
+    assert u["error"] == "proposal_apply_unsettled"
+    assert "still settling" in u["message"]
+    assert "new turn" not in u["message"]
+    assert u["status"] == "current"
 
 
 # ---------------------------------------------------------------------------
@@ -1722,7 +1748,7 @@ const editorState = () => ({ buffers: {
         kind: "workbench-model-catalog", models: [ENTRY] }),
       chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS }) },
     editorState, activeDocumentPath: () => "docs/detail.md",
-    applyProposal: async () => ({ ok: false,
+    applyProposal: async () => ({ ok: false, code: "stale",
       error: "this proposal no longer matches the buffer" }) });
   await rail.ready;
   const selector = byClass(host, "doxchat-model")[0];

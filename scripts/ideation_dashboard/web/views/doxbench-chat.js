@@ -77,18 +77,38 @@ const NO_ACTIVE_DOCUMENT = Object.freeze({
     + "pick one in the Document tab first",
 });
 
-// T104 F5-5: the FIXED refusal for an Apply the buffer seam would not take.
-// The seam's dominant refusal is staleness caught at the swap itself
-// (doxbench-editor.applyProposal revalidates the base against the SETTLED
-// current identity), and its own error text — like anything a throwing seam
-// carries — is dropped unread, same discipline as TRANSPORT_REFUSED: this
-// sentence, the canvas's own vocabulary for that condition, is the whole
-// failure surface, and it names the only recovery.
+// T104 F5-5 + W-10: the FIXED refusals for an Apply the buffer seam would
+// not take. One sentence used to answer for every refusal — but "ask again
+// in a new turn" is only true for STALENESS; a click while an identity was
+// still settling (or during a Save or a load) needed a moment, not a new
+// turn, and a persistently-throwing seam looped the false advice forever.
+// The seam now carries a fixed CODE and the mapping below is a WHITELIST:
+// the seam's error text — like anything a throwing seam carries — is
+// dropped unread, same discipline as TRANSPORT_REFUSED. Each sentence names
+// its own recovery.
 const PROPOSAL_APPLY_REFUSED = Object.freeze({
   error: "proposal_apply_refused",
   message: "this proposal no longer matches the buffer — ask again in a "
     + "new turn",
 });
+
+const PROPOSAL_APPLY_UNSETTLED = Object.freeze({
+  error: "proposal_apply_unsettled",
+  message: "the buffers are still settling — try Apply again in a moment",
+});
+
+const PROPOSAL_APPLY_FAILED = Object.freeze({
+  error: "proposal_apply_failed",
+  message: "the apply failed — the proposal stays reviewable; try again",
+});
+
+// the CODE whitelist: anything the seam does not spell exactly (a throw, a
+// null, an unknown or absent code) is the generic failure, never staleness
+function proposalApplyFailureFor(result) {
+  if (result && result.code === "stale") return PROPOSAL_APPLY_REFUSED;
+  if (result && result.code === "unsettled") return PROPOSAL_APPLY_UNSETTLED;
+  return PROPOSAL_APPLY_FAILED;
+}
 
 // T104 F5-9 residual: the rail's OWN posture when it is offered (the
 // transports exist, so it is mounted) but no model is selectable. The same
@@ -469,8 +489,10 @@ export function createProposalActions(options) {
         // reviewable (no status transition: a stale re-score belongs to
         // refreshProposalCurrency, which the next settled identity runs);
         // only the fixed local failure lands, on the same channel every
-        // other refusal renders through.
-        return recordLocalFailure(live, PROPOSAL_APPLY_REFUSED);
+        // other refusal renders through — chosen by the seam's CODE (W-10),
+        // so a settling buffer is advised a moment and only genuine
+        // staleness is advised a new turn.
+        return recordLocalFailure(live, proposalApplyFailureFor(result));
       }
       const liveRecord = proposalsOf(live)[targetValue];
       if (!liveRecord || liveRecord.base_hash !== record.base_hash
