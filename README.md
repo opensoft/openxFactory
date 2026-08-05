@@ -346,25 +346,6 @@ Active changes:
   deterministic doc-health family (code surface: codexFactory; ratified
   2026-07-12 — admitted intent, active until realization evidence lands;
   implementation follows ideation routing)
-- [add-ideation-cross-reference-readiness](openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
-  — staged-origin proposal for the unified cross-stage ideation topic index,
-  three-tier Hermes readiness panel (min >= 8 recommendation gate), and the
-  nightly ideation-readiness doc-health lane (code surface: openxFactory,
-  codexFactory, xFactory, omnigent-install; ratified 2026-07-12).
-  **Realized 2026-07-14**: index contract + strict validator + the living
-  bootstrap index (`ideation/cross-reference.yaml` + generated md; 11
-  clusters after the 2026-07-16 staging exits);
-  scorer worker merged (codexFactory 003-ideation-readiness at 1fc0bd7,
-  pre-merge review ACCEPT WITH FIXES); nightly lane + readiness-scorer
-  profile landed (lane SKIPPED until host deployment — valid landed
-  state). **First-lane-run evidence 2026-07-23** (nightly run
-  30000105423): the readiness-scorer child ran on the deployed CPC rider
-  profile and 2 clusters persisted scored readiness panels into
-  `ideation/cross-reference.yaml` (openxFactory PR #38, delivered by the
-  derive lane's rolling commit-back; a readiness-only run still lacks its
-  own commit-back — scores persist when the derive lane also merges).
-  At 15/16 (5.2 records through archive); archives on the
-  release-realization flow
 - [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
   — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
   from the dashboard-action-center + cloud-workstation-topology brainstorms;
@@ -437,6 +418,16 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-ideation-cross-reference-readiness](openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/proposal.md)
+  Promoted the unified cross-stage topic cluster + readiness surface:
+  `ideation/cross-reference.yaml` (generated `.md` projection), the
+  four-schema index contract with extension-fit citations, the three-tier
+  Hermes readiness panel, and the min>=8 recommendation gate. Realized
+  2026-07-14 (codexFactory `003-ideation-readiness` merged `1fc0bd7`,
+  aggregation child workflow `669d60a`, omnigent-install readiness-scorer
+  profile `f31a019`); the scoring lane reports SKIPPED until a host
+  advertises the profile — the recorded valid landed state (CPC deploy +
+  submodule commit-back remain on the ops ledger). Archived 2026-08-04.
 - [add-possibles-derivation-lane](openspec/changes/archive/2026-08-04-add-possibles-derivation-lane/proposal.md)
   Promoted the AI-assisted derive-possibles worker lane: bounded read-only
   Omnigent worker deriving `pending_review` possibles from the landed

@@ -33,4 +33,4 @@ Realized 2026-07-14 (same merge + aggregation 669d60a child workflow + omnigent-
 ## 5. Tests And Records
 
 - [x] 5.1 Add tests: gate fires only at minimum >= 8; one low tier blocks despite two 10s; spread conflict flagged below threshold; recommendation performs no state transition; tag bootstrap reads both header fields; evidence contract validates against the existing organizer/cataloger schema; absent findings from a skipped lane are not treated as resolved.
-- [ ] 5.2 Keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.
+- [x] 5.2 Keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive. — Discharged at archive 2026-08-04: the README row moved to Archived changes with the realization summary (codexFactory 003-ideation-readiness merged 1fc0bd7, aggregation 669d60a, omnigent-install f31a019; lane SKIPPED-until-host is the recorded valid state, CPC deploy + commit-back on the ops ledger).

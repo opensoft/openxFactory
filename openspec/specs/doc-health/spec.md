@@ -8,17 +8,17 @@ and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement thirteen check families
-over the whole factory family's governance corpus: status validity,
-standard backing, ratified provenance, succession integrity, location
-conformance, record immutability, staged/candidate aging,
-register-lifecycle consistency, tag hygiene, submodule pin drift,
-contract-copy drift, notebook projection drift, and document catalog. Every
-check in this pass MUST be deterministic — identical inputs produce identical
-findings, with no model calls; semantic analysis belongs to the agentic
-semantic sweep and separate document-cataloger lane their owning capabilities
-define. Check families SHALL implement promoted spec wording; staged ideation
-fragments are inputs to contracts, never check definitions.
+The doc-health deterministic pass SHALL implement thirteen check families over
+the whole factory family's governance corpus: status validity, standard
+backing, ratified provenance, succession integrity, location conformance,
+record immutability, staged/candidate aging, register-lifecycle consistency,
+tag hygiene, submodule pin drift, contract-copy drift, notebook projection
+drift, and document catalog. Every check in this pass MUST be deterministic —
+identical inputs produce identical findings, with no model calls; semantic
+analysis and readiness scoring belong to the agentic semantic sweep and the
+separate document-cataloger and ideation-readiness lanes their owning
+capabilities define. Check families SHALL implement promoted spec wording;
+staged ideation fragments are inputs to contracts, never check definitions.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
@@ -462,5 +462,37 @@ existing per-repo validator preflight (delegated to
 
 #### Scenario: Lane output fails its contract
 - **WHEN** worker output does not satisfy the register evidence contract or the additive kernel shape
+- **THEN** the output MUST be rejected before persistence and the rejection reported in the run
+
+### Requirement: Ideation readiness lane
+The doc-health capability SHALL include an ideation readiness lane: a
+bounded, non-mutating worker pass — following the same execution split and
+bounded-worker pattern as the agentic semantic sweep and the
+document-cataloger lane — that maintains the
+promoted `ideation-cross-reference` index and emits `ideation-readiness`
+findings, including the extension-fit citation finding when a fit note
+cites only an archived change folder rather than a promoted spec or
+capability. Lane output SHALL be recommendations with `pending_review`
+disposition, resolution class `contested`, and severity at most `warning`;
+the lane MUST NOT block merges and MUST NOT open regression issues in v1.
+The strict index validator runs in the existing per-repo validator
+preflight; this lane adds no deterministic check family.
+
+#### Scenario: The nightly lane executes
+- **WHEN** the readiness lane runs in the nightly workflow
+- **THEN** it runs after the deterministic pass against the same inventory snapshot
+- **AND** the dated report links the updated index and its evidence artifacts
+
+#### Scenario: An archive-pointer-only fit note is found
+- **WHEN** a topic entry's extension-fit note cites only an archived change folder
+- **THEN** the lane MUST emit an `ideation-readiness` finding naming the entry and the citation requirement
+
+#### Scenario: The lane is skipped
+- **WHEN** the readiness worker is unavailable or fails
+- **THEN** the run MUST record the lane as skipped and the deterministic results MUST land unaffected
+- **AND** a prior finding absent only because the lane did not run MUST NOT be treated as resolved
+
+#### Scenario: Lane output fails its contract
+- **WHEN** worker output does not satisfy the promoted evidence contract or index schema
 - **THEN** the output MUST be rejected before persistence and the rejection reported in the run
 
