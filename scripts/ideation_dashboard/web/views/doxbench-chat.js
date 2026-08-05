@@ -19,7 +19,7 @@ import {
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
-  markProposalAppliedAfterSwap,
+  markProposalAppliedAfterSwap, clearLocalFailure,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
   canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
 } from "./doxbench-chat-model.js";
@@ -470,8 +470,11 @@ export function createProposalActions(options) {
       }
       // Field-identical record: any `stale` here is the apply's own doing
       // (the swap moved the buffer identity before this promise resolved),
-      // so the after-swap transition keeps "applied" truthful.
-      return markProposalAppliedAfterSwap(live, targetValue);
+      // so the after-swap transition keeps "applied" truthful. The landed
+      // apply also CLEARS the local failure channel (W-11): a refusal note
+      // left standing beside the applied announcement asserted two opposite
+      // facts about the same proposal.
+      return clearLocalFailure(markProposalAppliedAfterSwap(live, targetValue));
     },
     async reject(stateValue, targetValue) {
       return rejectProposal(settleBase(stateValue), targetValue);

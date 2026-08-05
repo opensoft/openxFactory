@@ -401,6 +401,16 @@ export function markProposalApplied(stateValue, targetValue) {
   return transitionProposal(stateValue, targetValue, ["current"], "applied");
 }
 
+export function clearLocalFailure(stateValue) {
+  // W-11 (wave re-review): a landed apply is a SUCCESS event for the local
+  // failure channel, exactly as a settled turn is — leaving the refusal note
+  // standing put two live regions in contradiction ("Proposal applied…"
+  // beside "this proposal no longer matches the buffer"). Pure and narrow:
+  // only the local lastFailure clears; nothing else moves.
+  if (!stateValue.lastFailure) return stateValue;
+  return { ...stateValue, lastFailure: null };
+}
+
 export function markProposalAppliedAfterSwap(stateValue, targetValue) {
   // W-3 (wave re-review): the ONE widening the apply-SETTLE path needs
   // beyond the current-only rule above. The swap's own edit re-scores the

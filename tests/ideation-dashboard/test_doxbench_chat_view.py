@@ -2048,6 +2048,25 @@ out.configuredNoneCatalog = await catalogPosture(
   };
 }
 
+// ---- W-11: a LANDED Apply clears the failure its refusal left behind ----
+{
+  let calls = 0;
+  const { host, rail } = mountRail({
+    applyProposal: async () => (++calls === 1 ? { ok: false } : { ok: true }) });
+  await rail.ready;
+  await propose(host);
+  await fire(byClass(host, "doxchat-card-apply")[0], "click"); // refused
+  const refusedVisible = !byClass(host, "doxchat-failure")[0].hidden;
+  await fire(byClass(host, "doxchat-card-apply")[0], "click"); // lands
+  out.applyClearsFailure = {
+    refusedVisible,
+    afterError: (rail.state().lastFailure
+                 && rail.state().lastFailure.error) || null,
+    noteHidden: byClass(host, "doxchat-failure")[0].hidden,
+    proposalStatus: (rail.state().proposals["outline"] || {}).status || null,
+  };
+}
+
 // ---- W-3(a): follow-up typing during a slow Apply SURVIVES, and the
 // proposal still lands applied -- the card actions settle against the LIVE
 // state, never the click-time snapshot ----
@@ -2310,3 +2329,18 @@ def test_an_apply_spanning_a_turn_settlement_never_resurrects_the_flight(
     assert settled["transcriptTurns"] == 4, \
         "the settled turn's pair must survive the overlapping Apply"
     assert settled["sendLabel"] != "Sending…"
+
+
+def test_a_landed_apply_clears_the_failure_its_refusal_left_behind(
+        focus_throw_results):
+    """W-11 (wave re-review): `markProposalApplied` never touched
+    `lastFailure`, so after a refused-then-successful Apply the rail rendered
+    TWO live regions asserting opposite facts about the same proposal — the
+    applied announcement beside the still-visible "no longer matches the
+    buffer" note. A landed apply now clears the local failure; a refusal
+    still records it."""
+    probe = focus_throw_results["applyClearsFailure"]
+    assert probe["refusedVisible"] is True, "the refusal itself must stay visible"
+    assert probe["proposalStatus"] == "applied"
+    assert probe["afterError"] is None
+    assert probe["noteHidden"] is True
