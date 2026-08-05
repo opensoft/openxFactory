@@ -51,6 +51,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `adopted` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
 | DTN-022 | Avatar client lab neutral home | `split` | P2 | `adopted` | own repo `opensoft/openAvatar` (ruled 2026-08-03); domain descendants are pin-and-profile distributions |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
+| DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
 
 ## Candidate Details
 
@@ -668,3 +669,56 @@ Evidence:
 
 Domain-local exclusions: `pr:`/`candidate:` target types, PR verdict
 vocabulary, `merge_master`, the execution lane.
+
+
+### DTN-024: Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal)
+
+Seeded 2026-08-05 from the first ratified domain instance: MedxFactory's
+`treatment-plan-generation` capability (`add-treatment-plan-generation`,
+archived 2026-08-05, 9 requirements). A factory that reasons over governed
+subject data eventually emits a PROPOSAL — and the governance skeleton of
+that proposal is domain-invariant even though its content never is:
+
+- every claim cites subject evidence by pinned-run locator + sha256 with a
+  coding/normalization status;
+- every reasoning statement declares its `knowledge_basis`
+  (`model_parametric` visible and limitation-flagged, grounded-reference
+  tier binding the moment grounded records exist — the two-leg
+  source-trace discipline);
+- the artifact is constitutionally inert: hypothesis-only, with an
+  authority slot (attestation/approval) that is PRESENT AND EMPTY at
+  generation time, filled only by a named human downstream;
+- generation refuses with evidence (typed refusal documents) on missing
+  consent/authority coverage, off-policy models, or out-of-boundary
+  requests, rather than degrading silently;
+- critique efficacy is a tested property: a seeded-defect failure corpus
+  the deterministic critique core must flag, re-run on every validate.
+
+Medx deliberately kept the skeleton's field names domain-neutral
+(`evidence_ref`, `knowledge_basis`, `attestation`, `refusal_class`;
+change design D7) so this lift is rename-free. Sibling wants: Ledgerx
+adjustment/close proposals, Opsx change plans, Adx campaign
+recommendations, codex design proposals.
+
+Evidence:
+
+- `xFactories/MedxFactory/openspec/specs/treatment-plan-generation/spec.md`
+  (canonical spec) + `schemas/treatment-plan/`,
+  `scripts/treatment_plan/`, `examples/treatment-plan/` (golden plan,
+  ten-fixture failure corpus, plan-G1 gate re-executed on every
+  `make validate`)
+- `xFactories/MedxFactory/openspec/specs/medical-omnigent-overlay/spec.md`
+  (the modified hypothesis-only stance carrying the two-leg discipline)
+- staging positions:
+  `xFactories/MedxFactory/ideation/staging/treatment-plan-generation/topic.md`
+  (claim 10 / disposition: Medx-first, DTN row on ratification)
+
+Domain-local exclusions: clinical candidate content (problems,
+regimens, safety-check semantics), the consent-model purpose ids, the
+authoring-model policy content, gate names, and everything a domain's
+recommendation actually SAYS — the register candidate is the skeleton,
+never the medicine.
+
+Exit condition (per the DTN-016 pattern): a second domain instantiates
+the skeleton; then `add-recommendation-artifact` (or fold into
+governed-derived-model as a profile) stages in openxFactory.
