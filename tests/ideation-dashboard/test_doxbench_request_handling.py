@@ -804,6 +804,34 @@ def test_an_over_cap_first_edit_body_gets_an_honest_measured_size_refusal(tmp_pa
     assert sentinel not in json.dumps(payload)
 
 
+def test_a_lone_surrogate_in_first_edit_content_refuses_400_not_500(tmp_path):
+    """Wave re-review P3: JSON's `"\\ud800"` escape decodes to a Python str no
+    file can hold — and nothing on the first-edit path encoded `content`
+    before the boundary write, so the `UnicodeEncodeError` raised at
+    `write_text` escaped the transaction's unwind and reached the operator as
+    a 500 with a stderr traceback (reproduced against a scratch session repo:
+    the raise site is `boundary.rewrite_session_document`). The verb now
+    refuses it at its own body/shape layer, in the transaction's own
+    vocabulary: 400 `invalid_body` with a FIXED sentence naming the
+    unpaired-surrogate condition — never the text itself, and never a
+    session opened for a Save that cannot be written."""
+    from ideation_dashboard import gate_routes
+    sentinel = "FIRST-EDIT-SURROGATE-SENTINEL-7e2a"
+    body = {"scope_kind": "staged-topic", "scope_id": "ideation-governance",
+            "document": "ideation/staging/ideation-governance/README.md",
+            "content": "# Outline\n\nrewritten \ud800 " + sentinel}
+    with _serving(tmp_path) as (httpd, host, port):
+        caps = _capabilities(host, port)
+        status, payload = _request(
+            host, port, "POST", "/actions/gate/first-edit",
+            body=body, headers=_console_headers(caps))
+    assert status == 400, f"expected the shape-layer refusal, got {status}"
+    assert payload["error"] == "invalid_body"
+    assert payload["message"] == gate_routes.FIRST_EDIT_UNENCODABLE_CONTENT
+    # the refusal names the CONDITION, never the content.
+    assert sentinel not in json.dumps(payload)
+
+
 def test_the_first_edit_cap_accommodates_the_declared_buffer_bound():
     """The cap is DERIVED, not minted: `DOXBENCH_MAX_REQUEST_BYTES` must keep
     admitting a full declared buffer (`doxbench_hash.MAX_BUFFER_BYTES`) plus
@@ -814,16 +842,33 @@ def test_the_first_edit_cap_accommodates_the_declared_buffer_bound():
     assert serve_mod.DOXBENCH_MAX_REQUEST_BYTES > doxbench_hash.MAX_BUFFER_BYTES
 
 
-def test_other_gate_verbs_keep_the_tiny_global_cap(tmp_path):
-    """The carve-out is ONE verb wide. `ratify` (a pre-existing, non-session
-    gate verb whose body really is tiny) still reads through `_read_json_body`:
+@pytest.mark.parametrize("verb", [
+    # Wave re-review P3: the pin used to cover `ratify` alone, so the
+    # carve-out could silently widen to any OTHER verb without a test
+    # noticing — `verb in ("first-edit", "create-document")` would have kept
+    # this file green. One case per verb CLASS that reads a body on this
+    # route and can be refused before its own logic runs:
+    "ratify",              # pre-existing, non-session gate verb
+    "create-document",     # session-OPENING verb
+    "edit-document",       # session-WRITING verb
+    "abandon-session",     # session-ENDING verb
+])
+def test_other_gate_verbs_keep_the_tiny_global_cap(tmp_path, verb):
+    """The carve-out is ONE verb wide (`first-edit`). Every other gate verb —
+    pre-existing or session-bearing — still reads through `_read_json_body`:
     an over-65-KiB body refuses with the bare transport `invalid_body`, exactly
     as before F5-6 — widening every verb would weaken unrelated actions for no
-    declared payload (research R7's reasoning, unchanged)."""
+    declared payload (research R7's reasoning, unchanged).
+
+    Each case is as cheap as the original ratify one: the transport refuses
+    the over-cap body BEFORE `run_gate_action` dispatches, so no session, no
+    git, and no verb logic ever runs — the console-token headers admit the
+    request past the session-verb presence gate, and the very next step is
+    the body read that refuses."""
     with _serving(tmp_path) as (httpd, host, port):
         caps = _capabilities(host, port)
         status, payload = _request(
-            host, port, "POST", "/actions/gate/ratify",
+            host, port, "POST", f"/actions/gate/{verb}",
             body={"padding": "x" * (serve_mod._MAX_BODY_BYTES + 1)},
             headers=_console_headers(caps))
     assert status == 400

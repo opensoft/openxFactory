@@ -1389,6 +1389,29 @@ def test_lone_surrogate_in_base_revision_refuses_invalid_turn_request(tmp_path):
     _assert_no_sentinels(payload)
 
 
+def test_lone_surrogate_in_a_transcript_role_refuses_invalid_turn_request(tmp_path):
+    """Wave re-review P3: the transcript turn's ROLE is the remaining
+    surrogate carrier this section had not pinned. It is a free-form string
+    (`doxbench_turns.TranscriptTurn` — deliberately not an enum), it is NOT
+    measured at step 7 (`transcript_bytes` counts turn TEXT only, no role
+    labels), and it is not hashed at step 6 — so, like `base_ref` and
+    `base_revision` above, it reaches the canonical idempotency digest with
+    no earlier encodability gate and W-1's digest-site
+    `ContentEncodingError` catch is the layer that answers (proven by
+    scratch-mutating that catch to re-raise: this test then loses the
+    connection while the transcript-CONTENT pin above still refuses at step
+    7). The hermetic fixture validators pass it through on purpose — they
+    pin envelope discriminators only, never value-level rules — so this pin
+    exercises the deepest layer the suite reaches. Refusal, not a dropped
+    connection."""
+    body = _turn(transcript=[
+        {"role": _LONE_SURROGATE,
+         "content": "An earlier question " + _S_TRANSCRIPT}])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
 # ---- model refusals ------------------------------------------------------------
 
 def test_unknown_model_id_refuses_model_unavailable(tmp_path):

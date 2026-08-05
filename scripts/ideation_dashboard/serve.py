@@ -2276,9 +2276,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             body, size_refusal = self._read_bounded_json_body(
                 DOXBENCH_MAX_REQUEST_BYTES, "request_body_bytes")
             if size_refusal is not None:
-                # The honest measured verdict for a genuinely oversize Save:
-                # names the size problem (fixed message + measured limit
-                # block), never the "JSON object body" misdirection.
+                # The verdict for a genuinely oversize Save names the SIZE
+                # problem (fixed message + limit block), never the "JSON
+                # object body" misdirection. Wave re-review P3 honesty note:
+                # the limit block's `measured` figure is the DECLARED
+                # Content-Length — the reader refuses on the declaration and
+                # drains without buffering, so the declaration is exactly
+                # what this refusal is based on (see `_read_bounded_json_body`).
                 self._send_json(
                     doxbench_error_status(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED),
                     doxbench_error_body(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
@@ -2413,9 +2417,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         Returns `(payload, refusal)`:
           * success -> `(<dict>, None)`;
           * OVER the bound -> `(None, {"dimension": dimension, "measured": N,
-            "maximum": max_bytes})` — a MEASURED verdict (FR-017), unlike this
-            class's OTHER reader, whose bare `None` is exactly what research
-            R7 says a global cap loses;
+            "maximum": max_bytes})` — a quantified verdict (FR-017), unlike
+            this class's OTHER reader, whose bare `None` is exactly what
+            research R7 says a global cap loses. `N` here is the DECLARED
+            Content-Length (the refusal's actual basis — see the over-bound
+            branch), not a count of buffered bytes;
           * any OTHER malformation (missing/unparseable `Content-Length`, a
             short read, invalid UTF-8, non-JSON, or JSON that is not an
             object) -> `(None, None)` — no measurement to report, and NOTHING
@@ -2444,6 +2450,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # shared posture: chunked, bounded, and backed by the socket
             # timeout so a stalled sender raises instead of holding the
             # thread.
+            #
+            # Wave re-review P3 honesty note: the `measured` value below is
+            # the DECLARED Content-Length, not a count of bytes read — an
+            # over-cap body is refused on its declaration precisely so it is
+            # never buffered to be counted. That is the honest basis of this
+            # refusal: the caller declared more than the bound admits.
             _drain_refused_body(self.rfile, declared)
             return None, {"dimension": dimension, "measured": declared,
                           "maximum": max_bytes}

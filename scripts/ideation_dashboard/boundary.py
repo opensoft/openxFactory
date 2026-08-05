@@ -184,6 +184,10 @@ class OutputBoundary:
         # without it, write_text translates \n to os.linesep, so the same
         # buffer would land different bytes on different platforms and the
         # base identity the client hashed would drift from the file.
+        # NOTE (wave re-review P3): on Linux CI this argument is unobservable
+        # (os.linesep == "\n"), so its regression pin is TEXTUAL —
+        # test_boundary.py greps this module for the exact spelling at both
+        # governed write sites. Keep the spelling literal.
         resolved.write_text(text, encoding="utf-8", newline="")
         return resolved
 
@@ -248,7 +252,9 @@ class OutputBoundary:
                 "document into existence stays the create-only create path")
         # newline="" for the same reason as create_document: the rewritten
         # bytes must be exactly the replacement the buffer's identity
-        # describes, on every platform (T104 F10 / FR-045).
+        # describes, on every platform (T104 F10 / FR-045). Same textual pin
+        # as create_document's site (test_boundary.py) — keep the spelling
+        # literal.
         resolved.write_text(text, encoding="utf-8", newline="")
         return resolved
 

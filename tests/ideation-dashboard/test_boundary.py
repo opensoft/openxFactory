@@ -4,6 +4,8 @@ and agent write passes through it, and every refusal is reported, not silent
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
@@ -275,3 +277,28 @@ def test_create_document_stays_create_only_even_with_a_session_declared(tmp_path
         b.create_document("wt/note.md", "# overwritten\n")
     assert exc.value.refusal.kind == SOURCE_EDIT
     assert target.read_text(encoding="utf-8") == "# original\n"
+
+
+# ---- the two governed writes pin newline="" at the SOURCE (T104 F10 / FR-045) ----
+
+def test_the_two_governed_write_sites_spell_newline_empty_at_the_source():
+    """WEAK BY NECESSITY, and said out loud (wave re-review P3).
+
+    `create_document` and `rewrite_session_document` both write with
+    `newline=""` so the governed bytes land exactly as composed on EVERY
+    platform (T104 F10 / FR-045). On Linux — the only platform this suite
+    runs on — that argument is UNOBSERVABLE: `write_text`'s default
+    translates "\\n" to `os.linesep`, and `os.linesep` here IS "\\n", so a
+    revert produces byte-identical files and no behavioral test can go red.
+    The regression would surface only on a Windows checkout, long after the
+    revert merged. So this pin is textual — it greps the module source for
+    the exact spelling at exactly the two governed write sites — because a
+    grep is the strongest assertion this platform admits. If a third
+    governed write site lands (count -> 3) or a revert drops one
+    (count -> 2 becomes 1), the count forces the author to face this
+    docstring and decide deliberately."""
+    src = Path(boundary.__file__).read_text(encoding="utf-8")
+    sites = src.count('write_text(text, encoding="utf-8", newline="")')
+    assert sites == 2, (
+        f"expected exactly the two governed write sites (create_document, "
+        f"rewrite_session_document) to spell newline=\"\"; found {sites}")

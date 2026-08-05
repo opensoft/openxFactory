@@ -4397,8 +4397,17 @@ def first_edit_base_refusal(*, document: str, root: Path | str, action: str,
         current = doxbench_hash.sha256_hex(
             doxbench_hash.served_text(target.read_bytes()))
     except (OSError, ValueError, UnicodeDecodeError) as exc:
+        # Wave re-review P3-5, considered and KEPT: the strict decode above is
+        # a DELIBERATE asymmetry with the browser. The client's lenient
+        # `Response.text()` computes an identity over U+FFFD-replaced text for
+        # a non-UTF-8 file; this server refuses to fabricate one, so such a
+        # file is honestly unsaveable through doxBench rather than silently
+        # re-encoded. And the refusal states only the exception CLASS:
+        # `str(UnicodeDecodeError)` embeds the offending byte value and its
+        # offset from the file being edited, and a refusal never echoes
+        # document content.
         return (f"refusing to rewrite {document!r}: its current bytes could not "
-                f"be read to revalidate the base ({exc})")
+                f"be read to revalidate the base ({type(exc).__name__})")
     if current != str(base_hash):
         return (f"refusing to rewrite {document!r}: it was edited from base "
                 f"{base_hash} but now holds {current}. The source moved "

@@ -301,6 +301,35 @@ def test_a_crlf_document_edited_from_its_served_bytes_is_no_refusal(scratch_repo
     assert refusal is None
 
 
+def test_an_undecodable_files_refusal_names_the_class_and_echoes_no_bytes(
+        scratch_repo):
+    """Wave re-review P3-5. A non-UTF-8 file cannot be revalidated: the strict
+    server-side decode raises, and the honest answer is a refusal (the
+    strict-decode asymmetry is DELIBERATE — see the why-comment at the read).
+    But the refusal SENTENCE must state only the exception CLASS: a
+    `UnicodeDecodeError`'s str embeds the offending byte value and its offset
+    from the file being edited, and refusals never echo document content."""
+    target = scratch_repo.root / OUTLINE
+    target.write_bytes(b"# Demo Topic\n\n\xff\xfe not UTF-8 \x81\n")
+
+    refusal = bs.first_edit_base_refusal(
+        document=OUTLINE, root=scratch_repo.root,
+        action=gc.ACTION_EDIT_DOCUMENT,
+        base_hash=dh.sha256_hex("# whatever the client held\n"))
+
+    assert refusal is not None
+    assert "UnicodeDecodeError" in refusal, (
+        "the refusal names the exception CLASS, so the operator still learns "
+        "WHY the read failed")
+    # ... and nothing more than the class: no quoted byte, no offset. The
+    # document path is the only permitted content-adjacent detail.
+    scrubbed = refusal.replace(OUTLINE, "").replace("UnicodeDecodeError", "")
+    assert "0x" not in scrubbed
+    assert "position" not in scrubbed
+    assert not any(ch.isdigit() for ch in scrubbed), (
+        f"byte-offset or byte-value digits leaked into the refusal: {refusal!r}")
+
+
 def test_an_edit_of_a_vanished_file_is_refused_rather_than_recreated(
         scratch_repo):
     """A document that has been removed underneath the buffer is not silently

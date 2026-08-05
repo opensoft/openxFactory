@@ -205,6 +205,67 @@ def test_demote_console_does_not_touch_the_live_corpus_only_execution_does(tmp_p
     assert (root / "openspec" / "changes" / CHANGE).is_dir()
 
 
+def test_a_crlf_document_survives_a_demote_move_byte_exactly(tmp_path):
+    """Wave re-review P3 — the F10 corpus-integrity class through another
+    verb. The demote MOVE used to `read_text(errors="replace")` ->
+    `write_text`, so on Linux a CRLF (Windows-authored) document was silently
+    rewritten as LF by universal-newline translation — invalidating any open
+    doxBench buffer's base identity for that document — and any undecodable
+    byte was silently mangled to U+FFFD. A move that flips no Status header
+    now copies BYTES and never decodes at all, so the moved copy is the
+    source, byte for byte."""
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    crlf = b"# Tasks\r\n\r\n- [ ] 1.1 authored\r\n- [ ] 1.2 on Windows\r\n"
+    (root / "openspec" / "changes" / CHANGE / "tasks.md").write_bytes(crlf)
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="CRLF round trip.", at=AT)
+    gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = root / "ideation" / "staging" / TOPIC / "openspec" / "tasks.md"
+    assert moved.read_bytes() == crlf
+
+
+def test_a_status_flipping_demote_move_preserves_crlf_line_endings(tmp_path):
+    """The flip arm of the same P3 fix: a move that DOES rewrite the `Status:`
+    header must decode — but only that line changes. Untouched lines keep
+    their CRLF endings exactly, and the rewritten Status line keeps the
+    ending it had rather than being collapsed to LF."""
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    crlf = ("# Proposal\r\n\r\nStatus: active\r\n\r\n## Why\r\n\r\n"
+            "authored on Windows.\r\n")
+    (root / "openspec" / "changes" / CHANGE / "proposal.md").write_bytes(
+        crlf.encode("utf-8"))
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="CRLF flip.", at=AT)
+    gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = root / "ideation" / "staging" / TOPIC / "openspec" / "proposal.md"
+    expected = crlf.replace("Status: active\r\n", "Status: draft\r\n")
+    assert moved.read_bytes() == expected.encode("utf-8")
+
+
+def test_the_demote_readme_append_preserves_the_existing_readmes_bytes(tmp_path):
+    """The topic README leg of the same P3 fix: recording the return APPENDS
+    to the staging README, and the append must not retranslate the document
+    it appends to — a CRLF README's pre-existing bytes survive exactly, with
+    the note after them."""
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    readme = root / "ideation" / "staging" / TOPIC / "README.md"
+    crlf = b"# Ideation Governance\r\n\r\nStatus: staged\r\n"
+    readme.write_bytes(crlf)
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="README bytes.", at=AT)
+    gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    after = readme.read_bytes()
+    assert after.startswith(crlf), (
+        "the append rewrote the README's own bytes instead of only adding to them")
+    assert b"Returned drafts" in after
+
+
 # ============================================================================
 # ratify — the ratification record round-trip, validator-clean
 # ============================================================================
@@ -254,6 +315,27 @@ def test_edit_apply_replacement_block_changes_exactly_the_redline(tmp_path):
     assert {a["kind"] for a in res.gate_action_record["artifacts"]} == {"redline"}
     proc = _validate(res.record_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_a_redline_apply_preserves_crlf_on_untouched_lines(tmp_path):
+    """Wave re-review P3 — the F10 corpus-integrity class through the redline
+    verb. `edit_apply` used to `read_text` -> `write_text`, so on Linux
+    applying a redline to a CRLF document silently rewrote EVERY line ending
+    as LF — a whole-document mutation the human never approved, and one that
+    invalidates any open doxBench buffer's base identity. Both legs now run
+    translation-free: the redline span changes, and nothing else does —
+    byte-compared, CR intact."""
+    root = _tree(tmp_path)
+    crlf = ("# Proposal\r\n\r\nalpha BETA gamma\r\n\r\n## Why\r\n\r\n"
+            "untouched Windows-authored text.\r\n")
+    (root / DOC).write_bytes(crlf.encode("utf-8"))
+    redline = gc.Redline(old_text="BETA", new_text="DELTA")
+
+    res = gc.GateConsole(_gate(root)).edit_apply(CHANGE, DOC, redline, at=AT)
+
+    expected = crlf.replace("BETA", "DELTA")
+    assert (root / DOC).read_bytes() == expected.encode("utf-8")
+    assert res.after == expected
 
 
 def test_apply_redline_is_pure_and_exact():
