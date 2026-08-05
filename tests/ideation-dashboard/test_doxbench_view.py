@@ -2729,25 +2729,25 @@ def test_an_unsaved_buffer_survives_the_post_save_rekey(shell_results):
 
 def test_the_post_save_turn_still_declares_the_pre_session_base_for_unsaved_buffers(
         shell_results):
-    """RECORDED, NOT FIXED -- and pinned here so it cannot be forgotten.
+    """R-12 CLOSED (reviewer ruling 2026-08-02) -- and this pin RE-PURPOSED,
+    never deleted: it is now the record that PROVENANCE IS PRESERVED.
 
-    The scope half of the re-key is closed above. The BASE half is not:
-    `rekeyDoxBenchState` (doxbench-state.js:388-404) deliberately keeps both
-    buffers exactly as they are, and
+    `rekeyDoxBenchState` (doxbench-state.js) deliberately keeps both buffers
+    exactly as they are, and
     `test_rekeying_moves_the_scope_key_and_keeps_both_buffers_exactly`
     (test_doxbench_state.py:454) pins that byte-for-byte, including
-    `sameDocumentObject is True`. So a buffer the Save did NOT land -- the
-    refused document here, and equally any buffer that was simply clean --
-    still declares `base_ref` = the pre-session ref while the scope now names
-    the session, and `doxbench_turns._require_buffer_binding`
-    (doxbench_turns.py:432-439) refuses exactly that pairing.
-
-    Moving `base_ref` changes what the field CLAIMS about where a buffer's
-    base bytes came from, which is a reviewer's call and is outside the
-    dispositioned F1 fix shape (thread the save outcome; re-key the shell,
-    session bar and rail scope key; make the remount non-destructive; fix the
-    R-1 restore guard). Family F1's own P2 at doxbench-state.js:396 is the
-    finding; this assertion is its executable record."""
+    `sameDocumentObject is True`. So a buffer the Save did NOT land still
+    declares `base_ref` = the pre-session ref while the scope names the
+    session -- and that stays TRUE, because `base_ref` means "where these
+    base bytes came from" and must never be rewritten to something the bytes
+    did not come from. What the ruling changed is the COMPARISON:
+    `doxbench_turns._require_buffer_binding` now accepts this pairing when
+    the buffer names the ref the session branched from at the session's own
+    recorded base revision and the session has not diverged past that base
+    for this document (turn-succeeds guard:
+    test_doxbench_routes.py::test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_base;
+    divergence guard:
+    ::test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document)."""
     assert shell_results["turnDocumentBaseRef"] == "main"
     assert shell_results["turnScopeRef"] == "draft/topic-x"
 

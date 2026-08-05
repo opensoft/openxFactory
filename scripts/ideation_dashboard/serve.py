@@ -1375,12 +1375,38 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         # ---- step 5: scope, all from SERVER truth ----
         projection = None
+        session_base = None
         scope_refused = False
         try:
             entry = self.source.registry.resolve(key.repository, key.ref)
             if entry is None or entry.source_root is None:
                 scope_refused = True
             else:
+                # THE SESSION'S OWN BASE (T104 R-12): what this scope's branch
+                # was created from, recorded on the entry by the OPEN (or the
+                # bootstrap) — never by anything the request carried. It widens
+                # exactly one comparison in the binding check below: a buffer
+                # still based on the pre-session ref grounds a turn IFF its
+                # recorded base revision is the session's AND the session has
+                # not moved that document past the base — read through the same
+                # confinement and the same decoding lens as `/source` itself,
+                # so both sides hash the same character sequence. Absent
+                # (a non-session scope, an unrecorded base) the binding check
+                # keeps its original name-equality shape.
+                recorded_base = getattr(entry, "session_base", None)
+                if recorded_base:
+                    source_root = Path(entry.source_root)
+
+                    def _session_text(rel, _root=source_root):
+                        target = registry_mod.resolve_within(_root, rel)
+                        if target is None or not target.is_file():
+                            return None
+                        return doxbench_hash.served_text(target.read_bytes())
+
+                    session_base = doxbench_turns.SessionBase(
+                        ref=str(recorded_base[0]),
+                        revision=str(recorded_base[1]),
+                        text_of=_session_text)
                 snapshot = json.loads(entry.read_bytes())
                 # THE CREATED-IN-SESSION RECORD (T107; FR-043, CHK012). Every
                 # input is the ENTRY's — the repository, the ref and the worktree
@@ -1600,7 +1626,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 model_input_limit_bytes=effective_input_limit,
                 model_output_limit_bytes=effective_output_limit,
                 working_subject=working_subject, transcript=tuple(transcript_turns),
-                buffers=(outline, document), message=message)
+                buffers=(outline, document), message=message,
+                session_base=session_base)
         except doxbench_turns.TurnScopeError:
             outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED
         except doxbench_turns.TurnIdentityMismatchError:

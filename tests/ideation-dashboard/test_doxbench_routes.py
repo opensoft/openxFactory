@@ -1816,19 +1816,22 @@ def _session_worktree(tmp_path, *, documents=(SESSION_CREATED_PATH,),
 
 
 def _register_session(httpd, tmp_path, worktree, *, branch=SESSION_BRANCH,
-                      tile_id=SESSION_TILE_ID):
+                      tile_id=SESSION_TILE_ID, session_base=None):
     """Register the session's registry entry: liveness IS the entry (FR-008),
     and its `source_root` is the worktree (`branch_session.session_entry`).
 
     Nothing is opened, no git runs, and no request could have caused this -- it
-    is the server-side fact the derivation reads."""
+    is the server-side fact the derivation reads. `session_base` is the
+    `(base_ref, base_revision)` the OPEN would have recorded (T104 R-12);
+    None is the pre-wave shape and the degradation posture."""
     registry = _handler_class(httpd).source.registry
     snap = Path(tmp_path) / f"session-snapshot-{branch.replace('/', '-')}.json"
     snap.write_text(json.dumps(_snapshot()), encoding="utf-8")
     entry = branch_session.session_entry(
         "fixture-repo", branch, worktree, snapshot_path=snap,
         tile=(branch_session.Tile(branch_session.STAGED_TOPIC, tile_id)
-              if tile_id else None))
+              if tile_id else None),
+        session_base=session_base)
     registry.register(entry)
     return entry
 
@@ -1852,12 +1855,12 @@ def _session_turn(document=SESSION_CREATED_PATH, *, branch=SESSION_BRANCH, **ove
 
 
 def _post_session_turn(tmp_path, body, *, worktree, register=True, branch=SESSION_BRANCH,
-                       tile_id=SESSION_TILE_ID):
+                       tile_id=SESSION_TILE_ID, session_base=None):
     fake = _port()
     with _serving(tmp_path, model_port_factory=(lambda: fake)) as (httpd, host, prt):
         if register:
             _register_session(httpd, tmp_path, worktree, branch=branch,
-                              tile_id=tile_id)
+                              tile_id=tile_id, session_base=session_base)
         caps = _capabilities(host, prt)
         status, payload, _headers, _raw = _request(
             host, prt, "POST", CHAT_ROUTE, body=body,
@@ -1944,6 +1947,73 @@ def test_a_record_naming_another_branch_is_not_this_sessions_creation(tmp_path):
     status, payload, _fake = _post_session_turn(
         tmp_path, _session_turn(), worktree=worktree)
     _assert_refusal(status, payload, "turn_scope_refused")
+
+
+# ---- T104 R-12 (reviewer ruling 2026-08-02): a buffer based on the session's
+# ---- OWN recorded base grounds a turn; one the session diverged past does not.
+
+def test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_base(tmp_path):
+    """The R-12 acceptance, end to end: after a partial Save re-keys the scope
+    to the session, a buffer the Save did NOT land still declares the
+    pre-session base -- `rekeyDoxBenchState` deliberately keeps it
+    byte-identical, base_ref included -- and that pairing now grounds a turn,
+    because the buffer names the ref the session branched FROM at the
+    session's own recorded base revision, and the session has not moved this
+    document past that base. Provenance is preserved: nothing rewrote
+    `base_ref`, the guard's comparison is what changed."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "\nunsaved work\n",
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
+def test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document(tmp_path):
+    """The ruling's divergence clause: a landed gate action advanced the
+    session past its base FOR THIS DOCUMENT, so a buffer still claiming the
+    pre-session base may genuinely be stale and the refusal is correct --
+    staleness detection is made precise, never weakened. Without this the
+    fix would read as "accept anything from main"."""
+    worktree = _session_worktree(tmp_path)
+    target = worktree / SESSION_CREATED_PATH
+    base_text = target.read_bytes().decode("utf-8")
+    target.write_text(base_text + "\nlanded by a later gate action\n",
+                      encoding="utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text,
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex, dirty=False)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
+
+
+def test_a_session_with_no_recorded_base_still_refuses_the_pre_session_pairing(tmp_path):
+    """Degradation pin: an entry with no recorded base (opened before this
+    wave, or a marker that could not be written) keeps the original
+    name-equality binding -- honest refusal, never a crash."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text,
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex, dirty=False)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree)
+    _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
 
 
 # ---- CHK012: the request cannot declare its own created set -----------------

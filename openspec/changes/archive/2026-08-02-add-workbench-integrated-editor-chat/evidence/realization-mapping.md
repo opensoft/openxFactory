@@ -179,7 +179,7 @@ item true.
 | FR-035 | EVIDENCED | per-buffer verdicts, only landed bases advance; `test_doxbench_save.py` |
 | FR-036 | EVIDENCED | `tile_owned_prefix` + `first_edit_eligibility`; `test_session_document_ownership.py` |
 | FR-037 | EVIDENCED | no delete/merge/approve path, served checkout never written; `test_doxbench_mutation_boundary.py`, `test_session_confinement.py` |
-| FR-038 | **PARTIAL** | the Save outcome now re-keys the shell, session bar and rail (**`a57f6af`**), proven live by `test_doxbench_view.py::test_a_save_that_opens_a_session_rekeys_the_chat_rail_not_only_the_canvas`; **after a SINGLE-buffer Save the next turn is still refused** because unsaved buffers keep the pre-session `base_ref` while the scope names the session. Pinned executably by `test_the_post_save_turn_still_declares_the_pre_session_base_for_unsaved_buffers` and carried as **R-12**, a P2 awaiting a reviewer ruling (moving `base_ref` changes what the field claims) |
+| FR-038 | **EVIDENCED** | the Save outcome re-keys the shell, session bar and rail (**`a57f6af`**), proven live by `test_doxbench_view.py::test_a_save_that_opens_a_session_rekeys_the_chat_rail_not_only_the_canvas`; the R-12 residual — the post-partial-Save turn refused because unsaved buffers keep the pre-session `base_ref` — is CLOSED by the reviewer's binding ruling (2026-08-02, realized in the F5–F10 wave): `_require_buffer_binding` accepts a buffer based on the session's own recorded base revision and still refuses once the session diverged past it for that document; `base_ref` provenance and the byte-identity pin stand unchanged. Guards: `test_doxbench_routes.py::test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_base` (turn succeeds), `::test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document` (divergence), and the re-purposed `test_the_post_save_turn_still_declares_the_pre_session_base_for_unsaved_buffers` (provenance preserved) |
 | FR-039 | EVIDENCED | `clearDoxBenchSession` on merge/abandon, with the destroy-before-clear order fixed in **`a57f6af`**; `test_doxbench_view.py`, `test_doxbench_state.py` |
 | FR-040 | EVIDENCED | hosted/gate-off/source-unavailable postures retain context and remove controls; `test_doxbench_view.py` posture harness |
 | FR-041 | **PARTIAL** | desktop/narrow/keyboard-only/zoom/high-contrast measured PASS (`doxbench-t100-evidence.md`: CHK007 across all three tablists, CHK024 6.0:1/6.0:1/14.87:1, CHK025 forced colors, CHK026 reflow); **screen-reader is unexercised** — CHK034a (Edge+Narrator, primary) and CHK034b (Firefox+NVDA, secondary) are DECLARED BUT NOT RUN, and CHK035 passed as a structural proxy only. Operator-gated; tracked as R-10/CHK034a/CHK034b and as ledger task 7.4 |
@@ -211,21 +211,24 @@ item true.
 
 ## Part D — the honest gaps
 
-Five of 109 rows are PARTIAL. None is unknown; each has a named carrier.
+Five of 109 rows were PARTIAL at archive time. None was unknown; each had a
+named carrier. The F5–F10 wave (2026-08-04) closed the FR-038 row per the
+R-12 ruling — see its Part C entry — leaving the four below.
 
 | Item | Gap | Why it is not closed here | Carrier |
 |---|---|---|---|
 | FR-041, SC-010, and the CHK035 leg of the AT sheet | no screen reader has spoken this surface | operator-gated: the declared primary (Edge+Narrator) and secondary (Firefox+NVDA) legs need a human at a Windows AT plane | ledger task 7.4; `CHK034a`/`CHK034b`; R-10 |
-| FR-038 | after a single-buffer Save the next turn is still refused (unsaved buffers keep the pre-session `base_ref`) | fixing it changes what `base_ref` CLAIMS about a buffer's origin, and byte-identity is itself pinned — a product decision, not a mechanical fix | R-12, awaiting a reviewer ruling; carried into the F5-F10 wave |
 | FR-010 | selection and scroll are not restored across tab switches | `viewState()` has no production caller; found by the T104 review, dispositioned as follow-up rather than fix-first | T104 family F6 (P3) |
 | FR-045 | content-derived text direction is realized only on the chat rail | same disposition: the authoring surfaces need `dir="auto"` | T104 family F9 (P2) |
 
-Everything else — 104 of 109 rows — has an implementing code path and a test or
+Everything else — 105 of 109 rows — has an implementing code path and a test or
 an operator record that proves it.
 
 ## Coverage statement
 
 - 52 delta scenarios: 52 rows, 52 EVIDENCED.
-- 45 Speckit FRs: 45 rows, 42 EVIDENCED, 3 PARTIAL (FR-010, FR-038, FR-041).
+- 45 Speckit FRs: 45 rows, 43 EVIDENCED, 2 PARTIAL (FR-010, FR-041) —
+  FR-038 moved PARTIAL → EVIDENCED with the R-12 closure (F5–F10 wave,
+  2026-08-04).
 - 12 Speckit SCs: 12 rows, 11 EVIDENCED, 1 PARTIAL (SC-010).
 - **109 of 109 items mapped.**

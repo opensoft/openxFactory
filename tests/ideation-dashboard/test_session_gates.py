@@ -1009,6 +1009,39 @@ def test_the_owner_marker_carries_the_answer_into_the_next_process(scratch_repo,
                                     inventory=grown) == (f"{DRAFT}-2",)
 
 
+def test_the_session_base_is_recorded_at_open_and_survives_the_next_process(
+        scratch_repo, tmp_path):
+    """T104 R-12 (reviewer ruling 2026-08-02): the OPEN is the one place the
+    branch point is known, so it records `(base_ref, base_revision)` on the
+    entry and durably in the same marker the owner rides; the FR-008
+    bootstrap re-derives it, and a marker that predates the base keys
+    recovers from git's own fork point. This is what lets the chat-turn
+    binding check accept a buffer still based on the pre-session ref after
+    any restart."""
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    fork = sg.SessionGit(scratch_repo.root).head(ref="main")
+
+    entry = registry.get(REPO, DRAFT)
+    assert entry is not None and entry.session_base == ("main", fork)
+    assert bs.read_base_marker(scratch_repo.root, DRAFT) == ("main", fork)
+
+    fresh = reg.SnapshotRegistry()                   # a NEW process's registry
+    bs.bootstrap_sessions(fresh, repository=REPO, checkout_root=scratch_repo.root)
+    rederived = fresh.get(REPO, DRAFT)
+    assert rederived is not None and rederived.session_base == ("main", fork)
+
+    # a marker WITHOUT the base keys (a session opened before this wave)
+    # degrades to git's fork point, not to a failure
+    bs.write_owner_marker(scratch_repo.root, DRAFT,
+                          bs.Tile(bs.STAGED_TOPIC, TOPIC))
+    assert bs.read_base_marker(scratch_repo.root, DRAFT) is None
+    recovered = reg.SnapshotRegistry()
+    bs.bootstrap_sessions(recovered, repository=REPO,
+                          checkout_root=scratch_repo.root)
+    entry = recovered.get(REPO, DRAFT)
+    assert entry is not None and entry.session_base == ("main", fork)
+
+
 def test_an_ownerless_live_ordinal_is_an_ambiguity_and_never_an_absence(
         scratch_repo, tmp_path):
     """With no owner recorded anywhere — a session that predates the marker, or a

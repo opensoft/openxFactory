@@ -1024,6 +1024,16 @@ class SessionGit:
         return self.git(Path(cwd) if cwd else self.served_root,
                         "rev-parse", "--abbrev-ref", "HEAD")
 
+    def merge_base(self, base: str, branch: str) -> str | None:
+        """`git merge-base <base> <branch>` — the revision the branch forked
+        from. A READ whose failure (unrelated histories, an absent ref) is an
+        answer: None. It is how a session's recorded base is re-derived when
+        the OPEN that knew it is a previous process (T104 R-12): a session
+        branch is created FROM its base and every gate action commits on the
+        branch alone, so the merge base IS the branch point."""
+        ok, sha = self._try(self.served_root, "merge-base", base, branch)
+        return sha or None if ok else None
+
     def is_ancestor(self, ref: str, base: str) -> bool:
         """`git merge-base --is-ancestor <ref> <base>` — whether `base` already
         CONTAINS `ref`'s tip. A READ whose failure is an answer.
