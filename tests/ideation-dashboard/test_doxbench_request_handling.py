@@ -218,8 +218,8 @@ def test_the_tiny_reader_drains_an_over_cap_body_before_refusing():
     could destroy the queued refusal before the client read it — the refusal
     raced its own transport, intermittently, under load. The reader now
     DRAINS the refused body first: fully for anything a real client sends
-    (bounded by `DOXBENCH_MAX_REQUEST_BYTES`), in small chunks so the drain
-    never buffers what it refuses to parse."""
+    (bounded by the shared `_MAX_REFUSED_DRAIN_BYTES`, W-5/W-6), in small
+    chunks so the drain never buffers what it refuses to parse."""
     body = b"x" * (serve_mod._MAX_BODY_BYTES + 200)
     fake = _FakeRequest(_headers_for(body), body)
     result = serve_mod.DashboardHandler._read_json_body(fake)
@@ -233,7 +233,82 @@ def test_the_tiny_reader_drains_an_over_cap_body_before_refusing():
     # never read to completion
     liar = _FakeRequest({"Content-Length": str(10**9)}, b"x" * 1024)
     assert serve_mod.DashboardHandler._read_json_body(liar) is None
-    assert sum(liar.rfile.read_sizes) <= serve_mod.DOXBENCH_MAX_REQUEST_BYTES
+    assert sum(liar.rfile.read_sizes) <= serve_mod._MAX_REFUSED_DRAIN_BYTES
+
+
+def test_the_bounded_reader_drains_a_refused_body_with_the_same_posture():
+    """W-6 (wave re-review): the bounded reader used to pull only
+    `max_bytes + 1` of an over-cap body and abandon the remainder on the
+    socket — so on the chat-turn route AND on `first-edit` (the route the
+    F5-6 carve-out had just widened) the measured 413 could still be
+    destroyed by the close-with-unread reset. Both readers now share one
+    drain: chunked, and bounded by `_MAX_REFUSED_DRAIN_BYTES` rather than a
+    per-reader band."""
+    declared = serve_mod.DOXBENCH_MAX_REQUEST_BYTES + 200_000
+    body = b"x" * declared
+    payload, refusal, fake = _bounded_call(
+        _headers_for(body), body, max_bytes=serve_mod.DOXBENCH_MAX_REQUEST_BYTES)
+    assert payload is None
+    assert refusal == {"dimension": "request_body_bytes",
+                       "measured": declared,
+                       "maximum": serve_mod.DOXBENCH_MAX_REQUEST_BYTES}
+    assert sum(fake.rfile.read_sizes) >= declared, \
+        "the refused body was left partially unread on the socket"
+    assert all(n <= serve_mod._MAX_BODY_BYTES for n in fake.rfile.read_sizes)
+    # a lying declaration past the shared ceiling stays bounded
+    liar = _FakeRequest({"Content-Length": str(10**9)}, b"x" * 1024)
+    _p, _r = serve_mod.DashboardHandler._read_bounded_json_body(
+        liar, max_bytes=serve_mod.DOXBENCH_MAX_REQUEST_BYTES,
+        dimension="request_body_bytes")
+    assert sum(liar.rfile.read_sizes) <= serve_mod._MAX_REFUSED_DRAIN_BYTES
+
+
+def test_a_stalled_over_cap_body_is_bounded_by_the_socket_timeout(tmp_path):
+    """W-5 (wave re-review): the drain without a socket timeout traded an
+    instant 400 for an UNBOUNDED block — a client declaring an over-cap body
+    and then going silent pinned a handler thread and its connection forever
+    (no timeout existed anywhere on this server). `DashboardHandler.timeout`
+    now bounds every socket read, so the stalled drain raises and the thread
+    exits. Driven with a real server, a real half-sent body, and a shrunken
+    timeout so the test proves the BOUND, not the default's exact value."""
+    import socket as socket_mod
+    import time as time_mod
+    assert serve_mod.DashboardHandler.timeout is not None
+    with _serving(tmp_path) as (httpd, host, port):
+        handler = _handler_class(httpd)
+        original = handler.timeout
+        handler.timeout = 0.4
+        try:
+            caps = _capabilities(host, port)
+            declared = serve_mod._MAX_BODY_BYTES + 10_000
+            raw = socket_mod.create_connection((host, port), timeout=5)
+            try:
+                raw.sendall(
+                    b"POST /actions/gate/ratify HTTP/1.1\r\n"
+                    b"Host: local\r\n"
+                    b"Content-Type: application/json\r\n"
+                    + f"X-XF-Console-Token: {caps['console_token']}\r\n".encode()
+                    + f"Content-Length: {declared}\r\n\r\n".encode()
+                    + b"x" * 1024)  # ...and then silence
+                started = time_mod.monotonic()
+                raw.settimeout(10)
+                answer = b""
+                try:
+                    while True:
+                        got = raw.recv(4096)
+                        if not got:
+                            break
+                        answer += got
+                except OSError:
+                    pass
+                elapsed = time_mod.monotonic() - started
+            finally:
+                raw.close()
+            # the connection ENDED promptly (refusal delivered or reset) —
+            # never a thread parked in read() for the life of the process
+            assert elapsed < 5, f"stalled body held the connection {elapsed:.1f}s"
+        finally:
+            handler.timeout = original
 
 
 def test_bounded_reader_accepts_exactly_the_boundary_and_refuses_one_byte_over():

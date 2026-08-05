@@ -136,6 +136,38 @@ LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 JSON_CTYPE = "application/json; charset=utf-8"
 JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
 _MAX_BODY_BYTES = 65_536  # a tile-action body is tiny; cap it to refuse a flood
+
+# W-5/W-6 (wave re-review): how much of a REFUSED body a reader will
+# read-and-discard so the refusal survives its own transport. Sized past the
+# largest body a real client can legally compose (a maximal 400,000-byte
+# buffer JSON-escapes to under 2.5 MiB); a sender past this is a flood, and
+# its connection closes with bytes unread. Shared by BOTH readers — the tiny
+# global-cap reader and the route-specific bounded reader — so the
+# refusal-races-its-own-transport fix has one posture, not a band.
+_MAX_REFUSED_DRAIN_BYTES = 4 * 1024 * 1024
+
+
+def _drain_refused_body(rfile, declared: int) -> None:
+    """Read and DISCARD a refused body so the refusal survives its own
+    transport (T104 F5/F8; wave re-review W-5/W-6). Chunked in cap-sized
+    reads (never buffering what it refuses to parse) and bounded by
+    `_MAX_REFUSED_DRAIN_BYTES` — beyond it the sender is a flood, not a
+    client whose refusal needs to survive, and the connection closes with
+    bytes unread. A read that stops arriving raises out of the socket
+    timeout (`DashboardHandler.timeout`) rather than blocking forever: the
+    drain without that bound traded an instant refusal for an unbounded
+    block, which was strictly worse (W-5). Module-level over a bare file
+    object so the request-shaped test doubles need nothing beyond `.rfile`.
+    """
+    remaining = min(declared, _MAX_REFUSED_DRAIN_BYTES)
+    try:
+        while remaining > 0:
+            chunk = rfile.read(min(remaining, _MAX_BODY_BYTES))
+            if not chunk:
+                break
+            remaining -= len(chunk)
+    except OSError:
+        return
 _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh": False,
                                     "session": False, "edit": False},
                          "actor": None, "refresh": {"binding": None, "loopback_only": True}}
@@ -833,6 +865,16 @@ def _head_of(checkout_root: Path, git=None) -> str | None:
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     """Static bundle + snapshot + read-only source pass-through. Bound
     subclasses set the class attributes below via `build_server`."""
+
+    # W-5 (wave re-review): one stalled or lying client must never pin a
+    # handler thread forever. `StreamRequestHandler.timeout` puts a socket
+    # timeout on every read and write of the connection (setup() calls
+    # settimeout), so a body that stops arriving — including mid-DRAIN of a
+    # refused over-cap body, which without this blocked UNBOUNDEDLY — raises
+    # OSError instead. The value bounds NETWORK SILENCE, never request
+    # duration: a slow model dispatch performs no socket operation while it
+    # waits, and a healthy local client is orders of magnitude faster.
+    timeout = 30
 
     checkout_root: Path = Path(".")
     snapshot_path: Path = Path("snapshot.json")
@@ -2344,24 +2386,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # carried "65kb test" flake, closed at its root). Refusing with
             # every byte unread closed the socket on a client still mid-body,
             # and the kernel's reset could destroy the queued 400 before the
-            # client read it — the refusal raced its own transport. Drained
-            # in cap-sized chunks (never buffering what it refuses to parse)
-            # and bounded by the widest bound any route declares, so a lying
-            # gigabyte Content-Length still cannot make this read forever.
-            remaining = min(length, DOXBENCH_MAX_REQUEST_BYTES)
-            try:
-                while remaining > 0:
-                    chunk = self.rfile.read(min(remaining, _MAX_BODY_BYTES))
-                    if not chunk:
-                        break
-                    remaining -= len(chunk)
-            except OSError:
-                pass
+            # client read it — the refusal raced its own transport.
+            _drain_refused_body(self.rfile, length)
             return None
         try:
             return json.loads(self.rfile.read(length).decode("utf-8"))
         except (OSError, ValueError):  # UnicodeDecodeError is a ValueError
             return None
+
 
     def _read_bounded_json_body(self, max_bytes: int, dimension: str):
         """Route-specific bounded JSON body reader (T024, research R7).
@@ -2399,13 +2431,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if declared <= 0:
             return None, None
         if declared > max_bytes:
-            # Drain at most max_bytes + 1 bytes — enough to know the body is
-            # over the bound, never enough to buffer an unbounded flood no
-            # matter how large the declared length lies.
-            try:
-                self.rfile.read(max_bytes + 1)
-            except OSError:
-                pass
+            # Drain the refused body (W-6: this reader used to pull only
+            # max_bytes + 1 and abandon the remainder on the socket, so the
+            # measured 413 could still be destroyed by the close-with-unread
+            # reset — the same race the tiny reader's drain closes). Same
+            # shared posture: chunked, bounded, and backed by the socket
+            # timeout so a stalled sender raises instead of holding the
+            # thread.
+            _drain_refused_body(self.rfile, declared)
             return None, {"dimension": dimension, "measured": declared,
                           "maximum": max_bytes}
         try:
