@@ -1,0 +1,17 @@
+# workflow-job commissioning descriptor — recorded + gated; the authoring runs externally.
+kind: workflow-job
+schema_version: 1
+topic_id: tier2-council-clearance-pattern
+workflow: proposal-authoring
+gate_contract: workflow-gate
+authoring_outline: 'Author the OpenSpec change for staging topic ''tier2-council-clearance-pattern'':
+  proposal, design decisions, tasks, spec deltas, strict validation, README record
+  — delivered for human review and ratification.'
+status: delivered
+dispatched_by: brettheap
+dispatched_at: '2026-08-05T11:06:44Z'
+# Delivered 2026-08-05 by the fulfilling terminal session: OpenSpec change
+# openspec/changes/add-council-clearance-rule-template/ (proposal, design,
+# tasks, council-clearance-gate-rule spec delta; strict validation green),
+# README OpenSpec Records entry, INDEX readiness update, and the register
+# pick edge's change_id inheritance — in one commit with this flip.

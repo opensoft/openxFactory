@@ -2498,6 +2498,7 @@ possibles_register:
   state: picked
   pick:
     staging_id: tier2-council-clearance-pattern
+    change_id: add-council-clearance-rule-template
   origin: ai-derived
   provenance:
     document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
