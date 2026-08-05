@@ -262,17 +262,6 @@ Active changes:
   neutrality.py`, `neutrality-prompt.md`, `neutrality_dispatch.py`,
   runner + reusable-workflow wiring, the codexFactory 2026-08-03 baseline
   marker); verification 3.x awaits the first live nightly.
-- [adopt-neutral-utility-pack](openspec/changes/adopt-neutral-utility-pack/proposal.md)
-  — authored 2026-08-03: the neutral utility pack comes home
-  (DTN-018/019/021): the three domain-repo conformance checks (inventory
-  consistency, workflow state parity, openxFactory pin ancestry) and the
-  proposal-support supporting-document mover move from codexFactory to
-  openxFactory with their test suites — the run-from-pinned rule's owner
-  now hosts what domain repos consume, and doc-health family 5's producer
-  joins its checker — and the subject/tenant Hermes layer-template schema
-  joins `contracts/hermes-domain-overlay/` with a neutralized `$id`.
-  Provenance pin codexFactory main@1568c54b; codexFactory sheds in the
-  named follow-up (change/shed-neutral-utility-pack).
 - [adopt-neutral-tooling-home](openspec/changes/adopt-neutral-tooling-home/proposal.md)
   — authored 2026-08-03: the doc-health checker suite, the ideation
   dashboard runtime, the cross-factory routing/organizer lanes, and the
@@ -483,6 +472,14 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [adopt-neutral-utility-pack](openspec/changes/archive/2026-08-04-adopt-neutral-utility-pack/proposal.md)
+  The neutral utility pack came home (DTN-018/019/021): the three
+  domain-repo conformance checks and the proposal-support mover moved from
+  codexFactory to openxFactory with their test suites, and the
+  subject/tenant Hermes layer-template schema joined
+  `contracts/hermes-domain-overlay/` with a neutralized `$id`. Archived
+  2026-08-04 after the codexFactory shed landed (PR #73, merge 25e46fd1bf)
+  and DTN-018/019/021 moved to `adopted`.
 - [add-workbench-branch-sessions](openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/proposal.md)
   Promoted branch-per-tile working sessions into `ideation-dashboard`:
   commit-per-gate-action on a `draft/` branch, session-local snapshots the
