@@ -83,7 +83,12 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # corpus moves stay a separate human-run step), and the three
                    # commission verbs join as ordinary recorded dispatches.
                    "demote", "promote-to-staging", "derive-possibles",
-                   "research-brief")
+                   "research-brief",
+                   # T104 F10: the doxBench governed Save joined the if-chain
+                   # (and SESSION_BEARING_VERBS) when it landed; the declaration
+                   # here lagged, so the roster disagreed with what the route
+                   # actually executes.
+                   "first-edit")
 
 # The verbs that can OPEN, WRITE INTO, or END a branch session. They are the
 # verbs whose write lands in a per-repository worktree, so they are the verbs

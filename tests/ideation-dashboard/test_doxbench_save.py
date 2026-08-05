@@ -283,6 +283,24 @@ def test_a_base_hash_that_no_longer_matches_the_file_is_refused(scratch_repo):
     assert OUTLINE in refusal
 
 
+def test_a_crlf_document_edited_from_its_served_bytes_is_no_refusal(scratch_repo):
+    """T104 F10: the base revalidation reads through the SAME lens the client
+    hashed. `/source` serves verbatim bytes and the browser's `Response.text()`
+    keeps CR and CRLF, while `Path.read_text`'s universal-newline translation
+    collapses them -- so a CRLF document's base was recomputed over text the
+    client never saw and every honest Save of it was refused as stale,
+    forever. The buffer's declared base below is exactly what the client
+    computes: the hash of the served bytes, CRLF intact."""
+    crlf = "# Demo Topic\r\n\r\nauthored on Windows.\r\n"
+    (scratch_repo.root / OUTLINE).write_bytes(crlf.encode("utf-8"))
+
+    refusal = bs.first_edit_base_refusal(
+        document=OUTLINE, root=scratch_repo.root,
+        action=gc.ACTION_EDIT_DOCUMENT, base_hash=dh.sha256_hex(crlf))
+
+    assert refusal is None
+
+
 def test_an_edit_of_a_vanished_file_is_refused_rather_than_recreated(
         scratch_repo):
     """A document that has been removed underneath the buffer is not silently

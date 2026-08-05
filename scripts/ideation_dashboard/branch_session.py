@@ -4311,7 +4311,14 @@ def first_edit_base_refusal(*, document: str, root: Path | str, action: str,
                 "against the bytes it would replace, and an unrevalidatable "
                 "overwrite is refused rather than trusted (FR-032).")
     try:
-        current = doxbench_hash.sha256_hex(target.read_text(encoding="utf-8"))
+        # T104 F10: read through the SAME lens the client hashed. `/source`
+        # serves verbatim bytes and the browser's `Response.text()` keeps CR
+        # and CRLF (dropping only a leading BOM), while `Path.read_text`'s
+        # universal-newline translation collapses them — so a CRLF document's
+        # base was recomputed over text the client never saw and every honest
+        # Save of it was refused as stale, forever.
+        current = doxbench_hash.sha256_hex(
+            doxbench_hash.served_text(target.read_bytes()))
     except (OSError, ValueError, UnicodeDecodeError) as exc:
         return (f"refusing to rewrite {document!r}: its current bytes could not "
                 f"be read to revalidate the base ({exc})")

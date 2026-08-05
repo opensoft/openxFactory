@@ -180,7 +180,11 @@ class OutputBoundary:
                 "corpus documents are create-only; an existing document is never "
                 "rewritten by machinery or an agent")
         resolved.parent.mkdir(parents=True, exist_ok=True)
-        resolved.write_text(text, encoding="utf-8")
+        # newline="" pins the bytes exactly as composed (T104 F10 / FR-045):
+        # without it, write_text translates \n to os.linesep, so the same
+        # buffer would land different bytes on different platforms and the
+        # base identity the client hashed would drift from the file.
+        resolved.write_text(text, encoding="utf-8", newline="")
         return resolved
 
     # ---- the ONE rewrite allowance: an existing target inside a session worktree ----
@@ -242,7 +246,10 @@ class OutputBoundary:
                 SOURCE_EDIT, rel,
                 "this path REWRITES an existing document; bringing a new "
                 "document into existence stays the create-only create path")
-        resolved.write_text(text, encoding="utf-8")
+        # newline="" for the same reason as create_document: the rewritten
+        # bytes must be exactly the replacement the buffer's identity
+        # describes, on every platform (T104 F10 / FR-045).
+        resolved.write_text(text, encoding="utf-8", newline="")
         return resolved
 
     # ---- explicit edit/delete refusals (agent asked to mutate an existing doc) ----
