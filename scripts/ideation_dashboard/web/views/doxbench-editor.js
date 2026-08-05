@@ -490,10 +490,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       picker.addEventListener("change", async () => {
         const target = picker.value;
         const result = await selectDocument(target);
-        if (result.status === "blocked") {
-          // Never silently replace the edited buffer, and never leave the
-          // control lying about which document is actually active.
-          picker.value = activeDocumentPath;
+        if (result.status === "switched" || result.status === "unchanged") {
+          return;
+        }
+        // Never silently replace the edited buffer, and never leave the
+        // control lying about which document is actually active. W-9 (wave
+        // re-review): this used to revert only the "blocked" outcome, so a
+        // change REFUSED during the loading window (the F6-2 posture) left
+        // the picker showing a choice that never landed — forever, since
+        // nothing later re-synced it — and the refusal itself was invisible.
+        picker.value = activeDocumentPath == null ? "" : activeDocumentPath;
+        if (result.status === "refused" && statusEls.document) {
+          // the same visible vocabulary every other refusal uses
+          // (CHK016/CHK019); "blocked" stays silent here — the guard IS
+          // its statement
+          statusEls.document.textContent = "refused -- " + result.reason;
         }
       });
       pickerLabel.appendChild(picker);
@@ -1100,12 +1111,22 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   }
 
   async function switchDocument(path) {
+    // W-8 (wave re-review): the guard's Save arm awaits a Save whose
+    // onSaveLanded hand-off can REMOUNT this canvas (the shell's recanvas on
+    // a key change destroys the controller). Continuing here on the corpse
+    // mutated state, PERSISTED under the rekeyed session key after destroy()
+    // had written its own record — a reload in that window resurrected the
+    // wrong active document — and fired a late onIdentitySettled into a
+    // torn-down composition. Checked at entry AND after the awaited loads,
+    // because the destroy can land during either window.
+    if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     forgetSaveOutcome("document");
     const descriptor = await loadDescriptor("document", path);
     const buffer = await createBufferState(
       { kind: "document", repository: scopeKey().repository, ...descriptor },
       hashOptions,
     );
+    if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     state = replaceBuffer(state, buffer);
     activeDocumentPath = path;
     if (documentPicker) documentPicker.value = path == null ? "" : path;
@@ -1156,6 +1177,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       }
       if (saving) return { status: "refused", reason: SAVE_BUSY_REASON };
       const outcome = await save();
+      // W-8: the Save above may have triggered the shell's remount (its
+      // onSaveLanded hand-off destroys this controller when the key moves).
+      // The corpse must stop HERE — the fresh mount owns everything after.
+      if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
       if (state.buffers.document.dirty) {
         // The Document did not land, so there is nothing to switch away from
         // safely: the guard stays open, states WHY in its own assertive region,

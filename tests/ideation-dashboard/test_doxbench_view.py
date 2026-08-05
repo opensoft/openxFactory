@@ -951,6 +951,37 @@ async function inputRefusalScenario() {
   return { surrogate, oversized };
 }
 
+// W-8/W-9 companion (wave re-review): a picker CHANGE during the loading
+// window. selectDocument refuses it (the F6-2 loading posture), but the
+// change handler used to revert the DISPLAYED value only on "blocked" -- so
+// the picker kept showing the choice that never landed, FOREVER, silently
+// lying about which document edits land in and turns ground on.
+async function pickerDuringLoadScenario() {
+  let releaseLoad;
+  const gate = new Promise((resolve) => { releaseLoad = resolve; });
+  const inner = makeLoadSource(CONTENT, []);
+  const gated = async (path) => { await gate; return inner(path); };
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: gated, storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  const picker = controller.elements().documentPicker();
+  picker.value = DOC_B;
+  await fireEvent(picker, 'change');       // refused: the load is still open
+  const duringLoad = {
+    pickerValue: picker.value,
+    status: String(controller.elements().status('document').textContent),
+  };
+  releaseLoad();
+  await controller.ready;
+  return {
+    duringLoad,
+    afterLoad: {
+      pickerValue: picker.value,
+      bufferPath: controller.state().buffers.document.path,
+    },
+  };
+}
+
 // B3: once a buffer has ANY typed content, that content must render and the
 // dirty fact must be reported -- load_state alone (which the state module
 // preserves across every edit on purpose) must never keep showing the
@@ -1351,6 +1382,7 @@ const results = {
   editThenDiscardBeforeSettle: await editThenDiscardBeforeSettleScenario(),
   editThenSwitchBeforeSettle: await editThenSwitchBeforeSettleScenario(),
   inputRefusal: await inputRefusalScenario(),
+  pickerDuringLoad: await pickerDuringLoadScenario(),
   typedOutlineOverridesEmpty: await typedOutlineOverridesEmptyScenario(),
   typedDocumentOverridesUnavailable: await typedDocumentOverridesUnavailableScenario(),
   outOfScopeSelectDocument: await outOfScopeSelectDocumentScenario(),
@@ -2212,6 +2244,38 @@ async function guardSave() {
            guardHidden: !!controller.elements().guard().hidden };
 }
 
+// ---- W-8: the guard's Save arm survives the remount its own Save triggers --
+async function guardSaveIntoRemount() {
+  const identitySettled = [];
+  let controllerRef = null;
+  const { controller, storage } = await mount({
+    save: seamFor({}),
+    // The shell's recanvas analogue: a Save that lands on a session ref
+    // makes staging-workbench destroy this controller and remount a fresh
+    // one. The corpse used to keep going -- switchDocument mutated state,
+    // PERSISTED under the rekeyed key after destroy() had written its own
+    // record, and fired a late onIdentitySettled into the torn-down
+    // composition.
+    onSaveLanded: async () => { if (controllerRef) controllerRef.destroy(); },
+    onIdentitySettled: (kind) => identitySettled.push(kind),
+  });
+  controllerRef = controller;
+  await controller.edit('document', '# Document A edited\n');
+  const blocked = await controller.selectDocument(OUTLINE_PATH);
+  const settledBeforeResolve = identitySettled.length;
+  const resolved = await controller.resolveGuard('save');
+  const lastKey = [...storage.values.keys()].pop();
+  const record = JSON.parse(storage.values.get(lastKey));
+  return {
+    blocked: blocked.status,
+    resolved,
+    // the save's OWN adopted-kind notification is legitimate; a second
+    // 'document' fire would be the corpse's switchDocument
+    identityAfterResolve: identitySettled.slice(settledBeforeResolve),
+    persistedDocumentPath: record.buffers.document.path,
+  };
+}
+
 // ---- the unwired posture, in this same harness ---------------------------
 async function noSeam() {
   const { controller, host } = await mount({});
@@ -2233,6 +2297,7 @@ console.log(JSON.stringify({
   rekey: await rekey(),
   nothingDirty: await nothingDirty(),
   guardSave: await guardSave(),
+  guardSaveIntoRemount: await guardSaveIntoRemount(),
   noSeam: await noSeam(),
 }));
 """
@@ -3312,3 +3377,39 @@ def test_a_proposal_enters_through_the_same_eol_lens_as_a_keystroke(
     # and the LF control: the lens applies the document's OWN flavor
     lf_applied = editor_results["eolPreservation"]["lfApplied"]
     assert lf_applied["content"] == "# Document A\nmodel rewrite\n"
+
+
+def test_the_guard_save_arm_stops_on_the_remount_its_own_save_triggers(
+        save_seam_results):
+    """W-8 (wave re-review): the guard's Save arm awaits a Save whose
+    onSaveLanded hand-off REMOUNTS this canvas (the shell's recanvas on a key
+    change destroys the controller). The corpse used to keep going:
+    switchDocument mutated state, PERSISTED under the rekeyed session key
+    after destroy() had written its own record — a reload in that window
+    resurrected the wrong active document — and fired a late
+    onIdentitySettled into the torn-down composition. The arm now re-checks
+    destroyed after the await, and switchDocument refuses on a corpse."""
+    remount = save_seam_results["guardSaveIntoRemount"]
+    assert remount["blocked"] == "blocked"
+    assert remount["resolved"]["status"] == "refused"
+    # the save's OWN adopted-kind notification is the only one — no late
+    # switch-fire from the destroyed controller
+    assert remount["identityAfterResolve"] == ["document"]
+    # the persisted record is destroy()'s own: the pre-switch document
+    assert remount["persistedDocumentPath"] == "ideation/staging/topic-x/detail.md"
+
+
+def test_a_picker_change_during_the_load_reverts_and_states_the_refusal(
+        editor_results):
+    """W-9 (wave re-review): a change during the loading window is refused by
+    the F6-2 posture, but the handler reverted the DISPLAYED value only on
+    "blocked" — the picker then showed the choice that never landed, forever,
+    lying about which document edits land in and turns ground on. The picker
+    now reverts on every non-switched outcome and the refusal is stated
+    through the same visible status idiom every other refusal uses."""
+    probe = editor_results["pickerDuringLoad"]
+    doc_a = "ideation/staging/topic-x/detail.md"
+    assert probe["duringLoad"]["pickerValue"] == doc_a
+    assert "refused --" in probe["duringLoad"]["status"]
+    assert probe["afterLoad"]["pickerValue"] == doc_a
+    assert probe["afterLoad"]["bufferPath"] == doc_a
