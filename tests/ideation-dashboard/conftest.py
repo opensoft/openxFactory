@@ -35,12 +35,18 @@ FIXTURES = HERE / "fixtures"
 BASE_REPO = FIXTURES / "base-repo"
 NEGATIVES = FIXTURES / "negatives"
 
-# The pinned openxFactory validator, discovered by walking up to the aggregation
-# checkout (the sibling of this repo). None when no checkout is reachable, in
-# which case validator-backed tests skip rather than fail.
+# The openxFactory validator. Since adopt-neutral-tooling-home (2026-08-03)
+# this runtime lives INSIDE openxFactory, so the repo's own validator IS the
+# reachable contract; the parent walk to a sibling `openxFactory/` checkout
+# remains as a fallback for a checkout of the pre-relocation layout. None when
+# no validator is reachable, in which case validator-backed tests skip rather
+# than fail.
 def find_openxfactory_validator(start: Path | None = None) -> Path | None:
-    rel = Path("openxFactory") / "scripts" / "validate-ideation-dashboard-contracts.py"
     base = (start or REPO_ROOT).resolve()
+    own = base / "scripts" / "validate-ideation-dashboard-contracts.py"
+    if own.is_file():
+        return own
+    rel = Path("openxFactory") / "scripts" / "validate-ideation-dashboard-contracts.py"
     for d in [base, *base.parents]:
         candidate = d / rel
         if candidate.is_file():

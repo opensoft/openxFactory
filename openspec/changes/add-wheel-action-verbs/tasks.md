@@ -40,66 +40,82 @@
 
 ## 2. Engine + routes (codexFactory — Speckit-side realization)
 
-- [ ] 2.1 `gate_console.py`: `ACTION_PROMOTE_TO_STAGING`,
+Realized as codexFactory Speckit feature 011 (wheel-action-verbs) and adopted
+into openxFactory by `adopt-neutral-tooling-home` Tranche B (82ae3d8,
+2026-08-03) — the dashboard runtime now lives at
+`scripts/ideation_dashboard/`, so the "codexFactory" file paths below resolve
+here. Verified item-by-item against the adopted tree 2026-08-04.
+
+- [x] 2.1 `gate_console.py`: `ACTION_PROMOTE_TO_STAGING`,
       `ACTION_DERIVE_POSSIBLES`, `ACTION_RESEARCH_BRIEF`;
       `build_gate_action_record` grows `cluster_id`.
-- [ ] 2.2 `gate_console.py`: promotability predicate over the possibles
+- [x] 2.2 `gate_console.py`: promotability predicate over the possibles
       register — `latent` + (human-authored | accepted human disposition)
       promotable; `pending_review` / `rejected` / `superseded` / `picked`
       refused with the state as the reason (design D3).
-- [ ] 2.3 `kickoff.py`: generalize the undelivered-commission scan into one
+- [x] 2.3 `kickoff.py`: generalize the undelivered-commission scan into one
       index keyed by (verb, target id), replacing
       `dispatched_propose_topics` with the shared helper (propose keeps its
       behaviour).
-- [ ] 2.4 `kickoff.py`: `promote_to_staging()` — human-only, register-entry
+- [x] 2.4 `kickoff.py`: `promote_to_staging()` — human-only, register-entry
       existence + promotability guards, duplicate refusal, `workflow-job`
       descriptor (workflow `staging-fragment-authoring`, `possible_id`
       target, optional proposed topic slug) + gate-action record; NO register
       mutation (design D4).
-- [ ] 2.5 `kickoff.py`: `derive_possibles()` — human-only, cluster existence
+- [x] 2.5 `kickoff.py`: `derive_possibles()` — human-only, cluster existence
       guard against the snapshot, duplicate refusal, `workflow-job`
       descriptor (workflow `derive-possibles`, `cluster_id` target) +
       gate-action record.
-- [ ] 2.6 `kickoff.py`: `research_brief()` — human-only, register-entry
+- [x] 2.6 `kickoff.py`: `research_brief()` — human-only, register-entry
       existence guard, duplicate refusal, legal while the possible is
       undisposed, `workflow-job` descriptor (workflow
       `possible-research-brief`, `possible_id` target) + gate-action record;
       never disposes and never edits the entry.
-- [ ] 2.7 `gate_routes.py`: `EXECUTING_VERBS` gains `demote`,
+- [x] 2.7 `gate_routes.py`: `EXECUTING_VERBS` gains `demote`,
       `promote-to-staging`, `derive-possibles`, `research-brief`; four
       handlers with the dispose-possible response discipline (structured
       refusal, `message` = engine reason, nothing persisted). `demote`
       requires `reason` and returns the recorded plan path — it does NOT
       execute the plan (design D1).
-- [ ] 2.8 `cli.py`: `gate promote-to-staging <possible-id>` (`--topic`,
+- [x] 2.8 `cli.py`: `gate promote-to-staging <possible-id>` (`--topic`,
       `--note`), `gate derive-possibles <cluster-id>` (`--note`),
       `gate research-brief <possible-id>` (`--note`); update the existing
       `gate demote` help to name the executing route as its dashboard peer.
-- [ ] 2.9 `GateConsole` delegates for the three new verbs, mirroring
+- [x] 2.9 `GateConsole` delegates for the three new verbs, mirroring
       `GateConsole.propose`.
 
 ## 3. Wheel action rows (codexFactory — Speckit-side realization)
 
-- [ ] 3.1 `views/wheel-model.js` `WHEEL_ACTIONS`: `clusters` gains
+- [x] 3.1 `views/wheel-model.js` `WHEEL_ACTIONS`: `clusters` gains
       `derive-possibles`; `possibles` gains `promote-to-staging` (visible
       only when the item is promotable) and `research-brief` (visible while
       undisposed); the change-bearing column gains `demote`. Every row keeps
       the `!!env.gate && !env.commissioned` shape so a commissioned verb
       retires for the session.
-- [ ] 3.2 `views/wheel.js` `ACTION_MOUNTERS`: one mounter per new verb;
+- [x] 3.2 `views/wheel.js` `ACTION_MOUNTERS`: one mounter per new verb;
       `demote` collects the required reason before dispatch; refusals render
       in the refusal panel textContent-only; success decorates the tile as a
       session-local overlay (the snapshot is never mutated).
-- [ ] 3.3 Pure-model tests for `actionsFor` across the three columns
+- [x] 3.3 Pure-model tests for `actionsFor` across the three columns
       (promotable vs pending vs rejected possible, cluster, change tile,
       gate off, already-commissioned).
 
 ## 4. Verification
 
-- [ ] 4.1 Engine + route tests green: accept path per verb, missing target,
+- [x] 4.1 Engine + route tests green: accept path per verb, missing target,
       non-promotable possible (each refused state), undisposed-possible
       research brief ACCEPTED, duplicate commission, unreasoned demote,
       agent-path rejection, and demote leaving the corpus untouched.
+      (Verified 2026-08-04: every named scenario present in
+      `tests/ideation-dashboard/test_kickoff.py` / `test_gate_routes.py`;
+      full `tests/ideation-dashboard/ + tests/ideation_dashboard/` run
+      2572 passed, 18 skipped, 0 failed. The 011 T056–T059a DEP-003
+      conformance group went live in the same pass:
+      `find_openxfactory_validator` now prefers this repo's own
+      validator — post-relocation the contract co-lives with the runtime,
+      so the sibling walk-up resolved a STALE aggregation checkout and
+      kept the group skipping after the contract had already shipped in
+      `contract-v1.29`.)
 - [x] 4.2 Schema conformance tests: one valid intent and one valid record per
       new verb; a record missing its `workflow-job` companion rejected; a
       `derive-possibles` record without `cluster_id` rejected.
