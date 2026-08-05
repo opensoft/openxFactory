@@ -7,6 +7,14 @@ gate_contract: workflow-gate
 authoring_outline: 'Run the bounded, read-only derive-possibles lane scoped to cluster
   ''cl-kill-switch''; candidates arrive origin: ai-derived with machine disposition
   pending_review and await a human verdict.'
-status: dispatched
+status: delivered
 dispatched_by: brettheap
 dispatched_at: '2026-08-05T02:44:42Z'
+# Delivered 2026-08-05 by the fulfilling terminal session playing the bounded
+# worker role by hand (envelope job DPOSS-ce481777af8d, worker profile
+# derive-possibles, derive-possibles-prompt-v1, model claude-fable-5): ONE
+# candidate derived from the cluster's single member document and merged
+# through the lane's own validate/assemble/merge path —
+# pos-derived-governed-kill-switch-custody-contract, origin ai-derived,
+# machine disposition pending_review, awaiting Brett's verdict per the lane
+# contract (nothing auto-promotes).
