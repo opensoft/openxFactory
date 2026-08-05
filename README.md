@@ -262,15 +262,6 @@ Active changes:
   neutrality.py`, `neutrality-prompt.md`, `neutrality_dispatch.py`,
   runner + reusable-workflow wiring, the codexFactory 2026-08-03 baseline
   marker); verification 3.x awaits the first live nightly.
-- [adopt-neutral-tooling-home](openspec/changes/adopt-neutral-tooling-home/proposal.md)
-  — authored 2026-08-03: the doc-health checker suite, the ideation
-  dashboard runtime, the cross-factory routing/organizer lanes, and the
-  NotebookLM lifecycle sync move from codexFactory to openxFactory — the
-  contract owner adopts its implementations, ending the neutral-schema →
-  domain-repo path citations and the private-sibling credential tax, and
-  setting up the public/private Sonar split for open-sourcing. Evidence:
-  the 2026-08-03 neutrality sweep (~73k neutral LOC hosted in the
-  engineering repo) under supporting-docs/.
 - [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
   — authored 2026-08-03, the `consent-instrument-contract` staged topic's
   exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
@@ -407,6 +398,16 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [adopt-neutral-tooling-home](openspec/changes/archive/2026-08-05-adopt-neutral-tooling-home/proposal.md)
+  The contract owner adopted its implementations: the doc-health checker
+  suite, the ideation dashboard runtime, the routing/organizer lanes, and
+  the NotebookLM lifecycle sync moved from codexFactory to openxFactory
+  (tranches A-D; codexFactory shed via PR #72). Archived 2026-08-05 on the
+  5.2 nightly evidence: xFactory run 31001274147 green with the dashboard
+  lane publishing 14/14 snapshots + index from the new homes, after fixing
+  the three adoption regressions in the way (openxFactory Actions access
+  `none` -> `organization`; App grants for the HealthLinc/MedxEHR/openAvatar
+  submodules; the finalize job's missing `rfc3339-validator`).
 - [implement-avatar-client-lab](openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
   Realized the offline, deterministic Flutter avatar client UI lab
   (codexFactory `apps/avatar-client-lab/`, openxFactory fixtures + acceptance
