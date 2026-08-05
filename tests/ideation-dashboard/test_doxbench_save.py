@@ -803,31 +803,54 @@ def test_a_refused_second_save_never_rewrites_the_first_saves_commit(
 # demanded an object for EVERY buffer kind, so the seam threw
 # ("outline buffer must be an object") before any plan was built.
 # An ABSENT buffer kind is now skipped; at least one buffer must remain.
+#
+# T104 F6-4 (harness fix, 2026-08-04): the original harness called
+# `savePlanState({ state })` -- the wrong argument shape (the real seam
+# contract is the editor's request, `{ key, buffers: [<request rows>] }`; see
+# savePlanState itself and app.js's `save:` composition) -- and DISCARDED the
+# result, so despite naming the seam it exercised only saveOrder over a
+# hand-built state (`savePlanState({state})` yields `{key: undefined,
+# buffers: {}}`, an empty plan). It now drives savePlanState with the real
+# request shape and runs the plan end to end: a lone document ROW plans, is
+# sent, and commits, while the absent outline is reported `unchanged` rather
+# than blocking anything.
 # ---------------------------------------------------------------------------
 
 _ABSENT_OUTLINE_HARNESS = """
-import { saveOrder, savePlanState } from "./doxbench-save.mjs";
+import { runSave, saveOrder, savePlanState } from "./doxbench-save.mjs";
 
 const out = {};
-const documentBuffer = {
+// The row exactly as doxbench-editor.js's bufferRequestRow hands it over.
+const documentRow = {
   kind: "document", path: "docs/registry.md", owned: true,
   base_ref: "main", base_revision: "r1",
   base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
-  base_content: "# Registry", content: "# Registry edited", dirty: true,
-  hash_pending: false, hash_generation: 1,
+  content: "# Registry edited", dirty: true, hash_pending: false,
 };
-const state = {
+const request = {
   key: { repository: "real-repo", ref: "main",
          tile_kind: "staged", tile_id: "client-credential-escrow-registry" },
-  active_buffer: "document",
-  buffers: { document: documentBuffer },   // NO outline key at all
+  buffers: [documentRow],   // NO outline row at all
 };
 try {
-  out.order = saveOrder(state);
-  const plan = savePlanState({ state });
-  out.rows = plan.rows ? plan.rows.map((r) => r.kind)
-    : (plan.order || out.order);
+  const state = savePlanState(request);
+  out.planKey = state.key;
+  out.planKinds = Object.keys(state.buffers);
+  out.rows = saveOrder(state).map((row) => ({
+    kind: row.kind, action: row.action, document: row.document,
+    base_hash: row.base_hash, refusal: row.refusal,
+  }));
+  const sent = [];
+  const outcome = await runSave(state, { transport: async (req) => {
+    sent.push(req.kind);
+    return { ok: true, ref: "draft/client-credential-escrow-registry",
+             revision: "newrev-1",
+             content_hash: { algorithm: "sha256", hex: "e".repeat(64) } };
+  } });
+  out.sent = sent;
+  out.outcome = outcome.buffers.map((row) => ({
+    kind: row.kind, status: row.status }));
   out.threw = null;
 } catch (error) {
   out.threw = String(error && error.message || error);
@@ -853,9 +876,21 @@ def absent_outline_results(tmp_path_factory):
 def test_an_absent_outline_buffer_no_longer_blocks_the_document_save(absent_outline_results):
     r = absent_outline_results
     assert r["threw"] is None, f"the seam still throws: {r['threw']!r}"
-    kinds = [row["kind"] if isinstance(row, dict) else row
-             for row in r["order"]]
-    assert kinds == ["document"]
+    # the reshaped state carries the request's own key and ONLY the rows sent
+    assert r["planKey"]["tile_id"] == "client-credential-escrow-registry"
+    assert r["planKinds"] == ["document"]
+    # the plan: one document row, the edit action (the path exists in the
+    # buffer), its declared base hex, and no refusal from the missing outline
+    assert r["rows"] == [{
+        "kind": "document", "action": "edit-document",
+        "document": "docs/registry.md", "base_hash": "c" * 64,
+        "refusal": None,
+    }]
+    # and the run itself: the document is sent and commits; the absent outline
+    # is reported `unchanged` rather than blocking the document behind it
+    assert r["sent"] == ["document"]
+    outcome = {row["kind"]: row["status"] for row in r["outcome"]}
+    assert outcome == {"outline": "unchanged", "document": "committed"}
 
 
 # ---------------------------------------------------------------------------

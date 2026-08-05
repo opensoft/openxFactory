@@ -164,6 +164,20 @@ export const EDIT_DURING_SAVE_REASON =
   "a Save is in flight for this canvas -- the text being saved cannot change "
   + "underneath it, so this edit was not applied";
 
+// T104 F6-2: the fixed vocabulary for the window BEFORE working state exists.
+// The textareas are built (and visible) before initialLoad() settles, so a
+// keystroke can arrive while `state` is still null; it must be refused with
+// this stated line, never dropped on a TypeError (CHK016/CHK019). Fixed
+// wording on purpose -- like every refusal in this module it names the
+// situation, never the content.
+export const EDITOR_LOADING_REASON =
+  "this canvas is still loading its sources -- editing is refused until the "
+  + "load settles";
+// T104 F6-6: the prefix for a load that FAILED (a hashing bound, a broken
+// restore). The rest of the sentence is the state module's own size/encoding
+// message -- byte counts and classes only, never document text.
+const LOAD_FAILURE_PREFIX = "this canvas could not load its sources -- ";
+
 const DESTROYED_REASON = "this doxBench canvas has been destroyed";
 const DEFAULT_PREVIEW_DELAY_MS = 150;
 const FALLBACK_REVISION = "0".repeat(40);
@@ -179,6 +193,49 @@ function basename(path) {
   if (path == null) return "";
   const value = String(path);
   return value.split("/").at(-1) || value;
+}
+
+// ---------------------------------------------------------------------------
+// T104 F10-3 -- the EOL lens, the client half of FR-045's byte-exact
+// round-trip. A <textarea>'s API value is LF-normalized BY SPECIFICATION: CR
+// and CRLF both read back as LF no matter what was assigned. So a CRLF
+// document loaded byte-exactly from /source (the server half landed with the
+// base-lens fix) could never round-trip: the first keystroke silently
+// rewrote every line ending, the buffer read dirty against an unchanged
+// file, and syncBufferDom's value comparison could never settle (the two
+// spellings cannot compare equal). The lens keeps the two domains explicit:
+//
+//   BUFFER DOMAIN -- the document's real bytes. Identity, dirtiness, the
+//   Save payload, and persistence all live here, untouched.
+//   DISPLAY DOMAIN -- what the textarea holds: the LF projection the browser
+//   would impose anyway, written and compared consistently so the sync
+//   settles.
+//
+// The document's flavor is derived from its own loaded base: the FIRST line
+// break names it (deterministic, and mixed-EOL strays then unify to that
+// flavor on the first keystroke -- a documented choice, not an accident).
+// A lone-CR-only base is deliberately left in the LF class: a textarea
+// destroys lone CRs before we ever see them, and fabricating them back would
+// be a guess about bytes we cannot verify -- such a file's first edit
+// honestly reads dirty instead.
+// ---------------------------------------------------------------------------
+
+function eolFlavorOf(baseContent) {
+  const first = /\r\n|\r|\n/.exec(baseContent);
+  return first && first[0] === "\r\n" ? "crlf" : "lf";
+}
+
+// Buffer domain -> display domain: exactly the projection the textarea API
+// applies itself, done eagerly so comparisons happen in ONE domain.
+function displayText(content) {
+  return content.replace(/\r\n?/g, "\n");
+}
+
+// Display domain -> buffer domain, re-applying the document's own flavor.
+// `\r?\n` (not bare `\n`) keeps the mapping idempotent: a harness textarea
+// that never normalized still converts cleanly instead of doubling CRs.
+function bufferTextFor(displayValue, flavor) {
+  return flavor === "crlf" ? displayValue.replace(/\r?\n/g, "\r\n") : displayValue;
 }
 
 // G-1: the outline-only posture, stated in the two places the operator looks
@@ -245,6 +302,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       && currentProjection.active_document_candidates[0]) || null;
   let guardTargetPath = null; // set while the guard blocks a selectDocument
   let destroyed = false;
+  // T104 F6-6: set when initialLoad() itself fails (state stays null). The
+  // refusal every entry point states then names the FAILURE instead of a
+  // "still loading" that would never come true.
+  let loadFailureReason = null;
   let saving = false;         // a governed Save is in flight (wired posture only)
   const savingKinds = new Set();   // the buffers THIS Save handed over
   // The last Save verdict for each buffer, as the sentence its status region
@@ -323,6 +384,11 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     const toolbar = el("div", "doxbench-toolbar");
     const status = el("span", "doxbench-status");
     status.setAttribute("aria-live", "polite");
+    // T104 F6-2: the load posture is STATED from the first paint, in the same
+    // region every other buffer fact is stated in -- this module's one idiom
+    // for "why the surface refuses" (the unwired Save note works the same
+    // way). syncBufferDom replaces it the moment real state exists.
+    status.textContent = EDITOR_LOADING_REASON;
     const discardBtn = el("button", "doxbench-discard", "Discard");
     discardBtn.type = "button";
     discardBtn.title = "restore this buffer to its last loaded or saved text";
@@ -358,8 +424,18 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // (first strong directional character), so RTL drafts read as RTL without
     // anyone configuring anything — the chat rail's composer idiom.
     textarea.setAttribute("dir", "auto");
+    // T104 F6-2: the surface is DISABLED until working state exists -- the
+    // honest structural sibling of the disabled Save control: a real browser
+    // then physically refuses the keystroke instead of feeding it to a
+    // listener that has nothing to apply it to. syncBufferDom re-enables it
+    // on the first sync (which only ever runs with state present), and a
+    // failed load (F6-6) leaves it disabled beside its stated failure.
+    textarea.disabled = true;
     textarea.addEventListener("input", async () => {
-      const result = await edit(tab.key, textarea.value);
+      // T104 F10-3: the textarea speaks the display domain (LF); the buffer
+      // speaks the document's own bytes. Re-apply the loaded base's flavor
+      // BEFORE the edit path hashes or persists anything.
+      const result = await edit(tab.key, readBufferValue(tab.key));
       if (!result.ok) {
         // Refused honestly and VISIBLY: the human's keystroke or paste must
         // never just vanish with nothing said (CHK016/CHK019).
@@ -534,15 +610,42 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       typeof companionOf === "function" ? companionOf() : undefined);
   }
 
+  // T104 F6-2: what an entry point states while `state` is still null -- the
+  // loading line, or the load's own stated failure once there is one (F6-6).
+  function unloadedReason() {
+    return loadFailureReason || EDITOR_LOADING_REASON;
+  }
+
+  // T104 F10-3: the buffer-domain bytes the textarea currently represents.
+  // Before state exists there is no base to take a flavor from, and every
+  // entry point refuses anyway, so the identity mapping is safe.
+  function readBufferValue(kind) {
+    const buffer = state ? state.buffers[kind] : null;
+    return bufferTextFor(
+      textareas[kind].value,
+      buffer ? eolFlavorOf(buffer.base_content) : "lf",
+    );
+  }
+
   function syncBufferDom(kind) {
     const buffer = state.buffers[kind];
     const textarea = textareas[kind];
+    // T104 F6-2: the first sync is the moment real working state backs the
+    // surface, so the mount-time disabled posture ends here (this function is
+    // never reached with a null state).
+    textarea.disabled = false;
     // Only reassign `.value` when it actually differs: real browsers can
     // move the caret to the end of a textarea whose `.value` is reassigned
     // even to its OWN current string, so a live-typing edit (whose DOM value
     // already matches) must never re-touch it. A programmatic edit,
     // Discard, or document switch always DOES differ, so it still syncs.
-    if (textarea.value !== buffer.content) textarea.value = buffer.content;
+    //
+    // T104 F10-3: BOTH sides of the comparison live in the display domain --
+    // the textarea can only ever hold the LF projection, so comparing it
+    // against raw CRLF buffer bytes could never come out equal and this sync
+    // re-touched the value (and the caret) on every call, forever.
+    const display = displayText(buffer.content);
+    if (textarea.value !== display) textarea.value = display;
     statusEls[kind].textContent = statusLine(kind, buffer);
     statusEls[kind].classList.toggle("is-dirty", buffer.dirty);
     if (saveSeam) {
@@ -729,6 +832,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // they may not move underneath it. Refused visibly, like every other
     // refused edit -- the keystroke never just vanishes.
     if (saving) return { ok: false, error: EDIT_DURING_SAVE_REASON };
+    // T104 F6-2/F6-6: no working state yet (or ever, after a failed load) --
+    // a stated refusal, never a TypeError off `state.buffers` below.
+    if (!state) return { ok: false, error: unloadedReason() };
     forgetSaveOutcome(kind);
     const before = state.buffers[kind];
     const pending = beginBufferEdit(before, text, hashOptions);
@@ -780,12 +886,22 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   function discard(kind) {
     if (destroyed) return Promise.resolve({ ok: false, error: DESTROYED_REASON });
     if (saving) return Promise.resolve({ ok: false, error: SAVE_BUSY_REASON });
+    // T104 F6-2/F6-6: the same stated refusal as edit() -- there is no buffer
+    // to restore before the load settles.
+    if (!state) return Promise.resolve({ ok: false, error: unloadedReason() });
     forgetSaveOutcome(kind);
     const discarded = discardBuffer(state.buffers[kind]);
     state = replaceBuffer(state, discarded);
     syncBufferDom(kind);
     renderPreviewNow(kind);
     persistNow();
+    // T104 F6-1: Discard MOVES the buffer's identity (current_hash goes back
+    // to the base), so the composition must hear it exactly like an edit --
+    // otherwise the rail's proposal cards keep 'current' + an enabled Apply
+    // against text the buffer no longer holds.
+    if (typeof onIdentitySettled === "function") {
+      onIdentitySettled(kind, discarded.current_hash);
+    }
     return Promise.resolve({ ok: true });
   }
 
@@ -860,6 +976,8 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     if (!saveSeam) return { status: "refused", reason: SAVE_UNAVAILABLE_REASON };
     if (saving) return { status: "refused", reason: SAVE_BUSY_REASON };
+    // T104 F6-2/F6-6: nothing loaded means nothing to hand the seam.
+    if (!state) return { status: "refused", reason: unloadedReason() };
     const changed = BUFFER_KINDS.filter((kind) => state.buffers[kind].dirty);
     if (!changed.length) {
       // Nothing to persist reaches no governance action at all: the seam is not
@@ -902,11 +1020,17 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       return { status: "refused", reason };
     }
     let landedRef = null;
+    // T104 F6-1: the buffers whose base actually ADVANCED through
+    // adoptSavedBase -- exactly the identities the composition must re-score
+    // proposal currency against, and ONLY those (a refused buffer's identity
+    // did not move, so no notification may claim it did).
+    const adoptedKinds = [];
     for (const row of outcomeRowsOf(outcome)) {
       if (!row || !BUFFER_KINDS.includes(row.kind)) continue;
       if (row.status === "committed") {
         try {
           state = replaceBuffer(state, adoptSavedBase(state.buffers[row.kind], row));
+          adoptedKinds.push(row.kind);
           if (landedRef === null && typeof row.ref === "string") landedRef = row.ref;
         } catch (error) {
           // A commit whose reported identity the state module refuses is NOT
@@ -924,6 +1048,15 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (landedRef !== null) rekeyTo(landedRef);
     for (const kind of BUFFER_KINDS) syncBufferDom(kind);
     persistNow();
+    // T104 F6-1: adoption moved these buffers onto the server-reported
+    // identity, so the composition hears it AFTER adoptSavedBase (and the
+    // rekey) landed -- with the post-transition hash, the same shape edit()
+    // reports.
+    if (typeof onIdentitySettled === "function") {
+      for (const kind of adoptedKinds) {
+        onIdentitySettled(kind, state.buffers[kind].current_hash);
+      }
+    }
     // T104 F1: hand the landed ref to the composition, AFTER this canvas has
     // adopted it and persisted under it, and only when it actually moved.
     // Awaited so the Save is not reported settled while half the page is
@@ -953,12 +1086,22 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     syncBufferDom("document");
     renderPreviewNow("document");
     persistNow();
+    // T104 F6-1: a switch replaces the WHOLE Document buffer, the largest
+    // identity move of all -- the composition hears the new buffer's settled
+    // identity so stale proposal cards drop their 'current' claim.
+    if (typeof onIdentitySettled === "function") {
+      onIdentitySettled("document", buffer.current_hash);
+    }
     return { status: "switched", reason: null };
   }
 
   async function selectDocument(path) {
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     if (saving) return { status: "refused", reason: SAVE_BUSY_REASON };
+    // T104 F6-2/F6-6: refused BEFORE the unchanged/scope answers -- with no
+    // state there is no dirty check to run and nothing to switch away from,
+    // and "unchanged" would be a claim about a buffer that does not exist.
+    if (!state) return { status: "refused", reason: unloadedReason() };
     if (path === activeDocumentPath) return { status: "unchanged", reason: null };
     if (path !== null && !isInScope(path)) {
       // FR-007: "the explicitly selected SCOPED document" -- a path this
@@ -975,6 +1118,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
 
   async function resolveGuard(choice) {
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
+    // T104 F6-2/F6-6: the guard can only ever OPEN over a dirty loaded
+    // buffer, but the method is public -- refuse rather than let the save arm
+    // below dereference a null state.
+    if (!state) return { status: "refused", reason: unloadedReason() };
     if (choice === "save") {
       if (!saveSeam) {
         // MUST refuse and change nothing -- no switch, no persistence, and the
@@ -1074,48 +1221,74 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   }
 
   async function initialLoad() {
-    const key = scopeKey();
-    let restored = null;
-    let restoredCompanion = null;
-    if (storage) {
-      try {
-        restored = await restoreDoxBenchState(key, storage, hashOptions);
-        if (restored && restored.companion) restoredCompanion = restored.companion;
-      } catch {
-        restored = null;
+    // T104 F6-6: the whole load is contained. `createDoxBenchState` (and the
+    // hashing inside it) can genuinely fail -- a document past the byte bound
+    // raises ContentSizeError -- and the returned ready promise has no
+    // production consumer, so an uncaught rejection here used to dead-letter:
+    // `state` stayed null forever and the canvas rendered as a silently
+    // broken editor whose every keystroke threw. The catch below turns that
+    // into the stated refuse-visibly posture instead (same shape as the
+    // loading window, with the failure named).
+    try {
+      const key = scopeKey();
+      let restored = null;
+      let restoredCompanion = null;
+      if (storage) {
+        try {
+          restored = await restoreDoxBenchState(key, storage, hashOptions);
+          if (restored && restored.companion) restoredCompanion = restored.companion;
+        } catch {
+          restored = null;
+        }
+      }
+      if (restored) {
+        state = restored;
+        activeTab = restored.active_buffer;
+        activeDocumentPath = restored.buffers.document.path;
+        if (documentPicker && activeDocumentPath != null) documentPicker.value = activeDocumentPath;
+      } else {
+        const [outline, documentDescriptor] = await Promise.all([
+          loadDescriptor("outline", currentProjection.outline_path),
+          loadDescriptor("document", activeDocumentPath),
+        ]);
+        state = await createDoxBenchState(
+          { key, active_buffer: activeTab, outline, document: documentDescriptor },
+          hashOptions,
+        );
+      }
+      // R-1, ordering fixed (T104 F1, doxbench-editor.js:1022): the companion
+      // blob is handed over AFTER `state` is assigned and still BEFORE the first
+      // render, so the rail's restored proposals are re-scored against these
+      // restored bytes. It used to fire while `state` was still null, so the
+      // shell's `applyPendingCompanion()` read a null canvas state, bailed, and
+      // left the blob pending — the restored subject, model, composer,
+      // transcript and PROPOSALS were then only ever applied if a non-empty
+      // model catalog happened to load afterwards.
+      if (restoredCompanion && typeof onCompanionRestored === "function") {
+        onCompanionRestored(restoredCompanion);
+      }
+      applyTabVisibility();
+      syncBufferDom("outline");
+      syncBufferDom("document");
+      renderPreviewNow("outline");
+      renderPreviewNow("document");
+    } catch (error) {
+      // The stated failure. Size and encoding failures speak the state
+      // module's own message -- byte counts and classes only, NEVER document
+      // text (the non-echoing rule) -- anything else gets the fixed generic
+      // sentence. Both status regions carry it (the load is one fact about
+      // the whole canvas), the surfaces stay disabled, and every entry point
+      // now refuses with this same line through unloadedReason().
+      loadFailureReason = LOAD_FAILURE_PREFIX + (
+        error instanceof ContentEncodingError || error instanceof ContentSizeError
+          ? error.message
+          : "the load failed before any buffer state existed"
+      );
+      for (const kind of BUFFER_KINDS) {
+        statusEls[kind].textContent = loadFailureReason;
+        statusEls[kind].classList.add("doxbench-status-error");
       }
     }
-    if (restored) {
-      state = restored;
-      activeTab = restored.active_buffer;
-      activeDocumentPath = restored.buffers.document.path;
-      if (documentPicker && activeDocumentPath != null) documentPicker.value = activeDocumentPath;
-    } else {
-      const [outline, documentDescriptor] = await Promise.all([
-        loadDescriptor("outline", currentProjection.outline_path),
-        loadDescriptor("document", activeDocumentPath),
-      ]);
-      state = await createDoxBenchState(
-        { key, active_buffer: activeTab, outline, document: documentDescriptor },
-        hashOptions,
-      );
-    }
-    // R-1, ordering fixed (T104 F1, doxbench-editor.js:1022): the companion
-    // blob is handed over AFTER `state` is assigned and still BEFORE the first
-    // render, so the rail's restored proposals are re-scored against these
-    // restored bytes. It used to fire while `state` was still null, so the
-    // shell's `applyPendingCompanion()` read a null canvas state, bailed, and
-    // left the blob pending — the restored subject, model, composer,
-    // transcript and PROPOSALS were then only ever applied if a non-empty
-    // model catalog happened to load afterwards.
-    if (restoredCompanion && typeof onCompanionRestored === "function") {
-      onCompanionRestored(restoredCompanion);
-    }
-    applyTabVisibility();
-    syncBufferDom("outline");
-    syncBufferDom("document");
-    renderPreviewNow("outline");
-    renderPreviewNow("document");
   }
 
   applyTabVisibility(); // the honest default shape before the load settles
@@ -1129,6 +1302,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // is a new turn — no force path exists.
   async function applyProposal(kind, proposal) {
     if (destroyed) return { ok: false, error: DESTROYED_REASON };
+    // T104 F6-2/F6-6: no state, no identity to gate against -- a stated
+    // refusal, never a TypeError.
+    if (!state) return { ok: false, error: unloadedReason() };
     const buffer = state.buffers[kind];
     if (!buffer || buffer.hash_pending || !buffer.current_hash
         || !proposal || proposal.base_hash !== buffer.current_hash.hex) {
