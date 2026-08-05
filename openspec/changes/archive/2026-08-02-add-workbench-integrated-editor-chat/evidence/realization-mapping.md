@@ -151,7 +151,7 @@ item true.
 | FR-007 | EVIDENCED | `selectDocument` + the dirty-document guard; `test_doxbench_view.py` (guard blocked/resolved) |
 | FR-008 | EVIDENCED | `test_doxbench_mutation_boundary.py` (editing/preview/chat/Apply/Discard write zero corpus state) |
 | FR-009 | EVIDENCED | `discardBuffer` restores base without persistence or a model call; `test_doxbench_state.py` |
-| FR-010 | **PARTIAL** | buffer content, dirty state, active tab and focus are preserved and tested (`test_doxbench_view.py` tab/focus restoration; `applyTabVisibility`); **selection and scroll are not restored** — `viewState()` is exported with no production caller and nothing writes `scrollTop` back. Carried as a T104 **F6** P3 finding, not fixed in the fix-first wave |
+| FR-010 | **EVIDENCED** | buffer content, dirty state, active tab and focus are preserved and tested (`test_doxbench_view.py` tab/focus restoration; `applyTabVisibility`); the selection/scroll residual closed in the F5–F10 wave (2026-08-05): `applyTabVisibility` captures each pane's view as it goes hidden and writes it back on return — `viewState` gained its production caller — and the test shim now drops `scrollTop` on hide the way a real layout-box loss does, so the tab round-trip pin fails without the write-back (reverse-RED shown) |
 | FR-011 | EVIDENCED | `rekeyChatState` per `(repository, ref, tile_kind, tile_id)`; `test_doxbench_chat_view.py` |
 | FR-012 | EVIDENCED | free-form string only; `test_doxbench_privacy.py` + the released schema's type-only rule |
 | FR-013 | EVIDENCED | `build_prompt_envelope` nine-section assembly with both complete buffers; `test_doxbench_turns.py` (FR-013 field set) |
@@ -186,7 +186,7 @@ item true.
 | FR-042 | EVIDENCED | inherited derivations byte-identical: pinned mount/outline/viewer signatures and the append-only CSS; `test_staging_workbench.py`, `test_completeness.py`, `test_session_snapshot.py`, `test_renderer.py` |
 | FR-043 | EVIDENCED | `doxbench_scope` created-paths enter BOTH sets from a server-held record; `test_doxbench_scope.py::test_session_created_paths_for_scope_lands_in_both_projection_sets`, `test_doxbench_routes.py` forgery pins |
 | FR-044 | EVIDENCED | no analytics/telemetry/crash reporting in the bundle; `test_renderer.py` (fetch sites), `test_staging_workbench.py` (no external URL, no dynamic import), `test_hermeticity.py` |
-| FR-045 | **PARTIAL** | byte-exact Unicode round-trip is proven (`doxbench_hash` shared vectors incl. CRLF/combining/astral: `test_doxbench_hash.py`, `test_doxbench_turns.py::test_crlf_content_is_preserved_exactly_no_newline_normalization`); **content-derived text direction is realized only on the chat rail** — neither authoring textarea, preview, nor the picker sets `dir="auto"`. Carried as a T104 **F9** P2 finding |
+| FR-045 | **EVIDENCED** | byte-exact Unicode round-trip is proven (`doxbench_hash` shared vectors incl. CRLF/combining/astral: `test_doxbench_hash.py`, `test_doxbench_turns.py::test_crlf_content_is_preserved_exactly_no_newline_normalization`) and the F5–F10 wave closed its two residuals: `dir="auto"` on both authoring textareas and previews (F9, `test_authoring_surfaces_disable_autofill_and_derive_text_direction`), and the CRLF round-trip made real end to end — the server's base revalidation reads through the served lens (`served_text`), the governed writes pin `newline=""`, and the editor preserves the document's EOL flavor through the textarea's forced-LF projection (F10, commits c2f432c + ebbcf70) |
 
 ---
 
@@ -212,23 +212,22 @@ item true.
 ## Part D — the honest gaps
 
 Five of 109 rows were PARTIAL at archive time. None was unknown; each had a
-named carrier. The F5–F10 wave (2026-08-04) closed the FR-038 row per the
-R-12 ruling — see its Part C entry — leaving the four below.
+named carrier. The F5–F10 wave (2026-08-04/05) closed the FR-038 row per the
+R-12 ruling and the FR-010 and FR-045 rows with the F6/F9/F10 fixes — see
+their Part C entries — leaving only the screen-reader legs below.
 
 | Item | Gap | Why it is not closed here | Carrier |
 |---|---|---|---|
 | FR-041, SC-010, and the CHK035 leg of the AT sheet | no screen reader has spoken this surface | operator-gated: the declared primary (Edge+Narrator) and secondary (Firefox+NVDA) legs need a human at a Windows AT plane | ledger task 7.4; `CHK034a`/`CHK034b`; R-10 |
-| FR-010 | selection and scroll are not restored across tab switches | `viewState()` has no production caller; found by the T104 review, dispositioned as follow-up rather than fix-first | T104 family F6 (P3) |
-| FR-045 | content-derived text direction is realized only on the chat rail | same disposition: the authoring surfaces need `dir="auto"` | T104 family F9 (P2) |
 
-Everything else — 105 of 109 rows — has an implementing code path and a test or
+Everything else — 107 of 109 rows — has an implementing code path and a test or
 an operator record that proves it.
 
 ## Coverage statement
 
 - 52 delta scenarios: 52 rows, 52 EVIDENCED.
-- 45 Speckit FRs: 45 rows, 43 EVIDENCED, 2 PARTIAL (FR-010, FR-041) —
-  FR-038 moved PARTIAL → EVIDENCED with the R-12 closure (F5–F10 wave,
-  2026-08-04).
+- 45 Speckit FRs: 45 rows, 44 EVIDENCED, 1 PARTIAL (FR-041) — FR-038 moved
+  PARTIAL → EVIDENCED with the R-12 closure, FR-010 and FR-045 with the
+  F6/F9/F10 fixes (F5–F10 wave, 2026-08-04/05).
 - 12 Speckit SCs: 12 rows, 11 EVIDENCED, 1 PARTIAL (SC-010).
 - **109 of 109 items mapped.**

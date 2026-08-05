@@ -382,6 +382,19 @@ class Node {
         && this.contains(globalThis.document.activeElement)) {
       globalThis.document.activeElement.blur();
     }
+    // And a hidden element loses its LAYOUT BOX, which is where a browser
+    // keeps a textarea's scroll offset -- so hiding drops every descendant's
+    // scrollTop (T104 / FR-010: this shim used to keep it for free, which is
+    // exactly why the missing write-back passed the tab round-trip tests
+    // while a real browser landed the human at the top of the buffer).
+    // Selection is DOM state, not layout, and survives.
+    if (this._hidden) {
+      const dropScroll = (node) => {
+        if (node._scrollTop !== undefined) node._scrollTop = 0;
+        for (const child of (node.children || [])) dropScroll(child);
+      };
+      dropScroll(this);
+    }
   }
   contains(node) {
     let n = node;

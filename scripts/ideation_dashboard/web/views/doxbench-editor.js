@@ -313,6 +313,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // line beside freshly typed text would be stale the instant it is read.
   const saveOutcomes = { outline: null, document: null };
   const rememberedFocus = { outline: false, document: false };
+  // The last selection/scroll each pane held while visible (FR-010): written
+  // by applyTabVisibility as a pane goes hidden, read back as it returns.
+  const rememberedView = { outline: null, document: null };
   const previewTimers = { outline: null, document: null };
 
   // ---- fixed DOM, built ONCE. Every later update mutates it in place. -----
@@ -786,11 +789,34 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // "-active" shadow class this line used to toggle in lockstep: every
       // property of its rule had been overridden, so it styled nothing and
       // could only ever drift from the ARIA truth).
+      //
+      // FR-010's selection/scroll clause (T104: `viewState` was exported with
+      // no production caller and NOTHING ever wrote the values back): hiding a
+      // pane drops its layout box, and the browser drops the textarea's scroll
+      // offset with it — so the view is CAPTURED on the way out and RE-APPLIED
+      // on the way back in. Scroll is re-applied LAST because focus() may
+      // scroll the caret into view and must not win over the human's place.
+      const wasHidden = paneEls[tab.key].hidden;
+      if (!isActive && !wasHidden) {
+        rememberedView[tab.key] = viewState(tab.key);
+      }
       paneEls[tab.key].hidden = !isActive;
       // A hidden pane cannot hold real focus; a shown pane that previously
       // held it gets it back. A pane that never held focus never steals it.
       if (isActive && rememberedFocus[tab.key]) {
         textareas[tab.key].focus();
+      }
+      const view = rememberedView[tab.key];
+      if (isActive && wasHidden && view) {
+        const textarea = textareas[tab.key];
+        if (typeof textarea.setSelectionRange === "function") {
+          textarea.setSelectionRange(view.selectionStart, view.selectionEnd);
+        } else {
+          // the test shim's textarea carries plain properties
+          textarea.selectionStart = view.selectionStart;
+          textarea.selectionEnd = view.selectionEnd;
+        }
+        textarea.scrollTop = view.scrollTop;
       }
     }
   }
