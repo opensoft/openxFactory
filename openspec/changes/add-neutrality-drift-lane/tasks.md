@@ -48,3 +48,15 @@
 - [ ] 3.2 One real nightly with the lane on: rolling PR carries the
       section (or a clean empty note), dispositions suppression proven
       by re-running against an unchanged rejected fixture.
+      — First half EVIDENCED 2026-08-05 (not ticked; the suppression
+      re-run remains): xFactory dispatch run 31001274147 — the first
+      nightly to complete since the lane landed — carries the full
+      `## Neutrality Drift` section in the rolling PR's 2026-08-05
+      report: stage 1 scanned 2128 files across the domain repos (263
+      candidates; codexFactory=190), selection dispatched 8 with 230
+      carried over, and the model scout recorded the graceful
+      `worker_unavailable` skip with drafted seeds none. (The two
+      preceding nightlies never reached the lane: openxFactory Actions
+      access `none` blocked the repointed caller's compile, and the
+      factory App lacked HealthLinc/MedxEHR/openAvatar grants — both
+      fixed 2026-08-05, see adopt-neutral-tooling-home 5.2.)
