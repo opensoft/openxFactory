@@ -251,17 +251,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-neutrality-drift-lane](openspec/changes/add-neutrality-drift-lane/proposal.md)
-  — ratified 2026-08-04 (Brett's directive; PR #64 review): a nightly
-  doc-health lane that scouts the five domain factories for content that
-  belongs in openxFactory — deterministic pre-filter signals plus a model
-  scout under a prompt contract — and files each candidate as a drafted
-  DTN-register seed through the rolling health PR for Brett's approval;
-  movement itself always follows the domain-to-neutral promotion process.
-  Lane implementation landed (tasks 1.x/2.x: `scripts/doc_health/
-  neutrality.py`, `neutrality-prompt.md`, `neutrality_dispatch.py`,
-  runner + reusable-workflow wiring, the codexFactory 2026-08-03 baseline
-  marker); verification 3.x awaits the first live nightly.
 - [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
   — authored 2026-08-03, the `consent-instrument-contract` staged topic's
   exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
@@ -382,6 +371,18 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-neutrality-drift-lane](openspec/changes/archive/2026-08-05-add-neutrality-drift-lane/proposal.md)
+  The nightly doc-health lane that scouts the domain factories for content
+  that belongs in openxFactory: four deterministic stage-1 signals plus a
+  bounded model scout under prompt contract v1, drafting DTN-register
+  seeds through the rolling health PR; dispositions are digest-keyed and
+  movement always follows the promotion process. Archived 2026-08-05 on
+  full verification: first live nightly (run 31001274147) carried the
+  report section, and the dry-run evidence
+  (archived change's `evidence/dry-run-2026-08-05.md`) proved no
+  false-positive on the post-shed codexFactory engineering core, the
+  synthetic-fixture catch-and-draft path, and unchanged-rejected
+  suppression with digest-keyed re-filing.
 - [add-wheel-action-verbs](openspec/changes/archive/2026-08-05-add-wheel-action-verbs/proposal.md)
   Four gate verbs for the wheel's expanded-tile action row (Brett's
   2026-07-25 rulings): `demote` promoted to an executing dashboard verb
