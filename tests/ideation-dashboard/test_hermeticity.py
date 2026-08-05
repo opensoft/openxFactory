@@ -107,7 +107,7 @@ def test_an_invocation_of_the_binary_is_refused_and_names_this_test(binary):
 
 def test_the_default_notebook_runner_refuses_instead_of_running_nlm():
     with pytest.raises(hermeticity.HermeticityViolation) as raised:
-        wb._default_runner("notebook", "create", SESSION_ALIAS, "--json")
+        wb._default_runner("notebook", "create", SESSION_ALIAS)
     message = str(raised.value)
     assert hermeticity.MARKER in message
     assert "test_the_default_notebook_runner_refuses_instead_of_running_nlm" in message
@@ -179,7 +179,7 @@ def test_an_explicitly_injected_runner_is_untouched_by_the_guard():
 
     result = wb.NotebookAdapter(fake, available=True).create_session(SESSION_ALIAS)
     assert result.ok is True and result.skipped is False
-    assert calls == [("notebook", "create", SESSION_ALIAS, "--json")]
+    assert calls == [("notebook", "create", SESSION_ALIAS)]
 
 
 def test_the_cli_seam_with_a_fake_port_reaches_no_binary(scratch_repo, capsys,
