@@ -1,6 +1,14 @@
 code_surface: openxFactory
 target_release: implemented
 
+> **Archive hold (ruled by Brett, 2026-08-04): kept active by design.** The
+> avatar-client kernel's `contracts/avatar-client/interface-lock.yaml`
+> `f0_evidence_pin.f0_change_path` resolves this change's ACTIVE path, and that
+> file is digest-pinned in the `contract-v1.7` bundle — archiving would break
+> the fail-closed F0 gate or force a contract re-cut. Do NOT archive this
+> change in a housekeeping sweep; archive it only inside a contract re-cut
+> that repoints `f0_change_path` (and its schema digests) to the archive path.
+
 ## Why
 
 The avatar protocol assumes that an OpenAI broker can create a WebRTC call,

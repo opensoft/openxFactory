@@ -389,28 +389,17 @@ Active changes:
   F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
   realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
   archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
-- [implement-avatar-client-lab](openspec/changes/implement-avatar-client-lab/proposal.md)
-  — staged-origin change (exit of `ideation/staging/avatar-client-lab`, six
-  decisions locked 2026-07-13) for the offline, deterministic Flutter avatar
-  client UI lab: content-addressed consumption of `contract-v1.7` +
-  `contract-v1.8`, fixture-replay determinism through a pure session core, the
-  replaceable six-state avatar seam, five-region adaptive shell with the
-  authority status strip, gating accessibility baseline, and fail-closed
-  deferral of voice/WebRTC/Hermes to `qualify-avatar-live-voice` (code surface:
-  openxFactory, codexFactory — the Flutter app lives in codexFactory under
-  `apps/avatar-client-lab/`; openxFactory owns the neutral fixtures and acceptance
-  map; codexFactory's pin is a routine submodule-pointer sync; archives on
-  realization evidence)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
 2026-07-13 (below); **only F0 feasibility remains active** — its evidence is resolved
 by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it would break the
-fail-closed F0 gate or force a `contract-v1.7` re-tag. The avatar client itself is
-**now proposed** as the active change `implement-avatar-client-lab` (staged origin
-`ideation/staging/avatar-client-lab`, six decisions locked 2026-07-13; ratified and
-in realization 2026-07-14), and its successors are now
+fail-closed F0 gate or force a `contract-v1.7` re-tag. The F0 hold is a ruled
+posture (Brett, 2026-08-04): it archives only inside a contract re-cut that
+repoints `f0_change_path`. The avatar client lab itself realized and
+**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
+2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
+exception register accepted as v1; Windows/web deferred), and its successors are
 staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
 blocked on open questions + a released client) and `avatar-pilot-hardening` (real
 Hermes/domains/audits + pilot; structurally last) — see the
@@ -418,6 +407,15 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [implement-avatar-client-lab](openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
+  Realized the offline, deterministic Flutter avatar client UI lab
+  (codexFactory `apps/avatar-client-lab/`, openxFactory fixtures + acceptance
+  map): content-addressed contract-v1.7/v1.8 consumption, fixture-replay
+  determinism, the six-state avatar seam, five-region adaptive shell,
+  keyboard-only F1-F4. Archived 2026-08-04 under Brett's 9.1 disposition —
+  Linux-bench green + the portable suite + the WCAG web exception register
+  accepted as the v1 realization; Windows/web platform evidence deferred to
+  the first pilot-era change that stands up the repo-root CI caller.
 - [add-ideation-cross-reference-readiness](openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/proposal.md)
   Promoted the unified cross-stage topic cluster + readiness surface:
   `ideation/cross-reference.yaml` (generated `.md` projection), the
