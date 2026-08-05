@@ -365,41 +365,6 @@ Active changes:
   own commit-back — scores persist when the derive lane also merges).
   At 15/16 (5.2 records through archive); archives on the
   release-realization flow
-- [add-possibles-derivation-lane](openspec/changes/add-possibles-derivation-lane/proposal.md)
-  — ad-hoc-origin proposal (ideation-dashboard brainstorm v5 candidate 1 +
-  the Brett-approved THE WHEEL locked spec, 2026-07-16) for the AI-assisted
-  derive-possibles worker lane: a bounded read-only Omnigent lane that derives
-  CANDIDATE possibles from the landed cross-reference index and proposes
-  `possibles_register` entries carrying `origin: ai-derived`, worker-run
-  provenance, and `pending_review` disposition, humans disposing on the gate
-  console. Adds the small ADDITIVE possibles-register kernel delta (`origin` +
-  a `derivation` $def, no `contract_schema_version` bump) modelled on the
-  human-seen intake pair; carries the document-cataloger lane's artifact-worker,
-  model-worker (orchestration-authoritative identifiers), immutable-evidence,
-  and concurrency-protected next-run-merge invariants; derived-undisposed
-  possibles stay a distinct non-`indexed` WHEEL class excluded from any Ranked
-  Plan (code surface: codexFactory, openxFactory, xFactory, omnigent-install;
-  realization follows the ideation-readiness two-repo split; release allocated
-  at realization). **§3 worker realized 2026-07-22** (codexFactory
-  `specs/004-derive-possibles`, PR #25: worker + prompt contract,
-  orchestration-authoritative identifiers, fingerprint-CAS merge, one-way
-  gate dispositions, boundary-guarded persistence, 33 tests). **§4 lane +
-  2.6 registration realized 2026-07-22**: nightly dispatch + 10/30-minute
-  watchdog + dormant rolling-PR register commit-back (codexFactory PR #27 +
-  the xFactory artifact-only child workflow), the omnigent-install
-  `derive-possibles` profile v1 (Omnigent-Install PR #22, contract-only),
-  and the kernel delta registered as **contract-v1.14**. The lane reports
-  SKIPPED until a host advertises the profile (the readiness precedent's
-  valid landed state). **§5.1 tests realized 2026-07-22** including THE
-  WHEEL (codexFactory PR #28, `web/views/wheel.js` + `wheel-model.js`:
-  the locked Track C deck with class-coded threads — undisposed derived
-  possibles render non-`indexed` `inferred`, demo placeholders
-  `synthesized`). **FIRST LANE RUN 2026-07-23** (nightly run 30000105423,
-  CPC rider profile live): 3 contract-clean `pending_review` possibles
-  derived from cl-codexfactory merged into `possibles_register` via the
-  rolling commit-back PR (openxFactory #38, approved + merged) — the
-  register's bootstrap-empty era is over; humans dispose on the gate
-  console. At 19/20; remaining: 5.2 records through archive
 - [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
   — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
   from the dashboard-action-center + cloud-workstation-topology brainstorms;
@@ -472,6 +437,16 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-possibles-derivation-lane](openspec/changes/archive/2026-08-04-add-possibles-derivation-lane/proposal.md)
+  Promoted the AI-assisted derive-possibles worker lane: bounded read-only
+  Omnigent worker deriving `pending_review` possibles from the landed
+  cross-reference index, the additive possibles-register kernel delta
+  (contract-v1.14), nightly dispatch with watchdog + dormant rolling-PR
+  commit-back, THE WHEEL's non-`indexed` `inferred` rendering. Realized
+  2026-07-22 (codexFactory PRs #25/#27/#28, Omnigent-Install PR #22,
+  xFactory child workflow); first live lane run 2026-07-23 (run
+  30000105423, 3 possibles merged via openxFactory PR #38). Archived
+  2026-08-04.
 - [adopt-neutral-utility-pack](openspec/changes/archive/2026-08-04-adopt-neutral-utility-pack/proposal.md)
   The neutral utility pack came home (DTN-018/019/021): the three
   domain-repo conformance checks and the proposal-support mover moved from
