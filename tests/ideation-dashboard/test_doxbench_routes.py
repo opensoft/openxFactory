@@ -62,6 +62,7 @@ from jsonschema import Draft202012Validator
 from ideation_dashboard import action_errors
 from ideation_dashboard import branch_session
 from ideation_dashboard import doxbench_contracts
+from ideation_dashboard import doxbench_hash
 from ideation_dashboard import doxbench_turns
 from ideation_dashboard import gate_console
 from ideation_dashboard import serve as serve_mod
@@ -2092,6 +2093,34 @@ def test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document(tmp
         tmp_path, body, worktree=worktree,
         session_base=("main", "pre-session-rev-1"))
     _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
+
+
+def test_a_crlf_bom_session_document_grounds_on_the_session_base(tmp_path):
+    """W-7 (wave re-review): the R-12 reader at the route reads the session's
+    current text through the SAME lens the client hashes (`served_text`:
+    verbatim bytes, one leading BOM dropped, CR/CRLF intact) — and nothing
+    pinned it: every R-12 fixture was LF-only, where `read_text`'s
+    universal-newline collapse coincides with the served lens, so the reader
+    could silently regress to `read_text` with the whole suite green
+    (proven by the re-review's mutation round). This document makes the two
+    lenses DISAGREE: under the regression the session identity hashes
+    LF-collapsed BOM-bearing text, mismatches the declared base, and this
+    correctly-based buffer is refused."""
+    worktree = _session_worktree(tmp_path)
+    raw = "﻿# Demo\r\n\r\nauthored on Windows.\r\n".encode("utf-8")
+    (worktree / SESSION_CREATED_PATH).write_bytes(raw)
+    base_text = doxbench_hash.served_text(raw)
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "unsaved\r\n",
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
     _assert_no_sentinels(payload)
 
 

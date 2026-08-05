@@ -21,6 +21,7 @@ from ideation_dashboard.doxbench_hash import (
     ContentEncodingError,
     ContentSizeError,
     content_identity,
+    served_text,
     sha256_hex,
     utf8_size,
 )
@@ -200,3 +201,25 @@ console.log(JSON.stringify({
         "isContentEncodingError": True,
         "message": "content contains an unpaired UTF-16 surrogate",
     }
+
+
+def test_served_text_is_the_browsers_lens_one_bom_dropped_everything_else_exact():
+    """W-7 (wave re-review): `served_text` is the server-side twin of
+    `Response.text()` -- strict UTF-8, EXACTLY ONE leading byte-order mark
+    dropped, and no newline translation -- and both halves of that rule were
+    unpinned: never-strip and strip-ALL mutations both left the suite green.
+    Each clause below refuses one of those mutations."""
+    # exactly one leading BOM is dropped ...
+    assert served_text("﻿body".encode("utf-8")) == "body"
+    # ... and ONLY one: a doubled BOM keeps the second (it is content)
+    assert served_text("﻿﻿body".encode("utf-8")) == "﻿body"
+    # a BOM that is not leading is content
+    assert served_text("a﻿b".encode("utf-8")) == "a﻿b"
+    # no BOM: bytes decode untouched
+    assert served_text(b"plain") == "plain"
+    # CR and CRLF survive -- the newline half of the lens
+    assert served_text(b"a\r\nb\rc\n") == "a\r\nb\rc\n"
+    # strict decode: malformed bytes raise rather than substitute
+    import pytest as _pytest
+    with _pytest.raises(UnicodeDecodeError):
+        served_text(b"\xff\xfe\x00")
