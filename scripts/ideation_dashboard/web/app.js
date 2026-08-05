@@ -217,10 +217,14 @@ export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
           ? "console_required" : "unreadable",
       });
     }
-    // A 200 with an unparseable body fails CLOSED to the editor-only
-    // posture, matching the turn submitter's own catch below (PR #63
-    // triage item 14); the rail reads that null as its own
-    // could-not-be-read posture.
+    // A 200 with an unparseable body returns null -- the transport invents
+    // no envelope, matching the turn submitter's own catch below (PR #63
+    // triage item 14). What the CONSUMER does with that null (P3-11 fixed
+    // this comment's drift): the rail's one-shot catalog path records it as
+    // the catalog-UNREADABLE failure -- "the model catalog could not be
+    // read" -- NOT the editor-only configured-none posture this line used to
+    // claim. An answer that cannot be read is a failure fact with its own
+    // remedy, never evidence that nothing is configured (T104 F10-1).
     return response.json().catch(() => null);
   };
 }

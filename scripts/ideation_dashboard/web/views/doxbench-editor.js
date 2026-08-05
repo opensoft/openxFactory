@@ -238,6 +238,25 @@ function bufferTextFor(displayValue, flavor) {
   return flavor === "crlf" ? displayValue.replace(/\r?\n/g, "\r\n") : displayValue;
 }
 
+// P3-1 (wave re-review P3 tail): the first-break rule's one honest cost,
+// STATED. Unifying a mixed-EOL document on the first keystroke makes the
+// buffer dirty while the textarea's display is byte-identical to the loaded
+// text -- invisible dirtiness, and a Save then commits a whole-file
+// line-ending diff nobody saw coming. When that is the ONLY difference (the
+// display projections agree while the bytes do not), the status line says so
+// in this fixed sentence instead of the bare "unsaved changes" a reader
+// could never square with an unchanged-looking buffer. Fixed vocabulary, on
+// purpose: it names the situation, never the content.
+const EOL_ONLY_DIRTY_STATUS =
+  "unsaved changes -- line endings only: this document mixed CR LF styles "
+  + "and saving unifies them";
+
+function eolOnlyDirty(buffer) {
+  return buffer.dirty
+    && buffer.content !== buffer.base_content
+    && displayText(buffer.content) === displayText(buffer.base_content);
+}
+
 // G-1: the outline-only posture, stated in the two places the operator looks
 // for a document — the picker's own label and the Document buffer's status.
 export const OUTLINE_ONLY_LABEL =
@@ -395,13 +414,25 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     const discardBtn = el("button", "doxbench-discard", "Discard");
     discardBtn.type = "button";
     discardBtn.title = "restore this buffer to its last loaded or saved text";
+    // P3-2 (wave re-review P3 tail): DISABLED from construction, like the
+    // textarea beside it (the F6-2 honest posture) -- its click handler
+    // discards discard()'s refusal object, so through the loading window
+    // (and forever after a failed load, where syncBufferDom never runs) an
+    // enabled Discard was a silently dead control. The first syncBufferDom
+    // re-derives the real enabled state.
+    discardBtn.disabled = true;
     discardBtn.addEventListener("click", () => { discard(tab.key); });
     const saveBtn = el("button", "doxbench-save", "Save");
     saveBtn.type = "button";
     if (saveSeam) {
       saveBtn.title = "save this canvas's changed buffers through the existing "
         + "governance actions";
-      saveBtn.setAttribute("aria-disabled", "false");
+      // P3-2: the WIRED control is still not reachable before working state
+      // exists -- save() refuses with the loading line and the click handler
+      // drops that refusal, so the button mounts disabled like everything
+      // else and the first syncBufferDom flips it live.
+      saveBtn.disabled = true;
+      saveBtn.setAttribute("aria-disabled", "true");
       saveBtn.addEventListener("click", () => { save(); });
     } else {
       saveBtn.disabled = true;
@@ -479,7 +510,13 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // taught them to); the active-document choice is workbench state, not a
       // form answer, so autofill is refused here like the textareas above.
       picker.setAttribute("autocomplete", "off");
-      picker.disabled = candidatePaths.length === 0;
+      // P3-2: disabled from construction like the buttons above -- a change
+      // during the loading window is refused by selectDocument (W-9 keeps
+      // that refusal visible as defense in depth), but the honest posture is
+      // a control the browser physically refuses. The first syncBufferDom
+      // re-derives it: enabled exactly when the scope offers candidates and
+      // no Save is in flight (the G-1 outline-only posture stays disabled).
+      picker.disabled = true;
       for (const candidate of candidatePaths) {
         const opt = document.createElement("option");
         opt.value = candidate;
@@ -662,6 +699,14 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (textarea.value !== display) textarea.value = display;
     statusEls[kind].textContent = statusLine(kind, buffer);
     statusEls[kind].classList.toggle("is-dirty", buffer.dirty);
+    // P3-2: the picker's enabled state is re-derived here in BOTH postures,
+    // ending the mount-time disabled window (and, after a failed load, never
+    // reached at all -- exactly the honest permanent posture). The G-1
+    // outline-only rule holds: no candidates, no enabled picker.
+    if (documentPicker) {
+      documentPicker.disabled = saving
+        || (currentProjection.active_document_candidates || []).length === 0;
+    }
     if (saveSeam) {
       // With a governed Save wired, Discard restores the last SAVED text, so it
       // stays available on a clean buffer (a no-op there, and a control that
@@ -672,7 +717,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       saveButtons[kind].disabled = saving;
       saveButtons[kind].setAttribute("aria-disabled", saving ? "true" : "false");
       discardButtons[kind].disabled = saving;
-      if (documentPicker) documentPicker.disabled = saving;
       guardSaveBtn.disabled = saving;
       guardDiscardBtn.disabled = saving;
       guardCancelBtn.disabled = saving;
@@ -733,7 +777,11 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       }
       return buffer.dirty ? "unsaved changes" : "no unsaved changes";
     }
-    const dirtyText = buffer.dirty ? "unsaved changes" : "no unsaved changes";
+    // P3-1: display-invisible dirtiness gets its own sentence (only reachable
+    // here -- an empty content can never be display-identical to a dirty base).
+    const dirtyText = buffer.dirty
+      ? (eolOnlyDirty(buffer) ? EOL_ONLY_DIRTY_STATUS : "unsaved changes")
+      : "no unsaved changes";
     if (buffer.load_state === "unavailable") {
       return dirtyText + " (source unavailable -- the original could not be loaded)";
     }
@@ -881,6 +929,11 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     try {
       completion = await pending.completion;
     } catch (error) {
+      // P3-10: the corpse check comes FIRST, same as the settle path below --
+      // a destroy that landed while this hash was in flight already persisted
+      // its own final record, and a rollback here would mutate and re-sync a
+      // torn-down mount.
+      if (destroyed) return { ok: false, error: DESTROYED_REASON };
       // Refused honestly: never a silent crash, never a corrupted buffer. The
       // buffer keeps its previous content, hash, and dirty flag exactly --
       // but only while THIS edit is still the live one. The refusal path is
@@ -898,6 +951,15 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         : "could not process this edit -- " + (error && error.message ? error.message : "unknown error");
       return { ok: false, error: message };
     }
+    // P3-10 (wave re-review P3 tail): a hash that settles AFTER destroy()
+    // stops here, before any persist or notification. destroy() ends in its
+    // OWN persistNow (its last legitimate write, made while `destroyed` is
+    // already true -- which is why this guard lives on the settle path and
+    // not inside persistNow itself), and the FR-039 clear may then remove
+    // that record; letting this continuation run re-persisted the cleared
+    // record under the dead key and fired a late onIdentitySettled into a
+    // torn-down composition.
+    if (destroyed) return { ok: false, error: DESTROYED_REASON };
     // Paired against the LIVE buffer, never the snapshot this edit started
     // from -- that snapshot's own generation would trivially always match
     // its own completion, defeating the staleness check entirely (a real

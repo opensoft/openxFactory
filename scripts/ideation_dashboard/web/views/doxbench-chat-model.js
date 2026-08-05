@@ -233,13 +233,19 @@ function boundedAppend(transcriptValue, humanContent, assistantContent) {
 
 // T104 F5-2: the WIRE window — what the next turn REQUEST may carry as its
 // `transcript`, distinct from what the operator is shown. The request-side
-// bound is the server's own (64,000 bytes, MAX_TRANSCRIPT_TURNS pairs);
-// eviction is oldest-first by whole pairs, and when even the newest pair
-// alone exceeds the bound the honest answer is to send what fits — an EMPTY
-// wire transcript — while the display above keeps the pair. Turn-cap
-// semantics stay enforced on the display side (boundedAppend, as before);
-// this window re-checks both bounds because a RESTORED transcript reaches
-// the wire without passing through boundedAppend.
+// bounds are the server's own: 64,000 bytes, and MAX_TRANSCRIPT_TURNS = 20
+// TURNS — i.e. 10 whole human/assistant pairs, which is what the loop below
+// enforces (P3-5 fixed this comment: it used to say "MAX_TRANSCRIPT_TURNS
+// pairs", twice the real bound; the code was always right). Eviction is
+// oldest-first by whole pairs, and when even the newest pair alone exceeds
+// the byte bound the honest answer is to send what fits — an EMPTY wire
+// transcript — while the display above keeps the pair. Shipping OLDER pairs
+// that would fit without the newest was considered and REJECTED: a wire
+// transcript whose most recent context predates the question it accompanies
+// misgrounds the turn, so contiguity-with-recency wins over salvage.
+// Turn-cap semantics stay enforced on the display side (boundedAppend, as
+// before); this window re-checks both bounds because a RESTORED transcript
+// reaches the wire without passing through boundedAppend.
 export function transcriptWireWindow(stateValue) {
   let window = stateValue.transcript;
   while (window.length > 0
@@ -475,13 +481,32 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       ? raw.status : "current";
     records[raw.target] = proposalRecord(raw, status);
   }
+  // P3-6(a)/(b): only WELL-FORMED turns survive a restore — a released role
+  // AND a real string content. `String(t.content)` used to FABRICATE the
+  // literal string "undefined" for a turn whose content was missing or
+  // non-string: invented transcript bytes rendered as if the operator's own
+  // conversation contained them. Such turns are dropped whole, like the
+  // foreign-role turns beside them. Beyond well-formedness, PAIR ALIGNMENT
+  // is the snapshot author's problem: a dropped turn can leave human and
+  // assistant turns unpaired, and this restore deliberately does not
+  // re-pair — the display and the wire window both operate on turns, and
+  // reconstructing pairs from a corrupted snapshot would be fabrication of
+  // a different kind.
   const transcript = Object.freeze(
     (Array.isArray(snapshotValue.transcript) ? snapshotValue.transcript : [])
-      .filter((t) => t && (t.role === "human" || t.role === "assistant"))
-      .map((t) => Object.freeze({ role: t.role, content: String(t.content) })));
+      .filter((t) => t && (t.role === "human" || t.role === "assistant")
+        && typeof t.content === "string")
+      .map((t) => Object.freeze({ role: t.role, content: t.content })));
   const restored = next(stateValue, {
+    // P3-6(c): a persisted field is adopted only if it still fits its own
+    // byte bound — the same exact-UTF-8 rule editSubject/editComposer
+    // enforce live. Refused-never-truncated: an over-bound (or non-string)
+    // restored field is dropped WHOLE, to the empty string, never trimmed
+    // to fit; otherwise a hand-edited or future-versioned snapshot could
+    // seed the state with text the bounds refuse to ever send.
     workingSubject: typeof snapshotValue.workingSubject === "string"
-      ? snapshotValue.workingSubject : stateValue.workingSubject,
+      && utf8Size(snapshotValue.workingSubject) <= MAX_WORKING_SUBJECT_BYTES
+      ? snapshotValue.workingSubject : "",
     // T104 F5-7: a persisted id is a claim about a catalog that may have
     // changed while the tile was closed, so it is adopted ONLY if the
     // restored state's catalog vouches for it (selectModel's own rule; the
@@ -499,6 +524,7 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
         || catalogVouchesFor(stateValue.models, snapshotValue.selectedModelId)
         ? snapshotValue.selectedModelId : null),
     composer: typeof snapshotValue.composer === "string"
+      && utf8Size(snapshotValue.composer) <= MAX_MESSAGE_BYTES
       ? snapshotValue.composer : "",
     transcript,
     proposals: Object.freeze(records),

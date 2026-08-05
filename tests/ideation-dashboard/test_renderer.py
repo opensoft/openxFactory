@@ -338,6 +338,10 @@ class FakeNode {
 // holder/button nodes on every innerHTML assignment (the preview re-render).
 class Container extends FakeNode {
   set innerHTML(html) {
+    // Real innerHTML assignment DETACHES the previous children (P3-9's
+    // load-bearing fact: a rebuilt preview leaves the old <img> parentless,
+    // yet its in-flight error event can still fire afterwards).
+    for (const child of this.children) child.parentNode = null;
     this.children = []; this._text = '';
     const holderRe = /<span class="ext-img" data-src="([^"]*)" data-label="([^"]*)">/g;
     let m;
@@ -440,6 +444,29 @@ out.otherContainer = {
   placeholders: byClass(other, 'ext-img').length,
 };
 
+// 7 (P3-9): a DETACHED img's late error must not revoke the LIVE container's
+// consent. The consent WeakMap is keyed by container and survives the
+// rebuild, but the error handler was wired on the OLD img — an in-flight
+// load detached by a per-keystroke preview rebuild could fire late and
+// delete the src the human consented to, so the visibly-loaded (re-wired)
+// image reverted to a placeholder on the NEXT rebuild.
+const late = new Container('div');
+mountSafeMarkdown(late, SOURCE);
+fire(byClass(late, 'ext-img-load')[0], 'click');
+const firstImg = byClass(late, 'ext-img-loaded')[0];
+mountSafeMarkdown(late, SOURCE);   // the rebuild detaches firstImg and re-wires
+const rewired = byClass(late, 'ext-img-loaded')[0];
+fire(firstImg, 'error');           // the detached corpse's late error
+out.staleError = {
+  firstDetached: firstImg.parentNode === null,
+  rewiredIsFresh: rewired !== firstImg,
+  imagesAfterLateError: byClass(late, 'ext-img-loaded').length,
+};
+mountSafeMarkdown(late, SOURCE);   // consent must survive into the NEXT rebuild
+out.staleError.imagesAfterNextRebuild = byClass(late, 'ext-img-loaded').length;
+out.staleError.placeholdersAfterNextRebuild = byClass(late, 'ext-img').length;
+// ...while a LIVE image's error still revokes (scenarios 3/4 above pin that)
+
 console.log(JSON.stringify(out));
 """
 
@@ -514,6 +541,25 @@ def test_load_consent_is_per_container(ext_img_results):
     o = ext_img_results["otherContainer"]
     assert o["images"] == 0
     assert o["placeholders"] == 2
+
+
+def test_a_detached_imgs_late_error_does_not_revoke_the_live_consent(
+        ext_img_results):
+    """P3-9 (wave re-review P3 tail): the consent WeakMap is keyed by
+    CONTAINER and survives every rebuild — but the error handler was wired on
+    an img the rebuild may have already detached. An in-flight load's late
+    error then revoked the LIVE container's consent for that src, so the
+    visibly-loaded, re-wired image reverted to a placeholder on the next
+    per-keystroke rebuild. The handler now acts only while its img is still
+    attached; a live image's failure still revokes (pinned above)."""
+    s = ext_img_results["staleError"]
+    assert s["firstDetached"] is True, "precondition: the rebuild detached it"
+    assert s["rewiredIsFresh"] is True, "precondition: consent re-wired a fresh img"
+    assert s["imagesAfterLateError"] == 1, (
+        "the late error must not touch the re-wired image")
+    assert s["imagesAfterNextRebuild"] == 1, (
+        "the late error revoked the live container's consent — the finding")
+    assert s["placeholdersAfterNextRebuild"] == 1
 
 
 def test_the_session_transport_stays_out_of_the_fetch_bearing_set():

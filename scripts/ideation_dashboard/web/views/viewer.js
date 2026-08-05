@@ -130,6 +130,19 @@ function loadedExternalImage(container, src, label) {
   img.className = "ext-img-loaded";
   img.alt = label;
   img.addEventListener("error", () => {
+    // P3-9 (wave re-review P3 tail): act only while THIS img is still in the
+    // container. The consent record is keyed by CONTAINER and survives every
+    // rebuild — but an in-flight load detached by a per-keystroke preview
+    // rebuild can still fire its error afterwards, and revoking here then
+    // punished the LIVE container: its re-wired, visibly-loaded image
+    // reverted to a placeholder on the next rebuild. A detached corpse's
+    // late error says nothing about the live consent, so it is ignored; a
+    // failure on the ATTACHED image still revokes exactly as before. The
+    // walk is over parentNode (not Node.isConnected) so the same rule holds
+    // in the DOM-shim harnesses.
+    let node = img.parentNode;
+    while (node && node !== container) node = node.parentNode;
+    if (node !== container) return;
     consentSetFor(container).delete(src);
     img.replaceWith(retryPlaceholder(container, src, label));
   });
@@ -153,6 +166,15 @@ function wireLoadButton(container, btn) {
 // REBUILD of a container the human already loaded images in, the consented
 // srcs are re-loaded without a second click (F6-5): the consent was given per
 // src in this container, and a re-render must not revoke it.
+//
+// AS DESIGNED (P3-9 review, recorded not fixed): re-loading a consented src on
+// every debounced preview rebuild creates a fresh <img src> per keystroke.
+// That is the browser cache's problem, and the browser owns it — an ordinary
+// cacheable image is served from cache after the first load (these <img>
+// loads carry no no-cache directive; only the viewer's DOCUMENT fetches use
+// no-store), and a server that marks its images uncacheable has asked for
+// exactly this traffic. Debouncing or memoizing loads here would duplicate
+// the cache with a worse one.
 function wireExternalImages(container) {
   for (const btn of container.querySelectorAll(".ext-img-load")) {
     wireLoadButton(container, btn);

@@ -111,11 +111,23 @@ const CATALOG_UNREADABLE_NOTE =
   "chat is unavailable — the model catalog could not be read; both editors "
   + "remain fully usable.";
 
+// P3-8 (wave re-review P3 tail): the mount-to-catalog WINDOW. Between mount
+// and the one-shot catalog ready settling, `models` is still null and no
+// failure has been recorded — the page does not yet KNOW whether a model is
+// configured, so the configured-none sentence was a claim it could not make
+// (wrong for the whole fetch window on every capable plane). A fixed loading
+// sentence holds the spot; the settled three-way posture below takes over
+// the moment the ready adopts or records a failure.
+const CHAT_CATALOG_LOADING_NOTE = "chat is checking the model catalog…";
+
 function unavailabilityNote(stateValue) {
   if (stateValue.catalogFailure === "console_required") {
     return CONSOLE_TOKEN_STALE.message;
   }
   if (stateValue.catalogFailure) return CATALOG_UNREADABLE_NOTE;
+  // models === null is "no catalog has answered yet" (createChatState's
+  // starting shape; adoptCatalog and recordCatalogFailure are the only exits)
+  if (stateValue.models === null) return CHAT_CATALOG_LOADING_NOTE;
   return CHAT_UNAVAILABLE_NOTE;
 }
 
@@ -533,9 +545,12 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // before any catalog has adopted), so the rail never looks fully live
   // beside the shell's "chat is unavailable" posture line; a catalog that
   // arrives later swaps it back for the live selector through the ordinary
-  // render — the rail is never unmounted for this.
+  // render — the rail is never unmounted for this. P3-8: it is SEEDED with
+  // the loading sentence, not the configured-none claim — at construction
+  // the catalog has not answered, and render() keeps whichever sentence
+  // unavailabilityNote derives from the state's own facts.
   const unavailableNote = el("div", "doxchat-unavailable",
-                             CHAT_UNAVAILABLE_NOTE);
+                             CHAT_CATALOG_LOADING_NOTE);
   const transcriptList = el("ul", "doxchat-transcript");
   transcriptList.setAttribute("aria-label", "chat transcript");
   const failureNote = el("div", "doxchat-failure");
@@ -573,9 +588,9 @@ export function mountDoxBenchChatRail(host, options = {}) {
       + " · Document: " + nameOf(documentBuffer);
   }
 
-  function restoreFocus(node) {
-    if (node && typeof node.focus === "function") node.focus();
-  }
+  // (The captured-node `restoreFocus` helper that used to live here went
+  // with P3-7: the send path was its last caller, and it embodied exactly
+  // the restore-by-node pattern F7-4 and P3-7 retired.)
 
   // T104 F7-4: focus after a card action is restored by IDENTITY (proposal
   // target + role), never by the captured node — renderCards() rebuilds the
@@ -715,20 +730,40 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // The refusal lands on the visible channel (recordLocalFailure), naming
   // the bound; the render that follows reverts the DOM to the last accepted
   // text, which is the refused-never-truncated posture made visible.
+  //
+  // P3-4 (wave re-review P3 tail): the over-bound notes are PRESENT-TENSE
+  // claims ("this message exceeds the ... bound") that go false the moment
+  // the text is shortened — and in the editor-only posture, where no turn
+  // ever settles, nothing else could clear them: the note was permanent. So
+  // a successful in-bound edit clears ITS OWN field's note, and ONLY that:
+  // the other field's note and every other failure class (transport, apply,
+  // send-path) keep the existing settlement-only lifecycle.
+  const clearedOwnBound = (nextState, boundError) =>
+    (nextState.lastFailure && nextState.lastFailure.error === boundError
+      ? clearLocalFailure(nextState) : nextState);
   subjectInput.addEventListener("input", () => {
     const next = editSubject(state, subjectInput.value);
     adopt(next === state
-      ? recordLocalFailure(state, SUBJECT_OVER_BOUND) : next);
+      ? recordLocalFailure(state, SUBJECT_OVER_BOUND)
+      : clearedOwnBound(next, SUBJECT_OVER_BOUND.error));
   });
   composer.addEventListener("input", () => {
     const next = editComposer(state, composer.value);
     adopt(next === state
-      ? recordLocalFailure(state, MESSAGE_OVER_BOUND) : next);
+      ? recordLocalFailure(state, MESSAGE_OVER_BOUND)
+      : clearedOwnBound(next, MESSAGE_OVER_BOUND.error));
   });
   selector.addEventListener("change",
     () => adopt(selectModel(state, selector.value)));
   sendBtn.addEventListener("click", async () => {
-    const focused = doc.activeElement;
+    // P3-7 (wave re-review P3 tail): focus is restored by INTENT, never by
+    // the captured node — the F7-4 class, on the send path. A send that
+    // settles successfully clears the composer, canSend goes false, and
+    // render() disables Send: `.focus()` on the captured, now-disabled
+    // control no-ops and a keyboard operator landed on <body>. What is
+    // captured is only the FACT that Send held focus, for the failure case.
+    const sendHadFocus = doc.activeElement === sendBtn;
+    let succeeded = false;
     let settled = false;
     try {
       const result = await dispatcher.submit(state, {
@@ -746,6 +781,31 @@ export function mountDoxBenchChatRail(host, options = {}) {
         liveState: () => state,
       });
       if (result.state) adopt(result.state);
+      succeeded = result.ok === true;
+      // P3-3 (wave re-review P3 tail): proposals adopted from an in-flight
+      // turn scored `current` unconditionally — a document switch or Discard
+      // landing DURING the flight fired its identity event before these
+      // proposals existed, so nothing ever re-scored them and the card
+      // offered an enabled Apply against text the buffer no longer held.
+      // Re-score the just-adopted set against the LIVE editor identities.
+      // An UNSETTLED identity (hash_pending) cannot re-score, so the
+      // re-score is skipped entirely in that window — the stated choice:
+      // that buffer's own settle fires onIdentitySettled, which reaches
+      // refreshCurrency through the composition moments later.
+      if (succeeded) {
+        const liveEditor = typeof editorState === "function"
+          ? editorState() : editorState;
+        const outline = liveEditor && liveEditor.buffers
+          && liveEditor.buffers.outline;
+        const documentBuffer = liveEditor && liveEditor.buffers
+          && liveEditor.buffers.document;
+        if (bufferSettled(outline) && bufferSettled(documentBuffer)) {
+          adopt(refreshProposalCurrency(state, {
+            outline: hexOf(outline.current_hash),
+            document: hexOf(documentBuffer.current_hash),
+          }));
+        }
+      }
       settled = true;
     } finally {
       // T100 P1-2 defense-in-depth: an unexpected throw anywhere above must
@@ -754,7 +814,19 @@ export function mountDoxBenchChatRail(host, options = {}) {
       if (!settled && state.phase === "in_flight") {
         adopt(settleTurnFailure(state, SEND_PATH_FAILED));
       }
-      restoreFocus(focused);
+      // P3-7, the intent rules. SUCCESS: the composer, where the next
+      // message starts. FAILURE (refusals and abandons included): the
+      // re-enabled Send control if that is where the operator was — the
+      // retry is one keypress — else the composer, where the preserved
+      // message is edited. The disabled check keeps the fallback honest for
+      // failures that leave Send closed (e.g. no model selected).
+      if (succeeded) {
+        composer.focus();
+      } else if (sendHadFocus && sendBtn.disabled !== true) {
+        sendBtn.focus();
+      } else {
+        composer.focus();
+      }
     }
   });
 
@@ -785,6 +857,13 @@ export function mountDoxBenchChatRail(host, options = {}) {
       } else {
         adopt(recordCatalogFailure(state, "unreadable"));
       }
+    } else {
+      // P3-8: no catalog transport means no answer will EVER settle -- the
+      // loading sentence would stand forever, a different lie. The honest
+      // fact is "this plane cannot read a catalog", which IS the unreadable
+      // posture. (The shell only mounts the rail with both transports, so
+      // this arm is a composition-error backstop, not a production path.)
+      adopt(recordCatalogFailure(state, "unreadable"));
     }
   })();
   render();

@@ -1172,6 +1172,32 @@ out.driftedHashes = { outline: proposalsOf(drifted).outline.status,
 // A foreign/garbage blob is refused fail-closed (fresh state kept).
 out.foreign = restoreChatState(createChatState(KEY), { kind: "nope" },
   { outline: OUTLINE, document: DOCUMENT }).workingSubject;
+
+// P3-6 (wave re-review P3 tail): a CORRUPTED snapshot through the same door.
+// (a) a turn with missing/non-string content used to fabricate the literal
+//     string "undefined" (String(t.content)) -- such turns are DROPPED;
+// (b) a turn with a foreign role is dropped the same way (well-formed turns
+//     only; pair alignment beyond that is the snapshot author's problem);
+// (c) an over-bound subject/composer is dropped WHOLE (refused, never
+//     truncated -- the same byte rule editSubject/editComposer enforce live).
+const corrupted = { ...snap,
+  transcript: [
+    { role: "human" },                                   // (a) content absent
+    { role: "assistant", content: 42 },                  // (a) content non-string
+    { role: "system", content: "not a released role" },  // (b) foreign role
+    { role: "human", content: "kept" },
+    { role: "assistant", content: "also kept" },
+  ],
+  workingSubject: "s".repeat(513),                       // (c) over the 512 bound
+  composer: "c".repeat(16385),                           // (c) over the 16384 bound
+};
+const cleaned = restoreChatState(createChatState(KEY), corrupted,
+  { outline: OUTLINE, document: DOCUMENT });
+out.corrupted = {
+  turns: transcriptWindow(cleaned).map((t) => [t.role, t.content]),
+  subject: cleaned.workingSubject,
+  composer: cleaned.composer,
+};
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -1216,6 +1242,39 @@ def test_a_proposal_whose_base_moved_while_closed_restores_stale(restore_results
 
 def test_a_foreign_snapshot_is_refused_fail_closed(restore_results):
     assert restore_results["foreign"] == ""
+
+
+def test_a_restored_turn_with_missing_or_non_string_content_is_dropped(
+        restore_results):
+    """P3-6(a) (wave re-review P3 tail): `String(t.content)` fabricated the
+    literal string "undefined" for a restored turn whose content was missing
+    or non-string -- invented transcript bytes shown as if the operator's
+    conversation contained them. Such turns are dropped whole."""
+    turns = restore_results["corrupted"]["turns"]
+    assert ["human", "undefined"] not in turns
+    assert not any("undefined" == content for _, content in turns), turns
+    assert not any(content == "42" for _, content in turns), (
+        "a non-string content was stringified instead of dropped")
+
+
+def test_only_well_formed_turns_survive_a_restore(restore_results):
+    """P3-6(b): a foreign-role turn is dropped beside the malformed-content
+    ones -- only well-formed turns (released role AND string content) survive.
+    Pair alignment beyond well-formedness is the snapshot author's problem
+    (stated in the module comment); nothing here re-pairs."""
+    assert restore_results["corrupted"]["turns"] == [
+        ["human", "kept"], ["assistant", "also kept"]]
+
+
+def test_an_over_bound_restored_subject_or_composer_is_dropped_whole(
+        restore_results):
+    """P3-6(c): the restore adopted workingSubject/composer on a bare typeof
+    with no byte re-check, so a snapshot (hand-edited, or written by a future
+    version with different bounds) could seed the live state with text the
+    bounds refuse to ever send. Refused-never-truncated: an over-bound
+    restored field is dropped whole."""
+    assert restore_results["corrupted"]["subject"] == ""
+    assert restore_results["corrupted"]["composer"] == ""
 
 
 def test_the_stale_console_token_mapping_covers_both_route_spellings():
@@ -1630,7 +1689,11 @@ const editorState = () => ({ buffers: {
     editorState, activeDocumentPath: () => "docs/detail.md" });
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
+  // P3-8: the mount-to-catalog window's own words are part of the pin -- the
+  // rail must not claim a configuration fact ("no approved model is
+  // configured") it cannot know until the one-shot catalog ready settles.
   const beforeCatalog = { noteHidden: note ? note.hidden : null,
+                          noteText: note ? note.textContent : null,
                           selectorHidden: selector.hidden };
   resolveCatalog({ schema_version: 1, kind: "workbench-model-catalog",
                    models: [ENTRY] });
@@ -1724,11 +1787,31 @@ def test_a_catalog_arriving_later_replaces_the_note_with_the_live_selector(
         rail_dom_results):
     l = rail_dom_results["lateCatalog"]
     # before the catalog resolves the rail is honest about having no model
-    assert l["beforeCatalog"] == {"noteHidden": False, "selectorHidden": True}
+    assert l["beforeCatalog"]["noteHidden"] is False
+    assert l["beforeCatalog"]["selectorHidden"] is True
     # the rail was never unmounted, so the arriving catalog lights it up
     assert l["noteHidden"] is True
     assert l["selectorHidden"] is False
     assert "model-a" in l["options"]
+
+
+def test_the_mount_to_catalog_window_reads_the_loading_sentence(
+        rail_dom_results):
+    """P3-8 (wave re-review P3 tail): the rail seeded CHAT_UNAVAILABLE_NOTE
+    ("no approved model is configured") BEFORE the catalog had answered -- a
+    configuration claim the page could not yet know, wrong for the whole
+    fetch window on every capable plane. Until the one-shot ready settles
+    (adopt or failure) the note reads a fixed loading sentence; the settled
+    three-way posture (configured-none / stale token / unreadable) is pinned
+    unchanged by the surrounding tests."""
+    before = rail_dom_results["lateCatalog"]["beforeCatalog"]
+    assert "checking the model catalog" in (before["noteText"] or "")
+    assert "no approved model" not in (before["noteText"] or ""), (
+        "the mount-to-catalog window claimed a configuration fact it "
+        "cannot know yet")
+    # and once the catalog settles empty, the configured-none sentence stands
+    settled = rail_dom_results["emptyCatalog"]
+    assert "no approved model" in settled["noteText"]
 
 
 def test_a_refused_apply_renders_a_failure_note_and_announces_it(
@@ -1781,8 +1864,19 @@ class Node {
     this.tagName = String(tag).toUpperCase();
     this.children = []; this.attributes = {}; this.listeners = {};
     this.className = ''; this._text = ''; this.hidden = false;
-    this.disabled = false; this.value = ''; this.parentNode = null;
+    this._disabled = false; this.value = ''; this.parentNode = null;
     this.title = ''; this.type = '';
+  }
+  // P3-7's third browser fact, beside connectedness and detach-on-rebuild:
+  // DISABLING the focused control drops focus (activeElement -> <body> in a
+  // browser, null here). This is exactly what happens to the Send button the
+  // moment a send settles successfully -- the composer clears, canSend goes
+  // false, render() disables it -- so a captured-node restore has nowhere
+  // honest to land.
+  get disabled() { return this._disabled; }
+  set disabled(v) {
+    this._disabled = !!v;
+    if (this._disabled && doc.activeElement === this) doc.activeElement = null;
   }
   get textContent() {
     return this._text + this.children.map((c) => c.textContent).join('');
@@ -1850,7 +1944,10 @@ function mountRail(overrides = {}) {
       catalog: overrides.catalog || GOOD_CATALOG,
       chatTurn: overrides.chatTurn
         || (async () => ({ ok: true, status: 200, payload: SUCCESS })) },
-    editorState, activeDocumentPath: () => "docs/detail.md",
+    // P3-3 needs a LIVE editor-state provider whose identities can move
+    // between submit and settle; every other scenario keeps the fixed one.
+    editorState: overrides.editorState || editorState,
+    activeDocumentPath: () => "docs/detail.md",
     applyProposal: overrides.applyProposal || (async () => ({ ok: true })),
     onState: overrides.onState });
   return { host, rail };
@@ -1936,6 +2033,12 @@ async function propose(host) {
     sendDisabled: send.disabled,
     sendLabel: send.textContent,
   };
+  // P3-4's negative half: a TURN failure is not a present-tense claim about
+  // the composer's text, so typing must NOT clear it (only the over-bound
+  // notes gained the same-field clear).
+  composer.value = "typed after the failure"; await fire(composer, "input");
+  out.throwingTurn.failureAfterTyping =
+    rail.state().lastFailure && rail.state().lastFailure.error;
 }
 
 // ---- F7-3(b): an UNEXPECTED throw past the dispatcher's own catches (here:
@@ -2039,12 +2142,34 @@ out.configuredNoneCatalog = await catalogPosture(
     echoed: note.textContent.includes("yyy"),
   };
 
-  // an in-bound edit AFTER a refusal follows the existing lastFailure
-  // lifecycle: the edit lands, and nothing new is invented or cleared here
+  // P3-4: an in-bound edit of a DIFFERENT field leaves the standing note
+  // alone -- the composer's shortening says nothing about the subject's bound
   composer.value = "a shorter question"; await fire(composer, "input");
   out.inBoundAfterRefusal = {
     composer: rail.state().composer,
     error: rail.state().lastFailure && rail.state().lastFailure.error,
+  };
+
+  // P3-4: the SAME-FIELD in-bound edit clears ITS OWN over-bound note -- the
+  // note is a present-tense claim ("this working subject exceeds...") that
+  // went false the moment the text fit the bound
+  subject.value = "a subject that fits"; await fire(subject, "input");
+  out.inBoundSubjectClears = {
+    subject: rail.state().workingSubject,
+    error: (rail.state().lastFailure && rail.state().lastFailure.error) || null,
+    noteHidden: note.hidden,
+  };
+
+  // ...and the composer's own bound behaves identically
+  composer.value = "x".repeat(MAX_MESSAGE_BYTES + 1);
+  await fire(composer, "input");
+  const messageFailureBack =
+    rail.state().lastFailure && rail.state().lastFailure.error;
+  composer.value = "short again"; await fire(composer, "input");
+  out.inBoundComposerClears = {
+    messageFailureBack,
+    error: (rail.state().lastFailure && rail.state().lastFailure.error) || null,
+    noteHidden: note.hidden,
   };
 }
 
@@ -2124,6 +2249,94 @@ out.configuredNoneCatalog = await catalogPosture(
     phase: rail.state().phase,
     transcriptTurns: rail.state().transcript.length,
     sendLabel: send.textContent,
+  };
+}
+
+// ---- P3-3: a turn settling AFTER the active buffer moved re-scores its
+// just-adopted proposals against the LIVE editor identities -- the identity
+// event that would have re-scored them fired BEFORE they existed ----
+{
+  let currentHex = "d".repeat(64);
+  const liveEditorState = () => ({ buffers: {
+    outline: { ...bufferOf("outline", "docs/outline.md"),
+               current_hash: { algorithm: "sha256", hex: currentHex } },
+    document: bufferOf("document", "docs/detail.md") } });
+  let releaseTurn;
+  const turnGate = new Promise((resolve) => { releaseTurn = resolve; });
+  const { host, rail } = mountRail({
+    editorState: liveEditorState,
+    chatTurn: async () => { await turnGate;
+      return { ok: true, status: 200, payload: SUCCESS }; } });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "please propose"; await fire(composer, "input");
+  const sendSettled = fire(byClass(host, "doxchat-send")[0], "click");
+  currentHex = "e".repeat(64);   // the buffer identity moves DURING the flight
+  releaseTurn();
+  await sendSettled;
+  const applyBtn = byClass(host, "doxchat-card-apply")[0] || null;
+  out.settleTimeCurrency = {
+    status: (rail.state().proposals.outline || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+
+// ---- P3-7: send-path focus by INTENT, not by captured node. A successful
+// send clears the composer, canSend goes false, render() disables Send --
+// the captured node can no longer take focus, and the keyboard operator
+// landed on <body> ----
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "a successful send"; await fire(composer, "input");
+  const send = byClass(host, "doxchat-send")[0];
+  send.focus();
+  await fire(send, "click");
+  out.successSendFocus = {
+    sendDisabled: send.disabled,
+    activeIsComposer:
+      doc.activeElement === byClass(host, "doxchat-composer")[0],
+    activeIsNull: doc.activeElement === null,
+  };
+}
+
+// ---- P3-7's failure half: a FAILED send preserves the composer and
+// re-enables Send -- a keyboard operator who was ON Send stays there ----
+{
+  const FAILURE = { ok: false, status: 502, payload: {
+    schema_version: 1, kind: "workbench-chat-turn-failure",
+    client_turn_id: "t", error: "model_failed",
+    message: "the model request failed" } };
+  const { host, rail } = mountRail({ chatTurn: async () => FAILURE });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "a failing send"; await fire(composer, "input");
+  const send = byClass(host, "doxchat-send")[0];
+  send.focus();
+  await fire(send, "click");
+  out.failedSendFocus = {
+    sendDisabled: send.disabled,
+    activeIsSend: doc.activeElement === send,
+  };
+  // ...and one whose focus was NOT on Send lands on the composer, where the
+  // preserved message is edited for the retry
+  const second = mountRail({ chatTurn: async () => FAILURE });
+  await second.rail.ready;
+  const selector2 = byClass(second.host, "doxchat-model")[0];
+  selector2.value = "model-a"; await fire(selector2, "change");
+  const composer2 = byClass(second.host, "doxchat-composer")[0];
+  composer2.value = "another failing send"; await fire(composer2, "input");
+  composer2.focus();
+  await fire(byClass(second.host, "doxchat-send")[0], "click");
+  out.failedSendFocusElsewhere = {
+    activeIsComposer: doc.activeElement === composer2,
   };
 }
 process.stdout.write(JSON.stringify(out));
@@ -2289,18 +2502,40 @@ def test_an_over_bound_subject_paste_names_its_own_bound(focus_throw_results):
 
 def test_in_bound_edits_follow_the_existing_last_failure_lifecycle(
         focus_throw_results):
-    """F10-2's other half: an ordinary in-bound edit invents no failure, and
-    an in-bound edit AFTER a refusal simply lands -- lastFailure keeps the
-    existing lifecycle (cleared by the next successful settlement, exactly
-    like every other failure note)."""
+    """PIN EVOLUTION, P3-4 (wave re-review P3 tail): the lifecycle this test
+    pins CHANGED, deliberately. MESSAGE_OVER_BOUND / SUBJECT_OVER_BOUND are
+    PRESENT-TENSE claims ("this message exceeds the ... bound") that go false
+    the moment the text is shortened -- and in the editor-only posture, where
+    no turn ever settles, nothing else could clear them: the note was
+    permanent. The old rule this test pinned ("an input event neither clears
+    nor replaces the standing failure note") therefore left the rail
+    asserting a falsehood forever.
+
+    The new rule, exactly as narrow as the falsehood: a successful in-bound
+    edit clears ITS OWN field's over-bound note (composer clears
+    message_over_bound, subject clears subject_over_bound) and NOTHING else
+    -- the other field's note stands, and every non-bound failure class
+    (transport_refused here) keeps the existing settlement-only lifecycle."""
     clean = focus_throw_results["inBoundEdit"]
     assert clean["composer"] == "a fair question"
     assert clean["failure"] is None
+    # a composer edit does not clear the SUBJECT's standing note
     after = focus_throw_results["inBoundAfterRefusal"]
     assert after["composer"] == "a shorter question"
-    assert after["error"] == "subject_over_bound", (
-        "the existing lifecycle: an input event neither clears nor replaces "
-        "the standing failure note")
+    assert after["error"] == "subject_over_bound"
+    # the subject's own in-bound edit clears its own note
+    subject_clear = focus_throw_results["inBoundSubjectClears"]
+    assert subject_clear["subject"] == "a subject that fits"
+    assert subject_clear["error"] is None
+    assert subject_clear["noteHidden"] is True
+    # the composer's own bound behaves identically
+    composer_clear = focus_throw_results["inBoundComposerClears"]
+    assert composer_clear["messageFailureBack"] == "message_over_bound"
+    assert composer_clear["error"] is None
+    assert composer_clear["noteHidden"] is True
+    # and a non-bound failure is untouched by typing
+    assert focus_throw_results["throwingTurn"]["failureAfterTyping"] == \
+        "transport_refused"
 
 
 def test_typing_during_a_slow_apply_survives_and_the_proposal_still_lands(
@@ -2329,6 +2564,44 @@ def test_an_apply_spanning_a_turn_settlement_never_resurrects_the_flight(
     assert settled["transcriptTurns"] == 4, \
         "the settled turn's pair must survive the overlapping Apply"
     assert settled["sendLabel"] != "Sending…"
+
+
+def test_a_turn_settling_after_the_buffer_moved_renders_its_proposal_stale(
+        focus_throw_results):
+    """P3-3 (wave re-review P3 tail): proposals adopted from an in-flight
+    turn rendered `current` unconditionally even when a document
+    switch/discard landed during the flight -- the identity event that would
+    have re-scored them fired BEFORE the proposals existed, so the card
+    offered an enabled Apply against text the buffer no longer held (the
+    swap-time gate would refuse it, but the card was lying until then). The
+    success settle path now re-scores the just-adopted set against the LIVE
+    editor identities."""
+    probe = focus_throw_results["settleTimeCurrency"]
+    assert probe["status"] == "stale", (
+        "a proposal grounded on the pre-move identity rendered current")
+    assert probe["applyDisabled"] is True
+
+
+def test_send_focus_follows_intent_not_the_captured_node(focus_throw_results):
+    """P3-7 (wave re-review P3 tail): after a successful send the composer
+    clears, canSend goes false, Send disables -- and restoreFocus(captured
+    node) no-opped on the now-disabled control, landing a keyboard operator
+    on <body> (the class F7-4 fixed for the cards). Focus is now restored by
+    INTENT: a send that settled successfully focuses the composer (where the
+    next message starts); a failed send focuses the re-enabled Send control
+    if that is where focus was, else the composer (where the preserved
+    message is edited for the retry)."""
+    success = focus_throw_results["successSendFocus"]
+    assert success["sendDisabled"] is True, (
+        "precondition: the settled send really disabled the control")
+    assert success["activeIsNull"] is False, "focus dropped to <body>"
+    assert success["activeIsComposer"] is True
+    failed = focus_throw_results["failedSendFocus"]
+    assert failed["sendDisabled"] is False, (
+        "precondition: the failed send re-enabled the control")
+    assert failed["activeIsSend"] is True
+    elsewhere = focus_throw_results["failedSendFocusElsewhere"]
+    assert elsewhere["activeIsComposer"] is True
 
 
 def test_a_landed_apply_clears_the_failure_its_refusal_left_behind(

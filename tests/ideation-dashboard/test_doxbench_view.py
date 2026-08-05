@@ -1214,6 +1214,14 @@ async function inputDuringLoadScenario() {
     outline: controller.elements().textarea('outline').disabled === true,
     document: textarea.disabled === true,
   };
+  // P3-2: the controls whose handlers DROP their refusal objects must be
+  // physically refused too, exactly like the textareas -- a clickable Discard
+  // whose click silently does nothing is the dishonest half of this posture.
+  const duringControls = {
+    discardDisabled: controller.elements().discard('document').disabled === true,
+    saveDisabled: controller.elements().save('document').disabled === true,
+    pickerDisabled: controller.elements().documentPicker().disabled === true,
+  };
   const duringStatus = String(status.textContent);
   let threw = null;
   textarea.value = '# typed before the load settled\n';
@@ -1232,9 +1240,16 @@ async function inputDuringLoadScenario() {
   releaseLoad();
   await controller.ready;
   return {
-    duringDisabled, duringStatus, threw, statusAfterKeystroke, results,
+    duringDisabled, duringControls, duringStatus, threw, statusAfterKeystroke,
+    results,
     afterDisabled: textarea.disabled === true,
     afterContent: controller.state().buffers.document.content,
+    // P3-2: the first syncBufferDom ends the mount-time posture
+    afterControls: {
+      discardDisabled: controller.elements().discard('document').disabled === true,
+      saveDisabled: controller.elements().save('document').disabled === true,
+      pickerDisabled: controller.elements().documentPicker().disabled === true,
+    },
   };
 }
 
@@ -1267,6 +1282,13 @@ async function oversizedInitialLoadScenario() {
     stateIsNull: controller.state() === null,
     textareaDisabled: textarea.disabled === true,
     statusAfterKeystroke: String(status.textContent),
+    // P3-2: after a FAILED load syncBufferDom never runs, so the mount-time
+    // disabled posture is what keeps these controls honest permanently.
+    failedControls: {
+      discardDisabled: controller.elements().discard('document').disabled === true,
+      saveDisabled: controller.elements().save('document').disabled === true,
+      pickerDisabled: controller.elements().documentPicker().disabled === true,
+    },
   };
 }
 
@@ -1361,6 +1383,86 @@ async function eolPreservationScenario() {
   return { loaded, typed, back, applied, lf, lfApplied };
 }
 
+// ---------------------------------------------------------------------------
+// P3-1 (wave re-review P3 tail): EOL-ONLY dirtiness is STATED. The first-break
+// rule unifies a mixed-EOL document on the first keystroke, so a buffer can be
+// dirty while the textarea's display is byte-identical to the loaded text --
+// invisible dirtiness, and a Save then commits a whole-file line-ending diff
+// nobody saw. The status line must state that fact in fixed vocabulary, while
+// an ordinarily dirty buffer keeps the ordinary sentence.
+// ---------------------------------------------------------------------------
+async function eolOnlyDirtyScenario() {
+  const MIXED_PATH = 'ideation/staging/topic-x/mixed.md';
+  // first line break is CRLF (names the flavor); one stray LF line mixes it
+  const MIXED_BASE = '# Title\r\nline a\nline b\r\n';
+  const map = { ...CONTENT, [MIXED_PATH]: MIXED_BASE };
+  const projection = makeProjection({
+    editable_paths: [OUTLINE_PATH, MIXED_PATH],
+    context_paths: [OUTLINE_PATH, MIXED_PATH],
+    active_document_candidates: [MIXED_PATH],
+  });
+  const controller = mountDoxBenchCanvas(new Node('div'), projection, {
+    loadSource: makeLoadSource(map, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const textarea = controller.elements().textarea('document');
+  const status = controller.elements().status('document');
+  // type-and-revert in the display domain: the textarea's value is unchanged,
+  // but read-back re-flavors the stray LF line to the document's own CRLF --
+  // the bytes move while the display does not.
+  textarea.value = textarea.value;
+  await fireEvent(textarea, 'input');
+  const buffer = controller.state().buffers.document;
+  const eolOnly = {
+    dirty: buffer.dirty,
+    bytesMoved: buffer.content !== buffer.base_content,
+    displayIdentical: textarea.value === buffer.base_content.replace(/\r\n?/g, '\n'),
+    status: String(status.textContent),
+  };
+  // an ORDINARY dirty edit keeps the ordinary sentence
+  textarea.value = textarea.value + 'typed\n';
+  await fireEvent(textarea, 'input');
+  const ordinary = { status: String(status.textContent) };
+  return { eolOnly, ordinary };
+}
+
+// ---------------------------------------------------------------------------
+// P3-10 (wave re-review P3 tail): an edit whose async hash settles AFTER
+// destroy() must leave the world alone. The settle continuation used to run
+// to completion on the corpse -- replaceBuffer, persistNow, onIdentitySettled
+// -- so a destroy followed by the FR-039 clear had its cleared record quietly
+// re-persisted by the losing race. destroy()'s OWN persist (before the clear)
+// is legitimate and stays.
+// ---------------------------------------------------------------------------
+async function destroyDuringEditSettleScenario() {
+  const RACE = '# destroyed mid-hash\n';
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  const gatedHash = async (content) => {
+    if (content === RACE) await gate;
+    return contentIdentity(content);
+  };
+  const storage = new FakeStorage();
+  const settledKinds = [];
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage, previewDelayMs: 5,
+    hash: gatedHash,
+    onIdentitySettled: (kind) => settledKinds.push(kind),
+  });
+  await controller.ready;
+  const editPromise = controller.edit('document', RACE);
+  controller.destroy();       // persists its own final record on the way out
+  storage.values.clear();     // the FR-039-style clear then removes it
+  const notifiedBeforeSettle = settledKinds.length;
+  release();
+  const editResult = await editPromise;
+  return {
+    editResult,
+    storageKeysAfterSettle: [...storage.values.keys()],
+    lateNotifications: settledKinds.length - notifiedBeforeSettle,
+  };
+}
+
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 
 const results = {
@@ -1394,6 +1496,8 @@ const results = {
   inputDuringLoad: await inputDuringLoadScenario(),
   oversizedLoad: await oversizedInitialLoadScenario(),
   eolPreservation: await eolPreservationScenario(),
+  eolOnlyDirty: await eolOnlyDirtyScenario(),
+  destroyDuringEditSettle: await destroyDuringEditSettleScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -3437,6 +3541,64 @@ def test_a_picker_change_during_the_load_reverts_and_states_the_refusal(
     assert "refused --" in probe["duringLoad"]["status"]
     assert probe["afterLoad"]["pickerValue"] == doc_a
     assert probe["afterLoad"]["bufferPath"] == doc_a
+
+
+def test_eol_only_dirtiness_is_stated_in_fixed_vocabulary(editor_results):
+    """P3-1 (wave re-review P3 tail): the first-break unification makes a
+    mixed-EOL buffer dirty while its DISPLAY projection is byte-identical to
+    the loaded text -- invisible dirtiness, and a Save then commits a
+    whole-file line-ending diff nobody saw. When a dirty buffer's display
+    projection equals the base's, the status line states the fact in fixed
+    vocabulary; an ordinary dirty buffer keeps the ordinary sentence."""
+    probe = editor_results["eolOnlyDirty"]
+    eol = probe["eolOnly"]
+    # preconditions: the invisible-dirtiness shape really occurred
+    assert eol["dirty"] is True
+    assert eol["bytesMoved"] is True
+    assert eol["displayIdentical"] is True
+    assert "unsaved changes" in eol["status"]
+    assert "line endings only" in eol["status"]
+    assert "mixed CR LF styles" in eol["status"]
+    assert "saving unifies them" in eol["status"]
+    ordinary = probe["ordinary"]
+    assert "unsaved changes" in ordinary["status"]
+    assert "line endings only" not in ordinary["status"]
+
+
+def test_the_loading_and_failed_load_postures_disable_the_refusing_controls(
+        editor_results):
+    """P3-2 (wave re-review P3 tail): Save/Discard and the document picker
+    were enabled from construction through the loading window (and forever
+    after a failed load) while their handlers DISCARDED the refusal objects
+    -- a silently dead click. They now mount disabled exactly like the
+    textareas (the module's own honest-posture idiom), the first
+    syncBufferDom re-enables them, and a failed load (where syncBufferDom
+    never runs) leaves them disabled beside the stated failure."""
+    during = editor_results["inputDuringLoad"]["duringControls"]
+    assert during == {"discardDisabled": True, "saveDisabled": True,
+                      "pickerDisabled": True}
+    after = editor_results["inputDuringLoad"]["afterControls"]
+    assert after == {"discardDisabled": False, "saveDisabled": False,
+                     "pickerDisabled": False}
+    failed = editor_results["oversizedLoad"]["failedControls"]
+    assert failed == {"discardDisabled": True, "saveDisabled": True,
+                      "pickerDisabled": True}
+
+
+def test_an_edit_settling_after_destroy_leaves_storage_untouched(editor_results):
+    """P3-10 (wave re-review P3 tail): an edit whose async hash settles after
+    destroy() used to run its whole settle continuation on the corpse --
+    persistNow re-wrote the record the FR-039 clear had just removed, and a
+    late onIdentitySettled fired into the torn-down composition. The settle
+    path now returns before persist/notify on a destroyed controller;
+    destroy()'s own persist (which runs BEFORE the clear) is untouched."""
+    probe = editor_results["destroyDuringEditSettle"]
+    assert probe["storageKeysAfterSettle"] == [], (
+        "the settle continuation re-persisted the cleared record")
+    assert probe["lateNotifications"] == 0, (
+        "a late identity notification fired into the torn-down composition")
+    assert probe["editResult"]["ok"] is False
+    assert "destroyed" in (probe["editResult"]["error"] or "")
 
 
 def test_the_shell_posture_note_follows_the_catalog_failure(shell_results):
