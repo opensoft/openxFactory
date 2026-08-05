@@ -63,6 +63,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
+| [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 1 | Ready to iterate — organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond` (Brett's promote-to-staging commission, the verb's first real use); all staged questions carry decided answers from the 2026-07-23 Gate-Rules Council first exercise; exit gated on the rule-of-three trigger (a second sweep/repo wants a tier-2 rule) |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
 
 ## ideation-action-plane
@@ -832,3 +833,33 @@ global on/off that would close the window for everyone.
   `capability-health`). ALL THREE EXITS ARCHIVED (v1.19/v1.20/v1.21);
   the dials register is the topic's living remainder, cross-tenant the
   deliberate brainstorm remainder.
+
+## tier2-council-clearance-pattern
+
+- Staging ID: `openxFactory:staging:tier2-council-clearance-pattern`
+- Repository context: openxFactory (the neutral pattern template);
+  codexFactory holds the ratified first instantiation
+  (`add-nightly-sweep-council-clearance`, rule YAML + `council_clearance.py`,
+  ratified as amended by the Gate-Rules Council 2026-07-23); the second
+  consumer instantiates from the template.
+- Source: accepted possible
+  `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`
+  (ai-derived from the `cl-codexfactory` cluster sweep; accepted by Brett
+  2026-07-23 with the rule-of-three condition; promoted to staging by
+  Brett's `promote-to-staging` gate commission 2026-08-05 — the verb's
+  first real use — and organized by the fulfilling session the same day).
+- Files: `tier2-council-clearance-pattern.md` (primary — the generalized
+  tier-2 shape: conjunctive tier-1 envelope, declared clearable set with an
+  owner-attributed static allowlist, SHA-pinned unanimous council verdict,
+  never-clearable floor, anti-normalization rule, required
+  `configured_but_inactive` activation gate; 4 claims).
+- Target capabilities: ADDED a neutral `council-clearance-gate-rule`
+  pattern contract plus its instantiation checklist; the ratified
+  codexFactory rule is cited as the conforming first instance and is not
+  modified.
+- Readiness: Ready to iterate — the staged questions (extraction timing,
+  allowlist ownership, v1 clearable-set width) all carry decided answers
+  from the accept note and the 2026-07-23 first council exercise. Exit
+  (`add-council-clearance-rule-template`) is gated on the rule-of-three
+  trigger: it is authored when a second sweep or repo names itself as
+  wanting a tier-2 rule.

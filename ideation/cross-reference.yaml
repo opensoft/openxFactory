@@ -2495,7 +2495,9 @@ possibles_register:
   claim: The nightly-sweep-specific tier-2 council-clearance rule could become a generalized per-repo
     gate-rule pattern â€” a template other autonomous sweeps or repos can instantiate through their own
     Gate-Rules Council exercise, rather than a one-off doc-health carve-out.
-  state: latent
+  state: picked
+  pick:
+    staging_id: tier2-council-clearance-pattern
   origin: ai-derived
   provenance:
     document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md

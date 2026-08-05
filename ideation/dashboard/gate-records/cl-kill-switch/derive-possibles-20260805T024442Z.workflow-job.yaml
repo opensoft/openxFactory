@@ -1,0 +1,12 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+cluster_id: cl-kill-switch
+workflow: derive-possibles
+gate_contract: workflow-gate
+authoring_outline: 'Run the bounded, read-only derive-possibles lane scoped to cluster
+  ''cl-kill-switch''; candidates arrive origin: ai-derived with machine disposition
+  pending_review and await a human verdict.'
+status: dispatched
+dispatched_by: brettheap
+dispatched_at: '2026-08-05T02:44:42Z'
