@@ -821,7 +821,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install suite dependencies
-        run: pip install pyyaml jsonschema pytest
+        run: pip install pyyaml jsonschema pytest rfc3339-validator
       - name: Download prepared deterministic inventory
         if: needs.prepare.result == 'success'
         continue-on-error: true
