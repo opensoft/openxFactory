@@ -197,6 +197,15 @@ Brainstorm (active):
   and governed runtime. The packet is non-normative design exploration; the
   active `add-workbench-integrated-editor-chat` change owns proposed
   requirements and implementation gates (2026-07-28).
+- [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)
+  — anchors a twenty-document packet (sixteen atomic docs, three syntheses, and
+  one overview) for turning browser annotations, Hermes UI audits, and
+  regressions into Project Hermes-managed specialist design work, layered
+  functional/visual evidence, repo-owned approved UI snapshots, deterministic
+  diff review, experience-council admission, bounded agent-only merge handoff,
+  human/professional exception gates, a v1 SDLC session protocol, and a pinned
+  Chromium/Loki render manifest, with a platform-neutral seam for a later
+  Flutter adapter (2026-08-02).
 - [openxWallet — Wallets, Grants, and Certification](brainstorm/agent-certification-wallets.md)
   — every AI agent gets a DID wallet; certified qualification levels grant
   scoped autonomous authority bound to a quantified agent identity
@@ -429,6 +438,21 @@ Active proposals promoted from staging:
   foundations, ontology generation/maintenance/context compilation, bounded
   Omnigent task/routing/evaluation contracts, and the combined semantic
   routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
+- [Governed Recursive Inference Overview](brainstorm/governed-recursive-inference-overview.md)
+  — anchors a sixteen-document packet (eleven atomic docs + four syntheses)
+  adapting Recursive Language Models to xFactory as a bounded Omnigent
+  inference strategy: authorized context capsules, typed sandboxed context
+  computation, subordinate task families with monotone authority, depth/cost
+  limits, coverage and trajectory evidence, strategy routing, domain pilots,
+  and council-ready assurance packets (2026-07-30).
+- [Hermes Recursive Subject Establishment Overview](brainstorm/hermes-recursive-subject-establishment-overview.md)
+  — anchors an eighteen-document companion packet (thirteen atomic docs + four
+  syntheses) placing bounded recursive inference in Subject Hermes for durable
+  company, patient, project, or estate establishment: recursive evidence
+  frontiers, heterogeneous evidence manifests, governed acquisition
+  obligations, modality and specialist routing, relationship-scope and lineage
+  controls, purpose-bound derived subject models, qualified readiness, and
+  Ledgerx/Medx proof profiles (2026-07-30).
 - [Polyglot Graph Memory Overview](brainstorm/polyglot-graph-memory-overview.md)
   — anchors a nine-document packet (six atomic docs + two syntheses) on using
   purpose-specific graph providers across doxBench, the three Hermes layers,
