@@ -401,6 +401,19 @@ export function markProposalApplied(stateValue, targetValue) {
   return transitionProposal(stateValue, targetValue, ["current"], "applied");
 }
 
+export function markProposalAppliedAfterSwap(stateValue, targetValue) {
+  // W-3 (wave re-review): the ONE widening the apply-SETTLE path needs
+  // beyond the current-only rule above. The swap's own edit re-scores the
+  // clicked record to `stale` before the seam's promise resolves
+  // (self-induced staleness — the buffer moved because the apply moved it),
+  // and the mark now runs against the LIVE state after that re-score. The
+  // caller proves the live record is field-identical to the record the seam
+  // actually swapped, so "applied" stays truthful; every other stale record
+  // still refuses through `markProposalApplied`'s current-only rule.
+  return transitionProposal(stateValue, targetValue, ["current", "stale"],
+                            "applied");
+}
+
 // ---------------------------------------------------------------------------
 // R-1 (2026-08-02): the PURE persistable snapshot of chat working state and
 // its restore. This module still touches NO storage primitive — the shell

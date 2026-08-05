@@ -2047,6 +2047,66 @@ out.configuredNoneCatalog = await catalogPosture(
     error: rail.state().lastFailure && rail.state().lastFailure.error,
   };
 }
+
+// ---- W-3(a): follow-up typing during a slow Apply SURVIVES, and the
+// proposal still lands applied -- the card actions settle against the LIVE
+// state, never the click-time snapshot ----
+{
+  let releaseApply;
+  const gate = new Promise((resolve) => { releaseApply = resolve; });
+  const { host, rail } = mountRail({
+    applyProposal: async () => { await gate; return { ok: true }; } });
+  await rail.ready;
+  await propose(host);
+  const apply = byClass(host, "doxchat-card-apply")[0];
+  const clickSettled = fire(apply, "click");        // the seam is in flight
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "typed during the apply await";
+  await fire(composer, "input");
+  releaseApply();
+  await clickSettled;
+  out.applyRace = {
+    composerState: rail.state().composer,
+    composerDom: byClass(host, "doxchat-composer")[0].value,
+    proposalStatus: (rail.state().proposals["outline"] || {}).status || null,
+  };
+}
+
+// ---- W-3(b): an Apply spanning a TURN SETTLEMENT never resurrects the dead
+// flight -- pre-fix this adopted the in-flight snapshot: phase came back
+// "in_flight" with nothing in the air, the settled answer vanished from the
+// transcript, and Send read "Sending…" forever ----
+{
+  let releaseApply;
+  const gate = new Promise((resolve) => { releaseApply = resolve; });
+  let turnCalls = 0;
+  let releaseTurn;
+  const turnGate = new Promise((resolve) => { releaseTurn = resolve; });
+  const { host, rail } = mountRail({
+    applyProposal: async () => { await gate; return { ok: true }; },
+    chatTurn: async () => {
+      turnCalls += 1;
+      if (turnCalls > 1) await turnGate;            // only turn 2 is slow
+      return { ok: true, status: 200, payload: SUCCESS };
+    } });
+  await rail.ready;
+  await propose(host);                              // turn 1: proposals render
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "a follow-up question"; await fire(composer, "input");
+  const turnSettled = fire(byClass(host, "doxchat-send")[0], "click");
+  const apply = byClass(host, "doxchat-card-apply")[0];
+  const applySettled = fire(apply, "click");        // Apply spans the flight
+  releaseTurn();
+  await turnSettled;                                // turn 2 settles mid-Apply
+  releaseApply();
+  await applySettled;
+  const send = byClass(host, "doxchat-send")[0];
+  out.applyAcrossSettlement = {
+    phase: rail.state().phase,
+    transcriptTurns: rail.state().transcript.length,
+    sendLabel: send.textContent,
+  };
+}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -2222,3 +2282,31 @@ def test_in_bound_edits_follow_the_existing_last_failure_lifecycle(
     assert after["error"] == "subject_over_bound", (
         "the existing lifecycle: an input event neither clears nor replaces "
         "the standing failure note")
+
+
+def test_typing_during_a_slow_apply_survives_and_the_proposal_still_lands(
+        focus_throw_results):
+    """W-3 (wave re-review): `adopt(await proposalActions.apply(state, ...))`
+    derived the outcome from the CLICK-TIME snapshot, so everything adopted
+    during the seam's await -- follow-up typing here -- was silently
+    destroyed. The card actions now settle against the LIVE state, the same
+    R1 defense the send path already had."""
+    race = focus_throw_results["applyRace"]
+    assert race["composerState"] == "typed during the apply await"
+    assert race["composerDom"] == "typed during the apply await"
+    assert race["proposalStatus"] == "applied"
+
+
+def test_an_apply_spanning_a_turn_settlement_never_resurrects_the_flight(
+        focus_throw_results):
+    """W-3's wedge half: an Apply clicked during an in-flight turn, with the
+    turn settling during the Apply's await, used to re-adopt the in-flight
+    snapshot -- phase back to "in_flight" with no flight in the air, the
+    settled answer gone from the transcript, Send disabled at "Sending..."
+    forever (rail.abort() has no production caller; only a remount
+    recovered). The live-state settle keeps the settled turn."""
+    settled = focus_throw_results["applyAcrossSettlement"]
+    assert settled["phase"] == "idle"
+    assert settled["transcriptTurns"] == 4, \
+        "the settled turn's pair must survive the overlapping Apply"
+    assert settled["sendLabel"] != "Sending…"

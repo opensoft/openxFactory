@@ -19,6 +19,7 @@ import {
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
+  markProposalAppliedAfterSwap,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
   canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
 } from "./doxbench-chat-model.js";
@@ -424,7 +425,17 @@ export function proposalCardModel(stateValue) {
 }
 
 export function createProposalActions(options) {
-  const { applyProposal } = options;
+  const { applyProposal, liveState } = options;
+  // W-3 (wave re-review): everything adopted DURING an action's await —
+  // follow-up typing, a turn that settled, a currency re-score — lives in
+  // the CURRENT state, and deriving the outcome from the click-time
+  // snapshot clobbered all of it (executed: an Apply spanning a turn
+  // settlement re-adopted the in-flight snapshot and wedged the rail at
+  // "Sending…" with nothing in the air). This is the send path's R1
+  // defense, extended to the card actions that were rewritten beside it.
+  // Callers without a live getter keep the settle-snapshot behavior.
+  const settleBase = (stateValue) => (typeof liveState === "function"
+    ? (liveState() || stateValue) : stateValue);
   return {
     async apply(stateValue, targetValue) {
       const record = proposalsOf(stateValue)[targetValue];
@@ -437,6 +448,7 @@ export function createProposalActions(options) {
       } catch (unused) {
         result = null;  // the buffer side's own detail is dropped unread
       }
+      const live = settleBase(stateValue);
       if (!result || result.ok !== true) {
         // T104 F5-5: the swap refused, and the refusal is VISIBLE. The old
         // return of the identical state meant a clicked Apply produced zero
@@ -446,12 +458,23 @@ export function createProposalActions(options) {
         // refreshProposalCurrency, which the next settled identity runs);
         // only the fixed local failure lands, on the same channel every
         // other refusal renders through.
-        return recordLocalFailure(stateValue, PROPOSAL_APPLY_REFUSED);
+        return recordLocalFailure(live, PROPOSAL_APPLY_REFUSED);
       }
-      return markProposalApplied(stateValue, targetValue);
+      const liveRecord = proposalsOf(live)[targetValue];
+      if (!liveRecord || liveRecord.base_hash !== record.base_hash
+          || liveRecord.content !== record.content) {
+        // The set moved on during the swap — a settled turn replaced the
+        // proposals: the live truth wins, and a card that no longer exists
+        // (or no longer says what was swapped) is never marked applied.
+        return live;
+      }
+      // Field-identical record: any `stale` here is the apply's own doing
+      // (the swap moved the buffer identity before this promise resolved),
+      // so the after-swap transition keeps "applied" truthful.
+      return markProposalAppliedAfterSwap(live, targetValue);
     },
     async reject(stateValue, targetValue) {
-      return rejectProposal(stateValue, targetValue);
+      return rejectProposal(settleBase(stateValue), targetValue);
     },
   };
 }
@@ -479,7 +502,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
   const dispatcher = createTurnDispatcher({
     transports, turnIdFactory: options.turnIdFactory });
   const proposalActions = createProposalActions({
-    applyProposal: options.applyProposal || (async () => null) });
+    applyProposal: options.applyProposal || (async () => null),
+    // W-3: the card actions settle against the rail's LIVE state, so a
+    // turn that lands or typing that happens during the seam's await is
+    // never clobbered by the click-time snapshot.
+    liveState: () => state });
 
   const el = (tag, className, text) => {
     const node = doc.createElement(tag);
