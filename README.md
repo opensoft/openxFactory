@@ -251,15 +251,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-council-clearance-rule-template](openspec/changes/add-council-clearance-rule-template/proposal.md)
-  — proposed 2026-08-05 from staging topic `tier2-council-clearance-pattern`
-  (Brett's propose commission; the wheel verbs' first full
-  possible→staged→proposed traversal): the neutral tier-2
-  council-clearance gate-rule pattern — owner-attributed clearable set,
-  SHA-pinned unanimous verdict, never-clearable floor, anti-normalization,
-  required activation gate — with codexFactory's ratified rule as the
-  conforming first instance. Ratification is gated on the rule-of-three
-  trigger (a second sweep/repo names itself).
 - [add-neutrality-drift-lane](openspec/changes/add-neutrality-drift-lane/proposal.md)
   — ratified 2026-08-04 (Brett's directive; PR #64 review): a nightly
   doc-health lane that scouts the five domain factories for content that
