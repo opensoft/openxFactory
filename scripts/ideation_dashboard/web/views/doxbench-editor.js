@@ -1336,7 +1336,19 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         || !proposal || proposal.base_hash !== buffer.current_hash.hex) {
       return { ok: false, error: "this proposal no longer matches the buffer" };
     }
-    return edit(kind, String(proposal.content));
+    // W-2 (wave re-review): a proposal enters through the SAME EOL lens as
+    // a keystroke. Models typically emit LF regardless of the document's
+    // flavor, and applying that verbatim made the buffer pure LF -- a Save
+    // then committed an every-line-ending rewrite, and the NEXT keystroke
+    // flipped the whole file back to the base's flavor: two byte-level
+    // outcomes for one reviewed proposal, re-opening the silent-mass-rewrite
+    // class F10-3 closed for typing. The proposal's text is projected into
+    // the display domain and re-flavored exactly like read-back, so the
+    // buffer stays uniformly in the document's own line-ending discipline.
+    const flavored = bufferTextFor(
+      displayText(String(proposal.content)),
+      eolFlavorOf(buffer.base_content));
+    return edit(kind, flavored);
   }
 
   return {

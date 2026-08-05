@@ -1286,6 +1286,31 @@ async function eolPreservationScenario() {
   const backBuffer = controller.state().buffers.document;
   const back = { content: backBuffer.content, dirty: backBuffer.dirty };
 
+  // W-2: a PROPOSAL enters through the same lens as a keystroke. The model's
+  // spelling is LF regardless of the document's flavor; applied verbatim it
+  // made the buffer pure LF (a Save then committed an every-line-ending
+  // rewrite) and the next keystroke flipped the file back -- two byte-level
+  // outcomes for one reviewed proposal.
+  const preApply = controller.state().buffers.document;
+  const applyRes = await controller.applyProposal('document', {
+    base_hash: preApply.current_hash.hex,
+    content: '# Title\n\nrewritten by the model\n',
+  });
+  const appliedBuffer = controller.state().buffers.document;
+  const expectedApplied = '# Title\r\n\r\nrewritten by the model\r\n';
+  const appliedIdentity = await contentIdentity(expectedApplied);
+  const applied = {
+    ok: !!(applyRes && applyRes.ok === true),
+    content: appliedBuffer.content,
+    expectedContent: expectedApplied,
+    hashHex: appliedBuffer.current_hash && appliedBuffer.current_hash.hex,
+    expectedHex: appliedIdentity.hex,
+    textareaValue: textarea.value,
+  };
+  // the applied proposal left the buffer dirty; discard so the document
+  // switch below is not intercepted by the Save-or-Discard guard
+  await controller.discard('document');
+
   // the LF control: an LF document's keystrokes must not invent CRs
   await controller.selectDocument(DOC_A);
   textarea.value = '# Document A\nplus one line\n';
@@ -1293,7 +1318,16 @@ async function eolPreservationScenario() {
   const lfBuffer = controller.state().buffers.document;
   const lf = { content: lfBuffer.content, dirty: lfBuffer.dirty };
 
-  return { loaded, typed, back, lf };
+  // ... and neither must an applied proposal (the lens applies the document's
+  // OWN flavor, never a fixed one)
+  const lfPre = controller.state().buffers.document;
+  await controller.applyProposal('document', {
+    base_hash: lfPre.current_hash.hex,
+    content: '# Document A\nmodel rewrite\n',
+  });
+  const lfApplied = { content: controller.state().buffers.document.content };
+
+  return { loaded, typed, back, applied, lf, lfApplied };
 }
 
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
@@ -3258,3 +3292,23 @@ def test_an_lf_document_is_untouched_by_the_eol_lens(editor_results):
     assert lf["content"] == "# Document A\nplus one line\n"
     assert "\r" not in lf["content"]
     assert lf["dirty"] is True
+
+
+def test_a_proposal_enters_through_the_same_eol_lens_as_a_keystroke(
+        editor_results):
+    """W-2 (wave re-review): `applyProposal` used to hand the model's text to
+    `edit()` verbatim -- only the HUMAN path routed through the lens -- so an
+    LF proposal into a CRLF document made the buffer pure LF (a Save then
+    committed an every-line-ending rewrite) and the next keystroke flipped
+    the whole file back to CRLF: two byte-level outcomes for one reviewed
+    proposal, re-opening the silent-mass-rewrite class F10-3 closed. The
+    proposal now re-flavors exactly like read-back."""
+    applied = editor_results["eolPreservation"]["applied"]
+    assert applied["ok"] is True
+    assert applied["content"] == applied["expectedContent"]
+    assert applied["hashHex"] == applied["expectedHex"]
+    # the display stays in the textarea's LF domain
+    assert "\r" not in applied["textareaValue"]
+    # and the LF control: the lens applies the document's OWN flavor
+    lf_applied = editor_results["eolPreservation"]["lfApplied"]
+    assert lf_applied["content"] == "# Document A\nmodel rewrite\n"
