@@ -1345,6 +1345,39 @@ def test_doxbench_editor_source_has_no_private_html_sink_or_second_sanitizer():
     assert "markdown-it" not in source
 
 
+def test_authoring_surfaces_disable_autofill_and_derive_text_direction():
+    """T104 F9-2 + F9-4 (FR-044/FR-045), mirroring the chat rail's own pin
+    (test_doxbench_chat_view.py's authoring-inputs test): the canvas's
+    content-derived surfaces — each buffer's authoring textarea and its
+    preview — derive text direction from their own bytes (`dir="auto"`), and
+    every control a browser might try to autofill — the textareas and the
+    document picker — refuses autofill. The status line and heading stay
+    direction-unset ON PURPOSE: status text is the fixed refusal/save
+    vocabulary (it never echoes buffer content, by house rule) and the
+    heading always leads with the LTR product name, so `dir="auto"` would
+    resolve identically there and only imply a content-derivation that does
+    not exist."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    assert 'textarea.setAttribute("dir", "auto")' in source
+    assert 'preview.setAttribute("dir", "auto")' in source
+    assert 'textarea.setAttribute("autocomplete", "off")' in source
+    assert 'picker.setAttribute("autocomplete", "off")' in source
+
+
+def test_selected_tab_styling_rides_aria_selected_not_a_shadow_class():
+    """T104 F9-6: the selected-tab look is owned by the
+    `.doxbench-tab[aria-selected="true"]` rule (the T100 operator patch
+    overrides every property the old `.doxbench-tab-active` rule set), so the
+    class and the lockstep classList.toggle that maintained it were dead
+    weight — a second spelling of the same state that could silently drift
+    from the ARIA truth. Both are gone; selection state has exactly one
+    spelling: `aria-selected`."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    styles = (EDITOR_JS.parent.parent / "styles.css").read_text(encoding="utf-8")
+    assert "doxbench-tab-active" not in source
+    assert "doxbench-tab-active" not in styles
+
+
 def test_hostile_markdown_preview_renders_through_the_one_safe_sink(editor_results):
     """T030.2: editing to hostile Markdown and flushing the preview produces
     exactly ONE non-empty HTML sink, whose class is the preview container's

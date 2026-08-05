@@ -351,6 +351,13 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     textarea.className = "doxbench-textarea";
     textarea.setAttribute("aria-label", tab.label + " buffer text");
     textarea.setAttribute("aria-describedby", previewId);
+    // T104 F9-4 (FR-044): governed buffer text is never autofill fodder — the
+    // chat rail already refuses autofill on its inputs; the canvas matches.
+    textarea.setAttribute("autocomplete", "off");
+    // T104 F9-2 (FR-045): the buffer's direction comes from its own bytes
+    // (first strong directional character), so RTL drafts read as RTL without
+    // anyone configuring anything — the chat rail's composer idiom.
+    textarea.setAttribute("dir", "auto");
     textarea.addEventListener("input", async () => {
       const result = await edit(tab.key, textarea.value);
       if (!result.ok) {
@@ -366,6 +373,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     const preview = el("div", "doxbench-preview doxbench-preview-" + tab.key);
     preview.id = previewId;
     preview.setAttribute("aria-label", tab.label + " preview");
+    // T104 F9-2 (FR-045): the preview renders the SAME content-derived bytes
+    // as the textarea beside it, so it derives its direction the same way.
+    preview.setAttribute("dir", "auto");
     editarea.append(textarea, preview);
 
     if (tab.key === "document") {
@@ -386,6 +396,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       const picker = document.createElement("select");
       picker.className = "doxbench-document-picker";
       picker.setAttribute("aria-label", "choose the active Document buffer");
+      // T104 F9-4 (FR-044): browsers autofill <select>s too (address forms
+      // taught them to); the active-document choice is workbench state, not a
+      // form answer, so autofill is refused here like the textareas above.
+      picker.setAttribute("autocomplete", "off");
       picker.disabled = candidatePaths.length === 0;
       for (const candidate of candidatePaths) {
         const opt = document.createElement("option");
@@ -664,7 +678,11 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // CHK007 roving tabindex: the selected tab is the ONLY tabbable one, so
       // Tab enters the strip once and the arrows move within it (APG).
       tabButtons[tab.key].tabIndex = isActive ? 0 : -1;
-      tabButtons[tab.key].classList.toggle("doxbench-tab-active", isActive);
+      // Selection has exactly ONE spelling: aria-selected. The stylesheet's
+      // selected-tab rule keys on it directly (T104 F9-6 retired the parallel
+      // "-active" shadow class this line used to toggle in lockstep: every
+      // property of its rule had been overridden, so it styled nothing and
+      // could only ever drift from the ARIA truth).
       paneEls[tab.key].hidden = !isActive;
       // A hidden pane cannot hold real focus; a shown pane that previously
       // held it gets it back. A pane that never held focus never steals it.

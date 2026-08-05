@@ -93,6 +93,14 @@ NODE = shutil.which("node")
 # as deliberate". The chat model, view, and rail wiring have all landed, so
 # the set is EMPTY — the consuming test stays as the mechanism for any future
 # deferral, and app.js's comments now record the landing as history.
+# PIN EVOLUTION (T104 F8-1, 2026-08-04): with the roster empty, the consumer's
+# for-loop body never ran — one permanently green test asserting NOTHING. The
+# consumer is now parametrized over the roster, so an empty roster collects no
+# per-group assertion (pytest surfaces the empty parameter set as a skip, not
+# a pass), and a repopulated roster re-enables one visible test per group. The
+# POSITIVE claim the emptiness rests on — every seam the shell consumes is
+# actually declared by app.js — gets its own companion test below instead of
+# hiding inside a vacuous green.
 REMAINING_TASK_GROUPS = ()
 
 # Literal spellings a CREDENTIAL, or a transport that reaches past a transport's
@@ -293,13 +301,46 @@ def test_app_js_contains_no_catalog_chat_save_or_credential_transport():
         )
 
 
-def test_app_js_documents_the_remaining_tasks_for_the_absent_seams():
+@pytest.mark.parametrize("task_group", REMAINING_TASK_GROUPS)
+def test_app_js_documents_the_remaining_tasks_for_the_absent_seams(task_group):
+    # One collected test PER deferred group. An empty roster therefore
+    # contributes zero passing assertions (T104 F8-1: the old for-loop body
+    # never executed, so the test was green while proving nothing).
     app = APP_JS.read_text(encoding="utf-8")
-    for task_group in REMAINING_TASK_GROUPS:
-        assert task_group in app, (
-            f"app.js must comment remaining tasks {task_group} so a future reader "
-            f"can tell the browser transport absence is deliberate, not forgotten"
-        )
+    assert task_group in app, (
+        f"app.js must comment remaining tasks {task_group} so a future reader "
+        f"can tell the browser transport absence is deliberate, not forgotten"
+    )
+
+
+# Every seam the SHELL reads off its `doxbench` option bundle, in either the
+# guarded (`doxbench?.loadSource`) or bare (`doxbench.catalog`) spelling.
+_SHELL_SEAM_USE = re.compile(r"\bdoxbench(?:\?\.|\.)(\w+)\b")
+
+
+def test_app_js_declares_every_seam_the_shell_consumes():
+    """T104 F8-1 companion: the POSITIVE claim behind the empty roster above.
+    An empty REMAINING_TASK_GROUPS asserts "nothing is deferred any more" —
+    which is only true while app.js's `doxbenchSeams` literal really declares
+    every seam the staging-workbench shell consumes. Derive the consumed set
+    from the shell's own source (so a newly consumed seam extends this pin by
+    itself) and require each one as a key in the bundle app.js builds (same
+    split technique as the bundle test in section (a) above)."""
+    shell = STAGING_WORKBENCH_JS.read_text(encoding="utf-8")
+    consumed = sorted(set(_SHELL_SEAM_USE.findall(shell)))
+    assert consumed, (
+        "the shell no longer reads any doxbench seam at all — if that is a "
+        "real re-architecture, this pin and the roster need re-derivation, "
+        "not deletion"
+    )
+    app = APP_JS.read_text(encoding="utf-8")
+    bundle = app.split("const doxbenchSeams = {", 1)[1].split("};", 1)[0]
+    missing = [s for s in consumed if not re.search(rf"\b{s}\s*:", bundle)]
+    assert not missing, (
+        f"the shell consumes doxbench seam(s) {missing} that app.js's "
+        f"doxbenchSeams literal never declares — the empty "
+        f"REMAINING_TASK_GROUPS roster would be claiming completion falsely"
+    )
 
 
 # ----------------------------------------------------------------------------

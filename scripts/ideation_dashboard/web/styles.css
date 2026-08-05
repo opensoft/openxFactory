@@ -1397,7 +1397,6 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border-radius: 5px 5px 0 0; padding: 4px 12px;
 }
 .doxbench-tab:hover { color: var(--ink); }
-.doxbench-tab-active { color: var(--st-staged); background: var(--panel); font-weight: 700; }
 .doxbench-panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .doxbench-pane {
   flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
@@ -1611,8 +1610,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   padding: 6px 0;
 }
 .doxbench-picker-label {
-  display: flex; align-items: center; gap: 6px; font-size: 12px;
-  color: var(--muted); min-width: 0; flex: 1;
+  /* T104 F9-3: this later block wins per-property over the S1c wave's block
+     above, but it never re-declared flex-direction, so `column` survived from
+     that wave while `flex: 1` made the label compete with the editarea for
+     the pane's HEIGHT — the <select> inside (flex: 1) stretched vertically.
+     The label is a compact row above the toolbar, never a height competitor:
+     row explicitly, flex: none explicitly. */
+  display: flex; flex-direction: row; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted); min-width: 0; flex: none;
 }
 .doxbench-picker-label select {
   flex: 1; min-width: 0; font: inherit; padding: 4px 6px;
@@ -1803,3 +1808,18 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    makes their internal scrolling real. The outline pane is untouched: it has
    always scrolled as a whole and still should. */
 .swb-pane-docs, .swb-pane-lens { height: 100%; min-height: 0; }
+
+/* NARROW + RAIL (T104 F9-5). The T038 narrow block already parks
+   `.swb-context`/`.doxbench-canvas` at `flex: none` for the stacked column —
+   but the equal-thirds default (`.swb-regions.has-rail …{ flex: 1 1 33.33% }`)
+   outranks it (0,3,0 vs 0,1,0, and later in source), and the rail was never
+   in that block at all, so a railed workbench kept fighting for thirds of the
+   column's HEIGHT under 900px. Same selectors, later in source: with equal
+   specificity, source order alone hands the narrow posture the win. The
+   canvas's 45vh cap from the T038 block still applies — this only settles
+   the flex contest that block lost. Append-only, as ever. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail .swb-context,
+  .swb-regions.has-rail .doxbench-canvas,
+  .swb-regions.has-rail .doxbench-rail { flex: none; }
+}
