@@ -144,6 +144,26 @@ here. Verified item-by-item against the adopted tree 2026-08-04.
       one 500 seen once during the first serve's warmup did not reproduce
       across five later instrumented drives, including the same four cluster
       tiles it followed.)
-- [ ] 4.4 First real commission of each verb by Brett recorded end-to-end
+- [x] 4.4 First real commission of each verb by Brett recorded end-to-end
       (descriptor + record in the checkout), and one dashboard demote planned
       + executed as two deliberate steps.
+      (Realized 2026-08-05 as one full lifecycle traversal, all four verbs
+      dashboard-clicked by Brett with the fulfilling terminal session
+      delivering each commission. derive-possibles on cl-kill-switch
+      (024442Z; delivered as pos-derived-governed-kill-switch-custody-contract
+      via the lane's own assemble/merge machinery, envelope job
+      DPOSS-ce481777af8d). promote-to-staging on
+      pos-derived-reusable-tier-2-council-clearance-pattern-beyond (024711Z;
+      delivered as staging topic tier2-council-clearance-pattern with the
+      latent->picked edge, per D4). propose on that topic (110644Z; delivered
+      as add-council-clearance-rule-template, pick change_id inherited).
+      demote on that change (111527Z, reasoned "rule-of-three trigger not
+      fired"): PLANNED at the console — the refusal-first path was exercised
+      too (two structured refusals on a change with no recorded origin,
+      nothing persisted) — then EXECUTED as the separate deliberate step
+      through execute_demotion_plan, packet returned to the topic's openspec/
+      workspace, pick inheritance withdrawn. research-brief on the freshly
+      derived, undisposed candidate (161749Z) — a true pre-verdict
+      commission. All descriptors + records committed under
+      ideation/dashboard/gate-records/; commits 827feb1, b8ef31a, 3fdaa7a,
+      f8f4338 on change/wheel-verbs-first-commissions.)

@@ -1,0 +1,34 @@
+# executable demotion plan — run with `cli.py gate demote --execute` or by hand.
+format_version: 1
+plan: demote
+change_id: add-council-clearance-rule-template
+staging_topic: tier2-council-clearance-pattern
+actor: brettheap
+at: '2026-08-05T11:15:27Z'
+steps:
+- op: move
+  from: openspec/changes/add-council-clearance-rule-template/design.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/design.md
+  set_status: draft
+- op: move
+  from: openspec/changes/add-council-clearance-rule-template/proposal.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/proposal.md
+  set_status: draft
+- op: move
+  from: openspec/changes/add-council-clearance-rule-template/specs/council-clearance-gate-rule/spec.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/specs/council-clearance-gate-rule/spec.md
+  set_status: draft
+- op: move
+  from: openspec/changes/add-council-clearance-rule-template/tasks.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/tasks.md
+- op: update-readme
+  path: ideation/staging/tier2-council-clearance-pattern/README.md
+  record: demoted add-council-clearance-rule-template (2026-08-05T11:15:27Z)
+- op: write-index
+  path: ideation/staging/tier2-council-clearance-pattern/openspec/INDEX.md
+- op: withdraw-picks
+  register: possibles
+  ids:
+  - pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+- op: remove-empty
+  path: openspec/changes/add-council-clearance-rule-template
