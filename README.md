@@ -354,22 +354,6 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
-- [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
-  — four gate-verb rulings Brett made 2026-07-25 for the wheel's
-  expanded-tile action row: `demote` promoted from descriptor-only to an
-  executing dashboard verb (plan + record on the click, the corpus move stays
-  the separate human-run step), plus three recorded commissions on propose's
-  mechanic — `promote-to-staging` (an ACCEPTED possible organized into
-  `ideation/staging/<topic>/`; dispose-possible is a strict upstream and the
-  pick edge lands with the fragment, not at commission), `derive-possibles`
-  (a cluster-scoped run of the ratified possibles-derivation lane) and
-  `research-brief` (a pre-verdict evidence brief accompanying a possible,
-  never a precondition for disposing). Additive gate-intent /
-  gate-action-record enum + `cluster_id` target extension; the three
-  fulfilment lanes are out of scope (a terminal session fulfils dispatched
-  commissions in the interim, as with propose). (code surface: codexFactory,
-  openxFactory; release allocated at realization)
-
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
@@ -398,6 +382,22 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-wheel-action-verbs](openspec/changes/archive/2026-08-05-add-wheel-action-verbs/proposal.md)
+  Four gate verbs for the wheel's expanded-tile action row (Brett's
+  2026-07-25 rulings): `demote` promoted to an executing dashboard verb
+  (plan + record on the click; the corpus move stays the separate human-run
+  step) and three recorded commissions on propose's mechanic —
+  `promote-to-staging`, `derive-possibles`, `research-brief` — with the
+  additive gate-intent / gate-action-record enum + `cluster_id` extension
+  (shipped `contract-v1.29`) and the shared (verb, target)
+  undelivered-commission index. Engine/routes/CLI/wheel realization rode the
+  `adopt-neutral-tooling-home` Tranche B adoption; the four ADDED
+  requirements live in the `ideation-dashboard` spec. Archived 2026-08-05 on
+  the 4.x evidence: suites green (2572 passed), the live browser check, and
+  Brett's first real commissions — one full
+  possible→staged→proposed→demoted traversal, the demote executed as two
+  deliberate steps (PRs #66/#67/#71); the fulfilment lanes remain named
+  successor work.
 - [adopt-neutral-tooling-home](openspec/changes/archive/2026-08-05-adopt-neutral-tooling-home/proposal.md)
   The contract owner adopted its implementations: the doc-health checker
   suite, the ideation dashboard runtime, the routing/organizer lanes, and
