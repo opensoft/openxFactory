@@ -3058,6 +3058,30 @@ out.sessionKeyedAfterEnd = [...storage.values.keys()]
   .filter((k) => k === SESSION_RECORD_KEY).length;
 out.storageKeysAfterEnd = [...storage.values.keys()];
 
+// ---- W-13: the shell's posture note follows the CATALOG FAILURE, not only
+// the approved-model count. In the shipped zero-adapter posture the count is
+// 0 before and after a failed fetch, so the failure half of the rail
+// onState comparison is the ONLY thing that re-renders the shell's note --
+// drop it and the shell claims "no approved model is configured" over a
+// stale console token forever, the F10-1 bug shape one surface up. ----
+const third = document.createElement('div');
+const staleTokenDoxbench = { ...doxbench,
+  catalog: async () => ({ failed: 'console_required' }) };
+const thirdMount = mountStagingWorkbench(third, snapshot, {
+  caps, fetcher: async () => ({ ok: false }),
+  active: { repository: 'fixture-repo', ref: 'main' },
+  index: { entries: [] }, doxbench: staleTokenDoxbench,
+  sourceBase: '/source/', edit: null,
+  onSessionRekey: async () => null, onSessionEnded: async () => null,
+  onScopeOpened: () => null,
+});
+thirdMount.open('staged', 'topic-x');
+const inThird = (cls) => (third.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls))[0] || null);
+await until(() => inThird('swb-posture-note') !== null, 'the third posture note');
+for (let i = 0; i < 60; i += 1) await settle();
+out.staleTokenPosture = (inThird('swb-posture-note') || {}).textContent || '';
+
 console.log(JSON.stringify(out));
 """
 
@@ -3413,3 +3437,16 @@ def test_a_picker_change_during_the_load_reverts_and_states_the_refusal(
     assert "refused --" in probe["duringLoad"]["status"]
     assert probe["afterLoad"]["pickerValue"] == doc_a
     assert probe["afterLoad"]["bufferPath"] == doc_a
+
+
+def test_the_shell_posture_note_follows_the_catalog_failure(shell_results):
+    """W-13 (wave re-review): the F10-1 shell threading was pinned only by a
+    source-grep whose docstring claimed more than its assertions checked —
+    deleting the failure half of the rail onState comparison left the whole
+    repo green while the shell's note never left "no approved model is
+    configured" on a failed catalog (the count is 0 before and after, so the
+    count half never fires). This drives a failing catalog through the REAL
+    mounted shell and reads the rendered note."""
+    posture = shell_results["staleTokenPosture"]
+    assert "console token is stale" in posture, posture
+    assert "no approved model is configured" not in posture
