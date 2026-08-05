@@ -1361,6 +1361,33 @@ def test_lone_surrogate_in_a_transcript_turn_refuses_invalid_turn_request(tmp_pa
     _assert_no_sentinels(payload)
 
 
+def test_lone_surrogate_in_base_ref_refuses_invalid_turn_request(tmp_path):
+    """W-1 (wave re-review): `base_ref` and `base_revision` are the two
+    request fields that reach the CANONICAL DIGEST with no earlier gate —
+    they are neither measured nor hashed at steps 6/7, and both are
+    RELEASED-SCHEMA-VALID surrogate carriers (plain bounded strings). Before
+    this fix, `sha256_hex(json.dumps(canonical, ensure_ascii=False))` raised
+    out of the digest statement and the handler died with a dropped
+    connection — the exact F5-8 failure mode, one site over."""
+    buf = _buf("document", None, "# Document\n\n" + _S_DOCUMENT)
+    buf["base_ref"] = "main" + _LONE_SURROGATE
+    body = _turn(buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE), buf])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_base_revision_refuses_invalid_turn_request(tmp_path):
+    buf = _buf("document", None, "# Document\n\n" + _S_DOCUMENT)
+    buf["base_revision"] = _LONE_SURROGATE
+    body = _turn(buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE), buf])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
 # ---- model refusals ------------------------------------------------------------
 
 def test_unknown_model_id_refuses_model_unavailable(tmp_path):

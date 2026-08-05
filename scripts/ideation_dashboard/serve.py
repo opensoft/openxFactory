@@ -1592,8 +1592,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 for buf in turn_buffers
             ],
         }
-        digest = doxbench_hash.sha256_hex(
-            json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+        try:
+            digest = doxbench_hash.sha256_hex(
+                json.dumps(canonical, sort_keys=True, separators=(",", ":"),
+                           ensure_ascii=False))
+        except doxbench_hash.ContentEncodingError:
+            # W-1 (wave re-review): `json.dumps(..., ensure_ascii=False)`
+            # PASSES a lone surrogate through, so the raise happens here, at
+            # the encode inside `sha256_hex` — and `base_ref`/`base_revision`
+            # are the two request fields that reach this statement with no
+            # earlier measurement or hash gate (both are released-schema-valid
+            # surrogate carriers). Same fixed refusal as the other three
+            # sites: malformed request, HTTP envelope, never a dead handler.
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id)
+            return
 
         record = self.turn_store.snapshot(key, client_turn_id)
         if record is not None:
