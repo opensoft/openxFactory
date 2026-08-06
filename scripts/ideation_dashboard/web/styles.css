@@ -136,6 +136,9 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
    The popover is a plain inline panel: absolute under its icon, one row per
    member repository, textContent-only content. */
 .repofilter { position: relative; display: inline-block; }
+/* an explicit display on these panels would defeat the `hidden` attribute's
+   UA rule — restate it, or the popover/panel can never close */
+.filterpop[hidden], .projectform.projectpanel[hidden] { display: none; }
 .filterpop {
   position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
   display: flex; flex-direction: column; gap: 2px; min-width: 240px;
@@ -162,9 +165,27 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
 }
 .filtertrash:hover { background: rgba(127,127,127,0.12); }
 .filtertrash.filterarmed { color: #b04030; font-weight: 700; }
-.projectform { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.repopicker { position: relative; }
+/* The create form is a LABELED PANEL anchored under the header controls,
+   the same visual family as the filter popover. */
+.projectform.projectpanel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
+  display: flex; flex-direction: column; gap: 6px; min-width: 260px;
+  background: var(--bg, #fff); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+.panelhead { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.panelnote { font-size: 11px; color: var(--muted); max-width: 300px; }
+.panelfield { display: flex; flex-direction: column; gap: 2px; }
+.panellabel { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+.panelmembers {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 220px; overflow-y: auto;
+}
+.panelbuttons { display: flex; gap: 6px; }
 .projectform .projectmember { font-size: 12px; display: inline-flex; align-items: center; gap: 3px; }
 .projectname { font-family: var(--mono); font-size: 12px; padding: 2px 6px; }
+.filteraddselect { border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 .asof { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 
 /* Repository selector + the ONE refresh affordance, and the freshness header
