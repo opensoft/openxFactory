@@ -23,4 +23,16 @@
 #       allocated_at: "2026-07-13"
 schema_version: 1
 kind: xfactory_ideation_routing_index
-allocations: []
+allocations:
+  - idea_id: XFI-2026-001
+    title: "openxWallet — agent DID wallets, certified qualification grants, drift-triggered recertification"
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/inbox/XFI-2026-001/routing.yaml
+    allocated_at: "2026-08-06"
+  - idea_id: XFI-2026-002
+    title: "Subject document estate — bindings, consent clauses, and identity across the document plane"
+    routing_record:
+      repository: openxFactory
+      path: ideation/brainstorm/cross-domain/XFI-2026-002/routing.yaml
+    allocated_at: "2026-08-06"

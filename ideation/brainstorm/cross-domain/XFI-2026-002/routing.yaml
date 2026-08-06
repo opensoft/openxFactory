@@ -1,0 +1,161 @@
+# Pilot routing record 2 of 2 (add-cross-factory-ideation-routing task
+# 8.1/8.2; Brett's 2026-08-06 pilot commission): the DOMAIN-ORIGIN MIXED
+# expansion. The Ledgerx subject-document-estate brainstorms stay in
+# LedgerxFactory as design history; this hub record coordinates the claims
+# split WITHOUT copying them or acquiring their domain authority.
+# Validates against contracts/schemas/xfactory-idea-routing-record.schema.yaml.
+schema_version: 1
+kind: xfactory_idea_routing_record
+idea_id: XFI-2026-002
+title: "Subject document estate — bindings, consent clauses, and identity across the document plane"
+scope: cross_domain
+routing_status: split
+sources:
+  - repository: xFactories/LedgerxFactory
+    path: ideation/brainstorm/subject-document-estate-synthesis-bindings-consent-and-identity.md
+    revision: 3279f1c3f6edc273eb593053eb5f1eb9c6d3b058
+    context: domain-origin
+    passage_sha256: 74befe80ff5a431dcb05849df6a29fccc0322cc21e5f0eada2ffe90a01c31e3c
+  - repository: xFactories/LedgerxFactory
+    path: ideation/brainstorm/subject-document-estate-document-delegation-consent-clause.md
+    revision: 3279f1c3f6edc273eb593053eb5f1eb9c6d3b058
+    context: domain-origin
+    passage_sha256: 78af2cb4d7eb5d9f78ecfe635a7a6bf02ad997d850db93d224661d87b920226d
+deduplication_rationale: >-
+  The Ledgerx subject-document-estate cluster is the single origin; its
+  delegation-consent thinking already realized neutrally as the
+  consent-instrument capability (DTN-016, contract-v1.30), which this record
+  cites as claim evidence rather than re-routing.
+domains_touched: [ledgerx]
+candidate_owners: [xFactories/LedgerxFactory, openxFactory]
+claims:
+  - claim_id: XFI-2026-002-C01
+    summary: "Neutral document-delegation consent clause: the consent-instrument delegation clause carrying the technical access shape — the authority chain's root object."
+    source_ref:
+      source_index: 1
+      section: summary
+      passage_sha256: 78af2cb4d7eb5d9f78ecfe635a7a6bf02ad997d850db93d224661d87b920226d
+    proposed_owner: openxFactory
+    accepted_owner: openxFactory
+    target_capability: consent-instrument
+    destination:
+      repository: openxFactory
+      path: contracts/schemas/consent-instrument.schema.yaml
+      revision: 6c03d783d8039aa3735eb4c372cea7c6e256075d
+    blocker: null
+    dependencies: []
+    domain_local_exclusions:
+      - engagement-specific clause instances (Ledgerx tenant tree)
+    disposition: routed
+    rationale: >-
+      Accepted at the openxFactory ratify gate: the claim's neutral home is
+      not hypothetical — it REALIZED as the xfactory_consent_instrument
+      contract (DTN-016 adopted, registered at contract-v1.30), and
+      LedgerxFactory conformed by declaration the same day.
+    acceptance:
+      actor_ref: "openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06)"
+      accepted_at: "2026-08-06T14:30:00Z"
+      evidence_refs:
+        - repository: openxFactory
+          path: contracts/CHANGELOG.md
+          revision: 6c03d783d8039aa3735eb4c372cea7c6e256075d
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+        occurred_at: "2026-08-06T14:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+        occurred_at: "2026-08-06T14:10:00Z"
+        evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06)"
+        occurred_at: "2026-08-06T14:30:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-002-C02
+    summary: "Ledgerx document-estate bindings and identity model: engagement-scoped document custody, mailbox delegation, and estate-host authorization inside the firm's tenant tree."
+    source_ref:
+      source_index: 0
+      section: summary
+      passage_sha256: 74befe80ff5a431dcb05849df6a29fccc0322cc21e5f0eada2ffe90a01c31e3c
+    proposed_owner: xFactories/LedgerxFactory
+    accepted_owner: xFactories/LedgerxFactory
+    target_capability: ledgerx-document-estate
+    destination:
+      repository: xFactories/LedgerxFactory
+      path: ideation/brainstorm/subject-document-estate-synthesis-bindings-consent-and-identity.md
+      revision: 3279f1c3f6edc273eb593053eb5f1eb9c6d3b058
+    blocker: null
+    dependencies: []
+    domain_local_exclusions: []
+    disposition: routed
+    rationale: >-
+      Domain-local by nature and already realized in part by the promoted
+      ledgerx-document-estate capability; the claim stays with its origin —
+      accepted by the destination authority, never moved by routing.
+    acceptance:
+      actor_ref: "LedgerxFactory Domain Hermes (Brett Heap, tenant operator; pilot commission 2026-08-06)"
+      accepted_at: "2026-08-06T14:30:00Z"
+      evidence_refs:
+        - repository: xFactories/LedgerxFactory
+          path: openspec/specs/ledgerx-document-estate/spec.md
+          revision: 3279f1c3f6edc273eb593053eb5f1eb9c6d3b058
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+        occurred_at: "2026-08-06T14:00:00Z"
+        evidence_refs: []
+      - from: unresolved
+        to: proposed
+        actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+        occurred_at: "2026-08-06T14:10:00Z"
+        evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "LedgerxFactory Domain Hermes (Brett Heap, tenant operator; pilot commission 2026-08-06)"
+        occurred_at: "2026-08-06T14:30:00Z"
+        evidence_refs: []
+  - claim_id: XFI-2026-002-C03
+    summary: "Install/runtime document-estate surface: where estate mailboxes and custody stores are provisioned and enforced at runtime (hermes-install vs omnigent-install undecided)."
+    source_ref:
+      source_index: 0
+      section: summary
+      passage_sha256: 74befe80ff5a431dcb05849df6a29fccc0322cc21e5f0eada2ffe90a01c31e3c
+    proposed_owner: null
+    accepted_owner: null
+    target_capability: null
+    destination: null
+    blocker: "Runtime home undecided: estate provisioning spans hermes-install (subject runtime) and omnigent-install (worker lanes); neither destination authority has accepted."
+    dependencies: [XFI-2026-002-C01]
+    domain_local_exclusions: []
+    disposition: unresolved
+    rationale: "The mixed idea's install/runtime expansion stays honestly unresolved with an explicit blocker — no convenient-repository assignment."
+    acceptance: null
+    transitions:
+      - from: null
+        to: unresolved
+        actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+        occurred_at: "2026-08-06T14:00:00Z"
+        evidence_refs: []
+transitions:
+  - from: null
+    to: intake
+    actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+    occurred_at: "2026-08-06T13:45:00Z"
+    evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+    occurred_at: "2026-08-06T13:50:00Z"
+    evidence_refs: []
+  - from: triaging
+    to: split
+    actor_ref: "openxFactory routing hub (goal-takeover session for Brett Heap)"
+    occurred_at: "2026-08-06T14:00:00Z"
+    evidence_refs: []
+successors: []
+notes: "Pilot 2 of 2 (task 8.1): domain-origin mixed expansion — one neutral claim routed on realized evidence, one domain claim accepted by its own authority and never moved, one install/runtime claim honestly unresolved."
