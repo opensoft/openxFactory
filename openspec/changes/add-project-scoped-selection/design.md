@@ -32,12 +32,17 @@ project — the register schema's validator-side reading of D10) is enforced
 at commission time against the register projection, and re-checked by the
 fulfilment against the live register, which is authoritative.
 
-### D-c — Selection scoping is a view concern, not a serving change
-The project picker filters the EXISTING selector roster client-side using
-the `project` field the index/register projection already carries. The
-active snapshot stays a single `(repository, ref)` key; nothing downstream
-of selection changes. This is deliberate: exit 2 owns the merged view, and
-this change must not pre-build half of it.
+### D-c — Selection scoping is a view concern over a served register projection
+The snapshot INDEX is a locator and deliberately carries no grouping (its
+schema refuses projection data), so the picker reads a read-only REGISTER
+PROJECTION served at `/project-register.json` — the register stays the one
+grouping roster, discovered upward from the checkout exactly as the
+generator finds it. The picker then filters the existing selector roster
+client-side; the active snapshot stays a single `(repository, ref)` key and
+nothing downstream of selection changes. A static image (or a checkout with
+no reachable register) 404s the route and the picker hides. This is
+deliberate: exit 2 owns the merged view, and this change must not pre-build
+half of it.
 
 ### D5 (inherited) — Authority declaration
 Stated in the capability delta so the runtime twin

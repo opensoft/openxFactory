@@ -22,12 +22,21 @@
 // assigned here.
 
 import {
-  buildRoster, freshnessLabel, hintLabel, keyId, newerAvailable, parseKeyId,
-  sameKey, staleNotice,
+  buildProjects, buildRoster, freshnessLabel, hintLabel, keyId, newerAvailable,
+  parseKeyId, sameKey, scopeRoster, staleNotice,
 } from "./repo-selector-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
 export const ACTIONS_REFRESH_ROUTE = "/actions/refresh";
+// add-project-scoped-selection: the register projection the project picker
+// reads, and the create-project commission route. Both degrade away exactly
+// like the index: a static image 404s them and the selector renders unscoped.
+export const PROJECT_REGISTER_PROJECTION_ROUTE = "/project-register.json";
+export const ACTIONS_CREATE_PROJECT_ROUTE = "/actions/gate/create-project";
+// The viewer's project scope survives the reload a selection triggers. It is
+// THIRD-PARTY DATA on the way back in: it only ever filters client-side
+// (membership-checked against the loaded projection) and never reaches a URL.
+export const PROJECT_SCOPE_STORAGE_KEY = "xfDashProjectScope";
 // ~5 minutes: the ruled cadence. Slow enough that the serving side's own peek
 // cache absorbs N viewers, fast enough that "did my doc land?" answers itself
 // while the tab is open.
@@ -72,8 +81,42 @@ export async function postRefresh(body, injectedFetch) {
   return data;
 }
 
+// Fetch the register projection. Same degrade contract as `fetchIndex`: any
+// failure resolves to null and the picker simply does not render.
+export async function fetchProjects(injectedFetch) {
+  try {
+    const response = injectedFetch
+      ? await injectedFetch(PROJECT_REGISTER_PROJECTION_ROUTE, { cache: "no-store" })
+      : await fetch(PROJECT_REGISTER_PROJECTION_ROUTE, { cache: "no-store" });
+    if (!response?.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+export function storedProjectScope(storage) {
+  try {
+    return (storage || window.sessionStorage).getItem(PROJECT_SCOPE_STORAGE_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function storeProjectScope(id, storage) {
+  try {
+    const store = storage || window.sessionStorage;
+    if (id) store.setItem(PROJECT_SCOPE_STORAGE_KEY, id);
+    else store.removeItem(PROJECT_SCOPE_STORAGE_KEY);
+  } catch { /* storage denied: the scope is simply session-transient */ }
+}
+
 export function refreshCapable(caps) {
   return caps?.actions?.refresh === true;
+}
+
+export function gateCapable(caps) {
+  return caps?.actions?.gate === true;
 }
 
 export function refreshBinding(caps) {
@@ -101,6 +144,98 @@ function buildSelect(roster, active, onSelect) {
     if (key) onSelect(key, roster.find((o) => o.id === select.value) || null);
   });
   return select;
+}
+
+// The create-project affordance (add-project-scoped-selection): a COMMISSION,
+// never a write — the POST records a project-register-edit descriptor + gate
+// record and the aggregation-owned register is edited only by the fulfilment.
+// Mounted only under the gate capability WITH a served register projection.
+// Member candidates are the roster repositories no project owns yet (the
+// single-parent rule makes owned ones refusable, so they are not offered).
+// Refusals render textContent-only; a successful commission retires the
+// affordance for the session (the engine's duplicate guard is the backstop).
+function mountCreateProject(wrap, status, roster, projects, o) {
+  const owned = new Set();
+  for (const project of projects) {
+    for (const repo of project.repositories) owned.add(repo);
+  }
+  const seen = new Set();
+  const candidates = [];
+  for (const option of roster) {
+    if (option.kind !== "repository") continue;
+    if (owned.has(option.repository) || seen.has(option.repository)) continue;
+    seen.add(option.repository);
+    candidates.push(option.repository);
+  }
+
+  const button = el("button", "repobtn projectcreate", "+ project");
+  button.type = "button";
+  button.title = "commission a project-register edit creating a project "
+    + "(recorded; the register is aggregation-owned)";
+  const form = el("span", "projectform");
+  form.hidden = true;
+
+  const name = el("input", "projectname");
+  name.type = "text";
+  name.placeholder = "project name";
+  name.setAttribute("aria-label", "new project name");
+  form.appendChild(name);
+  const boxes = [];
+  for (const repo of candidates) {
+    const label = el("label", "projectmember");
+    const box = el("input");
+    box.type = "checkbox";
+    box.value = repo;
+    label.appendChild(box);
+    label.appendChild(el("span", null, repo));
+    boxes.push(box);
+    form.appendChild(label);
+  }
+  if (!candidates.length) {
+    form.appendChild(el("span", "projectform-note",
+      "every published repository already belongs to a project"));
+  }
+  const submit = el("button", "repobtn", "commission");
+  submit.type = "button";
+  submit.disabled = !candidates.length;
+  form.appendChild(submit);
+
+  button.addEventListener("click", () => {
+    form.hidden = !form.hidden;
+    if (!form.hidden) name.focus();
+  });
+  submit.addEventListener("click", async () => {
+    const members = boxes.filter((b) => b.checked).map((b) => b.value);
+    status.textContent = "";
+    submit.disabled = true;
+    try {
+      const opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.value, repositories: members }),
+      };
+      const response = o.fetcher
+        ? await o.fetcher(ACTIONS_CREATE_PROJECT_ROUTE, opts)
+        : await fetch(ACTIONS_CREATE_PROJECT_ROUTE, opts);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data?.ok !== true) {
+        submit.disabled = false;
+        status.textContent = "create-project refused: "
+          + (data?.message || data?.error || ("HTTP " + response.status));
+        return;
+      }
+      form.hidden = true;
+      button.disabled = true;               // retired for the session
+      button.textContent = "✓ " + data.project_id + " commissioned";
+      status.textContent = "project-register edit recorded (" + data.job + ")";
+    } catch (err) {
+      submit.disabled = false;
+      status.textContent = "create-project failed: " + (err?.message || "error");
+    }
+  });
+
+  wrap.appendChild(button);
+  wrap.appendChild(form);
 }
 
 // The controller. `host` is the header slot; nothing is rendered when the index
@@ -161,8 +296,56 @@ export function mountRepoSelector(host, opts) {
 
   if (Array.isArray(index?.entries) && index.entries.length) {
     const roster = buildRoster(index);
-    if (roster.length > 1 || o.alwaysShow) {
-      wrap.appendChild(buildSelect(roster, active, (key) => o.onSelect?.(key)));
+    const projects = buildProjects(o.projects);
+    // The stored scope is membership-checked against the loaded projection —
+    // a project that stopped existing silently clears the scope.
+    let scope = storedProjectScope(o.storage);
+    if (scope && !projects.some((p) => p.id === scope)) scope = null;
+
+    let repoSelect = null;
+    function renderRepoSelect() {
+      const scoped = scopeRoster(roster, projects, scope);
+      const next = buildSelect(scoped.length ? scoped : roster, active,
+        (key) => o.onSelect?.(key));
+      if (repoSelect) repoSelect.replaceWith(next);
+      else wrap.appendChild(next);
+      repoSelect = next;
+      return scoped;
+    }
+
+    if (projects.length) {
+      const picker = el("select", "repopick projectpick");
+      picker.id = "projectpick";
+      picker.setAttribute("aria-label", "project scope");
+      const all = el("option", null, "(all projects)");
+      all.value = "";
+      picker.appendChild(all);
+      for (const project of projects) {
+        const opt = el("option", null, project.name);
+        opt.value = project.id;
+        if (project.id === scope) opt.selected = true;
+        picker.appendChild(opt);
+      }
+      picker.addEventListener("change", () => {
+        scope = picker.value || null;
+        storeProjectScope(scope, o.storage);
+        const scoped = renderRepoSelect();
+        // The active snapshot stays a single (repository, ref) key: scoping
+        // to a project the active repo is NOT in loads the first available
+        // member instead — one snapshot at a time until the merged view
+        // (exit 2, add-project-merged-projection) lands.
+        if (scope && scoped.length && !scoped.some((opt) => sameKey(opt, active))) {
+          const first = scoped.find((opt) => opt.available) || scoped[0];
+          o.onSelect?.({ repository: first.repository, ref: first.ref });
+        }
+      });
+      wrap.appendChild(picker);
+    }
+    if (roster.length > 1 || o.alwaysShow || projects.length) {
+      renderRepoSelect();
+    }
+    if (gateCapable(caps) && o.projects) {
+      mountCreateProject(wrap, status, roster, projects, o);
     }
   }
   if (refreshCapable(caps)) {

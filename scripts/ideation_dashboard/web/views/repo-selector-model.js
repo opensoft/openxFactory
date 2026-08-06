@@ -215,6 +215,43 @@ export function resolveActive(index, requested) {
   return roster.find((o) => o.available) || roster[0];
 }
 
+// ---- project scoping (add-project-scoped-selection) ----
+//
+// The snapshot INDEX is a locator and deliberately carries no grouping, so
+// the picker reads the REGISTER PROJECTION (`/project-register.json`, served
+// read-only from the aggregation-owned register). Both derivations here are
+// pure over (projection, roster): no projection -> no projects -> the picker
+// hides and the roster renders unscoped, which is the static image's and the
+// pre-change plane's behaviour.
+
+// The picker's project list: `{id, name, repositories}` rows with a
+// well-formed id and at least one member, in register order.
+export function buildProjects(projection) {
+  if (!projection || typeof projection !== "object") return [];
+  const projects = Array.isArray(projection.projects) ? projection.projects : [];
+  return projects
+    .filter((p) => p && p.id && Array.isArray(p.repositories) && p.repositories.length)
+    .map((p) => ({
+      id: String(p.id),
+      name: p.name ? String(p.name) : String(p.id),
+      repositories: p.repositories.map((r) => String(r)),
+    }));
+}
+
+// The roster narrowed to one project's members (aggregates keep their place
+// only when composed purely of members). `projectId` null/unknown returns the
+// roster untouched — clearing the picker restores the full list, and a
+// projection that stopped naming the stored project degrades identically.
+export function scopeRoster(roster, projects, projectId) {
+  if (!projectId) return roster;
+  const project = (projects || []).find((p) => p && p.id === String(projectId));
+  if (!project) return roster;
+  const members = new Set(project.repositories);
+  return roster.filter((o) => o.kind === KIND_AGGREGATE
+    ? (o.members || []).length > 0 && (o.members || []).every((m) => members.has(m.repository))
+    : members.has(o.repository));
+}
+
 // ---- freshness (design D11) ----
 
 export function shortRevision(revision) {

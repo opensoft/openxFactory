@@ -2,13 +2,13 @@
 
 ## 1. Contracts
 
-- [ ] 1.1 Extend `gate-intent.schema.yaml` additively: `create-project` in
+- [x] 1.1 Extend `gate-intent.schema.yaml` additively: `create-project` in
       the verb enum; `project_id` on `target`; conditional `create-project →
       target.project_id`. Header note naming this change as the growth
       source; no `contract_schema_version` bump.
-- [ ] 1.2 Extend `gate-action-record.schema.yaml` the same way, including
+- [x] 1.2 Extend `gate-action-record.schema.yaml` the same way, including
       the `artifacts contains workflow-job` companion conditional.
-- [ ] 1.3 Schema conformance tests: one valid intent and one valid record
+- [x] 1.3 Schema conformance tests: one valid intent and one valid record
       for `create-project`; a record missing its workflow-job companion
       rejected; a record without `target.project_id` rejected.
 - [ ] 1.4 Contract registration at the next additive bundle cut per
@@ -16,9 +16,9 @@
 
 ## 2. Engine + routes
 
-- [ ] 2.1 `gate_console.py`: `ACTION_CREATE_PROJECT`;
+- [x] 2.1 `gate_console.py`: `ACTION_CREATE_PROJECT`;
       `build_gate_action_record` grows `project_id`.
-- [ ] 2.2 `kickoff.py`: `create_project()` — human-only; id slugged from the
+- [x] 2.2 `kickoff.py`: `create_project()` — human-only; id slugged from the
       name and collision-refused against the register projection; member
       repositories validated against the snapshot-index roster; single-parent
       refusal for a repository already in a project; duplicate refusal via
@@ -26,31 +26,43 @@
       `create-project → project_id`); `workflow-job` descriptor (workflow
       `project-register-edit`, payload name + repositories) + gate-action
       record; NO register mutation.
-- [ ] 2.3 `gate_routes.py`: `EXECUTING_VERBS` gains `create-project`, with
+- [x] 2.3 `gate_routes.py`: `EXECUTING_VERBS` gains `create-project`, with
       the structured-refusal response discipline.
-- [ ] 2.4 `cli.py`: `gate create-project <name> --repo <id> [--repo <id>…]`
+- [x] 2.4 `cli.py`: `gate create-project <name> --repo <id> [--repo <id>…]`
       (`--note`); GateConsole delegate mirroring the other commissions.
 
 ## 3. Selector surface
 
-- [ ] 3.1 Project picker in the repo selector: projects listed from the
+- [x] 3.1 Project picker in the repo selector: projects listed from the
       register projection; selecting one narrows the roster to member
       repositories; "(ungrouped)" repositories keep today's behaviour.
-- [ ] 3.2 Create-project affordance under the gate capability with the
+- [x] 3.2 Create-project affordance under the gate capability with the
       commission form (name + member checkboxes from the roster); refusals
       render textContent-only; the affordance retires for the session once
       commissioned.
-- [ ] 3.3 Pure-model tests: picker narrowing, gate off, already-commissioned,
+- [x] 3.3 Pure-model tests: picker narrowing, gate off, already-commissioned,
       member-set validation surface.
 
 ## 4. Verification
 
-- [ ] 4.1 Engine + route tests green: accept path, absent member repository,
+- [x] 4.1 Engine + route tests green: accept path, absent member repository,
       single-parent refusal, id collision, duplicate commission, agent-path
       rejection, register untouched by commission.
-- [ ] 4.2 Live browser check: picker narrows the roster against the split
+- [x] 4.2 Live browser check: picker narrows the roster against the split
       register (D7 content); create-project renders under the gate capability
       and not with it off; zero page errors.
+      (Verified 2026-08-06, headless Chromium against two loopback serves of
+      this checkout with the D7-split register discovered one level up. Gate
+      ON: the picker lists the four role projects from
+      `/project-register.json`, core-scoping and clearing behave, the
+      `+ project` affordance renders, and — every published repository being
+      owned post-split — the form honestly reports no candidates with submit
+      disabled; a wire probe returned the engine's single-parent refusal
+      naming `openxFactory (in 'core')`. Gate OFF: the picker stays (selection
+      is read-only) and the affordance is absent. Zero console errors,
+      uncaught page errors, and >=400 responses on both drives. Multi-repo
+      narrowing is pinned by the node model tests, the local serve having a
+      single-entry roster.)
 - [ ] 4.3 First real commission by Brett recorded end-to-end and fulfilled
       into `project-register.yaml` (descriptor delivered, register edit
       validated + landed in the aggregation repo).
