@@ -425,9 +425,9 @@ function renderHeader(snapshot, active) {
   asof.appendChild(dot);
   asof.appendChild(document.createTextNode("snapshot: " + rev + " · generated " + when + ageText));
 
-  const repochip = document.getElementById("repochip");
-  const scope = [snapshot.project_group, snapshot.project, snapshot.repository].filter(Boolean).join(" / ");
-  repochip.textContent = scope || snapshot.repository;
+  // The repo chip retired with add-opendox-project-header (D12): the
+  // freshness header below already names `repo @ ref`, and the project
+  // dropdown carries the grouping context.
 
   // The FRESHNESS HEADER (design D11): `repo @ ref · short SHA · generated-at`,
   // on every plane, so "is the document I just landed in this view" is answered

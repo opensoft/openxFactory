@@ -116,6 +116,9 @@ ACTION_RESEARCH_BRIEF = "research-brief"
 # slugged from the proposed name at commission time; the aggregation-owned
 # project register is edited only by the commission's fulfilment.
 ACTION_CREATE_PROJECT = "create-project"
+# add-opendox-project-header (D15): the membership edit of an EXISTING
+# project — same mechanic, the descriptor carrying add/remove member lists.
+ACTION_EDIT_PROJECT = "edit-project"
 
 # Artifact kinds the schema recognises.
 ART_TRANSITION_MANIFEST = "transition-manifest"
@@ -1334,5 +1337,17 @@ class GateConsole:
         extra = {} if workflow is None else {"workflow": workflow}
         return kickoff_mod.create_project(
             self.gate, name, repositories=repositories, roster=roster,
+            register_source=register_source, outline=outline, note=note,
+            at=at, records_dir=self.records_dir, provenance=provenance, **extra)
+
+    def edit_project(self, project_id: str, *, add=None, remove=None,
+                     roster=None, register_source=None,
+                     outline: str | None = None, workflow: str | None = None,
+                     note: str | None = None, at: str | None = None,
+                     provenance: Provenance | None = None):
+        from . import kickoff as kickoff_mod
+        extra = {} if workflow is None else {"workflow": workflow}
+        return kickoff_mod.edit_project(
+            self.gate, project_id, add=add, remove=remove, roster=roster,
             register_source=register_source, outline=outline, note=note,
             at=at, records_dir=self.records_dir, provenance=provenance, **extra)

@@ -39,6 +39,7 @@ import yaml
 from .gate_console import (
     ACTION_CREATE_PROJECT,
     ACTION_DERIVE_POSSIBLES,
+    ACTION_EDIT_PROJECT,
     ACTION_KICKOFF,
     ACTION_PROMOTE_TO_STAGING,
     ACTION_PROPOSE,
@@ -250,6 +251,7 @@ COMMISSION_TARGET_KEY: dict[str, str] = {
     ACTION_DERIVE_POSSIBLES: "cluster_id",
     ACTION_RESEARCH_BRIEF: "possible_id",
     ACTION_CREATE_PROJECT: "project_id",
+    ACTION_EDIT_PROJECT: "project_id",
 }
 
 
@@ -770,3 +772,100 @@ def create_project(
         outline=outline, note=note, at=at, records_dir=records_dir,
         records_root=records_root, provenance=provenance,
         payload={"project_name": str(name), "repositories": members})
+
+
+def edit_project(
+    gate: Any, project_id: str, *, add=None, remove=None, roster=None,
+    register_source: Path | str | None = None, outline: str | None = None,
+    workflow: str = DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW,
+    note: str | None = None, at: str | None = None,
+    records_dir: str = DEFAULT_RECORDS_DIR,
+    records_root: Path | str | None = None, provenance=None,
+) -> CommissionResult:
+    """Commission a MEMBERSHIP edit of one existing project
+    (add-opendox-project-header D15). Writes the descriptor + record and
+    NOTHING else — the register is edited only by the fulfilment.
+
+    Guards, all before the first write: human gate -> diff shape (either
+    list may be empty, not both; no repository in both) -> register
+    reachability -> project existence -> additions in the roster-or-register
+    universe and not already members -> removals currently members -> the
+    at-least-one-member floor (the schema's own minItems rule, enforced at
+    commission so the fulfilment never authors an invalid register) ->
+    duplicate via the shared (verb, target) index.
+    """
+    human = require_human_gate(gate)
+
+    added = list(dict.fromkeys(
+        str(r).strip() for r in (add or []) if str(r).strip()))
+    removed = list(dict.fromkeys(
+        str(r).strip() for r in (remove or []) if str(r).strip()))
+    if not added and not removed:
+        raise GateRefused(
+            "edit-project refused: the diff is empty — name at least one "
+            "repository to add or remove.")
+    both = sorted(set(added) & set(removed))
+    if both:
+        raise GateRefused(
+            "edit-project refused: a repository cannot be both added and "
+            "removed in one edit: " + ", ".join(repr(b) for b in both) + ".")
+
+    source = Path(register_source) if register_source is not None \
+        else discover_project_register(human.output.root)
+    if source is None or not source.is_file():
+        raise GateRefused(
+            "edit-project refused: no project register is reachable from "
+            "the checkout to validate against — the register cannot be "
+            "assumed (pass an explicit register source).")
+    try:
+        register = yaml.safe_load(source.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise GateRefused(
+            f"edit-project refused: the project register at {source} could "
+            f"not be read ({exc}).")
+    projects = [p for p in (register or {}).get("projects") or []
+                if isinstance(p, dict)]
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if project is None:
+        raise GateRefused(
+            f"edit-project refused: no project {project_id!r} in the "
+            "register — membership edits target an existing project "
+            "(create-project makes new ones).")
+    members = [str(r) for r in (project.get("repositories") or [])]
+
+    known = {repo for p in projects for repo in (p.get("repositories") or [])}
+    known |= {str(r) for r in (roster or [])}
+    unknown = [a for a in added if a not in known]
+    if unknown:
+        raise GateRefused(
+            "edit-project refused: not in the repository roster (neither "
+            "the register nor the serving plane knows them): "
+            + ", ".join(repr(u) for u in unknown) + ".")
+    already = [a for a in added if a in members]
+    if already:
+        raise GateRefused(
+            "edit-project refused: already a member of "
+            f"{project_id!r}: " + ", ".join(repr(a) for a in already) + ".")
+    absent = [r for r in removed if r not in members]
+    if absent:
+        raise GateRefused(
+            "edit-project refused: not currently a member of "
+            f"{project_id!r}: " + ", ".join(repr(a) for a in absent) + ".")
+    if len(set(members) - set(removed)) + len(added) < 1:
+        raise GateRefused(
+            "edit-project refused: the edit would leave the project with no "
+            "member repositories — a project names a non-empty set (the "
+            "register schema's own rule); retire the project instead.")
+
+    outline = outline or (
+        f"Apply the recorded project-register edit to project "
+        f"{project_id!r}: "
+        + (f"add {', '.join(added)}" if added else "")
+        + ("; " if added and removed else "")
+        + (f"remove {', '.join(removed)}" if removed else "")
+        + " — validate against the pinned schema before landing.")
+    return _commission(
+        ACTION_EDIT_PROJECT, gate, project_id, workflow=workflow,
+        outline=outline, note=note, at=at, records_dir=records_dir,
+        records_root=records_root, provenance=provenance,
+        payload={"add": added, "remove": removed})

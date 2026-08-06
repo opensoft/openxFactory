@@ -22,8 +22,9 @@
 // assigned here.
 
 import {
-  buildPendingProjects, buildProjects, buildRoster, freshnessLabel, hintLabel,
-  keyId, newerAvailable, parseKeyId, sameKey, scopeRoster, staleNotice,
+  buildPendingEdits, buildPendingProjects, buildProjects, buildRoster,
+  defaultProjectScope, freshnessLabel, hintLabel, keyId, manageDiff,
+  newerAvailable, projectFilterRows, sameKey, staleNotice,
 } from "./repo-selector-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
@@ -33,6 +34,10 @@ export const ACTIONS_REFRESH_ROUTE = "/actions/refresh";
 // like the index: a static image 404s them and the selector renders unscoped.
 export const PROJECT_REGISTER_PROJECTION_ROUTE = "/project-register.json";
 export const ACTIONS_CREATE_PROJECT_ROUTE = "/actions/gate/create-project";
+// add-opendox-project-header (D15): the membership-edit commission route the
+// filter popover's manage mode POSTs to. Same degrade contract as its
+// siblings.
+export const ACTIONS_EDIT_PROJECT_ROUTE = "/actions/gate/edit-project";
 // The viewer's project scope survives the reload a selection triggers. It is
 // THIRD-PARTY DATA on the way back in: it only ever filters client-side
 // (membership-checked against the loaded projection) and never reaches a URL.
@@ -123,29 +128,6 @@ export function refreshBinding(caps) {
   return caps?.refresh?.binding || null;
 }
 
-function optionLabel(option) {
-  const suffix = option.available ? "" : " (unavailable)";
-  const ref = option.ref && option.ref !== "main" ? " @ " + option.ref : "";
-  return option.label + ref + suffix;
-}
-
-function buildSelect(roster, active, onSelect) {
-  const select = el("select", "repopick");
-  select.id = "repopick";
-  select.setAttribute("aria-label", "active repository");
-  for (const option of roster) {
-    const opt = el("option", null, optionLabel(option));
-    opt.value = option.id;
-    if (sameKey(option, active)) opt.selected = true;
-    select.appendChild(opt);
-  }
-  select.addEventListener("change", () => {
-    const key = parseKeyId(select.value);
-    if (key) onSelect(key, roster.find((o) => o.id === select.value) || null);
-  });
-  return select;
-}
-
 // The create-project affordance (add-project-scoped-selection): a COMMISSION,
 // never a write — the POST records a project-register-edit descriptor + gate
 // record and the aggregation-owned register is edited only by the fulfilment.
@@ -154,7 +136,11 @@ function buildSelect(roster, active, onSelect) {
 // (Brett's 2026-08-06 ruling), so a repository already in a project is a
 // legal member of a new one — projects are named views, not owners.
 // Refusals render textContent-only; a successful commission retires the
-// affordance for the session (the engine's duplicate guard is the backstop).
+// form for the session (the engine's duplicate guard is the backstop).
+//
+// REHOMED by add-opendox-project-header (D13): no standalone button — the
+// project dropdown's "New Project" line opens the form through the returned
+// opener.
 function mountCreateProject(wrap, status, roster, projects, o, addPendingOption) {
   const seen = new Set();
   const candidates = [];
@@ -165,10 +151,6 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
     candidates.push(option.repository);
   }
 
-  const button = el("button", "repobtn projectcreate", "+ project");
-  button.type = "button";
-  button.title = "commission a project-register edit creating a project "
-    + "(recorded; the register is aggregation-owned)";
   const form = el("span", "projectform");
   form.hidden = true;
 
@@ -197,10 +179,11 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
   submit.disabled = !candidates.length;
   form.appendChild(submit);
 
-  button.addEventListener("click", () => {
-    form.hidden = !form.hidden;
-    if (!form.hidden) name.focus();
-  });
+  const cancel = el("button", "repobtn projectcancel", "cancel");
+  cancel.type = "button";
+  cancel.addEventListener("click", () => { form.hidden = true; });
+  form.appendChild(cancel);
+
   submit.addEventListener("click", async () => {
     const members = boxes.filter((b) => b.checked).map((b) => b.value);
     status.textContent = "";
@@ -221,11 +204,9 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
           + (data?.message || data?.error || ("HTTP " + response.status));
         return;
       }
-      form.hidden = true;
-      button.disabled = true;               // retired for the session
-      button.textContent = "✓ " + data.project_id + " commissioned";
+      form.hidden = true;                   // retired for the session
       status.textContent = "project-register edit recorded (" + data.job + ")";
-      // the commission appears in the picker immediately as a pending entry
+      // the commission appears in the dropdown immediately as a pending entry
       // (D-e) — the register itself changes only when the fulfilment lands
       if (addPendingOption) addPendingOption(name.value || data.project_id);
     } catch (err) {
@@ -234,8 +215,156 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
     }
   });
 
-  wrap.appendChild(button);
   wrap.appendChild(form);
+  return () => {                             // the "New Project…" opener (D13)
+    form.hidden = false;
+    name.focus();
+  };
+}
+
+// The repo FILTER (add-opendox-project-header D14/D15): one icon, one
+// popover scoped to the CURRENT project. Rows come from the pure
+// `projectFilterRows` derivation — the all-repos line first (armed when the
+// project's derived aggregate is on the roster; disabled naming the merged
+// view otherwise), then one row per member repository. Manage mode (gate
+// only) turns the rows into checkboxes over every known repository and
+// commissions the diff as an edit-project register edit; pending membership
+// edits badge until their fulfilment lands (the D-e two-plane posture).
+// DOM-safety: textContent only, throughout.
+function mountProjectFilter(project, roster, pendingEdits, opts) {
+  const holder = el("span", "repofilter");
+  if (!project) return holder;
+  const o = opts || {};
+  // reread per render: a same-page commission appends to `pendingEdits`
+  const currentPendingEdit = () => (pendingEdits || []).find(
+    (e) => e.projectId === project.id) || null;
+
+  const button = el("button", "repobtn filterbtn", "⧩ " + project.name);
+  button.type = "button";
+  button.title = "repositories in " + project.name;
+  button.setAttribute("aria-label", "repository filter for " + project.name);
+  button.setAttribute("aria-expanded", "false");
+  const pop = el("span", "filterpop");
+  pop.hidden = true;
+  button.addEventListener("click", () => {
+    pop.hidden = !pop.hidden;
+    button.setAttribute("aria-expanded", pop.hidden ? "false" : "true");
+  });
+
+  function renderRows() {
+    const pendingEdit = currentPendingEdit();
+    pop.textContent = "";
+    for (const row of projectFilterRows(roster, project)) {
+      if (row.kind === "all") {
+        const all = el("button", "filterrow filterall",
+          "⊞ all repositories in " + project.name);
+        all.type = "button";
+        if (row.option) {
+          if (sameKey(row.option, o.active)) all.classList.add("filteractive");
+          all.addEventListener("click", () => o.onSelect?.(
+            { repository: row.option.repository, ref: row.option.ref }));
+        } else {
+          all.disabled = true;
+          all.textContent += " (merged view unavailable)";
+        }
+        pop.appendChild(all);
+        continue;
+      }
+      const entry = el("button", "filterrow", row.repository);
+      entry.type = "button";
+      if (pendingEdit && pendingEdit.remove.includes(row.repository)) {
+        entry.textContent += " (removal pending)";
+      }
+      if (row.option) {
+        if (sameKey(row.option, o.active)) entry.classList.add("filteractive");
+        if (!row.option.available) {
+          entry.textContent += " (" + (row.option.unavailableReason
+            || "snapshot unavailable") + ")";
+        }
+        entry.addEventListener("click", () => o.onSelect?.(
+          { repository: row.option.repository, ref: row.option.ref }));
+      } else {
+        entry.disabled = true;
+        entry.textContent += " (no published snapshot)";
+      }
+      pop.appendChild(entry);
+    }
+    for (const adding of (pendingEdit ? pendingEdit.add : [])) {
+      const row = el("button", "filterrow filterpending",
+        adding + " (addition pending)");
+      row.type = "button";
+      row.disabled = true;
+      pop.appendChild(row);
+    }
+    if (gateCapable(o.caps)) mountManage();
+  }
+
+  function mountManage() {
+    const manage = el("button", "filterrow filtermanage", "✎ manage members…");
+    manage.type = "button";
+    pop.appendChild(manage);
+    const pane = el("span", "managepane");
+    pane.hidden = true;
+    const known = new Set(project.repositories);
+    for (const option of roster) {
+      if (option.kind === "repository") known.add(option.repository);
+    }
+    const boxes = [];
+    for (const repository of [...known].sort()) {
+      const label = el("label", "projectmember");
+      const box = el("input");
+      box.type = "checkbox";
+      box.value = repository;
+      box.checked = project.repositories.includes(repository);
+      label.appendChild(box);
+      label.appendChild(el("span", null, repository));
+      boxes.push(box);
+      pane.appendChild(label);
+    }
+    const apply = el("button", "repobtn", "commission edit");
+    apply.type = "button";
+    pane.appendChild(apply);
+    manage.addEventListener("click", () => { pane.hidden = !pane.hidden; });
+    apply.addEventListener("click", async () => {
+      const checked = boxes.filter((b) => b.checked).map((b) => b.value);
+      const diff = manageDiff(project.repositories, checked);
+      o.status.textContent = "";
+      apply.disabled = true;
+      try {
+        const fetchOpts = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project_id: project.id,
+                                 add: diff.add, remove: diff.remove }),
+        };
+        const response = o.fetcher
+          ? await o.fetcher(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts)
+          : await fetch(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data?.ok !== true) {
+          apply.disabled = false;
+          o.status.textContent = "edit-project refused: "
+            + (data?.message || data?.error || ("HTTP " + response.status));
+          return;
+        }
+        pane.hidden = true;
+        o.status.textContent = "membership edit recorded (" + data.job + ")";
+        // badge immediately (D-e): re-render the rows with this edit pending
+        pendingEdits = (pendingEdits || []).concat([{
+          projectId: project.id, add: data.add, remove: data.remove }]);
+        renderRows();
+      } catch (err) {
+        apply.disabled = false;
+        o.status.textContent = "edit-project failed: " + (err?.message || "error");
+      }
+    });
+    pop.appendChild(pane);
+  }
+
+  renderRows();
+  holder.appendChild(button);
+  holder.appendChild(pop);
+  return holder;
 }
 
 // The controller. `host` is the header slot; nothing is rendered when the index
@@ -297,31 +426,38 @@ export function mountRepoSelector(host, opts) {
   if (Array.isArray(index?.entries) && index.entries.length) {
     const roster = buildRoster(index);
     const projects = buildProjects(o.projects);
-    // The stored scope is membership-checked against the loaded projection —
-    // a project that stopped existing silently clears the scope.
-    let scope = storedProjectScope(o.storage);
-    if (scope && !projects.some((p) => p.id === scope)) scope = null;
+    const pendingProjects = buildPendingProjects(o.projects);
+    const pendingEdits = buildPendingEdits(o.projects);
+    // D13: the viewer is always IN a project — the stored scope when the
+    // projection still names it, else the first register project.
+    let scope = defaultProjectScope(projects, storedProjectScope(o.storage));
+    const currentProject = () => projects.find((p) => p.id === scope) || null;
 
-    let repoSelect = null;
-    function renderRepoSelect() {
-      const scoped = scopeRoster(roster, projects, scope);
-      const next = buildSelect(scoped.length ? scoped : roster, active,
-        (key) => o.onSelect?.(key));
-      if (repoSelect) repoSelect.replaceWith(next);
+    // ---- the repo FILTER (D14): one icon, one popover, the current
+    // project's members; re-rendered whenever the project changes ----
+    let filterWrap = null;
+    function renderFilter() {
+      const next = mountProjectFilter(currentProject(), roster, pendingEdits, {
+        active, caps, status, fetcher: o.fetcher,
+        onSelect: (key) => o.onSelect?.(key),
+      });
+      if (filterWrap) filterWrap.replaceWith(next);
       else wrap.appendChild(next);
-      repoSelect = next;
-      return scoped;
+      filterWrap = next;
     }
 
-    const pendingProjects = buildPendingProjects(o.projects);
+    // ---- the PROJECT DROPDOWN (D13): "New Project" first, then the
+    // register's projects, pending commissions after them ----
     let addPendingOption = null;
+    let openCreateForm = null;
     if (projects.length || pendingProjects.length) {
       const picker = el("select", "repopick projectpick");
       picker.id = "projectpick";
-      picker.setAttribute("aria-label", "project scope");
-      const all = el("option", null, "(all projects)");
-      all.value = "";
-      picker.appendChild(all);
+      picker.setAttribute("aria-label", "current project");
+      const newRow = el("option", "projectnew", "New Project…");
+      newRow.value = "__new__";
+      if (!gateCapable(caps)) newRow.disabled = true;   // creating is a gate act
+      picker.appendChild(newRow);
       for (const project of projects) {
         const opt = el("option", null, project.name);
         opt.value = project.id;
@@ -330,9 +466,7 @@ export function mountRepoSelector(host, opts) {
       }
       // INTENT entries (design D-e): recorded, undelivered create-project
       // commissions — visible so the act registered, non-selectable so a
-      // pending project can never scope the roster. `addPendingOption` lets a
-      // commission made THIS page-load appear immediately, the same
-      // session-local overlay posture as the wheel's commissioned tiles.
+      // pending project can never scope the roster.
       addPendingOption = (name) => {
         const opt = el("option", "projectpending",
           name + " (commissioned — pending fulfilment)");
@@ -344,25 +478,37 @@ export function mountRepoSelector(host, opts) {
         addPendingOption(pendingProject.name);
       }
       picker.addEventListener("change", () => {
-        scope = picker.value || null;
+        if (picker.value === "__new__") {
+          // D13: the first line ACTS — open the create form and restore the
+          // previous selection. "New Project" is never a scope.
+          picker.value = scope || "";
+          if (openCreateForm) openCreateForm();
+          return;
+        }
+        scope = picker.value || scope;
         storeProjectScope(scope, o.storage);
-        const scoped = renderRepoSelect();
-        // The active snapshot stays a single (repository, ref) key: scoping
-        // to a project the active repo is NOT in loads the first available
-        // member instead — one snapshot at a time until the merged view
-        // (exit 2, add-project-merged-projection) lands.
-        if (scope && scoped.length && !scoped.some((opt) => sameKey(opt, active))) {
-          const first = scoped.find((opt) => opt.available) || scoped[0];
-          o.onSelect?.({ repository: first.repository, ref: first.ref });
+        renderFilter();
+        // One snapshot at a time: switching to a project the active repo is
+        // not in loads the first published member (its all-repos view is one
+        // click away in the filter).
+        const project = currentProject();
+        if (project && active
+            && active.repository !== project.id
+            && !(project.repositories || []).includes(active.repository)) {
+          const rows = projectFilterRows(roster, project);
+          const first = rows.find((r) => r.kind === "repo" && r.option?.available);
+          if (first) {
+            o.onSelect?.({ repository: first.option.repository,
+                           ref: first.option.ref });
+          }
         }
       });
       wrap.appendChild(picker);
     }
-    if (roster.length > 1 || o.alwaysShow || projects.length) {
-      renderRepoSelect();
-    }
+    renderFilter();
     if (gateCapable(caps) && o.projects) {
-      mountCreateProject(wrap, status, roster, projects, o, addPendingOption);
+      openCreateForm = mountCreateProject(wrap, status, roster, projects, o,
+                                          addPendingOption);
     }
   }
   if (refreshCapable(caps)) {

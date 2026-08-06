@@ -270,6 +270,69 @@ export function scopeRoster(roster, projects, projectId) {
     : members.has(o.repository));
 }
 
+// ---- the openDox project-first header (add-opendox-project-header) ----
+
+// D13 — the current project: the stored scope when the projection still
+// names it, else the FIRST register project. The viewer is always in a
+// project; there is no unscoped line.
+export function defaultProjectScope(projects, stored) {
+  const wanted = stored == null ? null : String(stored);
+  if (wanted && (projects || []).some((p) => p.id === wanted)) return wanted;
+  return projects && projects.length ? projects[0].id : null;
+}
+
+// D14 — the filter popover's rows for the current project: the all-repos
+// line first (its option is the project's DERIVED aggregate when the roster
+// carries one — add-project-merged-projection arms it; null renders the
+// line disabled with the merged view named as unavailable), then one row per
+// member repository carrying its roster option (null = no published
+// snapshot, rendered disabled with the reason).
+export function projectFilterRows(roster, project) {
+  if (!project) return [];
+  const rows = [{
+    kind: "all",
+    option: (roster || []).find(
+      (o) => o.kind === KIND_AGGREGATE && o.repository === project.id) || null,
+  }];
+  for (const repository of project.repositories || []) {
+    rows.push({
+      kind: "repo",
+      repository,
+      option: (roster || []).find(
+        (o) => o.kind === KIND_REPOSITORY && o.repository === repository) || null,
+    });
+  }
+  return rows;
+}
+
+// D15 — manage mode's diff: current membership vs the checkbox state, as the
+// edit-project commission's add/remove lists. Pure set arithmetic; the
+// engine re-validates everything against the live register.
+export function manageDiff(members, checked) {
+  const have = new Set((members || []).map(String));
+  const want = new Set((checked || []).map(String));
+  return {
+    add: [...want].filter((r) => !have.has(r)),
+    remove: [...have].filter((r) => !want.has(r)),
+  };
+}
+
+// Dispatched, undelivered MEMBERSHIP edits (the D-e two-plane posture applied
+// to D15): what the popover badges until the fulfilment lands. Server-side
+// the plane already drops edits whose project left the register; this stays
+// tolerant of malformed rows anyway.
+export function buildPendingEdits(projection) {
+  const rows = Array.isArray(projection?.pending_edits)
+    ? projection.pending_edits : [];
+  return rows
+    .filter((e) => e && e.project_id)
+    .map((e) => ({
+      projectId: String(e.project_id),
+      add: (Array.isArray(e.add) ? e.add : []).map(String),
+      remove: (Array.isArray(e.remove) ? e.remove : []).map(String),
+    }));
+}
+
 // ---- freshness (design D11) ----
 
 export function shortRevision(revision) {

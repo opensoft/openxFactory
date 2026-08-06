@@ -22,8 +22,11 @@ EXAMPLES = ROOT / "examples" / "ideation-dashboard"
 INTENT_SCHEMA = SCHEMAS / "gate-intent.schema.yaml"
 ACTION_SCHEMA = SCHEMAS / "gate-action-record.schema.yaml"
 
+PROJECT_VERBS = ("create-project", "edit-project")
 POSITIVE_INTENT = "gate-intent-create-project.example.yaml"
 POSITIVE_RECORD = "gate-action-record-create-project.example.yaml"
+POSITIVE_INTENTS = {v: f"gate-intent-{v}.example.yaml" for v in PROJECT_VERBS}
+POSITIVE_RECORDS = {v: f"gate-action-record-{v}.example.yaml" for v in PROJECT_VERBS}
 
 
 def _load_module():
@@ -65,49 +68,55 @@ def _validate(vidc, registry_docs, name: str, doc: dict[str, Any]):
     return findings
 
 
-def test_create_project_extends_both_v1_schemas_additively():
+def test_project_verbs_extend_both_v1_schemas_additively():
     intent = _yaml(INTENT_SCHEMA)
     action = _yaml(ACTION_SCHEMA)
     assert intent["contract_schema_version"] == 1
     assert action["contract_schema_version"] == 1
-    assert "create-project" in intent["properties"]["verb"]["enum"]
-    assert "create-project" in action["properties"]["action"]["enum"]
+    for verb in PROJECT_VERBS:
+        assert verb in intent["properties"]["verb"]["enum"]
+        assert verb in action["properties"]["action"]["enum"]
     assert "project_id" in intent["properties"]["target"]["properties"]
     assert "project_id" in action["$defs"]["target"]["properties"]
 
 
-def test_create_project_intent_example_validates(vidc, registry_docs):
-    findings = _validate(vidc, registry_docs, POSITIVE_INTENT,
-                         _example(POSITIVE_INTENT))
+@pytest.mark.parametrize("verb", PROJECT_VERBS)
+def test_each_project_intent_example_validates(vidc, registry_docs, verb):
+    findings = _validate(vidc, registry_docs, POSITIVE_INTENTS[verb],
+                         _example(POSITIVE_INTENTS[verb]))
     assert not findings.errors, findings.errors
 
 
-def test_create_project_record_example_validates(vidc, registry_docs):
-    findings = _validate(vidc, registry_docs, POSITIVE_RECORD,
-                         _example(POSITIVE_RECORD))
+@pytest.mark.parametrize("verb", PROJECT_VERBS)
+def test_each_project_record_example_validates(vidc, registry_docs, verb):
+    findings = _validate(vidc, registry_docs, POSITIVE_RECORDS[verb],
+                         _example(POSITIVE_RECORDS[verb]))
     assert not findings.errors, findings.errors
 
 
-def test_create_project_intent_requires_project_id(vidc, registry_docs):
-    doc = copy.deepcopy(_example(POSITIVE_INTENT))
+@pytest.mark.parametrize("verb", PROJECT_VERBS)
+def test_each_project_intent_requires_project_id(vidc, registry_docs, verb):
+    doc = copy.deepcopy(_example(POSITIVE_INTENTS[verb]))
     del doc["target"]["project_id"]
     errors = _schema_errors(vidc, registry_docs, doc)
     assert any(error.validator == "required" and
                tuple(error.absolute_path) == ("target",) for error in errors), errors
 
 
-def test_create_project_record_requires_project_id(vidc, registry_docs):
-    doc = copy.deepcopy(_example(POSITIVE_RECORD))
+@pytest.mark.parametrize("verb", PROJECT_VERBS)
+def test_each_project_record_requires_project_id(vidc, registry_docs, verb):
+    doc = copy.deepcopy(_example(POSITIVE_RECORDS[verb]))
     del doc["target"]["project_id"]
     errors = _schema_errors(vidc, registry_docs, doc)
     assert any(error.validator == "required" and
                tuple(error.absolute_path) == ("target",) for error in errors), errors
 
 
-def test_create_project_record_requires_its_workflow_job(vidc, registry_docs):
+@pytest.mark.parametrize("verb", PROJECT_VERBS)
+def test_each_project_record_requires_its_workflow_job(vidc, registry_docs, verb):
     """Design D2: the descriptor is not optional companionship — a commission
     record that does not carry it is not a commission."""
-    doc = copy.deepcopy(_example(POSITIVE_RECORD))
+    doc = copy.deepcopy(_example(POSITIVE_RECORDS[verb]))
     doc["artifacts"] = [{"kind": "other", "reference": "somewhere-else"}]
     errors = _schema_errors(vidc, registry_docs, doc)
     assert any(error.validator == "contains" for error in errors), errors

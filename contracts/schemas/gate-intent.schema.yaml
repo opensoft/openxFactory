@@ -44,6 +44,12 @@ description: >-
   The dashboard never writes the aggregation-owned register itself — the
   fulfilment of the recorded commission applies the edit.
 
+  PROJECT MEMBERSHIP COMMISSION (`add-opendox-project-header`; additive
+  growth of `contract_schema_version: 1`): `edit-project` requests the
+  same `project-register-edit` dispatch for an EXISTING project, its
+  args carrying the added and removed member lists. Same boundary: only
+  the fulfilment writes the register.
+
   ADDITIVE / forward-compatible: objects stay open (no
   additionalProperties: false), consumers ignore unknown properties, and
   additive growth needs no contract_schema_version bump (the
@@ -63,7 +69,7 @@ properties:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            promote-to-staging, derive-possibles, research-brief,
-           create-project]
+           create-project, edit-project]
     # The intent-transportable subset of gate-action-record.action: only the
     # console verbs the zero-write-authority request plane carries. The
     # record enum is wider (session/document verbs like create-document,
@@ -139,6 +145,8 @@ allOf:
   - if: {properties: {verb: {const: research-brief}}, required: [verb]}
     then: {properties: {target: {required: [possible_id]}}}
   - if: {properties: {verb: {const: create-project}}, required: [verb]}
+    then: {properties: {target: {required: [project_id]}}}
+  - if: {properties: {verb: {const: edit-project}}, required: [verb]}
     then: {properties: {target: {required: [project_id]}}}
   - if: {properties: {verb: {enum: [demote, edit-apply, ratify, kickoff]}}, required: [verb]}
     then: {properties: {target: {required: [change_id]}}}

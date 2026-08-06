@@ -2667,27 +2667,48 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if isinstance(p, dict) and p.get("id")
         ]
         real_ids = {p["id"] for p in projects}
-        pending = []
         records_root = Path(self.checkout_root) / DEFAULT_RECORDS_DIR
+
+        def _job(descriptor):
+            try:
+                doc = yaml.safe_load(descriptor.read_text(encoding="utf-8"))
+            except (OSError, yaml.YAMLError):
+                doc = None
+            return doc if isinstance(doc, dict) else {}
+
+        pending = []
         for pid, descriptor in sorted(
                 dispatched_commissions(records_root, "create-project").items()):
             if pid in real_ids:
                 continue
-            try:
-                job = yaml.safe_load(descriptor.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                job = None
-            job = job if isinstance(job, dict) else {}
+            job = _job(descriptor)
             pending.append({
                 "id": pid,
                 "name": job.get("project_name") or pid,
                 "repositories": [str(r) for r in (job.get("repositories") or [])],
                 "dispatched_at": job.get("dispatched_at"),
             })
+        # add-opendox-project-header (D15): dispatched, undelivered MEMBERSHIP
+        # edits — the popover badges the affected rows until the fulfilment
+        # lands. Same two-plane posture as `pending` above; an edit whose
+        # project has left the register is dropped (nothing to badge).
+        pending_edits = []
+        for pid, descriptor in sorted(
+                dispatched_commissions(records_root, "edit-project").items()):
+            if pid not in real_ids:
+                continue
+            job = _job(descriptor)
+            pending_edits.append({
+                "project_id": pid,
+                "add": [str(r) for r in (job.get("add") or [])],
+                "remove": [str(r) for r in (job.get("remove") or [])],
+                "dispatched_at": job.get("dispatched_at"),
+            })
         document = {
             "kind": "project-register-projection",
             "projects": projects,
             "pending": pending,
+            "pending_edits": pending_edits,
         }
         self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
                           head_only)
