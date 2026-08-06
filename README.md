@@ -251,6 +251,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-project-scoped-selection](openspec/changes/add-project-scoped-selection/proposal.md)
+  — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
+  (Brett's D1–D7 decision round; exit 1 of three): the `create-project`
+  gate commission (workflow `project-register-edit` descriptor + record;
+  the dashboard never writes the aggregation-owned register itself) and
+  project-scoped selection (the picker narrows the selector roster to a
+  project's member repos, one snapshot at a time), plus the D5 authority
+  declaration against the tenant-catalog twin. Additive gate-intent /
+  gate-action-record growth (`create-project`, `project_id`). Exits 2–3
+  (merged projection; per-tile repository binding) are named successors.
 - [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
   — authored 2026-08-03, the `consent-instrument-contract` staged topic's
   exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —

@@ -99,45 +99,80 @@ not a UI change.
    register-editing surface must not fork that model; at minimum it should
    name which side is authoritative when both exist.
 
-## Open questions
+## Decisions (Brett, 2026-08-06 — decision round with the fulfilling session)
 
-- **Q1 — "All repos in a project": merged view or filtered one-at-a-time?**
-  A merged projection needs rules for cross-repo counts, cluster identity,
-  and a freshness header that must now describe N revisions. A filtered view
-  keeps every existing derivation intact and makes "the project" a roster
-  rather than a document. Which does Brett mean?
-- **Q2 — Where does the register write land, and under what authority?**
-  A gate action recorded in the served corpus (but the file is in another
-  repo), a local-only preference the dashboard reads first, or a printed
-  descriptor the human applies by hand (the existing degrade-to-CLI pattern)?
-- **Q3 — Does a tile operation in a NON-served repository proceed or refuse?**
-  Refusing keeps the plane's one-checkout assumption intact and makes project
-  scope purely navigational. Proceeding is L3 and reopens the session plane.
-  A middle path — operations allowed only in the served repository, with tiles
-  from other repositories read-only and saying so — may be the honest v1.
-- **Q4 — Do project groups get used, or is `projects[]` enough?** The schema
-  supports a roll-up nobody has populated. Two levels of grouping that nobody
-  needs is a cost.
-- **Q5 — Authority when the tenant catalog exists.** If the runtime becomes
-  authoritative for project→repository composition, is the local register a
-  cache, an override, or retired?
+- **D1 — "All repos in a project" is a TRUE MERGED VIEW.** One wheel, funnel,
+  and count set spanning every member repository — a merged projection across
+  N snapshots, with explicit rules for cross-repo cluster identity, count
+  semantics, and an N-revision freshness header. The filtered
+  one-at-a-time posture is the interim (it ships first in the series), never
+  the destination.
+- **D2 — The register write is a COMMISSION (record-then-fulfil).** A
+  `create-project` gate verb on the propose/promote mechanic: the click
+  records a `workflow-job` descriptor (the proposed project's id, name, and
+  member repositories) plus a gate-action record; the fulfilment applies the
+  edit to the aggregation-owned `project-register.yaml`. The dashboard never
+  writes across the repository boundary itself, so the served-checkout
+  confinement rule stays intact.
+- **D3 — Tile operations in a non-served repository PROCEED (L3 happens).**
+  Per-tile repository binding is in scope for this topic: multiple real
+  checkouts reachable from one serve, action-time repository resolution,
+  confinement per resolved repository. It lands as its own session-plane
+  change (D6), not on the selector work.
+- **D4 — `projects[]` only; no group affordance.** `project_groups` stays
+  schema-supported and unpopulated; the create surface offers projects only.
+  Groups return the day a real layout needs them.
+- **D5 — The local register is dev-plane-authoritative, then a derived
+  cache.** Authoritative ONLY until a tenant project catalog exists; when the
+  runtime twin lands, the register becomes a derived, replaceable projection
+  per the brainstorm's `workstation-project-cache` contract — never an
+  override. Declared here so the two models cannot fork.
+- **D6 — Three sequenced exit changes, not one.** (1) project CRUD commission
+  + project-scoped selection; (2) the merged cross-repo projection; (3) the
+  L3 per-tile repository binding. Each lands on its own gate; earlier value
+  ships while later pieces are designed.
+- **D7 — Content first: the register splits BY ROLE.** `core` (openxFactory),
+  `domains` (AdxFactory, LedgerxFactory, MedxFactory, OpsxFactory,
+  codexFactory), `medx-clinical` (HealthLinc, MedxEHR, openChart), `installs`
+  (agenttower, cloudpc-install, hermes-install, omnigent-install,
+  xfactory-installer). The schema's single-parent rule holds (a repository
+  belongs to at most one project), so `medx-clinical` claims the clinical
+  trio and MedxFactory stays in `domains`.
+
+## Open questions — resolved 2026-08-06
+
+- Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind
+  the filtered interim.
+- Q2 (register-write authority) — RESOLVED by D2: commission, fulfilled into
+  the aggregation repo.
+- Q3 (non-served tile operations) — RESOLVED by D3: proceed; L3 is in scope
+  as its own change.
+- Q4 (project groups) — RESOLVED by D4: projects only.
+- Q5 (tenant-catalog authority) — RESOLVED by D5: dev-authoritative, then
+  derived cache.
 
 ## Exit path
 
-Content first, then a proposal shaped by the answers:
+Ruled 2026-08-06 (D6, D7):
 
-1. **Immediate, no change needed:** Brett names the real projects in
-   `project-register.yaml` (splitting the single `xfactory` project). This is
-   an aggregation-repo edit that makes by-project navigation live and reveals
-   how much of the ask was content.
-2. Rule Q1 and Q3 — they decide whether this is a modest selector change or a
-   plane change.
-3. Raise an OpenSpec change against `ideation-dashboard` for L1 + L2 at the
-   scope those rulings set. L3, if wanted, is a SEPARATE change against the
-   session plane and should not ride the selector work.
-4. Reconcile with `tenant-project-catalog-and-workstation-cache` before either
-   lands, so the local surface and the runtime catalog agree about who owns
-   project composition.
+1. **Content first (done with the rulings):** split `project-register.yaml`
+   by role per D7 — an aggregation-repo edit that makes by-project navigation
+   live immediately.
+2. **Exit 1 — `add-project-scoped-selection`:** the `create-project`
+   commission verb (additive gate-intent / gate-action-record growth, the
+   shared undelivered-commission index, engine + route + CLI + selector
+   affordance) and project-scoped selection (project picker narrows the
+   selector roster to member repos, one at a time). Carries the D5 authority
+   declaration.
+3. **Exit 2 — `add-project-merged-projection`:** the D1 merged view — the
+   cross-repo projection contract (cluster identity, counts, N-revision
+   freshness) and the project-wide wheel/funnel rendering.
+4. **Exit 3 — `add-project-tile-repository-binding`:** the D3/L3 session-plane
+   change — multi-checkout serve, per-tile repository resolution, per-resolved
+   -repository confinement. Sequenced strictly after exit 2 and reconciled
+   with the `add-workbench-branch-sessions` machinery it touches.
+5. Reconcile with `tenant-project-catalog-and-workstation-cache` before exit
+   2 lands (D5 names the authority split; the twin names the runtime side).
 
 Parallelism: this topic touches the aggregation register, the dashboard
 selector, and (only at L3) the session plane. It has no overlap with the
