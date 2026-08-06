@@ -151,14 +151,28 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
     candidates.push(option.repository);
   }
 
-  const form = el("span", "projectform");
+  // A LABELED PANEL, not a bare strip (Brett's 2026-08-06 annotation: "which
+  // is this? i do not know how to use this widget") — a heading names the
+  // act, the field and the member list carry captions, and the buttons say
+  // what happens (a recorded commission, not a direct write).
+  const form = el("span", "projectform projectpanel");
   form.hidden = true;
+  form.appendChild(el("span", "panelhead", "New Project"));
+  form.appendChild(el("span", "panelnote",
+    "records a project-register commission — the project appears as pending "
+    + "until a session fulfils it"));
 
+  const nameField = el("label", "panelfield");
+  nameField.appendChild(el("span", "panellabel", "project name"));
   const name = el("input", "projectname");
   name.type = "text";
-  name.placeholder = "project name";
+  name.placeholder = "e.g. Field Pilots";
   name.setAttribute("aria-label", "new project name");
-  form.appendChild(name);
+  nameField.appendChild(name);
+  form.appendChild(nameField);
+
+  form.appendChild(el("span", "panellabel", "member repositories"));
+  const memberList = el("span", "panelmembers");
   const boxes = [];
   for (const repo of candidates) {
     const label = el("label", "projectmember");
@@ -168,21 +182,24 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
     label.appendChild(box);
     label.appendChild(el("span", null, repo));
     boxes.push(box);
-    form.appendChild(label);
+    memberList.appendChild(label);
   }
   if (!candidates.length) {
-    form.appendChild(el("span", "projectform-note",
+    memberList.appendChild(el("span", "projectform-note",
       "no published repositories to choose from"));
   }
-  const submit = el("button", "repobtn", "commission");
+  form.appendChild(memberList);
+
+  const buttonRow = el("span", "panelbuttons");
+  const submit = el("button", "repobtn", "commission project");
   submit.type = "button";
   submit.disabled = !candidates.length;
-  form.appendChild(submit);
-
+  buttonRow.appendChild(submit);
   const cancel = el("button", "repobtn projectcancel", "cancel");
   cancel.type = "button";
   cancel.addEventListener("click", () => { form.hidden = true; });
-  form.appendChild(cancel);
+  buttonRow.appendChild(cancel);
+  form.appendChild(buttonRow);
 
   submit.addEventListener("click", async () => {
     const members = boxes.filter((b) => b.checked).map((b) => b.value);
@@ -284,40 +301,32 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
     }
   }
 
-  // D16's first line: add a repository to this project. Opens an inline
-  // candidate select (roster + register known, minus members) and
-  // commissions the single addition.
+  // D16's first line, refined by Brett's 2026-08-06 annotation: ONE dropdown
+  // that closes like the project selector. The placeholder line IS the
+  // affordance; choosing a candidate commissions the single addition and the
+  // native select closes itself, the placeholder restoring immediately.
   function mountAddRow(pendingEdit) {
-    const addRow = el("button", "filterrow filteradd", "\uff0b add repository\u2026");
-    addRow.type = "button";
-    const pane = el("span", "managepane");
-    pane.hidden = true;
     const candidates = addableRepositories(roster, o.projects, project)
       .filter((r) => !(pendingEdit && pendingEdit.add.includes(r)));
-    if (candidates.length) {
-      const pickRepo = el("select", "repopick");
-      pickRepo.setAttribute("aria-label", "repository to add");
-      for (const repository of candidates) {
-        const opt = el("option", null, repository);
-        opt.value = repository;
-        pickRepo.appendChild(opt);
-      }
-      const commit = el("button", "repobtn", "commission add");
-      commit.type = "button";
-      commit.addEventListener("click", () => {
-        commit.disabled = true;
-        commissionEdit({ add: [pickRepo.value] }, commit,
-          () => { commit.disabled = false; });
-      });
-      pane.appendChild(pickRepo);
-      pane.appendChild(commit);
-    } else {
-      pane.appendChild(el("span", "projectform-note",
-        "every known repository is already a member"));
+    const select = el("select", "repopick filteraddselect");
+    select.setAttribute("aria-label", "add a repository to " + project.name);
+    const placeholder = el("option", null,
+      candidates.length ? "\uff0b add repository\u2026"
+                        : "\uff0b add repository\u2026 (none available)");
+    placeholder.value = "";
+    select.appendChild(placeholder);
+    for (const repository of candidates) {
+      const opt = el("option", null, repository);
+      opt.value = repository;
+      select.appendChild(opt);
     }
-    addRow.addEventListener("click", () => { pane.hidden = !pane.hidden; });
-    pop.appendChild(addRow);
-    pop.appendChild(pane);
+    select.disabled = !candidates.length;
+    select.addEventListener("change", () => {
+      const chosen = select.value;
+      select.value = "";                  // the placeholder line returns
+      if (chosen) commissionEdit({ add: [chosen] }, select, null);
+    });
+    pop.appendChild(select);
   }
 
   function renderRows() {

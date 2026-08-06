@@ -76,3 +76,13 @@
 - [x] 5.2 Model: `addableRepositories` + `repositoryVisible` (manageDiff
       retires with manage mode); node tests updated.
 - [x] 5.3 Live browser check re-run on the reworked popover.
+- [x] 5.4 Brett's 2026-08-06 follow-up annotations: the create form becomes
+      a LABELED PANEL (heading, captioned name field and member list, a
+      what-this-does note, "commission project"/"cancel"), and the add-repo
+      flow becomes ONE self-closing dropdown (placeholder line = the
+      affordance; choosing commissions and the select closes, like the
+      project selector).
+- [x] 5.5 The live check exposed that explicit `display:flex` on the
+      popover/panel defeated the `hidden` attribute (the filter popover
+      could never close); restated `[hidden] { display:none }` for both and
+      verified full open/close cycles with zero page errors.
