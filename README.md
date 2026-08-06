@@ -365,10 +365,6 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
-- [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
-  — staged-origin proposal for unknown-owner/cross-domain claim routing,
-  destination acceptance, the fourteenth deterministic doc-health family, and
-  bounded ideation-organizer lane; implementation follows document cataloging
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
   readiness, revocation, redacted evidence, and contract interface impacts;
@@ -393,6 +389,18 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-cross-factory-ideation-routing](openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/proposal.md)
+  Promoted the governed cross-factory routing plane: durable `XFI-` Idea IDs
+  from the central allocation ledger, per-idea routing records with
+  claim-level ownership, destination-owner acceptance, and owner-authorized
+  dispositions; the non-mutating ideation organizer (deterministic-first
+  nightly child with watchdog and immutable evidence); and the fourteenth
+  deterministic doc-health family. Contracts registered at
+  **contract-v1.30**, five domains re-pinned, and archived 2026-08-06 on
+  the two-idea pilot (XFI-2026-001 openxWallet unknown-owner intake,
+  XFI-2026-002 subject-document-estate domain-origin split) with a real
+  organizer run, authorized dispositions, nightly run 31129751955 green,
+  and zero fabricated history in any legacy brainstorm.
 - [add-consent-instrument](openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
   Promoted the neutral `xfactory_consent_instrument` record kind — the
   authority-chain root credential grants cite, gates verify, and whose
