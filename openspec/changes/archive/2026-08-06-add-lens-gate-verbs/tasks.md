@@ -29,5 +29,17 @@
 - [x] 3.2 Full dashboard suite green; Playwright smoke: build a set in the
       lens, execute save-recipe, see the landing confirmation; add-as-cluster
       lands the pending entry; zero page errors.
-- [ ] 3.3 Brett's dogfood pass: build a real set, land it, and find the
+- [x] 3.3 Brett's dogfood pass: build a real set, land it, and find the
       manifest + pending entry where the confirmation said they would be.
+      — DISCHARGED by disposition, ruled by Brett 2026-08-06 (decision
+      round): the 3.1 route tests (both verbs' artifacts, every refusal
+      case, agent-path rejection, gate-off posture) plus the 3.2
+      Playwright smoke (the exact dogfood scenario — build a set, execute
+      save-recipe, landing confirmation, add-as-cluster lands the
+      pending_review entry, zero page errors) plus Brett's real
+      wheel-verbs 4.4 human pass on the same gate console engine
+      (2026-08-05, archived add-wheel-action-verbs) are accepted as
+      sufficient realization evidence; Brett's first real lens set in
+      ordinary dashboard work stands as retroactive confirmation, with
+      any mismatch filed as an ordinary defect against the promoted
+      capability.

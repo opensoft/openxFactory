@@ -336,13 +336,6 @@ Active changes:
 
 
 
-- [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
-  — authored 2026-07-25: two human-only gate-console verbs executing the
-  keyword lens's plans through the tested engines (`lens-save-recipe` →
-  workbench manifest; `lens-add-as-cluster` → manifest + pending_review
-  human-seen submission), recorded dispatches with the engines' refusals
-  surfaced at the route; the generated cross-reference index stays
-  untouched; plan-only posture preserved where the gate capability is off.
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
@@ -408,6 +401,16 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-lens-gate-verbs](openspec/changes/archive/2026-08-06-add-lens-gate-verbs/proposal.md)
+  Promoted the two lens gate verbs into the dashboard's gate console:
+  `lens-save-recipe` and `lens-add-as-cluster` beside dispose/ratify/
+  propose — same human-only enforcement and refusal/record mechanics,
+  capability-gated execute affordance on the lens plan confirmation, CLI
+  parity. Archived 2026-08-06 under Brett's 3.3 disposition: route tests
+  + the Playwright smoke of the exact dogfood scenario + the real
+  wheel-verbs 4.4 human pass on the same gate engine accepted as
+  realization evidence, first real lens use standing as retroactive
+  confirmation.
 - [add-neutrality-drift-lane](openspec/changes/archive/2026-08-05-add-neutrality-drift-lane/proposal.md)
   The nightly doc-health lane that scouts the domain factories for content
   that belongs in openxFactory: four deterministic stage-1 signals plus a
