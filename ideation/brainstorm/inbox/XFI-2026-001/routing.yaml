@@ -54,6 +54,9 @@ claims:
         - repository: openxFactory
           path: ideation/brainstorm/inbox/XFI-2026-001/idea.md
           revision: 47635d01c9ab487d2885d5a154d369f259a00c9f
+        - repository: xFactory
+          path: health/ideation-organizer/2026-08-06/XFI-2026-001-7bf515a9092e.yaml
+          revision: 6e3babe0ba47094eb116be11dfb50f7d18b3e3a6
     transitions:
       - from: null
         to: unresolved
@@ -107,4 +110,4 @@ transitions:
     occurred_at: "2026-08-06T14:20:00Z"
     evidence_refs: []
 successors: []
-notes: "Pilot 1 of 2 (tasks 8.1/8.2): unknown-owner intake, then the organize-gate acceptance — one routed neutral claim (accepted by the openxFactory ratify authority) and one honestly unresolved runtime claim keeping the record in triaging. No content moved; authority stays with the owning surfaces."
+notes: "Pilot 1 of 2 (tasks 8.1/8.2): unknown-owner intake, then the organize-gate acceptance — one routed neutral claim (accepted by the openxFactory ratify authority) and one honestly unresolved runtime claim keeping the record in triaging. No content moved; authority stays with the owning surfaces. Organizer review (run 7bf515a9092e, evidence at xFactory health/ideation-organizer/2026-08-06/, revision 6e3babe): candidate-01 (neutral_candidate, openxFactory, confidence 0.7) ACCEPTED by the openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06) as corroborating the routed C01; candidate-05 (unclassified, no proposed owner or target, confidence 0.35) REJECTED by the same authority — below the actionable bar, re-derivable when the wallet capability stages; candidates 02-04 and 06 remain pending_review in the immutable evidence record."
