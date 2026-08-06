@@ -49,6 +49,7 @@ import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
 import { fetchIndex, fetchProjects, mountRepoSelector, renderStaleBanner } from "./views/repo-selector.js";
+import { composedView, isComposed, memberRef, readOnlyCaps } from "./views/composed-model.js";
 import {
   freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey, sparseNotice,
 } from "./views/repo-selector-model.js";
@@ -300,7 +301,8 @@ const TABS = [
     render: (root, snap, ctx) => renderFunnel(root, snap, { onOpenTile: ctx.explorer.openTile, notebook: ctx.notebook }) },
   { tab: "tab-wheel", view: "view-wheel",
     render: (root, snap, ctx) => renderWheel(root, snap,
-      { caps: ctx.caps, nav: ctx.nav, notebook: ctx.notebook, sourceBase: ctx.sourceBase }) },
+      { caps: ctx.caps, nav: ctx.nav, notebook: ctx.notebook,
+        sourceBase: ctx.sourceBase, composed: ctx.composed }) },
   { tab: "tab-board", view: "view-board",
     render: (root, snap, ctx) => renderBoard(root, snap, { onOpenTile: ctx.explorer.openTile, notebook: ctx.notebook }) },
   { tab: "tab-canvas", view: "view-canvas",
@@ -463,8 +465,14 @@ async function main() {
     // request-safe — resolves to null, and the default applies exactly as if
     // nothing had been stored.
     const active = resolveActive(index, resolveStoredKey(index, storedKey()));
-    const snapshot = await loadSnapshot(active);
-    renderHeader(snapshot, active);
+    const rawSnapshot = await loadSnapshot(active);
+    // add-project-merged-projection (D9/D10): a COMPOSED snapshot renders
+    // through ONE derived view — same-topic clusters unioned — and every
+    // acting capability stripped. The RAW snapshot keeps the freshness
+    // header honest (`composed_from` is what the label reads).
+    const composed = isComposed(rawSnapshot);
+    const snapshot = composed ? composedView(rawSnapshot) : rawSnapshot;
+    renderHeader(rawSnapshot, active);
     renderStaleBanner(document.getElementById("stalebanner"), active,
                       sparseNotice(active, snapshot));
     // The roll-up control (US3/T015) aggregates an ARRAY of snapshots — v1
@@ -503,7 +511,10 @@ async function main() {
     // The ONE capability probe (#1): a same-origin GET the local backend answers
     // and the static served image 404s. It also carries the per-serve console
     // token used by guarded human actions.
-    const caps = await probeCapabilities();
+    const probedCaps = await probeCapabilities();
+    // D10: a composed render strips every acting capability in ONE place, so
+    // every view's existing capability check is the whole gating.
+    const caps = composed ? readOnlyCaps(probedCaps) : probedCaps;
     const explorer = mountExplorer(explorerRoot, snapshot, {
       onOpenFile: (entry, pane, tile) => {
         const sourceKey = sourceKeyFor(entry);
@@ -651,9 +662,16 @@ async function main() {
       // clusters / possibles / staged -> the staging workbench, scoped to the
       // tile the verb was activated from (read-only; closes back to the wheel).
       openWorkbench: (kind, id) => stagingWorkbench.open(kind, id),
+      // composed tiles -> the tile's member repository (D10's one verb): store
+      // the key at the member's own ref and reload — the ratified selector
+      // posture, after which every verb works as on any single-repo view.
+      openRepository: (repository) => {
+        storeKey({ repository, ref: memberRef(rawSnapshot, repository) });
+        window.location.reload();
+      },
     };
     tabs = initTabs(snapshot, {
-      explorer, notebook, caps, nav, sourceBase: sourceBaseFor(active),
+      explorer, notebook, caps, nav, composed, sourceBase: sourceBaseFor(active),
     });
     // The REPOSITORY SELECTOR + the ONE refresh affordance (design D7/D9):
     // switching repositories stores the key and reloads the shell; a successful

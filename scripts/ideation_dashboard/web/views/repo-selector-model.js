@@ -284,10 +284,18 @@ function stampDay(stamp) {
 
 // `repo @ ref · <short sha> · generated <date>` — the question behind the whole
 // refresh ask ("did my doc make it in?") answered at a glance, against a stated
-// revision rather than a deployment time.
+// revision rather than a deployment time. A COMPOSED view
+// (add-project-merged-projection 2.3) answers the same question in aggregate:
+// `<id> · N repos · composed <date>`, the per-member revisions living in the
+// snapshot's own `composed_from` block.
 export function freshnessLabel(option, snapshot) {
   const gen = (snapshot && snapshot.generation) || {};
+  const members = gen.composed_from;
   const repository = (option && option.repository) || snapshot?.repository || "unknown";
+  if (Array.isArray(members)) {
+    return repository + " · " + members.length + " repos · composed "
+      + stampDay(gen.generated_at);
+  }
   const ref = normalizeRef(option && option.ref);
   const revision = (option && option.sourceRevision) || gen.source_revision;
   const stamp = (option && option.generatedAt) || gen.generated_at;

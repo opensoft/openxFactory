@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (gate-intent / gate-action-record additive `edit-project` extension; dashboard runtime — kickoff.py edit_project + route + CLI + GateConsole delegate; web header redesign: brand, project dropdown, repo filter popover + manage mode; tests)
 target_release: allocated at realization (next additive contract bundle, per docs/contract-versioning-policy.md)
-Status: draft
+Status: ratified
+Ratified by: Brett's "ratify both and realize them in order" on 2026-08-06, with the header design round (topic D12–D15) carried as decided
 ---
 
 # Proposal: add-opendox-project-header
