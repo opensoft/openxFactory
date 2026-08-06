@@ -260,7 +260,12 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
   const currentPendingEdit = () => (pendingEdits || []).find(
     (e) => e.projectId === project.id) || null;
 
-  const button = el("button", "repobtn filterbtn", "\u29e9 " + project.name);
+  // The box names its content (Brett's 2026-08-06 annotation): a
+  // single-member project shows THAT repository's name; several members
+  // show the count, and the list is one click away.
+  const members = project.repositories || [];
+  const boxLabel = members.length === 1 ? members[0] : members.length + " Repos";
+  const button = el("button", "repobtn filterbtn", "\u29e9 " + boxLabel);
   button.type = "button";
   button.title = "repositories in " + project.name;
   button.setAttribute("aria-label", "repository filter for " + project.name);

@@ -1906,3 +1906,10 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
     flex: none; max-height: 20vh; overflow-y: auto;
   }
 }
+
+/* Theme + settings pinned to the page's top-right (Brett's 2026-08-06
+   annotations) — page chrome, out of the header's working controls. */
+.cornerbtns {
+  position: fixed; top: 10px; right: 14px; z-index: 60;
+  display: flex; align-items: center; gap: 6px;
+}

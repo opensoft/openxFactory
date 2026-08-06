@@ -86,3 +86,11 @@
       popover/panel defeated the `hidden` attribute (the filter popover
       could never close); restated `[hidden] { display:none }` for both and
       verified full open/close cycles with zero page errors.
+- [x] 5.6 Brett's 2026-08-06 second annotation round: the filter box names
+      its content (single member -> the repository's name; several ->
+      "N Repos"); theme + settings pin to the page's top-right as chrome;
+      the header-level grouping roll-up strip retires (the project dropdown
+      and filter are where grouping surfaces; the pure grouping model stays
+      available) — the scoped-selection delta's grouping requirement
+      restated accordingly. Live-checked: labels, corner placement, settings
+      panel, no roll-up row, zero page errors.
