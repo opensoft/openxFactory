@@ -108,3 +108,27 @@ def test_missing_project_register_resolves_ungrouped(tmp_path):
     adapter = ProjectRegisterAdapter.discover(tmp_path)
     assert adapter.resolve("anything") == (None, None)
     assert adapter.projects() == []
+
+
+def test_multi_parent_membership_resolves_primary_and_full_list(tmp_path):
+    """Multi-parent membership (Brett's 2026-08-06 ruling on
+    add-project-scoped-selection): a repository may live in any number of
+    projects. `resolve` keeps returning the PRIMARY — the first-declaring
+    project in register order — and `projects_of` returns them all, primary
+    first."""
+    (tmp_path / "project-register.yaml").write_text(
+        "schema_version: 1\n"
+        "kind: project-register\n"
+        "projects:\n"
+        "  - id: alpha\n"
+        "    name: Alpha\n"
+        "    repositories: [shared, only-alpha]\n"
+        "  - id: beta\n"
+        "    name: Beta\n"
+        "    repositories: [shared]\n",
+        encoding="utf-8")
+    adapter = ProjectRegisterAdapter.discover(tmp_path)
+    assert adapter.resolve("shared") == ("alpha", None)
+    assert adapter.projects_of("shared") == ["alpha", "beta"]
+    assert adapter.projects_of("only-alpha") == ["alpha"]
+    assert adapter.projects_of("not-registered") == []

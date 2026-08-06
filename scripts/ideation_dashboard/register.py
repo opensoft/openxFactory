@@ -145,8 +145,11 @@ class ProjectRegisterAdapter:
         return [g for g in (self._data().get("project_groups") or []) if isinstance(g, dict)]
 
     def _repo_to_project(self) -> dict[str, str]:
-        """First-wins single-parent map (the register validator forbids multi-parent;
-        the generator stays defensive)."""
+        """First-wins PRIMARY map. Repository membership is MULTI-PARENT
+        (Brett's 2026-08-06 ruling on add-project-scoped-selection): the
+        first project in register order declaring a repository is its
+        primary — the one the snapshot's singular `project` field carries —
+        and `projects_of` returns full membership."""
         out: dict[str, str] = {}
         for project in self.projects():
             pid = project.get("id")
@@ -155,6 +158,14 @@ class ProjectRegisterAdapter:
             for repo in project.get("repositories") or []:
                 out.setdefault(repo, pid)
         return out
+
+    def projects_of(self, repository: str) -> list[str]:
+        """EVERY project declaring `repository`, in register order — the
+        snapshot's additive `projects` list; its first element is the
+        primary `resolve` returns."""
+        return [project["id"] for project in self.projects()
+                if project.get("id") is not None
+                and repository in (project.get("repositories") or [])]
 
     def _project_to_group(self) -> dict[str, str]:
         out: dict[str, str] = {}

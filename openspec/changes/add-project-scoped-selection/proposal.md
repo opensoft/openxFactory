@@ -51,6 +51,13 @@ content split (D7) rides the aggregation repo directly — content, not code.
   the development plane ONLY until a tenant project catalog exists; it then
   becomes a derived, replaceable workstation cache per
   `tenant-project-catalog-and-workstation-cache` — never an override.
+- MODIFIED `ideation-dashboard` "Project grouping hierarchy" (design D-d,
+  Brett's 2026-08-06 post-ratification ruling): repository membership is
+  MULTI-PARENT — a repository may live in any number of projects. The
+  snapshot's singular `project` becomes the first-declaring PRIMARY and an
+  additive `projects` list carries full membership; the register validator
+  drops its repo-multi-parent error (project→group stays single-parent);
+  the create-project single-parent guard is dropped.
 
 ## Non-Goals
 

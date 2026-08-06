@@ -1,5 +1,32 @@
 # ideation-dashboard
 
+## MODIFIED Requirements
+
+### Requirement: Project grouping hierarchy
+The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and rendered as repo/project/group roll-ups on the funnel, pipeline, and stats views. Repository membership SHALL be multi-parent: a repository MAY live in any number of projects (a project is a named view over repositories, not an owner), the snapshot's singular `project` field SHALL carry the PRIMARY project (the first project in register order declaring the repository, so grouped roll-ups render each repository under exactly one heading), and the snapshot SHALL additionally carry the full membership as an additive `projects` list whose first element is that primary. A project SHALL belong to at most one project group. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
+
+#### Scenario: A project spans several repositories
+- **WHEN** the project register maps more than one repository to a project
+- **THEN** the project roll-up MUST aggregate those repositories' snapshot entries under one project heading
+- **AND** per-repository detail remains reachable beneath it
+
+#### Scenario: A repository lives in several projects
+- **WHEN** the register declares one repository under more than one project
+- **THEN** the register is valid, the repository's snapshot carries the first-declaring project as `project` and every declaring project in `projects`
+- **AND** project-scoped selection offers the repository under each of its projects
+
+#### Scenario: Projects roll up into a project group
+- **WHEN** the register assigns projects to a project group
+- **THEN** the group view MUST aggregate its member projects' tallies from the snapshot
+
+#### Scenario: A repository is absent from the register
+- **WHEN** a snapshot's `repository` has no register entry
+- **THEN** it MUST render ungrouped (its own implicit project) without failing the dashboard
+
+#### Scenario: The register changes
+- **WHEN** the project register is edited
+- **THEN** grouping updates only through snapshot regeneration — rendered grouping is never hand-edited
+
 ## ADDED Requirements
 
 ### Requirement: Project creation is a recorded commission
@@ -14,9 +41,9 @@ The dashboard SHALL offer a `create-project` verb on the human gate console that
 - WHEN a commissioned member repository id is absent from the snapshot-index roster
 - THEN the commission is refused with the unknown id as the reason and nothing is persisted
 
-#### Scenario: The single-parent rule refuses a double membership
+#### Scenario: A repository joins a second project
 - WHEN a commissioned member repository already belongs to a project in the register projection
-- THEN the commission is refused citing that project, because a repository belongs to at most one project
+- THEN the commission is accepted — repository membership is multi-parent, and a project is a named view over repositories, not an owner
 
 #### Scenario: A duplicate commission is refused
 - WHEN a project id already carries a dispatched, undelivered `project-register-edit` commission
