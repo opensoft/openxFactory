@@ -1,0 +1,16 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+project_id: openxfactory
+workflow: project-register-edit
+gate_contract: workflow-gate
+authoring_outline: 'Apply the recorded project-register edit to project ''openxfactory'':
+  remove AdxFactory — validate against the pinned schema before landing.'
+status: delivered
+dispatched_by: brettheap
+dispatched_at: '2026-08-06T20:37:54Z'
+add: []
+remove:
+- AdxFactory
+# Delivered 2026-08-06 by the fulfilling terminal session: AdxFactory
+# removed from project 'openxfactory' in the aggregation register.
