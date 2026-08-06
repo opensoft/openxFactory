@@ -6,11 +6,11 @@ kind: xfactory_idea_routing_record
 idea_id: XFI-2026-001
 title: "openxWallet — agent DID wallets, certified qualification grants, drift-triggered recertification"
 scope: unclassified
-routing_status: intake
+routing_status: triaging
 sources:
   - repository: openxFactory
     path: ideation/brainstorm/inbox/XFI-2026-001/idea.md
-    revision: pending_capture
+    revision: 47635d01c9ab487d2885d5a154d369f259a00c9f
     context: capture
     passage_sha256: null
   - repository: openxFactory
@@ -31,20 +31,29 @@ claims:
       section: summary
       passage_sha256: 2e3da1b0cda4a2de0527bfcb10348ef24b59b993bea210cc644ff59af4ef0ac6
     proposed_owner: openxFactory
-    accepted_owner: null
+    accepted_owner: openxFactory
     target_capability: credential-contracts
-    destination: null
+    destination:
+      repository: openxFactory
+      path: ideation/brainstorm/agent-certification-wallets.md
+      revision: 4556b17b56ae9634ce9857a0d72f8024f712156b
     blocker: null
     dependencies: []
     domain_local_exclusions:
       - per-domain certification batteries and level definitions
-    disposition: proposed
+    disposition: routed
     rationale: >-
       The contract-family claim is neutral by nature (identity/authorization
-      vocabulary consumed by every domain); proposed to the openxFactory
-      ratify gate — acceptance happens at the organize gate, never at
-      capture.
-    acceptance: null
+      vocabulary consumed by every domain); accepted at the openxFactory
+      ratify gate under Brett's 2026-08-06 pilot commission, anchored to its
+      committed design history pending an organize-gate staging topic.
+    acceptance:
+      actor_ref: "openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06)"
+      accepted_at: "2026-08-06T14:30:00Z"
+      evidence_refs:
+        - repository: openxFactory
+          path: ideation/brainstorm/inbox/XFI-2026-001/idea.md
+          revision: 47635d01c9ab487d2885d5a154d369f259a00c9f
     transitions:
       - from: null
         to: unresolved
@@ -56,6 +65,14 @@ claims:
         actor_ref: "openxFactory capture (goal-takeover session for Brett Heap)"
         occurred_at: "2026-08-06T14:05:00Z"
         evidence_refs: []
+      - from: proposed
+        to: routed
+        actor_ref: "openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06)"
+        occurred_at: "2026-08-06T14:30:00Z"
+        evidence_refs:
+          - repository: openxFactory
+            path: ideation/brainstorm/inbox/XFI-2026-001/idea.md
+            revision: 47635d01c9ab487d2885d5a154d369f259a00c9f
   - claim_id: XFI-2026-001-C02
     summary: "Runtime wallet enforcement — credential verification at the install/worker boundary (which install repo hosts the verifier is undecided)."
     source_ref:
@@ -84,5 +101,10 @@ transitions:
     actor_ref: "openxFactory capture (goal-takeover session for Brett Heap)"
     occurred_at: "2026-08-06T14:00:00Z"
     evidence_refs: []
+  - from: intake
+    to: triaging
+    actor_ref: "openxFactory ratify authority (Brett Heap, pilot commission 2026-08-06)"
+    occurred_at: "2026-08-06T14:20:00Z"
+    evidence_refs: []
 successors: []
-notes: "Pilot 1 of 2 (task 8.1): unknown-owner intake with one accepted-and-routed neutral claim and one honestly unresolved runtime claim. No content moved; authority stays with the owning surfaces."
+notes: "Pilot 1 of 2 (tasks 8.1/8.2): unknown-owner intake, then the organize-gate acceptance — one routed neutral claim (accepted by the openxFactory ratify authority) and one honestly unresolved runtime claim keeping the record in triaging. No content moved; authority stays with the owning surfaces."
