@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.29
+contract_bundle_version: contract-v1.30
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -403,7 +403,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-document-catalog-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6c39a6ac674ffaa2278a191ece209fd5113f5518f9e13f8b674b4191c0695d79
+    sha256: d64f2b3c7133511bdfad7ddb6fa5e2482679396a099024e6e850608b7ac1cc0d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1499,7 +1499,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9fa47f6237358b0b61f6d50606b9788f25e067c79b8df462ea02fa14d438cd41
+    sha256: 6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1565,7 +1565,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 21a6fc98cdaa8ad76304b9cd9a24039ccb2e5fa8605ff236a9bb4258d6aec4ea
+    sha256: 9b46f63d36d3710be73aff167d1db1b8a2846507fc6a03472f10076d2d235773
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1588,7 +1588,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-intent.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9831a3baf033605d4a1a9351b613960d8208be9b6c351b3bd80c6ab80cc39646
+    sha256: 649aa0160397f6a320c2991a52b9b0e04a7bb846a5e9c0a7e853750989eba3b4
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1676,3 +1676,102 @@ contracts:
       sha256 verified before any copy is treated as current. Locator-side rules the shape cannot express are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+  # ---- cross-factory ideation routing — contract-v1.30 registration (add-cross-factory-ideation-routing task 2.4) ----
+  # The packaged corpus (examples/ideation-routing/, 8 valid + 8 invalid) and the
+  # strict validator (scripts/validate-ideation-routing.py) are content-addressed
+  # by commit; no per-file digest (the possibles-register precedent).
+  - id: xfactory-idea-routing-record
+    path: contracts/schemas/xfactory-idea-routing-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-idea-routing-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4e182210fdb6b4a4b604a479a3073fd59018c25a230ef9856ab41f7dddccd64d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Canonical cross-factory idea routing record (routing.yaml): one per unclassified, mixed, cross-domain, or claim-split idea, with the controlled state vocabulary, transition graph, destination acceptance, numeric confidence, and evidence references.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-idea-routing-reference
+    path: contracts/schemas/xfactory-idea-routing-reference.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-idea-routing-reference.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 103217fc7a0ea06b7d2c2e225612d57b0924c0b4d8fd64f99fa080525768d5ef
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Reusable structured repository/path/revision reference $defs kernel (the routing-reference kernel other ideation families $ref); no top-level envelope.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-ideation-routing-index
+    path: contracts/schemas/xfactory-ideation-routing-index.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-ideation-routing-index.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e570f72297b2cead0cb109d144d0d2eec1236bc5f829ae6fc386956ac4bd9671
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Central Idea-ID allocation ledger (ideation/routing-index.yaml): the single uniqueness authority for Idea IDs and Claim IDs.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-ideation-organizer-recommendations
+    path: contracts/schemas/xfactory-ideation-organizer-recommendations.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-ideation-organizer-recommendations.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 8ae32616a62379f8bc5d5a71863e8a13d4e7c113b94fb53d2557757d837d0d37
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Immutable, non-mutating ideation-organizer recommendation evidence: bounded model output linked from reports, never a routing mutation.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- consent-instrument family — contract-v1.30 registration (add-consent-instrument task 1.6; DTN-016) ----
+  # The packaged corpus (examples/consent-instrument/, 5 valid + 5 invalid + purpose
+  # probes) and the canonical validator (scripts/validate-consent-instruments.py)
+  # are content-addressed by commit; no per-file digest.
+  - id: consent-instrument
+    path: contracts/schemas/consent-instrument.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-instrument.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 802f34c8ae0834f912e2521b72f00af1bb2cdbb5dd0c25f6c679cb23530e0027
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The xfactory_consent_instrument record kind — the authority-chain root: parties by rung (incl. estate hosts), scope with stated out-of-scope, delegation clauses, autonomy position, authority_basis, revocation right + SLA, opaque signed-original custody, the closed five-state lifecycle with declared aliases, amendment deltas, dependent-artifact references, and the declared consent-profile mapping (or explicit data_consent: none).
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: consent-instrument-class-registry
+    path: contracts/schemas/consent-instrument-class-registry.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-instrument-class-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6fb1ae265d69f7fd93a8bdb5140768f4c2abf8171d614b9b73420b02d9cbe6f8
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The domain-owned CLOSED instrument-class registry: every class declares its custody-anchor and execution-evidence kinds, its signature_phase posture (false is the declared direct-to-executed skip), and any per-domain status aliases.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: consent-purpose-model
+    path: contracts/schemas/consent-purpose-model.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-purpose-model.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d00cf6ee3f600321c223f950aab44e964230c2cf2888b3ab5b98104df873e5bb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The domain-declared purpose model the neutral purpose-resolution check (D4) resolves instrument purposes against; access SHAPES stay technical contracts owned elsewhere.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.

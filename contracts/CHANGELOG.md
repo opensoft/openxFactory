@@ -13,6 +13,46 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.30 — 2026-08-06 (additive; cross-factory ideation routing and the consent-instrument family)
+
+Realizes `add-cross-factory-ideation-routing` task 2.4 by registering the
+four routing schemas: the canonical idea routing record, the reusable
+structured repository-reference kernel, the central Idea-ID allocation
+ledger, and the immutable organizer-recommendation evidence shape. Together
+they define the governed cross-factory routing plane: one record per
+unclassified, mixed, or claim-split idea, single-authority ID allocation,
+controlled transitions with destination-owner acceptance, and non-mutating
+organizer evidence. Consumers pin this release and run
+`scripts/validate-ideation-routing.py` from the pinned checkout; the
+packaged corpus comprises 8 valid and 8 intended-invalid examples (44
+validator tests green at the cut).
+
+Realizes `add-consent-instrument` task 1.6 (DTN-016 → `adopted`) by
+registering the three consent-instrument schemas: the
+`xfactory_consent_instrument` record kind (the authority-chain root that
+credential grants cite, gates verify, and whose termination cascades
+through declared dependent references), the domain-owned closed
+instrument-class registry, and the domain-declared purpose model for the
+neutral purpose-resolution check. Existing domain instances (the Ledgerx
+engagement consent record, the Medx patient consent record) conform by
+declaration, never by rewrite. Consumers pin this release and run
+`scripts/validate-consent-instruments.py` from the pinned checkout; the
+packaged corpus comprises 5 valid examples (including registry and purpose
+model), 5 intended-invalid negatives, and 2 purpose-resolution probes.
+
+Also riding this cut: the project-plane ADDITIVE deltas that landed on
+`gate-intent`, `gate-action-record`, `ideation-dashboard-snapshot`, and
+`xfactory-document-catalog-snapshot` after `contract-v1.29` — the
+`create-project` / `edit-project` commissions with `target.project_id`,
+multi-parent project membership (D8), and the project-first header fields
+(`add-project-scoped-selection`, `add-project-merged-projection`,
+`add-opendox-project-header`, each of whose own registration task realizes
+against this release). Their per-file manifest digests are refreshed here
+so the bundle describes main's actual bytes.
+
+The growth is entirely additive: the pre-existing schema deltas above keep
+`contract_schema_version: 1`, and no prior record is invalidated.
+
 ## contract-v1.29 — 2026-08-03 (additive; wheel action verbs, gate intents, and worker enrollment)
 
 Realizes `add-wheel-action-verbs` tasks 1.5–1.6 and

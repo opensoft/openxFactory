@@ -43,7 +43,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
-| DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
+| DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `adopted` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 | DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
 | DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
 | DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
@@ -423,7 +423,7 @@ promotion review seats, calibration cadence.
 ### DTN-016: Consent instrument (the rung-1↔rung-2 authority root as a schema'd object)
 
 Staged 2026-07-23→2026-07-24: staging topic
-[consent-instrument-contract](../ideation/staging/consent-instrument-contract/consent-instrument-contract.md)
+[consent-instrument-contract](../openspec/changes/add-consent-instrument/supporting-docs/consent-instrument-contract.md)
 (named by Brett Heap during the Meds Rx, Inc onboarding). Every
 domain's rung-1↔rung-2 relationship starts with a consent instrument —
 engagement letter, patient consent, agency agreement, operating
@@ -436,6 +436,12 @@ position, revocation SLA, signed-original custody by opaque locator +
 digest, status lifecycle) and composes with memory-gateway
 consent-profile (instrument authorizes ACTION; profile governs DATA),
 document-cataloging, and credential-contracts.
+
+Realized by `add-consent-instrument` (proposed as the topic's full
+promotion 2026-08-03; the topic docs now live in that change's
+`supporting-docs/`): the three neutral schemas, the packaged corpus, and
+the canonical validator landed 2026-08-03 and were registered at
+**contract-v1.30** (2026-08-06) — `adopted`.
 
 Evidence:
 
