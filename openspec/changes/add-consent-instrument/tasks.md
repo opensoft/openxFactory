@@ -60,14 +60,28 @@
 
 ## 2. Conformance declarations (coordination, own repos)
 
-- [ ] 2.1 LedgerxFactory: `ledgerx_engagement_consent_record` declares
+- [x] 2.1 LedgerxFactory: `ledgerx_engagement_consent_record` declares
       conformance — field/rung mapping, `active` → `executed` alias,
       `internal_beta_authorization` class registry entry, tenant-tree
       instance placement as declared domain policy (D9).
-- [ ] 2.2 MedxFactory: `medx_patient_consent_record` declares
+      (Done 2026-08-06, LedgerxFactory 8b5c03a:
+      `policies/consent-instrument-classes.yaml` — registry +
+      declaration header carrying the field/rung mapping under the
+      ratified layer vocabulary — `policies/consent-purpose-model.yaml`,
+      the lxtest neutral projection in the tenant tree, and the stack
+      pin to the contract-v1.30 release commit.)
+- [x] 2.2 MedxFactory: `medx_patient_consent_record` declares
       conformance — four-class registry mapping, derived consent-profile
       dependent ref (D1/D5), governed-store placement as declared domain
       policy (D9). No change to the archived Medx spec.
+      (Done 2026-08-06, MedxFactory 3c7715a:
+      `hermes/patient/consent-instrument-classes.yaml` — the four classes
+      with custody anchors and evidence kinds verbatim from the archived
+      patient-consent-instrument spec — `hermes/patient/
+      consent-purpose-model.yaml` mirroring consent-model.yaml,
+      the fictional projection example carrying the consent_profile
+      dependent ref with derivation basis, and the stack pin to the
+      contract-v1.30 release commit; `make validate` green.)
 
 ## 3. Docs and lifecycle
 
@@ -88,8 +102,19 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Validator self-test green over packaged examples/negatives;
+- [x] 4.1 Validator self-test green over packaged examples/negatives;
       both conformance declarations (2.1, 2.2) accepted by the validator
       run from a pinned checkout in each domain repo.
-- [ ] 4.2 Purpose-resolution check proven against the Medx purpose model
+      (Done 2026-08-06: self-test 5 valid / 5 negatives / 2 probes green;
+      the checkout at the contract-v1.30 release commit — both domains'
+      declared pin — accepted LedgerxFactory (3 artifacts, 0 errors) and
+      MedxFactory (3 artifacts, 0 errors) sweeps.)
+- [x] 4.2 Purpose-resolution check proven against the Medx purpose model
       and the Ledgerx engagement scope (one positive, one refusal each).
+      (Done 2026-08-06: Ledgerx `--purpose ap-invoice-intake` resolves →
+      bookkeeping (0 errors) and `--purpose payroll-support` refuses with
+      `purpose-not-covered` against the lxtest projection; Medx
+      `--purpose medx.patient.consent.treatment_planning_hypothesis`
+      resolves → provider_processing (0 errors) and
+      `--purpose medx.patient.consent.research_use` refuses with
+      `purpose-not-covered` against the fictional projection example.)
