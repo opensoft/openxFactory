@@ -194,6 +194,13 @@ not a UI change.
   single-removal edit on the second. Manage mode retires; same engine verb,
   same pending badges.
 
+- **D17 — A project may be EMPTY (Brett, 2026-08-06).** "It is better if
+  we allow a project to exist without a repo defined": create the project
+  first, add repositories later through edit-project commissions. The
+  register schema's minItems rule is reversed, the create-project non-empty
+  guard and the edit-project last-member floor are dropped, and the create
+  panel marks members optional.
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind

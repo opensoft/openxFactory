@@ -53,12 +53,20 @@ def _fixture(tmp_path, register: str | None = REGISTER):
     ({"add": ["ghost"]}, "not in the repository roster"),
     ({"add": ["repoA"]}, "already a member"),
     ({"remove": ["ghost"]}, "not currently a member"),
-    ({"remove": ["repoA", "repoB"]}, "no member repositories"),
 ])
 def test_each_guard_refuses_with_its_own_reason(tmp_path, kwargs, fragment):
     _, reg, console = _fixture(tmp_path)
     with pytest.raises(GateRefused, match=fragment):
         console.edit_project("core", register_source=reg, **kwargs)
+
+
+def test_removing_the_last_member_is_legal(tmp_path):
+    """Brett's 2026-08-06 ruling: an empty project awaits its next
+    additions — the floor guard is gone."""
+    _, reg, console = _fixture(tmp_path)
+    res = console.edit_project("core", remove=["repoA", "repoB"],
+                               register_source=reg)
+    assert res.job["remove"] == ["repoA", "repoB"]
 
 
 def test_a_missing_project_and_a_missing_register_refuse(tmp_path):
@@ -122,9 +130,8 @@ def test_wire_shapes_and_refusals(tmp_path):
                                 {"project_id": "core", "add": "not-a-list"})
         assert status == 400 and "list" in payload["message"]
         status, payload = _post(host, port, "/actions/gate/edit-project",
-                                {"project_id": "core",
-                                 "remove": ["repoA", "repoB"]})
-        assert status == 409 and "no member repositories" in payload["message"]
+                                {"project_id": "nope", "add": ["repoA"]})
+        assert status == 409 and "no project 'nope'" in payload["message"]
 
 
 def test_wire_accept_and_the_pending_edits_plane(tmp_path):

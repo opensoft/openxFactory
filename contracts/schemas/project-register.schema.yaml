@@ -75,7 +75,7 @@ $defs:
   # --- a named set of repositories (D10) ---
   project:
     type: object
-    required: [id, repositories]
+    required: [id]
     properties:
       id:
         type: string
@@ -88,12 +88,14 @@ $defs:
         # Human display name; optional, `id` remains the reference.
       repositories:
         type: array
-        minItems: 1
-        # A project with zero repositories is invalid (task 2.6) — an
-        # empty project names no set. A repository id MAY appear under any
-        # number of projects (multi-parent membership, Brett's 2026-08-06
-        # ruling — see the file description; the first-declaring project in
-        # register order is the snapshot's PRIMARY).
+        # A project MAY be empty (Brett's 2026-08-06 ruling on
+        # add-opendox-project-header, reversing the original task-2.6 rule):
+        # a project is created first and gains members later through
+        # edit-project commissions, so an empty set is a legal starting and
+        # ending state. A repository id MAY appear under any number of
+        # projects (multi-parent membership, same-day ruling — see the file
+        # description; the first-declaring project in register order is the
+        # snapshot's PRIMARY).
         items:
           type: string
           minLength: 1

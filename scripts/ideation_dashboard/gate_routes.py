@@ -666,9 +666,11 @@ def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
     name = _str_or_none(body.get("name"))
     if not name:
         return _invalid("create-project requires name")
-    repositories = body.get("repositories")
-    if not isinstance(repositories, list) or not repositories:
-        return _invalid("create-project requires a non-empty repositories list")
+    repositories = body.get("repositories", [])
+    if not isinstance(repositories, list):
+        return _invalid("create-project repositories must be a list")
+    # an EMPTY list is legal (Brett's 2026-08-06 ruling): the project is
+    # created first and gains members later through edit-project
     gate = HumanGate(root, [records_dir], human_actor=actor)
     console = gate_console.GateConsole(gate, records_dir=records_dir)
     try:

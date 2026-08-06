@@ -1,8 +1,0 @@
-# INVALID project-register — the named case "empty project" (task 2.6). Project
-# `p-empty` names zero repositories. A project with no repositories names no set;
-# the project schema requires repositories minItems 1.
-schema_version: 1
-kind: project-register
-projects:
-  - id: p-empty
-    repositories: []

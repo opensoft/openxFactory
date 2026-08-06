@@ -1578,8 +1578,8 @@ def _add_gate_subcommands(sub) -> None:
         help="commission a project-register edit creating one project (add-project-scoped-selection)")
     _add_gate_identity_args(project)
     project.add_argument("name", help="the project display name (the id is slugged from it)")
-    project.add_argument("--repo", action="append", required=True,
-                         help="a member repository id (repeatable; at least one)")
+    project.add_argument("--repo", action="append", default=None,
+                         help="a member repository id (repeatable; OPTIONAL — an empty project gains members later via edit-project)")
     project.add_argument("--project-register", default=None,
                          help="explicit register path (default: discovered from the checkout upward)")
     project.add_argument("--outline", default=None, help="the commissioning outline (default: a standard register-edit commission)")
