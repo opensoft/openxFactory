@@ -471,7 +471,13 @@ def _require_buffer_binding(
     alone, and it stays refused once the session has DIVERGED past that
     base for this buffer's own document -- the session's current text no
     longer hashes to the buffer's declared base identity -- so staleness
-    detection is made precise, not weakened. ``base_ref`` keeps its meaning
+    detection is made precise, not weakened. "Diverged" is a CONTENT
+    reading, RULED as such (reviewer, 2026-08-06, closing the wave
+    re-review's interpretation question): a session that moved this
+    document and moved it back byte-identically is accepted, because
+    every acceptance is content-safe -- the buffer's base bytes provably
+    equal the session's current text, so no stale envelope can result;
+    history is not consulted. ``base_ref`` keeps its meaning
     (provenance: where these base bytes came from) and is never rewritten
     here or anywhere else. Never echoes the buffer's path, repository,
     ref, or content."""

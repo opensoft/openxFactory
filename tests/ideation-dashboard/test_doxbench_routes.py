@@ -2176,6 +2176,39 @@ def test_a_crlf_bom_session_document_grounds_on_the_session_base(tmp_path):
     _assert_no_sentinels(payload)
 
 
+def test_a_document_moved_and_moved_back_grounds_again_the_content_ruling(tmp_path):
+    """RULED (reviewer, 2026-08-06, closing the wave re-review's last open
+    question): "diverged past that base" is a CONTENT reading. A session that
+    moved this document and moved it BACK byte-identically accepts the
+    pre-session buffer again — every acceptance is content-safe, since the
+    buffer's base bytes provably equal the session's current text and no
+    stale envelope can result; history is not consulted. This test is the
+    ruling's executable record: the same worktree REFUSES while the document
+    is moved (the divergence guard above) and grounds once it is restored."""
+    worktree = _session_worktree(tmp_path)
+    target = worktree / SESSION_CREATED_PATH
+    original = target.read_bytes()
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, original.decode("utf-8"),
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(original.decode("utf-8")).hex, dirty=False)
+
+    target.write_bytes(original + b"moved by a landed gate action\n")
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    _assert_refusal(status, payload, "turn_scope_refused")
+
+    target.write_bytes(original)                     # ...and moved BACK
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
 def test_a_session_with_no_recorded_base_still_refuses_the_pre_session_pairing(tmp_path):
     """Degradation pin: an entry with no recorded base (opened before this
     wave, or a marker that could not be written) keeps the original
