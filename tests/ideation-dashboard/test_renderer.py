@@ -161,10 +161,11 @@ def test_data_fetches_target_only_snapshot_and_source_passthrough():
     assert any("ACTIONS_NOTEBOOK_ROUTE" in a for a in by_file["notebook.js"])
     # repo-selector.js: the index read + the refresh POST, the two
     # add-project-scoped-selection routes (the register-projection read + the
-    # create-project commission POST), and add-opendox-project-header's
-    # edit-project commission POST — five same-origin serve.py routes, each
-    # the LOUD individually-named widening this docstring declares.
-    assert len(by_file["repo-selector.js"]) == 5
+    # create-project commission POST), add-opendox-project-header's
+    # edit-project commission POST, and add-register-edit-lane's apply POST —
+    # six same-origin serve.py routes, each the LOUD individually-named
+    # widening this docstring declares.
+    assert len(by_file["repo-selector.js"]) == 6
     assert any("SNAPSHOT_INDEX_ROUTE" in a for a in by_file["repo-selector.js"])
     assert any("ACTIONS_REFRESH_ROUTE" in a for a in by_file["repo-selector.js"])
     assert sum("PROJECT_REGISTER_PROJECTION_ROUTE" in a
@@ -172,6 +173,8 @@ def test_data_fetches_target_only_snapshot_and_source_passthrough():
     assert sum("ACTIONS_CREATE_PROJECT_ROUTE" in a
                for a in by_file["repo-selector.js"]) == 1
     assert sum("ACTIONS_EDIT_PROJECT_ROUTE" in a
+               for a in by_file["repo-selector.js"]) == 1
+    assert sum("ACTIONS_APPLY_REGISTER_EDITS_ROUTE" in a
                for a in by_file["repo-selector.js"]) == 1
 
 
@@ -610,7 +613,7 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     # other count is unchanged.
     assert {name: len(args) for name, args in by_file.items()} == {
         "app.js": 4, "viewer.js": 1, "wheel.js": 1, "notebook.js": 2,
-        "repo-selector.js": 5}
+        "repo-selector.js": 6}
     # the pin above, quoted: a clobber that relaxes it cannot pass by satisfying
     # the looser form (SC-007's reasoning applied to the renderer boundary)
     own = Path(__file__).read_text(encoding="utf-8")
@@ -629,7 +632,7 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     # literally, in a comment or anywhere else — that is what re-creates the hole.)
     q = '"'
     for name, n in (("app.js", 4), ("viewer.js", 1), ("wheel.js", 1),
-                    ("notebook.js", 2), ("repo-selector.js", 5)):
+                    ("notebook.js", 2), ("repo-selector.js", 6)):
         count_line = f"assert len(by_file[{q}{name}{q}]) == {n}"
         assert own.count(count_line) == 1, (
             f"the per-file count pin for {name} is not spelled exactly once: a "

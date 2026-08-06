@@ -38,6 +38,9 @@ export const ACTIONS_CREATE_PROJECT_ROUTE = "/actions/gate/create-project";
 // the filter popover's add line and trash controls POST to. Same degrade
 // contract as its siblings.
 export const ACTIONS_EDIT_PROJECT_ROUTE = "/actions/gate/edit-project";
+// add-register-edit-lane: the apply button's route — the serve runs the
+// fulfilment lane once (loopback + gate only).
+export const ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits";
 // The viewer's project scope survives the reload a selection triggers. It is
 // THIRD-PARTY DATA on the way back in: it only ever filters client-side
 // (membership-checked against the loaded projection) and never reaches a URL.
@@ -569,6 +572,43 @@ export function mountRepoSelector(host, opts) {
     if (gateCapable(caps) && o.projects) {
       openCreateForm = mountCreateProject(wrap, status, roster, projects, o,
                                           addPendingOption);
+      // add-register-edit-lane: the UPDATE button — visible whenever
+      // recorded commissions await fulfilment; the serve runs the lane once
+      // and the shell reloads onto the new register truth.
+      const pendingCount = pendingProjects.length + pendingEdits.length;
+      if (pendingCount) {
+        const apply = el("button", "repobtn applybtn",
+          "⟳ apply " + pendingCount + " pending");
+        apply.type = "button";
+        apply.title = "fulfil the recorded project-register commissions now "
+          + "(validate, deliver, commit, push)";
+        apply.addEventListener("click", async () => {
+          apply.disabled = true;
+          status.textContent = "applying…";
+          try {
+            const response = o.fetcher
+              ? await o.fetcher(ACTIONS_APPLY_REGISTER_EDITS_ROUTE, { method: "POST" })
+              : await fetch(ACTIONS_APPLY_REGISTER_EDITS_ROUTE, { method: "POST" });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data?.ok !== true) {
+              apply.disabled = false;
+              status.textContent = "apply failed: "
+                + (data?.error || ("HTTP " + response.status))
+                + (data?.skipped?.length
+                    ? " — skipped: " + data.skipped.map((s) => s[1] + " (" + s[2] + ")").join("; ")
+                    : "");
+              return;
+            }
+            status.textContent = "applied " + (data.applied?.length || 0)
+              + (data.skipped?.length ? (", skipped " + data.skipped.length) : "");
+            if (typeof o.onRefreshed === "function") o.onRefreshed(data);
+          } catch (err) {
+            apply.disabled = false;
+            status.textContent = "apply failed: " + (err?.message || "error");
+          }
+        });
+        wrap.appendChild(apply);
+      }
     }
   }
   if (refreshCapable(caps)) {

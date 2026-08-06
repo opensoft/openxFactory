@@ -132,6 +132,10 @@ SOURCE_PREFIX = "/source/"
 CAPABILITIES_ROUTE = "/capabilities"
 ACTIONS_NOTEBOOK_ROUTE = "/actions/notebook"
 ACTIONS_REFRESH_ROUTE = "/actions/refresh"
+# add-register-edit-lane: the header's apply button — the serve runs the
+# fulfilment lane once (Brett's ruling: the click is the deliberate human
+# act; only RECORDED commissions are ever applied, so D2's boundary holds).
+ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits"
 ACTIONS_EDIT_ROUTE = "/actions/edit"
 ACTIONS_GATE_PREFIX = "/actions/gate/"
 # T050/T051 (change 010-doxbench-editor-chat): the two doxBench HTTP routes.
@@ -2004,6 +2008,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == ACTIONS_REFRESH_ROUTE:
             self._handle_refresh_action()
             return
+        if path == ACTIONS_APPLY_REGISTER_EDITS_ROUTE:
+            self._handle_apply_register_edits()
+            return
         if path == ACTIONS_EDIT_ROUTE:
             self._handle_edit_action()
             return
@@ -2075,6 +2082,34 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         self._send_json(200, {"ok": True, "path": path})
 
     # ---- refresh route (add-dashboard-repo-selector, design D7) ----
+    def _handle_apply_register_edits(self) -> None:
+        """Run the register-edit fulfilment lane once
+        (add-register-edit-lane): apply every dispatched
+        project-register-edit commission, validate, deliver, commit + push
+        the register file alone. Loopback + gate-actor only — the same
+        human-console boundary as the gate verbs — and only RECORDED
+        commissions are ever applied."""
+        if not self.loopback:
+            self._send_json(403, {"ok": False, "error": "loopback_only",
+                                  "message": "applying register edits is "
+                                             "loopback-only"})
+            return
+        if not self.capabilities.get("actions", {}).get("gate") or not self.actor:
+            self._send_json(403, {"ok": False, "error": "action_unavailable",
+                                  "message": "applying register edits needs "
+                                             "the human gate capability"})
+            return
+        from ideation_dashboard.register_edit_lane import fulfil_once
+        try:
+            report = fulfil_once(Path(self.checkout_root))
+        except Exception as exc:  # noqa: BLE001 - a lane crash must answer, not hang
+            self._send_json(500, {"ok": False, "error": "lane_failed",
+                                  "message": str(exc)[:300]})
+            return
+        payload = report.as_dict()
+        payload["ok"] = report.error is None
+        self._send_json(200 if payload["ok"] else 409, payload)
+
     def _handle_refresh_action(self) -> None:
         """ONE affordance, TWO bindings, chosen by the PLANE and never by the
         client body (a client cannot ask a served plane to regenerate, nor a
