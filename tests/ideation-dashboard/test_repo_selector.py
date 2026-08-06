@@ -675,7 +675,7 @@ def test_module_invocation_still_works(tmp_path):
 # ---------------------------------------------------------------------------
 
 _PROJECT_HARNESS = """
-import { buildProjects, buildRoster, scopeRoster } from './repo-selector-model.mjs';
+import { buildPendingProjects, buildProjects, buildRoster, scopeRoster } from './repo-selector-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const roster = buildRoster(input.index);
@@ -683,10 +683,12 @@ const projects = buildProjects(input.projection);
 const ids = (scope) => scopeRoster(roster, projects, scope).map((o) => o.id);
 const out = {
   projects,
+  pending: buildPendingProjects(input.projection),
   scopedIds: ids(input.scope),
   clearedIds: ids(null),
   unknownIds: ids('no-such-project'),
   noProjection: buildProjects(null),
+  noPendingProjection: buildPendingProjects(null),
   malformed: buildProjects({ projects: [{ id: '' }, { id: 'x' },
                                         { id: 'y', repositories: [] },
                                         'junk', null] }),
@@ -750,3 +752,24 @@ def test_projection_absence_and_malformed_rows_degrade_to_nothing(tmp_path):
     assert r["noProjection"] == []
     # rows with no id, no members, or the wrong shape are dropped, not thrown
     assert r["malformed"] == []
+
+
+def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):
+    """Design D-e: `pending` is the INTENT plane — a fresh create-project
+    commission is visible, deduplicated against the register the moment the
+    fulfilment lands, and never scope-bearing (it is absent from `projects`,
+    so scoping falls through to the unknown-project degrade)."""
+    projection = _projection()
+    projection["pending"] = [
+        {"id": "field-pilots", "name": "Field Pilots", "repositories": ["x"]},
+        {"id": "core", "name": "Core (already landed)"},   # register wins
+        {"id": "", "name": "malformed"},
+        None,
+    ]
+    r = _run_projects({"index": _index(), "projection": projection,
+                       "scope": "field-pilots"}, tmp_path)
+    assert r["pending"] == [{"id": "field-pilots", "name": "Field Pilots"}]
+    assert [p["id"] for p in r["projects"]] == ["core", "medx"]
+    # a pending id never scopes: full roster, exactly the unknown-scope degrade
+    assert r["scopedIds"] == r["clearedIds"]
+    assert r["noPendingProjection"] == []

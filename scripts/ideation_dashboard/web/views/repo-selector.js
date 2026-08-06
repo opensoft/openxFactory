@@ -22,8 +22,8 @@
 // assigned here.
 
 import {
-  buildProjects, buildRoster, freshnessLabel, hintLabel, keyId, newerAvailable,
-  parseKeyId, sameKey, scopeRoster, staleNotice,
+  buildPendingProjects, buildProjects, buildRoster, freshnessLabel, hintLabel,
+  keyId, newerAvailable, parseKeyId, sameKey, scopeRoster, staleNotice,
 } from "./repo-selector-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
@@ -155,7 +155,7 @@ function buildSelect(roster, active, onSelect) {
 // legal member of a new one — projects are named views, not owners.
 // Refusals render textContent-only; a successful commission retires the
 // affordance for the session (the engine's duplicate guard is the backstop).
-function mountCreateProject(wrap, status, roster, projects, o) {
+function mountCreateProject(wrap, status, roster, projects, o, addPendingOption) {
   const seen = new Set();
   const candidates = [];
   for (const option of roster) {
@@ -225,6 +225,9 @@ function mountCreateProject(wrap, status, roster, projects, o) {
       button.disabled = true;               // retired for the session
       button.textContent = "✓ " + data.project_id + " commissioned";
       status.textContent = "project-register edit recorded (" + data.job + ")";
+      // the commission appears in the picker immediately as a pending entry
+      // (D-e) — the register itself changes only when the fulfilment lands
+      if (addPendingOption) addPendingOption(name.value || data.project_id);
     } catch (err) {
       submit.disabled = false;
       status.textContent = "create-project failed: " + (err?.message || "error");
@@ -310,7 +313,9 @@ export function mountRepoSelector(host, opts) {
       return scoped;
     }
 
-    if (projects.length) {
+    const pendingProjects = buildPendingProjects(o.projects);
+    let addPendingOption = null;
+    if (projects.length || pendingProjects.length) {
       const picker = el("select", "repopick projectpick");
       picker.id = "projectpick";
       picker.setAttribute("aria-label", "project scope");
@@ -322,6 +327,21 @@ export function mountRepoSelector(host, opts) {
         opt.value = project.id;
         if (project.id === scope) opt.selected = true;
         picker.appendChild(opt);
+      }
+      // INTENT entries (design D-e): recorded, undelivered create-project
+      // commissions — visible so the act registered, non-selectable so a
+      // pending project can never scope the roster. `addPendingOption` lets a
+      // commission made THIS page-load appear immediately, the same
+      // session-local overlay posture as the wheel's commissioned tiles.
+      addPendingOption = (name) => {
+        const opt = el("option", "projectpending",
+          name + " (commissioned — pending fulfilment)");
+        opt.value = "";
+        opt.disabled = true;
+        picker.appendChild(opt);
+      };
+      for (const pendingProject of pendingProjects) {
+        addPendingOption(pendingProject.name);
       }
       picker.addEventListener("change", () => {
         scope = picker.value || null;
@@ -342,7 +362,7 @@ export function mountRepoSelector(host, opts) {
       renderRepoSelect();
     }
     if (gateCapable(caps) && o.projects) {
-      mountCreateProject(wrap, status, roster, projects, o);
+      mountCreateProject(wrap, status, roster, projects, o, addPendingOption);
     }
   }
   if (refreshCapable(caps)) {

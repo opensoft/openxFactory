@@ -92,3 +92,15 @@
       membership; suites green.
 - [x] 5.5 Register content: MedxFactory joins `medx-clinical` while staying
       in `domains` (aggregation-repo edit — the ruling's first beneficiary).
+
+## 6. Pending-commission visibility (design D-e, Brett's 2026-08-06 ruling)
+
+- [x] 6.1 `/project-register.json` gains the `pending` plane: dispatched,
+      undelivered create-project commissions (name + members from the
+      descriptor), deduplicated against the register's own project ids.
+- [x] 6.2 Picker: pending entries render as non-selectable
+      "(commissioned — pending fulfilment)" options, appended immediately on
+      a same-page commission; a pending id never scopes the roster.
+- [x] 6.3 Tests: node model (`buildPendingProjects` dedupe/shape/no-scope)
+      + the wire round-trip (commission → pending in the projection → truth
+      untouched); suites green.

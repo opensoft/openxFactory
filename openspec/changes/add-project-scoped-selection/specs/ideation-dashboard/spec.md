@@ -49,6 +49,11 @@ The dashboard SHALL offer a `create-project` verb on the human gate console that
 - WHEN a project id already carries a dispatched, undelivered `project-register-edit` commission
 - THEN a second `create-project` commission for that id is refused and the refusal names the blocking descriptor
 
+#### Scenario: A commissioned project is visible as pending
+- WHEN a `create-project` commission is dispatched and not yet delivered
+- THEN the register projection reports it on a `pending` plane distinct from the register's projects, and the picker renders it as a clearly-marked, non-selectable pending entry
+- AND the pending entry never scopes the roster and disappears in favour of the register's own entry once the fulfilment lands
+
 ### Requirement: Project-scoped repository selection
 The repository selector SHALL offer a project picker listing the register's projects, and selecting a project SHALL narrow the selector roster to that project's member repositories while the active snapshot remains a single `(repository, ref)` key.
 

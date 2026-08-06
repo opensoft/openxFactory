@@ -2624,9 +2624,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         picker reads (add-project-scoped-selection). Read per request (the
         register is human-editable between requests), reduced to the
         navigation fields only, and 404 when no register is reachable — the
-        picker hides and the selector renders today's ungrouped roster."""
+        picker hides and the selector renders today's ungrouped roster.
+
+        TWO PLANES in one document (design D-e): `projects` is TRUTH (the
+        register), `pending` is INTENT — dispatched, undelivered
+        create-project commissions read from the same records scan the
+        duplicate guard uses, so a fresh commission is visible as pending
+        instead of looking like it did nothing. A pending id the register
+        already carries is dropped: the register wins the moment the
+        fulfilment lands, even before the descriptor's status flips."""
         import yaml
-        from ideation_dashboard.kickoff import discover_project_register
+        from ideation_dashboard.gate_console import DEFAULT_RECORDS_DIR
+        from ideation_dashboard.kickoff import (
+            dispatched_commissions, discover_project_register)
         source = discover_project_register(Path(self.checkout_root))
         register = None
         if source is not None:
@@ -2637,14 +2647,34 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if not isinstance(register, dict):
             self.send_error(404, "no project register")
             return
+        projects = [
+            {"id": p.get("id"), "name": p.get("name") or p.get("id"),
+             "repositories": [str(r) for r in (p.get("repositories") or [])]}
+            for p in (register.get("projects") or [])
+            if isinstance(p, dict) and p.get("id")
+        ]
+        real_ids = {p["id"] for p in projects}
+        pending = []
+        records_root = Path(self.checkout_root) / DEFAULT_RECORDS_DIR
+        for pid, descriptor in sorted(
+                dispatched_commissions(records_root, "create-project").items()):
+            if pid in real_ids:
+                continue
+            try:
+                job = yaml.safe_load(descriptor.read_text(encoding="utf-8"))
+            except (OSError, yaml.YAMLError):
+                job = None
+            job = job if isinstance(job, dict) else {}
+            pending.append({
+                "id": pid,
+                "name": job.get("project_name") or pid,
+                "repositories": [str(r) for r in (job.get("repositories") or [])],
+                "dispatched_at": job.get("dispatched_at"),
+            })
         document = {
             "kind": "project-register-projection",
-            "projects": [
-                {"id": p.get("id"), "name": p.get("name") or p.get("id"),
-                 "repositories": [str(r) for r in (p.get("repositories") or [])]}
-                for p in (register.get("projects") or [])
-                if isinstance(p, dict) and p.get("id")
-            ],
+            "projects": projects,
+            "pending": pending,
         }
         self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
                           head_only)
