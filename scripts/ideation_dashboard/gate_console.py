@@ -111,6 +111,11 @@ ACTION_ABANDON_SESSION = "abandon-session"
 ACTION_PROMOTE_TO_STAGING = "promote-to-staging"
 ACTION_DERIVE_POSSIBLES = "derive-possibles"
 ACTION_RESEARCH_BRIEF = "research-brief"
+# add-project-scoped-selection: the create-project commission — the same
+# recorded-dispatch mechanic one register over. The target `project_id` is
+# slugged from the proposed name at commission time; the aggregation-owned
+# project register is edited only by the commission's fulfilment.
+ACTION_CREATE_PROJECT = "create-project"
 
 # Artifact kinds the schema recognises.
 ART_TRANSITION_MANIFEST = "transition-manifest"
@@ -312,6 +317,7 @@ def build_gate_action_record(
     artifacts: Sequence[dict], change_id: str | None = None,
     possible_id: str | None = None, outcome: str | None = None,
     topic_id: str | None = None, cluster_id: str | None = None,
+    project_id: str | None = None,
     reason: str | None = None, citation: str | None = None,
     document: str | None = None, notes: str | None = None,
     ref: str | None = None, provenance: "Provenance | None" = None,
@@ -352,6 +358,8 @@ def build_gate_action_record(
         target["topic_id"] = topic_id
     if cluster_id:
         target["cluster_id"] = cluster_id
+    if project_id:
+        target["project_id"] = project_id
     if outcome:
         target["outcome"] = outcome
     if document:
@@ -450,9 +458,12 @@ def write_gate_action_record(gate: HumanGate, records_dir: str, record: dict) ->
     # 011): `derive-possibles` is the first verb whose target is a cluster, and
     # without it a cluster-targeted record has no filename to file under.
     # Appended AFTER the existing three so every pre-existing verb's filename is
-    # byte-identical.
+    # byte-identical. `project_id` joins the same way
+    # (add-project-scoped-selection): `create-project` is the first verb whose
+    # target is a register project.
     target_id = (target.get("change_id") or target.get("possible_id")
-                 or target.get("topic_id") or target.get("cluster_id"))
+                 or target.get("topic_id") or target.get("cluster_id")
+                 or target.get("project_id"))
     if not target_id and target.get("document"):
         target_id = document_target_id(target["document"])
     if not target_id and target.get("ref"):
@@ -460,8 +471,8 @@ def write_gate_action_record(gate: HumanGate, records_dir: str, record: dict) ->
     if not target_id:
         raise GateRefused(
             "a gate-action record must name what it acted on "
-            "(change_id, possible_id, topic_id, cluster_id, document, or a "
-            "session ref)")
+            "(change_id, possible_id, topic_id, cluster_id, project_id, "
+            "document, or a session ref)")
     rel = gate_action_record_relpath(records_dir, record["action"], target_id, record["at"])
     return gate.write_gate_artifact(rel, _render_yaml(record, _RECORD_BANNER))
 
@@ -1273,3 +1284,15 @@ class GateConsole:
         return kickoff_mod.research_brief(
             self.gate, possible_id, outline=outline, note=note, at=at,
             records_dir=self.records_dir, provenance=provenance, **extra)
+
+    def create_project(self, name: str, *, repositories, roster=None,
+                       register_source=None, outline: str | None = None,
+                       workflow: str | None = None, note: str | None = None,
+                       at: str | None = None,
+                       provenance: Provenance | None = None):
+        from . import kickoff as kickoff_mod
+        extra = {} if workflow is None else {"workflow": workflow}
+        return kickoff_mod.create_project(
+            self.gate, name, repositories=repositories, roster=roster,
+            register_source=register_source, outline=outline, note=note,
+            at=at, records_dir=self.records_dir, provenance=provenance, **extra)

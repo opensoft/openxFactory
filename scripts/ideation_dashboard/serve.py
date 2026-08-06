@@ -121,6 +121,13 @@ from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 DEFAULT_HOST = "127.0.0.1"
 SNAPSHOT_ROUTE = "/snapshot.json"
 SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json"
+# add-project-scoped-selection: the register projection the selector's project
+# picker reads. The snapshot INDEX is a locator and deliberately carries no
+# grouping, so the register itself — aggregation-owned, discovered upward from
+# the checkout — is served read-only here. Absent register (or the static
+# image, which never serves this route) -> 404 -> the picker hides and the
+# selector degrades to today's ungrouped roster.
+PROJECT_REGISTER_ROUTE = "/project-register.json"
 SOURCE_PREFIX = "/source/"
 CAPABILITIES_ROUTE = "/capabilities"
 ACTIONS_NOTEBOOK_ROUTE = "/actions/notebook"
@@ -1814,6 +1821,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == SNAPSHOT_INDEX_ROUTE:
             self._serve_index(head_only)
             return True
+        if path == PROJECT_REGISTER_ROUTE:
+            self._serve_project_register(head_only)
+            return True
         if path == CAPABILITIES_ROUTE:
             # The loopback console token is process-launch authority. Never
             # disclose it to a DNS-rebinding Host, even though the connection
@@ -2417,6 +2427,36 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             document = hosted_index(document)
         body = json.dumps(document).encode("utf-8")
         self._serve_bytes(body, JSON_CTYPE, head_only)
+
+    def _serve_project_register(self, head_only: bool) -> None:
+        """`/project-register.json` — the register PROJECTION the project
+        picker reads (add-project-scoped-selection). Read per request (the
+        register is human-editable between requests), reduced to the
+        navigation fields only, and 404 when no register is reachable — the
+        picker hides and the selector renders today's ungrouped roster."""
+        import yaml
+        from ideation_dashboard.kickoff import discover_project_register
+        source = discover_project_register(Path(self.checkout_root))
+        register = None
+        if source is not None:
+            try:
+                register = yaml.safe_load(source.read_text(encoding="utf-8"))
+            except (OSError, yaml.YAMLError):
+                register = None
+        if not isinstance(register, dict):
+            self.send_error(404, "no project register")
+            return
+        document = {
+            "kind": "project-register-projection",
+            "projects": [
+                {"id": p.get("id"), "name": p.get("name") or p.get("id"),
+                 "repositories": [str(r) for r in (p.get("repositories") or [])]}
+                for p in (register.get("projects") or [])
+                if isinstance(p, dict) and p.get("id")
+            ],
+        }
+        self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
+                          head_only)
 
     # ---- source pass-through ----
     def _keyed_source(self, tail: str):

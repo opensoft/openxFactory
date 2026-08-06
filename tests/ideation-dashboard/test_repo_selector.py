@@ -667,3 +667,86 @@ def test_module_invocation_still_works(tmp_path):
             proc.kill()
     assert status == 200, body
     assert body["binding"] == "regenerate"
+
+
+# ---------------------------------------------------------------------------
+# Project scoping (add-project-scoped-selection): buildProjects + scopeRoster,
+# run in node against the REAL model exactly like the roster derivations above.
+# ---------------------------------------------------------------------------
+
+_PROJECT_HARNESS = """
+import { buildProjects, buildRoster, scopeRoster } from './repo-selector-model.mjs';
+import { readFileSync } from 'node:fs';
+const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const roster = buildRoster(input.index);
+const projects = buildProjects(input.projection);
+const ids = (scope) => scopeRoster(roster, projects, scope).map((o) => o.id);
+const out = {
+  projects,
+  scopedIds: ids(input.scope),
+  clearedIds: ids(null),
+  unknownIds: ids('no-such-project'),
+  noProjection: buildProjects(null),
+  malformed: buildProjects({ projects: [{ id: '' }, { id: 'x' },
+                                        { id: 'y', repositories: [] },
+                                        'junk', null] }),
+};
+console.log(JSON.stringify(out));
+"""
+
+
+def _run_projects(payload, tmp_path):
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(MODEL_JS, tmp_path / "repo-selector-model.mjs")
+    (tmp_path / "harness.mjs").write_text(_PROJECT_HARNESS, encoding="utf-8")
+    data = tmp_path / "input.json"
+    data.write_text(json.dumps(payload), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "harness.mjs"), str(data)],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, f"node harness failed:\n{proc.stderr}"
+    return json.loads(proc.stdout)
+
+
+def _projection():
+    return {"kind": "project-register-projection", "projects": [
+        {"id": "core", "name": "Core", "repositories": ["openxFactory"]},
+        {"id": "medx", "name": "Medx", "repositories": ["MedxFactory", "agenttower"]},
+    ]}
+
+
+def test_project_scoping_narrows_the_roster_to_members(tmp_path):
+    r = _run_projects({"index": _index(), "projection": _projection(),
+                       "scope": "medx"}, tmp_path)
+    assert [p["id"] for p in r["projects"]] == ["core", "medx"]
+    # members only — including the unavailable one (it stays selectable and
+    # says why, exactly as in the unscoped roster); the aggregate drops out
+    # because it is not composed purely of medx members
+    assert r["scopedIds"] == ["MedxFactory@main", "agenttower@main"]
+
+
+def test_clearing_or_unknown_scope_restores_the_full_roster(tmp_path):
+    r = _run_projects({"index": _index(), "projection": _projection(),
+                       "scope": "medx"}, tmp_path)
+    full = ["openxFactory@main", "MedxFactory@main", "agenttower@main", "xFactory@main"]
+    assert r["clearedIds"] == full
+    # a stored project that stopped existing degrades to unscoped, silently
+    assert r["unknownIds"] == full
+
+
+def test_an_aggregate_survives_scoping_only_when_purely_member_composed(tmp_path):
+    projection = {"projects": [
+        {"id": "both", "name": "Both",
+         "repositories": ["openxFactory", "MedxFactory"]},
+    ]}
+    r = _run_projects({"index": _index(), "projection": projection,
+                       "scope": "both"}, tmp_path)
+    assert r["scopedIds"] == ["openxFactory@main", "MedxFactory@main", "xFactory@main"]
+
+
+def test_projection_absence_and_malformed_rows_degrade_to_nothing(tmp_path):
+    r = _run_projects({"index": _index(), "projection": None, "scope": None},
+                      tmp_path)
+    assert r["noProjection"] == []
+    # rows with no id, no members, or the wrong shape are dropped, not thrown
+    assert r["malformed"] == []

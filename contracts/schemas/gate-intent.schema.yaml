@@ -37,6 +37,13 @@ description: >-
   `change_id` target and remains the request for the existing two-step
   plan-and-record / human-execute path.
 
+  PROJECT CREATION COMMISSION (`add-project-scoped-selection`; additive
+  growth of `contract_schema_version: 1`): `create-project` requests a
+  `project-register-edit` workflow dispatch targeting a `project_id` (the
+  id is orchestration-slugged from the proposed name at commission time).
+  The dashboard never writes the aggregation-owned register itself — the
+  fulfilment of the recorded commission applies the edit.
+
   ADDITIVE / forward-compatible: objects stay open (no
   additionalProperties: false), consumers ignore unknown properties, and
   additive growth needs no contract_schema_version bump (the
@@ -55,7 +62,8 @@ properties:
   verb:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
-           promote-to-staging, derive-possibles, research-brief]
+           promote-to-staging, derive-possibles, research-brief,
+           create-project]
     # The intent-transportable subset of gate-action-record.action: only the
     # console verbs the zero-write-authority request plane carries. The
     # record enum is wider (session/document verbs like create-document,
@@ -73,12 +81,13 @@ properties:
     # change_id; dispose-possible addresses a possible_id (+ outcome in args);
     # propose addresses a staging topic_id; promote-to-staging and
     # research-brief address a possible_id; derive-possibles addresses a
-    # cluster_id.
+    # cluster_id; create-project addresses a project_id.
     properties:
       change_id: {type: string, minLength: 1}
       possible_id: {type: string, minLength: 1}
       cluster_id: {type: string, minLength: 1}
       topic_id: {type: string, minLength: 1}
+      project_id: {type: string, minLength: 1}
       document: {type: string, minLength: 1}
   args:
     type: object
@@ -129,5 +138,7 @@ allOf:
     then: {properties: {target: {required: [cluster_id]}}}
   - if: {properties: {verb: {const: research-brief}}, required: [verb]}
     then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: create-project}}, required: [verb]}
+    then: {properties: {target: {required: [project_id]}}}
   - if: {properties: {verb: {enum: [demote, edit-apply, ratify, kickoff]}}, required: [verb]}
     then: {properties: {target: {required: [change_id]}}}

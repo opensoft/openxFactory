@@ -159,11 +159,17 @@ def test_data_fetches_target_only_snapshot_and_source_passthrough():
     assert len(by_file["notebook.js"]) == 2
     assert any("CAPABILITIES_ROUTE" in a for a in by_file["notebook.js"])
     assert any("ACTIONS_NOTEBOOK_ROUTE" in a for a in by_file["notebook.js"])
-    # repo-selector.js: exactly the index read + the refresh POST, both
-    # same-origin serve.py routes.
-    assert len(by_file["repo-selector.js"]) == 2
+    # repo-selector.js: exactly the index read + the refresh POST, plus the two
+    # add-project-scoped-selection routes (the register-projection read + the
+    # create-project commission POST) — all four same-origin serve.py routes,
+    # the LOUD individually-named widening this docstring declares.
+    assert len(by_file["repo-selector.js"]) == 4
     assert any("SNAPSHOT_INDEX_ROUTE" in a for a in by_file["repo-selector.js"])
     assert any("ACTIONS_REFRESH_ROUTE" in a for a in by_file["repo-selector.js"])
+    assert sum("PROJECT_REGISTER_PROJECTION_ROUTE" in a
+               for a in by_file["repo-selector.js"]) == 1
+    assert sum("ACTIONS_CREATE_PROJECT_ROUTE" in a
+               for a in by_file["repo-selector.js"]) == 1
 
 
 def test_shared_markdown_seam_is_exported_and_owns_the_nonempty_html_sink():
@@ -298,11 +304,14 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     assert set(by_file) == {"app.js", "viewer.js", "notebook.js", "wheel.js",
                             "repo-selector.js"}
     # T023 wire clause (2026-07-31): app.js's budget rose 2 -> 4 with the two
-    # doxBench transports — the LOUD, individually-named widening the sibling
-    # pin's docstring declares; every other count is unchanged.
+    # doxBench transports; add-project-scoped-selection (2026-08-06) rose
+    # repo-selector.js 2 -> 4 with the register-projection read + the
+    # create-project commission POST — each the LOUD, individually-named
+    # widening the sibling pin's docstring declares; every other count is
+    # unchanged.
     assert {name: len(args) for name, args in by_file.items()} == {
         "app.js": 4, "viewer.js": 1, "wheel.js": 1, "notebook.js": 2,
-        "repo-selector.js": 2}
+        "repo-selector.js": 4}
     # the pin above, quoted: a clobber that relaxes it cannot pass by satisfying
     # the looser form (SC-007's reasoning applied to the renderer boundary)
     own = Path(__file__).read_text(encoding="utf-8")
@@ -321,7 +330,7 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     # literally, in a comment or anywhere else — that is what re-creates the hole.)
     q = '"'
     for name, n in (("app.js", 4), ("viewer.js", 1), ("wheel.js", 1),
-                    ("notebook.js", 2), ("repo-selector.js", 2)):
+                    ("notebook.js", 2), ("repo-selector.js", 4)):
         count_line = f"assert len(by_file[{q}{name}{q}]) == {n}"
         assert own.count(count_line) == 1, (
             f"the per-file count pin for {name} is not spelled exactly once: a "

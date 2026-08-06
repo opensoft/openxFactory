@@ -37,6 +37,7 @@ from typing import Any
 import yaml
 
 from .gate_console import (
+    ACTION_CREATE_PROJECT,
     ACTION_DERIVE_POSSIBLES,
     ACTION_KICKOFF,
     ACTION_PROMOTE_TO_STAGING,
@@ -79,6 +80,11 @@ STATUS_DISPATCHED = "dispatched"
 DEFAULT_STAGING_FRAGMENT_WORKFLOW = "staging-fragment-authoring"
 DEFAULT_DERIVE_POSSIBLES_WORKFLOW = "derive-possibles"
 DEFAULT_RESEARCH_BRIEF_WORKFLOW = "possible-research-brief"
+# add-project-scoped-selection: the workflow the create-project verb
+# COMMISSIONS. The fulfilment applies the recorded edit to the
+# aggregation-owned project-register.yaml; no lane exists yet (same interim
+# posture as the three wheel verbs above).
+DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW = "project-register-edit"
 
 
 # --------------------------------------------------------------------------
@@ -243,6 +249,7 @@ COMMISSION_TARGET_KEY: dict[str, str] = {
     ACTION_PROMOTE_TO_STAGING: "possible_id",
     ACTION_DERIVE_POSSIBLES: "cluster_id",
     ACTION_RESEARCH_BRIEF: "possible_id",
+    ACTION_CREATE_PROJECT: "project_id",
 }
 
 
@@ -447,10 +454,14 @@ class CommissionResult:
 def build_commission_job(
     verb: str, target_id: str, *, workflow: str, outline: str, actor: str,
     at: str, status: str = STATUS_DISPATCHED, topic_slug: str | None = None,
+    payload: dict | None = None,
 ) -> dict:
     """The recorded commissioning descriptor for one wheel action-row verb —
     the same `workflow-job` artifact kind kickoff and propose write, keyed by
-    the verb's own target field (`COMMISSION_TARGET_KEY`)."""
+    the verb's own target field (`COMMISSION_TARGET_KEY`). `payload` carries
+    verb-specific descriptor fields (create-project: the proposed name and
+    member repositories) — merged AFTER the common shape so a payload can
+    never overwrite an orchestration-authoritative field."""
     job = {
         "kind": ART_WORKFLOW_JOB,
         "schema_version": 1,
@@ -466,6 +477,8 @@ def build_commission_job(
         # OPTIONAL by contract (FR-012): omitted entirely when not supplied, so
         # the fulfilling step chooses the destination topic.
         job["topic_slug"] = topic_slug
+    for key, value in (payload or {}).items():
+        job.setdefault(key, value)
     return job
 
 
@@ -503,7 +516,7 @@ def _commission(
     verb: str, gate: Any, target_id: str, *, workflow: str, outline: str,
     note: str | None, at: str | None, records_dir: str,
     records_root: Path | str | None, provenance, topic_slug: str | None = None,
-    precondition=None,
+    payload: dict | None = None, precondition=None,
 ) -> CommissionResult:
     """The shared write half, reached only after every guard has passed."""
     human = require_human_gate(gate)
@@ -515,7 +528,7 @@ def _commission(
 
     job = build_commission_job(verb, target_id, workflow=workflow,
                                outline=outline, actor=human.human_actor, at=at,
-                               topic_slug=topic_slug)
+                               topic_slug=topic_slug, payload=payload)
     base = f"{_prefix(records_dir)}{target_id}"
     job_path = human.write_gate_artifact(
         f"{base}/{verb}-{_stamp(at)}.workflow-job.yaml",
@@ -646,3 +659,118 @@ def research_brief(
         ACTION_RESEARCH_BRIEF, gate, possible_id, workflow=workflow,
         outline=outline, note=note, at=at, records_dir=records_dir,
         records_root=records_root, provenance=provenance, precondition=_guard)
+
+
+# ==========================================================================
+# CREATE-PROJECT (add-project-scoped-selection design D2/D-a/D-b)
+#
+# The same commission mechanic ONE REGISTER OVER: the project register is
+# aggregation-owned, so the dashboard records the edit it wants and never
+# performs it. The target id is ORCHESTRATION-SLUGGED from the proposed name
+# at commission time (D-a) so the descriptor is complete and the fulfilment
+# never invents identity. Validation reads the register through the SAME
+# adapter the generator uses; the fulfilment re-validates against the live
+# register, which is authoritative (D-b).
+# ==========================================================================
+
+def _project_slug(name: str) -> str:
+    """The orchestration-derived project id: lowercase, alnum runs joined by
+    single hyphens (the register's existing id style: `medx-clinical`)."""
+    import re
+    return re.sub(r"[^a-z0-9]+", "-", str(name).lower()).strip("-")
+
+
+def discover_project_register(root: Path | str) -> Path | None:
+    """The project register reachable from `root`: the generator's own
+    candidates (`register.PROJECT_SOURCE_CANDIDATES`) checked at root and
+    each parent — the register is aggregation-owned, so a corpus checkout
+    inside the workspace finds it one or more levels up."""
+    from .register import PROJECT_SOURCE_CANDIDATES
+    base = Path(root).resolve()
+    for d in [base, *base.parents]:
+        for rel in PROJECT_SOURCE_CANDIDATES:
+            candidate = d / rel
+            if candidate.is_file():
+                return candidate
+    return None
+
+
+def create_project(
+    gate: Any, name: str, *, repositories, roster=None,
+    register_source: Path | str | None = None, outline: str | None = None,
+    workflow: str = DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW,
+    note: str | None = None, at: str | None = None,
+    records_dir: str = DEFAULT_RECORDS_DIR,
+    records_root: Path | str | None = None, provenance=None,
+) -> CommissionResult:
+    """Commission a project-register edit creating ONE project. Writes the
+    descriptor + record and NOTHING else — `project-register.yaml` is
+    aggregation-owned and is edited only by the commission's fulfilment.
+
+    Guards, all before the first write: human gate -> name/member shape ->
+    register reachability -> id collision -> single-parent -> member roster ->
+    duplicate commission. `roster` (when supplied — the serving plane passes
+    its reachable repository ids) WIDENS the member universe beyond the
+    register's own repository ids; membership outside both is refused.
+    """
+    human = require_human_gate(gate)
+
+    project_id = _project_slug(name or "")
+    if not project_id:
+        raise GateRefused(
+            "create-project refused: the project name must contain at least "
+            "one letter or digit (the id is slugged from it).")
+    members = [str(r).strip() for r in (repositories or []) if str(r).strip()]
+    members = list(dict.fromkeys(members))          # dedupe, order-preserving
+    if not members:
+        raise GateRefused(
+            "create-project refused: a project must name at least one member "
+            "repository (the register schema forbids an empty project).")
+
+    source = Path(register_source) if register_source is not None \
+        else discover_project_register(human.output.root)
+    if source is None or not source.is_file():
+        raise GateRefused(
+            "create-project refused: no project register is reachable from "
+            "the checkout to validate against — the register cannot be "
+            "assumed (pass an explicit register source).")
+    try:
+        register = yaml.safe_load(source.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise GateRefused(
+            f"create-project refused: the project register at {source} could "
+            f"not be read ({exc}).")
+    projects = [p for p in (register or {}).get("projects") or []
+                if isinstance(p, dict)]
+    if any(p.get("id") == project_id for p in projects):
+        raise GateRefused(
+            f"create-project refused: project id {project_id!r} already "
+            "exists in the register — a project is created once; pick a "
+            "different name.")
+    owner = {repo: p.get("id") for p in projects
+             for repo in (p.get("repositories") or [])}
+    taken = [f"{m} (in {owner[m]!r})" for m in members if m in owner]
+    if taken:
+        raise GateRefused(
+            "create-project refused: a repository belongs to at most one "
+            "project (the register's single-parent rule) — already owned: "
+            + ", ".join(taken) + ".")
+    known = set(owner) | {str(r) for r in (roster or [])}
+    unknown = [m for m in members if m not in known]
+    if unknown:
+        raise GateRefused(
+            "create-project refused: not in the repository roster (neither "
+            "the register nor the serving plane knows them): "
+            + ", ".join(repr(m) for m in unknown) + ".")
+
+    outline = outline or (
+        f"Apply the recorded project-register edit: add project "
+        f"{project_id!r} ({name!r}) with member repositories "
+        f"{', '.join(members)} to the aggregation-owned "
+        "project-register.yaml; validate against the pinned schema (id "
+        "uniqueness, single-parent) before landing.")
+    return _commission(
+        ACTION_CREATE_PROJECT, gate, project_id, workflow=workflow,
+        outline=outline, note=note, at=at, records_dir=records_dir,
+        records_root=records_root, provenance=provenance,
+        payload={"project_name": str(name), "repositories": members})
