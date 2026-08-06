@@ -147,6 +147,22 @@ not a UI change.
   and the create-project single-parent guard goes with it. First
   beneficiary: MedxFactory joins `medx-clinical` while staying in `domains`.
 
+- **D9 — Merged-view cluster identity is a VIEW-SIDE UNION (Brett,
+  2026-08-06, exit-2 decision round).** The ratified composition rule keeps
+  namespacing every id per-repo (`MedxFactory::cl-kill-switch`) so edges
+  stay uncorrupted; the wheel and canvas render same-TOPIC clusters as one
+  merged tile whose membership lists each repository's contribution.
+- **D10 — The merged view is READ-ONLY plus a jump (Brett, 2026-08-06).**
+  Every gate verb hides on a composed view; each tile offers
+  "open in <repo>", which switches the active snapshot to that tile's
+  repository, where all verbs work as today. The honest bridge until exit 3
+  lands per-tile binding.
+- **D11 — Project aggregates derive from the register (Brett, 2026-08-06).**
+  One aggregate per register project, derived automatically (members = the
+  project's repositories present in the registry, at the default ref) — no
+  hand-declared upkeep, and a commissioned project yields its merged view
+  the moment its fulfilment lands.
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind
