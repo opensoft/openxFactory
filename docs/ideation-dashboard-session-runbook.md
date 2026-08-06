@@ -52,6 +52,25 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   published data.
 - **◐ / ⚙** — theme toggle and settings.
 
+### The register-edit fulfilment lane (add-register-edit-lane)
+
+Project commissions (create-project, edit-project) are fulfilled by the
+LANE, two ways:
+
+- **the apply button** — "⟳ apply N pending" appears in the header whenever
+  recorded commissions await; one click makes the serve run the lane once
+  (validate → write → deliver → commit register-only → push);
+- **the job that watches** — run beside the serve:
+
+  ```bash
+  PYTHONPATH=scripts python3 -m ideation_dashboard.register_edit_lane \
+      --repo-root . --watch --interval 30
+  ```
+
+Failures are fail-closed: a stale commission (project vanished, member
+conflict) or a git failure leaves the descriptor `dispatched` with the
+reason in the run report; nothing is half-applied silently.
+
 ## 1. What a branch session IS
 
 A branch session is **derived state, not an artifact**. There is no session
