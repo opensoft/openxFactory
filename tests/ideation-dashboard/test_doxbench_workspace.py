@@ -159,6 +159,53 @@ def test_equal_thirds_remains_the_default_layout():
         "the equal-thirds default rule is gone or no longer 33.33%")
 
 
+def test_narrow_viewports_stack_the_railed_regions_at_natural_height():
+    """T104 F9-5: under 900px the shell stacks its regions vertically, and the
+    generic narrow block already parked `.swb-context`/`.doxbench-canvas` at
+    `flex: none` — but the equal-thirds default above outranks it (three class
+    selectors against one, and later in source), and the rail was never in the
+    narrow block at all, so a railed workbench kept fighting for thirds of the
+    COLUMN's height. The fix is a later, equal-specificity narrow override;
+    this pins BOTH load-bearing facts: the override names all three railed
+    regions inside a (max-width: 900px) block, and it appears AFTER the thirds
+    default, because with equal specificity only source order makes it win."""
+    styles = STYLES.read_text(encoding="utf-8")
+    thirds = re.search(r"\.swb-regions\.has-rail[^{]*\{[^}]*33\.33%", styles)
+    assert thirds, "the equal-thirds default rule is gone"
+    narrow = re.search(
+        r"@media \(max-width: 900px\)\s*\{\s*"
+        r"\.swb-regions\.has-rail \.swb-context,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-canvas,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-rail\s*\{[^}]*flex: none",
+        styles)
+    assert narrow, (
+        "no narrow-viewport flex:none override for the railed regions — the "
+        "thirds default still wins the cascade under 900px")
+    assert narrow.start() > thirds.start(), (
+        "the narrow override sits BEFORE the thirds default; with equal "
+        "specificity the thirds rule wins again and the fix is inert")
+
+
+def test_the_document_picker_label_stays_a_compact_row():
+    """T104 F9-3: styles.css carries TWO `.doxbench-picker-label` blocks (the
+    Phase C S1c wave's and the T100 operator patch's; append-wave discipline
+    keeps both). The later block wins per-property but never re-declared
+    `flex-direction` or neutralized the earlier `flex`, so the label inherited
+    `column` from the first wave while `flex: 1` made it compete for the
+    pane's height — and the `flex: 1` <select> inside stretched vertically.
+    Pin the LAST block's two load-bearing properties: it lays out as a ROW and
+    it never competes for the pane's height."""
+    styles = STYLES.read_text(encoding="utf-8")
+    last = styles.rfind(".doxbench-picker-label {")
+    assert last != -1, "the picker-label rule is gone"
+    block = styles[last:styles.index("}", last)]
+    assert "flex-direction: row" in block, (
+        "the winning picker-label block still inherits column from the "
+        "earlier wave's block")
+    assert "flex: none" in block, (
+        "the winning picker-label block still competes for the pane's height")
+
+
 @pytest.mark.parametrize("region", REGIONS)
 def test_each_region_can_be_expanded(region):
     styles = STYLES.read_text(encoding="utf-8")
@@ -283,3 +330,48 @@ def test_the_session_host_cannot_reclaim_the_panel():
     assert "overflow-y: auto" in declared, (
         "the session host is capped without a scroll — that HIDES the CLI "
         "descriptors rather than thinning them")
+
+
+def test_narrow_railed_expansion_still_works_and_the_column_owns_scrolling():
+    """W-12 (wave re-review): the F9-5 narrow flex:none block ties the
+    is-expanded geometry on specificity (0,3,0 both) and, being later in
+    source, beat it — so under 900px with the rail the expand controls
+    toggled aria-pressed and moved nothing. And with all three regions at
+    natural height inside `.swb-panel { overflow: hidden }`, a tall
+    transcript pushed the canvas below the fold with NO scrollbar anywhere.
+    This pins the repair's three load-bearing facts: a narrow block AFTER
+    the flex:none override (source order is the whole contest) re-declares
+    the expanded pane's growth, compresses the other panes to bounded
+    scrollable strips, and hands `.swb-regions.has-rail` a scroll owner."""
+    styles = STYLES.read_text(encoding="utf-8")
+    narrow_none = re.search(
+        r"@media \(max-width: 900px\)\s*\{\s*"
+        r"\.swb-regions\.has-rail \.swb-context,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-canvas,\s*"
+        r"\.swb-regions\.has-rail \.doxbench-rail\s*\{[^}]*flex: none",
+        styles)
+    assert narrow_none, "the F9-5 narrow override is gone"
+    scroll_owner = re.search(
+        r"@media \(max-width: 900px\)[^@]*"
+        r"\.swb-regions\.has-rail\s*\{[^}]*overflow-y: auto",
+        styles)
+    assert scroll_owner, (
+        "no narrow scroll owner: natural-height regions under the panel's "
+        "overflow:hidden leave the canvas unreachable below the fold")
+    narrow_expand = re.search(
+        r"@media \(max-width: 900px\)[^@]*"
+        r"\.swb-regions\.is-expanded-canvas \.doxbench-canvas\s*\{[^}]*flex: 1 1 auto",
+        styles)
+    assert narrow_expand, (
+        "no narrow is-expanded re-declaration: the flex:none block wins the "
+        "cascade and the expand controls stay inert under 900px")
+    assert narrow_expand.start() > narrow_none.start(), (
+        "the narrow expand rules sit BEFORE the flex:none block; with equal "
+        "specificity source order hands flex:none the win again")
+    compressed = re.search(
+        r"@media \(max-width: 900px\)[^@]*\.swb-regions\.is-expanded-canvas "
+        r"\.swb-context[^{]*\{[^}]*max-height",
+        styles)
+    assert compressed, (
+        "the non-expanded panes keep their natural height, so expansion "
+        "still moves nothing when a tall transcript fills the column")

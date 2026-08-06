@@ -62,6 +62,7 @@ from jsonschema import Draft202012Validator
 from ideation_dashboard import action_errors
 from ideation_dashboard import branch_session
 from ideation_dashboard import doxbench_contracts
+from ideation_dashboard import doxbench_hash
 from ideation_dashboard import doxbench_turns
 from ideation_dashboard import gate_console
 from ideation_dashboard import serve as serve_mod
@@ -1292,6 +1293,125 @@ def test_uppercase_base_hash_refuses_content_identity_mismatch(tmp_path):
     _assert_refusal(status, payload, "content_identity_mismatch")
 
 
+# ---- lone-surrogate (encoding) refusals (T104 F5-8) --------------------------
+#
+# JSON's `"\ud800"` escape decodes to a Python str holding a LONE UTF-16
+# surrogate — text that cannot be encoded to UTF-8, so it cannot be
+# represented identically across runtimes. `doxbench_hash` refuses it with
+# `ContentEncodingError`, a plain ValueError SIBLING of `doxbench_turns.
+# TurnError` (pinned in test_doxbench_turns.py), so before the F5-8 fix no
+# `except` on the route caught it: the handler died mid-request and the
+# browser got a DROPPED CONNECTION instead of any HTTP envelope. The released
+# schema accepts the escape (jsonschema checks structure, not encodability),
+# so this is reachable from any conforming client. The route now refuses it
+# as the fixed `invalid_turn_request` — such a request is malformed — and the
+# refusal must be an HTTP envelope, never a killed handler. One test per
+# field class the handler measures or hashes; each surrogate rides NEXT TO a
+# sentinel so the no-echo sweep still proves refusals never quote request
+# content.
+
+_LONE_SURROGATE = "\ud800"
+
+
+def _surrogate_buf(kind, path, content):
+    """A buffer envelope whose content holds a lone surrogate. `_buf` cannot
+    build this one: it hashes its content via `content_identity`, which would
+    trip `ContentEncodingError` in the TEST process. The hashes here are
+    well-formed 64-char lowercase hex that simply do not match — deliberately,
+    to prove the route refuses on the ENCODING (invalid_turn_request) before
+    it ever reaches a hash comparison (content_identity_mismatch)."""
+    return {"kind": kind, "repository": "fixture-repo", "path": path,
+            "base_ref": "main", "base_revision": PINNED_REVISION,
+            "base_hash": "0" * 64, "content_hash": "0" * 64,
+            "content": content, "dirty": True}
+
+
+def test_lone_surrogate_in_buffer_content_refuses_invalid_turn_request(tmp_path):
+    body = _turn(
+        buffers=[
+            _surrogate_buf("outline", OUTLINE_PATH,
+                           "# Outline\n\n" + _LONE_SURROGATE + _S_OUTLINE),
+            _buf("document", None, "# Document\n\n" + _S_DOCUMENT),
+        ],
+    )
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_message_refuses_invalid_turn_request(tmp_path):
+    body = _turn(message="Which question next? " + _LONE_SURROGATE + _S_MESSAGE)
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_working_subject_refuses_invalid_turn_request(tmp_path):
+    body = _turn(working_subject="Acceptance boundary " + _LONE_SURROGATE + _S_SUBJECT)
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_a_transcript_turn_refuses_invalid_turn_request(tmp_path):
+    body = _turn(transcript=[
+        {"role": "human",
+         "content": "An earlier question " + _LONE_SURROGATE + _S_TRANSCRIPT}])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_base_ref_refuses_invalid_turn_request(tmp_path):
+    """W-1 (wave re-review): `base_ref` and `base_revision` are the two
+    request fields that reach the CANONICAL DIGEST with no earlier gate —
+    they are neither measured nor hashed at steps 6/7, and both are
+    RELEASED-SCHEMA-VALID surrogate carriers (plain bounded strings). Before
+    this fix, `sha256_hex(json.dumps(canonical, ensure_ascii=False))` raised
+    out of the digest statement and the handler died with a dropped
+    connection — the exact F5-8 failure mode, one site over."""
+    buf = _buf("document", None, "# Document\n\n" + _S_DOCUMENT)
+    buf["base_ref"] = "main" + _LONE_SURROGATE
+    body = _turn(buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE), buf])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_base_revision_refuses_invalid_turn_request(tmp_path):
+    buf = _buf("document", None, "# Document\n\n" + _S_DOCUMENT)
+    buf["base_revision"] = _LONE_SURROGATE
+    body = _turn(buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE), buf])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
+def test_lone_surrogate_in_a_transcript_role_refuses_invalid_turn_request(tmp_path):
+    """Wave re-review P3: the transcript turn's ROLE is the remaining
+    surrogate carrier this section had not pinned. It is a free-form string
+    (`doxbench_turns.TranscriptTurn` — deliberately not an enum), it is NOT
+    measured at step 7 (`transcript_bytes` counts turn TEXT only, no role
+    labels), and it is not hashed at step 6 — so, like `base_ref` and
+    `base_revision` above, it reaches the canonical idempotency digest with
+    no earlier encodability gate and W-1's digest-site
+    `ContentEncodingError` catch is the layer that answers (proven by
+    scratch-mutating that catch to re-raise: this test then loses the
+    connection while the transcript-CONTENT pin above still refuses at step
+    7). The hermetic fixture validators pass it through on purpose — they
+    pin envelope discriminators only, never value-level rules — so this pin
+    exercises the deepest layer the suite reaches. Refusal, not a dropped
+    connection."""
+    body = _turn(transcript=[
+        {"role": _LONE_SURROGATE,
+         "content": "An earlier question " + _S_TRANSCRIPT}])
+    status, payload, _fake_port = _post_turn(tmp_path, body)
+    _assert_refusal(status, payload, "invalid_turn_request")
+    _assert_no_sentinels(payload)
+
+
 # ---- model refusals ------------------------------------------------------------
 
 def test_unknown_model_id_refuses_model_unavailable(tmp_path):
@@ -1816,19 +1936,25 @@ def _session_worktree(tmp_path, *, documents=(SESSION_CREATED_PATH,),
 
 
 def _register_session(httpd, tmp_path, worktree, *, branch=SESSION_BRANCH,
-                      tile_id=SESSION_TILE_ID):
+                      tile_id=SESSION_TILE_ID, session_base=None,
+                      session_base_aliases=()):
     """Register the session's registry entry: liveness IS the entry (FR-008),
     and its `source_root` is the worktree (`branch_session.session_entry`).
 
     Nothing is opened, no git runs, and no request could have caused this -- it
-    is the server-side fact the derivation reads."""
+    is the server-side fact the derivation reads. `session_base` is the
+    `(base_ref, base_revision)` the OPEN would have recorded (T104 R-12),
+    `session_base_aliases` its other recorded revision spellings (W-4);
+    None/() is the pre-wave shape and the degradation posture."""
     registry = _handler_class(httpd).source.registry
     snap = Path(tmp_path) / f"session-snapshot-{branch.replace('/', '-')}.json"
     snap.write_text(json.dumps(_snapshot()), encoding="utf-8")
     entry = branch_session.session_entry(
         "fixture-repo", branch, worktree, snapshot_path=snap,
         tile=(branch_session.Tile(branch_session.STAGED_TOPIC, tile_id)
-              if tile_id else None))
+              if tile_id else None),
+        session_base=session_base,
+        session_base_aliases=tuple(session_base_aliases))
     registry.register(entry)
     return entry
 
@@ -1852,12 +1978,14 @@ def _session_turn(document=SESSION_CREATED_PATH, *, branch=SESSION_BRANCH, **ove
 
 
 def _post_session_turn(tmp_path, body, *, worktree, register=True, branch=SESSION_BRANCH,
-                       tile_id=SESSION_TILE_ID):
+                       tile_id=SESSION_TILE_ID, session_base=None,
+                       session_base_aliases=()):
     fake = _port()
     with _serving(tmp_path, model_port_factory=(lambda: fake)) as (httpd, host, prt):
         if register:
             _register_session(httpd, tmp_path, worktree, branch=branch,
-                              tile_id=tile_id)
+                              tile_id=tile_id, session_base=session_base,
+                              session_base_aliases=session_base_aliases)
         caps = _capabilities(host, prt)
         status, payload, _headers, _raw = _request(
             host, prt, "POST", CHAT_ROUTE, body=body,
@@ -1944,6 +2072,158 @@ def test_a_record_naming_another_branch_is_not_this_sessions_creation(tmp_path):
     status, payload, _fake = _post_session_turn(
         tmp_path, _session_turn(), worktree=worktree)
     _assert_refusal(status, payload, "turn_scope_refused")
+
+
+# ---- T104 R-12 (reviewer ruling 2026-08-02): a buffer based on the session's
+# ---- OWN recorded base grounds a turn; one the session diverged past does not.
+
+def test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_base(tmp_path):
+    """The R-12 acceptance, end to end: after a partial Save re-keys the scope
+    to the session, a buffer the Save did NOT land still declares the
+    pre-session base -- `rekeyDoxBenchState` deliberately keeps it
+    byte-identical, base_ref included -- and that pairing now grounds a turn,
+    because the buffer names the ref the session branched FROM at the
+    session's own recorded base revision, and the session has not moved this
+    document past that base. Provenance is preserved: nothing rewrote
+    `base_ref`, the guard's comparison is what changed."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "\nunsaved work\n",
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
+def test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document(tmp_path):
+    """The ruling's divergence clause: a landed gate action advanced the
+    session past its base FOR THIS DOCUMENT, so a buffer still claiming the
+    pre-session base may genuinely be stale and the refusal is correct --
+    staleness detection is made precise, never weakened. Without this the
+    fix would read as "accept anything from main"."""
+    worktree = _session_worktree(tmp_path)
+    target = worktree / SESSION_CREATED_PATH
+    base_text = target.read_bytes().decode("utf-8")
+    target.write_text(base_text + "\nlanded by a later gate action\n",
+                      encoding="utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text,
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex, dirty=False)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
+
+
+def test_the_post_partial_save_turn_grounds_on_the_snapshots_revision_alias(tmp_path):
+    """W-4 (wave re-review): a REAL client's `base_revision` is the serving
+    snapshot's generation-time revision, not the open-time merge-base — the
+    browser never receives a per-file revision. Whenever main moved between
+    snapshot bake and session open the two differed forever, and the R-12
+    acceptance silently reverted to the refusal it closed (executed in the
+    re-review). The OPEN records the snapshot's revision as an accepted
+    ALIAS; the name and base-bytes clauses are untouched."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "\nunsaved work\n",
+        base_ref="main", base_revision="snapshot-rev-at-open",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "merge-base-at-open"),
+        session_base_aliases=("snapshot-rev-at-open",))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
+def test_a_crlf_bom_session_document_grounds_on_the_session_base(tmp_path):
+    """W-7 (wave re-review): the R-12 reader at the route reads the session's
+    current text through the SAME lens the client hashes (`served_text`:
+    verbatim bytes, one leading BOM dropped, CR/CRLF intact) — and nothing
+    pinned it: every R-12 fixture was LF-only, where `read_text`'s
+    universal-newline collapse coincides with the served lens, so the reader
+    could silently regress to `read_text` with the whole suite green
+    (proven by the re-review's mutation round). This document makes the two
+    lenses DISAGREE: under the regression the session identity hashes
+    LF-collapsed BOM-bearing text, mismatches the declared base, and this
+    correctly-based buffer is refused."""
+    worktree = _session_worktree(tmp_path)
+    raw = "﻿# Demo\r\n\r\nauthored on Windows.\r\n".encode("utf-8")
+    (worktree / SESSION_CREATED_PATH).write_bytes(raw)
+    base_text = doxbench_hash.served_text(raw)
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text + "unsaved\r\n",
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
+def test_a_document_moved_and_moved_back_grounds_again_the_content_ruling(tmp_path):
+    """RULED (reviewer, 2026-08-06, closing the wave re-review's last open
+    question): "diverged past that base" is a CONTENT reading. A session that
+    moved this document and moved it BACK byte-identically accepts the
+    pre-session buffer again — every acceptance is content-safe, since the
+    buffer's base bytes provably equal the session's current text and no
+    stale envelope can result; history is not consulted. This test is the
+    ruling's executable record: the same worktree REFUSES while the document
+    is moved (the divergence guard above) and grounds once it is restored."""
+    worktree = _session_worktree(tmp_path)
+    target = worktree / SESSION_CREATED_PATH
+    original = target.read_bytes()
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, original.decode("utf-8"),
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(original.decode("utf-8")).hex, dirty=False)
+
+    target.write_bytes(original + b"moved by a landed gate action\n")
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    _assert_refusal(status, payload, "turn_scope_refused")
+
+    target.write_bytes(original)                     # ...and moved BACK
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree,
+        session_base=("main", "pre-session-rev-1"))
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    _assert_no_sentinels(payload)
+
+
+def test_a_session_with_no_recorded_base_still_refuses_the_pre_session_pairing(tmp_path):
+    """Degradation pin: an entry with no recorded base (opened before this
+    wave, or a marker that could not be written) keeps the original
+    name-equality binding -- honest refusal, never a crash."""
+    worktree = _session_worktree(tmp_path)
+    base_text = (worktree / SESSION_CREATED_PATH).read_bytes().decode("utf-8")
+    body = _session_turn()
+    body["buffers"][1] = _buf(
+        "document", SESSION_CREATED_PATH, base_text,
+        base_ref="main", base_revision="pre-session-rev-1",
+        base_hash=content_identity(base_text).hex, dirty=False)
+    status, payload, _fake = _post_session_turn(
+        tmp_path, body, worktree=worktree)
+    _assert_refusal(status, payload, "turn_scope_refused")
+    _assert_no_sentinels(payload)
 
 
 # ---- CHK012: the request cannot declare its own created set -----------------

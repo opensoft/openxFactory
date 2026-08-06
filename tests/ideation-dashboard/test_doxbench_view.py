@@ -382,6 +382,19 @@ class Node {
         && this.contains(globalThis.document.activeElement)) {
       globalThis.document.activeElement.blur();
     }
+    // And a hidden element loses its LAYOUT BOX, which is where a browser
+    // keeps a textarea's scroll offset -- so hiding drops every descendant's
+    // scrollTop (T104 / FR-010: this shim used to keep it for free, which is
+    // exactly why the missing write-back passed the tab round-trip tests
+    // while a real browser landed the human at the top of the buffer).
+    // Selection is DOM state, not layout, and survives.
+    if (this._hidden) {
+      const dropScroll = (node) => {
+        if (node._scrollTop !== undefined) node._scrollTop = 0;
+        for (const child of (node.children || [])) dropScroll(child);
+      };
+      dropScroll(this);
+    }
   }
   contains(node) {
     let n = node;
@@ -938,6 +951,51 @@ async function inputRefusalScenario() {
   return { surrogate, oversized };
 }
 
+// W-8/W-9 companion (wave re-review): a picker CHANGE during the loading
+// window. selectDocument refuses it (the F6-2 loading posture), but the
+// change handler used to revert the DISPLAYED value only on "blocked" -- so
+// the picker kept showing the choice that never landed, FOREVER, silently
+// lying about which document edits land in and turns ground on.
+async function pickerDuringLoadScenario() {
+  let releaseLoad;
+  const gate = new Promise((resolve) => { releaseLoad = resolve; });
+  const inner = makeLoadSource(CONTENT, []);
+  const gated = async (path) => { await gate; return inner(path); };
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: gated, storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  const picker = controller.elements().documentPicker();
+  picker.value = DOC_B;
+  await fireEvent(picker, 'change');       // refused: the load is still open
+  const duringLoad = {
+    pickerValue: picker.value,
+    status: String(controller.elements().status('document').textContent),
+  };
+  releaseLoad();
+  await controller.ready;
+  return {
+    duringLoad,
+    afterLoad: {
+      pickerValue: picker.value,
+      bufferPath: controller.state().buffers.document.path,
+    },
+  };
+}
+
+// W-10 (wave re-review): the editor's apply refusals carry fixed CODES the
+// rail maps to its own vocabulary -- staleness and an unavailable target are
+// different recoveries and must stop sharing one sentence.
+async function applyRefusalCodesScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const stale = await controller.applyProposal('document', {
+    base_hash: 'f'.repeat(64), content: '# other\n' });
+  const unavailable = await controller.applyProposal('document', null);
+  return { stale, unavailable };
+}
+
 // B3: once a buffer has ANY typed content, that content must render and the
 // dirty fact must be reported -- load_state alone (which the state module
 // preserves across every edit on purpose) must never keep showing the
@@ -1116,6 +1174,309 @@ async function postDestroyInertScenario() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// T104 F6-1: EVERY transition that moves a buffer's settled identity tells the
+// composition, not only edit(). Discard moves current_hash back to the base
+// and a document switch replaces the whole buffer -- with no callback the
+// rail's proposal cards kept scoring 'current' (Apply enabled) against text
+// the buffer no longer held. The save() half of the same finding is pinned in
+// the Save-seam harness below, where a seam exists.
+// ---------------------------------------------------------------------------
+async function identitySettledScenario() {
+  const settled = [];
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+    onIdentitySettled: (kind, hash) =>
+      settled.push({ kind, hex: hash && hash.hex }),
+  });
+  await controller.ready;
+  await controller.edit('document', '# identity moves\n');
+  const afterEdit = settled.slice();
+  await controller.discard('document');
+  const afterDiscard = settled.slice();
+  const baseHex = controller.state().buffers.document.base_hash.hex;
+  await controller.selectDocument(DOC_B);
+  const afterSwitch = settled.slice();
+  const switchedHex = controller.state().buffers.document.current_hash.hex;
+  return { afterEdit, afterDiscard, afterSwitch, baseHex, switchedHex };
+}
+
+// ---------------------------------------------------------------------------
+// T104 F6-2: the textareas are mounted BEFORE initialLoad() resolves, so a
+// keystroke during the source fetch used to throw an unhandled TypeError off
+// the async input listener (state is still null) and then be silently
+// overwritten by the load's own sync. The pre-state posture must refuse
+// VISIBLY (CHK016/CHK019): disabled surfaces, a stated loading line, and a
+// fixed refusal for anything that reaches the API anyway.
+// ---------------------------------------------------------------------------
+async function inputDuringLoadScenario() {
+  let releaseLoad;
+  const gate = new Promise((resolve) => { releaseLoad = resolve; });
+  const gatedLoadSource = async (path) => {
+    await gate;
+    return { content: CONTENT[path], revision: 'rev-' + path, ref: 'main' };
+  };
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: gatedLoadSource, storage: new FakeStorage(), previewDelayMs: 5,
+    // a seam, so save() reaches its own state dereference rather than the
+    // unwired-refusal early return
+    save: async () => ({ status: 'unchanged', buffers: [] }),
+  });
+  const textarea = controller.elements().textarea('document');
+  const status = controller.elements().status('document');
+  const duringDisabled = {
+    outline: controller.elements().textarea('outline').disabled === true,
+    document: textarea.disabled === true,
+  };
+  // P3-2: the controls whose handlers DROP their refusal objects must be
+  // physically refused too, exactly like the textareas -- a clickable Discard
+  // whose click silently does nothing is the dishonest half of this posture.
+  const duringControls = {
+    discardDisabled: controller.elements().discard('document').disabled === true,
+    saveDisabled: controller.elements().save('document').disabled === true,
+    pickerDisabled: controller.elements().documentPicker().disabled === true,
+  };
+  const duringStatus = String(status.textContent);
+  let threw = null;
+  textarea.value = '# typed before the load settled\n';
+  try { await fireEvent(textarea, 'input'); } catch (err) { threw = String(err && err.message); }
+  const statusAfterKeystroke = String(status.textContent);
+  const results = {};
+  const attempt = async (name, fn) => {
+    try { results[name] = await fn(); }
+    catch (err) { results[name] = { threw: String(err && err.message) }; }
+  };
+  await attempt('discard', () => controller.discard('document'));
+  await attempt('save', () => controller.save());
+  await attempt('select', () => controller.selectDocument(DOC_B));
+  await attempt('apply', () => controller.applyProposal('document', {
+    base_hash: 'c'.repeat(64), content: '# applied\n' }));
+  releaseLoad();
+  await controller.ready;
+  return {
+    duringDisabled, duringControls, duringStatus, threw, statusAfterKeystroke,
+    results,
+    afterDisabled: textarea.disabled === true,
+    afterContent: controller.state().buffers.document.content,
+    // P3-2: the first syncBufferDom ends the mount-time posture
+    afterControls: {
+      discardDisabled: controller.elements().discard('document').disabled === true,
+      saveDisabled: controller.elements().save('document').disabled === true,
+      pickerDisabled: controller.elements().documentPicker().disabled === true,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// T104 F6-6: a document whose bytes exceed the hashing bound used to
+// dead-letter the whole mount -- createDoxBenchState rejected inside
+// initialLoad(), no production code consumed the returned ready promise,
+// `state` stayed null forever, and the canvas rendered as a silently broken
+// editor whose every keystroke threw. The failure must be STATED (the size
+// class, never the content) and the surfaces must hold the same refuse-visibly
+// posture as the loading state.
+// ---------------------------------------------------------------------------
+async function oversizedInitialLoadScenario() {
+  const big = 'a'.repeat(400001);
+  const map = { ...CONTENT, [DOC_A]: big };
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(map, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  let readyThrew = null;
+  try { await controller.ready; } catch (err) { readyThrew = String(err && err.message); }
+  const status = controller.elements().status('document');
+  const textarea = controller.elements().textarea('document');
+  const statusText = String(status.textContent);
+  const outlineStatusText = String(controller.elements().status('outline').textContent);
+  let inputThrew = null;
+  textarea.value = '# typed into a failed canvas\n';
+  try { await fireEvent(textarea, 'input'); } catch (err) { inputThrew = String(err && err.message); }
+  return {
+    readyThrew, inputThrew, statusText, outlineStatusText,
+    stateIsNull: controller.state() === null,
+    textareaDisabled: textarea.disabled === true,
+    statusAfterKeystroke: String(status.textContent),
+    // P3-2: after a FAILED load syncBufferDom never runs, so the mount-time
+    // disabled posture is what keeps these controls honest permanently.
+    failedControls: {
+      discardDisabled: controller.elements().discard('document').disabled === true,
+      saveDisabled: controller.elements().save('document').disabled === true,
+      pickerDisabled: controller.elements().documentPicker().disabled === true,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// T104 F10-3, the client half of FR-045's byte-exact round-trip: a real
+// browser's textarea API value is LF-normalized BY SPECIFICATION no matter
+// what the document's bytes are, so this scenario TYPES in the LF domain the
+// way a browser reports it and asserts the BUFFER keeps the document's own
+// CRLF flavor -- identity, dirtiness, and Save payload all speak the file's
+// real line endings while the display speaks the textarea's.
+// ---------------------------------------------------------------------------
+async function eolPreservationScenario() {
+  const CRLF_PATH = 'ideation/staging/topic-x/windows.md';
+  const CRLF_BASE = '# Title\r\n\r\nline one\r\nline two\r\n';
+  const map = { ...CONTENT, [CRLF_PATH]: CRLF_BASE };
+  const projection = makeProjection({
+    editable_paths: [OUTLINE_PATH, CRLF_PATH, DOC_A],
+    context_paths: [OUTLINE_PATH, CRLF_PATH, DOC_A],
+    active_document_candidates: [CRLF_PATH, DOC_A],
+  });
+  const controller = mountDoxBenchCanvas(new Node('div'), projection, {
+    loadSource: makeLoadSource(map, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const textarea = controller.elements().textarea('document');
+  const loadedBuffer = controller.state().buffers.document;
+  const loaded = {
+    content: loadedBuffer.content,
+    dirty: loadedBuffer.dirty,
+    textareaValue: textarea.value,
+  };
+
+  textarea.value = '# Title\n\nline one\nline two\ntyped\n'; // the browser's LF spelling
+  await fireEvent(textarea, 'input');
+  const typedBuffer = controller.state().buffers.document;
+  const expectedTyped = '# Title\r\n\r\nline one\r\nline two\r\ntyped\r\n';
+  const expectedIdentity = await contentIdentity(expectedTyped);
+  const typed = {
+    content: typedBuffer.content, dirty: typedBuffer.dirty,
+    hashHex: typedBuffer.current_hash && typedBuffer.current_hash.hex,
+    expectedContent: expectedTyped,
+    expectedHex: expectedIdentity.hex,
+    textareaValue: textarea.value,
+  };
+
+  textarea.value = '# Title\n\nline one\nline two\n'; // back to the loaded text
+  await fireEvent(textarea, 'input');
+  const backBuffer = controller.state().buffers.document;
+  const back = { content: backBuffer.content, dirty: backBuffer.dirty };
+
+  // W-2: a PROPOSAL enters through the same lens as a keystroke. The model's
+  // spelling is LF regardless of the document's flavor; applied verbatim it
+  // made the buffer pure LF (a Save then committed an every-line-ending
+  // rewrite) and the next keystroke flipped the file back -- two byte-level
+  // outcomes for one reviewed proposal.
+  const preApply = controller.state().buffers.document;
+  const applyRes = await controller.applyProposal('document', {
+    base_hash: preApply.current_hash.hex,
+    content: '# Title\n\nrewritten by the model\n',
+  });
+  const appliedBuffer = controller.state().buffers.document;
+  const expectedApplied = '# Title\r\n\r\nrewritten by the model\r\n';
+  const appliedIdentity = await contentIdentity(expectedApplied);
+  const applied = {
+    ok: !!(applyRes && applyRes.ok === true),
+    content: appliedBuffer.content,
+    expectedContent: expectedApplied,
+    hashHex: appliedBuffer.current_hash && appliedBuffer.current_hash.hex,
+    expectedHex: appliedIdentity.hex,
+    textareaValue: textarea.value,
+  };
+  // the applied proposal left the buffer dirty; discard so the document
+  // switch below is not intercepted by the Save-or-Discard guard
+  await controller.discard('document');
+
+  // the LF control: an LF document's keystrokes must not invent CRs
+  await controller.selectDocument(DOC_A);
+  textarea.value = '# Document A\nplus one line\n';
+  await fireEvent(textarea, 'input');
+  const lfBuffer = controller.state().buffers.document;
+  const lf = { content: lfBuffer.content, dirty: lfBuffer.dirty };
+
+  // ... and neither must an applied proposal (the lens applies the document's
+  // OWN flavor, never a fixed one)
+  const lfPre = controller.state().buffers.document;
+  await controller.applyProposal('document', {
+    base_hash: lfPre.current_hash.hex,
+    content: '# Document A\nmodel rewrite\n',
+  });
+  const lfApplied = { content: controller.state().buffers.document.content };
+
+  return { loaded, typed, back, applied, lf, lfApplied };
+}
+
+// ---------------------------------------------------------------------------
+// P3-1 (wave re-review P3 tail): EOL-ONLY dirtiness is STATED. The first-break
+// rule unifies a mixed-EOL document on the first keystroke, so a buffer can be
+// dirty while the textarea's display is byte-identical to the loaded text --
+// invisible dirtiness, and a Save then commits a whole-file line-ending diff
+// nobody saw. The status line must state that fact in fixed vocabulary, while
+// an ordinarily dirty buffer keeps the ordinary sentence.
+// ---------------------------------------------------------------------------
+async function eolOnlyDirtyScenario() {
+  const MIXED_PATH = 'ideation/staging/topic-x/mixed.md';
+  // first line break is CRLF (names the flavor); one stray LF line mixes it
+  const MIXED_BASE = '# Title\r\nline a\nline b\r\n';
+  const map = { ...CONTENT, [MIXED_PATH]: MIXED_BASE };
+  const projection = makeProjection({
+    editable_paths: [OUTLINE_PATH, MIXED_PATH],
+    context_paths: [OUTLINE_PATH, MIXED_PATH],
+    active_document_candidates: [MIXED_PATH],
+  });
+  const controller = mountDoxBenchCanvas(new Node('div'), projection, {
+    loadSource: makeLoadSource(map, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const textarea = controller.elements().textarea('document');
+  const status = controller.elements().status('document');
+  // type-and-revert in the display domain: the textarea's value is unchanged,
+  // but read-back re-flavors the stray LF line to the document's own CRLF --
+  // the bytes move while the display does not.
+  textarea.value = textarea.value;
+  await fireEvent(textarea, 'input');
+  const buffer = controller.state().buffers.document;
+  const eolOnly = {
+    dirty: buffer.dirty,
+    bytesMoved: buffer.content !== buffer.base_content,
+    displayIdentical: textarea.value === buffer.base_content.replace(/\r\n?/g, '\n'),
+    status: String(status.textContent),
+  };
+  // an ORDINARY dirty edit keeps the ordinary sentence
+  textarea.value = textarea.value + 'typed\n';
+  await fireEvent(textarea, 'input');
+  const ordinary = { status: String(status.textContent) };
+  return { eolOnly, ordinary };
+}
+
+// ---------------------------------------------------------------------------
+// P3-10 (wave re-review P3 tail): an edit whose async hash settles AFTER
+// destroy() must leave the world alone. The settle continuation used to run
+// to completion on the corpse -- replaceBuffer, persistNow, onIdentitySettled
+// -- so a destroy followed by the FR-039 clear had its cleared record quietly
+// re-persisted by the losing race. destroy()'s OWN persist (before the clear)
+// is legitimate and stays.
+// ---------------------------------------------------------------------------
+async function destroyDuringEditSettleScenario() {
+  const RACE = '# destroyed mid-hash\n';
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  const gatedHash = async (content) => {
+    if (content === RACE) await gate;
+    return contentIdentity(content);
+  };
+  const storage = new FakeStorage();
+  const settledKinds = [];
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage, previewDelayMs: 5,
+    hash: gatedHash,
+    onIdentitySettled: (kind) => settledKinds.push(kind),
+  });
+  await controller.ready;
+  const editPromise = controller.edit('document', RACE);
+  controller.destroy();       // persists its own final record on the way out
+  storage.values.clear();     // the FR-039-style clear then removes it
+  const notifiedBeforeSettle = settledKinds.length;
+  release();
+  const editResult = await editPromise;
+  return {
+    editResult,
+    storageKeysAfterSettle: [...storage.values.keys()],
+    lateNotifications: settledKinds.length - notifiedBeforeSettle,
+  };
+}
+
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 
 const results = {
@@ -1137,6 +1498,8 @@ const results = {
   editThenDiscardBeforeSettle: await editThenDiscardBeforeSettleScenario(),
   editThenSwitchBeforeSettle: await editThenSwitchBeforeSettleScenario(),
   inputRefusal: await inputRefusalScenario(),
+  pickerDuringLoad: await pickerDuringLoadScenario(),
+  applyRefusalCodes: await applyRefusalCodesScenario(),
   typedOutlineOverridesEmpty: await typedOutlineOverridesEmptyScenario(),
   typedDocumentOverridesUnavailable: await typedDocumentOverridesUnavailableScenario(),
   outOfScopeSelectDocument: await outOfScopeSelectDocumentScenario(),
@@ -1144,6 +1507,12 @@ const results = {
   guardFocus: await guardFocusScenario(),
   documentPicker: await documentPickerScenario(),
   postDestroyInert: await postDestroyInertScenario(),
+  identitySettled: await identitySettledScenario(),
+  inputDuringLoad: await inputDuringLoadScenario(),
+  oversizedLoad: await oversizedInitialLoadScenario(),
+  eolPreservation: await eolPreservationScenario(),
+  eolOnlyDirty: await eolOnlyDirtyScenario(),
+  destroyDuringEditSettle: await destroyDuringEditSettleScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -1343,6 +1712,39 @@ def test_doxbench_editor_source_has_no_private_html_sink_or_second_sanitizer():
     assert "innerHTML" not in source
     assert "markdownit" not in source
     assert "markdown-it" not in source
+
+
+def test_authoring_surfaces_disable_autofill_and_derive_text_direction():
+    """T104 F9-2 + F9-4 (FR-044/FR-045), mirroring the chat rail's own pin
+    (test_doxbench_chat_view.py's authoring-inputs test): the canvas's
+    content-derived surfaces — each buffer's authoring textarea and its
+    preview — derive text direction from their own bytes (`dir="auto"`), and
+    every control a browser might try to autofill — the textareas and the
+    document picker — refuses autofill. The status line and heading stay
+    direction-unset ON PURPOSE: status text is the fixed refusal/save
+    vocabulary (it never echoes buffer content, by house rule) and the
+    heading always leads with the LTR product name, so `dir="auto"` would
+    resolve identically there and only imply a content-derivation that does
+    not exist."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    assert 'textarea.setAttribute("dir", "auto")' in source
+    assert 'preview.setAttribute("dir", "auto")' in source
+    assert 'textarea.setAttribute("autocomplete", "off")' in source
+    assert 'picker.setAttribute("autocomplete", "off")' in source
+
+
+def test_selected_tab_styling_rides_aria_selected_not_a_shadow_class():
+    """T104 F9-6: the selected-tab look is owned by the
+    `.doxbench-tab[aria-selected="true"]` rule (the T100 operator patch
+    overrides every property the old `.doxbench-tab-active` rule set), so the
+    class and the lockstep classList.toggle that maintained it were dead
+    weight — a second spelling of the same state that could silently drift
+    from the ARIA truth. Both are gone; selection state has exactly one
+    spelling: `aria-selected`."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    styles = (EDITOR_JS.parent.parent / "styles.css").read_text(encoding="utf-8")
+    assert "doxbench-tab-active" not in source
+    assert "doxbench-tab-active" not in styles
 
 
 def test_hostile_markdown_preview_renders_through_the_one_safe_sink(editor_results):
@@ -1837,15 +2239,24 @@ async function mount(opts = {}, over = {}) {
 // ---- both buffers commit -------------------------------------------------
 async function bothCommitted() {
   const calls = [];
+  // T104 F6-1's save() half: adoptSavedBase moves the buffer identity onto the
+  // committed one, and the composition must hear about it exactly like it
+  // hears about an edit -- only the calls AFTER the save started are the pin.
+  const identitySettled = [];
   const { controller, host, storage } = await mount({
-    save: seamFor({}, { calls }) });
+    save: seamFor({}, { calls }),
+    onIdentitySettled: (kind, hash) =>
+      identitySettled.push({ kind, hex: hash && hash.hex }),
+  });
   await controller.edit('outline', '# Outline edited\n');
   await controller.edit('document', '# Document A edited\n');
   const before = controller.state();
+  const settledBeforeSave = identitySettled.length;
   const outcome = await controller.save();
   const after = controller.state();
   return {
     calls, outcome,
+    identityAfterSave: identitySettled.slice(settledBeforeSave),
     beforeDirty: { outline: before.buffers.outline.dirty,
                    document: before.buffers.document.dirty },
     afterBuffers: after.buffers,
@@ -1862,16 +2273,25 @@ async function bothCommitted() {
 
 // ---- partial: outline commits, document refuses ---------------------------
 async function partial() {
+  // T104 F6-1: only the buffer whose base actually ADVANCED may refresh
+  // currency -- a notification for the refused document would claim an
+  // identity move that never happened.
+  const identitySettled = [];
   const { controller, host } = await mount({
     save: seamFor({ document: {
       status: 'refused', action: 'edit-document', ref: null, revision: null,
-      content_hash: null, message: 'the document base moved under this buffer' } }) });
+      content_hash: null, message: 'the document base moved under this buffer' } }),
+    onIdentitySettled: (kind, hash) =>
+      identitySettled.push({ kind, hex: hash && hash.hex }),
+  });
   await controller.edit('outline', '# Outline edited\n');
   await controller.edit('document', '# Document A edited\n');
+  const settledBeforeSave = identitySettled.length;
   const outcome = await controller.save();
   const after = controller.state();
   return {
     outcome, afterBuffers: after.buffers,
+    identityAfterSave: identitySettled.slice(settledBeforeSave),
     status: { outline: describe(controller.elements().status('outline')),
               document: describe(controller.elements().status('document')) },
     hostText: host.textContent,
@@ -1943,6 +2363,38 @@ async function guardSave() {
            guardHidden: !!controller.elements().guard().hidden };
 }
 
+// ---- W-8: the guard's Save arm survives the remount its own Save triggers --
+async function guardSaveIntoRemount() {
+  const identitySettled = [];
+  let controllerRef = null;
+  const { controller, storage } = await mount({
+    save: seamFor({}),
+    // The shell's recanvas analogue: a Save that lands on a session ref
+    // makes staging-workbench destroy this controller and remount a fresh
+    // one. The corpse used to keep going -- switchDocument mutated state,
+    // PERSISTED under the rekeyed key after destroy() had written its own
+    // record, and fired a late onIdentitySettled into the torn-down
+    // composition.
+    onSaveLanded: async () => { if (controllerRef) controllerRef.destroy(); },
+    onIdentitySettled: (kind) => identitySettled.push(kind),
+  });
+  controllerRef = controller;
+  await controller.edit('document', '# Document A edited\n');
+  const blocked = await controller.selectDocument(OUTLINE_PATH);
+  const settledBeforeResolve = identitySettled.length;
+  const resolved = await controller.resolveGuard('save');
+  const lastKey = [...storage.values.keys()].pop();
+  const record = JSON.parse(storage.values.get(lastKey));
+  return {
+    blocked: blocked.status,
+    resolved,
+    // the save's OWN adopted-kind notification is legitimate; a second
+    // 'document' fire would be the corpse's switchDocument
+    identityAfterResolve: identitySettled.slice(settledBeforeResolve),
+    persistedDocumentPath: record.buffers.document.path,
+  };
+}
+
 // ---- the unwired posture, in this same harness ---------------------------
 async function noSeam() {
   const { controller, host } = await mount({});
@@ -1964,6 +2416,7 @@ console.log(JSON.stringify({
   rekey: await rekey(),
   nothingDirty: await nothingDirty(),
   guardSave: await guardSave(),
+  guardSaveIntoRemount: await guardSaveIntoRemount(),
   noSeam: await noSeam(),
 }));
 """
@@ -2513,9 +2966,13 @@ const storage = new FakeStorage();
 
 const container = document.createElement('div');
 const doxbench = {
+  // PRODUCTION SHAPE (wave re-review, R-12 machinery): app.js's source
+  // loader returns {content, ref} and NOTHING ELSE — no per-file revision
+  // exists on the wire. This fake used to return one, exercising a dead arm
+  // of baseRevisionOf and masking that a real client's base_revision is the
+  // PROJECTION's source_revision (the W-4 finding's whole mechanism).
   loadSource: async (path) => ({
-    content: '# ' + path + '\n\nloaded from main.\n',
-    ref: 'main', revision: '1'.repeat(40) }),
+    content: '# ' + path + '\n\nloaded from main.\n', ref: 'main' }),
   // the governed Save: the OUTLINE lands on a freshly opened session branch,
   // the DOCUMENT is refused, so its unsaved text is exactly what must survive
   // the re-key that follows
@@ -2624,6 +3081,10 @@ out.turnOutlineBaseRef = chatRequests.length
   ? chatRequests[0].buffers[0].base_ref : null;
 out.turnDocumentBaseRef = chatRequests.length
   ? chatRequests[0].buffers[1].base_ref : null;
+// the value a REAL client declares: the projection's source_revision, since
+// the production loader carries no per-file revision (W-4's mechanism)
+out.turnDocumentBaseRevision = chatRequests.length
+  ? chatRequests[0].buffers[1].base_revision : null;
 out.turnFailureNote = (one('doxchat-failure') || {}).textContent || '';
 
 // ---- R-1, the restore half (F1 P1 staging-workbench.js:787 / :898) ----
@@ -2646,16 +3107,32 @@ const reopened = document.createElement('div');
 const emptyCatalogDoxbench = { ...doxbench,
   catalog: async () => ({ schema_version: 1,
                           kind: 'workbench-model-catalog', models: [] }) };
+// The second mount is ALSO the FR-039 stage (T104 F7-7): its roster
+// advertises the session ref (a live session is an ordinary roster row,
+// FR-014/FR-045), its fetcher can answer the abandon verb, and its
+// onSessionEnded hands back the surviving main view — the three things a
+// session ENDING through the mounted shell needs.
+const ABANDON_RESULT = {
+  ok: true, ref: SESSION_REF, reason: 'the spike answered its question',
+  torn_down: ['worktree', 'registry-entry', 'notebook'], branch_retained: true,
+  record: 'ideation/dashboard/gate-records/draft-topic-x/abandon.yaml',
+};
 const second = mountStagingWorkbench(reopened, snapshot, {
   caps,
-  fetcher: async () => ({ ok: false }),
+  fetcher: async () => ({ status: 200, json: async () => ABANDON_RESULT }),
   active: { repository: 'fixture-repo', ref: SESSION_REF },
-  index: { entries: [] },
+  index: { entries: [{ repository: 'fixture-repo', ref: SESSION_REF }] },
   doxbench: emptyCatalogDoxbench,
   sourceBase: '/source/' + SESSION_REF + '/',
   edit: null,
   onSessionRekey: async () => null,
-  onSessionEnded: async () => null,
+  // the surviving main view; the refetched roster still advertises the ended
+  // ref for a while (sessionPosture's own "session ended" label documents
+  // exactly this window)
+  onSessionEnded: async () => ({
+    snapshot, active: { repository: 'fixture-repo', ref: 'main' },
+    index: { entries: [{ repository: 'fixture-repo', ref: SESSION_REF }] },
+    sourceBase: '/source/' }),
   onScopeOpened: () => null,
 });
 second.open('staged', 'topic-x');
@@ -2670,6 +3147,67 @@ out.restoredModelOptions = (inSecond('doxchat-model') || { children: [] })
 out.restoredDocumentText = (reopened.walk().filter(
   (n) => String(n.className).split(' ').includes('doxbench-textarea'))[1]
   || {}).value || '';
+
+// ---- T104 F7-7: a session END through the mounted shell clears the
+// FakeStorage record (FR-039). The shell's onSessionEnded handler calls
+// clearDoxBenchSession at the one moment the dying ref is still known; with
+// the seam unthreaded the clear silently targeted ambient
+// window.sessionStorage — absent here, exactly as absent as it is on any
+// non-window plane — and the ended session's record survived. ----
+const { scopeStorageKey } = await import('./doxbench-state.js');
+const SESSION_RECORD_KEY = scopeStorageKey({
+  repository: 'fixture-repo', ref: SESSION_REF,
+  tile_kind: 'staged', tile_id: 'topic-x' });
+out.sessionKeyedBeforeEnd = [...storage.values.keys()]
+  .filter((k) => k === SESSION_RECORD_KEY).length;
+
+const abandonBtn = inSecond('swb-sessionbtn')
+  ? reopened.walk().filter((n) =>
+      String(n.className).split(' ').includes('swb-sessionbtn'))
+      .find((b) => b.textContent.toLowerCase().includes('abandon'))
+  : null;
+out.abandonOffered = Boolean(abandonBtn && abandonBtn.disabled !== true);
+if (abandonBtn) {
+  await fire(abandonBtn, 'click');
+  const reason = reopened.walk().find(
+    (n) => n.attributes && n.attributes['aria-label'] === 'Reason');
+  if (reason) reason.value = ABANDON_RESULT.reason;
+  const submit = reopened.walk().filter((n) =>
+    String(n.className).split(' ').includes('cbtn'))
+    .find((b) => b.textContent === 'abandon-session');
+  out.abandonSubmitFound = Boolean(submit);
+  if (submit) await fire(submit, 'click');
+  for (let i = 0; i < 60; i += 1) await settle();
+}
+out.endingReported = reopened.walk().some((n) =>
+  String(n.className).split(' ').includes('swb-clanded'));
+out.sessionKeyedAfterEnd = [...storage.values.keys()]
+  .filter((k) => k === SESSION_RECORD_KEY).length;
+out.storageKeysAfterEnd = [...storage.values.keys()];
+
+// ---- W-13: the shell's posture note follows the CATALOG FAILURE, not only
+// the approved-model count. In the shipped zero-adapter posture the count is
+// 0 before and after a failed fetch, so the failure half of the rail
+// onState comparison is the ONLY thing that re-renders the shell's note --
+// drop it and the shell claims "no approved model is configured" over a
+// stale console token forever, the F10-1 bug shape one surface up. ----
+const third = document.createElement('div');
+const staleTokenDoxbench = { ...doxbench,
+  catalog: async () => ({ failed: 'console_required' }) };
+const thirdMount = mountStagingWorkbench(third, snapshot, {
+  caps, fetcher: async () => ({ ok: false }),
+  active: { repository: 'fixture-repo', ref: 'main' },
+  index: { entries: [] }, doxbench: staleTokenDoxbench,
+  sourceBase: '/source/', edit: null,
+  onSessionRekey: async () => null, onSessionEnded: async () => null,
+  onScopeOpened: () => null,
+});
+thirdMount.open('staged', 'topic-x');
+const inThird = (cls) => (third.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls))[0] || null);
+await until(() => inThird('swb-posture-note') !== null, 'the third posture note');
+for (let i = 0; i < 60; i += 1) await settle();
+out.staleTokenPosture = (inThird('swb-posture-note') || {}).textContent || '';
 
 console.log(JSON.stringify(out));
 """
@@ -2729,27 +3267,33 @@ def test_an_unsaved_buffer_survives_the_post_save_rekey(shell_results):
 
 def test_the_post_save_turn_still_declares_the_pre_session_base_for_unsaved_buffers(
         shell_results):
-    """RECORDED, NOT FIXED -- and pinned here so it cannot be forgotten.
+    """R-12 CLOSED (reviewer ruling 2026-08-02) -- and this pin RE-PURPOSED,
+    never deleted: it is now the record that PROVENANCE IS PRESERVED.
 
-    The scope half of the re-key is closed above. The BASE half is not:
-    `rekeyDoxBenchState` (doxbench-state.js:388-404) deliberately keeps both
-    buffers exactly as they are, and
+    `rekeyDoxBenchState` (doxbench-state.js) deliberately keeps both buffers
+    exactly as they are, and
     `test_rekeying_moves_the_scope_key_and_keeps_both_buffers_exactly`
     (test_doxbench_state.py:454) pins that byte-for-byte, including
-    `sameDocumentObject is True`. So a buffer the Save did NOT land -- the
-    refused document here, and equally any buffer that was simply clean --
-    still declares `base_ref` = the pre-session ref while the scope now names
-    the session, and `doxbench_turns._require_buffer_binding`
-    (doxbench_turns.py:432-439) refuses exactly that pairing.
-
-    Moving `base_ref` changes what the field CLAIMS about where a buffer's
-    base bytes came from, which is a reviewer's call and is outside the
-    dispositioned F1 fix shape (thread the save outcome; re-key the shell,
-    session bar and rail scope key; make the remount non-destructive; fix the
-    R-1 restore guard). Family F1's own P2 at doxbench-state.js:396 is the
-    finding; this assertion is its executable record."""
+    `sameDocumentObject is True`. So a buffer the Save did NOT land still
+    declares `base_ref` = the pre-session ref while the scope names the
+    session -- and that stays TRUE, because `base_ref` means "where these
+    base bytes came from" and must never be rewritten to something the bytes
+    did not come from. What the ruling changed is the COMPARISON:
+    `doxbench_turns._require_buffer_binding` now accepts this pairing when
+    the buffer names the ref the session branched from at the session's own
+    recorded base revision and the session has not diverged past that base
+    for this document (turn-succeeds guard:
+    test_doxbench_routes.py::test_the_post_partial_save_turn_grounds_the_unlanded_buffer_on_the_session_base;
+    divergence guard:
+    ::test_a_pre_session_buffer_is_refused_once_the_session_moved_the_document)."""
     assert shell_results["turnDocumentBaseRef"] == "main"
     assert shell_results["turnScopeRef"] == "draft/topic-x"
+    # and the revision a REAL client declares is the PROJECTION's
+    # source_revision — the production loader returns no per-file revision,
+    # which is exactly why W-4 records the serving snapshot's revision as an
+    # accepted alias at open (this harness used to fake a loader revision,
+    # masking the whole mechanism)
+    assert shell_results["turnDocumentBaseRevision"] == "1" * 40
 
 
 def test_the_restored_chat_state_is_applied_on_a_plane_with_no_approved_models(
@@ -2778,3 +3322,334 @@ def test_the_shell_itself_follows_the_session_after_a_save(shell_results):
     view that is now reading the session branch as if it were main."""
     assert "draft/topic-x" in shell_results["postureText"] or \
         "draft" in shell_results["postureText"].lower()
+
+
+def test_a_session_end_through_the_mounted_shell_clears_the_working_record(
+        shell_results):
+    """T104 F7-7 (FR-039): the shell's onSessionEnded handler called
+    `clearDoxBenchSession({...})` with ONE argument, silently targeting
+    ambient window.sessionStorage instead of the injected `doxbench.storage`
+    seam — so under any injected storage (this harness's FakeStorage; the
+    editor threads the seam correctly at its own re-key clear,
+    doxbench-editor.js) the ended session's record was never removed. The
+    abandon here runs through the REAL mounted shell: the affordance row, the
+    gate verb, the onSessionEnded rebind — and the session-keyed record must
+    be gone afterwards."""
+    assert shell_results["sessionKeyedBeforeEnd"] >= 1, (
+        "precondition: the session's working record was persisted")
+    assert shell_results["abandonOffered"] is True, (
+        "precondition: the mounted shell offered the abandon verb")
+    assert shell_results["abandonSubmitFound"] is True
+    assert shell_results["endingReported"] is True, (
+        "precondition: the ending really landed and was reported")
+    assert shell_results["sessionKeyedAfterEnd"] == 0, (
+        f"the ended session's record survived in the injected storage: "
+        f"{shell_results['storageKeysAfterEnd']}")
+
+
+# ==========================================================================
+# T104 F6 wave (doxBench review, 2026-08-04) + F10-3's client half.
+#
+# F6-1: onIdentitySettled fired only from edit(); discard(), switchDocument()
+#       and save()'s adoptSavedBase all move a buffer's identity and told
+#       nobody, so the rail's proposal cards kept 'current' + enabled Apply
+#       against text they no longer matched.
+# F6-2: every editing entry point dereferenced `state.buffers` while the
+#       textareas were mounted ENABLED before initialLoad() resolved --
+#       keystrokes during the source fetch threw unhandled TypeErrors and
+#       were then silently overwritten (CHK016/CHK019).
+# F6-6: a hashing failure inside initialLoad() (an oversized document) had no
+#       consumer, so `state` stayed null forever and the canvas rendered as a
+#       silently broken editor.
+# F10-3: the editor read buffer content back from the <textarea>, whose API
+#       value is LF-normalized, so a CRLF document could never round-trip
+#       byte-exactly (FR-045) and syncBufferDom's comparison never settled.
+# ==========================================================================
+
+
+def test_discard_refreshes_proposal_currency_via_identity_settled(editor_results):
+    """F6-1: Discard moves current_hash back to the base identity, and the
+    composition is told with the post-transition hash."""
+    result = editor_results["identitySettled"]
+    assert len(result["afterEdit"]) == 1, "the edit() wire is the baseline"
+    assert result["afterEdit"][0]["kind"] == "document"
+    assert len(result["afterDiscard"]) == 2, (
+        "discard() must notify onIdentitySettled")
+    assert result["afterDiscard"][-1] == {
+        "kind": "document", "hex": result["baseHex"]}
+
+
+def test_a_document_switch_refreshes_proposal_currency_via_identity_settled(
+        editor_results):
+    """F6-1: a document switch replaces the whole Document buffer; the
+    composition hears the NEW buffer's settled identity."""
+    result = editor_results["identitySettled"]
+    assert len(result["afterSwitch"]) == 3, (
+        "switchDocument() must notify onIdentitySettled")
+    assert result["afterSwitch"][-1] == {
+        "kind": "document", "hex": result["switchedHex"]}
+
+
+def test_a_landed_save_notifies_identity_settled_with_the_adopted_hashes(
+        save_seam_results):
+    """F6-1's save() half: after adoptSavedBase lands, the composition hears
+    each committed buffer's POST-adoption identity -- the server-reported one,
+    which is exactly what the rendered proposal cards must re-score against."""
+    result = save_seam_results["bothCommitted"]
+    settled = {row["kind"]: row["hex"] for row in result["identityAfterSave"]}
+    for kind in ("outline", "document"):
+        assert settled.get(kind) == \
+            result["afterBuffers"][kind]["current_hash"]["hex"], kind
+
+
+def test_a_partial_save_notifies_identity_settled_only_for_the_landed_buffer(
+        save_seam_results):
+    """F6-1: the refused buffer's identity did NOT move, so no notification may
+    claim it did."""
+    result = save_seam_results["partial"]
+    kinds = [row["kind"] for row in result["identityAfterSave"]]
+    assert kinds == ["outline"]
+    assert result["identityAfterSave"][0]["hex"] == \
+        result["afterBuffers"]["outline"]["current_hash"]["hex"]
+
+
+def test_input_during_the_initial_load_neither_throws_nor_vanishes_silently(
+        editor_results):
+    """F6-2 (CHK016/CHK019): a keystroke arriving before initialLoad resolves
+    must not throw an unhandled TypeError, and must not be silently discarded
+    -- the surfaces are disabled with a stated loading line, and a keystroke
+    that reaches the listener anyway gets a visible refusal."""
+    result = editor_results["inputDuringLoad"]
+    assert result["threw"] is None, (
+        f"a keystroke during load threw: {result['threw']!r}")
+    assert result["duringDisabled"] == {"outline": True, "document": True}
+    assert "loading" in result["duringStatus"].lower()
+    after = result["statusAfterKeystroke"].lower()
+    assert "refused" in after and "loading" in after
+    # the load then settles normally: surfaces re-enable, content arrives
+    assert result["afterDisabled"] is False
+    assert result["afterContent"] == "# Document A\n"
+
+
+def test_every_editing_surface_refuses_with_the_loading_posture_before_state_exists(
+        editor_results):
+    """F6-2: discard/save/selectDocument/applyProposal all dereferenced
+    `state.buffers` with no guard; each must refuse with the fixed loading
+    vocabulary instead of crashing."""
+    results = editor_results["inputDuringLoad"]["results"]
+    assert results["discard"].get("ok") is False
+    assert "loading" in (results["discard"].get("error") or "").lower()
+    assert results["save"].get("status") == "refused"
+    assert "loading" in (results["save"].get("reason") or "").lower()
+    assert results["select"].get("status") == "refused"
+    assert "loading" in (results["select"].get("reason") or "").lower()
+    assert results["apply"].get("ok") is False
+    assert "loading" in (results["apply"].get("error") or "").lower()
+
+
+def test_an_oversized_document_mounts_to_a_stated_failure_not_a_dead_canvas(
+        editor_results):
+    """F6-6: a >400,000-byte document used to reject inside initialLoad with no
+    consumer -- state null forever, every keystroke a TypeError. The failure is
+    now caught and STATED (the size class by its byte counts, never content),
+    and the surfaces hold the same refuse-visibly posture as the loading
+    state."""
+    result = editor_results["oversizedLoad"]
+    assert result["readyThrew"] is None, (
+        f"the ready promise still rejects: {result['readyThrew']!r}")
+    assert result["inputThrew"] is None, (
+        f"a keystroke on the failed canvas threw: {result['inputThrew']!r}")
+    assert result["stateIsNull"] is True
+    for status_text in (result["statusText"], result["outlineStatusText"]):
+        assert "400001" in status_text, "the measured size must be stated"
+        assert "400000" in status_text, "the limit must be stated"
+        assert "aaaa" not in status_text, "content is never echoed"
+    assert result["textareaDisabled"] is True
+    after = result["statusAfterKeystroke"]
+    assert "refused" in after.lower()
+    assert "400001" in after
+
+
+def test_a_crlf_document_loads_clean_and_the_textarea_shows_the_lf_projection(
+        editor_results):
+    """F10-3 (FR-045): the buffer keeps the document's real bytes (CRLF) while
+    the textarea holds the LF projection a real browser would report anyway --
+    which is also what makes syncBufferDom's comparison settle: both sides of
+    it now live in the display domain."""
+    loaded = editor_results["eolPreservation"]["loaded"]
+    assert loaded["dirty"] is False
+    assert "\r\n" in loaded["content"]
+    assert "\r" not in loaded["textareaValue"]
+    assert loaded["textareaValue"] == loaded["content"].replace("\r\n", "\n")
+
+
+def test_a_keystroke_in_a_crlf_document_preserves_its_line_endings_and_hash(
+        editor_results):
+    """F10-3: typing (in the browser's LF domain) produces buffer content with
+    the document's CRLF endings preserved and an identity hashed over those
+    real bytes -- the Save payload reads buffer content, so this is the half
+    that makes FR-045's byte-exact round-trip possible at all."""
+    typed = editor_results["eolPreservation"]["typed"]
+    assert typed["content"] == typed["expectedContent"]
+    assert typed["dirty"] is True
+    assert typed["hashHex"] == typed["expectedHex"]
+    # the display stays in the textarea's own LF domain -- no CRLF is ever
+    # written back into a surface that would normalize it away again
+    assert typed["textareaValue"] == "# Title\n\nline one\nline two\ntyped\n"
+
+
+def test_typing_back_to_the_loaded_crlf_text_reads_clean_again(editor_results):
+    """F10-3: the round trip closes -- typing back to exactly the loaded text
+    re-derives the base bytes, so the buffer reads clean instead of dirty
+    forever against an unchanged file."""
+    back = editor_results["eolPreservation"]["back"]
+    assert back["content"] == "# Title\r\n\r\nline one\r\nline two\r\n"
+    assert back["dirty"] is False
+
+
+def test_an_lf_document_is_untouched_by_the_eol_lens(editor_results):
+    """F10-3's control: an LF document's keystrokes pass through unchanged --
+    the lens re-applies the document's OWN flavor, never a fixed one."""
+    lf = editor_results["eolPreservation"]["lf"]
+    assert lf["content"] == "# Document A\nplus one line\n"
+    assert "\r" not in lf["content"]
+    assert lf["dirty"] is True
+
+
+def test_a_proposal_enters_through_the_same_eol_lens_as_a_keystroke(
+        editor_results):
+    """W-2 (wave re-review): `applyProposal` used to hand the model's text to
+    `edit()` verbatim -- only the HUMAN path routed through the lens -- so an
+    LF proposal into a CRLF document made the buffer pure LF (a Save then
+    committed an every-line-ending rewrite) and the next keystroke flipped
+    the whole file back to CRLF: two byte-level outcomes for one reviewed
+    proposal, re-opening the silent-mass-rewrite class F10-3 closed. The
+    proposal now re-flavors exactly like read-back."""
+    applied = editor_results["eolPreservation"]["applied"]
+    assert applied["ok"] is True
+    assert applied["content"] == applied["expectedContent"]
+    assert applied["hashHex"] == applied["expectedHex"]
+    # the display stays in the textarea's LF domain
+    assert "\r" not in applied["textareaValue"]
+    # and the LF control: the lens applies the document's OWN flavor
+    lf_applied = editor_results["eolPreservation"]["lfApplied"]
+    assert lf_applied["content"] == "# Document A\nmodel rewrite\n"
+
+
+def test_the_guard_save_arm_stops_on_the_remount_its_own_save_triggers(
+        save_seam_results):
+    """W-8 (wave re-review): the guard's Save arm awaits a Save whose
+    onSaveLanded hand-off REMOUNTS this canvas (the shell's recanvas on a key
+    change destroys the controller). The corpse used to keep going:
+    switchDocument mutated state, PERSISTED under the rekeyed session key
+    after destroy() had written its own record — a reload in that window
+    resurrected the wrong active document — and fired a late
+    onIdentitySettled into the torn-down composition. The arm now re-checks
+    destroyed after the await, and switchDocument refuses on a corpse."""
+    remount = save_seam_results["guardSaveIntoRemount"]
+    assert remount["blocked"] == "blocked"
+    assert remount["resolved"]["status"] == "refused"
+    # the save's OWN adopted-kind notification is the only one — no late
+    # switch-fire from the destroyed controller
+    assert remount["identityAfterResolve"] == ["document"]
+    # the persisted record is destroy()'s own: the pre-switch document
+    assert remount["persistedDocumentPath"] == "ideation/staging/topic-x/detail.md"
+
+
+def test_a_picker_change_during_the_load_reverts_and_states_the_refusal(
+        editor_results):
+    """W-9 (wave re-review): a change during the loading window is refused by
+    the F6-2 posture, but the handler reverted the DISPLAYED value only on
+    "blocked" — the picker then showed the choice that never landed, forever,
+    lying about which document edits land in and turns ground on. The picker
+    now reverts on every non-switched outcome and the refusal is stated
+    through the same visible status idiom every other refusal uses."""
+    probe = editor_results["pickerDuringLoad"]
+    doc_a = "ideation/staging/topic-x/detail.md"
+    assert probe["duringLoad"]["pickerValue"] == doc_a
+    assert "refused --" in probe["duringLoad"]["status"]
+    assert probe["afterLoad"]["pickerValue"] == doc_a
+    assert probe["afterLoad"]["bufferPath"] == doc_a
+
+
+def test_eol_only_dirtiness_is_stated_in_fixed_vocabulary(editor_results):
+    """P3-1 (wave re-review P3 tail): the first-break unification makes a
+    mixed-EOL buffer dirty while its DISPLAY projection is byte-identical to
+    the loaded text -- invisible dirtiness, and a Save then commits a
+    whole-file line-ending diff nobody saw. When a dirty buffer's display
+    projection equals the base's, the status line states the fact in fixed
+    vocabulary; an ordinary dirty buffer keeps the ordinary sentence."""
+    probe = editor_results["eolOnlyDirty"]
+    eol = probe["eolOnly"]
+    # preconditions: the invisible-dirtiness shape really occurred
+    assert eol["dirty"] is True
+    assert eol["bytesMoved"] is True
+    assert eol["displayIdentical"] is True
+    assert "unsaved changes" in eol["status"]
+    assert "line endings only" in eol["status"]
+    assert "mixed CR LF styles" in eol["status"]
+    assert "saving unifies them" in eol["status"]
+    ordinary = probe["ordinary"]
+    assert "unsaved changes" in ordinary["status"]
+    assert "line endings only" not in ordinary["status"]
+
+
+def test_the_loading_and_failed_load_postures_disable_the_refusing_controls(
+        editor_results):
+    """P3-2 (wave re-review P3 tail): Save/Discard and the document picker
+    were enabled from construction through the loading window (and forever
+    after a failed load) while their handlers DISCARDED the refusal objects
+    -- a silently dead click. They now mount disabled exactly like the
+    textareas (the module's own honest-posture idiom), the first
+    syncBufferDom re-enables them, and a failed load (where syncBufferDom
+    never runs) leaves them disabled beside the stated failure."""
+    during = editor_results["inputDuringLoad"]["duringControls"]
+    assert during == {"discardDisabled": True, "saveDisabled": True,
+                      "pickerDisabled": True}
+    after = editor_results["inputDuringLoad"]["afterControls"]
+    assert after == {"discardDisabled": False, "saveDisabled": False,
+                     "pickerDisabled": False}
+    failed = editor_results["oversizedLoad"]["failedControls"]
+    assert failed == {"discardDisabled": True, "saveDisabled": True,
+                      "pickerDisabled": True}
+
+
+def test_an_edit_settling_after_destroy_leaves_storage_untouched(editor_results):
+    """P3-10 (wave re-review P3 tail): an edit whose async hash settles after
+    destroy() used to run its whole settle continuation on the corpse --
+    persistNow re-wrote the record the FR-039 clear had just removed, and a
+    late onIdentitySettled fired into the torn-down composition. The settle
+    path now returns before persist/notify on a destroyed controller;
+    destroy()'s own persist (which runs BEFORE the clear) is untouched."""
+    probe = editor_results["destroyDuringEditSettle"]
+    assert probe["storageKeysAfterSettle"] == [], (
+        "the settle continuation re-persisted the cleared record")
+    assert probe["lateNotifications"] == 0, (
+        "a late identity notification fired into the torn-down composition")
+    assert probe["editResult"]["ok"] is False
+    assert "destroyed" in (probe["editResult"]["error"] or "")
+
+
+def test_the_shell_posture_note_follows_the_catalog_failure(shell_results):
+    """W-13 (wave re-review): the F10-1 shell threading was pinned only by a
+    source-grep whose docstring claimed more than its assertions checked —
+    deleting the failure half of the rail onState comparison left the whole
+    repo green while the shell's note never left "no approved model is
+    configured" on a failed catalog (the count is 0 before and after, so the
+    count half never fires). This drives a failing catalog through the REAL
+    mounted shell and reads the rendered note."""
+    posture = shell_results["staleTokenPosture"]
+    assert "console token is stale" in posture, posture
+    assert "no approved model is configured" not in posture
+
+
+def test_the_editors_apply_refusals_carry_their_fixed_codes(editor_results):
+    """W-10 (wave re-review): the rail's refusal vocabulary is chosen by the
+    seam's CODE, so the editor must spell them — staleness advises a new
+    turn, an unavailable target does not, and neither ever again claims the
+    other's condition."""
+    codes = editor_results["applyRefusalCodes"]
+    assert codes["stale"]["ok"] is False
+    assert codes["stale"]["code"] == "stale"
+    assert codes["unavailable"]["ok"] is False
+    assert codes["unavailable"]["code"] == "unavailable"

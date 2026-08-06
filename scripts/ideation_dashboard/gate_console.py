@@ -302,7 +302,17 @@ def _flip_status(text: str, new_status: str) -> str:
     limit = min(len(lines), HEADER_SCAN_LINES)
     for i in range(limit):
         if lines[i].startswith("Status:"):
-            nl = "\n" if lines[i].endswith("\n") else ""
+            # The rewritten line keeps the ending it HAD (wave re-review P3):
+            # this used to see only LF because its caller's `read_text` had
+            # already translated the document, but the demote move now feeds
+            # it untranslated text, and flipping a CRLF header must not be
+            # the one line that comes out LF.
+            if lines[i].endswith("\r\n"):
+                nl = "\r\n"
+            elif lines[i].endswith("\n"):
+                nl = "\n"
+            else:
+                nl = ""
             lines[i] = f"Status: {new_status}{nl}"
             return "".join(lines)
     return text
@@ -855,11 +865,22 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
         dst = root / m.to_path
         if not src.is_file():
             continue
-        text = src.read_text(encoding="utf-8", errors="replace")
+        # Wave re-review P3 (the F10 corpus-integrity class through another
+        # verb): this MOVE used to `read_text(errors="replace")` ->
+        # `write_text`, which universal-newline-translated CRLF to LF on
+        # Linux — silently rewriting a Windows-authored document and
+        # invalidating any open doxBench buffer's base identity — and mangled
+        # undecodable bytes to U+FFFD on the way. A move is not an edit: it
+        # copies BYTES and decodes nothing. Only the Status-flip arm must
+        # decode, and it decodes STRICTLY — the same refuse-to-fabricate
+        # asymmetry as the doxBench base revalidation (P3-5): a non-UTF-8
+        # document fails the demotion loudly rather than being silently
+        # re-encoded under a gate record naming the human.
+        data = src.read_bytes()
         if m.status_flip:
-            text = _flip_status(text, m.status_flip)
+            data = _flip_status(data.decode("utf-8"), m.status_flip).encode("utf-8")
         dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_text(text, encoding="utf-8")
+        dst.write_bytes(data)
         src.unlink()
         result.moved.append((m.from_path, m.to_path))
 
@@ -871,9 +892,19 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
             f"Reason: {plan.reason}\n\n"
             + "\n".join(f"- {r}" for r in returned) + "\n")
     if readme.is_file():
-        readme.write_text(readme.read_text(encoding="utf-8") + note, encoding="utf-8")
+        # Translation-free on BOTH legs (wave re-review P3): `read_bytes().
+        # decode` instead of `read_text` because Python 3.12's `Path.read_text`
+        # has no `newline=` parameter and its universal-newline mode collapses
+        # an existing CRLF README to LF; `newline=""` on the write so the
+        # combined text lands exactly as composed. The NOTE itself uses "\n" —
+        # appending it to a CRLF README yields mixed endings deliberately: the
+        # pre-existing bytes surviving untouched is the guarantee, not the
+        # note matching the document's style.
+        readme.write_text(readme.read_bytes().decode("utf-8") + note,
+                          encoding="utf-8", newline="")
     else:
-        readme.write_text(f"# {plan.staging_topic}\n\nStatus: staged\n" + note, encoding="utf-8")
+        readme.write_text(f"# {plan.staging_topic}\n\nStatus: staged\n" + note,
+                          encoding="utf-8", newline="")
     result.readme_path = readme
 
     # openspec/ workspace INDEX of the returned draft proposals.
@@ -1055,9 +1086,18 @@ def edit_apply(
     at = at or _utcnow()
     root = Path(tree_root).resolve() if tree_root is not None else human.output.root
     target = (root / document).resolve()
-    before = target.read_text(encoding="utf-8")
+    # Translation-free on both legs (wave re-review P3, the F10 class through
+    # this verb): `Path.read_text`'s universal-newline mode collapsed CRLF to
+    # LF, so on Linux an edit-apply silently rewrote every line ending of a
+    # CRLF document — a whole-document mutation the human never approved,
+    # and one that invalidates any open doxBench buffer's base identity.
+    # `read_bytes().decode` keeps CR/CRLF exactly (3.12's `read_text` has no
+    # `newline=`), and `newline=""` pins the write side. `apply_redline` is a
+    # pure count/replace over the string — no line splitting — so
+    # \r\n-bearing text passes through it untouched.
+    before = target.read_bytes().decode("utf-8")
     after = apply_redline(before, redline)
-    target.write_text(after, encoding="utf-8")
+    target.write_text(after, encoding="utf-8", newline="")
 
     art = redline_artifact(document, redline)
     base = f"{_prefix(records_dir)}{change_id}"

@@ -37,13 +37,14 @@ import copy
 import dataclasses
 import itertools
 import threading
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import PurePosixPath
 
 from ideation_dashboard.doxbench_hash import (
     MAX_BUFFER_BYTES,
     ContentIdentity,
     content_identity,
+    sha256_hex,
     utf8_size,
 )
 from ideation_dashboard.doxbench_model import (
@@ -208,6 +209,34 @@ class TurnBuffer:
     content_hash: str
     content: str
     dirty: bool
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class SessionBase:
+    """The base a branch session was created FROM (T104 R-12 ruling,
+    2026-08-02): the ref it branched off, the revision recorded at that
+    branch point, and a reader for the session's CURRENT text of a
+    validated in-scope path (``None`` when the session holds no such
+    file). Derived by the caller from the session's registry entry and
+    worktree -- never from anything the request supplied -- and absent
+    (``None`` in ``build_prompt_envelope``) for a non-session scope or a
+    session whose base was never recorded, where the binding check keeps
+    its original name-equality shape.
+
+    ``alias_revisions`` (W-4, wave re-review) are the OTHER spellings of
+    the same base the OPEN recorded -- concretely, the serving snapshot's
+    ``source_revision`` at open time, which is what a real client's
+    ``base_revision`` actually carries (the browser never receives a
+    per-file revision; it declares the projection's generation-time HEAD,
+    while the branch point is the open-time HEAD). Without the alias, any
+    main movement between snapshot bake and session open silently reverted
+    R-12 to the refusal it closed. Aliases widen ONLY the revision
+    comparison; the ref name and the base-bytes clauses are untouched."""
+
+    ref: str
+    revision: str
+    text_of: Callable[[str], str | None]
+    alias_revisions: tuple[str, ...] = ()
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -425,19 +454,70 @@ def require_outline_and_document(buffers) -> tuple[TurnBuffer, TurnBuffer]:
 
 
 def _require_buffer_binding(
-    buffer: TurnBuffer, expected_path: str | None, request_scope: ScopeKey
+    buffer: TurnBuffer,
+    expected_path: str | None,
+    request_scope: ScopeKey,
+    session_base: SessionBase | None = None,
 ) -> None:
     """Refuse (``TurnScopeError``) unless ``buffer`` is bound to exactly the
-    session-declared path and the request scope's repository and ref.
-    Never echoes the buffer's path, repository, ref, or content."""
-    if (
-        buffer.path != expected_path
-        or buffer.repository != request_scope.repository
-        or buffer.base_ref != request_scope.ref
-    ):
+    session-declared path and the request scope's repository, and its base
+    is one the scope can actually ground: the request scope's own ref, or --
+    T104 R-12, reviewer ruling of 2026-08-02 -- the base the session
+    branched FROM. Comparing ref NAMES alone conflated "same ref name" with
+    "same base bytes": a buffer based on ``main`` at the moment of branching
+    is correctly based, because its bytes ARE the session's base, and
+    refusing it left every buffer a partial Save did not land permanently
+    unable to ground a turn. Acceptance is on the REVISION, never the name
+    alone, and it stays refused once the session has DIVERGED past that
+    base for this buffer's own document -- the session's current text no
+    longer hashes to the buffer's declared base identity -- so staleness
+    detection is made precise, not weakened. "Diverged" is a CONTENT
+    reading, RULED as such (reviewer, 2026-08-06, closing the wave
+    re-review's interpretation question): a session that moved this
+    document and moved it back byte-identically is accepted, because
+    every acceptance is content-safe -- the buffer's base bytes provably
+    equal the session's current text, so no stale envelope can result;
+    history is not consulted. ``base_ref`` keeps its meaning
+    (provenance: where these base bytes came from) and is never rewritten
+    here or anywhere else. Never echoes the buffer's path, repository,
+    ref, or content."""
+    if buffer.path != expected_path or buffer.repository != request_scope.repository:
         raise TurnScopeError(
             "working buffer is not bound to the validated scope projection"
         )
+    if buffer.base_ref == request_scope.ref:
+        return
+    if session_base is not None and buffer.base_ref == session_base.ref and (
+        buffer.base_revision == session_base.revision
+        or buffer.base_revision in session_base.alias_revisions
+    ):
+        # The byte clause fails CLOSED twice over: a reader failure yields
+        # None, and None never equals a base identity -- including a direct
+        # caller's base_hash=None (dataclass fields are unenforced), which
+        # once satisfied None == None and grounded a buffer on the very
+        # failure that should refuse it (wave re-review, R-12 machinery).
+        identity = _session_text_identity(session_base, expected_path)
+        if identity is not None and buffer.base_hash == identity:
+            return
+    raise TurnScopeError(
+        "working buffer is not bound to the validated scope projection"
+    )
+
+
+def _session_text_identity(
+    session_base: SessionBase, expected_path: str | None
+) -> str | None:
+    """The identity of the session's CURRENT base bytes for ``expected_path``
+    -- what a correctly-based buffer's ``base_hash`` must equal. A path the
+    session holds no file for (including a not-yet-created ``None`` path)
+    has empty base bytes, so only a fresh, never-written buffer matches it.
+    ``None`` (never a match) when the session's text cannot be read or
+    hashed -- a refusal, not a crash, and never an echo."""
+    try:
+        text = session_base.text_of(expected_path) if expected_path is not None else None
+        return sha256_hex(text if text is not None else "")
+    except Exception:  # noqa: BLE001 - any reader failure must refuse, not crash
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -513,15 +593,18 @@ def build_prompt_envelope(
     transcript: tuple[TranscriptTurn, ...],
     buffers,
     message: str,
+    session_base: SessionBase | None = None,
 ) -> PromptEnvelope:
     """Assemble the deterministic, nine-section prompt envelope for one
     chat turn. Order of operations is load-bearing: scope and editable
     revalidation runs first, then the buffer-kind requirement, then the
     buffer-binding check (each buffer's path/repository/base_ref against
-    the validated projection and request scope), then exact identity
-    verification for each buffer, and only then is any section text
-    assembled -- so a scope, binding, or identity refusal never discloses
-    a partial envelope or buffer content."""
+    the validated projection and request scope -- widened for a session
+    scope by ``session_base`` to accept a buffer based on the session's
+    own recorded base, T104 R-12), then exact identity verification for
+    each buffer, and only then is any section text assembled -- so a
+    scope, binding, or identity refusal never discloses a partial
+    envelope or buffer content."""
     revalidate_scope(
         projection=projection,
         request_scope=request_scope,
@@ -530,8 +613,10 @@ def build_prompt_envelope(
         document_path=active_document_path,
     )
     outline, document = require_outline_and_document(buffers)
-    _require_buffer_binding(outline, projection.outline_path, request_scope)
-    _require_buffer_binding(document, active_document_path, request_scope)
+    _require_buffer_binding(outline, projection.outline_path, request_scope,
+                            session_base)
+    _require_buffer_binding(document, active_document_path, request_scope,
+                            session_base)
     outline_identity = verify_buffer_identity(outline)
     document_identity = verify_buffer_identity(document)
 

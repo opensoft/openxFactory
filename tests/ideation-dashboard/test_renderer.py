@@ -273,6 +273,301 @@ console.log(JSON.stringify({
     }
 
 
+# ----------------------------------------------------------------------------
+# T104 F7-6 + F6-5: the external-image click path, REALLY exercised. The stub
+# harness above deliberately answers querySelectorAll with [] (its subject is
+# the HTML string), so the click-to-load behaviour was untested — and it was
+# broken twice over: the replacement <img> shipped alt="" (the derived label
+# was rendered into the placeholder and then thrown away) with no error
+# handler (a failed load left an unlabeled broken-image box, no retry), and
+# every debounced preview re-render rebuilt via innerHTML, reverting an image
+# the human explicitly loaded to a placeholder. Consent now persists per
+# container per src; a NEW src still requires its own click; a FAILED load
+# revokes the consent and restores a labeled retry placeholder.
+#
+# The DOM here parses exactly the placeholder markup the renderer emits
+# (span.ext-img with data-src/data-label wrapping button.ext-img-load) into
+# live nodes — enough for querySelectorAll/closest/replaceWith, the whole
+# surface this path touches.
+# ----------------------------------------------------------------------------
+
+_EXT_IMG_HARNESS = r"""
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+globalThis.markdownit = require('../vendor/markdown-it.min.js');
+
+function unescapeHtml(s) {
+  return String(s).replace(/&(amp|lt|gt|quot|#39);/g, (m, name) => (
+    { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[name]));
+}
+
+class FakeNode {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.className = ''; this.children = []; this.parentNode = null;
+    this.listeners = {}; this.dataset = {}; this._text = '';
+    this.alt = undefined; this.src = undefined; this.type = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) { this.children = []; this._text = String(value); }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+  querySelectorAll(selector) {
+    const cls = selector.replace(/^\./, '');
+    return this.walk().filter(
+      (n) => n !== this && String(n.className).split(' ').includes(cls));
+  }
+  closest(selector) {
+    const cls = selector.replace(/^\./, '');
+    let node = this;
+    while (node) {
+      if (String(node.className).split(' ').includes(cls)) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  replaceWith(replacement) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    const at = parent.children.indexOf(this);
+    replacement.parentNode = parent;
+    parent.children.splice(at, 1, replacement);
+    this.parentNode = null;
+  }
+}
+
+// The container: parses the renderer's own placeholder markup into live
+// holder/button nodes on every innerHTML assignment (the preview re-render).
+class Container extends FakeNode {
+  set innerHTML(html) {
+    // Real innerHTML assignment DETACHES the previous children (P3-9's
+    // load-bearing fact: a rebuilt preview leaves the old <img> parentless,
+    // yet its in-flight error event can still fire afterwards).
+    for (const child of this.children) child.parentNode = null;
+    this.children = []; this._text = '';
+    const holderRe = /<span class="ext-img" data-src="([^"]*)" data-label="([^"]*)">/g;
+    let m;
+    while ((m = holderRe.exec(String(html))) !== null) {
+      const holder = new FakeNode('span');
+      holder.className = 'ext-img';
+      holder.dataset.src = unescapeHtml(m[1]);
+      holder.dataset.label = unescapeHtml(m[2]);
+      holder._text = '\u{1F5BC} external image not loaded — '
+        + holder.dataset.label + ' ';
+      const btn = new FakeNode('button');
+      btn.className = 'ext-img-load';
+      btn._text = 'load image';
+      holder.appendChild(btn);
+      this.appendChild(holder);
+    }
+  }
+  get innerHTML() { return ''; }
+}
+
+globalThis.document = { createElement: (tag) => new FakeNode(tag) };
+
+const { mountSafeMarkdown } = await import('./viewer.mjs');
+
+const fire = (node, type) => {
+  for (const fn of (node && node.listeners[type]) || []) fn({});
+};
+const byClass = (root, cls) => root.walk().filter(
+  (n) => n !== root && String(n.className).split(' ').includes(cls));
+
+const SOURCE = [
+  '![tracker one](https://example.invalid/one.png)',
+  '',
+  '![tracker two](https://example.invalid/two.png)',
+].join('\n');
+
+const out = {};
+const container = new Container('div');
+mountSafeMarkdown(container, SOURCE);
+out.initialPlaceholders = byClass(container, 'ext-img').length;
+out.placeholderLabels = byClass(container, 'ext-img').map(
+  (h) => h.dataset.label);
+
+// 1: the human clicks LOAD on the first image — the replacement carries the
+// derived label as alt, and the off-origin src only now lands in the tree
+fire(byClass(container, 'ext-img-load')[0], 'click');
+const loaded = byClass(container, 'ext-img-loaded');
+out.afterClick = {
+  images: loaded.length,
+  alt: loaded.length ? loaded[0].alt : null,
+  src: loaded.length ? loaded[0].src : null,
+  remainingPlaceholders: byClass(container, 'ext-img').length,
+};
+
+// 2: the debounced preview re-render rebuilds the SAME container — consent
+// persists per container per src, so the loaded image comes back loaded and
+// the never-clicked src stays a placeholder
+mountSafeMarkdown(container, SOURCE);
+const reloaded = byClass(container, 'ext-img-loaded');
+out.afterRemount = {
+  images: reloaded.length,
+  alt: reloaded.length ? reloaded[0].alt : null,
+  src: reloaded.length ? reloaded[0].src : null,
+  placeholders: byClass(container, 'ext-img').length,
+};
+
+// 3: the load FAILS — a labeled retry placeholder comes back, never an
+// empty broken-image box
+if (reloaded.length) fire(reloaded[0], 'error');
+const afterError = byClass(container, 'ext-img');
+const retryButtons = byClass(container, 'ext-img-load');
+out.afterError = {
+  loadedLeft: byClass(container, 'ext-img-loaded').length,
+  placeholders: afterError.length,
+  labelPresent: container.textContent.includes('tracker one'),
+  retryButtons: retryButtons.length,
+};
+
+// 4: a failed load REVOKES the consent: the next re-render placeholders
+// again instead of auto-retrying an endless failing fetch
+mountSafeMarkdown(container, SOURCE);
+out.afterErrorRemount = {
+  images: byClass(container, 'ext-img-loaded').length,
+  placeholders: byClass(container, 'ext-img').length,
+};
+
+// 5: the RETRY button is live — a fresh click loads again, alt intact
+fire(byClass(container, 'ext-img-load')[0], 'click');
+const retried = byClass(container, 'ext-img-loaded');
+out.afterRetry = {
+  images: retried.length,
+  alt: retried.length ? retried[0].alt : null,
+};
+
+// 6: consent is PER CONTAINER — a different container starts placeholdered
+const other = new Container('div');
+mountSafeMarkdown(other, SOURCE);
+out.otherContainer = {
+  images: byClass(other, 'ext-img-loaded').length,
+  placeholders: byClass(other, 'ext-img').length,
+};
+
+// 7 (P3-9): a DETACHED img's late error must not revoke the LIVE container's
+// consent. The consent WeakMap is keyed by container and survives the
+// rebuild, but the error handler was wired on the OLD img — an in-flight
+// load detached by a per-keystroke preview rebuild could fire late and
+// delete the src the human consented to, so the visibly-loaded (re-wired)
+// image reverted to a placeholder on the NEXT rebuild.
+const late = new Container('div');
+mountSafeMarkdown(late, SOURCE);
+fire(byClass(late, 'ext-img-load')[0], 'click');
+const firstImg = byClass(late, 'ext-img-loaded')[0];
+mountSafeMarkdown(late, SOURCE);   // the rebuild detaches firstImg and re-wires
+const rewired = byClass(late, 'ext-img-loaded')[0];
+fire(firstImg, 'error');           // the detached corpse's late error
+out.staleError = {
+  firstDetached: firstImg.parentNode === null,
+  rewiredIsFresh: rewired !== firstImg,
+  imagesAfterLateError: byClass(late, 'ext-img-loaded').length,
+};
+mountSafeMarkdown(late, SOURCE);   // consent must survive into the NEXT rebuild
+out.staleError.imagesAfterNextRebuild = byClass(late, 'ext-img-loaded').length;
+out.staleError.placeholdersAfterNextRebuild = byClass(late, 'ext-img').length;
+// ...while a LIVE image's error still revokes (scenarios 3/4 above pin that)
+
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def ext_img_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the external-image click probe")
+    tmp_path = tmp_path_factory.mktemp("viewer-ext-img")
+    (tmp_path / "views").mkdir()
+    (tmp_path / "vendor").mkdir()
+    shutil.copy(VIEWER_JS, tmp_path / "views" / "viewer.mjs")
+    shutil.copy(VENDOR_MARKDOWN_JS, tmp_path / "vendor" / "markdown-it.min.js")
+    harness = tmp_path / "views" / "ext-img-harness.mjs"
+    harness.write_text(_EXT_IMG_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_placeholder_markup_carries_the_label_for_the_swap(ext_img_results):
+    """F7-6 preliminary: the derived label (`token.content || src`) is stored
+    on the placeholder (data-label), not merely rendered into its text —
+    otherwise the click-time swap has nothing to put in alt."""
+    assert ext_img_results["initialPlaceholders"] == 2
+    assert ext_img_results["placeholderLabels"] == ["tracker one", "tracker two"]
+
+
+def test_a_click_loaded_image_carries_the_label_as_alt(ext_img_results):
+    a = ext_img_results["afterClick"]
+    assert a["images"] == 1
+    assert a["alt"] == "tracker one", "the derived label must survive onto alt"
+    assert a["src"] == "https://example.invalid/one.png"
+    assert a["remainingPlaceholders"] == 1, "the unclicked image stays inert"
+
+
+def test_a_loaded_image_survives_a_preview_remount_of_the_same_container(
+        ext_img_results):
+    """F6-5: mountSafeMarkdown rebuilds via innerHTML on every debounced
+    preview keystroke; the human's explicit load consent persists per
+    container per src, while the never-clicked src still requires its own
+    click."""
+    r = ext_img_results["afterRemount"]
+    assert r["images"] == 1
+    assert r["alt"] == "tracker one"
+    assert r["src"] == "https://example.invalid/one.png"
+    assert r["placeholders"] == 1, "a new/unclicked src still placeholders"
+
+
+def test_a_failed_load_restores_a_labeled_retry_placeholder(ext_img_results):
+    e = ext_img_results["afterError"]
+    assert e["loadedLeft"] == 0, "the broken img must not linger unlabeled"
+    assert e["placeholders"] == 2
+    assert e["labelPresent"] is True, "the placeholder must carry the label"
+    assert e["retryButtons"] == 2, "the failed image offers a retry control"
+
+
+def test_a_failed_load_revokes_the_remount_consent(ext_img_results):
+    r = ext_img_results["afterErrorRemount"]
+    assert r["images"] == 0, "a failed src must not auto-retry on re-render"
+    assert r["placeholders"] == 2
+
+
+def test_the_retry_control_is_live_and_keeps_the_label(ext_img_results):
+    r = ext_img_results["afterRetry"]
+    assert r["images"] == 1
+    assert r["alt"] == "tracker one"
+
+
+def test_load_consent_is_per_container(ext_img_results):
+    o = ext_img_results["otherContainer"]
+    assert o["images"] == 0
+    assert o["placeholders"] == 2
+
+
+def test_a_detached_imgs_late_error_does_not_revoke_the_live_consent(
+        ext_img_results):
+    """P3-9 (wave re-review P3 tail): the consent WeakMap is keyed by
+    CONTAINER and survives every rebuild — but the error handler was wired on
+    an img the rebuild may have already detached. An in-flight load's late
+    error then revoked the LIVE container's consent for that src, so the
+    visibly-loaded, re-wired image reverted to a placeholder on the next
+    per-keystroke rebuild. The handler now acts only while its img is still
+    attached; a live image's failure still revokes (pinned above)."""
+    s = ext_img_results["staleError"]
+    assert s["firstDetached"] is True, "precondition: the rebuild detached it"
+    assert s["rewiredIsFresh"] is True, "precondition: consent re-wired a fresh img"
+    assert s["imagesAfterLateError"] == 1, (
+        "the late error must not touch the re-wired image")
+    assert s["imagesAfterNextRebuild"] == 1, (
+        "the late error revoked the live container's consent — the finding")
+    assert s["placeholdersAfterNextRebuild"] == 1
+
+
 def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     """T080 / FR-047 (007-workbench-branch-sessions): the session surface added a
     FOURTH renderer module — `views/swb-session.js`, the only session transport —

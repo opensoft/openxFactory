@@ -1397,7 +1397,6 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border-radius: 5px 5px 0 0; padding: 4px 12px;
 }
 .doxbench-tab:hover { color: var(--ink); }
-.doxbench-tab-active { color: var(--st-staged); background: var(--panel); font-weight: 700; }
 .doxbench-panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .doxbench-pane {
   flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
@@ -1557,6 +1556,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px dashed var(--border); border-radius: 6px;
 }
 .doxchat-disclosure[hidden] { display: none; }
+/* T104 F5-9: the rail's own posture when no model is selectable — it stands
+   in for the selector, so it reads as the same class of quiet inline note as
+   the disclosure, never as an error. */
+.doxchat-unavailable {
+  font-size: 12px; color: var(--muted); padding: 6px 8px;
+  border: 1px dashed var(--border); border-radius: 6px;
+}
+.doxchat-unavailable[hidden] { display: none; }
 .doxchat-transcript {
   flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0;
   list-style: none; display: flex; flex-direction: column; gap: 8px;
@@ -1611,8 +1618,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   padding: 6px 0;
 }
 .doxbench-picker-label {
-  display: flex; align-items: center; gap: 6px; font-size: 12px;
-  color: var(--muted); min-width: 0; flex: 1;
+  /* T104 F9-3: this later block wins per-property over the S1c wave's block
+     above, but it never re-declared flex-direction, so `column` survived from
+     that wave while `flex: 1` made the label compete with the editarea for
+     the pane's HEIGHT — the <select> inside (flex: 1) stretched vertically.
+     The label is a compact row above the toolbar, never a height competitor:
+     row explicitly, flex: none explicitly. */
+  display: flex; flex-direction: row; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted); min-width: 0; flex: none;
 }
 .doxbench-picker-label select {
   flex: 1; min-width: 0; font: inherit; padding: 4px 6px;
@@ -1803,3 +1816,43 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    makes their internal scrolling real. The outline pane is untouched: it has
    always scrolled as a whole and still should. */
 .swb-pane-docs, .swb-pane-lens { height: 100%; min-height: 0; }
+
+/* NARROW + RAIL (T104 F9-5). The T038 narrow block already parks
+   `.swb-context`/`.doxbench-canvas` at `flex: none` for the stacked column —
+   but the equal-thirds default (`.swb-regions.has-rail …{ flex: 1 1 33.33% }`)
+   outranks it (0,3,0 vs 0,1,0, and later in source), and the rail was never
+   in that block at all, so a railed workbench kept fighting for thirds of the
+   column's HEIGHT under 900px. Same selectors, later in source: with equal
+   specificity, source order alone hands the narrow posture the win. The
+   canvas's 45vh cap from the T038 block still applies — this only settles
+   the flex contest that block lost. Append-only, as ever. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail .swb-context,
+  .swb-regions.has-rail .doxbench-canvas,
+  .swb-regions.has-rail .doxbench-rail { flex: none; }
+}
+
+/* W-12 (wave re-review): the flex:none block above ties the is-expanded
+   geometry on specificity (0,3,0 both) and, later in source, BEAT it — so
+   under 900px with the rail the expand controls toggled aria-pressed and
+   moved nothing. And with all three regions at natural height inside
+   .swb-panel's overflow:hidden, a tall transcript pushed the canvas below
+   the fold with no scrollbar anywhere. In the stacked column, expansion
+   means HEIGHT: the expanded pane takes the column's share, the others
+   compress to bounded, still-scrollable strips — and the railed column owns
+   its own scrolling. Later in source than the flex:none block, because with
+   equal specificity source order is the whole contest. Append-only. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail { overflow-y: auto; }
+  .swb-regions.is-expanded-context .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-rail,
+  .swb-regions.is-expanded-canvas .doxbench-canvas { flex: 1 1 auto; }
+  .swb-regions.is-expanded-context .doxbench-rail,
+  .swb-regions.is-expanded-context .doxbench-canvas,
+  .swb-regions.is-expanded-rail .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-canvas,
+  .swb-regions.is-expanded-canvas .swb-context,
+  .swb-regions.is-expanded-canvas .doxbench-rail {
+    flex: none; max-height: 20vh; overflow-y: auto;
+  }
+}

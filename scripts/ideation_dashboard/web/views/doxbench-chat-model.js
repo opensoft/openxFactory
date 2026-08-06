@@ -54,6 +54,13 @@ export function createChatState(keyValue) {
     kind: DOXBENCH_CHAT_STATE_KIND,
     key: frozenKey(keyValue),
     models: null,            // null = catalog not adopted yet (distinct from [])
+    // T104 F10-1: WHY there is no catalog, when the reason is a failure.
+    // `models: null` alone cannot distinguish a catalog not fetched yet
+    // against a fetch that was refused, so every failure rendered as the
+    // configured-none posture. Fixed two-value vocabulary
+    // ("console_required" | "unreadable"), set only by recordCatalogFailure
+    // below, cleared by a successful adoption.
+    catalogFailure: null,
     selectedModelId: null,
     workingSubject: "",
     composer: "",
@@ -63,6 +70,17 @@ export function createChatState(keyValue) {
     lastFailure: null,
     proposals: Object.freeze({ outline: null, document: null }),
   });
+}
+
+// T104 F5-7's shared question: does this catalog vouch for `candidate` as a
+// SELECTABLE id? One rule for selection, adoption, restore, and the send
+// gate — `selectModel`'s only-available-entries check was the rule, and it
+// drifted because it lived only there. `models === null` means "no catalog
+// adopted yet": nothing can be vouched for, so the answer is false.
+function catalogVouchesFor(models, candidate) {
+  if (typeof candidate !== "string" || candidate === "") return false;
+  return Array.isArray(models) && models.some(
+    (m) => m.model_id === candidate && m.available === true);
 }
 
 export function adoptCatalog(stateValue, envelopeValue) {
@@ -76,7 +94,35 @@ export function adoptCatalog(stateValue, envelopeValue) {
   }
   const models = Object.freeze(envelopeValue.models.map(
     (entry) => Object.freeze({ ...entry })));
-  return next(stateValue, { models });
+  return next(stateValue, {
+    models,
+    // A catalog that adopted IS readable: any earlier failure posture is
+    // over (T104 F10-1).
+    catalogFailure: null,
+    // T104 F5-7's second half: the ARRIVING catalog re-validates whatever id
+    // is held. A restore that ran before any catalog keeps its persisted id
+    // on trust (see restoreChatState); this is where that trust is settled —
+    // an id the new catalog cannot vouch for is dropped to null, so the
+    // placeholder and the disabled Send agree instead of shipping an id the
+    // server refuses as model_unavailable.
+    selectedModelId: catalogVouchesFor(models, stateValue.selectedModelId)
+      ? stateValue.selectedModelId : null,
+  });
+}
+
+// T104 F10-1: a model-catalog FAILURE, recorded in the same fixed two-value
+// vocabulary the transport's distinguished markers speak. Anything that is
+// not the recoverable pre-identity console refusal is "unreadable" — the
+// reason arrives as a marker chosen from the released error code, never as
+// echoed server text (FR-020/FR-022), and this function re-normalizes so no
+// third spelling can ever reach the view. The failure is a fact about the
+// PLANE (which catalog answer this page got), not about the conversation, so
+// chatSnapshot deliberately never persists it.
+export function recordCatalogFailure(stateValue, reasonValue) {
+  return next(stateValue, {
+    catalogFailure: reasonValue === "console_required"
+      ? "console_required" : "unreadable",
+  });
 }
 
 export function selectModel(stateValue, modelIdValue) {
@@ -123,8 +169,13 @@ export function canSend(stateValue) {
   if (!stateValue || stateValue.phase !== "idle") return false;
   if (typeof stateValue.composer !== "string"
       || stateValue.composer.trim() === "") return false;
-  return typeof stateValue.selectedModelId === "string"
-    && stateValue.selectedModelId !== "";
+  // T104 F5-7: a non-empty id is not enough — it must name an AVAILABLE
+  // entry of the adopted catalog, the same rule selectModel enforces. A
+  // restored id awaiting its catalog (models still null) therefore keeps
+  // Send closed: the selector is showing the placeholder in that window,
+  // and a Send the selector contradicts would ship an id the server refuses
+  // as model_unavailable with no data-handling disclosure ever shown.
+  return catalogVouchesFor(stateValue.models, stateValue.selectedModelId);
 }
 
 
@@ -148,6 +199,10 @@ export function abortTurn(stateValue) {
   return next(stateValue, { phase: "idle", pendingMessage: null });
 }
 
+function transcriptBytes(turnsValue) {
+  return turnsValue.reduce((n, turn) => n + utf8Size(turn.content), 0);
+}
+
 function boundedAppend(transcriptValue, humanContent, assistantContent) {
   const turns = transcriptValue.concat([
     Object.freeze({ role: "human", content: String(humanContent) }),
@@ -155,13 +210,48 @@ function boundedAppend(transcriptValue, humanContent, assistantContent) {
   ]);
   // Evict oldest WHOLE human/assistant pairs until both released bounds
   // hold — never split a pair, never truncate a turn's content.
-  const bytesOf = (list) => list.reduce(
-    (n, turn) => n + utf8Size(turn.content), 0);
+  //
+  // T104 F5-2: …and never evict the NEWEST pair. This is the DISPLAY
+  // transcript, and a single LEGAL pair can exceed MAX_TRANSCRIPT_BYTES on
+  // its own (message ≤ 16,384 + server-bounded prose ≤ 65,536 = up to
+  // 81,920 bytes against a 64,000 bound) — the old loop kept evicting until
+  // the bound held and emptied the transcript INCLUDING the answer that had
+  // just arrived. The 64,000-byte bound mirrors the SERVER's REQUEST-side
+  // transcript bound (doxbench_turns.MAX_TRANSCRIPT_BYTES) and is honoured
+  // where it belongs, on the wire (`transcriptWireWindow` below); the
+  // operator's answer never vanishes from the surface it was answered on.
+  // The oversized pair remains ordinary history: the moment a newer pair
+  // lands it is oldest, evictable, and evicted.
   let window = turns;
-  while (window.length > MAX_TRANSCRIPT_TURNS
-         || bytesOf(window) > MAX_TRANSCRIPT_BYTES) {
+  while (window.length > 2
+         && (window.length > MAX_TRANSCRIPT_TURNS
+             || transcriptBytes(window) > MAX_TRANSCRIPT_BYTES)) {
     window = window.slice(2);
-    if (window.length === 0) { break; }
+  }
+  return Object.freeze(window);
+}
+
+// T104 F5-2: the WIRE window — what the next turn REQUEST may carry as its
+// `transcript`, distinct from what the operator is shown. The request-side
+// bounds are the server's own: 64,000 bytes, and MAX_TRANSCRIPT_TURNS = 20
+// TURNS — i.e. 10 whole human/assistant pairs, which is what the loop below
+// enforces (P3-5 fixed this comment: it used to say "MAX_TRANSCRIPT_TURNS
+// pairs", twice the real bound; the code was always right). Eviction is
+// oldest-first by whole pairs, and when even the newest pair alone exceeds
+// the byte bound the honest answer is to send what fits — an EMPTY wire
+// transcript — while the display above keeps the pair. Shipping OLDER pairs
+// that would fit without the newest was considered and REJECTED: a wire
+// transcript whose most recent context predates the question it accompanies
+// misgrounds the turn, so contiguity-with-recency wins over salvage.
+// Turn-cap semantics stay enforced on the display side (boundedAppend, as
+// before); this window re-checks both bounds because a RESTORED transcript
+// reaches the wire without passing through boundedAppend.
+export function transcriptWireWindow(stateValue) {
+  let window = stateValue.transcript;
+  while (window.length > 0
+         && (window.length > MAX_TRANSCRIPT_TURNS
+             || transcriptBytes(window) > MAX_TRANSCRIPT_BYTES)) {
+    window = window.slice(2);
   }
   return Object.freeze(window);
 }
@@ -196,6 +286,23 @@ export function settleTurnFailure(stateValue, failurePayload) {
   return next(stateValue, {
     phase: "idle",
     pendingMessage: null,
+    lastFailure: Object.freeze({
+      error: String(failurePayload && failurePayload.error),
+      message: String(failurePayload && failurePayload.message),
+    }),
+  });
+}
+
+// T104 F5-5: a LOCAL fixed failure, for refusals that happen at idle.
+// `settleTurnFailure` is phase-gated to in_flight because it settles a
+// FLIGHT; a refused proposal Apply happens with no turn in the air, yet its
+// refusal must reach the same visible channel (lastFailure → the rendered
+// failure note and the live region) instead of returning the identical
+// state — zero visible change was the finding. Only the two fixed fields
+// are retained, same discipline as settleTurnFailure: never request,
+// response, or buffer content.
+export function recordLocalFailure(stateValue, failurePayload) {
+  return next(stateValue, {
     lastFailure: Object.freeze({
       error: String(failurePayload && failurePayload.error),
       message: String(failurePayload && failurePayload.message),
@@ -300,6 +407,29 @@ export function markProposalApplied(stateValue, targetValue) {
   return transitionProposal(stateValue, targetValue, ["current"], "applied");
 }
 
+export function clearLocalFailure(stateValue) {
+  // W-11 (wave re-review): a landed apply is a SUCCESS event for the local
+  // failure channel, exactly as a settled turn is — leaving the refusal note
+  // standing put two live regions in contradiction ("Proposal applied…"
+  // beside "this proposal no longer matches the buffer"). Pure and narrow:
+  // only the local lastFailure clears; nothing else moves.
+  if (!stateValue.lastFailure) return stateValue;
+  return { ...stateValue, lastFailure: null };
+}
+
+export function markProposalAppliedAfterSwap(stateValue, targetValue) {
+  // W-3 (wave re-review): the ONE widening the apply-SETTLE path needs
+  // beyond the current-only rule above. The swap's own edit re-scores the
+  // clicked record to `stale` before the seam's promise resolves
+  // (self-induced staleness — the buffer moved because the apply moved it),
+  // and the mark now runs against the LIVE state after that re-score. The
+  // caller proves the live record is field-identical to the record the seam
+  // actually swapped, so "applied" stays truthful; every other stale record
+  // still refuses through `markProposalApplied`'s current-only rule.
+  return transitionProposal(stateValue, targetValue, ["current", "stale"],
+                            "applied");
+}
+
 // ---------------------------------------------------------------------------
 // R-1 (2026-08-02): the PURE persistable snapshot of chat working state and
 // its restore. This module still touches NO storage primitive — the shell
@@ -351,16 +481,50 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       ? raw.status : "current";
     records[raw.target] = proposalRecord(raw, status);
   }
+  // P3-6(a)/(b): only WELL-FORMED turns survive a restore — a released role
+  // AND a real string content. `String(t.content)` used to FABRICATE the
+  // literal string "undefined" for a turn whose content was missing or
+  // non-string: invented transcript bytes rendered as if the operator's own
+  // conversation contained them. Such turns are dropped whole, like the
+  // foreign-role turns beside them. Beyond well-formedness, PAIR ALIGNMENT
+  // is the snapshot author's problem: a dropped turn can leave human and
+  // assistant turns unpaired, and this restore deliberately does not
+  // re-pair — the display and the wire window both operate on turns, and
+  // reconstructing pairs from a corrupted snapshot would be fabrication of
+  // a different kind.
   const transcript = Object.freeze(
     (Array.isArray(snapshotValue.transcript) ? snapshotValue.transcript : [])
-      .filter((t) => t && (t.role === "human" || t.role === "assistant"))
-      .map((t) => Object.freeze({ role: t.role, content: String(t.content) })));
+      .filter((t) => t && (t.role === "human" || t.role === "assistant")
+        && typeof t.content === "string")
+      .map((t) => Object.freeze({ role: t.role, content: t.content })));
   const restored = next(stateValue, {
+    // P3-6(c): a persisted field is adopted only if it still fits its own
+    // byte bound — the same exact-UTF-8 rule editSubject/editComposer
+    // enforce live. Refused-never-truncated: an over-bound (or non-string)
+    // restored field is dropped WHOLE, to the empty string, never trimmed
+    // to fit; otherwise a hand-edited or future-versioned snapshot could
+    // seed the state with text the bounds refuse to ever send.
     workingSubject: typeof snapshotValue.workingSubject === "string"
-      ? snapshotValue.workingSubject : stateValue.workingSubject,
-    selectedModelId: typeof snapshotValue.selectedModelId === "string"
-      ? snapshotValue.selectedModelId : null,
+      && utf8Size(snapshotValue.workingSubject) <= MAX_WORKING_SUBJECT_BYTES
+      ? snapshotValue.workingSubject : "",
+    // T104 F5-7: a persisted id is a claim about a catalog that may have
+    // changed while the tile was closed, so it is adopted ONLY if the
+    // restored state's catalog vouches for it (selectModel's own rule; the
+    // old bare typeof check bypassed it and armed Send behind a placeholder
+    // selector). With NO catalog adopted yet (models === null) the id is
+    // KEPT — R-1 continuity: restore usually runs before the plane's
+    // catalog fetch settles, and nulling here would cost the operator their
+    // choice on every reopen — while `canSend` refuses to arm until a
+    // catalog vouches, and `adoptCatalog` re-validates the held id the
+    // moment one arrives. Either way the placeholder and the disabled Send
+    // agree.
+    selectedModelId: typeof snapshotValue.selectedModelId !== "string"
+      ? null
+      : (stateValue.models === null
+        || catalogVouchesFor(stateValue.models, snapshotValue.selectedModelId)
+        ? snapshotValue.selectedModelId : null),
     composer: typeof snapshotValue.composer === "string"
+      && utf8Size(snapshotValue.composer) <= MAX_MESSAGE_BYTES
       ? snapshotValue.composer : "",
     transcript,
     proposals: Object.freeze(records),

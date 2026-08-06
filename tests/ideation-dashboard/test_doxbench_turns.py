@@ -39,6 +39,7 @@ import pytest
 from conftest import FIXTURES, REPO_ROOT
 
 from ideation_dashboard.doxbench_hash import (
+    ContentEncodingError,
     ContentIdentity,
     content_identity,
     sha256_hex,
@@ -207,6 +208,7 @@ def _build_envelope(
     transcript=(),
     buffers=None,
     message: str = "Which open question should we close next?",
+    session_base=None,
 ) -> PromptEnvelope:
     return build_prompt_envelope(
         projection=projection if projection is not None else _valid_projection(),
@@ -220,6 +222,7 @@ def _build_envelope(
         transcript=tuple(transcript),
         buffers=buffers if buffers is not None else _valid_buffers(),
         message=message,
+        session_base=session_base,
     )
 
 
@@ -516,6 +519,32 @@ def test_identity_mismatch_error_never_echoes_the_buffer_content():
     with pytest.raises(TurnIdentityMismatchError) as raised:
         verify_buffer_identity(buffer)
     assert sentinel not in str(raised.value)
+
+
+def test_lone_surrogate_buffer_content_raises_content_encoding_error_not_a_turn_error():
+    """The SIBLING-EXCEPTION contract the route relies on (T104 F5-8).
+
+    A lone UTF-16 surrogate in buffer content makes `utf8_size` inside
+    `verify_buffer_identity` raise `doxbench_hash.ContentEncodingError` —
+    which is a plain ValueError and deliberately NOT a `TurnError`, so an
+    `except` written for the turn hierarchy does not catch it. serve.py's
+    chat-turn route catches this class EXPLICITLY at every site that
+    measures or hashes request text; this pin is what makes silently
+    rehoming the exception under `TurnError` (which would change what those
+    handlers catch) a visible contract change rather than a drive-by.
+    Constructed directly rather than via `_buffer`, whose own
+    `content_identity` call would trip the same error in the test process.
+    The hashes are well-formed hex so the encoding refusal is proven to fire
+    BEFORE any hash comparison could."""
+    buffer = TurnBuffer(
+        kind="document", repository=REPOSITORY, path=DOCUMENT_PATH,
+        base_ref=REF, base_revision="abc123",
+        base_hash="0" * 64, content_hash="0" * 64,
+        content="broken \ud800 text", dirty=True)
+    with pytest.raises(ContentEncodingError):
+        verify_buffer_identity(buffer)
+    assert not issubclass(ContentEncodingError, TurnError)
+    assert issubclass(ContentEncodingError, ValueError)
 
 
 def test_build_prompt_envelope_refuses_on_content_hash_mismatch_for_either_buffer():
@@ -1054,6 +1083,201 @@ def test_buffer_binding_refusal_precedes_identity_verification_and_prompt_assemb
     assert envelopes_returned == []
     assert sentinel not in str(raised.value)
     assert sentinel not in repr(raised.value)
+
+
+# --- R-12: a buffer based on the session's OWN base is correctly based ------
+#
+# The binding check used to compare ref NAMES by string equality, which
+# conflates "same ref name" with "same base bytes": a session branch is
+# created FROM the pre-session ref, so a buffer based on `main` at the moment
+# of branching IS based on the session's base, and refusing it made every
+# un-landed buffer permanently unable to ground a turn after a partial Save
+# (T104 R-12). The reviewer's binding ruling (2026-08-02): accept the pairing
+# when the buffer names the ref the session branched from AND its base
+# revision equals the session's recorded base revision -- acceptance on the
+# REVISION, never the name alone -- and continue to refuse once the session
+# has DIVERGED past that base for the buffer's own document. `base_ref`
+# keeps its meaning (provenance) and is never rewritten.
+
+
+def _session_base(*, ref: str = "main", revision: str = "base-rev-1",
+                  documents: dict | None = None,
+                  alias_revisions: tuple = ()) -> doxbench_turns.SessionBase:
+    """A SessionBase whose reader serves the session's CURRENT text for a
+    path out of a plain dict -- the same duck the route builds from the
+    session worktree, with no filesystem involved."""
+    held = dict(documents or {})
+    return doxbench_turns.SessionBase(
+        ref=ref, revision=revision, text_of=lambda path: held.get(path),
+        alias_revisions=tuple(alias_revisions))
+
+
+def _pre_session_buffers(*, document_content: str = DOCUMENT_CONTENT,
+                         base_revision: str = "base-rev-1",
+                         base_ref: str = "main"):
+    """The post-partial-Save shape: the outline LANDED (its base was adopted
+    onto the session ref), the document did not -- it still declares the
+    pre-session base, exactly as `rekeyDoxBenchState` deliberately leaves it."""
+    return [
+        _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT),
+        _buffer("document", path=DOCUMENT_PATH, content=document_content,
+                base_ref=base_ref, base_revision=base_revision),
+    ]
+
+
+def test_an_unsaved_buffer_based_on_the_sessions_own_base_grounds_a_turn():
+    # The acceptance case the ruling requires: name = the ref the session
+    # branched from, revision = the session's recorded base revision, and the
+    # session has not moved this document past that base (its current text
+    # still hashes to the buffer's declared base).
+    envelope = _build_envelope(
+        buffers=_pre_session_buffers(),
+        session_base=_session_base(documents={DOCUMENT_PATH: DOCUMENT_CONTENT}),
+    )
+    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+
+
+def test_a_pre_session_buffer_is_refused_once_the_session_diverged_past_its_base():
+    # The divergence case the ruling names: a landed gate action moved this
+    # document on the session branch, so a buffer still claiming the
+    # pre-session base may genuinely be stale -- the refusal is correct and
+    # staleness detection is made precise, not weakened.
+    sentinel = "SENTINEL-DIVERGED-SESSION-BASE"
+    envelopes_returned = []
+    with pytest.raises(TurnScopeError) as raised:
+        envelopes_returned.append(_build_envelope(
+            buffers=_pre_session_buffers(document_content=sentinel),
+            session_base=_session_base(
+                documents={DOCUMENT_PATH: "# Note\n\nRewritten in-session.\n"}),
+        ))
+    assert envelopes_returned == []
+    assert sentinel not in str(raised.value)
+    assert sentinel not in repr(raised.value)
+
+
+def test_a_buffer_declaring_the_serving_snapshots_revision_grounds_too():
+    # W-4 (wave re-review): the CLIENT never receives a per-file revision --
+    # its `base_revision` is the projection's `source_revision`, the checkout
+    # HEAD at snapshot GENERATION time, while the session records the
+    # merge-base at OPEN time. Any main movement between snapshot bake and
+    # session open made those differ forever, silently reverting R-12 to the
+    # refusal it closed. The OPEN now records the serving snapshot's revision
+    # beside the merge-base as an accepted ALIAS; acceptance still demands
+    # the name AND a listed revision AND the base bytes.
+    envelope = _build_envelope(
+        buffers=_pre_session_buffers(base_revision="snapshot-rev-at-open"),
+        session_base=_session_base(
+            documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
+            alias_revisions=("snapshot-rev-at-open",)),
+    )
+    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+
+    # an alias never relaxes the byte clause ...
+    with pytest.raises(TurnScopeError):
+        _build_envelope(
+            buffers=_pre_session_buffers(
+                document_content="SENTINEL-ALIAS-DIVERGED",
+                base_revision="snapshot-rev-at-open"),
+            session_base=_session_base(
+                documents={DOCUMENT_PATH: "# moved in-session\n"},
+                alias_revisions=("snapshot-rev-at-open",)),
+        )
+    # ... and an unlisted revision still refuses
+    with pytest.raises(TurnScopeError):
+        _build_envelope(
+            buffers=_pre_session_buffers(base_revision="never-recorded"),
+            session_base=_session_base(
+                documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
+                alias_revisions=("snapshot-rev-at-open",)),
+        )
+
+
+def test_a_reader_failure_never_grounds_a_hashless_buffer():
+    # Wave re-review (R-12 machinery): `_session_text_identity` fails CLOSED
+    # by returning None -- and a direct caller's TurnBuffer with
+    # base_hash=None (dataclass fields are unenforced) then satisfied
+    # None == None and was ACCEPTED on a reader failure. Unreachable over
+    # HTTP (the parser requires str and step 6 enforces hex64 first), but a
+    # guard this load-bearing does not get to depend on its callers.
+    def _throwing_reader(_path):
+        raise OSError("the worktree read failed")
+    hashless = dataclasses.replace(
+        _pre_session_buffers()[1], base_hash=None)
+    with pytest.raises(TurnScopeError):
+        doxbench_turns._require_buffer_binding(
+            hashless, DOCUMENT_PATH, _key(),
+            doxbench_turns.SessionBase(
+                ref="main", revision="base-rev-1", text_of=_throwing_reader))
+
+
+def test_a_matching_ref_name_alone_never_grounds_a_pre_session_buffer():
+    # Acceptance is on the REVISION: a buffer naming the branched-from ref at
+    # some OTHER revision is exactly the conflation the ruling removes.
+    envelopes_returned = []
+    with pytest.raises(TurnScopeError):
+        envelopes_returned.append(_build_envelope(
+            buffers=_pre_session_buffers(base_revision="some-other-revision"),
+            session_base=_session_base(documents={DOCUMENT_PATH: DOCUMENT_CONTENT}),
+        ))
+    assert envelopes_returned == []
+
+
+def test_a_buffer_naming_a_ref_other_than_the_sessions_base_is_still_refused():
+    envelopes_returned = []
+    with pytest.raises(TurnScopeError):
+        envelopes_returned.append(_build_envelope(
+            buffers=_pre_session_buffers(base_ref="refs/heads/elsewhere"),
+            session_base=_session_base(documents={DOCUMENT_PATH: DOCUMENT_CONTENT}),
+        ))
+    assert envelopes_returned == []
+
+
+def test_without_a_recorded_session_base_the_binding_check_is_unchanged():
+    # Degradation pin: a session whose base was never recorded (opened before
+    # this wave, or a marker that could not be written) refuses the
+    # pre-session pairing exactly as before -- honest, and never a crash.
+    envelopes_returned = []
+    with pytest.raises(TurnScopeError):
+        envelopes_returned.append(_build_envelope(
+            buffers=_pre_session_buffers(), session_base=None))
+    assert envelopes_returned == []
+
+
+def test_a_session_base_never_relaxes_the_path_or_repository_binding():
+    # The session-base acceptance widens ONE comparison (the ref pairing);
+    # the path and repository halves of FR-015 are untouched by it.
+    sentinel = "SENTINEL-SESSION-BASE-PATH-BYPASS"
+    buffers = _pre_session_buffers()
+    buffers[1] = _buffer(
+        "document", path="ideation/staging/demo-topic/other.md",
+        content=sentinel, base_ref="main", base_revision="base-rev-1")
+    envelopes_returned = []
+    with pytest.raises(TurnScopeError) as raised:
+        envelopes_returned.append(_build_envelope(
+            buffers=buffers,
+            session_base=_session_base(documents={
+                "ideation/staging/demo-topic/other.md": sentinel}),
+        ))
+    assert envelopes_returned == []
+    assert sentinel not in str(raised.value)
+
+
+def test_a_document_the_session_never_held_grounds_only_an_empty_base():
+    # A path ABSENT from the session worktree has empty base bytes: a fresh
+    # not-yet-written buffer (base identity of "") is accepted, and a buffer
+    # claiming loaded bytes for a file the session does not hold is refused.
+    fresh = _buffer("document", path=DOCUMENT_PATH, content="typed later",
+                    base_hash=content_identity("").hex,
+                    base_ref="main", base_revision="base-rev-1", dirty=True)
+    buffers = [_buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT), fresh]
+    envelope = _build_envelope(buffers=buffers, session_base=_session_base())
+    assert envelope.sections[6].text.endswith("typed later")
+
+    claiming = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT,
+                       base_ref="main", base_revision="base-rev-1")
+    with pytest.raises(TurnScopeError):
+        _build_envelope(buffers=[buffers[0], claiming],
+                        session_base=_session_base())
 
 
 # --- null-path buffer disclosure (data-model.md Section 4: `path` is "Null

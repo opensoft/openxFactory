@@ -87,7 +87,12 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # add-project-scoped-selection: the create-project
                    # commission — recorded dispatch of a project-register-edit;
                    # the aggregation-owned register is never written here.
-                   "create-project")
+                   "create-project",
+                   # T104 F10: the doxBench governed Save joined the if-chain
+                   # (and SESSION_BEARING_VERBS) when it landed; the declaration
+                   # here lagged, so the roster disagreed with what the route
+                   # actually executes.
+                   "first-edit")
 
 # The verbs that can OPEN, WRITE INTO, or END a branch session. They are the
 # verbs whose write lands in a per-repository worktree, so they are the verbs
@@ -2871,6 +2876,15 @@ def _build_submission(evidence, repository: str, actor: str):
     return submission, None
 
 
+# The FIXED refusal for first-edit content that cannot be encoded as UTF-8
+# (an unpaired surrogate). Module-level so the route test pins the exact
+# sentence, and fixed so the refusal can never quote the buffer it refuses.
+FIRST_EDIT_UNENCODABLE_CONTENT = (
+    "first-edit content contains an unpaired surrogate, so no file can hold "
+    "it as UTF-8; the Save is refused rather than re-encoded. Remove the "
+    "malformed character and save again.")
+
+
 def _first_edit(body: dict, root: Path, actor: str, records_dir: str,
                 snapshot_path, *, session_registry=None,
                 repository: str | None = None,
@@ -2899,6 +2913,21 @@ def _first_edit(body: dict, root: Path, actor: str, records_dir: str,
         # body carries no buffer.
         return _invalid("first-edit requires the replacement content: a Save "
                         "with no buffer is not a Save")
+    try:
+        content.encode("utf-8")
+    except UnicodeEncodeError:
+        # Wave re-review P3: JSON's "\ud800" escape decodes to a str holding a
+        # lone UTF-16 surrogate -- text NO file can hold, so the Save cannot
+        # succeed and the only question is WHERE it fails. Nothing on this
+        # path encoded `content` before the boundary write, so the
+        # `UnicodeEncodeError` raised at `write_text` escaped the
+        # transaction's unwind as a 500 with a stderr traceback -- after a
+        # session had already been opened for a Save that could never land.
+        # Encodability is a property of the BODY, so it is refused here at the
+        # body/shape layer, before anything opens, with a fixed sentence that
+        # names the condition and never the text (the same no-echo discipline
+        # as every doxBench refusal).
+        return _invalid(FIRST_EDIT_UNENCODABLE_CONTENT)
     if session_registry is None:
         return _refused(
             "no session registry is declared on this plane, so no branch "

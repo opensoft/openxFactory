@@ -385,6 +385,11 @@ def test_the_verb_is_declared_and_dispatched(scratch_repo, tmp_path):
     """`EXECUTING_VERBS` is the declaration and the if-chain is the dispatch —
     both, or the verb is either undeclared or unreachable (research R5)."""
     assert "edit-document" in gr.EXECUTING_VERBS
+    # T104 F10: `first-edit` joined the if-chain (and SESSION_BEARING_VERBS)
+    # without joining the declaration, so the roster lied to anything that
+    # enumerates the executable set — serve.py's own logging justification
+    # among them. Both, or neither.
+    assert "first-edit" in gr.EXECUTING_VERBS
     status, payload = gr.run_gate_action(
         "edit-documents", {}, checkout_root=scratch_repo.root, actor="brett")
     assert status == 404 and payload["error"] == "unknown_verb"

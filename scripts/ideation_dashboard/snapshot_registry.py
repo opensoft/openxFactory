@@ -190,6 +190,21 @@ class SnapshotEntry:
     # nothing names a tile — `branch_session.live_session_branches` treats that
     # unknown as an AMBIGUITY rather than an absence.
     session_tile: tuple[str, str] | None = None
+    # WHAT THIS SESSION BRANCHED FROM, as `(base_ref, base_revision)` — set only
+    # on session entries, by the OPEN that created the branch (the one place the
+    # answer exists) or re-derived by the bootstrap from the session's own
+    # durable marker/git. It is what lets the chat-turn binding check accept a
+    # buffer still based on the pre-session ref (T104 R-12, reviewer ruling
+    # 2026-08-02): acceptance is on the recorded REVISION, never the ref name
+    # alone. None degrades to the original name-equality binding — advisory,
+    # exactly like `session_tile` above, and never the reason a session fails.
+    session_base: tuple[str, str] | None = None
+    # The OTHER recorded spellings of the same base's revision (W-4): the
+    # serving snapshot's source_revision at open time — the value a real
+    # client's `base_revision` actually carries, since the browser declares
+    # the projection's generation-time HEAD while the branch point is the
+    # open-time HEAD. Rides the same stickiness and the same advisory rule.
+    session_base_aliases: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         self.ref = normalize_ref(self.ref)
@@ -451,6 +466,13 @@ class SnapshotRegistry:
                 # ordinal appeared. Carried forward here, at the ONE place entries
                 # are replaced, rather than at each of the callers.
                 entry.session_tile = previous.session_tile
+            if previous is not None and entry.session_base is None:
+                # The session's BASE rides the same stickiness (T104 R-12): only
+                # the OPEN knows it, every regenerate would otherwise drop it,
+                # and losing it re-refuses the post-partial-Save turn the R-12
+                # ruling makes valid. The alias spellings ride with it (W-4).
+                entry.session_base = previous.session_base
+                entry.session_base_aliases = previous.session_base_aliases
             self._entries[entry.key] = entry
             if active or self._active is None:
                 self._active = entry.key

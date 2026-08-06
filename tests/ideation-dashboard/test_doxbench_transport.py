@@ -93,6 +93,14 @@ NODE = shutil.which("node")
 # as deliberate". The chat model, view, and rail wiring have all landed, so
 # the set is EMPTY — the consuming test stays as the mechanism for any future
 # deferral, and app.js's comments now record the landing as history.
+# PIN EVOLUTION (T104 F8-1, 2026-08-04): with the roster empty, the consumer's
+# for-loop body never ran — one permanently green test asserting NOTHING. The
+# consumer is now parametrized over the roster, so an empty roster collects no
+# per-group assertion (pytest surfaces the empty parameter set as a skip, not
+# a pass), and a repopulated roster re-enables one visible test per group. The
+# POSITIVE claim the emptiness rests on — every seam the shell consumes is
+# actually declared by app.js — gets its own companion test below instead of
+# hiding inside a vacuous green.
 REMAINING_TASK_GROUPS = ()
 
 # Literal spellings a CREDENTIAL, or a transport that reaches past a transport's
@@ -293,13 +301,46 @@ def test_app_js_contains_no_catalog_chat_save_or_credential_transport():
         )
 
 
-def test_app_js_documents_the_remaining_tasks_for_the_absent_seams():
+@pytest.mark.parametrize("task_group", REMAINING_TASK_GROUPS)
+def test_app_js_documents_the_remaining_tasks_for_the_absent_seams(task_group):
+    # One collected test PER deferred group. An empty roster therefore
+    # contributes zero passing assertions (T104 F8-1: the old for-loop body
+    # never executed, so the test was green while proving nothing).
     app = APP_JS.read_text(encoding="utf-8")
-    for task_group in REMAINING_TASK_GROUPS:
-        assert task_group in app, (
-            f"app.js must comment remaining tasks {task_group} so a future reader "
-            f"can tell the browser transport absence is deliberate, not forgotten"
-        )
+    assert task_group in app, (
+        f"app.js must comment remaining tasks {task_group} so a future reader "
+        f"can tell the browser transport absence is deliberate, not forgotten"
+    )
+
+
+# Every seam the SHELL reads off its `doxbench` option bundle, in either the
+# guarded (`doxbench?.loadSource`) or bare (`doxbench.catalog`) spelling.
+_SHELL_SEAM_USE = re.compile(r"\bdoxbench(?:\?\.|\.)(\w+)\b")
+
+
+def test_app_js_declares_every_seam_the_shell_consumes():
+    """T104 F8-1 companion: the POSITIVE claim behind the empty roster above.
+    An empty REMAINING_TASK_GROUPS asserts "nothing is deferred any more" —
+    which is only true while app.js's `doxbenchSeams` literal really declares
+    every seam the staging-workbench shell consumes. Derive the consumed set
+    from the shell's own source (so a newly consumed seam extends this pin by
+    itself) and require each one as a key in the bundle app.js builds (same
+    split technique as the bundle test in section (a) above)."""
+    shell = STAGING_WORKBENCH_JS.read_text(encoding="utf-8")
+    consumed = sorted(set(_SHELL_SEAM_USE.findall(shell)))
+    assert consumed, (
+        "the shell no longer reads any doxbench seam at all — if that is a "
+        "real re-architecture, this pin and the roster need re-derivation, "
+        "not deletion"
+    )
+    app = APP_JS.read_text(encoding="utf-8")
+    bundle = app.split("const doxbenchSeams = {", 1)[1].split("};", 1)[0]
+    missing = [s for s in consumed if not re.search(rf"\b{s}\s*:", bundle)]
+    assert not missing, (
+        f"the shell consumes doxbench seam(s) {missing} that app.js's "
+        f"doxbenchSeams literal never declares — the empty "
+        f"REMAINING_TASK_GROUPS roster would be claiming completion falsely"
+    )
 
 
 # ----------------------------------------------------------------------------
@@ -397,6 +438,16 @@ def test_staging_workbench_clears_doxbench_state_when_a_session_ends():
     call = _call_arguments(handler, "clearDoxBenchSession(")
     assert "ref: endedBranch" in call
     assert "tile_kind: scope.kind" in call and "tile_id: scope.id" in call
+    # T104 F7-7: the clear targets the INJECTED storage seam, exactly as the
+    # editor's own re-key clear does (doxbench-editor.js threads `storage`).
+    # The one-argument call fell through to ambient window.sessionStorage, so
+    # under any injected storage -- the shell harness's FakeStorage, or a
+    # future non-window seam -- the ended session's record was never removed
+    # (FR-039 silently unmet). The behavioural pin lives in
+    # test_doxbench_view.py's mounted-shell harness.
+    assert "doxbench?.storage" in call, (
+        "clearDoxBenchSession must be handed the injected doxbench storage "
+        "seam, never left to the ambient window global")
 
 
 def test_staging_workbench_still_issues_no_transport_of_its_own():
@@ -565,7 +616,9 @@ queue.push(fakeResponse({ ok: true, status: 200,
   payload: { schema_version: 1, kind: 'workbench-model-catalog', models: [] } }));
 const catalog2 = await loadCatalog();
 
-// 3: a refusal yields null -- the caller keeps its own honest editor-only state
+// 3: a 403 console refusal yields the DISTINGUISHED stale-token failure --
+// never a bare null (T104 F10-1: null collapsed a recoverable stale token
+// into "no approved model is configured")
 queue.push(fakeResponse({ ok: false, status: 403,
   payload: { ok: false, error: 'console_required', message: 'no' } }));
 const catalog3 = await loadCatalog();
@@ -574,6 +627,23 @@ const catalog3 = await loadCatalog();
 token = 'console-token-two';
 queue.push(fakeResponse({ ok: true, status: 200, payload: ENVELOPE }));
 const catalog4 = await loadCatalog();
+
+// 5: a 500 (or any other non-ok answer) is the could-not-be-read failure --
+// distinguished from BOTH the stale token and the configured-none success
+queue.push(fakeResponse({ ok: false, status: 500,
+  payload: { ok: false, error: 'catalog_unavailable', message: 'boom' } }));
+const catalog5 = await loadCatalog();
+
+// 6: the gate-action route spells the same pre-identity refusal
+// `agent_invocation` (the R-3 pair) -- same stale-token mapping
+queue.push(fakeResponse({ ok: false, status: 403,
+  payload: { ok: false, error: 'agent_invocation', message: 'no' } }));
+const catalog6 = await loadCatalog();
+
+// 7: a non-ok answer whose body cannot even be parsed still maps to the
+// fixed could-not-be-read failure, never a throw and never an echo
+queue.push(fakeResponse({ ok: false, status: 502, unparseable: true }));
+const catalog7 = await loadCatalog();
 
 // 5: a turn POST returns status AND payload -- a refusal carries meaning, so
 // the transport never collapses it to null
@@ -593,6 +663,7 @@ queue.push(fakeResponse({ ok: false, status: 500, unparseable: true }));
 const turn3 = await submitTurn(REQUEST);
 
 console.log(JSON.stringify({ catalog1, catalog2, catalog3, catalog4,
+                             catalog5, catalog6, catalog7,
                              turn1, turn2, turn3, calls,
                              requestUnmutated: REQUEST }));
 """
@@ -602,10 +673,13 @@ console.log(JSON.stringify({ catalog1, catalog2, catalog3, catalog4,
 def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fetch(tmp_path):
     """The ACTUAL transports, driven against an injected fake fetch -- the same
     strip-and-import harness the source loader uses. What is proven: verbatim
-    pass-through in both directions, the empty-catalog SUCCESS posture, an
-    honest `null` on a catalog refusal, status+payload on every turn outcome,
-    `payload: null` on an unparseable body, same-origin relative URLs only, the
-    exact console header, and the token read at CALL time."""
+    pass-through in both directions, the empty-catalog SUCCESS posture, a
+    DISTINGUISHED fixed failure on every catalog refusal (T104 F10-1: the old
+    null collapsed a recoverable 403 stale token and a 500 broken catalog
+    into one misdiagnosis, "no approved model is configured"), status+payload
+    on every turn outcome, `payload: null` on an unparseable body, same-origin
+    relative URLs only, the exact console header, and the token read at CALL
+    time."""
     results = _run_node_harness(tmp_path, _TRANSPORT_HARNESS, "transport-harness.mjs")
 
     envelope_models = results["catalog1"]["models"]
@@ -613,8 +687,13 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
     assert results["catalog1"]["kind"] == "workbench-model-catalog"
     assert envelope_models[0]["model_id"] == "opaque-local-id"
     assert results["catalog2"]["models"] == []          # success, not null
-    assert results["catalog3"] is None                  # refusal -> honest null
+    # T104 F10-1: the refusal is DISTINGUISHED by the body's released error
+    # code, and nothing else from the body is carried (no message, no echo).
+    assert results["catalog3"] == {"failed": "console_required"}
     assert results["catalog4"]["kind"] == "workbench-model-catalog"
+    assert results["catalog5"] == {"failed": "unreadable"}
+    assert results["catalog6"] == {"failed": "console_required"}
+    assert results["catalog7"] == {"failed": "unreadable"}
 
     assert results["turn1"] == {"ok": False, "status": 403, "payload": {
         "schema_version": 1, "kind": "workbench-chat-turn-failure",
@@ -628,15 +707,15 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
         "schema_version": 1, "kind": "workbench-chat-turn", "opaque": "passthrough"}
 
     calls = results["calls"]
-    assert len(calls) == 7
-    assert [c["url"] for c in calls[:4]] == [CATALOG_ROUTE] * 4
-    assert [c["url"] for c in calls[4:]] == [CHAT_TURN_ROUTE] * 3
+    assert len(calls) == 10
+    assert [c["url"] for c in calls[:7]] == [CATALOG_ROUTE] * 7
+    assert [c["url"] for c in calls[7:]] == [CHAT_TURN_ROUTE] * 3
     for call in calls:
         assert call["url"].startswith("/"), "must be a same-origin relative URL"
         assert "://" not in call["url"], "must never be an absolute/off-origin URL"
 
     # GET the catalog: no method, no body, no-store, console header only.
-    for call in calls[:4]:
+    for call in calls[:7]:
         assert "method" not in call["opts"]
         assert "body" not in call["opts"]
         assert call["opts"]["cache"] == "no-store"
@@ -646,13 +725,84 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
     assert calls[3]["opts"]["headers"][CONSOLE_TOKEN_HEADER] == "console-token-two"
 
     # POST a turn: JSON content type plus the console header, and nothing else.
-    for call in calls[4:]:
+    for call in calls[7:]:
         assert call["opts"]["method"] == "POST"
         assert set(call["opts"]["headers"]) == {"Content-Type", CONSOLE_TOKEN_HEADER}
         assert call["opts"]["headers"]["Content-Type"] == "application/json"
         assert json.loads(call["opts"]["body"]) == {
             "schema_version": 1, "kind": "workbench-chat-turn",
             "opaque": "passthrough"}
+
+
+# ----------------------------------------------------------------------------
+# (e2) T104 F7-2: the STORAGE seam value is guarded. `window.sessionStorage`'s
+# GETTER itself throws SecurityError when the browser blocks site data --
+# app.js's own storedKey() documents exactly that and wraps its read -- yet
+# the `doxbenchSeams` bundle read it UNGUARDED inside main()'s single try, so
+# a browser blocking cookies replaced the ENTIRE dashboard with a false
+# "Could not load the snapshot" error. The guard degrades blocked storage to
+# the documented no-persistence posture (a null seam: the views already treat
+# "no storage supplied" as "no persistence") while the dashboard renders.
+# ----------------------------------------------------------------------------
+
+_STORAGE_GUARD_HARNESS = r"""
+import { guardedSessionStorage } from './app.mjs';
+
+const out = {};
+
+// 1: no `window` at all (this Node process) -- null, never a ReferenceError
+out.noWindow = guardedSessionStorage();
+
+// 2: the blocked-site-data browser: the GETTER ITSELF throws (SecurityError
+// in the field; any throw here) -- null, never a propagated throw
+globalThis.window = {
+  get sessionStorage() { throw new Error('blocked site data'); },
+};
+out.blocked = guardedSessionStorage();
+
+// 3: a live storage passes through UNTOUCHED (same object, not a wrapper)
+const live = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+globalThis.window = { sessionStorage: live };
+out.liveIsSameObject = guardedSessionStorage() === live;
+
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.mark.skipif(NODE is None, reason="node not available for the storage-guard probe")
+def test_the_storage_seam_guard_degrades_blocked_storage_to_null(tmp_path):
+    """Behavioural half (stated choice: the guard is exported and driven under
+    node with a throwing getter, since main() itself needs a full DOM). A
+    blocked or absent sessionStorage yields null -- the no-persistence
+    posture -- and a live one passes through as the same object."""
+    results = _run_node_harness(tmp_path, _STORAGE_GUARD_HARNESS,
+                                "storage-guard-harness.mjs")
+    assert results["noWindow"] is None
+    assert results["blocked"] is None
+    assert results["liveIsSameObject"] is True
+
+
+def test_the_seam_bundle_reads_storage_only_through_the_guard():
+    """Source half: the bundle keeps its pinned `storage` KEY (the F8
+    seam-declaration pin) but its VALUE goes through the guard -- app.js may
+    never read `window.sessionStorage` outside a try/catch, because the
+    getter is what throws under blocked site data."""
+    app = APP_JS.read_text(encoding="utf-8")
+    bundle = app.split("const doxbenchSeams = {", 1)[1].split("};", 1)[0]
+    assert "storage: guardedSessionStorage()," in bundle
+    assert "storage: window.sessionStorage" not in app, (
+        "the unguarded read is exactly what a blocked-storage browser turns "
+        "into a false whole-dashboard snapshot error")
+    # every remaining EXECUTABLE window.sessionStorage read sits inside a try
+    # block (storedKey, storeKey, and the guard itself)
+    for lineno, line in enumerate(app.splitlines(), 1):
+        if "window.sessionStorage" not in line or \
+                line.lstrip().startswith("//"):
+            continue
+        assert "return window.sessionStorage" in line.strip() or \
+            "window.sessionStorage.setItem" in line, (
+                f"app.js:{lineno}: unexpected sessionStorage read shape: "
+                f"{line.strip()}")
 
 
 # ----------------------------------------------------------------------------
@@ -761,3 +911,96 @@ def test_the_shell_still_creates_no_transport_of_its_own_with_the_seam_wired():
     assert "XMLHttpRequest" not in view
     assert "doFetch" not in view
     assert "sendBeacon" not in view
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-1 (doxBench review, 2026-08-04): the verdict mapping put the
+# server's own create-vs-edit resolution on the WRONG branch. The route's
+# SUCCESS payload is what carries `verb` (gate_routes.first_edit_response:
+# `"verb": outcome.action`); its refusals carry none — yet `firstEditVerdict`
+# attached `action` only to the ok:false return, where doxbench-save's
+# readVerdict never reads it, and OMITTED it from ok:true, where readVerdict
+# adopts `answer.action` into the committed row. The server's answer could
+# therefore never override the client's prediction. Same site, second bug:
+# the ok:false branch dereferenced `payload.verb` after the `!payload` guard
+# had already matched, so a transport that produced NO payload at all threw a
+# TypeError instead of mapping to the fixed refusal.
+# ---------------------------------------------------------------------------
+
+_VERDICT_HARNESS = """
+import { firstEditVerdict } from "./staging-workbench-model.mjs";
+
+const out = {};
+const SUCCESS = {
+  ok: true, verb: "create-document", ref: "draft/topic-x",
+  commit: "c".repeat(40), document: "ideation/staging/topic-x/detail.md",
+  record: "ideation/dashboard/gate-records/draft-topic-x/create.yaml",
+  content_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  session: "opened",
+};
+out.success = firstEditVerdict(SUCCESS);
+out.successWithoutVerb = firstEditVerdict({ ...SUCCESS, verb: undefined });
+try {
+  out.nullPayload = firstEditVerdict(null);
+  out.nullThrew = null;
+} catch (error) {
+  out.nullThrew = String((error && error.message) || error);
+}
+out.refusal = firstEditVerdict({ ok: false, message: "the base moved" });
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def verdict_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the first-edit verdict probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-verdict")
+    shutil.copy(WEB / "views" / "staging-workbench-model.js",
+                tmp_path / "staging-workbench-model.mjs")
+    harness = tmp_path / "verdict-harness.mjs"
+    harness.write_text(_VERDICT_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_success_verdict_carries_the_servers_own_verb_as_action(verdict_results):
+    """The half readVerdict actually reads: `answer.action` on a COMMITTED row
+    is the server's `verb`, so the server's create-vs-edit answer — decided
+    against the tree it wrote — overrides the client's prediction."""
+    v = verdict_results["success"]
+    assert v["ok"] is True
+    assert v["action"] == "create-document"
+    assert v["revision"] == "c" * 40
+    assert v["ref"] == "draft/topic-x"
+    assert v["content_hash"] == {"algorithm": "sha256", "hex": "d" * 64}
+
+
+def test_a_success_without_a_verb_reports_action_null_not_invented(verdict_results):
+    assert verdict_results["successWithoutVerb"]["action"] is None
+
+
+def test_a_null_transport_payload_maps_to_the_fixed_refusal_not_a_typeerror(
+        verdict_results):
+    """The `!payload` guard must protect the WHOLE ok:false branch: a transport
+    that produced no payload at all yields the mapped fixed refusal, never a
+    null dereference."""
+    assert verdict_results["nullThrew"] is None, (
+        f"firstEditVerdict(null) still throws: {verdict_results['nullThrew']!r}")
+    refused = verdict_results["nullPayload"]
+    assert refused["ok"] is False
+    assert refused["message"] == (
+        "the Save transport returned no verdict for this buffer")
+    # The refusal branch carries NO action field at all: the route's refusals
+    # carry no verb (only success does), and the Save seam's reader keeps the
+    # client's own plan row for a refused buffer anyway.
+    assert "action" not in refused
+
+
+def test_a_refusals_own_message_still_passes_through(verdict_results):
+    r = verdict_results["refusal"]
+    assert r["ok"] is False
+    assert r["message"] == "the base moved"
+    assert "action" not in r

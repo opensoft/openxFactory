@@ -2410,3 +2410,99 @@ def test_the_shell_forwards_the_two_chat_transports_and_opens_no_route():
 def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
     source = SWB_JS.read_text(encoding="utf-8")
     assert 'aria-label", "doxBench chat rail"' in source
+
+
+# ---------------------------------------------------------------------------
+# T104 F10-1, the POSTURE LADDER's missing rung. Every model-catalog failure
+# used to fall through to `approvedModelCount === 0`'s editor-only sentence,
+# "no approved model is configured" — a misdiagnosis for a 403 stale console
+# token (recoverable by reload) and for a 500 broken catalog (the answer
+# could not be read at all). The pure ladder now carries a `catalogFailure`
+# fact between source-unavailable and editor-only; the rail's own rendering
+# of the same postures is pinned in test_doxbench_chat_view.py.
+# ---------------------------------------------------------------------------
+
+_POSTURE_LADDER_HARNESS = """
+import { presentationPosture } from './staging-workbench-model.mjs';
+
+const CAPABLE = {
+  gateLive: true, surfaceHidden: false,
+  repository: 'fixture-repo', ref: 'main',
+  sourceAvailable: true, approvedModelCount: 0,
+};
+const out = {};
+out.staleToken = presentationPosture({
+  ...CAPABLE, catalogFailure: 'console_required' });
+out.unreadable = presentationPosture({
+  ...CAPABLE, catalogFailure: 'unreadable' });
+out.editorOnly = presentationPosture({ ...CAPABLE, catalogFailure: null });
+out.capable = presentationPosture({
+  ...CAPABLE, approvedModelCount: 1, catalogFailure: null });
+// AUTHORITY ORDER: the ladder is most-restrictive first, so a hidden or
+// gate-off surface is never described by the lesser catalog condition
+out.hiddenWins = presentationPosture({
+  ...CAPABLE, surfaceHidden: true, catalogFailure: 'unreadable' }).kind;
+out.gateOffWins = presentationPosture({
+  ...CAPABLE, gateLive: false, catalogFailure: 'unreadable' }).kind;
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def posture_ladder_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the posture-ladder probe")
+    tmp_path = tmp_path_factory.mktemp("swb-posture-ladder")
+    shutil.copy(MODEL_JS, tmp_path / "staging-workbench-model.mjs")
+    harness = tmp_path / "posture-ladder-harness.mjs"
+    harness.write_text(_POSTURE_LADDER_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_stale_token_catalog_failure_gets_its_own_recoverable_rung(
+        posture_ladder_results):
+    p = posture_ladder_results["staleToken"]
+    assert p["kind"] == "console-token-stale"
+    assert p["canvas"] is True, "both editors stay usable (FR-025)"
+    assert "stale" in p["note"] and "reload" in p["note"]
+    assert "no approved model" not in p["note"]
+
+
+def test_an_unreadable_catalog_gets_its_own_rung_distinct_from_configured_none(
+        posture_ladder_results):
+    p = posture_ladder_results["unreadable"]
+    assert p["kind"] == "catalog-unreadable"
+    assert p["canvas"] is True
+    assert "could not be read" in p["note"]
+    assert "no approved model" not in p["note"]
+
+
+def test_the_editor_only_and_capable_rungs_are_unchanged(posture_ladder_results):
+    e = posture_ladder_results["editorOnly"]
+    assert e["kind"] == "editor-only"
+    assert "no approved model is configured" in e["note"]
+    c = posture_ladder_results["capable"]
+    assert c["kind"] == "capable-local" and c["note"] is None
+
+
+def test_the_catalog_rungs_never_outrank_hidden_or_gate_off(
+        posture_ladder_results):
+    assert posture_ladder_results["hiddenWins"] == "hosted-hidden"
+    assert posture_ladder_results["gateOffWins"] == "gate-off"
+
+
+def test_the_shell_threads_the_rails_catalog_failure_into_the_posture_note():
+    """The wiring half: the shell's two presentationPosture call sites (the
+    canvas draw and the onState refresh) both carry the rail-reported
+    catalog failure, the onState comparison re-renders when the FAILURE
+    changes (not only the count), and a rail teardown resets it exactly like
+    approvedModelCount."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    assert source.count("catalogFailure: railCatalogFailure") == 2
+    assert "chatState.catalogFailure" in source
+    teardown = source.split("function teardownRail()", 1)[1].split(
+        "\n  }", 1)[0]
+    assert "railCatalogFailure = null;" in teardown

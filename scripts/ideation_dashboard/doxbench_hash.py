@@ -70,6 +70,21 @@ def utf8_size(content: str) -> int:
     return len(_exact_utf8(content))
 
 
+def served_text(data: bytes) -> str:
+    """The exact text a browser derives from ``/source``'s verbatim bytes.
+
+    ``/source`` serves ``read_bytes()`` and the client hashes
+    ``Response.text()``, which decodes strict UTF-8 and drops ONE leading
+    byte-order mark -- and nothing else: CR and CRLF survive. Any
+    server-side comparison against a client-computed identity must read
+    the file through this same lens; ``Path.read_text``'s
+    universal-newline translation hashes text the client never saw
+    (T104 R-12 / F10)."""
+
+    text = data.decode("utf-8")
+    return text[1:] if text.startswith("\ufeff") else text
+
+
 def sha256_hex(
     content: str,
     *,

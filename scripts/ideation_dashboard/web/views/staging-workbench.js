@@ -873,10 +873,16 @@ export function mountStagingWorkbench(container, snapshot,
           canvasController.destroy();
         }
         if (endedBranch && active?.repository) {
+          // T104 F7-7: the clear targets the INJECTED storage seam — the
+          // same handle the canvas persisted through, and the same threading
+          // the editor's own re-key clear already does. The one-argument
+          // call fell through to the ambient window storage global, so under
+          // any injected storage the ended session's record silently
+          // survived (FR-039 unmet under the very seam the shell forwards).
           clearDoxBenchSession({
             repository: active.repository, ref: endedBranch,
             tile_kind: scope.kind, tile_id: scope.id,
-          });
+          }, doxbench?.storage);
         }
         const shellWasCurrent = shellActive?.repository === active?.repository &&
           shellActive?.ref === active?.ref;
@@ -969,6 +975,12 @@ export function mountStagingWorkbench(container, snapshot,
   // LIVE — fed back by the rail's adopted catalog through a pure callback
   // (the shell still opens no route). Zero until a catalog really loads.
   let approvedModelCount = 0;
+  // T104 F10-1: the rail-reported catalog FAILURE, beside the count and by
+  // the same channel. Without it every catalog failure fell through the
+  // ladder to approvedModelCount === 0's "no approved model is configured" —
+  // a misdiagnosis for both the recoverable stale token and the unreadable
+  // catalog. Null until the rail reports one; reset on rail teardown.
+  let railCatalogFailure = null;
   // R-1: the restored chat blob may arrive before the rail mounts (the canvas
   // restores during its own initial load), so it is held and applied as soon
   // as both sides exist — buffers and proposals never diverge.
@@ -997,6 +1009,7 @@ export function mountStagingWorkbench(container, snapshot,
     regions.classList.toggle("has-rail", false);
     rail.hidden = true;
     approvedModelCount = 0;  // a torn-down rail reports no models (R5)
+    railCatalogFailure = null;  // …and no catalog failure either (F10-1)
     // T104 F1: a companion blob captured for the tile being torn down must
     // never be applied to the NEXT tile's rail — it was cleared only on a
     // successful apply, so a blob left pending by a failed one crossed the
@@ -1075,6 +1088,7 @@ export function mountStagingWorkbench(container, snapshot,
       ref: active?.ref,
       sourceAvailable: !!(doxbench && doxbench.loadSource),
       approvedModelCount,
+      catalogFailure: railCatalogFailure,
     });
     postureNote.textContent = plane.note || "";
     postureNote.hidden = !plane.note;
@@ -1145,8 +1159,15 @@ export function mountStagingWorkbench(container, snapshot,
           applyPendingCompanion();
           const models = chatState.models || [];
           const count = models.filter((m) => m.available === true).length;
-          if (count !== approvedModelCount) {
+          // T104 F10-1: the FAILURE moves the note too, not only the count —
+          // a failed catalog never changes the count (it stays zero), which
+          // is exactly why the misdiagnosed "no approved model is
+          // configured" note used to stand unchallenged.
+          const failure = chatState.catalogFailure || null;
+          if (count !== approvedModelCount
+              || failure !== railCatalogFailure) {
             approvedModelCount = count;
+            railCatalogFailure = failure;
             const refreshed = presentationPosture({
               gateLive: createGateLive(caps),
               surfaceHidden: sessionSurfaceHidden(caps),
@@ -1154,6 +1175,7 @@ export function mountStagingWorkbench(container, snapshot,
               ref: active?.ref,
               sourceAvailable: !!(doxbench && doxbench.loadSource),
               approvedModelCount,
+              catalogFailure: railCatalogFailure,
             });
             postureNote.textContent = refreshed.note || "";
             postureNote.hidden = !refreshed.note;

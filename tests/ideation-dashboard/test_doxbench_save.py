@@ -283,6 +283,53 @@ def test_a_base_hash_that_no_longer_matches_the_file_is_refused(scratch_repo):
     assert OUTLINE in refusal
 
 
+def test_a_crlf_document_edited_from_its_served_bytes_is_no_refusal(scratch_repo):
+    """T104 F10: the base revalidation reads through the SAME lens the client
+    hashed. `/source` serves verbatim bytes and the browser's `Response.text()`
+    keeps CR and CRLF, while `Path.read_text`'s universal-newline translation
+    collapses them -- so a CRLF document's base was recomputed over text the
+    client never saw and every honest Save of it was refused as stale,
+    forever. The buffer's declared base below is exactly what the client
+    computes: the hash of the served bytes, CRLF intact."""
+    crlf = "# Demo Topic\r\n\r\nauthored on Windows.\r\n"
+    (scratch_repo.root / OUTLINE).write_bytes(crlf.encode("utf-8"))
+
+    refusal = bs.first_edit_base_refusal(
+        document=OUTLINE, root=scratch_repo.root,
+        action=gc.ACTION_EDIT_DOCUMENT, base_hash=dh.sha256_hex(crlf))
+
+    assert refusal is None
+
+
+def test_an_undecodable_files_refusal_names_the_class_and_echoes_no_bytes(
+        scratch_repo):
+    """Wave re-review P3-5. A non-UTF-8 file cannot be revalidated: the strict
+    server-side decode raises, and the honest answer is a refusal (the
+    strict-decode asymmetry is DELIBERATE — see the why-comment at the read).
+    But the refusal SENTENCE must state only the exception CLASS: a
+    `UnicodeDecodeError`'s str embeds the offending byte value and its offset
+    from the file being edited, and refusals never echo document content."""
+    target = scratch_repo.root / OUTLINE
+    target.write_bytes(b"# Demo Topic\n\n\xff\xfe not UTF-8 \x81\n")
+
+    refusal = bs.first_edit_base_refusal(
+        document=OUTLINE, root=scratch_repo.root,
+        action=gc.ACTION_EDIT_DOCUMENT,
+        base_hash=dh.sha256_hex("# whatever the client held\n"))
+
+    assert refusal is not None
+    assert "UnicodeDecodeError" in refusal, (
+        "the refusal names the exception CLASS, so the operator still learns "
+        "WHY the read failed")
+    # ... and nothing more than the class: no quoted byte, no offset. The
+    # document path is the only permitted content-adjacent detail.
+    scrubbed = refusal.replace(OUTLINE, "").replace("UnicodeDecodeError", "")
+    assert "0x" not in scrubbed
+    assert "position" not in scrubbed
+    assert not any(ch.isdigit() for ch in scrubbed), (
+        f"byte-offset or byte-value digits leaked into the refusal: {refusal!r}")
+
+
 def test_an_edit_of_a_vanished_file_is_refused_rather_than_recreated(
         scratch_repo):
     """A document that has been removed underneath the buffer is not silently
@@ -785,31 +832,54 @@ def test_a_refused_second_save_never_rewrites_the_first_saves_commit(
 # demanded an object for EVERY buffer kind, so the seam threw
 # ("outline buffer must be an object") before any plan was built.
 # An ABSENT buffer kind is now skipped; at least one buffer must remain.
+#
+# T104 F6-4 (harness fix, 2026-08-04): the original harness called
+# `savePlanState({ state })` -- the wrong argument shape (the real seam
+# contract is the editor's request, `{ key, buffers: [<request rows>] }`; see
+# savePlanState itself and app.js's `save:` composition) -- and DISCARDED the
+# result, so despite naming the seam it exercised only saveOrder over a
+# hand-built state (`savePlanState({state})` yields `{key: undefined,
+# buffers: {}}`, an empty plan). It now drives savePlanState with the real
+# request shape and runs the plan end to end: a lone document ROW plans, is
+# sent, and commits, while the absent outline is reported `unchanged` rather
+# than blocking anything.
 # ---------------------------------------------------------------------------
 
 _ABSENT_OUTLINE_HARNESS = """
-import { saveOrder, savePlanState } from "./doxbench-save.mjs";
+import { runSave, saveOrder, savePlanState } from "./doxbench-save.mjs";
 
 const out = {};
-const documentBuffer = {
+// The row exactly as doxbench-editor.js's bufferRequestRow hands it over.
+const documentRow = {
   kind: "document", path: "docs/registry.md", owned: true,
   base_ref: "main", base_revision: "r1",
   base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
-  base_content: "# Registry", content: "# Registry edited", dirty: true,
-  hash_pending: false, hash_generation: 1,
+  content: "# Registry edited", dirty: true, hash_pending: false,
 };
-const state = {
+const request = {
   key: { repository: "real-repo", ref: "main",
          tile_kind: "staged", tile_id: "client-credential-escrow-registry" },
-  active_buffer: "document",
-  buffers: { document: documentBuffer },   // NO outline key at all
+  buffers: [documentRow],   // NO outline row at all
 };
 try {
-  out.order = saveOrder(state);
-  const plan = savePlanState({ state });
-  out.rows = plan.rows ? plan.rows.map((r) => r.kind)
-    : (plan.order || out.order);
+  const state = savePlanState(request);
+  out.planKey = state.key;
+  out.planKinds = Object.keys(state.buffers);
+  out.rows = saveOrder(state).map((row) => ({
+    kind: row.kind, action: row.action, document: row.document,
+    base_hash: row.base_hash, refusal: row.refusal,
+  }));
+  const sent = [];
+  const outcome = await runSave(state, { transport: async (req) => {
+    sent.push(req.kind);
+    return { ok: true, ref: "draft/client-credential-escrow-registry",
+             revision: "newrev-1",
+             content_hash: { algorithm: "sha256", hex: "e".repeat(64) } };
+  } });
+  out.sent = sent;
+  out.outcome = outcome.buffers.map((row) => ({
+    kind: row.kind, status: row.status }));
   out.threw = null;
 } catch (error) {
   out.threw = String(error && error.message || error);
@@ -835,9 +905,21 @@ def absent_outline_results(tmp_path_factory):
 def test_an_absent_outline_buffer_no_longer_blocks_the_document_save(absent_outline_results):
     r = absent_outline_results
     assert r["threw"] is None, f"the seam still throws: {r['threw']!r}"
-    kinds = [row["kind"] if isinstance(row, dict) else row
-             for row in r["order"]]
-    assert kinds == ["document"]
+    # the reshaped state carries the request's own key and ONLY the rows sent
+    assert r["planKey"]["tile_id"] == "client-credential-escrow-registry"
+    assert r["planKinds"] == ["document"]
+    # the plan: one document row, the edit action (the path exists in the
+    # buffer), its declared base hex, and no refusal from the missing outline
+    assert r["rows"] == [{
+        "kind": "document", "action": "edit-document",
+        "document": "docs/registry.md", "base_hash": "c" * 64,
+        "refusal": None,
+    }]
+    # and the run itself: the document is sent and commits; the absent outline
+    # is reported `unchanged` rather than blocking the document behind it
+    assert r["sent"] == ["document"]
+    outcome = {row["kind"]: row["status"] for row in r["outcome"]}
+    assert outcome == {"outline": "unchanged", "document": "committed"}
 
 
 # ---------------------------------------------------------------------------
@@ -891,3 +973,103 @@ def test_every_emitted_first_edit_scope_kind_is_a_server_scope_kind(emitted_scop
             f"tile kind {tile_kind!r} emits scope_kind {emitted!r}, which the "
             f"server's session vocabulary {sorted(server_kinds)} refuses — "
             "the T100 run-3 Save blocker")
+
+
+# ---------------------------------------------------------------------------
+# T104 F5-1 (doxBench review, 2026-08-04): the WHOLE client chain, composed
+# the way production composes it — the transport's answer is
+# `firstEditVerdict(<route payload>)` (swb-session.firstEditTransport), and
+# `runSave`'s readVerdict adopts `answer.action` into a committed row. The
+# verdict mapping used to carry `action` only on its ok:false return (where
+# readVerdict ignores it) and omit it from ok:true (where readVerdict reads
+# it), so the server's own create-vs-edit resolution — the SUCCESS payload's
+# `verb` — could never override the client's prediction. This harness drives
+# the two real modules together across that seam.
+# ---------------------------------------------------------------------------
+
+_SERVER_VERB_HARNESS = """
+import { runSave } from "./doxbench-save.mjs";
+import { firstEditVerdict } from "./staging-workbench-model.mjs";
+
+const out = {};
+const documentBuffer = {
+  kind: "document", path: "ideation/staging/topic-x/detail.md", owned: true,
+  base_ref: "main", base_revision: "r1",
+  base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  base_content: "# Detail", content: "# Detail edited", dirty: true,
+  hash_pending: false, hash_generation: 1,
+};
+const state = {
+  key: { repository: "fixture-repo", ref: "main",
+         tile_kind: "staged", tile_id: "topic-x" },
+  active_buffer: "document",
+  buffers: { document: documentBuffer },
+};
+
+// The realistic divergence: the buffer HAS a path, so the client plans the
+// edit action — but the branch session's own tree does not carry the file
+// yet, so the server resolved and reports the CREATE verb.
+const SERVER_PAYLOAD = {
+  ok: true, verb: "create-document", ref: "draft/topic-x",
+  commit: "e".repeat(40), document: documentBuffer.path,
+  record: "ideation/dashboard/gate-records/draft-topic-x/create.yaml",
+  content_hash: { algorithm: "sha256", hex: "f".repeat(64) },
+  session: "opened",
+};
+{
+  const requests = [];
+  const outcome = await runSave(state, {
+    transport: async (req) => { requests.push(req);
+      return firstEditVerdict(SERVER_PAYLOAD); } });
+  out.serverVerb = {
+    plannedAction: requests[0] && requests[0].action,
+    committedAction: outcome.buffers.find((b) => b.kind === "document").action,
+    status: outcome.buffers.find((b) => b.kind === "document").status,
+  };
+}
+{
+  // The null-payload arm of the same finding: a transport that produced no
+  // verdict at all maps to the FIXED refusal — never a TypeError mid-Save.
+  const outcome = await runSave(state, {
+    transport: async () => firstEditVerdict(null) });
+  const row = outcome.buffers.find((b) => b.kind === "document");
+  out.nullVerdict = { status: row.status, message: row.message };
+}
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def server_verb_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the server-verb save probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-server-verb")
+    shutil.copy(SAVE_JS, tmp_path / "doxbench-save.mjs")
+    shutil.copy(MODEL_JS, tmp_path / "staging-workbench-model.mjs")
+    harness = tmp_path / "server-verb-harness.mjs"
+    harness.write_text(_SERVER_VERB_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_committed_row_reports_the_servers_verb_not_the_clients_guess(
+        server_verb_results):
+    """SC: the client predicted edit (the path exists in ITS buffer), the
+    server answered create (the path was new to the tree it wrote) — and the
+    committed row reports the SERVER's answer."""
+    s = server_verb_results["serverVerb"]
+    assert s["plannedAction"] == "edit-document", "precondition: client planned edit"
+    assert s["status"] == "committed"
+    assert s["committedAction"] == "create-document", (
+        "the committed row must adopt the server's own resolved verb")
+
+
+def test_a_transport_with_no_payload_yields_the_mapped_refusal_mid_save(
+        server_verb_results):
+    n = server_verb_results["nullVerdict"]
+    assert n["status"] == "refused"
+    assert n["message"] == (
+        "the Save transport returned no verdict for this buffer")
