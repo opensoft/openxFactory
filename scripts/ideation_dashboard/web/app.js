@@ -477,8 +477,10 @@ async function main() {
     // The grouping roll-up strip retired with the project-first header
     // (Brett's 2026-08-06 annotation: "with our new project and filter
     // boxes, we do not need this row anymore") — the project dropdown and
-    // repo filter are where grouping now surfaces; grouping.js's pure model
-    // remains available to any view that wants a roll-up.
+    // repo filter are where grouping now surfaces; the pure grouping
+    // view-model module remains available to any view that wants a roll-up,
+    // and the retired-everywhere guard in test_grouping.py pins that no
+    // mount returns.
     renderStats(document.getElementById("stats"), snapshot);
     const explorerRoot = document.getElementById("explorer-root");
     // The explorer (T017) has no compile-time dependency on the viewer
