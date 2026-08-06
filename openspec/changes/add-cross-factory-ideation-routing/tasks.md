@@ -9,7 +9,7 @@
 - [x] 2.1 Add canonical routing-record, `ideation/routing-index.yaml`, structured repository-reference, and organizer-recommendation schemas with controlled vocabularies, transition graphs, destination acceptance, numeric confidence, and evidence references.
 - [x] 2.2 Add valid and invalid examples for unknown-owner intake, domain-origin expansion, multi-source routing, unresolved blockers, destination acceptance, and routed proposal provenance.
 - [x] 2.3 Implement strict openxFactory validators for routing schema, central ID allocation, unique definitions, paired documents, legal transitions, accepted destinations, structured references, and prospective legacy compatibility.
-- [ ] 2.4 Register every schema and template in `contracts/manifest.yaml`, reconcile versions with `contracts/CHANGELOG.md`, update `contracts/README.md`, and add contract/validator tests.
+- [x] 2.4 Register every schema and template in `contracts/manifest.yaml`, reconcile versions with `contracts/CHANGELOG.md`, update `contracts/README.md`, and add contract/validator tests. (Done 2026-08-06 at **contract-v1.30**, release commit 6c03d78: all four family schemas registered — routing record, routing-reference kernel, routing index, organizer recommendations — with per-file sha256; CHANGELOG v1.30 entry; contracts-README rows gain the registration; the family ships no templates, and the validator tests already exist at `tests/ideation_routing/` — 44 green at the cut.)
 - [x] 2.5 Update openxFactory ideation, document-lifecycle, domain-to-neutral promotion, and doc-health guidance to reference promoted routing requirements without duplicating normative rules.
 
 ## 3. Domain Factory Adoption And Scaffolding

@@ -47,11 +47,16 @@
       finding / 2 purpose probes, 0 errors 0 warnings `--strict`; repo-tree
       scan clean; `openspec validate add-consent-instrument --strict` and
       `--all --strict` pass.)
-- [ ] 1.6 Contract registration (`contracts/manifest.yaml`,
+- [x] 1.6 Contract registration (`contracts/manifest.yaml`,
       `contracts/CHANGELOG.md`, contracts README rows) at the next
       additive bundle cut, per `docs/contract-versioning-policy.md`;
       DTN-016 → `adopted` in the domain-neutralization candidate
-      register.
+      register. (Done 2026-08-06 at **contract-v1.30**, tag published
+      from release commit 6c03d78: three schema entries with per-file
+      sha256, CHANGELOG entry, contracts-README rows, DTN-016 →
+      `adopted` with realized-by note; verify-commit + verify-tag pass,
+      manifest digests 124/124, consent validator self-test 0/0,
+      OpenSpec --all --strict 53/53.)
 
 ## 2. Conformance declarations (coordination, own repos)
 
