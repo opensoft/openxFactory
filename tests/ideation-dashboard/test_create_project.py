@@ -221,3 +221,31 @@ def test_wire_register_unreachable_refuses(tmp_path):
                                 {"name": "Thing", "repositories": ["repoA"]})
         assert status == 409
         assert "no project register" in payload["message"]
+
+
+def test_wire_a_fresh_commission_appears_as_pending_in_the_projection(tmp_path):
+    """Design D-e: the projection's `pending` plane reports dispatched,
+    undelivered create-project commissions, and drops an id the register
+    already carries — truth wins over intent."""
+    _register_beside(tmp_path)
+    with _serving(tmp_path) as (host, port, root):
+        conn = __import__("http.client", fromlist=["HTTPConnection"]).HTTPConnection(host, port, timeout=10)
+        conn.request("GET", "/project-register.json")
+        before = json.loads(conn.getresponse().read().decode("utf-8"))
+        conn.close()
+        assert before["pending"] == []
+
+        status, payload = _post(host, port, "/actions/gate/create-project",
+                                {"name": "Pending View",
+                                 "repositories": ["repoA"]})
+        assert status == 200, payload
+
+        conn = __import__("http.client", fromlist=["HTTPConnection"]).HTTPConnection(host, port, timeout=10)
+        conn.request("GET", "/project-register.json")
+        after = json.loads(conn.getresponse().read().decode("utf-8"))
+        conn.close()
+        assert [p["id"] for p in after["pending"]] == ["pending-view"]
+        assert after["pending"][0]["name"] == "Pending View"
+        assert after["pending"][0]["repositories"] == ["repoA"]
+        # truth is untouched: the register's projects are exactly as declared
+        assert [p["id"] for p in after["projects"]] == ["core"]

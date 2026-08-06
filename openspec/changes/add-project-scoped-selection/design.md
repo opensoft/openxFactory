@@ -58,6 +58,20 @@ reads full membership from the register projection. The create-project
 single-parent guard is dropped; the roster guard stays. First beneficiary:
 MedxFactory joins `medx-clinical` while remaining in `domains`.
 
+### D-e — Pending commissions render as overlay, never as truth
+Brett, 2026-08-06, after his first real commission: between the click and
+the fulfilment the created project was invisible everywhere except the
+retired button, which reads as "it did nothing". The fix is the house
+two-plane pattern (snapshot + intent-feed overlay): the register projection
+gains a `pending` plane — dispatched, undelivered create-project
+commissions, read from the same records scan the duplicate guard uses —
+and the picker renders them as clearly-marked, NON-SELECTABLE entries
+("… (commissioned — pending fulfilment)"), appended immediately on a
+same-page commission. Truth stays the register: a pending id never scopes
+the roster, and the register wins the moment the fulfilment lands (a
+pending id the register carries is dropped, even before the descriptor's
+status flips).
+
 ### D5 (inherited) — Authority declaration
 Stated in the capability delta so the runtime twin
 (`tenant-project-catalog-and-workstation-cache`) and this surface cannot

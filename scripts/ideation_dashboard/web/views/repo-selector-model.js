@@ -238,10 +238,28 @@ export function buildProjects(projection) {
     }));
 }
 
+// The INTENT half of the projection (design D-e): dispatched, undelivered
+// create-project commissions, rendered as non-selectable pending entries so a
+// fresh commission never looks like it did nothing. A pending id the register
+// already names is dropped — truth wins the moment the fulfilment lands.
+export function buildPendingProjects(projection) {
+  if (!projection || typeof projection !== "object") return [];
+  const real = new Set(buildProjects(projection).map((p) => p.id));
+  const pending = Array.isArray(projection.pending) ? projection.pending : [];
+  return pending
+    .filter((p) => p && p.id && !real.has(String(p.id)))
+    .map((p) => ({
+      id: String(p.id),
+      name: p.name ? String(p.name) : String(p.id),
+    }));
+}
+
 // The roster narrowed to one project's members (aggregates keep their place
 // only when composed purely of members). `projectId` null/unknown returns the
 // roster untouched — clearing the picker restores the full list, and a
 // projection that stopped naming the stored project degrades identically.
+// A PENDING id never scopes: it is not in `projects`, so it falls through to
+// the unknown-project degrade by construction.
 export function scopeRoster(roster, projects, projectId) {
   if (!projectId) return roster;
   const project = (projects || []).find((p) => p && p.id === String(projectId));
