@@ -213,25 +213,22 @@ def test_grouping_js_exists_and_is_importable_standalone():
     assert "fetch(" not in text
 
 
-def test_rollup_mounts_once_in_the_header_only():
-    # v3 sweep (register #17): the roll-up used to mount THREE times — once in
-    # the header and again inside funnel.js and board.js — stacking duplicate
-    # bars on those two tabs. It now mounts exactly ONCE, in the header, and the
-    # per-view mounts (and their grouping.js import) are gone.
+def test_rollup_strip_is_retired_everywhere():
+    # v3 sweep (register #17) collapsed three duplicate mounts to one header
+    # mount; Brett's 2026-08-06 header annotation then retired that last one
+    # ("with our new project and filter boxes, we do not need this row
+    # anymore") — grouping now surfaces through the project dropdown and the
+    # repo filter. The pure grouping MODEL stays (the node tests above pin
+    # it); what must not return is a roll-up MOUNT anywhere in the bundle.
     funnel = (WEB / "views" / "funnel.js").read_text(encoding="utf-8")
     board = (WEB / "views" / "board.js").read_text(encoding="utf-8")
     app = (WEB / "app.js").read_text(encoding="utf-8")
     index_html = (WEB / "index.html").read_text(encoding="utf-8")
 
-    # the single header mount survives
-    assert 'import { renderGroupingBar } from "./views/grouping.js"' in app
-    assert 'renderGroupingBar(document.getElementById("rollup")' in app
-    assert 'id="rollup"' in index_html
-
-    # the duplicate per-view mounts are removed
-    assert "renderGroupingBar(" not in funnel
-    assert "grouping.js" not in funnel
-    assert "renderGroupingBar(" not in board
+    for text in (app, funnel, board):
+        assert "renderGroupingBar(" not in text
+        assert "grouping.js" not in text
+    assert 'id="rollup"' not in index_html
     assert "grouping.js" not in board
 
 
