@@ -1,6 +1,6 @@
 # Consent Instrument — Design Decisions
 
-Status: staged
+Status: draft
 Kind: architecture
 Summary: Ranked record of the nine consent-instrument design rulings (Brett Heap, 2026-07-31, D10 live session): each question, its ruling, its rationale, and its grounding in the Ledgerx and Medx instantiations — the decision log for the authority chain's root object.
 Topics: consent-instrument, authority-chain, party-ladder, credential-contracts, delegation, consent-profile

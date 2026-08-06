@@ -71,10 +71,15 @@
       the README doc index — schemas + canonical validator + packaged
       corpus, pending bundle registration; the "OpenSpec Records" active-
       changes entry already existed from the propose commission.)
-- [ ] 3.2 Staging promotion executed with the proposal (this change):
+- [x] 3.2 Staging promotion executed with the proposal (this change):
       both topic docs moved to `supporting-docs/` with manifest, INDEX
       row + detail section removed, `ideation/README.md` promoted-list
-      pointer added.
+      pointer added. (Substantially done at the 2026-08-03 propose
+      commission; completed 2026-08-06 by repairing the hand-rolled
+      support manifest to the canonical envelope — format_version,
+      origin_path, source_revision 4728635 — and moving both support
+      docs from `Status: staged` to `Status: draft` per the proposed-
+      prose rule; `proposal-support.py verify` ok.)
 
 ## 4. Verification
 

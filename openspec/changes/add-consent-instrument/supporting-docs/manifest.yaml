@@ -3,13 +3,19 @@
   "files": [
     {
       "path": "consent-instrument-contract.md",
-      "sha256": "e7bf5ec7678ddc220d425c2c671a0c876d638b34ebbb582ed613b9563dd453be",
+      "sha256": "014bc79102b679440d9f877144e9771623ee5688f1cdcba7af40d508e7e852a3",
       "source_path": "ideation/staging/consent-instrument-contract/consent-instrument-contract.md"
     },
     {
       "path": "consent-instrument-design-decisions.md",
-      "sha256": "4843d3782c692ef7dcf9f8aa2565b2a1bf12279200dd0e778e2de186db530375",
+      "sha256": "9e25ba3dfe5b79415304675c89196d5d395302f9842c3ca81571984a5cac65f6",
       "source_path": "ideation/staging/consent-instrument-contract/consent-instrument-design-decisions.md"
     }
-  ]
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/consent-instrument-contract",
+  "remaining_paths": [],
+  "source_revision": "47286356ff6e87035eca0d0324c16c97ccf6ff31",
+  "source_state": "Full promotion of the consent-instrument-contract staged topic at the propose gate (2026-08-03): both topic docs moved with the authoring commit; no fragments remain staged."
 }

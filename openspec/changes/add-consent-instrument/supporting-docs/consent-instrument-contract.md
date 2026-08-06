@@ -1,6 +1,6 @@
 # Staged: Consent Instrument Contract
 
-Status: staged
+Status: draft
 Kind: architecture
 Summary: Every domain's rung-2 relationship starts with a consent instrument — the engagement letter, the patient consent, the agency agreement — and the factory treats it as a schema'd governed object, not prose: the ROOT OF THE AUTHORITY CHAIN that credential grants cite, gates verify, adapters activate on, and whose termination cascades to revocation. All nine design questions RULED 2026-07-31; the ranked record is consent-instrument-design-decisions.md beside this doc.
 Topics: consent-instrument, engagement-letter, authority-chain, party-ladder, delegation, revocation, memory-gateway, consent-profile, document-cataloging, credential-contracts
