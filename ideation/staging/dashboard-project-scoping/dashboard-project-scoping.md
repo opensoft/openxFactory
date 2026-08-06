@@ -163,6 +163,28 @@ not a UI change.
   hand-declared upkeep, and a commissioned project yields its merged view
   the moment its fulfilment lands.
 
+- **D12 — The dashboard is "Opensoft openDox" (Brett, 2026-08-06, header
+  design round).** The brand line and page title rename; "xFactory /
+  ideation dashboard" retires. The header's crowded picker cluster
+  (repo chip + project picker + repo select + "+ project") is the
+  confusion this round fixes.
+- **D13 — The current project is a dropdown; "New Project" is its first
+  line (Brett, 2026-08-06).** Then the register's projects. Default: the
+  last-used project (session-stored), falling back to the first register
+  project — the user is always IN a project; no unscoped line. "New
+  Project" opens the create-commission form (the existing verb, rehomed).
+- **D14 — Repo selection becomes a FILTER icon scoped to the current
+  project (Brett, 2026-08-06).** The popover lists the project's member
+  repositories; single-select makes one the active (served) repository. An
+  "All repositories" line sits on top, disabled with a coming-merged-view
+  note until exit 2 lands, then it selects the project's merged projection.
+- **D15 — Membership edits are an `edit-project` COMMISSION (Brett,
+  2026-08-06).** The filter popover gains a manage mode (checkbox per
+  register repository); applying commissions a register-edit descriptor
+  carrying add[]/remove[] — recorded, human-gated, fulfilled like
+  create-project, with pending changes badged until the fulfilment lands.
+  A project always keeps at least one member (the schema's own rule).
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind

@@ -251,6 +251,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-opendox-project-header](openspec/changes/add-opendox-project-header/proposal.md)
+  — proposed 2026-08-06 from Brett's header design round on
+  `dashboard-project-scoping` (decisions D12–D15): the dashboard renames
+  to "Opensoft openDox" and the header goes PROJECT-FIRST — a project
+  dropdown ("New Project" first, last-used default; the crowded picker
+  cluster and repo chip retire), repository selection becomes a filter
+  popover scoped to the current project (with the "All repositories"
+  line reserved for the merged view), and membership editing arrives as
+  the `edit-project` commission (additive gate-intent /
+  gate-action-record growth) with manage-mode checkboxes and pending
+  badges. Awaiting ratification.
 - [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
   — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
   (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged
