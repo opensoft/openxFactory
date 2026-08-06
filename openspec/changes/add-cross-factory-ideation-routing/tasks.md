@@ -16,7 +16,7 @@
 
 - [x] 3.1 Add reusable neutral ideation/routing guidance and update `scripts/apply-domain-starter.py` so future DomainxFactories inherit capture, provenance, acceptance, and disposition conventions.
 - [x] 3.2 Update AdxFactory, LedgerxFactory, MedxFactory, OpsxFactory, and codexFactory ideation guides with known-domain capture, cross-domain routing pointers, destination acceptance, and owner-authorized disposition.
-- [ ] 3.3 Re-pin each adopting DomainxFactory to the promoted routing contract and verify unchanged legacy brainstorms receive no fabricated Idea IDs, Claim IDs, or routing history.
+- [x] 3.3 Re-pin each adopting DomainxFactory to the promoted routing contract and verify unchanged legacy brainstorms receive no fabricated Idea IDs, Claim IDs, or routing history. — Done 2026-08-06: all five adopting domains re-pinned to the contract-v1.30 release commit `6c03d783` (LedgerxFactory 8b5c03a and MedxFactory 3c7715a with their consent conformance; AdxFactory 949e7d4; OpsxFactory 59db29d; codexFactory 04a87d0 via a scratch clone so the occupied shared checkout stayed untouched). No-fabrication verified: zero `XFI-` Idea/Claim IDs in any domain's legacy `ideation/brainstorm/` tree, zero `routing.yaml` records anywhere, and `validate-ideation-routing.py` 0 errors / 0 warnings over every domain repo and openxFactory itself.
 
 ## 4. Fourteenth Deterministic Family
 
