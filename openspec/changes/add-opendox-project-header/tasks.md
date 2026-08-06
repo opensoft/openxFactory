@@ -63,8 +63,17 @@
       Zero console errors, page errors, and >=400 responses on both drives.
       The wire accept + refusal paths are pinned by test_edit_project.py's
       real-HTTP group.)
-- [ ] 4.3 First real edit-project commission by Brett, fulfilled into the
+- [x] 4.3 First real edit-project commission by Brett, fulfilled into the
       aggregation register.
+      (Realized 2026-08-06: Brett commissioned AdxFactory into project
+      `openxfactory` from the filter's add dropdown at 19:35:38Z — right
+      after creating the EMPTY project `xfactory` at 19:35:30Z, the D17
+      create-first flow's first real use. Both fulfilled into the
+      aggregation register by the fulfilling session (commit d1ea422,
+      pinned schema green); both descriptors flipped dispatched ->
+      delivered. Brett's second edit attempt meanwhile drew the duplicate
+      guard's refusal naming the blocking descriptor — the guard's first
+      real exercise.)
 
 ## 5. The dropdown-like filter (design D-h / topic D16, Brett's 2026-08-06 annotation)
 
