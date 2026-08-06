@@ -497,9 +497,10 @@ def cmd_gate_create_project(args: argparse.Namespace) -> int:
     (add-project-scoped-selection). The register is aggregation-owned: this
     records the edit (descriptor + gate-action record) and never performs it.
     The target project id is slugged from the name; refusals (exit 1) cover
-    an unreachable register, an id collision, a member already owned by a
-    project (single-parent), a member outside the register's repository
-    universe, and a duplicate undelivered commission."""
+    an unreachable register, an id collision, a member outside the register's
+    repository universe, and a duplicate undelivered commission. A member
+    already in another project is legal — membership is multi-parent
+    (Brett's 2026-08-06 ruling)."""
     repo_root = Path(args.repo_root).resolve()
     console = gate_mod.GateConsole(_human_gate(repo_root, args),
                                    records_dir=args.records_dir)

@@ -150,20 +150,17 @@ function buildSelect(roster, active, onSelect) {
 // never a write — the POST records a project-register-edit descriptor + gate
 // record and the aggregation-owned register is edited only by the fulfilment.
 // Mounted only under the gate capability WITH a served register projection.
-// Member candidates are the roster repositories no project owns yet (the
-// single-parent rule makes owned ones refusable, so they are not offered).
+// Member candidates are ALL roster repositories: membership is multi-parent
+// (Brett's 2026-08-06 ruling), so a repository already in a project is a
+// legal member of a new one — projects are named views, not owners.
 // Refusals render textContent-only; a successful commission retires the
 // affordance for the session (the engine's duplicate guard is the backstop).
 function mountCreateProject(wrap, status, roster, projects, o) {
-  const owned = new Set();
-  for (const project of projects) {
-    for (const repo of project.repositories) owned.add(repo);
-  }
   const seen = new Set();
   const candidates = [];
   for (const option of roster) {
     if (option.kind !== "repository") continue;
-    if (owned.has(option.repository) || seen.has(option.repository)) continue;
+    if (seen.has(option.repository)) continue;
     seen.add(option.repository);
     candidates.push(option.repository);
   }
@@ -193,7 +190,7 @@ function mountCreateProject(wrap, status, roster, projects, o) {
   }
   if (!candidates.length) {
     form.appendChild(el("span", "projectform-note",
-      "every published repository already belongs to a project"));
+      "no published repositories to choose from"));
   }
   const submit = el("button", "repobtn", "commission");
   submit.type = "button";

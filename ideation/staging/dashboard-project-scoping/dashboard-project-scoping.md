@@ -135,9 +135,17 @@ not a UI change.
   `domains` (AdxFactory, LedgerxFactory, MedxFactory, OpsxFactory,
   codexFactory), `medx-clinical` (HealthLinc, MedxEHR, openChart), `installs`
   (agenttower, cloudpc-install, hermes-install, omnigent-install,
-  xfactory-installer). The schema's single-parent rule holds (a repository
-  belongs to at most one project), so `medx-clinical` claims the clinical
-  trio and MedxFactory stays in `domains`.
+  xfactory-installer). *As originally ruled, the schema's single-parent rule
+  forced `medx-clinical` to claim only the clinical trio — superseded by D8.*
+- **D8 — Repository membership is MULTI-PARENT (Brett, 2026-08-06, ruled
+  during exit-1 realization).** "We want a repo to be able to live in
+  multiple projects": a project is a named view over repositories, not an
+  owner. Realized inside `add-project-scoped-selection` (design D-d): the
+  snapshot's singular `project` survives as the first-declaring PRIMARY, an
+  additive `projects` list carries full membership, the validator's
+  repo-multi-parent error is dropped (project→group stays single-parent),
+  and the create-project single-parent guard goes with it. First
+  beneficiary: MedxFactory joins `medx-clinical` while staying in `domains`.
 
 ## Open questions — resolved 2026-08-06
 

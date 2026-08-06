@@ -31,18 +31,19 @@ description: >-
   the register validator, not by this shape): every `id` (project and
   project-group) is unique within the register; every project id named by
   a `project_groups[].projects` entry MUST exist among `projects[].id`;
-  and — this contract's reading of D10 — the hierarchy is SINGLE-PARENT: a
-  repository belongs to at most one project and a project belongs to at
-  most one project group, because the snapshot carries singular
-  `project`/`project_group` fields per repository
-  (`ideation-dashboard-snapshot.schema.yaml`), rendering exactly one of
-  each (spec scenario "A project spans several
-  repositories" aggregates repositories under ONE project heading; a
-  multi-parent register would make that resolution ambiguous). This rule
-  is flagged here for the generator/orchestrator that performs the
-  `repository` -> `project` -> `project_group` resolution, since nothing
-  in the shape below prevents authoring a repository or project into more
-  than one parent.
+  and a project belongs to at most one project group (the snapshot's
+  `project_group` field is singular). REPOSITORY membership is
+  MULTI-PARENT (Brett's 2026-08-06 ruling on `add-project-scoped-selection`,
+  amending the original D10 single-parent reading): a repository MAY live
+  in any number of projects — a project is a named VIEW over repositories,
+  not an owner. The snapshot keeps its singular `project` field as the
+  PRIMARY project (the first project in register order that declares the
+  repository — deterministic, so grouping roll-ups render each repository
+  under exactly one heading) and additionally carries the full additive
+  `projects` list; selection scoping reads full membership from the
+  register projection. The project->group half stays single-parent and is
+  flagged here for the generator/orchestrator, since nothing in the shape
+  below prevents authoring a project into more than one group.
 
   Forward-compatible / additive: consumers MUST ignore unknown properties.
   A later delta may extend project or project-group entries without a
@@ -89,9 +90,10 @@ $defs:
         type: array
         minItems: 1
         # A project with zero repositories is invalid (task 2.6) — an
-        # empty project names no set. VALIDATOR-SIDE (see file
-        # description): a given repository id MUST appear under at most
-        # one project (single-parent D10 reading).
+        # empty project names no set. A repository id MAY appear under any
+        # number of projects (multi-parent membership, Brett's 2026-08-06
+        # ruling — see the file description; the first-declaring project in
+        # register order is the snapshot's PRIMARY).
         items:
           type: string
           minLength: 1

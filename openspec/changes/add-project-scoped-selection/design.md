@@ -44,6 +44,20 @@ no reachable register) 404s the route and the picker hides. This is
 deliberate: exit 2 owns the merged view, and this change must not pre-build
 half of it.
 
+### D-d — Repository membership is multi-parent (post-ratification ruling)
+Brett, 2026-08-06, during realization (the D22 precedent: a recorded
+post-ratification ruling on the change it amends): "we want a repo to be
+able to live in multiple projects." A project is a named VIEW over
+repositories, not an owner. This reverses the original D10 single-parent
+reading for the repository→project half only — a project still belongs to
+at most one group. The snapshot's singular `project` field survives as the
+PRIMARY (the first project in register order that declares the repository —
+deterministic, so grouped roll-ups keep one heading per repository), and an
+additive `projects` list carries full membership; selection scoping already
+reads full membership from the register projection. The create-project
+single-parent guard is dropped; the roster guard stays. First beneficiary:
+MedxFactory joins `medx-clinical` while remaining in `domains`.
+
 ### D5 (inherited) — Authority declaration
 Stated in the capability delta so the runtime twin
 (`tenant-project-catalog-and-workstation-cache`) and this surface cannot

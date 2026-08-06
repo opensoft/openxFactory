@@ -63,9 +63,11 @@ Validator-side rules beyond plain schema conformance:
              disposed derived possible (a recorded `human_disposition`) is never
              edited back to the undisposed `pending_review` state.
   Project    `id` uniqueness (projects and groups); every group-member project
-             id must exist; single-parent hierarchy — a repository in at most
-             one project, a project in at most one group (the D10 reading, since
-             the snapshot carries singular project/project_group fields).
+             id must exist; a project in at most one group (the snapshot's
+             `project_group` is singular). Repository membership is
+             MULTI-PARENT (Brett's 2026-08-06 ruling): a repository may live
+             in any number of projects; the snapshot's singular `project` is
+             the first-declaring PRIMARY and `projects` carries them all.
   Gate       a `kickoff` record requires its target change to carry a recorded
              ratification (D17). This is a cross-instance precondition: supply
              `--context FILE|DIR` (a snapshot whose `changes[]` carry
@@ -609,29 +611,25 @@ def check_entry_state_fields(f: Findings, label: str, entry: dict) -> None:
 
 def check_project_register_rules(f: Findings, label: str, doc: dict) -> None:
     """id uniqueness (projects + groups), group-member existence, and the
-    single-parent D10 hierarchy (a repo in at most one project, a project in at
-    most one group)."""
+    project->group single-parent rule (a project in at most one group).
+    REPOSITORY membership is multi-parent since Brett's 2026-08-06 ruling on
+    `add-project-scoped-selection`: a repository may live in any number of
+    projects; the snapshot's singular `project` is the PRIMARY
+    (first-declaring in register order) and the additive `projects` list
+    carries full membership."""
     projects = doc.get("projects") or []
     groups = doc.get("project_groups") or []
 
     proj_ids: dict[str, int] = {}
-    repo_parent: dict[str, list[str]] = {}
     for p in projects:
         if not isinstance(p, dict):
             continue
         pid = p.get("id")
         if pid is not None:
             proj_ids[pid] = proj_ids.get(pid, 0) + 1
-        for repo in p.get("repositories") or []:
-            repo_parent.setdefault(repo, []).append(pid)
     for pid, n in proj_ids.items():
         if n > 1:
             f.error("project-duplicate-id", f"{label}: project id {pid!r} appears {n} times")
-    for repo, parents in repo_parent.items():
-        if len(parents) > 1:
-            f.error("project-multi-parent-repo",
-                    f"{label}: repository {repo!r} belongs to multiple projects {parents} "
-                    f"(single-parent D10; snapshot carries a singular project field)")
 
     grp_ids: dict[str, int] = {}
     proj_group_parent: dict[str, list[str]] = {}

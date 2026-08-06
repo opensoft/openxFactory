@@ -708,10 +708,13 @@ def create_project(
     aggregation-owned and is edited only by the commission's fulfilment.
 
     Guards, all before the first write: human gate -> name/member shape ->
-    register reachability -> id collision -> single-parent -> member roster ->
-    duplicate commission. `roster` (when supplied — the serving plane passes
-    its reachable repository ids) WIDENS the member universe beyond the
-    register's own repository ids; membership outside both is refused.
+    register reachability -> id collision -> member roster -> duplicate
+    commission. `roster` (when supplied — the serving plane passes its
+    reachable repository ids) WIDENS the member universe beyond the
+    register's own repository ids; membership outside both is refused. A
+    member already in another project is LEGAL — repository membership is
+    multi-parent (Brett's 2026-08-06 ruling); the register's projects are
+    named views, not owners.
     """
     human = require_human_gate(gate)
 
@@ -747,15 +750,8 @@ def create_project(
             f"create-project refused: project id {project_id!r} already "
             "exists in the register — a project is created once; pick a "
             "different name.")
-    owner = {repo: p.get("id") for p in projects
-             for repo in (p.get("repositories") or [])}
-    taken = [f"{m} (in {owner[m]!r})" for m in members if m in owner]
-    if taken:
-        raise GateRefused(
-            "create-project refused: a repository belongs to at most one "
-            "project (the register's single-parent rule) — already owned: "
-            + ", ".join(taken) + ".")
-    known = set(owner) | {str(r) for r in (roster or [])}
+    known = {repo for p in projects for repo in (p.get("repositories") or [])}
+    known |= {str(r) for r in (roster or [])}
     unknown = [m for m in members if m not in known]
     if unknown:
         raise GateRefused(
@@ -768,7 +764,7 @@ def create_project(
         f"{project_id!r} ({name!r}) with member repositories "
         f"{', '.join(members)} to the aggregation-owned "
         "project-register.yaml; validate against the pinned schema (id "
-        "uniqueness, single-parent) before landing.")
+        "uniqueness; membership is multi-parent) before landing.")
     return _commission(
         ACTION_CREATE_PROJECT, gate, project_id, workflow=workflow,
         outline=outline, note=note, at=at, records_dir=records_dir,

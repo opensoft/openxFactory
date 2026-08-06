@@ -66,3 +66,21 @@
 - [ ] 4.3 First real commission by Brett recorded end-to-end and fulfilled
       into `project-register.yaml` (descriptor delivered, register edit
       validated + landed in the aggregation repo).
+
+## 5. Multi-parent membership (design D-d, Brett's 2026-08-06 ruling)
+
+- [x] 5.1 Contracts: register schema prose rules rewritten (repository
+      membership multi-parent; project→group stays single-parent); snapshot
+      schema gains the additive `projects` list beside the singular PRIMARY
+      `project`; register validator drops `project-multi-parent-repo`.
+- [x] 5.2 Adapter + generator: `ProjectRegisterAdapter.projects_of()` (full
+      membership, register order, primary first); the generator stamps
+      `projects` beside `project`/`project_group`.
+- [x] 5.3 Engine + surface: the create-project single-parent guard dropped
+      (an owned member is legal; roster guard unchanged); the affordance
+      offers ALL roster repositories as candidates.
+- [x] 5.4 Tests: owned-member acceptance (engine + wire), adapter
+      primary/full-list resolution, validator no longer errs on shared
+      membership; suites green.
+- [x] 5.5 Register content: MedxFactory joins `medx-clinical` while staying
+      in `domains` (aggregation-repo edit — the ruling's first beneficiary).

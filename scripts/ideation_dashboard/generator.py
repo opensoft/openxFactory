@@ -726,6 +726,11 @@ def generate_snapshot(
         snapshot["project"] = project
     if project_group:
         snapshot["project_group"] = project_group
+    # ADDITIVE full membership (multi-project ruling, 2026-08-06): every
+    # declaring project in register order; first element == the primary above.
+    memberships = project_register.projects_of(repository)
+    if memberships:
+        snapshot["projects"] = memberships
 
     return snapshot
 

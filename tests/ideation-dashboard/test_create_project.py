@@ -2,9 +2,11 @@
 (add-project-scoped-selection).
 
 Engine half: every guard in its ruled order (name shape, member shape,
-register reachability, id collision, single-parent, roster membership,
-duplicate), the accept path's descriptor + record, the agent-path rejection,
-and — the D2 boundary — the register file byte-identical after every call.
+register reachability, id collision, roster membership, duplicate), the
+accept path's descriptor + record, multi-parent membership (a member
+already in another project is LEGAL — Brett's 2026-08-06 ruling), the
+agent-path rejection, and — the D2 boundary — the register file
+byte-identical after every call.
 
 Wire half: rides test_gate_routes' real-HTTP `_serving` harness — invalid
 bodies are 400, engine refusals are 409 carrying the engine's reason, the
@@ -86,11 +88,14 @@ def test_an_existing_project_id_is_refused(tmp_path):
                                roster=["repoB"], register_source=reg)
 
 
-def test_the_single_parent_rule_refuses_an_owned_member(tmp_path):
+def test_a_member_of_another_project_is_a_legal_member(tmp_path):
+    """Multi-parent membership (Brett, 2026-08-06): projects are named views
+    over repositories, not owners — repoA lives in `core` AND the new one."""
     _, reg, console = _fixture(tmp_path)
-    with pytest.raises(GateRefused, match="at most one project"):
-        console.create_project("Thing", repositories=["repoA"],
-                               register_source=reg)
+    res = console.create_project("Thing", repositories=["repoA"],
+                                 register_source=reg)
+    assert res.job["project_id"] == "thing"
+    assert res.job["repositories"] == ["repoA"]
 
 
 def test_a_member_outside_register_and_roster_is_refused(tmp_path):
@@ -163,10 +168,25 @@ def test_wire_engine_refusal_is_409_with_the_engine_reason(tmp_path):
     _register_beside(tmp_path)
     with _serving(tmp_path) as (host, port, root):
         status, payload = _post(host, port, "/actions/gate/create-project",
-                                {"name": "Thing", "repositories": ["repoA"]})
+                                {"name": "Core", "repositories": ["repoA"]})
         assert status == 409, payload
         assert payload["error"] == "gate_refused"
-        assert "at most one project" in payload["message"]
+        assert "already exists" in payload["message"]
+
+
+def test_wire_an_owned_member_is_accepted_multi_parent(tmp_path):
+    """The wire half of the multi-parent ruling: repoA (owned by `core`)
+    commissions into a second project over the executing route."""
+    _register_beside(tmp_path)
+    with _serving(tmp_path) as (host, port, root):
+        status, payload = _post(host, port, "/actions/gate/create-project",
+                                {"name": "Second View",
+                                 "repositories": ["repoA"]})
+        assert status == 200, payload
+        assert payload["ok"] is True
+        assert payload["project_id"] == "second-view"
+        assert (root / payload["record"]).is_file()
+        assert (root / payload["job"]).is_file()
 
 
 def test_wire_accept_returns_the_slugged_id_and_paths(tmp_path):
