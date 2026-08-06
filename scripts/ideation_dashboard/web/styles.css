@@ -150,8 +150,18 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
 .filterrow:disabled { color: var(--muted); cursor: default; }
 .filteractive { font-weight: 700; }
 .filterall { border-bottom: 1px solid var(--border); border-radius: 0; padding-bottom: 5px; }
-.filtermanage { border-top: 1px solid var(--border); border-radius: 0; padding-top: 5px; color: var(--muted); }
-.managepane { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; }
+.filteradd { border-bottom: 1px solid var(--border); border-radius: 0; padding-bottom: 5px; color: var(--muted); }
+.managepane { display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 4px 6px; }
+.filterline { display: flex; align-items: center; gap: 4px; }
+.filterline .filterrow { flex: 1; }
+.filtereye { font-size: 11px; width: 18px; text-align: center; color: var(--muted); }
+.filtereye.filtervisible { color: inherit; }
+.filtertrash {
+  border: 0; background: none; cursor: pointer; font-size: 11px;
+  color: var(--muted); padding: 2px 4px; border-radius: 3px;
+}
+.filtertrash:hover { background: rgba(127,127,127,0.12); }
+.filtertrash.filterarmed { color: #b04030; font-weight: 700; }
 .projectform { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .projectform .projectmember { font-size: 12px; display: inline-flex; align-items: center; gap: 3px; }
 .projectname { font-family: var(--mono); font-size: 12px; padding: 2px 6px; }

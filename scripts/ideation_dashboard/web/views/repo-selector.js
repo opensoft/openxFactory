@@ -22,9 +22,9 @@
 // assigned here.
 
 import {
-  buildPendingEdits, buildPendingProjects, buildProjects, buildRoster,
-  defaultProjectScope, freshnessLabel, hintLabel, keyId, manageDiff,
-  newerAvailable, projectFilterRows, sameKey, staleNotice,
+  addableRepositories, buildPendingEdits, buildPendingProjects, buildProjects,
+  buildRoster, defaultProjectScope, freshnessLabel, hintLabel, keyId,
+  newerAvailable, projectFilterRows, repositoryVisible, sameKey, staleNotice,
 } from "./repo-selector-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
@@ -34,9 +34,9 @@ export const ACTIONS_REFRESH_ROUTE = "/actions/refresh";
 // like the index: a static image 404s them and the selector renders unscoped.
 export const PROJECT_REGISTER_PROJECTION_ROUTE = "/project-register.json";
 export const ACTIONS_CREATE_PROJECT_ROUTE = "/actions/gate/create-project";
-// add-opendox-project-header (D15): the membership-edit commission route the
-// filter popover's manage mode POSTs to. Same degrade contract as its
-// siblings.
+// add-opendox-project-header (D15/D16): the membership-edit commission route
+// the filter popover's add line and trash controls POST to. Same degrade
+// contract as its siblings.
 export const ACTIONS_EDIT_PROJECT_ROUTE = "/actions/gate/edit-project";
 // The viewer's project scope survives the reload a selection triggers. It is
 // THIRD-PARTY DATA on the way back in: it only ever filters client-side
@@ -222,24 +222,28 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
   };
 }
 
-// The repo FILTER (add-opendox-project-header D14/D15): one icon, one
-// popover scoped to the CURRENT project. Rows come from the pure
-// `projectFilterRows` derivation — the all-repos line first (armed when the
-// project's derived aggregate is on the roster; disabled naming the merged
-// view otherwise), then one row per member repository. Manage mode (gate
-// only) turns the rows into checkboxes over every known repository and
-// commissions the diff as an edit-project register edit; pending membership
-// edits badge until their fulfilment lands (the D-e two-plane posture).
+// The repo FILTER (add-opendox-project-header D14/D16): one icon, one
+// popover scoped to the CURRENT project, working like the project dropdown
+// (Brett's 2026-08-06 header annotation): the FIRST line adds a repository
+// to the project, then the all-repos line, then one row per member — an
+// EYEBALL on the left saying whether that repository is visible in the
+// current view, the repository name (click = serve it), and a TRASH control
+// on the right that commissions its removal (two-click, so a stray click
+// arms rather than acts). Add and remove are edit-project COMMISSIONS —
+// recorded, register untouched until fulfilment — and pending membership
+// edits badge their rows (the D-e two-plane posture). Gate off, the add
+// line and the trash controls are absent and the rows stay selectable.
 // DOM-safety: textContent only, throughout.
 function mountProjectFilter(project, roster, pendingEdits, opts) {
   const holder = el("span", "repofilter");
   if (!project) return holder;
   const o = opts || {};
+  const gated = gateCapable(o.caps);
   // reread per render: a same-page commission appends to `pendingEdits`
   const currentPendingEdit = () => (pendingEdits || []).find(
     (e) => e.projectId === project.id) || null;
 
-  const button = el("button", "repobtn filterbtn", "⧩ " + project.name);
+  const button = el("button", "repobtn filterbtn", "\u29e9 " + project.name);
   button.type = "button";
   button.title = "repositories in " + project.name;
   button.setAttribute("aria-label", "repository filter for " + project.name);
@@ -251,13 +255,79 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
     button.setAttribute("aria-expanded", pop.hidden ? "false" : "true");
   });
 
+  async function commissionEdit(body, control, restore) {
+    o.status.textContent = "";
+    try {
+      const fetchOpts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: project.id, ...body }),
+      };
+      const response = o.fetcher
+        ? await o.fetcher(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts)
+        : await fetch(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data?.ok !== true) {
+        if (restore) restore();
+        o.status.textContent = "edit-project refused: "
+          + (data?.message || data?.error || ("HTTP " + response.status));
+        return;
+      }
+      o.status.textContent = "membership edit recorded (" + data.job + ")";
+      // badge immediately (D-e): re-render with this edit pending
+      pendingEdits = (pendingEdits || []).concat([{
+        projectId: project.id, add: data.add, remove: data.remove }]);
+      renderRows();
+    } catch (err) {
+      if (restore) restore();
+      o.status.textContent = "edit-project failed: " + (err?.message || "error");
+    }
+  }
+
+  // D16's first line: add a repository to this project. Opens an inline
+  // candidate select (roster + register known, minus members) and
+  // commissions the single addition.
+  function mountAddRow(pendingEdit) {
+    const addRow = el("button", "filterrow filteradd", "\uff0b add repository\u2026");
+    addRow.type = "button";
+    const pane = el("span", "managepane");
+    pane.hidden = true;
+    const candidates = addableRepositories(roster, o.projects, project)
+      .filter((r) => !(pendingEdit && pendingEdit.add.includes(r)));
+    if (candidates.length) {
+      const pickRepo = el("select", "repopick");
+      pickRepo.setAttribute("aria-label", "repository to add");
+      for (const repository of candidates) {
+        const opt = el("option", null, repository);
+        opt.value = repository;
+        pickRepo.appendChild(opt);
+      }
+      const commit = el("button", "repobtn", "commission add");
+      commit.type = "button";
+      commit.addEventListener("click", () => {
+        commit.disabled = true;
+        commissionEdit({ add: [pickRepo.value] }, commit,
+          () => { commit.disabled = false; });
+      });
+      pane.appendChild(pickRepo);
+      pane.appendChild(commit);
+    } else {
+      pane.appendChild(el("span", "projectform-note",
+        "every known repository is already a member"));
+    }
+    addRow.addEventListener("click", () => { pane.hidden = !pane.hidden; });
+    pop.appendChild(addRow);
+    pop.appendChild(pane);
+  }
+
   function renderRows() {
     const pendingEdit = currentPendingEdit();
     pop.textContent = "";
+    if (gated) mountAddRow(pendingEdit);
     for (const row of projectFilterRows(roster, project)) {
       if (row.kind === "all") {
         const all = el("button", "filterrow filterall",
-          "⊞ all repositories in " + project.name);
+          "\u229e all repositories in " + project.name);
         all.type = "button";
         if (row.option) {
           if (sameKey(row.option, o.active)) all.classList.add("filteractive");
@@ -270,6 +340,16 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
         pop.appendChild(all);
         continue;
       }
+      // one member row: [eye] [name -> serve it] [trash -> commission removal]
+      const line = el("span", "filterline");
+      const visible = repositoryVisible(row.repository, project, o.active);
+      const eye = el("span", "filtereye" + (visible ? " filtervisible" : ""),
+        visible ? "\ud83d\udc41" : "\u25cc");
+      eye.title = visible
+        ? "visible in the current view"
+        : "not in the current view \u2014 click the name to serve it";
+      line.appendChild(eye);
+
       const entry = el("button", "filterrow", row.repository);
       entry.type = "button";
       if (pendingEdit && pendingEdit.remove.includes(row.repository)) {
@@ -287,78 +367,42 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
         entry.disabled = true;
         entry.textContent += " (no published snapshot)";
       }
-      pop.appendChild(entry);
+      line.appendChild(entry);
+
+      if (gated && !(pendingEdit && pendingEdit.remove.includes(row.repository))) {
+        // two-click removal: the first click ARMS, the second commissions —
+        // a register edit should never ride a stray click.
+        const trash = el("button", "filtertrash", "\ud83d\uddd1");
+        trash.type = "button";
+        trash.title = "remove " + row.repository + " from " + project.name
+          + " (recorded commission; the register changes at fulfilment)";
+        let armed = false;
+        trash.addEventListener("click", () => {
+          if (!armed) {
+            armed = true;
+            trash.textContent = "remove?";
+            trash.classList.add("filterarmed");
+            return;
+          }
+          trash.disabled = true;
+          commissionEdit({ remove: [row.repository] }, trash, () => {
+            trash.disabled = false;
+            armed = false;
+            trash.textContent = "\ud83d\uddd1";
+            trash.classList.remove("filterarmed");
+          });
+        });
+        line.appendChild(trash);
+      }
+      pop.appendChild(line);
     }
-    for (const adding of (pendingEdit ? pendingEdit.add : [])) {
+    for (const adding of ((currentPendingEdit() || {}).add || [])) {
       const row = el("button", "filterrow filterpending",
         adding + " (addition pending)");
       row.type = "button";
       row.disabled = true;
       pop.appendChild(row);
     }
-    if (gateCapable(o.caps)) mountManage();
-  }
-
-  function mountManage() {
-    const manage = el("button", "filterrow filtermanage", "✎ manage members…");
-    manage.type = "button";
-    pop.appendChild(manage);
-    const pane = el("span", "managepane");
-    pane.hidden = true;
-    const known = new Set(project.repositories);
-    for (const option of roster) {
-      if (option.kind === "repository") known.add(option.repository);
-    }
-    const boxes = [];
-    for (const repository of [...known].sort()) {
-      const label = el("label", "projectmember");
-      const box = el("input");
-      box.type = "checkbox";
-      box.value = repository;
-      box.checked = project.repositories.includes(repository);
-      label.appendChild(box);
-      label.appendChild(el("span", null, repository));
-      boxes.push(box);
-      pane.appendChild(label);
-    }
-    const apply = el("button", "repobtn", "commission edit");
-    apply.type = "button";
-    pane.appendChild(apply);
-    manage.addEventListener("click", () => { pane.hidden = !pane.hidden; });
-    apply.addEventListener("click", async () => {
-      const checked = boxes.filter((b) => b.checked).map((b) => b.value);
-      const diff = manageDiff(project.repositories, checked);
-      o.status.textContent = "";
-      apply.disabled = true;
-      try {
-        const fetchOpts = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ project_id: project.id,
-                                 add: diff.add, remove: diff.remove }),
-        };
-        const response = o.fetcher
-          ? await o.fetcher(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts)
-          : await fetch(ACTIONS_EDIT_PROJECT_ROUTE, fetchOpts);
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || data?.ok !== true) {
-          apply.disabled = false;
-          o.status.textContent = "edit-project refused: "
-            + (data?.message || data?.error || ("HTTP " + response.status));
-          return;
-        }
-        pane.hidden = true;
-        o.status.textContent = "membership edit recorded (" + data.job + ")";
-        // badge immediately (D-e): re-render the rows with this edit pending
-        pendingEdits = (pendingEdits || []).concat([{
-          projectId: project.id, add: data.add, remove: data.remove }]);
-        renderRows();
-      } catch (err) {
-        apply.disabled = false;
-        o.status.textContent = "edit-project failed: " + (err?.message || "error");
-      }
-    });
-    pop.appendChild(pane);
   }
 
   renderRows();
@@ -438,7 +482,7 @@ export function mountRepoSelector(host, opts) {
     let filterWrap = null;
     function renderFilter() {
       const next = mountProjectFilter(currentProject(), roster, pendingEdits, {
-        active, caps, status, fetcher: o.fetcher,
+        active, caps, status, projects, fetcher: o.fetcher,
         onSelect: (key) => o.onSelect?.(key),
       });
       if (filterWrap) filterWrap.replaceWith(next);

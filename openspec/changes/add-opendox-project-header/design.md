@@ -54,6 +54,22 @@ the shared undelivered-commission index scopes duplicates PER VERB
 different project, and an undelivered edit blocks only a second edit of
 the same project.
 
+### D-h — The filter works like the dropdown (Brett's 2026-08-06 annotation)
+Ruled through the vibe-annotate channel after the first realization pass:
+"repo filter can work the same as the project dropdown. first line can be
+add new repo. on the left we can have eyeball that shows if the repo is
+visible in the view. on the right have trash can delete icon to remove the
+repo from the project." Manage mode retires; in its place: the popover's
+FIRST line is "＋ add repository…" (an inline candidate select over the
+known-repository universe minus current members, commissioning a
+single-addition edit), each member row carries an EYEBALL on the left
+(visible = the active single-repo view, or any member under the project's
+own merged view) and a TRASH control on the right whose first click ARMS
+and second click commissions the single-removal edit — a register edit
+never rides a stray click. Same engine verb, same pending badges; gate off,
+the add line and trash controls are absent and rows stay selectable.
+Recorded as topic decision D16.
+
 ## Risks / Trade-offs
 
 - **A dropdown row that acts (New Project)** can surprise keyboard users;
