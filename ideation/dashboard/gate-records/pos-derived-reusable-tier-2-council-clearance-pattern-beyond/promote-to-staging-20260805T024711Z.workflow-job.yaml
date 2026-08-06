@@ -1,0 +1,16 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+possible_id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+workflow: staging-fragment-authoring
+gate_contract: workflow-gate
+authoring_outline: Organize possible 'pos-derived-reusable-tier-2-council-clearance-pattern-beyond'
+  into ideation/staging/<topic>/ as a fragment; deliver the fragment together with
+  the possible's latent -> picked pick edge citing the real staging id.
+status: delivered
+dispatched_by: brettheap
+dispatched_at: '2026-08-05T02:47:11Z'
+# Delivered 2026-08-05 by the fulfilling terminal session: fragment at
+# ideation/staging/tier2-council-clearance-pattern/ (INDEX row + detail
+# section in the same commit) together with the register's latent -> picked
+# edge (pick.staging_id: tier2-council-clearance-pattern), per design D4.

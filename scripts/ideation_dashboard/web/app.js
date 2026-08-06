@@ -48,7 +48,7 @@ import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
-import { fetchIndex, mountRepoSelector, renderStaleBanner } from "./views/repo-selector.js";
+import { fetchIndex, fetchProjects, mountRepoSelector, renderStaleBanner } from "./views/repo-selector.js";
 import {
   freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey, sparseNotice,
 } from "./views/repo-selector-model.js";
@@ -452,6 +452,11 @@ async function main() {
     // older server) means one repository and today's behaviour — the whole
     // control simply does not render.
     const index = await fetchIndex();
+    // The register PROJECTION (add-project-scoped-selection): the project
+    // picker's roster. The snapshot index is a locator and carries no
+    // grouping, so the projects come from the served register projection —
+    // absent (static image, no reachable register), the picker hides.
+    const projects = await fetchProjects();
     // The stored key is a viewer PREFERENCE, not an instruction: it becomes the
     // active pair only when THIS index still advertises it (resolveStoredKey).
     // A repository that has left the roster — or a stored value that is not
@@ -655,7 +660,7 @@ async function main() {
     // refresh reloads it too (the data changed, so every view must re-derive); a
     // FAILED refresh reports inline and leaves this view exactly as it is.
     mountRepoSelector(document.getElementById("repopicker"), {
-      index, active, snapshot, caps,
+      index, active, snapshot, caps, projects,
       onSelect: (key) => { storeKey(key); window.location.reload(); },
       onRefreshed: () => window.location.reload(),
     });

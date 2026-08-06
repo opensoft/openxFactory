@@ -1,0 +1,13 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+possible_id: pos-derived-governed-kill-switch-custody-contract
+workflow: possible-research-brief
+gate_contract: workflow-gate
+authoring_outline: 'Research possible ''pos-derived-governed-kill-switch-custody-contract''
+  before its verdict: sources, prior art, and overlap with existing capabilities and
+  specs, delivered as staging-compatible material accompanying the possible. It informs
+  the human''s disposition and never makes it.'
+status: dispatched
+dispatched_by: brettheap
+dispatched_at: '2026-08-05T16:17:49Z'

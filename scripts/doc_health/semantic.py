@@ -353,6 +353,11 @@ def _scrubbed_env() -> dict:
     keep = ("PATH", "HOME", "LANG", "LC_ALL", "TMPDIR",
             "USERPROFILE", "APPDATA",
             "ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL")
+    # CLAUDE_CONFIG_DIR locates the CLI's login (profile-scoped
+    # workstations set it); like HOME it is a credential POINTER, not a
+    # credential value — without it a workstation-hosted invocation fails
+    # "Not logged in" even though the operator's CLI is authenticated.
+    keep = keep + ("CLAUDE_CONFIG_DIR",)
     env = {k: os.environ[k] for k in keep if k in os.environ}
     env["CLAUDE_CODE_SKIP_PROMPT_HISTORY"] = "1"
     return env

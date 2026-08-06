@@ -51,7 +51,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
-| [dashboard-project-scoping](#dashboard-project-scoping) | MODIFIED `ideation-dashboard` (project CRUD affordance, project-scoped selection, per-tile repository binding); possibly MODIFIED `project-register` schema | 1 | Ready to iterate — named by Brett 2026-08-02. The grouping machinery is BUILT AND IDLE (register declares `projects[].repositories[]`, generator resolves repository→project→group, surface renders three toggles) but content-starved: one project holding all eleven repos, zero groups. Three layers: L1 register CRUD from the surface (small, but the write crosses into the AGGREGATION repo), L2 project as a filter (Q1: merged view vs filtered one-at-a-time — the single-active-snapshot assumption is load-bearing), L3 per-tile repository binding (LARGE — reopens `session_repository`, confinement, and the worktree layout that `add-workbench-branch-sessions` ratified). 5 open questions; Q1 and Q3 decide whether this is a selector change or a plane change. Twin of the `tenant-project-catalog-and-workstation-cache` brainstorm (runtime-authoritative version) — must not fork it |
+| [dashboard-project-scoping](#dashboard-project-scoping) | MODIFIED `ideation-dashboard` (create-project commission, project-scoped selection, merged cross-repo projection, per-tile repository binding); additive gate-intent / gate-action-record growth | 1 | **Decision round complete 2026-08-06** — D1–D7 locked with Brett, ZERO open questions: true MERGED all-repos view (D1), register writes via COMMISSION (D2), L3 per-tile binding PROCEEDS as its own change (D3), projects only (D4), local register dev-authoritative then derived cache under the tenant-catalog twin (D5), THREE sequenced exits (D6: `add-project-scoped-selection` → `add-project-merged-projection` → `add-project-tile-repository-binding`), register split by role (D7 — core/domains/medx-clinical/installs, single-parent rule holds). **Exit 1 proposed 2026-08-06 as `add-project-scoped-selection`** |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
 | [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
@@ -63,6 +63,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
+| [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
 
 ## ideation-action-plane
@@ -147,13 +148,21 @@ document-lifecycle spec is a candidate for the next lifecycle change.
   repo than the served corpus); Q3 whether a tile operation in a non-served
   repository proceeds or refuses (this is the L3 fork); Q4 whether project
   groups are used at all; Q5 authority once the tenant project catalog exists
-- Exit path: content first (Brett names real projects in the register — an
-  aggregation edit that makes by-project navigation live and reveals how much
-  of the ask was content), then rule Q1/Q3, then an OpenSpec change for
-  L1+L2 at the scope those rulings set. L3, if wanted, is a SEPARATE change
-  against the session plane
+- Decisions: D1–D7 locked with Brett 2026-08-06 (decision round; all five
+  open questions resolved — see the primary doc's Decisions section): merged
+  all-repos view; commission-based register writes; L3 proceeds as its own
+  change; projects only; dev-authoritative register becoming a derived cache
+  under the tenant catalog; three sequenced exits; by-role register split.
+- Exit path (ruled): content split applied to the aggregation register (D7);
+  **exit 1 `add-project-scoped-selection` proposed 2026-08-06** (create-project
+  commission + project-scoped selection + the D5 authority declaration);
+  exit 2 `add-project-merged-projection` (the D1 merged view); exit 3
+  `add-project-tile-repository-binding` (the D3/L3 session-plane change,
+  strictly after exit 2)
 - Related: `ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md`
-  — the runtime-authoritative twin; reconcile before either lands
+  — the runtime-authoritative twin; D5 names the authority split (runtime
+  catalog authoritative when it exists; this register becomes its
+  workstation-side derived cache)
 
 ## dashboard-repo-selector
 
@@ -832,3 +841,44 @@ global on/off that would close the window for everyone.
   `capability-health`). ALL THREE EXITS ARCHIVED (v1.19/v1.20/v1.21);
   the dials register is the topic's living remainder, cross-tenant the
   deliberate brainstorm remainder.
+
+## tier2-council-clearance-pattern
+
+- Staging ID: `openxFactory:staging:tier2-council-clearance-pattern`
+- Repository context: openxFactory (the neutral pattern template);
+  codexFactory holds the ratified first instantiation
+  (`add-nightly-sweep-council-clearance`, rule YAML + `council_clearance.py`,
+  ratified as amended by the Gate-Rules Council 2026-07-23); the second
+  consumer instantiates from the template.
+- Source: accepted possible
+  `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`
+  (ai-derived from the `cl-codexfactory` cluster sweep; accepted by Brett
+  2026-07-23 with the rule-of-three condition; promoted to staging by
+  Brett's `promote-to-staging` gate commission 2026-08-05 — the verb's
+  first real use — and organized by the fulfilling session the same day).
+- Files: `tier2-council-clearance-pattern.md` (primary — the generalized
+  tier-2 shape: conjunctive tier-1 envelope, declared clearable set with an
+  owner-attributed static allowlist, SHA-pinned unanimous council verdict,
+  never-clearable floor, anti-normalization rule, required
+  `configured_but_inactive` activation gate; 4 claims).
+- Target capabilities: ADDED a neutral `council-clearance-gate-rule`
+  pattern contract plus its instantiation checklist; the ratified
+  codexFactory rule is cited as the conforming first instance and is not
+  modified.
+- Files (post-demotion): `tier2-council-clearance-pattern.md` (primary),
+  `README.md` (returned-drafts record), and the `openspec/` draft workspace
+  (`INDEX.md`, `proposal.md`, `design.md`, `tasks.md`,
+  `specs/council-clearance-gate-rule/spec.md` — the returned packet,
+  Status: draft).
+- Readiness: **Demoted back 2026-08-05.** Proposed the same day as
+  `add-council-clearance-rule-template` (Brett's propose commission), then
+  returned by Brett's reasoned dashboard demote — "rule-of-three trigger
+  not fired — no second consumer has named itself; return the template to
+  staging until one does" — planned at the gate console and executed as
+  the separate deliberate step (gate records under
+  `ideation/dashboard/gate-records/add-council-clearance-rule-template/`).
+  The pick edge keeps its `staging_id` and its `change_id` inheritance is
+  withdrawn. The staged questions all carry decided answers from the
+  accept note and the 2026-07-23 first council exercise; the packet
+  re-crosses the proposal gate the day a second sweep or repo names
+  itself.

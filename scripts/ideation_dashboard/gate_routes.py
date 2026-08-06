@@ -84,6 +84,10 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # commission verbs join as ordinary recorded dispatches.
                    "demote", "promote-to-staging", "derive-possibles",
                    "research-brief",
+                   # add-project-scoped-selection: the create-project
+                   # commission — recorded dispatch of a project-register-edit;
+                   # the aggregation-owned register is never written here.
+                   "create-project",
                    # T104 F10: the doxBench governed Save joined the if-chain
                    # (and SESSION_BEARING_VERBS) when it landed; the declaration
                    # here lagged, so the roster disagreed with what the route
@@ -326,6 +330,10 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
                                  snapshot_path, provenance=provenance)
     if verb == "research-brief":
         return _research_brief(body, checkout_root, actor, records_dir,
+                               provenance=provenance)
+    if verb == "create-project":
+        return _create_project(body, checkout_root, actor, records_dir,
+                               session_registry=session_registry,
                                provenance=provenance)
     if verb == "lens-save-recipe":
         return _lens_save_recipe(body, checkout_root, actor, records_dir,
@@ -636,6 +644,52 @@ def _research_brief(body: dict, root: Path, actor: str, records_dir: str, *,
         provenance=provenance,
         hint="research brief commissioned — it informs the verdict and never "
              "makes it")
+
+
+def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
+                    session_registry=None, provenance=None) -> tuple[int, dict]:
+    """Commission a project-register edit (add-project-scoped-selection).
+
+    Unlike the other commissions, the TARGET id is not in the body — the
+    engine slugs it from the proposed name (design D-a) — so this handler
+    does not ride `_commission_route`. The member roster is the registry's
+    own reachable set (the same object that answers `?repository=`), which
+    WIDENS the register-derived universe to whatever this serve can read;
+    the register itself is discovered by the engine from the checkout
+    (aggregation-owned, one or more levels up)."""
+    name = _str_or_none(body.get("name"))
+    if not name:
+        return _invalid("create-project requires name")
+    repositories = body.get("repositories")
+    if not isinstance(repositories, list) or not repositories:
+        return _invalid("create-project requires a non-empty repositories list")
+    gate = HumanGate(root, [records_dir], human_actor=actor)
+    console = gate_console.GateConsole(gate, records_dir=records_dir)
+    try:
+        res = console.create_project(
+            name, repositories=repositories,
+            roster=reachable_repositories(session_registry),
+            note=_str_or_none(body.get("note")),
+            outline=_str_or_none(body.get("outline")),
+            workflow=_str_or_none(body.get("workflow")),
+            provenance=provenance)
+    except gate_console.GateRefused as exc:
+        return _refused(str(exc))
+    except BoundaryViolation as exc:
+        return _refused(exc.refusal.report(), status=403)
+    except OSError as exc:
+        return _refused(f"create-project could not be evaluated: {exc}")
+    return 200, {
+        "ok": True,
+        "verb": "create-project",
+        "project_id": res.job["project_id"],
+        "workflow": res.job["workflow"],
+        "record": str(res.record_path.relative_to(root)),
+        "job": str(res.job_path.relative_to(root)),
+        "hint": "project-register edit commissioned — the register is "
+                "aggregation-owned; the fulfilment applies and validates the "
+                "edit, and the project appears on the next publication",
+    }
 
 
 # ==========================================================================

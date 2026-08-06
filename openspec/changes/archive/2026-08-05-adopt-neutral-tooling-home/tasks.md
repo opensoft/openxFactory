@@ -274,8 +274,21 @@
 
 - [x] 5.1 README doc index + OpenSpec Records entry; session-runbook and
       dashboard docs linked from the openxFactory doc index.
-- [ ] 5.2 Nightly evidence: one full doc-health nightly and one dashboard
-      nightly complete green from the new homes.
+- [x] 5.2 Nightly evidence: one full doc-health nightly and one dashboard
+      nightly complete green from the new homes. — Satisfied 2026-08-05 by
+      xFactory dispatch run 31001274147 (both jobs green; ideation-dashboard
+      lane 14/14 snapshots published + index from
+      `openxFactory/scripts/ideation-dashboard-nightly.py`; neutrality lane
+      engaged). Three defects stood between the adoption and this evidence,
+      each fixed on the way: (1) openxFactory's Actions access policy was
+      `none`, so the repointed caller could not compile the reusable workflow
+      (0-second scheduled failures 08-04/08-05; set to `organization`,
+      Brett-approved); (2) the factory App installation lacked grants for the
+      new HealthLinc/MedxEHR/openAvatar submodules (clone failures 08-03;
+      granted on installation 145372182); (3) the finalize job never installed
+      `rfc3339-validator`, so the pinned dashboard validator fail-closed on
+      every snapshot (run 31000608594 published 0/14; fixed at da2ac06, which
+      also made DEPENDENCY_REMEDY name the package).
 - [x] 5.3 Memory/handoff note for other live sessions (the dashboard
       serve path changes) — recorded in the aggregation repo's handoff
       convention if one is active.

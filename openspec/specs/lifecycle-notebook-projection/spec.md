@@ -51,15 +51,21 @@ own lifecycle states, so chat can compare ideas against the system's shape.
 - **THEN** it remains in every book under its `[grounding]` title while also appearing in its state's book under its `[status]` title
 
 ### Requirement: Projection implementation ownership
-`openxFactory` SHALL own this projection contract and the workflow
-documentation; `codexFactory` SHALL own the sync implementation that
-conforms to it. Book identity, charter text, title prefixes, and chat
-framing SHALL be treated as contract conformance, not implementation
-preference.
+`openxFactory` SHALL own this projection contract, the workflow
+documentation, and the conforming sync implementation
+(`scripts/sync-notebooklm-books.py`). Book identity, charter text, title
+prefixes, and chat framing SHALL be treated as contract conformance, not
+implementation preference.
 
 #### Scenario: The sync implementation is modified
+
 - **WHEN** the sync implementation changes book definitions, prefixes, charter, exclusions, or chat framing
 - **THEN** the change MUST be preceded by an OpenSpec delta to this capability
+
+#### Scenario: A workspace names the sync manager
+
+- **WHEN** a lifecycle notebook declares its `managed_by` implementation
+- **THEN** the declared path resolves inside openxFactory, and the invocation is run from the workspace root against every pinned repo
 
 ### Requirement: Hybrid analysis notebooks
 The lifecycle notebook projection SHALL support temporary hybrid NotebookLM

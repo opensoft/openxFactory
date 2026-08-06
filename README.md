@@ -251,26 +251,22 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-neutrality-drift-lane](openspec/changes/add-neutrality-drift-lane/proposal.md)
-  — ratified 2026-08-04 (Brett's directive; PR #64 review): a nightly
-  doc-health lane that scouts the five domain factories for content that
-  belongs in openxFactory — deterministic pre-filter signals plus a model
-  scout under a prompt contract — and files each candidate as a drafted
-  DTN-register seed through the rolling health PR for Brett's approval;
-  movement itself always follows the domain-to-neutral promotion process.
-  Lane implementation landed (tasks 1.x/2.x: `scripts/doc_health/
-  neutrality.py`, `neutrality-prompt.md`, `neutrality_dispatch.py`,
-  runner + reusable-workflow wiring, the codexFactory 2026-08-03 baseline
-  marker); verification 3.x awaits the first live nightly.
-- [adopt-neutral-tooling-home](openspec/changes/adopt-neutral-tooling-home/proposal.md)
-  — authored 2026-08-03: the doc-health checker suite, the ideation
-  dashboard runtime, the cross-factory routing/organizer lanes, and the
-  NotebookLM lifecycle sync move from codexFactory to openxFactory — the
-  contract owner adopts its implementations, ending the neutral-schema →
-  domain-repo path citations and the private-sibling credential tax, and
-  setting up the public/private Sonar split for open-sourcing. Evidence:
-  the 2026-08-03 neutrality sweep (~73k neutral LOC hosted in the
-  engineering repo) under supporting-docs/.
+- [add-project-scoped-selection](openspec/changes/add-project-scoped-selection/proposal.md)
+  — ratified 2026-08-06 (Brett's "ratify exit 1 and realize it", with the
+  topic's D1–D7 round carried as decided) from staging topic
+  `dashboard-project-scoping` (exit 1 of three): the `create-project`
+  gate commission (workflow `project-register-edit` descriptor + record;
+  the dashboard never writes the aggregation-owned register itself) and
+  project-scoped selection (the picker narrows the selector roster to a
+  project's member repos, one snapshot at a time), plus the D5 authority
+  declaration against the tenant-catalog twin. Additive gate-intent /
+  gate-action-record growth (`create-project`, `project_id`). REALIZED
+  same day: contracts + conformance tests, engine/route/CLI on the shared
+  commission index, the `/project-register.json` projection route, picker
+  + create affordance, node model tests, live browser check green.
+  Remaining: bundle registration (1.4) and Brett's first real commission
+  (4.3). Exits 2–3 (merged projection; per-tile repository binding) are
+  named successors.
 - [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
   — authored 2026-08-03, the `consent-instrument-contract` staged topic's
   exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
@@ -363,22 +359,6 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
-- [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
-  — four gate-verb rulings Brett made 2026-07-25 for the wheel's
-  expanded-tile action row: `demote` promoted from descriptor-only to an
-  executing dashboard verb (plan + record on the click, the corpus move stays
-  the separate human-run step), plus three recorded commissions on propose's
-  mechanic — `promote-to-staging` (an ACCEPTED possible organized into
-  `ideation/staging/<topic>/`; dispose-possible is a strict upstream and the
-  pick edge lands with the fragment, not at commission), `derive-possibles`
-  (a cluster-scoped run of the ratified possibles-derivation lane) and
-  `research-brief` (a pre-verdict evidence brief accompanying a possible,
-  never a precondition for disposing). Additive gate-intent /
-  gate-action-record enum + `cluster_id` target extension; the three
-  fulfilment lanes are out of scope (a terminal session fulfils dispatched
-  commissions in the interim, as with propose). (code surface: codexFactory,
-  openxFactory; release allocated at realization)
-
 - [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
   — staged-origin proposal for unknown-owner/cross-domain claim routing,
   destination acceptance, the fourteenth deterministic doc-health family, and
@@ -407,6 +387,44 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-neutrality-drift-lane](openspec/changes/archive/2026-08-05-add-neutrality-drift-lane/proposal.md)
+  The nightly doc-health lane that scouts the domain factories for content
+  that belongs in openxFactory: four deterministic stage-1 signals plus a
+  bounded model scout under prompt contract v1, drafting DTN-register
+  seeds through the rolling health PR; dispositions are digest-keyed and
+  movement always follows the promotion process. Archived 2026-08-05 on
+  full verification: first live nightly (run 31001274147) carried the
+  report section, and the dry-run evidence
+  (archived change's `evidence/dry-run-2026-08-05.md`) proved no
+  false-positive on the post-shed codexFactory engineering core, the
+  synthetic-fixture catch-and-draft path, and unchanged-rejected
+  suppression with digest-keyed re-filing.
+- [add-wheel-action-verbs](openspec/changes/archive/2026-08-05-add-wheel-action-verbs/proposal.md)
+  Four gate verbs for the wheel's expanded-tile action row (Brett's
+  2026-07-25 rulings): `demote` promoted to an executing dashboard verb
+  (plan + record on the click; the corpus move stays the separate human-run
+  step) and three recorded commissions on propose's mechanic —
+  `promote-to-staging`, `derive-possibles`, `research-brief` — with the
+  additive gate-intent / gate-action-record enum + `cluster_id` extension
+  (shipped `contract-v1.29`) and the shared (verb, target)
+  undelivered-commission index. Engine/routes/CLI/wheel realization rode the
+  `adopt-neutral-tooling-home` Tranche B adoption; the four ADDED
+  requirements live in the `ideation-dashboard` spec. Archived 2026-08-05 on
+  the 4.x evidence: suites green (2572 passed), the live browser check, and
+  Brett's first real commissions — one full
+  possible→staged→proposed→demoted traversal, the demote executed as two
+  deliberate steps (PRs #66/#67/#71); the fulfilment lanes remain named
+  successor work.
+- [adopt-neutral-tooling-home](openspec/changes/archive/2026-08-05-adopt-neutral-tooling-home/proposal.md)
+  The contract owner adopted its implementations: the doc-health checker
+  suite, the ideation dashboard runtime, the routing/organizer lanes, and
+  the NotebookLM lifecycle sync moved from codexFactory to openxFactory
+  (tranches A-D; codexFactory shed via PR #72). Archived 2026-08-05 on the
+  5.2 nightly evidence: xFactory run 31001274147 green with the dashboard
+  lane publishing 14/14 snapshots + index from the new homes, after fixing
+  the three adoption regressions in the way (openxFactory Actions access
+  `none` -> `organization`; App grants for the HealthLinc/MedxEHR/openAvatar
+  submodules; the finalize job's missing `rfc3339-validator`).
 - [implement-avatar-client-lab](openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
   Realized the offline, deterministic Flutter avatar client UI lab
   (codexFactory `apps/avatar-client-lab/`, openxFactory fixtures + acceptance

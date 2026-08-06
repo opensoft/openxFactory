@@ -248,7 +248,64 @@ def test_notebook_create_uses_the_injected_runner():
     adapter = wb.NotebookAdapter(fake, available=True)
     r = adapter.create("xf-wb-alpha")
     assert r.ok and not r.skipped and r.notebook_id == "nb-1"
-    assert ("notebook", "create", "xf-wb-alpha", "--json") in fake.calls
+    assert ("notebook", "create", "xf-wb-alpha") in fake.calls
+
+
+def test_notebook_create_speaks_the_plain_form_the_0_5_26_cli_accepts():
+    """The T092 re-run drift (2026-08-04), pinned: nlm 0.5.26 REJECTS `--json`
+    on `notebook create` (it still accepts it on list/get/source list), and its
+    create answers PLAIN TEXT with an `ID: <uuid>` line. A create spoken with
+    the flag degraded every at-open session notebook until the FR-040 sync was
+    driven by hand. This fake IS that CLI: any create carrying `--json` raises
+    exactly like typer does; the plain form answers the 0.5.26 text."""
+    class Nlm0526:
+        def __init__(self) -> None:
+            self.calls: list[tuple] = []
+            self.notebooks: list[dict] = []
+
+        def __call__(self, *args: str, parse: bool = True):
+            self.calls.append(args)
+            if args[:2] == ("notebook", "create"):
+                if "--json" in args:
+                    raise RuntimeError(
+                        "nlm notebook create...: No such option: --json")
+                nb = {"id": f"nb-{len(self.notebooks) + 1}", "title": args[2]}
+                self.notebooks.append(nb)
+                return (f"✓ Created notebook: \n{args[2]}\n  ID: {nb['id']}\n")
+            if args[:2] == ("notebook", "list"):
+                return list(self.notebooks)
+            return {}
+
+    fake = Nlm0526()
+    adapter = wb.NotebookAdapter(fake, available=True)
+    r = adapter.create("xf-wb-drift")
+    assert r.ok and not r.skipped, r.detail
+    # the id is read off the plain-text `ID:` line — no fresh list needed here
+    assert r.notebook_id == "nb-1"
+
+
+def test_ensure_notebook_resolves_the_id_by_listing_when_create_echoes_none():
+    """The other half of the 0.5.26 shape: a CLI whose create output carries
+    no readable id is NOT a failure — `_ensure_notebook` already promises to
+    resolve it from a fresh title listing, and this pins that promise against
+    a create that answers bare prose."""
+    class MuteCreateNlm:
+        def __init__(self) -> None:
+            self.notebooks: list[dict] = []
+
+        def __call__(self, *args: str, parse: bool = True):
+            if args[:2] == ("notebook", "create"):
+                self.notebooks.append(
+                    {"id": "nb-listed", "title": args[2]})
+                return "Created."           # no ID line at all
+            if args[:2] == ("notebook", "list"):
+                return list(self.notebooks)
+            return {}
+
+    adapter = wb.NotebookAdapter(MuteCreateNlm(), available=True)
+    notebook_id, created, failure = wb._ensure_notebook(adapter, "xf-wb-mute")
+    assert failure is None and created is True
+    assert notebook_id == "nb-listed"
 
 
 def test_notebook_alias_must_be_scratch_prefixed():

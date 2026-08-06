@@ -102,7 +102,7 @@ VALIDATOR_UNAVAILABLE = "validator-unavailable"
 FINDINGS_EXIT = 1
 
 # One spelling of the remedy, shared by every surface that has to state it.
-DEPENDENCY_REMEDY = "pip install 'jsonschema>=4.18' referencing"
+DEPENDENCY_REMEDY = "pip install 'jsonschema>=4.18' referencing rfc3339-validator"
 
 
 @dataclass

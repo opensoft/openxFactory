@@ -670,6 +670,17 @@ def _notebook_id(nb: dict) -> str | None:
     return nb.get("id") or nb.get("notebook_id") or nb.get("project_id")
 
 
+def _created_notebook_id(out: Any) -> str | None:
+    """The id a `notebook create` echoed, under either CLI shape: a JSON
+    object (the pre-0.5.26 `--json` answer, kept for a runner that still
+    parses one) or 0.5.26's plain text, which prints an `ID: <uuid>` line.
+    None when neither is readable — the caller resolves from a fresh list."""
+    if isinstance(out, dict):
+        return _notebook_id(out)
+    m = re.search(r"\bID:\s*([0-9A-Za-z-]+)", str(out or ""))
+    return m.group(1) if m else None
+
+
 def _source_id(source: dict) -> str | None:
     if not isinstance(source, dict):
         return None
@@ -826,17 +837,26 @@ class NotebookAdapter:
     def _create_titled(self, alias: str) -> NotebookResult:
         """The create itself, prefix-guard already applied by the caller — the
         one place `nlm notebook create` is spoken, shared by the scratch and the
-        session namespace so neither can drift in its degradation behaviour."""
+        session namespace so neither can drift in its degradation behaviour.
+
+        Spoken WITHOUT `--json`: nlm 0.5.26 REJECTS that flag on `create`
+        (every other call form this adapter uses still carries it), which is
+        the drift the T092 re-run hit live on 2026-08-04 — the at-open session
+        notebook degraded on every create until the FR-040 sync route was
+        driven by hand. The plain form is in both CLI generations' vocabulary;
+        the id is taken from whatever shape the CLI answered, and a create
+        that echoed no readable id is NOT a failure — `_ensure_notebook`
+        resolves it from a fresh title listing."""
         if not self.available():
             return self._unavailable("create", alias)
         try:
-            out = self.runner("notebook", "create", alias, "--json")
+            out = self.runner("notebook", "create", alias)
         except Exception as exc:  # noqa: BLE001
             # degrade, never crash the caller
             return NotebookResult("create", ok=False, skipped=True,
                                   detail=f"nlm error: {exc}", alias=alias)
         return NotebookResult("create", ok=True, skipped=False, detail="created",
-                              alias=alias, notebook_id=_notebook_id(out) if isinstance(out, dict) else None)
+                              alias=alias, notebook_id=_created_notebook_id(out))
 
     def list_titled_result(self, prefix: str) -> NotebookListing:
         """Notebooks whose title starts with `prefix`, as a listing that reports

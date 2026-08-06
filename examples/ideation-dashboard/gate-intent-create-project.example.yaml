@@ -1,0 +1,17 @@
+# VALID gate-intent: commission a project-register edit creating one project
+# (add-project-scoped-selection). The target project_id is orchestration-
+# slugged from the proposed name; the apply lane revalidates members against
+# the register (single-parent) and the serving roster.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: create-project
+target:
+  project_id: field-pilots
+args:
+  name: Field Pilots
+  repositories: [pilot-alpha, pilot-beta]
+requested_at: "2026-08-06T09:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending
+idempotency_key: brett/create-project/field-pilots/563ea35d066d

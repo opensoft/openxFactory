@@ -41,10 +41,40 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Lane dry-run over the five domain factories from the pinned
+- [x] 3.1 Lane dry-run over the five domain factories from the pinned
       workspace: codexFactory (post-shed) yields no false-positive on
       the engineering core; a synthetic neutral-shaped fixture planted
       in a test workspace IS caught by stage 1 and drafted by stage 2.
-- [ ] 3.2 One real nightly with the lane on: rolling PR carries the
+      — Done 2026-08-05 (Brett-delegated takeover;
+      `evidence/dry-run-2026-08-05.md`): fresh pinned-workspace sweep
+      over all eight xFactories repos; codexFactory audited at post-shed
+      main `f4d6963` (the aggregation pin `c617c31` PRE-dates the sheds —
+      flagged for a routine pointer sync) — the real claude-CLI scout
+      judged all four engineering-core docs and the ontology content
+      domain-local, drafting only one evidence-sound `split` seed for the
+      starter-scaffolded ontology README: no core false positive. The
+      zephyrFactory synthetic fixtures (copied openxFactory schema +
+      validator) were caught by stage 1 (near_duplicate + lexicon_absence
+      + uninventoried_tooling) and BOTH drafted `promote` by the real
+      stage-2 scout, format-valid seeds retained under evidence/.
+- [x] 3.2 One real nightly with the lane on: rolling PR carries the
       section (or a clean empty note), dispositions suppression proven
       by re-running against an unchanged rejected fixture.
+      — COMPLETE 2026-08-05: suppression second half proven
+      (`evidence/dry-run-2026-08-05.md`): the rejected zephyrFactory
+      fixture (disposition keyed repo + path + content_sha256
+      `9831a3ba…`, non-empty cite) was counted `suppressed=1` on an
+      unchanged re-run through the full merge primitive with fresh state
+      and never re-dispatched or re-drafted; digest-keying proven both
+      directions (one appended line re-files it). First half evidenced
+      earlier the same day: xFactory dispatch run 31001274147 — the first
+      nightly to complete since the lane landed — carries the full
+      `## Neutrality Drift` section in the rolling PR's 2026-08-05
+      report: stage 1 scanned 2128 files across the domain repos (263
+      candidates; codexFactory=190), selection dispatched 8 with 230
+      carried over, and the model scout recorded the graceful
+      `worker_unavailable` skip with drafted seeds none. (The two
+      preceding nightlies never reached the lane: openxFactory Actions
+      access `none` blocked the repointed caller's compile, and the
+      factory App lacked HealthLinc/MedxEHR/openAvatar grants — both
+      fixed 2026-08-05, see adopt-neutral-tooling-home 5.2.)

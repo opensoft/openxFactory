@@ -161,7 +161,7 @@ properties:
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            lens-save-recipe, lens-add-as-cluster, create-document,
            edit-document, open-pr, abandon-session, promote-to-staging,
-           derive-possibles, research-brief]
+           derive-possibles, research-brief, create-project]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -190,7 +190,12 @@ properties:
     # ADDITIVE enum extensions; every prior record stays valid. The three
     # `add-wheel-action-verbs` values are also ADDITIVE recorded commissions:
     # they require a workflow-job below but add no authoring or disposition
-    # authority to the record.
+    # authority to the record. `create-project`
+    # (add-project-scoped-selection) is the same commission mechanic one
+    # register over: it targets a `project_id` and requires its workflow-job
+    # descriptor (workflow `project-register-edit`); the aggregation-owned
+    # project register is edited only by the commission's fulfilment, never
+    # by the recording surface (ADDITIVE; every prior record stays valid).
   target: {$ref: "#/$defs/target"}
   provenance: {$ref: "#/$defs/provenance"}
   at:
@@ -306,6 +311,17 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
+  # A create-project record is the same commission shape against the project
+  # register (`add-project-scoped-selection`): it targets the slugged
+  # project id and MUST reference the workflow-job descriptor it dispatched.
+  - if: {properties: {action: {const: create-project}}, required: [action]}
+    then:
+      properties:
+        target: {required: [project_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
   # A create-document record names the document it brought into existence
   # (add-workbench-bullseye-and-create): a create record that does not name
   # the created path audits nothing. Safe as a per-action conditional — no
@@ -406,6 +422,13 @@ $defs:
         # The cross-reference cluster a derive-possibles action scopes. The
         # console revalidates its existence against the pinned snapshot; this
         # schema records the target identity only.
+      project_id:
+        type: string
+        minLength: 1
+        # The project-register project a create-project action commissions
+        # (add-project-scoped-selection; ADDITIVE — every prior record stays
+        # valid). Slugged from the proposed name at commission time; the
+        # register edit itself is the commission's fulfilment.
       set:
         type: string
         minLength: 1

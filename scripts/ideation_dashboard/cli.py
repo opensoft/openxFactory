@@ -492,6 +492,33 @@ def cmd_gate_derive_possibles(args: argparse.Namespace) -> int:
                            snapshot=snapshot)
 
 
+def cmd_gate_create_project(args: argparse.Namespace) -> int:
+    """Commission a project-register edit creating one project
+    (add-project-scoped-selection). The register is aggregation-owned: this
+    records the edit (descriptor + gate-action record) and never performs it.
+    The target project id is slugged from the name; refusals (exit 1) cover
+    an unreachable register, an id collision, a member already owned by a
+    project (single-parent), a member outside the register's repository
+    universe, and a duplicate undelivered commission."""
+    repo_root = Path(args.repo_root).resolve()
+    console = gate_mod.GateConsole(_human_gate(repo_root, args),
+                                   records_dir=args.records_dir)
+    try:
+        res = console.create_project(
+            args.name, repositories=args.repo,
+            register_source=args.project_register,
+            outline=args.outline, workflow=args.workflow, note=args.note)
+    except (gate_mod.GateRefused, BoundaryViolation) as exc:
+        print(f"refused: {exc}", file=sys.stderr)
+        return 1
+    print(f"create-project {res.job['project_id']} ({args.name}) commissioned "
+          f"(by {res.gate_action_record['actor']})")
+    print(f"  members: {', '.join(res.job['repositories'])}")
+    print(f"  workflow-job descriptor: {res.job_path.relative_to(repo_root)}")
+    print(f"  gate-action record: {res.record_path.relative_to(repo_root)}")
+    return 0
+
+
 def cmd_gate_dispose_possible(args: argparse.Namespace) -> int:
     """Dispose a pending_review ai-derived possible: the ONE human verdict the
     derivation lane's whole contract funnels toward. Writes the updated index
@@ -1518,6 +1545,21 @@ def _add_gate_subcommands(sub) -> None:
                         help=f"workflow id (default: {kickoff_mod.DEFAULT_DERIVE_POSSIBLES_WORKFLOW})")
     derive.add_argument("--note", default=None, help="optional free-text note recorded on the action")
     derive.set_defaults(func=cmd_gate_derive_possibles)
+
+    project = gsub.add_parser(
+        "create-project",
+        help="commission a project-register edit creating one project (add-project-scoped-selection)")
+    _add_gate_identity_args(project)
+    project.add_argument("name", help="the project display name (the id is slugged from it)")
+    project.add_argument("--repo", action="append", required=True,
+                         help="a member repository id (repeatable; at least one)")
+    project.add_argument("--project-register", default=None,
+                         help="explicit register path (default: discovered from the checkout upward)")
+    project.add_argument("--outline", default=None, help="the commissioning outline (default: a standard register-edit commission)")
+    project.add_argument("--workflow", default=kickoff_mod.DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW,
+                         help=f"workflow id (default: {kickoff_mod.DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW})")
+    project.add_argument("--note", default=None, help="optional free-text note recorded on the action")
+    project.set_defaults(func=cmd_gate_create_project)
 
     _add_lens_gate_subcommands(gsub)
     _add_create_document_subcommand(gsub)

@@ -139,20 +139,27 @@ facet-level `state_since`.
 - **THEN** the report MUST disclose the configured thresholds
 
 ### Requirement: Ownership and hosting split
-The doc-health contract and report schema SHALL be owned by openxFactory;
-the implementation (checker scripts, report generator, reusable workflow)
-SHALL be owned by codexFactory; the nightly runner SHALL be hosted by the
-xFactory aggregation repo as the only repo pinning every submodule; and
-content authority SHALL stay with each owning factory — health tooling
-reports and stages, it never approves or merges another factory's content.
+The doc-health contract, report schema, and implementation SHALL all be owned by openxFactory
+(checker scripts, report generator, and the reusable workflow move home
+with the contract they follow); the nightly runner SHALL be hosted by the xFactory
+aggregation repo as the only repo pinning every submodule; and content
+authority SHALL stay with each owning factory — health tooling reports
+and stages, it never approves or merges another factory's content.
 
 #### Scenario: The pipeline changes shape
+
 - **WHEN** a check family, report schema element, severity rule, or threshold default changes
-- **THEN** the change MUST be an OpenSpec delta to this capability in openxFactory, and the implementation follows it
+- **THEN** the change MUST be an OpenSpec delta to this capability in openxFactory, and the in-repo implementation follows in the same change or a named successor
 
 #### Scenario: A finding concerns a domain factory's content
+
 - **WHEN** the ranked plan proposes work on a DomainxFactory's documents
 - **THEN** the item enters that work as a staged proposal; approval remains with the owning factory's authority, and the health pipeline MUST NOT auto-apply content changes
+
+#### Scenario: A neutral artifact cites the implementation
+
+- **WHEN** a neutral schema, validator, or doc references a checker implementation file
+- **THEN** the reference resolves inside openxFactory itself — a neutral artifact citing a domain-repo implementation path is a conformance defect of this capability
 
 ### Requirement: Proposal supporting-document integrity checks
 The deterministic doc-health pass SHALL validate proposal supporting-document
@@ -495,4 +502,38 @@ preflight; this lane adds no deterministic check family.
 #### Scenario: Lane output fails its contract
 - **WHEN** worker output does not satisfy the promoted evidence contract or index schema
 - **THEN** the output MUST be rejected before persistence and the rejection reported in the run
+
+### Requirement: Neutrality drift is scouted nightly
+The doc-health pipeline SHALL include a neutrality-drift lane that reviews domain-factory content against the domain-neutral boundary on the nightly cadence: deterministic pre-filter signals (near-duplication of a neutral artifact, absence of domain vocabulary in a schema or script, cross-repo consumers, tooling absent from the domain's declared inventory) select candidates, and a model-driven scout under a versioned prompt contract judges the survivors and content changed since the lane's last run, returning structured candidates with neutrality evidence, counter-evidence, and domain-local exclusions.
+
+#### Scenario: A neutral-shaped artifact appears in a domain repo
+
+- **WHEN** a domain factory gains a schema, script, or process doc that another domain would need essentially unchanged
+- **THEN** a nightly run within the lane's incremental window MUST surface it as a neutrality candidate with evidence and counter-evidence
+- **AND** the scout's judgment MUST cite the file's own content, never only its location
+
+#### Scenario: Scope is the domain factories
+
+- **WHEN** the lane selects subjects
+- **THEN** it reviews the pinned `xFactories/*` domain repos and MUST NOT review openxFactory, openAvatar, or the install realizations in v1
+
+### Requirement: Candidates become staged proposals under human approval
+The lane's findings SHALL be delivered as drafted DTN-register seed candidates (register row plus detail section in the register's own format) and ranked-plan items through the existing rolling health PR; a candidate advances only by Brett's approval of the seed, movement follows the domain-to-neutral promotion process, and the lane SHALL NOT edit any domain repo, open any move PR, or modify any contract.
+
+#### Scenario: A candidate is proposed and approved
+
+- **WHEN** the lane files a neutrality candidate
+- **THEN** the rolling health PR carries the drafted register seed and the plan item
+- **AND** only the human approval of that seed admits it to the register's lifecycle
+
+#### Scenario: A rejected candidate stays rejected
+
+- **WHEN** Brett dispositions a candidate as not-neutral or not-now
+- **THEN** the disposition is recorded in the health dispositions register keyed by repo, path, and content digest
+- **AND** the lane MUST NOT re-file the candidate while that content is unchanged
+
+#### Scenario: Authority never transfers
+
+- **WHEN** the lane finds even an unambiguous misplacement
+- **THEN** it reports and stages only — content authority stays with the owning factory and every move lands through its own ratified change
 
