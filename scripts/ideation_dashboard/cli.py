@@ -520,6 +520,32 @@ def cmd_gate_create_project(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gate_edit_project(args: argparse.Namespace) -> int:
+    """Commission a membership edit of one existing project
+    (add-opendox-project-header). Records the edit (descriptor with the
+    add/remove lists + gate-action record) and never performs it."""
+    repo_root = Path(args.repo_root).resolve()
+    console = gate_mod.GateConsole(_human_gate(repo_root, args),
+                                   records_dir=args.records_dir)
+    try:
+        res = console.edit_project(
+            args.project_id, add=args.add or [], remove=args.remove or [],
+            register_source=args.project_register,
+            outline=args.outline, workflow=args.workflow, note=args.note)
+    except (gate_mod.GateRefused, BoundaryViolation) as exc:
+        print(f"refused: {exc}", file=sys.stderr)
+        return 1
+    print(f"edit-project {args.project_id} commissioned "
+          f"(by {res.gate_action_record['actor']})")
+    if res.job["add"]:
+        print(f"  add: {', '.join(res.job['add'])}")
+    if res.job["remove"]:
+        print(f"  remove: {', '.join(res.job['remove'])}")
+    print(f"  workflow-job descriptor: {res.job_path.relative_to(repo_root)}")
+    print(f"  gate-action record: {res.record_path.relative_to(repo_root)}")
+    return 0
+
+
 def cmd_gate_dispose_possible(args: argparse.Namespace) -> int:
     """Dispose a pending_review ai-derived possible: the ONE human verdict the
     derivation lane's whole contract funnels toward. Writes the updated index
@@ -1561,6 +1587,23 @@ def _add_gate_subcommands(sub) -> None:
                          help=f"workflow id (default: {kickoff_mod.DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW})")
     project.add_argument("--note", default=None, help="optional free-text note recorded on the action")
     project.set_defaults(func=cmd_gate_create_project)
+
+    edit_project = gsub.add_parser(
+        "edit-project",
+        help="commission a membership edit of an existing project (add-opendox-project-header)")
+    _add_gate_identity_args(edit_project)
+    edit_project.add_argument("project_id", help="the register project to edit")
+    edit_project.add_argument("--add", action="append", default=None,
+                              help="a repository id to add (repeatable)")
+    edit_project.add_argument("--remove", action="append", default=None,
+                              help="a repository id to remove (repeatable)")
+    edit_project.add_argument("--project-register", default=None,
+                              help="explicit register path (default: discovered from the checkout upward)")
+    edit_project.add_argument("--outline", default=None, help="the commissioning outline (default: a standard register-edit commission)")
+    edit_project.add_argument("--workflow", default=kickoff_mod.DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW,
+                              help=f"workflow id (default: {kickoff_mod.DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW})")
+    edit_project.add_argument("--note", default=None, help="optional free-text note recorded on the action")
+    edit_project.set_defaults(func=cmd_gate_edit_project)
 
     _add_lens_gate_subcommands(gsub)
     _add_create_document_subcommand(gsub)

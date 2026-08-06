@@ -773,3 +773,98 @@ def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):
     # a pending id never scopes: full roster, exactly the unknown-scope degrade
     assert r["scopedIds"] == r["clearedIds"]
     assert r["noPendingProjection"] == []
+
+
+# ---------------------------------------------------------------------------
+# The openDox project-first header derivations (add-opendox-project-header
+# D13/D14/D15): the current-project default, the filter rows, manage-mode
+# diffing, and the pending-edit plane — run in node against the REAL model.
+# ---------------------------------------------------------------------------
+
+_HEADER_HARNESS = """
+import { buildPendingEdits, buildProjects, buildRoster, defaultProjectScope,
+         manageDiff, projectFilterRows } from './repo-selector-model.mjs';
+import { readFileSync } from 'node:fs';
+const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const roster = buildRoster(input.index);
+const projects = buildProjects(input.projection);
+const project = projects.find((p) => p.id === input.projectId) || null;
+const out = {
+  scopes: [defaultProjectScope(projects, input.stored),
+           defaultProjectScope(projects, 'no-such'),
+           defaultProjectScope(projects, null),
+           defaultProjectScope([], 'anything')],
+  rows: projectFilterRows(roster, project).map((r) => ({
+    kind: r.kind,
+    repository: r.repository || null,
+    hasOption: !!r.option,
+    available: r.option ? r.option.available : null,
+  })),
+  noProjectRows: projectFilterRows(roster, null),
+  diff: manageDiff(input.members, input.checked),
+  pendingEdits: buildPendingEdits(input.projection),
+};
+console.log(JSON.stringify(out));
+"""
+
+
+def _run_header(payload, tmp_path):
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(MODEL_JS, tmp_path / "repo-selector-model.mjs")
+    (tmp_path / "harness.mjs").write_text(_HEADER_HARNESS, encoding="utf-8")
+    data = tmp_path / "input.json"
+    data.write_text(json.dumps(payload), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "harness.mjs"), str(data)],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, f"node harness failed:\n{proc.stderr}"
+    return json.loads(proc.stdout)
+
+
+def _header_projection():
+    return {"projects": [
+        {"id": "medx", "name": "Medx",
+         "repositories": ["MedxFactory", "agenttower", "ghost-repo"]},
+        {"id": "core", "name": "Core", "repositories": ["openxFactory"]},
+    ], "pending_edits": [
+        {"project_id": "medx", "add": ["openChart"], "remove": ["agenttower"]},
+        {"project_id": "", "add": ["junk"]},
+        None,
+    ]}
+
+
+def _header_index():
+    index = _index()
+    index["aggregates"] = [{"id": "medx", "display_name": "Medx (all)",
+                            "members": [{"repository": "MedxFactory"},
+                                        {"repository": "agenttower"}]}]
+    return index
+
+
+def test_the_header_model_derivations(tmp_path):
+    r = _run_header({"index": _header_index(),
+                     "projection": _header_projection(),
+                     "projectId": "medx", "stored": "core",
+                     "members": ["a", "b"], "checked": ["b", "c"]}, tmp_path)
+    # D13: stored-if-real, else first, null when no projects exist
+    assert r["scopes"] == ["core", "medx", "medx", None]
+    # D14: the all-repos line first (armed — the index carries the medx
+    # aggregate), then one row per member; the unpublished member has no
+    # option; the unavailable one keeps its honest flag
+    assert r["rows"][0] == {"kind": "all", "repository": None,
+                            "hasOption": True, "available": True}
+    assert r["rows"][1:] == [
+        {"kind": "repo", "repository": "MedxFactory", "hasOption": True,
+         "available": True},
+        {"kind": "repo", "repository": "agenttower", "hasOption": True,
+         "available": False},
+        {"kind": "repo", "repository": "ghost-repo", "hasOption": False,
+         "available": None},
+    ]
+    assert r["noProjectRows"] == []
+    # D15: pure set arithmetic
+    assert sorted(r["diff"]["add"]) == ["c"]
+    assert sorted(r["diff"]["remove"]) == ["a"]
+    # the pending-edit plane drops malformed rows
+    assert r["pendingEdits"] == [{"projectId": "medx", "add": ["openChart"],
+                                  "remove": ["agenttower"]}]

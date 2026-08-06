@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>xFactory Ideation Dashboard</title>
+  <title>Opensoft openDox</title>
   <!-- Empty inline favicon: suppresses the browser's automatic /favicon.ico
        request (a stray 404 in the console) without any external asset. -->
   <link rel="icon" href="data:,">
@@ -16,12 +16,14 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <span class="brand">xFactory <span class="dim">/</span> ideation dashboard</span>
-    <span class="repochip" id="repochip">—</span>
-    <!-- The REPOSITORY SELECTOR + the one refresh affordance
-         (add-dashboard-repo-selector): populated from the snapshot index by
-         views/repo-selector.js, and left EMPTY when the serving side offers no
-         index — a static image then renders exactly today's dashboard. -->
+    <!-- add-opendox-project-header (D12): the brand; the old repo chip
+         retired — the freshness header already names `repo @ ref`. -->
+    <span class="brand">Opensoft <span class="dim">openDox</span></span>
+    <!-- The PROJECT-FIRST header controls (D13/D14): the project dropdown,
+         the repo filter, and the refresh affordance — populated from the
+         snapshot index + register projection by views/repo-selector.js, and
+         left EMPTY when the serving side offers no index — a static image
+         then renders exactly today's dashboard. -->
     <span id="repopicker"></span>
     <input class="search" id="globalsearch" type="search" autocomplete="off"
            placeholder="search docs, clusters, changes…" aria-label="search docs, clusters, changes…">

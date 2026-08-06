@@ -161,7 +161,7 @@ properties:
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            lens-save-recipe, lens-add-as-cluster, create-document,
            edit-document, open-pr, abandon-session, promote-to-staging,
-           derive-possibles, research-brief, create-project]
+           derive-possibles, research-brief, create-project, edit-project]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -196,6 +196,9 @@ properties:
     # descriptor (workflow `project-register-edit`); the aggregation-owned
     # project register is edited only by the commission's fulfilment, never
     # by the recording surface (ADDITIVE; every prior record stays valid).
+    # `edit-project` (add-opendox-project-header) is that mechanic for an
+    # EXISTING project's membership — the descriptor carries the added and
+    # removed member lists; same boundary, same companion rule (ADDITIVE).
   target: {$ref: "#/$defs/target"}
   provenance: {$ref: "#/$defs/provenance"}
   at:
@@ -315,6 +318,16 @@ allOf:
   # register (`add-project-scoped-selection`): it targets the slugged
   # project id and MUST reference the workflow-job descriptor it dispatched.
   - if: {properties: {action: {const: create-project}}, required: [action]}
+    then:
+      properties:
+        target: {required: [project_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  # An edit-project record (`add-opendox-project-header`) is that shape for
+  # an existing project's membership edit.
+  - if: {properties: {action: {const: edit-project}}, required: [action]}
     then:
       properties:
         target: {required: [project_id]}

@@ -87,7 +87,9 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # add-project-scoped-selection: the create-project
                    # commission — recorded dispatch of a project-register-edit;
                    # the aggregation-owned register is never written here.
-                   "create-project",
+                   # add-opendox-project-header: edit-project is that mechanic
+                   # for an existing project's membership.
+                   "create-project", "edit-project",
                    # T104 F10: the doxBench governed Save joined the if-chain
                    # (and SESSION_BEARING_VERBS) when it landed; the declaration
                    # here lagged, so the roster disagreed with what the route
@@ -335,6 +337,10 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
         return _create_project(body, checkout_root, actor, records_dir,
                                session_registry=session_registry,
                                provenance=provenance)
+    if verb == "edit-project":
+        return _edit_project(body, checkout_root, actor, records_dir,
+                             session_registry=session_registry,
+                             provenance=provenance)
     if verb == "lens-save-recipe":
         return _lens_save_recipe(body, checkout_root, actor, records_dir,
                                  snapshot_path, manifest_validator,
@@ -689,6 +695,51 @@ def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
         "hint": "project-register edit commissioned — the register is "
                 "aggregation-owned; the fulfilment applies and validates the "
                 "edit, and the project appears on the next publication",
+    }
+
+
+def _edit_project(body: dict, root: Path, actor: str, records_dir: str, *,
+                  session_registry=None, provenance=None) -> tuple[int, dict]:
+    """Commission a membership edit of one existing project
+    (add-opendox-project-header D15). Same posture as create-project: the
+    register is never written here; the roster is the registry's own
+    reachable set."""
+    project_id = _str_or_none(body.get("project_id"))
+    if not project_id:
+        return _invalid("edit-project requires project_id")
+    add = body.get("add")
+    remove = body.get("remove")
+    if add is not None and not isinstance(add, list):
+        return _invalid("edit-project add must be a list")
+    if remove is not None and not isinstance(remove, list):
+        return _invalid("edit-project remove must be a list")
+    gate = HumanGate(root, [records_dir], human_actor=actor)
+    console = gate_console.GateConsole(gate, records_dir=records_dir)
+    try:
+        res = console.edit_project(
+            project_id, add=add, remove=remove,
+            roster=reachable_repositories(session_registry),
+            note=_str_or_none(body.get("note")),
+            outline=_str_or_none(body.get("outline")),
+            workflow=_str_or_none(body.get("workflow")),
+            provenance=provenance)
+    except gate_console.GateRefused as exc:
+        return _refused(str(exc))
+    except BoundaryViolation as exc:
+        return _refused(exc.refusal.report(), status=403)
+    except OSError as exc:
+        return _refused(f"edit-project could not be evaluated: {exc}")
+    return 200, {
+        "ok": True,
+        "verb": "edit-project",
+        "project_id": project_id,
+        "add": res.job["add"],
+        "remove": res.job["remove"],
+        "workflow": res.job["workflow"],
+        "record": str(res.record_path.relative_to(root)),
+        "job": str(res.job_path.relative_to(root)),
+        "hint": "membership edit commissioned — pending until the fulfilment "
+                "lands the register edit",
     }
 
 
