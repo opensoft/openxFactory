@@ -782,8 +782,9 @@ def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):
 # ---------------------------------------------------------------------------
 
 _HEADER_HARNESS = """
-import { buildPendingEdits, buildProjects, buildRoster, defaultProjectScope,
-         manageDiff, projectFilterRows } from './repo-selector-model.mjs';
+import { addableRepositories, buildPendingEdits, buildProjects, buildRoster,
+         defaultProjectScope, projectFilterRows, repositoryVisible }
+  from './repo-selector-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const roster = buildRoster(input.index);
@@ -801,7 +802,14 @@ const out = {
     available: r.option ? r.option.available : null,
   })),
   noProjectRows: projectFilterRows(roster, null),
-  diff: manageDiff(input.members, input.checked),
+  addable: addableRepositories(roster, projects, project),
+  visibility: [repositoryVisible('MedxFactory', project,
+                 { repository: 'MedxFactory', ref: 'main' }),
+               repositoryVisible('agenttower', project,
+                 { repository: 'medx', ref: 'main' }),
+               repositoryVisible('agenttower', project,
+                 { repository: 'MedxFactory', ref: 'main' }),
+               repositoryVisible('agenttower', project, null)],
   pendingEdits: buildPendingEdits(input.projection),
 };
 console.log(JSON.stringify(out));
@@ -844,8 +852,7 @@ def _header_index():
 def test_the_header_model_derivations(tmp_path):
     r = _run_header({"index": _header_index(),
                      "projection": _header_projection(),
-                     "projectId": "medx", "stored": "core",
-                     "members": ["a", "b"], "checked": ["b", "c"]}, tmp_path)
+                     "projectId": "medx", "stored": "core"}, tmp_path)
     # D13: stored-if-real, else first, null when no projects exist
     assert r["scopes"] == ["core", "medx", "medx", None]
     # D14: the all-repos line first (armed — the index carries the medx
@@ -862,9 +869,11 @@ def test_the_header_model_derivations(tmp_path):
          "available": None},
     ]
     assert r["noProjectRows"] == []
-    # D15: pure set arithmetic
-    assert sorted(r["diff"]["add"]) == ["c"]
-    assert sorted(r["diff"]["remove"]) == ["a"]
+    # D16: the add line's candidates — roster + register known, minus members
+    assert r["addable"] == ["openxFactory"]
+    # D16: the eyeball — the active single repo, or any member under the
+    # project's own merged view; never without an active view
+    assert r["visibility"] == [True, True, False, False]
     # the pending-edit plane drops malformed rows
     assert r["pendingEdits"] == [{"projectId": "medx", "add": ["openChart"],
                                   "remove": ["agenttower"]}]

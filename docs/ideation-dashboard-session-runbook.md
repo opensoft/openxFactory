@@ -10,6 +10,48 @@ Realizes the operating half of openxFactory `add-workbench-branch-sessions`
 dashboard surface itself is summarized in codexFactory's `docs/check-matrix.md`
 §8; this document is what you run.
 
+## 0. The openDox header, item by item
+
+The header (post `add-opendox-project-header`, Brett's D12–D16 rulings) is
+project-first. Left to right:
+
+```text
+Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref · sha · date   ◆hint   ↻   ◐ ⚙
+```
+
+- **Opensoft openDox** — the brand. Static.
+- **The project dropdown** — the CURRENT project; you are always in one
+  (last-used, else the first register project). Its first line, **New
+  Project…**, opens the create form: name it, tick member repos, and
+  `commission` records a `create-project` register edit — the register
+  changes only when a terminal session fulfils it, and until then the
+  project shows as a non-selectable "(commissioned — pending fulfilment)"
+  entry. Gate off, New Project is disabled.
+- **The repo filter (⧩)** — the current project's repositories, one popover:
+  - **＋ add repository…** (first line, gate only): pick a known repository
+    and commission its addition to the project (`edit-project`).
+  - **⊞ all repositories in <project>** — the project's MERGED view (one
+    wheel/funnel spanning every member; read-only + per-tile
+    "open in <repo>" jumps). Disabled with a note when no member snapshot
+    is published.
+  - **One row per member** — the 👁 eyeball on the left says whether that
+    repository is visible in the current view (it is the served repo, or
+    the merged view is active); clicking the NAME serves that repository;
+    the 🗑 trash on the right (gate only) arms on first click and
+    commissions the repository's REMOVAL from the project on the second.
+    Membership edits badge as pending until fulfilled.
+- **The search box** — fans out to the active view's own search.
+- **The freshness header** — `repo @ ref · short-sha · generated <date>`
+  (or `<project> · N repos · composed <date>` on a merged view): which
+  data you are looking at, against a stated revision.
+- **◆ newer-data hint** — appears when the publication lane advertises a
+  newer snapshot than the one loaded; clicking it refreshes. Never
+  auto-reloads.
+- **↻ regenerate / refresh** — the plane's one refresh affordance: local
+  serves re-run the generator against the checkout; served planes re-fetch
+  published data.
+- **◐ / ⚙** — theme toggle and settings.
+
 ## 1. What a branch session IS
 
 A branch session is **derived state, not an artifact**. There is no session

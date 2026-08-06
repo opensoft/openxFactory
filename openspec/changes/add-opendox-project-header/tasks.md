@@ -65,3 +65,14 @@
       real-HTTP group.)
 - [ ] 4.3 First real edit-project commission by Brett, fulfilled into the
       aggregation register.
+
+## 5. The dropdown-like filter (design D-h / topic D16, Brett's 2026-08-06 annotation)
+
+- [x] 5.1 Filter popover rework: "＋ add repository…" first (inline
+      candidate select over roster∪register minus members; commissions a
+      single-addition edit), per-row eyeball visibility indicator (active
+      repo, or any member under the project's merged view), and a two-click
+      trash control commissioning the single removal; manage mode retires.
+- [x] 5.2 Model: `addableRepositories` + `repositoryVisible` (manageDiff
+      retires with manage mode); node tests updated.
+- [x] 5.3 Live browser check re-run on the reworked popover.

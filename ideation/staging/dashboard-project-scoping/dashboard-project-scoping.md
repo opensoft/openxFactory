@@ -185,6 +185,15 @@ not a UI change.
   create-project, with pending changes badged until the fulfilment lands.
   A project always keeps at least one member (the schema's own rule).
 
+- **D16 — The filter works like the dropdown (Brett, 2026-08-06, ruled
+  via the vibe-annotate channel on the live header).** The popover's first
+  line is "add repository…" (an inline candidate pick commissioning a
+  single-addition edit-project); each member row carries an eyeball on the
+  left showing whether the repository is visible in the current view, and a
+  trash control on the right that arms on first click and commissions the
+  single-removal edit on the second. Manage mode retires; same engine verb,
+  same pending badges.
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind

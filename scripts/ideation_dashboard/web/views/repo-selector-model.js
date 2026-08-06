@@ -305,16 +305,29 @@ export function projectFilterRows(roster, project) {
   return rows;
 }
 
-// D15 — manage mode's diff: current membership vs the checkbox state, as the
-// edit-project commission's add/remove lists. Pure set arithmetic; the
-// engine re-validates everything against the live register.
-export function manageDiff(members, checked) {
-  const have = new Set((members || []).map(String));
-  const want = new Set((checked || []).map(String));
-  return {
-    add: [...want].filter((r) => !have.has(r)),
-    remove: [...have].filter((r) => !want.has(r)),
-  };
+// D16 (Brett's 2026-08-06 header annotation) — the filter works like the
+// project dropdown: its first line ADDS. These are the candidates that add
+// line offers: every repository the roster or the register knows, minus the
+// project's current members, sorted. The engine re-validates at commission.
+export function addableRepositories(roster, projects, project) {
+  const known = new Set();
+  for (const option of roster || []) {
+    if (option.kind === KIND_REPOSITORY) known.add(option.repository);
+  }
+  for (const p of projects || []) {
+    for (const repository of p.repositories || []) known.add(repository);
+  }
+  for (const member of project?.repositories || []) known.delete(member);
+  return [...known].sort();
+}
+
+// D16 — the eyeball: is this member repository VISIBLE in the current view?
+// True when it IS the active single-repository view, or when the active view
+// is this project's merged aggregate (whose composition shows every member).
+export function repositoryVisible(repository, project, active) {
+  if (!active) return false;
+  if (String(active.repository) === String(repository)) return true;
+  return !!project && String(active.repository) === String(project.id);
 }
 
 // Dispatched, undelivered MEMBERSHIP edits (the D-e two-plane posture applied
