@@ -63,9 +63,17 @@
       uncaught page errors, and >=400 responses on both drives. Multi-repo
       narrowing is pinned by the node model tests, the local serve having a
       single-entry roster.)
-- [ ] 4.3 First real commission by Brett recorded end-to-end and fulfilled
+- [x] 4.3 First real commission by Brett recorded end-to-end and fulfilled
       into `project-register.yaml` (descriptor delivered, register edit
       validated + landed in the aggregation repo).
+      (Realized 2026-08-06: Brett commissioned project `openxfactory`
+      ("openXfactory", member openxFactory) from the dashboard's + project
+      affordance at 14:29:28Z — descriptor + gate record under
+      ideation/dashboard/gate-records/openxfactory/. The fulfilling session
+      applied the edit to the aggregation register (commit 9c74556, pinned
+      schema green), a legal second view over openxFactory under the D8
+      multi-parent rule with `core` remaining the primary, and flipped the
+      descriptor dispatched -> delivered.)
 
 ## 5. Multi-parent membership (design D-d, Brett's 2026-08-06 ruling)
 
