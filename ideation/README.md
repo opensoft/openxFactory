@@ -263,8 +263,8 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [add-consent-instrument](../openspec/changes/add-consent-instrument/proposal.md)
-  — raised 2026-08-03 as the full promotion of the
+- [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
+  — raised 2026-08-03 (ratified same day; archived 2026-08-06 at contract-v1.30) as the full promotion of the
   `consent-instrument-contract` staged topic (both docs moved to
   `supporting-docs/`): the neutral consent-instrument capability, DTN-016,
   authored against the nine 2026-07-31 rulings with two conformant

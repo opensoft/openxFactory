@@ -423,7 +423,7 @@ promotion review seats, calibration cadence.
 ### DTN-016: Consent instrument (the rung-1↔rung-2 authority root as a schema'd object)
 
 Staged 2026-07-23→2026-07-24: staging topic
-[consent-instrument-contract](../openspec/changes/add-consent-instrument/supporting-docs/consent-instrument-contract.md)
+[consent-instrument-contract](../openspec/changes/archive/2026-08-06-add-consent-instrument/supporting-docs.tar.gz)
 (named by Brett Heap during the Meds Rx, Inc onboarding). Every
 domain's rung-1↔rung-2 relationship starts with a consent instrument —
 engagement letter, patient consent, agency agreement, operating
@@ -438,8 +438,8 @@ consent-profile (instrument authorizes ACTION; profile governs DATA),
 document-cataloging, and credential-contracts.
 
 Realized by `add-consent-instrument` (proposed as the topic's full
-promotion 2026-08-03; the topic docs now live in that change's
-`supporting-docs/`): the three neutral schemas, the packaged corpus, and
+promotion 2026-08-03; archived 2026-08-06 — the topic docs live in the
+archived change's verified supporting-docs bundle): the three neutral schemas, the packaged corpus, and
 the canonical validator landed 2026-08-03 and were registered at
 **contract-v1.30** (2026-08-06) — `adopted`.
 

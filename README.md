@@ -140,13 +140,13 @@ Core domain-neutral docs:
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Omnigent Contract Family](contracts/omnigent/README.md)
   (domain-overlay payload + install manifest; realized by
-  `add-omnigent-domain-overlay`, pending bundle registration)
+  `add-omnigent-domain-overlay`; bundle-registered)
 - [Worker Enrollment Contract Family](contracts/worker-enrollment/README.md)
   (one enrollment point / two authentication modes, renewable LEASES instead of
   registrations, fail-closed minimum-app-version floor, temp-estate segregation
   by trust tier, the brokered remove-token issuance shape, and audit records no
   token value can enter; realized by
-  `add-worker-enrollment-broker`, pending bundle registration)
+  `add-worker-enrollment-broker`; registered at `contract-v1.29`)
 - [Consent Instrument Contract Family](examples/consent-instrument/README.md)
   (the neutral rung-1↔rung-2 consent instrument — the authority-chain root
   credential grants cite and termination cascades from: schemas
@@ -154,7 +154,7 @@ Core domain-neutral docs:
   `consent-instrument-class-registry.schema.yaml`, and
   `consent-purpose-model.schema.yaml`; canonical validator
   `scripts/validate-consent-instruments.py`; realized by
-  `add-consent-instrument`, pending bundle registration)
+  `add-consent-instrument`, registered at `contract-v1.30`)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
@@ -288,14 +288,6 @@ Active changes:
   Remaining: bundle registration (1.4) and Brett's first real commission
   (4.3). Exits 2–3 (merged projection; per-tile repository binding) are
   named successors.
-- [add-consent-instrument](openspec/changes/add-consent-instrument/proposal.md)
-  — authored 2026-08-03, the `consent-instrument-contract` staged topic's
-  exit (DTN-016): the neutral `xfactory_consent_instrument` record kind —
-  the root of the authority chain that credential grants cite, gates
-  verify, and whose termination cascades through declared dependent refs.
-  Nine design rulings (Brett, 2026-07-31) carried as D1–D9 with zero open
-  questions; the Ledgerx engagement consent record and the Medx patient
-  consent record declare conformance rather than being rewritten.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -401,6 +393,18 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-consent-instrument](openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
+  Promoted the neutral `xfactory_consent_instrument` record kind — the
+  authority-chain root credential grants cite, gates verify, and whose
+  termination cascades through declared dependent references — with the
+  domain-owned closed class registry and the purpose model for the neutral
+  purpose-resolution check (D1–D9, zero open questions). Registered at
+  **contract-v1.30** (DTN-016 `adopted`); both proven instances conform by
+  declaration, never rewrite: LedgerxFactory 8b5c03a (engagement classes,
+  active→executed alias, tenant-tree placement) and MedxFactory 3c7715a
+  (four medical classes, consent-profile dependent ref, governed-store
+  placement), each pinned to the release commit with validator sweeps and
+  purpose probes green. Archived 2026-08-06.
 - [add-lens-gate-verbs](openspec/changes/archive/2026-08-06-add-lens-gate-verbs/proposal.md)
   Promoted the two lens gate verbs into the dashboard's gate console:
   `lens-save-recipe` and `lens-add-as-cluster` beside dispose/ratify/
