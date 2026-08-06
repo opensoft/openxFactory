@@ -2575,6 +2575,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if repository and self.source is not None:
             entry = self.source.registry.resolve(repository, ref)
             if entry is None:
+                # An AGGREGATE id (declared, or register-derived per project —
+                # add-project-merged-projection D11) composes at the default
+                # ref only. Off-loopback, members at unpublishable refs are
+                # dropped before composition (the hosted_index projection,
+                # applied to content).
+                composed = None
+                if registry_mod.is_publishable_ref(ref):
+                    composed = self.source.compose_view(
+                        repository, publishable_only=not self.loopback)
+                if composed is not None:
+                    self._serve_bytes(json.dumps(composed).encode("utf-8"),
+                                      JSON_CTYPE, head_only)
+                    return
                 self.send_error(404, "no such snapshot")
                 return
             if self._hosted_entry_refused(entry):

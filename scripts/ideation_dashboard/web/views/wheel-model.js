@@ -528,11 +528,29 @@ const hasClosingVerdict = (item) => {
   return !!outcome && outcome !== "deferred";
 };
 
+// add-project-merged-projection (D10): the ONE verb a composed view offers \u2014
+// jump to the tile's member repository, where every verb works as on any
+// single-repository view. Visible only on a composed render, and only when
+// the tile resolves to exactly one repository.
+export function jumpRepository(item) {
+  const ref = item?.ref;
+  if (!ref) return null;
+  if (typeof ref.repository === "string" && ref.repository) return ref.repository;
+  const repos = Array.isArray(ref.repositories) ? ref.repositories : null;
+  return repos && repos.length === 1 ? repos[0] : null;
+}
+
+const openRepoRow = {
+  id: "open-repo",
+  label: "\u2934 open in repo",
+  visible: (item, env) => !!env.composed && !!jumpRepository(item),
+};
+
 export const WHEEL_ACTIONS = {
   documents: [{
     id: "read",
     label: "\u25a4 read",
-  }],
+  }, openRepoRow],
   clusters: [
     { id: "lens", label: "\u25ce lens" },
     { id: "canvas", label: "\u25a6 canvas" },
@@ -546,6 +564,7 @@ export const WHEEL_ACTIONS = {
     },
     notebookRow,
     workbenchRow,
+    openRepoRow,
   ],
   // The possibles wheel's FIRST table row: its dispose verbs live in the badge
   // rail's tray (a possible is disposed, not worked), but a possible IS
@@ -572,6 +591,7 @@ export const WHEEL_ACTIONS = {
         && (tileState(item) === "latent" || !!item?.derivedPending),
     },
     workbenchRow,
+    openRepoRow,
   ],
   staged: [
     // the SAME read verb as the documents wheel (one id, one label, one mounter):
@@ -588,6 +608,7 @@ export const WHEEL_ACTIONS = {
     },
     notebookRow,
     workbenchRow,
+    openRepoRow,
   ],
   active: [
     // review the proposal packet: the change's own files, grouped by
@@ -611,11 +632,12 @@ export const WHEEL_ACTIONS = {
       visible: gatedAndNotYetActed,
     },
     notebookRow,
+    openRepoRow,
   ],
   archived: [{
     id: "landed",
     label: "\u2713 landed",
-  }],
+  }, openRepoRow],
 };
 
 // THE TABLE/VIEW ENVIRONMENT SEAM (011 FR-033b; add-wheel-action-verbs task

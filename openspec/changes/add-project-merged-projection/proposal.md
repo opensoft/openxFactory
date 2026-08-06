@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (dashboard runtime — snapshot_registry project-aggregate derivation, selector/app wiring for the all-repos selection, wheel/canvas view-side cluster union, composed-view read-only plane + open-in-repo jump, composed freshness header; tests)
 target_release: none
-Status: draft
+Status: ratified
+Ratified by: Brett's "ratify both and realize them in order" on 2026-08-06, with the exit-2 decision round (topic D9–D11) carried as decided
 ---
 
 # Proposal: add-project-merged-projection

@@ -63,7 +63,7 @@ import { actionRowIsStale,
   tileBox, inReelWindow, drumProject, threadAnchorX, endpointScale, badgeRailBand, bandsOverlap,
   LANDED_KINDS, landedFromDeltas, specDeltaPaths,
   primaryFragmentPath, fragmentSummary, packetGroups,
-  healthIndicator, healthBlock } from "./wheel-model.js";
+  healthIndicator, healthBlock, jumpRepository } from "./wheel-model.js";
 import { el } from "./helpers.js";
 import { appliedOutcome, commissionedVerb, commissionedWorkflow, gateCapable,
   mountDisposeTray, mountProposeButton, mountWheelVerb } from "./dispose.js";
@@ -131,6 +131,22 @@ const ACTION_MOUNTERS = {
     mountWheelVerb(row, item, { ...opts, verb: "derive-possibles" }),
   demote: (row, item, opts) =>
     mountWheelVerb(row, item, { ...opts, verb: "demote" }),
+  // add-project-merged-projection (D10): the composed view's ONE verb — jump
+  // to the tile's member repository (store the key + reload, the ratified
+  // selector posture). Pure navigation; nothing is recorded or persisted.
+  "open-repo": (row, item, opts) => {
+    const repository = jumpRepository(item);
+    const btn = el("button", "disposebtn dispose-intile wheelnavbtn",
+      "⤴ open in " + repository);
+    btn.type = "button";
+    btn.title = "switch the active snapshot to this tile's repository";
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      opts.nav?.openRepository?.(repository);
+    });
+    row.appendChild(btn);
+    return btn;
+  },
   read: (row, item, opts) => {
     const path = readPathOf(opts.wheelKey, item);
     return mountNavButton(row, {
@@ -337,6 +353,9 @@ export function renderWheel(root, snapshot, ctx) {
   // app shell from the one /capabilities probe and handed to every view that
   // mounts the action. Absent in a bare embedding, like `nav`.
   const notebook = ctx?.notebook || null;
+  // add-project-merged-projection (D10): the app shell says whether this
+  // render is a COMPOSED view — the tiles then offer the open-in-repo jump.
+  const composed = !!ctx?.composed;
   // The active (repository, ref) source base for this render (see `sourceBase`).
   if (ctx?.sourceBase) sourceBase = ctx.sourceBase;
   const model = buildWheelModel(snapshot);
@@ -1091,6 +1110,10 @@ export function renderWheel(root, snapshot, ctx) {
     const item = w.items[idx];
     const env = {
       gate: gateCapable(caps),
+      // add-project-merged-projection (D10): a composed render's tiles offer
+      // the open-in-repo jump and nothing gate-bearing (the app shell also
+      // strips the acting capabilities, so `gate` above is already false).
+      composed: composed,
       // 011 FR-033b: a PER-VERB lookup, not a tile-wide boolean. `actionsFor`
       // resolves it per row, so each row's predicate still reads a plain
       // boolean and means "THIS verb's act is recorded for this tile this

@@ -580,14 +580,17 @@ class SnapshotRegistry:
         return doc
 
     # ---- aggregate composition (from the index, never a repository scan) ----
-    def compose_aggregate(self, aggregate_id: str) -> dict | None:
+    def compose_aggregate(self, aggregate_id: str,
+                          aggregate: "Aggregate | None" = None) -> dict | None:
         """Compose one snapshot-shaped document from an aggregate's member
         snapshots. Ids are namespaced `<repository>::<id>` — including inside
         every edge reference — so two repositories can carry the same cluster id
         without corrupting either one's edges, and each item carries its
         `repository` so a renderer can badge it. Members with no available
-        snapshot are skipped (degrade, never refuse)."""
-        aggregate = self._aggregates.get(aggregate_id)
+        snapshot are skipped (degrade, never refuse). `aggregate` lets a caller
+        compose one it resolved itself (a register-DERIVED project aggregate,
+        add-project-merged-projection D11) without registering it."""
+        aggregate = aggregate or self._aggregates.get(aggregate_id)
         if aggregate is None:
             return None
         members = [self.get(repo, ref) for repo, ref in aggregate.members]
@@ -1039,13 +1042,99 @@ class SnapshotSource:
         self._peek, self._peek_at = hints, stamp
         return hints
 
+    # ---- register-derived project aggregates (add-project-merged-projection D11) ----
+
+    def register_projects(self) -> list[dict]:
+        """The project register's projects, read FRESH per call (the register
+        is human-editable between requests). Reads the declared
+        `project_register` source when one was wired, else discovers upward
+        from the checkout — the same walk the engine and the projection route
+        use. Unreachable or malformed reads derive nothing (degrade, never
+        refuse)."""
+        source = self.project_register
+        if source is None and self.checkout_root is not None:
+            from .kickoff import discover_project_register
+            source = discover_project_register(self.checkout_root)
+        if source is None or not Path(source).is_file():
+            return []
+        try:
+            import yaml
+            doc = yaml.safe_load(Path(source).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001 - a register that cannot be read derives nothing
+            return []
+        if not isinstance(doc, dict):
+            return []
+        return [p for p in doc.get("projects") or []
+                if isinstance(p, dict) and p.get("id")]
+
+    def derived_project_aggregates(self) -> list[Aggregate]:
+        """One aggregate per register project (D11): id/name from the project,
+        members the project's repositories the registry resolves at the
+        default ref. A hand-declared aggregate WINS an id collision (explicit
+        beats derived), and a project with no resolvable member derives
+        nothing — a name with nothing behind it is not an aggregate."""
+        declared = {a.id for a in self.registry.aggregates()}
+        derived: list[Aggregate] = []
+        for project in self.register_projects():
+            pid = str(project["id"])
+            if pid in declared:
+                continue
+            members = [(str(repo), DEFAULT_REF)
+                       for repo in project.get("repositories") or []
+                       if self.registry.get(str(repo), DEFAULT_REF) is not None]
+            if members:
+                derived.append(Aggregate(
+                    id=pid, members=members,
+                    display_name=str(project.get("name") or pid)))
+        return derived
+
+    def resolve_aggregate(self, aggregate_id: str) -> Aggregate | None:
+        """A declared registry aggregate, else a register-derived project
+        aggregate (declared wins, D11's collision rule)."""
+        for aggregate in self.registry.aggregates():
+            if aggregate.id == aggregate_id:
+                return aggregate
+        for aggregate in self.derived_project_aggregates():
+            if aggregate.id == aggregate_id:
+                return aggregate
+        return None
+
+    def compose_view(self, aggregate_id: str, *,
+                     publishable_only: bool = False) -> dict | None:
+        """The composed snapshot for a declared OR derived aggregate.
+        `publishable_only` is the hosted plane's guard: members at
+        unpublishable refs are dropped BEFORE composition (the same projection
+        `hosted_index` applies to the index), so a declared aggregate naming a
+        session ref can never leak unmerged work off-loopback; an aggregate
+        with no member left composes nothing."""
+        aggregate = self.resolve_aggregate(aggregate_id)
+        if aggregate is None:
+            return None
+        if publishable_only:
+            members = [(repo, ref) for repo, ref in aggregate.members
+                       if is_publishable_ref(ref)]
+            if not members:
+                return None
+            aggregate = Aggregate(id=aggregate.id, members=members,
+                                  display_name=aggregate.display_name)
+        return self.registry.compose_aggregate(aggregate.id, aggregate)
+
     def index_document(self, *, peek: bool = True) -> dict:
         """The registry's index PLUS, per entry, what the data source currently
         advertises (`latest_source_revision` / `latest_generated_at`) and whether
         that beats the loaded bytes (`newer_available`). Additive serving-side
         fields: a consumer that does not know them ignores them, and on a plane
-        with no data source they are simply absent."""
+        with no data source they are simply absent. Register-DERIVED project
+        aggregates (D11) ride beside declared ones, declared winning."""
         doc = self.registry.index_document()
+        derived = self.derived_project_aggregates()
+        if derived:
+            rows = doc.setdefault("aggregates", [])
+            rows.extend({
+                "id": a.id,
+                **({"display_name": a.display_name} if a.display_name else {}),
+                "members": [{"repository": r, "ref": f} for r, f in a.members],
+            } for a in derived)
         hints = self.peek_hints() if peek else {}
         if not hints:
             return doc
