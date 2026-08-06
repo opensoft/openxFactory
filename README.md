@@ -251,6 +251,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
+  — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
+  (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged
+  view built on the ratified aggregate-composition substrate —
+  register-DERIVED project aggregates (a commissioned project gains its
+  merged view at fulfilment), the all-repos selection, the view-side
+  same-topic cluster union (composition namespacing untouched), the
+  composed read-only plane with the "open in <repo>" jump, and the
+  N-repo freshness header. No contract growth. Awaiting ratification;
+  exit 3 (per-tile repository binding) remains the named successor.
 - [add-project-scoped-selection](openspec/changes/add-project-scoped-selection/proposal.md)
   — ratified 2026-08-06 (Brett's "ratify exit 1 and realize it", with the
   topic's D1–D7 round carried as decided) from staging topic
