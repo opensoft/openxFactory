@@ -188,12 +188,14 @@ function mountCreateProject(wrap, status, roster, projects, o, addPendingOption)
     memberList.appendChild(el("span", "projectform-note",
       "no published repositories to choose from"));
   }
+  memberList.appendChild(el("span", "projectform-note",
+    "optional — an empty project is fine; add repositories later from the "
+    + "filter"));
   form.appendChild(memberList);
 
   const buttonRow = el("span", "panelbuttons");
   const submit = el("button", "repobtn", "commission project");
   submit.type = "button";
-  submit.disabled = !candidates.length;
   buttonRow.appendChild(submit);
   const cancel = el("button", "repobtn projectcancel", "cancel");
   cancel.type = "button";

@@ -709,9 +709,10 @@ def create_project(
     descriptor + record and NOTHING else — `project-register.yaml` is
     aggregation-owned and is edited only by the commission's fulfilment.
 
-    Guards, all before the first write: human gate -> name/member shape ->
+    Guards, all before the first write: human gate -> name shape ->
     register reachability -> id collision -> member roster -> duplicate
-    commission. `roster` (when supplied — the serving plane passes its
+    commission. The member set MAY be empty (Brett's 2026-08-06 ruling):
+    a project is created first and gains members later. `roster` (when supplied — the serving plane passes its
     reachable repository ids) WIDENS the member universe beyond the
     register's own repository ids; membership outside both is refused. A
     member already in another project is LEGAL — repository membership is
@@ -727,10 +728,8 @@ def create_project(
             "one letter or digit (the id is slugged from it).")
     members = [str(r).strip() for r in (repositories or []) if str(r).strip()]
     members = list(dict.fromkeys(members))          # dedupe, order-preserving
-    if not members:
-        raise GateRefused(
-            "create-project refused: a project must name at least one member "
-            "repository (the register schema forbids an empty project).")
+    # An EMPTY member set is legal (Brett's 2026-08-06 ruling): a project is
+    # created first and gains members later through edit-project commissions.
 
     source = Path(register_source) if register_source is not None \
         else discover_project_register(human.output.root)
@@ -789,10 +788,10 @@ def edit_project(
     Guards, all before the first write: human gate -> diff shape (either
     list may be empty, not both; no repository in both) -> register
     reachability -> project existence -> additions in the roster-or-register
-    universe and not already members -> removals currently members -> the
-    at-least-one-member floor (the schema's own minItems rule, enforced at
-    commission so the fulfilment never authors an invalid register) ->
-    duplicate via the shared (verb, target) index.
+    universe and not already members -> removals currently members ->
+    duplicate via the shared (verb, target) index. Removing the LAST member
+    is legal — an empty project awaits its next additions (Brett's
+    2026-08-06 ruling).
     """
     human = require_human_gate(gate)
 
@@ -851,11 +850,9 @@ def edit_project(
         raise GateRefused(
             "edit-project refused: not currently a member of "
             f"{project_id!r}: " + ", ".join(repr(a) for a in absent) + ".")
-    if len(set(members) - set(removed)) + len(added) < 1:
-        raise GateRefused(
-            "edit-project refused: the edit would leave the project with no "
-            "member repositories — a project names a non-empty set (the "
-            "register schema's own rule); retire the project instead.")
+    # No at-least-one-member floor: an empty project is legal (Brett's
+    # 2026-08-06 ruling) — removing the last member leaves a project that
+    # simply awaits its next additions.
 
     outline = outline or (
         f"Apply the recorded project-register edit to project "

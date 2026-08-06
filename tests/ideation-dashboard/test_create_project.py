@@ -60,10 +60,13 @@ def test_a_name_with_no_slug_is_refused(tmp_path):
         console.create_project("!!!", repositories=["repoA"], register_source=reg)
 
 
-def test_an_empty_member_set_is_refused(tmp_path):
+def test_an_empty_member_set_is_legal(tmp_path):
+    """Brett's 2026-08-06 ruling: a project is created first and gains
+    members later — the empty set is a legal starting state."""
     _, reg, console = _fixture(tmp_path)
-    with pytest.raises(GateRefused, match="at least one member"):
-        console.create_project("Thing", repositories=[], register_source=reg)
+    res = console.create_project("Thing", repositories=[], register_source=reg)
+    assert res.job["project_id"] == "thing"
+    assert res.job["repositories"] == []
 
 
 def test_an_unreachable_register_is_refused_not_assumed(tmp_path):
@@ -159,9 +162,15 @@ def test_wire_missing_fields_are_invalid_body(tmp_path):
         status, payload = _post(host, port, "/actions/gate/create-project", {})
         assert status == 400 and payload["error"] == "invalid_body"
         assert "name" in payload["message"]
+        # a MALFORMED repositories value is invalid; an ABSENT one is legal —
+        # an empty project gains members later (Brett's 2026-08-06 ruling)
         status, payload = _post(host, port, "/actions/gate/create-project",
-                                {"name": "Thing"})
-        assert status == 400 and "repositories" in payload["message"]
+                                {"name": "Thing", "repositories": "not-a-list"})
+        assert status == 400 and "list" in payload["message"]
+        status, payload = _post(host, port, "/actions/gate/create-project",
+                                {"name": "Empty Start"})
+        assert status == 200, payload
+        assert payload["project_id"] == "empty-start"
 
 
 def test_wire_engine_refusal_is_409_with_the_engine_reason(tmp_path):

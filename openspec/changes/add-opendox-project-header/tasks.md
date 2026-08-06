@@ -94,3 +94,11 @@
       available) — the scoped-selection delta's grouping requirement
       restated accordingly. Live-checked: labels, corner placement, settings
       panel, no roll-up row, zero page errors.
+- [x] 5.7 Brett's 2026-08-06 empty-project ruling ("I think it is better if
+      we allow a project to exist without a repo defined"): the register
+      schema admits an empty `repositories` set (the task-2.6 minItems rule
+      reversed; the negative example converts to a positive one), the
+      create-project non-empty guard and the edit-project last-member floor
+      are dropped, the route accepts an absent/empty list, and the create
+      panel marks members optional. A project is created first and gains
+      members later through edit-project. Engine/wire/UI checks green.

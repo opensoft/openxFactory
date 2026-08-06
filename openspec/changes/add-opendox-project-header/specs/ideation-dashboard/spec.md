@@ -24,16 +24,16 @@ The dashboard header SHALL brand as "Opensoft openDox" and SHALL organize reposi
 - THEN the project dropdown and filter do not render and the dashboard degrades exactly as the selector contract already specifies
 
 ### Requirement: Project membership editing is a recorded commission
-The dashboard SHALL offer an `edit-project` verb on the human gate console — the filter popover working like the project dropdown (D16): its first line adds a repository to the current project from the known-repository candidates, each member row carries a visibility indicator on its left and a two-click removal control on its right — that records a `project-register-edit` workflow-job descriptor carrying the added and removed member lists plus an `edit-project` gate-action record, and SHALL NOT write the register itself. The commission SHALL be refused when the project does not exist in the register projection, when an addition is outside the roster-or-register repository universe, when a removal is not currently a member, when the removals would leave the project with no members, or while the project carries an undelivered edit commission; pending membership changes SHALL render as clearly-marked overlay until the fulfilment lands the register edit.
+The dashboard SHALL offer an `edit-project` verb on the human gate console — the filter popover working like the project dropdown (D16): its first line adds a repository to the current project from the known-repository candidates, each member row carries a visibility indicator on its left and a two-click removal control on its right — that records a `project-register-edit` workflow-job descriptor carrying the added and removed member lists plus an `edit-project` gate-action record, and SHALL NOT write the register itself. The commission SHALL be refused when the project does not exist in the register projection, when an addition is outside the roster-or-register repository universe, when a removal is not currently a member, or while the project carries an undelivered edit commission — removing the last member is legal, because a project MAY be empty (created first, populated later); pending membership changes SHALL render as clearly-marked overlay until the fulfilment lands the register edit.
 
 #### Scenario: A repository is added and another removed
 - WHEN a human commissions an addition from the filter's add line or a removal from a member row's armed removal control
 - THEN one `edit-project` descriptor records the diff and one gate-action record names the human
 - AND the register is unchanged until the commission's fulfilment applies the edit
 
-#### Scenario: Emptying a project is refused
-- WHEN a manage-mode diff would remove every member repository
-- THEN the commission is refused citing the at-least-one-member rule and nothing is persisted
+#### Scenario: An empty project is legal
+- WHEN a project is created with no member repositories, or an edit removes its last member
+- THEN the commission is accepted — the project exists awaiting its next additions, and the register schema admits the empty set
 
 #### Scenario: Pending membership renders as overlay
 - WHEN an edit-project commission is dispatched and undelivered
