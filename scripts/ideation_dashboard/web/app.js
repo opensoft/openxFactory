@@ -38,7 +38,6 @@ import { renderLineage, renderStats } from "./views/lineage.js";
 import { mountExplorer } from "./views/explorer.js";
 import { renderViewer } from "./views/viewer.js";
 import { createEditAction } from "./views/edit.js";
-import { renderGroupingBar } from "./views/grouping.js";
 import { renderCanvas } from "./views/canvas.js";
 import { renderLens } from "./views/lens.js";
 import { isGateBearing, mountGateBar } from "./views/gate.js";
@@ -475,11 +474,11 @@ async function main() {
     renderHeader(rawSnapshot, active);
     renderStaleBanner(document.getElementById("stalebanner"), active,
                       sparseNotice(active, snapshot));
-    // The roll-up control (US3/T015) aggregates an ARRAY of snapshots — v1
-    // loads exactly one (no new fetch), but the derivation is multi-repo
-    // ready. Mounted beside the stats strip; funnel.js/board.js mount their
-    // own instance over the same single-element array.
-    renderGroupingBar(document.getElementById("rollup"), [snapshot]);
+    // The grouping roll-up strip retired with the project-first header
+    // (Brett's 2026-08-06 annotation: "with our new project and filter
+    // boxes, we do not need this row anymore") — the project dropdown and
+    // repo filter are where grouping now surfaces; grouping.js's pure model
+    // remains available to any view that wants a roll-up.
     renderStats(document.getElementById("stats"), snapshot);
     const explorerRoot = document.getElementById("explorer-root");
     // The explorer (T017) has no compile-time dependency on the viewer

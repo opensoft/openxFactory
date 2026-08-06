@@ -32,21 +32,23 @@
          glance rather than by reasoning about deployment times. -->
     <span class="freshness" id="freshness"></span>
     <span class="asof" id="asof">loading snapshot…</span>
+  </header>
+  <!-- Theme + settings pinned to the page's top-right (Brett's 2026-08-06
+       annotations), out of the header's working controls. The settings panel
+       is created by script and appended to <body>, so nothing here clips
+       it. -->
+  <span class="cornerbtns">
     <button class="themebtn" id="themebtn" type="button" title="Toggle colour theme">◐ auto</button>
-    <!-- The settings gear: opens the anchored preferences panel (views/settings.js,
-         wired in app.js beside initTheme). The panel itself is created by script
-         and appended to <body>, so the app shell's overflow cannot clip it. -->
     <button class="themebtn settingsbtn" id="settingsbtn" type="button"
             title="settings" aria-label="settings"
             aria-expanded="false" aria-controls="settingspanel">⚙</button>
-  </header>
+  </span>
 
   <!-- The STALE-FALLBACK banner (design D6) and the sparse-station note (D10).
        A baked fallback never renders silently: a dashboard quietly serving last
        week's governance state is the failure this change exists to end. -->
   <div class="stalebanner" id="stalebanner" hidden></div>
 
-  <div id="rollup"></div>
   <div class="tiles" id="stats"></div>
 
   <div class="tabs" role="tablist">
