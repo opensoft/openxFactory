@@ -365,6 +365,7 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
     left -= 1;
   }
   const out = [];
+  let rowIndex = 0;
   for (const { radius, take } of perRow) {
     // the angular step that puts `pitch` between two dot CENTRES at this
     // radius — the geometric definition of "not touching", not a constant
@@ -375,8 +376,14 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
       // alternate their label above and below the arc, which doubles the
       // label room without moving a single dot (packing tightly to keep dots
       // apart otherwise costs exactly the space the numbers need).
-      out.push({ radius, angleDeg: start + i * step, size, slot: i % 2 });
+      // `row` counts inward from the OUTERMOST row of this cell (0 = outer).
+      // Only that row is labelled (Brett's 2026-08-07 ruling): a cell's
+      // numbers run along the outer row and continue inward, so the inboard
+      // dots' numbers are inferable and their labels are pure clutter.
+      out.push({ radius, angleDeg: start + i * step, size,
+                 slot: i % 2, row: rowIndex });
     }
+    rowIndex += 1;
   }
   return out;
 }
@@ -457,6 +464,7 @@ function bullseyeLayout(rows, nChecked, geom) {
         radius: at.radius,
         size: at.size,
         slot: at.slot,
+        row: at.row,
         angleBase: base,
         angleDeg: at.angleDeg,
         x: g.cx + at.radius * Math.cos(toRad(at.angleDeg)),

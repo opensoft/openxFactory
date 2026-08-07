@@ -46,6 +46,10 @@ import {
 // that is the whole of defect 9 — and an SVG cannot ask CSS before it lays out.
 const FONT = { ring: 10, sector: 9.5, doc: 10 };
 
+// How far outside the outermost ring the SECTOR labels ride. Wide enough to
+// clear the dot-label band that now sits just outside the outermost dots.
+const SECTOR_LANE = 22;
+
 const SVG_NS = "http://www.w3.org/2000/svg";  // w3.org XML namespace (not a fetch)
 
 function svg(tag, attrs, text) {
@@ -194,12 +198,17 @@ export function renderBullseye(model, opts) {
     const text = sec.numbers && sec.numbers.length
       ? sec.numbers.join(" ∧ ")
       : sectorLabelText(sec.subsetKey, sec.keywords);
-    const at = clampLabel(g.cx + (g.rMax + 8) * Math.cos(a),
-      g.cy + (g.rMax + 8) * Math.sin(a), text.length, FONT.sector, g.size);
+    // The sector labels ride an OUTER lane. Dot labels now sit radially
+    // outward of their dots (so they never land on the rows packed inside
+    // them), which puts the outermost ring's labels right where the rim used
+    // to be — the two bands need separating or they collide.
+    const at = clampLabel(g.cx + (g.rMax + SECTOR_LANE) * Math.cos(a),
+      g.cy + (g.rMax + SECTOR_LANE) * Math.sin(a), text.length, FONT.sector, g.size);
     seclabs.push({ sec, text, at,
       box: labelBox(at.x, at.y, text.length, FONT.sector) });
   }
-  for (const i of nonOverlappingIndices(seclabs.map((s) => s.box))) {
+  const drawnSectorLabels = nonOverlappingIndices(seclabs.map((s) => s.box));
+  for (const i of drawnSectorLabels) {
     const { sec, text, at } = seclabs[i];
     const label = svg("text", {
       class: "seclab", x: round(at.x), y: round(at.y), "text-anchor": "middle",
@@ -219,19 +228,37 @@ export function renderBullseye(model, opts) {
     const base = String(d.document).split("/").pop() || d.document;
     // the dot's LABEL is its matrix number; the basename stays in the title
     const text = d.number ? String(d.number) : base;
-    // stagger: odd slots label BELOW their dot, so two neighbours on one arc
-    // never contend for the same strip of pixels (lens-model `packCell`)
-    const lift = d.slot === 1 ? (d.size || 6) + 11 : -((d.size || 6) + 4);
-    const at = clampLabel(d.x, d.y + lift, text.length, FONT.doc, g.size);
-    return { d, base, text, at, fits: labelFits(text.length, FONT.doc, g.size),
+    // ONLY THE OUTER ROW of a cell is labelled (Brett's 2026-08-07 ruling):
+    // a cell's numbers run along its outer row and continue inward, so an
+    // inboard dot's number is inferable and its label is pure clutter.
+    const labelled = d.row == null || d.row === 0;
+    // The label sits RADIALLY OUTWARD of its dot — away from the centre, so
+    // it never lands on the rows packed inside it — in two lanes, alternating
+    // by slot, which is what lets neighbours on one arc both read.
+    const outward = (d.size || 6) + 6 + (d.slot === 1 ? 11 : 0);
+    const a = ((d.angleDeg == null ? 0 : d.angleDeg) * Math.PI) / 180;
+    const lr = (d.radius || 0) + outward;
+    const at = clampLabel(g.cx + lr * Math.cos(a), g.cy + lr * Math.sin(a) + 3.5,
+      text.length, FONT.doc, g.size);
+    return { d, base, text, at,
+      fits: labelled && labelFits(text.length, FONT.doc, g.size),
       box: labelBox(at.x, at.y, text.length, FONT.doc) };
   });
   // a basename wider than the canvas cannot be labelled legibly at any anchor;
   // it is dropped rather than centred as an overflow, and its <title> still
   // carries the name. `nonOverlappingIndices` is fed a box that cannot collide
   // for those, so the indices stay aligned with `dots`.
+  // The collision pass sees the SECTOR labels too: they are already drawn, so
+  // a dot label that would sit on one is dropped rather than overprinting it
+  // (its number stays on the dot's title and in the matrix). Their boxes go
+  // in first and are then discarded, so the surviving indices still line up
+  // with `dots`.
+  const placedBoxes = drawnSectorLabels.map((i) => seclabs[i].box);
   const shown = new Set(nonOverlappingIndices(
-    dots.map((x) => (x.fits ? x.box : { left: 0, right: 0, top: 0, bottom: 0 }))));
+    placedBoxes.concat(dots.map(
+      (x) => (x.fits ? x.box : { left: 0, right: 0, top: 0, bottom: 0 }))))
+    .filter((i) => i >= placedBoxes.length)
+    .map((i) => i - placedBoxes.length));
   dots.forEach(({ d, base, text, at }, i) => {
     const gdot = svg("g", { class: "lensdot" });
     const circle = svg("circle", {

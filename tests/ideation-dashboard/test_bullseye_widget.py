@@ -138,6 +138,8 @@ for (const [id, snapshot, checked, wire] of cases) {
       rings: model.rings.length, sectors: model.sectors.length,
       dots: model.dots.length, checked: model.checked,
       centreRadius: (model.rings.find((r) => r.isCenter) || {}).outerRadius,
+      dotRows: model.dots.map((d) => d.row),
+      dotSizes: [...new Set(model.dots.map((d) => d.size))],
       sectorList: model.sectors.map((s) => ({
         subsetKey: s.subsetKey, keywords: s.keywords, matchCount: s.matchCount,
         isCenter: s.isCenter, spanDeg: s.spanDeg,
@@ -169,8 +171,28 @@ def _hand_snapshot():
 
 
 SNAP = _hand_snapshot()
+# A cell with far more documents than one row holds, so the packing stacks
+# rows and only the OUTER one may be labelled (Brett's 2026-08-07 ruling).
+_CROWD_SUBSETS = [["b"], ["c"], ["d"], ["a", "b"], ["a", "c"], ["b", "c"],
+                  ["a", "b", "c"]]
+CROWDED = {
+    "repository": "fixture-repo",
+    "generation": {"source_revision": "c" * 40},
+    # 24 documents in ONE cell (they match `a` alone, so they share a ring and
+    # a sector), plus enough other subsets to make that sector's slice narrow —
+    # which is what forces the packing to stack rows.
+    "documents": (
+        [{"id": f"doc-{i:02d}.md", "path": f"doc-{i:02d}.md", "topics": ["a"]}
+         for i in range(24)]
+        + [{"id": f"other-{i}.md", "path": f"other-{i}.md", "topics": s}
+           for i, s in enumerate(_CROWD_SUBSETS)]),
+    "keyword_index": [{"keyword": k, "declared_doc_count": 24}
+                      for k in ("a", "b", "c", "d")],
+}
+
 CASES = [
     # (id, snapshot, checked, wire the centre gesture)
+    ("crowded", CROWDED, ["a", "b", "c", "d"], False),
     ("two-checked", SNAP, ["alpha", "beta"], False),
     ("two-checked-wired", SNAP, ["alpha", "beta"], True),
     ("one-checked", SNAP, ["alpha"], False),
@@ -469,3 +491,21 @@ console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R }));
     assert by_n[60]["rows"] > 1 and by_n[60]["size"] == r["DOT_R"]
     # a thin, narrow, overcrowded cell shrinks to the floor and still separates
     assert by_n[200]["size"] == r["DOT_MIN_R"]
+
+
+def test_only_the_outer_row_of_a_ring_is_labelled(tmp_path):
+    """Brett's 2026-08-07 ruling: "for each ring, only label the outer row of
+    dots — we can infer the numbers of the ones that are inboard of those
+    dots in that same ring." A cell's numbers run along its outer row and
+    continue inward, so an inboard label is clutter that costs the outer
+    row's legibility."""
+    r = _render(tmp_path)["crowded"]
+    rows = r["model"]["dotRows"]
+    assert max(rows) >= 1, "the fixture must actually stack rows"
+    outer = sum(1 for row in rows if row == 0)
+    # every drawn label belongs to the outer row, and no inboard dot has one
+    assert r["counts"]["dots"] == len(rows) == 31
+    assert 0 < len(r["docLabels"]) <= outer
+    # the inboard dots are still DRAWN and still name themselves on hover
+    assert len(r["dotTitles"]) == 31
+    assert all(t and ".md" in t for t in r["dotTitles"])
