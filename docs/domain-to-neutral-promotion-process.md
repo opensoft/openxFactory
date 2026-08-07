@@ -117,6 +117,13 @@ digest) so the lane does not re-file it while the content is unchanged.
 Create a promotion candidate when one of these is true:
 
 - Two or more domain repos use the same structure with different domain nouns.
+  This rule is now COMPUTED as well as searched for: the ideation dashboard's
+  repository lens plots every document identity by how many of a project's
+  member repositories carry it, and a region with two or more carriers drafts
+  a register seed in this register's own format
+  (`add-shared-identity-seeds`). Like every machine-drafted seed it is an
+  intake artifact only — text a human merges — and the same lifecycle applies
+  from there.
 - One domain repo has a control surface that is plainly domain-neutral, such as
   admission, gating, scoped credentials, provenance, trigger routing, audit, or
   candidate promotion.

@@ -35,6 +35,10 @@ import {
 import { renderBullseye } from "./bullseye.js";
 import { identitiesFor, isComposed, repositoryVocabulary } from "./composed-model.js";
 
+// add-shared-identity-seeds: DRAFTING route (writes nothing; returns the
+// register row + detail section as TEXT for a human to merge).
+export const DTN_SEED_ROUTE = "/actions/dtn-seed";
+
 // D21 (Brett, 2026-08-07: "our repo selector is now very similar to the lens
 // function but for documents in repos vs keywords in documents") — the lens
 // serves TWO VOCABULARIES through one widget. Only the words differ; every
@@ -400,6 +404,37 @@ function matrix(model) {
   return table;
 }
 
+// The drafted DTN seed (add-shared-identity-seeds): register-format TEXT the
+// human merges. Rendered read-only with a copy control — this surface never
+// writes the register, and says so, exactly as the neutrality lane's
+// machine-drafted seeds enter through a human merge.
+function renderSeed(container, data) {
+  container.innerHTML = "";
+  const box = el("div", "draft-confirm");
+  box.appendChild(el("div", "dc-h",
+    "drafted register seed " + data.dtn + " — nothing is written"));
+  box.appendChild(el("div", "dc-note",
+    "Merge this into " + data.register + ": the row into the Candidate List "
+    + "table, the section into Candidate Details. The seed enters the "
+    + "register lifecycle only when you merge it."));
+  const text = data.row + "\n\n" + data.section;
+  const pre = el("pre", "seedtext", text);
+  box.appendChild(pre);
+  const copy = el("button", "cbtn", "copy");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      copy.textContent = "copied";
+    } catch {
+      // clipboard denied: the text is on screen and selectable anyway
+      copy.textContent = "select the text above";
+    }
+  });
+  box.appendChild(copy);
+  container.appendChild(box);
+}
+
 // ---- pane 3b: DRILL-IN (D21) — the repository lens's third pane ----------
 //
 // One labelled row per region the bullseye draws, innermost first: the centre
@@ -454,6 +489,22 @@ function drillPane(model, ctx) {
       subsetKey: row.subsetKey,
     }));
     line.appendChild(go);
+    // add-shared-identity-seeds: a CONVERGENT region (two or more carriers)
+    // is the promotion process's first candidate rule met, so it can be
+    // drafted as a DTN register seed. Single-carrier regions cannot — one
+    // repository having something is not convergence — and say why.
+    if (ctx.onSeed) {
+      const seed = el("button", "cbtn", "draft DTN seed");
+      seed.type = "button";
+      seed.disabled = row.matchCount < 2;
+      seed.title = row.matchCount < 2
+        ? "only one repository carries these — a candidate needs two or more"
+        : "draft a candidate-register seed for these " + row.matchCount
+          + " carriers (text you merge; nothing is written)";
+      seed.addEventListener("click", () => ctx.onSeed(row.keywords, seed));
+      seed.dataset.carriers = String(row.matchCount);
+      line.appendChild(seed);
+    }
     pane.appendChild(line);
   }
   return pane;
@@ -612,6 +663,43 @@ export function renderLens(root, snapshot, opts) {
     summaries,
     repository,
     vocab,
+    // add-shared-identity-seeds — draft a register seed for a convergent
+    // region. Loopback-only server side; the response is TEXT, so this
+    // affordance is legitimately available on the read-only composed view
+    // (nothing is written, exactly as the neutrality lane drafts seeds a
+    // human merges).
+    onSeed: vocab.id === "repositories" && composed
+      ? async (repositories, button) => {
+          const label = button.textContent;
+          button.disabled = true;
+          button.textContent = "drafting…";
+          status.textContent = "";
+          try {
+            // through the SAME transport the plan panel uses: this view holds
+            // no network primitive of its own (the injected fetcher or the
+            // passed `fetch` reference, never a call written here).
+            const data = await postPlan(DTN_SEED_ROUTE, {
+              project_id: composed.repository,
+              // the whole visible set defines the carrier question…
+              repositories: [...state.checked],
+              // …and the region's own combination is what gets drafted, so
+              // the seed covers exactly the row that was clicked.
+              combination: repositories,
+            }, fetcher);
+            if (!data || data.ok !== true) {
+              status.textContent = "seed refused: "
+                + (data?.message || data?.error || "no answer");
+              return;
+            }
+            renderSeed(confirm, data);
+          } catch (err) {
+            status.textContent = "seed failed: " + (err?.message || "error");
+          } finally {
+            button.disabled = false;
+            button.textContent = label;
+          }
+        }
+      : null,
     // D21 — the bullseye's activate gesture, wired only for repositories.
     onDrill: vocab.id === "repositories" && options.onDrillIn
       ? (region) => options.onDrillIn({
