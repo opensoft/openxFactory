@@ -39,5 +39,10 @@
       reloaded, and the button retired with nothing pending. Zero console
       errors, page errors, and >=400 responses.)
 - [x] 3.4 Runbook: the watcher's run line beside the serve.
-- [ ] 3.5 First unattended fulfilment observed (Brett commissions; the
+- [x] 3.5 First unattended fulfilment observed (Brett commissions; the
       watcher or button delivers with no terminal session involved).
+      (Observed 2026-08-07: Brett commissioned AdxFactory into `xfactory`
+      from the dashboard at 01:30:23Z; the polling watcher delivered it at
+      01:31:13Z — descriptor stamped `delivered_by: register-edit-lane`,
+      register-only commit dd1179e pushed to the aggregation's origin/main —
+      with no terminal session involved.)
