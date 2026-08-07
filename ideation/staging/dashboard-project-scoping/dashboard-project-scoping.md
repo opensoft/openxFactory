@@ -220,6 +220,18 @@ not a UI change.
   what is on screen. Intersection FILTERS rather than merges: each
   repository's copy stays its own openable row.
 
+- **D20 — SHARED means two or more, not all (Brett, 2026-08-07).** "Make
+  intersection mean shared by 2+ visible repos." D19's second mode was
+  strict set intersection (present in EVERY visible repository); the live
+  data showed why that is the wrong threshold — across the five-factory
+  `domains` project, all-of-them keeps 2 document identities while
+  two-or-more surfaces the 8 cluster topics the factories actually
+  converge on (`cl-consent`, `cl-handoff`, `cl-mailbox`…). The mode is
+  therefore renamed SHARED: the label reads `∩ shared`, and the code stops
+  claiming a set operation it no longer performs. With two repositories
+  visible the two rules coincide, so this only changes behaviour at three
+  or more.
+
 - **D18 — Project edits QUEUE (Brett, 2026-08-07).** Ruled after two live
   one-in-flight refusals while populating `xfactory` member by member: the
   single-flight guard on `edit-project` is dropped. Successive edits each

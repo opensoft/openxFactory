@@ -28,7 +28,7 @@ import {
   repositoryVisible, sameKey, staleNotice, toggleVisibility,
   visibleRepositories,
 } from "./repo-selector-model.js";
-import { VIEW_INTERSECTION, VIEW_UNION } from "./composed-model.js";
+import { VIEW_SHARED, VIEW_UNION } from "./composed-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
 export const ACTIONS_REFRESH_ROUTE = "/actions/refresh";
@@ -170,7 +170,7 @@ export function projectViewState(project, storage, active) {
     && members.includes(served);
   return {
     visible: single ? [served] : visibleRepositories(project, visibility),
-    mode: stored.mode === VIEW_INTERSECTION ? VIEW_INTERSECTION : VIEW_UNION,
+    mode: stored.mode === VIEW_SHARED ? VIEW_SHARED : VIEW_UNION,
   };
 }
 
@@ -411,8 +411,8 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
     pop.appendChild(select);
   }
 
-  // D19 \u2014 the VIEW ROW: what the wheels currently span. Union/intersection is
-  // one toggle, "all"/"none" are the two bulk moves, and the count states the
+  // D19 \u2014 the VIEW ROW: what the wheels currently span. Union/shared is one
+  // toggle, "all"/"none" are the two bulk moves, and the count states the
   // set \u2014 which together cover every selection the old all-repos line and the
   // single-select click used to cover separately.
   function mountViewRow(aggregate) {
@@ -430,18 +430,19 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
       pop.appendChild(line);
       return;
     }
-    const intersecting = o.viewMode === VIEW_INTERSECTION;
+    const sharing = o.viewMode === VIEW_SHARED;
     // NOT a `filterrow`: rows are member repositories, and conflating the
     // mode control with them makes both the styling and the DOM ambiguous.
-    const mode = el("button", "filtermode",
-      intersecting ? "\u2229 intersection" : "\u222a union");
+    const mode = el("button", "filtermode", sharing ? "\u2229 shared" : "\u222a union");
     mode.type = "button";
-    mode.title = intersecting
-      ? "showing only what EVERY visible repository has \u2014 click for the union"
-      : "showing everything from every visible repository \u2014 click for the intersection";
+    mode.title = sharing
+      ? "showing only what TWO OR MORE visible repositories carry "
+        + "\u2014 click for the union"
+      : "showing everything from every visible repository "
+        + "\u2014 click for what two or more of them share";
     mode.disabled = visible.length < 2;      // one repository: same either way
     mode.addEventListener("click", () => applyView(
-      visible, intersecting ? VIEW_UNION : VIEW_INTERSECTION));
+      visible, sharing ? VIEW_UNION : VIEW_SHARED));
     line.appendChild(mode);
 
     const count = el("span", "filtercount",

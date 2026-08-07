@@ -472,8 +472,8 @@ async function main() {
     const composed = isComposed(rawSnapshot);
     // D19 (Brett, 2026-08-07): the composed snapshot renders the VISIBLE
     // member set under the stored view mode — union (everything from the
-    // ticked repositories) or intersection (only what every ticked
-    // repository has). Narrow FIRST, union after: the cluster union then
+    // ticked repositories) or shared (only what two or more of them carry,
+    // the D20 threshold). Narrow FIRST, union after: the cluster union then
     // sums tallies over the visible set instead of the whole project. The
     // narrowed snapshot also carries the trimmed `composed_from`, so the
     // freshness header names the repositories actually on screen.

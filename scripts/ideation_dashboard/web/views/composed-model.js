@@ -110,7 +110,12 @@ export const COMPOSED_COLLECTIONS = [
 ];
 
 export const VIEW_UNION = "union";
-export const VIEW_INTERSECTION = "intersection";
+// NOT "intersection": Brett's D20 refinement made the second mode SHARED —
+// carried by two or more of the visible repositories, not by every one of
+// them — because strict intersection over a real five-factory project keeps
+// almost nothing, while the overlap is where the convergence lives. The name
+// follows the rule so the code cannot claim a set operation it is not doing.
+export const VIEW_SHARED = "shared";
 
 // The item's cross-repository identity: the namespaced id's tail, or the
 // unnamespaced key a collection uses instead (`staging_id`, `keyword`).
@@ -124,15 +129,22 @@ export function itemTail(item) {
 // D19 — the composed snapshot narrowed to the VISIBLE member repositories,
 // under one of two set modes:
 //
-//   union         every item belonging to a visible repository;
-//   intersection  only items whose identity exists in EVERY visible
-//                 repository — "what do these repositories share?".
+//   union    every item belonging to a visible repository;
+//   shared   only items whose identity is carried by TWO OR MORE of the
+//            visible repositories — "where do these repositories converge?".
 //
-// Intersection FILTERS, it never merges: each repository's own copy stays its
-// own row (badged, and openable in its own repo), which is what makes
-// comparing two factories' takes on the same document possible. Clusters are
-// merged afterwards by the union rule exactly as before, so filtering first
-// and unioning second keeps tallies honest for the visible set.
+// D20 (Brett, 2026-08-07) set the shared threshold at two rather than all:
+// across the five-factory `domains` project, strict all-of-them keeps 2
+// document identities while two-or-more surfaces the 8 cluster topics the
+// factories actually converge on. With two repositories visible the rules
+// coincide, so the refinement only shows above that — and narrowing to a
+// pair remains the sharpest comparison, now one `none` + two ticks away.
+//
+// Shared FILTERS, it never merges: each repository's own copy stays its own
+// row (badged, and openable in its own repo), which is what makes comparing
+// two factories' takes on the same document possible. Clusters are merged
+// afterwards by the union rule exactly as before, so filtering first and
+// unioning second keeps tallies honest for the visible set.
 //
 // `visible` null/undefined means EVERY member (the composition's own answer).
 // `generation.composed_from` is trimmed to the visible members so the
@@ -152,14 +164,14 @@ export function visibleSnapshot(snapshot, visible, mode) {
     if (!Array.isArray(items)) continue;
     let kept = items.filter(
       (item) => item && keep.has(String(item.repository)));
-    if (mode === VIEW_INTERSECTION && keep.size > 1) {
+    if (mode === VIEW_SHARED && keep.size > 1) {
       const carriers = new Map();
       for (const item of kept) {
         const tail = itemTail(item);
         if (!carriers.has(tail)) carriers.set(tail, new Set());
         carriers.get(tail).add(String(item.repository));
       }
-      kept = kept.filter((item) => carriers.get(itemTail(item)).size === keep.size);
+      kept = kept.filter((item) => carriers.get(itemTail(item)).size >= 2);
     }
     out[collection] = kept;
   }
