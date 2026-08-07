@@ -45,5 +45,11 @@
       "▤ read" + "⤴ open in alpha" — no gate verb anywhere; the jump landed
       on "alpha @ main"; zero console errors, page errors, and >=400
       responses.)
-- [ ] 3.4 First real merged-view session by Brett (select a project's
-      all-repos view, navigate, jump into a member repo).
+- [x] 3.4 First real merged-view session by Brett (select a project's
+      all-repos view, navigate, jump into a member repo). — PASSED
+      2026-08-07: Brett served the dashboard from the real checkout,
+      selected a project's all-repos merged view, navigated to a tile,
+      and verified the repository attribution at the tile annotation
+      ("it shows that it says the correct repo"); no findings reported.
+      Walked against the promoted scenarios (read-only composed view,
+      per-repo badges, the "open in <repo>" jump).
