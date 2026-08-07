@@ -13,6 +13,11 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
 import tarfile
 from datetime import date
 
@@ -116,6 +121,131 @@ def archived_change_dir(root: Path, change: str) -> Path:
 
 def change_dir(root: Path, change: str, archived: bool) -> Path:
     return (archived_change_dir if archived else active_change_dir)(root, change)
+
+
+STAGED_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:staging:[a-z0-9][a-z0-9-]*$")
+ADHOC_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:adhoc:[A-Za-z0-9][A-Za-z0-9-]*$")
+STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*(\S+)\s*$", re.M)
+
+
+def load_packet(directory: Path) -> dict | None:
+    """The change's `.openspec.yaml`, or None when absent/unparseable."""
+    packet = directory / ".openspec.yaml"
+    if not packet.is_file():
+        return None
+    try:
+        data = yaml.safe_load(packet.read_text(encoding="utf-8"))
+    except yaml.YAMLError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def staging_header_id(folder: Path) -> str | None:
+    """The durable `Staging ID:` a staging topic's documents declare."""
+    if not folder.is_dir():
+        return None
+    for doc in sorted(folder.glob("*.md")):
+        try:
+            match = STAGING_HEADER_RE.search(doc.read_text(encoding="utf-8"))
+        except OSError:
+            continue
+        if match:
+            return match.group(1)
+    return None
+
+
+def origin_errors(root: Path, directory: Path, *, strict: bool,
+                  manifest: dict | None = None) -> list[str]:
+    """The origin-contract gate checks (add-proposal-origin-contract tasks
+    2.2/2.3). `strict` is the per-change GATE posture: a missing origin is
+    rejected outright. In sweep mode (strict=False) only declared origins
+    are checked for coherence — pre-contract legacy visibility belongs to
+    the nightly `proposal-origin` family, not to a sweeping gate."""
+    name = directory.name
+    packet_file = directory / ".openspec.yaml"
+    if packet_file.is_file():
+        packet = load_packet(directory)
+        if packet is None:
+            return [f"{name}: .openspec.yaml does not parse — the origin "
+                    "declaration is unreadable"]
+    else:
+        packet = None
+    origin = (packet or {}).get("origin")
+    errors: list[str] = []
+    if not isinstance(origin, dict):
+        if strict:
+            errors.append(
+                f"{name}: no origin declaration — declare `origin:` "
+                "(staged or ad_hoc) in .openspec.yaml")
+        return errors
+    kind, oid = origin.get("kind"), origin.get("id")
+    if kind not in ("staged", "ad_hoc"):
+        errors.append(f"{name}: unknown origin kind {kind!r}")
+        return errors
+    grammar = STAGED_ID_RE if kind == "staged" else ADHOC_ID_RE
+    if not isinstance(oid, str) or not grammar.match(oid):
+        errors.append(f"{name}: malformed durable origin id {oid!r} "
+                      f"for kind {kind}")
+    if (kind == "staged" and isinstance(oid, str) and ":adhoc:" in oid) or             (kind == "ad_hoc" and isinstance(oid, str) and ":staging:" in oid):
+        errors.append(f"{name}: origin id and kind disagree — exactly one "
+                      "origin kind per proposal")
+    if kind == "staged":
+        opath = origin.get("path")
+        if not opath:
+            errors.append(f"{name}: staged origin lacks `path`")
+        elif strict:
+            header = staging_header_id(root / str(opath))
+            if header is not None and header != oid:
+                errors.append(
+                    f"{name}: staging folder {opath!r} exists but its "
+                    f"`Staging ID:` ({header}) does not equal the declared "
+                    f"origin id ({oid})")
+    else:
+        for field in ("reason", "approved_by", "approved_on"):
+            if not str(origin.get(field) or "").strip():
+                errors.append(f"{name}: ad-hoc origin lacks required "
+                              f"`{field}`")
+    if isinstance(manifest, dict) and isinstance(manifest.get("origin"), dict):
+        m_origin = manifest["origin"]
+        fields = ["kind", "id"] + (["path"] if kind == "staged" else [])
+        for field in fields:
+            if m_origin.get(field) != origin.get(field):
+                errors.append(
+                    f"{name}: support manifest origin `{field}` "
+                    f"({m_origin.get(field)!r}) disagrees with the packet "
+                    f"declaration ({origin.get(field)!r}) — the origin is "
+                    "immutable after ratification")
+    return errors
+
+
+def write_origin_block(directory: Path, origin: dict,
+                       created: str) -> None:
+    """Append (never rewrite) the origin block to `.openspec.yaml`,
+    creating a minimal packet when none exists. Refuses to overwrite an
+    existing declaration — origins are fixed at creation."""
+    packet_file = directory / ".openspec.yaml"
+    existing = load_packet(directory)
+    if isinstance(existing, dict) and isinstance(existing.get("origin"),
+                                                 dict):
+        raise SupportError(
+            f"{directory.name}: origin already declared; origins are "
+            "immutable — refusing to overwrite")
+    lines = []
+    if not packet_file.is_file():
+        lines.append(f"schema: spec-driven\ncreated: {created}")
+    body = [f"origin:", f"  kind: {origin['kind']}", f"  id: {origin['id']}"]
+    if origin["kind"] == "staged":
+        body.append(f"  path: {origin['path']}")
+    else:
+        body.append("  reason: >-")
+        for chunk in origin["reason"].splitlines() or [origin["reason"]]:
+            body.append(f"    {chunk}")
+        body.append(f"  approved_by: {origin['approved_by']}")
+        body.append(f"  approved_on: {origin['approved_on']}")
+    prefix = packet_file.read_text(encoding="utf-8").rstrip("\n") + "\n" \
+        if packet_file.is_file() else "\n".join(lines) + "\n"
+    packet_file.write_text(prefix + "\n".join(body) + "\n",
+                           encoding="utf-8")
 
 
 def markdown_target(raw: str) -> tuple[str, str] | None:
@@ -259,11 +389,29 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
                 raise SupportError(
                     "staging source is not committed at source revision: "
                     f"{entry['source_path']}")
+    # Origin contract (add-proposal-origin-contract task 4.3): the proposal
+    # gate writes the staged origin automatically. The durable id authority
+    # is the staging documents' own `Staging ID:` header; the folder name is
+    # the fallback for topics that predate the header convention.
+    header_id = staging_header_id(source)
+    origin_id = header_id or f"{root.name}:staging:{source.name}"
+    origin = {"kind": "staged", "id": origin_id,
+              "path": str(source.relative_to(root))}
+    existing_packet = load_packet(change_dir(root, change, archived))
+    declared = (existing_packet or {}).get("origin")
+    if isinstance(declared, dict):
+        for field in ("kind", "id", "path"):
+            if declared.get(field) not in (None, origin[field]):
+                raise SupportError(
+                    f"declared origin `{field}` ({declared.get(field)!r}) "
+                    f"disagrees with the transition source "
+                    f"({origin[field]!r}) — origins are immutable")
     manifest = {
         "change_id": change,
         "files": entries,
         "format_version": 1,
         "notebook_workspace": workspace,
+        "origin": origin,
         "origin_path": str(source.relative_to(root)),
         "remaining_paths": [str(path.relative_to(root)) for path in remaining],
         "source_revision": revision,
@@ -285,6 +433,9 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
     (destination / "manifest.yaml").write_text(
         manifest_text(manifest), encoding="utf-8"
     )
+    if not isinstance(declared, dict):
+        write_origin_block(change_dir(root, change, archived), origin,
+                           transition_date)
     for directory in sorted(source.rglob("*"), reverse=True):
         if directory.is_dir() and not any(directory.iterdir()):
             directory.rmdir()
@@ -368,6 +519,8 @@ def package(root: Path, change: str, packaged_at: str, archived: bool,
     if active_manifest.get("notebook_workspace") and not final_import_complete:
         raise SupportError("final NotebookLM source import is not recorded")
     errors = verify_active_support(directory)
+    errors.extend(origin_errors(root, directory, strict=False,
+                                manifest=active_manifest))
     if errors:
         raise SupportError("; ".join(errors))
 
@@ -382,6 +535,7 @@ def package(root: Path, change: str, packaged_at: str, archived: bool,
         "final_notebook_import_complete": final_import_complete,
         "format_version": 1,
         "notebook_workspace": active_manifest.get("notebook_workspace"),
+        "origin": active_manifest.get("origin"),
         "origin_path": active_manifest.get("origin_path"),
         "packaged_at": packaged_at,
         "source_revision": active_manifest.get("source_revision"),
@@ -445,11 +599,17 @@ def verify(root: Path, change: str | None) -> list[str]:
             continue
         if change and directory.name != change:
             continue
+        support_manifest = None
         if (directory / "supporting-docs").exists():
             try:
                 errors.extend(verify_active_support(directory))
+                support_manifest = load_manifest(
+                    directory / "supporting-docs" / "manifest.yaml")
             except SupportError as exc:
                 errors.append(str(exc))
+        errors.extend(origin_errors(root, directory,
+                                    strict=bool(change),
+                                    manifest=support_manifest))
     for directory in sorted((active_root / "archive").iterdir()):
         if not directory.is_dir():
             continue
@@ -464,8 +624,14 @@ def verify(root: Path, change: str | None) -> list[str]:
             else:
                 try:
                     errors.extend(verify_archive(directory))
+                    errors.extend(origin_errors(
+                        root, directory, strict=bool(change),
+                        manifest=load_manifest(
+                            directory / "supporting-docs.manifest.yaml")))
                 except SupportError as exc:
                     errors.append(str(exc))
+        elif change:
+            errors.extend(origin_errors(root, directory, strict=True))
     misplaced = list((root / "openspec" / "specs").rglob("supporting-docs.tar.gz"))
     errors.extend(f"support bundle under canonical specs: {path}" for path in misplaced)
     return errors
@@ -474,6 +640,9 @@ def verify(root: Path, change: str | None) -> list[str]:
 def archive_change(root: Path, change: str, packaged_at: str,
                    final_import_complete: bool, yes: bool) -> None:
     directory = active_change_dir(root, change)
+    gate = origin_errors(root, directory, strict=True)
+    if gate:
+        raise SupportError("origin gate: " + "; ".join(gate))
     tasks = directory / "tasks.md"
     if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
         raise SupportError("change has incomplete tasks")
@@ -512,6 +681,13 @@ def parser() -> argparse.ArgumentParser:
     check = sub.add_parser("verify")
     check.add_argument("change", nargs="?")
 
+    adhoc = sub.add_parser("declare-adhoc")
+    adhoc.add_argument("change")
+    adhoc.add_argument("--reason", required=True)
+    adhoc.add_argument("--approved-by", required=True)
+    adhoc.add_argument("--approved-on", required=True)
+    adhoc.add_argument("--slug")
+
     archive = sub.add_parser("archive")
     archive.add_argument("change")
     archive.add_argument("--date", default=date.today().isoformat())
@@ -529,6 +705,18 @@ def main() -> None:
         elif args.command == "package":
             package(args.root, args.change, args.date, args.archived,
                     args.final_import_complete, args.apply)
+        elif args.command == "declare-adhoc":
+            directory = active_change_dir(args.root.resolve(), args.change)
+            slug = args.slug or args.change.removeprefix("add-")
+            write_origin_block(directory, {
+                "kind": "ad_hoc",
+                "id": f"{args.root.resolve().name}:adhoc:"
+                      f"{args.approved_on}-{slug}",
+                "reason": args.reason,
+                "approved_by": args.approved_by,
+                "approved_on": args.approved_on,
+            }, args.approved_on)
+            print(f"ad-hoc origin declared for {args.change}")
         elif args.command == "verify":
             errors = verify(args.root, args.change)
             if errors:

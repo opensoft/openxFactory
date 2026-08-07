@@ -117,6 +117,21 @@ change):
   deltas; selected staged material moves with Git history into
   `openspec/changes/<change-id>/supporting-docs/`. Proposed prose becomes
   `draft`; immutable evidence stays `record`.
+- **Origin at the proposal gate** (the promoted `document-lifecycle` proposal
+  origin requirements — referenced here, never restated): every proposal
+  declares exactly ONE origin in its `.openspec.yaml`, fixed at creation and
+  immutable for the life of the change. `scripts/proposal-support.py
+  transition` writes the `staged` origin automatically (durable id from the
+  topic's `Staging ID:` header, path as the historical transition source)
+  and repeats it in the support manifest; a deliberate exception uses
+  `scripts/proposal-support.py declare-adhoc <change> --reason --approved-by
+  --approved-on` — ad-hoc is an explicit approved exception, never a default,
+  and never a substitute when organized source material exists. Strict
+  per-change verification (`proposal-support.py verify <change>`) and the
+  archive gate reject missing, malformed, dual-kind, or manifest-disagreeing
+  origins; the nightly `proposal-origin` doc-health family (the fifteenth)
+  reports drift — including post-ratification mutation, a `contested`
+  finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
 - `implemented -> promoted`: the change archives and its requirements live
   under canonical specs; affected docs may claim `standard`. Before archive,
