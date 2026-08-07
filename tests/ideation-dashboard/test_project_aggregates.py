@@ -131,13 +131,32 @@ def test_publishable_only_drops_session_members_before_composition(tmp_path):
 # ---------------------------------------------------------------------------
 
 _NODE_HARNESS = """
-import { composedView, isComposed, memberRef, readOnlyCaps, topicTail, unionClusters }
+import { VIEW_INTERSECTION, VIEW_UNION, composedView, isComposed, itemTail,
+         memberRef, readOnlyCaps, topicTail, unionClusters, visibleSnapshot }
   from './composed-model.mjs';
 import { WHEEL_ACTIONS, actionsFor, jumpRepository } from './wheel-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const snapshot = input.snapshot;
 const view = composedView(snapshot);
+// D19 — the visible set under each mode, over the SAME composed fixture
+const shape = (s) => ({
+  clusters: s.clusters.map((c) => c.id),
+  documents: (s.documents || []).map((d) => d.id),
+  members: s.generation.composed_from.map((m) => m.repository),
+});
+const visible = {
+  everyMember: shape(visibleSnapshot(snapshot, null, VIEW_UNION)),
+  unionAlpha: shape(visibleSnapshot(snapshot, ['alpha'], VIEW_UNION)),
+  intersection: shape(visibleSnapshot(snapshot, ['alpha', 'beta'], VIEW_INTERSECTION)),
+  none: shape(visibleSnapshot(snapshot, [], VIEW_UNION)),
+  ghost: shape(visibleSnapshot(snapshot, ['alpha', 'nope'], VIEW_UNION)),
+  soloTallies: composedView(visibleSnapshot(snapshot, ['alpha'], VIEW_UNION))
+    .clusters.map((c) => [c.id, c.tallies.document_links, c.repositories]),
+  passthrough: visibleSnapshot({ clusters: [{ id: 'cl-a' }] }, ['x'], VIEW_UNION),
+  tails: [itemTail({ id: 'a::x' }), itemTail({ staging_id: 't' }),
+          itemTail({ keyword: 'k' }), itemTail(null)],
+};
 const env = { composed: isComposed(snapshot), gate: false, notebook: false,
               commissioned: () => false, applied: null };
 const plainEnv = { ...env, composed: false };
@@ -158,6 +177,7 @@ const out = {
   plainDocActions: actionsFor('documents', docItem, plainEnv).map((a) => a.id),
   jumps: [jumpRepository(docItem), jumpRepository(clusterItem),
           jumpRepository({ ref: { repositories: ['a', 'b'] } })],
+  visible,
 };
 console.log(JSON.stringify(out));
 """
@@ -184,6 +204,11 @@ def _composed_snapshot():
             {"repository": "alpha", "ref": "main", "source_revision": "1" * 40},
             {"repository": "beta", "ref": "session/x", "source_revision": "2" * 40},
         ]},
+        "documents": [
+            {"id": "alpha::docs/shared.md", "repository": "alpha"},
+            {"id": "beta::docs/shared.md", "repository": "beta"},
+            {"id": "alpha::docs/only-alpha.md", "repository": "alpha"},
+        ],
         "clusters": [
             {"id": "alpha::cl-kill-switch", "name": "Kill Switch",
              "repository": "alpha", "ref": "main",
@@ -220,6 +245,47 @@ def test_the_union_merges_same_topic_clusters_and_gates_read_only(tmp_path):
     assert r["caps"]["actor"] == "brett"
     # the jump ref comes from the composition stamps (session member kept)
     assert r["memberRefs"] == ["session/x", "main"]
+
+
+def test_the_visible_set_narrows_the_composed_view_under_both_modes(tmp_path):
+    """Topic D19 (Brett, 2026-08-07): the composed view spans the VISIBLE
+    member set — union (everything the ticked repositories have) or
+    intersection (only what EVERY ticked repository has). Narrowing happens
+    before the cluster union, so tallies count the visible set only, and
+    `composed_from` is trimmed so the freshness header names what is on
+    screen."""
+    v = _run_node({"snapshot": _composed_snapshot()}, tmp_path)["visible"]
+
+    # no stored set: every member, exactly the pre-D19 composition
+    assert v["everyMember"]["members"] == ["alpha", "beta"]
+    assert v["everyMember"]["clusters"] == [
+        "alpha::cl-kill-switch", "beta::cl-kill-switch", "beta::cl-only-beta"]
+
+    # union of one: that repository's items, and composed_from follows
+    assert v["unionAlpha"]["members"] == ["alpha"]
+    assert v["unionAlpha"]["clusters"] == ["alpha::cl-kill-switch"]
+    assert v["unionAlpha"]["documents"] == [
+        "alpha::docs/shared.md", "alpha::docs/only-alpha.md"]
+
+    # intersection: only identities BOTH carry — the shared doc and the
+    # shared topic survive as each repository's own row (badged, separately
+    # openable); alpha's private document and beta's private cluster do not
+    assert v["intersection"]["documents"] == [
+        "alpha::docs/shared.md", "beta::docs/shared.md"]
+    assert v["intersection"]["clusters"] == [
+        "alpha::cl-kill-switch", "beta::cl-kill-switch"]
+
+    # the two ends: nothing ticked empties honestly, an unknown id is ignored
+    assert v["none"] == {"clusters": [], "documents": [], "members": []}
+    assert v["ghost"]["members"] == ["alpha"]
+
+    # narrow-then-union: the tally counts alpha's 2 links, not the merged 5
+    assert v["soloTallies"] == [["cl-kill-switch", 2, ["alpha"]]]
+
+    # a non-composed snapshot passes through untouched
+    assert v["passthrough"] == {"clusters": [{"id": "cl-a"}]}
+    # one tail expression serves namespaced ids and the unnamespaced keys
+    assert v["tails"] == ["x", "t", "k", ""]
 
 
 def test_the_open_repo_jump_offers_itself_only_on_composed_views(tmp_path):

@@ -24,9 +24,11 @@
 import {
   addableRepositories, buildPendingEdits, buildPendingProjects, buildProjects,
   buildRoster, defaultProjectScope, freshnessLabel, hintLabel, keyId,
-  netPendingEdit, newerAvailable, projectFilterRows, repositoryVisible,
-  sameKey, staleNotice,
+  KIND_REPOSITORY, netPendingEdit, newerAvailable, projectFilterRows,
+  repositoryVisible, sameKey, staleNotice, toggleVisibility,
+  visibleRepositories,
 } from "./repo-selector-model.js";
+import { VIEW_INTERSECTION, VIEW_UNION } from "./composed-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
 export const ACTIONS_REFRESH_ROUTE = "/actions/refresh";
@@ -46,6 +48,8 @@ export const ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits
 // THIRD-PARTY DATA on the way back in: it only ever filters client-side
 // (membership-checked against the loaded projection) and never reaches a URL.
 export const PROJECT_SCOPE_STORAGE_KEY = "xfDashProjectScope";
+// D19: the per-project visible set + view mode (see `storedViewState`).
+export const VIEW_STATE_STORAGE_KEY = "xfDashProjectView";
 // ~5 minutes: the ruled cadence. Slow enough that the serving side's own peek
 // cache absorbs N viewers, fast enough that "did my doc land?" answers itself
 // while the tab is open.
@@ -118,6 +122,56 @@ export function storeProjectScope(id, storage) {
     if (id) store.setItem(PROJECT_SCOPE_STORAGE_KEY, id);
     else store.removeItem(PROJECT_SCOPE_STORAGE_KEY);
   } catch { /* storage denied: the scope is simply session-transient */ }
+}
+
+// D19 — the per-project VISIBLE set and view mode, one stored document:
+// `{ "<project>": { "visible": [...], "mode": "union" } }`. Read defensively:
+// any malformed value degrades to "nothing stored", which means every member
+// under union — the composition's own default.
+export function storedViewState(storage) {
+  try {
+    const raw = (storage || window.sessionStorage)
+      .getItem(VIEW_STATE_STORAGE_KEY);
+    const doc = raw ? JSON.parse(raw) : null;
+    return doc && typeof doc === "object" && !Array.isArray(doc) ? doc : {};
+  } catch {
+    return {};
+  }
+}
+
+export function storeViewState(projectId, state, storage) {
+  if (!projectId) return;
+  try {
+    const store = storage || window.sessionStorage;
+    const doc = storedViewState(store);
+    doc[String(projectId)] = state;
+    store.setItem(VIEW_STATE_STORAGE_KEY, JSON.stringify(doc));
+  } catch { /* storage denied: the view is simply session-transient */ }
+}
+
+// The stored set/mode for one project, resolved against its CURRENT members.
+//
+// `active` reconciles the set with what is ACTUALLY SERVED: whenever the
+// served snapshot is a single member repository — a project switch, an
+// "open in <repo>" jump, a first-ever load — the visible set IS that
+// repository, whatever was stored. The ticks describe the view rather than
+// contradicting it, and no reload is needed to make them agree. When the
+// aggregate is served, the stored set governs.
+export function projectViewState(project, storage, active) {
+  const doc = storedViewState(storage);
+  const visibility = {};
+  for (const [id, entry] of Object.entries(doc)) {
+    if (entry && Array.isArray(entry.visible)) visibility[id] = entry.visible;
+  }
+  const stored = doc[String(project?.id)] || {};
+  const members = (project?.repositories || []).map(String);
+  const served = active && String(active.repository);
+  const single = served && served !== String(project?.id)
+    && members.includes(served);
+  return {
+    visible: single ? [served] : visibleRepositories(project, visibility),
+    mode: stored.mode === VIEW_INTERSECTION ? VIEW_INTERSECTION : VIEW_UNION,
+  };
 }
 
 export function refreshCapable(caps) {
@@ -266,11 +320,28 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
   // and edits QUEUE (topic D18) — the overlay is the NET of every queued row
   const currentPendingEdit = () => netPendingEdit(pendingEdits, project);
 
+  // D19 — the visible set drives the view: `applyView` is the ONE writer, and
+  // it persists then reloads, exactly the ratified reload-per-switch posture
+  // every other selector gesture already uses.
+  const visible = (o.visible || []).map(String);
+  const applyView = (nextVisible, nextMode) =>
+    o.onView?.({ visible: nextVisible.map(String), mode: nextMode });
+  // The project's DERIVED aggregate, when the plane can compose one: its
+  // presence is what makes a multi-repository view possible at all, so it
+  // decides whether the rows below are visibility toggles or the pre-D19
+  // single-select list.
+  const aggregateOption = (projectFilterRows(roster, project)
+    .find((r) => r.kind === "all") || {}).option || null;
+
   // The box names its content (Brett's 2026-08-06 annotation): a
-  // single-member project shows THAT repository's name; several members
-  // show the count, and the list is one click away.
+  // single-member project shows THAT repository's name; several show the
+  // count — now the VISIBLE count against the total (D19), so the header
+  // states the view without opening the popover.
   const members = project.repositories || [];
-  const boxLabel = members.length === 1 ? members[0] : members.length + " Repos";
+  const boxLabel = members.length === 1 ? members[0]
+    : (visible.length === members.length
+        ? members.length + " Repos"
+        : visible.length + " of " + members.length + " Repos");
   const button = el("button", "repobtn filterbtn", "\u29e9 " + boxLabel);
   button.type = "button";
   button.title = "repositories in " + project.name;
@@ -340,34 +411,94 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
     pop.appendChild(select);
   }
 
+  // D19 \u2014 the VIEW ROW: what the wheels currently span. Union/intersection is
+  // one toggle, "all"/"none" are the two bulk moves, and the count states the
+  // set \u2014 which together cover every selection the old all-repos line and the
+  // single-select click used to cover separately.
+  function mountViewRow(aggregate) {
+    const members = (project.repositories || []).map(String);
+    const line = el("span", "filterline filterviewline");
+    if (!aggregate) {
+      // No derived aggregate (no member publishes a snapshot): nothing can be
+      // composed, so the view row states that and the rows below stay
+      // single-select exactly as they were.
+      const note = el("span", "filterrow filterall",
+        "\u229e all repositories in " + project.name
+        + " (merged view unavailable \u2014 no member snapshot is published)");
+      note.setAttribute("aria-disabled", "true");
+      line.appendChild(note);
+      pop.appendChild(line);
+      return;
+    }
+    const intersecting = o.viewMode === VIEW_INTERSECTION;
+    // NOT a `filterrow`: rows are member repositories, and conflating the
+    // mode control with them makes both the styling and the DOM ambiguous.
+    const mode = el("button", "filtermode",
+      intersecting ? "\u2229 intersection" : "\u222a union");
+    mode.type = "button";
+    mode.title = intersecting
+      ? "showing only what EVERY visible repository has \u2014 click for the union"
+      : "showing everything from every visible repository \u2014 click for the intersection";
+    mode.disabled = visible.length < 2;      // one repository: same either way
+    mode.addEventListener("click", () => applyView(
+      visible, intersecting ? VIEW_UNION : VIEW_INTERSECTION));
+    line.appendChild(mode);
+
+    const count = el("span", "filtercount",
+      visible.length + " of " + members.length);
+    line.appendChild(count);
+
+    const all = el("button", "filterbulk", "all");
+    all.type = "button";
+    all.title = "show every repository in " + project.name;
+    all.disabled = visible.length === members.length;
+    all.addEventListener("click", () => applyView(members, o.viewMode));
+    line.appendChild(all);
+
+    const none = el("button", "filterbulk", "none");
+    none.type = "button";
+    none.title = "hide every repository (the view empties until you tick one)";
+    none.disabled = visible.length === 0;
+    none.addEventListener("click", () => applyView([], o.viewMode));
+    line.appendChild(none);
+    pop.appendChild(line);
+  }
+
   function renderRows() {
     const pendingEdit = currentPendingEdit();
     pop.textContent = "";
     if (gated) mountAddRow(pendingEdit);
     for (const row of projectFilterRows(roster, project)) {
       if (row.kind === "all") {
-        const all = el("button", "filterrow filterall",
-          "\u229e all repositories in " + project.name);
-        all.type = "button";
-        if (row.option) {
-          if (sameKey(row.option, o.active)) all.classList.add("filteractive");
-          all.addEventListener("click", () => o.onSelect?.(
-            { repository: row.option.repository, ref: row.option.ref }));
-        } else {
-          all.disabled = true;
-          all.textContent += " (merged view unavailable)";
-        }
-        pop.appendChild(all);
+        mountViewRow(row.option);
         continue;
       }
-      // one member row: [eye] [name -> serve it] [trash -> commission removal]
+      // one member row: [eye -> show/hide] [name -> only this one] [trash]
       const line = el("span", "filterline");
-      const visible = repositoryVisible(row.repository, project, o.active);
-      const eye = el("span", "filtereye" + (visible ? " filtervisible" : ""),
-        visible ? "\ud83d\udc41" : "\u25cc");
-      eye.title = visible
-        ? "visible in the current view"
-        : "not in the current view \u2014 click the name to serve it";
+      // D19: with a composable project the eyeball IS the control \u2014 it ticks
+      // this repository into or out of the view. Without one (no member
+      // publishes) it stays the D16 indicator over the single served view.
+      const composable = !!aggregateOption;
+      const shown = composable
+        ? visible.includes(String(row.repository))
+        : repositoryVisible(row.repository, project, o.active);
+      const eye = el(composable ? "button" : "span",
+        "filtereye" + (shown ? " filtervisible" : ""),
+        shown ? "\ud83d\udc41" : "\u25cc");
+      if (composable) {
+        eye.type = "button";
+        eye.title = (shown ? "hide " : "show ") + row.repository
+          + " in the view";
+        eye.setAttribute("aria-pressed", shown ? "true" : "false");
+        eye.disabled = !row.option;        // nothing published: nothing to show
+        eye.addEventListener("click", () => applyView(
+          toggleVisibility(visible, row.repository,
+                           project.repositories || []), o.viewMode));
+      } else {
+        eye.title = shown
+          ? "visible in the current view"
+          : "not in the current view \u2014 click the name to serve it";
+      }
       line.appendChild(eye);
 
       const entry = el("button", "filterrow", row.repository);
@@ -381,8 +512,16 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
           entry.textContent += " (" + (row.option.unavailableReason
             || "snapshot unavailable") + ")";
         }
-        entry.addEventListener("click", () => o.onSelect?.(
-          { repository: row.option.repository, ref: row.option.ref }));
+        // D19: the NAME solos \u2014 the one-click "just show me this repository"
+        // gesture the single-select filter had, expressed in the visible set
+        // (one visible repository serves its own snapshot, fully interactive).
+        entry.title = composable
+          ? "show only " + row.repository
+          : "serve " + row.repository;
+        entry.addEventListener("click", () => (composable
+          ? applyView([row.repository], o.viewMode)
+          : o.onSelect?.({ repository: row.option.repository,
+                           ref: row.option.ref })));
       } else {
         entry.disabled = true;
         entry.textContent += " (no published snapshot)";
@@ -501,9 +640,33 @@ export function mountRepoSelector(host, opts) {
     // project's members; re-rendered whenever the project changes ----
     let filterWrap = null;
     function renderFilter() {
-      const next = mountProjectFilter(currentProject(), roster, pendingEdits, {
+      const project = currentProject();
+      // D19: the visible set and view mode this project renders under —
+      // resolved against its CURRENT members, so a departed repository drops.
+      const view = projectViewState(project, o.storage, active);
+      const next = mountProjectFilter(project, roster, pendingEdits, {
         active, caps, status, projects, fetcher: o.fetcher,
+        visible: view.visible, viewMode: view.mode,
         onSelect: (key) => o.onSelect?.(key),
+        onView: (state) => {
+          storeViewState(project?.id, state, o.storage);
+          // The view row and the wheels move together: one visible
+          // repository serves ITS OWN snapshot (interactive), any other
+          // count serves the project's composed aggregate, which app.js
+          // narrows to the visible members under the stored mode.
+          const aggregate = (projectFilterRows(roster, project)
+            .find((r) => r.kind === "all") || {}).option || null;
+          const solo = state.visible.length === 1
+            ? roster.find((entry) => entry.kind === KIND_REPOSITORY
+                && entry.repository === state.visible[0])
+            : null;
+          const target = solo || aggregate;
+          if (target) {
+            o.onSelect?.({ repository: target.repository, ref: target.ref });
+          } else {
+            renderFilter();          // nothing to serve: just restate the set
+          }
+        },
       });
       if (filterWrap) filterWrap.replaceWith(next);
       else wrap.appendChild(next);
@@ -552,18 +715,20 @@ export function mountRepoSelector(host, opts) {
         scope = picker.value || scope;
         storeProjectScope(scope, o.storage);
         renderFilter();
-        // One snapshot at a time: switching to a project the active repo is
-        // not in loads the first published member (its all-repos view is one
-        // click away in the filter).
+        // Switching to a project the active repository is not in serves that
+        // project's DEFAULT VIEW (D19): its merged view when it has one — the
+        // default visible set is every member — else the first published
+        // member, which is what the pre-composition plane always did.
         const project = currentProject();
         if (project && active
             && active.repository !== project.id
             && !(project.repositories || []).includes(active.repository)) {
           const rows = projectFilterRows(roster, project);
+          const aggregate = (rows.find((r) => r.kind === "all") || {}).option;
           const first = rows.find((r) => r.kind === "repo" && r.option?.available);
-          if (first) {
-            o.onSelect?.({ repository: first.option.repository,
-                           ref: first.option.ref });
+          const target = aggregate || first?.option;
+          if (target) {
+            o.onSelect?.({ repository: target.repository, ref: target.ref });
           }
         }
       });

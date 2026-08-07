@@ -99,6 +99,78 @@ export function composedView(snapshot) {
   return { ...snapshot, clusters: unionClusters(snapshot.clusters) };
 }
 
+// ---- the VISIBLE set (topic D19, Brett's 2026-08-07 ruling) --------------
+
+// The composed collections a visibility filter applies to. Every one of them
+// carries per-item `repository` by construction of the composition, which is
+// exactly what makes ONE uniform filter possible.
+export const COMPOSED_COLLECTIONS = [
+  "documents", "clusters", "possibles", "staged_topics", "changes",
+  "keyword_index",
+];
+
+export const VIEW_UNION = "union";
+export const VIEW_INTERSECTION = "intersection";
+
+// The item's cross-repository identity: the namespaced id's tail, or the
+// unnamespaced key a collection uses instead (`staging_id`, `keyword`).
+// `topicTail` returns a plain value unchanged, so one expression serves all.
+export function itemTail(item) {
+  if (!item || typeof item !== "object") return "";
+  return topicTail(item.id != null ? item.id
+    : (item.staging_id != null ? item.staging_id : item.keyword));
+}
+
+// D19 — the composed snapshot narrowed to the VISIBLE member repositories,
+// under one of two set modes:
+//
+//   union         every item belonging to a visible repository;
+//   intersection  only items whose identity exists in EVERY visible
+//                 repository — "what do these repositories share?".
+//
+// Intersection FILTERS, it never merges: each repository's own copy stays its
+// own row (badged, and openable in its own repo), which is what makes
+// comparing two factories' takes on the same document possible. Clusters are
+// merged afterwards by the union rule exactly as before, so filtering first
+// and unioning second keeps tallies honest for the visible set.
+//
+// `visible` null/undefined means EVERY member (the composition's own answer).
+// `generation.composed_from` is trimmed to the visible members so the
+// freshness header states the view actually rendered, never the superset.
+// A non-composed snapshot passes through untouched.
+export function visibleSnapshot(snapshot, visible, mode) {
+  if (!isComposed(snapshot)) return snapshot;
+  const members = snapshot.generation.composed_from
+    .map((m) => m && m.repository).filter(Boolean).map(String);
+  const wanted = visible == null
+    ? members
+    : members.filter((r) => visible.map(String).includes(r));
+  const keep = new Set(wanted);
+  const out = { ...snapshot };
+  for (const collection of COMPOSED_COLLECTIONS) {
+    const items = snapshot[collection];
+    if (!Array.isArray(items)) continue;
+    let kept = items.filter(
+      (item) => item && keep.has(String(item.repository)));
+    if (mode === VIEW_INTERSECTION && keep.size > 1) {
+      const carriers = new Map();
+      for (const item of kept) {
+        const tail = itemTail(item);
+        if (!carriers.has(tail)) carriers.set(tail, new Set());
+        carriers.get(tail).add(String(item.repository));
+      }
+      kept = kept.filter((item) => carriers.get(itemTail(item)).size === keep.size);
+    }
+    out[collection] = kept;
+  }
+  out.generation = {
+    ...snapshot.generation,
+    composed_from: snapshot.generation.composed_from.filter(
+      (m) => m && keep.has(String(m.repository))),
+  };
+  return out;
+}
+
 // D10 — the read-only capability object for a composed render: every acting
 // capability off, the probe's read-only facts (refresh binding, actor)
 // untouched. The views already hide their affordances on these flags, so

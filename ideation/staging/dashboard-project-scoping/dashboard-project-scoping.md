@@ -201,6 +201,25 @@ not a UI change.
   guard and the edit-project last-member floor are dropped, and the create
   panel marks members optional.
 
+- **D19 — The view is the VISIBLE SET, union or intersection (Brett,
+  2026-08-07).** "The 'view' selector would be best as 1. all, 2. the
+  visible union, 3. the visible intersection. We can make this a toggle of
+  union and intersection. Then make a select all or deselect all." The
+  filter popover's eyeball stops being an indicator and becomes the
+  control: each member row ticks its repository into or out of the view,
+  the composed snapshot spans exactly the ticked set, and one toggle
+  chooses union (everything the ticked repositories have) or intersection
+  (only identities EVERY ticked repository has — matched on the composed
+  id's tail). `all` / `none` are the two bulk moves, so "all" needs no
+  line of its own. One visible repository serves ITS OWN snapshot, fully
+  interactive — which is the pre-D19 single-select outcome reached through
+  the same control — and two or more serve the project's composed,
+  read-only aggregate; the member name solos as the one-click shortcut.
+  Narrowing happens BEFORE the D9 cluster union, so tallies count the
+  visible set, and `composed_from` is trimmed so the freshness header names
+  what is on screen. Intersection FILTERS rather than merges: each
+  repository's copy stays its own openable row.
+
 - **D18 — Project edits QUEUE (Brett, 2026-08-07).** Ruled after two live
   one-in-flight refusals while populating `xfactory` member by member: the
   single-flight guard on `edit-project` is dropped. Successive edits each
