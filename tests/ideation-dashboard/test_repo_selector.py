@@ -750,8 +750,29 @@ def test_projection_absence_and_malformed_rows_degrade_to_nothing(tmp_path):
     r = _run_projects({"index": _index(), "projection": None, "scope": None},
                       tmp_path)
     assert r["noProjection"] == []
-    # rows with no id, no members, or the wrong shape are dropped, not thrown
-    assert r["malformed"] == []
+    # rows with no id or the wrong shape are dropped, not thrown — but a row
+    # WITHOUT members is a legal EMPTY project (D17), kept with a normalized
+    # empty list whether the member key is absent or []
+    assert r["malformed"] == [
+        {"id": "x", "name": "x", "repositories": []},
+        {"id": "y", "name": "y", "repositories": []},
+    ]
+
+
+def test_an_empty_project_surfaces_in_the_picker_and_scopes_to_nothing(tmp_path):
+    """D17 regression (Brett, 2026-08-06): the register carried the empty
+    project `xfactory`, create-project correctly refused the duplicate — yet
+    the dropdown never listed it, because the picker model still required a
+    member. An empty project must surface (it is selected first, populated
+    via the filter's add line); scoped, it truthfully narrows to no members
+    while addableRepositories keeps offering the whole known universe."""
+    projection = _projection()
+    projection["projects"].append(
+        {"id": "xfactory", "name": "xFactory", "repositories": []})
+    r = _run_projects({"index": _index(), "projection": projection,
+                       "scope": "xfactory"}, tmp_path)
+    assert [p["id"] for p in r["projects"]] == ["core", "medx", "xfactory"]
+    assert r["scopedIds"] == []
 
 
 def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):

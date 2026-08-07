@@ -225,16 +225,20 @@ export function resolveActive(index, requested) {
 // pre-change plane's behaviour.
 
 // The picker's project list: `{id, name, repositories}` rows with a
-// well-formed id and at least one member, in register order.
+// well-formed id, in register order. An EMPTY project is a legal row (D17:
+// created first, populated later) — it MUST surface here, or the register
+// carries a project the dropdown never shows and the filter's add line can
+// never reach.
 export function buildProjects(projection) {
   if (!projection || typeof projection !== "object") return [];
   const projects = Array.isArray(projection.projects) ? projection.projects : [];
   return projects
-    .filter((p) => p && p.id && Array.isArray(p.repositories) && p.repositories.length)
+    .filter((p) => p && typeof p === "object" && p.id)
     .map((p) => ({
       id: String(p.id),
       name: p.name ? String(p.name) : String(p.id),
-      repositories: p.repositories.map((r) => String(r)),
+      repositories: (Array.isArray(p.repositories) ? p.repositories : [])
+        .map((r) => String(r)),
     }));
 }
 
