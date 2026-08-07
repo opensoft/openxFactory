@@ -219,7 +219,10 @@ export function renderBullseye(model, opts) {
     const base = String(d.document).split("/").pop() || d.document;
     // the dot's LABEL is its matrix number; the basename stays in the title
     const text = d.number ? String(d.number) : base;
-    const at = clampLabel(d.x, d.y - 10, text.length, FONT.doc, g.size);
+    // stagger: odd slots label BELOW their dot, so two neighbours on one arc
+    // never contend for the same strip of pixels (lens-model `packCell`)
+    const lift = d.slot === 1 ? (d.size || 6) + 11 : -((d.size || 6) + 4);
+    const at = clampLabel(d.x, d.y + lift, text.length, FONT.doc, g.size);
     return { d, base, text, at, fits: labelFits(text.length, FONT.doc, g.size),
       box: labelBox(at.x, at.y, text.length, FONT.doc) };
   });
@@ -233,7 +236,13 @@ export function renderBullseye(model, opts) {
     const gdot = svg("g", { class: "lensdot" });
     const circle = svg("circle", {
       class: "dot" + (d.declared ? " declared" : " inferred"),
-      cx: round(d.x), cy: round(d.y), r: d.matchCount === model.checked.length ? 7 : 6,
+      // the packed size: a crowded cell draws smaller dots rather than
+      // overlapping ones (lens-model `packCell`). The matches-ALL centre
+      // keeps its slightly larger dot where the packing leaves room for it.
+      cx: round(d.x), cy: round(d.y),
+      r: round(d.size != null
+        ? d.size + (d.matchCount === model.checked.length && d.size >= 6 ? 1 : 0)
+        : (d.matchCount === model.checked.length ? 7 : 6)),
     });
     circle.appendChild(svg("title", {},
       (d.number ? "#" + d.number + " " : "") + base + " — "
