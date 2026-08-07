@@ -199,3 +199,126 @@ export function readOnlyCaps(caps) {
     },
   };
 }
+
+// ---- the REPOSITORY VOCABULARY (D21, Brett's 2026-08-07 observation) ------
+//
+// "Our repo selector is now very similar to the lens function but for
+// documents in repos vs keywords in documents." It is the same shape, and
+// this projection is the whole adapter: the composed snapshot is re-expressed
+// in the SHAPE the keyword lens already reads, so `buildLensModel` and
+// `renderBullseye` serve the repository vocabulary unchanged.
+//
+//   keyword lens                 repository lens
+//   ------------                 ---------------
+//   keyword                      member repository
+//   document                     document IDENTITY (one row per identity,
+//                                carrying every repository that has it)
+//   doc carries keyword          that repository carries that identity
+//   ring N = matches N checked   ring N = carried by N visible repositories
+//   centre = matches ALL         carried by EVERY visible repository
+//   pin = require                only identities that repository carries
+//
+// Which also names what the D19/D20 modes have been all along: union is
+// ring >= 1, shared is ring >= 2. `copies` keeps each identity's real
+// per-repository document ids so a drill-in scopes back to actual documents
+// rather than to the projection's synthetic rows.
+export function repositoryVocabulary(snapshot) {
+  if (!isComposed(snapshot)) return null;
+  const members = snapshot.generation.composed_from
+    .map((m) => m && m.repository).filter(Boolean).map(String);
+  const byIdentity = new Map();
+  for (const doc of snapshot.documents || []) {
+    if (!doc || !doc.repository) continue;
+    const identity = itemTail(doc);
+    if (!identity) continue;
+    if (!byIdentity.has(identity)) {
+      byIdentity.set(identity, { repositories: [], copies: [], summary: null });
+    }
+    const row = byIdentity.get(identity);
+    const repository = String(doc.repository);
+    if (!row.repositories.includes(repository)) row.repositories.push(repository);
+    row.copies.push(String(doc.id));
+    if (!row.summary && doc.summary) row.summary = doc.summary;
+  }
+  const documents = [...byIdentity.entries()]
+    .sort((a, b) => (a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0)))
+    .map(([identity, row]) => ({
+      id: identity,
+      path: identity,
+      // `topics` IS the vocabulary the lens reads — here, the carriers.
+      topics: members.filter((m) => row.repositories.includes(m)),
+      summary: row.summary,
+      repositories: row.repositories,
+      copies: row.copies,
+    }));
+  const counts = new Map(members.map((m) => [m, 0]));
+  for (const doc of documents) {
+    for (const repository of doc.topics) {
+      counts.set(repository, (counts.get(repository) || 0) + 1);
+    }
+  }
+  return {
+    repository: snapshot.repository,
+    generation: snapshot.generation,
+    documents,
+    keyword_index: members.map((m) => ({
+      keyword: m, declared_doc_count: counts.get(m) || 0,
+    })),
+    clusters: [], possibles: [], staged_topics: [], changes: [],
+  };
+}
+
+// D21 — the DRILL-IN target: the document identities behind one bullseye
+// region. A SECTOR names an exact repository combination; the CENTRE names
+// every checked repository. In both cases the identity qualifies only when
+// the repositories carrying it — counted within the checked set — are exactly
+// that combination, which is what makes a sector "these and no others".
+export function identitiesFor(vocabulary, checked, region) {
+  const inPlay = (checked || []).map(String);
+  const carriers = new Set((region?.kind === "centre"
+    ? inPlay : (region?.keywords || []).map(String)));
+  if (!carriers.size) return [];
+  const out = [];
+  for (const doc of vocabulary?.documents || []) {
+    const carried = (doc.topics || []).map(String).filter((r) => inPlay.includes(r));
+    if (carried.length === carriers.size
+        && carried.every((r) => carriers.has(r))) {
+      out.push(String(doc.id));
+    }
+  }
+  return out;
+}
+
+// D21 — the composed snapshot narrowed to a set of document identities. The
+// scope is a DOCUMENT SET and every other plane keeps only what references
+// it: a cluster survives when an edge lands on a kept document, a staged
+// topic or change when one of its files is a kept path, a keyword when a kept
+// document still declares it. Planes with no document relationship are left
+// alone rather than silently emptied.
+export function scopedSnapshot(snapshot, identities) {
+  if (!snapshot || !Array.isArray(identities)) return snapshot;
+  const wanted = new Set(identities.map(String));
+  const documents = (snapshot.documents || []).filter(
+    (d) => d && wanted.has(itemTail(d)));
+  const keptIds = new Set(documents.map((d) => String(d.id)));
+  const keptPaths = new Set(documents.map((d) => String(d.path || itemTail(d))));
+  const touches = (files) => (files || []).some((f) => keptPaths.has(
+    String(f && f.path ? f.path : f)));
+  const out = { ...snapshot, documents };
+  if (Array.isArray(snapshot.clusters)) {
+    out.clusters = snapshot.clusters.filter((c) => (c?.document_edges || [])
+      .some((e) => keptIds.has(String(e && e.document))));
+  }
+  for (const collection of ["staged_topics", "changes"]) {
+    if (Array.isArray(snapshot[collection])) {
+      out[collection] = snapshot[collection].filter((row) => touches(row?.files));
+    }
+  }
+  if (Array.isArray(snapshot.keyword_index)) {
+    const live = new Set();
+    for (const doc of documents) for (const t of doc.topics || []) live.add(String(t));
+    out.keyword_index = snapshot.keyword_index.filter(
+      (k) => live.has(String(k && k.keyword)));
+  }
+  return out;
+}

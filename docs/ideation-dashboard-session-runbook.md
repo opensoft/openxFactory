@@ -57,6 +57,15 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
     view honestly. Switching projects lands on the merged view when the
     project has one. The set is remembered per project and resolved against
     current membership, so a repository that leaves simply drops out.
+- **The lens tab, repository vocabulary** (D21) — on a multi-repo view the
+  Lens tab offers a `keywords | repositories` switch. The repository lens
+  draws one dot per DOCUMENT IDENTITY on rings by CARRIER COUNT (centre =
+  every visible repository has it, ring 1 = only one does), sectored by the
+  exact repository combination. It is the filter's union/shared toggle drawn
+  out, and the rail's ticks are the same visible set — change it in either
+  place. Activating the centre or a sector, from the bullseye or from the
+  drill-in pane beside it, SCOPES the whole dashboard to those documents;
+  a banner states what you are scoped to and clears it.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which

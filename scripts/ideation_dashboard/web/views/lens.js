@@ -33,6 +33,42 @@ import {
 // widget, so the two surfaces cannot drift. This tab supplies no `onActivate`,
 // so the rendered SVG is exactly what it was before the lift.
 import { renderBullseye } from "./bullseye.js";
+import { identitiesFor, isComposed, repositoryVocabulary } from "./composed-model.js";
+
+// D21 (Brett, 2026-08-07: "our repo selector is now very similar to the lens
+// function but for documents in repos vs keywords in documents") — the lens
+// serves TWO VOCABULARIES through one widget. Only the words differ; every
+// derivation, the bullseye geometry, and the co-occurrence hints are shared,
+// because `repositoryVocabulary()` hands this module a snapshot in the shape
+// it already reads.
+export const VOCABULARIES = {
+  keywords: {
+    id: "keywords",
+    title: "keyword lens",
+    term: "keyword",
+    terms: "keywords",
+    railCount: "declared",
+    filterHint: "filter keywords…",
+    note: "Rings by match count (centre = matches every checked keyword); "
+      + "pin = require (hard filter). Overrides are evidence — a manual +/− "
+      + "needs a recorded reason. Nothing is persisted until you save; "
+      + "machinery enters nothing into the register.",
+  },
+  repositories: {
+    id: "repositories",
+    title: "repository lens",
+    term: "repository",
+    terms: "repositories",
+    railCount: "members",
+    filterHint: "filter repositories…",
+    note: "One dot per DOCUMENT IDENTITY; rings by how many visible "
+      + "repositories carry it (centre = every one of them, ring 1 = only "
+      + "one). This is the filter's union/shared toggle drawn out: union is "
+      + "ring 1 and inward, shared is ring 2 and inward. Pin = require. "
+      + "Activate the centre or a sector to drill the dashboard into exactly "
+      + "those documents.",
+  },
+};
 
 // textContent-only element builder (canvas.js discipline).
 function el(tag, cls, text) {
@@ -264,10 +300,11 @@ function keywordRail(model, ctx) {
   // region, and this is the one pane that must not — 151 declared keywords is
   // ~10,370px of rows, and unbounded it would set the height of the region the
   // bullseye and the matrix live in.
+  const vocab = ctx.vocab;
   const pane = el("div", "pane pane-rail");
   const h = el("div", "pane-h");
-  h.appendChild(el("span", null, "keywords"));
-  h.appendChild(el("span", "n", model.rail.length + " declared"));
+  h.appendChild(el("span", null, vocab.terms));
+  h.appendChild(el("span", "n", model.rail.length + " " + vocab.railCount));
   pane.appendChild(h);
 
   // #13 keyword-rail text filter — narrows the (long) declared rail. Filter
@@ -276,8 +313,8 @@ function keywordRail(model, ctx) {
   const filter = document.createElement("input");
   filter.className = "kwfilter";
   filter.type = "search";
-  filter.placeholder = "filter keywords…";
-  filter.setAttribute("aria-label", "Filter keywords");
+  filter.placeholder = vocab.filterHint;
+  filter.setAttribute("aria-label", "Filter " + vocab.terms);
   filter.value = ctx.getKwFilter();
   pane.appendChild(filter);
 
@@ -292,6 +329,9 @@ function keywordRail(model, ctx) {
     cb.checked = kw.checked;
     cb.dataset.kw = kw.keyword;
     cb.setAttribute("aria-label", "check " + kw.keyword + " (stratify)");
+    if (ctx.vocab.id === "repositories") {
+      cb.setAttribute("aria-label", "show " + kw.keyword + " in the view");
+    }
     cb.addEventListener("change", () => ctx.toggleChecked(kw.keyword));
     row.appendChild(cb);
     row.appendChild(el("span", "kw", kw.keyword));
@@ -360,14 +400,81 @@ function matrix(model) {
   return table;
 }
 
-function bullseyePane(model) {
+// ---- pane 3b: DRILL-IN (D21) — the repository lens's third pane ----------
+//
+// One labelled row per region the bullseye draws, innermost first: the centre
+// (carried by every visible repository) and each sector (an exact repository
+// combination). The rows are the discoverable twin of the bullseye's hit
+// regions, and both call the same `ctx.onDrill`.
+function drillPane(model, ctx) {
+  const pane = el("div", "pane pane-drill");
+  const h = el("div", "pane-h");
+  h.appendChild(el("span", null, "drill in"));
+  h.appendChild(el("span", "n", model.universe.length + " identities"));
+  pane.appendChild(h);
+
+  // Group the dots by their repository combination; the centre is the
+  // combination that IS the whole checked set.
+  const groups = new Map();
+  for (const dot of model.dots || []) {
+    if (!groups.has(dot.subsetKey)) {
+      groups.set(dot.subsetKey, {
+        subsetKey: dot.subsetKey, keywords: dot.matchedSubset,
+        matchCount: dot.matchCount, documents: [],
+      });
+    }
+    groups.get(dot.subsetKey).documents.push(dot.document);
+  }
+  const rows = [...groups.values()].sort(
+    (a, b) => b.matchCount - a.matchCount
+      || (a.subsetKey < b.subsetKey ? -1 : 1));
+
+  if (!rows.length) {
+    pane.appendChild(el("div", "drill-empty",
+      "No " + ctx.vocab.term + " is visible — tick one to draw the bullseye."));
+    return pane;
+  }
+  for (const row of rows) {
+    const isCentre = row.matchCount === model.checked.length;
+    const line = el("div", "drill-row");
+    const label = isCentre
+      ? "centre — carried by all " + row.matchCount
+      : "carried by " + row.matchCount + " — " + row.keywords.join(" ∧ ");
+    line.appendChild(el("span", "drill-label", label));
+    line.appendChild(el("span", "n", row.documents.length + " doc"
+      + (row.documents.length === 1 ? "" : "s")));
+    const go = el("button", "cbtn", "drill in");
+    go.type = "button";
+    go.title = "scope the dashboard to these " + row.documents.length
+      + " document" + (row.documents.length === 1 ? "" : "s");
+    go.disabled = !ctx.onDrill;
+    go.addEventListener("click", () => ctx.onDrill({
+      kind: isCentre ? "centre" : "sector",
+      keywords: row.keywords,
+      subsetKey: row.subsetKey,
+    }));
+    line.appendChild(go);
+    pane.appendChild(line);
+  }
+  return pane;
+}
+
+function bullseyePane(model, ctx) {
+  const vocab = ctx.vocab;
   const pane = el("div", "pane");
   const h = el("div", "pane-h");
-  h.appendChild(el("span", null, "bullseye — " + model.checked.length + " keyword" +
-    (model.checked.length === 1 ? "" : "s") + " checked"));
-  h.appendChild(el("span", "n", model.universe.length + " docs"));
+  const n = model.checked.length;
+  h.appendChild(el("span", null, "bullseye — " + n + " " +
+    (n === 1 ? vocab.term : vocab.terms) +
+    (vocab.id === "repositories" ? " visible" : " checked")));
+  h.appendChild(el("span", "n", model.universe.length +
+    (vocab.id === "repositories" ? " identities" : " docs")));
   pane.appendChild(h);
-  pane.appendChild(renderBullseye(model));
+  // The activate gesture is wired ONLY for the repository vocabulary, whose
+  // regions have a drill-in to run; the keyword tab keeps the SVG it drew
+  // before (no callback => no hit regions at all).
+  pane.appendChild(renderBullseye(model,
+    ctx.onDrill ? { onActivate: ctx.onDrill } : undefined));
   // the flat matrix is ALWAYS rendered alongside — not a toggle-only alternate.
   pane.appendChild(matrix(model));
   return pane;
@@ -429,25 +536,54 @@ export function renderLens(root, snapshot, opts) {
   const fetcher = options.fetcher || null;
   root.innerHTML = "";
 
+  // D21 — the vocabulary. `composedSnapshot` is the UNNARROWED composed
+  // snapshot (app.js hands the lens the whole aggregate on purpose: the rail
+  // is the control surface for the visible set, so it must see every member,
+  // exactly as the keyword rail sees every declared keyword).
+  const composed = isComposed(options.composedSnapshot)
+    ? options.composedSnapshot : null;
+  const vocab = VOCABULARIES[
+    options.vocabulary === "repositories" && composed ? "repositories" : "keywords"];
+  const working = vocab.id === "repositories"
+    ? repositoryVocabulary(composed) : snapshot;
+
   // lens query state (Sets for check/pin; plain maps for overrides). W1 is kept
   // as an INVARIANT of these mutators — pinned is never allowed to leave checked.
   const state = {
-    checked: new Set(options.checked || []),
+    // D21: the repository lens opens on the CURRENT visible set (every member
+    // by default), because an empty rail would draw an empty bullseye and the
+    // set already has a meaning here — unlike keywords, which start unchosen.
+    checked: new Set(vocab.id === "repositories"
+      ? (options.visible || (working.keyword_index || []).map((k) => k.keyword))
+      : (options.checked || [])),
     pinned: new Set(options.pinned || []),
     includes: {},   // doc -> reason (manual + on a non-matching doc)
     excludes: {},   // doc -> reason (manual − on a matching doc)
     kwFilter: "",   // keyword-rail text filter (survives draw rebuilds)
   };
-  const summaries = docSummaries(snapshot);
-  const repository = snapshot.repository || "";
+  const summaries = docSummaries(working);
+  const repository = working.repository || "";
 
   const head = el("div", "canvas-head");
-  head.appendChild(el("span", "cname", "keyword lens"));
+  head.appendChild(el("span", "cname", vocab.title));
   head.appendChild(el("span", "pill stage", "bullseye set-builder · D13"));
-  head.appendChild(el("span", "canvas-note",
-    "Rings by match count (centre = matches every checked keyword); pin = require " +
-    "(hard filter). Overrides are evidence — a manual +/− needs a recorded reason. " +
-    "Nothing is persisted until you save; machinery enters nothing into the register."));
+  if (composed) {
+    // The switch only exists where BOTH vocabularies mean something: a
+    // single-repository view has no member set to lens over.
+    const swap = el("span", "vocabswitch");
+    for (const candidate of [VOCABULARIES.keywords, VOCABULARIES.repositories]) {
+      const btn = el("button", "vocabbtn"
+        + (candidate.id === vocab.id ? " vocabon" : ""), candidate.terms);
+      btn.type = "button";
+      btn.disabled = candidate.id === vocab.id;
+      btn.title = "lens over " + candidate.terms;
+      btn.addEventListener("click", () => renderLens(root, snapshot,
+        { ...options, vocabulary: candidate.id }));
+      swap.appendChild(btn);
+    }
+    head.appendChild(swap);
+  }
+  head.appendChild(el("span", "canvas-note", vocab.note));
 
   const lens = el("div", "lens");
   const status = el("div", "canvas-status");
@@ -475,6 +611,15 @@ export function renderLens(root, snapshot, opts) {
   const ctx = {
     summaries,
     repository,
+    vocab,
+    // D21 — the bullseye's activate gesture, wired only for repositories.
+    onDrill: vocab.id === "repositories" && options.onDrillIn
+      ? (region) => options.onDrillIn({
+          region,
+          checked: [...state.checked],
+          identities: identitiesFor(working, [...state.checked], region),
+        })
+      : null,
     getKwFilter() { return state.kwFilter; },
     setKwFilter(v) { state.kwFilter = String(v || ""); },
     toggleChecked(keyword) {
@@ -483,6 +628,14 @@ export function renderLens(root, snapshot, opts) {
         state.pinned.delete(keyword);   // W1: a pin can't outlive its check
       } else {
         state.checked.add(keyword);
+      }
+      // D21: in the repository vocabulary a tick IS the visible set (Brett's
+      // ruling: ticking in either place moves both). Written through, never
+      // reloaded — the lens holds the whole composed aggregate, so it redraws
+      // any subset locally, and the rest of the shell picks the set up on its
+      // next render exactly as it picks up a popover tick.
+      if (vocab.id === "repositories" && options.onVisible) {
+        options.onVisible([...state.checked]);
       }
       draw();
     },
@@ -563,11 +716,16 @@ export function renderLens(root, snapshot, opts) {
   };
 
   function draw() {
-    const model = buildLensModel(snapshot, query());
+    const model = buildLensModel(working, query());
     lens.innerHTML = "";
     lens.appendChild(keywordRail(model, ctx));
-    lens.appendChild(bullseyePane(model));
-    lens.appendChild(formingPane(model, ctx));
+    lens.appendChild(bullseyePane(model, ctx));
+    // The forming/persistence pane is the KEYWORD recipe's: a repository set
+    // is a view, not a set to save, so the repository vocabulary shows the
+    // drill-in pane in its place (which is also the labelled affordance the
+    // bullseye's hit regions require — a hit region alone is undiscoverable).
+    lens.appendChild(vocab.id === "repositories"
+      ? drillPane(model, ctx) : formingPane(model, ctx));
   }
 
   draw();
@@ -580,7 +738,7 @@ export function renderLens(root, snapshot, opts) {
     // than added to the rail — the rail is the snapshot's declared vocabulary),
     // and clears pins so a jump never arrives with a hidden hard filter.
     focusKeywords(keywords) {
-      const declared = new Set(buildLensModel(snapshot, query()).rail.map((k) => k.keyword));
+      const declared = new Set(buildLensModel(working, query()).rail.map((k) => k.keyword));
       state.checked = new Set((keywords || []).filter((k) => declared.has(k)));
       state.pinned = new Set();
       draw();

@@ -318,15 +318,27 @@ def test_sector_geometry_puts_each_subset_on_its_own_ring_band(tmp_path):
         assert subsets[key]["outerRadius"] > centre_r
 
 
-def test_only_the_workbench_wires_the_activation_handler():
-    """The main keyword-lens tab must keep passing NO handler — that is what makes
-    its bullseye byte-identical and every region inert there (design D6)."""
+def test_the_activation_handler_is_wired_only_where_a_gesture_exists():
+    """Design D6 gave the KEYWORD lens tab no handler, so every region there is
+    inert and its SVG is what it always drew. D21 (Brett, 2026-08-07) adds the
+    repository vocabulary, whose regions DO have a gesture — the drill-in — so
+    the tab now wires a handler under exactly one condition. This pins that
+    condition: one call site, gated on the vocabulary, so the keyword lens
+    cannot regain hit regions by accident."""
     # comments may DISCUSS the seam; only a wired property counts as supplying it
     lens = "\n".join(ln for ln in LENS_JS.read_text(encoding="utf-8").splitlines()
                      if not ln.lstrip().startswith("//"))
     workbench = WORKBENCH_JS.read_text(encoding="utf-8")
-    assert "onActivate" not in lens, "the lens tab must supply no activation handler"
-    assert "renderBullseye(model)" in lens, "the lens tab must pass no opts at all"
+
+    # exactly ONE wiring in the lens, and it passes nothing when un-gated
+    assert lens.count("onActivate") == 1, "the lens tab wires the handler once"
+    assert "ctx.onDrill ? { onActivate: ctx.onDrill } : undefined" in lens, (
+        "the keyword vocabulary must still pass NO opts — an undefined second "
+        "argument is what keeps its regions inert")
+    # ...and the handler exists only for the repository vocabulary
+    assert 'vocab.id === "repositories" && options.onDrillIn' in lens, (
+        "the drill-in handler must be gated on the repository vocabulary")
+
     assert "onActivate:" in workbench, "the workbench must wire the create gesture"
     # and the workbench routes a SECTOR's own keywords into the seed
     assert 'region.kind === "sector"' in workbench

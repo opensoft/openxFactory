@@ -131,9 +131,11 @@ def test_publishable_only_drops_session_members_before_composition(tmp_path):
 # ---------------------------------------------------------------------------
 
 _NODE_HARNESS = """
-import { VIEW_SHARED, VIEW_UNION, composedView, isComposed, itemTail,
-         memberRef, readOnlyCaps, topicTail, unionClusters, visibleSnapshot }
+import { VIEW_SHARED, VIEW_UNION, composedView, identitiesFor, isComposed,
+         itemTail, memberRef, readOnlyCaps, repositoryVocabulary, scopedSnapshot,
+         topicTail, unionClusters, visibleSnapshot }
   from './composed-model.mjs';
+import { buildLensModel } from './lens-model.mjs';
 import { WHEEL_ACTIONS, actionsFor, jumpRepository } from './wheel-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
@@ -183,6 +185,34 @@ const out = {
   jumps: [jumpRepository(docItem), jumpRepository(clusterItem),
           jumpRepository({ ref: { repositories: ['a', 'b'] } })],
   visible,
+  // D21 — the repository vocabulary driving the REAL lens engine
+  repoLens: (() => {
+    const vocab = repositoryVocabulary(input.trio);
+    if (!vocab) return null;
+    const checked = vocab.keyword_index.map((k) => k.keyword);
+    const model = buildLensModel(vocab, { checked, pinned: [] });
+    const byCount = {};
+    for (const dot of model.dots) {
+      byCount[dot.matchCount] = (byCount[dot.matchCount] || 0) + 1;
+    }
+    const centre = { kind: 'centre', keywords: checked };
+    const sector = { kind: 'sector', keywords: ['a', 'b'] };
+    return {
+      rail: vocab.keyword_index.map((k) => [k.keyword, k.declared_doc_count]),
+      identities: vocab.documents.map((d) => d.id),
+      carriers: vocab.documents.map((d) => [d.id, d.topics, d.copies]),
+      byCount,
+      ringCount: model.rings.length,
+      centreIds: identitiesFor(vocab, checked, centre),
+      sectorIds: identitiesFor(vocab, checked, sector),
+      pairIds: identitiesFor(vocab, ['a', 'c'], { kind: 'centre', keywords: ['a', 'c'] }),
+      scoped: (() => {
+        const s = scopedSnapshot(input.trio, identitiesFor(vocab, checked, centre));
+        return { documents: s.documents.map((d) => d.id) };
+      })(),
+      notComposed: repositoryVocabulary({ documents: [] }),
+    };
+  })(),
 };
 console.log(JSON.stringify(out));
 """
@@ -212,6 +242,7 @@ def _run_node(payload, tmp_path):
         pytest.skip("node not available for the JS derivation probe")
     shutil.copy(WEB / "views" / "composed-model.js", tmp_path / "composed-model.mjs")
     shutil.copy(WEB / "views" / "wheel-model.js", tmp_path / "wheel-model.mjs")
+    shutil.copy(WEB / "views" / "lens-model.js", tmp_path / "lens-model.mjs")
     (tmp_path / "harness.mjs").write_text(_NODE_HARNESS, encoding="utf-8")
     data = tmp_path / "input.json"
     data.write_text(json.dumps(payload), encoding="utf-8")
@@ -368,3 +399,87 @@ def test_wire_the_snapshot_route_serves_a_project_aggregate(tmp_path):
         httpd.shutdown()
         httpd.server_close()
         thread.join(timeout=2)
+
+
+def test_the_repository_vocabulary_drives_the_real_lens_engine(tmp_path):
+    """Topic D21 (Brett, 2026-08-07: "our repo selector is now very similar to
+    the lens function but for documents in repos vs keywords in documents").
+    `repositoryVocabulary` re-expresses a composed snapshot in the shape the
+    keyword lens already reads — vocabulary = member repositories, documents =
+    cross-repository identities — so `buildLensModel` serves the repository
+    lens with no engine change, and its rings ARE carrier counts."""
+    r = _run_node({"snapshot": _composed_snapshot(),
+                   "trio": _trio_snapshot()}, tmp_path)["repoLens"]
+
+    # the rail is the member set with per-repository identity counts
+    assert r["rail"] == [["a", 2], ["b", 2], ["c", 2]]
+    # one row per IDENTITY, sorted, each naming its carriers and real copies
+    assert r["identities"] == ["docs/all3.md", "docs/lonely.md", "docs/two.md"]
+    assert r["carriers"] == [
+        ["docs/all3.md", ["a", "b", "c"],
+         ["a::docs/all3.md", "b::docs/all3.md", "c::docs/all3.md"]],
+        ["docs/lonely.md", ["c"], ["c::docs/lonely.md"]],
+        ["docs/two.md", ["a", "b"], ["a::docs/two.md", "b::docs/two.md"]],
+    ]
+    # rings ARE carrier counts: one identity in all three, one in two, one in one
+    assert r["byCount"] == {"1": 1, "2": 1, "3": 1}
+    assert r["ringCount"] == 3
+
+    # the drill-in targets: the centre is carried-by-every-checked; a sector is
+    # that combination EXACTLY (a ∧ b, so the all-three identity is not in it)
+    assert r["centreIds"] == ["docs/all3.md"]
+    assert r["sectorIds"] == ["docs/two.md"]
+    # narrowing the checked set re-reads the centre against that set alone
+    assert r["pairIds"] == ["docs/all3.md"]
+
+    # scoping returns REAL documents — every repository's copy of the identity
+    assert r["scoped"]["documents"] == [
+        "a::docs/all3.md", "b::docs/all3.md", "c::docs/all3.md"]
+    # a non-composed snapshot has no repository vocabulary at all
+    assert r["notComposed"] is None
+
+
+def test_a_drill_scope_keeps_only_what_references_the_documents(tmp_path):
+    """D21 — the scope is a DOCUMENT SET and every other plane keeps only what
+    references it: a cluster survives on an edge into the set, a change or
+    staged topic on a file path in it, a keyword while a kept document still
+    declares it. Planes with no document relationship are left alone."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(WEB / "views" / "composed-model.js", tmp_path / "composed-model.mjs")
+    (tmp_path / "h.mjs").write_text("""
+import { scopedSnapshot } from './composed-model.mjs';
+const snap = {
+  generation: { composed_from: [{ repository: 'a' }] },
+  documents: [{ id: 'a::keep.md', path: 'keep.md', repository: 'a', topics: ['t'] },
+              { id: 'a::drop.md', path: 'drop.md', repository: 'a', topics: ['x'] }],
+  clusters: [{ id: 'a::cl-in', document_edges: [{ document: 'a::keep.md' }] },
+             { id: 'a::cl-out', document_edges: [{ document: 'a::drop.md' }] },
+             { id: 'a::cl-bare' }],
+  changes: [{ id: 'a::ch-in', files: ['keep.md'] }, { id: 'a::ch-out', files: ['drop.md'] }],
+  staged_topics: [{ staging_id: 't-in', files: [{ path: 'keep.md' }] }],
+  keyword_index: [{ keyword: 't' }, { keyword: 'x' }],
+  possibles: [{ id: 'a::p1' }],
+};
+const s = scopedSnapshot(snap, ['keep.md']);
+console.log(JSON.stringify({
+  documents: s.documents.map((d) => d.id),
+  clusters: s.clusters.map((c) => c.id),
+  changes: s.changes.map((c) => c.id),
+  staged: s.staged_topics.map((t) => t.staging_id),
+  keywords: s.keyword_index.map((k) => k.keyword),
+  possibles: s.possibles.map((p) => p.id),
+  passthrough: scopedSnapshot(snap, null) === snap,
+}));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "h.mjs")], capture_output=True,
+                          text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+    assert r["documents"] == ["a::keep.md"]
+    assert r["clusters"] == ["a::cl-in"]        # edge into the set; bare drops
+    assert r["changes"] == ["a::ch-in"]
+    assert r["staged"] == ["t-in"]              # file objects resolve too
+    assert r["keywords"] == ["t"]               # only what survives is declared
+    assert r["possibles"] == ["a::p1"]          # no document relationship: kept
+    assert r["passthrough"] is True             # no identities: untouched
