@@ -201,6 +201,16 @@ not a UI change.
   guard and the edit-project last-member floor are dropped, and the create
   panel marks members optional.
 
+- **D18 — Project edits QUEUE (Brett, 2026-08-07).** Ruled after two live
+  one-in-flight refusals while populating `xfactory` member by member: the
+  single-flight guard on `edit-project` is dropped. Successive edits each
+  record their own commission, validated against the register WITH the
+  project's dispatched, undelivered commissions applied oldest-first — a
+  pending CREATE counts, so a just-created project can be populated before
+  its fulfilment lands — and the fulfilment lane delivers them oldest-first
+  in one pass. `create-project` keeps its single-flight guard: a project is
+  created once.
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind

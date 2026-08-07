@@ -40,7 +40,7 @@ if str(_SCRIPTS_DIR) not in sys.path:  # plain-script parity with serve.py (D12)
 
 from ideation_dashboard.gate_console import DEFAULT_RECORDS_DIR  # noqa: E402
 from ideation_dashboard.kickoff import (  # noqa: E402
-    dispatched_commissions,
+    dispatched_commission_rows,
     discover_project_register,
 )
 
@@ -184,17 +184,14 @@ class LaneReport:
 
 
 def _pending(records_root: Path) -> list[tuple[str, str, Path, dict]]:
-    """Every dispatched project-verb descriptor, oldest dispatch first."""
+    """Every dispatched project-verb descriptor — ALL of them, not one per
+    target (edits queue, topic D18) — oldest dispatch first, ties broken by
+    path so one pass delivers a queued series in commission order."""
     rows = []
     for verb in PROJECT_VERBS:
-        for pid, path in dispatched_commissions(records_root, verb).items():
-            try:
-                doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                continue
-            if isinstance(doc, dict):
-                rows.append((verb, pid, path, doc))
-    rows.sort(key=lambda r: str(r[3].get("dispatched_at") or ""))
+        for pid, path, doc in dispatched_commission_rows(records_root, verb):
+            rows.append((verb, pid, path, doc))
+    rows.sort(key=lambda r: (str(r[3].get("dispatched_at") or ""), str(r[2])))
     return rows
 
 

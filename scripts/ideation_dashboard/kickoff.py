@@ -261,24 +261,28 @@ def _commission_glob(verb: str) -> str:
     return f"{verb}-*.workflow-job.yaml"
 
 
-def dispatched_commissions(records_root: Path | str | None,
-                           verb: str) -> dict[str, Path]:
-    """`{target id -> descriptor path}` for DISPATCHED, UNDELIVERED `verb`
-    jobs under `records_root`.
+def dispatched_commission_rows(
+        records_root: Path | str | None,
+        verb: str) -> list[tuple[str, Path, dict]]:
+    """EVERY dispatched, undelivered `verb` descriptor under `records_root` —
+    `[(target id, path, descriptor)]`, oldest dispatch first (ties broken by
+    path, which embeds the same stamp). The full list exists because project
+    edits QUEUE (topic D18): one target may legitimately carry several
+    undelivered commissions, and both validation (pending-applied state) and
+    fulfilment (oldest-first delivery) need all of them in order.
 
     "Undelivered" is exactly `status == STATUS_DISPATCHED`: a delivered or
     retired commission records another status, and that field is human-editable
     in the checkout — which is how a human unblocks a job they fulfilled by
-    hand. The PATH is returned, not merely the id, because a duplicate refusal
-    has to name the blocking descriptor (FR-026).
+    hand.
     """
-    found: dict[str, Path] = {}
+    rows: list[tuple[str, Path, dict]] = []
     root = Path(records_root) if records_root is not None else None
     if root is None or not root.is_dir():
-        return found
+        return rows
     target_key = COMMISSION_TARGET_KEY.get(verb)
     if not target_key:
-        return found
+        return rows
     for fp in sorted(root.rglob(_commission_glob(verb))):
         try:
             doc = yaml.safe_load(fp.read_text(encoding="utf-8"))
@@ -286,7 +290,22 @@ def dispatched_commissions(records_root: Path | str | None,
             continue
         if (isinstance(doc, dict) and doc.get("kind") == ART_WORKFLOW_JOB
                 and doc.get("status") == STATUS_DISPATCHED and doc.get(target_key)):
-            found.setdefault(doc[target_key], fp)
+            rows.append((doc[target_key], fp, doc))
+    rows.sort(key=lambda r: (str(r[2].get("dispatched_at") or ""), str(r[1])))
+    return rows
+
+
+def dispatched_commissions(records_root: Path | str | None,
+                           verb: str) -> dict[str, Path]:
+    """`{target id -> descriptor path}` for DISPATCHED, UNDELIVERED `verb`
+    jobs under `records_root` — the OLDEST descriptor per target, reduced
+    from `dispatched_commission_rows`. The PATH is returned, not merely the
+    id, because a duplicate refusal has to name the blocking descriptor
+    (FR-026).
+    """
+    found: dict[str, Path] = {}
+    for target, fp, _doc in dispatched_commission_rows(records_root, verb):
+        found.setdefault(target, fp)
     return found
 
 
@@ -499,6 +518,18 @@ def _locate(descriptor: Path, records_root) -> str:
         return str(descriptor)
 
 
+def _bump_second(at: str) -> str:
+    """`at` + 1s in the canonical `_utcnow` shape — the queued-commission
+    filename disambiguator (D18): the descriptor path embeds the stamp, so
+    two same-second commissions on one target must not share one."""
+    from datetime import datetime, timedelta
+    try:
+        parsed = datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        parsed = datetime.fromisoformat(str(at).replace("Z", "+00:00"))
+    return (parsed + timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def _refuse_duplicate(verb: str, target_id: str, records_root) -> None:
     """Refuse a second commission while an earlier one is undelivered.
 
@@ -518,15 +549,29 @@ def _commission(
     verb: str, gate: Any, target_id: str, *, workflow: str, outline: str,
     note: str | None, at: str | None, records_dir: str,
     records_root: Path | str | None, provenance, topic_slug: str | None = None,
-    payload: dict | None = None, precondition=None,
+    payload: dict | None = None, precondition=None, single_flight: bool = True,
 ) -> CommissionResult:
-    """The shared write half, reached only after every guard has passed."""
+    """The shared write half, reached only after every guard has passed.
+
+    `single_flight=False` is the D18 queueing posture (edit-project): a
+    second commission on the same target records beside the first instead of
+    refusing — the caller's own guards have already validated it against the
+    pending-applied state. Queued same-second commissions bump their stamp
+    forward one second at a time until the descriptor filename is free, so
+    two rapid clicks never share a path (the artifact writer overwrites
+    silently) and oldest-first ordering stays strict.
+    """
     human = require_human_gate(gate)
     at = at or _utcnow()
     root = records_root if records_root is not None else (human.output.root / records_dir)
     if precondition is not None:
         precondition(human)
-    _refuse_duplicate(verb, target_id, root)
+    if single_flight:
+        _refuse_duplicate(verb, target_id, root)
+    else:
+        while (Path(root) / target_id
+               / f"{verb}-{_stamp(at)}.workflow-job.yaml").exists():
+            at = _bump_second(at)
 
     job = build_commission_job(verb, target_id, workflow=workflow,
                                outline=outline, actor=human.human_actor, at=at,
@@ -787,11 +832,19 @@ def edit_project(
 
     Guards, all before the first write: human gate -> diff shape (either
     list may be empty, not both; no repository in both) -> register
-    reachability -> project existence -> additions in the roster-or-register
-    universe and not already members -> removals currently members ->
-    duplicate via the shared (verb, target) index. Removing the LAST member
-    is legal — an empty project awaits its next additions (Brett's
-    2026-08-06 ruling).
+    reachability -> project existence (register OR a dispatched creation)
+    -> additions in the roster-or-register universe and not already
+    EFFECTIVE members -> removals currently EFFECTIVE members. Removing the
+    LAST member is legal — an empty project awaits its next additions
+    (Brett's 2026-08-06 ruling).
+
+    Edits QUEUE (topic D18, Brett's 2026-08-07 ruling): there is no
+    single-flight duplicate guard. EFFECTIVE membership is the register
+    with the project's dispatched, undelivered commissions applied
+    oldest-first — a pending create-project seeds the project, so a
+    just-created project can be populated before its fulfilment lands —
+    which keeps every queued commission individually satisfiable when the
+    fulfilment lane delivers them in the same order.
     """
     human = require_human_gate(gate)
 
@@ -825,31 +878,57 @@ def edit_project(
     projects = [p for p in (register or {}).get("projects") or []
                 if isinstance(p, dict)]
     project = next((p for p in projects if p.get("id") == project_id), None)
+
+    # EFFECTIVE membership (D18): the register plus the project's pending
+    # commissions, oldest-first. Uses the caller's records location exactly
+    # as `_commission` will, so validation and the queue see one truth.
+    records_scan = records_root if records_root is not None \
+        else (human.output.root / records_dir)
+    pending_create = None
     if project is None:
-        raise GateRefused(
-            f"edit-project refused: no project {project_id!r} in the "
-            "register — membership edits target an existing project "
-            "(create-project makes new ones).")
-    members = [str(r) for r in (project.get("repositories") or [])]
+        pending_create = next(
+            (doc for pid, _fp, doc in dispatched_commission_rows(
+                records_scan, ACTION_CREATE_PROJECT) if pid == project_id),
+            None)
+        if pending_create is None:
+            raise GateRefused(
+                f"edit-project refused: no project {project_id!r} in the "
+                "register or pending creation — membership edits target an "
+                "existing project (create-project makes new ones).")
+    members = [str(r) for r in ((project or pending_create)
+                                .get("repositories") or [])]
+    effective = list(members)
+    for pid, _fp, doc in dispatched_commission_rows(records_scan,
+                                                    ACTION_EDIT_PROJECT):
+        if pid != project_id:
+            continue
+        for repo in (doc.get("add") or []):
+            if str(repo) not in effective:
+                effective.append(str(repo))
+        effective = [r for r in effective
+                     if r not in {str(x) for x in (doc.get("remove") or [])}]
 
     known = {repo for p in projects for repo in (p.get("repositories") or [])}
     known |= {str(r) for r in (roster or [])}
+    known |= set(effective)
     unknown = [a for a in added if a not in known]
     if unknown:
         raise GateRefused(
             "edit-project refused: not in the repository roster (neither "
             "the register nor the serving plane knows them): "
             + ", ".join(repr(u) for u in unknown) + ".")
-    already = [a for a in added if a in members]
+    already = [a for a in added if a in effective]
     if already:
         raise GateRefused(
             "edit-project refused: already a member of "
-            f"{project_id!r}: " + ", ".join(repr(a) for a in already) + ".")
-    absent = [r for r in removed if r not in members]
+            f"{project_id!r} (register or pending): "
+            + ", ".join(repr(a) for a in already) + ".")
+    absent = [r for r in removed if r not in effective]
     if absent:
         raise GateRefused(
             "edit-project refused: not currently a member of "
-            f"{project_id!r}: " + ", ".join(repr(a) for a in absent) + ".")
+            f"{project_id!r} (register with pending edits applied): "
+            + ", ".join(repr(a) for a in absent) + ".")
     # No at-least-one-member floor: an empty project is legal (Brett's
     # 2026-08-06 ruling) — removing the last member leaves a project that
     # simply awaits its next additions.
@@ -865,4 +944,5 @@ def edit_project(
         ACTION_EDIT_PROJECT, gate, project_id, workflow=workflow,
         outline=outline, note=note, at=at, records_dir=records_dir,
         records_root=records_root, provenance=provenance,
-        payload={"add": added, "remove": removed})
+        payload={"add": added, "remove": removed},
+        single_flight=False)                       # edits queue (D18)

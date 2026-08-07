@@ -3,6 +3,7 @@ code_surface: openxFactory (gate-intent / gate-action-record additive `edit-proj
 target_release: allocated at realization (next additive contract bundle, per docs/contract-versioning-policy.md)
 Status: ratified
 Ratified by: Brett's "ratify both and realize them in order" on 2026-08-06, with the header design round (topic D12–D15) carried as decided
+Amended: 2026-08-07 by Brett's queued-edits ruling (topic D18) — the edit-project single-flight guard is dropped in favour of queued commissions validated against pending-applied state; see tasks §6
 ---
 
 # Proposal: add-opendox-project-header

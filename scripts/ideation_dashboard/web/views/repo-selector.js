@@ -24,7 +24,8 @@
 import {
   addableRepositories, buildPendingEdits, buildPendingProjects, buildProjects,
   buildRoster, defaultProjectScope, freshnessLabel, hintLabel, keyId,
-  newerAvailable, projectFilterRows, repositoryVisible, sameKey, staleNotice,
+  netPendingEdit, newerAvailable, projectFilterRows, repositoryVisible,
+  sameKey, staleNotice,
 } from "./repo-selector-model.js";
 
 export const SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json";
@@ -261,9 +262,9 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
   if (!project) return holder;
   const o = opts || {};
   const gated = gateCapable(o.caps);
-  // reread per render: a same-page commission appends to `pendingEdits`
-  const currentPendingEdit = () => (pendingEdits || []).find(
-    (e) => e.projectId === project.id) || null;
+  // reread per render: a same-page commission appends to `pendingEdits`,
+  // and edits QUEUE (topic D18) — the overlay is the NET of every queued row
+  const currentPendingEdit = () => netPendingEdit(pendingEdits, project);
 
   // The box names its content (Brett's 2026-08-06 annotation): a
   // single-member project shows THAT repository's name; several members
