@@ -139,6 +139,9 @@ for (const [id, snapshot, checked, wire] of cases) {
       dots: model.dots.length, checked: model.checked,
       centreRadius: (model.rings.find((r) => r.isCenter) || {}).outerRadius,
       dotRows: model.dots.map((d) => d.row),
+      dotColumns: model.dots.map((d) => d.column),
+      dotNumbers: model.dots.map((d) => d.number),
+      dotCells: model.dots.map((d) => d.subsetKey),
       dotSizes: [...new Set(model.dots.map((d) => d.size))],
       sectorList: model.sectors.map((s) => ({
         subsetKey: s.subsetKey, keywords: s.keywords, matchCount: s.matchCount,
@@ -493,6 +496,42 @@ console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R }));
     assert by_n[200]["size"] == r["DOT_MIN_R"]
 
 
+def test_a_column_is_numbered_outer_lane_inward(tmp_path):
+    """Brett's 2026-08-07 ruling: "number them incremental from outside lane
+    to inside lane, then start again on the next row… this way it is smaller
+    arithmetic for the user." Numbers follow the LAYOUT — cell by cell, then
+    column by column, each column running outer lane inward — so the dots
+    inboard of a labelled one are +1, +2, +3 instead of +(lane length), and a
+    cell's numbers are contiguous at all (numbering by snapshot order
+    scattered them across the corpus, which no spacing could fix)."""
+    r = _render(tmp_path)["crowded"]["model"]
+    rows, cols = r["dotRows"], r["dotColumns"]
+    numbers, cells = r["dotNumbers"], r["dotCells"]
+    assert numbers == sorted(numbers), "numbers must run in layout order"
+    assert numbers[0] == 1 and numbers[-1] == len(numbers)
+
+    # every cell owns a CONTIGUOUS block of numbers
+    seen = {}
+    for cell, number in zip(cells, numbers):
+        seen.setdefault(cell, []).append(number)
+    for cell, block in seen.items():
+        assert block == list(range(block[0], block[0] + len(block))), (cell, block)
+
+    # inside a cell, a column's numbers are consecutive and run outer-lane
+    # inward — which is the whole of the "+1, +2, +3" promise
+    for cell in seen:
+        by_column = {}
+        for c, lane, number, k in zip(cols, rows, numbers, cells):
+            if k == cell:
+                by_column.setdefault(c, []).append((lane, number))
+        for column, entries in by_column.items():
+            entries.sort()
+            lanes = [lane for lane, _ in entries]
+            nums = [n for _, n in entries]
+            assert lanes == sorted(lanes)
+            assert nums == list(range(nums[0], nums[0] + len(nums))), (column, entries)
+
+
 def test_only_the_outer_row_of_a_ring_is_labelled(tmp_path):
     """Brett's 2026-08-07 ruling: "for each ring, only label the outer row of
     dots — we can infer the numbers of the ones that are inboard of those
@@ -502,10 +541,12 @@ def test_only_the_outer_row_of_a_ring_is_labelled(tmp_path):
     r = _render(tmp_path)["crowded"]
     rows = r["model"]["dotRows"]
     assert max(rows) >= 1, "the fixture must actually stack rows"
-    outer = sum(1 for row in rows if row == 0)
-    # every drawn label belongs to the outer row, and no inboard dot has one
+    cols = r["model"]["dotColumns"]
+    # labelled = outer lane AND every other column (the ruling's second half;
+    # halving the labels is what buys each survivor room to draw)
+    eligible = sum(1 for row, c in zip(rows, cols) if row == 0 and c % 2 == 0)
     assert r["counts"]["dots"] == len(rows) == 31
-    assert 0 < len(r["docLabels"]) <= outer
+    assert 0 < len(r["docLabels"]) <= eligible
     # the inboard dots are still DRAWN and still name themselves on hover
     assert len(r["dotTitles"]) == 31
     assert all(t and ".md" in t for t in r["dotTitles"])
