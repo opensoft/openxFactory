@@ -72,6 +72,12 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   the matrix are the legend — both print number and name — and every full name
   stays one hover away in the SVG title. Names were unreadable at corpus scale:
   an 18-keyword conjunction ran 464px inside a 520px box and half were clipped.
+- **Dots never touch** (Brett, 2026-08-07) — a cell (one ring band × one
+  sector) packs its documents across as many rows as the band admits and as
+  many per row as the arc admits, shrinking the dot only when the area
+  demands it, so there is always clear space between two dots. Consecutive
+  dots on a row label alternately above and below the arc, which is what
+  keeps the numbers readable where the dots are densest.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which

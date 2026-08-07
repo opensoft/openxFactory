@@ -406,3 +406,66 @@ def test_the_radar_labels_by_number_and_keeps_names_in_the_legend(tmp_path):
     # and no name is lost: each dot's title carries #number, the basename, and
     # the keywords it matched
     assert all(re.match(r"#\d+ \w+\.md — ", t) for t in r["dotTitles"]), r["dotTitles"]
+
+
+def test_packed_dots_never_touch_at_any_density(tmp_path):
+    """Brett's 2026-08-07 ruling: "spread out the dots so they are not
+    directly touching each other". `packCell` is the whole of that promise —
+    it uses the cell's real area (rows down the ring band × the sector's arc)
+    and shrinks the dot only when the area demands it, so the edge-to-edge
+    gap never falls below DOT_GAP. Measured across the densities the corpus
+    actually produces, including a cell far past its own capacity."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "pack.mjs").write_text("""
+import { packCell, DOT_GAP, DOT_R, DOT_MIN_R } from './lens-model.mjs';
+// (n, band inner, band outer, sector span) — a lone dot, a comfortable cell,
+// a thin band at 18 keywords, the wide-open single-keyword case, and a cell
+// with far more documents than its area can hold.
+const CASES = [[1, 180, 210, 30], [6, 180, 210, 30], [12, 195, 210, 25.7],
+               [20, 190, 202, 8.4], [60, 0, 210, 120], [200, 195, 210, 8]];
+const out = [];
+for (const [n, inner, outer, span] of CASES) {
+  const dots = packCell(n, inner, outer, span, -90);
+  let worst = Infinity;
+  for (let i = 0; i < dots.length; i += 1) {
+    for (let j = i + 1; j < dots.length; j += 1) {
+      const a = dots[i], b = dots[j];
+      const ax = a.radius * Math.cos(a.angleDeg * Math.PI / 180);
+      const ay = a.radius * Math.sin(a.angleDeg * Math.PI / 180);
+      const bx = b.radius * Math.cos(b.angleDeg * Math.PI / 180);
+      const by = b.radius * Math.sin(b.angleDeg * Math.PI / 180);
+      worst = Math.min(worst, Math.hypot(ax - bx, ay - by) - a.size - b.size);
+    }
+  }
+  out.push({ n, placed: dots.length, size: dots[0].size,
+             rows: new Set(dots.map((d) => d.radius.toFixed(3))).size,
+             slots: [...new Set(dots.map((d) => d.slot))].sort(),
+             gap: dots.length > 1 ? worst : null });
+}
+console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R }));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "pack.mjs")],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    for case in r["out"]:
+        # every document is placed — crowding shrinks dots, never drops one
+        assert case["placed"] == case["n"], case
+        # …and no two of them touch, at any density
+        if case["gap"] is not None:
+            assert case["gap"] >= r["DOT_GAP"] - 0.01, case
+        # the size stays within the declared band
+        assert r["DOT_MIN_R"] <= case["size"] <= r["DOT_R"], case
+        # labels alternate above/below wherever there is more than one dot
+        assert case["slots"] == ([0] if case["n"] == 1 else [0, 1]), case
+
+    by_n = {c["n"]: c for c in r["out"]}
+    # a roomy cell keeps FULL-SIZE dots rather than shrinking pre-emptively
+    assert by_n[6]["size"] == r["DOT_R"] and by_n[6]["rows"] == 1
+    # a deep band uses its depth: the single-keyword case stacks rows
+    assert by_n[60]["rows"] > 1 and by_n[60]["size"] == r["DOT_R"]
+    # a thin, narrow, overcrowded cell shrinks to the floor and still separates
+    assert by_n[200]["size"] == r["DOT_MIN_R"]

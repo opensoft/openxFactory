@@ -292,6 +292,97 @@ function dotRadius(matchCount, nChecked, rMax) {
 // deterministic across renders and the JS/Python cross-check can assert it.
 function subsetKey(subset) { return subset.join(" ∧ "); }
 
+// ---- dot packing (Brett's 2026-08-07 ruling: dots must not touch) ---------
+
+//: The drawn dot's radius at full size, and the floor below which a dot stops
+//: reading as a dot. `DOT_GAP` is the clear space between two dots' EDGES —
+//: what "not directly touching" means, measured.
+export const DOT_R = 6;
+export const DOT_MIN_R = 2.5;
+export const DOT_GAP = 2.5;
+//: A cell keeps a hair of its own span free at each end so two neighbouring
+//: sectors' outermost dots do not read as one run.
+const SPAN_MARGIN = 0.9;
+
+//: Candidate sizes, largest first — a short deterministic ladder rather than a
+//: solve, so the chosen size is reproducible and easy to reason about.
+function sizeLadder() {
+  const sizes = [];
+  for (let s = DOT_R; s >= DOT_MIN_R; s -= 0.5) sizes.push(s);
+  return sizes;
+}
+
+//: How many dots of pitch `pitch` fit on the arc this row spans.
+function rowCapacity(radius, spanDeg, pitch) {
+  const arc = Math.abs(radius) * ((spanDeg * SPAN_MARGIN * Math.PI) / 180);
+  return Math.max(1, Math.floor(arc / pitch) + 1);
+}
+
+//: The row radii available in a band at a given pitch, outermost first. A dot
+//: sits a half-pitch inside the band edge so it never straddles a ring line.
+function rowRadii(inner, outer, pitch) {
+  const radii = [];
+  for (let r = outer - pitch / 2; r >= inner + pitch / 2 - 0.001; r -= pitch) {
+    radii.push(r);
+  }
+  if (!radii.length) radii.push((inner + outer) / 2);   // band thinner than one dot
+  return radii;
+}
+
+// Place `n` documents inside one cell — the band [inner, outer] × the
+// `spanDeg` slice centred on `baseDeg` — as `{radius, angleDeg, size}`.
+// Rows fill outermost-first and each row is centred on the sector's angle, so
+// a cell reads as a compact block on its own ring rather than a smear.
+export function packCell(n, inner, outer, spanDeg, baseDeg) {
+  const count = Math.max(0, n | 0);
+  if (!count) return [];
+  let chosen = { size: DOT_MIN_R, radii: [], pitch: 2 * DOT_MIN_R + DOT_GAP };
+  for (const size of sizeLadder()) {
+    const pitch = 2 * size + DOT_GAP;
+    const radii = rowRadii(inner, outer, pitch);
+    const capacity = radii.reduce(
+      (sum, r) => sum + rowCapacity(r, spanDeg, pitch), 0);
+    chosen = { size, radii, pitch };
+    if (capacity >= count) break;      // largest size that holds the cell
+  }
+  const { size, radii, pitch } = chosen;
+  // distribute across the rows we have, filling each to its own capacity
+  const perRow = [];
+  let left = count;
+  for (const radius of radii) {
+    if (left <= 0) break;
+    const take = Math.min(left, rowCapacity(radius, spanDeg, pitch));
+    perRow.push({ radius, take });
+    left -= take;
+  }
+  // A cell too crowded for its own area even at the minimum size cannot be
+  // drawn without SOMETHING giving. Separation is the property Brett asked
+  // for, so the overflow spreads evenly across every row — each row's dots
+  // stay `pitch` apart and the cell reaches a little past its span — rather
+  // than piling into one row or collapsing back into a touching bar.
+  for (let i = 0; left > 0 && perRow.length; i = (i + 1) % perRow.length) {
+    perRow[i].take += 1;
+    left -= 1;
+  }
+  const out = [];
+  for (const { radius, take } of perRow) {
+    // the angular step that puts `pitch` between two dot CENTRES at this
+    // radius — the geometric definition of "not touching", not a constant
+    const step = radius > 0 ? (pitch / radius) * (180 / Math.PI) : 0;
+    const start = baseDeg - (step * (take - 1)) / 2;
+    for (let i = 0; i < take; i += 1) {
+      // `slot` lets the renderer STAGGER labels along a row: consecutive dots
+      // alternate their label above and below the arc, which doubles the
+      // label room without moving a single dot (packing tightly to keep dots
+      // apart otherwise costs exactly the space the numbers need).
+      out.push({ radius, angleDeg: start + i * step, size, slot: i % 2 });
+    }
+  }
+  return out;
+}
+
+
+
 function bullseyeLayout(rows, nChecked, geom) {
   const g = geom || GEOM;
   const rings = [];                    // one per match count present, innermost first
@@ -318,39 +409,61 @@ function bullseyeLayout(rows, nChecked, geom) {
   const sectorAngle = new Map();
   const total = orderedSubsets.length || 1;
   orderedSubsets.forEach((k, i) => sectorAngle.set(k, -90 + ((i + 0.5) * 360) / total));
+  // one sector's angular slice — the bound a cell's dots must stay inside
+  const span = 360 / total;
 
-  // dots: ring radius by match count; sector angle by subset; multiple docs in a
-  // cell fan out along the arc by a deterministic per-index offset.
+  // dots: ring radius by match count; sector angle by subset. Within a CELL
+  // (one ring band × one sector) the documents are PACKED so no two dots
+  // touch (Brett's 2026-08-07 ruling: "spread out the dots so they are not
+  // directly touching each other — this should fix the numbers crowding too").
+  //
+  // The old rule fanned every dot along ONE arc at the band's midpoint with a
+  // `min(18, 40/n)` step, which has two failures: the step collapses as n
+  // grows (20 documents at ~6px apart is a solid bar of overlapping circles,
+  // and their labels then lose the collision pass), while the band's RADIAL
+  // depth — the whole area between this ring and the next — goes unused. And
+  // for small n the fan could exceed the sector's own span and spill into a
+  // neighbour it does not belong to.
+  //
+  // `packCell` uses the cell's real area instead: as many radial rows as the
+  // band admits, each row holding as many dots as its own arc length admits,
+  // bounded by the sector span, at the largest dot size that still leaves
+  // `DOT_GAP` between edges. A cell too crowded even at the minimum size
+  // degrades to that minimum rather than pretending to fit.
   const dots = [];
-  const cellIndex = new Map();
-  const cellSize = new Map();
+  const cellRows = new Map();
   for (const r of rows) {
     const key = r.matchCount + "|" + subsetKey(r.matchedSubset);
-    cellSize.set(key, (cellSize.get(key) || 0) + 1);
+    if (!cellRows.has(key)) cellRows.set(key, []);
+    cellRows.get(key).push(r);
   }
-  for (const r of rows) {
-    const key = subsetKey(r.matchedSubset);
-    const cell = r.matchCount + "|" + key;
-    const idx = cellIndex.get(cell) || 0;
-    cellIndex.set(cell, idx + 1);
-    const n = cellSize.get(cell);
+  for (const [cell, members] of cellRows) {
+    const matchCount = members[0].matchCount;
+    const key = subsetKey(members[0].matchedSubset);
     const base = sectorAngle.get(key);
-    const spread = Math.min(18, 40 / n);
-    const angle = base + (idx - (n - 1) / 2) * spread;
-    const radius = dotRadius(r.matchCount, nChecked, g.rMax);
-    dots.push({
-      document: r.document,
-      matchCount: r.matchCount,
-      matchedSubset: r.matchedSubset,
-      subsetKey: key,
-      declared: true,                  // v1: declared-only, solid dots
-      ringRadius: ringOuterRadius(r.matchCount, nChecked, g.rMax),
-      radius,
-      angleBase: base,
-      angleDeg: angle,
-      x: g.cx + radius * Math.cos(toRad(angle)),
-      y: g.cy + radius * Math.sin(toRad(angle)),
+    const outer = ringOuterRadius(matchCount, nChecked, g.rMax);
+    const inner = matchCount >= nChecked
+      ? 0 : ringOuterRadius(matchCount + 1, nChecked, g.rMax);
+    const placed = packCell(members.length, inner, outer, span, base);
+    members.forEach((r, i) => {
+      const at = placed[i];
+      dots.push({
+        document: r.document,
+        matchCount: r.matchCount,
+        matchedSubset: r.matchedSubset,
+        subsetKey: key,
+        declared: true,                  // v1: declared-only, solid dots
+        ringRadius: outer,
+        radius: at.radius,
+        size: at.size,
+        slot: at.slot,
+        angleBase: base,
+        angleDeg: at.angleDeg,
+        x: g.cx + at.radius * Math.cos(toRad(at.angleDeg)),
+        y: g.cy + at.radius * Math.sin(toRad(at.angleDeg)),
+      });
     });
+    void cell;
   }
   // ring metadata (outer radius + label), innermost (match-all) first
   for (let mc = nChecked; mc >= 1; mc--) {
@@ -370,7 +483,6 @@ function bullseyeLayout(rows, nChecked, geom) {
   // question 2's ruling); nothing existing reads them, and the two pre-existing
   // fields are unchanged. `isCenter` marks the matches-ALL subset, which the
   // widget already covers with the centre region rather than a wedge.
-  const span = 360 / total;
   const sectors = orderedSubsets.map((k) => {
     const keywords = subsetOf.get(k) || [];
     const mc = keywords.length;
