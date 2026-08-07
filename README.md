@@ -277,16 +277,6 @@ Active changes:
   infrastructure yet) nor unstated (which would let a key readable by its
   own execution context masquerade as proof the holder acted). Awaiting its
   single Speckit feature.
-- [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
-  — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
-  (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged
-  view built on the ratified aggregate-composition substrate —
-  register-DERIVED project aggregates (a commissioned project gains its
-  merged view at fulfilment), the all-repos selection, the view-side
-  same-topic cluster union (composition namespacing untouched), the
-  composed read-only plane with the "open in <repo>" jump, and the
-  N-repo freshness header. No contract growth. Awaiting ratification;
-  exit 3 (per-tile repository binding) remains the named successor.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -381,6 +371,16 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-project-merged-projection](openspec/changes/archive/2026-08-07-add-project-merged-projection/proposal.md)
+  Promoted the project merged view into `ideation-dashboard`
+  (dashboard-project-scoping exit 2): one composed snapshot per register
+  project via derived aggregates (per-repo namespaced ids, repository
+  badges, multi-parent membership D8), same-topic cluster union on the
+  wheel, read-only composed views with the single "open in <repo>"
+  navigation verb, and degrade-never-refuse on missing members. Archived
+  2026-08-07 on Brett's first real merged-view pass (correct repository
+  attribution verified at the tile annotation); per-tile repository
+  binding stays a named successor.
 - [add-project-scoped-selection](openspec/changes/archive/2026-08-06-add-project-scoped-selection/proposal.md)
   Promoted project-scoped selection into `ideation-dashboard`
   (dashboard-project-scoping exit 1): the human-only `create-project`
