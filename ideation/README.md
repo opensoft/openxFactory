@@ -543,7 +543,7 @@ Active proposals promoted from staging:
   controlled tagging, immutable catalog snapshots, deterministic catalog
   validation, and the bounded document cataloger; realized as
   `contract-v1.11` and **archived 2026-07-14**.
-- [add-proposal-origin-contract](../openspec/changes/add-proposal-origin-contract/proposal.md)
+- [add-proposal-origin-contract](../openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
   — owns the former `proposal-origin-contract` primary doc under
   `supporting-docs/` and proposes the mandatory staged/ad-hoc origin
   declaration, gate rejections, archive retention, migration, and the

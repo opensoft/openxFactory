@@ -341,13 +341,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
-  — staged-origin proposal requiring every OpenSpec change to declare one
-  durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate
-  rejections, archive retention, history migration, and the fifteenth
-  deterministic doc-health family (code surface: codexFactory; ratified
-  2026-07-12 — admitted intent, active until realization evidence lands;
-  implementation follows ideation routing)
 - [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
   — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
   from the dashboard-action-center + cloud-workstation-topology brainstorms;
@@ -389,6 +382,19 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-proposal-origin-contract](openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
+  Promoted the proposal-origin contract: every OpenSpec change declares
+  exactly one immutable origin (`staged` with a durable
+  `<repo>:staging:<topic>` id, or `ad_hoc` as an explicit approved
+  exception) in `.openspec.yaml`, repeated in the support manifest.
+  `proposal-support.py` writes the staged origin automatically at
+  transition, gains `declare-adhoc`, and fail-closes the per-change verify
+  and archive gates; the nightly `proposal-origin` family (the fifteenth)
+  reports drift across active and archived proposals with pre-contract
+  legacy as WARNING visibility. 22 archived changes were backfilled from
+  recorded evidence (2026-07-12 migration); the family's first run caught
+  and fixed three real defects. Self-applied: the change's own staged
+  origin gated its own archive. Archived 2026-08-06.
 - [add-cross-factory-ideation-routing](openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/proposal.md)
   Promoted the governed cross-factory routing plane: durable `XFI-` Idea IDs
   from the central allocation ledger, per-idea routing records with
