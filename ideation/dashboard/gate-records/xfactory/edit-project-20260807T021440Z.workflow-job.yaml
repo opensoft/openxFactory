@@ -1,0 +1,16 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+project_id: xfactory
+workflow: project-register-edit
+gate_contract: workflow-gate
+authoring_outline: 'Apply the recorded project-register edit to project ''xfactory'':
+  add LedgerxFactory — validate against the pinned schema before landing.'
+status: delivered
+delivered_at: '2026-08-07T02:15:29Z'
+delivered_by: register-edit-lane
+dispatched_by: brettheap
+dispatched_at: '2026-08-07T02:14:40Z'
+add:
+- LedgerxFactory
+remove: []
