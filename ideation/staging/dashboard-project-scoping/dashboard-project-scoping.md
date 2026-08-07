@@ -220,6 +220,25 @@ not a UI change.
   what is on screen. Intersection FILTERS rather than merges: each
   repository's copy stays its own openable row.
 
+- **D21 — The repo selector IS a lens; give it the lens widget (Brett,
+  2026-08-07).** "Our repo selector is now very similar to the lens function
+  but for documents in repos vs keywords in documents. Figure out how to
+  make a lense widget for this repo selector where the repos would be our
+  selector checkboxes instead of keywords. We can then make a drill in
+  dashboard that looks at that set of documents only." The observation is
+  exact: the lens engine reads a snapshot in only two places (the
+  vocabulary with counts; which terms a document carries), so a projection
+  — repositories as terms, cross-repository document IDENTITIES as
+  documents — serves the whole widget unchanged, and the rings become
+  CARRIER COUNTS. Which also names D19/D20 in the lens's own vocabulary:
+  union is ring 1 and inward, shared is ring 2 and inward, and the old
+  strict intersection was the centre. Realization ruled the same day: the
+  switch lives inside the Lens tab (one widget, two vocabularies); the
+  filter keeps its own quick control with the lens as the deep view, both
+  driving one visible set; and the drill-in is a scoped dashboard view with
+  no new persistence — saving a repository recipe would be a successor
+  change with real gate-verb growth. Realized as `add-repository-lens`.
+
 - **D20 — SHARED means two or more, not all (Brett, 2026-08-07).** "Make
   intersection mean shared by 2+ visible repos." D19's second mode was
   strict set intersection (present in EVERY visible repository); the live

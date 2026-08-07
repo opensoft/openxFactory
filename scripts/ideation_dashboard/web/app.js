@@ -47,8 +47,8 @@ import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
-import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner } from "./views/repo-selector.js";
-import { composedView, isComposed, memberRef, readOnlyCaps, visibleSnapshot } from "./views/composed-model.js";
+import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner, storeViewState } from "./views/repo-selector.js";
+import { composedView, isComposed, memberRef, readOnlyCaps, scopedSnapshot, visibleSnapshot } from "./views/composed-model.js";
 import {
   freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey, sparseNotice,
 } from "./views/repo-selector-model.js";
@@ -57,6 +57,67 @@ const SNAPSHOT_SOURCE = "./snapshot.json";
 // Where the viewer's chosen (repository, ref) lives across a shell reload. A
 // per-tab preference, never shared state — `main` remains the shared truth.
 const ACTIVE_KEY_STORAGE = "xf-ideation-active-key";
+
+// D21 — the repository lens's DRILL-IN scope: a set of document identities
+// the human activated from the bullseye, stored so the whole shell re-renders
+// over it (the ratified reload-per-switch posture every other selector
+// gesture uses) and cleared from one banner control.
+const DRILL_SCOPE_STORAGE = "xfDashDrillScope";
+
+// Both go through `guardedSessionStorage()` — the seam that survives blocked
+// site data, where the storage GETTER itself throws (T104 F7-2).
+function storedDrillScope() {
+  const store = guardedSessionStorage();
+  if (!store) return null;
+  try {
+    const raw = store.getItem(DRILL_SCOPE_STORAGE);
+    const doc = raw ? JSON.parse(raw) : null;
+    return doc && Array.isArray(doc.identities) && doc.identities.length
+      ? doc : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeDrillScope(scope) {
+  const store = guardedSessionStorage();
+  if (!store) return;
+  try {
+    if (scope) store.setItem(DRILL_SCOPE_STORAGE, JSON.stringify(scope));
+    else store.removeItem(DRILL_SCOPE_STORAGE);
+  } catch { /* storage denied: the drill-in is simply not sticky */ }
+}
+
+// D21 — the drill-in banner: what the shell is scoped to, and the way out.
+// Rendered into the stale-banner's neighbourhood so the two read as one strip
+// of "what you are looking at" facts.
+function renderDrillBanner(drill, snapshot) {
+  const host = document.getElementById("drillbanner");
+  if (!host) return;
+  host.textContent = "";
+  host.hidden = !drill;
+  if (!drill) return;
+  const shown = (snapshot?.documents || []).length;
+  const line = document.createElement("span");
+  line.className = "drillnote";
+  // The two numbers differ by design and both matter: a drill-in selects
+  // IDENTITIES, and each identity shows one document per carrying repository.
+  const n = drill.identities.length;
+  line.textContent = "drilled in: " + shown + " document"
+    + (shown === 1 ? "" : "s") + " — " + n + " identit" + (n === 1 ? "y" : "ies")
+    + " carried by " + (drill.label || "a region");
+  host.appendChild(line);
+  const clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "cbtn drillclear";
+  clear.textContent = "clear";
+  clear.title = "leave the drill-in and render the whole visible set again";
+  clear.addEventListener("click", () => {
+    storeDrillScope(null);
+    window.location.reload();
+  });
+  host.appendChild(clear);
+}
 
 function storedKey() {
   try {
@@ -307,7 +368,17 @@ const TABS = [
   { tab: "tab-canvas", view: "view-canvas",
     render: (root, snap, ctx) => renderCanvas(root, snap, { notebook: ctx.notebook }) },
   { tab: "tab-lens", view: "view-lens",
-    render: (root, snap, ctx) => renderLens(root, snap, { caps: ctx.caps }) },
+    // D21: the lens receives the UNNARROWED composed snapshot as well as the
+    // rendered one. Its repository rail is the control surface for the
+    // visible set, so it must see every member — the narrowed view could only
+    // ever shrink further, never restore a repository the human unticked.
+    render: (root, snap, ctx) => renderLens(root, snap, {
+      caps: ctx.caps,
+      composedSnapshot: ctx.rawSnapshot,
+      visible: ctx.visible,
+      onVisible: ctx.onVisible,
+      onDrillIn: ctx.onDrillIn,
+    }) },
   // The doc list's rows open the SAME read-only explorer/viewer overlay the
   // wheel's `read` verb and the workbench's docs rows open (T092 acceptance
   // sweep, defect 7 — the rows advertised themselves as clickable and were
@@ -486,11 +557,20 @@ async function main() {
       repositories: rawSnapshot.generation.composed_from
         .map((m) => m && m.repository).filter(Boolean),
     }) : null;
-    const shown = composed
+    const narrowed = composed
       ? visibleSnapshot(rawSnapshot, view.visible, view.mode)
       : rawSnapshot;
+    // D21 — the repository lens's DRILL-IN: a stored region scopes the whole
+    // shell to that document set. Applied AFTER the visible-set narrowing and
+    // BEFORE the cluster union, so the wheels, the explorer and the stats all
+    // count the same documents; a scope whose identities no longer resolve
+    // simply drops (nothing to show is reported by the banner, not by an
+    // empty page with no explanation).
+    const drill = composed ? storedDrillScope() : null;
+    const shown = drill ? scopedSnapshot(narrowed, drill.identities) : narrowed;
     const snapshot = composed ? composedView(shown) : rawSnapshot;
     renderHeader(shown, active);
+    renderDrillBanner(drill, shown);
     renderStaleBanner(document.getElementById("stalebanner"), active,
                       sparseNotice(active, snapshot));
     // The grouping roll-up strip retired with the project-first header
@@ -692,6 +772,24 @@ async function main() {
     };
     tabs = initTabs(snapshot, {
       explorer, notebook, caps, nav, composed, sourceBase: sourceBaseFor(active),
+      // D21 — the repository lens's seams: the whole aggregate to lens over,
+      // the current visible set, the write-through, and the drill-in.
+      rawSnapshot, visible: view ? view.visible : null,
+      onVisible: (repositories) => {
+        if (!composed) return;
+        storeViewState(rawSnapshot.repository,
+          { visible: repositories, mode: view.mode });
+      },
+      onDrillIn: ({ region, identities }) => {
+        if (!identities.length) return;
+        storeDrillScope({
+          identities,
+          label: region.kind === "centre"
+            ? "all " + (region.keywords || []).length + " visible repositories"
+            : (region.keywords || []).join(" ∧ "),
+        });
+        window.location.reload();
+      },
     });
     // The REPOSITORY SELECTOR + the ONE refresh affordance (design D7/D9):
     // switching repositories stores the key and reloads the shell; a successful
