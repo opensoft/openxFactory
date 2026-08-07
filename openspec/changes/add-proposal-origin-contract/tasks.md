@@ -26,5 +26,5 @@
 
 ## 5. Records And Guidance
 
-- [ ] 5.1 Keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive.
-- [ ] 5.2 On archive, confirm the staged `proposal-origin-contract` INDEX entry still correctly describes the remaining regulated-traceability rationale as future work.
+- [x] 5.1 Keep the openxFactory README "OpenSpec Records" entry current through ratification, realization, and archive. — Discharged at archive 2026-08-06: the README row moves to Archived changes with the realization summary (fifteenth family, fail-closed gates, automatic origin at transition, the three defects the family caught).
+- [x] 5.2 On archive, confirm the staged `proposal-origin-contract` INDEX entry still correctly describes the remaining regulated-traceability rationale as future work. — Confirmed 2026-08-06: the INDEX row and detail section still read "Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12" with the FDA SaMD rationale as the retained future-work fragment — accurate as written.
