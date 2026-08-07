@@ -65,6 +65,30 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 | [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
+| [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `agent-wallet-identity` (agent DID record, proof-of-control verification, authority binding against `approval_policy`, declared-change decertification); composes with `roles-authority-model` + `credential-contracts` | 1 | Ready to iterate — organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
+
+## agent-wallet-identity
+
+- Staging ID: `openxFactory:staging:agent-wallet-identity`
+- Repository context: openxFactory owns the neutral capability; first
+  consumer is LedgerxFactory (posting segregation of duties, enforced in
+  the LedgerLinc BC extension); omnigent-install already attests the
+  version facts a composition hash would consume
+- Files: `agent-wallet-identity.md` (primary — identity, proof of control,
+  authority binding, declared-change decertification)
+- Target capabilities: ADDED neutral `agent-wallet-identity`; composes with
+  `roles-authority-model` and `credential-contracts`, and reuses the
+  neutral job envelope's `approval_policy` vocabulary for authority scope
+- Source: `ideation/brainstorm/agent-certification-wallets.md` (Brett,
+  2026-07-15/16; naming decided 2026-07-16) organized 2026-08-06 when
+  LedgerxFactory's poster gained real posting rights and the platform-level
+  refusal that had backed "agents never post" disappeared with them
+- Readiness: ready to iterate. The enabling insight is that every agent act
+  reaches a platform through ONE shared credential, so no per-agent
+  identity exists to compare — which is why segregation of duties is not a
+  policy anyone is declining to enforce but a property the platform cannot
+  see. Exit gated on key custody (what a signature proves) and on whether
+  the first exit requires proof or admits an asserted interim
 
 ## ideation-action-plane
 
