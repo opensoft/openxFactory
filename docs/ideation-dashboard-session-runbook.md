@@ -71,6 +71,52 @@ Failures are fail-closed: a stale commission (project vanished, member
 conflict) or a git failure leaves the descriptor `dispatched` with the
 reason in the run report; nothing is half-applied silently.
 
+### Serving the MULTI-REPOSITORY local plane (merged views need members)
+
+A serve launched with `generate-and-open --repository <one repo>` carries
+exactly one snapshot, so `⊞ all repositories in <project>` disables for
+every project whose members are not that repository: a merged view is
+composed from PUBLISHED member snapshots, and one repository publishes one.
+To work across repositories locally — and to exercise merged views — publish
+the whole register roster first, then serve the resulting index:
+
+```bash
+# 1. one snapshot per register repository + the index the selector reads.
+#    An ABSOLUTE --out-dir keeps the shared aggregation checkout clean;
+#    a repository whose checkout is missing or unscannable is SKIPPED
+#    (see index-status.json), never a failure.
+PYTHONPATH=scripts python3 -m ideation_dashboard.nightly_lane \
+    --repo-root /path/to/xFactory --repositories registered \
+    --out-dir /abs/scratch/local-plane
+
+# 2. serve that index. --source-root is per entry and fail-closed: an entry
+#    with no declared root serves no documents.
+PYTHONPATH=scripts python3 -m ideation_dashboard.serve \
+    --snapshot /abs/scratch/local-plane/openxFactory-snapshot.json \
+    --checkout-root . --local-index /abs/scratch/local-plane/index.json \
+    --repository openxFactory --actor "$(git config user.name)" --port 8765 \
+    --project-register /path/to/xFactory/project-register.yaml \
+    --source-root openxFactory=. \
+    --source-root AdxFactory=/path/to/xFactory/xFactories/AdxFactory
+    # …one --source-root per published repository
+```
+
+Every register project then derives its merged view (D11), and the
+freshness header reads `<project> · N repos · composed <date>`.
+
+Two things worth knowing:
+
+- The lane renders each repository from its **aggregation submodule
+  checkout**, which may trail that repository's `main`. When you want a
+  repository rendered from a live worktree instead (typically the one you
+  are working in), publish that one separately with
+  `--repositories <id> --checkout /abs/path/to/worktree` into the same
+  out-dir before writing the index, or accept the pinned rendering.
+- `--checkout-root` stays the tree the GATE acts on. Gate verbs and the
+  register-edit lane therefore keep writing into that one checkout no
+  matter which repository is on screen; the composed view itself is
+  read-only by contract, with per-tile "open in \<repo\>" jumps.
+
 ## 1. What a branch session IS
 
 A branch session is **derived state, not an artifact**. There is no session
