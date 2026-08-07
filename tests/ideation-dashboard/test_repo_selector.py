@@ -804,7 +804,8 @@ def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):
 
 _HEADER_HARNESS = """
 import { addableRepositories, buildPendingEdits, buildProjects, buildRoster,
-         defaultProjectScope, projectFilterRows, repositoryVisible }
+         defaultProjectScope, netPendingEdit, projectFilterRows,
+         repositoryVisible }
   from './repo-selector-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
@@ -812,6 +813,8 @@ const roster = buildRoster(input.index);
 const projects = buildProjects(input.projection);
 const project = projects.find((p) => p.id === input.projectId) || null;
 const out = {
+  netQueued: netPendingEdit(input.queuedEdits || [], project),
+  netNone: netPendingEdit([], project),
   scopes: [defaultProjectScope(projects, input.stored),
            defaultProjectScope(projects, 'no-such'),
            defaultProjectScope(projects, null),
@@ -898,3 +901,25 @@ def test_the_header_model_derivations(tmp_path):
     # the pending-edit plane drops malformed rows
     assert r["pendingEdits"] == [{"projectId": "medx", "add": ["openChart"],
                                   "remove": ["agenttower"]}]
+
+
+def test_queued_edits_net_into_one_overlay(tmp_path):
+    """Topic D18 — edits queue, so the popover's badge overlay is the NET of
+    the project's queued rows replayed oldest-first: a later addition
+    cancels a pending removal (and vice versa), a duplicate never doubles,
+    and an 'addition' of an existing member badges nothing."""
+    queued = [
+        {"projectId": "medx", "add": ["openChart"], "remove": []},
+        {"projectId": "medx", "add": [], "remove": ["agenttower"]},
+        {"projectId": "medx", "add": ["agenttower"], "remove": []},
+        {"projectId": "medx", "add": [], "remove": ["openChart"]},
+        {"projectId": "medx", "add": ["HealthLinc", "HealthLinc",
+                                      "MedxFactory"], "remove": []},
+        {"projectId": "other", "add": ["ignored"], "remove": []},
+    ]
+    r = _run_header({"index": _header_index(),
+                     "projection": _header_projection(),
+                     "projectId": "medx", "stored": None,
+                     "queuedEdits": queued}, tmp_path)
+    assert r["netQueued"] == {"add": ["HealthLinc"], "remove": []}
+    assert r["netNone"] is None

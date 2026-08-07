@@ -337,7 +337,8 @@ export function repositoryVisible(repository, project, active) {
 // Dispatched, undelivered MEMBERSHIP edits (the D-e two-plane posture applied
 // to D15): what the popover badges until the fulfilment lands. Server-side
 // the plane already drops edits whose project left the register; this stays
-// tolerant of malformed rows anyway.
+// tolerant of malformed rows anyway. Edits QUEUE (topic D18), so one project
+// may carry several rows here — `netPendingEdit` below nets them for display.
 export function buildPendingEdits(projection) {
   const rows = Array.isArray(projection?.pending_edits)
     ? projection.pending_edits : [];
@@ -348,6 +349,39 @@ export function buildPendingEdits(projection) {
       add: (Array.isArray(e.add) ? e.add : []).map(String),
       remove: (Array.isArray(e.remove) ? e.remove : []).map(String),
     }));
+}
+
+// The NET pending overlay for ONE project (edits queue, topic D18): the
+// project's queued edit rows — oldest first, as served and as appended by
+// same-page commissions — replayed against its register members, exactly the
+// effective-state computation the engine validates against. An addition of a
+// pending removal cancels it (and vice versa), so the popover badges what
+// will actually change when the queue delivers. Null when nothing nets out.
+export function netPendingEdit(pendingEdits, project) {
+  if (!project) return null;
+  const rows = (pendingEdits || []).filter(
+    (e) => e && e.projectId === String(project.id));
+  if (!rows.length) return null;
+  const members = new Set((project.repositories || []).map(String));
+  const add = [];
+  const remove = [];
+  const drop = (list, value) => {
+    const i = list.indexOf(value);
+    if (i >= 0) list.splice(i, 1);
+    return i >= 0;
+  };
+  for (const row of rows) {
+    for (const repo of row.add || []) {
+      const r = String(repo);
+      if (!drop(remove, r) && !members.has(r) && !add.includes(r)) add.push(r);
+    }
+    for (const repo of row.remove || []) {
+      const r = String(repo);
+      if (!drop(add, r) && members.has(r) && !remove.includes(r)) remove.push(r);
+    }
+  }
+  if (!add.length && !remove.length) return null;
+  return { add, remove };
 }
 
 // ---- freshness (design D11) ----

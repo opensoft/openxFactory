@@ -3,12 +3,16 @@ D15).
 
 Engine half: every guard in its ruled order (diff shape, register
 reachability, project existence, addition universe + not-already-member,
-removal membership, the at-least-one-member floor, duplicate via the shared
-index), the accept path's descriptor + record, the agent rejection, and the
-D2 boundary — the register byte-identical after every call.
+removal membership, the at-least-one-member floor), the accept path's
+descriptor + record, the agent rejection, and the D2 boundary — the register
+byte-identical after every call. Edits QUEUE (topic D18, Brett's 2026-08-07
+ruling): no single-flight guard; each commission validates against the
+register with the project's pending commissions applied oldest-first, a
+pending creation counts as the project existing, and same-second commissions
+land as distinct descriptors.
 
 Wire half: real-HTTP via test_gate_routes' `_serving`; plus the projection's
-`pending_edits` plane reporting a dispatched, undelivered edit.
+`pending_edits` plane reporting every queued, undelivered edit.
 """
 
 from __future__ import annotations
@@ -100,10 +104,74 @@ def test_accept_writes_descriptor_and_record_and_not_the_register(tmp_path):
     dispatched = kickoff_mod.dispatched_commissions(
         checkout / "ideation/dashboard/gate-records/", "edit-project")
     assert dispatched == {"core": res.job_path}
-    # (verb, target) scoping: an undelivered EDIT does not block a CREATE
-    with pytest.raises(GateRefused, match="undelivered edit-project"):
+    # Edits QUEUE (topic D18): no single-flight refusal — but the queued
+    # state governs, so re-adding the still-pending repoC refuses honestly.
+    with pytest.raises(GateRefused, match="already a member"):
         console.edit_project("core", add=["repoC"], roster=["repoC"],
                              register_source=reg)
+
+
+def test_successive_edits_queue_and_validate_against_pending_state(tmp_path):
+    """Topic D18 (Brett, 2026-08-07, after two live one-in-flight refusals
+    while populating a project member by member): successive edits RECORD
+    beside each other, each validated against the register with the queue
+    applied oldest-first."""
+    checkout, reg, console = _fixture(tmp_path)
+    first = console.edit_project("core", add=["repoC"], roster=["repoC"],
+                                 register_source=reg)
+    second = console.edit_project("core", add=["repoD"], roster=["repoD"],
+                                  register_source=reg)          # queues
+    assert first.job_path != second.job_path
+    # pending-applied state: repoD is now effectively a member...
+    with pytest.raises(GateRefused, match="already a member"):
+        console.edit_project("core", add=["repoD"], roster=["repoD"],
+                             register_source=reg)
+    # ...and a pending addition can be removed (net cancel), while a
+    # register member with a pending removal can be re-added
+    console.edit_project("core", remove=["repoC"], register_source=reg)
+    console.edit_project("core", remove=["repoA"], register_source=reg)
+    console.edit_project("core", add=["repoA"], register_source=reg)
+    rows = kickoff_mod.dispatched_commission_rows(
+        checkout / "ideation/dashboard/gate-records/", "edit-project")
+    assert [r[0] for r in rows] == ["core"] * 5
+    stamps = [r[2]["dispatched_at"] for r in rows]
+    assert stamps == sorted(stamps)
+
+
+def test_an_edit_on_a_pending_created_project_queues(tmp_path):
+    """A dispatched create-project counts as the project existing (D18):
+    a just-created project can be populated before its fulfilment lands,
+    seeded by the creation's own member list."""
+    checkout, reg, console = _fixture(tmp_path)
+    console.create_project("Field Pilots", repositories=["repoA"],
+                           register_source=reg)
+    res = console.edit_project("field-pilots", add=["repoB"],
+                               register_source=reg)
+    assert res.job["add"] == ["repoB"]
+    with pytest.raises(GateRefused, match="already a member"):
+        console.edit_project("field-pilots", add=["repoA"],
+                             register_source=reg)   # seeded by the creation
+    console.edit_project("field-pilots", remove=["repoA"],
+                         register_source=reg)       # a seed member removes
+    with pytest.raises(GateRefused, match="no project 'ghost'"):
+        console.edit_project("ghost", add=["repoA"], register_source=reg)
+
+
+def test_same_second_commissions_land_as_distinct_descriptors(tmp_path):
+    """The descriptor path embeds a second-resolution stamp and the artifact
+    writer overwrites silently — queued same-second commissions must bump
+    the stamp, never share a path."""
+    checkout, reg, console = _fixture(tmp_path)
+    at = "2026-08-07T02:14:40Z"
+    first = console.edit_project("core", add=["repoC"], roster=["repoC"],
+                                 register_source=reg, at=at)
+    second = console.edit_project("core", add=["repoD"], roster=["repoD"],
+                                  register_source=reg, at=at)
+    assert first.job_path != second.job_path
+    assert second.job["dispatched_at"] == "2026-08-07T02:14:41Z"
+    rows = kickoff_mod.dispatched_commission_rows(
+        checkout / "ideation/dashboard/gate-records/", "edit-project")
+    assert len(rows) == 2
 
 
 def test_the_agent_path_is_structurally_rejected(tmp_path):
@@ -136,7 +204,10 @@ def test_wire_shapes_and_refusals(tmp_path):
 
 def test_wire_accept_and_the_pending_edits_plane(tmp_path):
     """D15 + the D-e posture: an accepted edit returns its lists, and the
-    projection's `pending_edits` plane reports it until delivery."""
+    projection's `pending_edits` plane reports it until delivery. Edits
+    QUEUE over the wire too (D18): a second commission while the first is
+    undelivered records beside it, and the plane carries BOTH rows,
+    oldest first."""
     import http.client
 
     _register_beside(tmp_path)
@@ -148,13 +219,18 @@ def test_wire_accept_and_the_pending_edits_plane(tmp_path):
         assert payload["remove"] == ["repoB"] and payload["add"] == []
         assert (root / payload["record"]).is_file()
         assert (root / payload["job"]).is_file()
+        status, queued = _post(host, port, "/actions/gate/edit-project",
+                               {"project_id": "core", "add": ["repoB"]})
+        assert status == 200, queued            # D18: queues, never bounces
+        assert queued["job"] != payload["job"]
 
         conn = http.client.HTTPConnection(host, port, timeout=10)
         conn.request("GET", "/project-register.json")
         projection = json.loads(conn.getresponse().read().decode("utf-8"))
         conn.close()
-        assert projection["pending_edits"] == [{
-            "project_id": "core", "add": [], "remove": ["repoB"],
-            "dispatched_at": projection["pending_edits"][0]["dispatched_at"]}]
+        edits = projection["pending_edits"]
+        assert [(e["add"], e["remove"]) for e in edits] == [
+            ([], ["repoB"]), (["repoB"], [])]
+        assert all(e["project_id"] == "core" for e in edits)
         # truth plane untouched
         assert projection["projects"][0]["repositories"] == ["repoA", "repoB"]

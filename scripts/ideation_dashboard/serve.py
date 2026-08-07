@@ -2684,7 +2684,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         import yaml
         from ideation_dashboard.gate_console import DEFAULT_RECORDS_DIR
         from ideation_dashboard.kickoff import (
-            dispatched_commissions, discover_project_register)
+            dispatched_commission_rows, dispatched_commissions,
+            discover_project_register)
         source = discover_project_register(Path(self.checkout_root))
         register = None
         if source is not None:
@@ -2725,14 +2726,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             })
         # add-opendox-project-header (D15): dispatched, undelivered MEMBERSHIP
         # edits — the popover badges the affected rows until the fulfilment
-        # lands. Same two-plane posture as `pending` above; an edit whose
-        # project has left the register is dropped (nothing to badge).
+        # lands. Same two-plane posture as `pending` above. EVERY queued edit
+        # rides (edits queue, topic D18), oldest first — including edits on a
+        # project that so far exists only as a pending creation, so the apply
+        # affordance's count stays honest; an edit whose project is in
+        # neither plane is dropped (nothing to badge).
+        pending_ids = {p["id"] for p in pending}
         pending_edits = []
-        for pid, descriptor in sorted(
-                dispatched_commissions(records_root, "edit-project").items()):
-            if pid not in real_ids:
+        for pid, _descriptor, job in dispatched_commission_rows(
+                records_root, "edit-project"):
+            if pid not in real_ids and pid not in pending_ids:
                 continue
-            job = _job(descriptor)
             pending_edits.append({
                 "project_id": pid,
                 "add": [str(r) for r in (job.get("add") or [])],
