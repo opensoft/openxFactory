@@ -22,13 +22,13 @@ single Speckit feature this change hands off to; do not duplicate it here.
 
 ## 2. Ratification gate
 
-- [ ] 2.1 Brett ratifies proposal, design and both spec deltas, together
-      with the two decisions already carried (grants as the primitive;
-      the core holder-class agnostic), and RULES the one still open:
-      key custody DECLARED from a closed set and capping authority
-      (recommended), versus mandated, versus unstated. Ratification
-      authorizes exactly one Speckit feature and creates no key,
-      credential, wallet, or runtime.
+- [x] 2.1 Brett ratified proposal, design and both spec deltas on
+      2026-08-07, together with the two decisions already carried (grants
+      as the primitive; the core holder-class agnostic), and RULED the one
+      left open: key custody is DECLARED from a closed set and CAPS the
+      authority a wallet may hold — neither mandated nor unstated.
+      Ratification authorizes exactly one Speckit feature and creates no
+      key, credential, wallet, or runtime.
 
 ## 3. Handoff
 

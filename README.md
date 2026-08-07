@@ -269,9 +269,14 @@ Active changes:
   agent-specific (declared composition with its component set,
   declared-change revocation, authority as grant scope). Patient and
   practitioner profiles are named successors, each a NEW profile over the
-  same core. Grants-as-primitive and the agnostic core are decided; key
-  custody — declared and capping authority, versus mandated — is the one
-  decision left for the gate. Awaiting ratification.
+  same core. RATIFIED 2026-08-07 with all three decisions
+  recorded: grants as the primitive (`approval_policy` survives as a legal
+  scope vocabulary), the core holder-class agnostic, and key custody
+  DECLARED from a closed set and CAPPING the authority a wallet may hold —
+  neither mandated (which would stall every consumer, there being no key
+  infrastructure yet) nor unstated (which would let a key readable by its
+  own execution context masquerade as proof the holder acted). Awaiting its
+  single Speckit feature.
 - [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
   — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
   (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged

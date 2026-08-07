@@ -66,7 +66,7 @@ It is opt-in by construction. A capability that declares no constraint is
 not subject to one, because a silent default here would make every
 two-step flow in the family suddenly require two actors.
 
-## The custody question, and why it is still open
+## The custody question, RULED 2026-08-07
 
 Three options were weighed and only one is recommended.
 
@@ -77,13 +77,20 @@ indefinitely — there is no key infrastructure in the stack today.
 masquerade as proof the holder acted. Worse than having no control,
 because the audit record would assert something false.
 
-**Declare it and cap authority by it** (recommended). The wallet carries
-its custody model; the contract states what each model evidences; the
-authority a wallet may hold is bounded by its custody. Honest about the
-trust model instead of hiding it, and it lets a consumer start low without
-the contract lying. The same move as `package_content_execution_mode`:
-record the mode, let consumers read it, refuse claims the mode cannot
-support.
+**Declare it and cap authority by it — RULED by Brett 2026-08-07.** The
+wallet carries its custody model; the contract states what each model
+evidences; the authority a wallet may hold is bounded by its custody.
+Honest about the trust model instead of hiding it, and it lets a consumer
+start low without the contract lying. The same move as
+`package_content_execution_mode`: record the mode, let consumers read it,
+refuse claims the mode cannot support.
+
+The consequence to carry into implementation: the closed custody set and
+what each member EVIDENCES are now contract content, not an implementation
+detail. Getting that enumeration wrong would quietly re-open the hole this
+ruling closes — a set that fails to distinguish a key readable by the
+holder's own execution context from one isolated from it would let the
+first case claim the second's authority.
 
 ## What this deliberately does not do
 

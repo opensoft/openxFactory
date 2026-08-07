@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (neutral contracts + schemas under contracts/, a validator under scripts/; no runtime, no key material)
 target_release: implementation_pending
+Status: ratified
+Ratified by: Brett Heap, 2026-08-07 — "declared and capping authority", ruling the one open decision
 ---
 
 # Proposal: add-openxwallet
@@ -98,19 +100,34 @@ draft was a wallet shaped like an agent, which would have baked
 composition hashing into the neutral layer where it is meaningless for a
 patient. The core now knows only holders, keys, custody and grants.
 
-## Decision still open for the ratification gate
+## Ratification
 
-**Does the contract mandate a key-custody model, or declare it?**
-Mandating hardware backing is safest and stalls every consumer — there is
-no key infrastructure in the stack today. Saying nothing lets a key
-readable by the holder's own execution context masquerade as proof the
-holder acted, which is worse than no control, because the audit record
-would assert something false.
+Brett Heap ratified this proposal, design, and both capability deltas on
+2026-08-07, ruling the one decision left open: **key custody is DECLARED
+from a closed set and CAPS the authority a wallet may hold** — neither
+mandated nor unstated.
 
-**Recommendation: declare it, and cap authority by it.** The wallet
-carries its custody model from a closed set, the contract states what each
-model evidences, and the authority a wallet may hold is bounded by its
-custody. A consumer can start at a low tier without the contract lying
-about what its signature means, and raising authority becomes a custody
-question rather than a trust assertion — the same move as the
-`package_content_execution_mode` field LedgerxFactory ratified in August.
+What that ruling buys, and why it was the live question: mandating hardware
+backing would have been safest and would have stalled every consumer, since
+there is no key infrastructure in the stack today. Saying nothing would
+have let a key readable by the holder's own execution context masquerade as
+proof the HOLDER acted — worse than having no control, because the audit
+record would then assert something false. Declaring custody keeps the
+contract honest about what a signature evidences while letting a consumer
+start at a low tier, and it makes raising authority a custody question
+rather than a trust assertion. It is the same move as the
+`package_content_execution_mode` field LedgerxFactory ratified in August:
+record the mode, let consumers read it, refuse claims the recorded mode
+cannot support.
+
+Ratified together with the two decisions already carried into the
+restructure: **grants are the primitive** (with `approval_policy` surviving
+as a legal scope vocabulary rather than a parallel mechanism), and **the
+core is holder-class agnostic** (agent-specific material lives in a
+profile).
+
+Ratification authorizes handoff to exactly one Speckit implementation
+feature. It creates no key, credential, wallet, runtime, or issuance
+service; it modifies no existing capability; and it obliges no domain to
+adopt wallets — the non-substrate requirement preserves MedxFactory's two
+ratified constraints as a core rule rather than working around them.
