@@ -15,7 +15,7 @@ Scoped deliberately BELOW the brainstorm: identity and proof first,
 certification levels and drift-triggered recertification sequenced after.
 Topics: openxwallet, agent-identity, did, proof-of-control, verifiable-credentials, segregation-of-duties, authority-binding, decertification
 Repository context: openxFactory owns the neutral capability; the first consumer is LedgerxFactory (`ledgerx:staging:posting-segregation-of-duties`), enforced in the LedgerLinc BC extension; omnigent-install already attests the version facts a config hash would need
-Staging ID: `openxFactory:staging:agent-wallet-identity`
+Staging ID: openxFactory:staging:agent-wallet-identity
 Source: `ideation/brainstorm/agent-certification-wallets.md` (Brett, 2026-07-15/16, naming decided 2026-07-16) + the LedgerxFactory session of 2026-08-06 that made posting agent-executed and then asked for the control back
 Target capabilities: ADDED neutral `agent-wallet-identity` (agent DID record, proof-of-control verification rule, authority binding); composes with `roles-authority-model`, `credential-contracts`, and the neutral job envelope's `approval_policy`; MODIFIED `omnigent-domain-overlay` only if the config-hash attestation lands in the same wave
 

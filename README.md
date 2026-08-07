@@ -251,6 +251,23 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-agent-wallet-identity](openspec/changes/add-agent-wallet-identity/proposal.md)
+  — proposed 2026-08-06 from staging topic `agent-wallet-identity`, itself
+  organized the same day from the 2026-07-15/16 `agent-certification-wallets`
+  brainstorm once a consumer named itself. An agent cannot currently prove
+  which agent it is: every agent act reaches an external platform through
+  ONE shared service credential, which LedgerxFactory measured when the
+  agent that created a purchase invoice and the agent that posted it turned
+  out to be the same `userSecurityId`. Adds a neutral agent identity record,
+  a proof-of-control rule (an asserted identifier is never identity),
+  authority binding reusing the job envelope's `approval_policy` vocabulary,
+  key custody declared from a closed set and CAPPING the authority an
+  identity may hold, and declared-change decertification — generalizing to
+  AUTHORITY the invalidation the stack already practices on outputs.
+  Batteries, measured drift, qualification tiers and delegation chains are
+  named successors, each gated on a consumer. Ratification must carry two
+  recorded decisions (proof required vs asserted interim; custody declared
+  vs mandated). Awaiting ratification.
 - [add-opendox-project-header](openspec/changes/add-opendox-project-header/proposal.md)
   — proposed 2026-08-06 from Brett's header design round on
   `dashboard-project-scoping` (decisions D12–D15): the dashboard renames
