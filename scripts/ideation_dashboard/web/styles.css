@@ -1961,3 +1961,11 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border-radius: 3px; padding: 8px; margin: 6px 0; max-height: 320px;
   overflow: auto;
 }
+/* Radar numbering (Brett's 2026-08-07 ruling): the rail and the matrix are
+   the legend, so their number column reads as a key rather than as data. */
+.kwnum, .lensmatrix td.docnum {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  min-width: 18px; text-align: right;
+}
+.kwrow .kwnum { margin-right: 2px; }
+.swb-kwnum { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-right: 2px; }

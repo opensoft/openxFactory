@@ -338,6 +338,7 @@ function keywordRail(model, ctx) {
     }
     cb.addEventListener("change", () => ctx.toggleChecked(kw.keyword));
     row.appendChild(cb);
+    row.appendChild(el("span", "kwnum", String(kw.number)));
     row.appendChild(el("span", "kw", kw.keyword));
 
     const pin = el("button", "pinbtn" + (kw.pinned ? " pinned" : ""), kw.pinned ? "📌" : "📍");
@@ -383,12 +384,20 @@ function matrix(model) {
   const table = el("table", "lensmatrix");
   table.setAttribute("aria-label", "Keyword membership matrix (flat view of the bullseye)");
   const head = el("tr");
+  head.appendChild(el("th", null, "#"));
   head.appendChild(el("th", null, "doc"));
-  for (const k of model.checked) head.appendChild(el("th", null, k));
+  // the column heads carry the keyword's RAIL NUMBER too, so a sector label
+  // like "1 ∧ 7" reads straight off this table
+  for (const k of model.checked) {
+    const n = model.keywordNumbers ? model.keywordNumbers[k] : null;
+    head.appendChild(el("th", null, n ? n + " " + k : k));
+  }
   head.appendChild(el("th", null, "ring"));
   table.appendChild(head);
   for (const r of model.matrix) {
     const tr = el("tr");
+    // the matrix IS the radar's legend: #N here is the number on that dot
+    tr.appendChild(el("td", "docnum", String(r.number)));
     tr.appendChild(el("td", null, String(r.document).split("/").pop() || r.document));
     for (const cell of r.cells) tr.appendChild(el("td", null, cell.present ? "✓" : "·"));
     tr.appendChild(el("td", null, r.ring));
@@ -397,7 +406,7 @@ function matrix(model) {
   if (!model.matrix.length) {
     const tr = el("tr");
     const td = el("td", "empty", "no documents match the checked keywords");
-    td.setAttribute("colspan", String(model.checked.length + 2));
+    td.setAttribute("colspan", String(model.checked.length + 3));
     tr.appendChild(td);
     table.appendChild(tr);
   }

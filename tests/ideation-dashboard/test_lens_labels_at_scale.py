@@ -33,6 +33,7 @@ is the shape of the fix — one scroll region, panes at natural height, the
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 
@@ -330,16 +331,43 @@ def test_a_sector_label_is_bounded_in_width(measured):
 
 
 def test_the_full_combination_stays_reachable(measured):
-    """Truncation is only acceptable because the untruncated text is still
-    there: every drawn sector label carries its own <title> with the whole
-    conjunction, and at least one case actually needed truncating."""
+    """A sector is labelled by its keywords' RAIL NUMBERS (Brett's 2026-08-07
+    ruling), which is why nothing needs truncating any more — but the numbers
+    are only readable BECAUSE the whole conjunction is still one hover away.
+    Every drawn sector label keeps its <title>, and the title is the names,
+    never the numbers."""
     dense = measured["checked-18"]
     assert dense["sectors"]["titled"] == dense["sectors"]["labels"]
-    truncated = [(t, full) for t, full in zip(dense["sectors"]["texts"],
-                                              dense["sectors"]["titles"]) if t != full]
-    assert truncated, "nothing was truncated at 18 keywords — the case is not dense"
-    for text, full in truncated:
-        assert full.startswith(text.split(" +")[0].rstrip("…")), (text, full)
+    for text, full in zip(dense["sectors"]["texts"], dense["sectors"]["titles"]):
+        # the label is numbers joined by the conjunction glyph…
+        assert re.fullmatch(r"\d+( ∧ \d+)*", text), text
+        # …and its title is the same arity in NAMES
+        assert len(text.split(" ∧ ")) == len(full.split(" ∧ ")), (text, full)
+        assert not re.fullmatch(r"[\d ∧]+", full), full
+
+
+def test_numbering_is_what_makes_the_dense_case_legible(measured):
+    """The point of the ruling, measured. At 18 checked keywords the old
+    name labels were the defect: sector conjunctions ran up to 464px in a
+    520px box and 10 of 20 were clipped, and document basenames collided in
+    dozens of pairs. Numbers are 1-3 glyphs, so every sector label now draws
+    and far more dot labels survive the collision pass."""
+    dense = measured["checked-18"]
+    sectors = dense["model"]["sectors"]
+    drawn = dense["sectors"]["labels"]
+    # 43 sectors at 18 keywords: the rim is angularly crowded whatever the
+    # text says, so a few still lose to the collision pass — but the great
+    # majority now read, where the name labels lost half to CLIPPING alone.
+    assert drawn >= 0.85 * sectors, (drawn, sectors)
+    assert dense["sectors"]["overlaps"] == 0
+    assert dense["sectors"]["outside"] == 0
+    # no label is more than a few glyphs — width has stopped being the enemy
+    assert max(len(t) for t in dense["sectors"]["texts"]) <= 24, \
+        dense["sectors"]["texts"]
+    # the dot labels that ARE drawn are numbers, inside the box, non-colliding
+    assert all(re.fullmatch(r"\d+", t) for t in dense["docs"]["texts"])
+    assert dense["docs"]["outside"] == 0
+    assert dense["docs"]["overlaps"] == 0
 
 
 def test_every_sector_divider_is_still_drawn(measured):
@@ -435,8 +463,13 @@ def test_a_basename_wider_than_the_canvas_is_dropped_not_centred(measured):
     assert case["docs"]["dots"] == 2, "both documents must still be drawn"
     assert case["docs"]["outside"] == 0
     long_name = OVERSIZED.rsplit("/", 1)[-1]
+    # Since the ruling, a dot is labelled by its matrix NUMBER, so no basename
+    # can be too wide to draw — the clamp/drop machinery stays (a number can
+    # still collide with a neighbour) but width alone no longer suppresses
+    # anything. What has to hold is that the name is never lost.
     assert long_name not in case["docs"]["texts"], \
-        "an unfittable label was drawn anyway"
-    assert "b.md" in case["docs"]["texts"], "the fittable label was dropped too"
+        "the radar must carry numbers, not names"
+    assert all(re.fullmatch(r"\d+", t) for t in case["docs"]["texts"]), \
+        case["docs"]["texts"]
     assert any(long_name in (t or "") for t in case["docs"]["titles"]), \
-        "the dropped label's name is not reachable on its dot"
+        "the oversized name is not reachable on its dot"

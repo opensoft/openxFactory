@@ -390,11 +390,13 @@ function bullseyeLayout(rows, nChecked, geom) {
 
 // ---- matrix rows (flat view of the SAME membership as the bullseye) ----
 
-function matrixRows(rows, checked) {
-  return rows.map((r) => {
+function matrixRows(rows, checked, docNumber) {
+  return rows.map((r, i) => {
     const present = new Set(r.matchedSubset);
     return {
       document: r.document,
+      // the radar's legend key for this row (see buildLensModel's NUMBERING)
+      number: docNumber ? (docNumber.get(r.document) || i + 1) : i + 1,
       cells: checked.map((k) => ({ keyword: k, present: present.has(k) })),
       matchCount: r.matchCount,
       ring: r.matchCount === checked.length ? "all " + checked.length : String(r.matchCount),
@@ -461,26 +463,45 @@ export function buildLensModel(snapshot, query, geom) {
   const counts = keywordCounts(snapshot);
   const chkSet = new Set(checked);
   const pinSet = new Set(pinned);
-  const rail = counts.map((c) => ({
+  // NUMBERING (Brett's 2026-08-07 ruling: "the keywords and doc names are too
+  // large to be putting on the radar screen — number the keywords and docs,
+  // then just put the number on the radar"). Two independent series, each
+  // numbered over the list that ALSO acts as its legend:
+  //   * keywords by RAIL position — the whole declared vocabulary, so a
+  //     number does not move when the human ticks something;
+  //   * documents by UNIVERSE position — exactly the rows the matrix lists
+  //     beside the bullseye, so #7 on the radar is row 7 in the table.
+  // Names never leave the widget: every dot and sector keeps its full name in
+  // the SVG <title>, and the rail and matrix print number AND name.
+  const rail = counts.map((c, i) => ({
     keyword: c.keyword,
+    number: i + 1,
     declaredCount: c.declaredCount,
     checked: chkSet.has(c.keyword),
     pinned: pinSet.has(c.keyword),
   }));
+  const keywordNumber = new Map(rail.map((k) => [k.keyword, k.number]));
 
   const ev = evaluateRecipe(snapshot, checked, pinned);
+  const docNumber = new Map(ev.rows.map((r, i) => [r.document, i + 1]));
   const layout = bullseyeLayout(ev.rows, checked.length, geom);
+  for (const dot of layout.dots) dot.number = docNumber.get(dot.document) || 0;
+  for (const sector of layout.sectors) {
+    sector.numbers = sector.keywords.map((k) => keywordNumber.get(k) || 0);
+  }
 
   return {
     checked,
     pinned,
     rail,
+    keywordNumbers: Object.fromEntries(keywordNumber),
+    docNumbers: Object.fromEntries(docNumber),
     universe: ev.universe,
     matched: ev.matched,          // recipe membership (innermost ring)
     rings: layout.rings,
     sectors: layout.sectors,
     dots: layout.dots,
-    matrix: matrixRows(ev.rows, checked),
+    matrix: matrixRows(ev.rows, checked, docNumber),
     formingSet: formingSet(ev, includes, excludes),
     coOccurrence: coOccurrenceHints(snapshot, checked, pinned),
     recipeLine: recipeLine(checked, pinned, includes, excludes),

@@ -187,7 +187,13 @@ export function renderBullseye(model, opts) {
       x1: round(g.cx), y1: round(g.cy),
       x2: round(g.cx + g.rMax * Math.cos(a)), y2: round(g.cy + g.rMax * Math.sin(a)),
     }));
-    const text = sectorLabelText(sec.subsetKey, sec.keywords);
+    // NUMBERS on the radar (Brett's 2026-08-07 ruling): a sector is labelled
+    // by its keywords' RAIL NUMBERS, not their names — "1 ∧ 7" instead of a
+    // 464px conjunction. The full combination stays in the <title> below and
+    // in the rail beside the widget, which is the legend.
+    const text = sec.numbers && sec.numbers.length
+      ? sec.numbers.join(" ∧ ")
+      : sectorLabelText(sec.subsetKey, sec.keywords);
     const at = clampLabel(g.cx + (g.rMax + 8) * Math.cos(a),
       g.cy + (g.rMax + 8) * Math.sin(a), text.length, FONT.sector, g.size);
     seclabs.push({ sec, text, at,
@@ -211,9 +217,11 @@ export function renderBullseye(model, opts) {
   // corpus; on a two-document fixture nothing overlaps and nothing is dropped).
   const dots = model.dots.map((d) => {
     const base = String(d.document).split("/").pop() || d.document;
-    const at = clampLabel(d.x, d.y - 10, base.length, FONT.doc, g.size);
-    return { d, base, at, fits: labelFits(base.length, FONT.doc, g.size),
-      box: labelBox(at.x, at.y, base.length, FONT.doc) };
+    // the dot's LABEL is its matrix number; the basename stays in the title
+    const text = d.number ? String(d.number) : base;
+    const at = clampLabel(d.x, d.y - 10, text.length, FONT.doc, g.size);
+    return { d, base, text, at, fits: labelFits(text.length, FONT.doc, g.size),
+      box: labelBox(at.x, at.y, text.length, FONT.doc) };
   });
   // a basename wider than the canvas cannot be labelled legibly at any anchor;
   // it is dropped rather than centred as an overflow, and its <title> still
@@ -221,18 +229,20 @@ export function renderBullseye(model, opts) {
   // for those, so the indices stay aligned with `dots`.
   const shown = new Set(nonOverlappingIndices(
     dots.map((x) => (x.fits ? x.box : { left: 0, right: 0, top: 0, bottom: 0 }))));
-  dots.forEach(({ d, base, at }, i) => {
+  dots.forEach(({ d, base, text, at }, i) => {
     const gdot = svg("g", { class: "lensdot" });
     const circle = svg("circle", {
       class: "dot" + (d.declared ? " declared" : " inferred"),
       cx: round(d.x), cy: round(d.y), r: d.matchCount === model.checked.length ? 7 : 6,
     });
-    circle.appendChild(svg("title", {}, base + " — " + d.matchedSubset.join(" ✓ ") + " ✓"));
+    circle.appendChild(svg("title", {},
+      (d.number ? "#" + d.number + " " : "") + base + " — "
+      + d.matchedSubset.join(" ✓ ") + " ✓"));
     gdot.appendChild(circle);
     if (shown.has(i) && dots[i].fits) {
       gdot.appendChild(svg("text", {
         class: "doclab", x: round(at.x), y: round(at.y), "text-anchor": "middle",
-      }, base));
+      }, text));
     }
     node.appendChild(gdot);
   });
