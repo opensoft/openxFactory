@@ -111,3 +111,30 @@
       are dropped, the route accepts an absent/empty list, and the create
       panel marks members optional. A project is created first and gains
       members later through edit-project. Engine/wire/UI checks green.
+
+## 6. Queued edits (topic D18, Brett's 2026-08-07 ruling)
+
+- [x] 6.1 Engine: `edit_project` drops the single-flight duplicate guard and
+      validates against EFFECTIVE state — the register with the project's
+      dispatched, undelivered commissions applied oldest-first (a pending
+      create-project counts, so a just-created project can be populated
+      before fulfilment). `create-project` keeps its single-flight guard.
+      Same-second commissions land as distinct descriptors (stamp bump).
+- [x] 6.2 Projection: `pending_edits` carries EVERY dispatched edit
+      commission (not one per project), including edits queued behind a
+      pending creation; the popover nets them into one badge overlay and
+      the add line's candidates subtract pending additions.
+- [x] 6.3 Lane: one pass delivers every queued commission oldest-first
+      (the shared index's one-per-target reduction bypassed).
+- [x] 6.4 Tests: queued second edit records; duplicate addition against
+      pending-applied state refuses; removal of a pending addition is
+      legal; edit on a pending-created project records; lane multi-edit
+      pass; projection multi-row shape; add-line candidates minus pending.
+- [x] 6.5 Live browser check: two successive adds from the popover with no
+      refusal, the apply affordance counts both, one click lands both.
+      (Verified 2026-08-07 on the scratch git fixture: repoB then repoC
+      commissioned from the same open popover — the second within the same
+      second, landing as a stamp-bumped distinct descriptor — both badging
+      "(addition pending)"; after reload the header read "⟳ apply 2
+      pending" and one click delivered both in one register-only commit,
+      pushed to the bare remote. Zero page errors.)

@@ -94,6 +94,36 @@ def test_the_lane_applies_create_add_and_remove_preserving_comments(tmp_path):
     assert again.applied == [] and again.skipped == []
 
 
+def test_a_queued_series_delivers_oldest_first_in_one_pass(tmp_path):
+    """Edits QUEUE (topic D18): one lane pass delivers a whole commission
+    series — create, successive adds, a remove — in dispatch order, so the
+    register lands exactly where the queue's net says."""
+    checkout, register, console = _fixture(tmp_path)
+    console.create_project("Field Pilots", repositories=[],
+                           register_source=register)
+    console.edit_project("field-pilots", add=["repoA"],
+                         register_source=register)
+    console.edit_project("field-pilots", add=["repoB"], roster=["repoB"],
+                         register_source=register)
+    console.edit_project("field-pilots", remove=["repoA"],
+                         register_source=register)
+
+    report = lane.fulfil_once(checkout, git=False)
+    assert report.error is None
+    assert report.skipped == []
+    assert report.applied == [
+        ("create-project", "field-pilots"),
+        ("edit-project", "field-pilots"),
+        ("edit-project", "field-pilots"),
+        ("edit-project", "field-pilots")]
+    doc = yaml.safe_load(register.read_text(encoding="utf-8"))
+    projects = {p["id"]: p for p in doc["projects"]}
+    assert projects["field-pilots"]["repositories"] == ["repoB"]
+    for job in (checkout / "ideation/dashboard/gate-records").rglob(
+            "*.workflow-job.yaml"):
+        assert "status: delivered" in job.read_text(encoding="utf-8")
+
+
 def test_a_stale_commission_refuses_and_stays_dispatched(tmp_path):
     checkout, register, console = _fixture(tmp_path)
     console.edit_project("core", remove=["repoA"], register_source=register)
