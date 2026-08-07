@@ -268,17 +268,6 @@ Active changes:
   named successors, each gated on a consumer. Ratification must carry two
   recorded decisions (proof required vs asserted interim; custody declared
   vs mandated). Awaiting ratification.
-- [add-opendox-project-header](openspec/changes/add-opendox-project-header/proposal.md)
-  — proposed 2026-08-06 from Brett's header design round on
-  `dashboard-project-scoping` (decisions D12–D15): the dashboard renames
-  to "Opensoft openDox" and the header goes PROJECT-FIRST — a project
-  dropdown ("New Project" first, last-used default; the crowded picker
-  cluster and repo chip retire), repository selection becomes a filter
-  popover scoped to the current project (with the "All repositories"
-  line reserved for the merged view), and membership editing arrives as
-  the `edit-project` commission (additive gate-intent /
-  gate-action-record growth) with manage-mode checkboxes and pending
-  badges. Awaiting ratification.
 - [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
   — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
   (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged
@@ -289,22 +278,6 @@ Active changes:
   composed read-only plane with the "open in <repo>" jump, and the
   N-repo freshness header. No contract growth. Awaiting ratification;
   exit 3 (per-tile repository binding) remains the named successor.
-- [add-project-scoped-selection](openspec/changes/add-project-scoped-selection/proposal.md)
-  — ratified 2026-08-06 (Brett's "ratify exit 1 and realize it", with the
-  topic's D1–D7 round carried as decided) from staging topic
-  `dashboard-project-scoping` (exit 1 of three): the `create-project`
-  gate commission (workflow `project-register-edit` descriptor + record;
-  the dashboard never writes the aggregation-owned register itself) and
-  project-scoped selection (the picker narrows the selector roster to a
-  project's member repos, one snapshot at a time), plus the D5 authority
-  declaration against the tenant-catalog twin. Additive gate-intent /
-  gate-action-record growth (`create-project`, `project_id`). REALIZED
-  same day: contracts + conformance tests, engine/route/CLI on the shared
-  commission index, the `/project-register.json` projection route, picker
-  + create affordance, node model tests, live browser check green.
-  Remaining: bundle registration (1.4) and Brett's first real commission
-  (4.3). Exits 2–3 (merged projection; per-tile repository binding) are
-  named successors.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -399,6 +372,19 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-project-scoped-selection](openspec/changes/archive/2026-08-06-add-project-scoped-selection/proposal.md)
+  Promoted project-scoped selection into `ideation-dashboard`
+  (dashboard-project-scoping exit 1): the human-only `create-project`
+  commission (register writes stay commissions-only per D2), project as a
+  selection scope on the selector, and the gate-intent/gate-action-record
+  `target.project_id` additive deltas — registered at contract-v1.30.
+  Archived 2026-08-06 with its staged origin declared.
+- [add-opendox-project-header](openspec/changes/archive/2026-08-06-add-opendox-project-header/proposal.md)
+  Promoted the Opensoft openDox project-first header (topic D12–D15): the
+  project selector leads the header, "New Project" rehomes the create
+  commission, and the `edit-project` gate verb lands with the ruled guard
+  order — contract deltas registered at contract-v1.30. Archived
+  2026-08-06 with its staged origin declared.
 - [add-proposal-origin-contract](openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
   Promoted the proposal-origin contract: every OpenSpec change declares
   exactly one immutable origin (`staged` with a durable

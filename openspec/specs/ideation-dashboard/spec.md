@@ -47,12 +47,17 @@ from the same snapshot.
 - **THEN** the readiness heat view MUST render them from the snapshot verbatim, without re-scoring
 
 ### Requirement: Project grouping hierarchy
-The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and rendered as repo/project/group roll-ups on the funnel, pipeline, and stats views. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
+The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and surfaced through the project-first header (the project dropdown and the repository filter) — the former header-level roll-up strip is retired (Brett's 2026-08-06 ruling), with the pure grouping model remaining available to any view wanting a roll-up. Repository membership SHALL be multi-parent: a repository MAY live in any number of projects (a project is a named view over repositories, not an owner), the snapshot's singular `project` field SHALL carry the PRIMARY project (the first project in register order declaring the repository, so grouped roll-ups render each repository under exactly one heading), and the snapshot SHALL additionally carry the full membership as an additive `projects` list whose first element is that primary. A project SHALL belong to at most one project group. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
 
 #### Scenario: A project spans several repositories
 - **WHEN** the project register maps more than one repository to a project
 - **THEN** the project roll-up MUST aggregate those repositories' snapshot entries under one project heading
 - **AND** per-repository detail remains reachable beneath it
+
+#### Scenario: A repository lives in several projects
+- **WHEN** the register declares one repository under more than one project
+- **THEN** the register is valid, the repository's snapshot carries the first-declaring project as `project` and every declaring project in `projects`
+- **AND** project-scoped selection offers the repository under each of its projects
 
 #### Scenario: Projects roll up into a project group
 - **WHEN** the register assigns projects to a project group
@@ -1208,4 +1213,86 @@ The dashboard runtime SHALL provide a fulfilment lane for dispatched `project-re
 #### Scenario: The watcher fulfils unattended
 - WHEN the lane runs in watch mode beside a serve
 - THEN each polling tick fulfils whatever commissions have been recorded since the last, with the same validation and refusal semantics
+
+### Requirement: Project creation is a recorded commission
+The dashboard SHALL offer a `create-project` verb on the human gate console that records a `workflow-job` descriptor (workflow `project-register-edit`, carrying the proposed project id, display name, and member repository ids) plus a `create-project` gate-action record naming the human — and SHALL NOT write the project register itself: the register is aggregation-owned, and the fulfilment of the recorded commission is what applies the edit.
+
+#### Scenario: A human creates a project
+- WHEN a human on the loopback gate console commissions a project with a name and member repositories drawn from the selector roster
+- THEN a `workflow-job` descriptor and a `create-project` gate-action record are written under the served checkout's records tree
+- AND `project-register.yaml` is not modified by the dashboard
+
+#### Scenario: A member repository is not in the roster
+- WHEN a commissioned member repository id is absent from the snapshot-index roster
+- THEN the commission is refused with the unknown id as the reason and nothing is persisted
+
+#### Scenario: A repository joins a second project
+- WHEN a commissioned member repository already belongs to a project in the register projection
+- THEN the commission is accepted — repository membership is multi-parent, and a project is a named view over repositories, not an owner
+
+#### Scenario: A duplicate commission is refused
+- WHEN a project id already carries a dispatched, undelivered `project-register-edit` commission
+- THEN a second `create-project` commission for that id is refused and the refusal names the blocking descriptor
+
+#### Scenario: A commissioned project is visible as pending
+- WHEN a `create-project` commission is dispatched and not yet delivered
+- THEN the register projection reports it on a `pending` plane distinct from the register's projects, and the picker renders it as a clearly-marked, non-selectable pending entry
+- AND the pending entry never scopes the roster and disappears in favour of the register's own entry once the fulfilment lands
+
+### Requirement: Project-scoped repository selection
+The repository selector SHALL offer a project picker listing the register's projects, and selecting a project SHALL narrow the selector roster to that project's member repositories while the active snapshot remains a single `(repository, ref)` key.
+
+#### Scenario: A project scopes the roster
+- WHEN a human selects a project in the picker
+- THEN the repository selector lists only that project's member repositories
+- AND choosing one serves that single repository's snapshot exactly as an unscoped selection would
+
+#### Scenario: Unregistered repositories keep their standing
+- WHEN a repository is absent from the project register
+- THEN it renders ungrouped exactly as the register contract already specifies, and clearing the project selection restores the full roster
+
+### Requirement: Local register authority is declared against the tenant catalog
+The project register consumed by this capability SHALL be authoritative for the development plane only until a tenant project catalog exists; once a runtime catalog is authoritative for project-to-repository composition, the local register SHALL be treated as a derived, replaceable workstation cache and SHALL NOT override the catalog.
+
+#### Scenario: The runtime twin lands
+- WHEN a tenant project catalog becomes authoritative for project composition
+- THEN the dashboard's register is consumed as a derived projection of it
+- AND a local edit is not an override of the catalog
+
+### Requirement: The openDox project-first header
+The dashboard header SHALL brand as "Opensoft openDox" and SHALL organize repository navigation around the CURRENT PROJECT: a project dropdown whose first line is "New Project" (opening the create-project commission form) followed by the register's projects, defaulting to the viewer's last-used project when the register projection still names it and to the first register project otherwise — the viewer is always in a project. Repository selection SHALL be a filter scoped to the current project: a popover listing the project's member repositories where selecting one makes it the active served repository, with an "All repositories" line that is disabled (naming the merged view as pending) until the project merged view exists and thereafter selects the project's derived aggregate.
+
+#### Scenario: The header renders project-first
+- WHEN the dashboard loads with a register projection available
+- THEN the brand reads "Opensoft openDox", the project dropdown shows "New Project" first and the register's projects after it
+- AND the current project is the stored last-used project, else the first register project
+
+#### Scenario: The filter switches the served repository
+- WHEN a human selects a member repository in the current project's filter popover
+- THEN that repository becomes the active served snapshot exactly as the repository selector contract already specifies
+
+#### Scenario: All-repositories awaits the merged view
+- WHEN the project merged view is not yet available
+- THEN the filter's "All repositories" line renders disabled and names the merged view as pending
+- AND once the merged view exists the line selects the project's derived aggregate
+
+#### Scenario: The header degrades without a projection
+- WHEN no register projection is served (a static image or no reachable register)
+- THEN the project dropdown and filter do not render and the dashboard degrades exactly as the selector contract already specifies
+
+### Requirement: Project membership editing is a recorded commission
+The dashboard SHALL offer an `edit-project` verb on the human gate console — the filter popover working like the project dropdown (D16): its first line adds a repository to the current project from the known-repository candidates, each member row carries a visibility indicator on its left and a two-click removal control on its right — that records a `project-register-edit` workflow-job descriptor carrying the added and removed member lists plus an `edit-project` gate-action record, and SHALL NOT write the register itself. The commission SHALL be refused when the project does not exist in the register projection, when an addition is outside the roster-or-register repository universe, when a removal is not currently a member, or while the project carries an undelivered edit commission — removing the last member is legal, because a project MAY be empty (created first, populated later); pending membership changes SHALL render as clearly-marked overlay until the fulfilment lands the register edit.
+
+#### Scenario: A repository is added and another removed
+- WHEN a human commissions an addition from the filter's add line or a removal from a member row's armed removal control
+- THEN one `edit-project` descriptor records the diff and one gate-action record names the human
+- AND the register is unchanged until the commission's fulfilment applies the edit
+
+#### Scenario: An empty project is legal
+- WHEN a project is created with no member repositories, or an edit removes its last member
+- THEN the commission is accepted — the project exists awaiting its next additions, and the register schema admits the empty set
+
+#### Scenario: Pending membership renders as overlay
+- WHEN an edit-project commission is dispatched and undelivered
+- THEN the affected repositories badge as pending in the popover and the register projection's truth plane is unchanged
 
