@@ -228,10 +228,16 @@ export function renderBullseye(model, opts) {
     const base = String(d.document).split("/").pop() || d.document;
     // the dot's LABEL is its matrix number; the basename stays in the title
     const text = d.number ? String(d.number) : base;
-    // ONLY THE OUTER ROW of a cell is labelled (Brett's 2026-08-07 ruling):
-    // a cell's numbers run along its outer row and continue inward, so an
-    // inboard dot's number is inferable and its label is pure clutter.
-    const labelled = d.row == null || d.row === 0;
+    // ONLY THE OUTER LANE of EVERY OTHER COLUMN is labelled (Brett's
+    // 2026-08-07 ruling). Two inferences carry the rest, and both are small
+    // arithmetic the reader can do at a glance:
+    //   * down a column — the dots inboard of a labelled one are +1, +2, +3,
+    //     because a column is numbered outer lane inward;
+    //   * across to the next column — one column deeper than the label, so
+    //     the unlabelled neighbour starts where the labelled column ended.
+    // Halving the labels is what finally buys each survivor room to draw.
+    const labelled = (d.row == null || d.row === 0)
+      && (d.column == null || d.column % 2 === 0);
     // The label sits RADIALLY OUTWARD of its dot — away from the centre, so
     // it never lands on the rows packed inside it — in two lanes, alternating
     // by slot, which is what lets neighbours on one arc both read.

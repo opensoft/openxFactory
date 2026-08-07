@@ -76,11 +76,14 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   sector) packs its documents across as many rows as the band admits and as
   many per row as the arc admits, shrinking the dot only when the area
   demands it, so there is always clear space between two dots. Consecutive
-  dots on a row label in two lanes radially outward of their dot. Only the
-  OUTER row of a cell is numbered: a cell's numbers run along that row and
-  continue inward, so the inboard dots' numbers are inferable — and every dot
-  still names itself on hover and in the matrix. Sector numbers ride their own
-  lane further out, clear of the dot labels.
+  dots label in two lanes radially outward of their dot. NUMBERS FOLLOW THE
+  LAYOUT: cell by cell (centre outward), then column by column, each column
+  running from the outer lane inward — so the dots inboard of a numbered one
+  are simply +1, +2, +3. Only the outer lane of EVERY OTHER column is
+  numbered; the column between two labels starts where the labelled one
+  ended, one column deeper. Every dot still names itself on hover, and the
+  matrix — sorted by the same numbers — is the full legend. Sector numbers
+  ride their own lane further out, clear of the dot labels.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which

@@ -330,65 +330,56 @@ function rowRadii(inner, outer, pitch) {
 }
 
 // Place `n` documents inside one cell — the band [inner, outer] × the
-// `spanDeg` slice centred on `baseDeg` — as `{radius, angleDeg, size}`.
-// Rows fill outermost-first and each row is centred on the sector's angle, so
-// a cell reads as a compact block on its own ring rather than a smear.
+// `spanDeg` slice centred on `baseDeg` — as `{radius, angleDeg, size, row,
+// column}`.
+//
+// The cell is a GRID in polar coordinates, and it is a grid on purpose
+// (Brett's 2026-08-07 ruling): dots fill COLUMN BY COLUMN, each column
+// running from the outermost lane inward, so a column's numbers are
+// consecutive and the dots inboard of a labelled one are simply +1, +2, +3.
+// Numbering along the outer lane instead made the inboard number depend on
+// the lane's length, which the reader would have to count first.
+//
+// Columns share one angular step, taken from the INNERMOST lane in use so
+// every lane's dots line up radially; the fewest lanes that hold the cell are
+// used, which keeps the dots near the ring's outer edge and the step sane
+// (a lane close to the centre subtends an absurd angle per dot).
 export function packCell(n, inner, outer, spanDeg, baseDeg) {
   const count = Math.max(0, n | 0);
   if (!count) return [];
-  let chosen = { size: DOT_MIN_R, radii: [], pitch: 2 * DOT_MIN_R + DOT_GAP };
+  let plan = null;
   for (const size of sizeLadder()) {
     const pitch = 2 * size + DOT_GAP;
     const radii = rowRadii(inner, outer, pitch);
-    const capacity = radii.reduce(
-      (sum, r) => sum + rowCapacity(r, spanDeg, pitch), 0);
-    chosen = { size, radii, pitch };
-    if (capacity >= count) break;      // largest size that holds the cell
-  }
-  const { size, radii, pitch } = chosen;
-  // distribute across the rows we have, filling each to its own capacity
-  const perRow = [];
-  let left = count;
-  for (const radius of radii) {
-    if (left <= 0) break;
-    const take = Math.min(left, rowCapacity(radius, spanDeg, pitch));
-    perRow.push({ radius, take });
-    left -= take;
-  }
-  // A cell too crowded for its own area even at the minimum size cannot be
-  // drawn without SOMETHING giving. Separation is the property Brett asked
-  // for, so the overflow spreads evenly across every row — each row's dots
-  // stay `pitch` apart and the cell reaches a little past its span — rather
-  // than piling into one row or collapsing back into a touching bar.
-  for (let i = 0; left > 0 && perRow.length; i = (i + 1) % perRow.length) {
-    perRow[i].take += 1;
-    left -= 1;
-  }
-  const out = [];
-  let rowIndex = 0;
-  for (const { radius, take } of perRow) {
-    // the angular step that puts `pitch` between two dot CENTRES at this
-    // radius — the geometric definition of "not touching", not a constant
-    const step = radius > 0 ? (pitch / radius) * (180 / Math.PI) : 0;
-    const start = baseDeg - (step * (take - 1)) / 2;
-    for (let i = 0; i < take; i += 1) {
-      // `slot` lets the renderer STAGGER labels along a row: consecutive dots
-      // alternate their label above and below the arc, which doubles the
-      // label room without moving a single dot (packing tightly to keep dots
-      // apart otherwise costs exactly the space the numbers need).
-      // `row` counts inward from the OUTERMOST row of this cell (0 = outer).
-      // Only that row is labelled (Brett's 2026-08-07 ruling): a cell's
-      // numbers run along the outer row and continue inward, so the inboard
-      // dots' numbers are inferable and their labels are pure clutter.
-      out.push({ radius, angleDeg: start + i * step, size,
-                 slot: i % 2, row: rowIndex });
+    for (let lanes = 1; lanes <= radii.length; lanes += 1) {
+      const columns = rowCapacity(radii[lanes - 1], spanDeg, pitch);
+      plan = { size, pitch, radii: radii.slice(0, lanes), columns };
+      if (lanes * columns >= count) break;
     }
-    rowIndex += 1;
+    if (plan && plan.radii.length * plan.columns >= count) break;
+  }
+  const { size, pitch, radii } = plan;
+  const lanes = radii.length;
+  // A cell past its own capacity even at the minimum size grows angularly
+  // rather than letting dots touch — separation is the property that survives.
+  const columns = Math.max(plan.columns, Math.ceil(count / lanes));
+  const step = (pitch / radii[lanes - 1]) * (180 / Math.PI);
+  const start = baseDeg - (step * (columns - 1)) / 2;
+  const out = [];
+  for (let column = 0; column < columns && out.length < count; column += 1) {
+    for (let lane = 0; lane < lanes && out.length < count; lane += 1) {
+      out.push({
+        radius: radii[lane],
+        angleDeg: start + column * step,
+        size,
+        row: lane,          // 0 = the outermost lane; only it is labelled
+        column,
+        slot: column % 2,   // which of the two outward label lanes to use
+      });
+    }
   }
   return out;
 }
-
-
 
 function bullseyeLayout(rows, nChecked, geom) {
   const g = geom || GEOM;
@@ -444,7 +435,12 @@ function bullseyeLayout(rows, nChecked, geom) {
     if (!cellRows.has(key)) cellRows.set(key, []);
     cellRows.get(key).push(r);
   }
-  for (const [cell, members] of cellRows) {
+  const orderedCells = [...cellRows.entries()].sort((a, b) => {
+    const [ka, ma] = a, [kb, mb] = b;
+    return mb[0].matchCount - ma[0].matchCount
+      || (ka < kb ? -1 : (ka > kb ? 1 : 0));
+  });
+  for (const [cell, members] of orderedCells) {
     const matchCount = members[0].matchCount;
     const key = subsetKey(members[0].matchedSubset);
     const base = sectorAngle.get(key);
@@ -465,6 +461,7 @@ function bullseyeLayout(rows, nChecked, geom) {
         size: at.size,
         slot: at.slot,
         row: at.row,
+        column: at.column,
         angleBase: base,
         angleDeg: at.angleDeg,
         x: g.cx + at.radius * Math.cos(toRad(at.angleDeg)),
@@ -511,7 +508,11 @@ function bullseyeLayout(rows, nChecked, geom) {
 // ---- matrix rows (flat view of the SAME membership as the bullseye) ----
 
 function matrixRows(rows, checked, docNumber) {
-  return rows.map((r, i) => {
+  const ordered = docNumber
+    ? [...rows].sort((a, b) => (docNumber.get(a.document) || 0)
+        - (docNumber.get(b.document) || 0))
+    : rows;
+  return ordered.map((r, i) => {
     const present = new Set(r.matchedSubset);
     return {
       document: r.document,
@@ -603,9 +604,19 @@ export function buildLensModel(snapshot, query, geom) {
   const keywordNumber = new Map(rail.map((k) => [k.keyword, k.number]));
 
   const ev = evaluateRecipe(snapshot, checked, pinned);
-  const docNumber = new Map(ev.rows.map((r, i) => [r.document, i + 1]));
   const layout = bullseyeLayout(ev.rows, checked.length, geom);
-  for (const dot of layout.dots) dot.number = docNumber.get(dot.document) || 0;
+  // Numbers follow the LAYOUT, not the snapshot's document order (Brett's
+  // 2026-08-07 ruling). The dots are laid out cell by cell (centre outward)
+  // and, within a cell, column by column running outer lane inward — so a
+  // column's numbers are consecutive and the dots inboard of a labelled one
+  // are +1, +2, +3. Numbering by universe order instead scattered a cell's
+  // numbers across the whole corpus, which made them un-inferable at any
+  // spacing. The matrix is re-sorted to match, because it is the legend.
+  const docNumber = new Map();
+  layout.dots.forEach((dot, i) => {
+    dot.number = i + 1;
+    docNumber.set(dot.document, i + 1);
+  });
   for (const sector of layout.sectors) {
     sector.numbers = sector.keywords.map((k) => keywordNumber.get(k) || 0);
   }
