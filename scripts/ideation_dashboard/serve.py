@@ -136,6 +136,12 @@ ACTIONS_REFRESH_ROUTE = "/actions/refresh"
 # fulfilment lane once (Brett's ruling: the click is the deliberate human
 # act; only RECORDED commissions are ever applied, so D2's boundary holds).
 ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits"
+# add-shared-identity-seeds: DRAFT a DTN candidate-register seed from a
+# repository-lens region. Read-only by construction — it returns TEXT the
+# human merges and never opens the register for writing — so it is loopback-
+# gated like every local action but needs NO gate capability, which is also
+# what lets it answer from a composed (read-only) view.
+ACTIONS_DTN_SEED_ROUTE = "/actions/dtn-seed"
 ACTIONS_EDIT_ROUTE = "/actions/edit"
 ACTIONS_GATE_PREFIX = "/actions/gate/"
 # T050/T051 (change 010-doxbench-editor-chat): the two doxBench HTTP routes.
@@ -2008,6 +2014,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == ACTIONS_REFRESH_ROUTE:
             self._handle_refresh_action()
             return
+        if path == ACTIONS_DTN_SEED_ROUTE:
+            self._handle_dtn_seed()
+            return
         if path == ACTIONS_APPLY_REGISTER_EDITS_ROUTE:
             self._handle_apply_register_edits()
             return
@@ -2082,6 +2091,80 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         self._send_json(200, {"ok": True, "path": path})
 
     # ---- refresh route (add-dashboard-repo-selector, design D7) ----
+    def _handle_dtn_seed(self) -> None:
+        """Draft a DTN candidate-register seed from a project's SHARED
+        IDENTITIES (add-shared-identity-seeds): the identities two or more of
+        the named member repositories carry, which is the promotion process's
+        first candidate rule computed rather than eyeballed.
+
+        WRITES NOTHING. The response is the register row + detail section as
+        TEXT, in the register's own format and numbering, for a human to
+        merge — the same seed-first discipline the neutrality-drift lane
+        records. That is why this route asks for loopback but not the gate
+        capability, and why it can answer while a composed, read-only view is
+        on screen.
+
+        The carriers are recomputed HERE from the serve's own composed view;
+        the client names the project, the visible subset, and (optionally)
+        the exact carrier COMBINATION a lens region stands for — never the
+        evidence itself. `combination` is what keeps a seed honest to the
+        region it was drafted from: a row reading "carried by 3" drafts those
+        identities and no others."""
+        if not self.loopback:
+            self._send_json(403, {"ok": False, "error": "loopback_only",
+                                  "message": "seed drafting is loopback-only"})
+            return
+        body = self._read_json_body()
+        if body is None:
+            return
+        project = str(body.get("project_id") or "").strip()
+        if not project:
+            self._send_json(400, {"ok": False, "error": "bad_request",
+                                  "message": "project_id is required"})
+            return
+        repositories = body.get("repositories")
+        combination = body.get("combination")
+        for name, value in (("repositories", repositories),
+                            ("combination", combination)):
+            if value is not None and not isinstance(value, list):
+                self._send_json(400, {"ok": False, "error": "bad_request",
+                                      "message": f"{name} must be a list"})
+                return
+        if self.source is None:
+            self._send_json(403, {"ok": False, "error": "action_unavailable",
+                                  "message": "no snapshot source on this plane"})
+            return
+        composed = self.source.compose_view(project)
+        if composed is None:
+            self._send_json(404, {"ok": False, "error": "unknown_project",
+                                  "message": f"no composed view for {project!r}"})
+            return
+
+        import datetime
+        from doc_health import shared_identity as si
+        rows = si.shared_identities(composed.get("documents"),
+                                    repositories=repositories,
+                                    exactly=combination)
+        if not rows:
+            self._send_json(200, {
+                "ok": False, "error": "nothing_shared",
+                "message": "no document identity is carried by two or more of "
+                           "the named repositories — there is no candidate to "
+                           "draft, which is itself the honest answer"})
+            return
+        register = Path(self.checkout_root) / si.REGISTER_PATH
+        try:
+            register_text = register.read_text(encoding="utf-8")
+        except OSError:
+            register_text = ""       # no register reachable: number from zero
+        draft = si.draft_seed(
+            register_text, rows, project=project,
+            as_of=datetime.date.today().isoformat())
+        payload = draft.as_dict()
+        payload["ok"] = True
+        payload["register"] = si.REGISTER_PATH
+        self._send_json(200, payload)
+
     def _handle_apply_register_edits(self) -> None:
         """Run the register-edit fulfilment lane once
         (add-register-edit-lane): apply every dispatched

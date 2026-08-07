@@ -1953,3 +1953,11 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .drillbanner[hidden] { display: none; }
 .drillbanner { display: flex; align-items: center; gap: 8px; }
 .drillnote { font-family: var(--mono); font-size: 11px; }
+/* add-shared-identity-seeds — the drafted register seed: read-only text the
+   human merges, so it reads as a document rather than a form. */
+.seedtext {
+  font-family: var(--mono); font-size: 11px; white-space: pre-wrap;
+  background: rgba(127,127,127,0.08); border: 1px solid var(--border);
+  border-radius: 3px; padding: 8px; margin: 6px 0; max-height: 320px;
+  overflow: auto;
+}
