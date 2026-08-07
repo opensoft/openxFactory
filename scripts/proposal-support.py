@@ -125,7 +125,7 @@ def change_dir(root: Path, change: str, archived: bool) -> Path:
 
 STAGED_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:staging:[a-z0-9][a-z0-9-]*$")
 ADHOC_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:adhoc:[A-Za-z0-9][A-Za-z0-9-]*$")
-STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*(\S+)\s*$", re.M)
+STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*`?([^`\s]+)`?\s*$", re.M)
 
 
 def load_packet(directory: Path) -> dict | None:

@@ -9,8 +9,8 @@
       the workflow-job companion conditional.
 - [x] 1.3 Conformance tests: valid intent + record for `edit-project`;
       missing companion rejected; missing `project_id` rejected.
-- [ ] 1.4 Contract registration at the next additive bundle cut (rides with
-      create-project's 1.4).
+- [x] 1.4 Contract registration at the next additive bundle cut (rides with
+      create-project's 1.4). — Realized 2026-08-06 at **contract-v1.30** (release commit 6c03d78): the project-plane additive deltas to gate-intent, gate-action-record, ideation-dashboard-snapshot, and xfactory-document-catalog-snapshot ride that cut with refreshed per-file manifest digests, and the CHANGELOG credits this change by name; manifest digests verify 124/124 at the tag.
 
 ## 2. Engine + routes
 

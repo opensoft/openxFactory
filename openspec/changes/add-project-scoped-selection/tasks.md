@@ -11,8 +11,8 @@
 - [x] 1.3 Schema conformance tests: one valid intent and one valid record
       for `create-project`; a record missing its workflow-job companion
       rejected; a record without `target.project_id` rejected.
-- [ ] 1.4 Contract registration at the next additive bundle cut per
-      `docs/contract-versioning-policy.md`.
+- [x] 1.4 Contract registration at the next additive bundle cut per
+      `docs/contract-versioning-policy.md`. — Realized 2026-08-06 at **contract-v1.30** (release commit 6c03d78): the project-plane additive deltas to gate-intent, gate-action-record, ideation-dashboard-snapshot, and xfactory-document-catalog-snapshot ride that cut with refreshed per-file manifest digests, and the CHANGELOG credits this change by name; manifest digests verify 124/124 at the tag.
 
 ## 2. Engine + routes
 

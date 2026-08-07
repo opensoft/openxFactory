@@ -65,7 +65,7 @@ CONTRACT_DATE = "2026-08-07"
 
 STAGED_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:staging:[a-z0-9][a-z0-9-]*$")
 ADHOC_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+:adhoc:[A-Za-z0-9][A-Za-z0-9-]*$")
-_STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*(\S+)\s*$", re.M)
+_STAGING_HEADER_RE = re.compile(r"^Staging ID:\s*`?([^`\s]+)`?\s*$", re.M)
 _ARCHIVE_DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-")
 
 # The recorded migration provenance (spec: "Backfilled origins SHALL be
