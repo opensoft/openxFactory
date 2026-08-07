@@ -130,6 +130,10 @@ for (const [id, snapshot, checked, wire] of cases) {
     centreRegions: centre.length ? fireAll(centre[0], activations) : [],
     labels: nodes.filter((n) => n.cls === 'ringlab').map((n) => n.text),
     docLabels: nodes.filter((n) => n.cls === 'doclab').map((n) => n.text),
+    // the names the numbers stand for: each dot circle's own <title> child
+    dotTitles: nodes.filter((n) => (n.cls || '').startsWith('dot'))
+      .map((n) => (n.node.children[0] || {}).text || null),
+    sectorLabels: nodes.filter((n) => n.cls === 'seclab').map((n) => n.text),
     model: {
       rings: model.rings.length, sectors: model.sectors.length,
       dots: model.dots.length, checked: model.checked,
@@ -205,8 +209,12 @@ def test_bullseye_renders_the_models_geometry(tmp_path):
     # exactly ONE shaded centre zone, labelled "all N ✓"
     assert r["counts"]["centreRings"] == 1
     assert "all 2 ✓" in r["labels"]
-    # the dots carry the document basenames, textContent-bound
-    assert set(r["docLabels"]) == {"a.md", "b.md", "c.md"}
+    # The dots carry their matrix NUMBER, not the document name (Brett's
+    # 2026-08-07 ruling: names are too large for the radar). The name is not
+    # lost — it stays in the dot's <title> and in the numbered matrix beside
+    # the widget, which is the legend the numbers index.
+    assert set(r["docLabels"]) == {"1", "2", "3"}
+    assert all(t.startswith("#") and ".md" in t for t in r["dotTitles"]), r["dotTitles"]
 
 
 def test_no_checked_keywords_renders_a_prompt_and_no_rings(tmp_path):
@@ -380,3 +388,21 @@ def test_bullseye_widget_has_no_network_primitive_and_no_markup_sink():
     assert not offenders, f"external network primitive in bullseye.js: {offenders}"
     # every dynamic value binds through the svg() helper's textContent assignment
     assert "node.textContent = text" in body
+
+
+def test_the_radar_labels_by_number_and_keeps_names_in_the_legend(tmp_path):
+    """Brett's 2026-08-07 ruling: "the keywords and doc names are too large to
+    be putting on the radar screen — number the keywords and docs, then just
+    put the number on the radar." The numbers are short enough that the
+    collision machinery stops dropping labels, which is the whole point: at
+    corpus scale the old names were either clipped or silently omitted."""
+    r = _render(tmp_path)["two-checked"]
+    # every dot is labelled, by number — nothing is dropped for width now
+    assert sorted(r["docLabels"], key=int) == ["1", "2", "3"]
+    assert len(r["docLabels"]) == r["counts"]["dots"]
+    # sectors are labelled by the keywords' RAIL numbers, not their names
+    for label in r["sectorLabels"]:
+        assert re.fullmatch(r"\d+( ∧ \d+)*", label), label
+    # and no name is lost: each dot's title carries #number, the basename, and
+    # the keywords it matched
+    assert all(re.match(r"#\d+ \w+\.md — ", t) for t in r["dotTitles"]), r["dotTitles"]

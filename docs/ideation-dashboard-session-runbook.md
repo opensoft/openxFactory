@@ -66,6 +66,12 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   place. Activating the centre or a sector, from the bullseye or from the
   drill-in pane beside it, SCOPES the whole dashboard to those documents;
   a banner states what you are scoped to and clears it.
+- **Numbers on the radar** (Brett, 2026-08-07) — the bullseye labels dots and
+  sectors by NUMBER, never by name: a dot carries its row number in the matrix
+  below, a sector carries its keywords' rail numbers ("1 ∧ 7"). The rail and
+  the matrix are the legend — both print number and name — and every full name
+  stays one hover away in the SVG title. Names were unreadable at corpus scale:
+  an 18-keyword conjunction ran 464px inside a 520px box and half were clipped.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which

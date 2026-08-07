@@ -274,6 +274,9 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
         draw();
       });
       chip.appendChild(box);
+      // the number the SHARED bullseye labels this keyword's sectors with —
+      // the rail is that widget's legend here exactly as it is in the lens tab
+      chip.appendChild(el("span", "swb-kwnum", String(kw.number)));
       chip.appendChild(el("span", "swb-kwname", kw.keyword));
       chip.appendChild(el("span", "swb-kwcount", String(kw.declaredCount)));
       rail.appendChild(chip);
@@ -392,12 +395,18 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
     table.setAttribute("aria-label",
       "keyword membership matrix, scoped to this tile");
     const head = el("tr");
+    // "#" indexes the bullseye above: dot #N is this table's row N
+    head.appendChild(el("th", null, "#"));
     head.appendChild(el("th", null, "doc"));
-    for (const k of model.checked) head.appendChild(el("th", null, k));
+    for (const k of model.checked) {
+      const n = model.keywordNumbers ? model.keywordNumbers[k] : null;
+      head.appendChild(el("th", null, n ? n + " " + k : k));
+    }
     head.appendChild(el("th", null, "ring"));
     table.appendChild(head);
     for (const r of model.matrix) {
       const tr = el("tr");
+      tr.appendChild(el("td", "docnum", String(r.number)));
       tr.appendChild(el("td", null, basename(r.document)));
       for (const cell of r.cells) tr.appendChild(el("td", null, cell.present ? "✓" : "·"));
       tr.appendChild(el("td", null, r.ring));
@@ -408,7 +417,7 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
       const td = el("td", "swb-empty", model.checked.length
         ? "no scoped documents match the checked keywords"
         : "check a keyword to stratify this scope");
-      td.setAttribute("colspan", String(model.checked.length + 2));
+      td.setAttribute("colspan", String(model.checked.length + 3));
       tr.appendChild(td);
       table.appendChild(tr);
     }
