@@ -47,8 +47,8 @@ import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
-import { fetchIndex, fetchProjects, mountRepoSelector, renderStaleBanner } from "./views/repo-selector.js";
-import { composedView, isComposed, memberRef, readOnlyCaps } from "./views/composed-model.js";
+import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner } from "./views/repo-selector.js";
+import { composedView, isComposed, memberRef, readOnlyCaps, visibleSnapshot } from "./views/composed-model.js";
 import {
   freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey, sparseNotice,
 } from "./views/repo-selector-model.js";
@@ -470,8 +470,27 @@ async function main() {
     // acting capability stripped. The RAW snapshot keeps the freshness
     // header honest (`composed_from` is what the label reads).
     const composed = isComposed(rawSnapshot);
-    const snapshot = composed ? composedView(rawSnapshot) : rawSnapshot;
-    renderHeader(rawSnapshot, active);
+    // D19 (Brett, 2026-08-07): the composed snapshot renders the VISIBLE
+    // member set under the stored view mode — union (everything from the
+    // ticked repositories) or intersection (only what every ticked
+    // repository has). Narrow FIRST, union after: the cluster union then
+    // sums tallies over the visible set instead of the whole project. The
+    // narrowed snapshot also carries the trimmed `composed_from`, so the
+    // freshness header names the repositories actually on screen.
+    // A DERIVED aggregate is keyed by its project id and `composed_from`
+    // names the members, so the view state resolves from the snapshot alone.
+    // A hand-declared aggregate simply has no stored entry: every member,
+    // union — exactly the pre-D19 render.
+    const view = composed ? projectViewState({
+      id: rawSnapshot.repository,
+      repositories: rawSnapshot.generation.composed_from
+        .map((m) => m && m.repository).filter(Boolean),
+    }) : null;
+    const shown = composed
+      ? visibleSnapshot(rawSnapshot, view.visible, view.mode)
+      : rawSnapshot;
+    const snapshot = composed ? composedView(shown) : rawSnapshot;
+    renderHeader(shown, active);
     renderStaleBanner(document.getElementById("stalebanner"), active,
                       sparseNotice(active, snapshot));
     // The grouping roll-up strip retired with the project-first header

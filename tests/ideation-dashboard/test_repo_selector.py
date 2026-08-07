@@ -805,7 +805,7 @@ def test_pending_commissions_render_beside_truth_never_inside_it(tmp_path):
 _HEADER_HARNESS = """
 import { addableRepositories, buildPendingEdits, buildProjects, buildRoster,
          defaultProjectScope, netPendingEdit, projectFilterRows,
-         repositoryVisible }
+         repositoryVisible, toggleVisibility, visibleRepositories }
   from './repo-selector-model.mjs';
 import { readFileSync } from 'node:fs';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
@@ -815,6 +815,15 @@ const project = projects.find((p) => p.id === input.projectId) || null;
 const out = {
   netQueued: netPendingEdit(input.queuedEdits || [], project),
   netNone: netPendingEdit([], project),
+  // D19 — the visible set: default, stored, stale, deliberate none, toggles
+  visible: [visibleRepositories(project, {}),
+            visibleRepositories(project, { medx: ['agenttower', 'MedxFactory'] }),
+            visibleRepositories(project, { medx: ['departed'] }),
+            visibleRepositories(project, { medx: [] }),
+            visibleRepositories(null, {})],
+  toggles: [toggleVisibility(['MedxFactory'], 'agenttower', project?.repositories),
+            toggleVisibility(['MedxFactory', 'agenttower'], 'MedxFactory',
+                             project?.repositories)],
   scopes: [defaultProjectScope(projects, input.stored),
            defaultProjectScope(projects, 'no-such'),
            defaultProjectScope(projects, null),
@@ -923,3 +932,25 @@ def test_queued_edits_net_into_one_overlay(tmp_path):
                      "queuedEdits": queued}, tmp_path)
     assert r["netQueued"] == {"add": ["HealthLinc"], "remove": []}
     assert r["netNone"] is None
+
+
+def test_the_visible_set_resolves_against_current_membership(tmp_path):
+    """Topic D19 — the eyeball became the control, so the stored set is
+    resolved against the project's CURRENT members: nothing stored means
+    every member (the composition's own default), a stored set narrows in
+    member order, a set membership outlived falls back to every member
+    rather than a view of nothing, and a deliberate empty set stays
+    empty."""
+    r = _run_header({"index": _header_index(),
+                     "projection": _header_projection(),
+                     "projectId": "medx", "stored": None}, tmp_path)
+    members = ["MedxFactory", "agenttower", "ghost-repo"]
+    assert r["visible"] == [
+        members,                                   # never ticked
+        ["MedxFactory", "agenttower"],             # stored, in member order
+        members,                                   # stale set -> the default
+        [],                                        # the human's "none"
+        [],                                        # no project at all
+    ]
+    # a tick adds or removes, always leaving the set in member order
+    assert r["toggles"] == [["MedxFactory", "agenttower"], ["agenttower"]]

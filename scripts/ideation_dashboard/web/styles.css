@@ -165,6 +165,28 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
 }
 .filtertrash:hover { background: rgba(127,127,127,0.12); }
 .filtertrash.filterarmed { color: #b04030; font-weight: 700; }
+/* D19 — the VIEW row: mode toggle, the visible count, and the two bulk
+   moves, on one line above the members it describes. */
+.filterviewline { border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.filterviewline .filterrow { flex: 0 0 auto; }
+.filtermode {
+  font-family: var(--mono); font-size: 12px; font-weight: 700; text-align: left;
+  border: 0; background: none; padding: 3px 6px; border-radius: 3px; cursor: pointer;
+}
+.filtermode:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.filtermode:disabled { font-weight: 400; color: var(--muted); cursor: default; }
+.filtercount { flex: 1; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.filterbulk {
+  border: 1px solid var(--border); background: none; cursor: pointer;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  padding: 1px 6px; border-radius: 3px;
+}
+.filterbulk:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.filterbulk:disabled { opacity: 0.45; cursor: default; }
+/* the eyeball is a CONTROL when the project can compose (D19) */
+button.filtereye { border: 0; background: none; cursor: pointer; padding: 2px 0; }
+button.filtereye:hover:not(:disabled) { background: rgba(127,127,127,0.12); border-radius: 3px; }
+button.filtereye:disabled { opacity: 0.4; cursor: default; }
 .repopicker { position: relative; }
 /* The create form is a LABELED PANEL anchored under the header controls,
    the same visual family as the filter popover. */

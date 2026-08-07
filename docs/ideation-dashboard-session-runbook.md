@@ -27,19 +27,33 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   changes only when a terminal session fulfils it, and until then the
   project shows as a non-selectable "(commissioned — pending fulfilment)"
   entry. Gate off, New Project is disabled.
-- **The repo filter (⧩)** — the current project's repositories, one popover:
+- **The repo filter (⧩)** — the current project's repositories, one popover.
+  Its label states the VISIBLE count (`⧩ 3 of 5 Repos`), so the header says
+  what the wheels span without opening anything:
   - **＋ add repository…** (first line, gate only): pick a known repository
     and commission its addition to the project (`edit-project`).
-  - **⊞ all repositories in <project>** — the project's MERGED view (one
-    wheel/funnel spanning every member; read-only + per-tile
-    "open in <repo>" jumps). Disabled with a note when no member snapshot
-    is published.
-  - **One row per member** — the 👁 eyeball on the left says whether that
-    repository is visible in the current view (it is the served repo, or
-    the merged view is active); clicking the NAME serves that repository;
-    the 🗑 trash on the right (gate only) arms on first click and
-    commissions the repository's REMOVAL from the project on the second.
-    Membership edits badge as pending until fulfilled.
+  - **The view row** (D19) — `∪ union` / `∩ intersection` toggles what the
+    visible set MEANS: union renders everything the ticked repositories
+    have; intersection renders only what EVERY ticked repository has
+    (matched on the item's identity — for documents the repo-relative
+    path, for clusters the `cl-…` topic). Intersection filters rather than
+    merges, so each repository's copy stays its own openable, badged row —
+    which is how you read two factories' takes on one document side by
+    side. `all` and `none` are the bulk moves. The toggle is inert with one
+    repository visible (union and intersection agree), and where no member
+    publishes a snapshot the row degrades to naming the merged view
+    unavailable.
+  - **One row per member** — the 👁 eyeball TICKS that repository into or
+    out of the view; clicking the NAME makes it the only visible one; the
+    🗑 trash on the right (gate only) arms on first click and commissions
+    the repository's REMOVAL from the project on the second. Membership
+    edits badge as pending (netted across the queue) until fulfilled.
+  - **One visible repository = the interactive single view**: its own
+    snapshot, every verb available. **Two or more = the composed, READ-ONLY
+    merged view** with per-tile "open in <repo>" jumps. **None** empties the
+    view honestly. Switching projects lands on the merged view when the
+    project has one. The set is remembered per project and resolved against
+    current membership, so a repository that leaves simply drops out.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which

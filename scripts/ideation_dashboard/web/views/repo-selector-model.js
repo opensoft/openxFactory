@@ -325,6 +325,36 @@ export function addableRepositories(roster, projects, project) {
   return [...known].sort();
 }
 
+// D19 (Brett, 2026-08-07) — the VISIBLE member set. The eyeball stopped being
+// an indicator and became the control: the view spans exactly the ticked
+// repositories, under the union/intersection mode. Stored per project and
+// intersected with the CURRENT membership here, so a repository that left the
+// project simply drops out of the stored set instead of haunting the view.
+// No stored entry (or an entry that survives nothing) means EVERY member —
+// the composition's own default, which is what a fresh viewer should see.
+export function visibleRepositories(project, storedVisibility) {
+  const members = (project?.repositories || []).map(String);
+  const stored = storedVisibility && storedVisibility[String(project?.id)];
+  if (!Array.isArray(stored)) return members;              // never ticked
+  const wanted = stored.map(String);
+  const kept = members.filter((r) => wanted.includes(r));
+  if (kept.length) return kept;
+  // Nothing survived: an EMPTY stored set is the human's "none" and stays
+  // empty; a non-empty set that membership outlived is stale, so the default
+  // (every member) returns rather than a view of nothing nobody asked for.
+  return wanted.length ? members : [];
+}
+
+// D19 — one tick flipped, in member order (the popover's row order, so the
+// stored set never reshuffles the list).
+export function toggleVisibility(visible, repository, members) {
+  const set = new Set((visible || []).map(String));
+  const id = String(repository);
+  if (set.has(id)) set.delete(id);
+  else set.add(id);
+  return (members || []).map(String).filter((r) => set.has(r));
+}
+
 // D16 — the eyeball: is this member repository VISIBLE in the current view?
 // True when it IS the active single-repository view, or when the active view
 // is this project's merged aggregate (whose composition shows every member).
