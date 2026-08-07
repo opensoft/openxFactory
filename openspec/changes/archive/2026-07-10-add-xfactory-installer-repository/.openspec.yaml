@@ -3,6 +3,9 @@ created: 2026-07-10
 origin:
   kind: ad_hoc
   id: openxFactory:adhoc:2026-07-09-xfactory-installer-repository
-  reason: Authorized directly from design discussion (xFactory Cloud PC intake task); did not derive from an existing brainstorm or staging folder (per supporting-docs repository-boundary.md, "Proposal origin: ad hoc").
+  reason: >-
+    Authorized directly from design discussion (xFactory Cloud PC intake
+    task); did not derive from an existing brainstorm or staging folder (per
+    supporting-docs repository-boundary.md, "Proposal origin: ad hoc").
   approved_by: Brett
   approved_on: 2026-07-09

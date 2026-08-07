@@ -3,6 +3,7 @@ created: 2026-07-22
 origin:
   kind: staged
   id: openxFactory:staging:omnigent-core-domain-split
+  path: ideation/staging/omnigent-core-domain-split
   reason: >-
     Promotion of the omnigent-core-domain-split staging topic (source
     brainstorm 2026-07-21; sequencing and core decisions settled with Brett

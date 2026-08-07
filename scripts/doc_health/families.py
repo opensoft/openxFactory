@@ -1,12 +1,14 @@
-"""The fourteen contract check families.
+"""The fifteen contract check families.
 
 Each family is a function fam_<id>(ctx) -> list[Finding] | Skip. WHAT each
 family verifies is owned by the openxFactory `doc-health` contract; the
 tag-hygiene grammar is owned by `document-lifecycle` and enforced here by
 reference (the regexes below transcribe, never extend, that grammar).
 `document_catalog.py` owns the thirteenth family's own implementation
-(add-document-cataloging) and `ideation_routing.py` owns the fourteenth
-(add-cross-factory-ideation-routing); both are only registered below.
+(add-document-cataloging), `ideation_routing.py` owns the fourteenth
+(add-cross-factory-ideation-routing), and `proposal_origin.py` owns the
+fifteenth (add-proposal-origin-contract); all three are only registered
+below.
 """
 
 from __future__ import annotations
@@ -20,7 +22,7 @@ from pathlib import Path
 
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip)
-from . import corpus, document_catalog, ideation_routing
+from . import corpus, document_catalog, ideation_routing, proposal_origin
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.
@@ -684,4 +686,5 @@ FAMILIES = {
     "notebook-projection-drift": fam_notebook_projection_drift,
     "document-catalog": document_catalog.fam_document_catalog,
     "ideation-routing": ideation_routing.fam_ideation_routing,
+    "proposal-origin": proposal_origin.fam_proposal_origin,
 }
