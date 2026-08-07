@@ -1,117 +1,122 @@
-# Design: add-agent-wallet-identity
+# Design: add-openxwallet
 
 ## Context
 
-Organized from the `agent-certification-wallets` brainstorm (Brett,
-2026-07-15/16) via the staging topic
-`openxFactory:staging:agent-wallet-identity`, at the point a consumer named
-itself rather than because the idea aged well.
+Organized from the `agent-certification-wallets` and
+`git-native-record-vault` brainstorms (Brett, 2026-07-15/16) via the
+staging topic `openxFactory:staging:agent-wallet-identity`, and
+restructured on 2026-08-06 after Brett asked the question that exposed the
+first draft's flaw: with both Medx and Ledgerx heading for wallets, is the
+intersection in openxFactory?
 
-The consumer is specific. On 2026-08-06 LedgerxFactory's poster identity
-gained real posting rights in a live sandbox, created purchase invoice
-`LXRP0002`, and posted it. The same session recorded what that cost: the
-platform-level refusal that had made "agents never post" true by
-enforcement was gone, leaving the disposition gate as the only gate. The
-proposed replacement — refuse a post when the requesting agent created the
-transaction — turned out to be unbuildable, because BC sees one
-`userSecurityId` for every agent we run.
+It was not. The first draft defined `agent-wallet-identity` — a wallet
+shaped like an agent. This draft defines a holder-agnostic core with the
+agent as its first profile.
 
-## Why the scope is this small
+## Why the first draft was wrong
 
-The brainstorm spans wallets, verifiable credentials, qualification levels,
-autonomous-authority tiers, delegation chains, drift-triggered
-recertification and certification batteries. That is at least three
-capabilities, and the battery design carries genuinely unresolved
-questions: who authors golden tasks per lane, how large a battery is
-statistically sufficient, what tolerance band belongs to which authority
-level, and whether batteries are themselves versioned artifacts (they must
-be — a changed battery changes what "same agent" means).
+Two specific faults, both cheap to fix before ratification and expensive
+after.
 
-Proposing all of it would produce a change nobody could ratify honestly.
-This carries the four elements a consumer can use today and names the rest
-as successors, each gated on a consumer of its own.
+**It baked agent concepts into the neutral layer.** Composition hashing
+and declared-change decertification are meaningful for an agent and
+meaningless for a patient — a patient has no model version. A core
+carrying them would have forced every future profile to explain why it
+ignores half the contract.
 
-The cheap/expensive split inside decertification is the design's most
-useful cut. **Declared change** — any component of the composition hash
-moves — is a hash comparison over facts Omnigent heartbeats already
-attest, and it catches the common case: somebody edited a prompt, a policy,
-or a tool manifest. **Measured drift** — a hosted model changing beneath a
-pinned identifier — needs the battery apparatus and all its unresolved
-statistics. Taking the first and deferring the second buys most of the
-protection for almost none of the cost.
+**It expressed authority twice.** The draft bound authority to
+`approval_policy` values: coarse, enumerated, not delegable. The vault
+brainstorm binds it to attenuated capability grants with proof of
+possession: fine-grained, delegable, revocable, and already the thing
+`openxVault`'s gate is designed to consume. Landing both would have put
+two authority models under one name — the precise outcome the question was
+asked to avoid.
 
-## The two decisions, and why they are put to ratification
+## Grants as the primitive
 
-### Proof versus assertion
+The decision (Brett, 2026-08-06) is that grants win, and `approval_policy`
+survives as a legal scope vocabulary rather than a parallel mechanism. Four
+properties follow, and each is a requirement rather than an aspiration:
 
-An asserted wallet id would let the LedgerxFactory consumer ship
-immediately, and it would still defeat the failure mode most likely to
-occur in practice: a bug or a runaway loop performing both halves of a
-transaction. It fails only against an agent that deliberately claims
-another's identity.
+**Raw keys are never the unit of access.** A raw key cannot expire and
+cannot be revoked, and a shared key destroys attribution. This is the
+vault brainstorm's cardinal rule, lifted verbatim into the core.
 
-It is recommended AGAINST anyway, because the shape is familiar and was
-recently ruled on. `modify-ledgerx-credential-contracts-for-test-asset-authority`
-was ratified in August precisely to stop a comment standing in for a rule —
-grants carrying `consent_ref: null` with an explanatory note. An asserted
-identity is the same trade at a higher stake, and the neutral contract is
-the wrong place to make it. A domain that wants the interim can record a
-dated exception in its own records, where the exception is visible as an
-exception.
+**Attenuation is monotonic.** A derived grant may narrow scope or lifetime
+and may never widen either. Without this, delegation is just key-sharing
+with extra steps.
 
-### Mandate custody or declare it
+**Possession, not presentation.** Exercising a grant requires a signature
+from the holder's key, so a stolen grant is inert. This is what makes the
+control survive a leaked token, which a bearer model does not.
 
-Three options were considered.
+**Revocation propagates and is checked at exercise.** Revoking a parent
+kills its derivations; revoking a holder kills its grants. Checking only
+at issuance would make revocation advisory.
+
+## Segregation of duties belongs in the core
+
+The Ledgerx consumer needs "the agent that created the transaction may not
+post it". That is not an agent property — it is maker-checker, and it
+applies equally to practitioners. So the core carries a DISTINCT-HOLDER
+CONSTRAINT that a consuming capability may declare between two named acts,
+and the agent profile inherits it rather than restating it.
+
+It is opt-in by construction. A capability that declares no constraint is
+not subject to one, because a silent default here would make every
+two-step flow in the family suddenly require two actors.
+
+## The custody question, and why it is still open
+
+Three options were weighed and only one is recommended.
 
 **Mandate hardware backing.** Safest, and it stalls every consumer
 indefinitely — there is no key infrastructure in the stack today.
 
-**Say nothing about custody.** Lets a host-held key masquerade as proof
-that the agent acted, which is worse than having no control, because the
-audit record would assert something false.
+**Say nothing.** Lets a key readable by the holder's own execution context
+masquerade as proof the holder acted. Worse than having no control,
+because the audit record would assert something false.
 
-**Declare it and cap authority by it** (recommended). The identity record
-carries its custody model from a closed set; the contract states what each
-model evidences; the authority an identity may hold is bounded by its
-custody. A consumer can start at a low tier without the contract lying
-about what its signature means, and raising authority becomes a custody
-question rather than a trust assertion.
-
-This is the same move as the `package_content_execution_mode` field
-LedgerxFactory ratified in August: record the mode honestly, let consumers
-read it, and refuse claims the recorded mode cannot support.
+**Declare it and cap authority by it** (recommended). The wallet carries
+its custody model; the contract states what each model evidences; the
+authority a wallet may hold is bounded by its custody. Honest about the
+trust model instead of hiding it, and it lets a consumer start low without
+the contract lying. The same move as `package_content_execution_mode`:
+record the mode, let consumers read it, refuse claims the mode cannot
+support.
 
 ## What this deliberately does not do
 
-- No wallet infrastructure, no issuance service, no key storage, no
-  signing implementation. Contracts and schemas only.
-- No modification to any existing capability. `roles-authority-model` and
-  `credential-contracts` compose with this; neither changes.
-- No new authority vocabulary. Authority scope reuses the job envelope's
-  `approval_policy` values, so an agent's permission is stated in terms a
-  job already carries.
-- No obligation on any domain. The MedxFactory constraints are not
-  worked around, they are adopted as a requirement: a domain must remain
-  able to operate, reconstruct records, and resolve subjects with no
-  wallet present at all.
+- No wallet infrastructure, issuance service, key storage, or signing
+  implementation. Contracts and schemas only.
+- No modification to any existing capability.
+- No obligation on any domain: the non-substrate requirement adopts
+  MedxFactory's two ratified constraints rather than working around them,
+  so a domain must remain able to operate, reconstruct records and resolve
+  subjects with no wallet present.
+- No certification batteries, measured drift, or qualification tiers.
+  Declared-change revocation is a hash comparison over facts Omnigent
+  heartbeats already attest and catches the common case — somebody edited
+  a prompt, a policy, or a tool manifest. Measured drift catches a hosted
+  model changing beneath a pinned identifier, which is real but rarer and
+  needs statistics nobody has settled.
 
 ## Risks
 
-**The distinctness assumption.** Segregation of duties assumes two actors
-are independent. Two agents from the same model, orchestrator and prompt
-are not independent the way two humans are; this control defends against
-slips and loops, not against a wrong policy applied consistently by both.
-The composition hash gives an objective distinctness floor — different
-hash, different agent — but whether that floor is sufficient is left to
-the consuming domain and is recorded as an open question in staging.
+**The distinctness assumption.** Segregation of duties assumes independent
+actors. Two agents from the same model, orchestrator and prompt are not
+independent the way two humans are; the constraint defends against slips
+and loops, not against a wrong policy applied consistently by both. The
+composition hash gives an objective floor — different hash, different
+holder — and whether that floor suffices is left to the consuming domain.
 
-**Decertification noise.** If the composition hash covers a retrieval
-corpus that changes hourly, revocation fires constantly and gets routed
-around. What the hash covers is a staging open question and should be
-settled before the schema is authored, not after.
+**Revocation noise.** If a composition hash covers a retrieval corpus that
+changes hourly, revocation fires constantly and gets routed around. What
+the component set covers must be settled before the schema is authored,
+which is why the profile requires the set to be declared alongside the
+hash rather than assumed.
 
-**A control that proves less than it appears to.** The custody-declaration
-design is what keeps this honest, and it only works if consumers actually
-record custody truthfully. The validator can check that a model is
-declared and that authority does not exceed it; it cannot check that the
-declared model is the real one.
+**A control that proves less than it appears to.** Custody declaration is
+what keeps this honest, and it works only if consumers declare truthfully.
+A validator can check that a model is declared and that authority does not
+exceed it; it cannot check that the declared model is the real one.

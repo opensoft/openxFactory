@@ -251,23 +251,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-agent-wallet-identity](openspec/changes/add-agent-wallet-identity/proposal.md)
-  — proposed 2026-08-06 from staging topic `agent-wallet-identity`, itself
-  organized the same day from the 2026-07-15/16 `agent-certification-wallets`
-  brainstorm once a consumer named itself. An agent cannot currently prove
-  which agent it is: every agent act reaches an external platform through
-  ONE shared service credential, which LedgerxFactory measured when the
-  agent that created a purchase invoice and the agent that posted it turned
-  out to be the same `userSecurityId`. Adds a neutral agent identity record,
-  a proof-of-control rule (an asserted identifier is never identity),
-  authority binding reusing the job envelope's `approval_policy` vocabulary,
-  key custody declared from a closed set and CAPPING the authority an
-  identity may hold, and declared-change decertification — generalizing to
-  AUTHORITY the invalidation the stack already practices on outputs.
-  Batteries, measured drift, qualification tiers and delegation chains are
-  named successors, each gated on a consumer. Ratification must carry two
-  recorded decisions (proof required vs asserted interim; custody declared
-  vs mandated). Awaiting ratification.
+- [add-openxwallet](openspec/changes/add-openxwallet/proposal.md)
+  — proposed 2026-08-06 from staging topic `agent-wallet-identity`, and
+  RESTRUCTURED the same day when Brett asked whether the Medx/Ledgerx
+  wallet intersection lives here. It did not: the first draft was a wallet
+  shaped like an agent, and it bound authority to `approval_policy` values
+  while the vault brainstorm binds it to attenuated capability grants —
+  two authority models under one name. Now two capabilities: a
+  holder-agnostic `openxwallet` core (a wallet is a key reference with
+  declared custody; authority travels as ATTENUATED GRANTS never as keys;
+  exercise requires proof of possession not presentation; custody caps
+  what a signature evidences; key-attributed audit; revocation propagates
+  through derivation; distinct-holder constraints expressible so
+  segregation of duties lives in the grant model; and wallets stay
+  optional for every domain, preserving MedxFactory's two ratified
+  constraints), plus `openxwallet-agent-profile` carrying only what is
+  agent-specific (declared composition with its component set,
+  declared-change revocation, authority as grant scope). Patient and
+  practitioner profiles are named successors, each a NEW profile over the
+  same core. Grants-as-primitive and the agnostic core are decided; key
+  custody — declared and capping authority, versus mandated — is the one
+  decision left for the gate. Awaiting ratification.
 - [add-project-merged-projection](openspec/changes/add-project-merged-projection/proposal.md)
   — proposed 2026-08-06 from staging topic `dashboard-project-scoping`
   (exit 2 of three; Brett's D9–D11 decision round): the D1 true merged

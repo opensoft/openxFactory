@@ -1,110 +1,116 @@
 ---
-code_surface: openxFactory (neutral contracts + schemas under contracts/, a validator under scripts/; no runtime)
+code_surface: openxFactory (neutral contracts + schemas under contracts/, a validator under scripts/; no runtime, no key material)
 target_release: implementation_pending
 ---
 
-# Proposal: add-agent-wallet-identity
+# Proposal: add-openxwallet
 
 ## Why
 
-An agent cannot currently prove which agent it is.
+Two domains need wallets and neither has one, which is the moment to
+define one view rather than the moment after two have diverged.
 
-Every agent act reaches an external platform through ONE shared service
-credential. LedgerxFactory measured this on 2026-08-06: the agent that
-created purchase invoice `LXRP0002` and the agent that posted it are the
-same `userSecurityId` as far as Business Central is concerned. There is
-nothing for the platform to compare, so segregation of duties is not a
-control anyone is declining to enforce — it is a property the platform
-cannot see.
+**LedgerxFactory** needs an agent to prove which agent it is. Every agent
+act reaches an external platform through ONE shared service credential —
+measured 2026-08-06, when the agent that created purchase invoice
+`LXRP0002` and the agent that posted it turned out to be the same
+`userSecurityId`. Segregation of duties is therefore not a control anyone
+is declining to enforce; it is a property the platform cannot see. That
+became load-bearing the same day, when posting went agent-executed and the
+platform's own refusal went with it.
 
-That mattered the moment posting became agent-executed. The poster
-identity gained real posting rights the same day, which the product
-requires (an agent that cannot post cannot do the work), and the
-platform's own refusal went with them. LedgerxFactory's estate record now
-records that "agents never post" holds by POLICY rather than by platform
-enforcement — one lock where there were two. The control Brett proposed to
-earn the second lock back is segregation of duties: refuse a post when the
-requesting agent is the agent that created the transaction. It needs a
-per-agent identity that can be verified, and no such thing exists.
+**MedxFactory** has already ruled on the shape from the other side. Its
+promoted `patient-identity-and-assembly` states a wallet address MUST NOT
+be silently accepted as identity proof, and `patient-snapshot-ledger-custody`
+requires custody to stay wallet-neutral and reconstructable with no wallet
+available. Those are ratified constraints about wallets, not a wallet.
 
-This is also the generalization of a rule the stack already practices on
-outputs. When the document-cataloger's prompt contract went v1→v3, every
-prior classification was invalidated: a judgment by prompt-v1 is not the
-same classifier's judgment. The same reasoning applies to AUTHORITY, and
-nothing enforces it — an agent's permission to act survives a change that
-makes it a different agent.
+The intersection is already named and designed. `openxWallet` was named
+2026-07-16 as the neutral identity/authorization capability — patient,
+practitioner and agent wallets — with `openxVault` as its custody sibling
+whose gate CONSUMES wallet grants. The vault brainstorm articulates the
+model most fully, and it is subject-class agnostic: a wallet is a
+device-bound signing key anchored to a DID; raw keys are never handed out,
+because a raw key can be neither expired nor revoked; access travels as
+attenuated capability grants; both ends of a grant are wallet-held keys, so
+a stolen grant is useless without proof of possession; every use is
+key-attributed.
 
 ## What Changes
 
-- **ADD a neutral `agent-wallet-identity` capability** with four elements:
-  an agent identity record (DID, key reference, declared composition,
-  lifecycle state); a proof-of-control rule (an asserted identifier is
-  never identity — a request claiming an agent must carry a verifiable
-  signature); authority binding expressed against the EXISTING neutral job
-  envelope `approval_policy` vocabulary rather than a new one; and
-  declared-change decertification (a composition change ends authority
-  immediately).
-- **Declare the key-custody model per identity**, from a closed set, and
-  bind the authority an identity may hold to what its custody model can
-  actually prove. A host-held key and a hardware-backed key do not prove
-  the same thing and the contract SHALL NOT pretend they do.
-- **No runtime, no wallet infrastructure, no key material.** Contracts,
-  schemas, and a validator. Issuance mechanics, wallet storage, and
-  signing services are realizations for consuming installs.
+- **ADD the neutral `openxwallet` capability** — the core, holder-class
+  agnostic: a wallet as a key reference with a declared custody model
+  (never key material); authority carried by ATTENUATED CAPABILITY GRANTS
+  rather than by key access; exercise requiring proof of possession rather
+  than presentation; custody declared and capping what a signature
+  evidences; key-attributed audit; revocation propagating through
+  derivation; distinct-holder constraints expressible so segregation of
+  duties lives in the grant model instead of being reimplemented per
+  domain; and the non-substrate rule that keeps wallets optional for every
+  domain.
+- **ADD `openxwallet-agent-profile`** — the first profile, carrying only
+  what is agent-specific: the declared composition and its component set,
+  declared-change revocation, and agent authority expressed as GRANT SCOPE
+  admitting the job envelope's `approval_policy` values.
+- **No runtime, no wallet infrastructure, no key material, no issuance
+  service.** Contracts, schemas, and a validator.
 
-Deliberately NOT in this change, each a named successor gated on a
-consumer: certification batteries and measured drift; qualification levels
-and autonomous-authority tiers; delegation chains; patient and
-practitioner wallets.
+The core/profile split is the substance of this proposal. Patient and
+practitioner profiles are named successors, each gated on a consumer, and
+each a NEW capability over the same core rather than a modification of it —
+so the seam is structural rather than a promise.
+
+Also deliberately deferred, each gated on a consumer: certification
+batteries and measured drift; qualification levels and autonomous-authority
+tiers; delegation-chain policy beyond the core's monotonic attenuation.
 
 ## Impact
 
-- New neutral capability composing with `roles-authority-model` (who may
-  act) and `credential-contracts` (how access is brokered); reuses the
-  neutral job envelope's `approval_policy` values as the authority
-  vocabulary.
+- Two new neutral capabilities; no existing capability is modified.
+- Composes with `roles-authority-model` (who may act) and
+  `credential-contracts` (how access is brokered); reuses the neutral job
+  envelope's `approval_policy` values as grant-scope terms.
+- `openxVault`, when it lands, consumes these grants — the boundary Brett
+  recorded 2026-07-16 is preserved rather than re-litigated.
 - First consumer is LedgerxFactory's posting segregation-of-duties control
   (`ledgerx:staging:posting-segregation-of-duties`), which cannot be built
-  until this lands.
+  until this lands and which needs the core's distinct-holder constraint
+  plus the agent profile.
 - Omnigent readiness heartbeats already attest `worker_version`,
   `profile_versions` and `policy_version` — the facts a composition hash
   consumes. Extending that attestation is a named successor in
   omnigent-install, not part of this change.
-- **Two ratified MedxFactory specs constrain this and are respected rather
-  than amended**: `patient-identity-and-assembly` (a wallet address MUST
-  NOT be silently accepted as identity proof) and
-  `patient-snapshot-ledger-custody` (custody stays topology and wallet
-  neutral; wallet references MUST NOT become an identifier or a
-  prerequisite for basic reconstruction). This capability is an AUTHORITY
-  control, never an identity substrate, and no domain is required to adopt
-  it to operate.
-- No existing capability is modified. No secret, key, or credential is
-  created by this change.
+- MedxFactory's two ratified constraints are adopted as a core requirement
+  rather than worked around. No domain is obliged to adopt wallets.
 
-## Decisions this ratification must carry
+## Decisions carried into this proposal
 
-Two questions are load-bearing enough that ratifying without answering
-them would be ratifying a shape nobody chose. Both are recorded in the
-staging fragment; recommendations are stated so a ruling is a yes or a
-correction rather than an essay.
+**Grants are the primitive** (Brett, 2026-08-06). An earlier draft bound
+authority to `approval_policy` values directly, which would have produced
+two authority models under one name: coarse enumerated postures here, and
+the vault brainstorm's attenuated, delegable, revocable grants there. One
+mechanism wins, and it is grants — `approval_policy` survives as a legal
+scope vocabulary, so nothing is discarded and the job envelope still
+composes.
 
-1. **Does the neutral contract REQUIRE proof of control, or admit an
-   asserted identity as an interim?** An asserted wallet id still defeats
-   the common failure — a bug or a loop doing both halves of a transaction
-   — and would let the first consumer ship sooner.
-   **Recommendation: require proof.** An asserted identity is a comment
-   doing a rule's work, which is the shape LedgerxFactory's
-   `modify-ledgerx-credential-contracts-for-test-asset-authority` was
-   ratified to end. A domain needing an interim records a dated exception
-   in its own records rather than the neutral rule being softened.
+**The core is holder-class agnostic** (Brett, 2026-08-06). The earlier
+draft was a wallet shaped like an agent, which would have baked
+composition hashing into the neutral layer where it is meaningless for a
+patient. The core now knows only holders, keys, custody and grants.
 
-2. **Does the contract mandate a key-custody model, or declare it?**
-   Mandating hardware backing would be safest and would stall every
-   consumer; saying nothing would let a host-held key masquerade as proof
-   of agent action.
-   **Recommendation: declare it, and bind authority to it.** The identity
-   record carries its custody model from a closed set, the contract states
-   what each model proves, and the authority an identity may hold is
-   capped by its custody. That is honest about the trust model instead of
-   hiding it, and it lets a consumer start at a low tier without the
-   contract lying about what its signature means.
+## Decision still open for the ratification gate
+
+**Does the contract mandate a key-custody model, or declare it?**
+Mandating hardware backing is safest and stalls every consumer — there is
+no key infrastructure in the stack today. Saying nothing lets a key
+readable by the holder's own execution context masquerade as proof the
+holder acted, which is worse than no control, because the audit record
+would assert something false.
+
+**Recommendation: declare it, and cap authority by it.** The wallet
+carries its custody model from a closed set, the contract states what each
+model evidences, and the authority a wallet may hold is bounded by its
+custody. A consumer can start at a low tier without the contract lying
+about what its signature means, and raising authority becomes a custody
+question rather than a trust assertion — the same move as the
+`package_content_execution_mode` field LedgerxFactory ratified in August.
