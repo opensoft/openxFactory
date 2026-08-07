@@ -2,8 +2,8 @@
 
 ## 1. Sequencing And Contract Baseline
 
-- [ ] 1.1 Realize `add-cross-factory-ideation-routing` (fourteenth family) first; then verify the promoted doc-health spec matches the wording this change's enumeration delta was declared against, rebasing the delta if intervening changes altered it, and re-run strict OpenSpec validation.
-- [ ] 1.2 Verify this change's own `.openspec.yaml` staged origin, support manifest origin repetition, and staging-header linkage as the self-application acceptance proof.
+- [x] 1.1 Realize `add-cross-factory-ideation-routing` (fourteenth family) first; then verify the promoted doc-health spec matches the wording this change's enumeration delta was declared against, rebasing the delta if intervening changes altered it, and re-run strict OpenSpec validation. — Done 2026-08-06: routing archived earlier today (2026-08-06-add-cross-factory-ideation-routing, fourteenth family live). The mechanical diff found two drifts against the newly promoted wording (a re-wrap of the requirement body and a missing "the" in the catalog AND-bullet); the MODIFIED requirement was REBASED onto the promoted block verbatim with the four intended additions re-applied (fifteen, the enumeration tail, the proposal-origin AND-bullet, the origin scenario). Strict validation green (change + --all, 54/54).
+- [x] 1.2 Verify this change's own `.openspec.yaml` staged origin, support manifest origin repetition, and staging-header linkage as the self-application acceptance proof. — Verified 2026-08-06: `.openspec.yaml` declares `kind: staged`, id `openxFactory:staging:proposal-origin-contract`, path; the support manifest repeats the identical origin block with `origin_path`, `source_revision` 154fae4d, and `remaining_paths` naming the deliberately staged FDA rationale; the surviving staged file carries the matching `Staging ID:` header and the INDEX row agrees; `proposal-support.py verify` ok.
 
 ## 2. Origin Contract And Gates (openxFactory)
 

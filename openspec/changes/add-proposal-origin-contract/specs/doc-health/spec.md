@@ -43,17 +43,17 @@ the whole factory family's governance corpus: status validity, standard
 backing, ratified provenance, succession integrity, location conformance,
 record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
-drift, document catalog, ideation routing, and proposal origin. Every check in
-this pass MUST be deterministic — identical inputs produce identical findings,
-with no model calls; semantic analysis belongs to the agentic semantic sweep
-and the separate document-cataloger and ideation-organizer lanes their owning
-capabilities define. Check families SHALL implement promoted spec wording;
-staged ideation fragments are inputs to contracts, never check definitions.
+drift, document catalog, ideation routing, and proposal origin. Every check in this pass MUST be
+deterministic — identical inputs produce identical findings, with no model
+calls; semantic analysis belongs to the agentic semantic sweep and the separate
+document-cataloger and ideation-organizer lanes their owning capabilities
+define. Check families SHALL implement promoted spec wording; staged ideation
+fragments are inputs to contracts, never check definitions.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
-- **AND** document catalog MUST validate the shared inventory plus promoted specs and aggregation-hosted catalog snapshots as its owning requirement defines
+- **AND** document catalog MUST validate the shared inventory plus promoted specs and the aggregation-hosted catalog snapshots as its owning requirement defines
 - **AND** ideation routing MUST additionally inspect the aggregation root placement boundary and resolve explicitly referenced pinned repositories as its owning requirement defines
 - **AND** proposal origin MUST validate active and archived proposal packets, support manifests, and staging-header linkage as its owning requirements define
 - **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
