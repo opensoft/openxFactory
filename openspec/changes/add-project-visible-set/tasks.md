@@ -47,7 +47,7 @@
       AdxFactory's name soloed to 1 of 5, served ITS OWN snapshot —
       freshness header "AdxFactory @ main · 949e7d486094" — with the mode
       toggle inert. Zero console errors, page errors, and >=400 responses.)
-- [ ] 3.4 Brett's first real comparison session (two factories, intersection).
+- [ ] 3.4 Brett's first real comparison session (two factories, shared mode).
 
 ## 4. Canon correction (D18, already shipped)
 
@@ -55,3 +55,20 @@
       the queueing rule the code has shipped since 2026-08-07, whose
       amendment landed in the `add-opendox-project-header` packet after that
       change had archived and promoted its requirements.
+
+## 5. The shared threshold (topic D20, Brett's 2026-08-07 refinement)
+
+- [x] 5.1 The second mode keeps identities carried by TWO OR MORE visible
+      repositories rather than by every one of them, and is renamed SHARED
+      throughout (constant, label, tooltip, spec, runbook) so the code stops
+      claiming a set operation it no longer performs.
+- [x] 5.2 Tests: a purpose-built three-member fixture separating the
+      carried-by-all, carried-by-two, and single-carrier cases; the pair
+      narrowing still sharpest.
+- [x] 5.3 Live browser check at three or more visible repositories.
+      (Verified 2026-08-07 on the 14-repository plane, project `domains`:
+      union over all five gave 230 documents / 297 clusters; SHARED over
+      the same five gave 15 documents and 8 CLUSTER TOPICS — where the
+      strict all-of-them rule had shown 0 clusters, which is the finding
+      D20 exists to surface; narrowing to a pair gave 4 documents. Zero
+      console errors, page errors, and >=400 responses.)

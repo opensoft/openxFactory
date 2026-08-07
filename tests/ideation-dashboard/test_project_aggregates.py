@@ -131,7 +131,7 @@ def test_publishable_only_drops_session_members_before_composition(tmp_path):
 # ---------------------------------------------------------------------------
 
 _NODE_HARNESS = """
-import { VIEW_INTERSECTION, VIEW_UNION, composedView, isComposed, itemTail,
+import { VIEW_SHARED, VIEW_UNION, composedView, isComposed, itemTail,
          memberRef, readOnlyCaps, topicTail, unionClusters, visibleSnapshot }
   from './composed-model.mjs';
 import { WHEEL_ACTIONS, actionsFor, jumpRepository } from './wheel-model.mjs';
@@ -148,7 +148,12 @@ const shape = (s) => ({
 const visible = {
   everyMember: shape(visibleSnapshot(snapshot, null, VIEW_UNION)),
   unionAlpha: shape(visibleSnapshot(snapshot, ['alpha'], VIEW_UNION)),
-  intersection: shape(visibleSnapshot(snapshot, ['alpha', 'beta'], VIEW_INTERSECTION)),
+  shared: shape(visibleSnapshot(snapshot, ['alpha', 'beta'], VIEW_SHARED)),
+  // D20 — the threshold is TWO, not all: over three visible repositories an
+  // identity two of them carry survives, one only a single repository has
+  // does not. (`input.trio` is a purpose-built three-member fixture.)
+  sharedTrio: shape(visibleSnapshot(input.trio, ['a', 'b', 'c'], VIEW_SHARED)),
+  sharedPair: shape(visibleSnapshot(input.trio, ['a', 'c'], VIEW_SHARED)),
   none: shape(visibleSnapshot(snapshot, [], VIEW_UNION)),
   ghost: shape(visibleSnapshot(snapshot, ['alpha', 'nope'], VIEW_UNION)),
   soloTallies: composedView(visibleSnapshot(snapshot, ['alpha'], VIEW_UNION))
@@ -181,6 +186,25 @@ const out = {
 };
 console.log(JSON.stringify(out));
 """
+
+
+def _trio_snapshot():
+    """Three members, one identity per carrier count: `all3` in every
+    repository, `two` in exactly two, `lonely` in one. The D20 threshold is
+    what separates them."""
+    def doc(repository, tail):
+        return {"id": f"{repository}::docs/{tail}.md", "repository": repository}
+    return {
+        "repository": "trio",
+        "generation": {"composed_from": [
+            {"repository": "a", "ref": "main"},
+            {"repository": "b", "ref": "main"},
+            {"repository": "c", "ref": "main"}]},
+        "documents": [doc("a", "all3"), doc("b", "all3"), doc("c", "all3"),
+                      doc("a", "two"), doc("b", "two"),
+                      doc("c", "lonely")],
+        "clusters": [],
+    }
 
 
 def _run_node(payload, tmp_path):
@@ -226,7 +250,8 @@ def _composed_snapshot():
 
 
 def test_the_union_merges_same_topic_clusters_and_gates_read_only(tmp_path):
-    r = _run_node({"snapshot": _composed_snapshot()}, tmp_path)
+    r = _run_node({"snapshot": _composed_snapshot(),
+                   "trio": _trio_snapshot()}, tmp_path)
     assert r["composed"] is True
     assert r["tails"] == ["cl-x", "cl-plain"]
     # D9: one tile per topic tail; single-member groups keep the merged shape
@@ -249,12 +274,13 @@ def test_the_union_merges_same_topic_clusters_and_gates_read_only(tmp_path):
 
 def test_the_visible_set_narrows_the_composed_view_under_both_modes(tmp_path):
     """Topic D19 (Brett, 2026-08-07): the composed view spans the VISIBLE
-    member set — union (everything the ticked repositories have) or
-    intersection (only what EVERY ticked repository has). Narrowing happens
+    member set — union (everything the ticked repositories have) or shared
+    (what TWO OR MORE of them carry, the D20 threshold). Narrowing happens
     before the cluster union, so tallies count the visible set only, and
     `composed_from` is trimmed so the freshness header names what is on
     screen."""
-    v = _run_node({"snapshot": _composed_snapshot()}, tmp_path)["visible"]
+    v = _run_node({"snapshot": _composed_snapshot(),
+                   "trio": _trio_snapshot()}, tmp_path)["visible"]
 
     # no stored set: every member, exactly the pre-D19 composition
     assert v["everyMember"]["members"] == ["alpha", "beta"]
@@ -267,13 +293,24 @@ def test_the_visible_set_narrows_the_composed_view_under_both_modes(tmp_path):
     assert v["unionAlpha"]["documents"] == [
         "alpha::docs/shared.md", "alpha::docs/only-alpha.md"]
 
-    # intersection: only identities BOTH carry — the shared doc and the
-    # shared topic survive as each repository's own row (badged, separately
+    # shared: only identities BOTH carry — the shared doc and the shared
+    # topic survive as each repository's own row (badged, separately
     # openable); alpha's private document and beta's private cluster do not
-    assert v["intersection"]["documents"] == [
+    assert v["shared"]["documents"] == [
         "alpha::docs/shared.md", "beta::docs/shared.md"]
-    assert v["intersection"]["clusters"] == [
+    assert v["shared"]["clusters"] == [
         "alpha::cl-kill-switch", "beta::cl-kill-switch"]
+
+    # D20 — the threshold is TWO, not every visible repository: over three
+    # members, the identity two of them carry survives alongside the one all
+    # three carry, and only the single-carrier identity drops
+    assert v["sharedTrio"]["documents"] == [
+        "a::docs/all3.md", "b::docs/all3.md", "c::docs/all3.md",
+        "a::docs/two.md", "b::docs/two.md"]
+    # narrowing to a pair is still the sharpest comparison: `two` lives in
+    # a and b, so viewing a+c leaves only what a and c both carry
+    assert v["sharedPair"]["documents"] == [
+        "a::docs/all3.md", "c::docs/all3.md"]
 
     # the two ends: nothing ticked empties honestly, an unknown id is ignored
     assert v["none"] == {"clusters": [], "documents": [], "members": []}
@@ -289,7 +326,8 @@ def test_the_visible_set_narrows_the_composed_view_under_both_modes(tmp_path):
 
 
 def test_the_open_repo_jump_offers_itself_only_on_composed_views(tmp_path):
-    r = _run_node({"snapshot": _composed_snapshot()}, tmp_path)
+    r = _run_node({"snapshot": _composed_snapshot(),
+                   "trio": _trio_snapshot()}, tmp_path)
     assert "open-repo" in r["docActions"]
     assert "open-repo" not in r["plainDocActions"]
     # the merged multi-repo cluster tile offers NO jump (ambiguous target);

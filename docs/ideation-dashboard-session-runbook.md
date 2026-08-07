@@ -32,17 +32,20 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   what the wheels span without opening anything:
   - **＋ add repository…** (first line, gate only): pick a known repository
     and commission its addition to the project (`edit-project`).
-  - **The view row** (D19) — `∪ union` / `∩ intersection` toggles what the
+  - **The view row** (D19/D20) — `∪ union` / `∩ shared` toggles what the
     visible set MEANS: union renders everything the ticked repositories
-    have; intersection renders only what EVERY ticked repository has
-    (matched on the item's identity — for documents the repo-relative
-    path, for clusters the `cl-…` topic). Intersection filters rather than
-    merges, so each repository's copy stays its own openable, badged row —
-    which is how you read two factories' takes on one document side by
-    side. `all` and `none` are the bulk moves. The toggle is inert with one
-    repository visible (union and intersection agree), and where no member
-    publishes a snapshot the row degrades to naming the merged view
-    unavailable.
+    have; **shared** renders only what TWO OR MORE of them carry (matched
+    on the item's identity — for documents the repo-relative path, for
+    clusters the `cl-…` topic). The threshold is two rather than all,
+    because convergence between any pair is the finding: across the
+    five-factory `domains` project, all-of-them keeps 2 documents while
+    two-or-more surfaces the topics the factories actually share. Shared
+    filters rather than merges, so each repository's copy stays its own
+    openable, badged row — which is how you read two factories' takes on
+    one document side by side. `all` and `none` are the bulk moves. The
+    toggle is inert with one repository visible (the modes agree), and
+    where no member publishes a snapshot the row degrades to naming the
+    merged view unavailable.
   - **One row per member** — the 👁 eyeball TICKS that repository into or
     out of the view; clicking the NAME makes it the only visible one; the
     🗑 trash on the right (gate only) arms on first click and commissions
