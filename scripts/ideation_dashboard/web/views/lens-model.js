@@ -297,12 +297,36 @@ function subsetKey(subset) { return subset.join(" ∧ "); }
 //: The drawn dot's radius at full size, and the floor below which a dot stops
 //: reading as a dot. `DOT_GAP` is the clear space between two dots' EDGES —
 //: what "not directly touching" means, measured.
+// The VOCABULARY is lettered, the documents are numbered (Brett's 2026-08-07
+// ruling) — two series that can never be mistaken for one another on the
+// radar, where "A ∧ G" is plainly a pair of keywords and "7" is plainly a
+// document. Bijective base-26, so it keeps going past the alphabet exactly
+// as a spreadsheet does: Z, AA, AB, … ZZ, AAA.
+export function letterLabel(index) {
+  let n = Math.max(1, Math.floor(index));
+  let out = "";
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    out = String.fromCharCode(65 + rem) + out;
+    n = Math.floor((n - 1) / 26);
+  }
+  return out;
+}
+
 export const DOT_R = 6;
 export const DOT_MIN_R = 2.5;
 export const DOT_GAP = 2.5;
 //: A cell keeps a hair of its own span free at each end so two neighbouring
 //: sectors' outermost dots do not read as one run.
 const SPAN_MARGIN = 0.9;
+
+//: The arc a column needs before its neighbour can ALSO carry a label. Two
+//: adjacent labels are already offset radially (the two outward lanes), so
+//: this is well under a number's full width — it is the point below which
+//: even staggered labels start to touch. A cell tighter than this is CROWDED
+//: and labels every other column; a roomy one labels them all (Brett's
+//: 2026-08-07 refinement: alternate only when the cell actually demands it).
+export const LABEL_MIN_ARC = 12;
 
 //: Candidate sizes, largest first — a short deterministic ladder rather than a
 //: solve, so the chosen size is reproducible and easy to reason about.
@@ -365,6 +389,9 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
   const columns = Math.max(plan.columns, Math.ceil(count / lanes));
   const step = (pitch / radii[lanes - 1]) * (180 / Math.PI);
   const start = baseDeg - (step * (columns - 1)) / 2;
+  // How far apart two adjacent columns actually are, out where the labels go.
+  const columnArc = (step * Math.PI / 180) * radii[0];
+  const crowded = columns > 1 && columnArc < LABEL_MIN_ARC;
   const out = [];
   for (let column = 0; column < columns && out.length < count; column += 1) {
     for (let lane = 0; lane < lanes && out.length < count; lane += 1) {
@@ -374,6 +401,10 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
         size,
         row: lane,          // 0 = the outermost lane; only it is labelled
         column,
+        crowded,
+        // the outer lane carries a label; in a crowded cell only every other
+        // column does, and the reader infers the column between two labels
+        labelled: lane === 0 && (!crowded || column % 2 === 0),
         slot: column % 2,   // which of the two outward label lanes to use
       });
     }
@@ -462,6 +493,8 @@ function bullseyeLayout(rows, nChecked, geom) {
         slot: at.slot,
         row: at.row,
         column: at.column,
+        crowded: at.crowded,
+        labelled: at.labelled,
         angleBase: base,
         angleDeg: at.angleDeg,
         x: g.cx + at.radius * Math.cos(toRad(at.angleDeg)),
@@ -585,11 +618,13 @@ export function buildLensModel(snapshot, query, geom) {
   const chkSet = new Set(checked);
   const pinSet = new Set(pinned);
   // NUMBERING (Brett's 2026-08-07 ruling: "the keywords and doc names are too
-  // large to be putting on the radar screen — number the keywords and docs,
-  // then just put the number on the radar"). Two independent series, each
-  // numbered over the list that ALSO acts as its legend:
-  //   * keywords by RAIL position — the whole declared vocabulary, so a
-  //     number does not move when the human ticks something;
+  // large to be putting on the radar screen"). Two independent series, each
+  // indexed over the list that ALSO acts as its legend — and deliberately in
+  // DIFFERENT alphabets, so a radar label is never ambiguous about what kind
+  // of thing it names:
+  //   * the vocabulary by RAIL position, as LETTERS (A, B, … Z, AA, AB, …) —
+  //     the whole declared set, so a label does not move when the human
+  //     ticks something;
   //   * documents by UNIVERSE position — exactly the rows the matrix lists
   //     beside the bullseye, so #7 on the radar is row 7 in the table.
   // Names never leave the widget: every dot and sector keeps its full name in
@@ -597,11 +632,13 @@ export function buildLensModel(snapshot, query, geom) {
   const rail = counts.map((c, i) => ({
     keyword: c.keyword,
     number: i + 1,
+    label: letterLabel(i + 1),
     declaredCount: c.declaredCount,
     checked: chkSet.has(c.keyword),
     pinned: pinSet.has(c.keyword),
   }));
   const keywordNumber = new Map(rail.map((k) => [k.keyword, k.number]));
+  const keywordLetter = new Map(rail.map((k) => [k.keyword, k.label]));
 
   const ev = evaluateRecipe(snapshot, checked, pinned);
   const layout = bullseyeLayout(ev.rows, checked.length, geom);
@@ -619,6 +656,7 @@ export function buildLensModel(snapshot, query, geom) {
   });
   for (const sector of layout.sectors) {
     sector.numbers = sector.keywords.map((k) => keywordNumber.get(k) || 0);
+    sector.labels = sector.keywords.map((k) => keywordLetter.get(k) || "?");
   }
 
   return {
@@ -626,6 +664,7 @@ export function buildLensModel(snapshot, query, geom) {
     pinned,
     rail,
     keywordNumbers: Object.fromEntries(keywordNumber),
+    keywordLabels: Object.fromEntries(keywordLetter),
     docNumbers: Object.fromEntries(docNumber),
     universe: ev.universe,
     matched: ev.matched,          // recipe membership (innermost ring)

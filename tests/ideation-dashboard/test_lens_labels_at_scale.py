@@ -339,11 +339,12 @@ def test_the_full_combination_stays_reachable(measured):
     dense = measured["checked-18"]
     assert dense["sectors"]["titled"] == dense["sectors"]["labels"]
     for text, full in zip(dense["sectors"]["texts"], dense["sectors"]["titles"]):
-        # the label is numbers joined by the conjunction glyph…
-        assert re.fullmatch(r"\d+( ∧ \d+)*", text), text
+        # the label is LETTERS joined by the conjunction glyph (documents get
+        # the numbers; the two series never collide in the reader's eye)…
+        assert re.fullmatch(r"[A-Z]+( ∧ [A-Z]+)*", text), text
         # …and its title is the same arity in NAMES
         assert len(text.split(" ∧ ")) == len(full.split(" ∧ ")), (text, full)
-        assert not re.fullmatch(r"[\d ∧]+", full), full
+        assert not re.fullmatch(r"[A-Z ∧]+", full), full
 
 
 def test_numbering_is_what_makes_the_dense_case_legible(measured):
