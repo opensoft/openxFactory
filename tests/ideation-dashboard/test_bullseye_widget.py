@@ -416,18 +416,18 @@ def test_bullseye_widget_has_no_network_primitive_and_no_markup_sink():
 
 
 def test_the_radar_labels_by_number_and_keeps_names_in_the_legend(tmp_path):
-    """Brett's 2026-08-07 ruling: "the keywords and doc names are too large to
-    be putting on the radar screen — number the keywords and docs, then just
-    put the number on the radar." The numbers are short enough that the
-    collision machinery stops dropping labels, which is the whole point: at
-    corpus scale the old names were either clipped or silently omitted."""
+    """Brett's 2026-08-07 rulings: names are too large for the radar, so the
+    radar carries INDEXES — and the two series use different alphabets so a
+    label is never ambiguous about what it names. Documents are numbers,
+    vocabulary is letters (A…Z, AA, …)."""
     r = _render(tmp_path)["two-checked"]
     # every dot is labelled, by number — nothing is dropped for width now
     assert sorted(r["docLabels"], key=int) == ["1", "2", "3"]
     assert len(r["docLabels"]) == r["counts"]["dots"]
-    # sectors are labelled by the keywords' RAIL numbers, not their names
+    # sectors are labelled by the keywords' RAIL LETTERS, not their names —
+    # and never by numbers, which belong to documents
     for label in r["sectorLabels"]:
-        assert re.fullmatch(r"\d+( ∧ \d+)*", label), label
+        assert re.fullmatch(r"[A-Z]+( ∧ [A-Z]+)*", label), label
     # and no name is lost: each dot's title carries #number, the basename, and
     # the keywords it matched
     assert all(re.match(r"#\d+ \w+\.md — ", t) for t in r["dotTitles"]), r["dotTitles"]
@@ -546,7 +546,84 @@ def test_only_the_outer_row_of_a_ring_is_labelled(tmp_path):
     # halving the labels is what buys each survivor room to draw)
     eligible = sum(1 for row, c in zip(rows, cols) if row == 0 and c % 2 == 0)
     assert r["counts"]["dots"] == len(rows) == 31
-    assert 0 < len(r["docLabels"]) <= eligible
+    eligible_all = sum(1 for row in rows if row == 0)
+    # a CROWDED cell alternates; a roomy one labels every outer-lane dot, so
+    # the drawn set sits between the two (Brett's 2026-08-07 refinement)
+    assert 0 < len(r["docLabels"]) <= eligible_all
+    assert eligible <= eligible_all
     # the inboard dots are still DRAWN and still name themselves on hover
     assert len(r["dotTitles"]) == 31
     assert all(t and ".md" in t for t in r["dotTitles"])
+
+
+def test_letters_index_the_vocabulary_and_keep_going_past_z(tmp_path):
+    """Brett's 2026-08-07 ruling: documents keep numbers, the vocabulary
+    (keywords, or repositories in the repository lens) takes letters —
+    "if more than 26, then we can use AA, AB, ... ZZ, AAA". Bijective
+    base-26, exactly as a spreadsheet counts columns, so the series never
+    runs out and never repeats."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "letters.mjs").write_text("""
+import { letterLabel } from './lens-model.mjs';
+const probe = [1, 2, 26, 27, 28, 52, 53, 78, 702, 703, 704];
+console.log(JSON.stringify({
+  probe: probe.map(letterLabel),
+  // the first 800 are all distinct — a repeat would make two rows of the
+  // rail claim the same sector label
+  distinct: new Set(Array.from({length: 800}, (_, i) => letterLabel(i + 1))).size,
+  guard: [letterLabel(0), letterLabel(-3)],
+}));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "letters.mjs")],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+    assert r["probe"] == ["A", "B", "Z", "AA", "AB", "AZ", "BA", "BZ",
+                          "ZZ", "AAA", "AAB"]
+    assert r["distinct"] == 800
+    # a nonsense index still yields a usable label rather than an empty one
+    assert r["guard"] == ["A", "A"]
+
+
+def test_a_roomy_cell_labels_every_column_and_a_crowded_one_alternates(tmp_path):
+    """Brett's 2026-08-07 refinement: "only number every other column when the
+    cell is crowded". Crowding is measured, not assumed — it is the arc
+    between adjacent columns out where the labels sit, against the width even
+    a staggered pair needs."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "crowd.mjs").write_text("""
+import { packCell, LABEL_MIN_ARC } from './lens-model.mjs';
+const shape = (dots) => ({
+  crowded: dots[0].crowded,
+  labelledColumns: [...new Set(dots.filter((d) => d.labelled).map((d) => d.column))],
+  outerColumns: [...new Set(dots.filter((d) => d.row === 0).map((d) => d.column))],
+});
+console.log(JSON.stringify({
+  LABEL_MIN_ARC,
+  lone: shape(packCell(1, 180, 210, 30, -90)),
+  roomy: shape(packCell(5, 180, 210, 40, -90)),
+  crowded: shape(packCell(20, 190, 202, 8.4, -90)),
+}));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "crowd.mjs")],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    # a lone dot is never "crowded" and always carries its label
+    assert r["lone"]["crowded"] is False
+    assert r["lone"]["labelledColumns"] == [0]
+    # a roomy cell keeps full-size dots far enough apart to label them ALL
+    assert r["roomy"]["crowded"] is False
+    assert r["roomy"]["labelledColumns"] == r["roomy"]["outerColumns"]
+    assert len(r["roomy"]["labelledColumns"]) > 1
+    # a tight cell alternates — every other column, starting at the first
+    assert r["crowded"]["crowded"] is True
+    assert r["crowded"]["labelledColumns"] == \
+        [c for c in r["crowded"]["outerColumns"] if c % 2 == 0]
+    assert len(r["crowded"]["labelledColumns"]) * 2 >= \
+        len(r["crowded"]["outerColumns"]) - 1

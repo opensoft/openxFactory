@@ -276,7 +276,7 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
       chip.appendChild(box);
       // the number the SHARED bullseye labels this keyword's sectors with —
       // the rail is that widget's legend here exactly as it is in the lens tab
-      chip.appendChild(el("span", "swb-kwnum", String(kw.number)));
+      chip.appendChild(el("span", "swb-kwnum", kw.label));
       chip.appendChild(el("span", "swb-kwname", kw.keyword));
       chip.appendChild(el("span", "swb-kwcount", String(kw.declaredCount)));
       rail.appendChild(chip);
@@ -399,8 +399,8 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
     head.appendChild(el("th", null, "#"));
     head.appendChild(el("th", null, "doc"));
     for (const k of model.checked) {
-      const n = model.keywordNumbers ? model.keywordNumbers[k] : null;
-      head.appendChild(el("th", null, n ? n + " " + k : k));
+      const tag = model.keywordLabels ? model.keywordLabels[k] : null;
+      head.appendChild(el("th", null, tag ? tag + " " + k : k));
     }
     head.appendChild(el("th", null, "ring"));
     table.appendChild(head);

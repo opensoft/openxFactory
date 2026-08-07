@@ -66,12 +66,15 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   place. Activating the centre or a sector, from the bullseye or from the
   drill-in pane beside it, SCOPES the whole dashboard to those documents;
   a banner states what you are scoped to and clears it.
-- **Numbers on the radar** (Brett, 2026-08-07) — the bullseye labels dots and
-  sectors by NUMBER, never by name: a dot carries its row number in the matrix
-  below, a sector carries its keywords' rail numbers ("1 ∧ 7"). The rail and
-  the matrix are the legend — both print number and name — and every full name
-  stays one hover away in the SVG title. Names were unreadable at corpus scale:
-  an 18-keyword conjunction ran 464px inside a 520px box and half were clipped.
+- **Indexes on the radar** (Brett, 2026-08-07) — the bullseye labels by index,
+  never by name, in TWO ALPHABETS so a label is never ambiguous about what it
+  names: **documents are numbers** (a dot carries its row number in the matrix
+  below) and the **vocabulary is letters** — keywords, or repositories in the
+  repository lens — so a sector reads "A ∧ G". Letters continue past Z exactly
+  as a spreadsheet does (AA, AB, … ZZ, AAA). The rail and the matrix are the
+  legend, both printing index and name, and every full name stays one hover
+  away in the SVG title. Names were unreadable at corpus scale: an 18-keyword
+  conjunction ran 464px inside a 520px box and half were clipped.
 - **Dots never touch** (Brett, 2026-08-07) — a cell (one ring band × one
   sector) packs its documents across as many rows as the band admits and as
   many per row as the arc admits, shrinking the dot only when the area
@@ -79,9 +82,10 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   dots label in two lanes radially outward of their dot. NUMBERS FOLLOW THE
   LAYOUT: cell by cell (centre outward), then column by column, each column
   running from the outer lane inward — so the dots inboard of a numbered one
-  are simply +1, +2, +3. Only the outer lane of EVERY OTHER column is
-  numbered; the column between two labels starts where the labelled one
-  ended, one column deeper. Every dot still names itself on hover, and the
+  are simply +1, +2, +3. The outer lane carries the numbers; in a CROWDED cell
+  (one whose columns sit closer than a label needs) only every other column
+  does, and the column between two labels starts where the labelled one
+  ended, one column deeper. A roomy cell numbers every column. Every dot still names itself on hover, and the
   matrix — sorted by the same numbers — is the full legend. Sector numbers
   ride their own lane further out, clear of the dot labels.
 - **The search box** — fans out to the active view's own search.

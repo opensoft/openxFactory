@@ -338,7 +338,7 @@ function keywordRail(model, ctx) {
     }
     cb.addEventListener("change", () => ctx.toggleChecked(kw.keyword));
     row.appendChild(cb);
-    row.appendChild(el("span", "kwnum", String(kw.number)));
+    row.appendChild(el("span", "kwnum", kw.label));
     row.appendChild(el("span", "kw", kw.keyword));
 
     const pin = el("button", "pinbtn" + (kw.pinned ? " pinned" : ""), kw.pinned ? "📌" : "📍");
@@ -386,11 +386,11 @@ function matrix(model) {
   const head = el("tr");
   head.appendChild(el("th", null, "#"));
   head.appendChild(el("th", null, "doc"));
-  // the column heads carry the keyword's RAIL NUMBER too, so a sector label
-  // like "1 ∧ 7" reads straight off this table
+  // the column heads carry the keyword's RAIL LETTER too, so a sector label
+  // like "A ∧ G" reads straight off this table
   for (const k of model.checked) {
-    const n = model.keywordNumbers ? model.keywordNumbers[k] : null;
-    head.appendChild(el("th", null, n ? n + " " + k : k));
+    const tag = model.keywordLabels ? model.keywordLabels[k] : null;
+    head.appendChild(el("th", null, tag ? tag + " " + k : k));
   }
   head.appendChild(el("th", null, "ring"));
   table.appendChild(head);

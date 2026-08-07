@@ -191,12 +191,12 @@ export function renderBullseye(model, opts) {
       x1: round(g.cx), y1: round(g.cy),
       x2: round(g.cx + g.rMax * Math.cos(a)), y2: round(g.cy + g.rMax * Math.sin(a)),
     }));
-    // NUMBERS on the radar (Brett's 2026-08-07 ruling): a sector is labelled
-    // by its keywords' RAIL NUMBERS, not their names — "1 ∧ 7" instead of a
-    // 464px conjunction. The full combination stays in the <title> below and
-    // in the rail beside the widget, which is the legend.
-    const text = sec.numbers && sec.numbers.length
-      ? sec.numbers.join(" ∧ ")
+    // The radar labels a sector by its keywords' RAIL LETTERS — "A ∧ G"
+    // instead of a 464px conjunction, and letters rather than numbers so a
+    // sector label can never be mistaken for a document's. The full
+    // combination stays in the <title> below and in the rail, the legend.
+    const text = sec.labels && sec.labels.length
+      ? sec.labels.join(" ∧ ")
       : sectorLabelText(sec.subsetKey, sec.keywords);
     // The sector labels ride an OUTER lane. Dot labels now sit radially
     // outward of their dots (so they never land on the rows packed inside
@@ -228,16 +228,15 @@ export function renderBullseye(model, opts) {
     const base = String(d.document).split("/").pop() || d.document;
     // the dot's LABEL is its matrix number; the basename stays in the title
     const text = d.number ? String(d.number) : base;
-    // ONLY THE OUTER LANE of EVERY OTHER COLUMN is labelled (Brett's
-    // 2026-08-07 ruling). Two inferences carry the rest, and both are small
-    // arithmetic the reader can do at a glance:
+    // WHICH dots carry a label is the model's call (`packCell`): the outer
+    // lane of a cell, and in a CROWDED cell only every other column of it.
+    // Two inferences carry the rest, both small arithmetic:
     //   * down a column — the dots inboard of a labelled one are +1, +2, +3,
     //     because a column is numbered outer lane inward;
     //   * across to the next column — one column deeper than the label, so
     //     the unlabelled neighbour starts where the labelled column ended.
-    // Halving the labels is what finally buys each survivor room to draw.
-    const labelled = (d.row == null || d.row === 0)
-      && (d.column == null || d.column % 2 === 0);
+    const labelled = d.labelled != null
+      ? d.labelled : (d.row == null || d.row === 0);
     // The label sits RADIALLY OUTWARD of its dot — away from the centre, so
     // it never lands on the rows packed inside it — in two lanes, alternating
     // by slot, which is what lets neighbours on one arc both read.
