@@ -307,7 +307,14 @@ function keywordRail(model, ctx) {
   const vocab = ctx.vocab;
   const pane = el("div", "pane pane-rail");
   const h = el("div", "pane-h");
-  h.appendChild(el("span", null, vocab.terms));
+  // This header IS the vocabulary selector where both vocabularies mean
+  // something (Brett, 2026-08-08: "this area can select the keyword or
+  // repo"); on a single-repository view it stays the plain label it was.
+  if (ctx.vocabularies) {
+    h.appendChild(ctx.vocabularies());
+  } else {
+    h.appendChild(el("span", null, vocab.terms));
+  }
   h.appendChild(el("span", "n", model.rail.length + " " + vocab.railCount));
   pane.appendChild(h);
 
@@ -636,6 +643,26 @@ export function renderLens(root, snapshot, opts) {
   const working = vocab.id === "repositories"
     ? repositoryVocabulary(composed) : snapshot;
 
+  // The vocabulary switch. Built here (it needs `options` and `vocab`) and
+  // MOUNTED by the rail's header, which is the area Brett pointed at. Offered
+  // only where both vocabularies mean something — a single-repository view
+  // has no member set to lens over. Each button carries its vocabulary's note
+  // as its title: the explanation the head used to print in three lines.
+  const vocabularies = composed ? () => {
+    const swap = el("span", "vocabswitch");
+    for (const candidate of [VOCABULARIES.keywords, VOCABULARIES.repositories]) {
+      const btn = el("button", "vocabbtn"
+        + (candidate.id === vocab.id ? " vocabon" : ""), candidate.terms);
+      btn.type = "button";
+      btn.disabled = candidate.id === vocab.id;
+      btn.title = candidate.note;
+      btn.addEventListener("click", () => renderLens(root, snapshot,
+        { ...options, vocabulary: candidate.id }));
+      swap.appendChild(btn);
+    }
+    return swap;
+  } : null;
+
   // lens query state (Sets for check/pin; plain maps for overrides). W1 is kept
   // as an INVARIANT of these mutators — pinned is never allowed to leave checked.
   const state = {
@@ -653,34 +680,18 @@ export function renderLens(root, snapshot, opts) {
   const summaries = docSummaries(working);
   const repository = working.repository || "";
 
-  const head = el("div", "canvas-head");
-  head.appendChild(el("span", "cname", vocab.title));
-  head.appendChild(el("span", "pill stage", "bullseye set-builder · D13"));
-  if (composed) {
-    // The switch only exists where BOTH vocabularies mean something: a
-    // single-repository view has no member set to lens over.
-    const swap = el("span", "vocabswitch");
-    for (const candidate of [VOCABULARIES.keywords, VOCABULARIES.repositories]) {
-      const btn = el("button", "vocabbtn"
-        + (candidate.id === vocab.id ? " vocabon" : ""), candidate.terms);
-      btn.type = "button";
-      btn.disabled = candidate.id === vocab.id;
-      btn.title = "lens over " + candidate.terms;
-      btn.addEventListener("click", () => renderLens(root, snapshot,
-        { ...options, vocabulary: candidate.id }));
-      swap.appendChild(btn);
-    }
-    head.appendChild(swap);
-  }
-  head.appendChild(el("span", "canvas-note", vocab.note));
-
+  // NO HEAD (Brett, 2026-08-08: "remove this area, it takes too much
+  // screen. use the area in annotate 4 to select keyword or repo"). The tab
+  // already names the view, and the one control the head carried — the
+  // vocabulary switch — now lives in the rail's own header, which was
+  // otherwise just a label. The note it carried survives as the switch's
+  // title, so the explanation is a hover away rather than three lines tall.
   const lens = el("div", "lens");
   const status = el("div", "canvas-status");
   status.setAttribute("aria-live", "polite");
   const confirm = el("div", "canvas-confirm");
   confirm.setAttribute("aria-live", "polite");
 
-  root.appendChild(head);
   root.appendChild(lens);
   root.appendChild(confirm);
   root.appendChild(status);
@@ -701,6 +712,7 @@ export function renderLens(root, snapshot, opts) {
     summaries,
     repository,
     vocab,
+    vocabularies,
     // add-shared-identity-seeds — draft a register seed for a convergent
     // region. Loopback-only server side; the response is TEXT, so this
     // affordance is legitimately available on the read-only composed view

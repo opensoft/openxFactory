@@ -50,7 +50,7 @@ import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabil
 import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner, storeViewState } from "./views/repo-selector.js";
 import { composedView, isComposed, memberRef, readOnlyCaps, scopedSnapshot, visibleSnapshot } from "./views/composed-model.js";
 import {
-  freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey, sparseNotice,
+  freshnessLabel, keyId, resolveActive, resolveStoredKey, safeKey,
 } from "./views/repo-selector-model.js";
 
 const SNAPSHOT_SOURCE = "./snapshot.json";
@@ -394,6 +394,16 @@ const TABS = [
 // activate. Also owns the global-search fan-out (#13): the active view's
 // controller may expose `search(term)`, re-applied whenever the tab changes so
 // a filter persists across tab switches.
+// The "what is this?" popup (Brett, 2026-08-08). A native <dialog>: one
+// listener to open it, and the platform's own Escape/backdrop handling to
+// close. Guarded because the static image may serve an older index.
+function initAbout() {
+  const link = document.getElementById("aboutlink");
+  const dialog = document.getElementById("aboutdialog");
+  if (!link || !dialog || typeof dialog.showModal !== "function") return;
+  link.addEventListener("click", () => dialog.showModal());
+}
+
 function initTabs(snapshot, ctx) {
   const controllers = {};
   const rendered = new Set();
@@ -579,8 +589,15 @@ async function main() {
     const snapshot = composed ? composedView(shown) : rawSnapshot;
     renderHeader(shown, active);
     renderDrillBanner(drill, shown);
-    renderStaleBanner(document.getElementById("stalebanner"), active,
-                      sparseNotice(active, snapshot));
+    // The banner carries the STALE-FALLBACK warning only (Brett, 2026-08-08:
+    // "we do not need this bar, it takes too much screen"). The sparse note
+    // it used to add — "no possibles in X, a sparse funnel is an honest
+    // funnel" — spent a full row restating what the empty STATIONS already
+    // say in place, which is where the requirement actually puts it
+    // ("a station with no data MUST render an explicit empty state naming
+    // what is absent"). A genuinely stale fallback still never renders
+    // silently.
+    renderStaleBanner(document.getElementById("stalebanner"), active);
     // The grouping roll-up strip retired with the project-first header
     // (Brett's 2026-08-06 annotation: "with our new project and filter
     // boxes, we do not need this row anymore") — the project dropdown and
@@ -808,6 +825,7 @@ async function main() {
       onSelect: (key) => { storeKey(key); window.location.reload(); },
       onRefreshed: () => window.location.reload(),
     });
+    initAbout();
     // global header search (#13): fan out to the active view's search hook.
     const searchInput = document.getElementById("globalsearch");
     if (searchInput) searchInput.addEventListener("input", () => tabs.search(searchInput.value));
