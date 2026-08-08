@@ -192,6 +192,22 @@ function keywordCounts(snapshot) {
   return [...counts.keys()].sort(cmpStr).map((k) => ({ keyword: k, declaredCount: counts.get(k) }));
 }
 
+//: Does `term` match `query`? Forgiving on the things a controlled
+//: vocabulary punishes you for (Brett, 2026-08-08: "it should be a search,
+//: elastic search"): every whitespace-separated token must appear, in ANY
+//: order, and hyphens count as spaces — so "work doc" finds `doc-workflow`
+//: and "doc management" finds `doc-management`. Deliberately NOT fuzzy:
+//: a typo returning the wrong keyword is worse than returning nothing when
+//: the result decides what the radar is about.
+export function termMatches(term, query) {
+  const q = String(query == null ? "" : query).trim().toLowerCase();
+  if (!q) return true;
+  const hay = String(term == null ? "" : term).toLowerCase();
+  const flat = hay.replace(/[-_/.]+/g, " ");
+  return q.split(/[\s-]+/).filter(Boolean)
+    .every((token) => hay.includes(token) || flat.includes(token));
+}
+
 // ---- co-occurrence: which terms actually share documents -------------------
 //
 // The lens's own defect, measured on the real corpus (Brett, 2026-08-08: "our

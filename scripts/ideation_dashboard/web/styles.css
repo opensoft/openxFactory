@@ -25,12 +25,22 @@
   --blocked-bg: #F7E7E5;
   --edge-pick: #0D9488;
   --edge-flow: #B4BCC7;
+  /* The lens's per-term HUE is chosen in code; its saturation and lightness
+     are chosen HERE, per theme. Writing a whole hsl() in JS is what put a
+     42%-light tint on a near-black panel (Brett, 2026-08-08: "several tiles
+     are black on black and user cannot read"). */
+  --tint-s: 45%;
+  --tint-l: 42%;      /* on a light ground */
+  --tint-arc-l: 55%;  /* the ring arc, which sits under everything */
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --surface: #15181E;
+    /* a hue must be LIGHT to read on the dark ground */
+    --tint-l: 72%;
+    --tint-arc-l: 62%;
     --panel: #1C2028;
     --ink: #E7EAEF;
     --muted: #97A0AC;
@@ -51,6 +61,9 @@
 }
 :root[data-theme="dark"] {
   --surface: #15181E;
+  /* a hue must be LIGHT to read on the dark ground */
+  --tint-l: 72%;
+  --tint-arc-l: 62%;
   --panel: #1C2028;
   --ink: #E7EAEF;
   --muted: #97A0AC;
@@ -659,6 +672,21 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    and left unbounded it would set the height of the region the bullseye lives
    in. It keeps its own scroll, bounded by the viewport rather than by a grid
    row, so the rail scrolls and the lens still reaches the matrix. */
+/* A VISIBLE scrollbar: 155 rows scroll in a 1,049px pane, and an overlay
+   scrollbar that fades reads as "this list is all there is" (Brett,
+   2026-08-08: "we lost the scrollbar for it"). */
+.lens .pane-rail, .lens .pane-drill, .lens .pane-bullseye > .lensmatrix, .gridwrap {
+  /* `stable` RESERVES the gutter, so the bar is part of the layout instead of
+     an overlay that fades out and takes the only cue that there is more. */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.lens .pane-rail::-webkit-scrollbar, .lens .pane-drill::-webkit-scrollbar,
+.lens .pane-bullseye > .lensmatrix::-webkit-scrollbar, .gridwrap::-webkit-scrollbar { width: 10px; }
+.lens .pane-rail::-webkit-scrollbar-thumb, .lens .pane-drill::-webkit-scrollbar-thumb,
+.lens .pane-bullseye > .lensmatrix::-webkit-scrollbar-thumb, .gridwrap::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 5px;
+}
 .lens .pane-rail { min-height: 0; overflow-y: auto; padding-right: 2px; }
 .kwrow { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 6px 9px; cursor: pointer; }
 .kwrow input { accent-color: var(--st-staged); width: 14px; height: 14px; flex: none; margin: 0; }
@@ -682,16 +710,21 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    large enough"). */
 .bullseye .seclab { font-size: 14px; font-weight: 700; fill: var(--faint-ink);
   letter-spacing: 0.04em; }
+/* a single-term sector wears that term's hue; a combination stays neutral */
+.bullseye .seclab[data-tinted] { fill: hsl(var(--h) var(--tint-s) var(--tint-l)); }
 /* The sector's own arc, in its keywords' hues. SUBTLE by construction: the
    hue is all the widget chooses, and the weight and opacity live here — so
    the theme keeps the last word and the colour reads as a tint on the ring
    rather than as a second foreground. */
-.bullseye .secarc { fill: none; stroke-width: 2; opacity: 0.28; stroke-linecap: round; }
+.bullseye .secarc {
+  fill: none; stroke-width: 2; opacity: 0.28; stroke-linecap: round;
+  stroke: hsl(var(--h, 0) var(--tint-s) var(--tint-arc-l));
+}
 .bullseye .doclab { font-size: 10px; fill: var(--ink); }
 /* The number a roomy dot carries INSIDE itself: reversed out of the dot's
    own fill, and never a hit target of its own so the dot keeps the hover. */
 .bullseye .dotnum {
-  font-size: 10px; font-weight: 700; fill: var(--bg, #fff);
+  font-size: 10px; font-weight: 700; fill: #fff;
   pointer-events: none;
 }
 .lensmatrix { border-collapse: collapse; font-size: 11.5px; margin-top: 12px; display: block; overflow-x: auto; }
@@ -2009,6 +2042,9 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 }
 /* Radar numbering (Brett's 2026-08-07 ruling): the rail and the matrix are
    the legend, so their number column reads as a key rather than as data. */
+.kwnum[style*="--h"], .swb-kwnum[style*="--h"], .sigrid-collab[style*="--h"] {
+  color: hsl(var(--h) var(--tint-s) var(--tint-l));
+}
 .kwnum, .lensmatrix td.docnum {
   font-family: var(--mono); font-size: 10px; color: var(--muted);
   min-width: 18px; text-align: right;
