@@ -61,6 +61,19 @@ function svg(tag, attrs, text) {
 
 function round(n) { return Math.round(n * 100) / 100; }
 
+// One arc of `radius` from `a0` to `a1` degrees, as an SVG path. Kept here
+// with the other pure geometry; no state, no DOM read.
+function arcPath(cx, cy, radius, a0, a1) {
+  const p0 = [cx + radius * Math.cos((a0 * Math.PI) / 180),
+              cy + radius * Math.sin((a0 * Math.PI) / 180)];
+  const p1 = [cx + radius * Math.cos((a1 * Math.PI) / 180),
+              cy + radius * Math.sin((a1 * Math.PI) / 180)];
+  const large = Math.abs(a1 - a0) > 180 ? 1 : 0;
+  return "M " + round(p0[0]) + " " + round(p0[1])
+    + " A " + round(radius) + " " + round(radius) + " 0 " + large + " 1 "
+    + round(p1[0]) + " " + round(p1[1]);
+}
+
 // Wire ONE hit node: click and Enter/Space both call `onActivate(region)`. The
 // single seam for every activatable region, so the centre and a sector can never
 // diverge in what they do or in how a keyboard reaches them.
@@ -166,12 +179,18 @@ export function renderBullseye(model, opts) {
       cx: g.cx, cy: g.cy, r: round(ring.outerRadius),
     }));
     if (!labelled.has(i)) return;
-    // ring label along the vertical axis, top side
-    const ly = round(g.cy - ring.outerRadius + 14);
+    // The label rides its own ring, in the widest arc that ring leaves empty
+    // (the model picks the angle) — so it is clear of the dot band whatever
+    // the band's depth, which radial nudging could not achieve once the dots
+    // grew. A ring with nothing on it keeps the familiar top position.
+    const angle = ((ring.labelAngle == null ? -90 : ring.labelAngle) * Math.PI) / 180;
+    const lr = ring.outerRadius - 8;
+    const at = clampLabel(g.cx + lr * Math.cos(angle), g.cy + lr * Math.sin(angle),
+      ring.label.length, FONT.ring, g.size);
     node.appendChild(svg("text", {
-      class: "ringlab", x: g.cx, y: ly, "text-anchor": "middle",
+      class: "ringlab", x: round(at.x), y: round(at.y), "text-anchor": "middle",
     }, ring.label));
-    ringBoxes.push(labelBox(g.cx, ly, ring.label.length, FONT.ring));
+    ringBoxes.push(labelBox(at.x, at.y, ring.label.length, FONT.ring));
   });
 
   // the create gesture (design D6, ruled to cover every region) — only when a
@@ -203,6 +222,24 @@ export function renderBullseye(model, opts) {
       x1: round(g.cx + from * Math.cos(a)), y1: round(g.cy + from * Math.sin(a)),
       x2: round(g.cx + to * Math.cos(a)), y2: round(g.cy + to * Math.sin(a)),
     }));
+    // The sector's OWN ARC, painted in its keywords' hues — one equal segment
+    // each, so a combination sector shows every term it belongs to and the
+    // reader can find "A" by colour instead of reading every label. Drawn on
+    // the band's outer edge, under everything, and kept subtle by the
+    // stylesheet (the hue is the only thing decided here).
+    if (Array.isArray(sec.hues) && sec.hues.length) {
+      const half = (sec.spanDeg * 0.9) / 2;
+      const segments = sec.hues.length;
+      for (let s = 0; s < segments; s += 1) {
+        const a0 = sec.angleDeg - half + (2 * half * s) / segments;
+        const a1 = sec.angleDeg - half + (2 * half * (s + 1)) / segments;
+        node.appendChild(svg("path", {
+          class: "secarc",
+          style: "stroke: hsl(" + sec.hues[s] + " 45% 55%)",
+          d: arcPath(g.cx, g.cy, to - 1.5, a0, a1),
+        }));
+      }
+    }
     // the matches-ALL sector is the shaded centre, already named by its ring
     // label ("all N ✓") — a second label on top of it would be noise
     if (sec.isCenter) continue;
@@ -229,9 +266,17 @@ export function renderBullseye(model, opts) {
     .map((i) => i - ringBoxes.length);
   for (const i of drawnSectorLabels) {
     const { sec, text, at } = seclabs[i];
-    const label = svg("text", {
+    const attrs = {
       class: "seclab", x: round(at.x), y: round(at.y), "text-anchor": "middle",
-    }, text);
+    };
+    // a single-term sector carries that term's hue on its letter too, which
+    // is the most direct "A is over there" the widget can offer
+    if (Array.isArray(sec.hues) && sec.hues.length === 1) {
+      // inline, because the stylesheet's own `fill` outranks a presentation
+      // attribute — the first pass set the attribute and nothing changed
+      attrs.style = "fill: hsl(" + sec.hues[0] + " 45% 42%)";
+    }
+    const label = svg("text", attrs, text);
     // the untruncated combination stays reachable on hover, where it was
     // already the authority for the hit region
     label.appendChild(svg("title", {}, sec.subsetKey));

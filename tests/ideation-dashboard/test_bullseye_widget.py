@@ -139,6 +139,9 @@ for (const [id, snapshot, checked, wire] of cases) {
     sectorLabels: nodes.filter((n) => n.cls === 'seclab').map((n) => n.text),
     sectorLabelAt: nodes.filter((n) => n.cls === 'seclab').map((n) => ({
       text: n.text, x: +n.attrs.x, y: +n.attrs.y })),
+    arcs: nodes.filter((n) => n.cls === 'secarc').map((n) => n.attrs.style),
+    ringLabelAt: nodes.filter((n) => n.cls === 'ringlab').map((n) => ({
+      text: n.text, x: +n.attrs.x, y: +n.attrs.y })),
     sectorLines: nodes.filter((n) => n.cls === 'sector').map((n) => ({
       x1: +n.attrs.x1, y1: +n.attrs.y1, x2: +n.attrs.x2, y2: +n.attrs.y2 })),
     model: {
@@ -150,6 +153,11 @@ for (const [id, snapshot, checked, wire] of cases) {
       dotNumbers: model.dots.map((d) => d.number),
       dotCells: model.dots.map((d) => d.subsetKey),
       keywordLabels: model.keywordLabels,
+      keywordHues: model.keywordHues,
+      ringAngles: model.rings.map((x) => ({ label: x.label, at: x.labelAngle })),
+      sectorHues: model.sectors.map((s) => ({
+        key: s.subsetKey, matchCount: s.matchCount, at: s.angleDeg,
+        span: s.spanDeg, hues: s.hues })),
       dotSizes: [...new Set(model.dots.map((d) => d.size))],
       sectorList: model.sectors.map((s) => ({
         subsetKey: s.subsetKey, keywords: s.keywords, matchCount: s.matchCount,
@@ -770,3 +778,54 @@ console.log(JSON.stringify({
     assert r["congested"]["size"] < r["DOT_R"]
     assert r["congested"]["inside"] is False
     assert r["congested"]["labelled"] < r["congested"]["count"]
+
+
+def test_a_ring_label_sits_where_its_own_ring_is_empty(tmp_path):
+    """Brett's 2026-08-07 ruling: "move the ring labels clear of the dot
+    band." Radial clearance is not available — a band at 14 checked keywords
+    is 15px deep and the dots sit on its midline, which is exactly why an
+    11px dot began covering the label — so the label moves ANGULARLY, into
+    the widest arc that ring leaves empty."""
+    import math
+
+    r = _render(tmp_path)["crowded"]["model"]
+    by_ring = {}
+    for sec in r["sectorHues"]:
+        by_ring.setdefault(sec["matchCount"], []).append(sec)
+    for ring in r["ringAngles"]:
+        count = int(ring["label"].split()[-2]) if ring["label"].startswith("all") \
+            else int(ring["label"].split()[0])
+        occupied = by_ring.get(count, [])
+        if not occupied:
+            continue
+        for sec in occupied:
+            # the label's angle clears every sector's slice on that ring
+            delta = abs((ring["at"] - sec["at"] + 180) % 360 - 180)
+            assert delta > sec["span"] / 2, (ring, sec, delta)
+
+
+def test_each_term_carries_one_hue_from_the_rail_to_the_ring(tmp_path):
+    """Brett's 2026-08-07 ruling: "use a color for the Repo in the list and
+    then use that for the color of that portion of the ring. But this should
+    be subtle." One hue per vocabulary term, chosen by golden angle so rail
+    neighbours are never hue neighbours; the widget paints a sector's arc in
+    ONE SEGMENT PER KEYWORD, so a combination sector shows every term it
+    belongs to instead of picking one. Only the hue is decided in code —
+    weight and opacity live in the stylesheet, which is what keeps the change
+    subtle and the theme in charge."""
+    r = _render(tmp_path)["crowded"]
+    hues = r["model"]["keywordHues"]
+    assert len(set(hues.values())) == len(hues), hues        # all distinct
+    assert all(0 <= h < 360 for h in hues.values())
+
+    # a sector's hues ARE its keywords' hues, in the sector's own order
+    for sec in r["model"]["sectorHues"]:
+        keywords = sec["key"].split(" ∧ ")
+        assert sec["hues"] == [hues[k] for k in keywords], sec
+
+    # one arc per keyword per sector, and every arc's colour is data-driven
+    # through an inline style (a stylesheet `stroke` would outrank an
+    # attribute, which is the bug the first pass shipped for the letters)
+    expected = sum(len(s["hues"]) for s in r["model"]["sectorHues"])
+    assert len(r["arcs"]) == expected
+    assert all(a and a.startswith("stroke: hsl(") for a in r["arcs"]), r["arcs"]

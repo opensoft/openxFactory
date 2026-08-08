@@ -338,7 +338,10 @@ function keywordRail(model, ctx) {
     }
     cb.addEventListener("change", () => ctx.toggleChecked(kw.keyword));
     row.appendChild(cb);
-    row.appendChild(el("span", "kwnum", kw.label));
+    const tag = el("span", "kwnum", kw.label);
+    // the SAME hue the bullseye paints this term's arc and letter with
+    if (kw.hue != null) tag.style.color = "hsl(" + kw.hue + " 45% 42%)";
+    row.appendChild(tag);
     row.appendChild(el("span", "kw", kw.keyword));
 
     const pin = el("button", "pinbtn" + (kw.pinned ? " pinned" : ""), kw.pinned ? "📌" : "📍");

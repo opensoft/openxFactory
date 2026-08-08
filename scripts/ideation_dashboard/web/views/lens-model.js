@@ -313,6 +313,18 @@ export function letterLabel(index) {
   return out;
 }
 
+// A HUE per vocabulary term (Brett's 2026-08-07 ruling: "use a color for the
+// Repo in the list and then use that for the color of that portion of the
+// ring… but this should be subtle. we do not want to overpower the theme").
+// Golden-angle spacing so neighbours in the rail are never neighbours in
+// hue, and only the HUE is chosen here — saturation, lightness and opacity
+// stay in the stylesheet, which is what keeps the theme in charge.
+export const HUE_STEP = 137.508;
+
+export function labelHue(index) {
+  return Math.round(((Math.max(1, Math.floor(index)) - 1) * HUE_STEP) % 360);
+}
+
 export const DOT_MAX_R = 11;
 export const DOT_R = 6;
 export const DOT_MIN_R = 2.5;
@@ -548,6 +560,29 @@ function bullseyeLayout(rows, nChecked, geom) {
     });
     void cell;
   }
+  // WHERE a ring's label goes (Brett's 2026-08-07 ruling: "move the ring
+  // labels clear of the dot band"). Radial clearance is not available — a
+  // band at 14 checked keywords is 15px deep and the dots sit on its midline
+  // — so the label moves ANGULARLY instead, into the widest arc that ring
+  // leaves empty. Deterministic, and it degrades to the top of the ring when
+  // the ring is empty or fully occupied.
+  const ringLabelAngle = (matchCount) => {
+    const taken = orderedSubsets
+      .filter((k) => (subsetOf.get(k) || []).length === matchCount)
+      .map((k) => sectorAngle.get(k))
+      .sort((x, y) => x - y);
+    if (!taken.length) return -90;
+    if (taken.length === 1) return taken[0] + 180;   // opposite the only one
+    let best = { gap: -1, at: -90 };
+    for (let i = 0; i < taken.length; i += 1) {
+      const from = taken[i];
+      const to = taken[(i + 1) % taken.length] + (i + 1 === taken.length ? 360 : 0);
+      const gap = to - from;
+      if (gap > best.gap) best = { gap, at: from + gap / 2 };
+    }
+    return best.at;
+  };
+
   // ring metadata (outer radius + label), innermost (match-all) first
   for (let mc = nChecked; mc >= 1; mc--) {
     rings.push({
@@ -561,6 +596,7 @@ function bullseyeLayout(rows, nChecked, geom) {
       // vertical axis, and at ~60px wide ("matches 3") they occupied exactly
       // the strip the sector labels now need at their own rings.
       label: mc === nChecked ? "all " + nChecked + " ✓" : mc + " ✓",
+      labelAngle: ringLabelAngle(mc),
       docCount: (byCount.get(mc) || []).length,
     });
   }
@@ -684,12 +720,14 @@ export function buildLensModel(snapshot, query, geom) {
     keyword: c.keyword,
     number: i + 1,
     label: letterLabel(i + 1),
+    hue: labelHue(i + 1),
     declaredCount: c.declaredCount,
     checked: chkSet.has(c.keyword),
     pinned: pinSet.has(c.keyword),
   }));
   const keywordNumber = new Map(rail.map((k) => [k.keyword, k.number]));
   const keywordLetter = new Map(rail.map((k) => [k.keyword, k.label]));
+  const keywordHue = new Map(rail.map((k) => [k.keyword, k.hue]));
 
   const ev = evaluateRecipe(snapshot, checked, pinned);
   const layout = bullseyeLayout(ev.rows, checked.length, geom);
@@ -708,6 +746,10 @@ export function buildLensModel(snapshot, query, geom) {
   for (const sector of layout.sectors) {
     sector.numbers = sector.keywords.map((k) => keywordNumber.get(k) || 0);
     sector.labels = sector.keywords.map((k) => keywordLetter.get(k) || "?");
+    // one hue per keyword, in the sector's own keyword order — the widget
+    // paints the sector's arc in equal segments, so a combination sector
+    // shows every term it belongs to rather than picking one
+    sector.hues = sector.keywords.map((k) => keywordHue.get(k));
   }
 
   return {
@@ -716,6 +758,7 @@ export function buildLensModel(snapshot, query, geom) {
     rail,
     keywordNumbers: Object.fromEntries(keywordNumber),
     keywordLabels: Object.fromEntries(keywordLetter),
+    keywordHues: Object.fromEntries(keywordHue),
     docNumbers: Object.fromEntries(docNumber),
     universe: ev.universe,
     matched: ev.matched,          // recipe membership (innermost ring)
