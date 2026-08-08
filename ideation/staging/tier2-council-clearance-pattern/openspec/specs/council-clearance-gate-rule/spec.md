@@ -1,5 +1,7 @@
 # council-clearance-gate-rule
 
+Status: staged
+
 ## ADDED Requirements
 
 ### Requirement: Tier-2 council-clearance pattern

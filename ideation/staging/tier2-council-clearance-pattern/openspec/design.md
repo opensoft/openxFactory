@@ -1,5 +1,7 @@
 # Design: Council-Clearance Gate-Rule Template
 
+Status: staged
+
 ## Context
 
 Everything load-bearing here was decided in the 2026-07-23 first exercise

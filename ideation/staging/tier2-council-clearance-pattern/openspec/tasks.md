@@ -1,5 +1,7 @@
 # Tasks: add-council-clearance-rule-template
 
+Status: staged
+
 ## 1. Contract
 
 - [ ] 1.1 Author the `council-clearance-gate-rule` capability spec (this
