@@ -453,12 +453,33 @@ function renderSeed(container, data) {
 // (carried by every visible repository) and each sector (an exact repository
 // combination). The rows are the discoverable twin of the bullseye's hit
 // regions, and both call the same `ctx.onDrill`.
+// A row's plain-English name for its repository combination. The pane is
+// 270px wide and was reading as one run of jargon ("centre — carried by all
+// 2 2 docs drill in draft DTN seed"), which is Brett's 2026-08-07 note: "I do
+// not understand how to use this section. The words are jumbled together and
+// do not make clear intuitive UI." Say what the set IS, in repository names.
+function combinationName(row, everyVisible) {
+  const names = row.keywords;
+  if (names.length === 1) return "only in " + names[0];
+  if (row.matchCount === everyVisible) {
+    return "in all " + names.length + " visible repositories";
+  }
+  if (names.length === 2) return "in " + names[0] + " and " + names[1];
+  return "in " + names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+}
+
 function drillPane(model, ctx) {
   const pane = el("div", "pane pane-drill");
   const h = el("div", "pane-h");
   h.appendChild(el("span", null, "drill in"));
   h.appendChild(el("span", "n", model.universe.length + " identities"));
   pane.appendChild(h);
+  // The pane says what it is FOR before it lists anything — it is the one
+  // place in the lens whose rows are sets rather than items.
+  pane.appendChild(el("div", "drill-note",
+    "Each row is the documents carried by one combination of repositories. "
+    + "Drill in scopes the whole dashboard to that set; the seed drafts a "
+    + "candidate-register entry for a set two or more repositories share."));
 
   // Group the dots by their repository combination; the centre is the
   // combination that IS the whole checked set.
@@ -483,40 +504,43 @@ function drillPane(model, ctx) {
   }
   for (const row of rows) {
     const isCentre = row.matchCount === model.checked.length;
+    const n = row.documents.length;
+    // TWO lines, not one: what the set is, then what you can do with it.
     const line = el("div", "drill-row");
-    const label = isCentre
-      ? "centre — carried by all " + row.matchCount
-      : "carried by " + row.matchCount + " — " + row.keywords.join(" ∧ ");
-    line.appendChild(el("span", "drill-label", label));
-    line.appendChild(el("span", "n", row.documents.length + " doc"
-      + (row.documents.length === 1 ? "" : "s")));
+    line.appendChild(el("div", "drill-what",
+      combinationName(row, model.checked.length)));
+    const acts = el("div", "drill-acts");
+    acts.appendChild(el("span", "drill-count",
+      n + " document" + (n === 1 ? "" : "s")));
+
     const go = el("button", "cbtn", "drill in");
     go.type = "button";
-    go.title = "scope the dashboard to these " + row.documents.length
-      + " document" + (row.documents.length === 1 ? "" : "s");
+    go.title = "scope the dashboard to these " + n
+      + " document" + (n === 1 ? "" : "s");
     go.disabled = !ctx.onDrill;
     go.addEventListener("click", () => ctx.onDrill({
       kind: isCentre ? "centre" : "sector",
       keywords: row.keywords,
       subsetKey: row.subsetKey,
     }));
-    line.appendChild(go);
+    acts.appendChild(go);
+
     // add-shared-identity-seeds: a CONVERGENT region (two or more carriers)
     // is the promotion process's first candidate rule met, so it can be
-    // drafted as a DTN register seed. Single-carrier regions cannot — one
-    // repository having something is not convergence — and say why.
-    if (ctx.onSeed) {
-      const seed = el("button", "cbtn", "draft DTN seed");
+    // drafted as a DTN register seed. A single-carrier row cannot — one
+    // repository having something is not convergence — so it does not offer
+    // the control at all rather than showing a dead one.
+    if (ctx.onSeed && row.matchCount >= 2) {
+      const seed = el("button", "cbtn", "draft seed");
       seed.type = "button";
-      seed.disabled = row.matchCount < 2;
-      seed.title = row.matchCount < 2
-        ? "only one repository carries these — a candidate needs two or more"
-        : "draft a candidate-register seed for these " + row.matchCount
-          + " carriers (text you merge; nothing is written)";
+      seed.title = "draft a candidate-register seed for the documents these "
+        + row.matchCount + " repositories share (text you merge; nothing is "
+        + "written)";
       seed.addEventListener("click", () => ctx.onSeed(row.keywords, seed));
       seed.dataset.carriers = String(row.matchCount);
-      line.appendChild(seed);
+      acts.appendChild(seed);
     }
+    line.appendChild(acts);
     pane.appendChild(line);
   }
   return pane;

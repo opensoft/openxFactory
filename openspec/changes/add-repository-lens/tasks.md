@@ -17,6 +17,13 @@
       through to it (no reload — the lens holds the whole aggregate).
 - [x] 2.4 The drill-in pane: one labelled row per region, innermost first,
       the discoverable twin of the bullseye's hit regions.
+- [x] 2.5 Brett's 2026-08-07 annotation ("I do not understand how to use this
+      section. The words are jumbled together and do not make clear intuitive
+      UI"): each row states what its SET IS in repository names ("in all 2
+      visible repositories", "only in AdxFactory") on its own line, with the
+      count and the actions beneath it; the pane opens with a sentence saying
+      what its rows are; and a single-carrier row omits the seed control
+      rather than showing a disabled one.
 
 ## 3. The drill-in
 
