@@ -864,6 +864,16 @@ function bullseyePane(model, ctx) {
   // the flat matrix is ALWAYS rendered alongside — not a toggle-only alternate.
   pane.appendChild(matrix(model, ctx));
   if (ctx.pickDoc) pane.appendChild(pickBar(model, ctx));
+  // SELECTED documents wear their state in every view (Brett, 2026-08-08:
+  // "those dots need to change color. those are the ones I am thinking of
+  // making a document about"). Applied over the whole pane once all three
+  // renderers have run, and keyed the same way the hover join is — the
+  // bullseye renders a membership model and knows nothing of a selection.
+  if (ctx.pickDoc) {
+    for (const node of pane.querySelectorAll("[data-doc]")) {
+      if (ctx.isPicked(node.dataset.doc)) node.classList.add("picked");
+    }
+  }
 
   // THE JOIN, done once for the whole pane. Every view of a document carries
   // `data-doc`, so pointing at any one of them lights the others — the dot,

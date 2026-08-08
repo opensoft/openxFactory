@@ -1193,3 +1193,43 @@ def test_the_matrix_selection_is_the_seeds_only_input():
     # this view still holds no network primitive of its own
     for primitive in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"):
         assert primitive not in lens, primitive
+
+
+def test_the_hovered_dot_pulses_and_the_selected_dot_has_its_own_colour():
+    """Brett, 2026-08-08: "we need more for the hover over doc. lets try
+    making the dot pulse… if I do check boxes, those dots need to change
+    color." Two different jobs. The pulse is a MOMENTARY cue — a ring of 32
+    identical circles is a field the eye has to search, and motion is the one
+    channel it locates without searching. The colour is a STANDING state that
+    must read with no pointer anywhere near it."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+
+    # the pulse: opacity, not size — the packing put these dots as close as
+    # they can legibly sit, so a dot that grew would touch its neighbours
+    pulse = re.search(r"@keyframes lensdot-pulse \{(.*?)\n\}", css, re.S).group(1)
+    assert "opacity" in pulse and "transform" not in pulse and "r:" not in pulse
+    assert "animation: lensdot-pulse" in css
+    # …and it is OPTIONAL: the lit dot still carries its outline and bold
+    # label, so a reader who has asked for less motion loses nothing
+    reduce = re.findall(r"@media \(prefers-reduced-motion: reduce\) \{(.*?)\n\}",
+                        css, re.S)
+    assert any("lensdot.lit .dot { animation: none" in block for block in reduce)
+
+    # the selection colour is its OWN token, defined in every theme block.
+    # It was first drawn in `--edge-pick`, which is the same teal as
+    # `--st-staged`: measured rgb(31,168,152) for both a selected and an
+    # unselected dot, i.e. no change at all.
+    assert "--picked:" in css
+    assert css.count("--picked:") >= 3          # :root + both dark paths
+    assert ".bullseye .lensdot.picked .dot" in css
+    for line in re.findall(r"(?m)^\s*--picked: (\S+);", css):
+        assert line != "#0D9488" and line != "#1FA898", line
+    # and the selection reads the same in all three views, like the hover does
+    for rule in (".lensmatrix tr.picked", ".sigrid-row.picked"):
+        assert rule in css, rule
+
+    # the mark is applied by the LENS over the whole pane — the bullseye
+    # renders a membership model and knows nothing about a selection
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert 'node.classList.add("picked")' in lens
+    assert "picked" not in (WEB / "views" / "bullseye.js").read_text(encoding="utf-8")
