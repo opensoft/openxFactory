@@ -235,7 +235,7 @@ export function renderBullseye(model, opts) {
         const a1 = sec.angleDeg - half + (2 * half * (s + 1)) / segments;
         node.appendChild(svg("path", {
           class: "secarc",
-          style: "stroke: hsl(" + sec.hues[s] + " 45% 55%)",
+          style: "--h: " + sec.hues[s],
           d: arcPath(g.cx, g.cy, to - 1.5, a0, a1),
         }));
       }
@@ -278,7 +278,10 @@ export function renderBullseye(model, opts) {
     if (Array.isArray(sec.hues) && sec.hues.length === 1) {
       // inline, because the stylesheet's own `fill` outranks a presentation
       // attribute — the first pass set the attribute and nothing changed
-      attrs.style = "fill: hsl(" + sec.hues[0] + " 45% 42%)";
+      // the HUE only, plus a flag the stylesheet keys on, so the theme
+      // composes the colour and a tint never lands dark-on-dark
+      attrs.style = "--h: " + sec.hues[0];
+      attrs["data-tinted"] = "";
     }
     const label = svg("text", attrs, text);
     // the untruncated combination stays reachable on hover, where it was

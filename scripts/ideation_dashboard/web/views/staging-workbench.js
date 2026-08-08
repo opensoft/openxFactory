@@ -277,7 +277,7 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
       // the number the SHARED bullseye labels this keyword's sectors with —
       // the rail is that widget's legend here exactly as it is in the lens tab
       const tag = el("span", "swb-kwnum", kw.label);
-      if (kw.hue != null) tag.style.color = "hsl(" + kw.hue + " 45% 42%)";
+      if (kw.hue != null) tag.style.setProperty("--h", String(kw.hue));
       chip.appendChild(tag);
       chip.appendChild(el("span", "swb-kwname", kw.keyword));
       chip.appendChild(el("span", "swb-kwcount", String(kw.declaredCount)));

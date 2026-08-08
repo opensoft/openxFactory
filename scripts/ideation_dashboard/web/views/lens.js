@@ -25,7 +25,7 @@
 // screen exactly what would be persisted (the canvas.js pattern).
 
 import {
-  buildLensModel, docSummaries, railStats, savePlan, clusterPlan, WORKBENCH_DIR,
+  buildLensModel, docSummaries, railStats, termMatches, savePlan, clusterPlan, WORKBENCH_DIR,
   recipeRequest, clusterRequest, LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE,
 } from "./lens-model.js";
 // The SVG bullseye renderer lives in ONE place (add-workbench-bullseye-and-create
@@ -341,7 +341,8 @@ function keywordRail(model, ctx) {
   search.type = "search";
   search.placeholder = vocab.searchHint;
   search.setAttribute("aria-label", "Search " + vocab.terms);
-  search.title = "finds " + vocab.terms + " — tick a row to include it";
+  search.title = "finds " + vocab.terms + " — every word must appear, in any "
+    + "order, and hyphens count as spaces. Tick a row to include it.";
   search.value = ctx.getKwFilter();
   searchRow.appendChild(search);
 
@@ -434,7 +435,8 @@ function keywordRail(model, ctx) {
     row.appendChild(cb);
     const tag = el("span", "kwnum", kw.label);
     // the SAME hue the bullseye paints this term's arc and letter with
-    if (kw.hue != null) tag.style.color = "hsl(" + kw.hue + " 45% 42%)";
+    // only the HUE — the theme picks the lightness it needs to read
+    if (kw.hue != null) tag.style.setProperty("--h", String(kw.hue));
     row.appendChild(tag);
     row.appendChild(el("span", "kw", kw.keyword));
 
@@ -473,8 +475,7 @@ function keywordRail(model, ctx) {
   }
 
   function shownTerms(value) {
-    const q = String(value || "").trim().toLowerCase();
-    return items.filter((it) => !q || it.kw.includes(q)).map((it) => it.term);
+    return items.filter((it) => termMatches(it.term, value)).map((it) => it.term);
   }
   function labelBulk(value) {
     const n = shownTerms(value).length;
@@ -493,10 +494,9 @@ function keywordRail(model, ctx) {
   noneBtn.addEventListener("click", () => ctx.setChecked(shownTerms(search.value), false));
 
   function applyKwFilter(value) {
-    const q = String(value || "").trim().toLowerCase();
     labelBulk(value);
     for (const it of items) {
-      const vis = !q || it.kw.includes(q);
+      const vis = termMatches(it.term, value);
       it.row.hidden = !vis;
       if (it.hintEl) it.hintEl.hidden = !vis;
     }
@@ -725,7 +725,7 @@ function matrixGraphic(model, ctx) {
     const cell = el("span", "sigrid-collab",
       (model.keywordLabels || {})[term] || "?");
     const hue = (model.keywordHues || {})[term];
-    if (hue != null) cell.style.color = "hsl(" + hue + " 45% 42%)";
+    if (hue != null) cell.style.setProperty("--h", String(hue));
     cell.title = term;
     head.appendChild(cell);
   }
@@ -740,7 +740,10 @@ function matrixGraphic(model, ctx) {
       const box = el("span", "sigcell" + (cell.present ? " on" : ""));
       if (cell.present) {
         const hue = (model.keywordHues || {})[cell.keyword];
-        if (hue != null) box.style.background = "hsl(" + hue + " 45% 55%)";
+        if (hue != null) {
+          box.style.background =
+            "hsl(" + hue + " var(--tint-s) var(--tint-arc-l))";
+        }
       }
       box.title = row.document + (cell.present ? " carries " : " does not carry ")
         + cell.keyword;

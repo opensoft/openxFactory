@@ -823,12 +823,13 @@ def test_each_term_carries_one_hue_from_the_rail_to_the_ring(tmp_path):
         keywords = sec["key"].split(" ∧ ")
         assert sec["hues"] == [hues[k] for k in keywords], sec
 
-    # one arc per keyword per sector, and every arc's colour is data-driven
-    # through an inline style (a stylesheet `stroke` would outrank an
-    # attribute, which is the bug the first pass shipped for the letters)
+    # one arc per keyword per sector, each carrying its HUE as a custom
+    # property. It used to carry a whole `stroke: hsl(H 45% 55%)` — which is
+    # how a tint ended up dark-on-dark — so the stylesheet now composes the
+    # colour and the theme owns the lightness.
     expected = sum(len(s["hues"]) for s in r["model"]["sectorHues"])
     assert len(r["arcs"]) == expected
-    assert all(a and a.startswith("stroke: hsl(") for a in r["arcs"]), r["arcs"]
+    assert all(a and re.fullmatch(r"--h: \d+", a) for a in r["arcs"]), r["arcs"]
 
 
 def test_the_label_faces_match_the_stylesheet():
@@ -1016,3 +1017,67 @@ console.log(JSON.stringify({
     assert [row[0] for row in r["rail"]] == ["A", "B", "C", "D"]
     # the long tail is marked: carried by ONE document, whatever its degree
     assert [row[3] for row in r["rail"]] == [False, False, False, True]
+
+
+def test_a_tint_is_a_hue_in_code_and_a_colour_in_the_stylesheet():
+    """Brett's 2026-08-08 report: "several tiles are black on black and user
+    cannot read." The cause was mine — the hue feature's own comment says
+    "only the HUE is chosen here… saturation, lightness and opacity stay in
+    the stylesheet, which is what keeps the theme in charge", and then the
+    code wrote complete `hsl(H 45% 42%)` strings. 42% lightness reads on
+    white and vanishes on the #1C2028 panel. This pins the rule the comment
+    always claimed: views set a hue, the stylesheet picks the lightness, and
+    each theme picks its own."""
+    web = WEB / "views"
+    for name in ("lens.js", "bullseye.js", "staging-workbench.js"):
+        body = (web / name).read_text(encoding="utf-8")
+        for match in re.findall(r"hsl\([^)]*\)", body):
+            assert "var(--tint" in match, (name, match)
+
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    # a light default…
+    light = re.search(r"(?m)^:root \{(.*?)\n\}", css, re.S).group(1)
+    assert "--tint-l:" in light and "--tint-s:" in light
+    # …and BOTH dark paths override it: the media query for the system
+    # preference and the attribute for an explicit choice
+    for block in (r"@media \(prefers-color-scheme: dark\) \{\s*:root \{(.*?)\n  \}",
+                  r':root\[data-theme="dark"\] \{(.*?)\n\}'):
+        body = re.search(block, css, re.S)
+        assert body and "--tint-l:" in body.group(1), block
+
+
+def test_the_rail_search_is_forgiving_but_not_fuzzy(tmp_path):
+    """Brett's 2026-08-08 note: "it should be a search, elastic search."
+    Every word must appear, in any order, with hyphens read as spaces — a
+    controlled vocabulary is full of compounds and the human should not have
+    to remember which way round `doc-workflow` goes. Deliberately not fuzzy:
+    a typo silently returning the wrong keyword is worse than returning
+    nothing, when the result decides what the radar is about."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "m.mjs").write_text("""
+import { termMatches } from './lens-model.mjs';
+const CASES = [
+  ['doc-workflow', 'work doc'], ['doc-workflow', 'doc-work'],
+  ['doc-workflow', 'WORKFLOW'], ['ideation-dashboard', 'dash'],
+  ['doc-management', 'doc management'], ['anything', ''],
+  ['doc-workflow', 'xyz'], ['doc-workflow', 'doc xyz'],
+  ['doc-workflow', 'dcowrkflow'],
+];
+console.log(JSON.stringify(CASES.map(([t, q]) => termMatches(t, q))));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "m.mjs")], capture_output=True,
+                          text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    assert json.loads(proc.stdout) == [
+        True,    # out of order
+        True,    # hyphen typed as the separator
+        True,    # case-insensitive
+        True,    # substring of a compound
+        True,    # space where the term has a hyphen
+        True,    # empty query matches everything
+        False,   # no match
+        False,   # EVERY word must appear, not any
+        False,   # not fuzzy: a scrambled typo finds nothing
+    ]
