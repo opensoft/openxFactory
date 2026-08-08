@@ -52,19 +52,40 @@ surfaced the cardinality constraints below.
    licence references only in ontology source metadata. "Licensed client" is a
    commercial concept with no contract, no record kind, and no gate today.
 
-## The contradiction to resolve first
+## The contradiction — RESOLVED 2026-08-08 (Brett): each client gets its own stack
 
-`contracts/hermes-runtime/fixtures/topology/ledgerx-client-company-hermes.yaml`
-registers a **customer-role** layer whose display name is **"Client Company
-Hermes"** — i.e. it models client companies as SUBJECT layers inside one domain
-stack, not as one stack each. That is the opposite of the reading in fact 2.
+RULED: a client company is a **Tenant**, and each licensed client gets its own
+stack. Onboarding a client is therefore a STACK INSTALL, not a layer provision.
 
-Both readings satisfy the cardinality rule; they differ in what a Subject layer
-MEANS per domain (codexFactory subjects are projects; Ledgerx subjects are
-engagements per the ratified fix; this fixture's subjects are client companies).
-Until this is settled, "one stack per licensed client" is an inference, not a
-ratified rule — and it is the single highest-leverage question here, because it
-decides whether onboarding a client is a stack install or a layer provision.
+The `ledgerx-client-company-hermes` fixture is stale, and LedgerxFactory's own
+`stack.yaml` already says so independently: the subject layer "collided with the
+canonical meaning of the client role (the firm). It is now `Engagement Hermes`
+(client entities, ledgers, tax matters, engagements)" — `display_name:
+Engagement Hermes`, role key `customer`. The word *client* was overloaded —
+xFactory's client (the firm, the licensed tenant) versus the firm's clients (the
+businesses whose books it keeps, which are engagements/subjects). The domain repo
+was fixed; **the neutral contract was not**.
+
+### The correction owed (a contract change, not a file edit)
+
+The stale artifact is bound acceptance evidence, not a stray fixture:
+
+| Artifact | Stale content |
+|---|---|
+| `contracts/hermes-runtime/fixtures/topology/ledgerx-client-company-hermes.yaml` | `display_name: Client Company Hermes`, `customer_subject.kind: client_company` |
+| `contracts/hermes-runtime/fixtures/index.yaml` | case `topology-ledgerx-client-company-hermes` (class valid, pass), `EVIDENCE-FIXTURE-TOPOLOGY-LEDGERX-CLIENT-COMPANY-HERMES` |
+| `contracts/hermes-runtime/acceptance-map.yaml` | HCS-002 / HCS-006 scenario lists |
+| `contracts/hermes-runtime/evidence-register.yaml` | HCS-002-S03 titled "LedgerxFactory maps a client-company instance", `status: bound` |
+
+Correcting it renames a RATIFIED scenario and re-binds its evidence, so it goes
+through OpenSpec rather than a direct edit, and reconciles at the next contract
+bundle cut (the tree already drifts from v1.31 on CHANGELOG.md and manifest.yaml,
+so fixture drift riding a cut is the established pattern). Historical release
+manifests are NOT rewritten — they truthfully record what those bundles held.
+
+Sibling fixtures show the intended shape and are already correct: medx =>
+`Patient Hermes`, codex => `Project Hermes`. Ledgerx should read
+`Engagement Hermes` / `kind: engagement`.
 
 ## The (a)/(b) decision this topic exists to make
 
