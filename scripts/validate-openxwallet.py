@@ -364,13 +364,25 @@ def _sequence(value: Any) -> list:
     return value if isinstance(value, list) else []
 
 
+def _hashable(value: Any) -> bool:
+    """True when the value can be a dict key or set member. Enumerating
+    unhashable TYPES undercounts — PyYAML's safe `!!set` tag yields a Python
+    set, exactly as unhashable as a list — so ask the only authority there
+    is: hash() itself."""
+    try:
+        hash(value)
+    except TypeError:
+        return False
+    return True
+
+
 def _hashable_set(values: Any) -> set:
     """The hashable members of a list, or an empty set. Set arithmetic over
     doc-supplied lists must not crash on an unhashable member; the schema
     finding on the malformed document is the report, not a harness error."""
     if not isinstance(values, list):
         return set()
-    return {v for v in values if not isinstance(v, (list, dict))}
+    return {v for v in values if _hashable(v)}
 
 
 
@@ -503,7 +515,7 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
     # registry's own schema finding. A tier dropped here makes ceilings
     # naming it 'unknown', which fails closed alongside that finding.
     tiers = {t.get("id"): t.get("rank") for t in _sequence(doc.get("authority_tiers"))
-             if isinstance(t, dict) and not isinstance(t.get("id"), (list, dict))
+             if isinstance(t, dict) and _hashable(t.get("id"))
              and isinstance(t.get("rank"), int)}
     # Rule (c) keys on the TOP RANK rather than on the id `act_unsupervised`.
     # Naming the tier would make the rule depend on a string a registry is free
@@ -567,12 +579,12 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
                            and m.get("evidences") == "environment"]
     for env_member in environment_members:
         e_rank = tiers.get(env_member.get("authority_ceiling")) \
-            if not isinstance(env_member.get("authority_ceiling"), (list, dict)) else None
+            if _hashable(env_member.get("authority_ceiling")) else None
         for holder_member in holder_members:
             if env_member is holder_member:
                 continue  # a self-comparison carries no information
             h_rank = tiers.get(holder_member.get("authority_ceiling")) \
-                if not isinstance(holder_member.get("authority_ceiling"), (list, dict)) else None
+                if _hashable(holder_member.get("authority_ceiling")) else None
             if e_rank is None or h_rank is None:
                 continue
             if e_rank >= h_rank:
@@ -929,9 +941,9 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
             evaluated = {e.get("constraint_ref")
                          for e in _sequence(doc.get("constraint_evaluations"))
                          if isinstance(e, dict)
-                         and not isinstance(e.get("constraint_ref"), (list, dict))}
+                         and _hashable(e.get("constraint_ref"))}
             for ref in _sequence(grant.get("distinct_holder_constraint_refs")):
-                if isinstance(ref, (list, dict)):
+                if not _hashable(ref):
                     continue  # unhashable member; the schema finding on the
                               # grant is the report, not a membership crash
                 if ref not in evaluated:
