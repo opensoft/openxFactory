@@ -123,10 +123,13 @@ so the sixth column is whole instead of part-cut.
   stage tiles hide (they head the STAGE views and say nothing about a keyword
   or repository set) and the lens fills the height. The region itself does not
   scroll: the RADAR HOLDS while the document matrix beneath it and the
-  vocabulary rail beside it scroll on their own. The lens has no title block:
-  the tab names the view, and the `keywords | repositories` switch lives in
-  the RAIL'S HEADER, each button carrying its vocabulary's explanation as its
-  title.
+  vocabulary rail beside it scroll on their own. The lens has no title block
+  and the radar has no header: the tab names the view, the
+  `keywords | repositories` switch lives in the RAIL'S HEADER, and the rail
+  carries a summary card — how many documents are on the radar, over how many
+  of the vocabulary, and what a dot and a ring MEAN. Repository rows are
+  TILES: each says how much of that repository's corpus is shared with
+  another visible repository and how much is its alone.
 - **What the dashboard is** — the standing footer paragraph is a
   `what is this?` link opening a modal, so it costs no layout until asked for.
 - **The banner row** carries the STALE-FALLBACK warning only. An empty station

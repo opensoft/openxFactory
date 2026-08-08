@@ -25,7 +25,7 @@
 // screen exactly what would be persisted (the canvas.js pattern).
 
 import {
-  buildLensModel, docSummaries, savePlan, clusterPlan, WORKBENCH_DIR,
+  buildLensModel, docSummaries, railStats, savePlan, clusterPlan, WORKBENCH_DIR,
   recipeRequest, clusterRequest, LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE,
 } from "./lens-model.js";
 // The SVG bullseye renderer lives in ONE place (add-workbench-bullseye-and-create
@@ -53,6 +53,8 @@ export const VOCABULARIES = {
     terms: "keywords",
     railCount: "declared",
     filterHint: "filter keywords…",
+    railNote: "One dot per document; rings by how many checked keywords it "
+      + "matches (centre = all of them). Pin = require.",
     note: "Rings by match count (centre = matches every checked keyword); "
       + "pin = require (hard filter). Overrides are evidence — a manual +/− "
       + "needs a recorded reason. Nothing is persisted until you save; "
@@ -65,6 +67,9 @@ export const VOCABULARIES = {
     terms: "repositories",
     railCount: "members",
     filterHint: "filter repositories…",
+    railNote: "One dot per document identity; rings by how many visible "
+      + "repositories carry it (centre = every one, ring 1 = only one). "
+      + "Pin = require.",
     note: "One dot per DOCUMENT IDENTITY; rings by how many visible "
       + "repositories carry it (centre = every one of them, ring 1 = only "
       + "one). This is the filter's union/shared toggle drawn out: union is "
@@ -329,12 +334,35 @@ function keywordRail(model, ctx) {
   filter.value = ctx.getKwFilter();
   pane.appendChild(filter);
 
+  // WHAT THE RADAR IS SHOWING, in the pane that has the room (Brett,
+  // 2026-08-08: "this is the area we have more space to utilize. move the
+  // bullseye description into here somehow. create intuitive information").
+  // It replaces the bullseye's own header, which cost a title's height at
+  // the top of the screen to say the same two numbers.
+  const summary = el("div", "railsummary");
+  const shown = model.checked.length;
+  // the stat-tile idiom the rest of the shell uses: the number alone, then
+  // one caption saying what it counts and over what
+  summary.appendChild(el("div", "railsum-v", String(model.universe.length)));
+  summary.appendChild(el("div", "railsum-k",
+    vocab.id === "repositories"
+      ? "document identities on the radar, across " + shown + " of "
+        + model.rail.length + " repositories"
+      : "documents matching " + shown + " of " + model.rail.length
+        + " checked keywords"));
+  summary.appendChild(el("div", "railsum-note", vocab.railNote));
+  pane.appendChild(summary);
+
   const coocc = new Map();
   for (const hint of model.coOccurrence) coocc.set(hint.keyword, hint);
+  // per-term contribution, from the SAME dots the radar draws
+  const stats = railStats(model);
 
   const items = [];
   for (const kw of model.rail) {
-    const row = el("label", "kwrow");
+    // A repository row is a TILE: few rows, a tall pane, and real facts to
+    // carry. A keyword row stays compact — 305 of them is a list, not tiles.
+    const row = el("label", "kwrow" + (vocab.id === "repositories" ? " repotile" : ""));
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.checked = kw.checked;
@@ -359,6 +387,19 @@ function keywordRail(model, ctx) {
     row.appendChild(pin);
 
     row.appendChild(el("span", "cnt", String(kw.declaredCount)));
+    if (vocab.id === "repositories") {
+      const s = stats[kw.keyword];
+      const line = el("span", "repostat");
+      if (!kw.checked) {
+        line.textContent = kw.declaredCount + " identities · hidden from the view";
+      } else if (!s) {
+        line.textContent = "nothing on the radar";
+      } else {
+        line.textContent = s.shared + " shared with another repository · "
+          + s.only + " only here";
+      }
+      row.appendChild(line);
+    }
     pane.appendChild(row);
 
     // co-occurrence hint under an UNCHECKED keyword (checked ones are already in).
@@ -554,18 +595,11 @@ function drillPane(model, ctx) {
 }
 
 function bullseyePane(model, ctx) {
-  const vocab = ctx.vocab;
   // `pane-bullseye`: the radar HOLDS and the matrix beneath it scrolls
-  // (Brett, 2026-08-08). The class is what lets the stylesheet say so.
+  // (Brett, 2026-08-08). NO HEADER — what it said now reads in the rail,
+  // which has the room, and the radar starts at the top of the screen
+  // instead of a title-height below it.
   const pane = el("div", "pane pane-bullseye");
-  const h = el("div", "pane-h");
-  const n = model.checked.length;
-  h.appendChild(el("span", null, "bullseye — " + n + " " +
-    (n === 1 ? vocab.term : vocab.terms) +
-    (vocab.id === "repositories" ? " visible" : " checked")));
-  h.appendChild(el("span", "n", model.universe.length +
-    (vocab.id === "repositories" ? " identities" : " docs")));
-  pane.appendChild(h);
   // The activate gesture is wired ONLY for the repository vocabulary, whose
   // regions have a drill-in to run; the keyword tab keeps the SVG it drew
   // before (no callback => no hit regions at all).

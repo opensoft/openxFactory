@@ -2029,3 +2029,17 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .aboutdialog::backdrop { background: rgba(0, 0, 0, 0.35); }
 .aboutdialog p { font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
 .aboutdialog code { font-family: var(--mono); font-size: 11.5px; background: var(--faint); padding: 0 4px; border-radius: 3px; }
+/* The rail says what the radar is showing — the bullseye's old header, in the
+   pane that had room for it (Brett, 2026-08-08). */
+.railsummary {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: 9px 11px; margin-bottom: 8px;
+}
+.railsum-v { font-family: var(--mono); font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.railsum-k { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.railsum-note { font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 7px; border-top: 1px solid var(--border); padding-top: 6px; }
+/* A REPOSITORY row is a tile: there are a handful of them and a tall pane. */
+.kwrow.repotile { flex-wrap: wrap; padding: 9px 11px; row-gap: 3px; }
+.kwrow.repotile .kwnum { font-size: 13px; font-weight: 700; }
+.kwrow.repotile .kw { font-size: 13px; }
+.kwrow.repotile .repostat { flex-basis: 100%; font-size: 11px; color: var(--muted); }

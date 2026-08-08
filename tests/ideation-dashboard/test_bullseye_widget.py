@@ -908,3 +908,51 @@ def test_the_lens_screen_takes_the_page_and_scrolls_its_own_panes():
     svg = re.search(r"\.lens \.pane-bullseye > \.bullseye\s*\{([^}]*)\}",
                     css).group(1)
     assert "flex: none" in svg, svg
+
+
+def test_rail_stats_split_each_term_into_shared_and_only(tmp_path):
+    """Brett's 2026-08-08 annotation: "make the repo tiles much larger and add
+    more repo info into the tile." The fact worth adding is the one the radar
+    is already drawing — how much of a repository's corpus it shares with
+    another visible repository, and how much is its alone. Derived from the
+    SAME dots, so the rail and the radar can never disagree."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "stats.mjs").write_text("""
+import { buildLensModel, railStats } from './lens-model.mjs';
+import { readFileSync } from 'node:fs';
+const snapshot = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const model = buildLensModel(snapshot, { checked: ['a', 'b', 'c'] });
+console.log(JSON.stringify({
+  stats: railStats(model),
+  universe: model.universe.length,
+  empty: railStats(null),
+}));
+""", encoding="utf-8")
+    snapshot = {
+        "repository": "trio",
+        "documents": [
+            {"id": "all.md", "topics": ["a", "b", "c"]},
+            {"id": "ab.md", "topics": ["a", "b"]},
+            {"id": "onlya.md", "topics": ["a"]},
+            {"id": "onlyc.md", "topics": ["c"]},
+        ],
+        "keyword_index": [{"keyword": k, "declared_doc_count": 1}
+                          for k in ("a", "b", "c")],
+    }
+    data = tmp_path / "snap.json"
+    data.write_text(json.dumps(snapshot), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "stats.mjs"), str(data)],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    # a: three documents, two of them shared with b and/or c, one its own
+    assert r["stats"]["a"] == {"total": 3, "shared": 2, "only": 1}
+    assert r["stats"]["b"] == {"total": 2, "shared": 2, "only": 0}
+    assert r["stats"]["c"] == {"total": 2, "shared": 1, "only": 1}
+    # every document on the radar is counted once per term that carries it
+    assert sum(s["total"] for s in r["stats"].values()) == 3 + 2 + 2
+    assert r["universe"] == 4
+    assert r["empty"] == {}
