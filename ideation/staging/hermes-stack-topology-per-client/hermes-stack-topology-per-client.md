@@ -87,6 +87,62 @@ Sibling fixtures show the intended shape and are already correct: medx =>
 `Patient Hermes`, codex => `Project Hermes`. Ledgerx should read
 `Engagement Hermes` / `kind: engagement`.
 
+## Installed inventory for opensoft (verified 2026-08-08)
+
+**codexFactory is roughly two-thirds installed for opensoft**, and the missing
+third is smaller and more specific than "deploy Omnigent".
+
+| Component | State |
+|---|---|
+| **Hermes 3-layer stack** | **LIVE** on AKS behind `hermes-opensoft-qa.xforge.us`. Proven the same day: it admitted a convening, ran the governed lifecycle, and resolved a verdict. |
+| **Omnigent instantiation** | **DECLARED** — `omnigent-install/config/omnigent-install-manifest.yaml` digest-pins the opensoft Hermes runtime manifest as `stack_identity` and pins `domain_id: codex` -> `opensoft/codexFactory`, `overlay_root: omnigent`. A second-domain manifest (`medx-second-domain.manifest`) shows the multi-domain pattern is already exercised. |
+| **Omnigent execution (CPC runners)** | **RUNNING** — two self-hosted runners on CPC-BRETT01, both `online`: `xfactory-artifact-cpc-brett01` (labels `omnigent, artifact-only, rider, doc-analysis, document-cataloger, ideation-readiness, derive-possibles`) and `xfactory-coding-cpc-brett01` (labels `omnigent, artifact-only, rider, coding-patch`). They execute SEVEN worker workflows in xFactory: the four `doc-health-*-worker.yml`, `execution-lane-coding-worker.yml`, `ideation-organizer-worker.yml`, `review-lane-worker.yml`. |
+| **xFactory layer** | **PRESENT and correctly NOT duplicated** — contract surface, not a runtime: one openxFactory, pinned by every consumer via `stack.yaml contract_ref`. |
+
+### Correction to an earlier reading in this topic's source session
+
+Omnigent was first reported "declared but dormant" because the probe looked for
+an HTTP service endpoint and found none. That was the wrong probe: **this
+Omnigent execution layer is runner-based, not a service.** The fleet is up and
+doing real work — the doc-health nightly that repeatedly re-enabled its own held
+workflow during the canary window was these very runners.
+
+### What is actually missing: ONE worker lane, not a deployment
+
+`merge_readiness_agent` IS defined in the codexFactory overlay (archetype
+`assemble_for_admission`, `directed_by: lead-integration`, output
+`merge_readiness_packet`, with the constitutional `execute_final_action: false`
+/ `access_secrets: false`). But nothing dispatches it:
+
+- **no worker workflow exists for it** — the only file referencing
+  `merge_readiness_agent` is `council-convening-lane.yml`, which commissions and
+  transports and explicitly never deliberates;
+- **no runner carries a matching label** — there is no `council` or
+  `merge-readiness` label on either CPC runner;
+- **two referenced artifacts do not exist**:
+  `omnigent/routing/council-deliberation.yaml` and the `council-lane` auth
+  profile (both already flagged as unrealized in the lane registration runbook);
+- **no worker is registered in the Hermes layer**, so `claim` finds no ready
+  worker — the exact wall the 2026-08-08 canary hit.
+
+Chain: the overlay defines the worker -> nothing dispatches it -> no runner
+claims it. That is why the convening sat unclaimed and the deliberation was
+hand-relayed by an operator agent. Not a credential gap and not a missing
+deployment — a missing worker lane in a fleet that is otherwise up.
+
+### Stale pins (independent of the above)
+
+- `stack_identity.hermes_runtime_manifest` pinned at `6a05e7d` — **29 commits**
+  behind hermes-install main.
+- `domain_overlays[codex]` pinned at `469322b` — **404 commits** behind
+  codexFactory main. The running fleet therefore reflects a much earlier
+  codexFactory; `merge_readiness_agent` may not even exist in the version the
+  runners were provisioned from.
+- Subject mismatch worth reconciling: the Hermes stack's Subject layers are
+  `project-alfa` / `project-bravo`, while Omnigent's only subject workload is
+  `dartwing-gatekeeper` (`subject_ref: dartwing`, active). Layers and workloads
+  are different concerns, but nothing found reconciles them.
+
 ## The (a)/(b) decision this topic exists to make
 
 **(a) Realize intake + admission at the existing Tenant Hermes.** The promoted
@@ -107,6 +163,18 @@ instantiation. OpsxFactory's repo side is largely ready — domain implementatio
 4 profiles, 13 tenant records, and a validator that went green 2026-08-08 — but
 it has no runtime binding manifest and its broker reports
 `production_authority not_realized, service not_deployed`.
+
+**COST RE-ESTIMATE after the inventory above.** (b) was scoped as "deploy the
+Omnigent layer"; that is wrong — the layer is already deployed and running for
+opensoft. The autonomous-council gap is now four concrete items, each modelled
+on lanes that already work: a `council-deliberation-worker.yml` in xFactory
+shaped like the existing seven worker workflows; a `council` /
+`merge-readiness` label on the artifact runner; the two missing artifacts
+(`omnigent/routing/council-deliberation.yaml`, the `council-lane` auth
+profile); and a worker registered in the Hermes layer so `claim` succeeds.
+Re-pinning the two stale manifest pins is a separate, independent chore.
+A SECOND domain (Opsx) remains a genuine second installation — but for
+codexFactory the remaining work is a worker lane, not a deployment.
 
 **(a) does not preclude (b), and (b) does not deliver (a).** Routing belongs to
 the xFactory layer per the ratified layer model, so Hermes deciding *whether*
