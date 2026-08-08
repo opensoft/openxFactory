@@ -164,8 +164,19 @@ so the sixth column is whole instead of part-cut.
   and opens on request.
 - **One document, three views, one hover** (Brett, 2026-08-08) — the radar's
   dot, the matrix's row and the grid's row all publish the same key, and
-  pointing at any one lights the others. The lens does the join once, in the
-  pane; no renderer knows about another, so a redraw cannot strand a binding.
+  pointing at any one lights the others. The lit dot PULSES (opacity, not
+  size — the packing put the dots as close as they legibly sit, so a growing
+  dot would touch its neighbours); a ring of 32 identical circles is a field
+  the eye must search, and motion is the one channel it finds without
+  searching. The pulse is dropped under `prefers-reduced-motion`, where the
+  outline and bold label still carry the join. The lens does the join once,
+  in the pane; no renderer knows about another, so a redraw cannot strand a
+  binding.
+- **A selection has its own colour** — `--picked` (magenta), on the dot, the
+  matrix row and the grid row. Its own token deliberately: every other accent
+  already means a stage, and the first attempt reused `--edge-pick`, which is
+  the same teal as `--st-staged` — a selected dot measured identical to an
+  unselected one.
 - **Selecting documents** — every matrix row carries a checkbox (with a
   select-all over the listed rows), and a selection drafts a STAGING-QUEUE
   fragment: the queue's own format, as text, at a folder name that does not
