@@ -27,7 +27,11 @@ same order as the wheel's columns and the funnel's lanes, so they read as
 the header of whichever view is below them rather than as a separate
 summary — and the wheel's own column titles are gone, since the tiles carry
 them. Each wheel column keeps its 👁 hide control, and a hidden column still
-names itself on its vertical rail.
+names itself on its vertical rail. The two rows share ONE GRID: the wheel
+scales its columns so the visible ones exactly span the port, and the tiles
+use the deck's own six-column layout and gap, so tile N sits over column N.
+A side effect worth having — the deck no longer pages at the default width,
+so the sixth column is whole instead of part-cut.
 
 - **Opensoft openDox** — the brand. Static.
 - **The project dropdown** — the CURRENT project; you are always in one

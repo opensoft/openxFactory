@@ -257,7 +257,10 @@ button.filtereye:disabled { opacity: 0.4; cursor: default; }
 }
 .themebtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
 
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0 12px; }
+/* The stage tiles head the wheel's columns, so they share its grid: six equal
+   columns and the deck's own 14px gap (Brett, 2026-08-08). The wheel fits its
+   columns to the same port width, so the two rows line up. */
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin: 10px 0 12px; }
 .tile { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px 9px; }
 .tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
 .tile .v { font-family: var(--mono); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
@@ -831,7 +834,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 :fullscreen .wheelcol.wheelhidden .wheelrail { height: calc(100vh - 170px); }
 .wheelport:focus-visible { border-color: var(--st-staged); }
 .wheeldeck {
-  display: flex; gap: 14px; padding: 0 24px;
+  display: flex; gap: 14px; padding: 0;
   transition: transform 220ms ease;
   scroll-snap-type: x mandatory;
 }

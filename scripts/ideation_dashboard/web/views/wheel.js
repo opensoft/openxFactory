@@ -73,6 +73,12 @@ import { SETTINGS_EVENT, currentDrumFactor } from "./settings.js";
 const WIN_H = 430;       // wheel viewport rest height, px (CSS .wheelwin height)
 const TILE_W = 196;      // tile width, px (CSS .wheeltile width)
 const TILE_H = 56;       // resting tile height, px (CSS .wheeltile height)
+//: The column's design width and the deck's gap, restated from styles.css
+//: (`.wheelcol` width, `.wheeldeck` gap) because the fit computes against
+//: them. Kept equal by test.
+const COLUMN_W = 220;
+const DECK_GAP = 14;
+
 const WHEEL_PIXELS_PER_STEP = 40;  // scroll accumulator: one tile per 40px
 // The read-only source pass-through (serve.py, D15) — the SAME route the viewer
 // reads document content from, and this view's only network read: the archived
@@ -546,6 +552,7 @@ export function renderWheel(root, snapshot, ctx) {
     if (isHidden && expanded?.key === key) collapseExpanded();
     if (isHidden) hidden.add(key); else hidden.delete(key);
     cols[key].col.classList.toggle("wheelhidden", isHidden);
+    fitScale();          // one fewer/more column to share the port
     renderDock();
     drawAll();
   }
@@ -1553,9 +1560,35 @@ export function renderWheel(root, snapshot, ctx) {
   // WIN_H fallback is wrong the moment layout settles: measure after first
   // paint and on every later size change, or the drum axis/radius/threads
   // are all built for the wrong cylinder.
-  requestAnimationFrame(refreshWinH);
+  // FIT THE DECK TO THE PORT (Brett, 2026-08-08: "make the tiles line up with
+  // the wheel columns"). The columns are a fixed 220px × `--wheel-scale`, so
+  // six of them plus their gaps needed 1390px in a 1312px port — the deck
+  // always paged and the sixth column was always part-cut. Scaling the columns
+  // so the VISIBLE ones exactly span the port does two things at once: every
+  // column is whole, and the deck's columns land on the same grid as the stage
+  // tiles above them, which now head them.
+  //
+  // Fullscreen keeps its own scale from the stylesheet: there the port is the
+  // screen, and the point of it is bigger tiles rather than a fitted row.
+  function fitScale() {
+    if (document.fullscreenElement) {
+      port.style.removeProperty("--wheel-scale");
+      return;
+    }
+    const shown = WHEEL_KEYS.filter((k) => !hidden.has(k)).length;
+    const width = port.clientWidth;
+    if (!shown || !width) return;
+    const gaps = DECK_GAP * (shown - 1);
+    const scale = (width - gaps) / (shown * COLUMN_W);
+    // never magnify past the design size; a narrow port still pages, which is
+    // what the carousel is for
+    port.style.setProperty("--wheel-scale", String(Math.min(1, scale)));
+  }
+
+  requestAnimationFrame(() => { fitScale(); refreshWinH(); });
   const sizeObserver = new ResizeObserver(() => {
     if (!root.isConnected) { sizeObserver.disconnect(); closeFlyout(); return; }
+    fitScale();
     refreshWinH();
   });
   sizeObserver.observe(port);

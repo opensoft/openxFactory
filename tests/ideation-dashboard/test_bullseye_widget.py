@@ -847,3 +847,28 @@ def test_the_label_faces_match_the_stylesheet():
                       css, re.S)
         assert m, cls
         assert float(m.group(1)) == float(declared[key]), (cls, m.group(1), declared)
+
+
+def test_the_wheel_fit_constants_match_the_stylesheet():
+    """wheel.js computes the deck's fit against the column width and the deck
+    gap, so its copies of those numbers must match the stylesheet — the same
+    class of divergence the bullseye's FONT copy already suffered. A silent
+    drift here mis-scales the deck and the stage tiles above it stop lining
+    up with the columns they head."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    js = (WEB / "views" / "wheel.js").read_text(encoding="utf-8")
+    column_w = float(re.search(r"const COLUMN_W = ([\d.]+)", js).group(1))
+    deck_gap = float(re.search(r"const DECK_GAP = ([\d.]+)", js).group(1))
+    # anchor at line start: `:fullscreen .wheeldeck` overrides the gap and
+    # would otherwise be the first match (it is, at 28px — this test caught it)
+    css_col = float(re.search(
+        r"(?m)^\.wheelcol\s*\{[^}]*?flex:\s*0 0 calc\(([\d.]+)px", css, re.S).group(1))
+    css_gap = float(re.search(
+        r"(?m)^\.wheeldeck\s*\{[^}]*?gap:\s*([\d.]+)px", css, re.S).group(1))
+    assert column_w == css_col, (column_w, css_col)
+    assert deck_gap == css_gap, (deck_gap, css_gap)
+    # and the stage tiles share that gap, which is what puts the two rows on
+    # one grid
+    tiles_gap = float(re.search(
+        r"(?m)^\.tiles\s*\{[^}]*?gap:\s*([\d.]+)px", css, re.S).group(1))
+    assert tiles_gap == deck_gap, (tiles_gap, deck_gap)
