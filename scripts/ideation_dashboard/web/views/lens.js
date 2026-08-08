@@ -52,7 +52,7 @@ export const VOCABULARIES = {
     term: "keyword",
     terms: "keywords",
     railCount: "declared",
-    filterHint: "filter keywords…",
+    searchHint: "search keywords…",
     railNote: "One dot per document; rings by how many checked keywords it "
       + "matches (centre = all of them). Pin = require.",
     note: "Rings by match count (centre = matches every checked keyword); "
@@ -66,7 +66,7 @@ export const VOCABULARIES = {
     term: "repository",
     terms: "repositories",
     railCount: "members",
-    filterHint: "filter repositories…",
+    searchHint: "search repositories…",
     railNote: "One dot per document identity; rings by how many visible "
       + "repositories carry it (centre = every one, ring 1 = only one). "
       + "Pin = require.",
@@ -326,13 +326,32 @@ function keywordRail(model, ctx) {
   // #13 keyword-rail text filter — narrows the (long) declared rail. Filter
   // state lives on the lens state so it survives a draw() rebuild; typing just
   // toggles row visibility (no rebuild), so the input keeps focus.
-  const filter = document.createElement("input");
-  filter.className = "kwfilter";
-  filter.type = "search";
-  filter.placeholder = vocab.filterHint;
-  filter.setAttribute("aria-label", "Filter " + vocab.terms);
-  filter.value = ctx.getKwFilter();
-  pane.appendChild(filter);
+  // SEARCH, not filter (Brett, 2026-08-08: "the filter should be a search in
+  // this case. filter implies it will affect right away the applied results.
+  // but search means we need to still check the box to select it"). The
+  // behaviour was always search — typing only hides rows and never touches
+  // the checked set — so what was wrong was the word.
+  const searchRow = el("div", "railsearch");
+  const search = document.createElement("input");
+  search.className = "kwfilter";
+  search.type = "search";
+  search.placeholder = vocab.searchHint;
+  search.setAttribute("aria-label", "Search " + vocab.terms);
+  search.title = "finds " + vocab.terms + " — tick a row to include it";
+  search.value = ctx.getKwFilter();
+  searchRow.appendChild(search);
+
+  // ALL / NONE over what the search is SHOWING (the repo dropdown's two bulk
+  // moves, brought to the rail). Scoping them to the shown rows is what makes
+  // them safe next to a search box: "search campaign, take all of them".
+  const bulk = el("span", "railbulk");
+  const allBtn = el("button", "filterbulk", "all");
+  allBtn.type = "button";
+  const noneBtn = el("button", "filterbulk", "none");
+  noneBtn.type = "button";
+  bulk.append(allBtn, noneBtn);
+  searchRow.appendChild(bulk);
+  pane.appendChild(searchRow);
 
   // WHAT THE RADAR IS SHOWING, in the pane that has the room (Brett,
   // 2026-08-08: "this is the area we have more space to utilize. move the
@@ -409,19 +428,44 @@ function keywordRail(model, ctx) {
       hintEl = el("div", "kwhint", hint.hint);
       pane.appendChild(hintEl);
     }
-    items.push({ kw: String(kw.keyword).toLowerCase(), row, hintEl });
+    items.push({ kw: String(kw.keyword).toLowerCase(),
+                 term: kw.keyword, row, hintEl });
   }
+
+  function shownTerms(value) {
+    const q = String(value || "").trim().toLowerCase();
+    return items.filter((it) => !q || it.kw.includes(q)).map((it) => it.term);
+  }
+  function labelBulk(value) {
+    const n = shownTerms(value).length;
+    const all = n === items.length;
+    allBtn.textContent = all ? "all" : "all " + n;
+    // the count rides the title even unscoped: checking every one of 447
+    // keywords is a legitimate act with a visible cost (a 447-ring radar),
+    // and the reader should see the number before the click, not after
+    allBtn.title = (all ? "check every " + vocab.term + " (" + n + ")"
+      : "check the " + n + " " + vocab.terms + " this search shows")
+      + " — nothing is applied until a row is checked";
+    noneBtn.title = all ? "uncheck every " + vocab.term
+      : "uncheck the " + n + " " + vocab.terms + " this search shows";
+  }
+  allBtn.addEventListener("click", () => ctx.setChecked(shownTerms(search.value), true));
+  noneBtn.addEventListener("click", () => ctx.setChecked(shownTerms(search.value), false));
 
   function applyKwFilter(value) {
     const q = String(value || "").trim().toLowerCase();
+    labelBulk(value);
     for (const it of items) {
       const vis = !q || it.kw.includes(q);
       it.row.hidden = !vis;
       if (it.hintEl) it.hintEl.hidden = !vis;
     }
   }
-  filter.addEventListener("input", () => { ctx.setKwFilter(filter.value); applyKwFilter(filter.value); });
-  applyKwFilter(filter.value);
+  search.addEventListener("input", () => {
+    ctx.setKwFilter(search.value);
+    applyKwFilter(search.value);
+  });
+  applyKwFilter(search.value);
 
   pane.appendChild(el("div", "kwhint",
     "Declared Topics: only (solid dots). Inferred tags — hollow dots, radial " +
@@ -806,6 +850,19 @@ export function renderLens(root, snapshot, opts) {
       // reloaded — the lens holds the whole composed aggregate, so it redraws
       // any subset locally, and the rest of the shell picks the set up on its
       // next render exactly as it picks up a popover tick.
+      if (vocab.id === "repositories" && options.onVisible) {
+        options.onVisible([...state.checked]);
+      }
+      draw();
+    },
+    // BULK check/uncheck (Brett's 2026-08-08 all/none). One state change, one
+    // write-through, one draw — toggling N terms one at a time would redraw
+    // the radar N times and write the visible set N times.
+    setChecked(terms, on) {
+      for (const term of terms || []) {
+        if (on) state.checked.add(term);
+        else { state.checked.delete(term); state.pinned.delete(term); }
+      }
       if (vocab.id === "repositories" && options.onVisible) {
         options.onVisible([...state.checked]);
       }

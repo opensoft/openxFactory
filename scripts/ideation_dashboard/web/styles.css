@@ -2043,3 +2043,8 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .kwrow.repotile .kwnum { font-size: 13px; font-weight: 700; }
 .kwrow.repotile .kw { font-size: 13px; }
 .kwrow.repotile .repostat { flex-basis: 100%; font-size: 11px; color: var(--muted); }
+/* The rail's SEARCH row: the box finds rows, the two bulk moves act on the
+   rows it shows. Nothing here changes the applied set except a tick. */
+.railsearch { display: flex; align-items: center; gap: 6px; }
+.railsearch .kwfilter { flex: 1; min-width: 0; }
+.railbulk { display: inline-flex; gap: 4px; flex: none; }
