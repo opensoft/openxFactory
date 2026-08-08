@@ -81,8 +81,21 @@ properties:
         type: string
         pattern: '^z[1-9A-HJ-NP-Za-km-z]+$'
       signature_algorithm:
+        # Closed, and widened by MEASUREMENT, not preference. The original
+        # set was curve-only; the family's first enforcement surface
+        # (LedgerxFactory's posting control in the Business Central
+        # extension) verifies signatures with the platform's own crypto,
+        # and BC 28.3 AL exposes exactly RSA, DSA and RSASSA-PSS — no
+        # ed25519, no ECDSA (measured 2026-08-08 against the 28.3 System
+        # Application symbols; SignatureAlgorithm enum 1446). A schema
+        # that admits no platform-verifiable algorithm would force the
+        # verification off-platform, reintroducing the network dependency
+        # the consumer's local-decision rule exists to remove. The rsa-*
+        # values mean RSASSA-PKCS1-v1_5 over the named SHA-2 digest —
+        # what CryptographyManagement.VerifyData implements.
         type: string
-        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1]
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1,
+               rsa-2048-sha256, rsa-3072-sha256]
   custody:
     # The declared custody model, by id, resolved against the closed registry
     # in openxwallet-custody.registry.yaml. The registry states what each

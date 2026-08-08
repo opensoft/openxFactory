@@ -1787,14 +1787,17 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 68239c0640177dcee0bdf10275f520ba0030141349f39f3a7f4cefee900e0414
+    sha256: 2012ef432616e73ddaead17c5e79aefacef712c2049ff649c15d7230b1d4eb08
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
       The wallet record: holder, a key REFERENCE, and a declared custody model. Every object closes additionalProperties so no key-shaped property can be added at any depth.
-      Registered at contract-v1.31; consumed through the pinned
-      openxFactory checkout with per-file sha256 verified before any
-      copy is treated as current.
+      Registered at contract-v1.31; digest refreshed by the unreleased
+      additive signature-algorithm widening (rsa-2048-sha256,
+      rsa-3072-sha256 — measured against BC 28.3 AL by the first
+      consumer; folds into the next bundle cut). Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before
+      any copy is treated as current.
   - id: openxwallet-custody-registry-schema
     path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml

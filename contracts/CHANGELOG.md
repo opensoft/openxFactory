@@ -11,7 +11,20 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
-- (nothing pending.)
+- **Additive**: `openxwallet-record.schema.yaml` `signature_algorithm`
+  enum widened with `rsa-2048-sha256` and `rsa-3072-sha256`
+  (RSASSA-PKCS1-v1_5 over the named SHA-2 digest). Found by the first
+  consumer, the LedgerxFactory posting segregation-of-duties control:
+  its enforcement surface verifies proofs with Business Central's own
+  crypto, and BC 28.3 AL exposes exactly RSA/DSA/RSASSA-PSS — no
+  ed25519, no ECDSA (measured against the 28.3 System Application
+  symbols, enum 1446 SignatureAlgorithm). The curve-only enum therefore
+  admitted no algorithm the platform could verify locally, forcing
+  verification off-platform against the consumer's local-decision rule.
+  Existing records remain conformant; one positive example added
+  (`wallet-agent-rsa-platform-verifiable.example.yaml`, corpus now 17
+  positives); manifest digest for the schema refreshed with the
+  amendment noted in its `consumption_rule`.
 
 ## contract-v1.31 — 2026-08-07 (additive; the openxWallet core and its first profile)
 
