@@ -44,15 +44,6 @@
             aria-expanded="false" aria-controls="settingspanel">⚙</button>
   </span>
 
-  <!-- The STALE-FALLBACK banner (design D6) and the sparse-station note (D10).
-       A baked fallback never renders silently: a dashboard quietly serving last
-       week's governance state is the failure this change exists to end. -->
-  <div class="stalebanner" id="stalebanner" hidden></div>
-  <!-- D21: what the repository lens drilled into, and the way back out. -->
-  <div class="stalebanner drillbanner" id="drillbanner" hidden></div>
-
-  <div class="tiles" id="stats"></div>
-
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-funnel" aria-selected="true" aria-controls="view-funnel">realization funnel</button>
     <button class="tab" role="tab" id="tab-wheel" aria-selected="false" aria-controls="view-wheel">the wheel</button>
@@ -62,6 +53,16 @@
     <button class="tab" role="tab" id="tab-docs" aria-selected="false" aria-controls="view-docs">doc list</button>
     <button class="tab" role="tab" id="tab-lineage" aria-selected="false" aria-controls="view-lineage">lineage &amp; readiness</button>
   </div>
+
+  <!-- The STALE-FALLBACK banner (design D6) and the sparse-station note (D10).
+       A baked fallback never renders silently: a dashboard quietly serving last
+       week's governance state is the failure this change exists to end. -->
+  <div class="stalebanner" id="stalebanner" hidden></div>
+  <!-- D21: what the repository lens drilled into, and the way back out. -->
+  <div class="stalebanner drillbanner" id="drillbanner" hidden></div>
+
+  <div class="tiles" id="stats"></div>
+
 
   <div class="docstatus" id="loadstatus">loading the snapshot…</div>
 

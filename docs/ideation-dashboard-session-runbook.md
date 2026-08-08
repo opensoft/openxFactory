@@ -17,7 +17,15 @@ project-first. Left to right:
 
 ```text
 Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref · sha · date   ◆hint   ↻   ◐ ⚙
+realization funnel · the wheel · pipeline board · cluster canvas · lens · doc list · lineage
+Documents · Topic clusters · Possibles · Staged topics · Active proposals · Archived changes
 ```
+
+Three lines, in that order (Brett, 2026-08-08): the PROJECT line, then the
+VIEW line, then the STAGE tiles. The tiles carry the same six stages in the
+same order as the wheel's columns and the funnel's lanes, so they read as
+the header of whichever view is below them rather than as a separate
+summary.
 
 - **Opensoft openDox** — the brand. Static.
 - **The project dropdown** — the CURRENT project; you are always in one

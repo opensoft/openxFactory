@@ -63,9 +63,22 @@ export function renderStats(root, snapshot) {
   const archived = changes.filter((c) => c.status === "archived").length;
   const picked = possibles.filter((p) => p.state === "picked").length;
   const latent = possibles.filter((p) => p.state === "latent").length;
+  // The tile row is the PIPELINE in order — corpus, clusters, possibles,
+  // staged, proposals, archived, the SAME order and the same six stages the
+  // wheel's columns and the funnel's lanes use — and it sits above the view it
+  // heads (Brett's 2026-08-08 annotations: the tabs move up, "then this
+  // becomes the header to the other screens that need a header like wheel
+  // and funnel", with staged added to the list). Staged was a subline under
+  // Topic clusters, which hid a pipeline STAGE inside another stage's
+  // caption; it is a stage of its own.
+  const ready = staged.filter(
+    (s) => (s.health || {}).status === "ready").length;
   tile(root, "Documents", docs.length, "", stageSubline(docs));
-  tile(root, "Topic clusters", clusters.length, "", staged.length + " staged topic" + (staged.length === 1 ? "" : "s"));
+  tile(root, "Topic clusters", clusters.length, "",
+    (clusters.length === 1 ? "cluster" : "clusters") + " derived");
   tile(root, "Possibles", possibles.length, "", picked + " picked · " + latent + " latent");
+  tile(root, "Staged topics", staged.length, "",
+    ready + " ready to propose");
   tile(root, "Active proposals", active, "", "in flight");
   tile(root, "Archived changes", archived, "", "realized");
 }
