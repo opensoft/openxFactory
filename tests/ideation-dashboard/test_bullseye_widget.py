@@ -1081,3 +1081,115 @@ console.log(JSON.stringify(CASES.map(([t, q]) => termMatches(t, q))));
         False,   # EVERY word must appear, not any
         False,   # not fuzzy: a scrambled typo finds nothing
     ]
+
+
+def test_every_custom_property_the_stylesheet_reads_is_one_it_defines():
+    """`.sigrid-head` said `background: var(--bg, #fff)` and `--bg` is not a
+    token this stylesheet defines, so the FALLBACK took over and painted a
+    white bar across the dark theme (Brett, 2026-08-08). An undefined custom
+    property does not fail loudly — it silently becomes its fallback, which is
+    why this has to be checked rather than noticed."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    defined = set(re.findall(r"(--[a-z0-9-]+)\s*:", css))
+    read = set(re.findall(r"var\(\s*(--[a-z0-9-]+)", css))
+    # `--h` is set by the VIEWS at render time (the per-term hue), never here
+    undefined = read - defined - {"--h", "--cols"}
+    assert undefined == set(), undefined
+
+
+def test_a_button_reset_states_its_own_colour():
+    """A <button> does not inherit `color` — it takes the UA's `buttontext`,
+    which is black in both themes. A rule that strips a button's background
+    without naming its colour therefore ships black text on whatever ground it
+    lands on: `.relrow` rendered at contrast 1.18 on the dark panel."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    for block in re.findall(r"(?m)^\.[^{}]*\{[^}]*\}", css):
+        if "background: none" not in block or "border: none" not in block:
+            continue
+        selector = block.split("{")[0].strip()
+        assert "color:" in block, selector
+
+
+def test_the_signature_grid_states_its_finding_before_it_draws_it(tmp_path):
+    """Brett, 2026-08-08: the grid "is taking up too much space. what value
+    does it bring?" Its one finding is REPETITION — documents whose rows are
+    identical carry exactly the same checked terms, the closest thing to a
+    duplicate this lens can see. A finding fits on a line; the drawing is its
+    evidence, so the summary carries the finding and the picture opens on
+    request."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "m.mjs").write_text("""
+import { signatureSummary } from './lens-model.mjs';
+const cells = (bits) => bits.split('').map((b, i) => ({ keyword: 'k' + i, present: b === '1' }));
+const model = { matrix: [
+  { document: 'a.md', cells: cells('110') },
+  { document: 'b.md', cells: cells('110') },   // same signature as a
+  { document: 'c.md', cells: cells('101') },
+  { document: 'd.md', cells: cells('110') },   // and as a, b
+  { document: 'e.md', cells: cells('001') },
+]};
+console.log(JSON.stringify(signatureSummary(model)));
+console.log(JSON.stringify(signatureSummary({ matrix: [] })));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "m.mjs")], capture_output=True,
+                          text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    found, empty = [json.loads(line) for line in proc.stdout.strip().splitlines()]
+    assert found["documents"] == 5
+    assert found["signatures"] == 3          # 110, 101, 001
+    assert found["repeatedGroups"] == 1      # only 110 repeats
+    assert found["repeatedDocuments"] == 3   # a, b, d
+    assert found["largestGroup"] == 3
+    assert found["groups"] == [["a.md", "b.md", "d.md"]]
+    # an empty radar reports nothing rather than a division by zero
+    assert empty["documents"] == 0 and empty["repeatedGroups"] == 0
+
+    # and the view renders it COLLAPSED — a <details>, so a closed grid is one
+    # line rather than 220px of always-on picture
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert 'el("details", "gridwrap")' in lens
+    assert 'el("summary", "pane-h")' in lens
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert "details.gridwrap[open] > .sigrid" in css
+
+
+def test_every_view_of_a_document_publishes_the_same_key():
+    """Brett, 2026-08-08: "when I hover on one of these documents, the
+    corresponding dot should light up." Three renderers draw the same document
+    — the radar's dot, the matrix's row, the grid's row — and the reader was
+    joining them by eye. Each publishes `data-doc`; ONE delegated listener in
+    the pane does the lighting, so no renderer knows about any other and a
+    redraw cannot strand a listener."""
+    bullseye = (WEB / "views" / "bullseye.js").read_text(encoding="utf-8")
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert '"data-doc": String(d.document)' in bullseye
+    assert "tr.dataset.doc = r.document" in lens        # the matrix row
+    assert "line.dataset.doc = row.document" in lens    # the grid row
+    # one delegated pair on the pane, not per-row listeners
+    assert lens.count('pane.addEventListener("pointerover"') == 1
+    assert lens.count('pane.addEventListener("pointerout"') == 1
+    # a document id is a PATH: `/` and `.` are selector syntax, so it must be
+    # escaped before it goes into querySelectorAll
+    assert "cssEscape(doc)" in lens
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    for rule in ("tr.lit > td", ".sigrid-row.lit", ".bullseye .lensdot.lit .dot"):
+        assert rule in css, rule
+
+
+def test_the_matrix_selection_is_the_seeds_only_input():
+    """The checkbox column exists to feed ONE action, and the action names only
+    the documents: the route recomputes their terms from its own snapshot, so
+    the client cannot assert a convergence the corpus does not have."""
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert 'STAGING_SEED_ROUTE = "/actions/staging-seed"' in lens
+    # the request carries documents and the project — never terms or evidence
+    body = re.search(r"postPlan\(STAGING_SEED_ROUTE, \{(.*?)\}, fetcher\)",
+                     lens, re.S).group(1)
+    assert "documents:" in body and "project_id:" in body
+    for forbidden in ("shared", "topics", "keywords", "text"):
+        assert forbidden + ":" not in body, forbidden
+    # this view still holds no network primitive of its own
+    for primitive in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"):
+        assert primitive not in lens, primitive

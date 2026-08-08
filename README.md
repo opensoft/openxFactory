@@ -329,6 +329,22 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
+- [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
+  — ratified 2026-08-08 from three annotations on the keyword lens. A
+  document has three views (the radar's dot, the matrix's row, the signature
+  grid's row) and they now publish one key, so pointing at any lights the
+  others. The signature grid states its finding — "32 documents share 3
+  signatures (largest 17)" — and collapses, because a finding that fits in a
+  sentence does not warrant 220px of the best space on the screen. A matrix
+  SELECTION drafts a staging-queue fragment: evidence computed (documents,
+  repositories, the terms all of them share), argument left to the human,
+  nothing written — the exit the keyword radar lacked, distinct from the
+  repository lens's DTN register seed. Carries two dark-theme defect fixes
+  and their guards: a button reset that never stated its colour, and six
+  uses of custom properties the stylesheet never defines whose silent
+  fallbacks painted a white popover behind light text. (code surface:
+  openxFactory; target release: none)
+
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
   readiness, revocation, redacted evidence, and contract interface impacts;

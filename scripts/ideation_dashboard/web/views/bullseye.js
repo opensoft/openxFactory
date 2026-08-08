@@ -340,7 +340,12 @@ export function renderBullseye(model, opts) {
     .filter((i) => i >= placedBoxes.length)
     .map((i) => i - placedBoxes.length));
   dots.forEach(({ d, base, text, at }, i) => {
-    const gdot = svg("g", { class: "lensdot" });
+    // The dot NAMES ITS DOCUMENT. A number on a dot and a number in a table
+    // are two coordinates for one thing, and the reader was doing the join by
+    // eye (Brett, 2026-08-08: "when I hover on one of these documents, the
+    // corresponding dot should light up"). The renderer publishes the key; the
+    // lens does the lighting, so the widget keeps no cross-view state.
+    const gdot = svg("g", { class: "lensdot", "data-doc": String(d.document) });
     const circle = svg("circle", {
       class: "dot" + (d.declared ? " declared" : " inferred"),
       // the packed size: a crowded cell draws smaller dots rather than
