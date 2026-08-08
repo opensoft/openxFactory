@@ -129,7 +129,10 @@ so the sixth column is whole instead of part-cut.
   carries a summary card — how many documents are on the radar, over how many
   of the vocabulary, and what a dot and a ring MEAN. Repository rows are
   TILES: each says how much of that repository's corpus is shared with
-  another visible repository and how much is its alone.
+  another visible repository and how much is its alone. The rail's box is a
+  SEARCH, not a filter — it finds rows and never changes what is applied; a
+  row still has to be ticked. Beside it, `all` / `none` check or uncheck the
+  rows the search is showing (every row when the box is empty).
 - **What the dashboard is** — the standing footer paragraph is a
   `what is this?` link opening a modal, so it costs no layout until asked for.
 - **The banner row** carries the STALE-FALLBACK warning only. An empty station
