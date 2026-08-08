@@ -677,3 +677,38 @@ def test_a_sector_is_drawn_at_its_own_ring_not_at_the_rim(tmp_path):
         assert any(abs(inner - s["innerRadius"]) < 0.05
                    and abs(outer - s["outerRadius"]) < 0.05
                    for s in bands.values()), (inner, outer)
+
+
+def test_dots_sit_centred_in_their_ring_band(tmp_path):
+    """Brett's 2026-08-07 ruling: "instead of the document dots being along
+    the outer edge of the ring, lets center them radially." Rows were laid
+    from the band's outer edge inward, so a cell using fewer lanes than its
+    band admits clung to the ring line above it with the space below empty.
+    The used lanes are now centred on the band's midline — and a single lane
+    lands exactly on it, which is where a lone dot has always belonged."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "centre.mjs").write_text("""
+import { packCell } from './lens-model.mjs';
+const CASES = [[1, 180, 210, 30], [4, 180, 210, 40], [12, 157, 210, 45],
+               [40, 0, 105, 360]];
+console.log(JSON.stringify(CASES.map(([n, inner, outer, span]) => {
+  const dots = packCell(n, inner, outer, span, -90);
+  const radii = [...new Set(dots.map((d) => d.radius))].sort((a, b) => b - a);
+  return { n, inner, outer, mid: (inner + outer) / 2, radii,
+           centre: (radii[0] + radii[radii.length - 1]) / 2 };
+})));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "centre.mjs")],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    for case in json.loads(proc.stdout):
+        # the lanes in use straddle the band's midline, whatever their number
+        assert abs(case["centre"] - case["mid"]) < 0.001, case
+        # a single lane IS the midline — not the outer edge it used to hug
+        if len(case["radii"]) == 1:
+            assert abs(case["radii"][0] - case["mid"]) < 0.001, case
+        # and nothing escapes the band it belongs to
+        assert case["radii"][0] <= case["outer"] and \
+            case["radii"][-1] >= case["inner"], case
