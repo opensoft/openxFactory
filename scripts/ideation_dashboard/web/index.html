@@ -74,15 +74,26 @@
   <section class="view" id="view-docs" role="tabpanel" aria-labelledby="tab-docs" hidden></section>
   <section class="view" id="view-lineage" role="tabpanel" aria-labelledby="tab-lineage" hidden></section>
 
+  <!-- What this dashboard IS, one link rather than a standing paragraph
+       (Brett, 2026-08-08: "make this be a link to a popup to not take up any
+       screen space"). A <dialog> so Escape and the backdrop close it without
+       any script of ours, and so it costs nothing until it is opened. -->
   <p class="foot">
-    A read-only projection of one repository's ideation governance state,
-    rendered from a single generated <code>snapshot.json</code>. The funnel reads
-    the snapshot's link tallies and readiness verbatim — it never rescans the
-    repository or re-scores anything. Cluster↔possible links are many-to-many:
-    one doc's <code>Topics:</code> list feeds several clusters and one possible
-    can be claimed by several clusters (dashed violet edges). Regenerate the
-    snapshot to refresh; dashboard artifacts are never hand-edited.
+    <button type="button" class="footlink" id="aboutlink"
+            aria-haspopup="dialog" aria-controls="aboutdialog">what is this?</button>
   </p>
+  <dialog class="aboutdialog" id="aboutdialog" aria-label="About this dashboard">
+    <p>
+      A read-only projection of one repository's ideation governance state,
+      rendered from a single generated <code>snapshot.json</code>. The funnel reads
+      the snapshot's link tallies and readiness verbatim — it never rescans the
+      repository or re-scores anything. Cluster↔possible links are many-to-many:
+      one doc's <code>Topics:</code> list feeds several clusters and one possible
+      can be claimed by several clusters (dashed violet edges). Regenerate the
+      snapshot to refresh; dashboard artifacts are never hand-edited.
+    </p>
+    <form method="dialog"><button class="cbtn" type="submit">close</button></form>
+  </dialog>
 </div>
 
 <!-- The drill-down explorer + read-only viewer overlay (T017/T018) mounts
