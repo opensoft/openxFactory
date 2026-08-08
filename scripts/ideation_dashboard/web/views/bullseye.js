@@ -254,8 +254,11 @@ export function renderBullseye(model, opts) {
     //     because a column is numbered outer lane inward;
     //   * across to the next column — one column deeper than the label, so
     //     the unlabelled neighbour starts where the labelled column ended.
-    const labelled = d.labelled != null
-      ? d.labelled : (d.row == null || d.row === 0);
+    // A dot big enough carries its number INSIDE (drawn with the dot below,
+    // not in this outside-label pass), so it never enters the collision set.
+    const inside = d.inside === true && d.number;
+    const labelled = !inside && (d.labelled != null
+      ? d.labelled : (d.row == null || d.row === 0));
     // The label sits RADIALLY OUTWARD of its dot — away from the centre, so
     // it never lands on the rows packed inside it — in two lanes, alternating
     // by slot, which is what lets neighbours on one arc both read.
@@ -300,6 +303,14 @@ export function renderBullseye(model, opts) {
       (d.number ? "#" + d.number + " " : "") + base + " — "
       + d.matchedSubset.join(" ✓ ") + " ✓"));
     gdot.appendChild(circle);
+    // the inside number: centred on the dot, so it moves with it and can
+    // never be dropped for want of room beside it
+    if (d.inside === true && d.number) {
+      gdot.appendChild(svg("text", {
+        class: "dotnum", x: round(d.x), y: round(d.y),
+        "text-anchor": "middle", "dominant-baseline": "central",
+      }, String(d.number)));
+    }
     if (shown.has(i) && dots[i].fits) {
       gdot.appendChild(svg("text", {
         class: "doclab", x: round(at.x), y: round(at.y), "text-anchor": "middle",

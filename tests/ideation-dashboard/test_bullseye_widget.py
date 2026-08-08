@@ -130,8 +130,11 @@ for (const [id, snapshot, checked, wire] of cases) {
     centreRegions: centre.length ? fireAll(centre[0], activations) : [],
     labels: nodes.filter((n) => n.cls === 'ringlab').map((n) => n.text),
     docLabels: nodes.filter((n) => n.cls === 'doclab').map((n) => n.text),
+    // a roomy dot carries its number INSIDE itself instead
+    insideLabels: nodes.filter((n) => n.cls === 'dotnum').map((n) => n.text),
     // the names the numbers stand for: each dot circle's own <title> child
-    dotTitles: nodes.filter((n) => (n.cls || '').startsWith('dot'))
+    dotTitles: nodes.filter((n) => n.tag === 'circle'
+        && (n.cls || '').startsWith('dot'))
       .map((n) => (n.node.children[0] || {}).text || null),
     sectorLabels: nodes.filter((n) => n.cls === 'seclab').map((n) => n.text),
     sectorLabelAt: nodes.filter((n) => n.cls === 'seclab').map((n) => ({
@@ -243,10 +246,10 @@ def test_bullseye_renders_the_models_geometry(tmp_path):
     assert r["counts"]["centreRings"] == 1
     assert "all 2 ✓" in r["labels"]
     # The dots carry their matrix NUMBER, not the document name (Brett's
-    # 2026-08-07 ruling: names are too large for the radar). The name is not
-    # lost — it stays in the dot's <title> and in the numbered matrix beside
-    # the widget, which is the legend the numbers index.
-    assert set(r["docLabels"]) == {"1", "2", "3"}
+    # 2026-08-07 rulings): INSIDE the dot where the cell has room for a big
+    # one, beside it otherwise. The name is not lost either way — it stays in
+    # the dot's <title> and in the numbered matrix, which is the legend.
+    assert set(r["docLabels"]) | set(r["insideLabels"]) == {"1", "2", "3"}
     assert all(t.startswith("#") and ".md" in t for t in r["dotTitles"]), r["dotTitles"]
 
 
@@ -430,8 +433,9 @@ def test_the_radar_labels_by_number_and_keeps_names_in_the_legend(tmp_path):
     vocabulary is letters (A…Z, AA, …)."""
     r = _render(tmp_path)["two-checked"]
     # every dot is labelled, by number — nothing is dropped for width now
-    assert sorted(r["docLabels"], key=int) == ["1", "2", "3"]
-    assert len(r["docLabels"]) == r["counts"]["dots"]
+    drawn = r["docLabels"] + r["insideLabels"]
+    assert sorted(drawn, key=int) == ["1", "2", "3"]
+    assert len(drawn) == r["counts"]["dots"]
     # sectors are labelled by the keywords' RAIL LETTERS, not their names —
     # and never by numbers, which belong to documents
     for label in r["sectorLabels"]:
@@ -452,7 +456,7 @@ def test_packed_dots_never_touch_at_any_density(tmp_path):
         pytest.skip("node not available for the JS derivation probe")
     shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
     (tmp_path / "pack.mjs").write_text("""
-import { packCell, DOT_GAP, DOT_R, DOT_MIN_R } from './lens-model.mjs';
+import { packCell, DOT_GAP, DOT_R, DOT_MIN_R, DOT_MAX_R } from './lens-model.mjs';
 // (n, band inner, band outer, sector span) — a lone dot, a comfortable cell,
 // a thin band at 18 keywords, the wide-open single-keyword case, and a cell
 // with far more documents than its area can hold.
@@ -477,7 +481,7 @@ for (const [n, inner, outer, span] of CASES) {
              slots: [...new Set(dots.map((d) => d.slot))].sort(),
              gap: dots.length > 1 ? worst : null });
 }
-console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R }));
+console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R, DOT_MAX_R }));
 """, encoding="utf-8")
     proc = subprocess.run([NODE, str(tmp_path / "pack.mjs")],
                           capture_output=True, text=True, cwd=tmp_path)
@@ -491,15 +495,17 @@ console.log(JSON.stringify({ out, DOT_GAP, DOT_R, DOT_MIN_R }));
         if case["gap"] is not None:
             assert case["gap"] >= r["DOT_GAP"] - 0.01, case
         # the size stays within the declared band
-        assert r["DOT_MIN_R"] <= case["size"] <= r["DOT_R"], case
+        assert r["DOT_MIN_R"] <= case["size"] <= r["DOT_MAX_R"], case
         # labels alternate above/below wherever there is more than one dot
         assert case["slots"] == ([0] if case["n"] == 1 else [0, 1]), case
 
     by_n = {c["n"]: c for c in r["out"]}
-    # a roomy cell keeps FULL-SIZE dots rather than shrinking pre-emptively
-    assert by_n[6]["size"] == r["DOT_R"] and by_n[6]["rows"] == 1
+    # a roomy cell takes the BIGGEST dot its area allows, not merely a
+    # full-size one — that is what lets the number ride inside it
+    assert by_n[6]["size"] > r["DOT_R"] and by_n[6]["rows"] == 1
+    assert by_n[1]["size"] == r["DOT_MAX_R"]      # a lone dot: the maximum
     # a deep band uses its depth: the single-keyword case stacks rows
-    assert by_n[60]["rows"] > 1 and by_n[60]["size"] == r["DOT_R"]
+    assert by_n[60]["rows"] > 1 and by_n[60]["size"] >= r["DOT_R"]
     # a thin, narrow, overcrowded cell shrinks to the floor and still separates
     assert by_n[200]["size"] == r["DOT_MIN_R"]
 
@@ -712,3 +718,55 @@ console.log(JSON.stringify(CASES.map(([n, inner, outer, span]) => {
         # and nothing escapes the band it belongs to
         assert case["radii"][0] <= case["outer"] and \
             case["radii"][-1] >= case["inner"], case
+
+
+def test_a_roomy_cell_enlarges_its_dots_and_puts_the_number_inside(tmp_path):
+    """Brett's 2026-08-07 ruling: "if there exists space in the slice, then
+    spread out and enlarge the dots and place the number inside the dot. for
+    congested, what we have works well." Both regimes, measured: a cell with
+    room takes the biggest dot its area allows and carries its number inside
+    — where it collides with nothing, so EVERY such dot is numbered — while a
+    congested cell keeps small dots and the outside-label rules unchanged."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "room.mjs").write_text("""
+import { packCell, DOT_MAX_R, DOT_R, LABEL_INSIDE_MIN_R } from './lens-model.mjs';
+const shape = (dots, spanDeg) => ({
+  size: dots[0].size,
+  inside: dots.every((d) => d.inside),
+  labelled: dots.filter((d) => d.labelled).length,
+  count: dots.length,
+  // how much of its slice the cell actually uses
+  spread: Math.max(...dots.map((d) => d.angleDeg))
+        - Math.min(...dots.map((d) => d.angleDeg)),
+  usable: spanDeg * 0.9,
+});
+console.log(JSON.stringify({
+  DOT_MAX_R, DOT_R, LABEL_INSIDE_MIN_R,
+  lone: shape(packCell(1, 140, 210, 120, -90), 120),
+  roomy: shape(packCell(4, 140, 210, 120, -90), 120),
+  congested: shape(packCell(20, 190, 202, 8.4, -90), 8.4),
+}));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "room.mjs")],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    # a lone dot in a wide slice takes the maximum size and holds its number
+    assert r["lone"]["size"] == r["DOT_MAX_R"]
+    assert r["lone"]["inside"] is True and r["lone"]["labelled"] == 1
+
+    # a roomy cell: big dots, every one numbered inside, and SPREAD across
+    # the slice rather than bunched against its centre line
+    assert r["roomy"]["size"] >= r["LABEL_INSIDE_MIN_R"]
+    assert r["roomy"]["inside"] is True
+    assert r["roomy"]["labelled"] == r["roomy"]["count"]
+    assert r["roomy"]["spread"] > r["roomy"]["usable"] * 0.9
+
+    # congested: small dots, no inside numbers, and only some dots labelled —
+    # the behaviour that was already working, left alone
+    assert r["congested"]["size"] < r["DOT_R"]
+    assert r["congested"]["inside"] is False
+    assert r["congested"]["labelled"] < r["congested"]["count"]
