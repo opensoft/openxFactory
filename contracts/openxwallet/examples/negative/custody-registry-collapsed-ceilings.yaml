@@ -1,5 +1,5 @@
 # expected_failure: custody-collapse
-# expected_failure_detail: can claim the isolated
+# expected_failure_detail: can claim the stronger
 # requirement: OXW-R4
 # VIOLATES core R4: the two cases are distinguished in NAME and collapsed in
 # EFFECT.

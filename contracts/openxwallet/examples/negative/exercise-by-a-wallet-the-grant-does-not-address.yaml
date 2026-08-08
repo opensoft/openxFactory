@@ -1,0 +1,41 @@
+# expected_failure: audience-mismatch
+# expected_failure_detail: a grant is exercisable only by its audience
+# requirement: OXW-R3
+# VIOLATES core R3: a valid signature from the WRONG wallet.
+#
+# Everything here verifies. The signature is real, the key is real, the grant
+# is real and unexpired. The wallet presenting it is simply not the wallet the
+# grant addresses — the creator agent exercising the poster's grant.
+#
+# Proof of possession only secures a grant if possession is checked AGAINST ITS
+# AUDIENCE. Verifying a signature without binding it to the audience proves
+# somebody holds a key, which is not the question.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-wrong-audience-0009
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0023
+occurred_at: "2026-08-07T13:10:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-creator-0002
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-creator-0002
+  wallet_ref: wal-agent-creator-0002
+  holder_ref: agent:ledger-creator
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-creator
+    this_holder_ref: agent:ledger-creator
+    satisfied: false
+outcome: permitted

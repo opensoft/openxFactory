@@ -19,7 +19,7 @@ attribution:
   transport:
     shared_credential_ref: bc-application-user:xforge-svc
     role: transport
-custody_model_in_force: holder_readable
+custody_model_in_force: isolated_per_use_authorized
 revocation_check:
   performed_at_exercise: true
   result: active
