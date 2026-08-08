@@ -15,8 +15,9 @@
   RED    neutered key-material-embedded                  -> 2 error(s)
   RED    neutered presenting-key-unresolved              -> 2 error(s)
   RED    neutered proof-of-possession-missing            -> 3 error(s)
+  RED    neutered record-id-duplicate                    -> 1 error(s)
   RED    neutered revoked-chain-exercised                -> 1 error(s)
   RED    neutered verification-failure-miscategorised    -> 1 error(s)
   RED    neutered wallet-ref-as-subject-identifier       -> 1 error(s)
 
-OK all 20 codes are load-bearing — neutering any one turns the corpus red
+OK all 21 codes are load-bearing — neutering any one turns the corpus red

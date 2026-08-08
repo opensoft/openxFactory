@@ -73,7 +73,7 @@ governance-level and is not duplicated here.
 - [x] 6.4 `# requirement:` attribution plus closed coverage checking in both
       directions, so a requirement cannot silently lose its probe.
 - [x] 6.5 Red-proof harness (`evidence/red-proof.py`) and its recorded output:
-      all twenty finding codes load-bearing.
+      all twenty-one finding codes load-bearing.
 - [x] 6.6 `traceability.yaml` — one row per ratified requirement with its
       artifact, its enforcing check, its probe, and its red-proof.
 

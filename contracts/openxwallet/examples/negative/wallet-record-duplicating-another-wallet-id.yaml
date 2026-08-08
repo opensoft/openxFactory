@@ -1,0 +1,34 @@
+# expected_failure: record-id-duplicate
+# expected_failure_detail: resolved by file order
+# requirement: OXW-R5
+# VIOLATES core R5: a second wallet record under an existing wallet_id,
+# carrying a different key.
+#
+# The corpus already holds wal-agent-poster-0001 with key-poster-0001. This
+# record reuses the ID and anchors a DIFFERENT key under a different DID.
+# Index tables are last-write-wins, so without refusal whichever file sorts
+# later becomes "the" wallet — and both keys then resolve to the same wallet
+# id, letting an injected or obsolete duplicate authenticate as the grant's
+# audience with a key the audience never held.
+#
+# An id names ONE record. A duplicate is refused on every copy rather than
+# resolved by file order.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-poster-0001
+holder:
+  holder_id: agent:ledger-poster
+  holder_class: agent
+  display_label: Ledger posting agent (stale enrollment)
+key_reference:
+  did: "did:web:xforge.us:wallets:agent-poster-old"
+  key_id: key-poster-imposter-0002
+  signature_algorithm: ed25519
+custody:
+  model: isolated_per_use_authorized
+  registry_version: 1
+  declared_at: "2026-08-08T12:30:00Z"
+  declared_by: opensoft
+state: active
+created_at: "2026-08-08T12:30:00Z"
+policy_version: 1

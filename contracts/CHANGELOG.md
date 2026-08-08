@@ -58,11 +58,11 @@ express and READS the legal approval-scope vocabulary out of
 `contracts/schemas/hermes-job-envelope.schema.yaml` at run time rather than
 restating it, because restating it would recreate the parallel authority
 vocabulary the profile's third requirement forbids. The packaged corpus
-comprises 16 valid examples and 32 intended-invalid negatives covering 11 of
+comprises 16 valid examples and 33 intended-invalid negatives covering 11 of
 11 ratified requirements, with coverage closed in both directions — a
 requirement with no probe, and a probe naming no requirement, are both
 validation failures. A red-proof harness recorded with the feature confirms
-all 20 finding codes are load-bearing: suppressing any one turns the corpus
+all 21 finding codes are load-bearing: suppressing any one turns the corpus
 red.
 
 No runtime, wallet infrastructure, key storage, issuance service, or signing

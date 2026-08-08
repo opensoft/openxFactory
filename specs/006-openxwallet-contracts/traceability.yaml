@@ -88,20 +88,21 @@ requirements:
     artifact: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
     enforced_by: validate_openxwallet.check_exercise (rule k)
     negative_confirmation: >-
+      examples/negative/wallet-record-duplicating-another-wallet-id.yaml,
       examples/negative/exercise-shared-credential-as-actor.yaml,
       examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml,
       examples/negative/exercise-proof-and-attribution-name-different-keys.yaml,
       examples/negative/exercise-verified-key-recorded-unattributed.yaml
     red_proven: >-
-      attribution-laundered neutered; corpus went red. The first probe is the
-      measured 2026-08-06 state written down as a record — one application
-      user carrying every agent act — and its honest counterpart is the
-      positive example exercise-unattributable-act.example.yaml. The others
-      are the three laundering shapes: the declared stand-in (the audience's
-      wallet_ref written alongside another wallet's presented key), the
-      contradicted proof (attribution naming a key the verified proof did
-      not present), and the verified key recorded 'unattributed' to walk
-      past the audience and distinct-holder bindings.
+      attribution-laundered and record-id-duplicate neutered in turn; corpus
+      went red each time. The shared-credential probe is the measured
+      2026-08-06 state written down as a record — one application user
+      carrying every agent act — and its honest counterpart is the positive
+      example exercise-unattributable-act.example.yaml. Three probes cover
+      the laundering shapes (the declared stand-in, the contradicted proof,
+      the verified key recorded 'unattributed'), and the duplicate-wallet
+      probe covers the index itself: a second record under an existing
+      wallet_id would let a different key authenticate as it.
 
   OXW-R6:
     statement: Revocation propagates through the chain
@@ -180,8 +181,8 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 32
-  distinct_finding_codes_proven: 20
+  negative_confirmations: 33
+  distinct_finding_codes_proven: 21
 
 boundary:
   runtime_created: none
@@ -377,6 +378,27 @@ review_docs:
         composition-wallet-unresolved; an exercise evaluating a constraint
         no record declares warns constraint-unresolved; the valid consumer
         repo still scans clean
+    - id: index-trusted-shape-and-uniqueness
+      was: >-
+        Round five: the key index assumed well-formed, unique records. Two
+        schema-valid wallet files reusing one wallet_id with different keys
+        collapsed in the index (last-write-wins), so an injected or obsolete
+        duplicate let a second key authenticate as the grant's audience —
+        and grants and constraints had the same silent id collision, which
+        swaps SCOPE by file order. A duplicated id is now refused on every
+        copy (record-id-duplicate). Separately, repo scans index documents
+        BEFORE schema validation, so a malformed key_reference (or any
+        non-string id, unhashable ref, mixed-type list reaching a set or
+        sort) crashed the harness with exit 2 and DISCARDED every other
+        file's findings. The index, every context lookup, and every
+        doc-derived set/sort are now type-guarded, so a malformed document
+        surfaces as schema findings on its own file.
+      probe: >-
+        examples/negative/wallet-record-duplicating-another-wallet-id.yaml
+        for the duplicate; for the crash class, a scratch corpus of seven
+        maximally malformed documents (non-mapping blocks, list ids,
+        unhashable refs, mixed-type enums across every kind) exits 1 with
+        findings, never 2
     - id: composition-resolution-unchecked
       was: >-
         Rule (q) fired only when a composition's wallet RESOLVED to a
