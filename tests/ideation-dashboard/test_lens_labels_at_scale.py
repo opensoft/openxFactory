@@ -291,7 +291,7 @@ def test_the_two_orienting_ring_labels_always_read(measured):
     for case, checked in CASES:
         texts = measured[case]["rings"]["texts"]
         assert f"all {len(checked)} ✓" in texts, case
-        assert "matches 1" in texts, case
+        assert "1 ✓" in texts, case
 
 
 def test_dense_rings_really_do_lose_some_labels(measured):

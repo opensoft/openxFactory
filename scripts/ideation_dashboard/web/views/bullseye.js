@@ -156,6 +156,10 @@ export function renderBullseye(model, opts) {
   // becomes unreadable). The matches-ALL centre and the outermost ring always
   // read; a ring whose label is dropped is still named by its dots' titles.
   const labelled = new Set(ringLabelIndices(model.rings.map((r) => r.outerRadius)));
+  // Ring labels are the orienting frame and are drawn FIRST, so their boxes
+  // are already occupied when the sector labels — which now sit at their own
+  // ring rather than out at the rim — are placed.
+  const ringBoxes = [];
   model.rings.forEach((ring, i) => {
     node.appendChild(svg("circle", {
       class: "ring" + (ring.isCenter ? " zone0" : ""),
@@ -163,9 +167,11 @@ export function renderBullseye(model, opts) {
     }));
     if (!labelled.has(i)) return;
     // ring label along the vertical axis, top side
+    const ly = round(g.cy - ring.outerRadius + 14);
     node.appendChild(svg("text", {
-      class: "ringlab", x: g.cx, y: round(g.cy - ring.outerRadius + 14), "text-anchor": "middle",
+      class: "ringlab", x: g.cx, y: ly, "text-anchor": "middle",
     }, ring.label));
+    ringBoxes.push(labelBox(g.cx, ly, ring.label.length, FONT.ring));
   });
 
   // the create gesture (design D6, ruled to cover every region) — only when a
@@ -186,11 +192,20 @@ export function renderBullseye(model, opts) {
   const seclabs = [];
   for (const sec of model.sectors) {
     const a = (sec.angleDeg * Math.PI) / 180;
+    // A sector's documents only ever occupy ITS OWN ring band, so the divider
+    // reaches only that far (Brett's 2026-08-07 finding: a full-radius spoke
+    // and a rim label made a three-keyword sector look like it lived on the
+    // outer ring, 60px from the dot it names).
+    const from = sec.innerRadius != null ? sec.innerRadius : 0;
+    const to = sec.outerRadius != null ? sec.outerRadius : g.rMax;
     node.appendChild(svg("line", {
       class: "sector",
-      x1: round(g.cx), y1: round(g.cy),
-      x2: round(g.cx + g.rMax * Math.cos(a)), y2: round(g.cy + g.rMax * Math.sin(a)),
+      x1: round(g.cx + from * Math.cos(a)), y1: round(g.cy + from * Math.sin(a)),
+      x2: round(g.cx + to * Math.cos(a)), y2: round(g.cy + to * Math.sin(a)),
     }));
+    // the matches-ALL sector is the shaded centre, already named by its ring
+    // label ("all N ✓") — a second label on top of it would be noise
+    if (sec.isCenter) continue;
     // The radar labels a sector by its keywords' RAIL LETTERS — "A ∧ G"
     // instead of a 464px conjunction, and letters rather than numbers so a
     // sector label can never be mistaken for a document's. The full
@@ -198,16 +213,20 @@ export function renderBullseye(model, opts) {
     const text = sec.labels && sec.labels.length
       ? sec.labels.join(" ∧ ")
       : sectorLabelText(sec.subsetKey, sec.keywords);
-    // The sector labels ride an OUTER lane. Dot labels now sit radially
-    // outward of their dots (so they never land on the rows packed inside
-    // them), which puts the outermost ring's labels right where the rim used
-    // to be — the two bands need separating or they collide.
-    const at = clampLabel(g.cx + (g.rMax + SECTOR_LANE) * Math.cos(a),
-      g.cy + (g.rMax + SECTOR_LANE) * Math.sin(a), text.length, FONT.sector, g.size);
+    // …placed just outside the sector's OWN ring, beside the dots it names.
+    // The outermost ring keeps a wider offset so its labels clear the dot
+    // labels, which sit just outside their dots on that same band.
+    const lane = (sec.outerRadius >= g.rMax - 0.001) ? SECTOR_LANE : 8;
+    const lr = (sec.outerRadius != null ? sec.outerRadius : g.rMax) + lane;
+    const at = clampLabel(g.cx + lr * Math.cos(a), g.cy + lr * Math.sin(a),
+      text.length, FONT.sector, g.size);
     seclabs.push({ sec, text, at,
       box: labelBox(at.x, at.y, text.length, FONT.sector) });
   }
-  const drawnSectorLabels = nonOverlappingIndices(seclabs.map((s) => s.box));
+  const drawnSectorLabels = nonOverlappingIndices(
+    ringBoxes.concat(seclabs.map((s) => s.box)))
+    .filter((i) => i >= ringBoxes.length)
+    .map((i) => i - ringBoxes.length);
   for (const i of drawnSectorLabels) {
     const { sec, text, at } = seclabs[i];
     const label = svg("text", {
@@ -258,7 +277,8 @@ export function renderBullseye(model, opts) {
   // (its number stays on the dot's title and in the matrix). Their boxes go
   // in first and are then discarded, so the surviving indices still line up
   // with `dots`.
-  const placedBoxes = drawnSectorLabels.map((i) => seclabs[i].box);
+  const placedBoxes = ringBoxes.concat(
+    drawnSectorLabels.map((i) => seclabs[i].box));
   const shown = new Set(nonOverlappingIndices(
     placedBoxes.concat(dots.map(
       (x) => (x.fits ? x.box : { left: 0, right: 0, top: 0, bottom: 0 }))))
