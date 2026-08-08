@@ -78,7 +78,7 @@ import { readFileSync } from 'node:fs';
 // make this harness unable to run against a tree that does not have it — i.e.
 // unable to reproduce the defect it exists to pin — and would let a wrong box
 // model agree with itself.
-const FONT = { ringlab: 10, seclab: 9.5, doclab: 10 };
+const FONT = { ringlab: 10, seclab: 14, doclab: 10 };
 const CHAR_ADVANCE = 0.62;
 // The rendered box of a line of text is taller than its font-size: the sweep
 // measured 12.52px for the 10px `.ringlab`, which is what makes the 210/n ring
@@ -357,9 +357,13 @@ def test_numbering_is_what_makes_the_dense_case_legible(measured):
     sectors = dense["model"]["sectors"]
     drawn = dense["sectors"]["labels"]
     # 43 sectors at 18 keywords: the rim is angularly crowded whatever the
-    # text says, so a few still lose to the collision pass — but the great
-    # majority now read, where the name labels lost half to CLIPPING alone.
-    assert drawn >= 0.85 * sectors, (drawn, sectors)
+    # text says, so some lose to the collision pass — but the great majority
+    # read, where the NAME labels lost half to clipping before overlap was
+    # even considered. The threshold moved from 0.85 to 0.75 when the letters
+    # went to 14px (Brett's "not large enough"): bigger type costs slots at
+    # the extreme end, which is the trade he asked for, and a second radial
+    # lane was measured and does not recover them.
+    assert drawn >= 0.75 * sectors, (drawn, sectors)
     assert dense["sectors"]["overlaps"] == 0
     assert dense["sectors"]["outside"] == 0
     # no label is more than a few glyphs — width has stopped being the enemy

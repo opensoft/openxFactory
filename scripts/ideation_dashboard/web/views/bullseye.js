@@ -44,7 +44,7 @@ import {
 // The three label faces, from styles.css (`.bullseye .ringlab|.seclab|.doclab`).
 // Restated here because the geometry has to know the box the text occupies —
 // that is the whole of defect 9 — and an SVG cannot ask CSS before it lays out.
-const FONT = { ring: 10, sector: 9.5, doc: 10 };
+const FONT = { ring: 10, sector: 14, doc: 10 };
 
 // How far outside the outermost ring the SECTOR labels ride. Wide enough to
 // clear the dot-label band that now sits just outside the outermost dots.
@@ -253,6 +253,10 @@ export function renderBullseye(model, opts) {
     // …placed just outside the sector's OWN ring, beside the dots it names.
     // The outermost ring keeps a wider offset so its labels clear the dot
     // labels, which sit just outside their dots on that same band.
+    // ONE lane per ring. A second radial lane was tried for the 14px
+    // letters and does not pay: further out runs into the viewBox edge,
+    // where clampLabel piles labels up (32 drawn versus 34), and further in
+    // is where the dots are.
     const lane = (sec.outerRadius >= g.rMax - 0.001) ? SECTOR_LANE : 8;
     const lr = (sec.outerRadius != null ? sec.outerRadius : g.rMax) + lane;
     const at = clampLabel(g.cx + lr * Math.cos(a), g.cy + lr * Math.sin(a),
