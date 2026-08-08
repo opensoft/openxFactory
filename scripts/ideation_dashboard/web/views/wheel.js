@@ -495,14 +495,20 @@ export function renderWheel(root, snapshot, ctx) {
   for (const w of model.wheels) {
     const col = el("section", "wheelcol");
     col.dataset.wheel = w.key;
+    // The column's NAME and COUNT are gone (Brett, 2026-08-08: "remove the
+    // wheel column headers, the tiles cover it"). The stage tiles now sit
+    // directly above the deck in the same six-stage order, so the header was
+    // repeating them a few pixels lower. What stays is the one thing the
+    // tiles cannot carry: this column's hide control — kept in place, still
+    // named for screen readers, so the affordance and its keyboard order are
+    // unchanged.
     const header = el("header", "wheelhead");
     const eye = el("button", "wheeleye", "👁");
     eye.type = "button";
     eye.title = "hide the " + w.label + " column";
     eye.setAttribute("aria-label", "hide the " + w.label + " column");
     eye.addEventListener("click", () => setHidden(w.key, true));
-    header.append(el("span", "wheelname", w.label),
-                  el("span", "wheelcount", String(w.items.length)), eye);
+    header.append(eye);
     const win = el("div", "wheelwin");
     win.dataset.wheel = w.key;
     // the badge rail: the focused centre tile's connection chips live BELOW
