@@ -27,7 +27,11 @@ Two layers run:
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose `kind` is one
    of the family kinds is validated. Other kinds are skipped and counted; the
    packaged corpus is excluded so a whole-repo sweep does not re-adjudicate
-   the negatives as though they were live records.
+   the negatives as though they were live records, and cross-record
+   references resolve against the scanned repo's OWN records plus the
+   canonical custody registry, never against the packaged examples — a
+   teaching fixture must not resolve a live reference, nor collide with a
+   consumer's DID-scoped key_ids.
 
 The rules the shapes cannot express:
 
@@ -766,7 +770,18 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                           else None)
         verified_key = (proof.get("presenting_key_ref")
                         if verified is True else None)
-        presenting_key = verified_key or attributed_key
+        if verified is True and not verified_key:
+            # No fallback to the attribution key here: a record could claim
+            # a verified signature, omit the proof key, and put the
+            # audience's key in attribution — the original laundering route,
+            # one omission deeper.
+            f.error("presenting-key-unresolved",
+                    f"{label}: the proof block records a verified signature "
+                    f"but names no presenting key, so the exercise cannot be "
+                    f"bound to any wallet; a verification that does not "
+                    f"record WHICH key verified is refused rather than "
+                    f"trusted from the attribution block")
+        presenting_key = verified_key if verified is True else attributed_key
         key_wallet = None
         if verified_key and exercise_attribution.get("mode") == "unattributed":
             f.error("attribution-laundered",
@@ -1250,11 +1265,19 @@ def repo_scan(f: Findings, target: Path, docs: dict[str, dict],
     # binding — resolved only against the packaged corpus and were therefore
     # inert on every real artifact, while legitimate parent/child pairs inside
     # the scanned repo reported spurious unresolved-reference findings.
+    #
+    # Into a context of the SCANNED REPO'S OWN records (plus the canonical
+    # registry and vocabulary), never the packaged positives: a teaching
+    # fixture must not resolve a live record's reference, and a consumer
+    # wallet legitimately reusing a DID-scoped key_id that an example also
+    # uses must not be refused as ambiguous against it. A consumer corpus is
+    # closed over itself.
+    repo_ctx = Context(ctx.registry, ctx.vocabulary)
     for _, doc in found:
-        ctx.index(doc)
+        repo_ctx.index(doc)
     for path, doc in found:
         scanned += 1
-        validate_record(f, str(path), doc, docs, ctx)
+        validate_record(f, str(path), doc, docs, repo_ctx)
     f.note(f"repo scan: {scanned} openxWallet artifact(s) validated, "
            f"{skipped} document(s) skipped as another kind")
 

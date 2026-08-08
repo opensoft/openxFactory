@@ -13,7 +13,7 @@
   RED    neutered declared-change-not-revoked            -> 1 error(s)
   RED    neutered distinct-holder-violated               -> 2 error(s)
   RED    neutered key-material-embedded                  -> 2 error(s)
-  RED    neutered presenting-key-unresolved              -> 1 error(s)
+  RED    neutered presenting-key-unresolved              -> 2 error(s)
   RED    neutered proof-of-possession-missing            -> 3 error(s)
   RED    neutered revoked-chain-exercised                -> 1 error(s)
   RED    neutered verification-failure-miscategorised    -> 1 error(s)

@@ -46,7 +46,8 @@ requirements:
       examples/negative/exercise-permitted-on-unverified-proof.yaml,
       examples/negative/exercise-by-a-wallet-the-grant-does-not-address.yaml,
       examples/negative/exercise-presenting-key-of-another-wallet.yaml,
-      examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml
+      examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml,
+      examples/negative/exercise-verified-proof-names-no-key.yaml
     red_proven: >-
       proof-of-possession-missing and verification-failure-miscategorised
       neutered in turn; corpus went red each time. Three probes because the
@@ -179,7 +180,7 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 31
+  negative_confirmations: 32
   distinct_finding_codes_proven: 20
 
 boundary:
@@ -327,6 +328,33 @@ review_docs:
       probe: >-
         examples/negative/exercise-proof-and-attribution-name-different-keys.yaml,
         examples/negative/exercise-verified-key-recorded-unattributed.yaml
+    - id: verified-proof-could-omit-its-key
+      was: >-
+        Round two, same pattern: the proof-key precedence above fell back to
+        the attribution key when the proof block named none — and
+        proof_of_possession.presenting_key_ref is optional, so a record
+        could claim verified=true, omit the proof key, and be bound through
+        self-declared attribution again (found by Codex reviewing the second
+        fix). A verified proof that does not record WHICH key verified now
+        refuses instead of falling back; unverified proofs still bind
+        through the declared key, because an unverified signature
+        establishes nothing either way.
+      probe: examples/negative/exercise-verified-proof-names-no-key.yaml
+    - id: reference-corpus-polluted-repo-resolution
+      was: >-
+        Repo mode indexed the scanned repo's records into the same context
+        already holding the packaged positive examples, so a teaching
+        fixture could resolve a live record's reference — and, once the
+        ambiguity refusal landed, a consumer wallet legitimately reusing a
+        DID-scoped key_id an example also uses (key-poster-0001) had every
+        exercise refused as ambiguous against a fixture. Repo scans now
+        build their own context from the scanned repo's records plus the
+        canonical registry and vocabulary; a consumer corpus is closed over
+        itself.
+      probe: >-
+        verified by scanning a scratch consumer repo whose wallet declares
+        key-poster-0001 under its own DID: 0 findings where the mixed index
+        refused it as ambiguous
     - id: composition-resolution-unchecked
       was: >-
         Rule (q) fired only when a composition's wallet RESOLVED to a

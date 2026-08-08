@@ -1776,7 +1776,7 @@ contracts:
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- openxWallet core + agent profile — contract-v1.31 registration (add-openxwallet, feature 006-openxwallet-contracts) ----
-  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 31
+  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 32
   # intended-invalid) and the strict validator (scripts/validate-openxwallet.py)
   # are content-addressed by commit; no per-file digest (the possibles-register
   # and ideation-routing precedent). Five digests below refreshed 2026-08-08
