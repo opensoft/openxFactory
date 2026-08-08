@@ -541,7 +541,7 @@ def check_wallet_record(f: Findings, label: str, doc: dict, ctx: Context) -> Non
     that does not exist and every ceiling computed from it would resolve to
     nothing — the cap failing open at its source."""
     model = (doc.get("custody") or {}).get("model")
-    if model and ctx.custody and model not in ctx.custody:
+    if model and model not in ctx.custody:
         f.error("custody-model-unknown",
                 f"{label}: declares custody model {model!r}, which is not a "
                 f"member of the closed registry "
@@ -972,13 +972,13 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
             f.error("distinct-holder-violated",
                     f"{label}: constraint {ref!r} is unsatisfied and the "
                     f"exercise was permitted anyway")
-        if ref and ctx.constraints and ref not in ctx.constraints:
+        if ref and ref not in ctx.constraints:
             f.warn("constraint-unresolved",
                    f"{label}: constraint {ref!r} does not resolve in the corpus")
 
     # Custody in force must be a member of the closed set.
     model = doc.get("custody_model_in_force")
-    if model and ctx.custody and model not in ctx.custody:
+    if model and model not in ctx.custody:
         f.error("custody-model-unknown",
                 f"{label}: custody_model_in_force {model!r} is not a member of "
                 f"the closed custody registry")

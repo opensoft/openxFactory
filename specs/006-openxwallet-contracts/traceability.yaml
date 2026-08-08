@@ -365,13 +365,18 @@ review_docs:
         skipped every resolution those rules exist to force: an exercise's
         presenting key fell back to the self-declared attribution wallet, a
         grant's custody ceiling never bound, and a composition passed
-        unresolved. All three rules (e, q, r) now refuse unconditionally.
+        unresolved. All three rules (e, q, r) now refuse unconditionally —
+        and round four removed the remaining three instances of the pattern
+        (the constraint-unresolved warning, suppressed in a repo with no
+        constraint records even under --strict, and the two
+        custody-model-unknown guards on the canonical set).
       probe: >-
-        verified by scanning two scratch repos — grant+exercise with no
-        wallet records fires custody-ceiling-unresolved AND
+        verified by scanning scratch repos — grant+exercise with no wallet
+        records fires custody-ceiling-unresolved AND
         presenting-key-unresolved; a lone composition fires
-        composition-wallet-unresolved; the valid consumer repo still scans
-        clean
+        composition-wallet-unresolved; an exercise evaluating a constraint
+        no record declares warns constraint-unresolved; the valid consumer
+        repo still scans clean
     - id: composition-resolution-unchecked
       was: >-
         Rule (q) fired only when a composition's wallet RESOLVED to a
