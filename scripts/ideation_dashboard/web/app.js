@@ -414,6 +414,14 @@ function initTabs(snapshot, ctx) {
       tabEls[i].tabIndex = isTarget ? 0 : -1;
       document.getElementById(t.view).hidden = !isTarget;
     });
+    // The LENS takes the whole page (Brett, 2026-08-08: "when we are on the
+    // lens screen we want to remove anything not lens related… give as much
+    // screen as possible to the radar widget and the list of documents
+    // below"). The stage tiles head the stage views — funnel, wheel, board —
+    // and say nothing about a keyword or repository set, so the lens hides
+    // them and takes the height back.
+    document.querySelector(".wrap")
+      ?.classList.toggle("lensfull", target.view === "view-lens");
     if (focusTab) document.getElementById(target.tab).focus();
     // lazy render on first activation; funnel edge geometry needs a visible layout
     if (!rendered.has(target.view)) {

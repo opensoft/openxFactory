@@ -548,7 +548,9 @@ function drillPane(model, ctx) {
 
 function bullseyePane(model, ctx) {
   const vocab = ctx.vocab;
-  const pane = el("div", "pane");
+  // `pane-bullseye`: the radar HOLDS and the matrix beneath it scrolls
+  // (Brett, 2026-08-08). The class is what lets the stylesheet say so.
+  const pane = el("div", "pane pane-bullseye");
   const h = el("div", "pane-h");
   const n = model.checked.length;
   h.appendChild(el("span", null, "bullseye — " + n + " " +

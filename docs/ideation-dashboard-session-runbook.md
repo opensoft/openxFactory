@@ -119,6 +119,11 @@ so the sixth column is whole instead of part-cut.
   ended, one column deeper. A roomy cell numbers every column. Every dot still names itself on hover, and the
   matrix — sorted by the same numbers — is the full legend. Sector numbers
   ride their own lane further out, clear of the dot labels.
+- **The lens screen takes the page** (Brett, 2026-08-08) — on the Lens tab the
+  stage tiles hide (they head the STAGE views and say nothing about a keyword
+  or repository set) and the lens fills the height. The region itself does not
+  scroll: the RADAR HOLDS while the document matrix beneath it and the
+  vocabulary rail beside it scroll on their own.
 - **The search box** — fans out to the active view's own search.
 - **The freshness header** — `repo @ ref · short-sha · generated <date>`
   (or `<project> · N repos · composed <date>` on a merged view): which
