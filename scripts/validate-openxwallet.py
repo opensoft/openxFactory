@@ -356,6 +356,14 @@ def _mapping(value: Any) -> dict:
     return value if isinstance(value, dict) else {}
 
 
+def _sequence(value: Any) -> list:
+    """A list, or [] for anything else — the sequence twin of `_mapping`.
+    `value or []` passes a truthy scalar straight to iteration, so a
+    schema-invalid `constraint_evaluations: 1` crashed the run before its
+    schema finding could be reported."""
+    return value if isinstance(value, list) else []
+
+
 def _hashable_set(values: Any) -> set:
     """The hashable members of a list, or an empty set. Set arithmetic over
     doc-supplied lists must not crash on an unhashable member; the schema
@@ -489,8 +497,8 @@ def check_no_key_material(f: Findings, label: str, node: Any,
 # --------------------------- rules (b)-(d): the custody registry ---------------------------
 
 def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
-    models = doc.get("custody_models") or []
-    tiers = {t.get("id"): t.get("rank") for t in (doc.get("authority_tiers") or [])
+    models = _sequence(doc.get("custody_models"))
+    tiers = {t.get("id"): t.get("rank") for t in _sequence(doc.get("authority_tiers"))
              if isinstance(t, dict) and not isinstance(t.get("id"), (list, dict))}
     # Rule (c) keys on the TOP RANK rather than on the id `act_unsupervised`.
     # Naming the tier would make the rule depend on a string a registry is free
@@ -805,11 +813,11 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                 f"refused rather than passed over")
     elif grant is not None:
         gscope = _mapping(grant.get("scope"))
-        if doc.get("act") and doc["act"] not in (gscope.get("acts") or []):
+        if doc.get("act") and doc["act"] not in _sequence(gscope.get("acts")):
             f.error("act-outside-grant-scope",
                     f"{label}: act {doc['act']!r} is not among the acts grant "
                     f"{doc.get('grant_ref')!r} confers "
-                    f"({sorted(gscope.get('acts') or [], key=repr)})")
+                    f"({sorted(_sequence(gscope.get('acts')), key=repr)})")
         audience_wallet = _mapping(grant.get("audience")).get("wallet_ref")
         exercising_wallet = attribution_wallet_ref(doc)
         # The presenting wallet is DERIVED from the presenting key, and the
@@ -914,10 +922,10 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
         # its own grant carries.
         if outcome == "permitted":
             evaluated = {e.get("constraint_ref")
-                         for e in (doc.get("constraint_evaluations") or [])
+                         for e in _sequence(doc.get("constraint_evaluations"))
                          if isinstance(e, dict)
                          and not isinstance(e.get("constraint_ref"), (list, dict))}
-            for ref in grant.get("distinct_holder_constraint_refs") or []:
+            for ref in _sequence(grant.get("distinct_holder_constraint_refs")):
                 if ref not in evaluated:
                     f.error("distinct-holder-violated",
                             f"{label}: grant {doc.get('grant_ref')!r} declares "
@@ -1015,7 +1023,7 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                 f"was permitted anyway")
 
     # (m) distinct-holder constraints bind where declared.
-    for evaluation in doc.get("constraint_evaluations") or []:
+    for evaluation in _sequence(doc.get("constraint_evaluations")):
         if not isinstance(evaluation, dict):
             continue
         ref = evaluation.get("constraint_ref")
@@ -1073,7 +1081,7 @@ def check_agent_composition(f: Findings, label: str, doc: dict,
                 f"{label}: a composition hash is declared with no component "
                 f"set; the set is part of the declaration so a reader can tell "
                 f"what a matching hash was actually asserting")
-    for component in component_set or []:
+    for component in _sequence(component_set):
         if not isinstance(component, dict):
             continue
         name = component.get("component")
