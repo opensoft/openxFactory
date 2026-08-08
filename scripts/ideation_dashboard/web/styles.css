@@ -1961,9 +1961,17 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 }
 .vocabbtn:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
 .vocabbtn.vocabon { color: inherit; font-weight: 700; cursor: default; opacity: 1; }
-.pane-drill { display: flex; flex-direction: column; gap: 3px; }
-.drill-row { display: flex; align-items: center; gap: 8px; }
-.drill-row .drill-label { flex: 1; font-family: var(--mono); font-size: 11px; }
+.pane-drill { display: flex; flex-direction: column; gap: 2px; }
+.drill-note { font-size: 11px; color: var(--muted); line-height: 1.45; margin: 2px 0 6px; }
+/* One row = one SET: what it is on its own line, what you can do with it on
+   the next. Crammed onto one line at 270px these read as a run-on string. */
+.drill-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 5px 0; border-top: 1px solid var(--border);
+}
+.drill-what { font-size: 12px; line-height: 1.35; }
+.drill-acts { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.drill-count { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 1; }
 .drill-empty { font-size: 11px; color: var(--muted); padding: 4px 0; }
 .drillbanner[hidden] { display: none; }
 .drillbanner { display: flex; align-items: center; gap: 8px; }
