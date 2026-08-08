@@ -313,9 +313,14 @@ export function letterLabel(index) {
   return out;
 }
 
+export const DOT_MAX_R = 11;
 export const DOT_R = 6;
 export const DOT_MIN_R = 2.5;
 export const DOT_GAP = 2.5;
+//: At or above this radius a dot carries its own number, centred INSIDE it —
+//: no outside label, so nothing can collide and every such dot is numbered.
+//: Sized for three digits at the `.dotnum` face.
+export const LABEL_INSIDE_MIN_R = 9;
 //: A cell keeps a hair of its own span free at each end so two neighbouring
 //: sectors' outermost dots do not read as one run.
 const SPAN_MARGIN = 0.9;
@@ -329,10 +334,12 @@ const SPAN_MARGIN = 0.9;
 export const LABEL_MIN_ARC = 12;
 
 //: Candidate sizes, largest first — a short deterministic ladder rather than a
-//: solve, so the chosen size is reproducible and easy to reason about.
+//: solve, so the chosen size is reproducible and easy to reason about. It
+//: starts ABOVE the ordinary size: a cell with room takes the biggest dot its
+//: area allows, which is how the number gets to live inside it.
 function sizeLadder() {
   const sizes = [];
-  for (let s = DOT_R; s >= DOT_MIN_R; s -= 0.5) sizes.push(s);
+  for (let s = DOT_MAX_R; s >= DOT_MIN_R; s -= 0.5) sizes.push(s);
   return sizes;
 }
 
@@ -407,10 +414,20 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
   }
   const { size, pitch, radii } = plan;
   const lanes = radii.length;
-  // A cell past its own capacity even at the minimum size grows angularly
-  // rather than letting dots touch — separation is the property that survives.
-  const columns = Math.max(plan.columns, Math.ceil(count / lanes));
-  const step = angularStep(radii[lanes - 1], pitch) * (180 / Math.PI);
+  // The columns actually FILLED — not the cell's capacity. Spreading across
+  // capacity would push a four-dot cell into the first quarter of its slice
+  // and leave it off-centre; and where the count exceeds capacity this grows
+  // past it, which is how an over-full cell widens instead of letting its
+  // dots touch.
+  const columns = Math.ceil(count / lanes);
+  const tight = angularStep(radii[lanes - 1], pitch) * (180 / Math.PI);
+  // SPREAD (Brett's 2026-08-07 ruling): the tight step is a MINIMUM, not the
+  // spacing. Where the columns do not fill their slice the leftover angle is
+  // shared between them, so a roomy cell uses the room it has instead of
+  // bunching against its own centre line. A cell at or past capacity keeps
+  // the tight step — the congested behaviour, left exactly as it was.
+  const usable = spanDeg * SPAN_MARGIN;
+  const step = columns > 1 ? Math.max(tight, usable / (columns - 1)) : tight;
   const start = baseDeg - (step * (columns - 1)) / 2;
   // How far apart two adjacent columns actually are, out where the labels go.
   const columnArc = (step * Math.PI / 180) * radii[0];
@@ -425,9 +442,13 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
         row: lane,          // 0 = the outermost lane; only it is labelled
         column,
         crowded,
-        // the outer lane carries a label; in a crowded cell only every other
-        // column does, and the reader infers the column between two labels
-        labelled: lane === 0 && (!crowded || column % 2 === 0),
+        // A dot big enough to hold its number DOES — every one of them, since
+        // an inside number can collide with nothing. Otherwise the outer lane
+        // carries an outside label, and in a crowded cell only every other
+        // column does, the reader inferring the column between two labels.
+        inside: size >= LABEL_INSIDE_MIN_R,
+        labelled: size >= LABEL_INSIDE_MIN_R
+          || (lane === 0 && (!crowded || column % 2 === 0)),
         slot: column % 2,   // which of the two outward label lanes to use
       });
     }
@@ -518,6 +539,7 @@ function bullseyeLayout(rows, nChecked, geom) {
         column: at.column,
         crowded: at.crowded,
         labelled: at.labelled,
+        inside: at.inside,
         angleBase: base,
         angleDeg: at.angleDeg,
         x: g.cx + at.radius * Math.cos(toRad(at.angleDeg)),

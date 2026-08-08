@@ -84,7 +84,12 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   many per lane as the slice admits, shrinking the dot only when the area
   demands it, so there is always clear space between two dots. The lanes in
   use are CENTRED on the band's midline, so a cell sits in its ring rather
-  than clinging to the line above it, and a lone dot lands on the midline. Consecutive
+  than clinging to the line above it, and a lone dot lands on the midline.
+  Where the slice has ROOM the dots grow instead — big enough to carry their
+  number INSIDE them, spread across the slice rather than bunched at its
+  centre line — and every one of them is numbered, because an inside number
+  collides with nothing. Congested cells keep the small dots and the
+  outside-label rules. Consecutive
   dots label in two lanes radially outward of their dot. NUMBERS FOLLOW THE
   LAYOUT: cell by cell (centre outward), then column by column, each column
   running from the outer lane inward — so the dots inboard of a numbered one
