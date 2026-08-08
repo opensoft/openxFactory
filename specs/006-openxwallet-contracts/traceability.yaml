@@ -17,7 +17,9 @@ requirements:
     statement: A wallet is a key, never a record of a key
     artifact: contracts/openxwallet/openxwallet-record.schema.yaml
     enforced_by: validate_openxwallet.check_no_key_material
-    negative_confirmation: examples/negative/wallet-carries-key-material.yaml
+    negative_confirmation: >-
+      examples/negative/wallet-carries-key-material.yaml,
+      examples/negative/wallet-carries-jwk-private-exponent.yaml
     red_proven: >-
       key-material-embedded neutered; corpus went red. The probe pins the
       VALUE scan specifically (a PEM block in a legitimate string field),
@@ -28,7 +30,9 @@ requirements:
     statement: Authority travels as attenuated grants, never as keys
     artifact: contracts/openxwallet/openxwallet-grant.schema.yaml
     enforced_by: validate_openxwallet.check_grant (attenuation)
-    negative_confirmation: examples/negative/grant-derived-wider-than-parent.yaml
+    negative_confirmation: >-
+      examples/negative/grant-derived-wider-than-parent.yaml,
+      examples/negative/grant-derived-waives-parent-approval.yaml
     red_proven: attenuation-widened neutered; corpus went red
 
   OXW-R3:
@@ -38,7 +42,9 @@ requirements:
     negative_confirmation: >-
       examples/negative/exercise-permitted-without-proof-of-possession.yaml,
       examples/negative/exercise-refusal-names-the-wrong-absence.yaml,
-      examples/negative/exercise-verification-failure-as-unauthenticated.yaml
+      examples/negative/exercise-verification-failure-as-unauthenticated.yaml,
+      examples/negative/exercise-permitted-on-unverified-proof.yaml,
+      examples/negative/exercise-by-a-wallet-the-grant-does-not-address.yaml
     red_proven: >-
       proof-of-possession-missing and verification-failure-miscategorised
       neutered in turn; corpus went red each time. Three probes because the
@@ -58,7 +64,9 @@ requirements:
       examples/negative/custody-registry-readable-claims-holder.yaml,
       examples/negative/custody-registry-unearned-ceiling.yaml,
       examples/negative/custody-registry-collapsed-ceilings.yaml,
-      examples/negative/custody-registry-renamed-top-tier.yaml
+      examples/negative/custody-registry-renamed-top-tier.yaml,
+      examples/negative/custody-registry-environment-outranks-holder.yaml,
+      examples/negative/wallet-custody-outside-the-closed-set.yaml
     red_proven: >-
       custody-ceiling-exceeded, custody-evidences-derivation,
       custody-ceiling-unearned and custody-collapse neutered in turn; corpus
@@ -97,7 +105,9 @@ requirements:
     statement: Distinct-holder constraints are expressible
     artifact: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
     enforced_by: validate_openxwallet.check_exercise (rule m)
-    negative_confirmation: examples/negative/exercise-one-holder-satisfies-constraint.yaml
+    negative_confirmation: >-
+      examples/negative/exercise-one-holder-satisfies-constraint.yaml,
+      examples/negative/exercise-omits-a-declared-constraint.yaml
     red_proven: >-
       distinct-holder-violated neutered; corpus went red. The opt-in half is
       asserted by the positive corpus instead: exercises declaring no
@@ -150,8 +160,8 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 17
-  distinct_finding_codes_proven: 15
+  negative_confirmations: 24
+  distinct_finding_codes_proven: 17
 
 boundary:
   runtime_created: none
@@ -164,3 +174,89 @@ boundary:
     cannot check is recorded rather than implied: that a DECLARED custody
     model is the real one. Custody declaration keeps the contract honest only
     if consumers declare truthfully.
+
+review_hardening:
+  pass: adversarial review of the validator, 2026-08-08, before any consumer adopted the family
+  finding: >-
+    The checks were sound on the shapes they examined and had four fail-open
+    gaps and one crash. Recorded because the pattern is the point: every gap
+    was a rule that looked right and asked a slightly wrong question.
+  closed:
+    - id: collapse-keyed-on-readability
+      was: >-
+        The collapse rule asked whether a model's KEY WAS READABLE. Readability
+        is only one route to evidencing the environment — an isolated key
+        signable at will evidences it too — so that middle case sat in neither
+        the readable list nor the holder list and could outrank the
+        holder-evidencing model untouched. Re-keyed onto what a model
+        EVIDENCES, which is the property the ruling was ever about.
+      probe: examples/negative/custody-registry-environment-outranks-holder.yaml
+    - id: unearned-ceiling-keyed-on-a-name
+      was: >-
+        The unearned-ceiling rule compared against the literal id
+        `act_unsupervised`; a registry names its own tiers, so renaming the top
+        tier disabled the rule. Re-keyed onto the top RANK.
+      probe: examples/negative/custody-registry-renamed-top-tier.yaml
+    - id: presentation-accepted-as-proof
+      was: >-
+        The rule tested `verified is False`, so an ABSENT verdict passed: a
+        signature presented, never checked, act permitted. Now anything that is
+        not an explicit verification is unproven.
+      probe: examples/negative/exercise-permitted-on-unverified-proof.yaml
+    - id: unbound-exercise
+      was: >-
+        Nothing tied an exercise to the grant it named — an unresolvable grant,
+        an act never conferred, a non-audience wallet, or a custody model
+        stronger than the wallet declares all passed, leaving every downstream
+        rule adjudicating a fiction.
+      probe: examples/negative/exercise-by-a-wallet-the-grant-does-not-address.yaml
+    - id: declared-custody-unchecked
+      was: >-
+        The closed set bound only where an EXERCISE reported a model in force,
+        never where a wallet DECLARED one, so an invented model made every
+        ceiling derived from it resolve to nothing.
+      probe: examples/negative/wallet-custody-outside-the-closed-set.yaml
+    - id: constraint-escaped-by-silence
+      was: >-
+        Constraints were read from the exercise's own evaluations, so an
+        exercise omitting the block escaped a constraint its grant declared.
+        Declaration lives on the grant; the check now reads it from there.
+      probe: examples/negative/exercise-omits-a-declared-constraint.yaml
+    - id: posture-not-attenuated
+      was: >-
+        Attenuation compared acts, objects, tier and expiry but not the
+        approval posture — so a derivation could keep its parent's tier and
+        waive the approval that made that tier survivable.
+      probe: examples/negative/grant-derived-waives-parent-approval.yaml
+    - id: repo-scan-inert
+      was: >-
+        Layer 2 validated real artifacts without indexing them first, so every
+        cross-record rule resolved only against the packaged corpus and was
+        inert on live records, while legitimate parent/child pairs reported
+        spurious unresolved-reference findings. It also excluded the packaged
+        corpus by this checkout's absolute paths, so scanning a VENDORED copy —
+        the normal consumption path — re-adjudicated all the negatives as live
+        records.
+      probe: verified by scanning a copied checkout; 0 findings where 23 were reported before
+    - id: naive-timestamp-aborted-the-run
+      was: >-
+        A timezone-naive expiry compared against an aware one raised TypeError,
+        which the broad handler turned into exit 2 — discarding every finding
+        from every other file and reporting a harness error where CI needed
+        findings.
+      probe: verified directly; the run now reports findings and exits 1
+    - id: key-material-patterns-too-narrow
+      was: >-
+        The value scan matched only the bare PEM armor, missing a PGP block in
+        the same field the shipped fixture uses, and missed a serialized JWK
+        entirely. Since every object in the family is closed, a JWK can only
+        arrive as a string — which is precisely where it was not being looked
+        for.
+      probe: examples/negative/wallet-carries-jwk-private-exponent.yaml
+    - id: detail-pin-failed-open
+      was: >-
+        `expected_failure` stopped at the first non-comment line, so a detail
+        pin after a blank line was silently dropped — the fixture kept a green
+        self-test with its invariant pin gone, the exact drift the pin exists
+        to prevent. Blank lines are now allowed inside the header block.
+      probe: structural; blank lines no longer terminate the header scan

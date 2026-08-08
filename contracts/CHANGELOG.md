@@ -53,16 +53,16 @@ contents. Swapping a corpus or widening retrieval scope changes identity and
 revokes; documents arriving in an already-governed corpus do not.
 
 Consumers pin this release and run `scripts/validate-openxwallet.py` from the
-pinned checkout. The validator enforces seventeen rules the shapes cannot
+pinned checkout. The validator enforces nineteen rules the shapes cannot
 express and READS the legal approval-scope vocabulary out of
 `contracts/schemas/hermes-job-envelope.schema.yaml` at run time rather than
 restating it, because restating it would recreate the parallel authority
 vocabulary the profile's third requirement forbids. The packaged corpus
-comprises 16 valid examples and 17 intended-invalid negatives covering 11 of
+comprises 16 valid examples and 24 intended-invalid negatives covering 11 of
 11 ratified requirements, with coverage closed in both directions — a
 requirement with no probe, and a probe naming no requirement, are both
 validation failures. A red-proof harness recorded with the feature confirms
-all 15 finding codes are load-bearing: suppressing any one turns the corpus
+all 17 finding codes are load-bearing: suppressing any one turns the corpus
 red.
 
 No runtime, wallet infrastructure, key storage, issuance service, or signing

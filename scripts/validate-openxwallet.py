@@ -122,6 +122,20 @@ The rules the shapes cannot express:
       resolve to a wallet whose holder class is `agent`; the core imposes
       composition on no class (profile R1).
 
+  (r) AN EXERCISE BINDS TO ITS GRANT. The grant must resolve; the act must be
+      one the grant confers; the presenting wallet must be the grant's
+      audience; and the custody recorded in force must be the custody that
+      wallet declares. Without these an exercise can cite a grant that does not
+      exist, perform an act never conferred, be presented by a wallet the grant
+      does not address, or claim evidence its own custody cannot supply — and
+      every rule downstream then adjudicates a fiction (core R3, R5).
+
+  (s) A WALLET'S DECLARED CUSTODY IS IN THE CLOSED SET. Checking custody only
+      where an exercise reports a model in force left the DECLARATION
+      unchecked, so a wallet could name a model no registry contains and every
+      ceiling derived from it resolved to nothing — the cap failing open at the
+      one point it is supposed to bind (core R4).
+
 WHAT THIS VALIDATOR DELIBERATELY DOES NOT DO
 
 It does not verify signatures, resolve DIDs, contact a key store, or check
@@ -138,7 +152,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -215,8 +229,15 @@ _KEY_NAME_ALLOW = {
     "key_id", "key_ref", "wallet_ref", "presenting_key_ref",
     "public_key_multibase", "signature_algorithm",
 }
+# Armor labels vary (`RSA`, `EC`, `OPENSSH`, `PGP … BLOCK`), and matching only
+# the bare `PRIVATE KEY-----` form let a PGP block through in the same field
+# the shipped fixture uses. Digits appear in some labels, so allow them too.
 _KEY_VALUE_RE = re.compile(
-    r"-----BEGIN (?:[A-Z ]*)PRIVATE KEY-----", re.I)
+    r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----", re.I)
+# A serialized JWK: `d` is the private exponent. The letter alone is far too
+# generic to blocklist, but alongside `kty` it is unambiguous.
+_JWK_PRIVATE_RE = re.compile(
+    r'"kty"\s*:.*"d"\s*:\s*"|"d"\s*:\s*".*"kty"\s*:', re.S)
 
 _EXPECTED_RE = re.compile(r"^#\s*expected_failure:\s*(\S+)\s*$")
 _DETAIL_RE = re.compile(r"^#\s*expected_failure_detail:\s*(.+?)\s*$")
@@ -286,10 +307,19 @@ def approval_policy_vocabulary() -> dict[str, str]:
 
 
 def parse_time(value: str) -> datetime | None:
+    """Parse an ISO timestamp, ALWAYS returning an aware datetime.
+
+    A naive value compared against an aware one raises TypeError, and a
+    TypeError here would abort the whole run as a harness error — discarding
+    every finding from every other file and reporting 'harness failure' where
+    CI needed 'findings'. A value with no offset is read as UTC; the schema's
+    `format: date-time` is what refuses the malformed value itself.
+    """
     try:
-        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except (ValueError, TypeError):
         return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
 # --------------------------- corpus context ---------------------------
@@ -343,6 +373,15 @@ class Context:
 def check_no_key_material(f: Findings, label: str, node: Any,
                           path: str = "") -> None:
     if isinstance(node, dict):
+        # A JWK carries its private exponent under the single letter `d`, which
+        # is far too generic a property name to blocklist on its own — but
+        # alongside `kty` it is unambiguous, and it is how a key most plausibly
+        # arrives as structured data rather than as armored text.
+        if "kty" in node and "d" in node:
+            f.error("key-material-embedded",
+                    f"{label}: object at {path or '<root>'!r} is a JWK carrying "
+                    f"its private exponent 'd'; a wallet references a key and "
+                    f"never carries one")
         for name, value in node.items():
             here = f"{path}.{name}" if path else str(name)
             lname = str(name).lower()
@@ -355,10 +394,17 @@ def check_no_key_material(f: Findings, label: str, node: Any,
     elif isinstance(node, list):
         for i, item in enumerate(node):
             check_no_key_material(f, label, item, f"{path}[{i}]")
-    elif isinstance(node, str) and _KEY_VALUE_RE.search(node):
-        f.error("key-material-embedded",
-                f"{label}: value at {path!r} contains a private key block; the "
-                f"property is conformant but the VALUE is key material")
+    elif isinstance(node, str):
+        if _KEY_VALUE_RE.search(node):
+            f.error("key-material-embedded",
+                    f"{label}: value at {path!r} contains a private key block; "
+                    f"the property is conformant but the VALUE is key material")
+        elif _JWK_PRIVATE_RE.search(node):
+            f.error("key-material-embedded",
+                    f"{label}: value at {path!r} is a serialized JWK carrying "
+                    f"its private exponent 'd'; every object in this family is "
+                    f"closed, so a JWK can only arrive as a STRING — which is "
+                    f"exactly why the value scan has to look for one")
 
 
 # --------------------------- rules (b)-(d): the custody registry ---------------------------
@@ -415,23 +461,32 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
                     f"evidence that the HOLDER acted")
 
     # (d) the collapse check, stated directly.
+    #
+    # Keyed on WHAT A MODEL EVIDENCES, not on whether its key is readable.
+    # Readability is only one way to end up evidencing the environment: a key
+    # isolated from the holder's context but signable by it WITHOUT LIMIT
+    # evidences the environment too. An earlier form of this check tested
+    # `key_readable_... is True`, so that middle case sat in neither list and
+    # could outrank the holder-evidencing models untouched — the collapse this
+    # rule exists to refuse, escaping through the gap between the two lists.
     holder_members = [m for m in models if isinstance(m, dict)
                       and m.get("evidences") == "holder"]
-    readable_members = [m for m in models if isinstance(m, dict)
-                        and m.get("key_readable_by_holder_execution_context") is True]
-    for readable_member in readable_members:
-        r_rank = tiers.get(readable_member.get("authority_ceiling"))
+    environment_members = [m for m in models if isinstance(m, dict)
+                           and m.get("evidences") == "environment"]
+    for env_member in environment_members:
+        e_rank = tiers.get(env_member.get("authority_ceiling"))
         for holder_member in holder_members:
+            if env_member is holder_member:
+                continue  # a self-comparison carries no information
             h_rank = tiers.get(holder_member.get("authority_ceiling"))
-            if r_rank is None or h_rank is None:
+            if e_rank is None or h_rank is None:
                 continue
-            if r_rank >= h_rank:
+            if e_rank >= h_rank:
                 f.error("custody-collapse",
-                        f"{label}: custody model "
-                        f"{readable_member.get('id')!r} is readable by the "
-                        f"holder's execution context yet caps at or above "
+                        f"{label}: custody model {env_member.get('id')!r} "
+                        f"evidences only the ENVIRONMENT yet caps at or above "
                         f"{holder_member.get('id')!r}, which evidences the "
-                        f"holder; the readable case can claim the isolated "
+                        f"HOLDER; the weaker case can claim the stronger "
                         f"case's authority and the distinction the ruling drew "
                         f"is lost")
 
@@ -440,11 +495,29 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
                 f"{label}: no custody model evidences the HOLDER; the "
                 f"enumeration must be able to express the case it exists to "
                 f"distinguish")
-    if not readable_members:
+    if not environment_members:
         f.error("custody-environment-tier-absent",
-                f"{label}: no custody model is readable by the holder's "
-                f"execution context; the enumeration must name the case it "
-                f"exists to refuse authority to")
+                f"{label}: no custody model evidences only the ENVIRONMENT; "
+                f"the enumeration must name the case it exists to refuse "
+                f"authority to")
+
+
+# --------------------------- the wallet record ---------------------------
+
+def check_wallet_record(f: Findings, label: str, doc: dict, ctx: Context) -> None:
+    """The custody model a wallet DECLARES is where the closed set actually
+    binds. Checking it only where an exercise reports a model in force left
+    the declaration itself unchecked, so a wallet could name a custody model
+    that does not exist and every ceiling computed from it would resolve to
+    nothing — the cap failing open at its source."""
+    model = (doc.get("custody") or {}).get("model")
+    if model and ctx.custody and model not in ctx.custody:
+        f.error("custody-model-unknown",
+                f"{label}: declares custody model {model!r}, which is not a "
+                f"member of the closed registry "
+                f"({sorted(ctx.custody)}); custody is declared FROM A CLOSED "
+                f"SET, and an unrecognised model is refused rather than "
+                f"treated as uncapped")
 
 
 # --------------------------- rules (e)-(h): grants ---------------------------
@@ -461,6 +534,15 @@ def check_grant(f: Findings, label: str, doc: dict, ctx: Context) -> None:
     # (e) custody caps authority.
     wallet_ref = (doc.get("audience") or {}).get("wallet_ref")
     resolved = ctx.ceiling_for_wallet(wallet_ref) if wallet_ref else None
+    if wallet_ref and resolved is None and ctx.wallets:
+        # Failing silently here would make the custody ceiling optional in
+        # practice: name a wallet nobody can resolve and the cap never runs.
+        # The attenuation rule already refuses an unresolvable parent; this is
+        # the same asymmetry closed.
+        f.error("custody-ceiling-unresolved",
+                f"{label}: audience wallet {wallet_ref!r} does not resolve to a "
+                f"wallet with a known custody model, so the ceiling that bounds "
+                f"this grant cannot be checked")
     if resolved and tier_rank is not None:
         model, ceiling = resolved
         ceiling_rank = ctx.rank(ceiling)
@@ -516,6 +598,35 @@ def check_grant(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                         f"{label}: derived grant expires {doc.get('expires_at')} "
                         f"after its parent {parent_ref!r} at "
                         f"{parent.get('expires_at')}; lifetime may only shorten")
+            # Posture is part of scope, so attenuation must cover it. Rule (h)
+            # declares posture and tier ONE vocabulary; attenuating only the
+            # tier would let a derivation keep its parent's tier and quietly
+            # waive the approval that made that tier survivable.
+            pposture = pscope.get("approval_posture") or {}
+            cposture = scope.get("approval_posture") or {}
+            if (pposture.get("hermes_approval_required_before_apply") is True
+                    and cposture.get("hermes_approval_required_before_apply") is False):
+                f.error("attenuation-widened",
+                        f"{label}: derived grant waives approval before apply "
+                        f"where its parent {parent_ref!r} requires it")
+            if (pposture.get("authority_agents_may_approve") is False
+                    and cposture.get("authority_agents_may_approve") is True):
+                f.error("attenuation-widened",
+                        f"{label}: derived grant permits agent approval where "
+                        f"its parent {parent_ref!r} withholds it")
+            dropped = sorted(set(pposture.get("human_escalation_required_for") or [])
+                             - set(cposture.get("human_escalation_required_for") or []))
+            if dropped:
+                f.error("attenuation-widened",
+                        f"{label}: derived grant drops escalation triggers "
+                        f"{dropped} its parent {parent_ref!r} requires; removing "
+                        f"an escalation widens authority")
+            lost = sorted(set(parent.get("distinct_holder_constraint_refs") or [])
+                          - set(doc.get("distinct_holder_constraint_refs") or []))
+            if lost:
+                f.error("attenuation-widened",
+                        f"{label}: derived grant drops distinct-holder "
+                        f"constraints {lost} its parent {parent_ref!r} carries")
 
     # (g) one authority vocabulary, read from the canonical envelope.
     posture = scope.get("approval_posture")
@@ -552,6 +663,16 @@ def check_grant(f: Findings, label: str, doc: dict, ctx: Context) -> None:
 
 # --------------------------- rules (i)-(m): exercise ---------------------------
 
+def attribution_wallet_ref(doc: dict) -> str | None:
+    """The wallet that actually presented this exercise, if the record names
+    one. An unattributed act names none, and is not held to the audience
+    binding — there is no claimed identity to contradict."""
+    attribution = doc.get("attribution") or {}
+    if attribution.get("mode") == "unattributed":
+        return None
+    return attribution.get("wallet_ref")
+
+
 def _revoked_ancestor(ctx: Context, grant_ref: str) -> str | None:
     seen: set[str] = set()
     ref = grant_ref
@@ -583,6 +704,66 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                 f"{label}: outcome is 'refused' with no refusal block naming "
                 f"what was lacking")
 
+    # The exercise must actually BIND to the grant it names. Without these an
+    # exercise can cite a grant that does not exist, perform an act the grant
+    # never conferred, be presented by a wallet the grant does not address, or
+    # claim a custody model stronger than its own wallet declares — each of
+    # which makes every downstream rule adjudicate a fiction.
+    grant = ctx.grants.get(doc.get("grant_ref")) if doc.get("grant_ref") else None
+    if doc.get("grant_ref") and grant is None:
+        f.error("grant-unresolved",
+                f"{label}: grant_ref {doc.get('grant_ref')!r} does not resolve, "
+                f"so neither its scope, its custody ceiling nor its revocation "
+                f"state can be checked; an exercise against an unknown grant is "
+                f"refused rather than passed over")
+    elif grant is not None:
+        gscope = grant.get("scope") or {}
+        if doc.get("act") and doc["act"] not in (gscope.get("acts") or []):
+            f.error("act-outside-grant-scope",
+                    f"{label}: act {doc['act']!r} is not among the acts grant "
+                    f"{doc.get('grant_ref')!r} confers "
+                    f"({sorted(gscope.get('acts') or [])})")
+        audience_wallet = (grant.get("audience") or {}).get("wallet_ref")
+        exercising_wallet = attribution_wallet_ref(doc)
+        if audience_wallet and exercising_wallet and exercising_wallet != audience_wallet:
+            f.error("audience-mismatch",
+                    f"{label}: presented by wallet {exercising_wallet!r} but "
+                    f"grant {doc.get('grant_ref')!r} addresses "
+                    f"{audience_wallet!r}; a grant is exercisable only by its "
+                    f"audience, or proof of possession secures nothing")
+        wallet = ctx.wallets.get(audience_wallet) if audience_wallet else None
+        if wallet is not None:
+            declared_model = (wallet.get("custody") or {}).get("model")
+            in_force = doc.get("custody_model_in_force")
+            if declared_model and in_force and in_force != declared_model:
+                f.error("custody-model-mismatch",
+                        f"{label}: records custody {in_force!r} in force while "
+                        f"wallet {audience_wallet!r} declares {declared_model!r}; "
+                        f"an exercise cannot claim evidence its wallet's custody "
+                        f"does not supply")
+            if wallet.get("state") == "suspended" and outcome == "permitted":
+                f.error("revoked-chain-exercised",
+                        f"{label}: exercise permitted while wallet "
+                        f"{audience_wallet!r} is suspended")
+        if grant.get("state") == "expired" and outcome == "permitted":
+            f.error("revoked-chain-exercised",
+                    f"{label}: exercise permitted against grant "
+                    f"{doc.get('grant_ref')!r}, whose state is 'expired'")
+        # (m, second half) Constraints are declared on the GRANT. An exercise
+        # that simply omits the evaluation would otherwise escape a constraint
+        # its own grant carries.
+        if outcome == "permitted":
+            evaluated = {e.get("constraint_ref")
+                         for e in (doc.get("constraint_evaluations") or [])
+                         if isinstance(e, dict)}
+            for ref in grant.get("distinct_holder_constraint_refs") or []:
+                if ref not in evaluated:
+                    f.error("distinct-holder-violated",
+                            f"{label}: grant {doc.get('grant_ref')!r} declares "
+                            f"constraint {ref!r} and this permitted exercise "
+                            f"records no evaluation of it; a declared "
+                            f"constraint is not escaped by silence")
+
     # (i) proof of possession, and a refusal that names the right absence.
     if presented is not True:
         if outcome == "permitted":
@@ -595,10 +776,15 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                     f"{label}: refusal names {refusal.get('code')!r} while what "
                     f"was missing is the PROOF; the grant was supplied and is "
                     f"not what was lacking")
-    elif verified is False and outcome == "permitted":
+    elif verified is not True and outcome == "permitted":
+        # `verified is not True` covers BOTH an explicit false and an ABSENT
+        # verdict. Testing only for false would let a record permit an act on
+        # a signature nobody ever checked — presentation accepted as proof,
+        # which is exactly what this requirement forbids.
         f.error("proof-of-possession-missing",
                 f"{label}: exercise permitted although the presented signature "
-                f"did not verify")
+                f"is recorded verified={verified!r}; presentation is not proof, "
+                f"and an unchecked signature is not a verified one")
 
     # (j) a verification failure is not an absence.
     if presented is True and verified is False:
@@ -608,7 +794,13 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
     elif presented is not True:
         expected_class = "unauthenticated_request"
     else:
+        # presented with no verdict recorded: the record cannot say what event
+        # this was, so say so rather than skipping the check silently.
         expected_class = None
+        f.error("verification-failure-miscategorised",
+                f"{label}: a signature was presented and no verification "
+                f"verdict is recorded, so the record cannot distinguish an "
+                f"authenticated act from a verification failure")
     if expected_class and event_class != expected_class:
         f.error("verification-failure-miscategorised",
                 f"{label}: event_class is {event_class!r} but the proof block "
@@ -785,7 +977,9 @@ def validate_record(f: Findings, label: str, doc: Any, docs: dict[str, dict],
 
     check_no_key_material(f, label, doc)
 
-    if kind == "xfactory_wallet_custody_registry":
+    if kind == "xfactory_wallet_record":
+        check_wallet_record(f, label, doc, ctx)
+    elif kind == "xfactory_wallet_custody_registry":
         check_custody_registry(f, label, doc)
     elif kind == "xfactory_wallet_grant":
         check_grant(f, label, doc, ctx)
@@ -808,6 +1002,13 @@ def expected_failure(path: Path) -> tuple[str, str | None, str]:
     negative confirmation PER REQUIREMENT rather than a pile of negatives."""
     code = detail = requirement = None
     for line in path.read_text(encoding="utf-8").splitlines():
+        # Blank lines are allowed INSIDE the header block. Stopping at the
+        # first non-comment line meant a detail pin separated by a blank line
+        # was silently dropped — and the detail pin fails OPEN (the fixture
+        # keeps a green self-test with its invariant pin gone), which is the
+        # precise drift the pin exists to prevent.
+        if not line.strip():
+            continue
         if not line.startswith("#"):
             break
         if (m := _EXPECTED_RE.match(line)):
@@ -918,12 +1119,18 @@ def repo_scan(f: Findings, target: Path, docs: dict[str, dict],
               ctx: Context) -> None:
     sweep = target.is_dir()
     files = sorted(target.rglob("*.y*ml")) if sweep else [target]
-    packaged = [family / "examples" for family in FAMILY_DIRS]
     scanned = skipped = 0
+    found: list[tuple[Path, dict]] = []
     for path in files:
         if set(path.parts) & SKIP_DIR_NAMES:
             continue
-        if any(root in path.parents for root in packaged):
+        # Exclude ANY packaged corpus, not only this checkout's. Domain repos
+        # pin and vendor openxFactory, so the normal consumption path scans a
+        # COPY — and matching on this checkout's absolute paths meant every
+        # vendored negative fixture was re-adjudicated as a live record.
+        if "examples" in path.parts and any(
+                part in ("openxwallet", "openxwallet-agent-profile")
+                for part in path.parts):
             continue
         try:
             doc = load_yaml(path)
@@ -941,6 +1148,16 @@ def repo_scan(f: Findings, target: Path, docs: dict[str, dict],
             continue
         if path.resolve() == CUSTODY_REGISTRY_PATH.resolve():
             continue
+        found.append((path, doc))
+
+    # INDEX FIRST, then validate. Without this the cross-record rules — the
+    # custody ceiling, attenuation, revocation through the chain, the audience
+    # binding — resolved only against the packaged corpus and were therefore
+    # inert on every real artifact, while legitimate parent/child pairs inside
+    # the scanned repo reported spurious unresolved-reference findings.
+    for _, doc in found:
+        ctx.index(doc)
+    for path, doc in found:
         scanned += 1
         validate_record(f, str(path), doc, docs, ctx)
     f.note(f"repo scan: {scanned} openxWallet artifact(s) validated, "
