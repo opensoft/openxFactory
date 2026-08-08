@@ -829,3 +829,21 @@ def test_each_term_carries_one_hue_from_the_rail_to_the_ring(tmp_path):
     expected = sum(len(s["hues"]) for s in r["model"]["sectorHues"])
     assert len(r["arcs"]) == expected
     assert all(a and a.startswith("stroke: hsl(") for a in r["arcs"]), r["arcs"]
+
+
+def test_the_label_faces_match_the_stylesheet():
+    """The widget restates the label font sizes because SVG cannot ask CSS
+    for a box before it lays out — so the two copies have to agree, or the
+    collision maths reasons about a label narrower than the one drawn. They
+    silently diverged when the sector letters were enlarged (Brett's
+    2026-08-07 'the letters denoting repos are not large enough'): the
+    stylesheet said 12px while the geometry still assumed 9.5."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    js = BULLSEYE_JS.read_text(encoding="utf-8")
+    declared = dict(re.findall(
+        r"(\w+):\s*([\d.]+)", re.search(r"const FONT = \{([^}]*)\}", js).group(1)))
+    for cls, key in (("ringlab", "ring"), ("seclab", "sector"), ("doclab", "doc")):
+        m = re.search(r"\.bullseye \." + cls + r"\s*\{[^}]*font-size:\s*([\d.]+)px",
+                      css, re.S)
+        assert m, cls
+        assert float(m.group(1)) == float(declared[key]), (cls, m.group(1), declared)

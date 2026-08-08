@@ -662,7 +662,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 /* The sector's letters carry the mapping, so they are sized to be read at a
    glance rather than squinted at (Brett: "the letters denoting repos are not
    large enough"). */
-.bullseye .seclab { font-size: 12px; font-weight: 700; fill: var(--faint-ink);
+.bullseye .seclab { font-size: 14px; font-weight: 700; fill: var(--faint-ink);
   letter-spacing: 0.04em; }
 /* The sector's own arc, in its keywords' hues. SUBTLE by construction: the
    hue is all the widget chooses, and the weight and opacity live here — so
