@@ -259,40 +259,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-openxwallet](openspec/changes/add-openxwallet/proposal.md)
-  — proposed 2026-08-06 from staging topic `agent-wallet-identity`, and
-  RESTRUCTURED the same day when Brett asked whether the Medx/Ledgerx
-  wallet intersection lives here. It did not: the first draft was a wallet
-  shaped like an agent, and it bound authority to `approval_policy` values
-  while the vault brainstorm binds it to attenuated capability grants —
-  two authority models under one name. Now two capabilities: a
-  holder-agnostic `openxwallet` core (a wallet is a key reference with
-  declared custody; authority travels as ATTENUATED GRANTS never as keys;
-  exercise requires proof of possession not presentation; custody caps
-  what a signature evidences; key-attributed audit; revocation propagates
-  through derivation; distinct-holder constraints expressible so
-  segregation of duties lives in the grant model; and wallets stay
-  optional for every domain, preserving MedxFactory's two ratified
-  constraints), plus `openxwallet-agent-profile` carrying only what is
-  agent-specific (declared composition with its component set,
-  declared-change revocation, authority as grant scope). Patient and
-  practitioner profiles are named successors, each a NEW profile over the
-  same core. RATIFIED 2026-08-07 with all three decisions
-  recorded: grants as the primitive (`approval_policy` survives as a legal
-  scope vocabulary), the core holder-class agnostic, and key custody
-  DECLARED from a closed set and CAPPING the authority a wallet may hold —
-  neither mandated (which would stall every consumer, there being no key
-  infrastructure yet) nor unstated (which would let a key readable by its
-  own execution context masquerade as proof the holder acted). REALIZED
-  2026-08-07 by Speckit feature `006-openxwallet-contracts` at
-  `contract-v1.31`: two neutral contract families, one validator, and a
-  corpus of 16 positives and 17 negative confirmations covering 11/11
-  requirements. The feature settled the two decisions ratification left it —
-  the closed custody set is three members with `evidences` DERIVED from two
-  declared booleans and enforced, so the collapse the ruling closes is
-  structurally impossible rather than discouraged; and the composition
-  component set covers a retrieval corpus BY REFERENCE (identity plus
-  governing configuration) rather than by its contents.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -387,6 +353,26 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-openxwallet](openspec/changes/archive/2026-08-08-add-openxwallet/proposal.md)
+  Promoted the neutral `openxwallet` core (8 requirements) and
+  `openxwallet-agent-profile` (3 requirements). A wallet is a key
+  REFERENCE with a declared custody model and never key material;
+  authority travels as ATTENUATED GRANTS that narrow monotonically;
+  exercise requires proof of possession rather than presentation; custody
+  CAPS what a signature evidences; audit is key-attributed; revocation
+  propagates through derivation and is checked at exercise;
+  distinct-holder constraints are expressible and opt-in; and wallets stay
+  optional for every domain, preserving MedxFactory's two ratified
+  constraints. Realized 2026-08-07 by Speckit feature
+  `006-openxwallet-contracts` at `contract-v1.31` and archived 2026-08-08.
+  The feature settled the two decisions ratification left it: the closed
+  custody set is three members with `evidences` DERIVED from two declared
+  booleans and enforced — so the collapse the ruling closes is
+  structurally impossible rather than discouraged — and the composition
+  component set covers a retrieval corpus BY REFERENCE (identity plus
+  governing configuration) rather than by its contents. Patient and
+  practitioner profiles remain named successors, each a NEW profile over
+  the same core and each gated on a consumer of its own.
 - [add-project-merged-projection](openspec/changes/archive/2026-08-07-add-project-merged-projection/proposal.md)
   Promoted the project merged view into `ideation-dashboard`
   (dashboard-project-scoping exit 2): one composed snapshot per register
