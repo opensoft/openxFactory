@@ -49,12 +49,15 @@ requirements:
       examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml,
       examples/negative/exercise-verified-proof-names-no-key.yaml
     red_proven: >-
-      proof-of-possession-missing and verification-failure-miscategorised
-      neutered in turn; corpus went red each time. Three probes because the
-      requirement carries three distinct clauses — presentation is
-      insufficient, the refusal names the missing PROOF rather than a missing
-      grant, and a verification failure stays distinguishable from an
-      unauthenticated request.
+      proof-of-possession-missing, verification-failure-miscategorised,
+      audience-mismatch and presenting-key-unresolved neutered in turn;
+      corpus went red each time. The probes cover the requirement's distinct
+      clauses — presentation is insufficient, the refusal names the missing
+      PROOF rather than a missing grant, a verification failure stays
+      distinguishable from an unauthenticated request, and possession is
+      checked AGAINST THE AUDIENCE through the verified presenting key
+      (derived from the corpus's wallet records; unknown, unnamed and
+      ambiguous keys refused).
 
   OXW-R4:
     statement: Custody is declared and bounds what a signature evidences
