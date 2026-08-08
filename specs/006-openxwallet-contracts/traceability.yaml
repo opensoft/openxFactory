@@ -1,0 +1,166 @@
+schema_version: 1
+kind: openxfactory_realization_traceability
+feature: 006-openxwallet-contracts
+ratified_change: add-openxwallet
+capabilities:
+  - openxwallet
+  - openxwallet-agent-profile
+
+# One row per ratified requirement. `negative_confirmation` names the recorded
+# probe; `red_proven` records that suppressing the rule's finding code turns
+# the packaged corpus red, which is what proves the probe fails FOR ITS OWN
+# REASON rather than incidentally. Reproduce with:
+#   python3 specs/006-openxwallet-contracts/evidence/red-proof.py
+
+requirements:
+  OXW-R1:
+    statement: A wallet is a key, never a record of a key
+    artifact: contracts/openxwallet/openxwallet-record.schema.yaml
+    enforced_by: validate_openxwallet.check_no_key_material
+    negative_confirmation: examples/negative/wallet-carries-key-material.yaml
+    red_proven: >-
+      key-material-embedded neutered; corpus went red. The probe pins the
+      VALUE scan specifically (a PEM block in a legitimate string field),
+      because the property-name half is already structurally impossible —
+      every object in the family closes additionalProperties.
+
+  OXW-R2:
+    statement: Authority travels as attenuated grants, never as keys
+    artifact: contracts/openxwallet/openxwallet-grant.schema.yaml
+    enforced_by: validate_openxwallet.check_grant (attenuation)
+    negative_confirmation: examples/negative/grant-derived-wider-than-parent.yaml
+    red_proven: attenuation-widened neutered; corpus went red
+
+  OXW-R3:
+    statement: Use requires proof of possession, not presentation
+    artifact: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    enforced_by: validate_openxwallet.check_exercise (rules i, j)
+    negative_confirmation: >-
+      examples/negative/exercise-permitted-without-proof-of-possession.yaml,
+      examples/negative/exercise-refusal-names-the-wrong-absence.yaml,
+      examples/negative/exercise-verification-failure-as-unauthenticated.yaml
+    red_proven: >-
+      proof-of-possession-missing and verification-failure-miscategorised
+      neutered in turn; corpus went red each time. Three probes because the
+      requirement carries three distinct clauses — presentation is
+      insufficient, the refusal names the missing PROOF rather than a missing
+      grant, and a verification failure stays distinguishable from an
+      unauthenticated request.
+
+  OXW-R4:
+    statement: Custody is declared and bounds what a signature evidences
+    artifact: contracts/openxwallet/openxwallet-custody.registry.yaml
+    enforced_by: >-
+      validate_openxwallet.check_custody_registry (rules b, c, d) and
+      check_grant (rule e)
+    negative_confirmation: >-
+      examples/negative/grant-exceeds-custody-ceiling.yaml,
+      examples/negative/custody-registry-readable-claims-holder.yaml,
+      examples/negative/custody-registry-unearned-ceiling.yaml,
+      examples/negative/custody-registry-collapsed-ceilings.yaml,
+      examples/negative/custody-registry-renamed-top-tier.yaml
+    red_proven: >-
+      custody-ceiling-exceeded, custody-evidences-derivation,
+      custody-ceiling-unearned and custody-collapse neutered in turn; corpus
+      went red each time. FIVE probes because this is the ruling's sharp edge:
+      the enumeration can fail by claiming the wrong evidence, by granting an
+      unearned ceiling, by distinguishing the two cases in NAME while
+      collapsing them in EFFECT, or by RENAMING the top tier so the
+      unearned-ceiling rule stops matching. The last was found by attacking
+      the validator rather than reading it — rule (c) originally compared
+      against the literal id `act_unsupervised`, so a registry free to name
+      its own tiers slipped an environment-evidencing model into the top tier
+      and validated cleanly. Rule (c) now keys on the top RANK.
+
+  OXW-R5:
+    statement: Every exercise is key-attributed
+    artifact: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    enforced_by: validate_openxwallet.check_exercise (rule k)
+    negative_confirmation: examples/negative/exercise-shared-credential-as-actor.yaml
+    red_proven: >-
+      attribution-laundered neutered; corpus went red. The probe is the
+      measured 2026-08-06 state written down as a record — one application
+      user carrying every agent act — and its honest counterpart is the
+      positive example exercise-unattributable-act.example.yaml.
+
+  OXW-R6:
+    statement: Revocation propagates through the chain
+    artifact: contracts/openxwallet/openxwallet-grant.schema.yaml
+    enforced_by: validate_openxwallet.check_exercise (rule l, _revoked_ancestor)
+    negative_confirmation: examples/negative/exercise-against-revoked-parent.yaml
+    red_proven: >-
+      revoked-chain-exercised neutered; corpus went red. The probe's grant
+      reads state active on its own face and resolves to a revoked parent,
+      which is exactly the case a check performed at issuance would miss.
+
+  OXW-R7:
+    statement: Distinct-holder constraints are expressible
+    artifact: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    enforced_by: validate_openxwallet.check_exercise (rule m)
+    negative_confirmation: examples/negative/exercise-one-holder-satisfies-constraint.yaml
+    red_proven: >-
+      distinct-holder-violated neutered; corpus went red. The opt-in half is
+      asserted by the positive corpus instead: exercises declaring no
+      evaluation validate, and no default distinctness is inferred.
+
+  OXW-R8:
+    statement: The capability is an authority control, never an identity substrate
+    artifact: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    enforced_by: validate_openxwallet.check_subject_attestation
+    negative_confirmation: examples/negative/subject-attestation-resolves-through-wallet.yaml
+    red_proven: >-
+      wallet-ref-as-subject-identifier neutered; corpus went red. The
+      "domain adopting no wallets is conformant" half is proven by absence —
+      no other capability's fixtures changed, and no validator requires a
+      wallet record to exist.
+
+  OXWA-R1:
+    statement: An agent holder declares its composition
+    artifact: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    enforced_by: validate_openxwallet.check_agent_composition (rule o)
+    negative_confirmation: examples/negative/composition-hash-without-component-set.yaml
+    red_proven: composition-set-missing neutered; corpus went red
+
+  OXWA-R2:
+    statement: A composition change revokes the agent's grants immediately
+    artifact: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    enforced_by: validate_openxwallet.check_agent_composition (rule p)
+    negative_confirmation: examples/negative/composition-changed-grants-still-active.yaml
+    red_proven: declared-change-not-revoked neutered; corpus went red
+
+  OXWA-R3:
+    statement: Agent authority is grant scope, not a parallel vocabulary
+    artifact: contracts/openxwallet/openxwallet-grant.schema.yaml
+    enforced_by: validate_openxwallet.check_grant (rules g, h)
+    negative_confirmation: examples/negative/grant-parallel-authority-vocabulary.yaml
+    red_proven: >-
+      authority-vocabulary-parallel neutered; corpus went red. The legal terms
+      are READ from contracts/schemas/hermes-job-envelope.schema.yaml at run
+      time rather than restated, so the check cannot drift from the vocabulary
+      it enforces — restating them would have recreated the second vocabulary
+      the requirement forbids.
+
+coverage_closure:
+  rule: >-
+    The validator fails with negative-requirement-uncovered when any
+    requirement in its closed REQUIREMENTS list carries no probe, and with
+    negative-requirement-unknown when a fixture claims a requirement that does
+    not exist. Coverage cannot silently regress in either direction.
+  measured: 11 of 11 requirements carry at least one negative confirmation
+
+corpus:
+  positive_examples: 16
+  negative_confirmations: 17
+  distinct_finding_codes_proven: 15
+
+boundary:
+  runtime_created: none
+  keys_created: 0
+  credentials_created: 0
+  wallets_created: 0
+  existing_capabilities_modified: 0
+  note: >-
+    Contracts, schemas, a validator and a fixture corpus. What a validator
+    cannot check is recorded rather than implied: that a DECLARED custody
+    model is the real one. Custody declaration keeps the contract honest only
+    if consumers declare truthfully.

@@ -1,0 +1,38 @@
+# VALID exercise: the whole control working end to end. A signature over the
+# request is presented and verifies, the presenting KEY is what the record
+# attributes the act to, revocation is checked at this moment rather than
+# trusted from issuance, and the distinct-holder constraint is evaluated
+# against the holder RECORDED for the prior act — a different agent, so the
+# post proceeds.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-post-0001
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0002
+occurred_at: "2026-08-07T11:00:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-poster-0001
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+  transport:
+    shared_credential_ref: bc-application-user:xforge-svc
+    role: transport
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-creator
+    this_holder_ref: agent:ledger-poster
+    satisfied: true
+outcome: permitted

@@ -224,6 +224,14 @@ Every DomainxFactory must validate against the canonical contract:
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
   credential record kinds under `credentials/` (DTN-004).
+- openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
+  holder-agnostic core) and
+  [contracts/openxwallet-agent-profile](contracts/openxwallet-agent-profile/README.md)
+  (its first profile), validated by `scripts/validate-openxwallet.py
+  [<repo-path>] [--strict]` — a wallet is a key REFERENCE with a declared
+  custody model and never key material; authority travels as attenuated
+  grants; custody CAPS what a signature evidences; and wallets stay optional
+  for every domain (`add-openxwallet`).
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
@@ -275,8 +283,16 @@ Active changes:
   DECLARED from a closed set and CAPPING the authority a wallet may hold —
   neither mandated (which would stall every consumer, there being no key
   infrastructure yet) nor unstated (which would let a key readable by its
-  own execution context masquerade as proof the holder acted). Awaiting its
-  single Speckit feature.
+  own execution context masquerade as proof the holder acted). REALIZED
+  2026-08-07 by Speckit feature `006-openxwallet-contracts` at
+  `contract-v1.31`: two neutral contract families, one validator, and a
+  corpus of 16 positives and 17 negative confirmations covering 11/11
+  requirements. The feature settled the two decisions ratification left it —
+  the closed custody set is three members with `evidences` DERIVED from two
+  declared booleans and enforced, so the collapse the ruling closes is
+  structurally impossible rather than discouraged; and the composition
+  component set covers a retrieval corpus BY REFERENCE (identity plus
+  governing configuration) rather than by its contents.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and

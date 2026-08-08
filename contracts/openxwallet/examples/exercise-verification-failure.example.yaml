@@ -1,0 +1,31 @@
+# VALID exercise recording a signature that was PRESENT and did NOT verify.
+# Recorded as a verification failure, which stays distinguishable from a
+# request that carried no signature at all — the two describe different
+# events, and collapsing them loses the signal that makes a stolen grant
+# visible.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-verify-fail-0003
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0007
+occurred_at: "2026-08-07T12:05:00Z"
+event_class: verification_failure
+proof_of_possession:
+  presented: true
+  verified: false
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-poster-0001
+attribution:
+  mode: unattributed
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: refused
+refusal:
+  code: proof_verification_failed
+  statement: >-
+    A signature was presented over the request and did not verify against the
+    audience wallet's key.

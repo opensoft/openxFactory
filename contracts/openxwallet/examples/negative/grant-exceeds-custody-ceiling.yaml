@@ -1,0 +1,31 @@
+# expected_failure: custody-ceiling-exceeded
+# expected_failure_detail: Raising authority requires changing custody
+# requirement: OXW-R4
+# VIOLATES core R4: authority beyond what the declared custody evidences.
+#
+# The audience wallet declares `holder_readable` custody — its key sits where
+# its own execution context can read it, so a signature evidences that the
+# ENVIRONMENT acted. This grant claims `act_unsupervised`: an irreversible
+# external effect with no approval before apply, attributed to a holder the
+# signature cannot actually establish.
+#
+# This is the exact hole the 2026-08-07 ruling closes. Refused with the
+# custody ceiling named, because raising authority is a custody question and
+# never a trust assertion.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-over-ceiling-0009
+audience:
+  wallet_ref: wal-agent-creator-0002
+  holder_ref: agent:ledger-creator
+scope:
+  acts:
+    - post_transaction
+  authority_tier: act_unsupervised
+  approval_posture:
+    hermes_approval_required_before_apply: false
+    authority_agents_may_approve: true
+    human_escalation_required_for: []
+expires_at: "2026-12-31T23:59:59Z"
+issued_at: "2026-08-07T09:00:00Z"
+state: active

@@ -1,0 +1,17 @@
+  RED    neutered attenuation-widened                    -> 1 error(s)
+  RED    neutered attribution-laundered                  -> 1 error(s)
+  RED    neutered authority-vocabulary-parallel          -> 1 error(s)
+  RED    neutered composition-set-missing                -> 1 error(s)
+  RED    neutered custody-ceiling-exceeded               -> 1 error(s)
+  RED    neutered custody-ceiling-unearned               -> 2 error(s)
+  RED    neutered custody-collapse                       -> 1 error(s)
+  RED    neutered custody-evidences-derivation           -> 1 error(s)
+  RED    neutered declared-change-not-revoked            -> 1 error(s)
+  RED    neutered distinct-holder-violated               -> 1 error(s)
+  RED    neutered key-material-embedded                  -> 1 error(s)
+  RED    neutered proof-of-possession-missing            -> 2 error(s)
+  RED    neutered revoked-chain-exercised                -> 1 error(s)
+  RED    neutered verification-failure-miscategorised    -> 1 error(s)
+  RED    neutered wallet-ref-as-subject-identifier       -> 1 error(s)
+
+OK all 15 codes are load-bearing — neutering any one turns the corpus red

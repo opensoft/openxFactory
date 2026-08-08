@@ -17,7 +17,7 @@ single Speckit feature this change hands off to; do not duplicate it here.
       `--strict`: declared composition WITH its component set;
       declared-change revocation through the core's propagation rule; and
       agent authority as grant scope admitting `approval_policy` values.
-- [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green
+- [x] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green
       before commit and again at archive.
 
 ## 2. Ratification gate
@@ -32,7 +32,8 @@ single Speckit feature this change hands off to; do not duplicate it here.
 
 ## 3. Handoff
 
-- [ ] 3.1 Open the single Speckit feature: neutral schemas under
+- [x] 3.1 REALIZED by Speckit feature `006-openxwallet-contracts`
+      (contract-v1.31). Opened the single Speckit feature: neutral schemas under
       `contracts/` for the wallet record, the custody enum with what each
       model evidences, the grant (audience, scope, expiry, parent), the
       distinct-holder constraint, and the agent profile's composition
@@ -45,7 +46,13 @@ single Speckit feature this change hands off to; do not duplicate it here.
       distinct-holder constraint satisfied by one holder; a wallet
       reference used as a subject identifier; a composition hash without
       its component set; and an authority term outside `approval_policy`.
-- [ ] 3.2 Settle before the schema is authored, not after: WHAT THE
+- [x] 3.2 SETTLED by the feature before the schema was authored, and
+      recorded in `specs/006-openxwallet-contracts/research.md`: every
+      declared component carries a `binding_mode`. A retrieval corpus is
+      bound by REFERENCE — its identity and governing configuration enter
+      the hash, its row-level contents do not — so swapping the corpus or
+      widening retrieval revokes while ordinary corpus churn does not.
+      The original framing: WHAT THE
       COMPOSITION COMPONENT SET COVERS. Including a fast-changing
       retrieval corpus fires revocation constantly and gets routed
       around; excluding it lets behaviour change without identity
@@ -54,28 +61,28 @@ single Speckit feature this change hands off to; do not duplicate it here.
 
 ## 4. Consumers and successors
 
-- [ ] 4.1 Record the first consumer: LedgerxFactory's posting
+- [x] 4.1 Record the first consumer: LedgerxFactory's posting
       segregation-of-duties control needs the core's distinct-holder
       constraint plus the agent profile, and cannot be built until this
       lands. Its staged fragment cites this change.
-- [ ] 4.2 Name the successors as successors, each gated on a consumer of
+- [x] 4.2 Name the successors as successors, each gated on a consumer of
       its own and each a NEW profile capability over the same core rather
       than a modification of it: patient profile, practitioner profile,
       certification batteries and measured drift, qualification tiers,
       delegation policy beyond monotonic attenuation.
-- [ ] 4.3 Record the `openxVault` boundary explicitly so it is not
+- [x] 4.3 Record the `openxVault` boundary explicitly so it is not
       re-litigated: the vault owns custody and its gate CONSUMES these
       grants; this capability owns identity, keys and authority. Brett
       set that split 2026-07-16.
 
 ## 5. Docs and verification
 
-- [ ] 5.1 README "OpenSpec Records" entry updated for the renamed change
+- [x] 5.1 README "OpenSpec Records" entry updated for the renamed change
       and moved when it archives.
-- [ ] 5.2 Staging topic INDEX row and detail section updated — the topic
+- [x] 5.2 Staging topic INDEX row and detail section updated — the topic
       folder is `agent-wallet-identity` while the change is
       `add-openxwallet`; record the relationship rather than leaving a
       reader to infer it.
-- [ ] 5.3 Full bar green before commit and at archive: repository
+- [x] 5.3 Full bar green before commit and at archive: repository
       validators, `openspec validate --all --strict`, and doc-health clean
       against the change and the topic.
