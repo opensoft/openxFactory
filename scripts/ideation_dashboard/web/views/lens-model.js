@@ -772,6 +772,24 @@ export function buildLensModel(snapshot, query, geom) {
   };
 }
 
+// What each vocabulary term contributes, for the rail's own rows: how many
+// identities carry it, and how they split between SHARED with another visible
+// term and carried ONLY by this one. Derived from the same dots the bullseye
+// draws, so the rail and the radar can never disagree. Pure; node-tested.
+export function railStats(model) {
+  const out = {};
+  for (const dot of model?.dots || []) {
+    const subset = dot.matchedSubset || [];
+    for (const term of subset) {
+      const row = out[term] || (out[term] = { total: 0, shared: 0, only: 0 });
+      row.total += 1;
+      if (subset.length > 1) row.shared += 1;
+      else row.only += 1;
+    }
+  }
+  return out;
+}
+
 // Doc summary/basename lookup for the renderer (kept out of the plain-data
 // model so the model stays JSON-serialisable for the node cross-checks).
 export function docSummaries(snapshot) {
