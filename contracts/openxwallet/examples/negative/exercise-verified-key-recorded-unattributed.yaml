@@ -1,0 +1,42 @@
+# expected_failure: attribution-laundered
+# expected_failure_detail: recording the act as nobody's
+# requirement: OXW-R5
+# VIOLATES core R5: a VERIFIED signature by the wrong wallet, recorded as an
+# unattributed act.
+#
+# The honest unattributed record exists for acts with NO establishable wallet
+# key — and the positive corpus shows a verification FAILURE recorded that
+# way, because an unverified signature establishes nothing. This record is
+# the inverse: the signature by key-creator-0002 verified, so the identity is
+# established, and 'unattributed' is a choice rather than a fact.
+#
+# The choice is load-bearing: an unattributed act is not held to the audience
+# binding (there is no claimed identity to contradict) or to distinct-holder
+# evaluation against a named holder. Laundering an established identity into
+# 'nobody' walks a non-audience key past both.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-verified-yet-nobody-0029
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0035
+occurred_at: "2026-08-08T11:40:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-creator-0002
+attribution:
+  mode: unattributed
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-intake-alt
+    this_holder_ref: agent:ledger-poster
+    satisfied: true
+outcome: permitted

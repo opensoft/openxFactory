@@ -1,5 +1,5 @@
   RED    neutered attenuation-widened                    -> 2 error(s)
-  RED    neutered attribution-laundered                  -> 2 error(s)
+  RED    neutered attribution-laundered                  -> 4 error(s)
   RED    neutered audience-mismatch                      -> 2 error(s)
   RED    neutered authority-vocabulary-parallel          -> 1 error(s)
   RED    neutered composition-on-non-agent               -> 1 error(s)

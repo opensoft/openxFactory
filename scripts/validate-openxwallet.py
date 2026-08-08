@@ -129,10 +129,15 @@ The rules the shapes cannot express:
       audience; and the custody recorded in force must be the custody that
       wallet declares. The presenting wallet is DERIVED from the presenting
       key through the corpus's wallet records, never read from the record's
-      own `attribution.wallet_ref` alone — a self-declared ref could be
-      omitted (skipping the binding) or could name the audience while another
-      wallet's key was presented (passing the binding on a lie), and a
-      presenting key no wallet declares is refused rather than passed over.
+      own attribution block alone — a self-declared ref could be omitted
+      (skipping the binding) or could name the audience while another
+      wallet's key was presented (passing the binding on a lie). The binding
+      key is the VERIFIED proof block's key when one is recorded: an
+      attribution key contradicting it is laundering, a verified presented
+      key on an act recorded 'unattributed' is laundering, a presenting key
+      no wallet declares is refused rather than passed over, and a key
+      declared by more than one wallet (key_id is DID-scoped) is refused as
+      ambiguous rather than resolved by file order.
       Without these an exercise can cite a grant that does not exist, perform
       an act never conferred, be presented by a wallet the grant does not
       address, or claim evidence its own custody cannot supply — and every
@@ -350,11 +355,14 @@ class Context:
         self.wallets: dict[str, dict] = {}
         self.grants: dict[str, dict] = {}
         self.constraints: dict[str, dict] = {}
-        # key_id -> wallet_id. The audience binding derives the presenting
-        # wallet FROM THE PRESENTING KEY through this index; reading only the
-        # record's self-declared `attribution.wallet_ref` let an exercise skip
-        # the binding by omitting one optional field.
-        self.wallet_by_key: dict[str, str] = {}
+        # key_id -> [wallet_id, ...]. The audience binding derives the
+        # presenting wallet FROM THE PRESENTING KEY through this index;
+        # reading only the record's self-declared `attribution.wallet_ref`
+        # let an exercise skip the binding by omitting one optional field.
+        # A LIST, not a single id: `key_id` names a key within its DID
+        # anchor, so two wallets may legally share one, and collapsing them
+        # would resolve an exercise's bare key reference by file order.
+        self.wallets_by_key: dict[str, list[str]] = {}
 
     def index(self, doc: dict) -> None:
         kind = doc.get("kind")
@@ -362,7 +370,9 @@ class Context:
             self.wallets[doc["wallet_id"]] = doc
             key_id = (doc.get("key_reference") or {}).get("key_id")
             if key_id:
-                self.wallet_by_key[key_id] = doc["wallet_id"]
+                holders = self.wallets_by_key.setdefault(key_id, [])
+                if doc["wallet_id"] not in holders:
+                    holders.append(doc["wallet_id"])
         elif kind == "xfactory_wallet_grant" and doc.get("grant_id"):
             self.grants[doc["grant_id"]] = doc
         elif (kind == "xfactory_wallet_distinct_holder_constraint"
@@ -741,28 +751,62 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                     f"({sorted(gscope.get('acts') or [])})")
         audience_wallet = (grant.get("audience") or {}).get("wallet_ref")
         exercising_wallet = attribution_wallet_ref(doc)
-        # The presenting wallet is DERIVED from the presenting key, not read
-        # from the record's own `attribution.wallet_ref`. The declared ref is
-        # a self-assertion: trusting it alone let a non-audience key exercise
-        # a grant by omitting the ref (the binding was skipped) or by
-        # declaring the audience's ref alongside another wallet's key (the
-        # binding passed on the lie).
-        attribution = doc.get("attribution") or {}
-        presenting_key = (attribution.get("presenting_key_ref")
-                          if attribution.get("mode") != "unattributed" else None)
-        key_wallet = ctx.wallet_by_key.get(presenting_key) if presenting_key else None
-        if presenting_key and key_wallet is None and ctx.wallet_by_key:
-            f.error("presenting-key-unresolved",
-                    f"{label}: presenting key {presenting_key!r} is no known "
-                    f"wallet's key_reference, so the audience binding cannot "
-                    f"be checked; an exercise presented by an unknown key is "
-                    f"refused rather than passed over")
-        elif key_wallet and exercising_wallet and key_wallet != exercising_wallet:
+        # The presenting wallet is DERIVED from the presenting key, and the
+        # binding key is the VERIFIED proof block's key when one is recorded.
+        # `attribution.presenting_key_ref` is the same self-declared data as
+        # `attribution.wallet_ref` — deriving from it alone would move the
+        # lie one field over, not close it. A verified proof ESTABLISHES its
+        # key (this corpus's own semantics: an unverified signature
+        # establishes nothing, which is why a verification failure may be
+        # recorded unattributed); the attribution block may narrate the same
+        # fact, and may not contradict it.
+        exercise_attribution = doc.get("attribution") or {}
+        attributed_key = (exercise_attribution.get("presenting_key_ref")
+                          if exercise_attribution.get("mode") != "unattributed"
+                          else None)
+        verified_key = (proof.get("presenting_key_ref")
+                        if verified is True else None)
+        presenting_key = verified_key or attributed_key
+        key_wallet = None
+        if verified_key and exercise_attribution.get("mode") == "unattributed":
             f.error("attribution-laundered",
-                    f"{label}: attribution names wallet {exercising_wallet!r} "
-                    f"while the presenting key {presenting_key!r} is wallet "
-                    f"{key_wallet!r}'s; an act is attributed to the wallet "
-                    f"whose key was presented, never to a declared stand-in")
+                    f"{label}: the proof block records a VERIFIED signature "
+                    f"by {verified_key!r} while the act is recorded "
+                    f"'unattributed'; a verified presented key is an "
+                    f"establishable identity, and recording the act as "
+                    f"nobody's launders it past the audience and "
+                    f"distinct-holder bindings it would otherwise face")
+        elif verified_key and attributed_key and attributed_key != verified_key:
+            f.error("attribution-laundered",
+                    f"{label}: attribution names presenting key "
+                    f"{attributed_key!r} while the verified proof was "
+                    f"presented by {verified_key!r}; attribution follows the "
+                    f"key that actually signed")
+        if presenting_key and ctx.wallets_by_key:
+            owners = ctx.wallets_by_key.get(presenting_key) or []
+            if not owners:
+                f.error("presenting-key-unresolved",
+                        f"{label}: presenting key {presenting_key!r} is no "
+                        f"known wallet's key_reference, so the audience "
+                        f"binding cannot be checked; an exercise presented by "
+                        f"an unknown key is refused rather than passed over")
+            elif len(owners) > 1:
+                f.error("presenting-key-unresolved",
+                        f"{label}: presenting key {presenting_key!r} is "
+                        f"declared by more than one wallet "
+                        f"({sorted(owners)}); `key_id` is scoped to its DID "
+                        f"anchor, so a bare key reference cannot say which "
+                        f"wallet presented — an ambiguous key is refused "
+                        f"rather than resolved by file order")
+            else:
+                key_wallet = owners[0]
+                if exercising_wallet and key_wallet != exercising_wallet:
+                    f.error("attribution-laundered",
+                            f"{label}: attribution names wallet "
+                            f"{exercising_wallet!r} while the presenting key "
+                            f"{presenting_key!r} is wallet {key_wallet!r}'s; "
+                            f"an act is attributed to the wallet whose key "
+                            f"was presented, never to a declared stand-in")
         presented_by = key_wallet or exercising_wallet
         if audience_wallet and presented_by and presented_by != audience_wallet:
             f.error("audience-mismatch",
@@ -1130,7 +1174,8 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
         local_ctx.wallets = dict(ctx.wallets)
         local_ctx.grants = dict(ctx.grants)
         local_ctx.constraints = dict(ctx.constraints)
-        local_ctx.wallet_by_key = dict(ctx.wallet_by_key)
+        local_ctx.wallets_by_key = {k: list(v)
+                                    for k, v in ctx.wallets_by_key.items()}
         doc = load_yaml(path)
         if isinstance(doc, dict):
             local_ctx.index(doc)

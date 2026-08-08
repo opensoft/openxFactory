@@ -88,14 +88,19 @@ requirements:
     enforced_by: validate_openxwallet.check_exercise (rule k)
     negative_confirmation: >-
       examples/negative/exercise-shared-credential-as-actor.yaml,
-      examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml
+      examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml,
+      examples/negative/exercise-proof-and-attribution-name-different-keys.yaml,
+      examples/negative/exercise-verified-key-recorded-unattributed.yaml
     red_proven: >-
       attribution-laundered neutered; corpus went red. The first probe is the
       measured 2026-08-06 state written down as a record — one application
       user carrying every agent act — and its honest counterpart is the
-      positive example exercise-unattributable-act.example.yaml. The second
-      is the declared stand-in: the audience's wallet_ref written alongside
-      another wallet's presented key.
+      positive example exercise-unattributable-act.example.yaml. The others
+      are the three laundering shapes: the declared stand-in (the audience's
+      wallet_ref written alongside another wallet's presented key), the
+      contradicted proof (attribution naming a key the verified proof did
+      not present), and the verified key recorded 'unattributed' to walk
+      past the audience and distinct-holder bindings.
 
   OXW-R6:
     statement: Revocation propagates through the chain
@@ -174,7 +179,7 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 29
+  negative_confirmations: 31
   distinct_finding_codes_proven: 20
 
 boundary:
@@ -303,6 +308,25 @@ review_docs:
         examples/negative/exercise-presenting-key-of-another-wallet.yaml,
         examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml,
         examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml
+    - id: binding-key-was-still-self-declared
+      was: >-
+        The audience-binding fix above derived the presenting wallet from
+        attribution.presenting_key_ref — self-declared data, the same trust
+        mistake one field over. Found by Codex and Copilot reviewing the fix
+        (PR #120), which is the review_hardening pattern recurring on the
+        repair itself. The binding key is now the VERIFIED proof block's key
+        when one is recorded: an attribution key contradicting it is
+        laundering; a verified presented key on an act recorded
+        'unattributed' is laundering (the record would otherwise walk a
+        non-audience key past the audience and distinct-holder bindings,
+        since an unattributed act is held to neither); and because `key_id`
+        is scoped to its DID anchor, a bare presenting key declared by more
+        than one wallet is refused as ambiguous rather than resolved by
+        file order (unfixturable in a one-document-per-probe corpus; the
+        branch shares the red-proven presenting-key-unresolved code).
+      probe: >-
+        examples/negative/exercise-proof-and-attribution-name-different-keys.yaml,
+        examples/negative/exercise-verified-key-recorded-unattributed.yaml
     - id: composition-resolution-unchecked
       was: >-
         Rule (q) fired only when a composition's wallet RESOLVED to a
