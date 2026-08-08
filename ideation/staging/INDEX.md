@@ -86,7 +86,7 @@ company is a Tenant, so onboarding a client is a STACK INSTALL. The
 `ledgerx-client-company-hermes` fixture and its bound HCS-002-S03 scenario are
 stale against LedgerxFactory's own already-fixed model (Engagement Hermes) and
 owe an OpenSpec correction spanning fixture, index, acceptance map and evidence
-register. Inventory verified 2026-08-08: the Omnigent execution layer IS running for opensoft (two online CPC runners, seven worker lanes) — the autonomous-council gap is ONE missing worker lane plus two stale pins, not a deployment. Still blocking: the (a)/(b) fork — realize request
+register. Inventory verified 2026-08-08: the Omnigent execution layer IS running for opensoft (two online CPC runners, seven worker lanes) — the autonomous-council gap is ONE missing worker lane, not a deployment (both stale pins re-pinned 2026-08-08; the drift was two additive semantic_context declarations, and merge_readiness_agent existed at the old pin too). Still blocking: the (a)/(b) fork — realize request
 intake and admission at the existing Tenant Hermes (cheap, and the ratified
 `client-infrastructure-request` capability already assigns Client Hermes the
 source-of-truth role that is currently unrealized), versus additionally standing

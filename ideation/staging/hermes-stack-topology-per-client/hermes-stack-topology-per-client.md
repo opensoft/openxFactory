@@ -130,18 +130,44 @@ claims it. That is why the convening sat unclaimed and the deliberation was
 hand-relayed by an operator agent. Not a credential gap and not a missing
 deployment — a missing worker lane in a fleet that is otherwise up.
 
-### Stale pins (independent of the above)
+### Stale pins — RE-PINNED 2026-08-08 (omnigent-install `878d4a0`)
 
-- `stack_identity.hermes_runtime_manifest` pinned at `6a05e7d` — **29 commits**
-  behind hermes-install main.
-- `domain_overlays[codex]` pinned at `469322b` — **404 commits** behind
-  codexFactory main. The running fleet therefore reflects a much earlier
-  codexFactory; `merge_readiness_agent` may not even exist in the version the
-  runners were provisioned from.
-- Subject mismatch worth reconciling: the Hermes stack's Subject layers are
-  `project-alfa` / `project-bravo`, while Omnigent's only subject workload is
-  `dartwing-gatekeeper` (`subject_ref: dartwing`, active). Layers and workloads
-  are different concerns, but nothing found reconciles them.
+Both pins had drifted (Hermes runtime manifest 29 commits, codexFactory overlay
+404 commits). Re-pinned to current heads, re-rendered with the repo's own
+renderer rather than hand-edited, and verified with the fail-closed validator
+(2 pins, 4 workloads, digest-verify + render-verify green).
+
+What the drift actually contained — checked, not assumed, and much smaller than
+the commit counts implied:
+
+- The **Hermes runtime manifest is byte-identical** at the new commit (digest
+  stays `3cba25fb`): 29 commits moved but that file never changed. A pure pin
+  refresh with no content delta.
+- The **codexFactory overlay manifest changed by exactly one line** — the
+  `domain-overlay.yaml` digest — driven by two ADDITIVE `semantic_context`
+  declarations on `test_agent` and `branch_review_agent` (contract-v1.23 wiring
+  from `adopt-domain-ontology-package`). No worker class, permission, or
+  archetype changed.
+- `rendered/effective-profiles/coding-patch-worker.yaml` came out
+  byte-identical (`f2f70eb26821`); only its provenance sidecar moved.
+
+**CORRECTION — the `merge_readiness_agent` concern is closed.** This topic
+previously speculated that the worker class "may not even exist in the version
+the runners were provisioned from". It did: `merge_readiness_agent` is present
+at the OLD pin (`469322b`) as well as the new one. The missing-worker-lane
+diagnosis stands entirely on its own — nothing dispatches the class, no runner
+label, no routing policy, no auth profile, no Hermes worker registration — and
+does NOT depend on pin staleness.
+
+**CORRECTION — the workload/subject skew is by design, not an oversight.** This
+topic previously flagged "nothing found reconciles them". The install manifest
+itself documents it verbatim: `dartwing-gatekeeper`, `ideation-dashboard` and
+`hermes-readiness` have no matching subject layer in the pinned Hermes runtime
+manifest (whose subjects are `project-alfa` / `project-bravo`), and
+"Reconciling workload subjects with stack-identity subjects is exactly the skew
+shared identity exists to surface." The validator reports it as a conformance
+WARNING deliberately. It is a standing, named observation — not a defect, and
+not blocking.
 
 ## The (a)/(b) decision this topic exists to make
 
