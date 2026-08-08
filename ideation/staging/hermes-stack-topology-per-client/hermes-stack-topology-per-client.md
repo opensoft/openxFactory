@@ -114,8 +114,6 @@ and the xFactory layer deciding *where* works with or without an Opsx stack.
 
 ## Open questions
 
-- Does a client company get its own stack, or a Subject layer in the domain's
-  stack? (The fixture contradiction above. Decides onboarding cost per client.)
 - Is the company/business Hermes in openxFactory's scope at all, or does it stay
   FarHeap's single-layer product with a defined seam between them?
 - Where do client stacks run — the opensoft tenant, or the client's own
