@@ -865,12 +865,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   width: calc(220px * var(--wheel-scale, 1)); scroll-snap-align: start;
   display: flex; flex-direction: column; min-width: 0; position: relative;
 }
+/* The column head is now just its hide control: the stage tiles above the
+   deck carry the name and the count (Brett, 2026-08-08). Right-aligned and
+   shallow, so it reads as a control rather than a title bar. */
 .wheelhead {
-  display: flex; align-items: center; gap: 6px; padding: 2px 4px 6px;
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 6px; padding: 0 4px 4px;
   border-bottom: 1px solid var(--faint);
 }
-.wheelname { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.wheelcount { font-family: var(--mono); font-size: 11px; color: var(--faint-ink); flex: 1; }
 .wheeleye {
   border: none; background: none; cursor: pointer; font-size: 12px;
   color: var(--faint-ink); padding: 0 2px;
