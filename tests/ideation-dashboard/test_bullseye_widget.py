@@ -956,3 +956,63 @@ console.log(JSON.stringify({
     assert sum(s["total"] for s in r["stats"].values()) == 3 + 2 + 2
     assert r["universe"] == 4
     assert r["empty"] == {}
+
+
+def test_cooccurrence_ranks_the_rail_and_offers_the_real_overlaps(tmp_path):
+    """Brett's 2026-08-08 finding: "our keyword radar is not very usefull. our
+    documents all tend to have only one keyword." Measured, the corpus says
+    something more specific — 447 keywords over 150 tagged documents, 292 of
+    them carried by a single document — so the overlap IS there (2,158 pairs
+    share a document) and what was missing was any way to find it. The rail
+    now ranks by connectivity and marks the long tail, and the model offers
+    the strongest overlaps outright."""
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    (tmp_path / "co.mjs").write_text("""
+import { buildLensModel, coOccurrence } from './lens-model.mjs';
+import { readFileSync } from 'node:fs';
+const snapshot = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const model = buildLensModel(snapshot, { checked: [] });
+console.log(JSON.stringify({
+  co: coOccurrence(snapshot),
+  rail: model.rail.map((r) => [r.label, r.keyword, r.degree, r.solo]),
+  pairs: model.pairs.map((p) => [p.a, p.b, p.documents]),
+}));
+""", encoding="utf-8")
+    # `hub` rides three documents and meets everything; `lonely` has one
+    # document of its own, so it can never bring a second dot
+    snapshot = {
+        "documents": [
+            {"id": "1.md", "topics": ["hub", "alpha", "beta"]},
+            {"id": "2.md", "topics": ["hub", "alpha"]},
+            {"id": "3.md", "topics": ["hub", "beta"]},
+            {"id": "4.md", "topics": ["lonely"]},
+        ],
+        "keyword_index": [
+            {"keyword": "alpha", "declared_doc_count": 2},
+            {"keyword": "beta", "declared_doc_count": 2},
+            {"keyword": "hub", "declared_doc_count": 3},
+            {"keyword": "lonely", "declared_doc_count": 1},
+        ],
+    }
+    data = tmp_path / "snap.json"
+    data.write_text(json.dumps(snapshot), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "co.mjs"), str(data)],
+                          capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    # every pair that shares a document, strongest first
+    assert r["pairs"] == [["alpha", "hub", 2], ["beta", "hub", 2],
+                          ["alpha", "beta", 1]]
+    # connectivity: how many OTHER terms each meets
+    assert r["co"]["degree"] == {"hub": 2, "alpha": 2, "beta": 2}
+    assert "lonely" not in r["co"]["degree"]
+
+    # the rail leads with the most connected, and letters follow that order —
+    # so A is the term worth checking first, not the alphabetically first
+    assert [row[1] for row in r["rail"]] == ["hub", "alpha", "beta", "lonely"]
+    assert [row[0] for row in r["rail"]] == ["A", "B", "C", "D"]
+    # the long tail is marked: carried by ONE document, whatever its degree
+    assert [row[3] for row in r["rail"]] == [False, False, False, True]

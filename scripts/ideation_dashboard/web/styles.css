@@ -2048,3 +2048,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .railsearch { display: flex; align-items: center; gap: 6px; }
 .railsearch .kwfilter { flex: 1; min-width: 0; }
 .railbulk { display: inline-flex; gap: 4px; flex: none; }
+/* The relationships the corpus already has — the lens's entry point. */
+.railrel { margin: 10px 0 6px; }
+.railrel-note { font-size: 11px; color: var(--muted); line-height: 1.4; margin-bottom: 5px; }
+.relrow {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  background: none; border: none; border-bottom: 1px solid var(--border);
+  padding: 4px 2px; cursor: pointer; text-align: left; font: inherit;
+}
+.relrow:hover { background: rgba(127,127,127,0.12); }
+.relpair { flex: 1; font-family: var(--mono); font-size: 11px; }
+.reln { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.railmore {
+  background: none; border: 1px dashed var(--border); border-radius: 5px;
+  color: var(--muted); cursor: pointer; font-size: 11px; padding: 5px 8px;
+  margin-top: 6px; width: 100%;
+}
+.railmore:hover { color: var(--ink); }
+/* The SIGNATURE GRID: the membership matrix as a picture, between the radar
+   and the table that states it row by row. Its own scroll, so a 150-document
+   corpus never pushes the table off the screen. */
+.gridwrap { flex: none; margin-top: 10px; max-height: 220px; overflow: auto; }
+.sigrid { display: flex; flex-direction: column; gap: 1px; width: max-content; }
+.sigrid-row { display: grid; grid-template-columns: 26px repeat(var(--cols), 12px); gap: 1px; align-items: center; }
+.sigrid-rowlab { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; }
+.sigrid-collab { font-family: var(--mono); font-size: 9px; font-weight: 700; text-align: center; }
+.sigrid-head { position: sticky; top: 0; background: var(--bg, #fff); z-index: 1; padding-bottom: 1px; }
+.sigcell { height: 10px; border: 1px solid var(--border); border-radius: 2px; background: transparent; }
+.sigcell.on { border-color: transparent; }
+.grid-empty { font-size: 11px; color: var(--muted); padding: 6px 0; }

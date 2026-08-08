@@ -192,6 +192,51 @@ function keywordCounts(snapshot) {
   return [...counts.keys()].sort(cmpStr).map((k) => ({ keyword: k, declaredCount: counts.get(k) }));
 }
 
+// ---- co-occurrence: which terms actually share documents -------------------
+//
+// The lens's own defect, measured on the real corpus (Brett, 2026-08-08: "our
+// keyword radar is not very usefull"): 447 keywords over 150 tagged documents,
+// and 292 of those sit on exactly ONE document. Such a keyword is not
+// isolated — its document's other topics co-occur with it — but it can only
+// ever contribute that one document, so it is the long tail, and the rail was
+// alphabetical, which buried the ~155 keywords that carry real weight among
+// them. The overlap itself is abundant: 2,158 pairs already share a document.
+//
+// Both derivations below are pure over the snapshot and independent of what
+// is checked, so the rail's order and the offered relationships stay put
+// while the human ticks.
+
+//: `{ degree, pairs }` — for each term, how many OTHER terms it shares a
+//: document with; and every co-occurring pair with its shared-document count,
+//: strongest first (ties alphabetical, so the list is stable).
+export function coOccurrence(snapshot) {
+  const degree = new Map();
+  const pairCount = new Map();
+  for (const [, topics] of docTopics(snapshot)) {
+    const terms = [...topics].sort(cmpStr);
+    for (let i = 0; i < terms.length; i += 1) {
+      for (let j = i + 1; j < terms.length; j += 1) {
+        const key = terms[i] + "\u0000" + terms[j];
+        pairCount.set(key, (pairCount.get(key) || 0) + 1);
+        if (!degree.has(terms[i])) degree.set(terms[i], new Set());
+        if (!degree.has(terms[j])) degree.set(terms[j], new Set());
+        degree.get(terms[i]).add(terms[j]);
+        degree.get(terms[j]).add(terms[i]);
+      }
+    }
+  }
+  const pairs = [...pairCount.entries()]
+    .map(([key, documents]) => {
+      const [a, b] = key.split("\u0000");
+      return { a, b, documents };
+    })
+    .sort((x, y) => y.documents - x.documents
+      || cmpStr(x.a, y.a) || cmpStr(x.b, y.b));
+  const degrees = {};
+  for (const [term, others] of degree) degrees[term] = others.size;
+  return { degree: degrees, pairs };
+}
+
 // ---- pure recipe evaluation (mirror of lens.evaluate_recipe) ----
 
 // A document passes the pin filter (`pin = require`) when it carries EVERY
@@ -716,12 +761,27 @@ export function buildLensModel(snapshot, query, geom) {
   //     beside the bullseye, so #7 on the radar is row 7 in the table.
   // Names never leave the widget: every dot and sector keeps its full name in
   // the SVG <title>, and the rail and matrix print number AND name.
-  const rail = counts.map((c, i) => ({
+  // RANK BY CONNECTIVITY, not the alphabet (Brett, 2026-08-08): a term is
+  // worth listing first when it shares documents with many others, because
+  // that is what a ring inward is made of. `solo` marks the LONG TAIL — a
+  // term carried by a single document, which can only ever put one dot on
+  // the radar — and the rail collapses those behind a toggle. Ordering is
+  // corpus-derived, so it does not
+  // shift while the human ticks — and the letters follow the order, which
+  // makes A the most connected term rather than the alphabetically first.
+  const { degree, pairs } = coOccurrence(snapshot);
+  const ordered = q.rank === false ? counts : [...counts].sort(
+    (a, b) => (degree[b.keyword] || 0) - (degree[a.keyword] || 0)
+      || b.declaredCount - a.declaredCount
+      || cmpStr(a.keyword, b.keyword));
+  const rail = ordered.map((c, i) => ({
     keyword: c.keyword,
     number: i + 1,
     label: letterLabel(i + 1),
     hue: labelHue(i + 1),
     declaredCount: c.declaredCount,
+    degree: degree[c.keyword] || 0,
+    solo: c.declaredCount <= 1,
     checked: chkSet.has(c.keyword),
     pinned: pinSet.has(c.keyword),
   }));
@@ -759,6 +819,9 @@ export function buildLensModel(snapshot, query, geom) {
     keywordNumbers: Object.fromEntries(keywordNumber),
     keywordLabels: Object.fromEntries(keywordLetter),
     keywordHues: Object.fromEntries(keywordHue),
+    // the relationships that already exist, strongest first — the lens's
+    // entry point, so the human picks a real overlap instead of guessing one
+    pairs,
     docNumbers: Object.fromEntries(docNumber),
     universe: ev.universe,
     matched: ev.matched,          // recipe membership (innermost ring)
