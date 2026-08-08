@@ -40,8 +40,8 @@ an authorization that context cannot supply evidences the HOLDER. Three
 invariants make the collapse the ruling closes structurally impossible rather
 than discouraged — the derivation itself, a top-of-ladder ceiling that must be
 earned (keyed on RANK, not on the tier's name, so renaming the top tier cannot
-disable the rule), and a check that no readable model sits at or above a model
-evidencing the holder.
+disable the rule), and a check that no model evidencing only the environment
+sits at or above a model evidencing the holder.
 
 `contracts/openxwallet-agent-profile/` is the FIRST profile over that core,
 registered as a SIBLING family rather than an extension of it, so patient and
@@ -58,11 +58,11 @@ express and READS the legal approval-scope vocabulary out of
 `contracts/schemas/hermes-job-envelope.schema.yaml` at run time rather than
 restating it, because restating it would recreate the parallel authority
 vocabulary the profile's third requirement forbids. The packaged corpus
-comprises 16 valid examples and 24 intended-invalid negatives covering 11 of
+comprises 16 valid examples and 29 intended-invalid negatives covering 11 of
 11 ratified requirements, with coverage closed in both directions — a
 requirement with no probe, and a probe naming no requirement, are both
 validation failures. A red-proof harness recorded with the feature confirms
-all 17 finding codes are load-bearing: suppressing any one turns the corpus
+all 20 finding codes are load-bearing: suppressing any one turns the corpus
 red.
 
 No runtime, wallet infrastructure, key storage, issuance service, or signing

@@ -56,7 +56,7 @@ governance-level and is not duplicated here.
 - [x] 5.1 `scripts/validate-openxwallet.py` following the repo's
       `validate-*.py` shape: standalone, runtime-resolved root, `Findings`
       with kebab-case codes, self-test plus optional repo scan, exit 0/1/2.
-- [x] 5.2 Seventeen lettered rules the shapes cannot express, each citing the
+- [x] 5.2 Nineteen lettered rules the shapes cannot express, each citing the
       requirement it enforces.
 - [x] 5.3 Read the approval-scope vocabulary from the canonical job envelope
       at run time.
@@ -73,7 +73,7 @@ governance-level and is not duplicated here.
 - [x] 6.4 `# requirement:` attribution plus closed coverage checking in both
       directions, so a requirement cannot silently lose its probe.
 - [x] 6.5 Red-proof harness (`evidence/red-proof.py`) and its recorded output:
-      all fifteen finding codes load-bearing.
+      all twenty finding codes load-bearing.
 - [x] 6.6 `traceability.yaml` — one row per ratified requirement with its
       artifact, its enforcing check, its probe, and its red-proof.
 

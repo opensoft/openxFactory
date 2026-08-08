@@ -59,8 +59,10 @@ properties:
         type: string
         enum: [subject_ref]
       reconstructable_without_wallet:
-        # Declared true or the record is refused: the domain asserts its
-        # records remain reconstructable with no wallet available.
+        # Declaring `false` is refused: a record may not assert that a wallet
+        # is a prerequisite for its own reconstruction. OMISSION IS PERMITTED
+        # — the promoted requirement binds the domain's records either way,
+        # and declaring `true` merely makes the assertion explicit.
         type: boolean
   attested_at: {type: string, format: date-time}
 $defs:

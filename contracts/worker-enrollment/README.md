@@ -2,8 +2,8 @@
 
 Status: ratified
 Ratified by: add-worker-enrollment-broker (approved 2026-07-26; registered in
-`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle
-cut, per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
+`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.29`,
+per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 
 The neutral contract for **how a machine becomes a governed worker and stays
 one** — and the one place that grants permission to become one.

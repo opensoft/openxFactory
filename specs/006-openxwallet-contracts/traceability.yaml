@@ -44,7 +44,9 @@ requirements:
       examples/negative/exercise-refusal-names-the-wrong-absence.yaml,
       examples/negative/exercise-verification-failure-as-unauthenticated.yaml,
       examples/negative/exercise-permitted-on-unverified-proof.yaml,
-      examples/negative/exercise-by-a-wallet-the-grant-does-not-address.yaml
+      examples/negative/exercise-by-a-wallet-the-grant-does-not-address.yaml,
+      examples/negative/exercise-presenting-key-of-another-wallet.yaml,
+      examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml
     red_proven: >-
       proof-of-possession-missing and verification-failure-miscategorised
       neutered in turn; corpus went red each time. Three probes because the
@@ -84,12 +86,16 @@ requirements:
     statement: Every exercise is key-attributed
     artifact: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
     enforced_by: validate_openxwallet.check_exercise (rule k)
-    negative_confirmation: examples/negative/exercise-shared-credential-as-actor.yaml
+    negative_confirmation: >-
+      examples/negative/exercise-shared-credential-as-actor.yaml,
+      examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml
     red_proven: >-
-      attribution-laundered neutered; corpus went red. The probe is the
+      attribution-laundered neutered; corpus went red. The first probe is the
       measured 2026-08-06 state written down as a record — one application
       user carrying every agent act — and its honest counterpart is the
-      positive example exercise-unattributable-act.example.yaml.
+      positive example exercise-unattributable-act.example.yaml. The second
+      is the declared stand-in: the audience's wallet_ref written alongside
+      another wallet's presented key.
 
   OXW-R6:
     statement: Revocation propagates through the chain
@@ -128,8 +134,16 @@ requirements:
     statement: An agent holder declares its composition
     artifact: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
     enforced_by: validate_openxwallet.check_agent_composition (rule o)
-    negative_confirmation: examples/negative/composition-hash-without-component-set.yaml
-    red_proven: composition-set-missing neutered; corpus went red
+    negative_confirmation: >-
+      examples/negative/composition-hash-without-component-set.yaml,
+      examples/negative/composition-for-a-wallet-that-does-not-resolve.yaml,
+      examples/negative/composition-declared-for-a-non-agent-wallet.yaml
+    red_proven: >-
+      composition-set-missing, composition-wallet-unresolved and
+      composition-on-non-agent neutered in turn; corpus went red each time.
+      The last two arrived with the 2026-08-08 docs review: rule (q) fired
+      only on a RESOLVED non-agent wallet (so a dangling wallet_ref skipped
+      the class check entirely) and carried no probe of its own.
 
   OXWA-R2:
     statement: A composition change revokes the agent's grants immediately
@@ -160,8 +174,8 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 24
-  distinct_finding_codes_proven: 17
+  negative_confirmations: 29
+  distinct_finding_codes_proven: 20
 
 boundary:
   runtime_created: none
@@ -178,7 +192,7 @@ boundary:
 review_hardening:
   pass: adversarial review of the validator, 2026-08-08, before any consumer adopted the family
   finding: >-
-    The checks were sound on the shapes they examined and had four fail-open
+    The checks were sound on the shapes they examined and had ten fail-open
     gaps and one crash. Recorded because the pattern is the point: every gap
     was a rule that looked right and asked a slightly wrong question.
   closed:
@@ -260,3 +274,60 @@ review_hardening:
         self-test with its invariant pin gone, the exact drift the pin exists
         to prevent. Blank lines are now allowed inside the header block.
       probe: structural; blank lines no longer terminate the header scan
+
+review_docs:
+  pass: >-
+    adversarial review of the DOCUMENTATION, 2026-08-08, after the validator's
+    two code passes — the prose held to the same standard as the mechanism,
+    because a sentence overstating what the contract guarantees is itself an
+    audit record asserting something the mechanism cannot support
+  finding: >-
+    Ten verified defects: five sentences asserting guarantees the validator
+    did not deliver, plus stale counts and governance headers left behind by
+    the hardening pass. Two of the five were closed by tightening the
+    VALIDATOR up to its prose (the family's fail-closed design language);
+    the other three were prose corrections aligning absolute claims to the
+    real mechanism.
+  closed:
+    - id: audience-binding-evadable
+      was: >-
+        Rule (r) read the presenting wallet from the record's own
+        attribution.wallet_ref, an OPTIONAL self-declaration — omitting it
+        skipped the audience binding entirely, and declaring the audience's
+        ref alongside another wallet's key passed the binding on a lie. The
+        presenting wallet is now DERIVED from the presenting key through the
+        corpus's wallet records; a key no wallet declares is refused
+        (presenting-key-unresolved), and a declared ref contradicting the
+        presented key is attribution laundering.
+      probe: >-
+        examples/negative/exercise-presenting-key-of-another-wallet.yaml,
+        examples/negative/exercise-attributed-to-a-wallet-not-presenting-its-key.yaml,
+        examples/negative/exercise-presenting-key-unknown-to-the-corpus.yaml
+    - id: composition-resolution-unchecked
+      was: >-
+        Rule (q) fired only when a composition's wallet RESOLVED to a
+        non-agent, while the profile README stated "must resolve to a
+        wallet" — a dangling wallet_ref validated cleanly and the class
+        check never ran. Unresolved is now refused
+        (composition-wallet-unresolved), and the rule's firing case gained
+        the probe it never had.
+      probe: >-
+        examples/negative/composition-for-a-wallet-that-does-not-resolve.yaml,
+        examples/negative/composition-declared-for-a-non-agent-wallet.yaml
+    - id: prose-guarantees-corrected
+      was: >-
+        The custody-registry schema description still keyed the
+        unearned-ceiling promise on the NAME act_unsupervised (the code has
+        been rank-keyed since the hardening pass) and described the collapse
+        rule in its pre-hardening readable-only form; the wallet-record
+        description called key-material VALUES "unrepresentable" when the
+        value scan is a PEM/JWK blocklist a raw hex seed passes; the
+        attestation schema claimed reconstructable_without_wallet is
+        "declared true or the record is refused" when omission is permitted
+        (only an explicit false is refused, which is what the promoted
+        requirement asks); the exercise schema claimed "present iff refused"
+        when only one direction is enforced. Each sentence now states what
+        the mechanism does, including the limits (blocklist scanning,
+        expiry-by-state, per-requirement coverage closure) a consumer would
+        otherwise be surprised by.
+      probe: prose-only; the reviewer's counterexample corpus validates the same way before and after

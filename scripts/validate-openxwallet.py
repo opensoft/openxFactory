@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Validate the openxWallet contract families (add-openxwallet).
 
-The openxFactory-owned canonical validator for the seven kinds of the
-holder-agnostic core (`contracts/openxwallet/`) and its first profile
-(`contracts/openxwallet-agent-profile/`). Run from the pinned openxFactory
-checkout, never copied into a domain repo:
+The openxFactory-owned canonical validator for the seven kinds across the
+holder-agnostic core (`contracts/openxwallet/`, six kinds) and its first
+profile (`contracts/openxwallet-agent-profile/`, one). Run from the pinned
+openxFactory checkout, never copied into a domain repo:
 
     python3 scripts/validate-openxwallet.py [REPO_PATH] [--strict]
 
@@ -119,16 +119,24 @@ The rules the shapes cannot express:
       threshold, score, or tolerance band is consulted (profile R2).
 
   (q) COMPOSITION BELONGS TO THE AGENT PROFILE ONLY. A composition record must
-      resolve to a wallet whose holder class is `agent`; the core imposes
-      composition on no class (profile R1).
+      resolve to a wallet whose holder class is `agent` — a wallet that does
+      not resolve is refused rather than passed over, because an unresolvable
+      wallet is a class check that never runs; the core imposes composition on
+      no class (profile R1).
 
   (r) AN EXERCISE BINDS TO ITS GRANT. The grant must resolve; the act must be
       one the grant confers; the presenting wallet must be the grant's
       audience; and the custody recorded in force must be the custody that
-      wallet declares. Without these an exercise can cite a grant that does not
-      exist, perform an act never conferred, be presented by a wallet the grant
-      does not address, or claim evidence its own custody cannot supply — and
-      every rule downstream then adjudicates a fiction (core R3, R5).
+      wallet declares. The presenting wallet is DERIVED from the presenting
+      key through the corpus's wallet records, never read from the record's
+      own `attribution.wallet_ref` alone — a self-declared ref could be
+      omitted (skipping the binding) or could name the audience while another
+      wallet's key was presented (passing the binding on a lie), and a
+      presenting key no wallet declares is refused rather than passed over.
+      Without these an exercise can cite a grant that does not exist, perform
+      an act never conferred, be presented by a wallet the grant does not
+      address, or claim evidence its own custody cannot supply — and every
+      rule downstream then adjudicates a fiction (core R3, R5).
 
   (s) A WALLET'S DECLARED CUSTODY IS IN THE CLOSED SET. Checking custody only
       where an exercise reports a model in force left the DECLARATION
@@ -342,11 +350,19 @@ class Context:
         self.wallets: dict[str, dict] = {}
         self.grants: dict[str, dict] = {}
         self.constraints: dict[str, dict] = {}
+        # key_id -> wallet_id. The audience binding derives the presenting
+        # wallet FROM THE PRESENTING KEY through this index; reading only the
+        # record's self-declared `attribution.wallet_ref` let an exercise skip
+        # the binding by omitting one optional field.
+        self.wallet_by_key: dict[str, str] = {}
 
     def index(self, doc: dict) -> None:
         kind = doc.get("kind")
         if kind == "xfactory_wallet_record" and doc.get("wallet_id"):
             self.wallets[doc["wallet_id"]] = doc
+            key_id = (doc.get("key_reference") or {}).get("key_id")
+            if key_id:
+                self.wallet_by_key[key_id] = doc["wallet_id"]
         elif kind == "xfactory_wallet_grant" and doc.get("grant_id"):
             self.grants[doc["grant_id"]] = doc
         elif (kind == "xfactory_wallet_distinct_holder_constraint"
@@ -725,9 +741,32 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                     f"({sorted(gscope.get('acts') or [])})")
         audience_wallet = (grant.get("audience") or {}).get("wallet_ref")
         exercising_wallet = attribution_wallet_ref(doc)
-        if audience_wallet and exercising_wallet and exercising_wallet != audience_wallet:
+        # The presenting wallet is DERIVED from the presenting key, not read
+        # from the record's own `attribution.wallet_ref`. The declared ref is
+        # a self-assertion: trusting it alone let a non-audience key exercise
+        # a grant by omitting the ref (the binding was skipped) or by
+        # declaring the audience's ref alongside another wallet's key (the
+        # binding passed on the lie).
+        attribution = doc.get("attribution") or {}
+        presenting_key = (attribution.get("presenting_key_ref")
+                          if attribution.get("mode") != "unattributed" else None)
+        key_wallet = ctx.wallet_by_key.get(presenting_key) if presenting_key else None
+        if presenting_key and key_wallet is None and ctx.wallet_by_key:
+            f.error("presenting-key-unresolved",
+                    f"{label}: presenting key {presenting_key!r} is no known "
+                    f"wallet's key_reference, so the audience binding cannot "
+                    f"be checked; an exercise presented by an unknown key is "
+                    f"refused rather than passed over")
+        elif key_wallet and exercising_wallet and key_wallet != exercising_wallet:
+            f.error("attribution-laundered",
+                    f"{label}: attribution names wallet {exercising_wallet!r} "
+                    f"while the presenting key {presenting_key!r} is wallet "
+                    f"{key_wallet!r}'s; an act is attributed to the wallet "
+                    f"whose key was presented, never to a declared stand-in")
+        presented_by = key_wallet or exercising_wallet
+        if audience_wallet and presented_by and presented_by != audience_wallet:
             f.error("audience-mismatch",
-                    f"{label}: presented by wallet {exercising_wallet!r} but "
+                    f"{label}: presented by wallet {presented_by!r} but "
                     f"grant {doc.get('grant_ref')!r} addresses "
                     f"{audience_wallet!r}; a grant is exercisable only by its "
                     f"audience, or proof of possession secures nothing")
@@ -945,9 +984,19 @@ def check_agent_composition(f: Findings, label: str, doc: dict,
                     f"different agent and its outstanding grants are revoked at "
                     f"that moment, with no tolerance band and no grace period")
 
-    # (q) composition belongs to the agent profile only.
+    # (q) composition belongs to the agent profile only. The wallet must
+    # RESOLVE before its holder class can be checked — firing only on a
+    # resolved non-agent wallet made resolution optional in practice: name a
+    # wallet nobody can resolve and the class check never runs. Same
+    # asymmetry the custody-ceiling and grant bindings already close.
     wallet_ref = doc.get("wallet_ref")
     wallet = ctx.wallets.get(wallet_ref) if wallet_ref else None
+    if wallet_ref and wallet is None and ctx.wallets:
+        f.error("composition-wallet-unresolved",
+                f"{label}: composition declared for wallet {wallet_ref!r}, "
+                f"which does not resolve, so its holder class cannot be "
+                f"checked; a composition for an unknown wallet is refused "
+                f"rather than passed over")
     if wallet is not None:
         holder_class = (wallet.get("holder") or {}).get("holder_class")
         if holder_class != "agent":
@@ -1081,6 +1130,7 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
         local_ctx.wallets = dict(ctx.wallets)
         local_ctx.grants = dict(ctx.grants)
         local_ctx.constraints = dict(ctx.constraints)
+        local_ctx.wallet_by_key = dict(ctx.wallet_by_key)
         doc = load_yaml(path)
         if isinstance(doc, dict):
             local_ctx.index(doc)

@@ -1,0 +1,34 @@
+# expected_failure: composition-wallet-unresolved
+# expected_failure_detail: holder class cannot be checked
+# requirement: OXWA-R1
+# VIOLATES profile R1: a composition declared for a wallet nobody can resolve.
+#
+# The declaration itself is impeccable — hash, component set, binding modes,
+# matching attestation. But wal-agent-retired-0099 resolves to no wallet
+# record, so the one thing rule (q) exists to check — that composition is
+# declared for an AGENT — can never run. Firing only on a resolved non-agent
+# wallet made resolution optional in practice, which the 2026-08-08 docs
+# review demonstrated: the profile README's "must resolve to a wallet" was a
+# claim the validator did not hold.
+#
+# What cannot be checked is refused, not passed over.
+schema_version: 1
+kind: xfactory_wallet_agent_composition
+wallet_ref: wal-agent-retired-0099
+holder_class: agent
+composition:
+  hash_algorithm: sha256
+  declared_hash: "sha256:7b2961a71070be42d17a35b9599ff18a88bd1431ae721ada212ef18b697a9c44"
+  component_set:
+    - component: model_version
+      binding_mode: content
+      content_digest: "sha256:11a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f80"
+    - component: prompt_contract
+      binding_mode: content
+      content_digest: "sha256:22b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091"
+attestation:
+  attested_hash: "sha256:7b2961a71070be42d17a35b9599ff18a88bd1431ae721ada212ef18b697a9c44"
+  attested_at: "2026-08-08T10:30:00Z"
+  source: omnigent:readiness-heartbeat
+grants_state: active
+policy_version: 1
