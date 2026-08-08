@@ -80,9 +80,11 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   divider spans only that band. Ring labels are the match count (`3 ✓`,
   `all 14 ✓`) down the vertical axis.
 - **Dots never touch** (Brett, 2026-08-07) — a cell (one ring band × one
-  sector) packs its documents across as many rows as the band admits and as
-  many per row as the arc admits, shrinking the dot only when the area
-  demands it, so there is always clear space between two dots. Consecutive
+  sector) packs its documents across as many lanes as the band admits and as
+  many per lane as the slice admits, shrinking the dot only when the area
+  demands it, so there is always clear space between two dots. The lanes in
+  use are CENTRED on the band's midline, so a cell sits in its ring rather
+  than clinging to the line above it, and a lone dot lands on the midline. Consecutive
   dots label in two lanes radially outward of their dot. NUMBERS FOLLOW THE
   LAYOUT: cell by cell (centre outward), then column by column, each column
   running from the outer lane inward — so the dots inboard of a numbered one

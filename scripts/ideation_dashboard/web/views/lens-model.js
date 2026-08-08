@@ -336,20 +336,40 @@ function sizeLadder() {
   return sizes;
 }
 
-//: How many dots of pitch `pitch` fit on the arc this row spans.
-function rowCapacity(radius, spanDeg, pitch) {
-  const arc = Math.abs(radius) * ((spanDeg * SPAN_MARGIN * Math.PI) / 180);
-  return Math.max(1, Math.floor(arc / pitch) + 1);
+//: The angle between two dots that puts `pitch` between their CENTRES at
+//: this radius — from the chord, not the arc. Arc length over-estimates the
+//: separation (the chord is the straight line the eye judges), and the gap it
+//: leaves shrinks as the radius does: at r=54 an arc-derived step left 2.46px
+//: where 2.5 was promised. Clamped so a radius under half a pitch degrades to
+//: a half-turn rather than throwing on asin's domain.
+function angularStep(radius, pitch) {
+  return 2 * Math.asin(Math.min(1, pitch / (2 * Math.max(Math.abs(radius), 0.001))));
 }
 
-//: The row radii available in a band at a given pitch, outermost first. A dot
-//: sits a half-pitch inside the band edge so it never straddles a ring line.
-function rowRadii(inner, outer, pitch) {
+//: How many dots of pitch `pitch` fit in the slice this row spans.
+function rowCapacity(radius, spanDeg, pitch) {
+  const span = (spanDeg * SPAN_MARGIN * Math.PI) / 180;
+  return Math.max(1, Math.floor(span / angularStep(radius, pitch)) + 1);
+}
+
+//: How many lanes of `pitch` a band admits — at least one, even where the
+//: band is thinner than a dot (a lone dot on the midline still reads).
+function laneCapacity(inner, outer, pitch) {
+  return Math.max(1, Math.floor((outer - inner) / pitch));
+}
+
+//: The radii for `lanes` rows, CENTRED in the band and outermost first
+//: (Brett's 2026-08-07 ruling). Rows used to be laid from the outer edge
+//: inward, so a cell using fewer lanes than its band admits hugged the ring
+//: line above it and left the space below empty — the dots read as clinging
+//: to the ring rather than sitting in it. One lane now lands exactly on the
+//: band's midline, which is where a single dot has always belonged.
+function centredRadii(inner, outer, pitch, lanes) {
+  const mid = (inner + outer) / 2;
   const radii = [];
-  for (let r = outer - pitch / 2; r >= inner + pitch / 2 - 0.001; r -= pitch) {
-    radii.push(r);
+  for (let i = 0; i < lanes; i += 1) {
+    radii.push(mid + ((lanes - 1) / 2 - i) * pitch);
   }
-  if (!radii.length) radii.push((inner + outer) / 2);   // band thinner than one dot
   return radii;
 }
 
@@ -374,10 +394,13 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
   let plan = null;
   for (const size of sizeLadder()) {
     const pitch = 2 * size + DOT_GAP;
-    const radii = rowRadii(inner, outer, pitch);
-    for (let lanes = 1; lanes <= radii.length; lanes += 1) {
+    const maxLanes = laneCapacity(inner, outer, pitch);
+    for (let lanes = 1; lanes <= maxLanes; lanes += 1) {
+      // capacity is read off the CENTRED layout, so the plan is measured
+      // against the geometry that will actually be drawn
+      const radii = centredRadii(inner, outer, pitch, lanes);
       const columns = rowCapacity(radii[lanes - 1], spanDeg, pitch);
-      plan = { size, pitch, radii: radii.slice(0, lanes), columns };
+      plan = { size, pitch, radii, columns };
       if (lanes * columns >= count) break;
     }
     if (plan && plan.radii.length * plan.columns >= count) break;
@@ -387,7 +410,7 @@ export function packCell(n, inner, outer, spanDeg, baseDeg) {
   // A cell past its own capacity even at the minimum size grows angularly
   // rather than letting dots touch — separation is the property that survives.
   const columns = Math.max(plan.columns, Math.ceil(count / lanes));
-  const step = (pitch / radii[lanes - 1]) * (180 / Math.PI);
+  const step = angularStep(radii[lanes - 1], pitch) * (180 / Math.PI);
   const start = baseDeg - (step * (columns - 1)) / 2;
   // How far apart two adjacent columns actually are, out where the labels go.
   const columnArc = (step * Math.PI / 180) * radii[0];
