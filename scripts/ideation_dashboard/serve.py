@@ -142,6 +142,10 @@ ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits"
 # gated like every local action but needs NO gate capability, which is also
 # what lets it answer from a composed (read-only) view.
 ACTIONS_DTN_SEED_ROUTE = "/actions/dtn-seed"
+# The STAGING-QUEUE seed: the same seed-first, write-nothing contract for a
+# set of documents the human selected in the lens matrix. It drafts the
+# fragment `ideation/staging/<topic>/` expects; the human places it.
+ACTIONS_STAGING_SEED_ROUTE = "/actions/staging-seed"
 ACTIONS_EDIT_ROUTE = "/actions/edit"
 ACTIONS_GATE_PREFIX = "/actions/gate/"
 # T050/T051 (change 010-doxbench-editor-chat): the two doxBench HTTP routes.
@@ -2017,6 +2021,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == ACTIONS_DTN_SEED_ROUTE:
             self._handle_dtn_seed()
             return
+        if path == ACTIONS_STAGING_SEED_ROUTE:
+            self._handle_staging_seed()
+            return
         if path == ACTIONS_APPLY_REGISTER_EDITS_ROUTE:
             self._handle_apply_register_edits()
             return
@@ -2163,6 +2170,90 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         payload = draft.as_dict()
         payload["ok"] = True
         payload["register"] = si.REGISTER_PATH
+        self._send_json(200, payload)
+
+    def _handle_staging_seed(self) -> None:
+        """Draft a STAGING-QUEUE fragment from the documents the human selected
+        in the lens matrix (Brett, 2026-08-08: "I should have a checkbox on
+        each one to generate the seed from checked").
+
+        WRITES NOTHING, like the register seed beside it: the response is the
+        fragment as TEXT plus the path it belongs at. That is why this route
+        asks for loopback but not the gate capability, and why it can answer
+        while a read-only composed view is on screen.
+
+        The client names the DOCUMENTS; their terms and repositories are read
+        HERE from the serve's own snapshot. A client that could supply the
+        terms could draft a fragment claiming a convergence the corpus does
+        not have, and the fragment's whole value is that its evidence is
+        checkable against the tree.
+        """
+        if not self.loopback:
+            self._send_json(403, {"ok": False, "error": "loopback_only",
+                                  "message": "seed drafting is loopback-only"})
+            return
+        body = self._read_json_body()
+        if body is None:
+            return
+        project = str(body.get("project_id") or "").strip()
+        wanted = body.get("documents")
+        if not isinstance(wanted, list) or not wanted:
+            self._send_json(400, {"ok": False, "error": "bad_request",
+                                  "message": "documents must be a non-empty list"})
+            return
+        if self.source is None:
+            self._send_json(403, {"ok": False, "error": "action_unavailable",
+                                  "message": "no snapshot source on this plane"})
+            return
+
+        # a composed project view when the plane has one, else the active
+        # snapshot — the keyword lens runs on both, so the seed must too
+        snapshot = self.source.compose_view(project) if project else None
+        if snapshot is None:
+            entry = self.source.registry.resolve(None)
+            snapshot = entry.read_json() if entry is not None else None
+        if not isinstance(snapshot, dict):
+            self._send_json(404, {"ok": False, "error": "unknown_project",
+                                  "message": "no snapshot to read the "
+                                             "selected documents from"})
+            return
+
+        by_id = {}
+        for doc in snapshot.get("documents") or []:
+            if not isinstance(doc, dict):
+                continue
+            for key in (doc.get("id"), doc.get("path")):
+                if key:
+                    by_id.setdefault(str(key), doc)
+        rows, missing = [], []
+        for name in wanted:
+            doc = by_id.get(str(name))
+            if doc is None:
+                missing.append(str(name))
+            else:
+                rows.append(doc)
+        if missing:
+            self._send_json(404, {
+                "ok": False, "error": "unknown_document",
+                "message": "not in this snapshot: " + ", ".join(missing[:5])})
+            return
+
+        import datetime
+        from doc_health import staging_seed as ss
+        existing = []
+        staging_root = Path(self.checkout_root) / ss.STAGING_DIR
+        try:
+            existing = sorted(p.name for p in staging_root.iterdir() if p.is_dir())
+        except OSError:
+            existing = []       # no queue reachable: no collision to avoid
+        draft = ss.draft_staging_seed(
+            rows, project=project or (snapshot.get("repository") or "corpus"),
+            as_of=datetime.date.today().isoformat(),
+            repository=str(snapshot.get("repository") or "openxFactory"),
+            existing=existing)
+        payload = draft.as_dict()
+        payload["ok"] = True
+        payload["index"] = ss.STAGING_INDEX
         self._send_json(200, payload)
 
     def _handle_apply_register_edits(self) -> None:

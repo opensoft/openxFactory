@@ -869,6 +869,38 @@ export function railStats(model) {
   return out;
 }
 
+// What the SIGNATURE GRID would show, as a sentence (Brett, 2026-08-08: the
+// grid "is taking up too much space. what value does it bring?"). The picture's
+// one finding is REPETITION — two documents whose rows are identical carry
+// exactly the same checked terms, which is the closest thing to a duplicate
+// this lens can see and the usual start of a merge. A finding can be stated in
+// one line; only the reader who wants the evidence needs the 220px drawing.
+export function signatureSummary(model) {
+  const rows = model?.matrix || [];
+  const groups = new Map();
+  for (const row of rows) {
+    const key = (row.cells || []).map((c) => (c.present ? "1" : "0")).join("");
+    const group = groups.get(key) || [];
+    group.push(row);
+    groups.set(key, group);
+  }
+  const repeated = [...groups.values()].filter((g) => g.length > 1);
+  const largest = repeated.reduce((m, g) => Math.max(m, g.length), 0);
+  return {
+    documents: rows.length,
+    signatures: groups.size,
+    // documents that are NOT alone in their signature — the ones worth reading
+    // side by side
+    repeatedDocuments: repeated.reduce((n, g) => n + g.length, 0),
+    repeatedGroups: repeated.length,
+    largestGroup: largest,
+    // the groups themselves, largest first, as document lists
+    groups: repeated
+      .map((g) => g.map((r) => r.document))
+      .sort((a, b) => b.length - a.length),
+  };
+}
+
 // Doc summary/basename lookup for the renderer (kept out of the plain-data
 // model so the model stays JSON-serialisable for the node cross-checks).
 export function docSummaries(snapshot) {

@@ -150,11 +150,34 @@ so the sixth column is whole instead of part-cut.
   that pair, so the radar starts on a real overlap instead of an empty centre.
   From there the existing path applies: the forming pane saves the set as a
   cluster, and `derive-possibles` turns a cluster into candidate ideas.
-- **The signature grid** — between the radar and the flat matrix, the same
-  membership as a picture: one row per document, one column per checked term,
-  a filled cell where the document carries it. A block of filled cells is a
-  group of documents sharing a signature, which the table cannot show and the
-  rings can only count.
+  The relationship count carries its unit (`14 docs` — documents carrying
+  BOTH), because a number that has to be hovered to be understood has not been
+  labelled.
+- **The signature grid** — the same membership as a picture: one row per
+  document, one column per checked term, a filled cell where the document
+  carries it. A block of filled cells is a group of documents sharing a
+  signature, which the table cannot show and the rings can only count. It sits
+  CLOSED (Brett, 2026-08-08: "this is taking up too much space. what value does
+  it bring?") with its finding in the summary — "32 documents share 3
+  signatures (largest 17)" — because a finding that fits in a sentence does not
+  warrant 220px of the best space on the screen; the drawing is its evidence
+  and opens on request.
+- **One document, three views, one hover** (Brett, 2026-08-08) — the radar's
+  dot, the matrix's row and the grid's row all publish the same key, and
+  pointing at any one lights the others. The lens does the join once, in the
+  pane; no renderer knows about another, so a redraw cannot strand a binding.
+- **Selecting documents** — every matrix row carries a checkbox (with a
+  select-all over the listed rows), and a selection drafts a STAGING-QUEUE
+  fragment: the queue's own format, as text, at a folder name that does not
+  collide with a topic already staged. The evidence is computed — the
+  documents, their repositories, the terms all of them share, the terms only
+  some do — and the ARGUMENT is not: the summary, why-now, claims, open
+  questions and exit path arrive marked `TO WRITE`, because a drafter that
+  argued its own case would be the machine deciding what is worth staging.
+  Nothing is written; the human places the file and adds its INDEX.md row.
+  (The repository lens's `draft seed` is the OTHER seed — a DTN
+  candidate-register row, answering whether two factories carry the same
+  artifact.)
 - **What the dashboard is** — the standing footer paragraph is a
   `what is this?` link opening a modal, so it costs no layout until asked for.
 - **The banner row** carries the STALE-FALLBACK warning only. An empty station

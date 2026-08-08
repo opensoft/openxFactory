@@ -25,7 +25,8 @@
 // screen exactly what would be persisted (the canvas.js pattern).
 
 import {
-  buildLensModel, docSummaries, railStats, termMatches, savePlan, clusterPlan, WORKBENCH_DIR,
+  buildLensModel, docSummaries, railStats, signatureSummary, termMatches,
+  savePlan, clusterPlan, WORKBENCH_DIR,
   recipeRequest, clusterRequest, LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE,
 } from "./lens-model.js";
 // The SVG bullseye renderer lives in ONE place (add-workbench-bullseye-and-create
@@ -38,6 +39,10 @@ import { identitiesFor, isComposed, repositoryVocabulary } from "./composed-mode
 // add-shared-identity-seeds: DRAFTING route (writes nothing; returns the
 // register row + detail section as TEXT for a human to merge).
 export const DTN_SEED_ROUTE = "/actions/dtn-seed";
+// The STAGING-QUEUE seed: a topic fragment drafted from documents the human
+// selected in the matrix. Same discipline as the register seed — loopback,
+// write-nothing, TEXT the human places.
+export const STAGING_SEED_ROUTE = "/actions/staging-seed";
 
 //: How many of the ranked relationships the rail offers. Enough to choose
 //: from, short enough to read; the whole list is the model's `pairs`.
@@ -388,8 +393,13 @@ function keywordRail(model, ctx) {
     relH.appendChild(el("span", null, "relationships"));
     relH.appendChild(el("span", "n", model.pairs.length + " pairs"));
     rel.appendChild(relH);
+    // The count carries its UNIT. It was a bare number and had to be asked
+    // about (Brett, 2026-08-08: "there is a number. what is that number
+    // mean?") — a number a reader has to hover to understand is a number
+    // that has not been labelled.
     rel.appendChild(el("div", "railrel-note",
-      "Keyword pairs that already share documents. Opening one checks both."));
+      "Keyword pairs that already share documents — the count is how many "
+      + "documents carry BOTH. Opening one checks both."));
     for (const pair of model.pairs.slice(0, RELATIONSHIPS_SHOWN)) {
       const row = el("button", "relrow");
       row.type = "button";
@@ -397,7 +407,8 @@ function keywordRail(model, ctx) {
         + pair.documents + " document" + (pair.documents === 1 ? "" : "s")
         + " carry both";
       row.appendChild(el("span", "relpair", pair.a + " + " + pair.b));
-      row.appendChild(el("span", "reln", String(pair.documents)));
+      row.appendChild(el("span", "reln", pair.documents
+        + (pair.documents === 1 ? " doc" : " docs")));
       row.addEventListener("click", () => ctx.only([pair.a, pair.b]));
       rel.appendChild(row);
     }
@@ -527,10 +538,12 @@ function keywordRail(model, ctx) {
 
 // ---- pane 2: bullseye (the shared widget) + the always-present flat matrix ----
 
-function matrix(model) {
+function matrix(model, ctx) {
   const table = el("table", "lensmatrix");
   table.setAttribute("aria-label", "Keyword membership matrix (flat view of the bullseye)");
   const head = el("tr");
+  const pickHead = el("th", "pickcol");
+  head.appendChild(pickHead);
   head.appendChild(el("th", null, "#"));
   head.appendChild(el("th", null, "doc"));
   // the column heads carry the keyword's RAIL LETTER too, so a sector label
@@ -541,8 +554,35 @@ function matrix(model) {
   }
   head.appendChild(el("th", null, "ring"));
   table.appendChild(head);
+  // check/uncheck every listed row at once — the same all/none the rail has,
+  // because a selection over 53 rows is not built one tick at a time
+  if (model.matrix.length && ctx.pickDoc) {
+    const all = el("input");
+    all.type = "checkbox";
+    all.title = "select every listed document";
+    all.setAttribute("aria-label", "select every listed document");
+    all.checked = model.matrix.every((r) => ctx.isPicked(r.document));
+    all.addEventListener("change", () =>
+      ctx.pickDocs(model.matrix.map((r) => r.document), all.checked));
+    pickHead.appendChild(all);
+  }
   for (const r of model.matrix) {
     const tr = el("tr");
+    tr.dataset.doc = r.document;
+    // SELECTION (Brett, 2026-08-08: "I should have a checkbox on each one to
+    // generate the seed from checked"). The row's own box, so the set is
+    // built where the evidence is read rather than retyped somewhere else.
+    const pick = el("td", "pickcol");
+    if (ctx.pickDoc) {
+      const box = el("input");
+      box.type = "checkbox";
+      box.checked = ctx.isPicked(r.document);
+      box.title = "include " + r.document + " in the drafted seed";
+      box.setAttribute("aria-label", "select " + r.document);
+      box.addEventListener("change", () => ctx.pickDoc(r.document, box.checked));
+      pick.appendChild(box);
+    }
+    tr.appendChild(pick);
     // the matrix IS the radar's legend: #N here is the number on that dot
     tr.appendChild(el("td", "docnum", String(r.number)));
     tr.appendChild(el("td", null, String(r.document).split("/").pop() || r.document));
@@ -553,7 +593,7 @@ function matrix(model) {
   if (!model.matrix.length) {
     const tr = el("tr");
     const td = el("td", "empty", "no documents match the checked keywords");
-    td.setAttribute("colspan", String(model.checked.length + 3));
+    td.setAttribute("colspan", String(model.checked.length + 4));
     tr.appendChild(td);
     table.appendChild(tr);
   }
@@ -584,6 +624,36 @@ function renderSeed(container, data) {
       copy.textContent = "copied";
     } catch {
       // clipboard denied: the text is on screen and selectable anyway
+      copy.textContent = "select the text above";
+    }
+  });
+  box.appendChild(copy);
+  container.appendChild(box);
+}
+
+// The drafted STAGING fragment: the queue's own format, as text. Deliberately
+// a SCAFFOLD — the header block, the documents, and the terms they share are
+// computed; the argument is not, and the draft says which sections a human
+// still has to write. A staging fragment that argued its own case would be
+// the machine deciding what is worth staging.
+function renderStagingSeed(container, data) {
+  container.innerHTML = "";
+  const box = el("div", "draft-confirm");
+  box.appendChild(el("div", "dc-h",
+    "drafted staging seed — nothing is written"));
+  box.appendChild(el("div", "dc-note",
+    "Place this at " + data.path + " and finish the sections marked TO "
+    + "WRITE. It enters the queue when you commit it and add its row to "
+    + "ideation/staging/INDEX.md."));
+  const pre = el("pre", "seedtext", data.text);
+  box.appendChild(pre);
+  const copy = el("button", "cbtn", "copy");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(data.text);
+      copy.textContent = "copied";
+    } catch {
       copy.textContent = "select the text above";
     }
   });
@@ -705,10 +775,30 @@ function drillPane(model, ctx) {
 // disagree. The table stays: it is required to be always present, and a grid
 // is not readable at one row.
 function matrixGraphic(model, ctx) {
-  const pane = el("div", "gridwrap");
-  const h = el("div", "pane-h");
+  // COLLAPSED, and its summary STATES THE FINDING (Brett, 2026-08-08: "this is
+  // taking up too much space. what value does it bring?"). The grid's one
+  // finding is repetition — documents whose rows are identical carry exactly
+  // the same checked terms — and a finding fits on one line. The drawing is
+  // the evidence for that line, so it opens on request and costs nothing until
+  // then, which is the answer to "a better place that uses less screen".
+  const pane = el("details", "gridwrap");
+  const h = el("summary", "pane-h");
   h.appendChild(el("span", null, "signature grid"));
+  const sig = signatureSummary(model);
   h.appendChild(el("span", "n", model.matrix.length + " × " + model.checked.length));
+  if (model.matrix.length && model.checked.length) {
+    h.appendChild(el("span", "gridfind", sig.repeatedGroups
+      ? sig.repeatedDocuments + " docs share " + sig.repeatedGroups
+        + (sig.repeatedGroups === 1 ? " signature" : " signatures")
+        + " (largest " + sig.largestGroup + ")"
+      : sig.signatures + " signatures, all different"));
+    h.title = sig.repeatedGroups
+      ? "Documents with the SAME signature carry exactly the same checked "
+        + ctx.vocab.terms + " — the closest thing to a duplicate this lens "
+        + "can see, and the usual place a merge starts. Open to see which."
+      : "Every document carries a different combination of the checked "
+        + ctx.vocab.terms + ": nothing here to merge.";
+  }
   pane.appendChild(h);
   if (!model.checked.length || !model.matrix.length) {
     pane.appendChild(el("div", "grid-empty",
@@ -733,6 +823,7 @@ function matrixGraphic(model, ctx) {
 
   for (const row of model.matrix) {
     const line = el("div", "sigrid-row");
+    line.dataset.doc = row.document;
     const label = el("span", "sigrid-rowlab", String(row.number));
     label.title = row.document;
     line.appendChild(label);
@@ -771,8 +862,61 @@ function bullseyePane(model, ctx) {
   // documents that share a signature
   pane.appendChild(matrixGraphic(model, ctx));
   // the flat matrix is ALWAYS rendered alongside — not a toggle-only alternate.
-  pane.appendChild(matrix(model));
+  pane.appendChild(matrix(model, ctx));
+  if (ctx.pickDoc) pane.appendChild(pickBar(model, ctx));
+
+  // THE JOIN, done once for the whole pane. Every view of a document carries
+  // `data-doc`, so pointing at any one of them lights the others — the dot,
+  // its table row, its grid row. Delegated from the pane: three renderers
+  // publish a key, nothing subscribes to anything, and a redraw cannot leave
+  // a stale listener behind.
+  const lit = (doc, on) => {
+    for (const node of pane.querySelectorAll('[data-doc="' + cssEscape(doc) + '"]')) {
+      node.classList.toggle("lit", on);
+    }
+  };
+  pane.addEventListener("pointerover", (e) => {
+    const node = e.target.closest ? e.target.closest("[data-doc]") : null;
+    if (node) lit(node.dataset.doc, true);
+  });
+  pane.addEventListener("pointerout", (e) => {
+    const node = e.target.closest ? e.target.closest("[data-doc]") : null;
+    if (node) lit(node.dataset.doc, false);
+  });
   return pane;
+}
+
+// A document id is a path — it can carry `/`, `.` and `-`, which a selector
+// reads as syntax. `CSS.escape` where the browser has it (every target does);
+// the fallback keeps the node tests, which run without a DOM shim, honest.
+function cssEscape(value) {
+  const text = String(value);
+  return (typeof CSS !== "undefined" && CSS.escape)
+    ? CSS.escape(text) : text.replace(/["\\]/g, "\\$&");
+}
+
+// The selection's own bar: what is chosen, how to clear it, and the one thing
+// a chosen set is FOR (Brett, 2026-08-08: "generate the seed from checked").
+function pickBar(model, ctx) {
+  const bar = el("div", "pickbar");
+  const n = ctx.pickedCount();
+  bar.appendChild(el("span", "pickn", n
+    ? n + (n === 1 ? " document selected" : " documents selected")
+    : "select documents to draft a staging seed from them"));
+  const clear = el("button", "cbtn", "clear");
+  clear.type = "button";
+  clear.disabled = !n;
+  clear.addEventListener("click", () => ctx.clearPicks());
+  bar.appendChild(clear);
+  const draft = el("button", "cbtn", "draft staging seed");
+  draft.type = "button";
+  draft.disabled = !n;
+  draft.title = "Draft a staging-queue fragment covering the selected "
+    + "documents and the terms they share. Nothing is written — the draft is "
+    + "text you place in ideation/staging/ yourself.";
+  draft.addEventListener("click", () => ctx.onStagingSeed(draft));
+  bar.appendChild(draft);
+  return bar;
 }
 
 // ---- pane 3: forming set (read-only preview; overrides + persistence in T024) ----
@@ -876,6 +1020,11 @@ export function renderLens(root, snapshot, opts) {
     excludes: {},   // doc -> reason (manual − on a matching doc)
     kwFilter: "",   // keyword-rail text filter (survives draw rebuilds)
     showSolos: false,  // single-document terms are collapsed until asked for
+    // documents the human ticked in the matrix — the set a staging seed is
+    // drafted from. Deliberately NOT the forming set: that one is a cluster
+    // recipe's membership, this one is a reading selection that survives a
+    // redraw and is thrown away with the view.
+    picked: new Set(),
   };
   const summaries = docSummaries(working);
   const repository = working.repository || "";
@@ -958,6 +1107,50 @@ export function renderLens(root, snapshot, opts) {
           identities: identitiesFor(working, [...state.checked], region),
         })
       : null,
+    // ---- the matrix selection (Brett, 2026-08-08) ----
+    isPicked(doc) { return state.picked.has(doc); },
+    pickedCount() { return state.picked.size; },
+    pickDoc(doc, on) {
+      if (on) state.picked.add(doc); else state.picked.delete(doc);
+      draw();
+    },
+    pickDocs(docs, on) {
+      for (const doc of docs || []) {
+        if (on) state.picked.add(doc); else state.picked.delete(doc);
+      }
+      draw();
+    },
+    clearPicks() { state.picked = new Set(); draw(); },
+    // Draft a STAGING-QUEUE fragment from the selected documents. A staging
+    // seed, not a DTN register seed: the register's question is "do two
+    // factories carry the same artifact", and the question a reader of this
+    // radar has is "these documents keep meeting — what is the topic?". The
+    // server recomputes each document's terms from its own snapshot; the
+    // client names the documents and never the evidence, exactly as the
+    // register seed does.
+    onStagingSeed: async (button) => {
+      const label = button.textContent;
+      button.disabled = true;
+      button.textContent = "drafting…";
+      status.textContent = "";
+      try {
+        const data = await postPlan(STAGING_SEED_ROUTE, {
+          project_id: composed ? composed.repository : repository,
+          documents: [...state.picked],
+        }, fetcher);
+        if (!data || data.ok !== true) {
+          status.textContent = "seed refused: "
+            + (data?.message || data?.error || "no answer");
+          return;
+        }
+        renderStagingSeed(confirm, data);
+      } catch (err) {
+        status.textContent = "seed failed: " + (err?.message || "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
+      }
+    },
     getKwFilter() { return state.kwFilter; },
     setKwFilter(v) { state.kwFilter = String(v || ""); },
     toggleChecked(keyword) {

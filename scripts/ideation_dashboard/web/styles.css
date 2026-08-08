@@ -155,7 +155,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
 .filterpop {
   position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
   display: flex; flex-direction: column; gap: 2px; min-width: 240px;
-  background: var(--bg, #fff); border: 1px solid var(--border);
+  background: var(--panel); border: 1px solid var(--border);
   border-radius: 4px; padding: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 .filterrow {
@@ -206,7 +206,7 @@ button.filtereye:disabled { opacity: 0.4; cursor: default; }
 .projectform.projectpanel {
   position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
   display: flex; flex-direction: column; gap: 6px; min-width: 260px;
-  background: var(--bg, #fff); border: 1px solid var(--border);
+  background: var(--panel); border: 1px solid var(--border);
   border-radius: 4px; padding: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 .panelhead { font-family: var(--mono); font-size: 13px; font-weight: 700; }
@@ -873,7 +873,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .wheelfull { margin-left: auto; }
 /* Full-screen (the bar's expand toggle fullscreens the wheel view root):
    the reel windows stretch to the viewport and the JS re-measures winH. */
-:fullscreen { background: var(--bg); overflow: auto; padding: 10px 14px; }
+:fullscreen { background: var(--surface); overflow: auto; padding: 10px 14px; }
 /* full-screen balance (operator-directed 2026-07-24): wheels + tiles 33%
    larger, inter-wheel gap doubled, deck centred when it fits the viewport */
 :fullscreen .wheelport { --wheel-scale: 1.33; }
@@ -1449,7 +1449,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .swb-cactions { display: flex; gap: 8px; }
 .swb-cresult:empty { display: none; }
 .swb-clanded { border-left: 3px solid var(--st-realized); padding-left: 8px; }
-.swb-crefused { border-left: 3px solid var(--st-blocked, #b4443c); padding-left: 8px; }
+.swb-crefused { border-left: 3px solid var(--blocked); padding-left: 8px; }
 .swb-cdescriptor {
   display: flex; flex-direction: column; gap: 4px;
   border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px;
@@ -1624,7 +1624,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .swb-posture-note {
   margin: 6px 14px 0;
   padding: 6px 10px;
-  border: 1px solid var(--st-neutral, #999);
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 12.5px;
   overflow-wrap: anywhere;
@@ -1735,7 +1735,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxchat-send { align-self: flex-end; }
 .doxchat-card-apply:disabled, .doxchat-card-reject:disabled,
 .doxchat-send:disabled { opacity: .5; cursor: not-allowed; }
-.doxchat-failure { color: var(--st-blocked, #C0392B); font-size: 12px; }
+.doxchat-failure { color: var(--blocked); font-size: 12px; }
 .doxchat-failure[hidden] { display: none; }
 /* T100 P2: screen-reader announcement region (visually hidden, aria-live). */
 .doxchat-announce {
@@ -2087,10 +2087,15 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 /* The relationships the corpus already has — the lens's entry point. */
 .railrel { margin: 10px 0 6px; }
 .railrel-note { font-size: 11px; color: var(--muted); line-height: 1.4; margin-bottom: 5px; }
+/* `color: var(--ink)` is NOT redundant: a <button> does not inherit colour,
+   it gets the UA's `buttontext` — black — so this row rendered black on the
+   dark panel at contrast 1.18 (Brett, 2026-08-08: "in dark mode it is black
+   on black and not visible"). Every button reset here must state a colour. */
 .relrow {
   display: flex; align-items: center; gap: 6px; width: 100%;
   background: none; border: none; border-bottom: 1px solid var(--border);
   padding: 4px 2px; cursor: pointer; text-align: left; font: inherit;
+  color: var(--ink);
 }
 .relrow:hover { background: rgba(127,127,127,0.12); }
 .relpair { flex: 1; font-family: var(--mono); font-size: 11px; }
@@ -2109,7 +2114,36 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .sigrid-row { display: grid; grid-template-columns: 26px repeat(var(--cols), 12px); gap: 1px; align-items: center; }
 .sigrid-rowlab { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; }
 .sigrid-collab { font-family: var(--mono); font-size: 9px; font-weight: 700; text-align: center; }
-.sigrid-head { position: sticky; top: 0; background: var(--bg, #fff); z-index: 1; padding-bottom: 1px; }
+/* `--panel`, not the `--bg` this once named: `--bg` is not a token this
+   stylesheet defines, so the fallback took over and painted a WHITE bar
+   across the dark theme — the same defect from the other side. */
+.sigrid-head { position: sticky; top: 0; background: var(--panel); z-index: 1; padding-bottom: 1px; }
 .sigcell { height: 10px; border: 1px solid var(--border); border-radius: 2px; background: transparent; }
 .sigcell.on { border-color: transparent; }
 .grid-empty { font-size: 11px; color: var(--muted); padding: 6px 0; }
+/* COLLAPSED by default: the summary states the finding, the drawing is its
+   evidence and costs no screen until asked for. `max-height` applies to the
+   OPEN grid only, so a closed one is a single line. */
+details.gridwrap { max-height: none; overflow: visible; }
+details.gridwrap > summary { cursor: pointer; list-style: revert; }
+details.gridwrap[open] > .sigrid { max-height: 200px; overflow: auto; display: flex; }
+.gridfind { font-size: 11px; color: var(--muted); font-weight: 400; }
+/* The matrix selection: a column of boxes and the bar that says what they are
+   for. The bar sticks to the bottom of the scrolling pane — a selection you
+   cannot see the size of is a selection you cannot trust. */
+.lensmatrix .pickcol { width: 22px; text-align: center; padding-right: 0; }
+.lensmatrix .pickcol input { margin: 0; cursor: pointer; }
+.pickbar {
+  position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border-top: 1px solid var(--border);
+  padding: 6px 2px; margin-top: 4px;
+}
+.pickn { flex: 1; font-size: 11px; color: var(--muted); }
+/* THE JOIN: hovering any view of a document lights every other view of it —
+   the dot, its table row, its grid row (Brett, 2026-08-08). */
+tr.lit > td { background: rgba(127, 127, 127, 0.16); }
+.sigrid-row.lit .sigrid-rowlab { color: var(--ink); font-weight: 700; }
+.bullseye .lensdot.lit .dot {
+  stroke: var(--ink); stroke-width: 2; paint-order: stroke;
+}
+.bullseye .lensdot.lit .doclab, .bullseye .lensdot.lit .dotnum { font-weight: 700; }
