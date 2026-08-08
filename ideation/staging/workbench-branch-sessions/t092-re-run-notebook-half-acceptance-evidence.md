@@ -1,6 +1,6 @@
 # T092 Re-run — Notebook-Half Acceptance Evidence
 
-Status: brainstorm
+Status: staged
 Kind: note
 Repository context: openxFactory
 
