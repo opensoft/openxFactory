@@ -134,6 +134,10 @@ for (const [id, snapshot, checked, wire] of cases) {
     dotTitles: nodes.filter((n) => (n.cls || '').startsWith('dot'))
       .map((n) => (n.node.children[0] || {}).text || null),
     sectorLabels: nodes.filter((n) => n.cls === 'seclab').map((n) => n.text),
+    sectorLabelAt: nodes.filter((n) => n.cls === 'seclab').map((n) => ({
+      text: n.text, x: +n.attrs.x, y: +n.attrs.y })),
+    sectorLines: nodes.filter((n) => n.cls === 'sector').map((n) => ({
+      x1: +n.attrs.x1, y1: +n.attrs.y1, x2: +n.attrs.x2, y2: +n.attrs.y2 })),
     model: {
       rings: model.rings.length, sectors: model.sectors.length,
       dots: model.dots.length, checked: model.checked,
@@ -142,6 +146,7 @@ for (const [id, snapshot, checked, wire] of cases) {
       dotColumns: model.dots.map((d) => d.column),
       dotNumbers: model.dots.map((d) => d.number),
       dotCells: model.dots.map((d) => d.subsetKey),
+      keywordLabels: model.keywordLabels,
       dotSizes: [...new Set(model.dots.map((d) => d.size))],
       sectorList: model.sectors.map((s) => ({
         subsetKey: s.subsetKey, keywords: s.keywords, matchCount: s.matchCount,
@@ -229,7 +234,10 @@ def test_bullseye_renders_the_models_geometry(tmp_path):
     assert r["counts"]["rings"] == r["model"]["rings"] == 2
     assert r["counts"]["ringLabels"] == r["model"]["rings"]
     assert r["counts"]["sectors"] == r["model"]["sectors"]
-    assert r["counts"]["sectorLabels"] == r["model"]["sectors"]
+    # every sector but the matches-ALL one is labelled: that one IS the shaded
+    # centre, already named by its ring label, so a second label would be noise
+    centres = sum(1 for s in r["model"]["sectorList"] if s["isCenter"])
+    assert r["counts"]["sectorLabels"] == r["model"]["sectors"] - centres
     assert r["counts"]["dots"] == r["model"]["dots"] == 3
     # exactly ONE shaded centre zone, labelled "all N ✓"
     assert r["counts"]["centreRings"] == 1
@@ -627,3 +635,45 @@ console.log(JSON.stringify({
         [c for c in r["crowded"]["outerColumns"] if c % 2 == 0]
     assert len(r["crowded"]["labelledColumns"]) * 2 >= \
         len(r["crowded"]["outerColumns"]) - 1
+
+
+def test_a_sector_is_drawn_at_its_own_ring_not_at_the_rim(tmp_path):
+    """Brett's 2026-08-07 finding: "the A intersection B is the inside ring
+    right? we have A Int B label on the upper right of the ring — what is
+    that for?" It was that sector's name, pinned at the rim whatever ring it
+    belonged to: a three-keyword sector's label sat ~60px outside the dot it
+    named, in the band where the one-keyword sectors live. A sector's
+    documents only ever occupy its own ring band, so its label and its
+    divider now reach only that far, and the label's distance from the centre
+    tells the reader which ring it names."""
+    import math
+
+    r = _render(tmp_path)["two-checked"]
+    bands = {s["subsetKey"]: s for s in r["model"]["sectorList"]}
+    assert any(s["matchCount"] > 1 for s in bands.values()), \
+        "the fixture needs a multi-keyword sector to be worth measuring"
+
+    radius = lambda p: math.hypot(p["x"] - 260, p["y"] - 260)  # noqa: E731
+    labelled = {p["text"]: p for p in r["sectorLabelAt"]}
+    for key, sec in bands.items():
+        if sec["isCenter"]:
+            # the matches-ALL sector IS the shaded centre, named by its ring
+            continue
+        letters = " ∧ ".join(
+            r["model"]["keywordLabels"][k] for k in sec["keywords"])
+        at = labelled.get(letters)
+        if at is None:
+            continue                       # dropped on collision, still valid
+        # the label sits just OUTSIDE its own band, never at the rim
+        assert sec["outerRadius"] <= radius(at) <= sec["outerRadius"] + 30, \
+            (letters, radius(at), sec["outerRadius"])
+
+    # and the dividers span only their own band, rather than the full radius
+    for line in r["sectorLines"]:
+        inner = math.hypot(line["x1"] - 260, line["y1"] - 260)
+        outer = math.hypot(line["x2"] - 260, line["y2"] - 260)
+        # (endpoints are rounded to 2dp for the SVG, so compare with slack)
+        assert outer <= 210.05 and inner < outer
+        assert any(abs(inner - s["innerRadius"]) < 0.05
+                   and abs(outer - s["outerRadius"]) < 0.05
+                   for s in bands.values()), (inner, outer)

@@ -509,7 +509,13 @@ function bullseyeLayout(rows, nChecked, geom) {
       matchCount: mc,
       outerRadius: ringOuterRadius(mc, nChecked, g.rMax),
       isCenter: mc === nChecked,
-      label: mc === nChecked ? "all " + nChecked + " ✓" : "matches " + mc,
+      // The ring label is an INDEX, not a sentence (Brett's 2026-08-07
+      // direction applied to the last prose on the radar): "3 ✓" reads as a
+      // match count, and the ✓ keeps it from being mistaken for a document's
+      // number. It also matters geometrically — these labels stack down the
+      // vertical axis, and at ~60px wide ("matches 3") they occupied exactly
+      // the strip the sector labels now need at their own rings.
+      label: mc === nChecked ? "all " + nChecked + " ✓" : mc + " ✓",
       docCount: (byCount.get(mc) || []).length,
     });
   }
