@@ -659,7 +659,16 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .bullseye .dot:hover { stroke: var(--ink); stroke-width: 2; }
 .bullseye text { font-family: var(--mono); fill: var(--muted); }
 .bullseye .ringlab { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-.bullseye .seclab { font-size: 9.5px; fill: var(--faint-ink); }
+/* The sector's letters carry the mapping, so they are sized to be read at a
+   glance rather than squinted at (Brett: "the letters denoting repos are not
+   large enough"). */
+.bullseye .seclab { font-size: 12px; font-weight: 700; fill: var(--faint-ink);
+  letter-spacing: 0.04em; }
+/* The sector's own arc, in its keywords' hues. SUBTLE by construction: the
+   hue is all the widget chooses, and the weight and opacity live here — so
+   the theme keeps the last word and the colour reads as a tint on the ring
+   rather than as a second foreground. */
+.bullseye .secarc { fill: none; stroke-width: 2; opacity: 0.28; stroke-linecap: round; }
 .bullseye .doclab { font-size: 10px; fill: var(--ink); }
 /* The number a roomy dot carries INSIDE itself: reversed out of the dot's
    own fill, and never a hit target of its own so the dot keeps the hover. */

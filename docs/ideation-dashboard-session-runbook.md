@@ -75,10 +75,16 @@ Opensoft openDox   [ <project> ▾ ]   ⧩ <project>   [search…]   repo @ ref 
   legend, both printing index and name, and every full name stays one hover
   away in the SVG title. Names were unreadable at corpus scale: an 18-keyword
   conjunction ran 464px inside a 520px box and half were clipped.
+  Each vocabulary term also carries a HUE, shown on its rail letter and on
+  its portion of the ring as a thin tinted arc — a combination sector shows
+  one segment per term — so you can find A's area by colour instead of
+  reading every label. Deliberately subtle: only the hue is chosen in code,
+  and the weight and opacity stay in the stylesheet.
   A sector's label sits at ITS OWN RING, beside the dots it names — how far
   from the centre a label is tells you which ring it belongs to — and its
   divider spans only that band. Ring labels are the match count (`3 ✓`,
-  `all 14 ✓`) down the vertical axis.
+  `all 14 ✓`), each placed in the widest arc its own ring leaves empty, so a
+  dot can never sit on one.
 - **Dots never touch** (Brett, 2026-08-07) — a cell (one ring band × one
   sector) packs its documents across as many lanes as the band admits and as
   many per lane as the slice admits, shrinking the dot only when the area
