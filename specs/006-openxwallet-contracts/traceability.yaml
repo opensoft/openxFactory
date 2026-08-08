@@ -355,6 +355,23 @@ review_docs:
         verified by scanning a scratch consumer repo whose wallet declares
         key-poster-0001 under its own DID: 0 findings where the mixed index
         refused it as ambiguous
+    - id: empty-index-guards-failed-open
+      was: >-
+        Round three, same pattern in its last hiding place: the unresolved-ref
+        rules carried empty-collection guards (`and ctx.wallets`,
+        `and ctx.wallets_by_key`) — dead code while every context held the
+        packaged positives, live and FAIL-OPEN the moment repo scans got
+        their own context. A consumer repo declaring no wallets at all
+        skipped every resolution those rules exist to force: an exercise's
+        presenting key fell back to the self-declared attribution wallet, a
+        grant's custody ceiling never bound, and a composition passed
+        unresolved. All three rules (e, q, r) now refuse unconditionally.
+      probe: >-
+        verified by scanning two scratch repos — grant+exercise with no
+        wallet records fires custody-ceiling-unresolved AND
+        presenting-key-unresolved; a lone composition fires
+        composition-wallet-unresolved; the valid consumer repo still scans
+        clean
     - id: composition-resolution-unchecked
       was: >-
         Rule (q) fired only when a composition's wallet RESOLVED to a

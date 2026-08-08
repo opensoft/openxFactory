@@ -564,11 +564,15 @@ def check_grant(f: Findings, label: str, doc: dict, ctx: Context) -> None:
     # (e) custody caps authority.
     wallet_ref = (doc.get("audience") or {}).get("wallet_ref")
     resolved = ctx.ceiling_for_wallet(wallet_ref) if wallet_ref else None
-    if wallet_ref and resolved is None and ctx.wallets:
+    if wallet_ref and resolved is None:
         # Failing silently here would make the custody ceiling optional in
         # practice: name a wallet nobody can resolve and the cap never runs.
         # The attenuation rule already refuses an unresolvable parent; this is
-        # the same asymmetry closed.
+        # the same asymmetry closed. UNCONDITIONALLY: an `and ctx.wallets`
+        # guard here was dead code while every context held the packaged
+        # positives, then failed open the moment repo scans got their own
+        # context — a consumer repo declaring no wallets at all skipped
+        # every resolution this rule exists to force.
         f.error("custody-ceiling-unresolved",
                 f"{label}: audience wallet {wallet_ref!r} does not resolve to a "
                 f"wallet with a known custody model, so the ceiling that bounds "
@@ -797,7 +801,7 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                     f"{attributed_key!r} while the verified proof was "
                     f"presented by {verified_key!r}; attribution follows the "
                     f"key that actually signed")
-        if presenting_key and ctx.wallets_by_key:
+        if presenting_key:
             owners = ctx.wallets_by_key.get(presenting_key) or []
             if not owners:
                 f.error("presenting-key-unresolved",
@@ -1050,7 +1054,7 @@ def check_agent_composition(f: Findings, label: str, doc: dict,
     # asymmetry the custody-ceiling and grant bindings already close.
     wallet_ref = doc.get("wallet_ref")
     wallet = ctx.wallets.get(wallet_ref) if wallet_ref else None
-    if wallet_ref and wallet is None and ctx.wallets:
+    if wallet_ref and wallet is None:
         f.error("composition-wallet-unresolved",
                 f"{label}: composition declared for wallet {wallet_ref!r}, "
                 f"which does not resolve, so its holder class cannot be "
