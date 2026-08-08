@@ -395,11 +395,13 @@ review_docs:
         surfaces as schema findings on its own file.
       probe: >-
         examples/negative/wallet-record-duplicating-another-wallet-id.yaml
-        for the duplicate; for the crash class, a scratch corpus of eleven
+        for the duplicate; for the crash class, a scratch corpus of fourteen
         maximally malformed documents (non-mapping blocks, SCALAR containers
         like `constraint_evaluations: 1` — round six's finding, normalized
         by `_sequence` the way `_mapping` normalizes blocks — list ids,
-        unhashable refs, mixed-type enums across every kind) exits 1 with
+        unhashable refs nested INSIDE containers reaching membership tests,
+        non-integer tier ranks reaching the collapse comparison — rounds six
+        and seven — and mixed-type enums across every kind) exits 1 with
         findings, never 2
     - id: composition-resolution-unchecked
       was: >-

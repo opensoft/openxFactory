@@ -498,8 +498,13 @@ def check_no_key_material(f: Findings, label: str, node: Any,
 
 def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
     models = _sequence(doc.get("custody_models"))
+    # Ranks restricted to ints: a malformed rank would otherwise reach the
+    # collapse comparison and crash the run instead of reporting the
+    # registry's own schema finding. A tier dropped here makes ceilings
+    # naming it 'unknown', which fails closed alongside that finding.
     tiers = {t.get("id"): t.get("rank") for t in _sequence(doc.get("authority_tiers"))
-             if isinstance(t, dict) and not isinstance(t.get("id"), (list, dict))}
+             if isinstance(t, dict) and not isinstance(t.get("id"), (list, dict))
+             and isinstance(t.get("rank"), int)}
     # Rule (c) keys on the TOP RANK rather than on the id `act_unsupervised`.
     # Naming the tier would make the rule depend on a string a registry is free
     # to choose, so renaming the top tier would silently disable the check —
@@ -926,6 +931,9 @@ def check_exercise(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                          if isinstance(e, dict)
                          and not isinstance(e.get("constraint_ref"), (list, dict))}
             for ref in _sequence(grant.get("distinct_holder_constraint_refs")):
+                if isinstance(ref, (list, dict)):
+                    continue  # unhashable member; the schema finding on the
+                              # grant is the report, not a membership crash
                 if ref not in evaluated:
                     f.error("distinct-holder-violated",
                             f"{label}: grant {doc.get('grant_ref')!r} declares "
