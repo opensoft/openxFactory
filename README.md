@@ -329,6 +329,21 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
+- [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
+  — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
+  a model seam and no model: there is no provider adapter in this repository
+  and none is implied, so every model-backed affordance refuses. Brett's
+  ruling names openProfiler — unbuilt — as the answer, which makes it a
+  credential BROKER, a shape `credential-contracts` already owns. The
+  dashboard holds a BINDING (id, label, credential reference, auth kind,
+  broker invocation) whose shape has no secret field at all; setting a key is
+  a hand-off to the broker's stdin that retains nothing; the invocation is
+  declared rather than hardcoded, so openProfiler's real CLI changes a
+  binding and no code. Three open questions are recorded for openProfiler,
+  the first deciding the trust story: does the broker DISPATCH the provider
+  call or only VEND a token? (code surface: openxFactory; target release:
+  none; depends on openProfiler)
+
 - [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
   — ratified 2026-08-08 from three annotations on the keyword lens. A
   document has three views (the radar's dot, the matrix's row, the signature
