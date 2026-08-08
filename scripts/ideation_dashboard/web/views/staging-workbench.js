@@ -1301,5 +1301,56 @@ export function mountStagingWorkbench(container, snapshot,
     closeBtn.focus();
   }
 
-  return { open, close };
+  // ---- lens -> doxBench (Brett, 2026-08-08) --------------------------------
+  //
+  // "we need to have button to move this to doxBench. and open the doxBench UI
+  // if the user moves forward." A drafted staging seed is not a tile, so it
+  // resolves no `workbenchScope` — and it does not need to. What it needs is
+  // the thing a tile create already does: the GOVERNED create, which opens or
+  // joins a branch session and lands the new document there rather than on
+  // main. So this entry point opens the overlay with no scope and hands the
+  // seed straight to the same dialog, which means no second write path, no
+  // second session concept, and save/abandon behave exactly as they do for
+  // every other created document.
+  function openDraft(seed) {
+    lastFocused = document.activeElement;
+    snapshot = shellSnapshot;
+    active = shellActive;
+    index = shellIndex;
+    sourceBase = shellSourceBase;
+    scope = null;                 // a draft has no tile; the seed IS the scope
+    activeTab = "docs";
+    lensSession = null;
+    overlay.hidden = false;
+    title.textContent = "doxBench — new document";
+    subtitle.textContent = seed?.source || "from a lens selection";
+    body.innerHTML = "";
+    for (const [, btn] of tabButtons) btn.setAttribute("aria-selected", "false");
+    drawSession();
+    drawCanvas();
+    // The create is GATED, and an ungated plane says so rather than offering a
+    // dialog whose submit cannot land (the same posture the rest of this
+    // overlay takes).
+    if (!createGateLive(caps) || sessionSurfaceHidden(caps)) {
+      body.appendChild(el("div", "swb-empty",
+        "creating a document needs the human gate capability — this plane is "
+        + "read-only, so the drafted seed stays on the lens"));
+      closeBtn.focus();
+      return;
+    }
+    openCreateDialog(body, seed, {
+      caps, fetcher,
+      label: "create document",
+      onOpenDoc: onOpenDoc ? (path) => onOpenDoc(path, null) : null,
+      onSessionOpened: (result) => {
+        sessionOpened(result.ref);
+        documentCreated(result.ref, result.path);
+        drawSession();
+        return rekeyToSession(result.ref);
+      },
+    });
+    closeBtn.focus();
+  }
+
+  return { open, close, openDraft };
 }

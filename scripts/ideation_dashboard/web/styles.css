@@ -2146,6 +2146,21 @@ details.gridwrap[open] > .sigrid { max-height: 200px; overflow: auto; display: f
   padding: 6px 2px; margin-top: 4px;
 }
 .pickn { flex: 1; font-size: 11px; color: var(--muted); }
+/* The drafted-seed panel now lives at the FOOT of the bullseye pane, not as a
+   full-width block below the whole layout — a panel a screen away from the
+   button that produced it (Brett, 2026-08-08). Its own scroll, so a long
+   fragment never pushes the pane's other content off. */
+.pane-bullseye .canvas-confirm { flex: none; margin-top: 10px; max-height: 340px; overflow: auto; }
+.pane-bullseye .canvas-confirm:empty { display: none; }
+.dc-h { display: flex; align-items: center; gap: 8px; }
+.dc-h > span { flex: 1; }
+.dc-close {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1;
+  padding: 2px 7px; flex: none;
+}
+.dc-close:hover { color: var(--ink); }
+.dc-acts { display: flex; gap: 8px; margin-top: 8px; }
 /* THE JOIN: hovering any view of a document lights every other view of it —
    the dot, its table row, its grid row (Brett, 2026-08-08). */
 tr.lit > td { background: rgba(127, 127, 127, 0.16); }

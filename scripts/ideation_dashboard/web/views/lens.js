@@ -636,29 +636,82 @@ function renderSeed(container, data) {
 // computed; the argument is not, and the draft says which sections a human
 // still has to write. A staging fragment that argued its own case would be
 // the machine deciding what is worth staging.
-function renderStagingSeed(container, data) {
+function renderStagingSeed(container, data, ctx) {
   container.innerHTML = "";
   const box = el("div", "draft-confirm");
-  box.appendChild(el("div", "dc-h",
-    "drafted staging seed — nothing is written"));
+  const head = el("div", "dc-h");
+  head.appendChild(el("span", null, "drafted staging seed — nothing is written"));
+  // A WAY BACK (Brett, 2026-08-08: "there is no back from this widget"). A
+  // panel that can only be replaced by drafting something else is a panel the
+  // human is stuck in; dismissing it costs nothing because nothing was
+  // written, and the same selection redrafts it byte for byte.
+  const back = el("button", "dc-close", "×");
+  back.type = "button";
+  back.title = "dismiss this draft — nothing was written, and the same "
+    + "selection drafts it again";
+  back.setAttribute("aria-label", "dismiss the drafted seed");
+  back.addEventListener("click", () => {
+    // the DOM-safety guard requires a clearing assignment to stand alone, so
+    // a non-clearing one can never hide on the end of a line
+    container.innerHTML = "";
+  });
+  head.appendChild(back);
+  box.appendChild(head);
   box.appendChild(el("div", "dc-note",
     "Place this at " + data.path + " and finish the sections marked TO "
     + "WRITE. It enters the queue when you commit it and add its row to "
     + "ideation/staging/INDEX.md."));
   const pre = el("pre", "seedtext", data.text);
   box.appendChild(pre);
-  const copy = el("button", "cbtn", "copy");
-  copy.type = "button";
-  copy.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(data.text);
-      copy.textContent = "copied";
-    } catch {
-      copy.textContent = "select the text above";
-    }
-  });
-  box.appendChild(copy);
+  const acts = el("div", "dc-acts");
+  // MOVE IT, do not copy it (Brett, 2026-08-08: "we need to not 'copy' this.
+  // we need to have button to move this to doxBench"). Copying makes the human
+  // the transport — paste it somewhere, keep the topic and the terms straight
+  // by hand. doxBench is where a document is actually written, so the seed
+  // travels there as a CREATE prefilled from what was computed: the staging
+  // area, the shared terms as Topics, and the provenance line. The create is
+  // the existing governed one, which opens a branch session, so the draft
+  // lands where a draft belongs and never on main.
+  if (ctx && ctx.onOpenDoxbench) {
+    const move = el("button", "cbtn", "open in doxBench");
+    move.type = "button";
+    move.title = "carry this seed into doxBench as a new document: the "
+      + "staging area, the shared terms and the provenance are filled in, "
+      + "and you write the rest there";
+    move.addEventListener("click", () => ctx.onOpenDoxbench(data));
+    acts.appendChild(move);
+  }
+  box.appendChild(acts);
   container.appendChild(box);
+}
+
+// The staging seed, in the shape the workbench's CREATE dialog reads. Only
+// what was COMPUTED crosses over — the area, the terms every selected document
+// carries, and where the seed came from. Title and summary stay empty on
+// purpose: the create refuses without them, which is the same rule the seed
+// itself states by marking them TO WRITE.
+export function createSeedFromStagingSeed(data, repository) {
+  const path = String(data?.path || "");
+  const area = path.includes("/") ? path.slice(0, path.lastIndexOf("/") + 1) : "";
+  const topics = (data?.shared || []).length
+    ? [...data.shared] : [...(data?.partial || [])];
+  return {
+    tab: "docs",
+    area,
+    title: "",
+    summary: "",
+    topics,
+    repositoryContext: repository || "",
+    repository: repository || "",
+    kind: "capability-proposal",
+    // a staged fragment is born `staged`, which is one of the three statuses a
+    // create accepts — a document is never born ratified
+    status: "staged",
+    source: "drafted from a lens selection of "
+      + (data?.documents || []).length + " documents",
+    documents: [...(data?.documents || [])],
+    seedText: String(data?.text || ""),
+  };
 }
 
 // ---- pane 3b: DRILL-IN (D21) — the repository lens's third pane ----------
@@ -857,6 +910,12 @@ function bullseyePane(model, ctx) {
   // before (no callback => no hit regions at all).
   pane.appendChild(renderBullseye(model,
     ctx.onDrill ? { onActivate: ctx.onDrill } : undefined));
+  // The drafted-seed panel sits DIRECTLY UNDER THE RADAR (Brett, 2026-08-08:
+  // "this widget should move up to the bottom of the radar"). It began as a
+  // full-width block below the whole three-pane layout; moving it to the foot
+  // of this pane left it 2,772px down, past the whole matrix, which is the
+  // same problem in a new place. Here it appears where the eye already is.
+  if (ctx.confirmHost) pane.appendChild(ctx.confirmHost);
   // the SIGNATURE GRID sits between the radar and the table: the same
   // membership as a picture, where a block of filled cells is a group of
   // documents that share a signature
@@ -1052,8 +1111,12 @@ export function renderLens(root, snapshot, opts) {
   confirm.setAttribute("aria-live", "polite");
 
   root.appendChild(lens);
-  root.appendChild(confirm);
   root.appendChild(status);
+  // `confirm` is NOT appended here (Brett, 2026-08-08: "this widget should
+  // move up to the bottom of the radar"). It was a full-width block below the
+  // whole three-pane layout, a screen away from the button that produced it.
+  // The bullseye pane adopts it on every draw, so a drafted seed appears at
+  // the foot of the pane whose action produced it.
 
   function query() {
     return {
@@ -1072,6 +1135,15 @@ export function renderLens(root, snapshot, opts) {
     repository,
     vocab,
     vocabularies,
+    confirmHost: confirm,
+    // The hand-off to doxBench. The lens knows what was drafted; app.js owns
+    // every cross-view jump, exactly as it does for the wheel's verbs, so the
+    // seed is translated into the create dialog's own shape here and the
+    // opening happens there.
+    onOpenDoxbench: options.onOpenDoxbench
+      ? (data) => options.onOpenDoxbench(
+          createSeedFromStagingSeed(data, repository))
+      : null,
     // add-shared-identity-seeds — draft a register seed for a convergent
     // region. Loopback-only server side; the response is TEXT, so this
     // affordance is legitimately available on the read-only composed view
@@ -1153,7 +1225,7 @@ export function renderLens(root, snapshot, opts) {
             + (data?.message || data?.error || "no answer");
           return;
         }
-        renderStagingSeed(confirm, data);
+        renderStagingSeed(confirm, data, ctx);
       } catch (err) {
         status.textContent = "seed failed: " + (err?.message || "error");
       } finally {
