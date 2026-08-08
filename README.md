@@ -339,10 +339,14 @@ Active changes:
   broker invocation) whose shape has no secret field at all; setting a key is
   a hand-off to the broker's stdin that retains nothing; the invocation is
   declared rather than hardcoded, so openProfiler's real CLI changes a
-  binding and no code. Three open questions are recorded for openProfiler,
-  the first deciding the trust story: does the broker DISPATCH the provider
-  call or only VEND a token? (code surface: openxFactory; target release:
-  none; depends on openProfiler)
+  binding and no code. RULED 2026-08-08: the broker MINTS a short-lived
+  scoped token and doxBench calls the provider directly, because brokered
+  dispatch "would be too slow" — which means the "no provider is ever
+  contacted from this repository" boundary narrows to ONE named module
+  rather than holding, with its structural check rewritten rather than
+  deleted, and a minted token that lives in process memory and never
+  reaches the browser. (code surface: openxFactory; target release: none;
+  depends on openProfiler)
 
 - [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
   — ratified 2026-08-08 from three annotations on the keyword lens. A
