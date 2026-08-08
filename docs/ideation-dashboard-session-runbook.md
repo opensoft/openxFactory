@@ -92,8 +92,11 @@ so the sixth column is whole instead of part-cut.
   Each vocabulary term also carries a HUE, shown on its rail letter and on
   its portion of the ring as a thin tinted arc — a combination sector shows
   one segment per term — so you can find A's area by colour instead of
-  reading every label. Deliberately subtle: only the hue is chosen in code,
-  and the weight and opacity stay in the stylesheet.
+  reading every label. Deliberately subtle, and THEME-AWARE: code chooses only
+  the hue (`--h`); saturation, lightness and opacity come from per-theme tokens
+  (`--tint-s`, `--tint-l`, `--tint-arc-l`) in the stylesheet. Composing a whole
+  `hsl()` in a view shipped tints that read on white and vanished on the dark
+  panel (Brett, 2026-08-08: "black on black"); a test now forbids it.
   A sector's label sits at ITS OWN RING, beside the dots it names — how far
   from the centre a label is tells you which ring it belongs to — and its
   divider spans only that band. Ring labels are the match count (`3 ✓`,
@@ -132,7 +135,13 @@ so the sixth column is whole instead of part-cut.
   another visible repository and how much is its alone. The rail's box is a
   SEARCH, not a filter — it finds rows and never changes what is applied; a
   row still has to be ticked. Beside it, `all` / `none` check or uncheck the
-  rows the search is showing (every row when the box is empty).
+  rows the search is showing (every row when the box is empty). Matching is
+  forgiving: every word must appear, in any order, with hyphens read as spaces
+  (`work doc` finds `doc-workflow`) — but NOT fuzzy, because a typo quietly
+  returning the wrong keyword is worse than returning nothing when the result
+  decides what the radar is about. A scrolling pane RESERVES its scrollbar
+  gutter (`scrollbar-gutter: stable`): the overlay bar fades, and with it the
+  only sign that there is more below.
 - **Finding an overlap** (Brett, 2026-08-08) — the keyword rail ranks by
   CONNECTIVITY (how many other keywords a keyword shares documents with), not
   the alphabet, and collapses the long tail: keywords carried by a single
