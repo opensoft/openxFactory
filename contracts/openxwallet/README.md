@@ -79,12 +79,13 @@ evidences = holder  iff  (not readable) and per_use_authorization
            environment otherwise
 ```
 
-The validator enforces the derivation, refuses a ceiling of `act_unsupervised`
-that does not evidence the holder, and refuses any readable model sitting at
-or above a model that evidences the holder. Collapsing the two cases is
-therefore structurally impossible rather than merely discouraged — which
-matters, because a collapsed enumeration is the one failure mode that would
-otherwise validate cleanly.
+The validator enforces the derivation, refuses a top-of-ladder ceiling that
+does not evidence the holder — keyed on RANK rather than on the tier's name,
+so a registry cannot disable the rule by renaming its top tier — and refuses
+any readable model sitting at or above a model that evidences the holder.
+Collapsing the two cases is therefore structurally impossible rather than
+merely discouraged — which matters, because a collapsed enumeration is the one
+failure mode that would otherwise validate cleanly.
 
 Isolation without per-use authorization contains the KEY (it cannot be
 exfiltrated and replayed off-platform) but does not attribute the ACT: a

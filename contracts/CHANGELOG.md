@@ -38,8 +38,9 @@ booleans and enforced, not asserted: a key readable by the holder's own
 execution context evidences the ENVIRONMENT, and only isolation together with
 an authorization that context cannot supply evidences the HOLDER. Three
 invariants make the collapse the ruling closes structurally impossible rather
-than discouraged — the derivation itself, a ceiling of `act_unsupervised` that
-must be earned, and a check that no readable model sits at or above a model
+than discouraged — the derivation itself, a top-of-ladder ceiling that must be
+earned (keyed on RANK, not on the tier's name, so renaming the top tier cannot
+disable the rule), and a check that no readable model sits at or above a model
 evidencing the holder.
 
 `contracts/openxwallet-agent-profile/` is the FIRST profile over that core,
@@ -57,7 +58,7 @@ express and READS the legal approval-scope vocabulary out of
 `contracts/schemas/hermes-job-envelope.schema.yaml` at run time rather than
 restating it, because restating it would recreate the parallel authority
 vocabulary the profile's third requirement forbids. The packaged corpus
-comprises 16 valid examples and 16 intended-invalid negatives covering 11 of
+comprises 16 valid examples and 17 intended-invalid negatives covering 11 of
 11 ratified requirements, with coverage closed in both directions — a
 requirement with no probe, and a probe naming no requirement, are both
 validation failures. A red-proof harness recorded with the feature confirms

@@ -46,9 +46,12 @@ The rules the shapes cannot express:
       ruling of 2026-08-07 exists to prevent, and it must not be able to
       validate cleanly (core R4).
 
-  (c) A CEILING OF `act_unsupervised` MUST BE EARNED. Only custody evidencing
-      the HOLDER may reach the tier where nothing stands between the holder
-      and an irreversible effect (core R4).
+  (c) THE HIGHEST TIER MUST BE EARNED. Only custody evidencing the HOLDER may
+      reach the top of the declared ladder — the tier where nothing stands
+      between the holder and an irreversible effect. Keyed on RANK, not on the
+      tier's name: a registry that renamed `act_unsupervised` would otherwise
+      slip an environment-evidencing model into the top tier and validate
+      cleanly, which is this rule's own failure mode (core R4).
 
   (d) NO CUSTODY COLLAPSE. Every member readable by the holder's execution
       context must rank STRICTLY BELOW every member evidencing the holder.
@@ -364,6 +367,11 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
     models = doc.get("custody_models") or []
     tiers = {t.get("id"): t.get("rank") for t in (doc.get("authority_tiers") or [])
              if isinstance(t, dict)}
+    # Rule (c) keys on the TOP RANK rather than on the id `act_unsupervised`.
+    # Naming the tier would make the rule depend on a string a registry is free
+    # to choose, so renaming the top tier would silently disable the check —
+    # the same "it all validates cleanly" failure this family exists to refuse.
+    top_rank = max((r for r in tiers.values() if isinstance(r, int)), default=None)
 
     seen_ids: set[str] = set()
     for member in models:
@@ -398,11 +406,13 @@ def check_custody_registry(f: Findings, label: str, doc: dict) -> None:
             f.error("custody-ceiling-unknown",
                     f"{label}: custody model {mid!r} caps at {ceiling!r}, which "
                     f"is not a declared authority tier")
-        elif ceiling == "act_unsupervised" and declared != "holder":
+        elif (top_rank is not None and tiers.get(ceiling) == top_rank
+                and declared != "holder"):
             f.error("custody-ceiling-unearned",
-                    f"{label}: custody model {mid!r} caps at 'act_unsupervised' "
-                    f"while evidencing {declared!r}; unsupervised irreversible "
-                    f"action requires evidence that the HOLDER acted")
+                    f"{label}: custody model {mid!r} caps at {ceiling!r}, the "
+                    f"HIGHEST tier this ladder declares, while evidencing "
+                    f"{declared!r}; unsupervised irreversible action requires "
+                    f"evidence that the HOLDER acted")
 
     # (d) the collapse check, stated directly.
     holder_members = [m for m in models if isinstance(m, dict)

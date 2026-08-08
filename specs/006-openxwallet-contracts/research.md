@@ -58,8 +58,10 @@ evidences = holder   iff   (not readable) and per_use_authorization
 
 The validator enforces the derivation, and enforces two further invariants:
 
-- **`custody-ceiling-unearned`** — a ceiling of `act_unsupervised` requires
-  `evidences: holder`.
+- **`custody-ceiling-unearned`** — the HIGHEST-ranked tier a registry declares
+  requires `evidences: holder`. Keyed on rank, not on the tier's name: an
+  earlier form compared against the literal `act_unsupervised` and was
+  defeated by a registry that renamed its top tier.
 - **`custody-collapse`** — every member readable by the holder's execution
   context must sit strictly below every member evidencing the holder. This is
   the handoff's failure mode stated directly as a check: the readable case

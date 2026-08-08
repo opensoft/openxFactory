@@ -3,7 +3,7 @@
   RED    neutered authority-vocabulary-parallel          -> 1 error(s)
   RED    neutered composition-set-missing                -> 1 error(s)
   RED    neutered custody-ceiling-exceeded               -> 1 error(s)
-  RED    neutered custody-ceiling-unearned               -> 1 error(s)
+  RED    neutered custody-ceiling-unearned               -> 2 error(s)
   RED    neutered custody-collapse                       -> 1 error(s)
   RED    neutered custody-evidences-derivation           -> 1 error(s)
   RED    neutered declared-change-not-revoked            -> 1 error(s)

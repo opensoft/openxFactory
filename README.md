@@ -286,7 +286,7 @@ Active changes:
   own execution context masquerade as proof the holder acted). REALIZED
   2026-08-07 by Speckit feature `006-openxwallet-contracts` at
   `contract-v1.31`: two neutral contract families, one validator, and a
-  corpus of 16 positives and 16 negative confirmations covering 11/11
+  corpus of 16 positives and 17 negative confirmations covering 11/11
   requirements. The feature settled the two decisions ratification left it —
   the closed custody set is three members with `evidences` DERIVED from two
   declared booleans and enforced, so the collapse the ruling closes is

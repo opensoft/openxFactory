@@ -57,15 +57,20 @@ requirements:
       examples/negative/grant-exceeds-custody-ceiling.yaml,
       examples/negative/custody-registry-readable-claims-holder.yaml,
       examples/negative/custody-registry-unearned-ceiling.yaml,
-      examples/negative/custody-registry-collapsed-ceilings.yaml
+      examples/negative/custody-registry-collapsed-ceilings.yaml,
+      examples/negative/custody-registry-renamed-top-tier.yaml
     red_proven: >-
       custody-ceiling-exceeded, custody-evidences-derivation,
       custody-ceiling-unearned and custody-collapse neutered in turn; corpus
-      went red each time. Four probes because this is the ruling's sharp edge:
+      went red each time. FIVE probes because this is the ruling's sharp edge:
       the enumeration can fail by claiming the wrong evidence, by granting an
-      unearned ceiling, or by distinguishing the two cases in NAME while
-      collapsing them in EFFECT — and the third is the one a reviewer would
-      wave through.
+      unearned ceiling, by distinguishing the two cases in NAME while
+      collapsing them in EFFECT, or by RENAMING the top tier so the
+      unearned-ceiling rule stops matching. The last was found by attacking
+      the validator rather than reading it — rule (c) originally compared
+      against the literal id `act_unsupervised`, so a registry free to name
+      its own tiers slipped an environment-evidencing model into the top tier
+      and validated cleanly. Rule (c) now keys on the top RANK.
 
   OXW-R5:
     statement: Every exercise is key-attributed
@@ -145,7 +150,7 @@ coverage_closure:
 
 corpus:
   positive_examples: 16
-  negative_confirmations: 16
+  negative_confirmations: 17
   distinct_finding_codes_proven: 15
 
 boundary:
