@@ -1,0 +1,43 @@
+# expected_failure: audience-mismatch
+# expected_failure_detail: presented by wallet 'wal-agent-creator-0002'
+# requirement: OXW-R3
+# VIOLATES core R3: the wrong wallet's key, and no declared wallet_ref to
+# contradict.
+#
+# The same act as exercise-by-a-wallet-the-grant-does-not-address — the
+# creator agent exercising the poster's grant — with one field dropped:
+# `attribution.wallet_ref`. An audience binding that reads only the record's
+# own declared wallet has nothing to compare and silently skips, which is how
+# the 2026-08-08 docs review evaded it.
+#
+# The binding therefore DERIVES the presenting wallet from the presenting
+# KEY: key-creator-0002 is wal-agent-creator-0002's key whether or not the
+# record says so. Omitting a self-declaration must not skip a check that
+# exists because self-declarations cannot be trusted.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-key-evades-audience-0025
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0031
+occurred_at: "2026-08-08T09:20:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-creator-0002
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-creator-0002
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-intake-alt
+    this_holder_ref: agent:ledger-creator
+    satisfied: true
+outcome: permitted

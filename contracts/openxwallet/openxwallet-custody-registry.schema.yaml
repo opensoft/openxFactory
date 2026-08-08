@@ -31,10 +31,12 @@ description: >-
                  environment otherwise
 
   A member that is readable yet claims to evidence the holder does not
-  validate. Nor does a member whose ceiling is `act_unsupervised` without
-  evidencing the holder, nor a readable member sitting at or above a member
-  that evidences the holder. The collapse is structurally impossible rather
-  than merely discouraged.
+  validate. Nor does a member whose ceiling is the HIGHEST tier its ladder
+  declares without evidencing the holder — keyed on rank, never on a tier's
+  name, so no ladder shape or renaming disables the rule — nor a member
+  evidencing only the environment sitting at or above a member that evidences
+  the holder. The collapse is structurally impossible rather than merely
+  discouraged.
 
   The second boolean carries the distinction a two-member set would lose. A
   key isolated from the holder's execution context but signable by it WITHOUT

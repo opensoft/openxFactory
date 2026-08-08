@@ -98,7 +98,7 @@ Two additions on top of the dialect:
 - **A red-proof harness** (`evidence/red-proof.py`). A green self-test proves
   the negatives fail; it does not prove they fail for the reason they name.
   The harness suppresses each finding code in turn and asserts the corpus goes
-  red. All fifteen codes are load-bearing.
+  red. All twenty-one codes are load-bearing.
 
 ## Out of scope, by ratification
 

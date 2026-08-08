@@ -1,8 +1,8 @@
 # The closed key-custody enumeration for openxWallet, and the ordered
 # authority ladder it caps. Ratified by: add-openxwallet (Brett Heap,
 # 2026-08-07 — "declared and capping authority"). Registered in
-# contracts/manifest.yaml + contracts/CHANGELOG.md at the next additive bundle
-# cut, per docs/contract-versioning-policy.md.
+# contracts/manifest.yaml + contracts/CHANGELOG.md at contract-v1.31, per
+# docs/contract-versioning-policy.md.
 #
 # `evidences` is DERIVED from the two booleans, never independently asserted,
 # and the canonical validator enforces the derivation. See

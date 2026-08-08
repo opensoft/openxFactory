@@ -16,10 +16,16 @@ description: >-
   THE RECORD HAS NO PROPERTY THAT COULD HOLD KEY MATERIAL, at any depth, with
   `additionalProperties: false` everywhere so a consumer cannot add one. This
   is the load-bearing absence of the family: a raw key can be neither expired
-  nor revoked, and a shared key destroys attribution, so key material is not
-  merely discouraged here — it is unrepresentable. The canonical validator
-  additionally scans for key-shaped VALUES, because a conformant shape can
-  still carry a PEM block inside a string field that legitimately exists.
+  nor revoked, and a shared key destroys attribution, so a key-material FIELD
+  is not merely discouraged here — it is unrepresentable. The canonical
+  validator additionally scans string VALUES for the key-material forms it
+  knows — PEM-armored blocks and serialized JWKs carrying a private
+  exponent — because a conformant shape can still carry key text inside a
+  string field that legitimately exists. That scan is a blocklist, not a
+  proof: a key serialized some other way (raw hex, bare base64) passes it,
+  so keeping key material out of free-text fields is an obligation the
+  contract places on its consumers rather than one the validator can
+  discharge.
 
   Holder class is closed but the capability is holder-class AGNOSTIC: no
   requirement in the core assumes a class, and everything agent-specific lives

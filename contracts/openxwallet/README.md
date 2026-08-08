@@ -2,8 +2,8 @@
 
 Status: ratified
 Ratified by: add-openxwallet (approved Brett Heap 2026-08-07; registered in
-`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive
-bundle cut, per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
+`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.31`,
+per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns the neutral capability; the first
 consumer is LedgerxFactory's posting segregation-of-duties control
@@ -82,7 +82,8 @@ evidences = holder  iff  (not readable) and per_use_authorization
 The validator enforces the derivation, refuses a top-of-ladder ceiling that
 does not evidence the holder — keyed on RANK rather than on the tier's name,
 so a registry cannot disable the rule by renaming its top tier — and refuses
-any readable model sitting at or above a model that evidences the holder.
+any model evidencing only the environment sitting at or above a model that
+evidences the holder.
 Collapsing the two cases is therefore structurally impossible rather than
 merely discouraged — which matters, because a collapsed enumeration is the one
 failure mode that would otherwise validate cleanly.
@@ -120,6 +121,14 @@ declaration is what keeps this honest, and it works only if consumers declare
 truthfully; a validator can check that a model is declared and that authority
 does not exceed it, and cannot check that the declaration is true.
 
+Nor does it recompute expiry from timestamps at exercise: revocation and
+expiry are enforced through the grant's recorded `state` (an exercise
+permitted against a grant whose state is `expired` or `revoked` is refused,
+and the revocation check is required at use), but an exercise whose
+`occurred_at` falls after its grant's `expires_at` while the grant still
+reads `active` is a state-keeping failure in the issuing system, not one this
+validator adjudicates.
+
 The `openxVault` boundary Brett set on 2026-07-16 is preserved rather than
 re-litigated: the vault owns custody and its gate CONSUMES these grants; this
 family owns identity, keys and authority.
@@ -140,3 +149,8 @@ declared in its own first lines. Each negative carries
 required `# requirement:` attribution — and the validator fails if any
 requirement of either capability has no negative confirmation, so a
 requirement cannot quietly lose its probe.
+
+Coverage closure is PER REQUIREMENT, not per rule: every requirement carries
+at least one probe, and the recorded red-proof shows every finding code the
+corpus exercises is load-bearing — but not every enforced rule has a fixture
+of its own.

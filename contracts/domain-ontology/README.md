@@ -2,8 +2,8 @@
 
 Status: ratified
 Ratified by: add-domain-ontology-layer (approved 2026-07-29; registered in
-`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive
-bundle cut, per [Contract Versioning Policy](../../docs/contract-versioning-policy.md)
+`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.22`,
+per [Contract Versioning Policy](../../docs/contract-versioning-policy.md)
 and the Contracts Pending Realization convention)
 
 The neutral ontology meta-contract: how the xFactory semantic kernel and

@@ -1776,16 +1776,18 @@ contracts:
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- openxWallet core + agent profile — contract-v1.31 registration (add-openxwallet, feature 006-openxwallet-contracts) ----
-  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 16
+  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 33
   # intended-invalid) and the strict validator (scripts/validate-openxwallet.py)
   # are content-addressed by commit; no per-file digest (the possibles-register
-  # and ideation-routing precedent).
+  # and ideation-routing precedent). Five digests below refreshed 2026-08-08
+  # (docs-truth pass, pre-tag: description/comment corrections only — see
+  # specs/006-openxwallet-contracts/traceability.yaml `review_docs`).
   - id: openxwallet-record
     path: contracts/openxwallet/openxwallet-record.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: b00095965a359514634d5b7650b2e7505a116729f26937773db51c0d2b0fc18d
+    sha256: 68239c0640177dcee0bdf10275f520ba0030141349f39f3a7f4cefee900e0414
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1798,7 +1800,7 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d83c7a4d540acc73dd7a3baf1714958a354d9263cd76801ee538ec51780a097e
+    sha256: df72638497a7f90c2a4dff47c429cb794bc4b6e270ce2dd2b17116478ae3b51a
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1811,7 +1813,7 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody.registry.yaml
     type: registry
     schema_version: 1
-    sha256: 7307b263caed930dfad7d0e7bd7f9f81a1239b44f7f791445aa8734d75db5465
+    sha256: 94d631d6ee76dab015628a1856afd82582b98d6a3733622c9afe8b13b5278539
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1837,7 +1839,7 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
     type: schema
     schema_version: 1
-    sha256: ca5f8a9016723286b895e4f7e8c7ea83a9e51260582f0d8d68396b4130662110
+    sha256: f16ad31246186cec36e142ae39bd831d98fbc5c0afd48685057bc39e113c8858
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1863,7 +1865,7 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9dc95f6e1a3cdfd07153c9ff49d60ee6aafdf8925dcf6578479b0cf625c64cae
+    sha256: d29eca519462aff7871de3786f19c820e9fc3b95115ce30e57d1f1cc2bc0c0b2
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

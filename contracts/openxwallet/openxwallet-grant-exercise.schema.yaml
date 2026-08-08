@@ -138,7 +138,7 @@ properties:
     type: string
     enum: [permitted, refused]
   refusal:
-    # Present iff outcome is `refused`. The code is closed so a refusal names
+    # Required when outcome is `refused`. The code is closed so a refusal names
     # what was actually lacking — the requirement that a missing proof is not
     # reported as a missing grant is a rule about THIS field.
     type: object

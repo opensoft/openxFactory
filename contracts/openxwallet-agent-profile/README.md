@@ -2,8 +2,8 @@
 
 Status: ratified
 Ratified by: add-openxwallet (approved Brett Heap 2026-08-07; registered in
-`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive
-bundle cut, per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
+`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.31`,
+per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns the neutral capability; the first
 consumer is LedgerxFactory's posting segregation-of-duties control
@@ -81,7 +81,9 @@ choice visible and checkable; it does not make it for anyone.
 |---|---|
 | `xfactory_wallet_agent_composition` | The composition hash, the component set it covers with each component's binding mode, the attested hash, and the grants state that follows from comparing them. |
 
-A record of this kind must resolve to a wallet whose holder class is `agent`.
+A record of this kind must resolve to a wallet whose holder class is `agent` —
+a composition naming a wallet that does not resolve is refused rather than
+passed over, because an unresolvable wallet is a class check that never runs.
 The core imposes composition on no class, and a holder of another class is
 required to declare none.
 
