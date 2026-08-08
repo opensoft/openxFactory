@@ -1,0 +1,166 @@
+schema_version: 1
+kind: openxfactory-openxwallet-contract-schema
+name: xfactory_wallet_grant_exercise
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/openxwallet/v1/openxwallet-grant-exercise.schema.yaml"
+contract_id: openxwallet-grant-exercise
+contract_schema_version: 1
+title: openxWallet grant exercise record
+description: >-
+  The record of one exercise of a grant (add-openxwallet, capability
+  `openxwallet`). Four core requirements are only expressible at exercise, and
+  this is where they live:
+
+  PROOF OF POSSESSION, NOT PRESENTATION. Exercising a grant carries a
+  signature from the holder's wallet key over the request, so possession of
+  the grant alone is insufficient and a stolen grant is inert. A grant
+  presented without proof is refused NAMING THE MISSING PROOF rather than the
+  missing grant — the grant was supplied and is not what was lacking.
+
+  A VERIFICATION FAILURE IS NOT AN ABSENCE. A signature that is present and
+  does not verify is recorded as `verification_failure`; a request with no
+  signature at all is recorded as `unauthenticated_request`. The two describe
+  different events, and `event_class` keeps them distinguishable in the record
+  rather than in a log convention.
+
+  EVERY EXERCISE IS KEY-ATTRIBUTED. The key that presented the grant is
+  recorded alongside the grant and the act. An act reaching an external
+  platform through a shared service credential records the presenting WALLET
+  KEY as the actor and the shared credential as TRANSPORT; an act for which no
+  wallet key can be established is recorded as `unattributed` rather than
+  assigned to a holder on the strength of the credential used.
+
+  REVOCATION IS CHECKED AT USE. Issuance-time validity is not evidence of
+  current validity, so the record carries the revocation check performed at
+  exercise, and an exercise against a revoked grant — or one derived from a
+  revoked parent, or held by a wallet whose standing was revoked — is refused.
+
+  The custody model IN FORCE AT THE TIME is carried here, not looked up later,
+  so an audit reader can tell whether the holder or its environment was
+  evidenced without reconstructing history.
+type: object
+required:
+  - schema_version
+  - kind
+  - exercise_id
+  - grant_ref
+  - act
+  - event_class
+  - proof_of_possession
+  - attribution
+  - custody_model_in_force
+  - revocation_check
+  - outcome
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_wallet_grant_exercise]
+  exercise_id: {$ref: '#/$defs/identifier'}
+  grant_ref: {$ref: '#/$defs/identifier'}
+  act: {$ref: '#/$defs/identifier'}
+  object_ref: {$ref: '#/$defs/identifier'}
+  occurred_at: {type: string, format: date-time}
+  event_class:
+    # authenticated          — a signature was presented and verified
+    # verification_failure   — a signature was presented and did NOT verify
+    # unauthenticated_request— no signature was presented at all
+    type: string
+    enum: [authenticated, verification_failure, unauthenticated_request]
+  proof_of_possession:
+    type: object
+    required: [presented]
+    additionalProperties: false
+    properties:
+      presented: {type: boolean}
+      verified: {type: boolean}
+      signature_algorithm:
+        type: string
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1]
+      signed_over:
+        # WHAT the signature covers. A signature over something other than the
+        # request would not make a stolen grant inert, so the record says.
+        type: string
+        enum: [request, request_digest]
+      presenting_key_ref: {$ref: '#/$defs/identifier'}
+  attribution:
+    type: object
+    required: [mode]
+    additionalProperties: false
+    properties:
+      mode:
+        # key_attributed — a wallet key was established for the act
+        # unattributed   — none was; the act is NOT assigned to a holder
+        type: string
+        enum: [key_attributed, unattributed]
+      presenting_key_ref: {$ref: '#/$defs/identifier'}
+      wallet_ref: {$ref: '#/$defs/identifier'}
+      holder_ref: {$ref: '#/$defs/identifier'}
+      transport:
+        # A shared service credential is transport. Recording it is useful;
+        # recording it as the ACTOR is what launders attribution, and the
+        # canonical validator refuses that.
+        type: object
+        required: [shared_credential_ref, role]
+        additionalProperties: false
+        properties:
+          shared_credential_ref: {$ref: '#/$defs/identifier'}
+          role:
+            type: string
+            enum: [transport]
+  custody_model_in_force: {$ref: '#/$defs/identifier'}
+  revocation_check:
+    type: object
+    required: [performed_at_exercise, result]
+    additionalProperties: false
+    properties:
+      performed_at_exercise: {type: boolean}
+      result:
+        type: string
+        enum: [active, revoked]
+      revoked_ancestor_ref: {$ref: '#/$defs/identifier'}
+  constraint_evaluations:
+    # Evaluated distinct-holder constraints. Available, never implied: an
+    # exercise naming no constraint is subject to none.
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      required: [constraint_ref, prior_act_holder_ref, this_holder_ref, satisfied]
+      additionalProperties: false
+      properties:
+        constraint_ref: {$ref: '#/$defs/identifier'}
+        prior_act_holder_ref: {$ref: '#/$defs/identifier'}
+        this_holder_ref: {$ref: '#/$defs/identifier'}
+        satisfied: {type: boolean}
+  outcome:
+    type: string
+    enum: [permitted, refused]
+  refusal:
+    # Present iff outcome is `refused`. The code is closed so a refusal names
+    # what was actually lacking — the requirement that a missing proof is not
+    # reported as a missing grant is a rule about THIS field.
+    type: object
+    required: [code, statement]
+    additionalProperties: false
+    properties:
+      code:
+        type: string
+        enum:
+          - missing_proof_of_possession
+          - proof_verification_failed
+          - missing_grant
+          - grant_expired
+          - grant_revoked
+          - custody_ceiling_exceeded
+          - distinct_holder_violated
+          - attenuation_exceeded
+      statement: {type: string, minLength: 1, maxLength: 600}
+      names: {$ref: '#/$defs/identifier'}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

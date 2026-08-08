@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.30
+contract_bundle_version: contract-v1.31
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1773,5 +1773,114 @@ contracts:
     consumption_rule: >-
       The domain-declared purpose model the neutral purpose-resolution check (D4) resolves instrument purposes against; access SHAPES stay technical contracts owned elsewhere.
       Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- openxWallet core + agent profile — contract-v1.31 registration (add-openxwallet, feature 006-openxwallet-contracts) ----
+  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 16
+  # intended-invalid) and the strict validator (scripts/validate-openxwallet.py)
+  # are content-addressed by commit; no per-file digest (the possibles-register
+  # and ideation-routing precedent).
+  - id: openxwallet-record
+    path: contracts/openxwallet/openxwallet-record.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b00095965a359514634d5b7650b2e7505a116729f26937773db51c0d2b0fc18d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The wallet record: holder, a key REFERENCE, and a declared custody model. Every object closes additionalProperties so no key-shaped property can be added at any depth.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-custody-registry-schema
+    path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d83c7a4d540acc73dd7a3baf1714958a354d9263cd76801ee538ec51780a097e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The shape of the closed custody enumeration, including the derivation that makes `evidences` checkable rather than asserted.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-custody-registry
+    path: contracts/openxwallet/openxwallet-custody.registry.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-custody.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 7307b263caed930dfad7d0e7bd7f9f81a1239b44f7f791445aa8734d75db5465
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE CLOSED CUSTODY SET and the ordered authority ladder it caps: three members, what each evidences, and the two deliberate non-members (asserted identity, shared credentials).
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-grant
+    path: contracts/openxwallet/openxwallet-grant.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 33a8ccc2a4316b48d4a2cd39d0505246c5d1015ff96e5559cbf71dc97004d093
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The attenuated capability grant: audience, scope, expiry, optional parent. Carries no key and no bearer token; possession confers nothing.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-grant-exercise
+    path: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ca5f8a9016723286b895e4f7e8c7ea83a9e51260582f0d8d68396b4130662110
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The exercise record: proof of possession, event class, key attribution, the revocation check performed at use, and distinct-holder evaluations.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-distinct-holder-constraint
+    path: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c2a6d2fd23fb3743fdaf0e165dabc4cb1dff24e52a8262a38c86ed1482374b25
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A consuming capability's opt-in declaration that two named acts on one object must be exercised by different holders.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-subject-attestation
+    path: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9dc95f6e1a3cdfd07153c9ff49d60ee6aafdf8925dcf6578479b0cf625c64cae
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The optional wallet reference a subject may carry: attestation, never identity, with the wrong reading made unrepresentable.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-agent-composition
+    path: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    source_path: openxFactory/contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: aed3978e8ae952f3ff5b3de1f672bba5da350d5aaeb442feafaa870b4de4be91
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The agent profile's composition declaration: the hash, the component set it covers, and each component's binding mode (content digests it; reference covers a corpus's identity and governing configuration but not its contents).
+      Registered at contract-v1.31; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.

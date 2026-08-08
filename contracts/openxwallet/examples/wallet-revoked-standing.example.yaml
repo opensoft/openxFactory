@@ -1,0 +1,19 @@
+# VALID wallet record whose HOLDER STANDING has been revoked. Revoking a
+# holder's standing revokes that holder's outstanding grants without waiting
+# for expiry, which is why an exercise resolving through this wallet is
+# refused at use rather than at issuance.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-retired-0004
+holder:
+  holder_id: agent:ledger-retired
+  holder_class: agent
+key_reference:
+  did: "did:web:xforge.us:wallets:agent-retired"
+  key_id: key-retired-0004
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+state: revoked
+policy_version: 1

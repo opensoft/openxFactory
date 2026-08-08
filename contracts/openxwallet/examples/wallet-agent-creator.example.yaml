@@ -1,0 +1,24 @@
+# VALID wallet record: the agent that CREATES a transaction, held under
+# software custody a compromised environment could sign for. Perfectly
+# conformant — and capped at `act`, so it may complete an approved act and may
+# never hold unsupervised authority. This is the honest low tier the ruling
+# preserved rather than stalling every consumer by mandating hardware.
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-creator-0002
+holder:
+  holder_id: agent:ledger-creator
+  holder_class: agent
+  display_label: Ledger intake agent
+key_reference:
+  did: "did:web:xforge.us:wallets:agent-creator"
+  key_id: key-creator-0002
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-08-07T09:00:00Z"
+  declared_by: opensoft
+state: active
+created_at: "2026-08-07T09:00:00Z"
+policy_version: 1

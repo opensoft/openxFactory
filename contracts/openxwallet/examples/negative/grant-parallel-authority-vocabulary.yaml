@@ -1,0 +1,30 @@
+# expected_failure: authority-vocabulary-parallel
+# expected_failure_detail: auto_approve_without_review
+# requirement: OXWA-R3
+# VIOLATES profile R3: a second authority vocabulary.
+#
+# The grant invents `auto_approve_without_review` instead of using the neutral
+# job envelope's `approval_policy` properties. It reads harmlessly and is
+# exactly the failure the requirement exists to prevent: an agent's authority
+# and a job's approval posture stated in two vocabularies that must then be
+# kept in agreement, which is the shape the restructure of 2026-08-06 removed
+# when it made grants the primitive.
+#
+# The legal terms are not restated by the validator — it reads them out of
+# contracts/schemas/hermes-job-envelope.schema.yaml at run time, because
+# restating them here would recreate the very second vocabulary being refused.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-parallel-vocab-0009
+audience:
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+scope:
+  acts:
+    - post_transaction
+  authority_tier: act
+  approval_posture:
+    auto_approve_without_review: true
+expires_at: "2026-09-30T23:59:59Z"
+issued_at: "2026-08-07T09:30:00Z"
+state: active

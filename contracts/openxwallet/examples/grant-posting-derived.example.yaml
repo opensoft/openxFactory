@@ -1,0 +1,26 @@
+# VALID derived grant: attenuation that NARROWS on every dimension it touches.
+# Acts are a subset of the parent's, the authority tier is unchanged rather
+# than raised, and the lifetime ends earlier. Without monotonic narrowing,
+# delegation would be key-sharing with extra steps.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-posting-derived-0002
+audience:
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+scope:
+  acts:
+    - post_transaction
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for:
+      - irreversible_external_effect
+expires_at: "2026-09-30T23:59:59Z"
+issued_at: "2026-08-07T09:30:00Z"
+issued_by: opensoft
+parent_grant_ref: grant-posting-parent-0001
+state: active
+distinct_holder_constraint_refs:
+  - dhc-posting-sod-0001

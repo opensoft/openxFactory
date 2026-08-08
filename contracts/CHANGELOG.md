@@ -13,6 +13,63 @@ without fabricating historical tags.
 
 - (nothing pending.)
 
+## contract-v1.31 — 2026-08-07 (additive; the openxWallet core and its first profile)
+
+Realizes `add-openxwallet` tasks 3.1 and 3.2 through Speckit feature
+`006-openxwallet-contracts`, registering two new neutral contract families and
+modifying no existing capability.
+
+`contracts/openxwallet/` is the HOLDER-AGNOSTIC core — a wallet is a signing
+key anchored to a decentralized identifier and held by a person, practitioner,
+organisation or agent. Six kinds: the wallet record (a key REFERENCE and a
+declared custody model, never key material, with every object closing
+`additionalProperties` so no key-shaped field can be added at any depth); the
+closed custody registry; the attenuated capability grant (audience, scope,
+expiry, parent, narrowing monotonically); the grant exercise record (proof of
+possession, key attribution, revocation checked at use, distinct-holder
+evaluation); the opt-in distinct-holder constraint; and the subject
+attestation carrying the non-substrate rule that preserves MedxFactory's two
+ratified wallet constraints.
+
+The custody registry is where Brett's ruling of 2026-08-07 — custody is
+DECLARED from a closed set and CAPS authority — becomes contract content
+rather than an implementation detail. `evidences` is DERIVED from two declared
+booleans and enforced, not asserted: a key readable by the holder's own
+execution context evidences the ENVIRONMENT, and only isolation together with
+an authorization that context cannot supply evidences the HOLDER. Three
+invariants make the collapse the ruling closes structurally impossible rather
+than discouraged — the derivation itself, a ceiling of `act_unsupervised` that
+must be earned, and a check that no readable model sits at or above a model
+evidencing the holder.
+
+`contracts/openxwallet-agent-profile/` is the FIRST profile over that core,
+registered as a SIBLING family rather than an extension of it, so patient and
+practitioner profiles arrive the same way. It settles the change's open task
+3.2 — what the composition component set covers — by giving every component a
+`binding_mode`: `content` digests the component itself, while `reference`
+covers a corpus's identity and governing configuration but not its row-level
+contents. Swapping a corpus or widening retrieval scope changes identity and
+revokes; documents arriving in an already-governed corpus do not.
+
+Consumers pin this release and run `scripts/validate-openxwallet.py` from the
+pinned checkout. The validator enforces seventeen rules the shapes cannot
+express and READS the legal approval-scope vocabulary out of
+`contracts/schemas/hermes-job-envelope.schema.yaml` at run time rather than
+restating it, because restating it would recreate the parallel authority
+vocabulary the profile's third requirement forbids. The packaged corpus
+comprises 16 valid examples and 16 intended-invalid negatives covering 11 of
+11 ratified requirements, with coverage closed in both directions — a
+requirement with no probe, and a probe naming no requirement, are both
+validation failures. A red-proof harness recorded with the feature confirms
+all 15 finding codes are load-bearing: suppressing any one turns the corpus
+red.
+
+No runtime, wallet infrastructure, key storage, issuance service, or signing
+implementation lands with this release; no key, credential or wallet is
+created; and no domain is obliged to adopt wallets. The `openxVault` boundary
+Brett set on 2026-07-16 is preserved: the vault owns custody and its gate
+consumes these grants.
+
 ## contract-v1.30 — 2026-08-06 (additive; cross-factory ideation routing and the consent-instrument family)
 
 Realizes `add-cross-factory-ideation-routing` task 2.4 by registering the
