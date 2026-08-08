@@ -633,18 +633,30 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    below), so it scrolls as one — the v4 layout contract kept, the panes freed.
    `align-items: start` is what stops a short pane being stretched to the
    tallest one's height. */
+/* THE LENS SCREEN takes the page (Brett, 2026-08-08). The region itself does
+   not scroll: each pane owns its own scroll, so the radar stays put while the
+   documents under it and the vocabulary rail beside it move. */
 .lens {
   display: grid; grid-template-columns: 250px minmax(420px, 1fr) 270px;
-  gap: 20px; height: 100%; align-items: start;
-  overflow-y: auto; padding-right: 2px;
+  gap: 20px; align-items: stretch;
+  flex: 1 1 auto; min-height: 0; overflow: hidden;
 }
+/* the lens hides the stage tiles, which head the STAGE views and say nothing
+   about a keyword or repository set */
+.wrap.lensfull > #stats { display: none; }
+/* the radar holds; the matrix beneath it takes the remaining height and
+   scrolls. Both panes beside it scroll on their own. */
+.lens .pane-bullseye { min-height: 0; }
+.lens .pane-bullseye > .bullseye { flex: none; }
+.lens .pane-bullseye > .lensmatrix { flex: 1 1 auto; min-height: 0; overflow: auto; margin-top: 8px; }
+.lens .pane-drill { min-height: 0; overflow-y: auto; padding-right: 2px; }
 .lens .pane { display: flex; flex-direction: column; gap: 7px; }
 /* ...with ONE exception, and it is the reason the panes were boxed in the first
    place: the declared keyword rail is 151 rows / ~10,370px on the real corpus,
    and left unbounded it would set the height of the region the bullseye lives
    in. It keeps its own scroll, bounded by the viewport rather than by a grid
    row, so the rail scrolls and the lens still reaches the matrix. */
-.lens .pane-rail { max-height: calc(100vh - 300px); min-height: 220px; overflow-y: auto; padding-right: 2px; }
+.lens .pane-rail { min-height: 0; overflow-y: auto; padding-right: 2px; }
 .kwrow { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 6px 9px; cursor: pointer; }
 .kwrow input { accent-color: var(--st-staged); width: 14px; height: 14px; flex: none; margin: 0; }
 .kwrow .kw { font-family: var(--mono); font-size: 12px; }

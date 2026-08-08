@@ -421,26 +421,43 @@ def test_a_sparse_bullseye_keeps_all_its_labels():
 # defect 9d / 16 — the lens layout
 # ---------------------------------------------------------------------------
 
-def test_the_lens_is_one_scroll_region_with_panes_at_natural_height():
-    """Three panes each trapped in a 203-351px box was the defect; the region
-    the shell already gives the view is the scroll context."""
+def test_the_lens_panes_scroll_and_the_region_does_not():
+    """The ORIGINAL defect was three panes each trapped in a 203-351px box,
+    fixed by making the region itself the one scroll context. Brett's
+    2026-08-08 ruling inverts that deliberately — "we want the radar widget to
+    stay and scroll the document window and the repo window if it should need
+    it" — which the old fix cannot give: scrolling the region moves the radar
+    off screen with everything else.
+
+    So the region no longer scrolls and each pane owns its own. The property
+    the original defect was really about survives and is asserted here: no
+    pane is trapped in a fixed-height box. They stretch to the region, and the
+    region is whatever height the shell gives the view."""
     css = STYLES_CSS.read_text(encoding="utf-8")
     block = css.split("\n.lens {", 1)[1].split("}", 1)[0]
-    assert "overflow-y: auto" in block, "the lens region does not scroll"
-    assert "align-items: start" in block, \
-        "stretch is back — a short pane is padded to the tallest one's height"
-    pane = css.split("\n.lens .pane {", 1)[1].split("}", 1)[0]
-    assert "overflow-y" not in pane, \
-        "the panes own scrollbars again — the bullseye goes back in a 351px box"
+    assert "overflow: hidden" in block, "the region must not scroll as a whole"
+    assert "min-height: 0" in block and "flex: 1 1 auto" in block, \
+        "the region must take the height the shell gives the view"
+    assert "align-items: stretch" in block, \
+        "panes must fill the region's height, so their own scrolls are bounded"
+    # and no pane is boxed at a fixed height, which was the original defect
+    for rule in (".lens .pane-rail", ".lens .pane-drill",
+                 ".lens .pane-bullseye"):
+        body = css.split("\n" + rule + " {", 1)[1].split("}", 1)[0]
+        assert "max-height" not in body, (rule, body)
 
 
-def test_the_keyword_rail_is_the_one_inner_scroller():
-    """151 rows / ~10,370px must not set the height of the region the bullseye
-    and the always-present matrix live in."""
+def test_the_rail_scrolls_within_the_region_rather_than_setting_its_height():
+    """151 rows / ~10,370px must still not set the height of the region the
+    bullseye and the always-present matrix live in. It no longer needs a
+    viewport-derived `max-height` guess to achieve that: the rail stretches to
+    the region and scrolls inside it, which is both simpler and correct at any
+    height (Brett's 2026-08-08 ruling)."""
     css = STYLES_CSS.read_text(encoding="utf-8")
     rail = css.split("\n.lens .pane-rail {", 1)[1].split("}", 1)[0]
     assert "overflow-y: auto" in rail
-    assert "max-height" in rail
+    assert "min-height: 0" in rail, \
+        "without this the rail's content sets the grid row's height again"
     lens = LENS_JS.read_text(encoding="utf-8")
     assert 'el("div", "pane pane-rail")' in lens, \
         "the rail pane carries no marker, so the CSS above reaches nothing"

@@ -872,3 +872,39 @@ def test_the_wheel_fit_constants_match_the_stylesheet():
     tiles_gap = float(re.search(
         r"(?m)^\.tiles\s*\{[^}]*?gap:\s*([\d.]+)px", css, re.S).group(1))
     assert tiles_gap == deck_gap, (tiles_gap, deck_gap)
+
+
+def test_the_lens_screen_takes_the_page_and_scrolls_its_own_panes():
+    """Brett's 2026-08-08 ruling: "when we are on the lens screen we want to
+    remove anything not lens related… give as much screen as possible to the
+    radar widget and the list of documents below. We want the radar widget to
+    stay and scroll the document window and the repo window if it should need
+    it." Three properties, each in one place: the shell marks the lens screen,
+    the stylesheet hides the stage tiles on it, and the lens region itself
+    does NOT scroll — its panes do, so the radar holds while the matrix under
+    it and the rail beside it move."""
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+
+    # the shell marks the screen, and only for the lens
+    assert 'classList.toggle("lensfull", target.view === "view-lens")' in app
+
+    # the tiles are hidden there
+    assert re.search(r"\.wrap\.lensfull\s*>\s*#stats\s*\{[^}]*display:\s*none", css)
+
+    # the region does not scroll; each pane owns its own
+    lens = re.search(r"(?m)^\.lens\s*\{([^}]*)\}", css).group(1)
+    assert "overflow: hidden" in lens, lens
+    assert "min-height: 0" in lens, lens
+    for pane, rule in (("pane-rail", r"\.lens \.pane-rail\s*\{([^}]*)\}"),
+                       ("pane-drill", r"\.lens \.pane-drill\s*\{([^}]*)\}")):
+        body = re.search(rule, css).group(1)
+        assert "overflow-y: auto" in body, (pane, body)
+    # the matrix takes the height left under the radar and scrolls
+    matrix = re.search(r"\.lens \.pane-bullseye > \.lensmatrix\s*\{([^}]*)\}",
+                       css).group(1)
+    assert "flex: 1 1 auto" in matrix and "overflow: auto" in matrix, matrix
+    # …and the radar itself never shrinks to make room for it
+    svg = re.search(r"\.lens \.pane-bullseye > \.bullseye\s*\{([^}]*)\}",
+                    css).group(1)
+    assert "flex: none" in svg, svg
