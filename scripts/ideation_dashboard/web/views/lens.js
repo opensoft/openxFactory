@@ -39,6 +39,10 @@ import { identitiesFor, isComposed, repositoryVocabulary } from "./composed-mode
 // register row + detail section as TEXT for a human to merge).
 export const DTN_SEED_ROUTE = "/actions/dtn-seed";
 
+//: How many of the ranked relationships the rail offers. Enough to choose
+//: from, short enough to read; the whole list is the model's `pairs`.
+const RELATIONSHIPS_SHOWN = 12;
+
 // D21 (Brett, 2026-08-07: "our repo selector is now very similar to the lens
 // function but for documents in repos vs keywords in documents") — the lens
 // serves TWO VOCABULARIES through one widget. Only the words differ; every
@@ -372,13 +376,49 @@ function keywordRail(model, ctx) {
   summary.appendChild(el("div", "railsum-note", vocab.railNote));
   pane.appendChild(summary);
 
+  // THE RELATIONSHIPS THAT ALREADY EXIST (Brett, 2026-08-08). The rail used
+  // to ask the human to guess which of 447 keywords overlap; this offers the
+  // strongest overlaps outright, and one click opens the radar ON that pair
+  // instead of on an empty centre. Repository vocabularies skip it — with a
+  // handful of members the rail IS the list.
+  if (vocab.id === "keywords" && (model.pairs || []).length) {
+    const rel = el("div", "railrel");
+    const relH = el("div", "pane-h");
+    relH.appendChild(el("span", null, "relationships"));
+    relH.appendChild(el("span", "n", model.pairs.length + " pairs"));
+    rel.appendChild(relH);
+    rel.appendChild(el("div", "railrel-note",
+      "Keyword pairs that already share documents. Opening one checks both."));
+    for (const pair of model.pairs.slice(0, RELATIONSHIPS_SHOWN)) {
+      const row = el("button", "relrow");
+      row.type = "button";
+      row.title = "check " + pair.a + " and " + pair.b + " — "
+        + pair.documents + " document" + (pair.documents === 1 ? "" : "s")
+        + " carry both";
+      row.appendChild(el("span", "relpair", pair.a + " + " + pair.b));
+      row.appendChild(el("span", "reln", String(pair.documents)));
+      row.addEventListener("click", () => ctx.only([pair.a, pair.b]));
+      rel.appendChild(row);
+    }
+    pane.appendChild(rel);
+  }
+
   const coocc = new Map();
   for (const hint of model.coOccurrence) coocc.set(hint.keyword, hint);
   // per-term contribution, from the SAME dots the radar draws
   const stats = railStats(model);
 
+  // The connected terms first; the LONG TAIL — terms carried by a single
+  // document, two thirds of this rail — waits behind a toggle rather than
+  // burying them. A checked one is always listed, so nothing in the current
+  // selection can hide.
+  const solos = model.rail.filter((k) => k.solo && !k.checked);
+  const showSolos = ctx.getShowSolos();
+  const listed = showSolos ? model.rail
+    : model.rail.filter((k) => !k.solo || k.checked);
+
   const items = [];
-  for (const kw of model.rail) {
+  for (const kw of listed) {
     // A repository row is a TILE: few rows, a tall pane, and real facts to
     // carry. A keyword row stays compact — 305 of them is a list, not tiles.
     const row = el("label", "kwrow" + (vocab.id === "repositories" ? " repotile" : ""));
@@ -466,6 +506,18 @@ function keywordRail(model, ctx) {
     applyKwFilter(search.value);
   });
   applyKwFilter(search.value);
+
+  if (solos.length) {
+    const toggle = el("button", "railmore",
+      showSolos
+        ? "hide the " + solos.length + " single-document " + vocab.terms
+        : "show " + solos.length + " more on a single document only");
+    toggle.type = "button";
+    toggle.title = "a " + vocab.term + " carried by a single document can "
+      + "only ever put one dot on the radar";
+    toggle.addEventListener("click", () => ctx.setShowSolos(!showSolos));
+    pane.appendChild(toggle);
+  }
 
   pane.appendChild(el("div", "kwhint",
     "Declared Topics: only (solid dots). Inferred tags — hollow dots, radial " +
@@ -638,6 +690,68 @@ function drillPane(model, ctx) {
   return pane;
 }
 
+// ---- the matrix, AS A GRAPHIC (Brett, 2026-08-08) --------------------------
+//
+// The same membership the flat table states row by row, drawn as a presence
+// grid: one row per document on the radar, one column per checked term, a
+// filled cell where the document carries the term. The table answers "does
+// THIS document carry THAT term"; the grid answers the question the table
+// cannot — what the corpus looks like — because a block of filled cells IS a
+// group of documents with the same signature, which is the relationship the
+// lens exists to find.
+//
+// Built from `model.matrix` and `model.keywordHues`, the SAME rows and hues
+// the table and the radar use, so three views of one membership cannot
+// disagree. The table stays: it is required to be always present, and a grid
+// is not readable at one row.
+function matrixGraphic(model, ctx) {
+  const pane = el("div", "gridwrap");
+  const h = el("div", "pane-h");
+  h.appendChild(el("span", null, "signature grid"));
+  h.appendChild(el("span", "n", model.matrix.length + " × " + model.checked.length));
+  pane.appendChild(h);
+  if (!model.checked.length || !model.matrix.length) {
+    pane.appendChild(el("div", "grid-empty",
+      "check a " + ctx.vocab.term + " to draw the grid"));
+    return pane;
+  }
+
+  // the column heads: each term's letter, in its own hue, over its column
+  const grid = el("div", "sigrid");
+  grid.style.setProperty("--cols", String(model.checked.length));
+  const head = el("div", "sigrid-row sigrid-head");
+  head.appendChild(el("span", "sigrid-rowlab", ""));
+  for (const term of model.checked) {
+    const cell = el("span", "sigrid-collab",
+      (model.keywordLabels || {})[term] || "?");
+    const hue = (model.keywordHues || {})[term];
+    if (hue != null) cell.style.color = "hsl(" + hue + " 45% 42%)";
+    cell.title = term;
+    head.appendChild(cell);
+  }
+  grid.appendChild(head);
+
+  for (const row of model.matrix) {
+    const line = el("div", "sigrid-row");
+    const label = el("span", "sigrid-rowlab", String(row.number));
+    label.title = row.document;
+    line.appendChild(label);
+    for (const cell of row.cells) {
+      const box = el("span", "sigcell" + (cell.present ? " on" : ""));
+      if (cell.present) {
+        const hue = (model.keywordHues || {})[cell.keyword];
+        if (hue != null) box.style.background = "hsl(" + hue + " 45% 55%)";
+      }
+      box.title = row.document + (cell.present ? " carries " : " does not carry ")
+        + cell.keyword;
+      line.appendChild(box);
+    }
+    grid.appendChild(line);
+  }
+  pane.appendChild(grid);
+  return pane;
+}
+
 function bullseyePane(model, ctx) {
   // `pane-bullseye`: the radar HOLDS and the matrix beneath it scrolls
   // (Brett, 2026-08-08). NO HEADER — what it said now reads in the rail,
@@ -649,6 +763,10 @@ function bullseyePane(model, ctx) {
   // before (no callback => no hit regions at all).
   pane.appendChild(renderBullseye(model,
     ctx.onDrill ? { onActivate: ctx.onDrill } : undefined));
+  // the SIGNATURE GRID sits between the radar and the table: the same
+  // membership as a picture, where a block of filled cells is a group of
+  // documents that share a signature
+  pane.appendChild(matrixGraphic(model, ctx));
   // the flat matrix is ALWAYS rendered alongside — not a toggle-only alternate.
   pane.appendChild(matrix(model));
   return pane;
@@ -754,6 +872,7 @@ export function renderLens(root, snapshot, opts) {
     includes: {},   // doc -> reason (manual + on a non-matching doc)
     excludes: {},   // doc -> reason (manual − on a matching doc)
     kwFilter: "",   // keyword-rail text filter (survives draw rebuilds)
+    showSolos: false,  // single-document terms are collapsed until asked for
   };
   const summaries = docSummaries(working);
   const repository = working.repository || "";
@@ -858,6 +977,19 @@ export function renderLens(root, snapshot, opts) {
     // BULK check/uncheck (Brett's 2026-08-08 all/none). One state change, one
     // write-through, one draw — toggling N terms one at a time would redraw
     // the radar N times and write the visible set N times.
+    getShowSolos() { return state.showSolos; },
+    setShowSolos(on) { state.showSolos = !!on; draw(); },
+    // open the radar on EXACTLY these terms — the relationships list's click,
+    // which replaces the selection rather than adding to it, so the pair is
+    // what the rings are about
+    only(terms) {
+      state.checked = new Set(terms || []);
+      state.pinned = new Set();
+      if (vocab.id === "repositories" && options.onVisible) {
+        options.onVisible([...state.checked]);
+      }
+      draw();
+    },
     setChecked(terms, on) {
       for (const term of terms || []) {
         if (on) state.checked.add(term);

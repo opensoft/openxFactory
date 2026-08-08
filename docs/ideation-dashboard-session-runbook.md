@@ -133,6 +133,19 @@ so the sixth column is whole instead of part-cut.
   SEARCH, not a filter — it finds rows and never changes what is applied; a
   row still has to be ticked. Beside it, `all` / `none` check or uncheck the
   rows the search is showing (every row when the box is empty).
+- **Finding an overlap** (Brett, 2026-08-08) — the keyword rail ranks by
+  CONNECTIVITY (how many other keywords a keyword shares documents with), not
+  the alphabet, and collapses the long tail: keywords carried by a single
+  document wait behind a toggle. Above the rows, RELATIONSHIPS lists the pairs
+  that already share documents, strongest first; opening one checks exactly
+  that pair, so the radar starts on a real overlap instead of an empty centre.
+  From there the existing path applies: the forming pane saves the set as a
+  cluster, and `derive-possibles` turns a cluster into candidate ideas.
+- **The signature grid** — between the radar and the flat matrix, the same
+  membership as a picture: one row per document, one column per checked term,
+  a filled cell where the document carries it. A block of filled cells is a
+  group of documents sharing a signature, which the table cannot show and the
+  rings can only count.
 - **What the dashboard is** — the standing footer paragraph is a
   `what is this?` link opening a modal, so it costs no layout until asked for.
 - **The banner row** carries the STALE-FALLBACK warning only. An empty station
