@@ -185,7 +185,20 @@ so the sixth column is whole instead of part-cut.
   some do — and the ARGUMENT is not: the summary, why-now, claims, open
   questions and exit path arrive marked `TO WRITE`, because a drafter that
   argued its own case would be the machine deciding what is worth staging.
-  Nothing is written; the human places the file and adds its INDEX.md row.
+  Nothing is written. The panel appears DIRECTLY UNDER THE RADAR (it began as
+  a full-width block below the whole layout; the foot of the pane was no
+  better at 2,772px down) and can be dismissed — nothing was written, and the
+  same selection redrafts it byte for byte.
+  Its one action is **open in doxBench**, not copy (Brett, 2026-08-08: "we
+  need to not 'copy' this"). Copying makes the human the transport. The seed
+  travels instead, as a prefilled GOVERNED create: the staging area, the
+  shared terms as Topics, `staged` status, and the provenance line — with
+  Title and Summary left empty, because the create refuses without them,
+  which is the same rule the seed states by marking them `TO WRITE`. The
+  create opens or joins a branch session, so the draft lands on a branch and
+  never on main, and save/abandon are the ones that already exist (an
+  abandoned session's branch SURVIVES — that is the non-committed list you
+  return to).
   (The repository lens's `draft seed` is the OTHER seed — a DTN
   candidate-register row, answering whether two factories carry the same
   artifact.)

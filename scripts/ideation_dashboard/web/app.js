@@ -378,6 +378,11 @@ const TABS = [
       visible: ctx.visible,
       onVisible: ctx.onVisible,
       onDrillIn: ctx.onDrillIn,
+      // lens -> doxBench (Brett, 2026-08-08: "we need to have button to move
+      // this to doxBench. and open the doxBench UI if the user moves
+      // forward"). The same cross-view ownership every other jump has: the
+      // view declares the verb, app.js performs it.
+      onOpenDoxbench: ctx.nav.openDraft,
     }) },
   // The doc list's rows open the SAME read-only explorer/viewer overlay the
   // wheel's `read` verb and the workbench's docs rows open (T092 acceptance
@@ -787,6 +792,10 @@ async function main() {
       // clusters / possibles / staged -> the staging workbench, scoped to the
       // tile the verb was activated from (read-only; closes back to the wheel).
       openWorkbench: (kind, id) => stagingWorkbench.open(kind, id),
+      // the lens's drafted staging seed, carried into doxBench as a prefilled
+      // CREATE — the governed one, which opens a branch session, so a draft
+      // never lands on main
+      openDraft: (seed) => stagingWorkbench.openDraft(seed),
       // composed tiles -> the tile's member repository (D10's one verb): store
       // the key at the member's own ref and reload — the ratified selector
       // posture, after which every verb works as on any single-repo view.

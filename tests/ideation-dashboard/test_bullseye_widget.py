@@ -1233,3 +1233,92 @@ def test_the_hovered_dot_pulses_and_the_selected_dot_has_its_own_colour():
     lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
     assert 'node.classList.add("picked")' in lens
     assert "picked" not in (WEB / "views" / "bullseye.js").read_text(encoding="utf-8")
+
+
+def test_the_drafted_seed_moves_to_doxbench_instead_of_being_copied(tmp_path):
+    """Brett, 2026-08-08: "we need to not 'copy' this. we need to have button
+    to move this to doxBench. and open the doxBench UI if the user moves
+    forward." Copying makes the HUMAN the transport — paste it somewhere, keep
+    the topic and the terms straight by hand. The seed travels instead, as a
+    prefilled CREATE, and only what was COMPUTED crosses: the staging area,
+    the shared terms, the provenance. Title and summary stay empty because the
+    create refuses without them, which is the same rule the seed states by
+    marking them TO WRITE."""
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert "navigator.clipboard" not in lens.split("renderStagingSeed")[1].split(
+        "createSeedFromStagingSeed")[0]
+    assert "open in doxBench" in lens
+    assert "ctx.onOpenDoxbench(data)" in lens
+    # app.js owns the jump, exactly as it does for every other cross-view verb
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    assert "openDraft: (seed) => stagingWorkbench.openDraft(seed)" in app
+    assert "onOpenDoxbench: ctx.nav.openDraft" in app
+    # and the workbench reuses the GOVERNED create — no second write path and
+    # no second session concept, so save/abandon behave as they always have
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    assert "function openDraft(seed)" in swb
+    assert "openCreateDialog(body, seed" in swb
+    assert "return { open, close, openDraft };" in swb
+    # an ungated plane says so rather than offering a submit that cannot land
+    draft_body = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
+    assert "createGateLive(caps)" in draft_body
+
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(WEB / "views" / "lens.js", tmp_path / "lens.mjs")
+    for dep in ("lens-model.js", "bullseye.js", "composed-model.js"):
+        shutil.copy(WEB / "views" / dep, tmp_path / dep)
+    (tmp_path / "m.mjs").write_text("""
+import { createSeedFromStagingSeed } from './lens.mjs';
+const seed = createSeedFromStagingSeed({
+  path: 'ideation/staging/doc-workflow/doc-workflow.md',
+  shared: ['doc-workflow', 'governance'], partial: ['lens'],
+  documents: ['a.md', 'b.md'], text: '# Staged: TO WRITE',
+}, 'openxFactory');
+const noShared = createSeedFromStagingSeed({
+  path: 'ideation/staging/x/x.md', shared: [], partial: ['only-some'],
+  documents: ['a.md'],
+}, 'openxFactory');
+console.log(JSON.stringify([seed, noShared]));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "m.mjs")], capture_output=True,
+                          text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    seed, no_shared = json.loads(proc.stdout)
+    assert seed["area"] == "ideation/staging/doc-workflow/"
+    assert seed["topics"] == ["doc-workflow", "governance"]
+    assert seed["status"] == "staged"          # never born ratified
+    assert seed["kind"] == "capability-proposal"
+    assert seed["repository"] == "openxFactory"
+    assert "2 documents" in seed["source"]
+    # the two fields the human owes are NOT invented
+    assert seed["title"] == "" and seed["summary"] == ""
+    # with no shared spine, the partial terms carry the topics rather than
+    # leaving a create that would be refused for having none
+    assert no_shared["topics"] == ["only-some"]
+
+
+def test_the_drafted_seed_panel_sits_under_the_radar_and_can_be_dismissed():
+    """Brett, 2026-08-08: "there is no back from this widget. this widget
+    should move up to the bottom of the radar." It began as a full-width block
+    below the whole three-pane layout; the foot of the bullseye pane was no
+    better (measured 2,772px down, past the entire matrix). It belongs
+    directly under the radar, where the eye already is — and it must be
+    dismissable, because a panel that can only be replaced by drafting
+    something else is a panel the human is stuck in."""
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    # mounted by the PANE, not by the view root
+    assert "root.appendChild(confirm)" not in lens
+    assert "if (ctx.confirmHost) pane.appendChild(ctx.confirmHost);" in lens
+    # …directly after the radar, before the grid and the matrix
+    pane = lens.split("function bullseyePane")[1]
+    order = [pane.index("renderBullseye"), pane.index("ctx.confirmHost"),
+             pane.index("matrixGraphic(model"), pane.index("matrix(model")]
+    assert order == sorted(order), order
+    # dismissing costs nothing: nothing was written, and the same selection
+    # drafts it again byte for byte
+    assert 'el("button", "dc-close"' in lens
+    assert "dismiss this draft" in lens
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert ".pane-bullseye .canvas-confirm" in css
+    assert ".pane-bullseye .canvas-confirm:empty { display: none; }" in css
