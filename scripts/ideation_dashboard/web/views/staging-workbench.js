@@ -1277,6 +1277,14 @@ export function mountStagingWorkbench(container, snapshot,
   }
 
   function open(kind, id) {
+    // a scoped open restores whatever a draft stood down
+    for (const [, btn] of tabButtons) {
+      if (btn && btn.dataset && btn.dataset.draftHeld) {
+        btn.disabled = false;
+        btn.title = "";
+        delete btn.dataset.draftHeld;
+      }
+    }
     lastFocused = document.activeElement;
     snapshot = shellSnapshot;
     active = shellActive;
@@ -1336,7 +1344,19 @@ export function mountStagingWorkbench(container, snapshot,
     title.textContent = "doxBench — new document";
     subtitle.textContent = seed?.source || "from a lens selection";
     body.innerHTML = "";
-    for (const [, btn] of tabButtons) btn.setAttribute("aria-selected", "false");
+    // THE SCOPE-BOUND TABS STAND DOWN while a draft is open (Brett,
+    // 2026-08-09: "if I click the docs tab, that screen disappears and no way
+    // to get it back"). `docs`, `lens` and `outline` all derive from a TILE,
+    // and a draft has none until it is created — so they rendered empty AND
+    // destroyed the draft, with no route back to it. Disabled with the reason
+    // on them is the honest state; a scoped `open()` gives them back.
+    for (const [key, btn] of tabButtons) {
+      btn.setAttribute("aria-selected", "false");
+      btn.disabled = true;
+      if (btn.dataset) btn.dataset.draftHeld = "1";
+      btn.title = "this is a new document — " + key + " reads a tile's own "
+        + "material, and there is no tile until it is created";
+    }
     drawSession();
     drawCanvas();
     // The create is GATED, and an ungated plane says so rather than offering a
