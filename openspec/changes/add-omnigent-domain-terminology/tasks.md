@@ -146,9 +146,35 @@
       is stated.
 - [ ] 3b.5d Obtain APQC written licence confirmation if PCF element names or
       numbers are ever to ship in product configuration.
-- [ ] 3b.5e Commission equivalent research for the remaining domains (opsx,
-      adx marketing, codex, medx) — the same Anglo skew applies, and both
-      accounting rounds show the drafts do not survive verification.
+- [x] 3b.5e BRIEFS WRITTEN for every remaining domain (2026-08-09). Adx's
+      lives in its own repo (it has an active change);
+      opsx/codex/medx briefs live here in supporting-docs/ because codex and
+      medx have no active omnigent change to attach to and this change owns
+      the commissioning task. All four lead with REUSE RIGHTS framed as
+      "may we embed element names in a YAML file shipped in a public repo",
+      forbid guessed identifiers, and state that "no equivalent" and "do not
+      register" are useful answers.
+      Per-domain risk each brief targets:
+      - opsx (`opsx-it-operations-bodies-research-prompt.md`): 9 shipped
+        ITIL 4 / SFIA crosswalks, none verified. Licence risk is real on
+        BOTH — ITIL is PeopleCert property and SFIA operates a commercial
+        licensing scheme — so this domain may face the APQC problem twice.
+      - codex (`codex-engineering-bodies-research-prompt.md`): no
+        terminology block at all, so this is from-scratch population. The
+        sharp question is the Scrum Guide's CC BY-SA: share-alike could
+        oblige our own configuration file to be CC BY-SA, which would decide
+        whether Scrum vocabulary is usable at all. Also flags
+        `scrum_master_worker` sharing a name with a human role holding
+        authority over people.
+      - medx (`medx-clinical-bodies-research-prompt.md`): patient-safety
+        framing OUTRANKS terminology. Provider taxonomies describe humans
+        with clinical standing and legal accountability; labelling a
+        reasoning agent with one would imply standing it must never appear
+        to have. The brief states plainly that "register nothing; record
+        no_clean_equivalent for all eleven and rely on display labels" is an
+        acceptable and possibly correct outcome.
+- [ ] 3b.5f Apply the results of the four outstanding briefs (ledgerx
+      UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
 
 ## 4. Consumer follow-up (named, not assumed)
 
