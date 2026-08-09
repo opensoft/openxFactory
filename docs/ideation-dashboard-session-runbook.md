@@ -251,7 +251,16 @@ so the sixth column is whole instead of part-cut.
   Title and Summary left empty, because the create refuses without them,
   which is the same rule the seed states by marking them `TO WRITE`. The
   create opens or joins a branch session, so the draft lands on a branch and
-  never on main, and save/abandon are the ones that already exist (an
+  never on main, and save/abandon are the ones that already exist.
+  doxBench's DRAFT VIEW lands on the DOCUMENT (Brett, 2026-08-09: "go
+  direct in to let the user start working on the doc"): the drafted
+  fragment first, its header fields behind a `details` tab, already
+  filled in. It renders read-only and says why — `create-document`
+  writes the header contract and the BODY is written in the editor that
+  opens on the created file, so text typed before the document exists
+  would have nowhere to land. TITLE AND SUMMARY STAY EMPTY: the route
+  refuses without them and the summary is "yours to write, never
+  generated here" (an
   abandoned session's branch SURVIVES — that is the non-committed list you
   return to).
 - **The selection bar** — `clear N` at the LEFT, under the checkbox column it

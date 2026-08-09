@@ -1357,17 +1357,68 @@ export function mountStagingWorkbench(container, snapshot,
       closeBtn.focus();
       return;
     }
-    openCreateDialog(body, seed, {
-      caps: authoring, fetcher,
-      label: "create document",
-      onOpenDoc: onOpenDoc ? (path) => onOpenDoc(path, null) : null,
-      onSessionOpened: (result) => {
-        sessionOpened(result.ref);
-        documentCreated(result.ref, result.path);
-        drawSession();
-        return rekeyToSession(result.ref);
-      },
-    });
+    // LAND ON THE DOCUMENT, not on a form (Brett, 2026-08-09: "prefill all
+    // these fields and just make them available to edit if the user wants…
+    // make this doc meta data available as a tab. but go direct in to let the
+    // user start working on the doc"). The form alone in an overlay whose
+    // other regions have no scope is what read as "the doxWorkbench is empty":
+    // the thing the human came to see — the drafted fragment — was not on
+    // screen at all.
+    const strip = el("div", "swb-drafttabs");
+    const pane = el("div", "swb-draftpane");
+    const tabs = [
+      { id: "document", label: "document" },
+      { id: "details", label: "details" },
+    ];
+    const buttons = new Map();
+
+    function showPane(id) {
+      for (const [key, btn] of buttons) {
+        btn.setAttribute("aria-selected", String(key === id));
+        btn.disabled = key === id;
+      }
+      pane.innerHTML = "";
+      if (id === "details") {
+        openCreateDialog(pane, seed, {
+          caps: authoring, fetcher,
+          label: "create document",
+          onOpenDoc: onOpenDoc ? (path) => onOpenDoc(path, null) : null,
+          onSessionOpened: (result) => {
+            sessionOpened(result.ref);
+            documentCreated(result.ref, result.path);
+            drawSession();
+            return rekeyToSession(result.ref);
+          },
+        });
+        return;
+      }
+      // THE DRAFT ITSELF. Read-only, and it says why: `create-document` writes
+      // the header contract, and the BODY is written in the editor that opens
+      // on the created file — so text typed here before the document exists
+      // would have nowhere to land, which is worse than not offering it.
+      pane.appendChild(el("div", "swb-draftnote",
+        "This is the fragment drafted from your selection. Everything below is "
+        + "computed; the sections marked TO WRITE are yours. `details` carries "
+        + "the header fields, already filled in — name it there and create, "
+        + "and the editor opens on the file."));
+      pane.appendChild(el("pre", "seedtext", seed.seedText || "(no draft text)"));
+      const go = el("button", "cbtn", "name it and create →");
+      go.type = "button";
+      go.addEventListener("click", () => showPane("details"));
+      pane.appendChild(go);
+    }
+
+    for (const tab of tabs) {
+      const btn = el("button", "swb-drafttab", tab.label);
+      btn.type = "button";
+      btn.setAttribute("role", "tab");
+      btn.addEventListener("click", () => showPane(tab.id));
+      buttons.set(tab.id, btn);
+      strip.appendChild(btn);
+    }
+    body.appendChild(strip);
+    body.appendChild(pane);
+    showPane("document");
     closeBtn.focus();
   }
 
