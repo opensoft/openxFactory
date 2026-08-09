@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from conftest import REPO_ROOT  # noqa: F401 (sys.path side effect)
 from test_gate_routes import _post, _serving
 
@@ -158,3 +160,44 @@ def test_wire_the_route_drafts_from_the_serves_own_snapshot(tmp_path):
         # …and the whole exchange wrote nothing anywhere in the checkout
         after = sorted(p.name for p in Path(root).rglob("*") if p.is_file())
         assert after == before
+
+
+def test_a_lens_draft_cannot_reach_edit_document_and_the_reason_is_structural(tmp_path):
+    """Brett, 2026-08-09: "do the create-then-edit so I can write the body."
+
+    It does not work, and the reason is a contract rather than a bug — which
+    is why it is pinned here instead of worked around.
+
+    `create-document` writes the HEADER CONTRACT (`authoring.create_scaffold`
+    takes title, summary, topics, area… and NO body). `edit-document` writes
+    the body — but it is TILE-SCOPED: `_edit_body` requires `scope_kind` and
+    `scope_id`, and the verb resolves a LIVE branch session for that tile,
+    refusing outright where none can be resolved.
+
+    A lens draft has no tile. It is a set of documents a human selected on a
+    radar, and the staging topic it would become does not exist in the
+    snapshot yet — so there is no scope to name, and naming the topic it is
+    about to create is the chicken-and-egg this test records.
+
+    Two honest ways out, both contract changes, neither smuggled in here:
+      * let `create-document` carry a body (one verb, one commit, no
+        half-written document), or
+      * let `edit-document` accept a first save against a document the same
+        session just created, scope-free.
+    """
+    parser = (REPO_ROOT / "scripts" / "ideation_dashboard"
+              / "gate_routes.py").read_text(encoding="utf-8")
+    edit_body = parser.split("def _edit_body(")[1].split("\ndef ")[0]
+    assert 'body.get("scope_kind")' in edit_body
+    assert 'body.get("scope_id")' in edit_body
+    # …and the verb has no session-less path at all, unlike create-document
+    edit = parser.split("def _edit_document(")[1].split("\ndef ")[0]
+    assert "this verb HAS no such path, so it refuses" in edit
+
+    # the create writes a header and takes no body: the two halves of the gap
+    scaffold = (REPO_ROOT / "scripts" / "ideation_dashboard"
+                / "authoring.py").read_text(encoding="utf-8")
+    signature = scaffold.split("def create_scaffold(")[1].split(") -> Path:")[0]
+    for field in ("title", "summary", "topics", "area"):
+        assert field in signature, field
+    assert "body" not in signature and "content" not in signature
