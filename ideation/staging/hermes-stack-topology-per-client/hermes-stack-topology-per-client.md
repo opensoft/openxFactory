@@ -169,6 +169,55 @@ shared identity exists to surface." The validator reports it as a conformance
 WARNING deliberately. It is a standing, named observation — not a defect, and
 not blocking.
 
+## Who EXECUTES, and therefore which session owns the work
+
+The layer model answers *whether* (Hermes: policy, consent, approval), *where*
+(xFactory layer: routing) and *how* (DomainxFactory: domain interpretation). The
+ratified `deployment-handoff-boundary` answers the fourth question — **who
+executes** — and it is decided by one test, not by convenience:
+
+> "A release deployment SHALL be executed by the factory that manages the target
+> surface, decided solely by the managed-subject test: does the deployment target
+> resolve to a registered subject in the managing factory's service-subject
+> model? A registered managed subject SHALL be reached only through a governed
+> handoff to the managing factory."
+
+`opensoft-aks-qa-hermes-stack` is a registered subject in **OpsxFactory's**
+service-subject model. So deploying to it is OpsxFactory's execution act,
+performed on OpsxFactory's own operator surface (cloud-bench) — never from the
+producing factory's session.
+
+### The correction this records (source session, 2026-08-08)
+
+The `add-governed-job-approval-request` release was produced, requested and
+approved from a codexFactory session, which then reported itself "blocked on
+cloud-bench" because it lacked AKS run-command RBAC. That framing was wrong.
+The producing session was not blocked — it was **complete and handed off**. A
+codexFactory session that COULD reach the cluster directly would be the defect,
+not the fix: the missing RBAC is the boundary working.
+
+The producing side's own request record already said so — "the producing
+factory's authority ends at the release ... Execution is OpsxFactory's under the
+post-transfer operating model" — so the artifact was right and only the
+narration drifted. Worth stating plainly here because the same confusion recurs
+naturally: the agent that produced a release is the one holding all the context,
+and is therefore the one most tempted to deploy it.
+
+### Practical rule for this topic's follow-on work
+
+| Work | Home |
+|---|---|
+| Neutral contracts (topology, intake/admission) | openxFactory session |
+| Runtime implementation | xFactory-Hermes-Install session |
+| Producing a release + the `cir-` request | the producing factory's session |
+| **Executing any deploy to a managed subject** | **the managing factory's session, on its own operator surface** |
+| Producing-side acceptance AFTER execution | back in the producing factory's session |
+
+A corollary for the (a)/(b) fork below: standing up an Opsx stack (b) is itself
+an OpsxFactory execution act. And (a) — realizing intake/admission at the Tenant
+Hermes — is the mechanism that makes this routing explicit and auditable rather
+than a convention agents have to remember.
+
 ## The (a)/(b) decision this topic exists to make
 
 **(a) Realize intake + admission at the existing Tenant Hermes.** The promoted
