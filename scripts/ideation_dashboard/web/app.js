@@ -424,6 +424,36 @@ function initAbout() {
   link.addEventListener("click", () => dialog.showModal());
 }
 
+// WHERE THE HUMAN WAS (Brett, 2026-08-09: "currently we take the user back to
+// home page and the user must drill back to where they were"). Five different
+// controls store a key and reload — the repository jump, the repository/project
+// selector, a refresh, and clearing a drill-in — and every one of them landed
+// on the first tab, so a jump taken FROM the wheel arrived on the funnel.
+//
+// The tab is the right thing to keep, and the only thing: after a repository
+// jump the tile you were on does not exist in the repository you jumped to,
+// which is the point of jumping. Restoring the VIEW puts you where you were
+// looking; restoring a tile would be restoring something that is gone.
+const ACTIVE_TAB_STORAGE = "opendox.active-view";
+
+function storedTab() {
+  const store = guardedSessionStorage();
+  try {
+    return store ? store.getItem(ACTIVE_TAB_STORAGE) : null;
+  } catch {
+    return null;   // blocked site data: the default tab applies, as before
+  }
+}
+
+function storeTab(view) {
+  const store = guardedSessionStorage();
+  try {
+    if (store) store.setItem(ACTIVE_TAB_STORAGE, String(view));
+  } catch {
+    /* a viewer preference that cannot be stored is not an error */
+  }
+}
+
 function initTabs(snapshot, ctx) {
   const controllers = {};
   const rendered = new Set();
@@ -438,6 +468,7 @@ function initTabs(snapshot, ctx) {
 
   function show(target, focusTab) {
     current = target;
+    storeTab(target.view);
     TABS.forEach((t, i) => {
       const isTarget = t.tab === target.tab;
       tabEls[i].setAttribute("aria-selected", String(isTarget));
@@ -478,7 +509,11 @@ function initTabs(snapshot, ctx) {
     tabEls[i].addEventListener("click", () => show(t, false));
     tabEls[i].addEventListener("keydown", (ev) => onTabKey(ev, i));
   });
-  show(TABS[0], false);
+  // Open where the human was, if that view still exists on this plane — a tab
+  // list can differ between planes, and a remembered view that is gone falls
+  // back to the first exactly as before.
+  const remembered = TABS.find((t) => t.view === storedTab());
+  show(remembered || TABS[0], false);
 
   return {
     search(term) { searchTerm = String(term || ""); applySearch(); },
