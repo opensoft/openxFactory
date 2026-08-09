@@ -1370,3 +1370,50 @@ def test_the_drafted_seed_panel_sits_under_the_radar_and_can_be_dismissed():
     css = (WEB / "styles.css").read_text(encoding="utf-8")
     assert ".pane-bullseye .canvas-confirm" in css
     assert ".pane-bullseye .canvas-confirm:empty { display: none; }" in css
+
+
+def test_the_doxbench_handoff_is_offered_only_where_it_can_land():
+    """Brett, 2026-08-08: "i added some docs to the seed and did a draft. then
+    clicked open in doxBench. but it was blank."
+
+    The cause was mine and it was a DEAD END, not a rendering fault. A project
+    view is a read-only projection — `readOnlyCaps` strips gate/session/edit
+    by design, because there is no such thing as writing to "a project", only
+    to one of its member repositories. The button was offered there anyway and
+    refused after the click, in an otherwise empty overlay.
+
+    A dead end discovered at the last step is worse than one declared at the
+    first, so the decision moved to where the button is drawn, and it has
+    three outcomes rather than two:
+
+      * the plane can create        -> the button
+      * exactly ONE repository owns the selection -> the JUMP to it, because
+        one owner is a destination, not a decision
+      * SEVERAL own it             -> the reason, naming them, because which
+        repository owns a NEW document is the human's call and not a click
+        the machine can make for them
+    """
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    panel = lens.split("function renderStagingSeed")[1].split("\n}")[0]
+    # the offer is conditional on the capability, not attempted and refused
+    assert "ctx.onOpenDoxbench && ctx.canCreate" in panel
+    assert "owners.length === 1" in panel and "ctx.onOpenRepository" in panel
+    assert "dc-why" in panel
+    # the three branches are exclusive and ordered: create, jump, explain
+    assert panel.index("ctx.canCreate") < panel.index("owners.length === 1") \
+        < panel.index('el("span", "dc-why"')
+    # the capability read is the gate, and the owners come from the COMPOSED
+    # snapshot the lens already holds — no new fetch to answer either question
+    assert "canCreate: !!(caps && caps.actions && caps.actions.gate)" in lens
+    assert "ownersOf(documents)" in lens
+    for primitive in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"):
+        assert primitive not in lens, primitive
+    # app.js owns the jump, as it owns every other cross-view move
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    assert "onOpenRepository: ctx.nav.openRepository" in app
+    # …and the overlay's own guard still says something true and actionable
+    # rather than rendering empty, since reaching it is now a programming error
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    guard = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
+    assert "created IN a repository" in guard
+    assert "nothing was lost" in guard

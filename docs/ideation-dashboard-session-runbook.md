@@ -188,7 +188,16 @@ so the sixth column is whole instead of part-cut.
   a full-width block below the whole layout; the foot of the pane was no
   better at 2,772px down) and can be dismissed — nothing was written, and the
   same selection redrafts it byte for byte.
-  Its one action is **open in doxBench**, not copy (Brett, 2026-08-08: "we
+  Its one action is **open in doxBench** — OFFERED ONLY WHERE IT CAN LAND. A
+  PROJECT VIEW IS READ-ONLY (`readOnlyCaps` strips gate/session/edit by
+  design: a document is created IN a repository, never in a project), so the
+  panel decides at draw time and has three outcomes — the button where the
+  plane can create; a JUMP (`open <repo> to draft`) when exactly one member
+  owns the selection, because one owner is a destination and not a decision;
+  and a stated reason naming them when several do, because which repository
+  owns a NEW document is the human's call. Offering it anyway and refusing
+  after the click gave a near-empty overlay (Brett, 2026-08-08: "it was
+  blank"). Not copy (Brett, 2026-08-08: "we
   need to not 'copy' this"). Copying makes the human the transport. The seed
   travels instead, as a prefilled GOVERNED create: the staging area, the
   shared terms as Topics, `staged` status, and the provenance line — with

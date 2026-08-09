@@ -2141,6 +2141,9 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .pane-bullseye .canvas-confirm:empty { display: none; }
 .dc-h { display: flex; align-items: center; gap: 8px; }
 .dc-title { flex: 1; cursor: help; }
+/* the refusal that stands in for the doxBench button on a read-only merged
+   view — stated where the button would be, not after a click */
+.dc-why { font-size: 11px; color: var(--muted); cursor: help; flex: none; }
 .dc-close {
   background: none; border: 1px solid var(--border); border-radius: 4px;
   color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1;
