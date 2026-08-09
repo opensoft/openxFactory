@@ -1530,3 +1530,36 @@ def test_a_staged_tile_opens_its_packet_rather_than_repointing_the_dashboard():
     for wheel in ("documents", "clusters", "possibles"):
         block = model.split("  " + wheel + ": [")[1].split("\n  ],")[0]
         assert "openRepoRow" in block, wheel
+
+
+def test_a_reload_bearing_control_returns_you_to_the_view_you_were_on():
+    """Brett, 2026-08-09: "can we make the repo jump silent on the other
+    wheels? currently we take the user back to home page and the user must
+    drill back to where they were."
+
+    FIVE controls store a key and reload — the repository jump, the
+    repository/project selector, a refresh, and clearing a drill-in — and
+    every one of them landed on the first tab. A jump taken FROM the wheel
+    arrived on the funnel, so the human re-navigated to the place they had
+    just been looking at.
+
+    The TAB is the right thing to keep, and the only thing: after a repository
+    jump the tile you were on does not exist in the repository you jumped to,
+    which is the point of jumping. Restoring the view puts you where you were
+    looking; restoring a tile would restore something that is gone.
+    """
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    # remembered on EVERY activation, so it is right however the tab changed —
+    # a click, a keyboard arrow, or a programmatic `goto` from a wheel verb
+    assert "storeTab(target.view);" in app
+    show = app.split("function show(target, focusTab) {")[1].split("\n  }")[0]
+    assert "storeTab" in show
+    # …and restored only to a view this plane actually has
+    assert "const remembered = TABS.find((t) => t.view === storedTab());" in app
+    assert "show(remembered || TABS[0], false);" in app
+    # through the SAME guarded seam every other stored preference uses: under
+    # blocked site data the getter itself throws, and a preference that cannot
+    # be stored is not an error
+    tab_helpers = app.split("function storedTab()")[1].split("function initTabs")[0]
+    assert tab_helpers.count("guardedSessionStorage()") == 2
+    assert tab_helpers.count("try {") == 2

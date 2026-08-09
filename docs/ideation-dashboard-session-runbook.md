@@ -171,6 +171,14 @@ so the sixth column is whole instead of part-cut.
   convergence is READ, so it is where the selection is made. The BOX stays the
   keyboard path (95 focusable dots would flood the tab order), and a dot click
   never fires the region beneath it, which drills in.
+- **A reload keeps your place** (Brett, 2026-08-09) — five controls store a
+  key and reload (the repository jump, the repository/project selector, a
+  refresh, clearing a drill-in), and every one used to land on the FIRST tab,
+  so a jump taken from the wheel arrived on the funnel. The active view is
+  remembered on every activation and restored on mount, when the view still
+  exists on the plane. The TAB is the only thing kept: after a repository jump
+  the tile you were on does not exist in the repository you jumped to, so
+  restoring a tile would restore something that is gone.
 - **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
   on a composed view a staged topic offers `read` and `open workbench` and NO
   `open in <repo>`. A staged topic is a packet whose material can span
