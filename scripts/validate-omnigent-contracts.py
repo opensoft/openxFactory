@@ -112,6 +112,16 @@ def standards_body_ids() -> set[str]:
 def semantic_errors(kind: str, doc) -> list[str]:
     errors: list[str] = []
     for path, key in iter_keys(doc):
+        # Terminology keys are REFERENCES to ids the overlay already declares
+        # (the orphan check below enforces that), not new governance
+        # vocabulary — and some declared ids legitimately carry a frozen
+        # machine key such as `client_infrastructure_request` from the neutral
+        # contract. Without this exemption the same string is legal as a
+        # job_types array item and illegal as its own terminology key, which
+        # is a lint artifact rather than the rule's intent. Surfaced by the
+        # first real population (OpsxFactory, 2026-08-09).
+        if path.startswith("$.terminology."):
+            continue
         if LEGACY_KEY_SEGMENT.search(key):
             errors.append(f"{path}: legacy vocabulary key '{key}' (use subject/tenant/domain spellings)")
     if kind == "omnigent_domain_overlay" and isinstance(doc, dict):
