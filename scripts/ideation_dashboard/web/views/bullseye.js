@@ -150,6 +150,11 @@ function sectorGestures(node, model, opts) {
 // D6 as ruled); `opts.centreLabel` overrides the centre region's label.
 export function renderBullseye(model, opts) {
   const o = opts || {};
+  // `opts.onDocument(document)` makes a DOT a control for its own document —
+  // the lens uses it to toggle that document's selection, so clicking a dot
+  // and ticking its matrix row write the same state (Brett, 2026-08-09).
+  // Absent, every dot is exactly as inert as it was.
+  const onDocument = typeof o.onDocument === "function" ? o.onDocument : null;
   const g = GEOM;
   const node = svg("svg", {
     class: "bullseye", viewBox: "0 0 " + g.size + " " + g.size, role: "img",
@@ -359,6 +364,20 @@ export function renderBullseye(model, opts) {
     circle.appendChild(svg("title", {},
       (d.number ? "#" + d.number + " " : "") + base + " — "
       + d.matchedSubset.join(" ✓ ") + " ✓"));
+    // A DOT IS ITS DOCUMENT'S CHECKBOX (Brett, 2026-08-09: "when I click a
+    // dot. make it work like checking the box on the doc"). The radar is where
+    // the convergence is READ, so it is where the selection should be MADE —
+    // writing the same state the matrix row's box writes, so the two can never
+    // disagree. `stopPropagation` keeps the click off the hit region beneath
+    // it, which activates a whole drill-in. The BOX remains the keyboard path:
+    // 95 focusable dots would flood the tab order to no benefit.
+    if (onDocument) {
+      circle.style.cursor = "pointer";
+      gdot.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        onDocument(String(d.document));
+      });
+    }
     gdot.appendChild(circle);
     // the inside number: centred on the dot, so it moves with it and can
     // never be dropped for want of room beside it

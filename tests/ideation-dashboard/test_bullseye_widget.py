@@ -382,11 +382,20 @@ def test_the_activation_handler_is_wired_only_where_a_gesture_exists():
                      if not ln.lstrip().startswith("//"))
     workbench = WORKBENCH_JS.read_text(encoding="utf-8")
 
-    # exactly ONE wiring in the lens, and it passes nothing when un-gated
+    # exactly ONE wiring in the lens, and only under the drill condition.
+    # The lens now also passes `onDocument` (a dot is its document's checkbox),
+    # so "passes no opts at all" is no longer the mechanism that keeps the
+    # keyword vocabulary's regions inert — the INVARIANT is what matters and
+    # it is asserted from both sides: the lens sets `onActivate` only when a
+    # drill exists, and the renderer draws a region only when it is a function.
     assert lens.count("onActivate") == 1, "the lens tab wires the handler once"
-    assert "ctx.onDrill ? { onActivate: ctx.onDrill } : undefined" in lens, (
-        "the keyword vocabulary must still pass NO opts — an undefined second "
-        "argument is what keeps its regions inert")
+    assert "if (ctx.onDrill) bullseyeOpts.onActivate = ctx.onDrill;" in lens, (
+        "the activation handler must be set only for the vocabulary that has "
+        "a gesture")
+    renderer = BULLSEYE_JS.read_text(encoding="utf-8")
+    assert 'if (typeof o.onActivate === "function") {' in renderer, (
+        "hit regions must be gated on the HANDLER, never on the presence of "
+        "an options object — otherwise any new option would grant them")
     # ...and the handler exists only for the repository vocabulary
     assert 'vocab.id === "repositories" && options.onDrillIn' in lens, (
         "the drill-in handler must be gated on the repository vocabulary")
@@ -1465,3 +1474,59 @@ def test_the_serve_declares_the_repository_it_can_write_to():
     assert "caps: authoring" in draft
     # …and only openDraft: every tile-bound surface keeps the stripped caps
     assert swb.count("createCaps") <= 3
+
+
+def test_a_dot_is_its_documents_checkbox():
+    """Brett, 2026-08-09: "when I click a dot. make it work like checking the
+    box on the doc. turn it red and check the box in the list."
+
+    The radar is where a convergence is READ, so it should be where the
+    selection is MADE. Both write the same `pickDoc`, so the dot's colour and
+    the row's tick are one state rendered twice and cannot disagree — which is
+    the whole reason not to give the dot a selection of its own.
+    """
+    renderer = BULLSEYE_JS.read_text(encoding="utf-8")
+    # the renderer publishes a seam; it holds no selection and knows no lens
+    assert "const onDocument = typeof o.onDocument === \"function\"" in renderer
+    assert "onDocument(String(d.document))" in renderer
+    # a dot click must not also fire the region beneath it, which drills in
+    dot = renderer.split("if (onDocument) {")[1].split("}")[0]
+    assert "ev.stopPropagation()" in dot
+    # …and it stays ignorant of what a selection IS: no state, no class, no
+    # notion of picked-ness anywhere in the widget (prose may discuss the
+    # checked keyword set — that is the model's vocabulary, not a selection)
+    code = "\n".join(ln for ln in renderer.splitlines()
+                      if not ln.lstrip().startswith("//"))
+    for word in ("picked", "isPicked", "selection"):
+        assert word not in code, word
+
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert "bullseyeOpts.onDocument = (doc) => ctx.pickDoc(doc, !ctx.isPicked(doc))" in lens
+    # the KEYBOARD path stays the matrix checkbox: 95 focusable dots would
+    # flood the tab order to no benefit, and the box is already reachable
+    assert 'box.setAttribute("aria-label", "select " + r.document)' in lens
+
+
+def test_a_staged_tile_opens_its_packet_rather_than_repointing_the_dashboard():
+    """Brett, 2026-08-09: "from a staged tile I click open in <repo>, it
+    reloads the doxBench in that repo. it should not do that. it should just
+    load the workBench with that staging packet."
+
+    A staged TOPIC is not repository-shaped the way a document tile is: it is
+    a packet whose material can span members, and what a human wants from it
+    is the packet. `open workbench` already gives exactly that, scoped, on a
+    composed view (verified live) — with no reload and no repointing of the
+    whole dashboard. Offering both put the heavier, wrong move beside the
+    right one, so the jump leaves the staged wheel and stays everywhere its
+    tile IS one repository's document.
+    """
+    model = (WEB / "views" / "wheel-model.js").read_text(encoding="utf-8")
+    staged = model.split("  staged: [")[1].split("\n  ],")[0]
+    code = "\n".join(ln for ln in staged.splitlines()
+                      if not ln.lstrip().startswith("//"))
+    assert "workbenchRow" in code
+    assert "openRepoRow" not in code
+    # …and every other wheel keeps it
+    for wheel in ("documents", "clusters", "possibles"):
+        block = model.split("  " + wheel + ": [")[1].split("\n  ],")[0]
+        assert "openRepoRow" in block, wheel
