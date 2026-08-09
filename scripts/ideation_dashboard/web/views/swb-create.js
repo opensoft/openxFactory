@@ -55,13 +55,25 @@ async function submitCreate(body, fetcher, caps) {
 function labelledInput(host, label, value, opts) {
   const o = opts || {};
   const row = el("label", "swb-cfield");
-  row.appendChild(el("span", "swb-clabel", label));
+  const name = el("span", "swb-clabel", label);
+  // WHICH FIELDS ARE YOURS is the question the form could not answer (Brett,
+  // 2026-08-09: "the title, summary, topics look empty"). Empty here means two
+  // different things — a value the machine cannot know, and a value it simply
+  // did not find — so the ones a human must supply are MARKED, not merely
+  // blank, and every field says what it is for.
+  if (o.required) {
+    const mark = el("span", "swb-creq", "yours");
+    mark.title = "this field cannot be computed — the create refuses without it";
+    name.appendChild(mark);
+  }
+  row.appendChild(name);
   const input = document.createElement("input");
   input.type = "text";
   input.value = value == null ? "" : String(value);
   input.setAttribute("aria-label", label);
   if (o.placeholder) input.setAttribute("placeholder", o.placeholder);
   row.appendChild(input);
+  if (o.help) row.appendChild(el("span", "swb-chelp", o.help));
   host.appendChild(row);
   return input;
 }
@@ -164,19 +176,43 @@ function renderForm(host, seed, opts) {
     "seeded from what this tab already knows — every value is editable, and the " +
     "create is create-only: an existing path is refused, never overwritten."));
 
-  const title = labelledInput(form, "Title", seed.title,
-    { placeholder: "the document's H1 (— Brainstorm is appended by the engine)" });
-  const summary = labelledInput(form, "Summary", seed.summary,
-    { placeholder: "one sentence — yours to write, never generated here" });
-  const topics = labelledInput(form, "Topics", (seed.topics || []).join(", "),
-    { placeholder: "comma-separated declared topics" });
-  const area = labelledInput(form, "Area", seed.area);
+  const title = labelledInput(form, "Title", seed.title, {
+    required: true,
+    placeholder: "the document's H1",
+    help: "The document's H1 and how it reads in every wheel and list. Empty "
+      + "because naming a topic is the one judgment the selection cannot make "
+      + "for you.",
+  });
+  const summary = labelledInput(form, "Summary", seed.summary, {
+    required: true,
+    placeholder: "one sentence — yours to write, never generated here",
+    help: "One sentence, in the header, used by doc-health and by every "
+      + "reader deciding whether to open this. Deliberately never generated: "
+      + "a placeholder summary reaching the queue is the thing that rule "
+      + "exists to prevent.",
+  });
+  const topics = labelledInput(form, "Topics", (seed.topics || []).join(", "), {
+    placeholder: "comma-separated declared topics",
+    help: "The declared keywords this document carries — filled from the terms "
+      + "EVERY selected document shares. Empty means your selection shares no "
+      + "single term, and the create needs at least one.",
+  });
+  const area = labelledInput(form, "Area", seed.area, {
+    help: "Where the file lands, inside `ideation/`. Filled from the staging "
+      + "topic this convergence names.",
+  });
   // `Status:` is seeded `brainstorm` and NEVER follows the area (Brett's
   // 2026-07-25 ruling on open question 1 — "these are brainstorm docs"; the
   // packet tie is the AREA's placement, not this header). Editable, so a human
   // writing an organized fragment can promote it here.
-  const status = labelledInput(form, "Status", seed.status);
-  const kind = labelledInput(form, "Kind", seed.kind);
+  const status = labelledInput(form, "Status", seed.status, {
+    help: "The lifecycle header. A new document is never born ratified — "
+      + "`brainstorm`, `staged` or `draft` only.",
+  });
+  const kind = labelledInput(form, "Kind", seed.kind, {
+    help: "What sort of document this is, in the header contract's vocabulary "
+      + "(`note`, `capability-proposal`, …).",
+  });
   form.appendChild(el("div", "swb-cnote", "Repository context: " +
     (seed.repositoryContext || "(none in this snapshot)")));
   form.appendChild(el("div", "swb-csource", "Source: " + seed.source));
