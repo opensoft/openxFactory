@@ -444,6 +444,13 @@ def test_capabilities_route_reports_available_when_nlm_present(checkout):
         "actions": {"notebook": True, "gate": True, "refresh": True,
                     "session": True, "edit": True},
         "actor": "tester",
+        # THE ONE REPOSITORY THIS SERVE WRITES TO (add-composed-view-authoring).
+        # Declared rather than inferred: under a composed project view the
+        # rendered snapshot's `repository` is the PROJECT id, which names no
+        # repository and is refused by `refuse_foreign_repository`. Reported
+        # from the same authority that refusal uses, so a client handed this
+        # value can never be refused for naming the wrong one.
+        "repository": "fixture-repo",
         "refresh": {"binding": "regenerate", "loopback_only": True}}
 
 

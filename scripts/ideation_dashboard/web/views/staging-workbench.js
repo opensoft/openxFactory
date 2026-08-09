@@ -518,6 +518,13 @@ export function mountStagingWorkbench(container, snapshot,
                                         // creates no transport of its own -- it only forwards
                                         // what it is handed.
                                         doxbench,
+                                        // The UNSTRIPPED capability, used by
+                                        // `openDraft` ALONE. Every tile-bound
+                                        // surface keeps `caps` — on a composed
+                                        // view those verbs genuinely have no
+                                        // checkout to bind to. A new document
+                                        // binds to no tile.
+                                        createCaps,
                                         sourceBase, edit, onSessionRekey,
                                         onSessionEnded, onScopeOpened } = {}) {
   // The wheel behind this overlay stays on the shell snapshot while a create
@@ -1331,7 +1338,9 @@ export function mountStagingWorkbench(container, snapshot,
     // The create is GATED, and an ungated plane says so rather than offering a
     // dialog whose submit cannot land (the same posture the rest of this
     // overlay takes).
-    if (!createGateLive(caps) || sessionSurfaceHidden(caps)) {
+    // the SERVE's posture, not the view's projection
+    const authoring = createCaps || caps;
+    if (!createGateLive(authoring) || sessionSurfaceHidden(authoring)) {
       // Defence in depth: the lens no longer OFFERS the jump where it cannot
       // land, so reaching this is a programming error rather than a posture —
       // it still says something true and actionable rather than showing an
@@ -1345,7 +1354,7 @@ export function mountStagingWorkbench(container, snapshot,
       return;
     }
     openCreateDialog(body, seed, {
-      caps, fetcher,
+      caps: authoring, fetcher,
       label: "create document",
       onOpenDoc: onOpenDoc ? (path) => onOpenDoc(path, null) : null,
       onSessionOpened: (result) => {

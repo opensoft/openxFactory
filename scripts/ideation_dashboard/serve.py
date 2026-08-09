@@ -1984,7 +1984,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                                       "message": "the request Host is not this "
                                                  "loopback console"})
                 return True
-            self._serve_bytes(json.dumps(self.capabilities).encode("utf-8"),
+            # THE ONE REPOSITORY THIS SERVE CAN WRITE TO, reported from the
+            # SAME authority a create is refused against (`_session_repository`
+            # — a session lives in one tree, the served checkout), so the
+            # capability and the refusal can never disagree. Resolved per
+            # request rather than at startup, because the registry that answers
+            # it is not populated when the capability dict is built.
+            #
+            # The browser used to have to GUESS this, and under a composed
+            # project view it guessed the PROJECT id — not a repository at all,
+            # and refused. A serve knows what it serves, so it says so.
+            payload = dict(self.capabilities)
+            writable = self._session_repository()
+            if writable:
+                payload["repository"] = str(writable)
+            self._serve_bytes(json.dumps(payload).encode("utf-8"),
                               JSON_CTYPE, head_only)
             return True
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
@@ -3187,6 +3201,18 @@ def build_server(
                      if capabilities["actions"]["session"] else None)
     if console_token:
         capabilities[CONSOLE_TOKEN_FIELD] = console_token
+    # THE ONE REPOSITORY THIS SERVE CAN WRITE TO. A plane reaching several
+    # repositories serves them all for READING through per-entry source roots,
+    # but exactly one of them is the checkout a gate verb writes into, and
+    # `refuse_foreign_repository` refuses any create that names another —
+    # correctly, because "cannot verify" is not "matches".
+    #
+    # The browser previously had to GUESS it, and under a composed project view
+    # it guessed the PROJECT id, which is not a repository at all. A serve knows
+    # what it serves, so it says so; the client stops inferring. Absent
+    # (no writable checkout) means no create is possible, which is the honest
+    # reading of a plane that cannot name one.
+
 
     bound = type("BoundDashboardHandler", (DashboardHandler,), {
         "checkout_root": checkout_root,

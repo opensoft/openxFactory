@@ -1014,6 +1014,11 @@ export function renderLens(root, snapshot, opts) {
   // an injectable fetcher (test seam). Gate-off => the plan panel stays
   // plan-only, exactly as the deployed static image renders.
   const caps = options.caps || null;
+  // The UNSTRIPPED capability and the serve's own writable repository, read by
+  // exactly one affordance: the drafted seed's hand-off into doxBench. Absent
+  // (an older mount, the hosted plane), the hand-off simply is not offered.
+  const createCaps = options.createCaps || caps;
+  const writableRepository = options.writableRepository || null;
   const fetcher = options.fetcher || null;
   root.innerHTML = "";
 
@@ -1112,8 +1117,16 @@ export function renderLens(root, snapshot, opts) {
     // whether a drafted panel is currently on screen — the draft button's
     // label reads `re-draft` over one that already exists
     hasDraft() { return confirm.childElementCount > 0; },
-    // a create needs the human gate; a merged project view has it stripped
-    canCreate: !!(caps && caps.actions && caps.actions.gate),
+    // A create needs the human gate ON THE SERVE — not on the view. D10
+    // strips every acting capability from a composed snapshot because "a gate
+    // verb binds to one served checkout, and a composed view has none": true
+    // of a verb bound to a TILE, whose repository this serve has no writable
+    // checkout for. A NEW staging document binds to no tile — it lands in the
+    // serve's own checkout — so this affordance asks the unstripped probe and
+    // requires a writable repository to name (Brett, 2026-08-08: "yes, we
+    // need to draft from a project view").
+    canCreate: !!(createCaps && createCaps.actions && createCaps.actions.gate
+                  && writableRepository),
     onOpenRepository: options.onOpenRepository || null,
     // which member repositories carry these documents — so a refusal can say
     // WHERE to go rather than only that this is not the place
@@ -1137,7 +1150,10 @@ export function renderLens(root, snapshot, opts) {
     // opening happens there.
     onOpenDoxbench: options.onOpenDoxbench
       ? (data) => options.onOpenDoxbench(
-          createSeedFromStagingSeed(data, repository))
+          // the SERVE's repository, never `working.repository` — under a
+          // composed view that is the PROJECT id, and a create naming a
+          // repository this serve does not serve is refused by the route
+          createSeedFromStagingSeed(data, writableRepository || repository))
       : null,
     // add-shared-identity-seeds — draft a register seed for a convergent
     // region. Loopback-only server side; the response is TEXT, so this

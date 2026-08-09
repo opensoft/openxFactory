@@ -383,10 +383,21 @@ const TABS = [
       // forward"). The same cross-view ownership every other jump has: the
       // view declares the verb, app.js performs it.
       onOpenDoxbench: ctx.nav.openDraft,
-      // a project view is read-only (D10), so when a drafted seed belongs to
-      // exactly ONE member the lens offers the jump to it rather than telling
-      // the human to perform the switch themselves
+      // when the serve itself cannot create, and a drafted seed belongs to
+      // exactly ONE member, the lens offers the jump to it rather than
+      // telling the human to perform the switch themselves
       onOpenRepository: ctx.nav.openRepository,
+      // AUTHORING FROM A COMPOSED VIEW (Brett, 2026-08-08: "yes, we need to
+      // draft from a project view"). D10 strips every acting capability on a
+      // composed snapshot because "a gate verb binds to one served checkout,
+      // and a composed view has none" — true of a verb bound to a TILE, whose
+      // repository this serve has no writable checkout for. A NEW staging
+      // document binds to no tile: it lands in the serve's OWN checkout,
+      // which exists and is writable. So this ONE affordance reads the
+      // unstripped capability and the serve's own repository, and nothing
+      // else on the composed view changes.
+      createCaps: ctx.probedCaps,
+      writableRepository: ctx.writableRepository,
     }) },
   // The doc list's rows open the SAME read-only explorer/viewer overlay the
   // wheel's `read` verb and the workbench's docs rows open (T092 acceptance
@@ -764,6 +775,8 @@ async function main() {
       { onOpenDoc: (path, doc) =>
           explorer.openDoc(path, doc, workbenchSourceKey),
         caps, active, index,
+        // the unstripped probe, read by the workbench's `openDraft` alone
+        createCaps: probedCaps,
         doxbench: doxbenchSeams,
         sourceBase: workbenchSourceBase, edit: workbenchEdit,
         onScopeOpened: routeWorkbenchScope, onSessionRekey: rekeyToSession,
@@ -810,6 +823,14 @@ async function main() {
     };
     tabs = initTabs(snapshot, {
       explorer, notebook, caps, nav, composed, sourceBase: sourceBaseFor(active),
+      // the UNSTRIPPED probe and the serve's own writable repository — read by
+      // exactly one affordance (see `createCaps` at the lens's mount)
+      probedCaps,
+      // DECLARED by the serve, never inferred here: a plane reaching several
+      // repositories writes into exactly one, and under a composed view the
+      // rendered snapshot's `repository` is the PROJECT id — not a repository
+      // at all, and refused by the create route.
+      writableRepository: probedCaps?.repository || null,
       // D21 — the repository lens's seams: the whole aggregate to lens over,
       // the current visible set, the write-through, and the drill-in.
       rawSnapshot, visible: view ? view.visible : null,

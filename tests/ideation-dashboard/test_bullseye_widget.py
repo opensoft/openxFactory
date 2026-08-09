@@ -1309,7 +1309,8 @@ def test_the_drafted_seed_moves_to_doxbench_instead_of_being_copied(tmp_path):
     assert "return { open, close, openDraft };" in swb
     # an ungated plane says so rather than offering a submit that cannot land
     draft_body = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
-    assert "createGateLive(caps)" in draft_body
+    # the SERVE's posture, not the composed view's projection
+    assert "createGateLive(authoring)" in draft_body
 
     if not NODE:
         pytest.skip("node not available for the JS derivation probe")
@@ -1404,7 +1405,7 @@ def test_the_doxbench_handoff_is_offered_only_where_it_can_land():
         < panel.index('el("span", "dc-why"')
     # the capability read is the gate, and the owners come from the COMPOSED
     # snapshot the lens already holds — no new fetch to answer either question
-    assert "canCreate: !!(caps && caps.actions && caps.actions.gate)" in lens
+    assert "canCreate: !!(createCaps && createCaps.actions" in lens
     assert "ownersOf(documents)" in lens
     for primitive in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"):
         assert primitive not in lens, primitive
@@ -1417,3 +1418,50 @@ def test_the_doxbench_handoff_is_offered_only_where_it_can_land():
     guard = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
     assert "created IN a repository" in guard
     assert "nothing was lost" in guard
+
+
+def test_the_serve_declares_the_repository_it_can_write_to():
+    """Brett, 2026-08-08: "yes, we need to draft from a project view."
+
+    A project view is composed, and `readOnlyCaps` strips every acting
+    capability from it — correctly for a TILE-BOUND verb, whose repository
+    this serve has no writable checkout for. Creating a new document binds to
+    no tile: it lands in the serve's own checkout. So one affordance reads the
+    SERVE's capability rather than the VIEW's projection.
+
+    For that it must know which repository the serve writes to, and it must
+    not GUESS: under a composed view the rendered snapshot's `repository` is
+    the PROJECT id, which names no repository and is refused by
+    `refuse_foreign_repository`. The serve declares it instead, from the same
+    authority the refusal uses, so the two cannot disagree.
+    """
+    serve = (REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py").read_text(
+        encoding="utf-8")
+    caps_route = serve.split("if path == CAPABILITIES_ROUTE:")[1].split(
+        "if path == WORKBENCH_MODEL_CATALOG_ROUTE:")[0]
+    assert "self._session_repository()" in caps_route
+    assert 'payload["repository"]' in caps_route
+    # a copy, never a mutation of the shared capability dict
+    assert "dict(self.capabilities)" in caps_route
+
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    assert "writableRepository: probedCaps?.repository || null" in app
+    # the UNSTRIPPED probe reaches exactly two consumers: the lens's hand-off
+    # (through the tab context) and the workbench's openDraft (direct)
+    assert "createCaps: ctx.probedCaps" in app
+    assert "createCaps: probedCaps" in app
+    assert app.count("createCaps:") == 2
+
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert "createCaps && createCaps.actions && createCaps.actions.gate" in lens
+    assert "&& writableRepository" in lens
+    # the create names the DECLARED repository, never the view's own
+    assert "createSeedFromStagingSeed(data, writableRepository || repository)" in lens
+
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    draft = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
+    assert "const authoring = createCaps || caps;" in draft
+    assert "createGateLive(authoring)" in draft
+    assert "caps: authoring" in draft
+    # …and only openDraft: every tile-bound surface keeps the stripped caps
+    assert swb.count("createCaps") <= 3
