@@ -61,6 +61,7 @@ export const VOCABULARIES = {
     term: "keyword",
     terms: "keywords",
     termsTitle: "Keywords",
+    termsOne: "Keyword",
     termsShort: "KW",
     railCount: "declared",
     searchHint: "search keywords…",
@@ -77,7 +78,9 @@ export const VOCABULARIES = {
     term: "repository",
     terms: "repositories",
     termsTitle: "Repositories",
+    termsOne: "Repository",
     termsShort: "Repos",
+    termsShortOne: "Repo",
     railCount: "members",
     searchHint: "search repositories…",
     railNote: "One dot per document identity; rings by how many visible "
@@ -345,15 +348,10 @@ function keywordRail(model, ctx) {
   // This header IS the vocabulary selector where both vocabularies mean
   // something (Brett, 2026-08-08: "this area can select the keyword or
   // repo"); on a single-repository view it stays the plain label it was.
-  if (ctx.vocabularies) {
-    // the switch's buttons now carry the counts themselves, so the chip beside
-    // them would repeat one of the two — and it competed for the width that
-    // decides whether the full spelling fits
-    h.appendChild(ctx.vocabularies());
-  } else {
-    h.appendChild(el("span", null, vocab.terms));
-    h.appendChild(el("span", "n", model.rail.length + " " + vocab.railCount));
-  }
+  // The switch IS this header, on every plane. Its buttons carry the counts,
+  // so the chip that used to sit beside them would repeat one of the two —
+  // and it competed for the width that decides whether the full spelling fits.
+  h.appendChild(ctx.vocabularies());
   pane.appendChild(h);
 
   // #13 keyword-rail text filter — narrows the (long) declared rail. Filter
@@ -1078,10 +1076,23 @@ export function renderLens(root, snapshot, opts) {
   // answers "how much is over there?" before you switch to find out.
   const vocabCounts = {
     keywords: (snapshot?.keyword_index || []).length,
+    // a view that composes nothing is still looking at ONE repository, and
+    // saying `1 Repository` is more use than saying nothing
     repositories: composed
-      ? (repositoryVocabulary(composed).keyword_index || []).length : 0,
+      ? (repositoryVocabulary(composed).keyword_index || []).length : 1,
   };
-  const vocabularies = composed ? () => {
+  // ALWAYS PRESENT (Brett, 2026-08-09: "this widget is where we should select
+  // the Keyword vs Repo… but I do not see those buttons"). It used to render
+  // only where both vocabularies had something to say, which meant the control
+  // vanished from every single-repository view — including two of the six
+  // projects in the register — and a control that comes and goes is a control
+  // the human cannot learn.
+  //
+  // Where there IS no member set, the repository button is OFFERED and
+  // DISABLED with the reason on it, rather than hidden: `1 Repository` is a
+  // fact worth stating, and a lens over one member would draw every document
+  // in a single ring and compare nothing.
+  const vocabularies = () => {
     const swap = el("span", "vocabswitch");
     for (const candidate of [VOCABULARIES.keywords, VOCABULARIES.repositories]) {
       const n = vocabCounts[candidate.id];
@@ -1089,18 +1100,29 @@ export function renderLens(root, snapshot, opts) {
         + (candidate.id === vocab.id ? " vocabon" : ""));
       // both spellings ride on the button; `fitVocabSwitch` picks one once the
       // rail is in the DOM and its real width is knowable
-      btn.dataset.full = n + " " + candidate.termsTitle;
-      btn.dataset.short = n + " " + candidate.termsShort;
+      // `1 Repositories` is the kind of detail that makes a surface feel
+      // machine-written, and a one-member project is a case this control now
+      // renders on every load
+      btn.dataset.full = n + " "
+        + (n === 1 ? candidate.termsOne : candidate.termsTitle);
+      btn.dataset.short = n + " "
+        + (n === 1 ? (candidate.termsShortOne || candidate.termsShort)
+                   : candidate.termsShort);
       btn.textContent = btn.dataset.full;
       btn.type = "button";
-      btn.disabled = candidate.id === vocab.id;
-      btn.title = candidate.note;
+      const unavailable = candidate.id === "repositories" && !composed;
+      btn.disabled = candidate.id === vocab.id || unavailable;
+      btn.title = unavailable
+        ? "this view is one repository, so there is no member set to lens "
+          + "over — open a project with two or more repositories to compare "
+          + "what they carry"
+        : candidate.note;
       btn.addEventListener("click", () => renderLens(root, snapshot,
         { ...options, vocabulary: candidate.id }));
       swap.appendChild(btn);
     }
     return swap;
-  } : null;
+  };
 
   // lens query state (Sets for check/pin; plain maps for overrides). W1 is kept
   // as an INVARIANT of these mutators — pinned is never allowed to leave checked.

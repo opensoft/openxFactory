@@ -1671,9 +1671,43 @@ def test_the_vocabulary_switch_states_its_counts_and_abbreviates_when_squeezed()
     assert ".pane-rail .pane-h { flex-wrap: nowrap; overflow: hidden; }" in css
     assert "white-space: nowrap" in css.split(".vocabswitch {")[1].split("}")[0]
 
-    # the count chip goes where the switch carries the counts — it repeated one
+    # the count chip is GONE: the buttons carry the counts, so it repeated one
     # of the two and competed for the width that decides the spelling
     rail = lens.split("function keywordRail(model, ctx)")[1].split("\n}")[0]
     head = rail.split("const h = el(\"div\", \"pane-h\")")[1].split("pane.appendChild(h)")[0]
-    assert head.count('vocab.railCount') == 1
-    assert head.index("ctx.vocabularies()") < head.index("vocab.railCount")
+    assert "vocab.railCount" not in head
+    assert "ctx.vocabularies()" in head
+
+
+def test_the_vocabulary_switch_is_on_every_plane_and_says_why_when_it_cannot_switch():
+    """Brett, 2026-08-09: "this widget is where we should select the Keyword vs
+    Repo and just made the buttons that will abbreviate when needed. but I do
+    not see those buttons."
+
+    The switch used to render only where BOTH vocabularies had something to
+    say, which meant it vanished from every single-repository view — two of
+    the six projects in the register — and a control that comes and goes is a
+    control a human cannot learn to look for.
+
+    It is now unconditional. Where there is no member set, the repository
+    button is OFFERED and DISABLED with the reason on it rather than hidden:
+    `1 Repository` is a fact worth stating, and a lens over one member would
+    draw every document in a single ring and compare nothing.
+    """
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    # built unconditionally — no `composed ? … : null`
+    assert "const vocabularies = () => {" in lens
+    assert "const vocabularies = composed ?" not in lens
+    # a one-repository view still counts ONE, and says why it cannot switch
+    assert "? (repositoryVocabulary(composed).keyword_index || []).length : 1" in lens
+    assert 'const unavailable = candidate.id === "repositories" && !composed;' in lens
+    assert "there is no member set to lens" in lens
+    # unavailable must not look the same as "this is the current vocabulary"
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert ".vocabbtn:disabled:not(.vocabon)" in css
+    # …and `1 Repositories` is the kind of detail that makes a surface feel
+    # machine-written, on a case this control now renders on every load
+    for word in ('termsOne: "Keyword"', 'termsOne: "Repository"',
+                 'termsShortOne: "Repo"'):
+        assert word in lens, word
+    assert "n === 1 ? candidate.termsOne : candidate.termsTitle" in lens
