@@ -135,8 +135,13 @@ so the sixth column is whole instead of part-cut.
   abbreviate to `305 KW | 5 Repos`; which spelling fits is MEASURED after
   mount, not guessed from a character count, because the width depends on
   the theme's font and the reader's zoom. The switch appears only where
-  BOTH vocabularies mean something — a single-repository view has no member
-  set to lens over, and keeps the plain label and its count chip. The rail
+  ON EVERY PLANE (Brett, 2026-08-09: "I do not see those buttons") — it used
+  to render only where both vocabularies had something to say, so it
+  vanished from every single-repository view, and a control that comes and
+  goes cannot be learned. Where there is no member set the repository
+  button is OFFERED and DISABLED with the reason on it: `1 Repository` is
+  worth stating, and a lens over one member draws every document in one
+  ring and compares nothing. The rail
   carries a summary card — how many documents are on the radar, over how many
   of the vocabulary, and what a dot and a ring MEAN. Repository rows are
   TILES: each says how much of that repository's corpus is shared with

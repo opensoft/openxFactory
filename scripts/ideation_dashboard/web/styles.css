@@ -2027,6 +2027,9 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 }
 .vocabbtn:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
 .vocabbtn.vocabon { color: inherit; font-weight: 700; cursor: default; opacity: 1; }
+/* offered but UNAVAILABLE (one repository: nothing to compare). Distinct from
+   `vocabon`, which is disabled only because it is the current vocabulary. */
+.vocabbtn:disabled:not(.vocabon) { opacity: .45; cursor: not-allowed; }
 .pane-drill { display: flex; flex-direction: column; gap: 2px; }
 .drill-note { font-size: 11px; color: var(--muted); line-height: 1.45; margin: 2px 0 6px; }
 /* One row = one SET: what it is on its own line, what you can do with it on
