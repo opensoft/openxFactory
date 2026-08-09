@@ -33,11 +33,23 @@ bodies:
     steward: APQC
     names: processes
     scope: >-
-      Cross-industry process taxonomy spanning every domain in the family —
-      3.0 Market and Sell (adx), 7.0 Manage Information Technology (opsx),
-      8.0 Manage Financial Resources (ledgerx), 2.0 Develop and Manage
-      Products and Services (codex). The only body here that reaches all
-      five domains, which makes it the natural common crosswalk.
+      Cross-industry process taxonomy, and the only body here that reaches
+      all five domains — which makes it the natural common crosswalk.
+      VERSION-SENSITIVE, established by live-source verification 2026-08-09
+      (LedgerxFactory china-accounting-bodies-research-report.md): CATEGORY
+      NUMBERS MOVE BETWEEN VERSIONS. In current cross-industry PCF 8.0
+      `Manage Financial Resources` is category 9.0, whereas the 7.0.5-era
+      layout numbered it 8.x — and the public Mandarin PCF remains 7.0.5
+      while current English is 8.0. Any crosswalk to this body MUST pin the
+      version (and the language, where a translation is used) inside the
+      mapping rather than citing a bare category number; the earlier
+      unpinned category numbers in this file were themselves an instance of
+      the error and are removed above.
+    attribution_note: >-
+      `Process Classification Framework` and `PCF` carry the registered-mark
+      symbol and APQC reserves all rights; reference the name and version
+      and comply with APQC terms. Do not assume the public download is
+      public-domain or open-licence content.
   - id: sfia
     name: SFIA (Skills Framework for the Information Age)
     steward: SFIA Foundation

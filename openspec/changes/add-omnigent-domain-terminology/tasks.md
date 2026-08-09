@@ -81,6 +81,38 @@
       medical worker classes. `snomed_ct` fits artifact/job_type labels (the
       clinical CONTENT reasoned about), never the worker roles.
 
+## 3b. Regional coverage (Brett 2026-08-09: "do we have a different set for asia and specifically china?")
+
+- [x] 3b.1 GAP CONFIRMED from the artifact: all 17 registered bodies are
+      Anglo-American and the registry carries no region/jurisdiction field,
+      so the skew is invisible in the data.
+- [x] 3b.2 First live-source verification RETURNED (accounting/China):
+      `LedgerxFactory .../supporting-docs/china-accounting-bodies-research-report.md`
+      — 13 registry-shaped entries, mainland/HK/Taiwan/Macau kept separate,
+      every candidate confirmed/corrected/rejected, all 14 worker roles
+      crosswalk-analysed with authority caveats. It CORRECTED committed work
+      (see 3b.3) and confirmed the reporting-standard exclusion holds in all
+      four jurisdictions.
+- [x] 3b.3 DEFECT FOUND AND FIXED: APQC category numbers are
+      version-sensitive (PCF 8.0 puts finance at 9.0; the 8.x numbering is
+      the 7.0.5-era layout, which is also the current public Mandarin
+      version). Our ledgerx and adx mappings had combined a current body
+      reference with superseded numbering. Versions are now pinned in every
+      APQC mapping, the opsx header no longer claims an APQC mapping it does
+      not assert, and the registry's apqc_pcf entry records the
+      version-pinning rule plus APQC's attribution terms so the error cannot
+      recur silently.
+- [ ] 3b.4 INTEGRATE the 13 verified entries into the registry. Requires
+      extending the body entry shape with the fields the report supplies and
+      the current shape lacks: `jurisdiction` (mainland/HK/TW/Macau are NOT
+      interchangeable), `current_version`, `status`, `source_url`,
+      `term_list_availability`, and `confidence`. Also register
+      `GB/T 46704-2025` as recommended shared-service guidance and NOT as a
+      Chinese APQC equivalent — the report is explicit that no mainland body
+      matches APQC's finance hierarchy, and that absence is a result.
+- [ ] 3b.5 Commission equivalent research for the other four domains (opsx,
+      adx, codex, medx) — the same Anglo skew applies to all of them.
+
 ## 4. Consumer follow-up (named, not assumed)
 
 - [ ] 4.1 Domain surfaces that render human-facing vocabulary OUTSIDE the
