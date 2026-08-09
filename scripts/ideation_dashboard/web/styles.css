@@ -2201,3 +2201,19 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
      nothing a reader needs */
   .bullseye .lensdot.lit .dot { animation: none; }
 }
+
+/* doxBench's DRAFT view (a lens seed carried in): the document first, its
+   header fields behind a tab. The overlay's own docs/lens/outline tabs are
+   scope-bound and a draft has no scope, which is what left this region
+   empty. */
+.swb-drafttabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.swb-drafttab {
+  background: none; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--muted); cursor: pointer; font: inherit; font-size: 12px;
+  padding: 3px 10px;
+}
+.swb-drafttab[aria-selected="true"] { color: var(--ink); font-weight: 700; border-color: var(--ink); cursor: default; }
+.swb-draftpane { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.swb-draftnote { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.swb-draftpane .seedtext { max-height: 460px; overflow: auto; scrollbar-gutter: stable; }
+.swb-draftpane .cbtn { align-self: flex-start; }

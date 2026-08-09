@@ -1314,7 +1314,9 @@ def test_the_drafted_seed_moves_to_doxbench_instead_of_being_copied(tmp_path):
     # no second session concept, so save/abandon behave as they always have
     swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
     assert "function openDraft(seed)" in swb
-    assert "openCreateDialog(body, seed" in swb
+    # the create dialog now lives on the draft view's `details` tab rather than
+    # filling the overlay body (see the draft-view test below)
+    assert "openCreateDialog(pane, seed" in swb
     assert "return { open, close, openDraft };" in swb
     # an ungated plane says so rather than offering a submit that cannot land
     draft_body = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
@@ -1711,3 +1713,40 @@ def test_the_vocabulary_switch_is_on_every_plane_and_says_why_when_it_cannot_swi
                  'termsShortOne: "Repo"'):
         assert word in lens, word
     assert "n === 1 ? candidate.termsOne : candidate.termsTitle" in lens
+
+
+def test_the_draft_view_lands_on_the_document_with_its_fields_behind_a_tab():
+    """Brett, 2026-08-09: "when I press this button, then the doxWorkbench is
+    empty", and "prefill all these fields and just make them available to edit
+    if the user wants… make this doc meta data available as a tab. but go
+    direct in to let the user start working on the doc."
+
+    Both are the same fault. `openDraft` rendered ONLY the create form, and
+    the overlay's other regions are scope-bound — a draft has no tile, so they
+    had nothing to show. The thing the human came for, the drafted fragment,
+    was not on screen at all.
+
+    The draft view now lands on the DOCUMENT and keeps the header fields on a
+    `details` tab. The document is read-only, and says why: `create-document`
+    writes the header contract and the BODY is written in the editor that
+    opens on the created file, so text typed before the document exists would
+    have nowhere to land — which is worse than not offering it.
+    """
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    draft = swb.split("function openDraft(seed)")[1]
+    assert '{ id: "document", label: "document" }' in draft
+    assert '{ id: "details", label: "details" }' in draft
+    # the DOCUMENT is what opens
+    assert 'showPane("document");' in draft
+    # …carrying the drafted text, and the create dialog lives on the other tab
+    assert "seed.seedText" in draft
+    assert 'if (id === "details")' in draft
+    assert "openCreateDialog(pane, seed" in draft
+    # a way forward from the document without hunting for the tab
+    assert "name it and create" in draft
+    # the read-only reason is stated, not implied
+    assert "would have nowhere to land" in draft or "nowhere to land" in draft
+
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    # the seed text is what the lens hands over, so the two cannot disagree
+    assert "seedText: String(data?.text || \"\")" in lens
