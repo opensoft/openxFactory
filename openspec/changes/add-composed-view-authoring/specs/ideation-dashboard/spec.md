@@ -3,7 +3,9 @@
 ## MODIFIED Requirements
 
 ### Requirement: Composed views are read-only with a repository jump
-On a composed snapshot every TILE-BOUND gate-bearing affordance SHALL hide — such a verb binds to the tile's own repository, and a serve has a writable checkout for one repository only — and the expanded tile SHALL offer one navigation verb, "open in <repo>", which switches the active snapshot to that tile's member repository, where every verb works as on any single-repository view. Per-tile repository binding remains a successor change.
+On a composed snapshot every TILE-BOUND gate-bearing affordance SHALL hide — such a verb binds to the tile's own repository, and a serve has a writable checkout for one repository only — and an expanded tile whose material IS one repository's document SHALL offer one navigation verb, "open in <repo>", which switches the active snapshot to that tile's member repository, where every verb works as on any single-repository view. Per-tile repository binding remains a successor change.
+
+A STAGED TOPIC tile SHALL NOT offer that jump. A staged topic is a PACKET rather than a document: its material can span members, and what a human wants from it is the packet, which the workbench verb already opens scoped — on a composed view, without a reload and without repointing the whole dashboard. Offering both placed the heavier move beside the right one, and the heavier one was taken (Brett, 2026-08-09).
 
 CREATING A NEW DOCUMENT is not tile-bound and SHALL remain available on a composed view. A new document lands in the serve's OWN checkout — the same tree an unscoped view would have written to — so the composed projection makes it no less safe; refusing it made the one view where cross-repository convergence is visible the one view unable to act on it. The affordance SHALL read the serve's own capability rather than the view's projection, and SHALL be offered only where the serve declares a writable repository.
 
@@ -12,6 +14,11 @@ The serve SHALL DECLARE that repository on its capabilities route, reported from
 #### Scenario: Tile-bound gate verbs hide on a composed view
 - WHEN the rendered snapshot carries `generation.composed_from`
 - THEN no tile-bound gate-bearing affordance renders anywhere in the view
+
+#### Scenario: A staged tile opens its packet
+- WHEN a human expands a staged topic tile on a composed view
+- THEN it offers the workbench scoped to that topic and no repository jump
+- AND opening it neither reloads the page nor changes the active snapshot
 
 #### Scenario: A tile jumps to its repository
 - WHEN a human invokes "open in <repo>" on a composed tile

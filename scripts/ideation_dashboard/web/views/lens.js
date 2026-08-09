@@ -872,8 +872,17 @@ function bullseyePane(model, ctx) {
   // The activate gesture is wired ONLY for the repository vocabulary, whose
   // regions have a drill-in to run; the keyword tab keeps the SVG it drew
   // before (no callback => no hit regions at all).
+  // A DOT IS ITS DOCUMENT'S CHECKBOX (Brett, 2026-08-09: "when I click a dot.
+  // make it work like checking the box on the doc. turn it red and check the
+  // box in the list"). Both write `ctx.pickDoc`, so the dot's colour and the
+  // row's tick are one state rendered twice and cannot disagree.
+  const bullseyeOpts = {};
+  if (ctx.onDrill) bullseyeOpts.onActivate = ctx.onDrill;
+  if (ctx.pickDoc) {
+    bullseyeOpts.onDocument = (doc) => ctx.pickDoc(doc, !ctx.isPicked(doc));
+  }
   pane.appendChild(renderBullseye(model,
-    ctx.onDrill ? { onActivate: ctx.onDrill } : undefined));
+    Object.keys(bullseyeOpts).length ? bullseyeOpts : undefined));
   // The drafted-seed panel sits DIRECTLY UNDER THE RADAR (Brett, 2026-08-08:
   // "this widget should move up to the bottom of the radar"). It began as a
   // full-width block below the whole three-pane layout; moving it to the foot

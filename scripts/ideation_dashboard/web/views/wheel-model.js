@@ -607,8 +607,18 @@ export const WHEEL_ACTIONS = {
       visible: (item, env) => !!env.gate && !env.commissioned,
     },
     notebookRow,
+    // NO `openRepoRow` here (Brett, 2026-08-09: "from a staged tile I click
+    // open in <repo>, it reloads the doxBench in that repo. it should not do
+    // that. it should just load the workBench with that staging packet").
+    //
+    // A staged TOPIC is not repository-shaped the way a document tile is: it
+    // is a packet, its material can span members, and what a human wants from
+    // it is the packet — which `open workbench` already gives, scoped, on the
+    // composed view (verified live), with no reload and no repointing of the
+    // whole dashboard. Offering both put the heavier, wrong move beside the
+    // right one. Every other wheel keeps the jump, where the tile IS one
+    // repository's document.
     workbenchRow,
-    openRepoRow,
   ],
   active: [
     // review the proposal packet: the change's own files, grouped by

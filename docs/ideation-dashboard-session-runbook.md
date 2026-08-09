@@ -165,6 +165,18 @@ so the sixth column is whole instead of part-cut.
   outline and bold label still carry the join. The lens does the join once,
   in the pane; no renderer knows about another, so a redraw cannot strand a
   binding.
+- **A dot is its document's checkbox** (Brett, 2026-08-09) — clicking a dot
+  toggles that document's selection: the dot turns `--picked` and its matrix
+  row ticks, because both write the same state. The radar is where the
+  convergence is READ, so it is where the selection is made. The BOX stays the
+  keyboard path (95 focusable dots would flood the tab order), and a dot click
+  never fires the region beneath it, which drills in.
+- **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
+  on a composed view a staged topic offers `read` and `open workbench` and NO
+  `open in <repo>`. A staged topic is a packet whose material can span
+  members; the workbench opens it scoped, with no reload and no repointing of
+  the dashboard. Every other wheel keeps the jump, where the tile IS one
+  repository's document.
 - **A selection has its own colour** — `--picked` (magenta), on the dot, the
   matrix row and the grid row. Its own token deliberately: every other accent
   already means a stage, and the first attempt reused `--edge-pick`, which is
