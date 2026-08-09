@@ -42,6 +42,16 @@ policy_id: standards-bodies-v1
 bodies:
   # ---------------------------------------------------------------- cross-domain
   - id: sfia
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable in shipped product
+    # configuration. SFIA Foundation: "you cannot sub-licence SFIA to others
+    # through your products, services or associate, reseller and partner
+    # programmes"; redistributing SFIA material electronically to another
+    # organisation is restricted. Commercial product use requires a SFIA
+    # Partner Licence. REMOVED from the opsx overlay on this finding.
+    reuse_licence: SFIA Foundation licensing scheme — Partner Licence required for commercial product use
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+    confidence: high
     jurisdiction: international  # UK-origin (SFIA Foundation)
     name: SFIA (Skills Framework for the Information Age)
     steward: SFIA Foundation
@@ -54,6 +64,14 @@ bodies:
 
   # ---------------------------------------------------------------- IT operations
   - id: itil4
+    # LICENCE VERDICT 2026-08-09 (live-source): treat as NOT usable. ITIL is a
+    # registered trade mark of PeopleCert, "all rights reserved", and no
+    # third-party citation permission could be established from primary
+    # sources. REMOVED from the opsx overlay pending written permission.
+    reuse_licence: PeopleCert proprietary — all rights reserved; permission not established
+    redistribution_permitted_in_product_config: unclear_treat_as_no
+    source_url: https://www.peoplecert.org/acknowledgements
+    confidence: high
     jurisdiction: international  # UK-origin (PeopleCert/Axelos)
     name: ITIL 4
     steward: PeopleCert / Axelos
@@ -66,6 +84,14 @@ bodies:
       to the practice it acts within, never to a job title.
     attribution_note: ITIL is a registered trade mark; reference only.
   - id: cobit_2019
+    # LICENCE VERDICT 2026-08-09 (live-source): DO NOT ADOPT. ISACA requires an
+    # annual licence for incorporation of COBIT into software sold or given to
+    # third parties; unauthorized uses include inserting COBIT into any
+    # product, including software.
+    reuse_licence: ISACA proprietary — annual licence required for use in software given to third parties
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://www.isaca.org/why-isaca/about-us/cobit-usage-guidelines
+    confidence: high
     jurisdiction: international  # US-origin (ISACA)
     name: COBIT 2019
     steward: ISACA
@@ -75,6 +101,16 @@ bodies:
       Changes, DSS01 Managed Operations). Useful where the audience is an
       auditor or a governance committee rather than an operator.
   - id: nist_csf
+    # LICENCE VERDICT 2026-08-09 (live-source): USABLE. US Government work,
+    # public domain under 17 USC 105. Version 2.0 published 2024-02-24.
+    # CAVEAT: the Function names were not enumerated on the pages fetched, so
+    # no function-level mapping is authorised yet — verify before citing
+    # internals.
+    current_version: CSF 2.0, published 2024-02-24
+    reuse_licence: US Government work — public domain (17 USC 105)
+    redistribution_permitted_in_product_config: 'yes'
+    source_url: https://www.nist.gov/cyberframework
+    confidence: high
     jurisdiction: united_states
     name: NIST Cybersecurity Framework
     steward: NIST (US)
@@ -766,3 +802,35 @@ bodies:
       Third-party software incorporation requires an AICPA license; linking and
       citation do not authorize copying the criteria.
     confidence: high  # The current AICPA SOC suite still names this edition.
+
+  # ------------------------------------ IT operations (verified 2026-08-09)
+  # Landed from the opsx live-source verification, which found BOTH previously
+  # shipped bodies (ITIL 4, SFIA) fail the reuse test. This is the
+  # licence-clean replacement, on the same CC BY 4.0 basis as the accounting
+  # domain's O*NET adoption.
+  - id: onet_it_occupations
+    jurisdiction: united_states
+    name: O*NET Database — IT operations and computing occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    names: other:occupations_tasks_and_work_activities
+    scope: >-
+      Occupation titles, tasks and work activities for systems
+      administration, information security, network and user support,
+      database administration and IT management. Verified occupation codes:
+      15-1244.00, 15-1212.00, 15-1231.00, 15-1232.00, 15-1242.00,
+      11-3021.00. Describes whole HUMAN jobs that include executing changes —
+      opsx workers cannot execute, so every crosswalk records the authority
+      gap. Mappings are at occupation level; task-level verification is
+      outstanding.
+    current_version: O*NET Database 30.3
+    status: current
+    source_url: https://www.onetonline.org/find/family?f=15
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high

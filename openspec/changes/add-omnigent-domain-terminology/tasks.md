@@ -173,6 +173,25 @@
         to have. The brief states plainly that "register nothing; record
         no_clean_equivalent for all eleven and rely on display labels" is an
         acceptable and possibly correct outcome.
+- [x] 3b.5g OPSX BRIEF RUN 2026-08-09 against live primary sources. RESULT:
+      BOTH shipped bodies fail the reuse test — the APQC problem twice over.
+      SFIA is prohibited outright ("you cannot sub-licence SFIA to others
+      through your products"; Partner Licence required for commercial product
+      use); ITIL is PeopleCert property, all rights reserved, with no
+      third-party citation permission establishable from primary sources.
+      COBIT assessed and rejected (ISACA requires a licence to incorporate
+      into software given to third parties). Both removed from the shipped
+      opsx overlay and replaced with O*NET at occupation level (six verified
+      SOC codes) under CC BY 4.0 with attribution carried in the overlay.
+      NIST CSF 2.0 registered as licence-clean (US Govt work, public domain,
+      published 2024-02-24) BUT its Function names could not be enumerated
+      from the pages fetched, so no function-level mapping was authorised —
+      recorded rather than guessed. Report:
+      `supporting-docs/opsx-it-operations-bodies-research-report.md`.
+      PATTERN NOW THREE FOR THREE: every commercially stewarded body checked
+      (APQC, SFIA, ITIL, COBIT) has failed the product-configuration reuse
+      test, and every licence-clean answer has been O*NET. That is a finding
+      about the approach, not four coincidences.
 - [ ] 3b.5f Apply the results of the four outstanding briefs (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
 
