@@ -43,7 +43,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 
 | Topic | Delta (target capability) | Files | Readiness |
 | --- | --- | --- | --- |
-| [hermes-stack-topology-per-client](#hermes-stack-topology-per-client) | ADDED neutral `request-intake-and-admission` + MODIFIED topology contract (per-client stack-vs-layer rule made explicit) | 1 | Ready to iterate — cardinality verified against the runtime spec and the live stack; RESOLVED 2026-08-08: each client gets its own stack (client = Tenant), so onboarding is a stack install; the ledgerx fixture + its bound HCS-002-S03 scenario are stale and owe an OpenSpec correction. BLOCKED on the (a) realize-intake-at-Tenant-Hermes vs (b) stand-up-an-Opsx-stack fork |
+| [hermes-stack-topology-per-client](#hermes-stack-topology-per-client) | ADDED neutral `request-intake-and-admission` + MODIFIED topology contract (per-client stack-vs-layer rule made explicit) | 1 | Ready to iterate — cardinality verified against the runtime spec and the live stack; RESOLVED 2026-08-08: each client gets its own stack (client = Tenant), so onboarding is a stack install; the ledgerx fixture + its bound HCS-002-S03 scenario are stale and owe an OpenSpec correction. BLOCKED on the (a) realize-intake-at-Tenant-Hermes vs (b) stand-up-an-Opsx-stack fork; cross-repo input 2026-08-09: OpsxFactory staged its governance trilogy (tenant-request-intake → hermes-approval-envelopes → tenant-operating-postures) designing the fork's intake/approval side |
 | [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
 | [workstation-app-shell](#workstation-app-shell) | `avatar-first-ui` realization (possibly a small ADDED requirement for the workstation shell) + MODIFIED `ideation-dashboard` (the local serve becomes app-managed) | 1 | Ready to iterate — layer defaults already ratified and the motivating defect verified; load-bearing content is the Worker Host App boundary (two OS principals, one shell) and codexFactory's missing subject surface; 5 open questions, the shell-platform fork blocks implementation |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
@@ -94,6 +94,19 @@ up an OpsxFactory domain stack (a second control plane, Postgres, ingress,
 identities, and a per-tenant Omnigent). Also open: hosting model, whether
 "licensed" becomes a modelled entitlement, and the Opsx layer-naming drift
 between the instantiation runbook and OpsxFactory's ratified layer model.
+
+Cross-repo pointer (2026-08-09): OpsxFactory staged a connected governance
+trilogy bearing directly on this fork's intake and approval side —
+`xFactories/OpsxFactory/ideation/staging/tenant-request-intake/` (tenant-owned
+chat intake, authority-free listener, normalized request candidates),
+`…/hermes-approval-envelopes/` (human-ratified intensional envelopes under a
+no-authority-composition invariant), and `…/tenant-operating-postures/`
+(three-seat Hermes council adjudication for non-expert tenant seats +
+enrollment-consented `bypassed_full_auto` rail with intent gate and anchored
+outcome-match). Landed on OpsxFactory `main` at 5f6c3fa. The trilogy sites
+intake ownership at the Tenant layer under either fork resolution, and the
+envelope and posture contracts are flagged domain-neutral (DTN-register
+shaped) — they would land here in openxFactory on promotion.
 
 ## agent-wallet-identity
 
