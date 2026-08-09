@@ -348,6 +348,19 @@ Active changes:
   reaches the browser. (code surface: openxFactory; target release: none;
   depends on openProfiler)
 
+- [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
+  — ratified 2026-08-08 ("yes, we need to draft from a project view").
+  `Composed views are read-only with a repository jump` states its reason as
+  "a gate verb binds to one served checkout, and a composed view has none" —
+  true of a TILE-BOUND verb, false of creating a NEW document, which binds to
+  no tile and lands in the serve's own checkout. The blanket rule made the one
+  view where cross-repository convergence is visible the one view unable to
+  act on it. MODIFIED to distinguish the two, plus: the serve now DECLARES the
+  repository it writes to on `/capabilities`, from the same authority a write
+  is refused against, because the browser was inferring it and under a
+  composed view inferred the PROJECT id. (code surface: openxFactory; target
+  release: none)
+
 - [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
   — ratified 2026-08-08 from three annotations on the keyword lens. A
   document has three views (the radar's dot, the matrix's row, the signature
