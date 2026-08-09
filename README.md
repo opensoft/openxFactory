@@ -348,6 +348,18 @@ Active changes:
   reaches the browser. (code surface: openxFactory; target release: none;
   depends on openProfiler)
 
+- [add-authored-body-on-create](openspec/changes/add-authored-body-on-create/proposal.md)
+  — DRAFT, authored 2026-08-09, awaiting ratification. "Do the create-then-edit
+  so I can write the body" hit a contract, not a bug: `create-document` writes
+  the header and takes no body, and `edit-document` is TILE-SCOPED — it needs
+  `scope_kind`/`scope_id` and a live session for that tile, and has no
+  session-less path. A lens draft has no tile, and the staging topic it would
+  become does not exist yet, so there is no scope to name. Measured: create
+  200, edit 400. Proposes the shape that fits — an OPTIONAL body on the
+  create, one verb, one commit, no half-written document — with the
+  widen-edit-document alternative recorded and rejected. (code surface:
+  openxFactory; target release: none)
+
 - [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
   — ratified 2026-08-08 ("yes, we need to draft from a project view").
   `Composed views are read-only with a repository jump` states its reason as
