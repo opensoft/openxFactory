@@ -57,4 +57,18 @@
       to 8 documents / 2 identities with the banner naming the region, the
       doc list showing exactly those, and `clear` restoring the full view.
       Zero console errors, page errors, and >=400 responses.)
-- [ ] 4.4 Brett's first real drill-in session.
+- [x] 4.4 Brett's first real drill-in session.
+      (Ruled satisfied by Brett 2026-08-09, on the Playwright acceptance
+      session he commissioned against the live 13-repository local plane,
+      project `domains`, 4 published members: the vocabulary switch offered
+      `301 Keywords | 4 Repositories`; the repository rail stated each
+      member's split (Ledgerx 92, Medx 85, codex 28, Adx 7, each "N shared ·
+      M only here"); 205 identities drew on rings ALL 4/3/2/1 with sectors
+      naming real combinations (A ∧ C); the drill-in rows carried the seed
+      control only where a seed can mean anything (omitted, not disabled, on
+      single-carrier rows). Drilling the centre scoped the shell to
+      8 documents — "2 identities carried by all 4 visible repositories" in
+      the banner — with the doc list showing exactly those copies, and
+      `clear` restoring 212 documents. Zero console errors, page errors, and
+      >=400 responses. Play-by-play report: "doxBench acceptance run",
+      2026-08-09.)

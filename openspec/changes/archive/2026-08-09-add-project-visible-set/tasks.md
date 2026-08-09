@@ -47,7 +47,18 @@
       AdxFactory's name soloed to 1 of 5, served ITS OWN snapshot —
       freshness header "AdxFactory @ main · 949e7d486094" — with the mode
       toggle inert. Zero console errors, page errors, and >=400 responses.)
-- [ ] 3.4 Brett's first real comparison session (two factories, shared mode).
+- [x] 3.4 Brett's first real comparison session (two factories, shared mode).
+      (Ruled satisfied by Brett 2026-08-09, on the Playwright acceptance
+      session he commissioned against the live 13-repository local plane,
+      project `domains`: hiding AdxFactory then LedgerxFactory tracked the
+      header 3 then 2 repos with no reload; union over MedxFactory +
+      codexFactory read 113 documents; SHARED collapsed to 4 documents /
+      1 cluster — `docs/document-catalog-adoption.md` and
+      `ideation/README.md`, confirmed by name in the doc list, once per
+      carrier; `all` + union restored 212. OpsxFactory's row stated
+      "(no published snapshot)" with its eyeball disabled. Zero console
+      errors, page errors, and >=400 responses. Play-by-play report:
+      "doxBench acceptance run", 2026-08-09.)
 
 ## 4. Canon correction (D18, already shipped)
 

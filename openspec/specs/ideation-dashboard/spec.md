@@ -1260,28 +1260,31 @@ The project register consumed by this capability SHALL be authoritative for the 
 - AND a local edit is not an override of the catalog
 
 ### Requirement: The openDox project-first header
-The dashboard header SHALL brand as "Opensoft openDox" and SHALL organize repository navigation around the CURRENT PROJECT: a project dropdown whose first line is "New Project" (opening the create-project commission form) followed by the register's projects, defaulting to the viewer's last-used project when the register projection still names it and to the first register project otherwise — the viewer is always in a project. Repository selection SHALL be a filter scoped to the current project: a popover listing the project's member repositories where selecting one makes it the active served repository, with an "All repositories" line that is disabled (naming the merged view as pending) until the project merged view exists and thereafter selects the project's derived aggregate.
+The dashboard header SHALL brand as "Opensoft openDox" and SHALL organize repository navigation around the CURRENT PROJECT: a project dropdown whose first line is "New Project" (opening the create-project commission form) followed by the register's projects, defaulting to the viewer's last-used project when the register projection still names it and to the first register project otherwise — the viewer is always in a project. Repository selection SHALL be a filter scoped to the current project: a popover listing the project's member repositories. Where the project can be composed, that popover SHALL be a VISIBILITY control — each member row's indicator ticks its repository into or out of the view, one toggle chooses union or shared over the visible set, `all` and `none` are offered as the two bulk moves, and the member name is the shortcut that makes that repository the only visible one — and the filter's own label SHALL state the visible count against the total. Where no member snapshot is published, and therefore nothing can be composed, the popover SHALL degrade to naming the merged view unavailable with the rows selecting one repository at a time.
 
 #### Scenario: The header renders project-first
 - WHEN the dashboard loads with a register projection available
 - THEN the brand reads "Opensoft openDox", the project dropdown shows "New Project" first and the register's projects after it
 - AND the current project is the stored last-used project, else the first register project
 
-#### Scenario: The filter switches the served repository
-- WHEN a human selects a member repository in the current project's filter popover
-- THEN that repository becomes the active served snapshot exactly as the repository selector contract already specifies
+#### Scenario: The filter ticks repositories into the view
+- WHEN a human toggles a member repository in the current project's filter popover
+- THEN that repository enters or leaves the visible set, the view re-renders over the new set, and the filter label restates the visible count
+
+#### Scenario: A member name selects that repository alone
+- WHEN a human clicks a member repository's name in the filter popover
+- THEN that repository becomes the only visible one and its own snapshot is served, exactly as the repository selector contract already specifies
 
 #### Scenario: All-repositories awaits the merged view
-- WHEN the project merged view is not yet available
-- THEN the filter's "All repositories" line renders disabled and names the merged view as pending
-- AND once the merged view exists the line selects the project's derived aggregate
+- WHEN no member snapshot is published, so the project has no derived aggregate
+- THEN the filter names the merged view as unavailable and the rows select one repository at a time
 
 #### Scenario: The header degrades without a projection
 - WHEN no register projection is served (a static image or no reachable register)
 - THEN the project dropdown and filter do not render and the dashboard degrades exactly as the selector contract already specifies
 
 ### Requirement: Project membership editing is a recorded commission
-The dashboard SHALL offer an `edit-project` verb on the human gate console — the filter popover working like the project dropdown (D16): its first line adds a repository to the current project from the known-repository candidates, each member row carries a visibility indicator on its left and a two-click removal control on its right — that records a `project-register-edit` workflow-job descriptor carrying the added and removed member lists plus an `edit-project` gate-action record, and SHALL NOT write the register itself. The commission SHALL be refused when the project does not exist in the register projection, when an addition is outside the roster-or-register repository universe, when a removal is not currently a member, or while the project carries an undelivered edit commission — removing the last member is legal, because a project MAY be empty (created first, populated later); pending membership changes SHALL render as clearly-marked overlay until the fulfilment lands the register edit.
+The dashboard SHALL offer an `edit-project` verb on the human gate console — the filter popover's add line offering the known-repository candidates, and each member row a two-click removal control — that records a `project-register-edit` workflow-job descriptor carrying the added and removed member lists plus an `edit-project` gate-action record, and SHALL NOT write the register itself. Membership edits QUEUE: a project MAY carry several dispatched, undelivered edit commissions at once, each validated at commission time against the register with that project's pending commissions applied oldest-first — a dispatched create-project commission counting as the project existing, so a just-created project can be populated before its fulfilment lands — and same-second commissions MUST land as distinct descriptors. The commission SHALL be refused when the project exists neither in the register projection nor as a pending creation, when an addition is outside the roster-or-register repository universe, when an addition is already an effective member (register or pending), or when a removal is not an effective member. Removing the last member is legal, because a project MAY be empty (created first, populated later); pending membership changes SHALL render as clearly-marked overlay, netted across the queue, until the fulfilment lands the register edit.
 
 #### Scenario: A repository is added and another removed
 - WHEN a human commissions an addition from the filter's add line or a removal from a member row's armed removal control
@@ -1292,9 +1295,15 @@ The dashboard SHALL offer an `edit-project` verb on the human gate console — t
 - WHEN a project is created with no member repositories, or an edit removes its last member
 - THEN the commission is accepted — the project exists awaiting its next additions, and the register schema admits the empty set
 
+#### Scenario: Successive edits queue instead of refusing
+- WHEN a human commissions a second membership edit while the project's earlier edit commission is dispatched and undelivered
+- THEN the second commission records as its own descriptor, validated against the register with the pending commissions applied oldest-first
+- AND a duplicate addition against that pending-applied state is still refused
+- AND the fulfilment delivers the queued commissions oldest-first
+
 #### Scenario: Pending membership renders as overlay
-- WHEN an edit-project commission is dispatched and undelivered
-- THEN the affected repositories badge as pending in the popover and the register projection's truth plane is unchanged
+- WHEN edit-project commissions are dispatched and undelivered
+- THEN the affected repositories badge as pending in the popover, netted across the queue, and the register projection's truth plane is unchanged
 
 ### Requirement: Project merged view
 Selecting a project's all-repositories view SHALL render one composed snapshot spanning the project's member repositories, produced by the existing aggregate composition (per-repo namespaced ids, per-item repository badges, `composed_from` freshness) from an aggregate DERIVED from the project register — one aggregate per register project, members being the project's repositories the serving plane can resolve — with hand-declared aggregates continuing to work and winning any id collision.
@@ -1334,4 +1343,55 @@ On a composed snapshot every gate-bearing affordance SHALL hide — a gate verb 
 #### Scenario: A tile jumps to its repository
 - WHEN a human invokes "open in <repo>" on a composed tile
 - THEN the active snapshot switches to that tile's `(repository, ref)` and the page reloads with every verb available as today
+
+### Requirement: The merged view spans the visible member set
+The composed view SHALL render exactly the member repositories the human has made VISIBLE in the project's filter, under one of two set modes: UNION (every item belonging to a visible repository) or SHARED (only items whose identity — the composed id's tail, or the unnamespaced key a collection uses instead — is carried by TWO OR MORE of the visible repositories). The shared threshold is two rather than every visible repository, because convergence between any pair of a project's members is the finding, and requiring all of them keeps almost nothing on a real multi-member project; with two repositories visible the two readings coincide. Shared SHALL filter and never merge, so each repository's own copy stays a separately badged, separately openable row and two repositories' takes on one document can be read side by side. The narrowing SHALL be applied BEFORE the cluster union, so merged tallies count the visible contributions rather than the whole project, and `generation.composed_from` SHALL be trimmed to the visible members so the freshness header names the repositories actually rendered. Exactly one visible repository SHALL serve that repository's own snapshot with every capability it normally carries; any other count SHALL serve the project's composed, read-only aggregate, and an empty visible set SHALL render honestly empty rather than refusing. The visible set and mode are viewer state stored per project and resolved against current membership: a repository that leaves the project drops out of the stored set, a stored set that membership has outlived falls back to every member rather than rendering nothing, and nothing stored means every member under union — the composition's own answer.
+
+#### Scenario: The union narrows to the ticked repositories
+- WHEN a human hides a member repository in the project's filter
+- THEN the composed view drops that repository's items, merged cluster tallies fall to the visible contributions, and the freshness header counts only the visible members
+
+#### Scenario: The shared mode shows what two or more visible repositories carry
+- WHEN the view mode is shared over two or more visible repositories
+- THEN only items whose identity is carried by at least two visible repositories render, each repository's copy as its own badged row
+- AND an identity only one of them carries does not render
+- AND an identity two of three carry DOES render, because the threshold is two rather than all
+
+#### Scenario: One visible repository is the interactive single view
+- WHEN exactly one repository is visible
+- THEN that repository's own snapshot is served with its full capabilities, exactly as selecting it directly always did
+
+#### Scenario: The stored set survives a membership change
+- WHEN a repository leaves the project after the human ticked a set
+- THEN it drops out of the visible set, and a stored set that membership has outlived falls back to every member rather than rendering nothing
+
+### Requirement: The lens serves a repository vocabulary
+The lens SHALL offer a REPOSITORY vocabulary alongside its keyword vocabulary wherever the rendered snapshot is composed, presenting the project's member repositories as the rail, one dot per cross-repository document IDENTITY, and rings by CARRIER COUNT — how many visible repositories carry that identity, the centre being every one of them. The two vocabularies SHALL be served by the same derivation, geometry, and renderer: the repository plane is supplied by re-expressing the composed snapshot in the shape the lens already reads, so no vocabulary-specific engine exists. Where the snapshot is not composed the switch SHALL NOT render and the keyword lens SHALL behave exactly as before. The repository rail's ticks ARE the view's visible member set: the lens SHALL open on the current set, write changes back so the project filter and the lens never disagree, and redraw from the aggregate it already holds rather than reloading.
+
+#### Scenario: The repository lens draws carrier rings
+- WHEN a human switches the lens to the repository vocabulary on a composed view
+- THEN the rail lists the member repositories with their identity counts, and each document identity is a dot on the ring for the number of visible repositories carrying it
+- AND the centre holds the identities every visible repository carries
+
+#### Scenario: A tick moves both controls
+- WHEN a human unticks a repository in the lens rail
+- THEN the visible set records that change and the project filter reflects it
+- AND the lens redraws over the remaining set without reloading the shell
+
+#### Scenario: A single-repository view offers no repository vocabulary
+- WHEN the rendered snapshot is not composed
+- THEN no vocabulary switch renders and the keyword lens is unchanged
+
+### Requirement: Drill-in scopes the dashboard to a region's documents
+Activating a region of the repository bullseye — its centre, or a sector naming an exact repository combination — SHALL scope the whole dashboard to the documents behind that region, and the activation SHALL be reachable both from the region itself and from a labelled control beside it, because a hit region alone is undiscoverable. The scope is a DOCUMENT SET: every other plane SHALL keep only what references it — a cluster with an edge into the set, a change or staged topic with a file path in it, a keyword a kept document still declares — and planes with no document relationship SHALL be left alone rather than silently emptied. A scope SHALL be stated on screen with the count of documents, the count of identities behind them, and the repository combination, and SHALL be clearable from that statement.
+
+#### Scenario: A sector scopes the shell to its documents
+- WHEN a human activates a sector naming a repository combination
+- THEN every view renders only the documents whose identity is carried by exactly that combination, one document per carrying repository
+- AND clusters, changes and staged topics narrow to those that reference the kept documents
+
+#### Scenario: The scope states itself and clears
+- WHEN a drill-in scope is active
+- THEN the shell states the document count, the identity count, and the combination scoped to
+- AND clearing it restores the full visible-set view
 
