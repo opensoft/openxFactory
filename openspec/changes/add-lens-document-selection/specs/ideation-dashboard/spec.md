@@ -42,17 +42,36 @@ The drafting SHALL write nothing: the response is TEXT and the path it belongs a
 - THEN the draft states that the connection is a human judgment rather than naming a term none of them carry
 
 ### Requirement: A finding is stated before it is drawn
-A view whose picture supports a single finding SHALL state that finding in text and SHALL make the picture available rather than permanent, because a finding that fits in a sentence does not warrant the most valuable space on the screen to render.
+A view whose picture supports a single finding SHALL state that finding in text rather than requiring the picture to be read, because a finding that fits in a sentence does not warrant the most valuable space on the screen to render.
 
-The signature grid SHALL summarise how many documents share a signature with another, how many such groups exist and the largest of them, and SHALL open on request. Its summary SHALL say what the finding MEANS — documents with the same signature carry exactly the same checked terms, which is the closest thing to a duplicate the lens can see.
+Where the surface's own purpose leaves no room for the picture at all, the derivation SHALL remain available to the surface that wants it rather than being deleted with the view. The keyword lens is such a surface: it became a DRAFTING pane — radar, drafted seed, document list — where even a collapsed summary row costs the document list (Brett, 2026-08-08: "we do not need this in this view… add the room to make the viewport to the doc list larger"), so the signature grid left it and `signatureSummary` stayed in the model, tested.
 
-#### Scenario: The grid states its finding while closed
-- WHEN documents are on the radar and terms are checked
-- THEN the grid's summary reports the repeated signatures and their largest group without the grid being open
+#### Scenario: A finding is available without its picture
+- WHEN a repeated-signature finding is computed
+- THEN it is expressed as counts a caller can state in one line
 
 #### Scenario: No repetition is reported as such
 - WHEN every document carries a different combination of the checked terms
 - THEN the summary says so rather than reporting an empty group
+
+### Requirement: A panel in contested space carries one row of chrome
+A panel occupying a pane's scarce vertical space SHALL confine its chrome to a single row — its title, its action and its dismissal — and SHALL give every other pixel to its content. Explanatory text that is read once and re-read rarely SHALL be attached to that row as a hover rather than held permanently on screen, because a permanent note costs the content viewport beneath it on every appearance.
+
+Such a panel SHALL NOT scroll: its CONTENT scrolls within it. Two nested scrollers put a panel's own chrome out of reach of the very scroll that is trying to read its text.
+
+An action bar SHALL position its controls by role — an undo beneath the control it undoes, the bar's primary action at its true centre — and a control whose label states a count SHALL carry that count rather than repeating it in a separate sentence. Centring SHALL survive a label that changes length.
+
+#### Scenario: The panel's chrome is one row
+- WHEN a drafted seed is shown
+- THEN its title, its action and its dismissal share one row, and the placement instructions are that row's hover
+
+#### Scenario: The content scrolls, not the panel
+- WHEN the drafted text is longer than the panel
+- THEN the text scrolls within the panel and the panel itself does not
+
+#### Scenario: An action reads what it will do
+- WHEN a draft is already on screen
+- THEN the action reads as a REPLACEMENT of it rather than implying a second, separate draft
 
 ### Requirement: The theme owns every colour a view chooses
 View code SHALL choose only a HUE and the stylesheet SHALL resolve it into a colour, because a lightness that reads on a light ground disappears on a dark one and the choice belongs where the theme is known. Saturation, lightness and opacity SHALL be defined per theme as custom properties, and no view SHALL write a complete colour.

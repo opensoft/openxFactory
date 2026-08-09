@@ -25,7 +25,7 @@
 // screen exactly what would be persisted (the canvas.js pattern).
 
 import {
-  buildLensModel, docSummaries, railStats, signatureSummary, termMatches,
+  buildLensModel, docSummaries, railStats, termMatches,
   savePlan, clusterPlan, WORKBENCH_DIR,
   recipeRequest, clusterRequest, LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE,
 } from "./lens-model.js";
@@ -639,8 +639,31 @@ function renderSeed(container, data) {
 function renderStagingSeed(container, data, ctx) {
   container.innerHTML = "";
   const box = el("div", "draft-confirm");
+  // ONE TITLE LINE carrying everything (Brett, 2026-08-08). The panel sits
+  // under the radar in the pane's most expensive vertical space, so its chrome
+  // is a single row: the title, the action, and the way out.
   const head = el("div", "dc-h");
-  head.appendChild(el("span", null, "drafted staging seed — nothing is written"));
+  const title = el("span", "dc-title", "drafted staging seed — nothing is written");
+  // The placement instructions moved ONTO the title as its hover ("make this
+  // a hover popup if I hover on the title… that will save some room"). They
+  // are read once, and re-read rarely; a permanent two-line note costs the
+  // document viewport underneath it on every draft.
+  title.title = "Place this at " + data.path + " and finish the sections "
+    + "marked TO WRITE. It enters the queue when you commit it and add its "
+    + "row to ideation/staging/INDEX.md.";
+  head.appendChild(title);
+  // MOVE IT, do not copy it (Brett, 2026-08-08: "we need to not 'copy' this.
+  // we need to have button to move this to doxBench"), and the action rides
+  // the title line rather than a row of its own.
+  if (ctx && ctx.onOpenDoxbench) {
+    const move = el("button", "cbtn", "open in doxBench");
+    move.type = "button";
+    move.title = "carry this seed into doxBench as a new document: the "
+      + "staging area, the shared terms and the provenance are filled in, "
+      + "and you write the rest there";
+    move.addEventListener("click", () => ctx.onOpenDoxbench(data));
+    head.appendChild(move);
+  }
   // A WAY BACK (Brett, 2026-08-08: "there is no back from this widget"). A
   // panel that can only be replaced by drafting something else is a panel the
   // human is stuck in; dismissing it costs nothing because nothing was
@@ -654,34 +677,16 @@ function renderStagingSeed(container, data, ctx) {
     // the DOM-safety guard requires a clearing assignment to stand alone, so
     // a non-clearing one can never hide on the end of a line
     container.innerHTML = "";
+    // the bar's action reads `draft` again once there is no draft to replace
+    if (ctx && ctx.redraw) ctx.redraw();
   });
   head.appendChild(back);
   box.appendChild(head);
-  box.appendChild(el("div", "dc-note",
-    "Place this at " + data.path + " and finish the sections marked TO "
-    + "WRITE. It enters the queue when you commit it and add its row to "
-    + "ideation/staging/INDEX.md."));
-  const pre = el("pre", "seedtext", data.text);
-  box.appendChild(pre);
-  const acts = el("div", "dc-acts");
-  // MOVE IT, do not copy it (Brett, 2026-08-08: "we need to not 'copy' this.
-  // we need to have button to move this to doxBench"). Copying makes the human
-  // the transport — paste it somewhere, keep the topic and the terms straight
-  // by hand. doxBench is where a document is actually written, so the seed
-  // travels there as a CREATE prefilled from what was computed: the staging
-  // area, the shared terms as Topics, and the provenance line. The create is
-  // the existing governed one, which opens a branch session, so the draft
-  // lands where a draft belongs and never on main.
-  if (ctx && ctx.onOpenDoxbench) {
-    const move = el("button", "cbtn", "open in doxBench");
-    move.type = "button";
-    move.title = "carry this seed into doxBench as a new document: the "
-      + "staging area, the shared terms and the provenance are filled in, "
-      + "and you write the rest there";
-    move.addEventListener("click", () => ctx.onOpenDoxbench(data));
-    acts.appendChild(move);
-  }
-  box.appendChild(acts);
+  // The panel is a VIEWPORT: it does not scroll, the DOCUMENT inside it does
+  // ("this window does not need a scrollbar. lets make it a viewport and only
+  // scroll the document inside"). Two nested scrollers put the chrome out of
+  // reach of the very scroll that was trying to read the text.
+  box.appendChild(el("pre", "seedtext", data.text));
   container.appendChild(box);
 }
 
@@ -813,91 +818,13 @@ function drillPane(model, ctx) {
   return pane;
 }
 
-// ---- the matrix, AS A GRAPHIC (Brett, 2026-08-08) --------------------------
-//
-// The same membership the flat table states row by row, drawn as a presence
-// grid: one row per document on the radar, one column per checked term, a
-// filled cell where the document carries the term. The table answers "does
-// THIS document carry THAT term"; the grid answers the question the table
-// cannot — what the corpus looks like — because a block of filled cells IS a
-// group of documents with the same signature, which is the relationship the
-// lens exists to find.
-//
-// Built from `model.matrix` and `model.keywordHues`, the SAME rows and hues
-// the table and the radar use, so three views of one membership cannot
-// disagree. The table stays: it is required to be always present, and a grid
-// is not readable at one row.
-function matrixGraphic(model, ctx) {
-  // COLLAPSED, and its summary STATES THE FINDING (Brett, 2026-08-08: "this is
-  // taking up too much space. what value does it bring?"). The grid's one
-  // finding is repetition — documents whose rows are identical carry exactly
-  // the same checked terms — and a finding fits on one line. The drawing is
-  // the evidence for that line, so it opens on request and costs nothing until
-  // then, which is the answer to "a better place that uses less screen".
-  const pane = el("details", "gridwrap");
-  const h = el("summary", "pane-h");
-  h.appendChild(el("span", null, "signature grid"));
-  const sig = signatureSummary(model);
-  h.appendChild(el("span", "n", model.matrix.length + " × " + model.checked.length));
-  if (model.matrix.length && model.checked.length) {
-    h.appendChild(el("span", "gridfind", sig.repeatedGroups
-      ? sig.repeatedDocuments + " docs share " + sig.repeatedGroups
-        + (sig.repeatedGroups === 1 ? " signature" : " signatures")
-        + " (largest " + sig.largestGroup + ")"
-      : sig.signatures + " signatures, all different"));
-    h.title = sig.repeatedGroups
-      ? "Documents with the SAME signature carry exactly the same checked "
-        + ctx.vocab.terms + " — the closest thing to a duplicate this lens "
-        + "can see, and the usual place a merge starts. Open to see which."
-      : "Every document carries a different combination of the checked "
-        + ctx.vocab.terms + ": nothing here to merge.";
-  }
-  pane.appendChild(h);
-  if (!model.checked.length || !model.matrix.length) {
-    pane.appendChild(el("div", "grid-empty",
-      "check a " + ctx.vocab.term + " to draw the grid"));
-    return pane;
-  }
-
-  // the column heads: each term's letter, in its own hue, over its column
-  const grid = el("div", "sigrid");
-  grid.style.setProperty("--cols", String(model.checked.length));
-  const head = el("div", "sigrid-row sigrid-head");
-  head.appendChild(el("span", "sigrid-rowlab", ""));
-  for (const term of model.checked) {
-    const cell = el("span", "sigrid-collab",
-      (model.keywordLabels || {})[term] || "?");
-    const hue = (model.keywordHues || {})[term];
-    if (hue != null) cell.style.setProperty("--h", String(hue));
-    cell.title = term;
-    head.appendChild(cell);
-  }
-  grid.appendChild(head);
-
-  for (const row of model.matrix) {
-    const line = el("div", "sigrid-row");
-    line.dataset.doc = row.document;
-    const label = el("span", "sigrid-rowlab", String(row.number));
-    label.title = row.document;
-    line.appendChild(label);
-    for (const cell of row.cells) {
-      const box = el("span", "sigcell" + (cell.present ? " on" : ""));
-      if (cell.present) {
-        const hue = (model.keywordHues || {})[cell.keyword];
-        if (hue != null) {
-          box.style.background =
-            "hsl(" + hue + " var(--tint-s) var(--tint-arc-l))";
-        }
-      }
-      box.title = row.document + (cell.present ? " carries " : " does not carry ")
-        + cell.keyword;
-      line.appendChild(box);
-    }
-    grid.appendChild(line);
-  }
-  pane.appendChild(grid);
-  return pane;
-}
+// The SIGNATURE GRID used to sit here — the same membership as a picture,
+// collapsed behind its own finding. It is GONE from this pane (Brett,
+// 2026-08-08: "we do not need this in this view… add the room to make the
+// viewport to the doc list larger"). Even collapsed it cost a row of the
+// pane's scarcest space, and this view is now a drafting surface: radar,
+// drafted seed, document list. The derivation it read (`signatureSummary`)
+// stays in the model, unused here, for the surface that wants it next.
 
 function bullseyePane(model, ctx) {
   // `pane-bullseye`: the radar HOLDS and the matrix beneath it scrolls
@@ -916,10 +843,6 @@ function bullseyePane(model, ctx) {
   // of this pane left it 2,772px down, past the whole matrix, which is the
   // same problem in a new place. Here it appears where the eye already is.
   if (ctx.confirmHost) pane.appendChild(ctx.confirmHost);
-  // the SIGNATURE GRID sits between the radar and the table: the same
-  // membership as a picture, where a block of filled cells is a group of
-  // documents that share a signature
-  pane.appendChild(matrixGraphic(model, ctx));
   // the flat matrix is ALWAYS rendered alongside — not a toggle-only alternate.
   pane.appendChild(matrix(model, ctx));
   if (ctx.pickDoc) pane.appendChild(pickBar(model, ctx));
@@ -969,22 +892,35 @@ function cssEscape(value) {
 function pickBar(model, ctx) {
   const bar = el("div", "pickbar");
   const n = ctx.pickedCount();
-  bar.appendChild(el("span", "pickn", n
-    ? n + (n === 1 ? " document selected" : " documents selected")
-    : "select documents to draft a staging seed from them"));
-  const clear = el("button", "cbtn", "clear");
+  // CLEAR carries the count and sits at the LEFT, under the checkbox column it
+  // undoes (Brett, 2026-08-08: "move this under the checkboxes. label it
+  // clear #"). The count was a separate sentence; on the button it is both
+  // the number and the way to undo it, in one control.
+  const clear = el("button", "cbtn", n ? "clear " + n : "clear");
   clear.type = "button";
   clear.disabled = !n;
+  clear.title = n
+    ? "unselect all " + n + " selected document" + (n === 1 ? "" : "s")
+    : "no documents are selected";
   clear.addEventListener("click", () => ctx.clearPicks());
   bar.appendChild(clear);
-  const draft = el("button", "cbtn", "draft staging seed");
+  // the DRAFT action is CENTRED on the bar — the one thing this bar is for
+  const draft = el("button", "cbtn",
+    // "the doc is drafted. this should be Re-Draft" — a second press over the
+    // same panel replaces a draft that already exists, and the label says so
+    // rather than implying a second, separate seed.
+    ctx.hasDraft() ? "re-draft" : "draft staging seed");
   draft.type = "button";
   draft.disabled = !n;
   draft.title = "Draft a staging-queue fragment covering the selected "
     + "documents and the terms they share. Nothing is written — the draft is "
-    + "text you place in ideation/staging/ yourself.";
+    + "text you carry into doxBench or place yourself.";
   draft.addEventListener("click", () => ctx.onStagingSeed(draft));
   bar.appendChild(draft);
+  // the right cell balances the centre; it states the empty case, which is the
+  // only time this bar has anything to explain
+  bar.appendChild(el("span", "pickn", n
+    ? "" : "tick documents to draft from them"));
   return bar;
 }
 
@@ -1136,6 +1072,10 @@ export function renderLens(root, snapshot, opts) {
     vocab,
     vocabularies,
     confirmHost: confirm,
+    // whether a drafted panel is currently on screen — the draft button's
+    // label reads `re-draft` over one that already exists
+    hasDraft() { return confirm.childElementCount > 0; },
+    redraw() { draw(); },
     // The hand-off to doxBench. The lens knows what was drafted; app.js owns
     // every cross-view jump, exactly as it does for the wheel's verbs, so the
     // seed is translated into the create dialog's own shape here and the
@@ -1226,6 +1166,8 @@ export function renderLens(root, snapshot, opts) {
           return;
         }
         renderStagingSeed(confirm, data, ctx);
+        // the bar is already drawn, so it has to be redrawn to read `re-draft`
+        draw();
       } catch (err) {
         status.textContent = "seed failed: " + (err?.message || "error");
       } finally {
