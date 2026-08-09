@@ -1,0 +1,170 @@
+# Canonical registry of professional standards bodies a domain overlay may
+# crosswalk its worker terminology to (add-omnigent-domain-terminology).
+#
+# Why a registry: five repos writing free-text framework names would drift
+# ("itil" / "ITIL v4" / "itil4") the same way the layer vocabulary would have
+# without contracts/policies/layer-vocabulary.yaml. Framework ids in an
+# overlay's terminology.workers.*.standards_alignment MUST resolve here.
+#
+# THE LOAD-BEARING FIELD IS `names`. These bodies do NOT all name the same
+# kind of thing: some define practices, some processes, some skills, some
+# controls, some clinical terminologies. A crosswalk that maps a worker class
+# to a PROCESS is making a different claim than one mapping it to a ROLE, and
+# conflating them is how a crosswalk quietly overstates what a worker is.
+#
+# A crosswalk is DESCRIPTIVE ONLY: listing a body here asserts no conformance
+# with it, no certification by it, and no endorsement from it. Several bodies
+# below hold trademarks in their names; a crosswalk references the term, it
+# never adopts it as the class identity.
+#
+# SOURCING CAVEAT (honest): this seed list and its term spellings are drawn
+# from working knowledge, not verified against each body's current
+# publication. Before a domain commits a crosswalk, its exact terms and the
+# current framework version must be checked against the body's own current
+# material — that verification is a task on each domain's follow-up change.
+schema_version: 1
+kind: standards_body_registry
+policy_id: standards-bodies-v1
+
+bodies:
+  # ---------------------------------------------------------------- cross-domain
+  - id: apqc_pcf
+    name: APQC Process Classification Framework (Cross-Industry)
+    steward: APQC
+    names: processes
+    scope: >-
+      Cross-industry process taxonomy spanning every domain in the family —
+      3.0 Market and Sell (adx), 7.0 Manage Information Technology (opsx),
+      8.0 Manage Financial Resources (ledgerx), 2.0 Develop and Manage
+      Products and Services (codex). The only body here that reaches all
+      five domains, which makes it the natural common crosswalk.
+  - id: sfia
+    name: SFIA (Skills Framework for the Information Age)
+    steward: SFIA Foundation
+    names: skills
+    scope: >-
+      Internationally adopted IT skills framework (e.g. CHMG change
+      management, USUP incident management, PROG programming, TEST testing).
+      Skill-shaped rather than role-shaped, which fits worker classes more
+      closely than practice frameworks do. Strong fit for opsx and codex.
+
+  # ---------------------------------------------------------------- IT operations
+  - id: itil4
+    name: ITIL 4
+    steward: PeopleCert / Axelos
+    names: practices
+    scope: >-
+      The lingua franca of IT service management (Change Enablement,
+      Incident Management, Problem Management, Service Request Management,
+      Deployment Management, Release Management, Monitoring and Event
+      Management). ITIL 4 names PRACTICES, not roles — a worker class maps
+      to the practice it acts within, never to a job title.
+    attribution_note: ITIL is a registered trade mark; reference only.
+  - id: cobit_2019
+    name: COBIT 2019
+    steward: ISACA
+    names: governance_and_management_objectives
+    scope: >-
+      Audit- and governance-facing objectives (e.g. BAI06 Managed IT
+      Changes, DSS01 Managed Operations). Useful where the audience is an
+      auditor or a governance committee rather than an operator.
+  - id: nist_csf
+    name: NIST Cybersecurity Framework
+    steward: NIST (US)
+    names: functions_and_categories
+    scope: >-
+      Identify / Protect / Detect / Respond / Recover. Public-domain, no
+      licensing friction. Fits the security-adjacent reviewer classes.
+  - id: iso_iec_20000
+    name: ISO/IEC 20000
+    steward: ISO/IEC
+    names: service_management_requirements
+    scope: Certifiable service-management requirements; formal-assurance audiences.
+
+  # ---------------------------------------------------------------- accounting
+  - id: coso_icif
+    name: COSO Internal Control — Integrated Framework
+    steward: COSO
+    names: control_components_and_principles
+    scope: >-
+      The internal-control body, and the natural home for the
+      segregation-of-duties boundary the accounting overlay already makes a
+      machine-checkable worker property.
+  - id: ima_mac
+    name: IMA Management Accounting Competency Framework
+    steward: Institute of Management Accountants
+    names: competencies
+    scope: Competency-shaped; closest accounting analog to SFIA.
+  - id: aicpa
+    name: AICPA professional standards and competency framework
+    steward: AICPA (US)
+    names: standards_and_competencies
+    scope: >-
+      US professional standards and competencies. NOTE the distinction that
+      matters here: GAAP (FASB) and IFRS (IASB) are REPORTING standards —
+      they govern what the books must say, not what a worker is — so they
+      are deliberately NOT registered as worker-crosswalk bodies. Ledgerx's
+      reporting-standard grounding already lives in the subject books-design
+      layer, not in the worker taxonomy.
+
+  # ---------------------------------------------------------------- marketing
+  - id: iab
+    name: IAB / IAB Tech Lab specifications and taxonomies
+    steward: Interactive Advertising Bureau
+    names: adtech_specifications_and_taxonomies
+    scope: >-
+      Content Taxonomy, Audience Taxonomy, OpenRTB. Names ad-tech plumbing
+      rather than roles — expect it to fit the media/audience classes and
+      not the creative or compliance ones.
+  - id: ama_marketing
+    name: American Marketing Association definitions
+    steward: American Marketing Association
+    names: concept_definitions
+    scope: Canonical concept definitions; useful for job_type and artifact labels.
+  - id: cim
+    name: CIM Professional Marketing Competencies
+    steward: Chartered Institute of Marketing (UK)
+    names: competencies
+    scope: Competency-shaped; the closest marketing analog to SFIA.
+
+  # ---------------------------------------------------------------- engineering
+  - id: swebok
+    name: SWEBOK (Software Engineering Body of Knowledge)
+    steward: IEEE Computer Society
+    names: knowledge_areas
+    scope: >-
+      Requirements, design, construction, testing, maintenance,
+      configuration management, quality. Knowledge-area shaped.
+  - id: iso_iec_ieee_12207
+    name: ISO/IEC/IEEE 12207
+    steward: ISO/IEC/IEEE
+    names: life_cycle_processes
+    scope: Software life-cycle processes; formal-assurance audiences.
+
+  # ---------------------------------------------------------------- medical
+  - id: nucc_taxonomy
+    name: NUCC Health Care Provider Taxonomy
+    steward: National Uniform Claim Committee (US)
+    names: provider_roles_and_specialties
+    scope: >-
+      The US provider role/specialty taxonomy. STRONG CAUTION: medical
+      Omnigent workers are reasoning agents, not clinicians. Mapping a
+      reasoning agent onto a provider role would imply clinician standing
+      the worker does not have and must never appear to have, so
+      `no_clean_equivalent` is expected to be the honest answer for most
+      medical worker classes.
+  - id: hl7_fhir_practitionerrole
+    name: HL7 FHIR PractitionerRole and role code systems
+    steward: HL7 International
+    names: practitioner_roles
+    scope: >-
+      Interoperability-facing practitioner roles. Same caution as NUCC: it
+      describes humans with clinical standing, not agents.
+  - id: snomed_ct
+    name: SNOMED CT
+    steward: SNOMED International
+    names: clinical_concepts
+    scope: >-
+      Clinical findings and procedures — the CONTENT a medical worker
+      reasons about, not what the worker IS. Registered for artifact and
+      job_type labels, not for worker-role crosswalks.

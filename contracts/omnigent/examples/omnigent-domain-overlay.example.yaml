@@ -163,17 +163,21 @@ terminology:
   workers:
     scope_framer:
       display_label: Scope Intake
+      # Multiple bodies where a domain has more than one widely adopted one;
+      # each names a different KIND of thing (see the registry's `names`).
       standards_alignment:
-        framework: example_framework
-        mapping: Demand Intake
+        apqc_pcf:
+          mapping: "7.1 Develop IT vision and strategy"
+        sfia:
+          mapping: "RLMT Stakeholder relationship management"
     change_author:
       display_label: Draft Author
       standards_alignment:
-        framework: example_framework
-        mapping: no_clean_equivalent
-        note: >-
-          The framework has no drafting role at this granularity; the closest
-          term would overstate the worker's authority.
+        apqc_pcf:
+          mapping: no_clean_equivalent
+          note: >-
+            The framework has no drafting process at this granularity; the
+            closest term would overstate the worker's authority.
   job_types:
     scope_framing: Scope Framing
   stop_conditions:

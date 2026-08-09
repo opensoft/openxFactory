@@ -112,26 +112,38 @@ properties:
                 minLength: 1
               standards_alignment:
                 description: >-
-                  Optional crosswalk to a named professional framework.
-                  Descriptive only: a crosswalk never asserts conformance,
-                  certification, or endorsement, never confers authority, and
-                  never becomes the class identity.
+                  Optional crosswalks to professional frameworks, keyed by
+                  body id from contracts/policies/standards-bodies.yaml —
+                  MULTIPLE bodies are expected where a domain has more than
+                  one widely adopted one (for example ITIL practices AND
+                  SFIA skills AND APQC processes for IT operations), at most
+                  one entry per body. Descriptive only: a crosswalk never
+                  asserts conformance, certification, or endorsement, never
+                  confers authority, and never becomes the class identity.
+                  The registry's `names` field states what each body's terms
+                  denote (practice / process / skill / role / control /
+                  competency / terminology), because mapping a worker to a
+                  PROCESS is a different claim than mapping it to a ROLE.
                 type: object
+                minProperties: 1
                 additionalProperties: false
-                required: [framework, mapping]
-                properties:
-                  framework:
-                    $ref: "#/$defs/identifier"
-                  mapping:
-                    description: >-
-                      The framework's term for this class, or the literal
-                      `no_clean_equivalent` when the class has no honest
-                      counterpart — which REQUIRES a note.
-                    type: string
-                    minLength: 1
-                  note:
-                    type: string
-                    minLength: 1
+                patternProperties:
+                  "^[a-z][a-z0-9_-]*$":
+                    type: object
+                    additionalProperties: false
+                    required: [mapping]
+                    properties:
+                      mapping:
+                        description: >-
+                          That body's term for this class, or the literal
+                          `no_clean_equivalent` when the class has no honest
+                          counterpart in THAT body — which REQUIRES a note.
+                          A forced mapping is worse than an honest absence.
+                        type: string
+                        minLength: 1
+                      note:
+                        type: string
+                        minLength: 1
       job_types:
         $ref: "#/$defs/label_map"
       stop_conditions:

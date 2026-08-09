@@ -63,21 +63,34 @@ presentation is domain-idiomatic.
 
 ### Requirement: Standards alignment is a descriptive crosswalk, never an identity or a claim
 
-A worker class's optional `standards_alignment` SHALL be a descriptive crosswalk only, naming a professional framework and that framework's term for the class.
-It SHALL NOT assert conformance, certification, or
+A worker class's optional `standards_alignment` SHALL be descriptive crosswalks only, keyed by standards-body id, with at most one entry per body and every id resolving to `contracts/policies/standards-bodies.yaml`.
+MULTIPLE bodies are expected where a domain has more than one widely adopted
+one — the registry records what each body's terms denote (`practices`,
+`processes`, `skills`, `roles`, `controls`, `competencies`,
+`clinical_concepts`), because mapping a worker class to a PROCESS is a
+different claim than mapping it to a ROLE, and conflating the two is how a
+crosswalk silently overstates what a worker is.
+A crosswalk SHALL NOT assert conformance, certification, or
 endorsement of or by that framework, SHALL NOT confer or imply any
 authority, and SHALL NOT replace the class id. Where a class has no honest
 counterpart in the framework, the overlay SHALL declare the literal
 `no_clean_equivalent` together with a note stating why, rather than forcing
 a mapping onto an ill-fitting term.
 
-#### Scenario: an unmapped class must say why
+#### Scenario: an unmapped class must say why, per body
 
-- **WHEN** a worker declares `standards_alignment.mapping` of
-  `no_clean_equivalent` without a note
-- **THEN** validation fails
+- **WHEN** a worker declares `no_clean_equivalent` for a body without a note
+- **THEN** validation fails naming that body
 - **AND** the honest no-counterpart declaration is required to state its
-  reason
+  reason, because a forced mapping onto an ill-fitting term is worse than an
+  acknowledged absence
+
+#### Scenario: a crosswalk to an unregistered body is rejected
+
+- **WHEN** a crosswalk names a body id that does not resolve to
+  `contracts/policies/standards-bodies.yaml`
+- **THEN** validation fails naming the unresolved id
+- **AND** free-text framework naming cannot drift across domain repos
 
 #### Scenario: a crosswalk makes no conformance claim
 

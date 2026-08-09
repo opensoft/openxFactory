@@ -90,6 +90,25 @@ def iter_keys(node, prefix="$"):
             yield from iter_keys(item, f"{prefix}[{index}]")
 
 
+STANDARDS_BODIES = ROOT / "contracts" / "policies" / "standards-bodies.yaml"
+
+
+def standards_body_ids() -> set[str]:
+    """Canonical standards-body ids a terminology crosswalk may reference.
+
+    Returns an empty set when the registry is absent so the check degrades to
+    a no-op rather than failing every overlay in a checkout without it.
+    """
+    if not STANDARDS_BODIES.is_file():
+        return set()
+    doc = load_yaml(STANDARDS_BODIES) or {}
+    return {
+        body.get("id")
+        for body in (doc.get("bodies") or [])
+        if isinstance(body, dict) and body.get("id")
+    }
+
+
 def semantic_errors(kind: str, doc) -> list[str]:
     errors: list[str] = []
     for path, key in iter_keys(doc):
@@ -184,18 +203,31 @@ def semantic_errors(kind: str, doc) -> list[str]:
                             )
                         else:
                             seen_labels[label] = key
-                    # Honesty rule: declaring no standard counterpart is legal
-                    # and preferred over a forced mapping, but it must say why.
+                    # Crosswalks: one entry per standards body, each body id
+                    # resolving to the canonical registry (five repos writing
+                    # free-text names would drift itil/ITIL v4/itil4), and the
+                    # honesty rule per body — declaring no counterpart is legal
+                    # and preferred over a forced mapping, but must say why.
                     if isinstance(value, dict):
-                        alignment = value.get("standards_alignment") or {}
-                        if (
-                            alignment.get("mapping") == "no_clean_equivalent"
-                            and not alignment.get("note")
-                        ):
-                            errors.append(
-                                f"$.terminology.workers.{key}: standards_alignment "
-                                "'no_clean_equivalent' requires a note saying why"
-                            )
+                        known_bodies = standards_body_ids()
+                        for body, entry in (value.get("standards_alignment") or {}).items():
+                            if known_bodies and body not in known_bodies:
+                                errors.append(
+                                    f"$.terminology.workers.{key}.standards_alignment: "
+                                    f"'{body}' does not resolve to a body in "
+                                    "contracts/policies/standards-bodies.yaml"
+                                )
+                            if not isinstance(entry, dict):
+                                continue
+                            if (
+                                entry.get("mapping") == "no_clean_equivalent"
+                                and not entry.get("note")
+                            ):
+                                errors.append(
+                                    f"$.terminology.workers.{key}.standards_alignment."
+                                    f"{body}: 'no_clean_equivalent' requires a note "
+                                    "saying why"
+                                )
         seen_categories: set[str] = set()
         for entry in doc.get("rung_ceilings") or []:
             if not isinstance(entry, dict):

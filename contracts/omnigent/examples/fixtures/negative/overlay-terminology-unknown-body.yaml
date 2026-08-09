@@ -1,6 +1,7 @@
-# expect: no_clean_equivalent
-# standards_alignment 'no_clean_equivalent' without a note: declaring no
-# counterpart is legal and preferred over a forced mapping, but it must say why.
+# expect: standards-bodies.yaml
+# A crosswalk to a body id that does not resolve to the canonical registry.
+# Free-text framework names across five repos drift (itil / ITIL v4 / itil4),
+# which is why the ids must resolve to contracts/policies/standards-bodies.yaml.
 schema_version: 1
 kind: omnigent_domain_overlay
 domain:
@@ -14,8 +15,8 @@ terminology:
     scope_framer:
       display_label: Scope Intake
       standards_alignment:
-        apqc_pcf:
-          mapping: no_clean_equivalent
+        made_up_body:
+          mapping: Some Term
 workers:
   - id: scope_framer
     archetype: frame
