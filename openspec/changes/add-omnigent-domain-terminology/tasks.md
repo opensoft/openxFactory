@@ -102,14 +102,18 @@
       not assert, and the registry's apqc_pcf entry records the
       version-pinning rule plus APQC's attribution terms so the error cannot
       recur silently.
-- [ ] 3b.4 INTEGRATE the 13 verified entries into the registry. Requires
-      extending the body entry shape with the fields the report supplies and
-      the current shape lacks: `jurisdiction` (mainland/HK/TW/Macau are NOT
-      interchangeable), `current_version`, `status`, `source_url`,
-      `term_list_availability`, and `confidence`. Also register
-      `GB/T 46704-2025` as recommended shared-service guidance and NOT as a
-      Chinese APQC equivalent — the report is explicit that no mainland body
-      matches APQC's finance hierarchy, and that absence is a result.
+- [x] 3b.4 LANDED 2026-08-09: all 13 verified entries integrated; registry
+      now holds 30 bodies. `jurisdiction` added to EVERY body (not just the
+      new ones) — without it the regional coverage stays invisible in the
+      data, which was the original defect: mainland_china 9, macau 2,
+      hong_kong 1, taiwan 1, united_states 6, united_kingdom 1,
+      international 10. Verified entries carry the report's
+      current_version / status / source_url / term_list_availability /
+      confidence and its inline reasoning verbatim; the original 17 lack
+      them, and the header now states that asymmetry rather than hiding it.
+      `gb_t_46704_financial_shared_services` registered as recommended
+      shared-service GUIDANCE, explicitly not a Chinese APQC equivalent.
+      YAML parses, ids unique, contract family and all five overlays green.
 - [ ] 3b.5 Commission equivalent research for the other four domains (opsx,
       adx, codex, medx) — the same Anglo skew applies to all of them.
 
