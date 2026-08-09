@@ -153,18 +153,11 @@ so the sixth column is whole instead of part-cut.
   The relationship count carries its unit (`14 docs` — documents carrying
   BOTH), because a number that has to be hovered to be understood has not been
   labelled.
-- **The signature grid** — the same membership as a picture: one row per
-  document, one column per checked term, a filled cell where the document
-  carries it. A block of filled cells is a group of documents sharing a
-  signature, which the table cannot show and the rings can only count. It sits
-  CLOSED (Brett, 2026-08-08: "this is taking up too much space. what value does
-  it bring?") with its finding in the summary — "32 documents share 3
-  signatures (largest 17)" — because a finding that fits in a sentence does not
-  warrant 220px of the best space on the screen; the drawing is its evidence
-  and opens on request.
-- **One document, three views, one hover** (Brett, 2026-08-08) — the radar's
-  dot, the matrix's row and the grid's row all publish the same key, and
-  pointing at any one lights the others. The lit dot PULSES (opacity, not
+- **One document, two views, one hover** (Brett, 2026-08-08) — the radar's
+  dot and the matrix's row publish the same key, and pointing at either lights
+  the other (the signature grid was a third and has since left this pane; the
+  join is written over `[data-doc]`, so it covers however many views publish
+  the key). The lit dot PULSES (opacity, not
   size — the packing put the dots as close as they legibly sit, so a growing
   dot would touch its neighbours); a ring of 32 identical circles is a field
   the eye must search, and motion is the one channel it finds without
@@ -185,7 +178,13 @@ so the sixth column is whole instead of part-cut.
   some do — and the ARGUMENT is not: the summary, why-now, claims, open
   questions and exit path arrive marked `TO WRITE`, because a drafter that
   argued its own case would be the machine deciding what is worth staging.
-  Nothing is written. The panel appears DIRECTLY UNDER THE RADAR (it began as
+  Nothing is written. The panel is a VIEWPORT with ONE ROW OF CHROME (Brett,
+  2026-08-08): title, action and dismiss share the title line, the placement
+  instructions are that line's HOVER (read once, re-read rarely — a permanent
+  note costs the viewport under it on every draft), and the panel itself does
+  not scroll, the drafted text inside it does. Two nested scrollers put the
+  chrome out of reach of the scroll trying to read the text.
+  The panel appears DIRECTLY UNDER THE RADAR (it began as
   a full-width block below the whole layout; the foot of the pane was no
   better at 2,772px down) and can be dismissed — nothing was written, and the
   same selection redrafts it byte for byte.
@@ -199,6 +198,12 @@ so the sixth column is whole instead of part-cut.
   never on main, and save/abandon are the ones that already exist (an
   abandoned session's branch SURVIVES — that is the non-committed list you
   return to).
+- **The selection bar** — `clear N` at the LEFT, under the checkbox column it
+  undoes and carrying the count instead of repeating it in a sentence; the
+  draft action CENTRED, because it is the one thing the bar is for, in a
+  three-cell grid so a changing label never drags the centre. Over an existing
+  draft it reads `re-draft`, not `draft` — it replaces that panel rather than
+  making a second, separate seed.
   (The repository lens's `draft seed` is the OTHER seed — a DTN
   candidate-register row, answering whether two factories carry the same
   artifact.)

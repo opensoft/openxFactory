@@ -2113,54 +2113,42 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   margin-top: 6px; width: 100%;
 }
 .railmore:hover { color: var(--ink); }
-/* The SIGNATURE GRID: the membership matrix as a picture, between the radar
-   and the table that states it row by row. Its own scroll, so a 150-document
-   corpus never pushes the table off the screen. */
-.gridwrap { flex: none; margin-top: 10px; max-height: 220px; overflow: auto; }
-.sigrid { display: flex; flex-direction: column; gap: 1px; width: max-content; }
-.sigrid-row { display: grid; grid-template-columns: 26px repeat(var(--cols), 12px); gap: 1px; align-items: center; }
-.sigrid-rowlab { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: right; }
-.sigrid-collab { font-family: var(--mono); font-size: 9px; font-weight: 700; text-align: center; }
-/* `--panel`, not the `--bg` this once named: `--bg` is not a token this
-   stylesheet defines, so the fallback took over and painted a WHITE bar
-   across the dark theme — the same defect from the other side. */
-.sigrid-head { position: sticky; top: 0; background: var(--panel); z-index: 1; padding-bottom: 1px; }
-.sigcell { height: 10px; border: 1px solid var(--border); border-radius: 2px; background: transparent; }
-.sigcell.on { border-color: transparent; }
-.grid-empty { font-size: 11px; color: var(--muted); padding: 6px 0; }
-/* COLLAPSED by default: the summary states the finding, the drawing is its
-   evidence and costs no screen until asked for. `max-height` applies to the
-   OPEN grid only, so a closed one is a single line. */
-details.gridwrap { max-height: none; overflow: visible; }
-details.gridwrap > summary { cursor: pointer; list-style: revert; }
-details.gridwrap[open] > .sigrid { max-height: 200px; overflow: auto; display: flex; }
-.gridfind { font-size: 11px; color: var(--muted); font-weight: 400; }
+/* The SIGNATURE GRID's styles left with it (Brett, 2026-08-08: "we do not
+   need this in this view"); `signatureSummary` stays in the model for the
+   surface that wants the picture next. */
 /* The matrix selection: a column of boxes and the bar that says what they are
    for. The bar sticks to the bottom of the scrolling pane — a selection you
    cannot see the size of is a selection you cannot trust. */
 .lensmatrix .pickcol { width: 22px; text-align: center; padding-right: 0; }
 .lensmatrix .pickcol input { margin: 0; cursor: pointer; }
+/* clear LEFT (under the checkbox column it undoes), the draft action CENTRED
+   (the one thing this bar is for), and the empty-state hint right — three
+   grid cells, so the centre is the bar's true centre and does not drift with
+   the label's length (Brett, 2026-08-08). */
 .pickbar {
-  position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px;
+  position: sticky; bottom: 0; display: grid; align-items: center;
+  grid-template-columns: 1fr auto 1fr; gap: 8px;
   background: var(--panel); border-top: 1px solid var(--border);
   padding: 6px 2px; margin-top: 4px;
 }
-.pickn { flex: 1; font-size: 11px; color: var(--muted); }
-/* The drafted-seed panel now lives at the FOOT of the bullseye pane, not as a
-   full-width block below the whole layout — a panel a screen away from the
-   button that produced it (Brett, 2026-08-08). Its own scroll, so a long
-   fragment never pushes the pane's other content off. */
-.pane-bullseye .canvas-confirm { flex: none; margin-top: 10px; max-height: 340px; overflow: auto; }
+.pickbar > .cbtn:first-child { justify-self: start; }
+.pickn { font-size: 11px; color: var(--muted); justify-self: end; text-align: right; }
+/* The drafted-seed panel sits directly under the radar (Brett, 2026-08-08).
+   It is a VIEWPORT and does NOT scroll — the document inside it does. Two
+   nested scrollers put the panel's own chrome out of reach of the very scroll
+   that was trying to read the text. */
+.pane-bullseye .canvas-confirm { flex: none; margin-top: 10px; overflow: visible; }
 .pane-bullseye .canvas-confirm:empty { display: none; }
 .dc-h { display: flex; align-items: center; gap: 8px; }
-.dc-h > span { flex: 1; }
+.dc-title { flex: 1; cursor: help; }
 .dc-close {
   background: none; border: 1px solid var(--border); border-radius: 4px;
   color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1;
   padding: 2px 7px; flex: none;
 }
 .dc-close:hover { color: var(--ink); }
-.dc-acts { display: flex; gap: 8px; margin-top: 8px; }
+/* the ONE scroller: the drafted document itself */
+.draft-confirm .seedtext { max-height: 300px; overflow: auto; scrollbar-gutter: stable; }
 /* THE JOIN: hovering any view of a document lights every other view of it —
    the dot, its table row, its grid row (Brett, 2026-08-08). */
 tr.lit > td { background: rgba(127, 127, 127, 0.16); }

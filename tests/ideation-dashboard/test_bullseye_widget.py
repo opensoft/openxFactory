@@ -1110,49 +1110,94 @@ def test_a_button_reset_states_its_own_colour():
         assert "color:" in block, selector
 
 
-def test_the_signature_grid_states_its_finding_before_it_draws_it(tmp_path):
-    """Brett, 2026-08-08: the grid "is taking up too much space. what value
-    does it bring?" Its one finding is REPETITION — documents whose rows are
-    identical carry exactly the same checked terms, the closest thing to a
-    duplicate this lens can see. A finding fits on a line; the drawing is its
-    evidence, so the summary carries the finding and the picture opens on
-    request."""
+def test_the_signature_grid_left_the_lens_and_its_derivation_stayed(tmp_path):
+    """Brett, 2026-08-08: "we do not need this in this view… add the room to
+    make the viewport to the doc list larger." The grid earned its collapse
+    when he asked what value it brought; this pane has since become a DRAFTING
+    surface — radar, drafted seed, document list — and even one collapsed row
+    costs the list. The derivation stays in the model, unused here, because it
+    is correct and tested and the next surface that wants the picture should
+    not have to rewrite it."""
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert "matrixGraphic" not in lens
+    assert "signatureSummary" not in lens.split("// The SIGNATURE GRID used to sit here")[0]
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert "details.gridwrap" not in css
+
     if not NODE:
         pytest.skip("node not available for the JS derivation probe")
     shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
     (tmp_path / "m.mjs").write_text("""
 import { signatureSummary } from './lens-model.mjs';
 const cells = (bits) => bits.split('').map((b, i) => ({ keyword: 'k' + i, present: b === '1' }));
-const model = { matrix: [
+console.log(JSON.stringify(signatureSummary({ matrix: [
   { document: 'a.md', cells: cells('110') },
-  { document: 'b.md', cells: cells('110') },   // same signature as a
+  { document: 'b.md', cells: cells('110') },
   { document: 'c.md', cells: cells('101') },
-  { document: 'd.md', cells: cells('110') },   // and as a, b
-  { document: 'e.md', cells: cells('001') },
-]};
-console.log(JSON.stringify(signatureSummary(model)));
-console.log(JSON.stringify(signatureSummary({ matrix: [] })));
+]})));
 """, encoding="utf-8")
     proc = subprocess.run([NODE, str(tmp_path / "m.mjs")], capture_output=True,
                           text=True, cwd=tmp_path)
     assert proc.returncode == 0, proc.stderr
-    found, empty = [json.loads(line) for line in proc.stdout.strip().splitlines()]
-    assert found["documents"] == 5
-    assert found["signatures"] == 3          # 110, 101, 001
-    assert found["repeatedGroups"] == 1      # only 110 repeats
-    assert found["repeatedDocuments"] == 3   # a, b, d
-    assert found["largestGroup"] == 3
-    assert found["groups"] == [["a.md", "b.md", "d.md"]]
-    # an empty radar reports nothing rather than a division by zero
-    assert empty["documents"] == 0 and empty["repeatedGroups"] == 0
+    found = json.loads(proc.stdout)
+    assert found["repeatedGroups"] == 1 and found["groups"] == [["a.md", "b.md"]]
 
-    # and the view renders it COLLAPSED — a <details>, so a closed grid is one
-    # line rather than 220px of always-on picture
+
+def test_the_drafted_panel_is_a_viewport_with_one_title_line(tmp_path):
+    """Three annotations of 2026-08-08, all the same economy: this panel sits
+    in the pane's most expensive vertical space, so its CHROME is one row and
+    everything else is the document.
+
+      * the placement note moved onto the title as a hover ("make this a hover
+        popup… that will save some room") — it is read once and re-read
+        rarely, and a permanent two-line note costs the viewport under it on
+        every single draft;
+      * the action moved up to that same line;
+      * the panel itself no longer scrolls ("lets make it a viewport and only
+        scroll the document inside") — two nested scrollers put the panel's
+        own chrome out of reach of the scroll trying to read the text.
+    """
     lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
-    assert 'el("details", "gridwrap")' in lens
-    assert 'el("summary", "pane-h")' in lens
+    panel = lens.split("function renderStagingSeed")[1].split("\n}")[0]
+    assert 'el("div", "dc-note"' not in panel        # the note is gone…
+    assert "title.title = " in panel                  # …and is the title's hover
+    assert 'el("div", "dc-acts")' not in panel        # no action row of its own
+    # title, action and dismiss all ride the one header
+    assert panel.index('head.appendChild(title)') < panel.index("move.addEventListener") \
+        < panel.index("head.appendChild(back)")
     css = (WEB / "styles.css").read_text(encoding="utf-8")
-    assert "details.gridwrap[open] > .sigrid" in css
+    assert ".pane-bullseye .canvas-confirm { flex: none; margin-top: 10px; overflow: visible; }" in css
+    assert ".draft-confirm .seedtext { max-height: 300px; overflow: auto;" in css
+
+
+def test_the_pick_bar_puts_clear_under_the_checkboxes_and_the_action_in_the_middle():
+    """Brett, 2026-08-08: "move this under the checkboxes. label it clear #",
+    and "the doc is drafted. this should be Re-Draft. Also move this to center
+    on the bottom line."
+
+    The count was a separate sentence beside a bare `clear`; on the button it
+    is both the number and the way to undo it, in one control, positioned
+    under the column it undoes. The draft action is centred because it is the
+    one thing the bar is for — and it says `re-draft` over a draft that
+    already exists, rather than implying a second, separate seed.
+    """
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    bar = lens.split("function pickBar")[1].split("\n}")[0]
+    assert 'n ? "clear " + n : "clear"' in bar
+    assert 'ctx.hasDraft() ? "re-draft" : "draft staging seed"' in bar
+    # clear first (left), then the action, then the hint — the DOM order the
+    # three-cell grid positions
+    assert bar.index("clear.type") < bar.index("draft.type") < bar.index('"pickn"')
+    # a label whose length changes must not drag the centre: a three-cell grid,
+    # not a flex row
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    pick = re.search(r"\.pickbar \{(.*?)\n\}", css, re.S).group(1)
+    assert "grid-template-columns: 1fr auto 1fr" in pick
+    assert ".pickbar > .cbtn:first-child { justify-self: start; }" in css
+    # and the bar re-renders when a draft lands or is dismissed, or the label
+    # would still read `draft` over an existing one
+    assert "redraw() { draw(); }" in lens
+    assert "if (ctx && ctx.redraw) ctx.redraw();" in lens
 
 
 def test_every_view_of_a_document_publishes_the_same_key():
@@ -1166,7 +1211,10 @@ def test_every_view_of_a_document_publishes_the_same_key():
     lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
     assert '"data-doc": String(d.document)' in bullseye
     assert "tr.dataset.doc = r.document" in lens        # the matrix row
-    assert "line.dataset.doc = row.document" in lens    # the grid row
+    # (the signature grid was the third view and has since left this pane;
+    # the join is written over `[data-doc]`, so it covers however many views
+    # publish the key rather than a fixed list of them)
+    assert 'pane.querySelectorAll("[data-doc]")' in lens
     # one delegated pair on the pane, not per-row listeners
     assert lens.count('pane.addEventListener("pointerover"') == 1
     assert lens.count('pane.addEventListener("pointerout"') == 1
@@ -1174,7 +1222,7 @@ def test_every_view_of_a_document_publishes_the_same_key():
     # escaped before it goes into querySelectorAll
     assert "cssEscape(doc)" in lens
     css = (WEB / "styles.css").read_text(encoding="utf-8")
-    for rule in ("tr.lit > td", ".sigrid-row.lit", ".bullseye .lensdot.lit .dot"):
+    for rule in ("tr.lit > td", ".bullseye .lensdot.lit .dot"):
         assert rule in css, rule
 
 
@@ -1313,7 +1361,7 @@ def test_the_drafted_seed_panel_sits_under_the_radar_and_can_be_dismissed():
     # …directly after the radar, before the grid and the matrix
     pane = lens.split("function bullseyePane")[1]
     order = [pane.index("renderBullseye"), pane.index("ctx.confirmHost"),
-             pane.index("matrixGraphic(model"), pane.index("matrix(model")]
+             pane.index("matrix(model")]
     assert order == sorted(order), order
     # dismissing costs nothing: nothing was written, and the same selection
     # drafts it again byte for byte
