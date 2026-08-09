@@ -1332,9 +1332,15 @@ export function mountStagingWorkbench(container, snapshot,
     // dialog whose submit cannot land (the same posture the rest of this
     // overlay takes).
     if (!createGateLive(caps) || sessionSurfaceHidden(caps)) {
+      // Defence in depth: the lens no longer OFFERS the jump where it cannot
+      // land, so reaching this is a programming error rather than a posture —
+      // it still says something true and actionable rather than showing an
+      // empty overlay (Brett, 2026-08-08: "it was blank").
       body.appendChild(el("div", "swb-empty",
-        "creating a document needs the human gate capability — this plane is "
-        + "read-only, so the drafted seed stays on the lens"));
+        "this view is read-only, so a document cannot be created from it — a "
+        + "merged project composes several repositories and a document is "
+        + "created IN a repository. Switch to the one that owns this material "
+        + "and draft there; nothing was lost."));
       closeBtn.focus();
       return;
     }

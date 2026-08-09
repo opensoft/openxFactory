@@ -383,6 +383,10 @@ const TABS = [
       // forward"). The same cross-view ownership every other jump has: the
       // view declares the verb, app.js performs it.
       onOpenDoxbench: ctx.nav.openDraft,
+      // a project view is read-only (D10), so when a drafted seed belongs to
+      // exactly ONE member the lens offers the jump to it rather than telling
+      // the human to perform the switch themselves
+      onOpenRepository: ctx.nav.openRepository,
     }) },
   // The doc list's rows open the SAME read-only explorer/viewer overlay the
   // wheel's `read` verb and the workbench's docs rows open (T092 acceptance

@@ -59,6 +59,8 @@ A panel occupying a pane's scarce vertical space SHALL confine its chrome to a s
 
 Such a panel SHALL NOT scroll: its CONTENT scrolls within it. Two nested scrollers put a panel's own chrome out of reach of the very scroll that is trying to read its text.
 
+An affordance SHALL be offered only where it can complete. Where the current view cannot perform the action it would begin, the panel SHALL say so in the control's place and SHALL name what would make it possible, because a dead end discovered at the last step is worse than one declared at the first. Where exactly one destination would make it possible, that destination SHALL be offered as an action; where several would, they SHALL be named and the choice left to the human.
+
 An action bar SHALL position its controls by role — an undo beneath the control it undoes, the bar's primary action at its true centre — and a control whose label states a count SHALL carry that count rather than repeating it in a separate sentence. Centring SHALL survive a label that changes length.
 
 #### Scenario: The panel's chrome is one row
@@ -68,6 +70,16 @@ An action bar SHALL position its controls by role — an undo beneath the contro
 #### Scenario: The content scrolls, not the panel
 - WHEN the drafted text is longer than the panel
 - THEN the text scrolls within the panel and the panel itself does not
+
+#### Scenario: An affordance that cannot land is not offered
+- WHEN the current view cannot perform an action the panel would start
+- THEN the panel states so where the control would be, rather than offering it and refusing after it is used
+
+#### Scenario: One destination is offered, a choice is not made
+- WHEN exactly one repository owns the selected documents
+- THEN the panel offers to open that repository
+- WHEN several do
+- THEN it names them and leaves the choice to the human
 
 #### Scenario: An action reads what it will do
 - WHEN a draft is already on screen

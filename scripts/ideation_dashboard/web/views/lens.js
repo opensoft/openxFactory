@@ -655,7 +655,17 @@ function renderStagingSeed(container, data, ctx) {
   // MOVE IT, do not copy it (Brett, 2026-08-08: "we need to not 'copy' this.
   // we need to have button to move this to doxBench"), and the action rides
   // the title line rather than a row of its own.
-  if (ctx && ctx.onOpenDoxbench) {
+  //
+  // OFFERED ONLY WHERE IT CAN LAND. A MERGED PROJECT view is a read-only
+  // projection across repositories — `readOnlyCaps` strips gate/session/edit
+  // by design, because there is no such thing as writing to "a project", only
+  // to one of its members. This button used to be offered there anyway and
+  // refused after the click, in an otherwise empty overlay (Brett,
+  // 2026-08-08: "clicked open in doxBench. but it was blank"). A dead end
+  // discovered at the last step is worse than one declared at the first, so
+  // the refusal is stated HERE, beside the seed, and names where to go.
+  const owners = ctx && ctx.ownersOf ? ctx.ownersOf(data.documents) : [];
+  if (ctx && ctx.onOpenDoxbench && ctx.canCreate) {
     const move = el("button", "cbtn", "open in doxBench");
     move.type = "button";
     move.title = "carry this seed into doxBench as a new document: the "
@@ -663,6 +673,33 @@ function renderStagingSeed(container, data, ctx) {
       + "and you write the rest there";
     move.addEventListener("click", () => ctx.onOpenDoxbench(data));
     head.appendChild(move);
+  } else if (ctx && ctx.onOpenDoxbench && owners.length === 1
+             && ctx.onOpenRepository) {
+    // ONE owner is not a decision, it is a destination — so offer the jump
+    // rather than instructions to perform it. The shell re-keys to that
+    // member and every verb works as it does on any single-repository view.
+    const go = el("button", "cbtn", "open " + owners[0] + " to draft");
+    go.type = "button";
+    go.title = "A project view composes published snapshots and is read-only:"
+      + " a document is created IN a repository, not in a project. This "
+      + "switches to " + owners[0] + ", where the create is live. The "
+      + "selection does not survive the switch — the same documents draft "
+      + "this seed again there.";
+    go.addEventListener("click", () => ctx.onOpenRepository(owners[0]));
+    head.appendChild(go);
+  } else if (ctx && ctx.onOpenDoxbench) {
+    // SEVERAL owners IS a decision: these documents live in different
+    // repositories, and which one owns the new document is the human's call,
+    // not a click the machine can make for them.
+    const why = el("span", "dc-why", owners.length
+      ? "read-only here — these live in " + owners.join(", ")
+        + "; open the one that should own the new document"
+      : "read-only here — open a single repository to draft this");
+    why.title = "A project view composes published snapshots from several "
+      + "repositories, so it can be read but never written: a document is "
+      + "created IN a repository, not in a project. The seed above is "
+      + "complete — the same selection drafts it again there.";
+    head.appendChild(why);
   }
   // A WAY BACK (Brett, 2026-08-08: "there is no back from this widget"). A
   // panel that can only be replaced by drafting something else is a panel the
@@ -1075,6 +1112,24 @@ export function renderLens(root, snapshot, opts) {
     // whether a drafted panel is currently on screen — the draft button's
     // label reads `re-draft` over one that already exists
     hasDraft() { return confirm.childElementCount > 0; },
+    // a create needs the human gate; a merged project view has it stripped
+    canCreate: !!(caps && caps.actions && caps.actions.gate),
+    onOpenRepository: options.onOpenRepository || null,
+    // which member repositories carry these documents — so a refusal can say
+    // WHERE to go rather than only that this is not the place
+    ownersOf(documents) {
+      const wanted = new Set((documents || []).map(String));
+      const out = new Set();
+      for (const doc of (composed && composed.documents) || []) {
+        const id = String(doc?.id == null ? "" : doc.id);
+        const tail = id.includes("::") ? id.slice(id.indexOf("::") + 2) : id;
+        if (doc?.repository && (wanted.has(id) || wanted.has(tail)
+            || wanted.has(String(doc.path || "")))) {
+          out.add(String(doc.repository));
+        }
+      }
+      return [...out].sort();
+    },
     redraw() { draw(); },
     // The hand-off to doxBench. The lens knows what was drafted; app.js owns
     // every cross-view jump, exactly as it does for the wheel's verbs, so the
