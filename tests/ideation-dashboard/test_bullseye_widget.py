@@ -1628,3 +1628,52 @@ def test_a_switch_re_renders_in_place_and_leaves_no_listener_behind():
     # snapshot state, so a re-render must not rebind it (and must not unbind it)
     assert "initSettings();" in app.split("async function render()")[0]
     assert "initSettings" not in app.split("async function render()")[1]
+
+
+def test_the_vocabulary_switch_states_its_counts_and_abbreviates_when_squeezed():
+    """Brett, 2026-08-09: "in the lens screen we lost our keyword/repo
+    selector… these buttons could state the number of that item in the button
+    '134 Keywords' and '3 Repositories'. if the screen estate is too small,
+    then abbreviate to 134 KW and 3 Repos."
+
+    The switch was there — on a multi-repository project, where both
+    vocabularies mean something — but two bare lowercase words in a header are
+    easy to miss entirely. The COUNT is what makes the pair read as a choice
+    between two vocabularies, and it answers "how much is over there?" before
+    you switch to find out.
+    """
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    # each vocabulary owns both spellings, beside its other words
+    for word in ('termsTitle: "Keywords"', 'termsShort: "KW"',
+                 'termsTitle: "Repositories"', 'termsShort: "Repos"'):
+        assert word in lens, word
+    # the counts come from each vocabulary's OWN source — the declared keyword
+    # index, and the composed view's members
+    assert "keywords: (snapshot?.keyword_index || []).length" in lens
+    assert "repositoryVocabulary(composed).keyword_index || []" in lens
+    # both spellings ride on the button, so the choice is a text swap and never
+    # a re-render
+    assert "btn.dataset.full" in lens and "btn.dataset.short" in lens
+
+    # WHICH ONE FITS IS MEASURED, not guessed from a character count: the width
+    # depends on the theme's font and the reader's zoom
+    fit = lens.split("function fitVocabSwitch(root)")[1].split("\n}")[0]
+    assert "head.scrollWidth > head.clientWidth" in fit
+    assert "dataset.full" in fit and "dataset.short" in fit
+    # …and it runs on every draw, after the panes are in the DOM — a width is
+    # not knowable before then
+    draw = lens.split("function draw()")[1].split("\n  }")[0]
+    assert "fitVocabSwitch(lens)" in draw
+    assert draw.index("appendChild") < draw.index("fitVocabSwitch")
+
+    # the measurement needs a single nowrap row to overflow
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert ".pane-rail .pane-h { flex-wrap: nowrap; overflow: hidden; }" in css
+    assert "white-space: nowrap" in css.split(".vocabswitch {")[1].split("}")[0]
+
+    # the count chip goes where the switch carries the counts — it repeated one
+    # of the two and competed for the width that decides the spelling
+    rail = lens.split("function keywordRail(model, ctx)")[1].split("\n}")[0]
+    head = rail.split("const h = el(\"div\", \"pane-h\")")[1].split("pane.appendChild(h)")[0]
+    assert head.count('vocab.railCount') == 1
+    assert head.index("ctx.vocabularies()") < head.index("vocab.railCount")

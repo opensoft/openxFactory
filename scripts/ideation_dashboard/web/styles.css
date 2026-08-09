@@ -601,6 +601,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    flex-shrink to squeeze (which would spawn a spurious inner scrollbar, e.g. on
    the lens matrix whose overflow-x forces overflow-y). */
 .canvas .pane > *, .lens .pane > * { flex: none; }
+.pane-rail .pane-h { flex-wrap: nowrap; overflow: hidden; }
 .pane-h { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 /* the count pill wraps as a UNIT — "5 MEMBERS" split across two lines in the
    250px rail once the vocabulary switch joined it in the header */
@@ -2016,7 +2017,9 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 /* the switch lives in the rail's pane header, which is the lens's only
    chrome now — no left margin, and it must not inherit the header's
    uppercase/tracking treatment */
-.vocabswitch { display: inline-flex; gap: 2px; text-transform: none; letter-spacing: 0; }
+/* one nowrap row, so overflowing the rail header is what tells `fitVocabSwitch`
+   the full spelling does not fit */
+.vocabswitch { display: inline-flex; gap: 2px; text-transform: none; letter-spacing: 0; flex: none; white-space: nowrap; }
 .vocabbtn {
   font-family: var(--mono); font-size: 11px; cursor: pointer;
   border: 1px solid var(--border); background: none; color: var(--muted);
