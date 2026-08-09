@@ -147,6 +147,55 @@ def semantic_errors(kind: str, doc) -> list[str]:
                         f"replaces_configuration '{replaced_id}' "
                         "(authority conservation: crystallization never widens)"
                     )
+        # Terminology (add-omnigent-domain-terminology): display labels are
+        # presentation only, but they must describe THIS overlay — an orphan
+        # label names a class/condition that does not exist, and a duplicate
+        # label makes two different things read identically in a notice.
+        terminology = doc.get("terminology") or {}
+        if isinstance(terminology, dict):
+            declared = {
+                "workers": {w.get("id") for w in workers if isinstance(w, dict)},
+                "job_types": set(doc.get("job_types") or []),
+                "stop_conditions": set(doc.get("stop_conditions") or []),
+                "routing": set((doc.get("routing") or {}).keys()),
+            }
+            for vocabulary, entries in terminology.items():
+                if not isinstance(entries, dict):
+                    continue
+                known = declared.get(vocabulary, set())
+                seen_labels: dict[str, str] = {}
+                for key, value in entries.items():
+                    if key not in known:
+                        errors.append(
+                            f"$.terminology.{vocabulary}: '{key}' does not name a "
+                            f"{vocabulary} id declared in this overlay"
+                        )
+                    label = (
+                        value.get("display_label")
+                        if isinstance(value, dict)
+                        else value
+                    )
+                    if isinstance(label, str):
+                        if label in seen_labels:
+                            errors.append(
+                                f"$.terminology.{vocabulary}: duplicate display label "
+                                f"'{label}' on '{key}' and '{seen_labels[label]}' "
+                                "(two ids would read identically in a notice)"
+                            )
+                        else:
+                            seen_labels[label] = key
+                    # Honesty rule: declaring no standard counterpart is legal
+                    # and preferred over a forced mapping, but it must say why.
+                    if isinstance(value, dict):
+                        alignment = value.get("standards_alignment") or {}
+                        if (
+                            alignment.get("mapping") == "no_clean_equivalent"
+                            and not alignment.get("note")
+                        ):
+                            errors.append(
+                                f"$.terminology.workers.{key}: standards_alignment "
+                                "'no_clean_equivalent' requires a note saying why"
+                            )
         seen_categories: set[str] = set()
         for entry in doc.get("rung_ceilings") or []:
             if not isinstance(entry, dict):

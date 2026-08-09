@@ -1,0 +1,35 @@
+# expect: terminology
+# A display label for a worker id this overlay does not declare: the notice
+# would name a class that does not exist.
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: example
+  orchestrator_profile: example
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+terminology:
+  workers:
+    ghost_worker:
+      display_label: Ghost Role
+workers:
+  - id: scope_framer
+    archetype: frame
+    responsibility: Frame approved scope.
+    inputs: [intent]
+    outputs: [scope]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: false
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+credential_requirements:
+  all_classes: [workspace_read]
+  never_assignable: [final_action_execute]
+routing:
+  scope_ambiguity: intent_owner
+stop_conditions:
+  - secret_detected

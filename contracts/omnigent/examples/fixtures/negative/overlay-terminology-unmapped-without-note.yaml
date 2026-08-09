@@ -1,0 +1,38 @@
+# expect: no_clean_equivalent
+# standards_alignment 'no_clean_equivalent' without a note: declaring no
+# counterpart is legal and preferred over a forced mapping, but it must say why.
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: example
+  orchestrator_profile: example
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+terminology:
+  workers:
+    scope_framer:
+      display_label: Scope Intake
+      standards_alignment:
+        framework: example_framework
+        mapping: no_clean_equivalent
+workers:
+  - id: scope_framer
+    archetype: frame
+    responsibility: Frame approved scope.
+    inputs: [intent]
+    outputs: [scope]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: false
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+credential_requirements:
+  all_classes: [workspace_read]
+  never_assignable: [final_action_execute]
+routing:
+  scope_ambiguity: intent_owner
+stop_conditions:
+  - secret_detected

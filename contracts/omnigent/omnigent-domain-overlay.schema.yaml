@@ -81,6 +81,63 @@ properties:
           - write_artifacts
           - run_validations
           - propose_admission
+  terminology:
+    description: >-
+      Domain-expert-facing display vocabulary for the ids this overlay
+      declares. PRESENTATION ONLY — a display label never changes a worker's
+      archetype, permissions, credential tier, or authority. This is the
+      sibling of permission_aliases above, and the same separation the Hermes
+      layer model states for role vs display_name ("display names may be
+      specialized by an installation without changing role or authority
+      ownership"). Human-facing surfaces (notices, logs, approval packets,
+      escalations, refusals) render these labels so domain experts read their
+      own terminology; the ids remain the machine identifiers and the neutral
+      archetype spine is never renamed to match an external framework.
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    properties:
+      workers:
+        type: object
+        minProperties: 1
+        additionalProperties: false
+        patternProperties:
+          "^[a-z][a-z0-9_-]*$":
+            type: object
+            additionalProperties: false
+            required: [display_label]
+            properties:
+              display_label:
+                type: string
+                minLength: 1
+              standards_alignment:
+                description: >-
+                  Optional crosswalk to a named professional framework.
+                  Descriptive only: a crosswalk never asserts conformance,
+                  certification, or endorsement, never confers authority, and
+                  never becomes the class identity.
+                type: object
+                additionalProperties: false
+                required: [framework, mapping]
+                properties:
+                  framework:
+                    $ref: "#/$defs/identifier"
+                  mapping:
+                    description: >-
+                      The framework's term for this class, or the literal
+                      `no_clean_equivalent` when the class has no honest
+                      counterpart — which REQUIRES a note.
+                    type: string
+                    minLength: 1
+                  note:
+                    type: string
+                    minLength: 1
+      job_types:
+        $ref: "#/$defs/label_map"
+      stop_conditions:
+        $ref: "#/$defs/label_map"
+      routing:
+        $ref: "#/$defs/label_map"
   workers:
     type: array
     minItems: 1
@@ -198,6 +255,17 @@ $defs:
   identifier:
     type: string
     pattern: "^[a-z][a-z0-9_-]*$"
+  label_map:
+    description: >-
+      id -> domain-expert display label. Presentation only; every key must
+      resolve to an id this overlay declares.
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    patternProperties:
+      "^[a-z][a-z0-9_-]*$":
+        type: string
+        minLength: 1
   relative_path:
     type: string
     pattern: "^[^/].*[^/]$"

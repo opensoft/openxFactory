@@ -152,3 +152,31 @@ rung_ceilings:
   - category: subject_affecting_judgment
     ceiling: L3
     reason: Judgment never crystallizes past a playbook in this domain.
+
+# Domain-expert display vocabulary (add-omnigent-domain-terminology).
+# Presentation only: notices, logs, approval packets and refusals render
+# these labels so a domain expert reads familiar terminology, while the ids
+# above stay the machine identifiers and the neutral archetypes are never
+# renamed. The optional standards_alignment crosswalk is descriptive — it
+# asserts no conformance or certification.
+terminology:
+  workers:
+    scope_framer:
+      display_label: Scope Intake
+      standards_alignment:
+        framework: example_framework
+        mapping: Demand Intake
+    change_author:
+      display_label: Draft Author
+      standards_alignment:
+        framework: example_framework
+        mapping: no_clean_equivalent
+        note: >-
+          The framework has no drafting role at this granularity; the closest
+          term would overstate the worker's authority.
+  job_types:
+    scope_framing: Scope Framing
+  stop_conditions:
+    secret_detected: Secret material detected
+  routing:
+    scope_ambiguity: Unclear scope
