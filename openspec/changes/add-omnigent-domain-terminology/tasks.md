@@ -134,10 +134,16 @@
       PCF 8.0 references are recorded in the report (9.6 AP, 9.3 general
       accounting, 9.9 taxes, with stable element IDs) for re-adding once
       licensed. COSO and IAB crosswalks retained.
-- [ ] 3b.5c ADOPT O*NET 30.3 as the licence-clean US role/task vocabulary
-      (CC BY 4.0 — the only candidate with clear reuse terms) to replace the
-      removed APQC crosswalks in the accounting overlay. The report supplies
-      per-role guidance.
+- [x] 3b.5c O*NET 30.3 ADOPTED in the accounting overlay 2026-08-09
+      (LedgerxFactory): 14/14 workers crosswalked with the report's verified
+      SOC codes, CC BY 4.0 attribution carried in the overlay header
+      (including the required "USDOL/ETA has not endorsed these
+      modifications"), and the human-job-vs-artifact-only authority gap
+      recorded per worker — `bookkeeper` most sharply, since the human
+      occupation includes posting. Three workers recorded
+      `no_clean_equivalent`. This is the licence-clean replacement for the
+      APQC layer: the terms permit exactly this use, provided attribution
+      is stated.
 - [ ] 3b.5d Obtain APQC written licence confirmation if PCF element names or
       numbers are ever to ship in product configuration.
 - [ ] 3b.5e Commission equivalent research for the remaining domains (opsx,
