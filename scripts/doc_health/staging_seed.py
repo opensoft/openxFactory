@@ -46,12 +46,17 @@ class StagingSeed:
     topic: str
     path: str
     text: str
+    staging_id: str = ""
     documents: list = field(default_factory=list)
     shared: list = field(default_factory=list)
     partial: list = field(default_factory=list)
 
     def as_dict(self) -> dict:
         return {"topic": self.topic, "path": self.path, "text": self.text,
+                # the BRANCH SESSION's scope id. It was only ever in the
+                # fragment's prose, which would have made the browser parse a
+                # document to learn the name it must send back.
+                "staging_id": self.staging_id,
                 "documents": list(self.documents),
                 "shared": list(self.shared), "partial": list(self.partial)}
 
@@ -203,6 +208,7 @@ def draft_staging_seed(documents, *, project: str, as_of: str,
         f"every `{TODO}` section, and add its row to `{STAGING_INDEX}`.",
     ]
     return StagingSeed(topic=topic, path=path, text="\n".join(lines) + "\n",
+                       staging_id=f"{repository}:staging:{topic}",
                        documents=[str(r.get("path") or r.get("id") or "")
                                   for r in rows],
                        shared=shared, partial=partial)

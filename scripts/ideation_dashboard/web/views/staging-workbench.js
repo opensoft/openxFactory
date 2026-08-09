@@ -1364,6 +1364,13 @@ export function mountStagingWorkbench(container, snapshot,
     // other regions have no scope is what read as "the doxWorkbench is empty":
     // the thing the human came to see — the drafted fragment — was not on
     // screen at all.
+    // The seed is a whole fragment: a header block, then the prose. The create
+    // writes the header from its own fields, so only the PROSE is the human's
+    // — split at the first `## `, where every drafted fragment's body begins.
+    const seedText = String(seed.seedText || "");
+    const bodyAt = seedText.indexOf("\n## ");
+    let bodyText = bodyAt >= 0 ? seedText.slice(bodyAt + 1) : seedText;
+
     const strip = el("div", "swb-drafttabs");
     const pane = el("div", "swb-draftpane");
     const tabs = [
@@ -1371,6 +1378,59 @@ export function mountStagingWorkbench(container, snapshot,
       { id: "details", label: "details" },
     ];
     const buttons = new Map();
+
+    // Write the edited body over the freshly created document, through the
+    // SAME gate verb the console uses everywhere else. It carries the scope
+    // because `edit-document` resolves its session from one; the save seam's
+    // own request shape has no scope field, which is why this posts directly —
+    // the pattern `submitCreate` in swb-create.js already follows.
+    // Write the edited body over the freshly created document, through the
+    // SAME save seam the canvas uses — no new transport anywhere, because
+    // `firstEditBody` ALREADY carries a scope: it reads `tile_kind`/`tile_id`
+    // off the key. That was the missing piece all along (Brett: "is the issue
+    // that we do not have a name to save it under?"), and the staging seed had
+    // computed the name from the start.
+    async function writeBody(path) {
+      if (!bodyText.trim()) return null;      // nothing written, nothing to save
+      const seams = doxbench || {};
+      if (!seams.loadSource || !seams.save || !seams.hash) {
+        return { refused: "this console has no editing seam wired" };
+      }
+      let loaded = null;
+      try {
+        loaded = await seams.loadSource(path);
+      } catch {
+        loaded = null;
+      }
+      if (!loaded || typeof loaded.content !== "string") {
+        return { refused: "the created document could not be read back" };
+      }
+      // the created header, then the human's body: the create owns the one and
+      // the human owns the other, and neither overwrites the other's half
+      const content = loaded.content.replace(/\s*$/, "") + "\n\n" + bodyText;
+      try {
+        const verdict = await seams.save({
+          key: {
+            repository: seed.repository,
+            ref: loaded.ref || null,
+            // the SCOPE the edit resolves its branch session from
+            tile_kind: "staged",
+            tile_id: seed.scopeId,
+          },
+          buffers: [{
+            kind: "document", action: "edit", document: path, content,
+            base_hash: seams.hash(loaded.content),
+            base_ref: loaded.ref || null,
+            base_revision: loaded.revision || null,
+          }],
+        });
+        const row = verdict && verdict.buffers && verdict.buffers.document;
+        if (row && row.status === "committed") return { committed: true };
+        return { refused: (row && row.message) || "the save was refused" };
+      } catch (err) {
+        return { refused: (err && err.message) || "the save failed" };
+      }
+    }
 
     function showPane(id) {
       for (const [key, btn] of buttons) {
@@ -1382,7 +1442,23 @@ export function mountStagingWorkbench(container, snapshot,
         openCreateDialog(pane, seed, {
           caps: authoring, fetcher,
           label: "create document",
-          onOpenDoc: onOpenDoc ? (path) => onOpenDoc(path, null) : null,
+          // CREATE-THEN-EDIT, in ONE action. The create opened the branch
+          // session for this topic's scope; the edit resolves that same LIVE
+          // session and writes the body over the header. Both verbs carry the
+          // scope the staging seed computed — which is the whole of what was
+          // missing when this first refused (Brett: "is the issue that we do
+          // not have a name to save it under?").
+          onOpenDoc: async (path) => {
+            const wrote = await writeBody(path);
+            if (wrote && wrote.refused) {
+              // the document EXISTS with its header and only the body failed:
+              // saying which is the difference between a retry and a mystery
+              pane.appendChild(el("div", "swb-draftfail",
+                "the document was created, but its body was refused: "
+                + wrote.refused));
+            }
+            if (onOpenDoc) onOpenDoc(path, null);
+          },
           onSessionOpened: (result) => {
             sessionOpened(result.ref);
             documentCreated(result.ref, result.path);
@@ -1392,16 +1468,23 @@ export function mountStagingWorkbench(container, snapshot,
         });
         return;
       }
-      // THE DRAFT ITSELF. Read-only, and it says why: `create-document` writes
-      // the header contract, and the BODY is written in the editor that opens
-      // on the created file — so text typed here before the document exists
-      // would have nowhere to land, which is worse than not offering it.
+      // THE BODY IS YOURS TO WRITE (Brett, 2026-08-09). The header block is
+      // NOT here: the create generates it from the fields on `details`, so
+      // offering an edit of a header that is about to be regenerated would be
+      // offering an edit that is discarded. What is editable is exactly what
+      // the create does not write.
       pane.appendChild(el("div", "swb-draftnote",
-        "This is the fragment drafted from your selection. Everything below is "
-        + "computed; the sections marked TO WRITE are yours. `details` carries "
-        + "the header fields, already filled in — name it there and create, "
-        + "and the editor opens on the file."));
-      pane.appendChild(el("pre", "seedtext", seed.seedText || "(no draft text)"));
+        "The body of the fragment, drafted from your selection and yours to "
+        + "edit. The HEADER comes from the fields on `details`. Creating "
+        + "opens the branch session for this topic, lands the header, and "
+        + "writes this body over it in the same session — two governed verbs, "
+        + "one action, and never on main."));
+      const area = document.createElement("textarea");
+      area.className = "swb-draftbody";
+      area.value = bodyText;
+      area.setAttribute("aria-label", "the document's body");
+      area.addEventListener("input", () => { bodyText = area.value; });
+      pane.appendChild(area);
       const go = el("button", "cbtn", "name it and create →");
       go.type = "button";
       go.addEventListener("click", () => showPane("details"));

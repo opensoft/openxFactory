@@ -768,6 +768,14 @@ export function createSeedFromStagingSeed(data, repository) {
     repositoryContext: repository || "",
     repository: repository || "",
     kind: "capability-proposal",
+    // THE BRANCH SESSION'S SCOPE (Brett, 2026-08-09: "is the issue that we do
+    // not have a name to save it under?" — it was, and the seed had computed
+    // the name all along). The create opens the session `draft/<topic>` for
+    // this scope; the body's edit then resolves that same LIVE session. An
+    // unknown tile is ADDED to the inventory rather than refused, which is
+    // exactly right for the verb that creates a tile's first document.
+    scopeKind: "staged-topic",
+    scopeId: String(data?.staging_id || ""),
     // a staged fragment is born `staged`, which is one of the three statuses a
     // create accepts — a document is never born ratified
     status: "staged",

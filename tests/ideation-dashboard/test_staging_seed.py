@@ -13,6 +13,7 @@ drafter never argues the case it is seeding.
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -162,42 +163,74 @@ def test_wire_the_route_drafts_from_the_serves_own_snapshot(tmp_path):
         assert after == before
 
 
-def test_a_lens_draft_cannot_reach_edit_document_and_the_reason_is_structural(tmp_path):
-    """Brett, 2026-08-09: "do the create-then-edit so I can write the body."
+def test_wire_a_scoped_create_then_edit_lands_one_document_with_its_body(tmp_path):
+    """Brett, 2026-08-09: "is the issue that we do not have a name to save it
+    under?" — yes, and the name existed all along.
 
-    It does not work, and the reason is a contract rather than a bug — which
-    is why it is pinned here instead of worked around.
+    My first attempt sent no scope and read the 400 as proof that a lens draft
+    could never reach `edit-document`: a draft has no TILE, so I concluded no
+    scope could name it. Wrong. `branch_session` adds an unknown tile to the
+    inventory rather than refusing it —
 
-    `create-document` writes the HEADER CONTRACT (`authoring.create_scaffold`
-    takes title, summary, topics, area… and NO body). `edit-document` writes
-    the body — but it is TILE-SCOPED: `_edit_body` requires `scope_kind` and
-    `scope_id`, and the verb resolves a LIVE branch session for that tile,
-    refusing outright where none can be resolved.
+        if tile not in inventory.tiles:
+            inventory = TileInventory((*inventory.tiles, tile))
 
-    A lens draft has no tile. It is a set of documents a human selected on a
-    radar, and the staging topic it would become does not exist in the
-    snapshot yet — so there is no scope to name, and naming the topic it is
-    about to create is the chicken-and-egg this test records.
+    — which is exactly right for the verb that CREATES a tile's first
+    document. The staging seed already computes the name (`<repo>:staging:
+    <topic>`), so both verbs can carry it: the create opens the branch session
+    `draft/<topic>`, and the edit resolves that same live session and writes
+    the body over the header.
 
-    Two honest ways out, both contract changes, neither smuggled in here:
-      * let `create-document` carry a body (one verb, one commit, no
-        half-written document), or
-      * let `edit-document` accept a first save against a document the same
-        session just created, scope-free.
+    This proves the sequence end to end, which is what the earlier test could
+    only guess at.
     """
-    parser = (REPO_ROOT / "scripts" / "ideation_dashboard"
-              / "gate_routes.py").read_text(encoding="utf-8")
-    edit_body = parser.split("def _edit_body(")[1].split("\ndef ")[0]
-    assert 'body.get("scope_kind")' in edit_body
-    assert 'body.get("scope_id")' in edit_body
-    # …and the verb has no session-less path at all, unlike create-document
-    edit = parser.split("def _edit_document(")[1].split("\ndef ")[0]
-    assert "this verb HAS no such path, so it refuses" in edit
+    from test_gate_routes import _serving   # `_post` carries the console token
+    from test_workbench import _commit, _init_git_repo
 
-    # the create writes a header and takes no body: the two halves of the gap
-    scaffold = (REPO_ROOT / "scripts" / "ideation_dashboard"
-                / "authoring.py").read_text(encoding="utf-8")
-    signature = scaffold.split("def create_scaffold(")[1].split(") -> Path:")[0]
-    for field in ("title", "summary", "topics", "area"):
-        assert field in signature, field
-    assert "body" not in signature and "content" not in signature
+    scope = {"scope_kind": "staged-topic", "scope_id": "openxFactory:staging:probe"}
+    with _serving(tmp_path, snapshot=_plane()) as (host, port, root):
+        # a branch session is a GIT branch, so the served checkout has to be a
+        # repository — the whole of what the first attempt at this was missing
+        _init_git_repo(Path(root))
+        _commit(Path(root), "docs/seed.md", "# seed\n")
+        # the session branches FROM `main`; `git init` names it `master` here
+        subprocess.run(["git", "-C", str(root), "branch", "-M", "main"],
+                       check=True, capture_output=True)
+
+        status, created = _post(host, port, "/actions/gate/create-document", {
+            "area": "ideation/staging/probe/",
+            "title": "A probe topic",
+            "summary": "One sentence, written by a human, never generated.",
+            "topics": ["governance"],
+            "repository_context": "openxFactory",
+            "status": "staged", "kind": "capability-proposal", **scope,
+        })
+        if status != 200:
+            pytest.skip("this plane cannot create documents "
+                        f"({status}: {created})")
+        path = created.get("path")
+        assert path, created
+        # the create opened a SESSION for a tile that did not exist — the very
+        # thing the earlier reading said was impossible
+        assert created.get("ref"), created
+
+        # IN A SESSION THE GATE IS ROOTED AT THE WORKTREE, so the document
+        # lands on the branch and never in the served checkout — which is the
+        # whole point of a session, and is why looking for it under `root`
+        # found nothing.
+        assert not (Path(root) / path).exists(), "main must not carry a draft"
+        landed = next(Path(root).parent.rglob("sessions/*/" + path))
+        header = landed.read_text(encoding="utf-8")
+        assert "A probe topic" in header
+        assert "## The convergence" not in header
+
+        # …and the SAME scope reaches edit-document, which writes the body
+        body = header.rstrip() + "\n\n## The convergence (computed)\n\nMine.\n"
+        status, verdict = _post(host, port, "/actions/gate/edit-document", {
+            "document": path, "content": body, **scope,
+        })
+        assert status == 200, verdict
+        after = landed.read_text(encoding="utf-8")
+        assert "A probe topic" in after                     # header survived
+        assert "## The convergence (computed)" in after     # body landed
+        assert "Mine." in after
