@@ -171,14 +171,20 @@ so the sixth column is whole instead of part-cut.
   convergence is READ, so it is where the selection is made. The BOX stays the
   keyboard path (95 focusable dots would flood the tab order), and a dot click
   never fires the region beneath it, which drills in.
-- **A reload keeps your place** (Brett, 2026-08-09) — five controls store a
-  key and reload (the repository jump, the repository/project selector, a
-  refresh, clearing a drill-in), and every one used to land on the FIRST tab,
-  so a jump taken from the wheel arrived on the funnel. The active view is
-  remembered on every activation and restored on mount, when the view still
-  exists on the plane. The TAB is the only thing kept: after a repository jump
-  the tile you were on does not exist in the repository you jumped to, so
-  restoring a tile would restore something that is gone.
+- **A switch re-renders IN PLACE** (Brett, 2026-08-09) — the five controls
+  that change what is shown (repository jump, repository/project selector,
+  refresh, clearing a drill-in) call `render()` instead of reloading the page.
+  No navigation, no flash, and the active view is remembered and restored, so
+  a jump taken from the wheel stays on the wheel. The TAB is the only thing
+  kept: after a repository jump the tile you were on does not exist in the
+  repository you jumped to.
+  THE RULE THAT MAKES IT SAFE: one `AbortController` per render. Everything a
+  render binds outside its own root passes `{ signal }`, and starting the next
+  render aborts the last, so no view needs a `destroy()`. Without it the
+  second Escape press runs two handlers and the third runs three. Measured
+  across four switches: live document listeners flat at 4/1/1/1 against 27
+  registrations, and zero navigations. The settings gear stays bound ONCE for
+  the page's life — it owns no snapshot state.
 - **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
   on a composed view a staged topic offers `read` and `open workbench` and NO
   `open in <repo>`. A staged topic is a packet whose material can span

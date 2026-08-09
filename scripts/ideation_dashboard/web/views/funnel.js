@@ -419,6 +419,7 @@ function wireTrace(inner, paths, getEdges) {
 // ---- view assembly (orchestrator) ----
 
 export function renderFunnel(root, snapshot, opts) {
+  const signal = opts?.signal;
   const onOpenTile = opts?.onOpenTile || null;
   const notebook = opts?.notebook || null;
   const model = buildFunnelModel(snapshot);
@@ -525,6 +526,7 @@ export function renderFunnel(root, snapshot, opts) {
   stageCtl.sel.addEventListener("change", () => { state.docStage = stageCtl.sel.value; refreshDocs(); });
 
   const ro = new ResizeObserver(() => draw());
+  signal?.addEventListener("abort", () => ro.disconnect(), { once: true });
   ro.observe(inner);
   refreshDocs();
   requestAnimationFrame(draw);
