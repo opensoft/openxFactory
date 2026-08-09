@@ -41,29 +41,6 @@ policy_id: standards-bodies-v1
 
 bodies:
   # ---------------------------------------------------------------- cross-domain
-  - id: apqc_pcf
-    jurisdiction: international  # US-origin (APQC)
-    name: APQC Process Classification Framework (Cross-Industry)
-    steward: APQC
-    names: processes
-    scope: >-
-      Cross-industry process taxonomy, and the only body here that reaches
-      all five domains — which makes it the natural common crosswalk.
-      VERSION-SENSITIVE, established by live-source verification 2026-08-09
-      (LedgerxFactory china-accounting-bodies-research-report.md): CATEGORY
-      NUMBERS MOVE BETWEEN VERSIONS. In current cross-industry PCF 8.0
-      `Manage Financial Resources` is category 9.0, whereas the 7.0.5-era
-      layout numbered it 8.x — and the public Mandarin PCF remains 7.0.5
-      while current English is 8.0. Any crosswalk to this body MUST pin the
-      version (and the language, where a translation is used) inside the
-      mapping rather than citing a bare category number; the earlier
-      unpinned category numbers in this file were themselves an instance of
-      the error and are removed above.
-    attribution_note: >-
-      `Process Classification Framework` and `PCF` carry the registered-mark
-      symbol and APQC reserves all rights; reference the name and version
-      and comply with APQC terms. Do not assume the public download is
-      public-domain or open-licence content.
   - id: sfia
     jurisdiction: international  # UK-origin (SFIA Foundation)
     name: SFIA (Skills Framework for the Information Age)
@@ -113,34 +90,6 @@ bodies:
     scope: Certifiable service-management requirements; formal-assurance audiences.
 
   # ---------------------------------------------------------------- accounting
-  - id: coso_icif
-    jurisdiction: united_states
-    name: COSO Internal Control — Integrated Framework
-    steward: COSO
-    names: control_components_and_principles
-    scope: >-
-      The internal-control body, and the natural home for the
-      segregation-of-duties boundary the accounting overlay already makes a
-      machine-checkable worker property.
-  - id: ima_mac
-    jurisdiction: united_states
-    name: IMA Management Accounting Competency Framework
-    steward: Institute of Management Accountants
-    names: competencies
-    scope: Competency-shaped; closest accounting analog to SFIA.
-  - id: aicpa
-    jurisdiction: united_states
-    name: AICPA professional standards and competency framework
-    steward: AICPA (US)
-    names: standards_and_competencies
-    scope: >-
-      US professional standards and competencies. NOTE the distinction that
-      matters here: GAAP (FASB) and IFRS (IASB) are REPORTING standards —
-      they govern what the books must say, not what a worker is — so they
-      are deliberately NOT registered as worker-crosswalk bodies. Ledgerx's
-      reporting-standard grounding already lives in the subject books-design
-      layer, not in the worker taxonomy.
-
   # ---------------------------------------------------------------- marketing
   - id: iab
     jurisdiction: international  # US-origin
@@ -472,3 +421,348 @@ bodies:
     term_list_availability: public
     attribution_note: CPC states that website content may not be reproduced without authorization; reference publication numbers and links only.
     confidence: high  # CPC's current standards page and 2025 status summary were verified.
+
+  # --------------------------------------- United States (verified 2026-08-09)
+  # Landed from the live-source clean-and-lock report (LedgerxFactory
+  # openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/
+  # usa-accounting-bodies-research-report.md). These entries REPLACE the
+  # earlier working-knowledge apqc_pcf / coso_icif / ima_mac / aicpa drafts.
+  #
+  # Verdicts applied: apqc_pcf corrected (PCF 8.0, 2026-02-27); coso_icif
+  # confirmed; ima_mac corrected to the 2025 IMA Competency Framework; the
+  # compound `aicpa` entry REJECTED and split, because practice standards and
+  # competencies make different claims — the same split the CICPA research
+  # forced in the China round.
+  #
+  # LICENSING IS A GATE, NOT A FOOTNOTE. APQC's terms prohibit shipping a
+  # copied PCF hierarchy in product configuration without written licence
+  # confirmation, so no overlay may embed PCF element names or numbers until
+  # that is obtained — registering the BODY here is fine; shipping its
+  # hierarchy is not. O*NET is the CC BY 4.0 alternative and is therefore the
+  # recommended primary US role/task vocabulary.
+  #
+  # AUTHORITY CONTEXT, NOT ROLE LABELS: CPA licensure (nasba_aicpa_uaa),
+  # PCAOB standards, and IRS Circular 230 describe humans holding legal
+  # standing. They are registered for context and must never become the
+  # identity of an artifact-only worker.
+  #
+  # REJECTED, recorded so it is not re-proposed: SOX section 404 — a binding
+  # legal obligation, but not a taxonomy. Cite the SEC obligation and use
+  # COSO/PCAOB vocabulary instead.
+  - id: apqc_pcf
+    name: APQC Process Classification Framework (Cross-Industry)
+    steward: APQC
+    jurisdiction: international  # US-origin; APQC is based in Houston, Texas
+    names: processes
+    scope: >-
+      A cross-industry hierarchy of business work. PCF 8.0 category 9.0 names
+      finance processes relevant to invoice_coder, bookkeeper,
+      reconciliation_specialist, close_accountant, tax_preparation_assistant,
+      scenario_modeler, books_designer, ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer. Process names describe
+      organizational work, not artifact-only authority; approval, payment,
+      posting, and filing nodes must not be applied as agent powers.
+    current_version: Cross-Industry PCF 8.0, published 2026-02-27
+    status: current
+    source_url: https://www.apqc.org/resource-library/resource-listing/apqc-process-classification-framework-pcf-cross-industry-pdf-13
+    term_list_availability: public  # Download is lead-form gated; public measure pages expose definitions.
+    attribution_note: >-
+      PCF and PCF element content are APQC intellectual property and PCF is a
+      registered mark. APQC's current Terms of Service limit use to internal
+      process improvement and prohibit public reproduction/distribution unless
+      an applicable membership or license permits it. Do not ship a copied term
+      hierarchy in product configuration until APQC confirms the required
+      license and attribution in writing.
+    confidence: high  # Version, release date, hierarchy, and current terms were verified on APQC pages.
+
+  - id: coso_icif
+    name: COSO Internal Control—Integrated Framework
+    steward: Committee of Sponsoring Organizations of the Treadway Commission (COSO)
+    jurisdiction: united_states  # US private-sector consortium; used internationally
+    names: control_components_and_principles
+    scope: >-
+      Five components and seventeen principles for designing, operating, and
+      evaluating internal control. It is a strong control alignment for
+      controller_reviewer, compliance_reviewer, and the human-gated control
+      boundary around posting_admission_agent. It does not name bookkeeping or
+      tax-preparation roles.
+    current_version: Internal Control—Integrated Framework, May 2013
+    status: current
+    source_url: https://www.coso.org/internal-control
+    term_list_availability: purchase_only  # Executive summary and supplemental guidance are public.
+    attribution_note: >-
+      The full framework is copyrighted and sold. COSO permits limited uses
+      under its Acceptable Use guidelines, but incorporating even free-download
+      material into software distributed to third parties requires a license.
+    confidence: high  # COSO still identifies 2013 as the framework and labels newer guidance supplemental.
+
+  - id: coso_erm
+    name: Enterprise Risk Management—Integrating with Strategy and Performance
+    steward: Committee of Sponsoring Organizations of the Treadway Commission (COSO)
+    jurisdiction: united_states  # US-origin; internationally used
+    names: "other:risk_management_components_and_principles"
+    scope: >-
+      A separate five-component, twenty-principle enterprise-risk framework.
+      It plausibly aligns scenario_modeler, counterparty_analyst,
+      controller_reviewer, and compliance_reviewer to risk identification,
+      assessment, response, review, and reporting. It is not an accounting
+      process or occupation taxonomy.
+    current_version: 2017
+    status: current
+    source_url: https://www.coso.org/enterprise-risk-management
+    term_list_availability: purchase_only  # Executive summary and selected supplements are public.
+    attribution_note: >-
+      COSO copyright and software-incorporation licensing restrictions apply;
+      reference the framework rather than embedding its full hierarchy without
+      permission.
+    confidence: high  # COSO continues to identify the 2017 framework as current.
+
+  - id: ima_mac
+    name: IMA Competency Framework
+    steward: Institute of Management Accountants (IMA)
+    jurisdiction: united_states  # Designed for global accounting and finance professionals
+    names: competencies
+    scope: >-
+      The 2025 framework names ten competency domains and three proficiency
+      tiers for accounting and finance professionals. It is useful competency
+      context for scenario_modeler, books_designer, ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer, but its professional
+      proficiency claims must not become agent credentials.
+    current_version: 2025 expanded framework
+    status: current
+    source_url: https://www.imanet.org/career-resources/competency-framework
+    term_list_availability: public
+    attribution_note: >-
+      IMA publications are copyrighted and all rights are reserved; cite IMA
+      and do not reproduce the competency matrix in product configuration
+      without permission.
+    confidence: high  # The current IMA page and 2025 white paper state the expanded domains and tiers.
+
+  - id: aicpa_professional_standards
+    name: AICPA Professional Standards
+    steward: American Institute of Certified Public Accountants (AICPA)
+    jurisdiction: united_states
+    names: practices
+    scope: >-
+      A living suite covering audit and attest, preparation/compilation/review,
+      quality management, ethics, consulting, forensic, valuation, peer review,
+      and tax services. Narrow practice alignments exist for close_accountant,
+      tax_preparation_assistant, controller_reviewer, and compliance_reviewer.
+      Audit, attest, compilation, review, signing, and client-representation
+      terms describe regulated human services and cannot label Ledgerx agents.
+    current_version: living codified suite; current sections and pronouncements through 2026
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/landing/standards-and-statements
+    term_list_availability: paywalled  # Landing pages and some individual standards are public; full library is subscription.
+    attribution_note: >-
+      AICPA standards and related content are copyrighted. AICPA offers explicit
+      IP licenses for professional standards and software products; linking does
+      not require permission, but reproduction in product content does.
+    confidence: high  # The AICPA standards hub and current section pages were verified.
+
+  - id: aicpa_foundational_competencies
+    name: Foundational Competencies Framework for Aspiring CPAs
+    steward: American Institute of Certified Public Accountants (AICPA)
+    jurisdiction: united_states
+    names: competencies
+    scope: >-
+      Entry-to-profession competencies grouped as technical, organizational,
+      and leadership. It can inform competency alignment across Ledgerx roles,
+      especially reviewers and accounting-system design, but is intended for
+      aspiring human CPAs and cannot confer CPA status.
+    current_version: November 2022
+    status: current
+    source_url: https://www.aicpa-cima.com/news/article/aicpa-releases-updated-foundational-competencies-framework-for-aspiring-cpas
+    term_list_availability: public
+    attribution_note: >-
+      AICPA copyright and reuse rules apply. Cite the framework; obtain
+      permission before reproducing its detailed content in a product.
+    confidence: medium  # The 2022 replacement is official; no newer replacement was found as of the cutoff.
+
+  - id: cgma_competency_framework
+    name: CGMA Competency Framework
+    steward: Association of International Certified Professional Accountants (AICPA & CIMA)
+    jurisdiction: international  # Joint AICPA/CIMA framework
+    names: competencies
+    scope: >-
+      Five knowledge areas—technical, business, people, leadership, and
+      digital—with detailed finance competencies and proficiency levels. It is
+      useful for management-accounting, analysis, systems, and review roles,
+      but is not uniquely US and must remain separate from AICPA practice
+      standards and CPA licensure.
+    current_version: 2019 framework; component resources published 2022 and still current on the official site
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/landing/cimas-cgma-competency-framework-a-framework-for-success
+    term_list_availability: public
+    attribution_note: >-
+      The Association licenses the CGMA Competency Framework for third-party
+      reuse. Citation is appropriate; incorporation or adaptation in product
+      configuration requires checking Association licensing terms.
+    confidence: medium  # Current official pages use the framework but do not expose a simple edition label.
+
+  - id: iia_ippf
+    name: International Professional Practices Framework (IPPF), 2024 edition
+    steward: The Institute of Internal Auditors (The IIA)
+    jurisdiction: international  # US-origin global professional body
+    names: practices
+    scope: >-
+      The IPPF comprises the mandatory Global Internal Audit Standards and
+      Topical Requirements plus recommended Global Guidance. Its principles
+      and engagement practices are strong alignments for controller_reviewer
+      and compliance_reviewer. The terms internal auditor, assurance,
+      engagement conclusion, and chief audit executive imply human professional
+      responsibilities and are not agent display labels.
+    current_version: issued 2024-01-09; effective 2025-01-09
+    status: current
+    source_url: https://www.theiia.org/en/standards
+    term_list_availability: public  # Complete standards public; some guidance/tools members-only or sold.
+    attribution_note: >-
+      IIA content is copyrighted. Small quotations with attribution are
+      permitted; reproduction, distribution, and software use beyond that
+      require permission or a content license. IPPF and related names are marks.
+    confidence: high  # The IIA explicitly states that the 2024 IPPF superseded the 2017 IPPF.
+
+  - id: iia_internal_auditing_competency_framework
+    name: Internal Auditing Competency Framework
+    steward: The Institute of Internal Auditors (The IIA)
+    jurisdiction: international  # US-origin global professional body
+    names: competencies
+    scope: >-
+      Four competency categories and 28 subcategories for internal auditors,
+      with proficiency expectations and job-role profiles. It is the better IIA
+      source for competency alignment of controller_reviewer and
+      compliance_reviewer; the IPPF remains the source for practice standards.
+    current_version: July 2025; supersedes the framework last updated in 2022
+    status: current
+    source_url: https://www.theiia.org/en/content/guidance/global/competency-framework/
+    term_list_availability: public  # Guide public; assessment templates members-only.
+    attribution_note: >-
+      Copyright belongs to The IIA. Reference or quote only small portions with
+      attribution unless permission is obtained.
+    confidence: high  # Issue date, supersession, categories, and availability were verified on IIA pages.
+
+  - id: pcaob_auditing_standards
+    name: PCAOB Auditing Standards
+    steward: Public Company Accounting Oversight Board (PCAOB), subject to SEC approval
+    jurisdiction: united_states
+    names: practices
+    scope: >-
+      Mandatory external-audit practices for registered firms auditing issuers
+      and broker-dealers. AS 2201 supplies detailed ICFR audit vocabulary, but
+      none of the Ledgerx reviewers is an external auditor or issues an opinion.
+      Register only as public-company assurance context, not as a default worker
+      label source.
+    current_version: standards for fiscal years beginning on or after 2025-12-15; identified amendments effective 2026-12-15
+    status: current
+    source_url: https://pcaobus.org/oversight/standards/auditing-standards
+    term_list_availability: public
+    attribution_note: >-
+      Standards are publicly readable. Cite PCAOB standard numbers and titles;
+      no blanket open-content license for bulk product reuse was verified.
+    confidence: high  # PCAOB publishes period-specific current compilations and effective dates.
+
+  - id: irs_circular_230
+    name: Treasury Department Circular No. 230 / 31 CFR Part 10
+    steward: U.S. Department of the Treasury; administered by IRS Office of Professional Responsibility
+    jurisdiction: united_states
+    names: professional_roles_or_qualifications
+    scope: >-
+      Defines practice before the IRS, covered practitioner categories, duties,
+      restrictions, and discipline. It is relevant qualification and conduct
+      context for tax work, but tax_preparation_assistant neither represents a
+      taxpayer nor files or signs a return. CPA, attorney, enrolled agent,
+      enrolled actuary, and enrolled retirement plan agent are human titles and
+      cannot label the worker.
+    current_version: 31 CFR Part 10 currently in force; IRS PDF revision June 2014; modernization proposed 2024-12-26
+    status: under_revision  # Existing regulations remain effective while the proposal is unresolved.
+    source_url: https://www.irs.gov/tax-professionals/office-of-professional-responsibility-and-circular-230
+    term_list_availability: public
+    attribution_note: >-
+      Federal regulations are public government material. Cite Treasury/IRS and
+      the current CFR; do not use agency seals or imply IRS endorsement.
+    confidence: high  # IRS confirms scope and covered practitioners; the newer rulemaking remains proposed.
+
+  - id: nasba_aicpa_uaa
+    name: Uniform Accountancy Act
+    steward: National Association of State Boards of Accountancy (NASBA) and AICPA
+    jurisdiction: united_states
+    names: professional_roles_or_qualifications
+    scope: >-
+      Model legislation for CPA licensure, firm permits, practice privileges,
+      mobility, attest/compilation definitions, and regulation. It provides a
+      useful national vocabulary, but each jurisdiction may adopt it in whole,
+      in part, or not at all. It cannot establish a worker's credential or
+      authority.
+    current_version: Ninth Edition, July 2025
+    status: current
+    source_url: https://nasba.org/blog/2025/07/22/nasba-and-aicpa-publish-ninth-edition-of-the-uniform-accountancy-act-uaa/
+    term_list_availability: public
+    attribution_note: >-
+      Cite NASBA and AICPA. The publication is copyrighted; no open license for
+      product incorporation was verified.
+    confidence: high  # Joint publication, edition, and model-law status were verified.
+
+  - id: bls_soc
+    name: 2018 Standard Occupational Classification
+    steward: U.S. Office of Management and Budget, supported by the SOC Policy Committee and BLS
+    jurisdiction: united_states
+    names: "other:occupational_roles"
+    scope: >-
+      The federal statistical occupation hierarchy. Relevant codes include
+      Accountants and Auditors (13-2011), Tax Preparers (13-2082), Credit
+      Analysts (13-2041), Financial Risk Specialists (13-2054), Bookkeeping,
+      Accounting, and Auditing Clerks (43-3031), and Billing and Posting Clerks
+      (43-3021). SOC is role-shaped but deliberately broad and does not provide
+      the detailed task vocabulary available in O*NET.
+    current_version: 2018 SOC; 2028 revision in progress
+    status: current
+    source_url: https://www.bls.gov/soc/
+    term_list_availability: public
+    attribution_note: >-
+      Federal statistical material is public; cite OMB/BLS and the edition. Do
+      not imply federal endorsement of derived worker mappings.
+    confidence: high  # BLS identifies 2018 as the current federal standard and 2028 as a revision project.
+
+  - id: onet_accounting_occupations
+    name: O*NET Database — accounting and finance occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    jurisdiction: united_states
+    names: "other:occupations_tasks_and_work_activities"
+    scope: >-
+      Occupation titles, tasks, detailed work activities, skills, knowledge,
+      and work context. The accounting, bookkeeping, tax, credit, risk, billing,
+      and financial-manager occupations give the closest US role-and-task
+      vocabulary for the Ledgerx workers. The source describes whole human jobs;
+      crosswalk individual task statements, not licenses or authority, to the
+      narrower artifact-only agents.
+    current_version: O*NET Database 30.3, May 2026
+    status: current
+    source_url: https://www.onetcenter.org/database.html
+    term_list_availability: public
+    attribution_note: >-
+      O*NET 30.3 database content is CC BY 4.0 except stated exceptions. Credit
+      the O*NET 30.3 Database and USDOL/ETA, link CC BY 4.0, identify changes,
+      retain O*NET trademark usage, and state that USDOL/ETA has not endorsed
+      modifications.
+    confidence: high  # Version, data shape, relevant occupations, and license were verified.
+
+  - id: aicpa_trust_services_criteria
+    name: 2017 Trust Services Criteria (with Revised Points of Focus—2022)
+    steward: AICPA Assurance Services Executive Committee (ASEC)
+    jurisdiction: united_states
+    names: controls
+    scope: >-
+      Criteria for evaluating controls over security, availability, processing
+      integrity, confidentiality, and privacy in attestation or consulting
+      engagements. It is plausible control context for ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer, but SOC 2 examination and
+      opinion language is outside all Ledgerx worker authority.
+    current_version: 2017 criteria with revised points of focus—2022
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022
+    term_list_availability: public  # Free-account access is required for the download.
+    attribution_note: >-
+      TSC content and SOC marks are licensed AICPA intellectual property.
+      Third-party software incorporation requires an AICPA license; linking and
+      citation do not authorize copying the criteria.
+    confidence: high  # The current AICPA SOC suite still names this edition.

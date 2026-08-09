@@ -114,8 +114,35 @@
       `gb_t_46704_financial_shared_services` registered as recommended
       shared-service GUIDANCE, explicitly not a Chinese APQC equivalent.
       YAML parses, ids unique, contract family and all five overlays green.
-- [ ] 3b.5 Commission equivalent research for the other four domains (opsx,
-      adx, codex, medx) — the same Anglo skew applies to all of them.
+- [x] 3b.5a US ACCOUNTING CLEANED AND LOCKED 2026-08-09. Registry 30 -> 41
+      bodies. Verdicts applied: `apqc_pcf` corrected (PCF 8.0, published
+      2026-02-27); `coso_icif` confirmed; `ima_mac` corrected to the 2025 IMA
+      Competency Framework; the compound `aicpa` REJECTED and split into
+      `aicpa_professional_standards` + `aicpa_foundational_competencies`,
+      with `cgma_competency_framework` separate — the same split the CICPA
+      research forced. Added: COSO ERM, IIA IPPF + IIA competency framework,
+      PCAOB, IRS Circular 230, NASBA/UAA, BLS SOC, O*NET 30.3, AICPA Trust
+      Services Criteria. SOX 404 REJECTED as a taxonomy, recorded so it is
+      not re-proposed.
+- [x] 3b.5b APQC HIERARCHY REMOVED FROM SHIPPED OVERLAYS (ledgerx, adx).
+      Two reasons, the second decisive: (1) the numbers were wrong in EVERY
+      version — 7.0.5 also used 9.x finance numbering, so the earlier
+      "fix" pinned 8.x numbers to a version that never used them, which read
+      as verified while being false; (2) APQC's terms prohibit shipping a
+      copied PCF hierarchy in product configuration without written licence
+      confirmation, and a domain overlay IS product configuration. Correct
+      PCF 8.0 references are recorded in the report (9.6 AP, 9.3 general
+      accounting, 9.9 taxes, with stable element IDs) for re-adding once
+      licensed. COSO and IAB crosswalks retained.
+- [ ] 3b.5c ADOPT O*NET 30.3 as the licence-clean US role/task vocabulary
+      (CC BY 4.0 — the only candidate with clear reuse terms) to replace the
+      removed APQC crosswalks in the accounting overlay. The report supplies
+      per-role guidance.
+- [ ] 3b.5d Obtain APQC written licence confirmation if PCF element names or
+      numbers are ever to ship in product configuration.
+- [ ] 3b.5e Commission equivalent research for the remaining domains (opsx,
+      adx marketing, codex, medx) — the same Anglo skew applies, and both
+      accounting rounds show the drafts do not survive verification.
 
 ## 4. Consumer follow-up (named, not assumed)
 
