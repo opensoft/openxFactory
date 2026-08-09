@@ -1563,3 +1563,68 @@ def test_a_reload_bearing_control_returns_you_to_the_view_you_were_on():
     tab_helpers = app.split("function storedTab()")[1].split("function initTabs")[0]
     assert tab_helpers.count("guardedSessionStorage()") == 2
     assert tab_helpers.count("try {") == 2
+
+
+def test_a_switch_re_renders_in_place_and_leaves_no_listener_behind():
+    """Brett, 2026-08-09: "yes, get rid of the flash too."
+
+    Five controls used to store a key and reload the page. Re-rendering in
+    place instead means every listener and observer a render installs must
+    come OFF before the next one goes on — otherwise the second Escape press
+    runs two handlers, the third runs three, and the leak grows with every
+    switch a human makes.
+
+    ONE AbortController per render is the whole mechanism: everything a render
+    binds passes `{ signal }`, and starting the next render aborts the last.
+    A view needs no `destroy()` — it honours the signal it is handed. This
+    pins that rule, because it is a rule that cannot be half-applied: an
+    unscoped listener leaks silently and only shows up as a handler running
+    twice, long after the change that caused it.
+    """
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    # the shell re-renders rather than navigating
+    assert "window.location.reload()" not in app
+    assert "function nextRenderScope()" in app
+    scope = app.split("function nextRenderScope()")[1].split("\n}")[0]
+    assert "renderScope.abort()" in scope and "new AbortController()" in scope
+    assert "const signal = nextRenderScope();" in app
+
+    # every module that binds OUTSIDE its own root honours the signal
+    def bindings(text):
+        """Each `document.addEventListener(...)` call, whole — a handler body
+        holds its own `);`, so the arguments have to be read by matching
+        parentheses rather than by a lazy regex."""
+        out, needle = [], "document.addEventListener("
+        i = text.find(needle)
+        while i != -1:
+            j, depth = i + len(needle) - 1, 0
+            while j < len(text):
+                if text[j] == "(":
+                    depth += 1
+                elif text[j] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                j += 1
+            out.append(text[i:j + 1])
+            i = text.find(needle, j)
+        return out
+
+    for name, expected in (("wheel.js", 3), ("explorer.js", 1),
+                           ("staging-workbench.js", 1)):
+        body = (WEB / "views" / name).read_text(encoding="utf-8")
+        binds = bindings(body)
+        assert len(binds) == expected, (name, len(binds))
+        for bind in binds:
+            assert "{ signal }" in bind, (name, bind[:90])
+
+    # an observer outlives listeners unless something disconnects it
+    for name in ("wheel.js", "funnel.js"):
+        body = (WEB / "views" / name).read_text(encoding="utf-8")
+        if "new ResizeObserver" in body:
+            assert 'signal?.addEventListener("abort"' in body, name
+
+    # the settings gear stays bound ONCE for the life of the page: it owns no
+    # snapshot state, so a re-render must not rebind it (and must not unbind it)
+    assert "initSettings();" in app.split("async function render()")[0]
+    assert "initSettings" not in app.split("async function render()")[1]

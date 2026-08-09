@@ -349,6 +349,7 @@ function threadPath(x0, y0, x1, y1) {
 }
 
 export function renderWheel(root, snapshot, ctx) {
+  const signal = ctx?.signal;
   const caps = ctx?.caps || null;
   // Cross-view navigation callbacks from the app shell (app.js): openDoc(path,
   // doc) opens the read-only viewer; openLens(keywords, clusterId) and
@@ -460,7 +461,7 @@ export function renderWheel(root, snapshot, ctx) {
     // after layout settles
     requestAnimationFrame(refreshWinH);
   }
-  document.addEventListener("fullscreenchange", onFullscreenChange);
+  document.addEventListener("fullscreenchange", onFullscreenChange, { signal });
   // LIVE settings: the wheel-diameter slider changes the drum radius while the
   // view is open — re-measure (the axis/threads are built for the cylinder) and
   // redraw on the next frame, no reload. Same self-removing teardown as
@@ -476,7 +477,7 @@ export function renderWheel(root, snapshot, ctx) {
     drumF = factor;
     requestAnimationFrame(refreshWinH);
   }
-  document.addEventListener(SETTINGS_EVENT, onSettingsChange);
+  document.addEventListener(SETTINGS_EVENT, onSettingsChange, { signal });
   bar.append(prev, hint, next, full);
   if (model.demoMode) {
     bar.appendChild(el("span", "wheeldemo-note",
@@ -642,7 +643,7 @@ export function renderWheel(root, snapshot, ctx) {
       ev.stopPropagation();
     }
   }
-  document.addEventListener("keydown", onKeydown);
+  document.addEventListener("keydown", onKeydown, { signal });
 
   // ---- the anchored flyout (shared by the `landed` and `packet` verbs) --------
   // Neither a requirement list nor a packet file list can live INSIDE the
@@ -1592,6 +1593,8 @@ export function renderWheel(root, snapshot, ctx) {
     refreshWinH();
   });
   sizeObserver.observe(port);
+  // an observer outlives its listeners unless something disconnects it
+  signal?.addEventListener("abort", () => sizeObserver.disconnect(), { once: true });
 
   return {
     redraw() { drawAll(); pageTo(page); },

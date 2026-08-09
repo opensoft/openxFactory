@@ -114,7 +114,7 @@ function renderDrillBanner(drill, snapshot) {
   clear.title = "leave the drill-in and render the whole visible set again";
   clear.addEventListener("click", () => {
     storeDrillScope(null);
-    window.location.reload();
+    render();
   });
   host.appendChild(clear);
 }
@@ -358,11 +358,14 @@ function initTheme() {
 // resolves the snapshot-only folder listing and renders the overlay.
 const TABS = [
   { tab: "tab-funnel", view: "view-funnel",
-    render: (root, snap, ctx) => renderFunnel(root, snap, { onOpenTile: ctx.explorer.openTile, notebook: ctx.notebook }) },
+    render: (root, snap, ctx) => renderFunnel(root, snap, {
+      onOpenTile: ctx.explorer.openTile, notebook: ctx.notebook,
+      signal: ctx.signal }) },
   { tab: "tab-wheel", view: "view-wheel",
     render: (root, snap, ctx) => renderWheel(root, snap,
       { caps: ctx.caps, nav: ctx.nav, notebook: ctx.notebook,
-        sourceBase: ctx.sourceBase, composed: ctx.composed }) },
+        sourceBase: ctx.sourceBase, composed: ctx.composed,
+        signal: ctx.signal }) },
   { tab: "tab-board", view: "view-board",
     render: (root, snap, ctx) => renderBoard(root, snap, { onOpenTile: ctx.explorer.openTile, notebook: ctx.notebook }) },
   { tab: "tab-canvas", view: "view-canvas",
@@ -417,11 +420,11 @@ const TABS = [
 // The "what is this?" popup (Brett, 2026-08-08). A native <dialog>: one
 // listener to open it, and the platform's own Escape/backdrop handling to
 // close. Guarded because the static image may serve an older index.
-function initAbout() {
+function initAbout(signal) {
   const link = document.getElementById("aboutlink");
   const dialog = document.getElementById("aboutdialog");
   if (!link || !dialog || typeof dialog.showModal !== "function") return;
-  link.addEventListener("click", () => dialog.showModal());
+  link.addEventListener("click", () => dialog.showModal(), { signal });
 }
 
 // WHERE THE HUMAN WAS (Brett, 2026-08-09: "currently we take the user back to
@@ -454,7 +457,7 @@ function storeTab(view) {
   }
 }
 
-function initTabs(snapshot, ctx) {
+function initTabs(snapshot, ctx, signal) {
   const controllers = {};
   const rendered = new Set();
   const tabEls = TABS.map((t) => document.getElementById(t.tab));
@@ -506,8 +509,10 @@ function initTabs(snapshot, ctx) {
   }
 
   TABS.forEach((t, i) => {
-    tabEls[i].addEventListener("click", () => show(t, false));
-    tabEls[i].addEventListener("keydown", (ev) => onTabKey(ev, i));
+    // scoped to the RENDER: the tab strip is persistent DOM, so an unscoped
+    // binding here would stack one router on top of another
+    tabEls[i].addEventListener("click", () => show(t, false), { signal });
+    tabEls[i].addEventListener("keydown", (ev) => onTabKey(ev, i), { signal });
   });
   // Open where the human was, if that view still exists on this plane — a tab
   // list can differ between planes, and a remembered view that is gone falls
@@ -583,13 +588,40 @@ function renderHeader(snapshot, active) {
   }
 }
 
+// THE RENDER SCOPE (Brett, 2026-08-09: "yes, get rid of the flash too").
+//
+// Switching repository, project, drill scope or refreshing used to reload the
+// page. Re-rendering in place instead means every listener and observer a
+// render installs must come OFF before the next one goes on — otherwise the
+// second Escape press runs two handlers, the third runs three, and the leak
+// grows with every switch.
+//
+// One AbortController per render is the whole mechanism: everything a render
+// binds passes `{ signal }`, and starting the next render aborts the last,
+// which unbinds all of it at once. A view needs no `destroy()` and no
+// bookkeeping — it just honours the signal it is handed, which is a rule that
+// cannot be half-applied without the leak test noticing.
+let renderScope = null;
+
+function nextRenderScope() {
+  if (renderScope) renderScope.abort();
+  renderScope = new AbortController();
+  return renderScope.signal;
+}
+
 async function main() {
   initTheme();
   // The settings gear (views/settings.js): pure viewer preferences in
   // localStorage, applied LIVE by event — deliberately wired before the
   // snapshot load, since it has no data dependency and must work even if the
-  // snapshot fetch fails.
+  // snapshot fetch fails. Bound ONCE for the life of the page: it owns no
+  // snapshot state, so a re-render must not rebind it.
   initSettings();
+  await render();
+}
+
+async function render() {
+  const signal = nextRenderScope();
   const status = document.getElementById("loadstatus");
   try {
     // The snapshot INDEX (add-dashboard-repo-selector): the roster the selector
@@ -696,6 +728,7 @@ async function main() {
     // every view's existing capability check is the whole gating.
     const caps = composed ? readOnlyCaps(probedCaps) : probedCaps;
     const explorer = mountExplorer(explorerRoot, snapshot, {
+      signal,
       onOpenFile: (entry, pane, tile) => {
         const sourceKey = sourceKeyFor(entry);
         return renderViewer(pane, {
@@ -809,7 +842,7 @@ async function main() {
       document.getElementById("staging-workbench-root"), snapshot,
       { onOpenDoc: (path, doc) =>
           explorer.openDoc(path, doc, workbenchSourceKey),
-        caps, active, index,
+        caps, active, index, signal,
         // the unstripped probe, read by the workbench's `openDraft` alone
         createCaps: probedCaps,
         doxbench: doxbenchSeams,
@@ -853,7 +886,7 @@ async function main() {
       // posture, after which every verb works as on any single-repo view.
       openRepository: (repository) => {
         storeKey({ repository, ref: memberRef(rawSnapshot, repository) });
-        window.location.reload();
+        render();
       },
     };
     tabs = initTabs(snapshot, {
@@ -869,6 +902,8 @@ async function main() {
       // D21 — the repository lens's seams: the whole aggregate to lens over,
       // the current visible set, the write-through, and the drill-in.
       rawSnapshot, visible: view ? view.visible : null,
+      // handed to every view that binds outside its own root
+      signal,
       onVisible: (repositories) => {
         if (!composed) return;
         storeViewState(rawSnapshot.repository,
@@ -882,22 +917,25 @@ async function main() {
             ? "all " + (region.keywords || []).length + " visible repositories"
             : (region.keywords || []).join(" ∧ "),
         });
-        window.location.reload();
+        render();
       },
-    });
+    }, signal);
     // The REPOSITORY SELECTOR + the ONE refresh affordance (design D7/D9):
     // switching repositories stores the key and reloads the shell; a successful
     // refresh reloads it too (the data changed, so every view must re-derive); a
     // FAILED refresh reports inline and leaves this view exactly as it is.
     mountRepoSelector(document.getElementById("repopicker"), {
       index, active, snapshot, caps, projects,
-      onSelect: (key) => { storeKey(key); window.location.reload(); },
-      onRefreshed: () => window.location.reload(),
+      onSelect: (key) => { storeKey(key); render(); },
+      onRefreshed: () => render(),
     });
-    initAbout();
+    initAbout(signal);
     // global header search (#13): fan out to the active view's search hook.
     const searchInput = document.getElementById("globalsearch");
-    if (searchInput) searchInput.addEventListener("input", () => tabs.search(searchInput.value));
+    if (searchInput) {
+      searchInput.addEventListener("input", () => tabs.search(searchInput.value),
+                                   { signal });
+    }
     if (status) status.remove();
   } catch (err) {
     if (status) status.textContent = "Could not load the snapshot (" + err.message +

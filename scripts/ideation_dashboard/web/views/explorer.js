@@ -145,7 +145,7 @@ function fileRow(entry, onOpen) {
 // Returns `{ openTile(kind, id), close() }` — the entrypoint funnel.js/
 // board.js call when a staged/proposal/realized tile's "open folder"
 // affordance is activated.
-export function mountExplorer(container, snapshot, { onOpenFile } = {}) {
+export function mountExplorer(container, snapshot, { onOpenFile, signal } = {}) {
   container.innerHTML = "";
   const overlay = el("div", "explorer-overlay");
   overlay.hidden = true;
@@ -196,9 +196,11 @@ export function mountExplorer(container, snapshot, { onOpenFile } = {}) {
   }
   closeBtn.addEventListener("click", close);
   overlay.addEventListener("click", (ev) => { if (ev.target === overlay) close(); });
+  // scoped to the caller's RENDER: this overlay is re-mounted whenever the
+  // shell re-renders, and an unscoped document listener would stack
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !overlay.hidden) close();
-  });
+  }, { signal });
   // focus trap: Tab / Shift+Tab cycle WITHIN the open dialog.
   panel.addEventListener("keydown", (ev) => {
     if (ev.key !== "Tab") return;

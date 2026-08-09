@@ -525,6 +525,9 @@ export function mountStagingWorkbench(container, snapshot,
                                         // checkout to bind to. A new document
                                         // binds to no tile.
                                         createCaps,
+                                        // the caller's render scope: this
+                                        // overlay binds a document listener
+                                        signal,
                                         sourceBase, edit, onSessionRekey,
                                         onSessionEnded, onScopeOpened } = {}) {
   // The wheel behind this overlay stays on the shell snapshot while a create
@@ -762,9 +765,10 @@ export function mountStagingWorkbench(container, snapshot,
   }
   closeBtn.addEventListener("click", close);
   overlay.addEventListener("click", (ev) => { if (ev.target === overlay) close(); });
+  // scoped to the caller's RENDER (see app.js `nextRenderScope`)
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !overlay.hidden) { ev.stopPropagation(); close(); }
-  });
+  }, { signal });
 
   // The create seam handed to every panel (tasks 5.4–5.8). ONE seeding rule per
   // tab (staging-workbench-model.js `createSeed`), ONE dialog, and ONE place the
