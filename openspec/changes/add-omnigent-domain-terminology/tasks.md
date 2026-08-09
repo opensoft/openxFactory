@@ -192,6 +192,21 @@
       (APQC, SFIA, ITIL, COBIT) has failed the product-configuration reuse
       test, and every licence-clean answer has been O*NET. That is a finding
       about the approach, not four coincidences.
+- [x] 3b.5h CODEX BRIEF RUN 2026-08-09. Same result a fourth time: SWEBOK v4
+      needs IEEE permission for commercial republication, SFIA is prohibited
+      (opsx round), ISO/IEC/IEEE 12207 is sold. The Scrum Guide's CC BY-SA
+      question is ANSWERED: bare role/event names are very likely outside
+      copyright, but share-alike could oblige our own configuration to be
+      CC BY-SA if definitional text were reproduced — asymmetric risk for a
+      label we can write ourselves, so assessed and DECLINED, recorded in the
+      registry so the reasoning is not relitigated. codex terminology built
+      from scratch (11 workers, 12 job types, 6 stop conditions, 6 routing
+      classes) on O*NET at occupation level, 8 mapped and 3
+      no_clean_equivalent. `scrum_master_worker` is deliberately unmapped AND
+      its display label avoids the term, because "Scrum Master" is a human
+      role holding facilitation authority over PEOPLE — a sharper version of
+      the bookkeeper-includes-posting hazard. Report:
+      `supporting-docs/codex-engineering-bodies-research-report.md`.
 - [ ] 3b.5f Apply the results of the four outstanding briefs (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
 

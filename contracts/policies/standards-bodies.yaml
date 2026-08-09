@@ -151,6 +151,16 @@ bodies:
 
   # ---------------------------------------------------------------- engineering
   - id: swebok
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable in shipped product
+    # configuration. IEEE permits educational/personal use free, but
+    # "permission to reprint/republish this material for commercial ...
+    # purposes or for creating new collective works for resale or
+    # redistribution must be obtained from IEEE". v4.0 released 2024-10-15
+    # (v4.0a Sept 2025), 18 knowledge areas.
+    current_version: SWEBOK v4.0 (2024-10-15); v4.0a released Sept 2025
+    reuse_licence: IEEE copyright — permission required for commercial republication
+    redistribution_permitted_in_product_config: 'no'
+    confidence: high
     jurisdiction: international  # US-origin (IEEE CS)
     name: SWEBOK (Software Engineering Body of Knowledge)
     steward: IEEE Computer Society
@@ -159,6 +169,10 @@ bodies:
       Requirements, design, construction, testing, maintenance,
       configuration management, quality. Knowledge-area shaped.
   - id: iso_iec_ieee_12207
+    # LICENCE VERDICT 2026-08-09: ISO sells its standards; process names
+    # cannot be assumed freely embeddable. Not adopted.
+    redistribution_permitted_in_product_config: 'no'
+    confidence: medium
     jurisdiction: international
     name: ISO/IEC/IEEE 12207
     steward: ISO/IEC/IEEE
@@ -834,3 +848,38 @@ bodies:
       has not endorsed the modifications.
     attribution_note: O*NET is a trademark of USDOL/ETA.
     confidence: high
+
+  # ---------------------------------- Software engineering (verified 2026-08-09)
+  # From the codex live-source verification, which found SWEBOK, SFIA and
+  # ISO/IEC/IEEE 12207 all fail the reuse test and the Scrum Guide's
+  # share-alike makes it asymmetric risk. O*NET again the only clean answer.
+  - id: onet_engineering_occupations
+    jurisdiction: united_states
+    name: O*NET Database — software engineering occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    names: other:occupations_tasks_and_work_activities
+    scope: >-
+      Occupation titles, tasks and work activities for software development,
+      QA and testing, systems analysis, security analysis and technical
+      writing. Verified codes: 15-1252.00, 15-1253.00, 15-1251.00,
+      15-1254.00, 15-1243.00, 15-1211.00, 27-3042.00. Describes whole HUMAN
+      jobs that include releasing and deploying; codex workers cannot merge
+      or release, so every crosswalk records the authority gap.
+    current_version: O*NET Database 30.3
+    status: current
+    source_url: https://www.onetonline.org/find/family?f=15
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high
+
+  # ASSESSED AND NOT ADOPTED (recorded so it is not re-proposed): the Scrum
+  # Guide is CC BY-SA 4.0. Bare role and event NAMES are very likely outside
+  # copyright, but share-alike means reproducing definitional text could
+  # oblige our own configuration to be CC BY-SA. Asymmetric risk for a label
+  # we can write ourselves, so no entry is registered.
