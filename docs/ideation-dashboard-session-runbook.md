@@ -128,7 +128,15 @@ so the sixth column is whole instead of part-cut.
   scroll: the RADAR HOLDS while the document matrix beneath it and the
   vocabulary rail beside it scroll on their own. The lens has no title block
   and the radar has no header: the tab names the view, the
-  `keywords | repositories` switch lives in the RAIL'S HEADER, and the rail
+  `305 Keywords | 5 Repositories` switch lives in the RAIL'S HEADER — each
+  button STATES ITS COUNT (Brett, 2026-08-09), because two bare lowercase
+  words were easy to miss and the count answers "how much is over there?"
+  before you switch to find out. Where the header cannot fit them they
+  abbreviate to `305 KW | 5 Repos`; which spelling fits is MEASURED after
+  mount, not guessed from a character count, because the width depends on
+  the theme's font and the reader's zoom. The switch appears only where
+  BOTH vocabularies mean something — a single-repository view has no member
+  set to lens over, and keeps the plain label and its count chip. The rail
   carries a summary card — how many documents are on the radar, over how many
   of the vocabulary, and what a dot and a ring MEAN. Repository rows are
   TILES: each says how much of that repository's corpus is shared with
