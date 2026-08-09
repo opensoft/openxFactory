@@ -181,6 +181,16 @@ bodies:
 
   # ---------------------------------------------------------------- medical
   - id: nucc_taxonomy
+    # SAFETY VERDICT 2026-08-09: registered as an ANTI-PATTERN reference. The
+    # medx overlay records `no_clean_equivalent` against THIS body for all
+    # eleven workers, because a provider role asserts clinical standing and
+    # legal accountability that a reasoning agent must never appear to hold.
+    # It is registered so that refusal is machine-readable, not so it can be
+    # mapped.
+    clinical_standing_risk: >-
+      HIGH — mapping any agent to a provider role implies clinical standing
+      and accountability it does not have.
+    confidence: high
     jurisdiction: united_states
     name: NUCC Health Care Provider Taxonomy
     steward: National Uniform Claim Committee (US)
@@ -201,6 +211,16 @@ bodies:
       Interoperability-facing practitioner roles. Same caution as NUCC: it
       describes humans with clinical standing, not agents.
   - id: snomed_ct
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable without an
+    # Affiliate Licence. Vendors distributing products that include or
+    # provide access to SNOMED CT must be SNOMED International Affiliates;
+    # non-member territories incur fees by World Bank Territory Band, renewed
+    # annually, with sub-licensing and reporting obligations. Category also
+    # fails: it names clinical CONTENT, not work.
+    reuse_licence: SNOMED International Affiliate Licence required for vendor distribution
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://www.snomed.org/licensing
+    confidence: high
     jurisdiction: international
     name: SNOMED CT
     steward: SNOMED International
@@ -883,3 +903,19 @@ bodies:
   # copyright, but share-alike means reproducing definitional text could
   # oblige our own configuration to be CC BY-SA. Asymmetric risk for a label
   # we can write ourselves, so no entry is registered.
+
+  # ASSESSED AND REJECTED for the medical domain (recorded so they are not
+  # re-proposed), from the medx live-source verification 2026-08-09:
+  #   - GRADE (certainty-of-evidence framework, adopted by Cochrane, WHO,
+  #     NICE and others): the closest thing to a body naming clinical
+  #     REASONING activity, but published CC BY-NC-ND 4.0 — NonCommercial
+  #     excludes our use and NoDerivs excludes adaptation. Doubly barred.
+  #   - O*NET healthcare occupations: licence-clean but CATEGORY-wrong; they
+  #     name whole clinician jobs carrying clinical standing.
+  #   - LOINC / ICD / CPT: name clinical content, not work; CPT is AMA
+  #     copyright with fees.
+  #   - AMIA and national clinical-informatics competency frameworks:
+  #     licensing not established, and they describe human informatics
+  #     practitioners rather than agent reasoning work.
+  # CONCLUSION: medx registers no crosswalk body. It is the only domain that
+  # failed on BOTH category and licence rather than licence alone.

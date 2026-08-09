@@ -207,7 +207,30 @@
       role holding facilitation authority over PEOPLE — a sharper version of
       the bookkeeper-includes-posting hazard. Report:
       `supporting-docs/codex-engineering-bodies-research-report.md`.
-- [ ] 3b.5f Apply the results of the four outstanding briefs (ledgerx
+- [x] 3b.5i MEDX BRIEF RUN 2026-08-09. The only domain to fail on BOTH
+      category and licence. Category: every clinical taxonomy names either
+      humans with clinical standing (NUCC, FHIR PractitionerRole, O*NET
+      healthcare) or clinical content (SNOMED, LOINC, ICD, CPT); reasoning
+      agents are neither. Licence: GRADE — the one body genuinely naming
+      appraisal ACTIVITY, adopted by Cochrane/WHO/NICE — is CC BY-NC-ND 4.0,
+      so NonCommercial and NoDerivs both bar it; SNOMED CT needs a vendor
+      Affiliate Licence with fees and sub-licensing duties.
+      OUTCOME: no crosswalk body registered. Display labels only, PLUS one
+      machine-readable safety statement — all eleven workers record
+      `no_clean_equivalent` against the PROVIDER taxonomy specifically,
+      because that is the mapping a contributor would reach for and it is
+      the dangerous one. Recording the refusal in data was worth more here
+      than a crosswalk. Report:
+      `supporting-docs/medx-clinical-bodies-research-report.md`.
+- [x] 3b.5j ALL FIVE DOMAINS VERIFIED. Result across the family: every
+      commercially stewarded body assessed — APQC, SFIA, ITIL, COBIT,
+      SWEBOK, ISO/IEC/IEEE 12207, GRADE, SNOMED CT — fails the
+      product-configuration reuse test. O*NET (CC BY 4.0) is the only
+      licence-clean crosswalk in four domains, and medx registers none. The
+      registry was seeded from what practitioners TALK ABOUT rather than
+      what a product may LAWFULLY EMBED, and those are different sets.
+- [ ] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
+      BIAN, and the adx marketing round) as they return. (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
 
 ## 4. Consumer follow-up (named, not assumed)
