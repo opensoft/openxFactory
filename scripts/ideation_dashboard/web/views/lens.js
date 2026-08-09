@@ -60,6 +60,8 @@ export const VOCABULARIES = {
     title: "keyword lens",
     term: "keyword",
     terms: "keywords",
+    termsTitle: "Keywords",
+    termsShort: "KW",
     railCount: "declared",
     searchHint: "search keywords…",
     railNote: "One dot per document; rings by how many checked keywords it "
@@ -74,6 +76,8 @@ export const VOCABULARIES = {
     title: "repository lens",
     term: "repository",
     terms: "repositories",
+    termsTitle: "Repositories",
+    termsShort: "Repos",
     railCount: "members",
     searchHint: "search repositories…",
     railNote: "One dot per document identity; rings by how many visible "
@@ -313,6 +317,23 @@ function renderEvidenceForm(container, actor, onSubmit) {
 
 // ---- pane 1: keyword rail (check = stratify, pin = require) ----
 
+// "if the screen estate is too small, then abbreviate to '134 KW' and '3
+// Repos'" (Brett, 2026-08-09). Which spelling fits is a fact about the RENDERED
+// rail — its width depends on the theme's font and the reader's zoom — so it is
+// measured after mount rather than guessed from a character count.
+function fitVocabSwitch(root) {
+  const swap = root.querySelector(".vocabswitch");
+  if (!swap) return;
+  const btns = [...swap.querySelectorAll(".vocabbtn")];
+  if (!btns.length) return;
+  for (const b of btns) b.textContent = b.dataset.full;
+  // the header is one nowrap row; overflowing it is what "too small" means
+  const head = swap.parentElement;
+  if (head && head.scrollWidth > head.clientWidth) {
+    for (const b of btns) b.textContent = b.dataset.short;
+  }
+}
+
 function keywordRail(model, ctx) {
   // `pane-rail` (T092 acceptance sweep, defect 9d): the lens now scrolls as ONE
   // region, and this is the one pane that must not — 151 declared keywords is
@@ -325,11 +346,14 @@ function keywordRail(model, ctx) {
   // something (Brett, 2026-08-08: "this area can select the keyword or
   // repo"); on a single-repository view it stays the plain label it was.
   if (ctx.vocabularies) {
+    // the switch's buttons now carry the counts themselves, so the chip beside
+    // them would repeat one of the two — and it competed for the width that
+    // decides whether the full spelling fits
     h.appendChild(ctx.vocabularies());
   } else {
     h.appendChild(el("span", null, vocab.terms));
+    h.appendChild(el("span", "n", model.rail.length + " " + vocab.railCount));
   }
-  h.appendChild(el("span", "n", model.rail.length + " " + vocab.railCount));
   pane.appendChild(h);
 
   // #13 keyword-rail text filter — narrows the (long) declared rail. Filter
@@ -1047,11 +1071,27 @@ export function renderLens(root, snapshot, opts) {
   // only where both vocabularies mean something — a single-repository view
   // has no member set to lens over. Each button carries its vocabulary's note
   // as its title: the explanation the head used to print in three lines.
+  // EACH BUTTON CARRIES ITS COUNT (Brett, 2026-08-09: "these buttons could
+  // state the number of that item in the button '134 Keywords' and '3
+  // Repositories'"). Two bare words were easy to miss entirely — the count is
+  // what makes the pair read as a CHOICE between two vocabularies, and it
+  // answers "how much is over there?" before you switch to find out.
+  const vocabCounts = {
+    keywords: (snapshot?.keyword_index || []).length,
+    repositories: composed
+      ? (repositoryVocabulary(composed).keyword_index || []).length : 0,
+  };
   const vocabularies = composed ? () => {
     const swap = el("span", "vocabswitch");
     for (const candidate of [VOCABULARIES.keywords, VOCABULARIES.repositories]) {
+      const n = vocabCounts[candidate.id];
       const btn = el("button", "vocabbtn"
-        + (candidate.id === vocab.id ? " vocabon" : ""), candidate.terms);
+        + (candidate.id === vocab.id ? " vocabon" : ""));
+      // both spellings ride on the button; `fitVocabSwitch` picks one once the
+      // rail is in the DOM and its real width is knowable
+      btn.dataset.full = n + " " + candidate.termsTitle;
+      btn.dataset.short = n + " " + candidate.termsShort;
+      btn.textContent = btn.dataset.full;
       btn.type = "button";
       btn.disabled = candidate.id === vocab.id;
       btn.title = candidate.note;
@@ -1387,6 +1427,7 @@ export function renderLens(root, snapshot, opts) {
     // bullseye's hit regions require — a hit region alone is undiscoverable).
     lens.appendChild(vocab.id === "repositories"
       ? drillPane(model, ctx) : formingPane(model, ctx));
+    fitVocabSwitch(lens);
   }
 
   draw();
