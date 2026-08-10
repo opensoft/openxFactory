@@ -74,6 +74,11 @@ this change.
 
 ## 4. Hosted Intent Plane (codexFactory + omnigent-install + aggregation)
 
+UNBLOCKED 2026-08-09 — hosting venue DECIDED by Brett (design D7): the QA
+AKS cluster behind the dashboard's ingress, per-user Basic Auth as identity
+rung 1; realization evidence rides a deployment-handoff request to
+OpsxFactory (managed-subject rule).
+
 - [ ] 4.1 Intent-inbox service (dispatch-only credential, ingress-actor
       stamping, per-actor verb allowlist config, rate limit + idempotency
       key); deployment via omnigent-install (hosting shape decided at

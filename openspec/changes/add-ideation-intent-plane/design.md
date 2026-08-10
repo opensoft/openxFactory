@@ -71,6 +71,18 @@ ratifying proposals are different authorities). Binding to the full
 roles-authority-model is deferred to a later delta; the config's SHAPE
 anticipates it.
 
+### D7 — Hosting venue: the QA AKS cluster (Brett, 2026-08-09)
+The intent-inbox deploys on the QA AKS cluster — the same cluster serving
+the hermes QA install — behind the same ingress as the hosted dashboard,
+via omnigent-install per the code surface. Per-user Basic Auth (htpasswd +
+ingress actor forwarding) is CONFIRMED as identity rung 1; Keycloak
+replaces the authenticator later without touching the intent contract. The
+sidecar-vs-own-deployment shape stays a realization question (D2). Because
+that cluster is administered under OpsxFactory's aks-administration
+capability, the phase-4 realization evidence rides a deployment-handoff
+request to OpsxFactory and cites its correlation identifier, per the
+release-realization managed-subject rule.
+
 ## Risks / Trade-offs
 
 - **Latency between click and merged truth** -> overlay chips + on-apply
