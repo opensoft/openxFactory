@@ -1351,8 +1351,11 @@ console.log(JSON.stringify([seed, noShared]));
     assert seed["kind"] == "capability-proposal"
     assert seed["repository"] == "openxFactory"
     assert "2 documents" in seed["source"]
-    # the two fields the human owes are NOT invented
-    assert seed["title"] == "" and seed["summary"] == ""
+    # Title and Summary now carry DEFAULTS (Brett, 2026-08-09) — see
+    # `test_every_create_field_carries_a_default_so_nothing_blocks_the_create`
+    # for what they derive from and why the summary is marked.
+    assert seed["title"] == "doc-workflow + governance"
+    assert seed["summary"].startswith("TO WRITE — ")
     # with no shared spine, the partial terms carry the topics rather than
     # leaving a create that would be refused for having none
     assert no_shared["topics"] == ["only-some"]
@@ -1758,3 +1761,62 @@ def test_the_draft_view_lands_on_an_editable_body_with_its_fields_behind_a_tab()
     seed_py = (REPO_ROOT / "scripts" / "doc_health" / "staging_seed.py").read_text(
         encoding="utf-8")
     assert '"staging_id": self.staging_id' in seed_py
+
+
+def test_every_create_field_carries_a_default_so_nothing_blocks_the_create(tmp_path):
+    """Brett, 2026-08-09: "default the name to the concatenation of the
+    keywords… or the first word of each doc if the docs and repo view… for
+    topics, if no intersection then list the same keywords as the title. does
+    this now get us defaults for all?"
+
+    It does. Title, Topics and Summary all derive from ONE set of terms, so
+    they cannot describe different things, and with Area/Status/Kind already
+    seeded nothing is left empty for the create to refuse.
+
+    The summary carries the `TO WRITE` marker at Brett's instruction: the field
+    is filled so the create is never blocked, and the marker keeps it honest,
+    because doc-health reads a summary as a completeness signal and a derived
+    one that read hand-written would quietly inflate the corpus's own health.
+    """
+    if not NODE:
+        pytest.skip("node not available for the JS derivation probe")
+    for dep in ("lens-model.js", "bullseye.js", "composed-model.js"):
+        shutil.copy(WEB / "views" / dep, tmp_path / dep)
+    shutil.copy(WEB / "views" / "lens.js", tmp_path / "lens.mjs")
+    (tmp_path / "m.mjs").write_text("""
+import { createSeedFromStagingSeed, selectionTerms } from './lens.mjs';
+const shared = createSeedFromStagingSeed({
+  path: 'ideation/staging/doc-workflow/doc-workflow.md',
+  shared: ['doc-workflow', 'governance'], partial: [],
+  documents: ['a.md', 'b.md'],
+}, 'openxFactory');
+const untagged = createSeedFromStagingSeed({
+  path: 'ideation/staging/x/x.md', shared: [], partial: [],
+  documents: ['docs/document-catalog-adoption.md', 'docs/README.md'],
+}, 'openxFactory');
+console.log(JSON.stringify([shared, untagged,
+  selectionTerms({ shared: [], partial: ['only-some'], documents: ['z.md'] })]));
+""", encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "m.mjs")], capture_output=True,
+                          text=True, cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    shared, untagged, partial_terms = json.loads(proc.stdout)
+
+    # SHARED TERMS name the document, its topics, and its summary
+    assert shared["title"] == "doc-workflow + governance"
+    assert shared["topics"] == ["doc-workflow", "governance"]
+    assert shared["summary"].startswith("TO WRITE — doc-workflow + governance:")
+    assert "2 documents" in shared["summary"]
+
+    # NO INTERSECTION falls back to the first word of each document's basename,
+    # which is all a repository selection has to offer
+    assert untagged["title"] == "document + README"
+    assert untagged["topics"] == ["document", "README"]
+    assert untagged["summary"].startswith("TO WRITE — document + README:")
+
+    # a partial intersection is preferred over the filenames
+    assert partial_terms == ["only-some"]
+
+    # …and nothing the create refuses is left empty
+    for field in ("title", "summary", "topics", "area", "status", "kind"):
+        assert untagged[field], field

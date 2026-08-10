@@ -754,16 +754,48 @@ function renderStagingSeed(container, data, ctx) {
 // carries, and where the seed came from. Title and summary stay empty on
 // purpose: the create refuses without them, which is the same rule the seed
 // itself states by marking them TO WRITE.
+// THE TERMS THIS SELECTION IS ABOUT (Brett, 2026-08-09: "default the name to
+// the concatenation of the keywords… or the first word of each doc if the docs
+// and repo view"). The shared terms when there are any; otherwise the first
+// word of each document's basename, which is what a repository selection has
+// to offer — its documents carry no declared topics at all.
+export function selectionTerms(data) {
+  const shared = [...(data?.shared || [])];
+  if (shared.length) return shared;
+  const partial = [...(data?.partial || [])];
+  if (partial.length) return partial;
+  const words = [];
+  for (const doc of data?.documents || []) {
+    const base = String(doc).split("/").pop().replace(/\.[^.]+$/, "");
+    const first = base.split(/[-_. ]+/).filter(Boolean)[0];
+    if (first && !words.includes(first)) words.push(first);
+  }
+  return words;
+}
+
 export function createSeedFromStagingSeed(data, repository) {
   const path = String(data?.path || "");
   const area = path.includes("/") ? path.slice(0, path.lastIndexOf("/") + 1) : "";
-  const topics = (data?.shared || []).length
-    ? [...data.shared] : [...(data?.partial || [])];
+  // Every field now carries a DEFAULT, so nothing blocks the create (Brett,
+  // 2026-08-09). All three below are derived from the same terms, so the title,
+  // the topics and the summary cannot describe different things.
+  const terms = selectionTerms(data);
+  const topics = terms;
+  const name = terms.join(" + ");
+  const n = (data?.documents || []).length;
   return {
     tab: "docs",
     area,
-    title: "",
-    summary: "",
+    title: name,
+    // MARKED, at Brett's instruction. The header field is filled so the create
+    // is never blocked, and the marker keeps it honest: doc-health reads a
+    // summary as a completeness signal, and a derived one that reads
+    // hand-written would quietly inflate the corpus's own health number.
+    summary: name
+      ? "TO WRITE — " + name + ": what this topic delivers, in one sentence. "
+        + "Drafted from " + n + " document" + (n === 1 ? "" : "s")
+        + " selected together on the lens."
+      : "",
     topics,
     repositoryContext: repository || "",
     repository: repository || "",
