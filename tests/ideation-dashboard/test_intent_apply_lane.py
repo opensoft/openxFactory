@@ -489,6 +489,40 @@ def test_manifest_digest_matches_the_grown_schema():
     assert f"sha256: {digest}" in manifest
 
 
+def test_terminal_artifacts_carry_validated_fields_only(tmp_path):
+    """Codex round-7 P2 (PR #157): wire junk — schema-known fields with
+    invalid values, unknown keys, junk target keys — never reaches the
+    committed feed on either terminal path."""
+    root, rev, allowlist = _corpus(tmp_path)
+    poisoned = _intent(rev, idempotency_key="k-poison")
+    poisoned["applied_record"] = []
+    poisoned["refusal_reason"] = []
+    poisoned["applied_at"] = {"not": "a time"}
+    poisoned["dispatch_error"] = 42
+    poisoned["junk_key"] = "junk"
+    poisoned["target"] = {"possible_id": PID, "junk_target": "x",
+                          "change_id": ""}
+    report = _apply(root, poisoned, allowlist, tmp_path)
+    assert report.outcome == "applied", report.reason
+    doc = yaml.safe_load((root / report.intent_path).read_text())
+    assert set(doc) == {"schema_version", "kind", "actor", "verb", "target",
+                        "args", "requested_at", "snapshot_rev_seen", "status",
+                        "idempotency_key", "applied_record", "applied_at"}
+    assert doc["target"] == {"possible_id": PID}
+    assert isinstance(doc["applied_record"], str) and doc["applied_record"]
+
+    refused = _intent(rev, actor="viewer", idempotency_key="k-poison2")
+    refused["refusal_reason"] = ["wire-supplied"]
+    report = _apply(root, refused, allowlist, tmp_path)
+    assert report.outcome == "refused"
+    doc = yaml.safe_load((root / report.intent_path).read_text())
+    assert set(doc) == {"schema_version", "kind", "actor", "verb", "target",
+                        "args", "requested_at", "snapshot_rev_seen", "status",
+                        "idempotency_key", "refusal_reason"}
+    assert isinstance(doc["refusal_reason"], str)
+    assert "allowlist" in doc["refusal_reason"]
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES

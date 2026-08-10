@@ -90,6 +90,12 @@ _POSSIBLE_VERBS = ("dispose-possible", "promote-to-staging", "research-brief")
 #: Verbs whose target's material state is the change directory tree.
 _CHANGE_VERBS = ("demote", "edit-apply", "ratify", "kickoff")
 
+#: Every target key the kernel knows; the terminal artifact keeps only
+#: these (non-empty strings), so wire junk never rides a target into the
+#: committed feed.
+_TARGET_KEYS = ("change_id", "possible_id", "cluster_id", "topic_id",
+                "project_id", "document")
+
 _INDEX_REL = "ideation/cross-reference.yaml"
 
 _INTENT_BANNER = (
@@ -309,6 +315,29 @@ class ApplyReport:
                 "response": self.response}
 
 
+def _terminal_intent(intent: dict, digest: str) -> dict:
+    """The committed artifact, rebuilt from VALIDATED fields only — a wire
+    intent may carry schema-known fields with unvalidated values
+    (`applied_record: []`, `refusal_reason: []`) or junk keys, and copying
+    it would poison the validator-clean feed (Codex round-7, PR #157).
+    The lane's own terminal fields (status, refusal_reason,
+    applied_record, applied_at) are added by the paths that own them."""
+    target = intent["target"]
+    return {
+        "schema_version": 1,
+        "kind": "gate-intent",
+        "actor": intent["actor"],
+        "verb": intent["verb"],
+        "target": {key: target[key] for key in _TARGET_KEYS
+                   if isinstance(target.get(key), str) and target[key]},
+        "args": dict(intent.get("args") or {}),
+        "requested_at": intent["requested_at"],
+        "snapshot_rev_seen": intent["snapshot_rev_seen"],
+        "status": "pending",
+        "idempotency_key": digest,
+    }
+
+
 def _already_applied(root: Path, intents_dir: str, digest: str) -> bool:
     """True when a committed APPLIED intent has the same request identity.
     The identity is RECOMPUTED from each stored intent's own fields — a
@@ -492,10 +521,9 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
         report.reason = ("an intent with this request identity (actor, verb, "
                          "target, snapshot_rev_seen) is already applied")
         return report
-    # the committed artifact carries the lane-derived key — a client string
-    # that disagrees with the request's own identity never survives into
-    # the feed
-    intent = {**intent, "idempotency_key": digest}
+    # everything the lane persists derives from this validated rebuild —
+    # the wire intent is never copied into the feed
+    intent = _terminal_intent(intent, digest)
 
     def refuse(why: str) -> ApplyReport:
         refused = dict(intent)
