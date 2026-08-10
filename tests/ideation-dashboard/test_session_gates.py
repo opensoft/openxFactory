@@ -61,8 +61,10 @@ import yaml
 from conftest import REPO_ROOT
 
 from session_fixtures import FakeNotebookAdapter, FakePullRequests, build_scratch_repo
+from staging_shapes import staging_fragment
 
 from ideation_dashboard import branch_session as bs
+from ideation_dashboard import doxbench_hash
 from ideation_dashboard import cli as cli_mod
 from ideation_dashboard import gate_console as gc
 from ideation_dashboard import gate_routes as gr
@@ -747,6 +749,45 @@ def test_a_gate_write_on_a_proposed_tile_opens_nothing_and_names_demote(
     assert "demote" in payload["message"]
     assert CHANGE in payload["message"]
     # nothing opened, nothing persisted
+    assert git.branch_exists(DRAFT) is False
+    assert not (scratch_repo.container / "sessions").exists()
+    assert bs.is_live(registry, REPO, DRAFT) is False
+    assert scratch_repo.served_fingerprint() == before
+
+
+def test_a_first_edit_on_a_proposed_tile_opens_nothing_and_names_demote(
+        scratch_repo, tmp_path):
+    """FR-024's missing arm (T104 final queue Q-1, ruled FIX-FIRST
+    2026-08-09). The doxBench Save is a session-OPENING gesture exactly like
+    `create-document`, so a proposed tile must refuse it with the same
+    demote message — instead of opening a session that no verb can then
+    save or abandon (the verb-orphan reproduced live by the T098 smoke:
+    every session verb refused on the tile while its session stood open).
+    The route used to call `execute_first_edit` without deriving the
+    proposal state, so `assert_no_live_proposal(None, …)` returned
+    immediately — the F4 class: a parameter discarded at its only
+    production call site."""
+    registry = _registry(scratch_repo, tmp_path)
+    _land_proposal(scratch_repo)
+    git = sg.SessionGit(scratch_repo.root)
+    before = scratch_repo.served_fingerprint()
+
+    document = f"ideation/staging/{TOPIC}/README.md"
+    base = (scratch_repo.root / document).read_text(encoding="utf-8")
+    status, payload = gr.run_gate_action(
+        "first-edit",
+        {"scope_kind": bs.STAGED_TOPIC, "scope_id": TOPIC,
+         "document": document,
+         "content": staging_fragment("Demo Topic", TOPIC) + "\nSaved.\n",
+         "base_hash": doxbench_hash.content_identity(base).hex},
+        checkout_root=scratch_repo.root, actor="brett", snapshot_path=None,
+        session_registry=registry, repository=scratch_repo.repository)
+
+    assert status == 409
+    assert payload["error"] == "gate_refused"
+    assert "demote" in payload["message"]
+    assert CHANGE in payload["message"]
+    # nothing opened, nothing persisted — the create-document twin, verbatim
     assert git.branch_exists(DRAFT) is False
     assert not (scratch_repo.container / "sessions").exists()
     assert bs.is_live(registry, REPO, DRAFT) is False

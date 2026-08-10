@@ -3014,7 +3014,16 @@ def _first_edit(body: dict, root: Path, actor: str, records_dir: str,
             checkout_root=root, records_dir=records_dir,
             base_hash=_str_or_none(body.get("base_hash")),
             tile_inventory=tile_inventory, provenance=provenance,
-            continuation=continuation)
+            continuation=continuation,
+            # FR-024, both halves — the same derivation `resolve_session`
+            # feeds the session verbs. The first edit OPENS (or joins) the
+            # tile's session, so a proposed tile must refuse it here too;
+            # this parameter existed through the whole chain and was unfed
+            # at exactly this call site (T104 final queue Q-1, the F4
+            # discarded-parameter class, ruled fix-first 2026-08-09).
+            proposal=branch_session.proposal_state_for(
+                tile, records_root=Path(root) / records_dir,
+                checkout_root=root))
     except branch_session.SessionRefused as exc:
         return _refused(exc.report())
     return 200, payload
