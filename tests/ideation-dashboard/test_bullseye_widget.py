@@ -1434,6 +1434,125 @@ def test_the_doxbench_handoff_is_offered_only_where_it_can_land():
     assert "nothing was lost" in guard
 
 
+def test_the_drafted_body_is_actually_saved_and_the_verdict_is_read_correctly():
+    """MEASURED IN A BROWSER, 2026-08-10, driving lens -> draft -> create: the
+    human's typed body was NEVER written. The plan reported `unchanged`, the
+    transport was never called, and the note read `the save was refused` over a
+    document that had simply been left alone.
+
+    `writeBody` built a buffer of its OWN shape rather than the one
+    `doxbench-save.js` reads, and every mismatch failed closed and silently:
+
+      * `dirty` absent — `saveOrder` plans only `dirty === true` (FR-031
+        persists only CHANGED buffers), so the row was dropped before anything
+        else was inspected;
+      * `document`/`action` instead of `path` — `planRow` reads the path from
+        `path` and DERIVES the action from it (`actionForPath`);
+      * `owned` absent — refused as context-only;
+      * `current_hash` absent — an unsettled identity is refused;
+      * both hashes UN-AWAITED — `contentIdentity` is async, so the planner got
+        a Promise where it reads `{algorithm, hex}` and saw no identity at all.
+
+    And the verdict was read as a map (`verdict.buffers.document`) when
+    `runSave` reports an ARRAY of per-buffer rows, so even a committed body
+    would have read as refused.
+
+    Each field is pinned against its READER here, so the two shapes cannot
+    drift apart again in silence."""
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    save = (WEB / "views" / "doxbench-save.js").read_text(encoding="utf-8")
+    write = swb.split("async function writeBody(path) {")[1].split("\n    }")[0]
+
+    # the four fields the planner reads, all present on the buffer this builds
+    assert "kind: \"document\", path, content, dirty: true, owned: true," in write
+    assert "current_hash: currentIdentity," in write
+    assert "base_hash: baseIdentity," in write
+    # …and they are the fields the planner actually reads
+    assert "if (buffer.dirty !== true) continue;" in save
+    assert "const action = actionForPath(buffer.path);" in save
+    assert "if (buffer.owned !== true) {" in save
+    assert "statedIdentity(buffer.current_hash) === null" in save
+
+    # the identities are AWAITED — contentIdentity is async
+    assert "export async function contentIdentity(" in (
+        WEB / "views" / "doxbench-state.js").read_text(encoding="utf-8")
+    assert "await Promise.all(" in write
+    assert "[seams.hash(loaded.content), seams.hash(content)]" in write
+
+    # the verdict is an ARRAY of per-buffer rows, and is read as one
+    assert "buffers: Object.freeze(rows)," in save
+    assert "verdict.buffers.find((r) => r && r.kind === \"document\")" in write
+    assert "Array.isArray(verdict.buffers)" in write
+    assert "verdict.buffers.document" not in write
+
+
+def test_a_created_draft_becomes_its_tile_so_the_held_tabs_come_back():
+    """Brett, 2026-08-10: "after it is created, the tabs for the window are not
+    functional. I cannot do anything from that point on that document."
+
+    `openDraft` stands `docs`/`lens`/`outline` DOWN — they read a TILE and a
+    draft has none — and the only thing that gave them back was a scoped
+    `open()`. The create MAKES the tile: the document lands in
+    `ideation/staging/<topic>/` on the session branch and the session's own
+    regenerated snapshot carries it. So the create ended with every onward
+    affordance still disabled, over a reason (`there is no tile until it is
+    created`) that the create had just made false. The work landed and there
+    was nothing to do next.
+
+    The overlay now stops being a draft and becomes that tile's workbench on
+    the session snapshot. Three things this pins, each a defect if it moves:
+
+      * the release is SHARED with `open()` — one definition of "give the draft
+        tabs back", so the two ways in cannot diverge;
+      * the promotion runs LAST inside the create's `onOpenDoc`, because it
+        rebuilds `body` — T088's lesson, that a re-render destroys the host an
+        outcome was written into, applies here exactly;
+      * an unresolvable tile leaves the draft ALONE. A blank overlay is the one
+        outcome worse than a held tab (Brett, 2026-08-08: "it was blank").
+    """
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+
+    # ONE release, reached from both ways back
+    assert "function releaseHeldTabs()" in swb
+    assert swb.count("releaseHeldTabs();") == 2, (
+        "the scoped open and the create's promotion are the two ways back")
+    assert "delete btn.dataset.draftHeld;" in swb
+    assert swb.count("delete btn.dataset.draftHeld;") == 1
+
+    draft = swb.split("function openDraft(seed)")[1]
+    assert "function promoteDraftToTile(createdPath) {" in draft
+    # WHICH TILE: the one whose folder holds the document the create reported.
+    # NOT `seed.scopeId` — both are called `staging_id` and they are different
+    # strings (the seed's is the session's composite `<repo>:staging:<topic>`,
+    # the snapshot's is the bare topic), which is why passing it through
+    # resolved nothing and the promotion silently did not happen.
+    assert "(t && t.files || []).some((f) => String(f) === rel)" in draft
+    assert "workbenchScope(adopted.snapshot, DRAFT_TILE_KIND, tile.staging_id)" in draft
+    assert "seed.scopeId" not in draft.split("function promoteDraftToTile")[1] \
+        .split("\n    }")[0], "the seed's composite scope id is not a tile id"
+    # …and fails closed: no tile, no promotion, the draft is left as it is
+    assert "if (!promoted) return;" in draft
+    assert "if (!adopted || !adopted.snapshot || !rel) return;" in draft
+    # the overlay genuinely becomes the tile's workbench
+    for call in ("releaseHeldTabs();", "drawHead();", "drawSession();",
+                 "drawTab();", "drawCanvas();"):
+        assert call in draft.split("function promoteDraftToTile(createdPath) {")[1] \
+            .split("\n    }")[0], call
+
+    # ORDER: the promotion is the LAST thing the create's landing does, after
+    # the body write and after the document jump, because it rebuilds `body`
+    open_doc = draft.split("onOpenDoc: async (path) => {")[1].split("},")[0]
+    assert open_doc.index("await writeBody(path)") \
+        < open_doc.index("if (onOpenDoc) onOpenDoc(path, null);") \
+        < open_doc.index("promoteDraftToTile(path);"), open_doc
+    # the adoption is taken in `onSessionOpened` and HELD — `adoptSessionRef`
+    # guards `!scope`, and a draft has none, so the draft takes the hand-off
+    # itself rather than widening a guard every scoped caller relies on
+    opened = draft.split("onSessionOpened: async (result) => {")[1].split("},")[0]
+    assert "adopted = typeof onSessionRekey === \"function\"" in opened
+    assert "await onSessionRekey(result.ref)" in opened
+
+
 def test_the_serve_declares_the_repository_it_can_write_to():
     """Brett, 2026-08-08: "yes, we need to draft from a project view."
 
@@ -1748,7 +1867,11 @@ def test_the_draft_view_lands_on_an_editable_body_with_its_fields_behind_a_tab()
 
     # create-then-edit, through the EXISTING save seam — no new transport
     assert "seams.save({" in draft
-    assert 'tile_kind: "staged"' in draft
+    # the TILE spelling, through the ONE constant the create's promotion also
+    # resolves its scope with (2026-08-10) — a literal here would be the same
+    # vocabulary applied in two places that dropped the scope in #152
+    assert "tile_kind: DRAFT_TILE_KIND," in draft
+    assert 'const DRAFT_TILE_KIND = "staged";' in swb
     assert "tile_id: seed.scopeId" in draft
     assert "loaded.content" in draft                 # the created header survives
     # a body that fails after the header lands says exactly that

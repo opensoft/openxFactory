@@ -375,10 +375,16 @@ def test_selecting_on_the_wheel_loads_that_documents_abstract():
     of that doc" — the wheel's selection must drive the abstract built in the
     previous slice."""
     source = SHELL_JS.read_text(encoding="utf-8")
-    mount = source.index("renderDocWheel")
-    window = source[max(0, mount - 2500):mount + 2500]
-    assert "onSelect" in window or "select" in window
-    assert "renderAbstract" in window, (
+    # ANCHORED ON THE CALL, not on a character distance. This used to take a
+    # ±2500-character window around the FIRST `renderDocWheel` occurrence — the
+    # import line — so any edit between the import and the mount could fail it
+    # while the wiring was perfectly intact (2026-08-10, and the wiring was).
+    # A proximity pin also never proved the claim in the docstring: two names
+    # sitting near each other is not a selection driving an abstract.
+    mount = source.index("renderDocWheel(selector")
+    window = source[mount:mount + 600]
+    assert "onSelect:" in window, "the mount declares no selection callback"
+    assert "renderAbstract(abstract," in window, (
         "the wheel's selection is not wired to the abstract above it")
 
 

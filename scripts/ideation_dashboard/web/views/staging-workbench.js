@@ -109,6 +109,13 @@ const TAB_DEFS = [
 
 const KIND_LABELS = { cluster: "cluster", possible: "possible", staged: "staged topic" };
 
+// A staging seed is always a STAGED topic in the TILE vocabulary — the key its
+// save resolves a session through, and the key its create promotes it to once
+// the tile exists. ONE spelling for both: the last time this vocabulary was
+// applied in two places it diverged, the scope was dropped from the wire, and
+// the create silently took its pre-session path (#152).
+const DRAFT_TILE_KIND = "staged";
+
 // The per-tab create labels (add-workbench-bullseye-and-create task 5.4–5.6).
 // Each names what THAT tab's seeding actually produces, so the affordance never
 // promises a document the seed does not describe.
@@ -1285,8 +1292,11 @@ export function mountStagingWorkbench(container, snapshot,
     return adoptSessionRef(ref);
   }
 
-  function open(kind, id) {
-    // a scoped open restores whatever a draft stood down
+  // Give back whatever a draft stood down. A draft holds `docs`/`lens`/`outline`
+  // because they read a TILE and a draft has none; the moment one exists — a
+  // scoped open, or the create that MAKES the tile — they are meaningful again
+  // and must say so. Factored out because there are now two ways back.
+  function releaseHeldTabs() {
     for (const [, btn] of tabButtons) {
       if (btn && btn.dataset && btn.dataset.draftHeld) {
         btn.disabled = false;
@@ -1294,6 +1304,10 @@ export function mountStagingWorkbench(container, snapshot,
         delete btn.dataset.draftHeld;
       }
     }
+  }
+
+  function open(kind, id) {
+    releaseHeldTabs();          // a scoped open restores whatever a draft stood down
     lastFocused = document.activeElement;
     snapshot = shellSnapshot;
     active = shellActive;
@@ -1438,27 +1452,112 @@ export function mountStagingWorkbench(container, snapshot,
       // the human owns the other, and neither overwrites the other's half
       const content = loaded.content.replace(/\s*$/, "") + "\n\n" + bodyText;
       try {
+        // AWAITED. `contentIdentity` is async (SHA-256 through `crypto.subtle`,
+        // which returns a promise), so an un-awaited call hands the planner a
+        // PROMISE where it expects `{algorithm, hex}` — `statedIdentity` reads
+        // that as no identity at all and refuses the buffer. The base was
+        // already being passed that way; both are awaited here, in the try, so
+        // an oversize buffer refuses with its own message instead of throwing.
+        const [baseIdentity, currentIdentity] = await Promise.all(
+          [seams.hash(loaded.content), seams.hash(content)]);
         const verdict = await seams.save({
           key: {
             repository: seed.repository,
             ref: loaded.ref || null,
             // the SCOPE the edit resolves its branch session from
-            tile_kind: "staged",
+            tile_kind: DRAFT_TILE_KIND,
             tile_id: seed.scopeId,
           },
+          // THE BUFFER THE SAVE PLANNER ACTUALLY READS (measured in a browser,
+          // 2026-08-10: this body was NEVER written — the plan reported
+          // `unchanged`, the transport was never called, and the human read
+          // "the save was refused" over a document that had simply been left
+          // alone). `saveOrder`/`planRow` in doxbench-save.js read four fields
+          // this row did not carry, each of which fails CLOSED:
+          //
+          //   * `dirty` — `saveOrder` plans only `dirty === true` (FR-031
+          //     persists only CHANGED buffers). Absent, the row was skipped
+          //     before anything else was looked at. It is dirty by
+          //     construction: it is the created header with the body appended.
+          //   * `path` — `planRow` reads the document path from `path` and
+          //     DERIVES the action from it (`actionForPath`: a path present is
+          //     a rewrite). `document`/`action` were this file's own spelling
+          //     and neither was ever read.
+          //   * `owned` — a buffer that does not declare ownership is refused
+          //     as context-only. The session owns the document it just created.
+          //   * `current_hash` — an unsettled identity is refused. It is
+          //     settled here: the content is composed synchronously above.
           buffers: [{
-            kind: "document", action: "edit", document: path, content,
-            base_hash: seams.hash(loaded.content),
+            kind: "document", path, content, dirty: true, owned: true,
+            current_hash: currentIdentity,
+            base_hash: baseIdentity,
             base_ref: loaded.ref || null,
             base_revision: loaded.revision || null,
           }],
         });
-        const row = verdict && verdict.buffers && verdict.buffers.document;
+        // `runSave` reports an ARRAY of per-buffer outcome rows (data-model
+        // PerBufferSaveOutcome), one per kind — never a map. Indexing it as one
+        // gave `undefined` for every save, so even a COMMITTED body would have
+        // read as refused.
+        const row = (verdict && Array.isArray(verdict.buffers)
+          ? verdict.buffers.find((r) => r && r.kind === "document") : null);
         if (row && row.status === "committed") return { committed: true };
         return { refused: (row && row.message) || "the save was refused" };
       } catch (err) {
         return { refused: (err && err.message) || "the save failed" };
       }
+    }
+
+    // THE CREATE IS THE END OF THE DRAFT (Brett, 2026-08-10: "after it is
+    // created, the tabs for the window are not functional. I cannot do
+    // anything from that point on that document").
+    //
+    // A draft stands `docs`/`lens`/`outline` down because they read a TILE and
+    // a draft has none. The create MAKES the tile — the document lands in
+    // `ideation/staging/<topic>/` on the session branch, and the session's own
+    // regenerated snapshot carries it — so from that moment the reason those
+    // tabs were held is false, and leaving them held is a dead end: the create
+    // lands and there is nothing to do next.
+    //
+    // So the overlay stops being a draft and BECOMES that tile's workbench, on
+    // the session snapshot: the tabs come back, the head names the topic, the
+    // docs pane lists the created document, and the session bar offers the
+    // verbs that continue the work.
+    //
+    // WHICH TILE — matched on the DOCUMENT PATH the create just reported, and
+    // deliberately NOT on `seed.scopeId`. Both are called `staging_id` and they
+    // are NOT the same string: the seed's is the branch session's composite
+    // scope (`<repository>:staging:<topic>`, staging_seed.py) and the
+    // snapshot's is the bare topic. Measured, 2026-08-10 — passing the seed's
+    // through resolved no tile and the promotion silently did nothing. Reading
+    // the path is exact and assumes no vocabulary at all; deriving one spelling
+    // from the other would be this file guessing a server naming rule, which is
+    // the class of mistake that dropped the create's scope in #152.
+    //
+    // If no tile carries the document, the draft is left exactly as it is: an
+    // overlay whose panes still hold the human's fragment beats a blank one
+    // (Brett, 2026-08-08: "it was blank").
+    let adopted = null;
+    function promoteDraftToTile(createdPath) {
+      const rel = String(createdPath || "");
+      if (!adopted || !adopted.snapshot || !rel) return;
+      const tile = (adopted.snapshot.staged_topics || []).find(
+        (t) => (t && t.files || []).some((f) => String(f) === rel));
+      const promoted = tile
+        ? workbenchScope(adopted.snapshot, DRAFT_TILE_KIND, tile.staging_id)
+        : null;
+      if (!promoted) return;
+      snapshot = adopted.snapshot;
+      if (adopted.active) active = adopted.active;
+      if (adopted.index) index = adopted.index;
+      if (adopted.sourceBase) sourceBase = adopted.sourceBase;
+      scope = promoted;
+      activeTab = "docs";
+      releaseHeldTabs();
+      drawHead();
+      drawSession();
+      drawTab();            // rebuilds `body` — the draft strip and pane go
+      drawCanvas();
     }
 
     function showPane(id) {
@@ -1487,12 +1586,22 @@ export function mountStagingWorkbench(container, snapshot,
                 + wrote.refused));
             }
             if (onOpenDoc) onOpenDoc(path, null);
+            // LAST, because it rebuilds `body` (T088's lesson: a re-render
+            // destroys the host an outcome was written into). Everything above
+            // has finished writing into the draft pane by the time this runs.
+            promoteDraftToTile(path);
           },
-          onSessionOpened: (result) => {
+          onSessionOpened: async (result) => {
             sessionOpened(result.ref);
             documentCreated(result.ref, result.path);
             drawSession();
-            return rekeyToSession(result.ref);
+            // The re-key itself, WITHOUT the DOM half: `adoptSessionRef` bails
+            // on a draft (it guards `!scope`, and a draft has none), so the
+            // routing hand-off is taken here and the adoption is held until
+            // `onOpenDoc` above has run.
+            adopted = typeof onSessionRekey === "function"
+              ? await onSessionRekey(result.ref) : null;
+            return adopted;
           },
         });
         return;
