@@ -83,6 +83,12 @@ OpsxFactory (managed-subject rule).
       stamping, per-actor verb allowlist config, rate limit + idempotency
       key); deployment via omnigent-install (hosting shape decided at
       realization: sidecar vs own deployment).
+      (Service + committed allowlist + 13 real-HTTP tests proposed
+      2026-08-09 as Omnigent-Install PR #67 — actor stamped over
+      body claims, allowlist fail-closed, one-workflow dispatch with the
+      token named-not-carried, refusals and dispatch failures recorded and
+      served. Ticks on merge; the k8s/ingress half rides 4.2 with the
+      OpsxFactory deployment handoff.)
 - [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
 - [ ] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
