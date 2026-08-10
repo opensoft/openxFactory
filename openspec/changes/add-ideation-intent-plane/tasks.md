@@ -95,6 +95,17 @@ OpsxFactory (managed-subject rule).
       TestCases, checks green before merge.)
 - [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
+      (Deploy tree MERGED 2026-08-10 as Omnigent-Install PR #69, checks
+      green before merge: deploy/kubernetes base + aks-qa overlay — dox
+      namespace, credential-free dashboard pod, the inbox in its OWN
+      deployment (D2 shape resolved: one credential, one pod), ingress on
+      dox-opensoft-qa.xforge.us with per-user htpasswd Basic Auth and
+      X-Auth-Request-User forwarded from $remote_user, /intents -> inbox,
+      Key Vault CSI for both secrets, unittest shape guards, human-gated
+      apply runbook. TICKS when the live apply lands via the OpsxFactory
+      deployment handoff — CIR request + intake case + Brett's approval
+      record + grant-held apply + read-back checks, the dispatch-junction
+      precedent.)
 - [x] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
       pattern): replay via console engine, stale-view refusal, atomic
       intent+record+artifact commit, rolling intents PR with auto-merge,
