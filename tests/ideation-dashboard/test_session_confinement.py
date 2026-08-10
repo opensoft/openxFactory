@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import http.client
 import json
+import shutil
 import subprocess
 import threading
 from contextlib import contextmanager
@@ -288,6 +289,285 @@ def test_the_renderer_presents_the_console_token_from_the_capability_probe():
         assert serve_mod.CONSOLE_TOKEN_HEADER not in body, name
         # and the transport pin is untouched: still exactly one write literal
         assert body.count('method: "POST"') == 1, name
+
+
+# ==========================================================================
+# A STRANDED PAGE REPAIRS ITSELF (Brett, 2026-08-09)
+#
+# The token is per-serve and the page reads `/capabilities` ONCE, at load, so a
+# tab that outlives a restart presents the previous serve's token and every
+# guarded write refuses. Brett hit it on a real create — with a title, a summary
+# and a body already typed into the form.
+#
+# The repair is a RE-READ, never `location.reload()`: the refusal fires exactly
+# when there is written work in the page, and a reload would discard it to fix a
+# header. These tests pin the two halves — the WIRE property the retry rests on
+# (a stale token is refused before anything happens, so re-sending is safe), and
+# the RENDERER policy that acts on it.
+# ==========================================================================
+
+def test_a_stale_console_token_refuses_before_any_write_and_a_re_read_lands(
+        scratch_repo, tmp_path, capsys):
+    """The reproduction and its repair, at the wire.
+
+    The FIRST serve's token is presented to the SECOND serve — exactly what an
+    open tab does after a restart. It refuses `agent_invocation` and NOTHING
+    happens: no branch, no worktree, no gate-action record. That is what makes
+    an automatic retry legitimate rather than a way to double-write.
+
+    Then the repair: re-read `/capabilities`, present the new token, send the
+    SAME body. It lands."""
+    snapshot = _served_snapshot(scratch_repo, tmp_path / "snapshot.json")
+    git = sg.SessionGit(scratch_repo.root)
+
+    with _serving(scratch_repo, snapshot) as (host, port):
+        stale = _console_headers(host, port)[serve_mod.CONSOLE_TOKEN_HEADER]
+
+    # the serve restarted under the open tab
+    with _serving(scratch_repo, snapshot) as (host, port):
+        origin = f"http://{host}:{port}"
+        refused_status, refused = _request(
+            host, port, "POST", "/actions/gate/create-document",
+            body=CREATE_BODY,
+            headers={serve_mod.CONSOLE_TOKEN_HEADER: stale, "Origin": origin})
+
+        # the server did nothing — the whole basis of the retry
+        assert (refused_status, refused["error"]) == (403, "agent_invocation")
+        assert refused["message"] == serve_mod.AGENT_INVOCATION_REFUSAL
+        assert not git.branch_exists(DRAFT)
+        assert not list((scratch_repo.root / RECORDS).rglob("*.gate-action.yaml"))
+        assert "the console token does not match this serve's" in capsys.readouterr().err
+
+        # THE REPAIR: re-probe, take the new token, re-send the SAME body
+        fresh = dict(_console_headers(host, port))
+        assert fresh[serve_mod.CONSOLE_TOKEN_HEADER] != stale
+        fresh["Origin"] = origin
+        landed_status, landed = _request(
+            host, port, "POST", "/actions/gate/create-document",
+            body=CREATE_BODY, headers=fresh)
+
+    assert landed_status == 200, landed
+    assert landed["ref"] == DRAFT
+    assert git.branch_exists(DRAFT)
+
+
+def test_the_renderer_repairs_a_stale_token_by_re_reading_it_never_by_reloading():
+    """The renderer's side. ONE policy in the pure model, ONE re-read in the
+    composition root, and both write transports routed through them.
+
+    The load-bearing assertion is the LAST one: no module on this path may
+    reach for `location.reload()`. A reload would fix the header by throwing
+    away the textarea, the selection and the drafted seed — the work the
+    refusal interrupted."""
+    views = REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+    model = (views / "staging-workbench-model.js").read_text(encoding="utf-8")
+
+    # the retriable set is exactly the codes serve.py emits from its
+    # console gate — the refusals raised BEFORE any body read or any write
+    assert "export const CONSOLE_REFUSAL_CODES" in model
+    assert '"agent_invocation"' in model and '"console_required"' in model
+    assert serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED == "console_required"
+    assert "export async function withConsoleRepair(send, repair)" in model
+    # what a page that could NOT repair itself says — never the raw refusal
+    assert "export const CONSOLE_STRANDED_MESSAGE" in model
+    assert "reload to continue" in model
+    assert serve_mod.AGENT_INVOCATION_REFUSAL not in model
+
+    # both write transports build their header INSIDE the retried send (so the
+    # second attempt presents the repaired token) and route through the policy
+    for name in ("swb-session.js", "swb-create.js"):
+        body = (views / name).read_text(encoding="utf-8")
+        assert "withConsoleRepair(send, repair)" in body, name
+        assert "const send = async () => {" in body, name
+        assert "headers: consoleHeaders(caps)" in body, name
+
+    # the re-read itself: the composition root, through the capability probe
+    # app.js already performs (no new route, no new fetch call site), and it
+    # MUTATES the objects the views hold by reference
+    app = (views.parent / "app.js").read_text(encoding="utf-8")
+    assert "export function createConsoleRepair(capsObjects, probe) {" in app
+    assert "const readCapabilities = probe || probeCapabilities;" in app
+    assert "caps[CONSOLE_TOKEN_FIELD] = token;" in app
+    assert "createConsoleRepair([probedCaps, caps])" in app
+
+    # THE RULING: not one of these modules reloads the page. Read on EXECUTABLE
+    # lines only — the comments say `location.reload()` precisely to record why
+    # it is not called.
+    for label, source in (("model", model), ("app.js", app),
+                          ("swb-session.js",
+                           (views / "swb-session.js").read_text(encoding="utf-8")),
+                          ("swb-create.js",
+                           (views / "swb-create.js").read_text(encoding="utf-8")),
+                          ("staging-workbench.js",
+                           (views / "staging-workbench.js").read_text(encoding="utf-8"))):
+        code = "\n".join(line for line in source.splitlines()
+                         if not line.lstrip().startswith(("//", "*", "/*")))
+        assert "location.reload" not in code, label
+
+
+_REPAIR_HARNESS = r"""
+import { createConsoleRepair } from './app.mjs';
+import { firstEditTransport } from './views/swb-session.js';
+import {
+  CONSOLE_REFUSAL_CODES, CONSOLE_STRANDED_MESSAGE, consoleRefusal,
+  withConsoleRepair,
+} from './views/staging-workbench-model.js';
+
+const TOKEN_HEADER = 'X-XF-Console-Token';
+const REFUSED = { ok: false, error: 'agent_invocation', message: 'FR-019 …' };
+const GATE_REFUSED = { ok: false, error: 'gate_refused',
+                       message: 'the document already exists' };
+
+function response(payload) {
+  return { ok: payload.ok === true, status: payload.ok === true ? 200 : 403,
+           async json() { return payload; } };
+}
+
+// ---- (1) the real transport + the REAL repair ------------------------------
+// The page loaded against a serve that has since restarted: `probedCaps` (what
+// `openDraft` creates through) and `caps` (the projection every tile-bound
+// surface reads) both still carry the old token, exactly as app.js holds them.
+const TYPED = '# the body the human typed\n\nnot to be thrown away.\n';
+const calls = [];
+const expected = 'token-new';                     // what the RESTARTED serve wants
+const probedCaps = { actions: { gate: true, session: true },
+                     console_token: 'token-old' };
+const caps = { ...probedCaps };                   // readOnlyCaps copies, so: two objects
+const fetcher = async (url, options) => {
+  const presented = options.headers[TOKEN_HEADER];
+  calls.push({ url, presented, body: JSON.parse(options.body) });
+  return response(presented === expected
+    ? { ok: true, verb: 'edit-document', ref: 'draft/demo-topic',
+        commit: 'c0ffee', document: 'ideation/staging/demo-topic/draft.md',
+        record: 'rec-1', content_hash: { hex: 'abc' }, session: { ref: 'x' } }
+    : REFUSED);
+};
+let probes = 0;
+const repair = createConsoleRepair([probedCaps, caps], async () => {
+  probes += 1;                                    // the same-origin /capabilities GET
+  return { actions: { gate: true, session: true }, console_token: expected };
+});
+const request = {
+  key: { repository: 'openxFactory', tile_kind: 'staged', tile_id: 'demo-topic' },
+  document: 'ideation/staging/demo-topic/draft.md',
+  content: TYPED,
+};
+const verdict = await firstEditTransport({ fetcher, caps, repair })(request);
+
+// a plane that answers with NO console token cannot be retried against
+const noConsole = await createConsoleRepair(
+  [{ console_token: 'x' }], async () => ({ actions: { notebook: false } }))();
+
+// ---- (2) the policy, driven directly on its four other paths ---------------
+async function policy(answers, repairAnswer) {
+  const sent = [];
+  const queue = [...answers];
+  let repaired = 0;
+  const result = await withConsoleRepair(
+    async () => { sent.push(1); return queue.shift(); },
+    async () => { repaired += 1; return repairAnswer; });
+  return { result, sends: sent.length, repaired };
+}
+
+const landsFirstTime = await policy([{ ok: true, ref: 'r' }], true);
+const noRepairPossible = await policy([REFUSED], false);
+const refusedTwice = await policy([REFUSED, REFUSED], true);
+const otherRefusal = await policy([GATE_REFUSED], true);
+const retryHitsGate = await policy([REFUSED, GATE_REFUSED], true);
+const noRepairSeam = await withConsoleRepair(async () => REFUSED, null);
+
+console.log(JSON.stringify({
+  verdict, calls, probes, noConsole,
+  token: caps.console_token, probedToken: probedCaps.console_token,
+  codes: CONSOLE_REFUSAL_CODES,
+  stranded: CONSOLE_STRANDED_MESSAGE,
+  recognises: [consoleRefusal(REFUSED),
+               consoleRefusal({ ok: false, error: 'console_required' }),
+               consoleRefusal(GATE_REFUSED),
+               consoleRefusal({ ok: true }),
+               consoleRefusal(null)],
+  landsFirstTime, noRepairPossible, refusedTwice, otherRefusal, retryHitsGate,
+  noRepairSeam,
+}));
+"""
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not available")
+def test_a_stranded_page_retries_once_and_the_drafted_body_survives(tmp_path):
+    """The behavioural proof, on the REAL transport (`firstEditTransport`, the
+    doxBench governed Save — `submitSession`'s heaviest caller, whose body is
+    the whole editor buffer).
+
+    Two sends, one re-probe, and the second send carries the SAME body it did
+    the first time. That equality IS the requirement: nothing the human wrote
+    was re-derived, re-prompted, or lost."""
+    web_copy = tmp_path / "web"
+    shutil.copytree(WEB, web_copy)
+    (web_copy / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    (web_copy / "vendor" / "package.json").write_text('{"type": "commonjs"}',
+                                                      encoding="utf-8")
+    # app.js ends in a top-level `await main();`, so it is imported through the
+    # same strip-and-import copy test_doxbench_transport.py's harnesses use.
+    original = (web_copy / "app.js").read_text(encoding="utf-8").rstrip()
+    assert original.endswith("await main();"), "harness precondition failed"
+    (web_copy / "app.mjs").write_text(
+        original[: -len("await main();")].rstrip() + "\n", encoding="utf-8")
+    harness = web_copy / "repair-harness.mjs"
+    harness.write_text(_REPAIR_HARNESS, encoding="utf-8")
+    proc = subprocess.run([shutil.which("node"), str(harness)],
+                          capture_output=True, text=True, timeout=60, cwd=web_copy)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    # (1) the recovery, on the real transport
+    assert r["verdict"]["ok"] is True, r["verdict"]
+    assert r["verdict"]["ref"] == "draft/demo-topic"
+    assert r["probes"] == 1, "exactly one re-probe, never a poll"
+    assert len(r["calls"]) == 2, r["calls"]
+    assert r["calls"][0]["presented"] == "token-old"
+    assert r["calls"][1]["presented"] == "token-new"
+    # the repair wrote through to BOTH capability objects the shell holds — the
+    # probe (what `openDraft` creates through) and its read-only projection
+    assert r["token"] == r["probedToken"] == "token-new"
+    # a plane that answers with no console token is not retried against
+    assert r["noConsole"] is False
+    # THE POINT: the retry re-sends what the human wrote, byte for byte
+    assert r["calls"][0]["body"] == r["calls"][1]["body"]
+    assert r["calls"][0]["body"]["content"].startswith("# the body the human typed")
+    assert r["calls"][0]["url"] == r["calls"][1]["url"] == "/actions/gate/first-edit"
+
+    # the retriable set, and what it does and does not recognise
+    assert r["codes"] == ["agent_invocation", "console_required"]
+    assert r["recognises"] == [True, True, False, False, False]
+
+    # a landed action never re-probes and never sends twice
+    assert r["landsFirstTime"] == {"result": {"ok": True, "ref": "r"},
+                                   "sends": 1, "repaired": 0}
+
+    # a plane that could not hand back a console token is not retried against:
+    # no second send, and the human is told plainly rather than shown FR-019's
+    # four clauses
+    assert r["noRepairPossible"]["sends"] == 1
+    assert r["noRepairPossible"]["result"] == {
+        "ok": False, "error": "console_stranded", "message": r["stranded"]}
+    assert r["stranded"] == (
+        "this page was loaded against an earlier serve — reload to continue")
+
+    # refused twice: exactly two sends — never a third, never a loop
+    assert r["refusedTwice"]["sends"] == 2
+    assert r["refusedTwice"]["result"]["error"] == "console_stranded"
+
+    # a refusal that is NOT a console refusal is the engine's own answer and
+    # reaches the human verbatim, with no re-probe behind it
+    assert r["otherRefusal"] == {"result": {"ok": False, "error": "gate_refused",
+                                            "message": "the document already exists"},
+                                 "sends": 1, "repaired": 0}
+    # …and so does one the RETRY runs into: the repair worked, the action did not
+    assert r["retryHitsGate"]["sends"] == 2
+    assert r["retryHitsGate"]["result"]["error"] == "gate_refused"
+
+    # with no repair seam injected at all, the page fails closed and says so
+    assert r["noRepairSeam"]["error"] == "console_stranded"
 
 
 def test_a_scripted_cli_session_verb_is_refused_on_every_verb(

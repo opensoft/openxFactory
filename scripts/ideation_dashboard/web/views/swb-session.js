@@ -73,7 +73,7 @@ import {
   SESSION_FIRST_EDIT, SESSION_REFRESH_NOTEBOOK, SESSION_SAVE, SESSION_VERBS,
   consoleHeaders, firstEditBody, firstEditVerdict, notebookRefreshCommand,
   sessionActionsLive, sessionCommand, sessionRequest, sessionRoute,
-  sessionSurfaceHidden,
+  sessionSurfaceHidden, withConsoleRepair,
 } from "./staging-workbench-model.js";
 
 // ---- the page-lifetime overlays --------------------------------------------
@@ -147,22 +147,33 @@ export function sessionEndingReport(branch) {
 // ---- the ONE request site --------------------------------------------------
 //
 // Three routes, one helper, one write-method literal. `fetcher` is the injected
-// transport seam every sibling module takes.
+// transport seam every sibling module takes, and `repair` is the shell's ONE
+// console-token re-read (app.js `createConsoleRepair`).
+//
+// The header is built INSIDE `send`, from the same `caps` object the repair
+// writes into, so a retry after a serve restart presents the LIVE token. The
+// stakes are the same as the create's: `edit-document` carries the whole
+// rewritten body of a document and `first-edit` the whole editor buffer, so a
+// reload to fix a header would discard exactly the work the refusal
+// interrupted.
 
-async function submitSession(affordance, body, fetcher, caps) {
+async function submitSession(affordance, body, fetcher, caps, repair) {
   const doFetch = fetcher || fetch;
-  const response = await doFetch(sessionRoute(affordance), {
-    method: "POST",
-    // the human-console header among them (FR-019's third clause): a write that
-    // cannot present this serve's token is refused before its body is parsed
-    headers: consoleHeaders(caps),
-    body: JSON.stringify(body),
-  });
-  try {
-    return await response.json();
-  } catch {
-    return { ok: false, message: "malformed response (HTTP " + response.status + ")" };
-  }
+  const send = async () => {
+    const response = await doFetch(sessionRoute(affordance), {
+      method: "POST",
+      // the human-console header among them (FR-019's third clause): a write that
+      // cannot present this serve's token is refused before its body is parsed
+      headers: consoleHeaders(caps),
+      body: JSON.stringify(body),
+    });
+    try {
+      return await response.json();
+    } catch {
+      return { ok: false, message: "malformed response (HTTP " + response.status + ")" };
+    }
+  };
+  return withConsoleRepair(send, repair);
 }
 
 // ---- the doxBench Save transport (010-doxbench-editor-chat T080) -----------
@@ -175,12 +186,12 @@ async function submitSession(affordance, body, fetcher, caps) {
 // this module keeps its no-sibling-import harness discipline. Both wire
 // translations are the MODEL's pure functions; nothing here invents
 // vocabulary. One request per buffer, in the order the planner sends them.
-export function firstEditTransport({ fetcher, caps } = {}) {
+export function firstEditTransport({ fetcher, caps, repair } = {}) {
   return async (req) => firstEditVerdict(
     await submitSession(
       SESSION_FIRST_EDIT,
       firstEditBody(req.key.repository, req.key, req),
-      fetcher, caps));
+      fetcher, caps, repair));
 }
 
 // ---- outcomes --------------------------------------------------------------
@@ -484,7 +495,8 @@ function renderForm(host, affordance, ctx, opts) {
       return;
     }
     submit.disabled = true;
-    const payload = await submitSession(affordance, body, o.fetcher, o.caps);
+    const payload = await submitSession(affordance, body, o.fetcher, o.caps,
+                                        o.repair);
     const ending = await renderOutcome(result, affordance, payload, o);
     // a refusal is retriable in place; a landed action is done, and an ENDING
     // takes the whole affordance set with it
@@ -509,7 +521,9 @@ function renderForm(host, affordance, ctx, opts) {
 // `ctx`: { scope, posture, documents } — the tile's scope (the session identity
 // every request carries), the posture derived in the transport-free model, and
 // the scope's document paths for the edit picker.
-// `opts`: { caps, actor, fetcher, onSessionEnded, onSessionChanged, onRerender }.
+// `opts`: { caps, actor, fetcher, repair, onSessionEnded, onSessionChanged,
+// onRerender } — `repair` being the shell's console-token re-read, handed
+// straight to `submitSession`.
 //
 // The FIRST statement is the capability branch, and it RETURNS: gate-off, no live
 // control is constructed at all (FR-046). The capability is asked exactly once,

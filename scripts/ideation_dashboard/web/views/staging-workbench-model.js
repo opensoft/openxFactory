@@ -796,6 +796,62 @@ export function consoleHeaders(caps) {
   return headers;
 }
 
+// ---- A STRANDED PAGE REPAIRS ITSELF (Brett, 2026-08-09) --------------------
+//
+// Every serve start mints a NEW token, and the page reads `/capabilities` ONCE,
+// at load. So a tab that outlives a restart keeps presenting the old token and
+// every guarded write is refused — and the refusal fires exactly where it costs
+// most: the human has typed a title, a summary and a body, and pressed create.
+//
+// THE REPAIR IS A RE-READ, NOT A RELOAD. `location.reload()` would fix the
+// header by throwing away the textarea, the selection and the drafted seed —
+// the work the refusal interrupted. So the page re-probes `/capabilities`,
+// takes the new token, and sends the SAME request again. This only became
+// necessary when the shell started re-rendering IN PLACE (Brett, 2026-08-09,
+// "get rid of the flash"): before that most actions navigated, and a navigation
+// quietly re-read the token on the way past.
+//
+// WHY AN AUTOMATIC RETRY IS SAFE FOR THESE TWO CODES AND NOTHING ELSE. Both are
+// emitted by `serve.py`'s `_not_the_human_console()` gate, which runs BEFORE the
+// request body is read and before any write: the server did nothing, so sending
+// the request again cannot double anything. That is the whole membership rule —
+// a refusal that might have half-landed stays with the human, so this list is
+// these two codes and never "any 403".
+export const CONSOLE_REFUSAL_CODES = Object.freeze([
+  "agent_invocation",   // /actions/gate/* and /actions/edit
+  "console_required",   // the doxBench model-catalog and chat-turn routes
+]);
+
+export function consoleRefusal(payload) {
+  return !!payload && payload.ok !== true
+    && CONSOLE_REFUSAL_CODES.includes(asId(payload.error));
+}
+
+// What a page that could NOT repair itself says. The wire refusal is a
+// four-clause statement of FR-019 — true, and no use to someone who only wants
+// their create to land, so it is not surfaced.
+export const CONSOLE_STRANDED_MESSAGE =
+  "this page was loaded against an earlier serve — reload to continue";
+
+export function strandedRefusal() {
+  return { ok: false, error: "console_stranded",
+           message: CONSOLE_STRANDED_MESSAGE };
+}
+
+// `send()` once; on a console refusal, `repair()` and `send()` once more. Never
+// a third attempt and never a loop: a second identical refusal means the token
+// was not the problem, and a page that retried forever would hide that instead
+// of saying it. A retry that refuses for some OTHER reason returns that refusal
+// verbatim — the engine's own answer still reaches the human unchanged.
+export async function withConsoleRepair(send, repair) {
+  const first = await send();
+  if (!consoleRefusal(first)) return first;
+  const repaired = typeof repair === "function" ? await repair() : false;
+  if (!repaired) return strandedRefusal();
+  const second = await send();
+  return consoleRefusal(second) ? strandedRefusal() : second;
+}
+
 export const SESSION_EDIT = "edit";
 export const SESSION_FIRST_EDIT = "first-edit";
 export const SESSION_SAVE = "save";

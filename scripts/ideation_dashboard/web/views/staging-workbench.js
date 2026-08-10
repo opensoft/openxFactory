@@ -525,6 +525,14 @@ export function mountStagingWorkbench(container, snapshot,
                                         // checkout to bind to. A new document
                                         // binds to no tile.
                                         createCaps,
+                                        // The shell's ONE console-token
+                                        // re-read (app.js
+                                        // `createConsoleRepair`), forwarded
+                                        // verbatim to the two write
+                                        // transports. This overlay never
+                                        // calls it — it carries no transport
+                                        // and holds no capability of its own.
+                                        consoleRepair,
                                         // the caller's render scope: this
                                         // overlay binds a document listener
                                         signal,
@@ -778,7 +786,7 @@ export function mountStagingWorkbench(container, snapshot,
     seed(tab, extra) { return createSeed(snapshot, scope, tab, extra || {}); },
     options(extra) {
       return {
-        caps, fetcher, slot: (extra || {}).slot,
+        caps, fetcher, repair: consoleRepair, slot: (extra || {}).slot,
         label: CREATE_LABELS[activeTab],
         // task 5.8: land on the document, not on a path string. The snapshot
         // predates the new file, so the viewer resolves it through the same
@@ -870,7 +878,8 @@ export function mountStagingWorkbench(container, snapshot,
       // route is the boundary, and they are deliberately the same sentence.
       documents: rewritableDocuments(scope, createdDocuments(posture.branch)),
     }, {
-      caps, fetcher, actor: (caps && caps.actor) || null,
+      caps, fetcher, repair: consoleRepair,
+      actor: (caps && caps.actor) || null,
       onSessionEnded: async () => {
         if (typeof onSessionEnded !== "function") return null;
         // FR-039 (T081): capture the tile's own session branch BEFORE the
@@ -1460,7 +1469,7 @@ export function mountStagingWorkbench(container, snapshot,
       pane.innerHTML = "";
       if (id === "details") {
         openCreateDialog(pane, seed, {
-          caps: authoring, fetcher,
+          caps: authoring, fetcher, repair: consoleRepair,
           label: "create document",
           // CREATE-THEN-EDIT, in ONE action. The create opened the branch
           // session for this topic's scope; the edit resolves that same LIVE
