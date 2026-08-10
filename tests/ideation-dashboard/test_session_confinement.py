@@ -570,6 +570,73 @@ def test_a_stranded_page_retries_once_and_the_drafted_body_survives(tmp_path):
     assert r["noRepairSeam"]["error"] == "console_stranded"
 
 
+def test_the_session_rekey_asks_the_serve_which_repository_a_session_lives_in(
+        scratch_repo, tmp_path):
+    """MEASURED, 2026-08-10, on the multi-repository local plane. A create from
+    a PROJECT view landed — `200`, branch `draft/company-provisioning-…`
+    opened, the session snapshot generated — and the page then asked for
+
+        GET /snapshot.json?repository=xfactory&ref=draft/company-provisioning-…
+        -> 404 no such snapshot
+
+    because `xfactory` is a PROJECT id, not a repository. The session opened and
+    its document view never did; the human read `the session opened, but its
+    document view could not be loaded`.
+
+    The create itself already follows the ruling — lens.js hands the create the
+    SERVE'S writable repository, never the composed view's `repository`, which
+    is the project id. The RE-KEY that follows the create did not: it read the
+    view's own key, and under a composed view `sourceKeyFor(null)` is null, so
+    it fell through to the project id.
+
+    Two halves, both pinned here: the WIRE fact that makes inference wrong (a
+    session ref is a row under the repository that owns it and under no other
+    name), and the renderer asking `/capabilities` — which declares the
+    repository this serve writes to — before any view-derived fallback."""
+    snapshot = _served_snapshot(scratch_repo, tmp_path / "snapshot.json")
+    registry_seed = _registry(scratch_repo, tmp_path)
+    assert _create_raw(scratch_repo, registry_seed)[0] == 200
+
+    with _serving(scratch_repo, snapshot) as (host, port):
+        _s, caps = _request(host, port, "GET", "/capabilities")
+        _s, index = _request(host, port, "GET", "/snapshot-index.json")
+        rows = {(e["repository"], e["ref"]) for e in index["entries"]}
+        # the session is an ordinary row under the SERVE'S repository (FR-014)
+        assert (scratch_repo.repository, DRAFT) in rows, rows
+        assert caps["repository"] == scratch_repo.repository
+        # …and that is the ONLY name it answers to: any other id at the same
+        # ref is `no such snapshot`, which is exactly what a project id got
+        own, _ = _request(
+            host, port, "GET",
+            f"/snapshot.json?repository={scratch_repo.repository}&ref={DRAFT}")
+        inferred, _ = _request(
+            host, port, "GET",
+            f"/snapshot.json?repository=a-project-id&ref={DRAFT}")
+
+    assert own == 200
+    assert inferred == 404, (
+        "a name that is not the owning repository must not resolve a session "
+        "snapshot — which is why the browser may not infer one")
+
+    app = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "app.js"
+           ).read_text(encoding="utf-8")
+    rekey = app.split("const rekeyToSession = async (ref) => {", 1)[1].split(
+        "\n    };", 1)[0]
+    code = "\n".join(line for line in rekey.splitlines()
+                     if not line.lstrip().startswith("//"))
+    assert "probedCaps?.repository" in code, (
+        "the re-key must ask the serve which repository it writes to")
+    assert code.index("probedCaps?.repository") \
+        < code.index("workbenchSourceKey?.repository") \
+        < code.index("active?.repository"), (
+            "the serve's declaration comes FIRST — the view-derived fallbacks "
+            "resolve to the project id on a composed view")
+    # the UNSTRIPPED probe, never the composed projection: `readOnlyCaps` copies
+    # the probe's read-only facts, but this must not depend on which one a
+    # render produced
+    assert "caps?.repository" not in code
+
+
 def test_a_scripted_cli_session_verb_is_refused_on_every_verb(
         scratch_repo, tmp_path, monkeypatch, capsys, fake_cli_notebook):
     """The CLI half of the reproduction: `cli.main(["gate", "abandon-session",

@@ -822,7 +822,21 @@ async function render() {
       return { active: next, sourceBase: workbenchSourceBase };
     };
     const rekeyToSession = async (ref) => {
-      const repository = workbenchSourceKey?.repository
+      // THE SERVE'S OWN REPOSITORY FIRST (Brett, 2026-08-10 — measured: the
+      // create landed and the page then asked for
+      // `snapshot.json?repository=xfactory&ref=draft/…` and got
+      // `404 no such snapshot`, so the session opened and its document view
+      // never did). A session ref can only exist in the repository this serve
+      // WRITES to — a create naming any other is refused by the route
+      // (`refuse_foreign_repository`) — and `/capabilities` declares it. The
+      // view's own key is not that answer: under a composed project view
+      // `sourceKeyFor(null)` is null and the fallbacks below resolve to the
+      // PROJECT id, which names no repository. This is the same ruling the
+      // create itself already follows (lens.js `writableRepository`), applied
+      // to the re-key that follows it — the browser never INFERS the
+      // repository a session lives in.
+      const repository = probedCaps?.repository
+        || workbenchSourceKey?.repository
         || active?.repository || snapshot.repository;
       const key = safeKey({ repository, ref });
       if (!key) return null;

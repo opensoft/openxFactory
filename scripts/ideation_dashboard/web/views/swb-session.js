@@ -494,9 +494,21 @@ function renderForm(host, affordance, ctx, opts) {
         "this tile resolves no session scope, so no session verb can address it");
       return;
     }
+    // The same running-state the create grew (Brett, 2026-08-10: "i pressed
+    // create twice") and for the same reason: these verbs commit, push and
+    // regenerate — `open-pr` reaches a REMOTE — so the wait is real, and a
+    // button that only greys out invites a second press whose refusal reads as
+    // the outcome of the first.
+    const label = submit.textContent;
     submit.disabled = true;
-    const payload = await submitSession(affordance, body, o.fetcher, o.caps,
-                                        o.repair);
+    submit.textContent = label + "…";
+    let payload;
+    try {
+      payload = await submitSession(affordance, body, o.fetcher, o.caps,
+                                    o.repair);
+    } finally {
+      submit.textContent = label;
+    }
     const ending = await renderOutcome(result, affordance, payload, o);
     // a refusal is retriable in place; a landed action is done, and an ENDING
     // takes the whole affordance set with it

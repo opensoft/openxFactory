@@ -825,6 +825,34 @@ def test_create_transport_uses_the_injected_fetcher_spelling():
             f"non-clearing innerHTML assignment: {m.group(0)!r}"
 
 
+def test_a_running_write_says_so_on_its_own_button():
+    """Brett, 2026-08-10: "i pressed create twice", and the log says what that
+    cost. Press one opened the session, committed the document and regenerated
+    the session snapshot, then answered `200` — 90 seconds later, contending
+    with press two. Press two JOINED that session, found the document already
+    there, and answered `409 corpus documents are create-only` in 15 seconds.
+    So the FIRST answer the human read was the refusal of their own duplicate,
+    for work that had in fact landed.
+
+    `disabled` alone caused it: it says "not now" and nothing about "working".
+    Both write buttons now carry a RUNNING LABEL for as long as the request is
+    in flight, restored in `finally` so a refusal is retriable in place with
+    its own words back on the button — the same shape notebook.js's action
+    already used ("opening NotebookLM…")."""
+    create = CREATE_JS.read_text(encoding="utf-8")
+    session = (WEB / "views" / "swb-session.js").read_text(encoding="utf-8")
+    for name, body in (("swb-create.js", create), ("swb-session.js", session)):
+        assert "const label = submit.textContent;" in body, name
+        assert "submit.disabled = true;" in body, name
+        assert "} finally {\n      submit.textContent = label;\n    }" in body, name
+        # the running label must be SET before the await and never left behind
+        assert body.index("submit.textContent = ") < body.index("} finally {"), name
+    # the create names what the wait is FOR — a create is not a file write, it
+    # opens a branch session, which is why it takes as long as it does
+    assert 'submit.textContent = "creating… (opening the branch session)";' in create
+    assert 'submit.textContent = label + "…";' in session
+
+
 def test_workbench_posture_and_affordances_are_capability_derived():
     """Tasks 5.1/5.7/5.9: `caps` is threaded in from app.js's ONE probe, the
     posture pill is derived from it (the hosted image keeps the exact `read-only`
