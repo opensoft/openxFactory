@@ -22,7 +22,7 @@
     removes an existing corpus document;
   * "notebook set-removal semantics" — the LIFECYCLE PROJECTION case
     (distinct from the workbench `xf-wb-*` case T029 already covers): a
-    source manually removed from a projection notebook (`xf-ideation`/
+    source manually removed from a projection notebook (`xf-ideation-<repo>`/
     `xf-drafts`/`xf-canon`) is restored on the NEXT
     `scripts/sync-notebooklm-books.py` run, proven against the REAL
     `sync_book` function (it recomputes each book's desired membership from

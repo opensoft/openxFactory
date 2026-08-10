@@ -157,7 +157,7 @@ nlm notebook query xf-canon "What owns gate structure?"
 nlm cross query "Where do drafts contradict canon?" --tags "xfactory"
 
 # 4. Artifacts (async on Google's side).
-nlm mindmap create xf-ideation --confirm
+nlm mindmap create xf-ideation-openxfactory --confirm
 nlm report create xf-canon --format "Briefing Doc" --confirm
 nlm studio status xf-canon
 ```

@@ -4,7 +4,7 @@ add-ideation-dashboard task 4.1; the wave-6 note at workbench.orphan_sweep).
 Proves, on a fake nlm runner (the real CLI is never invoked):
   * --apply removes `xf-wb-*` notebooks no live manifest binds and keeps
     bound ones;
-  * the lifecycle books (xf-ideation / xf-drafts / xf-canon) and every other
+  * the lifecycle books (xf-ideation-<repo> / xf-drafts / xf-canon) and every other
     non-`xf-wb-*` notebook are NOT sweep candidates — immune by construction;
   * the dry run only prints a plan (no deletions) and its verbs never match
     doc-health's notebook-projection-drift operation pattern;
