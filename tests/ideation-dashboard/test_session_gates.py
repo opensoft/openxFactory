@@ -773,7 +773,12 @@ def test_a_first_edit_on_a_proposed_tile_opens_nothing_and_names_demote(
     before = scratch_repo.served_fingerprint()
 
     document = f"ideation/staging/{TOPIC}/README.md"
-    base = (scratch_repo.root / document).read_text(encoding="utf-8")
+    # the SERVED bytes through the production lens (strict decode, no newline
+    # translation) — `read_text` would silently normalize a CRLF fixture into
+    # a hash no real client sends (Copilot review finding on this PR; the
+    # W-7 class, where LF-only fixtures mask the divergence)
+    base = doxbench_hash.served_text(
+        (scratch_repo.root / document).read_bytes())
     status, payload = gr.run_gate_action(
         "first-edit",
         {"scope_kind": bs.STAGED_TOPIC, "scope_id": TOPIC,
