@@ -141,6 +141,28 @@ def resolve_root(root: Path | str | None = None, *,
 
 # --------------------------- declared-pin parity ---------------------------
 
+# T104 final queue Q-2 (ruled 2026-08-09), the parse memo: yaml parsing is
+# what actually costs (~100 ms for the 181-entry manifest — the jsonschema
+# compile is cheap by comparison), so every INPUT keeps its per-request
+# byte-read + digest while only the PARSE of bytes that already proved
+# themselves is reused. A changed byte makes a new key, so nothing stale can
+# ever be served — the fail-closed chain sees every drift on the request that
+# carries it.
+_PARSED_BY_DIGEST: dict[tuple[str, str], Any] = {}
+
+
+def _parsed_yaml(path: Path, raw: bytes, *, what: str) -> Any:
+    key = (str(path), hashlib.sha256(raw).hexdigest())
+    if key in _PARSED_BY_DIGEST:
+        return _PARSED_BY_DIGEST[key]
+    try:
+        doc = yaml.safe_load(raw.decode("utf-8"))
+    except (UnicodeDecodeError, yaml.YAMLError) as error:
+        raise ContractPinError(f"{path}: unreadable {what} ({error})") from error
+    _PARSED_BY_DIGEST[key] = doc
+    return doc
+
+
 def verify_stack_pin(repo_root: Path | str | None = None) -> str:
     """Return `stack.yaml`'s declared `xfactory.contract_ref`, refusing unless it
     equals `CONTRACT_REF`. A drifted pin is an error, never a silent pass: the
@@ -152,9 +174,10 @@ def verify_stack_pin(repo_root: Path | str | None = None) -> str:
         raise ContractPinError(f"{stack}: no {STACK_FILE} to verify the "
                                f"{CONTRACT_TAG} pin against")
     try:
-        declared = yaml.safe_load(stack.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, yaml.YAMLError) as error:
+        raw = stack.read_bytes()
+    except OSError as error:
         raise ContractPinError(f"{stack}: unreadable ({error})") from error
+    declared = _parsed_yaml(stack, raw, what="stack declaration")
     section = declared.get("xfactory") if isinstance(declared, dict) else None
     ref = section.get("contract_ref") if isinstance(section, dict) else None
     if not isinstance(ref, str) or not ref:
@@ -192,9 +215,10 @@ def _manifest_digests(root: Path) -> dict[str, Any]:
             f"{path}: the checkout carries no contracts/manifest.yaml, so its "
             f"self-description cannot be checked against the pinned bytes")
     try:
-        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, yaml.YAMLError) as error:
+        raw = path.read_bytes()
+    except OSError as error:
         raise ContractPinError(f"{path}: unreadable manifest ({error})") from error
+    doc = _parsed_yaml(path, raw, what="manifest")
     entries = doc.get("contracts") if isinstance(doc, dict) else None
     if not isinstance(entries, list):
         raise ContractPinError(f"{path}: manifest declares no contracts list")
@@ -203,9 +227,12 @@ def _manifest_digests(root: Path) -> dict[str, Any]:
             if isinstance(entry, dict) and isinstance(entry.get("path"), str)}
 
 
-def _verified_document(root: Path, name: str, manifest: dict[str, Any]) -> dict:
-    """Read one pinned schema, refusing unless its bytes hash to the pinned
-    digest AND the checkout's manifest records that same digest."""
+def _verified_bytes(root: Path, name: str, manifest: dict[str, Any]) -> bytes:
+    """Read one pinned schema's BYTES, refusing unless they hash to the pinned
+    digest AND the checkout's manifest records that same digest. The whole
+    fail-closed chain lives here — `_verified_document` adds only the parse —
+    so the validator cache's per-request re-verification (T104 final queue
+    Q-2) runs exactly these refusals, never a restatement of them."""
     path = root / SCHEMAS_RELPATH / name
     if not path.is_file():
         raise ContractPinError(
@@ -229,6 +256,12 @@ def _verified_document(root: Path, name: str, manifest: dict[str, Any]) -> dict:
             f"{name}: the checkout's contracts/manifest.yaml records sha256 "
             f"{recorded} but the bytes hash to {actual} — the checkout is not a "
             f"coherent {CONTRACT_TAG} release")
+    return raw
+
+
+def _verified_document(root: Path, name: str, manifest: dict[str, Any]) -> dict:
+    """One pinned schema, parsed — every refusal is `_verified_bytes`'s."""
+    raw = _verified_bytes(root, name, manifest)
     try:
         doc = yaml.safe_load(raw.decode("utf-8"))
     except (UnicodeDecodeError, yaml.YAMLError) as error:
@@ -276,15 +309,41 @@ def load_released_schemas(root: Path | str | None = None, *,
 
 # --------------------------- structural validation ---------------------------
 
+# T104 final queue Q-2 (ruled 2026-08-09): the plan's 100 ms pre-dispatch p95
+# target STANDS, so compiled validators are reused across calls — keyed on the
+# digests the per-call verification just PROVED, never on time or on trust.
+# Every call still runs the whole fail-closed chain (declared pin, checkout
+# resolution, manifest parity, released bytes); only the yaml parse, the
+# registry build, and the jsonschema compilation are amortized. A drifted byte
+# refuses on the very request that sees it, because the key is derived FROM
+# the verified bytes (pinned by
+# test_the_cache_never_shortcuts_the_byte_verification).
+_VALIDATOR_CACHE: dict[tuple, dict[str, Draft202012Validator]] = {}
+
+
 def validators(root: Path | str | None = None, *,
                repo_root: Path | str | None = None
                ) -> dict[str, Draft202012Validator]:
     """One draft-2020-12 validator per instance kind, each resolving `$ref`s
-    through the offline registry built from the released documents."""
+    through the offline registry built from the released documents.
+
+    Returns a fresh dict per call (a caller mutating its copy cannot poison
+    the cache); the VALIDATOR objects are shared once their bytes verify."""
+    verify_stack_pin(repo_root)
+    checkout = resolve_root(root)
+    manifest = _manifest_digests(checkout)
+    for name in sorted(SCHEMA_DIGESTS):
+        _verified_bytes(checkout, name, manifest)
+    key = (str(Path(checkout).resolve()), tuple(sorted(SCHEMA_DIGESTS.items())))
+    cached = _VALIDATOR_CACHE.get(key)
+    if cached is not None:
+        return dict(cached)
     release = load_release(root, repo_root=repo_root)
-    return {kind: Draft202012Validator(schema, registry=release.registry,
-                                       format_checker=FORMAT_CHECKER)
-            for kind, schema in release.schemas.items()}
+    built = {kind: Draft202012Validator(schema, registry=release.registry,
+                                        format_checker=FORMAT_CHECKER)
+             for kind, schema in release.schemas.items()}
+    _VALIDATOR_CACHE[key] = built
+    return dict(built)
 
 
 def _dispatch_kind(doc: Any) -> str:

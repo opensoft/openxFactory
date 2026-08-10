@@ -1083,11 +1083,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         Resolved through the INJECTED `schema_validator_factory` seam, bound
         exactly like `model_port_factory`, so no test and no non-console plane
-        depends on a pinned openxFactory checkout being present. Resolution is
-        PER REQUEST, not cached: the pinned loader re-verifies digests, the
+        depends on a pinned openxFactory checkout being present. The factory
+        runs PER REQUEST, and the pinned loader re-verifies digests, the
         checkout's own manifest, and `stack.yaml`'s declared ref every time, so
         a checkout that drifts mid-run stops being trusted at the next request
-        rather than at the next restart.
+        rather than at the next restart. Since the T104 final-queue Q-2 ruling
+        (2026-08-09) the loader amortizes only the parse/compile behind a
+        digest-keyed cache — the byte verification itself is never skipped, so
+        this comment's freshness claim survives the cache by construction.
 
         Unlike `_workbench_model_port`, absence here is NOT a posture: a route
         that cannot read the contract must refuse, because serving a shape
