@@ -372,8 +372,18 @@ def test_lifecycle_projection_restores_a_manually_removed_source_on_next_sync(tm
 
     add_calls: list[tuple] = []
 
+    # split-ideation-book-per-repo: the projection's ideation book for
+    # openxFactory, resolved by TITLE and addressed by notebook id.
+    spec = sync.ideation_spec("openxFactory")
+    book_id = "nb-ideation-openx"
+    notebooks = [{"id": book_id, "title": spec.title}]
+
     def fake_nlm(existing_fn):
         def _fake(*args, parse=True):
+            if args[:2] == ("notebook", "list"):
+                return list(notebooks)
+            if args[:2] == ("alias", "set"):
+                return ""
             if args[:2] == ("source", "list"):
                 return existing_fn()
             add_calls.append(args)
@@ -381,22 +391,24 @@ def test_lifecycle_projection_restores_a_manually_removed_source_on_next_sync(tm
         return _fake
 
     # first sync: the notebook is empty, so the source is added.
-    with patch.object(sync, "nlm", fake_nlm(lambda: [])):
-        sync.sync_book(tmp_path, "ideation", desired, manifest, True)
-    assert any(c[:3] == ("source", "add", "xf-ideation") and title in c for c in add_calls)
+    with patch.object(sync, "nlm", fake_nlm(lambda: [])), \
+            patch.object(sync.time, "sleep", lambda _s: None):
+        sync.sync_book(tmp_path, spec, desired, manifest, True)
+    assert any(c[:3] == ("source", "add", book_id) and title in c for c in add_calls)
 
     # a human manually removes the source from the notebook: the corpus
     # document and its declared Status: header are UNCHANGED, but the next
     # `source list` no longer returns it.
     add_calls.clear()
-    with patch.object(sync, "nlm", fake_nlm(lambda: [])):
-        sync.sync_book(tmp_path, "ideation", desired, manifest, True)
+    with patch.object(sync, "nlm", fake_nlm(lambda: [])), \
+            patch.object(sync.time, "sleep", lambda _s: None):
+        sync.sync_book(tmp_path, spec, desired, manifest, True)
 
     # RESTORE: sync_book recomputes desired membership straight from the
     # corpus's declared lifecycle status on every run — never from a
     # "previously removed" memory — so the manually removed source is
     # re-added exactly as on first sync (spec "Notebook set-removal
     # semantics" scenario 2: "the next projection sync restores the set").
-    assert any(c[:3] == ("source", "add", "xf-ideation") and title in c for c in add_calls)
+    assert any(c[:3] == ("source", "add", book_id) and title in c for c in add_calls)
     assert full.read_text(encoding="utf-8") == \
         "# Example — Brainstorm\n\nStatus: brainstorm\nKind: note\n"  # corpus untouched throughout

@@ -8,11 +8,18 @@ change them only through an OpenSpec delta to that capability.
 
 Scans the xFactory workspace for governance docs carrying the controlled
 Status taxonomy (openxFactory/docs/document-lifecycle.md) and reconciles
-three NotebookLM notebooks so membership is always derived, never curated:
+the NotebookLM books so membership is always derived, never curated:
 
-  ideation  <- Status: brainstorm, staged
-  drafts    <- Status: draft
-  canon     <- Status: ratified, standard  (+ promoted openspec/specs)
+  ideation-<repo>  <- Status: brainstorm, staged (ONE book per governed repo;
+                      split-ideation-book-per-repo, after the shared book hit
+                      the 300-source cap 2026-08-10)
+  drafts           <- Status: draft
+  canon            <- Status: ratified, standard  (+ promoted openspec/specs)
+
+Books are resolved by NOTEBOOK TITLE (the provider's truth). The alias
+family (xf-ideation-<repo-slug>, xf-drafts, xf-canon) is a machine-local
+operator convenience: re-registered idempotently per run, never fatal when
+absent — a second host or CI runner carries no alias store.
 
 Statuses record, superseded, and retired are excluded by design. Source
 titles carry a "[status]" prefix so citations self-declare authority
@@ -62,11 +69,52 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
 
-BOOKS = {
-    "ideation": {"alias": "xf-ideation", "statuses": {"brainstorm", "staged"}},
-    "drafts": {"alias": "xf-drafts", "statuses": {"draft"}},
-    "canon": {"alias": "xf-canon", "statuses": {"ratified", "standard"}},
+STATIC_BOOKS = {
+    "drafts": {"alias": "xf-drafts", "title": "xFactory — Working Drafts",
+               "statuses": {"draft"}},
+    "canon": {"alias": "xf-canon", "title": "xFactory — Canon",
+              "statuses": {"ratified", "standard"}},
 }
+# Legacy name kept for external iterators (tests, sweep wiring): the SHARED
+# books. The per-repo ideation family is derived at scan time; its aliases
+# all carry IDEATION_ALIAS_PREFIX.
+BOOKS = STATIC_BOOKS
+
+IDEATION_STATUSES = {"brainstorm", "staged"}
+IDEATION_KEY_PREFIX = "ideation-"
+IDEATION_ALIAS_PREFIX = "xf-ideation-"
+IDEATION_TITLE_PREFIX = "xFactory Ideation — "
+
+# NotebookLM's per-notebook source cap (plan-dependent platform property;
+# contract surface per the projection capability's capacity guard — recorded
+# in docs/lifecycle-notebook-projection.md). The 2026-08-10 incident: the
+# shared ideation book reached it mid-run and every later add died.
+NOTEBOOK_SOURCE_CAP = 300
+# Headroom (in sources, not percent: lead time is what matters and it must
+# not scale away) at or below which the guard warns and names the owed
+# split delta for a book with no successor split defined.
+CAP_WARN_HEADROOM = 30
+
+
+@dataclass(frozen=True)
+class BookSpec:
+    """One lifecycle book's identity: manifest/report key, provider title
+    (the resolution key), and machine-local alias (convenience only)."""
+    key: str
+    alias: str
+    title: str
+
+
+def ideation_spec(repo: str) -> BookSpec:
+    slug = repo.lower()
+    return BookSpec(key=f"{IDEATION_KEY_PREFIX}{slug}",
+                    alias=f"{IDEATION_ALIAS_PREFIX}{slug}",
+                    title=f"{IDEATION_TITLE_PREFIX}{repo}")
+
+
+def static_spec(book: str) -> BookSpec:
+    cfg = STATIC_BOOKS[book]
+    return BookSpec(key=book, alias=cfg["alias"], title=cfg["title"])
 
 # Added to every book regardless of status so chat can ground ideas
 # against the running system's shape.
@@ -603,9 +651,16 @@ def pinned_factory_paths(root: Path) -> list[str]:
             if p.is_dir() and not p.name.endswith(SESSION_CONTAINER_SUFFIX)]
 
 
-def scan(root: Path) -> dict[str, dict[str, str]]:
-    """Return {book: {relpath: title}} desired state."""
-    desired: dict[str, dict[str, str]] = {b: {} for b in BOOKS}
+def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
+    """Return ({book_key: {relpath: title}}, {book_key: BookSpec}) desired state.
+
+    Ideation membership is per-repository and STATUS-DERIVED ONLY: an
+    ideation book (and therefore its lazy creation) exists exactly when its
+    repo has at least one brainstorm/staged document — charter and grounding
+    are seeds added to books that exist, never membership that creates one
+    (split-ideation-book-per-repo)."""
+    desired: dict[str, dict[str, str]] = {b: {} for b in STATIC_BOOKS}
+    specs: dict[str, BookSpec] = {b: static_spec(b) for b in STATIC_BOOKS}
     for base in ["openxFactory", *pinned_factory_paths(root)]:
         basep = root / base
         for f in sorted(basep.rglob("*.md")):
@@ -622,37 +677,189 @@ def scan(root: Path) -> dict[str, dict[str, str]]:
             # ambiguous stems take their parent dir (docs/lifecycle-notebook-projection.md §2)
             stem = f"{f.parent.name}/{f.stem}" if f.stem.lower() == "readme" else f.stem
             title = f"[{status}] {repo}: {stem}"
-            for book, cfg in BOOKS.items():
+            if status in IDEATION_STATUSES:
+                spec = ideation_spec(repo)
+                specs.setdefault(spec.key, spec)
+                desired.setdefault(spec.key, {})[str(rel)] = title
+            for book, cfg in STATIC_BOOKS.items():
                 if status in cfg["statuses"]:
                     desired[book][str(rel)] = title
     # promoted specs -> canon
     for f in sorted((root / "openxFactory/openspec/specs").glob("*/spec.md")):
         rel = f.relative_to(root)
         desired["canon"][str(rel)] = f"[spec] openxFactory: {f.parent.name}"
-    # grounding set -> every book
+    # grounding set -> every book that exists by membership
     for g in GROUNDING:
         stem = Path(g).stem
-        for book in BOOKS:
+        for book in desired:
             desired[book][g] = f"[grounding] openxFactory: {stem}"
-    return desired
+    return desired, specs
 
 
-def sync_book(root: Path, book: str, desired: dict[str, str], manifest: dict, apply: bool) -> None:
-    alias = BOOKS[book]["alias"]
-    existing = nlm("source", "list", alias, "--json")
+def list_notebooks() -> list[dict]:
+    rows = nlm("notebook", "list", "--json")
+    if isinstance(rows, dict):
+        rows = rows.get("notebooks", [])
+    if isinstance(rows, str):
+        return []
+    return [r for r in rows if isinstance(r, dict)]
+
+
+def _ensure_alias(spec: BookSpec, notebook_id: str) -> None:
+    """Idempotent, NEVER fatal: aliases live in a per-machine CLI store, so a
+    host that lacks one must gain it quietly, and a host that cannot set one
+    must not lose the run over a convenience."""
+    try:
+        nlm("alias", "set", spec.alias, notebook_id, parse=False)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[{spec.key}] NOTICE alias {spec.alias!r} not registered "
+              f"(non-fatal: {exc})")
+
+
+def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> None:
+    """Write the book's external_source_workspace record at creation — its
+    provider id does not exist until the notebook does
+    (split-ideation-book-per-repo; model: docs/notebooklm-source-workspaces.md §6)."""
+    path = root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
+    record_id = f"workspace-xfactory-lifecycle-{spec.key}"
+    if not path.is_file():
+        print(f"[{spec.key}] NOTICE workspace registry missing at {path}; "
+              f"record {record_id} not written")
+        return
+    text = path.read_text(encoding="utf-8")
+    if f"id: {record_id}" in text:
+        if notebook_id not in text:
+            print(f"[{spec.key}] NOTICE workspace record {record_id} exists "
+                  f"with a DIFFERENT provider_notebook_id — reconcile by hand")
+        return
+    created = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    repo = spec.title.removeprefix(IDEATION_TITLE_PREFIX)
+    block = (
+        f"  - kind: external_source_workspace\n"
+        f"    schema_version: 1\n"
+        f"    id: {record_id}\n"
+        f"    provider: notebooklm\n"
+        f"    provider_notebook_id: {notebook_id}\n"
+        f"    owner_layer: domain_hermes\n"
+        f"    scope:\n"
+        f"      domain_id: xfactory\n"
+        f"      client_id: null\n"
+        f"      customer_id: null\n"
+        f"    purpose: derived projection of brainstorm and staged governance docs ({repo})\n"
+        f"    default_authority_level: L1_notebook_synthesis\n"
+        f"    created_at: \"{created}\"\n"
+        f"    managed_by: openxFactory/scripts/sync-notebooklm-books.py\n"
+    )
+    path.write_text(text.rstrip("\n") + "\n" + block, encoding="utf-8")
+    print(f"[{spec.key}] workspace record {record_id} -> "
+          f"{path.relative_to(root)} (commit it with the migration evidence)")
+
+
+def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
+                           notebooks: list[dict] | None = None
+                           ) -> tuple[str | None, bool]:
+    """Resolve a book to its notebook id BY TITLE; lazily create it in apply
+    mode. Returns (notebook_id | None, fully_ok). A dry run over a missing
+    book reports the pending creation (verb CREATE — deliberately not
+    ADD/DEL/UPD) and returns (None, True): the diff then runs against an
+    empty listing so the pending adds are visible drift."""
+    rows = notebooks if notebooks is not None else list_notebooks()
+    by_title = {r.get("title"): r.get("id") for r in rows if r.get("id")}
+    nid = by_title.get(spec.title)
+    if nid:
+        _ensure_alias(spec, nid)
+        return nid, True
+    if not apply:
+        print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")
+        return None, True
+    # The one create form both CLI generations speak: NO --json (nlm 0.5.26
+    # rejects it on create — live drift 2026-08-04, see
+    # ideation_dashboard/workbench.py _create_titled); the id comes from a
+    # fresh title listing, never from the create's echo.
+    nlm("notebook", "create", spec.title, parse=False)
+    time.sleep(2)
+    fresh = {r.get("title"): r.get("id") for r in list_notebooks() if r.get("id")}
+    nid = fresh.get(spec.title)
+    if not nid:
+        raise RuntimeError(
+            f"created notebook {spec.title!r} but a fresh listing does not "
+            f"resolve it by title")
+    print(f"[{spec.key}] CREATED {spec.title} ({nid})")
+    ok = True
+    _ensure_alias(spec, nid)
+    # Contract surface at creation (split-ideation-book-per-repo): tags keep
+    # the book inside cross-tag query scope; framing is the capability's
+    # Authority-framing requirement. A failure is REPORTED and fails the run
+    # (nonzero), never silent — an unframed or untagged book is
+    # non-conformant, not merely imperfect.
+    try:
+        nlm("tag", "add", nid, "--tags", "xfactory,lifecycle", parse=False)
+    except Exception as exc:  # noqa: BLE001
+        ok = False
+        print(f"[{spec.key}] FAILED tagging {spec.title!r}: {exc}")
+    try:
+        nlm("chat", "configure", nid, "--goal", "custom", "--prompt",
+            CHAT_PROMPT, parse=False)
+    except Exception as exc:  # noqa: BLE001
+        ok = False
+        print(f"[{spec.key}] FAILED chat framing for {spec.title!r}: {exc}")
+    ensure_workspace_record(root, spec, nid)
+    time.sleep(2)
+    return nid, ok
+
+
+def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
+              manifest: dict, apply: bool, *,
+              notebooks: list[dict] | None = None) -> tuple[bool, bool]:
+    """Reconcile ONE book. Returns (ok, overflowed).
+
+    The book is resolved by title and addressed by notebook id; the capacity
+    guard runs before any mutation (split-ideation-book-per-repo): projected
+    occupancy counts the desired managed set + the charter + every unmanaged
+    source the reconciliation deliberately preserves."""
+    key = spec.key
+    nid, ok = resolve_or_create_book(root, spec, apply, notebooks)
+    handle = nid if nid else spec.title  # dry-run over a missing book
+    existing = nlm("source", "list", nid, "--json") if nid else []
     if isinstance(existing, str):
         existing = []
     by_title: dict[str, list[str]] = {}
+    unmanaged = 0
     for s in existing:
-        if s.get("id"):
-            by_title.setdefault(s.get("title", ""), []).append(s["id"])
-    mf = manifest.setdefault(book, {})
+        if not s.get("id"):
+            continue
+        title = s.get("title", "")
+        by_title.setdefault(title, []).append(s["id"])
+        if not (title.startswith("[") or title == CHARTER_TITLE):
+            unmanaged += 1
+    mf = manifest.setdefault(key, {})
+
+    # ---- capacity guard (before any mutation) ----
+    overflowed = False
+    projected = len(desired) + 1 + unmanaged  # members + charter + unmanaged
+    headroom = NOTEBOOK_SOURCE_CAP - projected
+    if projected > NOTEBOOK_SOURCE_CAP:
+        overflowed = True
+        allowed = max(0, NOTEBOOK_SOURCE_CAP - 1 - unmanaged)
+        items = sorted(desired.items())
+        for rel, title in items[allowed:]:
+            print(f"[{key}] EXCESS {title} (occupancy {projected} exceeds "
+                  f"cap {NOTEBOOK_SOURCE_CAP}; cannot project)")
+        desired = dict(items[:allowed])
+        print(f"[{key}] OVER CAP: projecting the deterministic in-cap prefix "
+              f"({allowed} of {len(items)} members; charter + {unmanaged} "
+              f"unmanaged occupy the rest)")
+    elif headroom <= CAP_WARN_HEADROOM:
+        print(f"[{key}] WARN headroom {headroom}: occupancy {projected} of "
+              f"cap {NOTEBOOK_SOURCE_CAP}. No successor split is defined for "
+              f"this book — the owed remedy is an OpenSpec delta to "
+              f"lifecycle-notebook-projection defining its split")
 
     # charter
     if CHARTER_TITLE not in by_title:
-        print(f"[{book}] ADD  {CHARTER_TITLE}")
-        if apply:
-            nlm("source", "add", alias, "--text", CHARTER, "--title", CHARTER_TITLE, parse=False)
+        print(f"[{key}] ADD  {CHARTER_TITLE}")
+        if apply and nid:
+            nlm("source", "add", handle, "--text", CHARTER, "--title", CHARTER_TITLE, parse=False)
             time.sleep(2)
 
     wanted_titles = set(desired.values()) | {CHARTER_TITLE}
@@ -664,7 +871,7 @@ def sync_book(root: Path, book: str, desired: dict[str, str], manifest: dict, ap
             continue
         doomed = sids if title not in wanted_titles else sids[1:]
         for sid in doomed:
-            print(f"[{book}] DEL  {title}")
+            print(f"[{key}] DEL  {title}")
             if apply:
                 nlm("source", "delete", sid, "--confirm", parse=False)
                 time.sleep(2)
@@ -677,16 +884,17 @@ def sync_book(root: Path, book: str, desired: dict[str, str], manifest: dict, ap
         if title in by_title and prev and prev.get("hash") == digest:
             continue
         if title in by_title and (not prev or prev.get("hash") != digest):
-            print(f"[{book}] UPD  {title}")
+            print(f"[{key}] UPD  {title}")
             if apply:
                 nlm("source", "delete", by_title[title][0], "--confirm", parse=False)
                 time.sleep(2)
         elif title not in by_title:
-            print(f"[{book}] ADD  {title}")
+            print(f"[{key}] ADD  {title}")
         if apply:
-            nlm("source", "add", alias, "--text", text, "--title", title, parse=False)
+            nlm("source", "add", handle, "--text", text, "--title", title, parse=False)
             time.sleep(2)
         mf[rel] = {"hash": digest, "title": title}
+    return ok, overflowed
 
 
 # Workbench orphan sweep (openxFactory add-ideation-dashboard, task 4.1
@@ -1136,7 +1344,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("root", type=Path)
     ap.add_argument("--apply", action="store_true")
-    ap.add_argument("--book", choices=list(BOOKS), help="sync one book only")
+    ap.add_argument("--book", help="sync one book only (a scan-derived key: "
+                                   "drafts, canon, or ideation-<repo-slug>)")
     ap.add_argument("--session-ref", metavar="BRANCH",
                     help="create/re-sync the xf-session-* notebook of the live "
                          "branch session on BRANCH, from its worktree")
@@ -1182,15 +1391,48 @@ def main() -> None:
 
     manifest_path = args.root / ".claude/nlm-sync-manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    desired = scan(args.root)
+    if manifest.pop("ideation", None) is not None:
+        print("manifest: dropped the retired shared-ideation key "
+              "(split-ideation-book-per-repo)")
+    desired, specs = scan(args.root)
+    if args.book and args.book not in desired:
+        ap.error(f"--book {args.book!r} is not a book this scan derives; "
+                 f"available: {', '.join(sorted(desired))}")
+
+    def flush_manifest() -> None:
+        # per BOOK, not per run: an interrupted migration must resume as a
+        # no-op over the books it finished, never as delete+re-add of
+        # everything (split-ideation-book-per-repo)
+        manifest_path.parent.mkdir(exist_ok=True)
+        manifest_path.write_text(json.dumps(manifest, indent=1))
+
+    notebooks = None
+    failures: list[str] = []
+    overflows: list[str] = []
     for book, items in desired.items():
         if args.book and book != args.book:
             continue
         print(f"== {book}: {len(items)} desired sources ==")
-        sync_book(args.root, book, items, manifest, args.apply)
+        try:
+            if notebooks is None:
+                notebooks = list_notebooks()
+            ok, overflowed = sync_book(args.root, specs[book], items, manifest,
+                                       args.apply, notebooks=notebooks)
+        except Exception as exc:  # noqa: BLE001 - contained per book
+            failures.append(book)
+            print(f"[{book}] FAILED ({exc}); continuing with the remaining books")
+            notebooks = None  # the cached listing may be at fault; refetch
+            if args.apply:
+                flush_manifest()
+            continue
+        if overflowed:
+            overflows.append(book)
+        if not ok:
+            failures.append(book)
+        if args.apply:
+            flush_manifest()
     if args.apply:
-        manifest_path.parent.mkdir(exist_ok=True)
-        manifest_path.write_text(json.dumps(manifest, indent=1))
+        flush_manifest()
         print(f"manifest -> {manifest_path}")
 
     # Workbench orphan sweep rides the same run (dry-run prints the plan;
@@ -1199,6 +1441,15 @@ def main() -> None:
         workbench_orphan_sweep(args.root, args.apply)
     except Exception as exc:
         print(f"[workbench] orphan sweep SKIPPED (unexpected error: {exc})")
+
+    if failures or overflows:
+        parts = []
+        if overflows:
+            parts.append(f"over-cap: {', '.join(overflows)}")
+        if failures:
+            parts.append(f"failed: {', '.join(failures)}")
+        raise SystemExit(f"[sync] nonzero — {'; '.join(parts)} (every other "
+                         f"book completed)")
 
 
 if __name__ == "__main__":

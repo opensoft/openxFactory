@@ -16,7 +16,7 @@
 
 ## 2. Sync implementation (code_surface: openxFactory)
 
-- [ ] 2.1 `scripts/sync-notebooklm-books.py`: derive ideation book identity
+- [x] 2.1 `scripts/sync-notebooklm-books.py`: derive ideation book identity
       per governed repository (`xFactory Ideation — <RepoName>` /
       `xf-ideation-<repo-slug>`); membership = status-derived set only
       (charter/grounding are seeds, never membership); resolve books by
@@ -25,7 +25,7 @@
       book identities, drop the stale `ideation` key, and FLUSH the
       manifest after each book (not once at the end) so an interrupted run
       resumes without delete/re-add churn.
-- [ ] 2.2 Lazy creation, apply-mode only, via the centralized create
+- [x] 2.2 Lazy creation, apply-mode only, via the centralized create
       adapter pattern (`scripts/ideation_dashboard/workbench.py`
       `_create_titled` — no `--json` on create, title-listing fallback):
       create, tag `xfactory,lifecycle`, apply chat framing (`CHAT_PROMPT`
@@ -34,13 +34,13 @@
       (`examples/lifecycle-notebook-workspaces.yaml`) with the provider
       notebook id. Dry-run reports the pending creation and mutates
       nothing.
-- [ ] 2.3 Capacity guard per the ADDED requirement: projected occupancy =
+- [x] 2.3 Capacity guard per the ADDED requirement: projected occupancy =
       desired managed + charter + observed unmanaged; cap as a named
       constant recorded in the doc; headroom warning at ≤ 30 with the
       owed-delta naming for any book without a defined successor split;
       deterministic in-cap prefix + exact-excess report + nonzero on
       overflow; unresolvable-book and refused-create contained per book.
-- [ ] 2.4 Deterministic checks in the script's existing test pattern
+- [x] 2.4 Deterministic checks in the script's existing test pattern
       (network-free): repo→book routing, seeds-don't-create-books, dry-run
       vs apply creation, occupancy math including the charter and an
       unmanaged source, headroom/overflow thresholds, stable excess
@@ -71,7 +71,7 @@
       `xf-ideation` alias as a recorded manual act: archive-rename or
       delete the notebook, remove the alias, retire its
       `external_source_workspace` record. Never repoint.
-- [ ] 3.4 `docs/lifecycle-notebook-projection.md`: book table and alias
+- [x] 3.4 `docs/lifecycle-notebook-projection.md`: book table and alias
       inventory (title-resolution rule, alias-as-convenience), tags, the
       cap constant and headroom policy, grounding fan-out note (an edit to
       a grounding doc now re-projects into every book), migration record,

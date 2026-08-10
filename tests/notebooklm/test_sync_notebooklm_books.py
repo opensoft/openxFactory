@@ -444,12 +444,16 @@ class NotebookLmSourceImportTests(unittest.TestCase):
             (nested / ".git").mkdir()
             (nested / "docs/clone-doc.md").write_text("# Clone\n\n" + doc)
 
-            desired = sync.scan(root)
+            desired, specs = sync.scan(root)
 
-            ideation = desired["ideation"]
+            ideation = desired["ideation-realfactory"]
+            self.assertEqual(specs["ideation-realfactory"].title,
+                             "xFactory Ideation — RealFactory")
             self.assertIn(
                 "xFactories/RealFactory/docs/real-doc.md", ideation
             )
+            # the worktree container spawned NO ideation book of its own
+            self.assertNotIn("ideation-opsxfactory-worktrees", desired)
             polluted = [
                 path for book in desired.values() for path in book
                 if "worktrees" in path or "vendor/clone" in path
@@ -572,6 +576,12 @@ class SessionNotebookAliasTests(unittest.TestCase):
         self.assertFalse(wb.NOTEBOOK_PREFIX.startswith(bs.NOTEBOOK_PREFIX))
         for cfg in sync.BOOKS.values():
             self.assertFalse(cfg["alias"].startswith(bs.NOTEBOOK_PREFIX))
+        # the per-repo ideation alias family is disjoint from BOTH reserved
+        # namespaces too (split-ideation-book-per-repo)
+        self.assertFalse(sync.IDEATION_ALIAS_PREFIX.startswith(bs.NOTEBOOK_PREFIX))
+        self.assertFalse(sync.IDEATION_ALIAS_PREFIX.startswith(wb.NOTEBOOK_PREFIX))
+        self.assertFalse(bs.NOTEBOOK_PREFIX.startswith(sync.IDEATION_ALIAS_PREFIX))
+        self.assertFalse(wb.NOTEBOOK_PREFIX.startswith(sync.IDEATION_ALIAS_PREFIX))
 
 
 class SessionNotebookSweepSafetyTests(unittest.TestCase):
@@ -668,7 +678,7 @@ class SessionNotebookBookIsolationTests(unittest.TestCase):
     (FR-039), in addition to the existing `<repo>-worktrees/` exclusion."""
 
     def _assert_books_are_main_only(self, root, worktrees):
-        desired = sync.scan(root)
+        desired, _specs = sync.scan(root)
         polluted = [path for book in desired.values() for path in book
                     if "-worktrees" in path or "sessions/" in path]
         self.assertEqual(polluted, [])
@@ -700,10 +710,14 @@ class SessionNotebookBookIsolationTests(unittest.TestCase):
                              ["xFactories/codexFactory"])
             desired = self._assert_books_are_main_only(root, [openx_wt, factory_wt])
             # the docs on `main` DO project — the exclusion is of the worktree,
-            # not of the repository
-            self.assertIn(f"openxFactory/{STAGED_DOC}", desired["ideation"])
+            # not of the repository — and each repo's doc lands in ITS OWN
+            # ideation book (split-ideation-book-per-repo)
+            self.assertIn(f"openxFactory/{STAGED_DOC}",
+                          desired["ideation-openxfactory"])
             self.assertIn(f"xFactories/codexFactory/{STAGED_DOC}",
-                          desired["ideation"])
+                          desired["ideation-codexfactory"])
+            self.assertNotIn(f"openxFactory/{STAGED_DOC}",
+                             desired["ideation-codexfactory"])
 
     def test_session_worktrees_are_outside_every_book_without_pins(self):
         # the `.gitmodules`-absent fallback path of `pinned_factory_paths`
@@ -723,7 +737,7 @@ class SessionNotebookBookIsolationTests(unittest.TestCase):
             target = sync.resolve_session_target(root, "draft/demo-topic")
             session_paths = {str(worktree.relative_to(root) / path)
                              for path, _text in sync.session_source_set(target)}
-            book_paths = {path for book in sync.scan(root).values() for path in book}
+            book_paths = {path for book in sync.scan(root)[0].values() for path in book}
             self.assertTrue(session_paths)
             self.assertEqual(session_paths & book_paths, set())
 
@@ -1224,6 +1238,171 @@ def _dashboard_registry():
     from ideation_dashboard.snapshot_registry import SnapshotRegistry
 
     return SnapshotRegistry()
+
+
+class SplitIdeationBookTests(unittest.TestCase):
+    """split-ideation-book-per-repo: per-repo routing, seeds-never-create,
+    title resolution with alias re-registration, apply-gated lazy creation,
+    and the capacity guard's occupancy math. All against a stubbed nlm —
+    nothing here may touch the real CLI (FR-043)."""
+
+    def _fake(self, notebooks, sources=None, create_ok=True):
+        calls: list[tuple] = []
+        state = {"notebooks": [dict(n) for n in notebooks],
+                 "sources": {k: list(v) for k, v in (sources or {}).items()}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("notebook", "list"):
+                return list(state["notebooks"])
+            if head == ("notebook", "create"):
+                if not create_ok:
+                    raise RuntimeError("notebook quota exhausted")
+                nb = {"id": f"nb{len(state['notebooks']) + 1}", "title": args[2]}
+                state["notebooks"].append(nb)
+                state["sources"].setdefault(nb["id"], [])
+                return ""
+            if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
+                        ("source", "delete")}:
+                return ""
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "add"):
+                nid = args[2]
+                state["sources"].setdefault(nid, []).append(
+                    {"id": f"s{len(state['sources'][nid]) + 1}", "title": args[6]})
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        return fake, calls, state
+
+    @staticmethod
+    def _world(root: Path, brainstorms: int = 1) -> None:
+        (root / "openxFactory/examples").mkdir(parents=True, exist_ok=True)
+        (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
+         ).write_text("workspaces:\n", encoding="utf-8")
+        for g in sync.GROUNDING:
+            p = root / g
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("# Grounding\n", encoding="utf-8")
+        base = root / "openxFactory/ideation/brainstorm"
+        base.mkdir(parents=True, exist_ok=True)
+        for i in range(brainstorms):
+            (base / f"idea-{i:02d}.md").write_text(
+                f"# Idea {i}\n\nStatus: brainstorm\n", encoding="utf-8")
+
+    def test_seeds_never_create_a_book(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "openxFactory/docs").mkdir(parents=True)
+            (root / "openxFactory/docs/x.md").write_text(
+                "# X\n\nStatus: draft\n", encoding="utf-8")
+            desired, _specs = sync.scan(root)
+            # grounding/charter seeding must not conjure an ideation book for
+            # a repo with zero brainstorm/staged documents
+            self.assertNotIn("ideation-openxfactory", desired)
+            self.assertIn("drafts", desired)
+
+    def test_dry_run_reports_pending_creation_and_mutates_nothing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, calls, _state = self._fake([])
+            out = io.StringIO()
+            with patch.object(sync, "nlm", fake), contextlib.redirect_stdout(out):
+                ok, over = sync.sync_book(root, spec, desired[spec.key], {}, False)
+            self.assertTrue(ok)
+            self.assertFalse(over)
+            self.assertIn("CREATE", out.getvalue())
+            self.assertNotIn(("notebook", "create"), [c[:2] for c in calls])
+            # the pending adds stay visible drift for doc-health
+            self.assertIn("ADD", out.getvalue())
+
+    def test_apply_creates_seeds_and_writes_the_workspace_record(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, calls, state = self._fake([])
+            out = io.StringIO()
+            with patch.object(sync, "nlm", fake), \
+                    patch.object(sync.time, "sleep", lambda _s: None), \
+                    contextlib.redirect_stdout(out):
+                ok, over = sync.sync_book(root, spec, desired[spec.key], {}, True)
+            self.assertTrue(ok)
+            self.assertFalse(over)
+            heads = [c[:2] for c in calls]
+            for required in (("notebook", "create"), ("alias", "set"),
+                             ("tag", "add"), ("chat", "configure")):
+                self.assertIn(required, heads)
+            record = (root / "openxFactory/examples/"
+                             "lifecycle-notebook-workspaces.yaml").read_text()
+            self.assertIn("workspace-xfactory-lifecycle-ideation-openxfactory",
+                          record)
+            self.assertIn(state["notebooks"][0]["id"], record)
+
+    def test_missing_alias_resolves_by_title_and_reregisters(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, calls, _state = self._fake([{"id": "nbX", "title": spec.title}])
+            with patch.object(sync, "nlm", fake), \
+                    patch.object(sync.time, "sleep", lambda _s: None), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                sync.sync_book(root, spec, desired[spec.key], {}, True)
+            self.assertIn(("alias", "set", spec.alias, "nbX"), calls)
+            self.assertNotIn(("notebook", "create"), [c[:2] for c in calls])
+            adds = [c for c in calls if c[:2] == ("source", "add")]
+            self.assertTrue(adds)
+            # addressed by notebook id, never by alias
+            self.assertTrue(all(c[2] == "nbX" for c in adds))
+
+    def test_over_cap_projects_the_prefix_and_reports_the_exact_excess(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root, brainstorms=7)   # 7 members + 3 grounding = 10
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            unmanaged = [{"id": "hand1", "title": "my hand-added PDF"}]
+            fake, calls, _state = self._fake(
+                [{"id": "nbX", "title": spec.title}], sources={"nbX": unmanaged})
+            out = io.StringIO()
+            with patch.object(sync, "NOTEBOOK_SOURCE_CAP", 8), \
+                    patch.object(sync, "nlm", fake), \
+                    patch.object(sync.time, "sleep", lambda _s: None), \
+                    contextlib.redirect_stdout(out):
+                ok, over = sync.sync_book(root, spec, desired[spec.key], {}, True)
+            text = out.getvalue()
+            self.assertTrue(over)
+            # occupancy 10 members + 1 charter + 1 unmanaged = 12 over cap 8:
+            # in-cap prefix is 8 - 1 charter - 1 unmanaged = 6 members
+            self.assertEqual(text.count("EXCESS"), 4)
+            adds = [c for c in calls if c[:2] == ("source", "add")
+                    and c[6] != sync.CHARTER_TITLE]
+            self.assertEqual(len(adds), 6)
+
+    def test_low_headroom_warns_and_names_the_owed_delta(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root, brainstorms=7)   # 10 members + charter = 11
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, _calls, _state = self._fake([{"id": "nbX", "title": spec.title}])
+            out = io.StringIO()
+            with patch.object(sync, "NOTEBOOK_SOURCE_CAP", 20), \
+                    patch.object(sync, "nlm", fake), \
+                    contextlib.redirect_stdout(out):
+                ok, over = sync.sync_book(root, spec, desired[spec.key], {}, False)
+            text = out.getvalue()
+            self.assertFalse(over)
+            self.assertIn("WARN headroom", text)
+            self.assertIn("OpenSpec delta", text)
 
 
 if __name__ == "__main__":

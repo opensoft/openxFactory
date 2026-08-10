@@ -5,6 +5,9 @@ Kind: process
 Backed by: [openspec/specs/lifecycle-notebook-projection/spec.md](../openspec/specs/lifecycle-notebook-projection/spec.md) (promoted from the archived add-lifecycle-notebook-projection change)
 Extended by: add-workbench-branch-sessions (ratified 2026-07-26) — section 9,
 branch-session notebooks, plus the main-only rule made explicit in section 1
+Amended by: split-ideation-book-per-repo (ratified 2026-08-10) — per-repo
+Ideation books, title-based resolution, the capacity guard, and the legacy
+shared Ideation book's retirement, after the 300-source cap incident
 Repository context: openxFactory
 Purpose: define the full NotebookLM workflow for the governance corpus — how
 document lifecycle states project into derived notebooks, how those notebooks
@@ -18,15 +21,28 @@ repository; invoked from the workspace root as
 
 ## 1. The Books
 
-Three NotebookLM notebooks project the family's governance corpus by
-lifecycle state. Membership is always derived from `Status:` headers —
-never hand-curated.
+The NotebookLM books project the family's governance corpus by lifecycle
+state. Membership is always derived from `Status:` headers — never
+hand-curated. Ideation is ONE BOOK PER GOVERNED REPOSITORY
+(split-ideation-book-per-repo, after the shared book hit the platform's
+300-source cap on 2026-08-10): each repo's ideation corpus gets its own full
+cap, and growth in one domain can never block another's projection. A repo's
+book is created lazily on the first apply-mode sync where the repo has
+`brainstorm`/`staged` membership (seeds never create a book); creation
+applies the title, tags, chat framing, charter + grounding, and the book's
+source-workspace record in one run.
 
 | Book | Statuses projected | Answers questions like |
 | --- | --- | --- |
-| `xFactory — Ideation` | `brainstorm`, `staged` | What are we considering? How do ideas differ from the system today? |
+| `xFactory Ideation — <RepoName>` (one per governed repo) | `brainstorm`, `staged` in that repo | What are we considering here? How do ideas differ from the system today? |
 | `xFactory — Working Drafts` | `draft` | What is the intended design? Where do drafts conflict? |
 | `xFactory — Canon` | `ratified`, `standard`, promoted `openspec/specs/*/spec.md` | What is governed today? What would this idea change? |
+
+Books are RESOLVED BY TITLE (the provider's truth). Aliases —
+`xf-ideation-<repo-slug>` (repo name lowercased), `xf-drafts`, `xf-canon` —
+are a machine-local CLI convenience, re-registered idempotently per run and
+never fatal when absent. The legacy shared `xFactory — Ideation` book and
+its `xf-ideation` alias are RETIRED: not a sync target, never repointed.
 
 Excluded by design: `record` (immutable evidence), `superseded`, `retired`.
 Scope: `openxFactory/` and `xFactories/*/`, skipping `.git`, `installs/`
@@ -101,10 +117,24 @@ source list), matched by title:
 - **Stage transition**: a status change is a delete from the old book plus an
   add to the new one on the next sync.
 
-Operational properties: dry-run by default (`--apply` to execute); idempotent
-(a no-op resync reports zero changes); rate-limited ~2s per source operation;
-manifest at `<workspace-root>/.claude/nlm-sync-manifest.json` (intentional
-local derived state — not committed; safe to delete, next apply rebuilds it).
+Operational properties: dry-run by default (`--apply` to execute; a missing
+per-repo book reports `CREATE` on the dry run and mutates nothing);
+idempotent (a no-op resync reports zero changes); rate-limited ~2s per
+source operation; manifest at `<workspace-root>/.claude/nlm-sync-manifest.json`
+(intentional local derived state — not committed; safe to delete, next apply
+rebuilds it), keyed per book and FLUSHED AFTER EACH BOOK so an interrupted
+run resumes as a no-op over finished books.
+
+**Capacity guard** (split-ideation-book-per-repo): the platform per-notebook
+source cap is a named constant in the sync (`NOTEBOOK_SOURCE_CAP = 300`;
+plan-dependent — change it only with the plan). Projected occupancy counts
+the desired managed set + the charter + every unmanaged source the
+reconciliation preserves. At ≤ 30 sources of headroom the sync warns and
+names the owed remedy (an OpenSpec delta defining that book's split); over
+the cap it projects the deterministic in-cap prefix, reports the exact
+excess, completes every other book, and exits nonzero. Unresolvable books
+and refused creations are contained the same way — one bad book never kills
+the run.
 
 ## 6. Operator Runbook
 
@@ -118,8 +148,11 @@ nlm login
 python3 openxFactory/scripts/sync-notebooklm-books.py . 
 python3 openxFactory/scripts/sync-notebooklm-books.py . --apply
 
-# 3. Books are aliased: xf-ideation, xf-drafts, xf-canon (tags: xfactory,lifecycle).
+# 3. Books are aliased: xf-ideation-<repo-slug> (per-repo ideation family),
+#    xf-drafts, xf-canon (all tagged: xfactory,lifecycle). Aliases are
+#    machine-local convenience; resolution is by notebook title.
 nlm source list xf-canon
+nlm source list xf-ideation-opsxfactory
 nlm notebook query xf-canon "What owns gate structure?"
 nlm cross query "Where do drafts contradict canon?" --tags "xfactory"
 
@@ -286,9 +319,15 @@ registered: it is derived state bound to a branch that outlives nothing, and
 
 ## 11. Known Limitations
 
-- NotebookLM source-count limits apply per notebook; the Working Drafts book
-  is the largest and should be watched as the corpus grows (split by repo if
-  it approaches the plan's cap).
+- NotebookLM source-count limits apply per notebook. The cap is now a named
+  constant with a preflight guard (section 5): a book running low WARNS and
+  names the owed split delta; a book over cap reports its exact excess and
+  the run exits nonzero. The shared Ideation book hit the cap 2026-08-10 and
+  was split per-repo; Working Drafts and Canon remain single books, watched
+  by the same guard.
+- Grounding fan-out: the three grounding docs seed EVERY book, so an edit to
+  one re-projects (delete + re-add, ~2s each) into each of the 3+N books —
+  batch grounding edits rather than trickling them.
 - nlm sessions expire in ~20 minutes; CI use needs an auth strategy before
   the nightly integration.
 - Matching is title-based; retitling rules (section 2) therefore cause a
