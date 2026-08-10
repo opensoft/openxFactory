@@ -806,7 +806,14 @@ export function createSeedFromStagingSeed(data, repository) {
     // this scope; the body's edit then resolves that same LIVE session. An
     // unknown tile is ADDED to the inventory rather than refused, which is
     // exactly right for the verb that creates a tile's first document.
-    scopeKind: "staged-topic",
+    // The TILE vocabulary, not the session one. `createRequest` maps
+    // `staged` -> `staged-topic` through `SESSION_SCOPE_KINDS`; handing it the
+    // already-mapped spelling looked up nothing, returned "", and the
+    // `if (scopeKind && scopeId)` guard then dropped the scope from the wire
+    // entirely — so no session opened and the create took its PRE-SESSION
+    // path, landing the document in the served checkout on main. Nothing
+    // refused, nothing warned: one silent vocabulary mismatch.
+    scopeKind: "staged",
     scopeId: String(data?.staging_id || ""),
     // a staged fragment is born `staged`, which is one of the three statuses a
     // create accepts — a document is never born ratified
