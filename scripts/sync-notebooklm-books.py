@@ -60,9 +60,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -90,6 +92,14 @@ IDEATION_TITLE_PREFIX = "xFactory Ideation — "
 # in docs/lifecycle-notebook-projection.md). The 2026-08-10 incident: the
 # shared ideation book reached it mid-run and every later add died.
 NOTEBOOK_SOURCE_CAP = 300
+
+# A single argv string on Linux caps at MAX_ARG_STRLEN (131072 bytes), so a
+# governance doc that large cannot ride `--text` — proven live 2026-08-10 by
+# the promoted ideation-dashboard spec (Errno 7 killed the canon book). An
+# oversized doc uploads as a temp file and is renamed to its contract title
+# (the CLI titles a --file source by FILENAME and ignores --title).
+MAX_TEXT_ARG_BYTES = 100_000
+SOURCE_ID_ECHO_RE = re.compile(r"Source ID:\s*(\S+)")
 # Headroom (in sources, not percent: lead time is what matters and it must
 # not scale away) at or below which the guard warns and names the owed
 # split delta for a book with no successor split defined.
@@ -808,6 +818,28 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     return nid, ok
 
 
+def add_text_source(handle: str, text: str, title: str) -> None:
+    """Add one text source, riding a temp file + rename when the content is
+    too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
+    if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
+        nlm("source", "add", handle, "--text", text, "--title", title, parse=False)
+        return
+    fd, tmp = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        out = nlm("source", "add", handle, "--file", tmp, parse=False)
+        m = SOURCE_ID_ECHO_RE.search(out or "")
+        if not m:
+            raise RuntimeError(
+                f"oversized source {title!r} uploaded but the CLI echoed no "
+                f"source id to rename — rename it to the contract title by hand")
+        time.sleep(2)
+        nlm("source", "rename", m.group(1), title, parse=False)
+    finally:
+        os.unlink(tmp)
+
+
 def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
               manifest: dict, apply: bool, *,
               notebooks: list[dict] | None = None) -> tuple[bool, bool]:
@@ -891,7 +923,7 @@ def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
         elif title not in by_title:
             print(f"[{key}] ADD  {title}")
         if apply:
-            nlm("source", "add", handle, "--text", text, "--title", title, parse=False)
+            add_text_source(handle, text, title)
             time.sleep(2)
         mf[rel] = {"hash": digest, "title": title}
     return ok, overflowed

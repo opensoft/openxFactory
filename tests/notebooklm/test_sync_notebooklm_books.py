@@ -1264,14 +1264,18 @@ class SplitIdeationBookTests(unittest.TestCase):
                 state["sources"].setdefault(nb["id"], [])
                 return ""
             if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
-                        ("source", "delete")}:
+                        ("source", "delete"), ("source", "rename")}:
                 return ""
             if head == ("source", "list"):
                 return list(state["sources"].get(args[2], []))
             if head == ("source", "add"):
                 nid = args[2]
-                state["sources"].setdefault(nid, []).append(
-                    {"id": f"s{len(state['sources'][nid]) + 1}", "title": args[6]})
+                sid = f"s{len(state['sources'].setdefault(nid, [])) + 1}"
+                if "--file" in args:
+                    # the CLI titles a --file source by FILENAME and echoes the id
+                    state["sources"][nid].append({"id": sid, "title": "upload.md"})
+                    return f"Added source: upload.md\nSource ID: {sid}\n"
+                state["sources"][nid].append({"id": sid, "title": args[6]})
                 return ""
             raise AssertionError(f"unexpected nlm call: {args}")
 
@@ -1386,6 +1390,37 @@ class SplitIdeationBookTests(unittest.TestCase):
             adds = [c for c in calls if c[:2] == ("source", "add")
                     and c[6] != sync.CHARTER_TITLE]
             self.assertEqual(len(adds), 6)
+
+    def test_oversized_source_rides_a_file_and_is_renamed_to_its_title(self):
+        # Linux MAX_ARG_STRLEN killed the canon book live 2026-08-10: a doc
+        # too large for one argv string must upload as a file and then be
+        # renamed to the contract title (--title is ignored on --file).
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            big = root / "openxFactory/ideation/brainstorm/huge.md"
+            big.write_text("# Huge\n\nStatus: brainstorm\n" + "x" * 500,
+                           encoding="utf-8")
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, calls, _state = self._fake([{"id": "nbX", "title": spec.title}])
+            with patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                    patch.object(sync, "nlm", fake), \
+                    patch.object(sync.time, "sleep", lambda _s: None), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                ok, _over = sync.sync_book(root, spec, desired[spec.key], {}, True)
+            self.assertTrue(ok)
+            file_adds = [c for c in calls
+                         if c[:2] == ("source", "add") and "--file" in c]
+            renames = [c for c in calls if c[:2] == ("source", "rename")]
+            self.assertEqual(len(file_adds), 1)
+            self.assertEqual(len(renames), 1)
+            self.assertEqual(renames[0][3],
+                             "[brainstorm] openxFactory: huge")
+            # the small docs still ride --text
+            text_adds = [c for c in calls
+                         if c[:2] == ("source", "add") and "--text" in c]
+            self.assertTrue(text_adds)
 
     def test_low_headroom_warns_and_names_the_owed_delta(self):
         with TemporaryDirectory() as td:
