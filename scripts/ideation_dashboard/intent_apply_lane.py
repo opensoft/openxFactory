@@ -114,8 +114,9 @@ def _utcnow() -> str:
 #: kernel's `format: date-time` as the delegated FormatChecker enforces it
 #: (`fromisoformat` alone admits date-only and offset-less spellings).
 _RFC3339 = re.compile(
-    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?"
-    r"([Zz]|[+-]\d{2}:\d{2})$")
+    r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])"
+    r"[Tt]([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d+)?"
+    r"([Zz]|[+-]([01]\d|2[0-3]):[0-5]\d)$")
 
 
 def _parses_as_datetime(value: str) -> bool:
@@ -393,8 +394,14 @@ def _write_intent(root: Path, intents_dir: str, intent: dict) -> Path:
 def _commit(root: Path, message: str, report: ApplyReport, *,
             push: bool) -> bool:
     """Stage EVERYTHING the pass wrote (the clean-tree precondition makes
-    'everything dirty' exactly 'everything gate-written'), commit, and
-    optionally push with one rebase retry."""
+    'everything dirty' exactly 'everything gate-written') and commit. A
+    rejected push RESETS the lane's own commit and fails the run: rebasing
+    an already-decided action onto someone else's new state and pushing it
+    would republish the decision without rerunning the duplicate guard,
+    the stale-view check, or the engine (Codex round-9 P1, PR #157 — two
+    overlapping propose runs could each enqueue a commission). A fresh run
+    revalidates everything against the state that won."""
+    before = _git(root, "rev-parse", "HEAD").stdout.strip()
     if _git(root, "add", "-A").returncode != 0:
         report.outcome, report.reason = "error", "git add failed"
         return False
@@ -405,12 +412,15 @@ def _commit(root: Path, message: str, report: ApplyReport, *,
         return False
     report.committed = _git(root, "rev-parse", "HEAD").stdout.strip()[:12]
     if push:
-        for _ in range(2):
-            if _git(root, "push").returncode == 0:
-                report.pushed = True
-                return True
-            _git(root, "pull", "--rebase")
-        report.outcome, report.reason = "error", "git push failed after rebase retry"
+        if _git(root, "push").returncode == 0:
+            report.pushed = True
+            return True
+        _git(root, "reset", "--hard", before)
+        report.committed = None
+        report.outcome = "error"
+        report.reason = ("push rejected — the decided commit was reset and "
+                         "nothing landed; a fresh run revalidates against "
+                         "the state that won")
         return False
     return True
 

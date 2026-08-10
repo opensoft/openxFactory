@@ -540,6 +540,51 @@ def test_junk_target_member_cannot_bypass_the_idempotency_skip(tmp_path):
     assert clean.outcome == "skipped"  # junk spelling == clean spelling
 
 
+def test_rejected_push_resets_the_decided_commit(tmp_path):
+    """Codex round-9 P1 (PR #157): a non-fast-forward push never
+    rebase-republishes the decision — the commit resets and the run errors
+    so a fresh run revalidates."""
+    root, rev, allowlist = _corpus(tmp_path)
+    bare = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "--bare", "-q", "-b", "main", str(bare)],
+                   check=True)
+    _git(root, "remote", "add", "origin", str(bare))
+    _git(root, "push", "-q", "-u", "origin", "main")
+    # someone else lands on the remote after our clone
+    other = tmp_path / "other"
+    subprocess.run(["git", "clone", "-q", str(bare), str(other)], check=True)
+    (other / "someone-elses.md").write_text("x\n", encoding="utf-8")
+    _git(other, "-c", "user.name=o", "-c", "user.email=o@o", "add", "-A")
+    _git(other, "-c", "user.name=o", "-c", "user.email=o@o",
+         "commit", "-q", "-m", "concurrent work")
+    pushed = _git(other, "push", "-q", "origin", "HEAD:main")
+    assert pushed.returncode == 0, pushed.stderr
+
+    report = _apply(root, _intent(rev), allowlist, tmp_path, push=True)
+    assert report.outcome == "error"
+    assert "push rejected" in report.reason
+    assert report.committed is None
+    # the decided commit is GONE locally; nothing landed remotely
+    assert _git(root, "rev-parse", "HEAD").stdout.strip() == rev
+    assert not _git(root, "status", "--porcelain").stdout.strip()
+    remote_head = _git(root, "ls-remote", "origin", "main").stdout.split()[0]
+    log = _git(other, "log", "--oneline", "-1").stdout
+    assert "concurrent work" in log and remote_head
+
+
+def test_out_of_range_rfc3339_components_are_rejected(tmp_path):
+    """Codex round-9 P2 (PR #157): fromisoformat NORMALIZES +00:60 instead
+    of rejecting it — the regex must range-check every component."""
+    root, rev, allowlist = _corpus(tmp_path)
+    for bad in ("2026-08-10T12:00:00+00:60", "2026-08-10T24:00:00Z",
+                "2026-13-10T12:00:00Z", "2026-08-32T12:00:00Z",
+                "2026-08-10T12:60:00Z"):
+        report = _apply(root, _intent(rev, requested_at=bad), allowlist,
+                        tmp_path)
+        assert report.outcome == "error", bad
+        assert "RFC 3339" in report.reason
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
