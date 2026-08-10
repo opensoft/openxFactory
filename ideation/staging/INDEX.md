@@ -110,13 +110,26 @@ shaped) — they would land here in openxFactory on promotion.
 
 Update (2026-08-10): trilogy exit 1 is promoted — the tenant-request-intake
 topic became OpsxFactory `add-request-intake-boundary`, ratified 2026-08-09
-(OpsxFactory main 3de6355) with Speckit implementation in flight (feature
-`007-request-intake-boundary`: request-candidate contract, authority-free
-listener, five-binding projection rail, closed-world reference identity).
-The envelopes and postures topics remain staged behind its landing per
-their own entry gates (a live request class at volume, then a calibrated
-first envelope). The request-candidate shape stays DTN-register flagged for
-neutral promotion here after it ships.
+(OpsxFactory main 3de6355). Speckit implementation is COMPLETE and in review
+as **OpsxFactory PR #16** (feature `007-request-intake-boundary`, tip
+f0ebdf9): request-candidate contract, authority-free listener, the
+five-binding projection rail reusing the ratified projection schema
+unchanged, and reference identity closed by a parse-don't-validate
+restructure after SEVEN adversarial gate rounds (each found real defects;
+round 6 was a design failure — raw `==` on references that never reached
+validation let the ratified client alias bypass the self-approval rule).
+Two ratifier decisions ride with it: adversarial-Unicode robustness ruled in
+scope, with the visibility property then narrowed to what is decidable and
+its residual gap declared; and `southside`/`southside-clinic` ratified as one
+client, recorded as identity vocabulary resolved by exact lookup with alias
+derivation forbidden. The envelopes and postures topics remain staged behind
+its landing per their own entry gates (a live request class at volume, then a
+calibrated first envelope). The request-candidate shape stays DTN-register
+flagged for neutral promotion here after it ships — and the restructure's
+typed-reference discipline (parse once at ingestion; identity over resolved
+segments; comparison, keying and joins all typed) is a SECOND promotion
+candidate, since the aliasing class it closes is domain-neutral and any
+factory comparing references by raw string has it.
 
 ## agent-wallet-identity
 
