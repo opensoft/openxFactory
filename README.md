@@ -259,11 +259,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [split-ideation-book-per-repo](openspec/changes/split-ideation-book-per-repo/proposal.md)
-  — authored 2026-08-10, after the shared Ideation book hit NotebookLM's
-  300-source cap mid-sync: per-repository Ideation books (alias family
-  `xf-ideation-<repo-slug>`, lazy-created), a capacity guard that reports
-  instead of dying, and retirement of the legacy book and alias.
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
