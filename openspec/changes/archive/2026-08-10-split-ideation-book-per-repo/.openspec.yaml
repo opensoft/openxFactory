@@ -1,0 +1,17 @@
+schema: spec-driven
+created: 2026-08-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-10-split-ideation-book-per-repo
+  reason: >-
+    Authored directly from a live incident, not a staged topic: the shared
+    Ideation book hit NotebookLM's 300-source cap mid-sync on 2026-08-10,
+    killing the run and silently unprojecting every later ideation document
+    family-wide. The workflow doc's Known Limitations section already
+    prescribed the split-by-repo direction, and book definitions are
+    contract surface requiring an OpenSpec delta before implementation, so
+    the delta was proposed the same day (with a cross-model decision review
+    of the six architect decisions), ratified in-session, realized,
+    migrated, and archived within the same session.
+  approved_by: Brett Heap (in-session ratification, verbatim "ratified")
+  approved_on: 2026-08-10
