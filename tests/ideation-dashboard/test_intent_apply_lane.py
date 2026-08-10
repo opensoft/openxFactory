@@ -274,6 +274,75 @@ def test_engine_refusal_reason_is_the_engines_message(tmp_path):
     assert "pos-unknown" in report.reason or "register" in report.reason
 
 
+def test_same_second_intents_from_distinct_actors_never_collide(tmp_path):
+    """Codex round-2 P1 (PR #157): two requests for one target in one second
+    land as two artifacts; the second never overwrites the first."""
+    root, rev, allowlist = _corpus(tmp_path)
+    allowlist.write_text(json.dumps({
+        "actors": {"brett": ["dispose-possible"],
+                   "casey": ["dispose-possible"]},
+    }), encoding="utf-8")
+    first = _apply(root, _intent(rev), allowlist, tmp_path)
+    assert first.outcome == "applied"
+    second = _apply(root, _intent(rev, actor="casey", idempotency_key="k-2"),
+                    allowlist, tmp_path)
+    assert second.outcome == "refused"          # target advanced past its view
+    assert second.intent_path != first.intent_path
+    assert (root / first.intent_path).exists()
+    assert (root / second.intent_path).exists()
+    first_doc = yaml.safe_load((root / first.intent_path).read_text())
+    assert first_doc["status"] == "applied"     # history intact
+
+
+def test_re_refused_same_request_keeps_both_artifacts(tmp_path):
+    """A same-identity re-decision suffixes an ordinal rather than
+    overwriting the first refusal."""
+    root, rev, allowlist = _corpus(tmp_path)
+    bad = _intent(rev, target={"possible_id": "pos-unknown"},
+                  idempotency_key="k-rr")
+    one = _apply(root, bad, allowlist, tmp_path)
+    two = _apply(root, bad, allowlist, tmp_path)
+    assert one.outcome == two.outcome == "refused"
+    assert one.intent_path != two.intent_path
+    assert (root / one.intent_path).exists()
+    assert (root / two.intent_path).exists()
+
+
+def test_requested_at_is_required_and_must_parse(tmp_path):
+    """Codex round-2 P2 (PR #157): a terminal intent must be
+    schema-valid — requested_at present and RFC 3339."""
+    root, rev, allowlist = _corpus(tmp_path)
+    no_stamp = _intent(rev)
+    del no_stamp["requested_at"]
+    for bad in (no_stamp, _intent(rev, requested_at="not-a-date"),
+                _intent(rev, requested_at=20260810)):
+        report = _apply(root, bad, allowlist, tmp_path)
+        assert report.outcome == "error"
+        assert "requested_at" in report.reason
+    assert _git(root, "rev-list", "--count", "HEAD").stdout.strip() == "1"
+
+
+def test_stale_check_runs_even_on_the_test_seam(tmp_path, monkeypatch):
+    """Codex round-2 P2 (PR #157): git=False skips commit mechanics, never
+    the stale-view guard."""
+    root, rev, allowlist = _corpus(tmp_path)
+    seen = {}
+    monkeypatch.setattr(lane, "stale_reason",
+                        lambda _r, _i: seen.setdefault("ran", True) and "stale")
+    report = _apply(root, _intent(rev), allowlist, tmp_path, git=False)
+    assert seen.get("ran") is True
+    assert report.outcome == "refused"
+
+
+def test_the_cli_has_no_git_bypass():
+    """Codex round-2 P2 (PR #157): --no-git left the public CLI."""
+    import pytest as _pytest
+    with _pytest.raises(SystemExit) as exc:
+        lane.main(["--repo-root", "x", "--allowlist", "y",
+                   "--intent-json", "{}", "--no-git"])
+    assert exc.value.code == 2  # argparse: unrecognized argument
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES

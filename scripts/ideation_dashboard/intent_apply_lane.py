@@ -20,9 +20,11 @@ Fail-closed, and never silent:
   * an already-applied idempotency key SKIPS without a second application.
 
 The lane is transport-simple like its sibling `register_edit_lane`: it
-commits to the CURRENT branch with explicit pathspecs and leaves branch /
-rolling-PR mechanics to the workflow that invoked it (D1: the rolling
-intents PR is custody, not decision).
+commits to the CURRENT branch and leaves branch / rolling-PR mechanics to
+the workflow that invoked it (D1: the rolling intents PR is custody, not
+decision). The `git=False` keyword is an internal TEST seam (it skips the
+clean-tree gate and the commit, never the stale-view check); the public
+CLI always runs with git on.
 """
 
 from __future__ import annotations
@@ -102,6 +104,14 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _parses_as_datetime(value: str) -> bool:
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return True
+
+
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(root), *args],
                           capture_output=True, text=True, timeout=180)
@@ -121,12 +131,28 @@ def load_allowlist(path: Path) -> dict[str, list[str]]:
             for a, verbs in actors.items() if isinstance(verbs, list)}
 
 
-def intent_relpath(intents_dir: str, verb: str, target_id: str, at: str) -> str:
-    """Mirror of gate_action_record_relpath, in the intents prefix."""
+def request_digest(intent: dict) -> str:
+    """A stable identity for ONE request, computed lane-side from the
+    validated fields (never trusted from the body): distinct actors or
+    views acting on the same target in the same second get distinct
+    artifacts (Codex round-2 P1, PR #157)."""
+    import hashlib
+    canonical = json.dumps(
+        {"actor": intent.get("actor"), "verb": intent.get("verb"),
+         "target": intent.get("target"),
+         "rev": intent.get("snapshot_rev_seen")},
+        sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def intent_relpath(intents_dir: str, verb: str, target_id: str, at: str,
+                   digest: str) -> str:
+    """Mirror of gate_action_record_relpath, in the intents prefix, made
+    unique per request identity by the lane-computed digest fragment."""
     prefix = intents_dir if intents_dir.endswith("/") else intents_dir + "/"
     stamp = at.replace(":", "").replace("-", "").replace("T", "-").rstrip("Z")
     stamp = "".join(c for c in stamp if c.isalnum() or c == "-") or "undated"
-    return f"{prefix}{target_id}/{verb}-{stamp}.gate-intent.yaml"
+    return f"{prefix}{target_id}/{verb}-{stamp}-{digest[:10]}.gate-intent.yaml"
 
 
 def shape_error(intent: dict) -> str | None:
@@ -156,6 +182,9 @@ def shape_error(intent: dict) -> str | None:
     if clash:
         return ("args must not carry target keys (the validated target is "
                 "the only target): " + ", ".join(clash))
+    requested_at = intent.get("requested_at")
+    if not isinstance(requested_at, str) or not _parses_as_datetime(requested_at):
+        return "requested_at must be an RFC 3339 date-time (the kernel requires it)"
     rev = intent.get("snapshot_rev_seen")
     if not isinstance(rev, str) or len(rev) < 7:
         return "snapshot_rev_seen must name the viewed snapshot revision"
@@ -228,7 +257,16 @@ def stale_reason(root: Path, intent: dict) -> str | None:
         rel = f"ideation/staging/{target.get('topic_id')}"
     elif verb == "derive-possibles":
         rel = _INDEX_REL
-    else:  # create-project / edit-project: the register's own CAS governs
+    else:
+        # create-project / edit-project: DISPOSED, not deferred (Codex
+        # round-2, PR #157). The register is aggregation-owned — a corpus
+        # revision cannot resolve its history, so a snapshot_rev_seen CAS is
+        # unimplementable here. The ruled semantics stand in for it: the
+        # gate verb only RECORDS a commission (D2 boundary), edits QUEUE by
+        # design (add-opendox-project-header D18), and the register-edit
+        # lane refuses already-a-member / not-a-member conflicts against
+        # the LIVE register at fulfilment time — the register's own
+        # material check.
         return None
     seen_obj = _git(root, "rev-parse", f"{rev}:{rel}")
     now_obj = _git(root, "rev-parse", f"HEAD:{rel}")
@@ -281,13 +319,17 @@ def _write_intent(root: Path, intents_dir: str, intent: dict) -> Path:
     verb = intent["verb"]
     key = VERB_TARGET_KEY[verb]
     target_id = intent["target"][key]
-    rel = intent_relpath(intents_dir, verb, target_id, intent["requested_at"]
-                         if isinstance(intent.get("requested_at"), str)
-                         else _utcnow())
+    rel = intent_relpath(intents_dir, verb, target_id,
+                         intent["requested_at"], request_digest(intent))
     path = (root / rel).resolve()
     base = (root / intents_dir).resolve()
     if base not in path.parents:
         raise ValueError(f"intent path escaped the intents prefix: {rel!r}")
+    ordinal = 2
+    while path.exists():  # same request re-decided: never overwrite history
+        path = path.with_name(path.name.replace(
+            ".gate-intent.yaml", f"-{ordinal}.gate-intent.yaml"))
+        ordinal += 1
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(_INTENT_BANNER + yaml.safe_dump(intent, sort_keys=False),
                     encoding="utf-8")
@@ -395,7 +437,7 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
                       "not yet routable through the apply lane — it remains "
                       "a local-console verb until its executing route lands")
 
-    stale = stale_reason(root, intent) if git else None
+    stale = stale_reason(root, intent)
     if stale is not None:
         return refuse(stale)
 
@@ -453,7 +495,6 @@ def main(argv=None) -> int:
     parser.add_argument("--index-validator", default=None)
     parser.add_argument("--repository", default="openxFactory",
                         help="repository id stamped on lane-generated snapshots")
-    parser.add_argument("--no-git", action="store_true")
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args(argv)
 
@@ -464,7 +505,7 @@ def main(argv=None) -> int:
     report = apply_intent(
         args.repo_root, intent, allowlist_path=args.allowlist,
         index_validator=Path(args.index_validator) if args.index_validator else None,
-        repository=args.repository, git=not args.no_git, push=args.push)
+        repository=args.repository, push=args.push)
     print(json.dumps(report.as_dict(), indent=2, sort_keys=True))
     return 0 if report.outcome in ("applied", "refused", "skipped") else 1
 
