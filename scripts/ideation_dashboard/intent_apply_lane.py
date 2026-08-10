@@ -104,9 +104,19 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+#: RFC 3339 date-time: full date, explicit time, explicit offset — the
+#: kernel's `format: date-time` as the delegated FormatChecker enforces it
+#: (`fromisoformat` alone admits date-only and offset-less spellings).
+_RFC3339 = re.compile(
+    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?"
+    r"([Zz]|[+-]\d{2}:\d{2})$")
+
+
 def _parses_as_datetime(value: str) -> bool:
+    if not _RFC3339.match(value):
+        return False
     try:
-        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
     except ValueError:
         return False
     return True
@@ -184,7 +194,8 @@ def shape_error(intent: dict) -> str | None:
                 "the only target): " + ", ".join(clash))
     requested_at = intent.get("requested_at")
     if not isinstance(requested_at, str) or not _parses_as_datetime(requested_at):
-        return "requested_at must be an RFC 3339 date-time (the kernel requires it)"
+        return ("requested_at must be an RFC 3339 date-time with explicit "
+                "time and offset (the kernel requires format: date-time)")
     rev = intent.get("snapshot_rev_seen")
     if not isinstance(rev, str) or len(rev) < 7:
         return "snapshot_rev_seen must name the viewed snapshot revision"
@@ -361,6 +372,49 @@ def _commit(root: Path, message: str, report: ApplyReport, *,
     return True
 
 
+#: Verbs whose route validates members against the reachable-repository
+#: roster (Codex round-3, PR #157): without one, a repository that is
+#: registered but not yet in any project refuses as unknown.
+_ROSTER_VERBS = ("create-project", "edit-project")
+
+
+def _project_roster(root: Path, project_register: Path | None = None):
+    """A duck-typed registry (`entries()` rows carrying `.repository`) for
+    the project verbs, built from the aggregation project register — the
+    union of every project's members PLUS the published snapshot index
+    beside it, so a registered repository not yet assigned to any project
+    is still reachable. An unresolvable register contributes an EMPTY
+    roster: the route then refuses new members, which is the fail-closed
+    behaviour a bare corpus checkout deserves."""
+    from types import SimpleNamespace
+
+    from ideation_dashboard.kickoff import discover_project_register
+
+    register = project_register or discover_project_register(root)
+    names: set[str] = set()
+    if register is not None and Path(register).is_file():
+        try:
+            doc = yaml.safe_load(Path(register).read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError):
+            doc = None
+        for project in (doc or {}).get("projects") or []:
+            if isinstance(project, dict):
+                for repo in project.get("repositories") or []:
+                    if isinstance(repo, str) and repo:
+                        names.add(repo)
+        index = Path(register).parent / "health" / "ideation-dashboard" / "index.json"
+        if index.is_file():
+            try:
+                entries = json.loads(index.read_text(encoding="utf-8")).get("entries")
+            except (OSError, ValueError):
+                entries = None
+            for entry in entries or []:
+                if isinstance(entry, dict) and isinstance(entry.get("repository"), str):
+                    names.add(entry["repository"])
+    rows = tuple(SimpleNamespace(repository=name) for name in sorted(names))
+    return SimpleNamespace(entries=lambda: rows)
+
+
 def _fresh_snapshot(root: Path, repository: str) -> Path:
     """A snapshot generated from THIS checkout, for the routes that demand
     one — the freshest possible server-side state, written to an OS temp
@@ -386,6 +440,7 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
                  intents_dir: str = DEFAULT_INTENTS_DIR,
                  index_validator: Path | None = None,
                  repository: str = "openxFactory",
+                 project_register: Path | None = None,
                  git: bool = True, push: bool = False) -> ApplyReport:
     """Replay one intent. Refusals are committed intents too — the only
     outcome that persists nothing is a shape error (there is no honest
@@ -447,11 +502,14 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
     snapshot_path = None
     if intent["verb"] in SNAPSHOT_VERBS:
         snapshot_path = _fresh_snapshot(root, repository)
+    registry = (_project_roster(root, project_register)
+                if intent["verb"] in _ROSTER_VERBS else None)
     try:
         status, response = run_gate_action(
             intent["verb"], body, checkout_root=root, actor=intent["actor"],
             records_dir=records_dir, index_validator=index_validator,
-            snapshot_path=snapshot_path, provenance=gc.INTENT_INGRESS)
+            snapshot_path=snapshot_path, session_registry=registry,
+            provenance=gc.INTENT_INGRESS)
     finally:
         if snapshot_path is not None:
             snapshot_path.unlink(missing_ok=True)
@@ -495,6 +553,9 @@ def main(argv=None) -> int:
     parser.add_argument("--index-validator", default=None)
     parser.add_argument("--repository", default="openxFactory",
                         help="repository id stamped on lane-generated snapshots")
+    parser.add_argument("--project-register", default=None,
+                        help="aggregation project register (roster source for "
+                             "the project verbs; discovered upward when omitted)")
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args(argv)
 
@@ -505,7 +566,9 @@ def main(argv=None) -> int:
     report = apply_intent(
         args.repo_root, intent, allowlist_path=args.allowlist,
         index_validator=Path(args.index_validator) if args.index_validator else None,
-        repository=args.repository, push=args.push)
+        repository=args.repository,
+        project_register=Path(args.project_register) if args.project_register else None,
+        push=args.push)
     print(json.dumps(report.as_dict(), indent=2, sort_keys=True))
     return 0 if report.outcome in ("applied", "refused", "skipped") else 1
 

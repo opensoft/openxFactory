@@ -343,6 +343,78 @@ def test_the_cli_has_no_git_bypass():
     assert exc.value.code == 2  # argparse: unrecognized argument
 
 
+def test_requested_at_must_be_rfc3339_with_time_and_offset(tmp_path):
+    """Codex round-3 P2 (PR #157): fromisoformat admits date-only and
+    offset-less spellings the kernel's format checker rejects."""
+    root, rev, allowlist = _corpus(tmp_path)
+    for bad in ("2026-08-10", "2026-08-10T12:00:00", "2026-08-10 12:00:00Z"):
+        report = _apply(root, _intent(rev, requested_at=bad), allowlist,
+                        tmp_path)
+        assert report.outcome == "error", bad
+        assert "RFC 3339" in report.reason
+    for good in ("2026-08-10T12:00:00Z", "2026-08-10T12:00:00.5+02:00"):
+        assert lane.shape_error(_intent(rev, requested_at=good)) is None, good
+
+
+def test_project_roster_unions_register_and_snapshot_index(tmp_path):
+    """Codex round-3 P2 (PR #157): a registered repository not yet in any
+    project must still be reachable for the project verbs."""
+    register = tmp_path / "project-register.yaml"
+    register.write_text(
+        "projects:\n"
+        "  - id: core\n"
+        "    repositories:\n"
+        "      - openxFactory\n"
+        "  - id: domains\n"
+        "    repositories:\n"
+        "      - MedxFactory\n",
+        encoding="utf-8")
+    index_dir = tmp_path / "health" / "ideation-dashboard"
+    index_dir.mkdir(parents=True)
+    (index_dir / "index.json").write_text(json.dumps({
+        "entries": [{"repository": "openxFactory"},
+                    {"repository": "BrandNewRepo"}],
+    }), encoding="utf-8")
+    roster = lane._project_roster(tmp_path, register)
+    names = sorted(row.repository for row in roster.entries())
+    assert names == ["BrandNewRepo", "MedxFactory", "openxFactory"]
+
+
+def test_unresolvable_register_yields_an_empty_roster(tmp_path):
+    roster = lane._project_roster(tmp_path / "nowhere")
+    assert roster.entries() == ()
+
+
+def test_project_verbs_dispatch_with_the_roster(tmp_path, monkeypatch):
+    """The route receives a registry whose entries carry the roster; other
+    verbs keep dispatching without one."""
+    root, rev, allowlist = _corpus(tmp_path)
+    allowlist.write_text(json.dumps({
+        "actors": {"brett": ["dispose-possible", "edit-project"]},
+    }), encoding="utf-8")
+    register = tmp_path / "project-register.yaml"
+    register.write_text(
+        "projects:\n  - id: core\n    repositories:\n      - openxFactory\n",
+        encoding="utf-8")
+    seen = {}
+
+    def capture(verb, body, **kwargs):
+        registry = kwargs.get("session_registry")
+        seen[verb] = (None if registry is None
+                      else [r.repository for r in registry.entries()])
+        return 409, {"ok": False, "error": "gate_refused", "message": "x"}
+
+    monkeypatch.setattr(lane, "run_gate_action", capture)
+    _apply(root, _intent(rev, verb="edit-project",
+                         target={"project_id": "core"},
+                         args={"add": ["openxFactory"]},
+                         idempotency_key="k-r1"),
+           allowlist, tmp_path, project_register=register)
+    assert seen["edit-project"] == ["openxFactory"]
+    _apply(root, _intent(rev, idempotency_key="k-r2"), allowlist, tmp_path)
+    assert seen["dispose-possible"] is None
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
