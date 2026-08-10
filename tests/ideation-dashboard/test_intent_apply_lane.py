@@ -41,7 +41,9 @@ def _corpus(tmp_path) -> tuple[Path, str, Path]:
     rev = _git(root, "rev-parse", "HEAD").stdout.strip()
     allowlist = tmp_path / "allowlist.json"
     allowlist.write_text(json.dumps({
-        "actors": {"brett": ["dispose-possible", "ratify"], "viewer": []},
+        "actors": {"brett": ["dispose-possible", "ratify", "edit-apply",
+                             "demote"],
+                   "viewer": []},
     }), encoding="utf-8")
     return root, rev, allowlist
 
@@ -172,6 +174,104 @@ def test_shape_errors_persist_nothing(tmp_path):
         report = _apply(root, bad, allowlist, tmp_path)
         assert report.outcome == "error"
     assert _git(root, "rev-list", "--count", "HEAD").stdout.strip() == "1"
+
+
+def test_args_carrying_a_target_key_are_refused_as_shape(tmp_path):
+    """Codex P1 (PR #157): args must never override the validated target."""
+    root, rev, allowlist = _corpus(tmp_path)
+    bad = _intent(rev, args={"outcome": "accepted", "possible_id": "pos-other"})
+    report = _apply(root, bad, allowlist, tmp_path)
+    assert report.outcome == "error"
+    assert "target keys" in report.reason
+    assert _git(root, "rev-list", "--count", "HEAD").stdout.strip() == "1"
+
+
+def test_validated_target_wins_any_body_collision(tmp_path, monkeypatch):
+    """Belt under the brace: even if a clash slipped shape checks, the
+    dispatched body carries the VALIDATED target."""
+    root, rev, allowlist = _corpus(tmp_path)
+    seen = {}
+
+    def capture(verb, body, **kwargs):
+        seen["body"] = body
+        return 409, {"ok": False, "error": "gate_refused", "message": "x"}
+
+    monkeypatch.setattr(lane, "run_gate_action", capture)
+    monkeypatch.setattr(lane, "shape_error", lambda intent: None)
+    bad = _intent(rev, args={"outcome": "accepted", "possible_id": "pos-other"})
+    _apply(root, bad, allowlist, tmp_path)
+    assert seen["body"]["possible_id"] == PID
+
+
+def test_traversal_target_id_is_refused_before_any_write(tmp_path):
+    """Codex P1 (PR #157): a path-shaped target id never reaches the tree."""
+    root, rev, allowlist = _corpus(tmp_path)
+    for evil in ("../../../escape", "a/b", "..", ".hidden", "-flag"):
+        report = _apply(
+            root, _intent(rev, target={"possible_id": evil}), allowlist,
+            tmp_path)
+        assert report.outcome == "error", evil
+        assert "safe path segment" in report.reason
+    assert not (root / ".github").exists()
+    assert _git(root, "rev-list", "--count", "HEAD").stdout.strip() == "1"
+
+
+def test_lane_deferred_verb_is_refused_with_the_reason_on_record(tmp_path):
+    """Codex P2 (PR #157): edit-apply/kickoff have no executing route yet —
+    the refusal says so instead of an anonymous unknown-verb 404."""
+    root, rev, allowlist = _corpus(tmp_path)
+    report = _apply(root, _intent(rev, verb="edit-apply",
+                                  target={"change_id": "some-change"},
+                                  args={}, idempotency_key="k-def"),
+                    allowlist, tmp_path)
+    assert report.outcome == "refused"
+    assert "not yet routable" in report.reason
+    doc = yaml.safe_load((root / report.intent_path).read_text())
+    assert doc["status"] == "refused"
+
+
+def test_snapshot_verbs_get_a_fresh_snapshot_path(tmp_path, monkeypatch):
+    """Codex P2 (PR #157): demote/derive-possibles routes demand a snapshot;
+    the lane generates one and cleans it up after dispatch."""
+    root, rev, allowlist = _corpus(tmp_path)
+    seen = {}
+    marker = tmp_path / "snap.json"
+
+    def fake_snapshot(_root, _repository):
+        marker.write_text("{}", encoding="utf-8")
+        return marker
+
+    def capture(verb, body, **kwargs):
+        seen["snapshot_path"] = kwargs.get("snapshot_path")
+        seen["existed"] = (kwargs.get("snapshot_path") is not None
+                           and kwargs["snapshot_path"].exists())
+        return 409, {"ok": False, "error": "gate_refused", "message": "x"}
+
+    monkeypatch.setattr(lane, "_fresh_snapshot", fake_snapshot)
+    monkeypatch.setattr(lane, "run_gate_action", capture)
+    monkeypatch.setattr(lane, "stale_reason", lambda _root, _intent: None)
+    _apply(root, _intent(rev, verb="demote",
+                         target={"change_id": "some-change"},
+                         args={"reason": "r"}, idempotency_key="k-snap"),
+           allowlist, tmp_path)
+    assert seen["snapshot_path"] == marker and seen["existed"]
+    assert not marker.exists()  # unlinked after dispatch
+
+    seen.clear()
+    _apply(root, _intent(rev, idempotency_key="k-snap2"), allowlist, tmp_path)
+    assert seen["snapshot_path"] is None
+
+
+def test_engine_refusal_reason_is_the_engines_message(tmp_path):
+    """Codex P2 (PR #157): the committed refusal carries the engine's own
+    explanation, not the generic error code."""
+    root, rev, allowlist = _corpus(tmp_path)
+    report = _apply(root, _intent(rev, target={"possible_id": "pos-unknown"},
+                                  idempotency_key="k-msg"),
+                    allowlist, tmp_path)
+    assert report.outcome == "refused"
+    assert report.reason != "gate_refused"
+    assert "pos-unknown" in report.reason or "register" in report.reason
 
 
 def test_intent_plane_provenance_pair_is_sanctioned():

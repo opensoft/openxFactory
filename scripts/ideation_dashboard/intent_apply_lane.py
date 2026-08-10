@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -62,6 +63,22 @@ VERB_TARGET_KEY = {
     "create-project": "project_id",
     "edit-project": "project_id",
 }
+
+#: Kernel-transportable verbs the routes layer cannot yet execute — the
+#: dispatcher has no branch for them (they remain local-console verbs). An
+#: intent for one is REFUSED with a reason that says exactly that, rather
+#: than dying as an anonymous unknown-verb 404 (Codex P2, PR #157).
+LANE_DEFERRED_VERBS = ("edit-apply", "kickoff")
+
+#: Verbs whose executing route refuses without a served snapshot: the lane
+#: generates a FRESH one from the checkout it replays in (which is also the
+#: revalidation posture the spec wants) and hands its path through.
+SNAPSHOT_VERBS = ("demote", "derive-possibles")
+
+#: A target id is a register id or change id, never a path: one safe
+#: segment, or the intent is refused before anything derives from it
+#: (Codex P1, PR #157 — path traversal out of the intents prefix).
+_SAFE_SEGMENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 #: Verbs whose target is a possible entry in the cross-reference index —
 #: their stale check compares the ENTRY, not the whole file, so an unrelated
@@ -108,6 +125,7 @@ def intent_relpath(intents_dir: str, verb: str, target_id: str, at: str) -> str:
     """Mirror of gate_action_record_relpath, in the intents prefix."""
     prefix = intents_dir if intents_dir.endswith("/") else intents_dir + "/"
     stamp = at.replace(":", "").replace("-", "").replace("T", "-").rstrip("Z")
+    stamp = "".join(c for c in stamp if c.isalnum() or c == "-") or "undated"
     return f"{prefix}{target_id}/{verb}-{stamp}.gate-intent.yaml"
 
 
@@ -128,6 +146,16 @@ def shape_error(intent: dict) -> str | None:
     if not isinstance(target, dict) or not isinstance(target.get(key), str) \
             or not target.get(key):
         return f"verb {verb} requires target.{key}"
+    if not _SAFE_SEGMENT.match(target[key]):
+        return (f"target.{key} {target[key]!r} is not a safe path segment "
+                "(one segment, no separators)")
+    args = intent.get("args")
+    if args is not None and not isinstance(args, dict):
+        return "args must be an object"
+    clash = sorted(set(args or ()) & set(VERB_TARGET_KEY.values()))
+    if clash:
+        return ("args must not carry target keys (the validated target is "
+                "the only target): " + ", ".join(clash))
     rev = intent.get("snapshot_rev_seen")
     if not isinstance(rev, str) or len(rev) < 7:
         return "snapshot_rev_seen must name the viewed snapshot revision"
@@ -256,7 +284,10 @@ def _write_intent(root: Path, intents_dir: str, intent: dict) -> Path:
     rel = intent_relpath(intents_dir, verb, target_id, intent["requested_at"]
                          if isinstance(intent.get("requested_at"), str)
                          else _utcnow())
-    path = root / rel
+    path = (root / rel).resolve()
+    base = (root / intents_dir).resolve()
+    if base not in path.parents:
+        raise ValueError(f"intent path escaped the intents prefix: {rel!r}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(_INTENT_BANNER + yaml.safe_dump(intent, sort_keys=False),
                     encoding="utf-8")
@@ -288,11 +319,31 @@ def _commit(root: Path, message: str, report: ApplyReport, *,
     return True
 
 
+def _fresh_snapshot(root: Path, repository: str) -> Path:
+    """A snapshot generated from THIS checkout, for the routes that demand
+    one — the freshest possible server-side state, written to an OS temp
+    file the caller removes after dispatch."""
+    import json as json_mod
+    import tempfile
+
+    from ideation_dashboard.generator import generate_snapshot
+
+    head = _git(root, "rev-parse", "HEAD").stdout.strip() or "unknown"
+    snapshot = generate_snapshot(root, repository, source_revision=head,
+                                 generated_at=_utcnow())
+    handle = tempfile.NamedTemporaryFile(
+        "w", suffix=".snapshot.json", delete=False, encoding="utf-8")
+    with handle as fh:
+        json_mod.dump(snapshot, fh)
+    return Path(handle.name)
+
+
 def apply_intent(repo_root: Path | str, intent: dict, *,
                  allowlist_path: Path | str,
                  records_dir: str = gc.DEFAULT_RECORDS_DIR,
                  intents_dir: str = DEFAULT_INTENTS_DIR,
                  index_validator: Path | None = None,
+                 repository: str = "openxFactory",
                  git: bool = True, push: bool = False) -> ApplyReport:
     """Replay one intent. Refusals are committed intents too — the only
     outcome that persists nothing is a shape error (there is no honest
@@ -339,18 +390,32 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
         return refuse(f"verb {intent['verb']} is outside {intent['actor']}'s "
                       "allowlist (lane recheck)")
 
+    if intent["verb"] in LANE_DEFERRED_VERBS:
+        return refuse(f"verb {intent['verb']} is kernel-transportable but "
+                      "not yet routable through the apply lane — it remains "
+                      "a local-console verb until its executing route lands")
+
     stale = stale_reason(root, intent) if git else None
     if stale is not None:
         return refuse(stale)
 
-    body = {**(intent.get("target") or {}), **(intent.get("args") or {})}
-    status, response = run_gate_action(
-        intent["verb"], body, checkout_root=root, actor=intent["actor"],
-        records_dir=records_dir, index_validator=index_validator,
-        provenance=gc.INTENT_INGRESS)
+    # The validated target WINS any args collision (shape_error already
+    # refused overt clashes; this is the belt under that brace).
+    body = {**(intent.get("args") or {}), **(intent.get("target") or {})}
+    snapshot_path = None
+    if intent["verb"] in SNAPSHOT_VERBS:
+        snapshot_path = _fresh_snapshot(root, repository)
+    try:
+        status, response = run_gate_action(
+            intent["verb"], body, checkout_root=root, actor=intent["actor"],
+            records_dir=records_dir, index_validator=index_validator,
+            snapshot_path=snapshot_path, provenance=gc.INTENT_INGRESS)
+    finally:
+        if snapshot_path is not None:
+            snapshot_path.unlink(missing_ok=True)
     report.response = response
     if status >= 400:
-        return refuse(str(response.get("error") or response.get("detail")
+        return refuse(str(response.get("message") or response.get("error")
                           or f"gate refused (HTTP {status})"))
 
     applied = dict(intent)
@@ -386,6 +451,8 @@ def main(argv=None) -> int:
     source.add_argument("--intent-json", help="the gate-intent as a JSON string")
     source.add_argument("--intent-file", help="path to a gate-intent JSON/YAML file")
     parser.add_argument("--index-validator", default=None)
+    parser.add_argument("--repository", default="openxFactory",
+                        help="repository id stamped on lane-generated snapshots")
     parser.add_argument("--no-git", action="store_true")
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args(argv)
@@ -397,7 +464,7 @@ def main(argv=None) -> int:
     report = apply_intent(
         args.repo_root, intent, allowlist_path=args.allowlist,
         index_validator=Path(args.index_validator) if args.index_validator else None,
-        git=not args.no_git, push=args.push)
+        repository=args.repository, git=not args.no_git, push=args.push)
     print(json.dumps(report.as_dict(), indent=2, sort_keys=True))
     return 0 if report.outcome in ("applied", "refused", "skipped") else 1
 
