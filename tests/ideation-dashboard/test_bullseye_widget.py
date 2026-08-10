@@ -1316,7 +1316,7 @@ def test_the_drafted_seed_moves_to_doxbench_instead_of_being_copied(tmp_path):
     assert "function openDraft(seed)" in swb
     # the create dialog now lives on the draft view's `details` tab rather than
     # filling the overlay body (see the draft-view test below)
-    assert "openCreateDialog(pane, seed" in swb
+    assert "openCreateDialog(detailsPane, seed" in swb
     assert "return { open, close, openDraft };" in swb
     # an ungated plane says so rather than offering a submit that cannot land
     draft_body = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
@@ -1432,6 +1432,74 @@ def test_the_doxbench_handoff_is_offered_only_where_it_can_land():
     guard = swb.split("function openDraft(seed)")[1].split("\n  }")[0]
     assert "created IN a repository" in guard
     assert "nothing was lost" in guard
+
+
+def test_the_draft_view_has_one_action_called_save_reachable_from_both_tabs():
+    """Brett, 2026-08-10, three complaints that are one design defect:
+
+      * "the viewport of the doc body is 2 lines tall. this should be the
+        entire size of the window as large as we can make it"
+      * "There is a button name and create it. what is that for? is this the
+        same button as on details page that says create document?"
+      * "the create document is confusing. it seems to the user that we already
+        have a document and what we want to do is save the document ... what if
+        we remove both those buttons?"
+
+    Both buttons cannot go — nothing exists until one of them is pressed, since
+    the draft view is entirely client-side until then. His RULING: keep the
+    tabs, and put ONE action on both of them, named for what he is doing.
+
+      * `.swb-draftbody` carried NO stylesheet rule, so the textarea rendered at
+        the HTML default of two rows. Measured after the fix in a real browser:
+        707px of an 1100px viewport.
+      * `name it and create →` created nothing — it switched tabs, which the
+        tabs already do. It is gone.
+      * the remaining action is `save`, it lives in the draft CHROME (outside
+        both panes, so it is on screen from either tab), and it is the create
+        form's OWN submit relocated — never a second write path.
+      * the panes are built ONCE and toggled, so a tab switch cannot discard a
+        Title or Summary the human has rewritten. Rebuilding used to.
+    """
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    create = (WEB / "views" / "swb-create.js").read_text(encoding="utf-8")
+
+    # the editor is sized, and the chain that lets it grow is present
+    assert ".swb-draftbody {" in css, "the body editor must carry a rule at all"
+    body_rule = css.split(".swb-draftbody {")[1].split("}")[0]
+    assert "flex: 1;" in body_rule
+    assert "min-height: 55vh;" in body_rule, (
+        "a viewport-proportional floor keeps it large where flex cannot "
+        "resolve a definite height")
+    assert "resize: vertical;" in body_rule, "the human keeps the last word"
+    pane_rule = css.split(".swb-draftpane { ")[1].split("}")[0]
+    assert "flex: 1;" in pane_rule and "height: 100%;" in pane_rule
+
+    # the tab-switch button is GONE, from the executable lines
+    code = "\n".join(line for line in swb.splitlines()
+                     if not line.lstrip().startswith("//"))
+    assert "name it and create" not in code
+    assert "next: title & summary" not in code
+
+    # ONE action, named `save`, hosted in the chrome outside both panes
+    assert 'submitLabel: "save",' in swb
+    assert "actionsHost: chrome," in swb
+    assert ".swb-draftchrome" in css
+    # …and it is the form's own submit, relocated — not a second write path
+    assert "const actions = o.actionsHost || form;" in create
+    assert "actions.appendChild(bar);" in create
+    assert "actions.appendChild(result);" in create
+    assert create.count('method: "POST"') == 1, "still exactly one write"
+    # the TILE path is untouched: there a new document really is being started
+    assert 'o.submitLabel || "create document"' in create
+
+    # panes built once, toggled — a tab switch discards nothing
+    assert "function buildDraftPanes()" in swb
+    assert "buildDraftPanes();     // both, ONCE" in swb
+    show = swb.split("function showPane(id) {")[1].split("\n    }")[0]
+    assert 'bodyPane.hidden = id !== "document";' in show
+    assert 'detailsPane.hidden = id !== "details";' in show
+    assert "innerHTML" not in show, "a tab switch must not rebuild either pane"
 
 
 def test_the_drafted_body_is_actually_saved_and_the_verdict_is_read_correctly():

@@ -848,8 +848,14 @@ def test_a_running_write_says_so_on_its_own_button():
         # the running label must be SET before the await and never left behind
         assert body.index("submit.textContent = ") < body.index("} finally {"), name
     # the create names what the wait is FOR — a create is not a file write, it
-    # opens a branch session, which is why it takes as long as it does
-    assert 'submit.textContent = "creating… (opening the branch session)";' in create
+    # opens a branch session, which is why it takes as long as it does. The
+    # DEFAULT is stated here and a host may name its own (the draft view says
+    # "saving…", because from there the human is saving a document they can
+    # already see — Brett, 2026-08-10).
+    assert ('submit.textContent = o.runningLabel '
+            '|| "creating… (opening the branch session)";') in create
+    assert '"saving… (opening the branch session)"' in (
+        WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
     assert 'submit.textContent = label + "…";' in session
 
 

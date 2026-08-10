@@ -2213,10 +2213,41 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
   padding: 3px 10px;
 }
 .swb-drafttab[aria-selected="true"] { color: var(--ink); font-weight: 700; border-color: var(--ink); cursor: default; }
-.swb-draftpane { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.swb-draftpane { display: flex; flex-direction: column; gap: 8px; min-height: 0;
+                 flex: 1; height: 100%; }
 .swb-draftnote { font-size: 12px; color: var(--muted); line-height: 1.5; }
 .swb-draftpane .seedtext { max-height: 460px; overflow: auto; scrollbar-gutter: stable; }
 .swb-draftpane .cbtn { align-self: flex-start; }
+/* THE BODY IS THE WORK (Brett, 2026-08-10: "the viewport of the doc body is 2
+   lines tall. this should be the entire size of the window as large as we can
+   make it"). This textarea carried NO rule at all, so it rendered at the HTML
+   default of TWO ROWS — on the one screen whose entire purpose is writing
+   prose. The pane fills the overlay body and the editor takes what is left; the
+   viewport-proportional floor keeps it large even where the flex chain cannot
+   resolve a definite height, and `resize: vertical` leaves the last word with
+   the human. Monospace because this is Markdown source, like every other
+   editing surface here. */
+/* The two panes and the chrome the ONE action lives in (Brett's ruling,
+   2026-08-10: keep the tabs, put one `save` on both). Only the panes swap; the
+   chrome never moves, so `save` and the answer it gives are always on screen. */
+.swb-draftbodypane {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
+}
+.swb-draftbodypane[hidden], .swb-draftdetails[hidden] { display: none; }
+.swb-draftdetails { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.swb-draftchrome {
+  display: flex; flex-direction: column; gap: 8px;
+  border-top: 1px solid var(--border); padding-top: 8px;
+}
+.swb-draftchrome .swb-cactions { justify-content: flex-end; }
+.swb-draftbody {
+  flex: 1; min-height: 55vh; width: 100%; box-sizing: border-box;
+  resize: vertical; padding: 10px 12px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6;
+}
 
 /* The create form's per-field help, and the mark on a field only a human can
    fill: empty means two different things here, and the form could not say

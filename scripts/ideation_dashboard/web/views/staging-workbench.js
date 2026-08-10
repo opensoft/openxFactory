@@ -1416,6 +1416,17 @@ export function mountStagingWorkbench(container, snapshot,
 
     const strip = el("div", "swb-drafttabs");
     const pane = el("div", "swb-draftpane");
+    // TWO PANES BUILT ONCE, TOGGLED — not one pane rebuilt per tab (Brett's
+    // ruling, 2026-08-10: keep the tabs, put ONE save on both). Rebuilding was
+    // also quietly destructive: switching document -> details -> document threw
+    // the create form away and rebuilt it from the seed, so a Title or Summary
+    // the human had already rewritten was silently restored to its default.
+    // The body survived only because `bodyText` lives in this closure.
+    const bodyPane = el("div", "swb-draftbodypane");
+    const detailsPane = el("div", "swb-draftdetails");
+    // The chrome the ONE action lives in. Outside both panes, so `save` and the
+    // answer it gets are on screen whichever tab the human is standing on.
+    const chrome = el("div", "swb-draftchrome");
     const tabs = [
       { id: "document", label: "document" },
       { id: "details", label: "details" },
@@ -1565,11 +1576,29 @@ export function mountStagingWorkbench(container, snapshot,
         btn.setAttribute("aria-selected", String(key === id));
         btn.disabled = key === id;
       }
-      pane.innerHTML = "";
-      if (id === "details") {
-        openCreateDialog(pane, seed, {
+      // TOGGLE, never rebuild: the panes and the form inside them are built
+      // once, so a tab switch cannot discard what the human has typed into
+      // either of them.
+      bodyPane.hidden = id !== "document";
+      detailsPane.hidden = id !== "details";
+    }
+
+    function buildDraftPanes() {
+      {
+        openCreateDialog(detailsPane, seed, {
           caps: authoring, fetcher, repair: consoleRepair,
           label: "create document",
+          // SAVE, not create (Brett, 2026-08-10: "it seems to the user that we
+          // already have a document and what we want to do is save the
+          // document"). By the time this is on screen the document IS there —
+          // his body, his fields — and only the engine calls it a create.
+          submitLabel: "save",
+          runningLabel: "saving… (opening the branch session)",
+          // the ONE action, in the chrome, on screen from BOTH tabs
+          actionsHost: chrome,
+          // the body is what the human came to write; the fields must not
+          // steal the caret when the overlay opens on the document tab
+          focusOnMount: false,
           // CREATE-THEN-EDIT, in ONE action. The create opened the branch
           // session for this topic's scope; the edit resolves that same LIVE
           // session and writes the body over the header. Both verbs carry the
@@ -1580,8 +1609,10 @@ export function mountStagingWorkbench(container, snapshot,
             const wrote = await writeBody(path);
             if (wrote && wrote.refused) {
               // the document EXISTS with its header and only the body failed:
-              // saying which is the difference between a retry and a mystery
-              pane.appendChild(el("div", "swb-draftfail",
+              // saying which is the difference between a retry and a mystery.
+              // Into the CHROME, beside the outcome the save already reported,
+              // because the promotion below rebuilds everything else.
+              chrome.appendChild(el("div", "swb-draftfail",
                 "the document was created, but its body was refused: "
                 + wrote.refused));
             }
@@ -1604,29 +1635,31 @@ export function mountStagingWorkbench(container, snapshot,
             return adopted;
           },
         });
-        return;
       }
       // THE BODY IS YOURS TO WRITE (Brett, 2026-08-09). The header block is
       // NOT here: the create generates it from the fields on `details`, so
       // offering an edit of a header that is about to be regenerated would be
       // offering an edit that is discarded. What is editable is exactly what
       // the create does not write.
-      pane.appendChild(el("div", "swb-draftnote",
+      //
+      // THE SECOND BUTTON IS GONE (Brett, 2026-08-10: "There is a button name
+      // and create it. what is that for?" and "what if we remove both those
+      // buttons?"). It read `name it and create →` and created nothing — it
+      // switched tabs, which the tabs above already do. Two controls promising
+      // a create, one of them navigation, was the confusion written out. What
+      // remains is one `save`, in the chrome below, reachable from both tabs.
+      bodyPane.appendChild(el("div", "swb-draftnote",
         "The body of the fragment, drafted from your selection and yours to "
-        + "edit. The HEADER comes from the fields on `details`. Creating "
-        + "opens the branch session for this topic, lands the header, and "
-        + "writes this body over it in the same session — two governed verbs, "
-        + "one action, and never on main."));
+        + "edit. Its HEADER — title, summary, topics — is on the `details` "
+        + "tab, already filled in, and the SUMMARY there still says "
+        + "`TO WRITE`: replace it before you save. `save` lands both, on a "
+        + "branch of this topic's own and never on main."));
       const area = document.createElement("textarea");
       area.className = "swb-draftbody";
       area.value = bodyText;
       area.setAttribute("aria-label", "the document's body");
       area.addEventListener("input", () => { bodyText = area.value; });
-      pane.appendChild(area);
-      const go = el("button", "cbtn", "name it and create →");
-      go.type = "button";
-      go.addEventListener("click", () => showPane("details"));
-      pane.appendChild(go);
+      bodyPane.appendChild(area);
     }
 
     for (const tab of tabs) {
@@ -1637,8 +1670,10 @@ export function mountStagingWorkbench(container, snapshot,
       buttons.set(tab.id, btn);
       strip.appendChild(btn);
     }
+    pane.append(bodyPane, detailsPane, chrome);
     body.appendChild(strip);
     body.appendChild(pane);
+    buildDraftPanes();     // both, ONCE — `showPane` only toggles from here on
     showPane("document");
     closeBtn.focus();
   }
