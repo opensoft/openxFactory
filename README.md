@@ -259,6 +259,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-session-notebook-reconciliation](openspec/changes/add-session-notebook-reconciliation/proposal.md)
+  — authored 2026-08-10 from the `session-notebook-reconciliation` staged topic:
+  a session notebook must not outlive its session. Both governed endings retire
+  it; a session removed any OTHER way — a probe clearing up, crash residue
+  swept, a hand `git worktree remove` — retires nothing, and the notebook
+  survives on an account shared across the family. The targeted route
+  (`--session-ref --session-retire`) cannot clean that up by design, because its
+  liveness refusal is what stops it inventing a session and retiring a LIVE
+  one's notebook; so the dead case gets its own door, `--session-sweep`, which
+  establishes death from no live session anywhere claiming the notebook.
+  Forward-derived (the alias is injective but not invertible), report-only by
+  default, retiring through `retire` and never a scratch delete, scoped by
+  PREFIX because repository names and flattened branches both contain hyphens,
+  and FAILING CLOSED on any repository it cannot enumerate — that being
+  indistinguishable from a repository whose sessions have ended. The owed live
+  dry run is what made it safe: its first run called two LIVE sessions dead,
+  because a session's container is keyed on the checkout it was opened FROM and
+  both were opened from a feature worktree the enumeration never asked; the
+  enumeration now covers every worktree git lists for the repository, pinned by
+  a regression test over a real linked worktree. `target_release: none`.
+
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
