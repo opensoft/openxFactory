@@ -309,9 +309,12 @@ class ApplyReport:
                 "response": self.response}
 
 
-def _existing_applied_key(root: Path, intents_dir: str, key: str | None) -> bool:
-    if not key:
-        return False
+def _already_applied(root: Path, intents_dir: str, digest: str) -> bool:
+    """True when a committed APPLIED intent has the same request identity.
+    The identity is RECOMPUTED from each stored intent's own fields — a
+    supplied or stored `idempotency_key` string is data, never an authority
+    to suppress execution (Codex round-5, PR #157: a compromised inbox
+    reusing an applied key on an unrelated intent must not be skipped)."""
     base = root / intents_dir
     if not base.is_dir():
         return False
@@ -320,8 +323,8 @@ def _existing_applied_key(root: Path, intents_dir: str, key: str | None) -> bool
             doc = yaml.safe_load(path.read_text(encoding="utf-8"))
         except (OSError, yaml.YAMLError):
             continue
-        if isinstance(doc, dict) and doc.get("idempotency_key") == key \
-                and doc.get("status") == "applied":
+        if isinstance(doc, dict) and doc.get("status") == "applied" \
+                and request_digest(doc) == digest:
             return True
     return False
 
@@ -459,10 +462,16 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
                          "intents only against a fresh checkout")
         return report
 
-    if _existing_applied_key(root, intents_dir, intent.get("idempotency_key")):
+    digest = request_digest(intent)
+    if _already_applied(root, intents_dir, digest):
         report.outcome = "skipped"
-        report.reason = "an intent with this idempotency_key is already applied"
+        report.reason = ("an intent with this request identity (actor, verb, "
+                         "target, snapshot_rev_seen) is already applied")
         return report
+    # the committed artifact carries the lane-derived key — a client string
+    # that disagrees with the request's own identity never survives into
+    # the feed
+    intent = {**intent, "idempotency_key": digest}
 
     def refuse(why: str) -> ApplyReport:
         refused = dict(intent)

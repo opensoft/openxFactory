@@ -97,10 +97,17 @@ def test_applied_record_carries_intent_plane_provenance(tmp_path):
 
 def test_stale_view_is_refused_and_the_refusal_committed(tmp_path):
     root, rev, allowlist = _corpus(tmp_path)
-    # the target's entry advances past the intent's view: dispose it first
+    allowlist.write_text(json.dumps({
+        "actors": {"brett": ["dispose-possible"],
+                   "casey": ["dispose-possible"]},
+    }), encoding="utf-8")
+    # the target's entry advances past the second actor's view: brett
+    # disposes it first, then casey decides on the OLD view (a distinct
+    # request identity — a same-identity resubmission is a SKIP, per the
+    # kernel's idempotency definition)
     first = _apply(root, _intent(rev), allowlist, tmp_path)
     assert first.outcome == "applied"
-    report = _apply(root, _intent(rev, idempotency_key="k-test-2",
+    report = _apply(root, _intent(rev, actor="casey",
                                   args={"outcome": "deferred"}),
                     allowlist, tmp_path)
     assert report.outcome == "refused"
@@ -416,6 +423,33 @@ def test_project_verbs_dispatch_with_the_roster(tmp_path, monkeypatch):
     _apply(root, _intent(rev, idempotency_key="k-r2"), allowlist, tmp_path)
     assert seen["dispose-possible"] is None
     assert seen["dispose-possible:register"] is None
+
+
+def test_forged_idempotency_key_never_suppresses_execution(tmp_path):
+    """Codex round-5 P2 (PR #157): a reused applied key on an UNRELATED
+    request must not skip — identity is recomputed lane-side."""
+    root, rev, allowlist = _corpus(tmp_path)
+    first = _apply(root, _intent(rev), allowlist, tmp_path)
+    assert first.outcome == "applied"
+    applied_doc = yaml.safe_load((root / first.intent_path).read_text())
+    forged = _intent(rev, target={"possible_id": "pos-unrelated"},
+                     idempotency_key=applied_doc["idempotency_key"])
+    report = _apply(root, forged, allowlist, tmp_path)
+    assert report.outcome != "skipped"          # it executes (and refuses on
+    assert report.outcome == "refused"          # the unknown possible), on
+    assert report.intent_path                   # the record
+
+
+def test_dedupe_binds_to_identity_not_the_client_string(tmp_path):
+    """The same request with a DIFFERENT client-supplied key still skips,
+    and the committed artifact carries the lane-derived key."""
+    root, rev, allowlist = _corpus(tmp_path)
+    first = _apply(root, _intent(rev), allowlist, tmp_path)
+    doc = yaml.safe_load((root / first.intent_path).read_text())
+    assert doc["idempotency_key"] == lane.request_digest(doc)
+    report = _apply(root, _intent(rev, idempotency_key="totally-different"),
+                    allowlist, tmp_path)
+    assert report.outcome == "skipped"
 
 
 def test_intent_plane_provenance_pair_is_sanctioned():
