@@ -2427,6 +2427,52 @@ def _session_directories(root: Path) -> tuple[list[Path], list[str]]:
         return [], [str(exc)]
 
 
+def live_session_branches_of(git: SessionGit, checkout_root: Path | str
+                             ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """EVERY live session branch on this checkout — `(branches, errors)`.
+
+    The reconciliation half of the joint signal (add-session-notebook-
+    reconciliation): `live_session_worktree` answers about ONE branch a caller
+    already names, and the session-namespace sweep has no branch to name — it
+    starts from notebook titles it cannot invert, so it must ask the checkout
+    which sessions are live and compare forward.
+
+    THE BRANCH COMES FROM GIT, never from the directory name. That is
+    `bootstrap_sessions`'s own rule (PR #49 review finding 5): the flattened
+    directory name is DISPLAY, and a worktree whose git branch disagrees with the
+    name its directory claims is the two halves of the joint signal contradicting
+    each other. Here such a directory simply contributes no branch — the sweep's
+    question is "which sessions are live", and a contradiction is not one.
+
+    ERRORS ARE RETURNED, NOT SWALLOWED, and that is the whole point of the pair.
+    An unreadable container, a git failure, a checkout that is not a repository:
+    each yields FEWER live branches, which to a sweep comparing forward is
+    indistinguishable from sessions having ended. The caller MUST fail closed on a
+    non-empty error tuple rather than retire what it could not account for — the
+    difference is unrecoverable once a notebook is gone.
+    """
+    root = Path(checkout_root).resolve()
+    directories, errors = _session_directories(root)
+    if not directories:
+        return (), tuple(errors)
+    try:
+        records = _worktree_records(git)
+    except (SessionGitRefused, GitError, OSError) as exc:
+        return (), (*errors, str(exc))
+    live: list[str] = []
+    for path in directories:
+        record = records.get(path.resolve())
+        if record is None or record.detached or not record.branch:
+            continue
+        branch = record.branch
+        if not looks_ref_legal(branch) or flatten_branch(branch) != path.name:
+            continue
+        # the joint signal, asked through the ONE function that owns it
+        if live_session_worktree(git, root, branch) is not None:
+            live.append(branch)
+    return tuple(sorted(set(live))), tuple(errors)
+
+
 def live_session_worktree(git: SessionGit, checkout_root: Path | str,
                           branch: str) -> Path | None:
     """The worktree of the LIVE session on `branch`, or None — the joint signal
@@ -4686,7 +4732,7 @@ __all__ = [
     "reserve_ending_marker", "write_ending_marker",
     "deterministic_session_branch", "existing_branch_names", "flatten_branch",
     "is_live", "landed_proposal_ids", "live_session_branches",
-    "live_session_worktree", "looks_ref_legal",
+    "live_session_branches_of", "live_session_worktree", "looks_ref_legal",
     "merge_state", "new_session_branch", "next_ordinal", "normalize_continuation",
     "create_session_notebook", "notebook_degradation_notice",
     "notebook_deferred_sources_notice",

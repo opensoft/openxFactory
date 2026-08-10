@@ -805,6 +805,40 @@ session was reachable only by accident and under the wrong name, which is why a
 document a create had just landed looked lost. A repository row is now `main`
 deliberately, and every live session is an addressable row of its own.
 
+### 4a. A session torn down by hand: reconcile its notebook
+
+The two governed endings retire the session notebook. A session removed any
+OTHER way — a probe clearing up, crash residue swept, a `git worktree remove`
+by hand — retires nothing, and its notebook survives on the account shared
+across the family.
+
+`--session-ref --session-retire` cannot clean that up, BY DESIGN: it resolves
+liveness first and refuses a dead branch, which is exactly what stops it
+inventing a session and retiring a LIVE one's notebook. Do not try to relax it.
+The dead case has its own door, which establishes death differently — from no
+live session anywhere claiming the notebook:
+
+```bash
+# report (default): what is live, what is orphaned, what belongs elsewhere
+python3 openxFactory/scripts/sync-notebooklm-books.py . --session-sweep
+# and then, having read it:
+python3 openxFactory/scripts/sync-notebooklm-books.py . --session-sweep --apply
+```
+
+It REFUSES rather than guesses. A repository it cannot enumerate — absent
+checkout, git failure, unreadable container — looks exactly like a repository
+whose sessions have all ended, so any such repository refuses the whole run and
+retires nothing. A notebook naming a repository this workspace does not carry is
+another workspace's and is reported out of scope. A workspace resolving no
+session repositories retires nothing at all.
+
+**Run it from the WORKSPACE ROOT**, not from a feature worktree. Liveness is
+sought across every worktree git lists for each session repository, because a
+session's container is keyed on the checkout it was opened FROM — the first
+implementation asked only canonical checkouts and reported two live sessions as
+dead (2026-08-10), which is why that enumeration is now complete and why the
+report is worth reading before `--apply`.
+
 ## 5. Where the derived artifacts live
 
 ```text

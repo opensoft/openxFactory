@@ -1304,3 +1304,41 @@ def test_opening_a_session_never_changes_which_snapshot_is_ACTIVE(tmp_path, scra
     assert registry.active.ref == "main"
     assert registry.get(REPO, opened.branch) is not None      # keyed, not active
     assert bs.is_live(registry, REPO, opened.branch) is True
+
+
+# ---------------------------------------------------------------------------
+# live_session_branches_of (add-session-notebook-reconciliation)
+# ---------------------------------------------------------------------------
+
+def test_live_session_branches_of_reports_errors_beside_its_answer(tmp_path):
+    """The reconciliation half of the joint signal: `live_session_worktree`
+    answers about ONE branch a caller names, and a namespace sweep has no branch
+    to name — it must ask the checkout which sessions are live.
+
+    THE PAIR IS THE POINT. Every failure mode here yields FEWER branches, and to
+    a sweep comparing forward, fewer is indistinguishable from sessions having
+    ended. So the errors come back beside the answer and the caller fails closed;
+    a bare list would have made a broken checkout look like a clean one."""
+    # a tree with no sessions container: no branches, no errors — nothing has
+    # ever been materialized here, which is a real answer and not a failure
+    branches, errors = bs.live_session_branches_of(
+        sg.SessionGit(tmp_path), tmp_path)
+    assert branches == ()
+    assert errors == ()
+
+
+def test_live_session_branches_of_surfaces_a_git_failure_as_an_error(tmp_path):
+    """A checkout whose worktree listing cannot be read must produce an ERROR,
+    not an empty answer — the distinction the sweep's fail-closed rule needs."""
+    sessions = bs.sessions_root(tmp_path)
+    sessions.mkdir(parents=True)
+    (sessions / "draft__demo").mkdir()
+
+    class BrokenGit:
+        def worktree_records(self):
+            raise sg.GitError("git worktree list", 128,
+                              "fatal: not a repository")
+
+    branches, errors = bs.live_session_branches_of(BrokenGit(), tmp_path)
+    assert branches == ()
+    assert errors and "not a repository" in errors[0]

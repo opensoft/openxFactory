@@ -62,6 +62,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
 | [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
+| [session-notebook-reconciliation](#session-notebook-reconciliation) | MODIFIED `lifecycle-notebook-projection` (a fourth sync mode: reconcile the `xf-session-` namespace against live sessions, fail-closed, report-only by default) + MODIFIED `ideation-dashboard` (a third retirement route for a session that ended without one) | 1 | Ready to iterate — organized 2026-08-10 from the `session-teardown-notebook-coupling` brainstorm on the day two live orphans had to be deleted BY HAND; the five claims are settled (forward-derived detection, fail closed on incomplete knowledge, scoped to this workspace's session repositories, report-only default, `retire` never `delete`); 3 open questions, none blocking (is an orphan evidence worth an import pass; whether hand teardown should be narrowed; cadence) |
 | [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal |
 | [qualify-avatar-live-voice](#qualify-avatar-live-voice) | ADDED `avatar-live-voice` (incl. the reserved AVC-09/AVC-10 contracts) | 1 | Blocked — 5 open questions (credential custody + spend cap and activation-gate scope hardest); also gated on a released client from the lab |
 | [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
@@ -737,6 +738,40 @@ factory comparing references by raw string has it.
   Omnigent-Install, OpsxFactory); acceptance = the end-to-end volunteer
   workstation scenario on Brett's machine, which doubles as the
   NT SERVICE fact-check.
+
+## session-notebook-reconciliation
+
+- Staging ID: `openxFactory:staging:session-notebook-reconciliation`
+- Repository context: openxFactory owns both halves — the session notebook
+  lifecycle (`ideation-dashboard`, promoted from workbench-branch-sessions)
+  and the sync that operates the projection
+  (`lifecycle-notebook-projection`). The notebooks live on ONE account shared
+  across the family, which is what makes a wrong delete someone else's live
+  session rather than a local mistake
+- Files: `session-notebook-reconciliation.md` (primary — the two structural
+  facts, five claims, three open questions, exit path)
+- Target capabilities: MODIFIED `lifecycle-notebook-projection` (the fourth
+  sync mode and its fail-closed + workspace-scoping rules) and MODIFIED
+  `ideation-dashboard` (the session-notebook lifecycle gains a third
+  retirement route, for a session that ended outside the two governed
+  endings)
+- Source: `ideation/brainstorm/session-teardown-notebook-coupling.md`
+  (2026-08-10), filed with PR #161 alongside the hand deletion it records —
+  two orphans (a probe's session from that morning and a 2026-07-27 demo
+  topic) verified dead and removed by hand, which is the ungoverned act this
+  topic exists to replace
+- Readiness: ready to iterate. What is SETTLED is the shape of the detection:
+  forward-derived from every live session's own alias (the transform is lossy,
+  so a title can never be inverted), fail closed when any session repository
+  cannot be enumerated (a missing checkout looks exactly like a dead session
+  and the difference is unrecoverable after a delete), scoped to this
+  workspace's own session repositories, report-only until `--apply`, and
+  retiring through the same `retire` operation the governed endings use. What
+  is OPEN is whether an orphan is evidence worth an import-before-retire pass
+  (leaning no — a session with no worktree has nothing to import back into),
+  whether hand teardown should be narrowed to the abandon path (deliberately
+  out of scope: probes and crash recovery legitimately remove worktrees), and
+  cadence (manual, like the rest of the sync)
 
 ## subject-establishment
 

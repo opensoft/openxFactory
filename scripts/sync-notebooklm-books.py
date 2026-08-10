@@ -30,6 +30,7 @@ Usage:
   python3 sync-notebooklm-books.py <workspace-root> --import-exports NOTEBOOK [--apply]
   python3 sync-notebooklm-books.py <workspace-root> --import-new-sources NOTEBOOK --target-path PATH [--apply]
   python3 sync-notebooklm-books.py <workspace-root> --session-ref BRANCH [--session-repository REPO] [--session-retire] [--apply]
+  python3 sync-notebooklm-books.py <workspace-root> --session-sweep [--apply]
 
 Dry-run by default; --apply performs adds/deletes via the nlm CLI.
 Import modes are also dry-run by default. The --import-new-sources mode imports
@@ -1387,6 +1388,219 @@ def sync_session_notebook(root: Path, branch: str, apply: bool = False, *,
                        skipped=bool(result.skipped), detail=result.detail)
 
 
+# ---------------------------------------------------------------------------
+# SESSION-NAMESPACE RECONCILIATION (add-session-notebook-reconciliation)
+#
+# A session notebook is bound to a LIVE session, and the two governed endings
+# retire it. Sessions also end a THIRD way: a probe or a crash-residue cleanup
+# removes a worktree and a branch directly, no abandon runs, and the notebook
+# survives on an account shared across the family. `--session-ref
+# --session-retire` cannot clean that up — it resolves liveness first and refuses
+# a dead branch, correctly, because that refusal is what stops this script
+# inventing a session and retiring a LIVE one's notebook. So the dead case gets
+# its own door, and it establishes death differently: not from a caller's
+# assertion about one branch, but from no live session anywhere claiming the
+# notebook.
+# ---------------------------------------------------------------------------
+
+# The session namespace's prefix, spelled ONCE and taken from the module that
+# owns it rather than re-typed: `workbench.SESSION_NOTEBOOK_PREFIX` is what the
+# adapter's own listing and prefix guards use.
+SESSION_ALIAS_PREFIX = "xf-session-"
+
+SESSION_LIVE = "live"
+SESSION_DEAD = "dead"
+SESSION_FOREIGN = "out-of-scope"
+
+
+class SessionSweepRefused(RuntimeError):
+    """The reconciliation refused: it could not account for every repository."""
+
+
+def live_session_aliases(root: Path, adapter_repositories=None
+                         ) -> tuple[set[str], list[str]]:
+    """`(aliases, errors)` — every LIVE session's own notebook alias across this
+    workspace's session repositories.
+
+    FORWARD ONLY. `notebook_alias` is injective but NOT invertible: the readable
+    half strips `draft/` and lowercases, and the key half is a digest. So a
+    notebook title can never be resolved back to a `(repository, branch)` pair,
+    and the only sound comparison is to compute what every live session's alias
+    WOULD be and look for the title in that set.
+
+    Errors are returned beside the aliases because the caller must fail closed on
+    them: a repository this run could not enumerate yields fewer aliases, and
+    fewer aliases is indistinguishable from sessions having ended."""
+    bs = _dashboard_module("branch_session")
+    sg = _dashboard_module("session_git")
+    aliases: set[str] = set()
+    errors: list[str] = []
+    for name, checkout in (adapter_repositories
+                           if adapter_repositories is not None
+                           else session_repositories(root)):
+        # EVERY WORKTREE OF THE REPOSITORY, not just its canonical checkout.
+        # Caught by the live dry run this change owed, and it was the dangerous
+        # direction: a session's container is `<checkout>-worktrees/sessions/`,
+        # keyed on the checkout it was OPENED from, and sessions are routinely
+        # opened from a FEATURE worktree. Asking only the canonical checkout
+        # found no sessions there — a legitimate answer for that checkout, so
+        # fail-closed never fired — and the run declared two LIVE sessions dead,
+        # both holding unmerged work. `git worktree list` from the canonical
+        # checkout knows every linked worktree (they share one git dir), so the
+        # enumeration is completable; failing to read it is an ERROR, not an
+        # answer.
+        roots: list[Path] = [Path(checkout)]
+        try:
+            for record in sg.SessionGit(checkout).worktree_records():
+                path = Path(record.path)
+                if path not in roots:
+                    roots.append(path)
+        except Exception as exc:  # noqa: BLE001 - unreadable worktree list
+            errors.append(f"{name}: could not enumerate worktrees: {exc}")
+            continue
+        for checkout_root in roots:
+            try:
+                branches, listing_errors = bs.live_session_branches_of(
+                    sg.SessionGit(checkout_root), checkout_root)
+            except Exception as exc:  # noqa: BLE001 - a tree with no git is an ERROR here
+                # …and NOT a checkout with no sessions. `live_session_targets`
+                # may treat a failure as "no target" because it is asked about
+                # one named branch; a sweep asked "which are live" must never
+                # read a failure as an answer.
+                errors.append(f"{name} [{checkout_root}]: {exc}")
+                continue
+            for detail in listing_errors:
+                errors.append(f"{name} [{checkout_root}]: {detail}")
+            for branch in branches:
+                try:
+                    aliases.add(bs.notebook_alias(name, branch))
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"{name} {branch}: {exc}")
+    return aliases, errors
+
+
+def session_repository_slugs(pairs) -> list[str]:
+    """The lowercased repository segment each in-scope alias must open with.
+
+    Derived from the SAME repository set the sessions and the books agree on, so
+    a notebook belonging to another workspace's repositories is recognisable
+    without this run guessing at title structure."""
+    return [str(name).lower() for name, _checkout in pairs]
+
+
+def classify_session_notebooks(titles, live_aliases, slugs
+                               ) -> list[tuple[str, str]]:
+    """`[(title, verdict)]` over `xf-session-` titles — pure, node of the sweep.
+
+    Three verdicts and no fourth: `live` (the title IS a live session's alias),
+    `out-of-scope` (its repository segment is not one this workspace carries, so
+    it is another workspace's session and not this run's to judge), and `dead`.
+
+    Scope is tested by PREFIX (`xf-session-<slug>-`), never by splitting the
+    title on `-`: repository names and flattened branches both contain hyphens,
+    so any parse would be ambiguous exactly where being wrong deletes someone
+    else's notebook. A title that is not a session title at all is not
+    classified — it never enters this function's answer."""
+    prefixes = [f"{SESSION_ALIAS_PREFIX}{slug}-" for slug in slugs]
+    out: list[tuple[str, str]] = []
+    for title in titles:
+        name = str(title or "")
+        if not name.startswith(SESSION_ALIAS_PREFIX):
+            continue
+        if name in live_aliases:
+            out.append((name, SESSION_LIVE))
+        elif any(name.startswith(p) for p in prefixes):
+            out.append((name, SESSION_DEAD))
+        else:
+            out.append((name, SESSION_FOREIGN))
+    return out
+
+
+def session_notebook_sweep(root: Path, apply: bool, adapter=None) -> int:
+    """Reconcile the `xf-session-` namespace against live sessions.
+
+    Returns a process exit code: 0 when the account and the workspace agree (or
+    a report ran), nonzero when the run REFUSED. Refusal, never a partial act, is
+    the whole posture — see `live_session_aliases`."""
+    root = Path(root).resolve()
+    pairs = session_repositories(root)
+    aliases, errors = live_session_aliases(root, pairs)
+    if errors:
+        print("[session-sweep] REFUSED: this run could not account for every "
+              "session repository, and a repository it cannot enumerate looks "
+              "exactly like one whose sessions have ended. Nothing was retired.")
+        for detail in errors:
+            print(f"[session-sweep]   unaccounted: {detail}")
+        return 1
+    if adapter is None:
+        wb = _dashboard_module("workbench")
+        adapter = wb.NotebookAdapter()
+    listing = adapter.list_sessions_result()
+    if not listing.ok:
+        print("[session-sweep] REFUSED: the notebook list could not be read, so "
+              "nothing is known about session notebooks — this is NOT an empty "
+              f"account: {listing.detail}")
+        return 1
+    wb = _dashboard_module("workbench")
+    rows = {}
+    for nb in listing.rows:
+        title = wb._notebook_title(nb)
+        if title:
+            rows[title] = nb
+    verdicts = classify_session_notebooks(rows, aliases,
+                                          session_repository_slugs(pairs))
+    dead = [t for t, v in verdicts if v == SESSION_DEAD]
+    for title, verdict in verdicts:
+        if verdict == SESSION_LIVE:
+            print(f"[session-sweep] KEEP   {title} (a live session claims it)")
+        elif verdict == SESSION_FOREIGN:
+            print(f"[session-sweep] SKIP   {title} (names a repository this "
+                  "workspace does not carry)")
+        else:
+            count = _session_source_count(rows[title])
+            discards = "" if count is None else f"; retiring discards {count} source(s)"
+            print(f"[session-sweep] {'RETIRE' if apply else 'DEAD  '} {title} "
+                  f"(no live session claims it{discards})")
+    if not dead:
+        print(f"[session-sweep] {len(aliases)} live session(s); no orphans")
+        return 0
+    if not apply:
+        print(f"[session-sweep] dry-run: {len(dead)} orphan(s) pending; "
+              "re-run with --apply to retire")
+        return 0
+    if not hasattr(adapter, "retire"):
+        print("[session-sweep] REFUSED: this adapter exposes no session `retire` "
+              "operation, and a scratch delete is not interchangeable with it "
+              "(no session-prefix guard). Nothing was retired.")
+        return 1
+    failures = 0
+    for title in dead:
+        # `retire` — the SAME operation both governed endings take, with its own
+        # session-prefix guard. The title is the ACCOUNT'S own, taken from the
+        # listing rather than built here, which is the property
+        # `retire_session_notebook`'s key-derived title provides for a live
+        # session: this run can only name notebooks that exist and that no live
+        # session claims.
+        result = adapter.retire(title)
+        ok = getattr(result, "ok", False)
+        print(f"[session-sweep] {'retired' if ok else 'FAILED '} {title}: "
+              f"{getattr(result, 'detail', '')}")
+        if not ok:
+            failures += 1
+    return 1 if failures else 0
+
+
+def _session_source_count(row) -> int | None:
+    """The notebook's source count when the listing carries one — reported so a
+    retirement that would discard hand-added sources is visible BEFORE it runs."""
+    if isinstance(row, dict):
+        for key in ("source_count", "sources", "sourceCount"):
+            value = row.get(key)
+            if isinstance(value, int):
+                return value
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("root", type=Path)
@@ -1402,6 +1616,11 @@ def main() -> None:
     ap.add_argument("--session-retire", action="store_true",
                     help="with --session-ref: RETIRE the session notebook "
                          "(the session has ended)")
+    ap.add_argument("--session-sweep", action="store_true",
+                    help="RECONCILE the xf-session-* namespace against live "
+                         "sessions: report every session notebook no live "
+                         "session claims, and with --apply retire them "
+                         "(the door for a session torn down without an abandon)")
     ap.add_argument("--import-exports", metavar="NOTEBOOK",
                     help="import [export:brainstorm]/[export:staged] sources from a hybrid notebook")
     ap.add_argument("--import-new-sources", metavar="NOTEBOOK",
@@ -1413,6 +1632,16 @@ def main() -> None:
                     help="date stamp for imported idea files (YYYY-MM-DD)")
     args = ap.parse_args()
 
+    if args.session_sweep:
+        # RECONCILIATION, not a targeted operation. Mutually exclusive with
+        # --session-ref by construction: one names a branch it requires to be
+        # LIVE, the other starts from titles it cannot invert and asks the
+        # workspace which sessions live. Answering both in one run would mean
+        # holding two liveness questions at once.
+        if args.session_ref:
+            ap.error("--session-sweep reconciles the whole session namespace and "
+                     "--session-ref names one branch; run them separately")
+        raise SystemExit(session_notebook_sweep(args.root, args.apply))
     if args.session_ref:
         # A SESSION run is only ever about one session's notebook: it never syncs
         # a lifecycle book and never runs the orphan sweep, because neither has
