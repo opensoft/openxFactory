@@ -235,7 +235,15 @@ function renderForm(host, seed, opts) {
   const result = el("div", "swb-cresult");
   result.setAttribute("aria-live", "polite");
   const bar = el("div", "swb-cactions");
-  const submit = el("button", "cbtn", "create document");
+  // THE ACTION IS NAMED FOR WHAT THE HUMAN IS DOING (Brett, 2026-08-10: "the
+  // create document is confusing. it seems to the user that we already have a
+  // document and what we want to do is save the document"). He is right: by the
+  // time this form is reachable from a draft, the document exists on screen —
+  // a body he wrote and fields already filled — and `create document` is the
+  // ENGINE'S verb (`create-document`) surfacing in the UI. The engine still
+  // runs two governed verbs, and that stays invisible. The TILE path keeps
+  // `create document`, where a genuinely new document is what is being started.
+  const submit = el("button", "cbtn", o.submitLabel || "create document");
   submit.type = "button";
   submit.title = "EXECUTES via the local gate route (actor: " +
     ((o.caps && o.caps.actor) || "local") + ")";
@@ -275,7 +283,7 @@ function renderForm(host, seed, opts) {
     // words back on the button.
     const label = submit.textContent;
     submit.disabled = true;
-    submit.textContent = "creating… (opening the branch session)";
+    submit.textContent = o.runningLabel || "creating… (opening the branch session)";
     let payload;
     try {
       payload = await submitCreate(body, o.fetcher, o.caps, o.repair);
@@ -288,15 +296,27 @@ function renderForm(host, seed, opts) {
   });
 
   bar.append(submit, cancel);
-  form.appendChild(bar);
-  form.appendChild(result);
+  // WHERE THE ONE ACTION LIVES. By default the form carries its own action bar
+  // and outcome panel, exactly as before. A caller that shows this form on ONE
+  // TAB of a larger surface passes `actionsHost`, and the button that writes —
+  // with the answer it gets — moves to that host, so it is on screen wherever
+  // the human is standing rather than only on the tab that owns the fields
+  // (Brett's ruling, 2026-08-10: keep the tabs, put ONE save on both).
+  const actions = o.actionsHost || form;
+  actions.appendChild(bar);
+  actions.appendChild(result);
   // Escape closes the FORM, not the whole workbench (the shell's document-level
   // Escape handler would otherwise take the human out of their scope).
   form.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") { ev.stopPropagation(); host.innerHTML = ""; }
   });
   host.appendChild(form);
-  title.focus();
+  if (o.focusOnMount !== false) title.focus();
+  // The handle a hosting surface needs: submit it from a control of its own.
+  // Deliberately the ONE button's own click — never a second submit path, so
+  // the running label, the disabled window and the outcome rendering are the
+  // same code whichever control the human pressed.
+  return { el: form, submit: () => { if (!submit.disabled) submit.click(); } };
 }
 
 // The gate-off rendering: the exact CLI invocation, selectable and copyable.
