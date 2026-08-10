@@ -182,7 +182,8 @@ class GateRefused(Exception):
 # is a ROUTE obligation, which is what this module and its callers discharge.
 SURFACE_HTTP = "http"
 SURFACE_CLI = "cli"
-SURFACES = (SURFACE_HTTP, SURFACE_CLI)
+SURFACE_INTENT = "intent-plane"
+SURFACES = (SURFACE_HTTP, SURFACE_CLI, SURFACE_INTENT)
 # HOW console presence was shown. There is deliberately NO value meaning "not
 # shown": an invocation that cannot demonstrate presence is refused before a
 # record exists, so no record can honestly carry one. `declared` is the WEAKEST
@@ -190,7 +191,9 @@ SURFACES = (SURFACE_HTTP, SURFACE_CLI)
 PRESENCE_CONSOLE_TOKEN = "console-token"
 PRESENCE_TTY = "tty"
 PRESENCE_DECLARED = "declared"
-CONSOLE_PRESENCES = (PRESENCE_CONSOLE_TOKEN, PRESENCE_TTY, PRESENCE_DECLARED)
+PRESENCE_INGRESS = "ingress-auth"
+CONSOLE_PRESENCES = (PRESENCE_CONSOLE_TOKEN, PRESENCE_TTY, PRESENCE_DECLARED,
+                     PRESENCE_INGRESS)
 
 
 @dataclass(frozen=True)
@@ -237,6 +240,11 @@ class Provenance:
 HTTP_CONSOLE_TOKEN = Provenance(SURFACE_HTTP, PRESENCE_CONSOLE_TOKEN)
 CLI_TTY = Provenance(SURFACE_CLI, PRESENCE_TTY)
 CLI_DECLARED = Provenance(SURFACE_CLI, PRESENCE_DECLARED)
+# The intent plane (add-ideation-intent-plane task 4.3): the apply lane is the
+# gateway, and the presence fact it observed is that the inbox stamped the
+# actor from the ingress-authenticated identity. The lane constructs this pair
+# itself — an intent body can no more claim provenance than an HTTP body can.
+INTENT_INGRESS = Provenance(SURFACE_INTENT, PRESENCE_INGRESS)
 
 
 # --------------------------------------------------------------------------

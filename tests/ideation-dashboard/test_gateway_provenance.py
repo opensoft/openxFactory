@@ -208,11 +208,16 @@ def _tty(monkeypatch):
 # ==========================================================================
 
 def test_the_vocabulary_is_the_landed_schemas(monkeypatch):
-    assert gc.SURFACES == ("http", "cli")
-    assert gc.CONSOLE_PRESENCES == ("console-token", "tty", "declared")
+    assert gc.SURFACES == ("http", "cli", "intent-plane")
+    assert gc.CONSOLE_PRESENCES == ("console-token", "tty", "declared",
+                                    "ingress-auth")
     assert gc.HTTP_CONSOLE_TOKEN.as_record() == HTTP_TOKEN
     assert gc.CLI_TTY.as_record() == CLI_TTY
     assert gc.CLI_DECLARED.as_record() == CLI_DECLARED
+    # add-ideation-intent-plane task 4.3: the apply lane's own pair — the
+    # third door, grown in the schema and here in lockstep.
+    assert gc.INTENT_INGRESS.as_record() == {
+        "surface": "intent-plane", "console_presence": "ingress-auth"}
 
 
 def test_an_unknown_surface_or_proof_cannot_be_constructed():
