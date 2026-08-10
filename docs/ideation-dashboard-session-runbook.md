@@ -247,6 +247,34 @@ so the sixth column is whole instead of part-cut.
   the request is in flight, restored afterwards so a refusal is retriable in
   place. The duplicate itself is still refused, and correctly: the create is
   create-only inside a session too (FR-018).
+- **The create is the END of the draft** (Brett, 2026-08-10: "after it is
+  created, the tabs for the window are not functional. I cannot do anything
+  from that point on that document") — a draft stands `docs`/`lens`/`outline`
+  down because they read a TILE and a draft has none. The create MAKES the
+  tile, so leaving them held ended the create with nothing to do next, over a
+  reason (`there is no tile until it is created`) the create had just made
+  false. The overlay now stops being a draft and becomes that tile's workbench
+  on the session snapshot: the tabs come back, the head names the topic, the
+  docs pane lists the created document and the session bar offers rewrite /
+  save / abandon. WHICH TILE is matched on the created document's PATH, never
+  on the seed's `scopeId` — **two different things are called `staging_id`**:
+  the staging seed's is the branch session's composite scope
+  (`<repository>:staging:<topic>`) and the snapshot's `staged_topics[]` entry
+  is the bare topic. They are not interchangeable, and passing one where the
+  other is expected resolves nothing and fails silently.
+- **The drafted body really is written** (2026-08-10) — the create-then-edit's
+  second verb never fired: `writeBody` built a save buffer of its own shape
+  rather than the one `doxbench-save.js` reads, and every mismatch failed
+  closed AND silently (no `dirty`, so the planner skipped the row; `document`
+  instead of `path`, from which the action is derived; no `owned`; no
+  `current_hash`; and both identities un-awaited, `contentIdentity` being
+  async). The plan reported `unchanged`, the transport was never called, and
+  the note said `the save was refused` over a document that had simply been
+  left alone. The verdict was also read as a map when `runSave` reports an
+  ARRAY of per-buffer rows. Both are fixed and pinned field-by-field against
+  their readers. THE LESSON: this shape is checked at RUNTIME by a pure
+  planner, so a wrong field is invisible to every structural test — only
+  driving it in a browser found it.
 - **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
   on a composed view a staged topic offers `read` and `open workbench` and NO
   `open in <repo>`. A staged topic is a packet whose material can span
