@@ -224,6 +224,38 @@ so the sixth column is whole instead of part-cut.
   text — but they read the token at call time from the same capability object
   the repair writes into, so once anything has repaired it they work again
   without a reload.
+- **A live session is a row in the repo filter** (Brett, 2026-08-10: "how do I
+  get to the rest of the workbench on this doc?") — under each repository the
+  filter (⧩) lists that repository's live session branches,
+  `⎇ draft/<topic> · LIVE SESSION`, and selecting one keys the whole dashboard
+  to that branch. The serving index has advertised a session as an ordinary
+  `(repository, ref)` row all along (FR-014); these lines are that roster shown,
+  not a second question asked. TWO defects made a just-created document look
+  lost: the repository row resolved to the FIRST roster option for that
+  repository and refs sort `draft/…` before `main`, so clicking a repository
+  name keyed the dashboard to whichever branch sorted first — a session nobody
+  chose; and the selector re-derived its roster only on a five-minute poll, so a
+  session opened mid-page was missing from the one control that could address it
+  until a reload. A repository row is now `main` deliberately, sessions are
+  their own rows, and a create nudges the header so its branch appears at once.
+- **The lens opens on the whole corpus** (Brett, 2026-08-10: "we need to have
+  all existing docs listed in the main lens screen") — with no keyword checked
+  the matrix lists every document in the view, ring column `—`. The RADAR still
+  draws nothing, correctly: its rings mean "how many of the checked keywords
+  does this carry", so it has nothing to say yet. The matrix is a list, and it
+  used to open EMPTY over a corpus of hundreds saying "no documents match the
+  checked keywords" — with the document ticks that build a staging seed living
+  on those rows, so the seed could not be started at all. Checking a keyword
+  returns the matrix to the recipe's membership, unchanged.
+- **The draft says what you already have on this topic** (Brett, 2026-08-10:
+  "if same keywords, then we want to list it in the doxBench too. so the user
+  knows he now has two of this topic") — above the body editor, doxBench lists
+  the existing documents that declare any of the seed's shared terms, with the
+  ones already sitting in the folder this create aims at FIRST and marked
+  `same folder`, because those are the ones a create refuses create-only. It is
+  a NOTICE, not a block: a second document on a shared topic is ordinary. The
+  reason it exists is that every create-only refusal on 2026-08-10 was this
+  same fact arriving from the engine AFTER the press.
 - **A session belongs to the SERVE's repository, and the page asks rather than
   infers** (Brett, 2026-08-10) — a create from a PROJECT view landed (`200`, the
   branch opened, the session snapshot generated) and the page then asked for
@@ -752,12 +784,26 @@ engine, which answers from the recorded owner and refuses, naming both tiles, wh
 the answer is genuinely ambiguous. Resolve it by ending that session from the tile
 that owns it, or by renaming one tile.
 
-To read a session's own drafts, switch the header's repository selector to
-`<repository> @ <branch>` — the serving index advertises a live session as an
-ordinary row. The freshness header then names the branch, and the workbench's
-docs panel resolves the session's documents. A document created from a
-`main`-keyed page is on the session branch, so the read-only viewer answers HTTP
-404 for it until you switch refs — that is what the switch is for.
+To read a session's own drafts, open the header's **repo filter (⧩)** and click
+the session's own line under its repository — `⎇ draft/<topic> · LIVE SESSION`.
+The serving index advertises a live session as an ordinary `(repository, ref)`
+row, so these lines are that roster shown rather than a second question asked.
+The freshness header then names the branch, and the workbench's docs panel
+resolves the session's documents. A document created from a `main`-keyed page is
+on the session branch, so the read-only viewer answers HTTP 404 for it until you
+switch refs — that is what the switch is for.
+
+**This paragraph was stale, and the way it was stale cost a real evening**
+(Brett, 2026-08-10: "how do I get to the rest of the workbench on this doc?").
+It used to say "switch the header's repository selector to
+`<repository> @ <branch>`", and the project-first header had replaced that
+ref-bearing selector with a per-repository filter. Worse, the repository row
+resolved to the FIRST roster option for that repository, and refs sort with
+`draft/…` before `main`: clicking a repository name keyed the whole dashboard to
+whichever branch happened to sort first — a session nobody had chosen. So a
+session was reachable only by accident and under the wrong name, which is why a
+document a create had just landed looked lost. A repository row is now `main`
+deliberately, and every live session is an addressable row of its own.
 
 ## 5. Where the derived artifacts live
 

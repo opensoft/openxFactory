@@ -105,6 +105,8 @@ function dot(d) {
 }
 
 const gov = buildLensModel(snap, { checked: ['ideation-governance', 'doc-health'], pinned: [] });
+// nothing checked: the matrix is the WHOLE CORPUS, the radar stays empty
+const none = buildLensModel(snap, { checked: [], pinned: [] });
 const pinned = buildLensModel(snap, { checked: ['ideation-governance', 'doc-health'], pinned: ['doc-health'] });
 
 // W1: pinning a keyword not in checked must throw.
@@ -123,6 +125,13 @@ console.log(JSON.stringify({
     recipeLine: gov.recipeLine,
   },
   pinnedUniverse: pinned.universe,
+  unchecked: {
+    matrix: none.matrix.map((r) => ({ document: r.document, ring: r.ring,
+                                      cells: r.cells.length })),
+    universe: none.universe,
+    dots: none.dots.length,
+    docs: (snap.documents || []).map((d) => d.id),
+  },
   coocc: coOccurrenceHints(snap, ['ideation-governance'], []).map(
     h => ({ keyword: h.keyword, pulledInward: h.pulledInward, newDocs: h.newDocs, hint: h.hint })),
   w1,
@@ -298,6 +307,42 @@ def test_co_occurrence_hint_math(tmp_path):
 
 
 # ---- matrix parity with the bullseye ----
+
+def test_the_matrix_lists_the_whole_corpus_before_a_keyword_is_checked(tmp_path):
+    """Brett, 2026-08-10: "we need to have all existing docs listed in the main
+    lens screen."
+
+    `evaluateRecipe` drops a document whose matched subset is empty — right for
+    the RADAR, whose rings mean "how many checked keywords does this carry" and
+    which therefore has nothing to say before anything is checked. But the
+    matrix beneath it is a LIST, and it opened EMPTY over a corpus of hundreds,
+    saying "no documents match the checked keywords". The document ticks that
+    build a staging seed live on those rows, so with nothing listed the seed
+    could not be started at all.
+
+    So: with nothing checked the matrix is the whole corpus, in snapshot order.
+    The RADAR is untouched — no dots, no universe — because the recipe genuinely
+    has no membership yet, and the ring column says `—` rather than `0`, which
+    would read as a match count."""
+    r = _run_node(_snapshot(), tmp_path)
+    unchecked = r["unchecked"]
+
+    # every document in the snapshot is listed, in snapshot order
+    assert [row["document"] for row in unchecked["matrix"]] == unchecked["docs"]
+    assert len(unchecked["matrix"]) > 1, "the fixture corpus must have documents"
+    # no keyword columns, and no ring claim
+    assert {row["cells"] for row in unchecked["matrix"]} == {0}
+    assert {row["ring"] for row in unchecked["matrix"]} == {"—"}
+    # the RECIPE is untouched: nothing is a member, and the radar draws nothing
+    assert unchecked["universe"] == []
+    assert unchecked["dots"] == 0
+
+    # and one checked keyword returns the matrix to the recipe's membership
+    assert {row["document"] for row in r["gov"]["matrix"]} == set(r["gov"]["universe"])
+    assert set(r["gov"]["universe"]) != set(unchecked["docs"]), (
+        "the fixture must have a document the checked keywords exclude, or this "
+        "proves nothing about narrowing")
+
 
 def test_matrix_membership_equals_bullseye(tmp_path):
     r = _run_node(_snapshot(), tmp_path)["gov"]

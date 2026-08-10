@@ -291,20 +291,45 @@ export function defaultProjectScope(projects, stored) {
 // line disabled with the merged view named as unavailable), then one row per
 // member repository carrying its roster option (null = no published
 // snapshot, rendered disabled with the reason).
+// A repository row must resolve to MAIN — the shared truth — and a live session
+// must be its OWN row (Brett, 2026-08-10: "how do I get to the rest of the
+// workbench on this doc?").
+//
+// This used to take the FIRST roster option for the repository, and the serving
+// index lists a repository's refs in sorted order, so `draft/…` sorts before
+// `main`: clicking `openxFactory` keyed the whole dashboard to whichever branch
+// happened to sort first — a session the human had not chosen and could not see
+// they were on. Measured on the live plane, where three refs were advertised.
+//
+// The same arbitrary pick was also the only way IN to a session, which is why
+// the branch a create had just opened looked unreachable: it was reachable by
+// accident and by the wrong name. Both halves are fixed here — main is chosen
+// deliberately, and every live session becomes an addressable row of its own.
 export function projectFilterRows(roster, project) {
   if (!project) return [];
+  const options = roster || [];
   const rows = [{
     kind: "all",
-    option: (roster || []).find(
+    option: options.find(
       (o) => o.kind === KIND_AGGREGATE && o.repository === project.id) || null,
   }];
   for (const repository of project.repositories || []) {
-    rows.push({
-      kind: "repo",
-      repository,
-      option: (roster || []).find(
-        (o) => o.kind === KIND_REPOSITORY && o.repository === repository) || null,
-    });
+    const mine = options.filter(
+      (o) => o.kind === KIND_REPOSITORY && o.repository === repository);
+    // main by name, never "whichever came first"; a repository that publishes
+    // no main falls back to its first advertised ref rather than disappearing
+    const option = mine.find((o) => normalizeRef(o.ref) === DEFAULT_REF)
+      || mine[0] || null;
+    rows.push({ kind: "repo", repository, option });
+    // …and every OTHER advertised ref is a live branch session (FR-014: the
+    // index advertises one as an ordinary row), offered under its repository so
+    // the human can choose the one they mean.
+    for (const session of mine) {
+      if (normalizeRef(session.ref) === DEFAULT_REF) continue;
+      if (option && session.id === option.id) continue;
+      rows.push({ kind: "session", repository, ref: normalizeRef(session.ref),
+                  option: session });
+    }
   }
   return rows;
 }

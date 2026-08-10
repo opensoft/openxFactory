@@ -821,6 +821,10 @@ async function render() {
       workbenchSourceBase = sourceBaseFor(next);
       return { active: next, sourceBase: workbenchSourceBase };
     };
+    // The header's own mount, held so a session that opens mid-page can nudge it
+    // (below). Assigned further down, after the selector is built; only ever
+    // read from a callback that runs on a human action, so the order is safe.
+    let repoSelector = null;
     const rekeyToSession = async (ref) => {
       // THE SERVE'S OWN REPOSITORY FIRST (Brett, 2026-08-10 — measured: the
       // create landed and the page then asked for
@@ -848,6 +852,14 @@ async function render() {
       const nextSnapshot = await loadSnapshot(next);
       workbenchSourceBase = nextSourceBase;
       workbenchSourceKey = next;
+      // TELL THE HEADER (2026-08-10). The session is now an ordinary row in the
+      // serving index, and the header's repo filter is the one control that can
+      // address it — but the selector holds the roster it booted with and only
+      // re-derived it on a five-minute poll. So the branch the human just
+      // created was missing from the only way back to it until the page
+      // reloaded. Nudging the selector's own poll re-reads the index once and
+      // re-renders its rows; nothing else about the shell moves.
+      repoSelector?.poll?.();
       return { active: next, index: nextIndex || index, snapshot: nextSnapshot,
                sourceBase: nextSourceBase };
     };
@@ -986,7 +998,7 @@ async function render() {
     // switching repositories stores the key and reloads the shell; a successful
     // refresh reloads it too (the data changed, so every view must re-derive); a
     // FAILED refresh reports inline and leaves this view exactly as it is.
-    mountRepoSelector(document.getElementById("repopicker"), {
+    repoSelector = mountRepoSelector(document.getElementById("repopicker"), {
       index, active, snapshot, caps, projects,
       onSelect: (key) => { storeKey(key); render(); },
       onRefreshed: () => render(),

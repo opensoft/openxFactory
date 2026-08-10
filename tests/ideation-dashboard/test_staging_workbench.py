@@ -2540,3 +2540,100 @@ def test_the_shell_threads_the_rails_catalog_failure_into_the_posture_note():
     teardown = source.split("function teardownRail()", 1)[1].split(
         "\n  }", 1)[0]
     assert "railCatalogFailure = null;" in teardown
+
+
+# ---------------------------------------------------------------------------
+# "you already have N of this topic" (Brett, 2026-08-10)
+# ---------------------------------------------------------------------------
+
+_EXISTING_HARNESS = """
+import { existingOnTopic } from './staging-workbench-model.mjs';
+import { readFileSync } from 'node:fs';
+const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+console.log(JSON.stringify({
+  hit: existingOnTopic(input.snapshot, ['alpha', 'beta'],
+                       'ideation/staging/alpha-beta/'),
+  noTopics: existingOnTopic(input.snapshot, [], 'ideation/staging/alpha-beta/'),
+  noArea: existingOnTopic(input.snapshot, ['alpha'], ''),
+  nothing: existingOnTopic(input.snapshot, ['unheard-of'], 'ideation/nowhere/'),
+  empty: existingOnTopic(null, ['alpha'], 'ideation/staging/alpha-beta/'),
+}));
+"""
+
+
+@pytest.mark.skipif(NODE is None, reason="node not available")
+def test_the_draft_says_what_you_already_have_on_this_topic(tmp_path):
+    """Brett, 2026-08-10: "if same keywords, then we want to list it in the
+    doxBench too. so the user knows he now has two of this topic."
+
+    Every create-only refusal in that session was the same shape — a document on
+    this topic already existed, the draft screen did not say so, and the human
+    read `corpus documents are create-only` as the outcome of their work. The
+    engine's refusal is correct and arrives after the press; the fact belongs on
+    screen before it.
+
+    A document counts when it declares ANY of the seed's shared terms, and the
+    STRONGEST signal is one already sitting in the folder this create aims at —
+    that one WILL refuse, so it sorts first and is marked."""
+    snapshot = {"documents": [
+        {"id": "ideation/staging/alpha-beta/existing.md",
+         "path": "ideation/staging/alpha-beta/existing.md",
+         "title": "Existing", "status": "staged", "topics": ["alpha"]},
+        {"id": "ideation/staging/elsewhere/shares-both.md",
+         "path": "ideation/staging/elsewhere/shares-both.md",
+         "title": "Shares Both", "status": "draft", "topics": ["alpha", "beta"]},
+        {"id": "ideation/staging/elsewhere/shares-one.md",
+         "path": "ideation/staging/elsewhere/shares-one.md",
+         "title": "Shares One", "status": "draft", "topics": ["beta"]},
+        {"id": "ideation/staging/elsewhere/unrelated.md",
+         "path": "ideation/staging/elsewhere/unrelated.md",
+         "title": "Unrelated", "status": "draft", "topics": ["gamma"]},
+    ]}
+    shutil.copy(MODEL_JS, tmp_path / "staging-workbench-model.mjs")
+    (tmp_path / "harness.mjs").write_text(_EXISTING_HARNESS, encoding="utf-8")
+    data = tmp_path / "input.json"
+    data.write_text(json.dumps({"snapshot": snapshot}), encoding="utf-8")
+    proc = subprocess.run([NODE, str(tmp_path / "harness.mjs"), str(data)],
+                          capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, proc.stderr
+    r = json.loads(proc.stdout)
+
+    hit = r["hit"]
+    # the unrelated document is absent; the other three are present
+    assert [x["path"].split("/")[-1] for x in hit] == [
+        "existing.md",          # in the target folder -> first, and marked
+        "shares-both.md",       # then by how many terms are shared
+        "shares-one.md",
+    ]
+    assert hit[0]["inFolder"] is True
+    assert [x["inFolder"] for x in hit[1:]] == [False, False]
+    assert hit[1]["shared"] == ["alpha", "beta"]
+    assert hit[2]["shared"] == ["beta"]
+
+    # a folder collision counts even with NO shared terms — it is the one that
+    # will refuse
+    assert [x["path"].split("/")[-1] for x in r["noTopics"]] == ["existing.md"]
+    # …and terms count with no folder to collide with
+    assert {x["path"].split("/")[-1] for x in r["noArea"]} == {
+        "existing.md", "shares-both.md"}
+    # honest empties, never a throw
+    assert r["nothing"] == []
+    assert r["empty"] == []
+
+
+def test_the_draft_renders_what_it_already_has_before_the_save():
+    """The panel, and where it sits: ABOVE the body, on the tab the draft opens
+    on, so it is read before anything is typed — not below the editor where the
+    human has already scrolled past it."""
+    swb = (WEB / "views" / "staging-workbench.js").read_text(encoding="utf-8")
+    css = (WEB / "styles.css").read_text(encoding="utf-8")
+    assert "existingOnTopic(shellSnapshot, seed.topics, seed.area)" in swb
+    assert ".swb-draftexisting" in css
+    body = swb.split("function buildDraftPanes()")[1]
+    assert body.index("swb-draftexisting") < body.index("swb-draftbody"), (
+        "what already exists is stated ABOVE the editor")
+    # a folder collision is called out as the one that will refuse
+    assert '"same folder"' in swb
+    # …and it is a NOTICE, not a block: a second document on a shared topic is
+    # ordinary, and the panel says so
+    assert "Nothing here blocks you" in swb

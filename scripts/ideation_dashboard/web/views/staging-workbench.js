@@ -73,7 +73,7 @@ import {
   workbenchScope, doxbenchScopeProjection, lensScopeSnapshot, lensSessionSeed,
   toggleKeyword, createSeed, createOffered, rewritableDocuments, sessionPosture,
   sessionSurfaceHidden, presentationPosture,
-  documentAbstract, docWheelEntries,
+  documentAbstract, docWheelEntries, existingOnTopic,
 } from "./staging-workbench-model.js";
 import { renderDocWheel } from "./doc-wheel.js";
 import { buildLensModel } from "./lens-model.js";
@@ -1648,6 +1648,46 @@ export function mountStagingWorkbench(container, snapshot,
       // switched tabs, which the tabs above already do. Two controls promising
       // a create, one of them navigation, was the confusion written out. What
       // remains is one `save`, in the chrome below, reachable from both tabs.
+      // WHAT YOU ALREADY HAVE, BEFORE YOU SAVE (Brett, 2026-08-10: "if same
+      // keywords, then we want to list it in the doxBench too. so the user
+      // knows he now has two of this topic"). Every create-only refusal tonight
+      // was this fact arriving too late — from the engine, after the press.
+      const already = existingOnTopic(shellSnapshot, seed.topics, seed.area);
+      if (already.length) {
+        const collides = already.filter((r) => r.inFolder);
+        const box = el("div", "swb-draftexisting");
+        box.appendChild(el("div", "swb-draftexistinghead", collides.length
+          ? "⚠ " + collides.length + " document"
+            + (collides.length === 1 ? "" : "s")
+            + " already in " + seed.area
+            + " — saving a new one under the same name is refused"
+          : already.length + " existing document"
+            + (already.length === 1 ? "" : "s") + " already carry"
+            + (already.length === 1 ? "" : "") + " these keywords"));
+        for (const row of already.slice(0, 8)) {
+          const line = el("div", "swb-draftexistingrow");
+          line.appendChild(el("span", "swb-dxpath", row.path));
+          if (row.shared.length) {
+            line.appendChild(el("span", "swb-dxterms",
+              row.shared.join(" · ")));
+          }
+          if (row.inFolder) {
+            line.appendChild(el("span", "swb-dxsame", "same folder"));
+          }
+          box.appendChild(line);
+        }
+        if (already.length > 8) {
+          box.appendChild(el("div", "swb-draftexistingrow",
+            "…and " + (already.length - 8) + " more"));
+        }
+        box.appendChild(el("div", "swb-dxnote",
+          "Nothing here blocks you: a second document on a shared topic is "
+          + "ordinary. But if one of these IS what you are about to write, "
+          + "rewrite that one instead — open it from the docs pane on its "
+          + "session branch — and if the name collides, change Title or Area "
+          + "on `details` first."));
+        bodyPane.appendChild(box);
+      }
       bodyPane.appendChild(el("div", "swb-draftnote",
         "The body of the fragment, drafted from your selection and yours to "
         + "edit. Its HEADER — title, summary, topics — is on the `details` "
