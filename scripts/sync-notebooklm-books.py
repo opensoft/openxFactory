@@ -976,8 +976,8 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
 
     Safety, by construction: candidates come solely from
     `NotebookAdapter.list_scratch_result()`, which filters titles on the `xf-wb-`
-    prefix — the lifecycle books (xf-ideation/xf-drafts/xf-canon) and every
-    other notebook are not candidates and can never be swept. Degrades
+    prefix — the lifecycle books (xf-ideation-<repo>/xf-drafts/xf-canon) and
+    every other notebook are not candidates and can never be swept. Degrades
     gracefully: an unavailable nlm, an import failure, out-of-scope manifests, or
     a notebook list that could not be READ all SKIP with a notice, never raise —
     and a list that could not be read is never reported as an account with

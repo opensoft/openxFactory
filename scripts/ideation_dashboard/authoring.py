@@ -36,8 +36,8 @@ split so per-actor authority is structural, not a runtime flag:
 Deliberately NOT handled here (spec "Notebook set-removal semantics" is a
 DISTINCT requirement): removing a doc/source from a workbench (`xf-wb-*`)
 manifest is `workbench.Workbench.remove_member` (T026/T029); removing a
-source from a LIFECYCLE PROJECTION notebook (`xf-ideation`/`xf-drafts`/
-`xf-canon`) is restored on the next `scripts/sync-notebooklm-books.py` run
+source from a LIFECYCLE PROJECTION notebook (`xf-ideation-<repo>`/
+`xf-drafts`/`xf-canon`) is restored on the next `scripts/sync-notebooklm-books.py` run
 BY CONSTRUCTION — that script's `sync_book` recomputes each book's desired
 membership straight from the corpus's declared `Status:` headers on every
 call, so a manual removal never survives a re-sync (test_authoring_agent.py

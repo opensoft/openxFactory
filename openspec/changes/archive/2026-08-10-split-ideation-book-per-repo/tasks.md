@@ -87,4 +87,4 @@
 - [x] 4.2 Cross-repo follow-up recorded (non-blocking): aggregation-repo
       CLAUDE.md NotebookLM note updated to the alias family and
       title-resolution rule.
-- [ ] 4.3 Archive on realization evidence per `release-realization`.
+- [x] 4.3 Archive on realization evidence per `release-realization`. — Discharged by the archive commit itself (e9a4be6, 2026-08-10); the box was left unchecked in that commit by oversight and corrected here with this note rather than silently (document-lifecycle: contested findings resolve by citation).
