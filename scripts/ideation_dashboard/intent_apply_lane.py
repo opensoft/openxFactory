@@ -147,15 +147,28 @@ def load_allowlist(path: Path) -> dict[str, list[str]]:
             for a, verbs in actors.items() if isinstance(verbs, list)}
 
 
+def canonical_target(target: dict) -> dict:
+    """The kernel-known, non-empty-string members of a target — the ONE
+    form the digest, the committed artifact, and the dispatched body all
+    use (Codex round-8 P1, PR #157: hashing the raw wire target while
+    storing the normalized one let a junk member bypass the idempotency
+    skip on replay)."""
+    return {key: target[key] for key in _TARGET_KEYS
+            if isinstance(target.get(key), str) and target[key]}
+
+
 def request_digest(intent: dict) -> str:
     """A stable identity for ONE request, computed lane-side from the
     validated fields (never trusted from the body): distinct actors or
     views acting on the same target in the same second get distinct
-    artifacts (Codex round-2 P1, PR #157)."""
+    artifacts (Codex round-2 P1, PR #157). The target enters in canonical
+    form, so a wire spelling and its stored normalization agree."""
     import hashlib
+    target = intent.get("target")
     canonical = json.dumps(
         {"actor": intent.get("actor"), "verb": intent.get("verb"),
-         "target": intent.get("target"),
+         "target": canonical_target(target) if isinstance(target, dict)
+         else target,
          "rev": intent.get("snapshot_rev_seen")},
         sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -322,14 +335,12 @@ def _terminal_intent(intent: dict, digest: str) -> dict:
     it would poison the validator-clean feed (Codex round-7, PR #157).
     The lane's own terminal fields (status, refusal_reason,
     applied_record, applied_at) are added by the paths that own them."""
-    target = intent["target"]
     return {
         "schema_version": 1,
         "kind": "gate-intent",
         "actor": intent["actor"],
         "verb": intent["verb"],
-        "target": {key: target[key] for key in _TARGET_KEYS
-                   if isinstance(target.get(key), str) and target[key]},
+        "target": canonical_target(intent["target"]),
         "args": dict(intent.get("args") or {}),
         "requested_at": intent["requested_at"],
         "snapshot_rev_seen": intent["snapshot_rev_seen"],
@@ -558,8 +569,9 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
         return refuse(stale)
 
     # The validated target WINS any args collision (shape_error already
-    # refused overt clashes; this is the belt under that brace).
-    body = {**(intent.get("args") or {}), **(intent.get("target") or {})}
+    # refused overt clashes; this is the belt under that brace), and it is
+    # dispatched in canonical form — junk members never reach the engine.
+    body = {**(intent.get("args") or {}), **intent["target"]}
     snapshot_path = None
     if intent["verb"] in SNAPSHOT_VERBS:
         snapshot_path = _fresh_snapshot(root, repository)

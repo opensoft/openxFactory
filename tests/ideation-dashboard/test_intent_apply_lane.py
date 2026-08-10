@@ -523,6 +523,23 @@ def test_terminal_artifacts_carry_validated_fields_only(tmp_path):
     assert "allowlist" in doc["refusal_reason"]
 
 
+def test_junk_target_member_cannot_bypass_the_idempotency_skip(tmp_path):
+    """Codex round-8 P1 (PR #157): the digest and the stored artifact use
+    ONE canonical target, so replaying a wire intent that carried a junk
+    target member still skips."""
+    root, rev, allowlist = _corpus(tmp_path)
+    wire = _intent(rev, idempotency_key="k-junk1")
+    wire["target"] = {"possible_id": PID, "junk_target": "x"}
+    first = _apply(root, wire, allowlist, tmp_path)
+    assert first.outcome == "applied", first.reason
+    replay = _apply(root, dict(wire, idempotency_key="k-junk2"),
+                    allowlist, tmp_path)
+    assert replay.outcome == "skipped"
+    clean = _apply(root, _intent(rev, idempotency_key="k-junk3"),
+                   allowlist, tmp_path)
+    assert clean.outcome == "skipped"  # junk spelling == clean spelling
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
