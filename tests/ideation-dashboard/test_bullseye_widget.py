@@ -1755,7 +1755,9 @@ def test_the_draft_view_lands_on_an_editable_body_with_its_fields_behind_a_tab()
     assert "the document was created, but its body was refused" in draft
 
     lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
-    assert 'scopeKind: "staged-topic"' in lens
+    # the TILE spelling; `createRequest` maps it to `staged-topic` (see
+    # `test_the_lens_names_its_scope_in_the_tile_vocabulary_so_a_session_opens`)
+    assert 'scopeKind: "staged",' in lens
     assert "scopeId: String(data?.staging_id" in lens
     # the id is RETURNED by the drafter, not parsed out of the fragment's prose
     seed_py = (REPO_ROOT / "scripts" / "doc_health" / "staging_seed.py").read_text(
@@ -1820,3 +1822,31 @@ console.log(JSON.stringify([shared, untagged,
     # …and nothing the create refuses is left empty
     for field in ("title", "summary", "topics", "area", "status", "kind"):
         assert untagged[field], field
+
+
+def test_the_lens_names_its_scope_in_the_tile_vocabulary_so_a_session_opens(tmp_path):
+    """Brett's first real create landed on MAIN, untracked, with no branch
+    session — after I had promised repeatedly that it would branch.
+
+    One silent vocabulary mismatch. `createRequest` maps the TILE spelling to
+    the session one through `SESSION_SCOPE_KINDS` (`staged` -> `staged-topic`),
+    and the lens handed it the already-mapped spelling. The lookup returned
+    "", the `if (scopeKind && scopeId)` guard dropped BOTH fields from the
+    wire, and `create-document` — seeing no scope — took its pre-session path
+    and wrote into the served checkout. Nothing refused and nothing warned,
+    which is why it took a real create to find.
+
+    This pins the two spellings against each other so the mapping cannot be
+    applied twice again.
+    """
+    lens = (WEB / "views" / "lens.js").read_text(encoding="utf-8")
+    assert 'scopeKind: "staged",' in lens
+    assert 'scopeKind: "staged-topic"' not in lens
+
+    model = (WEB / "views" / "staging-workbench-model.js").read_text(encoding="utf-8")
+    kinds = model.split("export const SESSION_SCOPE_KINDS = {")[1].split("};")[0]
+    # the lens's spelling must be a KEY of the map, never one of its values
+    assert "staged: \"staged-topic\"" in kinds
+    # and the request builder is what applies it — exactly once
+    assert "sessionScopeKind(merged.scopeKind)" in model
+    assert model.count("sessionScopeKind(merged.scopeKind)") == 1
