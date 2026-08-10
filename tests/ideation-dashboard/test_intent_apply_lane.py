@@ -402,6 +402,7 @@ def test_project_verbs_dispatch_with_the_roster(tmp_path, monkeypatch):
         registry = kwargs.get("session_registry")
         seen[verb] = (None if registry is None
                       else [r.repository for r in registry.entries()])
+        seen[verb + ":register"] = kwargs.get("project_register")
         return 409, {"ok": False, "error": "gate_refused", "message": "x"}
 
     monkeypatch.setattr(lane, "run_gate_action", capture)
@@ -411,8 +412,10 @@ def test_project_verbs_dispatch_with_the_roster(tmp_path, monkeypatch):
                          idempotency_key="k-r1"),
            allowlist, tmp_path, project_register=register)
     assert seen["edit-project"] == ["openxFactory"]
+    assert seen["edit-project:register"] == register  # round-4: threaded through
     _apply(root, _intent(rev, idempotency_key="k-r2"), allowlist, tmp_path)
     assert seen["dispose-possible"] is None
+    assert seen["dispose-possible:register"] is None
 
 
 def test_intent_plane_provenance_pair_is_sanctioned():

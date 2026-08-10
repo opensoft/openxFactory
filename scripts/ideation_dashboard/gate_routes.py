@@ -228,6 +228,7 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
                     manifest_validator: Path | None = None,
                     xref_validator: Path | None = None,
                     session_registry=None,
+                    project_register: Path | None = None,
                     repository: str | None = None,
                     tile_inventory=None,
                     session_notebook=None,
@@ -336,10 +337,12 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
     if verb == "create-project":
         return _create_project(body, checkout_root, actor, records_dir,
                                session_registry=session_registry,
+                               project_register=project_register,
                                provenance=provenance)
     if verb == "edit-project":
         return _edit_project(body, checkout_root, actor, records_dir,
                              session_registry=session_registry,
+                             project_register=project_register,
                              provenance=provenance)
     if verb == "lens-save-recipe":
         return _lens_save_recipe(body, checkout_root, actor, records_dir,
@@ -653,7 +656,8 @@ def _research_brief(body: dict, root: Path, actor: str, records_dir: str, *,
 
 
 def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
-                    session_registry=None, provenance=None) -> tuple[int, dict]:
+                    session_registry=None, project_register: Path | None = None,
+                    provenance=None) -> tuple[int, dict]:
     """Commission a project-register edit (add-project-scoped-selection).
 
     Unlike the other commissions, the TARGET id is not in the body — the
@@ -677,6 +681,7 @@ def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
         res = console.create_project(
             name, repositories=repositories,
             roster=reachable_repositories(session_registry),
+            register_source=project_register,
             note=_str_or_none(body.get("note")),
             outline=_str_or_none(body.get("outline")),
             workflow=_str_or_none(body.get("workflow")),
@@ -701,7 +706,8 @@ def _create_project(body: dict, root: Path, actor: str, records_dir: str, *,
 
 
 def _edit_project(body: dict, root: Path, actor: str, records_dir: str, *,
-                  session_registry=None, provenance=None) -> tuple[int, dict]:
+                  session_registry=None, project_register: Path | None = None,
+                  provenance=None) -> tuple[int, dict]:
     """Commission a membership edit of one existing project
     (add-opendox-project-header D15). Same posture as create-project: the
     register is never written here; the roster is the registry's own
@@ -721,6 +727,7 @@ def _edit_project(body: dict, root: Path, actor: str, records_dir: str, *,
         res = console.edit_project(
             project_id, add=add, remove=remove,
             roster=reachable_repositories(session_registry),
+            register_source=project_register,
             note=_str_or_none(body.get("note")),
             outline=_str_or_none(body.get("outline")),
             workflow=_str_or_none(body.get("workflow")),

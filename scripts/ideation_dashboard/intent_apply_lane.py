@@ -509,6 +509,8 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
             intent["verb"], body, checkout_root=root, actor=intent["actor"],
             records_dir=records_dir, index_validator=index_validator,
             snapshot_path=snapshot_path, session_registry=registry,
+            project_register=(project_register
+                              if intent["verb"] in _ROSTER_VERBS else None),
             provenance=gc.INTENT_INGRESS)
     finally:
         if snapshot_path is not None:
