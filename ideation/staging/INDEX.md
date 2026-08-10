@@ -67,6 +67,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
 | [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `openxwallet` (holder-agnostic core: key reference + declared custody, attenuated grants as the authority primitive, proof of possession, custody capping authority, key-attributed audit, revocation propagation, distinct-holder constraints, non-substrate rule) + ADDED `openxwallet-agent-profile` (composition + declared-change revocation + authority as grant scope); composes with `roles-authority-model` + `credential-contracts`; `openxVault` consumes the grants | 1 | **PROPOSED 2026-08-06 as `add-openxwallet`** (topic folder keeps the `agent-wallet-identity` name; the change was renamed on restructure). Restructured the same day after Brett asked whether the Medx/Ledgerx intersection lives in openxFactory — it did not, so the change now adds a HOLDER-AGNOSTIC core with GRANTS AS THE PRIMITIVE plus an agent profile, rather than a wallet shaped like an agent binding authority to a second vocabulary. **RATIFIED 2026-08-07** with all three decisions: grants as the primitive, the core holder-class agnostic, and key custody DECLARED and CAPPING authority. **REALIZED 2026-08-07** by Speckit feature `006-openxwallet-contracts`: two neutral contract families (`contracts/openxwallet/` core + `contracts/openxwallet-agent-profile/` as a sibling, so the profile seam is structural), `scripts/validate-openxwallet.py`, and a corpus of 16 positives and 33 negative confirmations covering 11/11 requirements, registered at `contract-v1.31`, and **ARCHIVED 2026-08-08** as `2026-08-08-add-openxwallet` with both capabilities promoted (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3). The topic row stays because the staged fragment remains on disk as provenance carrying the deferred material — batteries, measured drift, qualification tiers and delegation chains, each a named successor gated on a consumer of its own. The feature settled the two decisions the ratification left it: the closed custody set is three members with `evidences` DERIVED from two declared booleans and enforced — so a readable key cannot claim an isolated key's authority, and the collapse is structurally impossible rather than discouraged — and the composition component set covers a retrieval corpus BY REFERENCE (identity plus governing configuration) rather than by contents, which dissolves the include-or-exclude binary. The closed custody enumeration and what each member evidences are now contract content rather than an implementation detail. Organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
+| [manager-review-approval-scope-kind](#manager-review-approval-scope-kind) | MODIFIED `hermes-domain-overlay` (additive `approval_scope_kinds` vocabulary extension — a dedicated `manager_review` kind) | 1 | Registered 2026-08-10 — origin is `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`'s implementation plan (tension T2), ruled "register now" by Brett Heap the same day; the live gate proceeds on the `engineering_intent` fallback in the meantime; 2 open questions (envelope-vs-overlay home, naming/scope grain), neither blocking |
 
 ## hermes-stack-topology-per-client
 
@@ -981,3 +982,43 @@ global on/off that would close the window for everyone.
   accept note and the 2026-07-23 first council exercise; the packet
   re-crosses the proposal gate the day a second sweep or repo names
   itself.
+
+## manager-review-approval-scope-kind
+
+- Staging ID: `openxFactory:staging:manager-review-approval-scope-kind`
+- Repository context: openxFactory owns the neutral `hermes-domain-overlay`
+  contract that defines `approval_scope_kinds`
+  (`contracts/hermes-domain-overlay/hermes-domain-overlay.schema.yaml`,
+  canonical spec `openspec/specs/hermes-domain-overlay/spec.md`);
+  `xFactory-Hermes-Install` is the motivating consumer whose seeded overlay
+  would adopt the new kind on a follow-on realization.
+- Source: `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`
+  implementation plan (`specs/011-three-layer-manager-review-gate/plan.md`,
+  Complexity Tracking entry T2, recorded 2026-08-10); governing OpenSpec
+  change `add-three-layer-manager-review-gate` (ratified 2026-07-29); ruled
+  "register now" by Brett Heap 2026-08-10.
+- Claim: the 011 gate commissions three governed manager-review jobs per
+  candidate admission packet, and typing those jobs' approvals honestly needs
+  a dedicated `manager_review` member of `approval_scope_kinds` so clearance
+  policy and audit can discriminate manager reviews from ordinary intent
+  approvals; today they ride the `engineering_intent` fallback, which is
+  honest-but-loose typing. This is an additive vocabulary extension — the
+  enum has no fixed member list (`minItems: 1`, open string array) — raised
+  upstream per the Hermes install constitution's Contract Fidelity principle
+  (stop-and-raise on a neutral-policy gap, never fork or shadow it locally).
+  The v1 gate proceeds on the fallback; this topic is the deferred
+  tightening.
+- Files:
+  - [manager-review-approval-scope-kind.md](manager-review-approval-scope-kind/manager-review-approval-scope-kind.md)
+    — primary: context, 3 claims, 2 open questions, exit.
+- Open questions (non-blocking): whether `manager_review` belongs in a
+  shared neutral job-envelope approval-scope vocabulary versus purely as a
+  per-domain `hermes-domain-overlay` addition; whether one shared kind is
+  the right grain for the gate's three distinct governed jobs, or whether
+  finer-grained kinds are warranted once the live gate's evidence is in.
+- Exit: an openxFactory OpenSpec change extending `hermes-domain-overlay`
+  with the `manager_review` kind, raised when the live 011 gate's operating
+  evidence (real candidate admission packets run under the `engineering_intent`
+  fallback) justifies the tightening; the engineering overlay's adoption of
+  the new kind is a follow-on realization in the consuming domain repo, not
+  part of this exit.
