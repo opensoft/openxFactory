@@ -95,7 +95,7 @@ OpsxFactory (managed-subject rule).
       TestCases, checks green before merge.)
 - [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
-- [ ] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
+- [x] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
       pattern): replay via console engine, stale-view refusal, atomic
       intent+record+artifact commit, rolling intents PR with auto-merge,
       optional on-apply snapshot rebake.
@@ -104,6 +104,22 @@ OpsxFactory (managed-subject rule).
       GET intents.
 - [ ] 4.5 Flutter verdict-terminal client consumes the same two endpoints
       (own feature; contract fixed here).
+
+      (REALIZED 2026-08-10: openxFactory PR #157 — intent_apply_lane.py in
+      the register-edit lane's family, replaying through run_gate_action
+      with the new intent-plane/ingress-auth provenance pair (additive
+      schema + manifest growth), full server-side revalidation, D4
+      stale-view CAS, atomic intent+record+artifact commits, committed
+      refusals, payload-equivalent idempotency, whole-pass rollback;
+      40 lane tests. MERGED a6fdb77 after TWELVE Codex rounds closing 26
+      findings (25 fixed, 1 disposed: the edit-project register CAS —
+      aggregation-owned register, D18 queueing + fulfilment-time member
+      checks are the material guard). The aggregation gained
+      .github/workflows/intent-apply.yml (5539eb9): content-App token,
+      fresh clone on intents/rolling, allowlist fetched from
+      Omnigent-Install, env-only intent input, fail-on-rejected-push,
+      one custody PR. The rolling PR's auto-merge custody wiring and the
+      hosted tray flip ride 4.4.)
 
 ## 5. Tests And Records
 
