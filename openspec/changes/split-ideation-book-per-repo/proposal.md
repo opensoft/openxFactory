@@ -3,7 +3,11 @@
 code_surface: openxFactory
 target_release: implementation_pending
 
-Status: draft — proposed 2026-08-10; parked at the ratify gate.
+Status: ratified
+Ratified: 2026-08-10 by Brett Heap — in-session, verbatim: "ratified"
+(response to the proposal presentation including the cross-model decision
+review and its one declined judgment, which therefore stands as authored:
+headroom warning + further-delta rule, no pre-authorized splits).
 
 ## Why
 

@@ -5,13 +5,14 @@
 - [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate split-ideation-book-per-repo
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
-- [ ] 1.2 Brett ratification of the decisions the delta fixes: per-repo
+- [x] 1.2 Brett ratification of the decisions the delta fixes: per-repo
       Ideation books (vs. a coarser two-book split), legacy-alias retirement
       (vs. repointing `xf-ideation`), and headroom-warn + further-delta as
       the growth policy (the declined alternative — pre-authorizing
       mechanical splits in this delta — is recorded in
-      `review/decision-review-2026-08-10.md`). Everything below is parked
-      behind this gate.
+      `review/decision-review-2026-08-10.md`). — RATIFIED 2026-08-10 by
+      Brett, in-session, verbatim "ratified"; the declined judgment stands
+      as authored. Gate open.
 
 ## 2. Sync implementation (code_surface: openxFactory)
 
