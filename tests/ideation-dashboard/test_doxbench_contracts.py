@@ -359,6 +359,52 @@ def test_validators_are_draft202012_per_kind(fake_root, pinned_repo):
     assert all(isinstance(v, Draft202012Validator) for v in built.values())
 
 
+def test_validators_are_cached_on_the_verified_digests(fake_root, pinned_repo):
+    """T104 final queue Q-2 (ruled 2026-08-09): the 100 ms pre-dispatch p95
+    target STANDS, so the COMPILED validators are reused across calls whose
+    verified bytes are identical — the yaml parse, registry build, and
+    jsonschema compilation stop being per-request. The key derives FROM the
+    digests the per-call verification just proved, never from time or
+    trust; the companion test below is the fail-closed half."""
+    first = contracts.validators(fake_root, repo_root=pinned_repo)
+    second = contracts.validators(fake_root, repo_root=pinned_repo)
+    assert set(first) == set(second)
+    for kind, validator in first.items():
+        assert second[kind] is validator, kind
+
+
+def test_the_cache_never_shortcuts_the_byte_verification(fake_root, pinned_repo):
+    """The load-bearing half of the Q-2 ruling: a byte that drifts AFTER a
+    cached resolution refuses on the very next call. The digests are
+    re-verified against the released bytes on EVERY call; only compilation
+    is amortized — a cache hit is possible only for bytes that just proved
+    themselves."""
+    contracts.validators(fake_root, repo_root=pinned_repo)   # warm the cache
+    target = fake_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE
+    target.write_bytes(target.read_bytes() + b"\n# drifted after caching\n")
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.validators(fake_root, repo_root=pinned_repo)
+    assert CATALOG_SCHEMA_FILE in str(excinfo.value)
+
+
+def test_the_manifest_parse_memo_never_serves_drifted_bytes(fake_root,
+                                                            pinned_repo):
+    """The memo's other input: the manifest's PARSE is reused only for bytes
+    that hash identically. A manifest rewritten after a cached resolution is
+    a NEW key — its disagreement with the schema bytes refuses on the very
+    next call, exactly as it would have cold."""
+    contracts.validators(fake_root, repo_root=pinned_repo)   # warm every memo
+    manifest = fake_root / "contracts" / "manifest.yaml"
+    drifted = manifest.read_text(encoding="utf-8").replace(
+        contracts.SCHEMA_DIGESTS[CATALOG_SCHEMA_FILE], "0" * 64)
+    manifest.write_text(drifted, encoding="utf-8")
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.validators(fake_root, repo_root=pinned_repo)
+    assert "manifest" in str(excinfo.value)
+
+
 def test_valid_catalog_instance_validates(fake_root, pinned_repo):
     assert contracts.validate_instance(MINIMAL_CATALOG, fake_root,
                                        repo_root=pinned_repo) == []
