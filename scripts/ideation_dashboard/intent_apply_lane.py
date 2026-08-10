@@ -82,6 +82,13 @@ SNAPSHOT_VERBS = ("demote", "derive-possibles")
 #: (Codex P1, PR #157 — path traversal out of the intents prefix).
 _SAFE_SEGMENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
+#: The viewed revision is an IMMUTABLE commit id, never a symbolic ref —
+#: `refs/heads/main` resolves to whatever is current, which would make the
+#: stale-view guard compare the target with itself (Codex round-10 P1,
+#: PR #157). Hex spelling here; resolution to the full object id happens
+#: against the checkout before identity or staleness derive from it.
+_HEX_REV = re.compile(r"^[0-9a-f]{7,40}$")
+
 #: Verbs whose target is a possible entry in the cross-reference index —
 #: their stale check compares the ENTRY, not the whole file, so an unrelated
 #: disposition does not refuse an unrelated intent.
@@ -148,14 +155,15 @@ def load_allowlist(path: Path) -> dict[str, list[str]]:
             for a, verbs in actors.items() if isinstance(verbs, list)}
 
 
-def canonical_target(target: dict) -> dict:
-    """The kernel-known, non-empty-string members of a target — the ONE
-    form the digest, the committed artifact, and the dispatched body all
-    use (Codex round-8 P1, PR #157: hashing the raw wire target while
-    storing the normalized one let a junk member bypass the idempotency
-    skip on replay)."""
-    return {key: target[key] for key in _TARGET_KEYS
-            if isinstance(target.get(key), str) and target[key]}
+def canonical_target(verb: str, target: dict) -> dict:
+    """Exactly the verb's own target member — the ONE form the digest, the
+    committed artifact, and the dispatched body all use (Codex round-8 and
+    round-10 P1s, PR #157: a stray extra member — even a kernel-known one
+    the verb ignores — must not mint a fresh request identity, or a replay
+    re-queues the same governed edit)."""
+    key = VERB_TARGET_KEY[verb]
+    value = target.get(key)
+    return {key: value} if isinstance(value, str) and value else {}
 
 
 def request_digest(intent: dict) -> str:
@@ -166,10 +174,11 @@ def request_digest(intent: dict) -> str:
     form, so a wire spelling and its stored normalization agree."""
     import hashlib
     target = intent.get("target")
+    verb = intent.get("verb")
     canonical = json.dumps(
-        {"actor": intent.get("actor"), "verb": intent.get("verb"),
-         "target": canonical_target(target) if isinstance(target, dict)
-         else target,
+        {"actor": intent.get("actor"), "verb": verb,
+         "target": canonical_target(verb, target)
+         if isinstance(target, dict) and verb in VERB_TARGET_KEY else target,
          "rev": intent.get("snapshot_rev_seen")},
         sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -217,8 +226,9 @@ def shape_error(intent: dict) -> str | None:
         return ("requested_at must be an RFC 3339 date-time with explicit "
                 "time and offset (the kernel requires format: date-time)")
     rev = intent.get("snapshot_rev_seen")
-    if not isinstance(rev, str) or len(rev) < 7:
-        return "snapshot_rev_seen must name the viewed snapshot revision"
+    if not isinstance(rev, str) or not _HEX_REV.match(rev):
+        return ("snapshot_rev_seen must be the viewed snapshot's commit id "
+                "(7-40 hex characters, never a symbolic ref)")
     if intent.get("status") != "pending":
         return f"only a pending intent is applicable (got {intent.get('status')!r})"
     return None
@@ -341,7 +351,7 @@ def _terminal_intent(intent: dict, digest: str) -> dict:
         "kind": "gate-intent",
         "actor": intent["actor"],
         "verb": intent["verb"],
-        "target": canonical_target(intent["target"]),
+        "target": canonical_target(intent["verb"], intent["target"]),
         "args": dict(intent.get("args") or {}),
         "requested_at": intent["requested_at"],
         "snapshot_rev_seen": intent["snapshot_rev_seen"],
@@ -402,13 +412,25 @@ def _commit(root: Path, message: str, report: ApplyReport, *,
     overlapping propose runs could each enqueue a commission). A fresh run
     revalidates everything against the state that won."""
     before = _git(root, "rev-parse", "HEAD").stdout.strip()
+
+    def _rollback() -> None:
+        # the clean-tree precondition makes every untracked file lane-
+        # written, so a hard reset plus clean restores exactly the
+        # pre-pass checkout instead of stranding a dirty tree that bricks
+        # every later run at the clean-tree gate (Codex round-10 P2)
+        _git(root, "reset", "--hard", before)
+        _git(root, "clean", "-fd")
+
     if _git(root, "add", "-A").returncode != 0:
-        report.outcome, report.reason = "error", "git add failed"
+        _rollback()
+        report.outcome, report.reason = "error", "git add failed (rolled back)"
         return False
     commit = _git(root, "commit", "-m", message)
     if commit.returncode != 0:
+        _rollback()
         report.outcome = "error"
-        report.reason = "git commit failed: " + commit.stderr.strip()[:200]
+        report.reason = ("git commit failed (rolled back): "
+                         + commit.stderr.strip()[:200])
         return False
     report.committed = _git(root, "rev-parse", "HEAD").stdout.strip()[:12]
     if push:
@@ -535,6 +557,14 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
         report.reason = ("the checkout is not clean — the lane replays "
                          "intents only against a fresh checkout")
         return report
+
+    if git:
+        resolved = _git(root, "rev-parse", "--verify", "--quiet",
+                        intent["snapshot_rev_seen"] + "^{commit}").stdout.strip()
+        if resolved:
+            # abbreviated and full spellings of one commit share one
+            # identity; stale checks run against the resolved object
+            intent = {**intent, "snapshot_rev_seen": resolved}
 
     digest = request_digest(intent)
     if _already_applied(root, intents_dir, digest):

@@ -585,6 +585,63 @@ def test_out_of_range_rfc3339_components_are_rejected(tmp_path):
         assert "RFC 3339" in report.reason
 
 
+def test_symbolic_refs_cannot_be_a_viewed_revision(tmp_path):
+    """Codex round-10 P1 (PR #157): refs/heads/main always resolves to
+    CURRENT, which would compare the target with itself."""
+    root, rev, allowlist = _corpus(tmp_path)
+    for bad in ("refs/heads/main", "mainbranch", "HEAD", "deadbeefXY"):
+        report = _apply(root, _intent(rev, snapshot_rev_seen=bad),
+                        allowlist, tmp_path)
+        assert report.outcome == "error", bad
+        assert "commit id" in report.reason
+
+
+def test_abbreviated_and_full_revisions_share_one_identity(tmp_path):
+    """The viewed revision canonicalizes to the full object id before the
+    digest, so spelling length cannot mint a fresh identity."""
+    root, rev, allowlist = _corpus(tmp_path)
+    first = _apply(root, _intent(rev[:12], idempotency_key="k-abbr"),
+                   allowlist, tmp_path)
+    assert first.outcome == "applied", first.reason
+    doc = yaml.safe_load((root / first.intent_path).read_text())
+    assert doc["snapshot_rev_seen"] == rev  # full oid stored
+    replay = _apply(root, _intent(rev, idempotency_key="k-full"),
+                    allowlist, tmp_path)
+    assert replay.outcome == "skipped"
+
+
+def test_extra_kernel_known_target_member_does_not_mint_identity(tmp_path):
+    """Codex round-10 P1 (PR #157): the canonical target is the verb's own
+    member only."""
+    base = {"schema_version": 1, "kind": "gate-intent", "actor": "b",
+            "verb": "edit-project", "target": {"project_id": "core"},
+            "args": {}, "requested_at": "2026-08-10T12:00:00Z",
+            "snapshot_rev_seen": "a" * 40, "status": "pending"}
+    with_extra = dict(base, target={"project_id": "core",
+                                    "possible_id": "pos-stray"})
+    assert lane.request_digest(base) == lane.request_digest(with_extra)
+    assert lane.canonical_target("edit-project", with_extra["target"]) == {
+        "project_id": "core"}
+
+
+def test_commit_failure_rolls_the_checkout_back(tmp_path):
+    """Codex round-10 P2 (PR #157): a failed commit must not strand a
+    dirty tree that bricks every later run at the clean-tree gate."""
+    root, rev, allowlist = _corpus(tmp_path)
+    hook = root / ".git" / "hooks" / "pre-commit"
+    hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+    hook.chmod(0o755)
+    report = _apply(root, _intent(rev), allowlist, tmp_path)
+    assert report.outcome == "error"
+    assert "rolled back" in report.reason
+    assert _git(root, "rev-parse", "HEAD").stdout.strip() == rev
+    assert not _git(root, "status", "--porcelain").stdout.strip()
+    hook.unlink()
+    retry = _apply(root, _intent(rev, idempotency_key="k-retry"),
+                   allowlist, tmp_path)
+    assert retry.outcome == "applied"  # the rolled-back run left no residue
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
