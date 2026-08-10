@@ -818,17 +818,31 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     return nid, ok
 
 
+def _add_with_one_retry(*args: str) -> str:
+    """One retry after a pause: the provider intermittently 500s behind an
+    EMPTY CLI error (live-proven twice on 2026-08-10 — the cap incident's
+    signature and a mid-canon transient). A transient must not kill a book;
+    a real failure still raises on the second attempt."""
+    try:
+        return nlm(*args, parse=False)
+    except RuntimeError as exc:
+        print(f"    retrying once after: {exc}")
+        time.sleep(10)
+        return nlm(*args, parse=False)
+
+
 def add_text_source(handle: str, text: str, title: str) -> None:
     """Add one text source, riding a temp file + rename when the content is
     too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
     if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
-        nlm("source", "add", handle, "--text", text, "--title", title, parse=False)
+        _add_with_one_retry("source", "add", handle, "--text", text,
+                            "--title", title)
         return
     fd, tmp = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(text)
-        out = nlm("source", "add", handle, "--file", tmp, parse=False)
+        out = _add_with_one_retry("source", "add", handle, "--file", tmp)
         m = SOURCE_ID_ECHO_RE.search(out or "")
         if not m:
             raise RuntimeError(
