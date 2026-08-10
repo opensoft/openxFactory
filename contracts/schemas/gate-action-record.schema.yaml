@@ -505,14 +505,14 @@ $defs:
     properties:
       surface:
         type: string
-        enum: [http, cli]
+        enum: [http, cli, intent-plane]
         # The gateway the invocation arrived on: the loopback HTTP console, or
         # the CLI parity verb. Recorded because the two doors have different
         # presence tests and different residuals, and an auditor asking "how did
         # this happen" needs the door named.
       console_presence:
         type: string
-        enum: [console-token, tty, declared]
+        enum: [console-token, tty, declared, ingress-auth]
         # HOW the console-presence test was satisfied: the per-serve console
         # token issued at `/capabilities` (`console-token`, the HTTP door), an
         # interactive terminal (`tty`), or an explicit operator declaration
@@ -521,7 +521,10 @@ $defs:
         # console presence is REFUSED before a record is written, so no record
         # can honestly carry one. `declared` is the WEAKEST of the three and is
         # named as its own value rather than folded into the others precisely so
-        # an audit consumer can filter for it.
+        # an audit consumer can filter for it. `intent-plane` + `ingress-auth`
+        # (ADDITIVE growth, add-ideation-intent-plane task 4.3): the apply lane
+        # replaying a gate-intent whose actor the inbox stamped from the
+        # ingress-authenticated identity — the record names the third door.
   # --- an artifact this action produced ---
   artifact:
     type: object
