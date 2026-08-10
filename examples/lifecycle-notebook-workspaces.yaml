@@ -2,20 +2,25 @@
 # Model: docs/notebooklm-source-workspaces.md section 6.
 # Governed by: docs/lifecycle-notebook-projection.md.
 workspaces:
-  - kind: external_source_workspace
-    schema_version: 1
-    id: workspace-xfactory-lifecycle-ideation
-    provider: notebooklm
-    provider_notebook_id: 27b1880b-6974-4cfe-a76f-4318f6021608
-    owner_layer: domain_hermes
-    scope:
-      domain_id: xfactory
-      client_id: null
-      customer_id: null
-    purpose: derived projection of brainstorm and staged governance docs
-    default_authority_level: L1_notebook_synthesis
-    created_at: "2026-07-08T20:00:00Z"
-    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  # RETIRED 2026-08-10 (split-ideation-book-per-repo): the shared Ideation
+  # book hit the 300-source cap and was split per-repo. The notebook was
+  # archive-renamed "xFactory — Ideation (RETIRED 2026-08-10 — split
+  # per-repo)" and the xf-ideation alias deleted — never repointed. The
+  # per-repo records follow below.
+  # - kind: external_source_workspace
+  #   schema_version: 1
+  #   id: workspace-xfactory-lifecycle-ideation
+  #   provider: notebooklm
+  #   provider_notebook_id: 27b1880b-6974-4cfe-a76f-4318f6021608
+  #   owner_layer: domain_hermes
+  #   scope:
+  #     domain_id: xfactory
+  #     client_id: null
+  #     customer_id: null
+  #   purpose: derived projection of brainstorm and staged governance docs
+  #   default_authority_level: L1_notebook_synthesis
+  #   created_at: "2026-07-08T20:00:00Z"
+  #   managed_by: openxFactory/scripts/sync-notebooklm-books.py
   - kind: external_source_workspace
     schema_version: 1
     id: workspace-xfactory-lifecycle-drafts
@@ -43,4 +48,74 @@ workspaces:
     purpose: derived projection of ratified and standard docs plus promoted specs
     default_authority_level: L1_notebook_synthesis
     created_at: "2026-07-08T20:00:00Z"
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation-opsxfactory
+    provider: notebooklm
+    provider_notebook_id: 99b1ff52-2a93-43c2-b8fc-a153328ccd77
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs (OpsxFactory)
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-08-10T07:13:30Z"
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation-codexfactory
+    provider: notebooklm
+    provider_notebook_id: c2b89469-396e-4fef-9154-fa9ade81d64c
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs (codexFactory)
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-08-10T07:16:25Z"
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation-medxfactory
+    provider: notebooklm
+    provider_notebook_id: 5830dbd2-5624-4852-987d-9f4e37746448
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs (MedxFactory)
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-08-10T07:19:05Z"
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation-ledgerxfactory
+    provider: notebooklm
+    provider_notebook_id: 48ac861d-5a5c-4515-92fc-5b7b251c22c7
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs (LedgerxFactory)
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-08-10T07:26:58Z"
+    managed_by: openxFactory/scripts/sync-notebooklm-books.py
+  - kind: external_source_workspace
+    schema_version: 1
+    id: workspace-xfactory-lifecycle-ideation-openxfactory
+    provider: notebooklm
+    provider_notebook_id: 74ace7c8-b3df-4373-bcd2-64043b153cba
+    owner_layer: domain_hermes
+    scope:
+      domain_id: xfactory
+      client_id: null
+      customer_id: null
+    purpose: derived projection of brainstorm and staged governance docs (openxFactory)
+    default_authority_level: L1_notebook_synthesis
+    created_at: "2026-08-10T07:37:13Z"
     managed_by: openxFactory/scripts/sync-notebooklm-books.py

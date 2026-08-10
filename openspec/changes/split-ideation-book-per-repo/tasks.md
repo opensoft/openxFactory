@@ -2,7 +2,7 @@
 
 ## 1. Contract and ratification (BRETT RATIFY GATE)
 
-- [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate split-ideation-book-per-repo
+- [x] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate split-ideation-book-per-repo
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
 - [x] 1.2 Brett ratification of the decisions the delta fixes: per-repo
@@ -55,19 +55,19 @@
 
 ## 3. Migration and retirement
 
-- [ ] 3.1 Sequenced migration, one book per `--book` invocation, fresh nlm
+- [x] 3.1 Sequenced migration, one book per `--book` invocation, fresh nlm
       auth per session (~20-minute session lifetime vs. ~2s per source
       operation): seed the four small books first, openxFactory last;
       expected op budget ≈ 325 member adds + charters/grounding/framing —
       record the actual op counts and wall clock as evidence. The legacy
       book is NOT a sync target in any of these runs (it left the book set
       at 2.1).
-- [ ] 3.2 Parity per repo by TITLE-SET equality (not count): each book's
+- [x] 3.2 Parity per repo by TITLE-SET equality (not count): each book's
       managed titles equal the repo's scanned ideation membership, and the
       union across books reconciles against the corpus scan total —
       reconciliation is against the corpus, never against the legacy book
       (which was at cap and had already dropped an unknown set).
-- [ ] 3.3 Retire the legacy "xFactory — Ideation" book and the
+- [x] 3.3 Retire the legacy "xFactory — Ideation" book and the
       `xf-ideation` alias as a recorded manual act: archive-rename or
       delete the notebook, remove the alias, retire its
       `external_source_workspace` record. Never repoint.
@@ -80,11 +80,11 @@
 
 ## 4. Evidence and exit
 
-- [ ] 4.1 One full post-migration sync from the workspace root: green,
+- [x] 4.1 One full post-migration sync from the workspace root: green,
       zero-change on immediate re-run (idempotence), guard silent above
       headroom; output recorded as realization evidence, including
       per-book occupancy (openxFactory expected ≈ 216/300 at migration).
-- [ ] 4.2 Cross-repo follow-up recorded (non-blocking): aggregation-repo
+- [x] 4.2 Cross-repo follow-up recorded (non-blocking): aggregation-repo
       CLAUDE.md NotebookLM note updated to the alias family and
       title-resolution rule.
 - [ ] 4.3 Archive on realization evidence per `release-realization`.
