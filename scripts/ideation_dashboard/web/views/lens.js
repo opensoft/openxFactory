@@ -614,7 +614,13 @@ function matrix(model, ctx) {
   }
   if (!model.matrix.length) {
     const tr = el("tr");
-    const td = el("td", "empty", "no documents match the checked keywords");
+    // With nothing checked the matrix lists the whole corpus, so an empty table
+    // HERE means the corpus itself is empty — saying "no documents match the
+    // checked keywords" over an unchecked rail was the lens's opening state and
+    // read as a dead end (Brett, 2026-08-10).
+    const td = el("td", "empty", model.checked.length
+      ? "no documents match the checked keywords"
+      : "this view carries no documents");
     td.setAttribute("colspan", String(model.checked.length + 4));
     tr.appendChild(td);
     table.appendChild(tr);

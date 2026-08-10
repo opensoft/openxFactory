@@ -833,6 +833,9 @@ const out = {
     repository: r.repository || null,
     hasOption: !!r.option,
     available: r.option ? r.option.available : null,
+    // which REF a row resolves to: a repository row must be main, a session
+    // row must be its own branch (2026-08-10)
+    ref: r.option ? r.option.ref : null,
   })),
   noProjectRows: projectFilterRows(roster, null),
   addable: addableRepositories(roster, projects, project),
@@ -892,14 +895,14 @@ def test_the_header_model_derivations(tmp_path):
     # aggregate), then one row per member; the unpublished member has no
     # option; the unavailable one keeps its honest flag
     assert r["rows"][0] == {"kind": "all", "repository": None,
-                            "hasOption": True, "available": True}
+                            "hasOption": True, "available": True, "ref": "main"}
     assert r["rows"][1:] == [
         {"kind": "repo", "repository": "MedxFactory", "hasOption": True,
-         "available": True},
+         "available": True, "ref": "main"},
         {"kind": "repo", "repository": "agenttower", "hasOption": True,
-         "available": False},
+         "available": False, "ref": "main"},
         {"kind": "repo", "repository": "ghost-repo", "hasOption": False,
-         "available": None},
+         "available": None, "ref": None},
     ]
     assert r["noProjectRows"] == []
     # D16: the add line's candidates — roster + register known, minus members
@@ -910,6 +913,56 @@ def test_the_header_model_derivations(tmp_path):
     # the pending-edit plane drops malformed rows
     assert r["pendingEdits"] == [{"projectId": "medx", "add": ["openChart"],
                                   "remove": ["agenttower"]}]
+
+
+def test_a_repository_row_is_main_and_a_live_session_is_its_own_row(tmp_path):
+    """MEASURED on the live plane, 2026-08-10, answering Brett's "how do I get
+    to the rest of the workbench on this doc?".
+
+    A repository row took the FIRST roster option for that repository, and the
+    serving index lists a repository's refs sorted — so `draft/…` sorts before
+    `main`. Clicking `openxFactory` keyed the whole dashboard to whichever
+    branch happened to sort first: a session the human had not chosen and could
+    not see they were on. The same arbitrary pick was the ONLY way onto a
+    session branch, which is why the branch a create had just opened looked
+    unreachable — it was reachable by accident, under the wrong name.
+
+    Both halves: a repository row resolves to MAIN deliberately, and every
+    other advertised ref becomes an addressable session row of its own (FR-014
+    — the index advertises a live session as an ordinary row, so this asks the
+    server nothing new)."""
+    index = _header_index()
+    # two live sessions on one member, plus one on a member that has no main,
+    # in the sorted order the serve really publishes them in
+    index["entries"] = [
+        {"repository": "MedxFactory", "ref": "draft/beta", "available": True,
+         "snapshot": "medx-beta.json"},
+        {"repository": "MedxFactory", "ref": "draft/alpha", "available": True,
+         "snapshot": "medx-alpha.json"},
+        *index["entries"],
+        {"repository": "ghost-repo", "ref": "draft/only", "available": True,
+         "snapshot": "ghost.json"},
+    ]
+    r = _run_header({"index": index, "projection": _header_projection(),
+                     "projectId": "medx", "stored": "medx"}, tmp_path)
+    rows = [(x["kind"], x["repository"], x["ref"]) for x in r["rows"]]
+
+    # the repository row is MAIN, never the first-sorted draft
+    assert ("repo", "MedxFactory", "main") in rows
+    assert ("repo", "MedxFactory", "draft/beta") not in rows
+    # …and each live session is its own row, under its repository
+    assert ("session", "MedxFactory", "draft/beta") in rows
+    assert ("session", "MedxFactory", "draft/alpha") in rows
+    # a member that publishes ONLY a session still resolves — it falls back
+    # rather than vanishing — and is not then repeated as a session row
+    assert ("repo", "ghost-repo", "draft/only") in rows
+    assert ("session", "ghost-repo", "draft/only") not in rows
+    # ordering: a session sits directly under the repository it belongs to
+    medx = rows.index(("repo", "MedxFactory", "main"))
+    assert rows[medx + 1][0] == "session" and rows[medx + 1][1] == "MedxFactory"
+    # main is never offered twice
+    assert sum(1 for k, repo, ref in rows
+               if repo == "MedxFactory" and ref == "main") == 1
 
 
 def test_queued_edits_net_into_one_overlay(tmp_path):

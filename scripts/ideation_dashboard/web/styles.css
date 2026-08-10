@@ -177,6 +177,15 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16
 .managepane { display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 4px 6px; }
 .filterline { display: flex; align-items: center; gap: 4px; }
 .filterline .filterrow { flex: 1; }
+/* A live branch session, offered under its repository. Indented and muted
+   because it is a different VIEW of that repository, never another member of
+   the merged view (Brett, 2026-08-10). */
+.filtersessionline { padding-left: 22px; }
+.filtersession { color: var(--muted); }
+.filtersessionnote {
+  font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap;
+}
 .filtereye { font-size: 11px; width: 18px; text-align: center; color: var(--muted); }
 .filtereye.filtervisible { color: inherit; }
 .filtertrash {
@@ -2240,6 +2249,24 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
   border-top: 1px solid var(--border); padding-top: 8px;
 }
 .swb-draftchrome .swb-cactions { justify-content: flex-end; }
+/* "you already have N of this topic" — stated BEFORE the save, because the
+   engine's create-only refusal states it after (Brett, 2026-08-10). A notice,
+   not an error: a second document on a shared topic is ordinary. */
+.swb-draftexisting {
+  border: 1px solid var(--border); border-left: 3px solid var(--st-staged);
+  border-radius: 5px; padding: 7px 10px; font-size: 12px;
+  display: flex; flex-direction: column; gap: 3px;
+  max-height: 30vh; overflow-y: auto; scrollbar-gutter: stable;
+}
+.swb-draftexistinghead { font-weight: 700; }
+.swb-draftexistingrow { display: flex; gap: 8px; align-items: baseline; }
+.swb-dxpath { font-family: var(--mono); font-size: 11px; }
+.swb-dxterms { color: var(--muted); font-size: 11px; }
+.swb-dxsame {
+  font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--blocked); white-space: nowrap;
+}
+.swb-dxnote { color: var(--muted); line-height: 1.5; margin-top: 3px; }
 .swb-draftbody {
   flex: 1; min-height: 55vh; width: 100%; box-sizing: border-box;
   resize: vertical; padding: 10px 12px;

@@ -688,6 +688,28 @@ function bullseyeLayout(rows, nChecked, geom) {
 
 // ---- matrix rows (flat view of the SAME membership as the bullseye) ----
 
+// THE CORPUS IS THE STARTING STATE (Brett, 2026-08-10: "we need to have all
+// existing docs listed in the main lens screen").
+//
+// `evaluateRecipe` drops a document whose matched subset is empty — correct for
+// the RADAR, whose rings mean "how many of the checked keywords does this carry"
+// and which therefore has nothing to say before a keyword is checked. But the
+// matrix beneath it is a LIST, and an empty list was the lens's opening state:
+// the screen showed a corpus of hundreds as "no documents match the checked
+// keywords", and the human had to guess that checking something in the rail was
+// the way in. Worse, the DOCUMENT ticks that build a staging seed live on these
+// rows, so with nothing listed the seed could not be started at all.
+//
+// So with nothing checked the matrix lists the whole corpus, in snapshot order
+// (the generator sorts by path). Nothing about the radar or the recipe changes —
+// `evaluateRecipe` is untouched, and one checked keyword returns the matrix to
+// the membership it always showed.
+function corpusRows(snapshot) {
+  return (snapshot?.documents || [])
+    .filter((d) => d && d.id)
+    .map((d) => ({ document: d.id, matchedSubset: [], matchCount: 0 }));
+}
+
 function matrixRows(rows, checked, docNumber) {
   const ordered = docNumber
     ? [...rows].sort((a, b) => (docNumber.get(a.document) || 0)
@@ -701,7 +723,12 @@ function matrixRows(rows, checked, docNumber) {
       number: docNumber ? (docNumber.get(r.document) || i + 1) : i + 1,
       cells: checked.map((k) => ({ keyword: k, present: present.has(k) })),
       matchCount: r.matchCount,
-      ring: r.matchCount === checked.length ? "all " + checked.length : String(r.matchCount),
+      // With nothing checked there is no ring to be on: the radar is empty and
+      // saying `0` would read as a match count of zero rather than "not asked".
+      ring: checked.length === 0
+        ? "—"
+        : (r.matchCount === checked.length
+            ? "all " + checked.length : String(r.matchCount)),
     };
   });
 }
@@ -844,7 +871,10 @@ export function buildLensModel(snapshot, query, geom) {
     rings: layout.rings,
     sectors: layout.sectors,
     dots: layout.dots,
-    matrix: matrixRows(ev.rows, checked, docNumber),
+    // the whole corpus before a keyword is checked, the recipe's membership
+    // after — see `corpusRows`
+    matrix: matrixRows(checked.length ? ev.rows : corpusRows(snapshot),
+                       checked, checked.length ? docNumber : null),
     formingSet: formingSet(ev, includes, excludes),
     coOccurrence: coOccurrenceHints(snapshot, checked, pinned),
     recipeLine: recipeLine(checked, pinned, includes, excludes),

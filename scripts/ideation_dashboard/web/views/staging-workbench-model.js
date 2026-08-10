@@ -767,6 +767,48 @@ export function createDocumentCommand(seed, opts) {
 // keys, which is what makes them impossible to conflate in a view.
 // ==========================================================================
 
+// WHAT YOU ALREADY HAVE ON THIS TOPIC (Brett, 2026-08-10: "if same keywords,
+// then we want to list it in the doxBench too. so the user knows he now has two
+// of this topic").
+//
+// The reason this is worth a panel rather than a note: every create-only refusal
+// tonight was the same shape — a document on this topic already existed and the
+// draft screen did not say so, so the human pressed save and read
+// `corpus documents are create-only` as the outcome of their work. The engine's
+// refusal is correct and arrives too late to be useful; the fact belongs on
+// screen BEFORE the save.
+//
+// `topics` is the seed's own shared-term set. A document counts as "already on
+// this topic" when it declares ANY of them, and the STRONGEST signal is a
+// document in the very folder this create is aiming at — that one will refuse.
+// Pure, so the panel and the tests read the same derivation.
+export function existingOnTopic(snapshot, topics, area) {
+  const wanted = new Set(uniqueStrings(topics));
+  const folder = asId(area);
+  const rows = [];
+  for (const doc of snapshot?.documents || []) {
+    const path = asId(doc?.path || doc?.id);
+    if (!path) continue;
+    const shared = (doc.topics || []).filter((t) => wanted.has(asId(t)));
+    const inFolder = !!folder && path.startsWith(folder);
+    if (!shared.length && !inFolder) continue;
+    rows.push({
+      path,
+      title: asId(doc.title) || path.split("/").pop(),
+      status: asId(doc.status),
+      shared: uniqueStrings(shared),
+      // this one occupies the ground the create is aiming at: a create here is
+      // refused create-only, and it is the row the human most needs to see
+      inFolder,
+    });
+  }
+  // the folder collisions first, then the most shared terms
+  rows.sort((a, b) => (Number(b.inFolder) - Number(a.inFolder))
+    || (b.shared.length - a.shared.length)
+    || a.path.localeCompare(b.path));
+  return rows;
+}
+
 export const MAIN_REF = "main";
 
 // The three routes the session surface addresses. Constants HERE (never literals

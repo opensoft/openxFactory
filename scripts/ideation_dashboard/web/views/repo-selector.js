@@ -415,6 +415,31 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
   // toggle, "all"/"none" are the two bulk moves, and the count states the
   // set \u2014 which together cover every selection the old all-repos line and the
   // single-select click used to cover separately.
+  // A LIVE BRANCH SESSION, addressable (Brett, 2026-08-10: "how do I get to the
+  // rest of the workbench on this doc?"). The serving index advertises a live
+  // session as an ordinary `(repository, ref)` row (FR-014) and the roster has
+  // carried it all along — nothing here asks the server anything new. What was
+  // missing was a way to NAME it: the repository row picked an arbitrary ref, so
+  // the only way onto a session branch was to land on it unknowingly.
+  //
+  // Selecting one keys the whole dashboard to that branch, which is what the
+  // runbook's §4 has always described, and the freshness header then names the
+  // ref. It is deliberately a plain select, not a filter tick: a session is a
+  // different VIEW of one repository, never a member of the merged view.
+  function mountSessionRow(row) {
+    const line = el("span", "filterline filtersessionline");
+    const entry = el("button", "filterrow filtersession", "⎇ " + row.ref);
+    entry.type = "button";
+    entry.title = "read " + row.repository + " on its live session branch "
+      + row.ref + " — the documents this session has created or rewritten, "
+      + "which main does not carry";
+    entry.addEventListener("click", () => o.onSelect?.({
+      repository: row.option.repository, ref: row.option.ref }));
+    line.appendChild(entry);
+    line.appendChild(el("span", "filtersessionnote", "live session"));
+    pop.appendChild(line);
+  }
+
   function mountViewRow(aggregate) {
     const members = (project.repositories || []).map(String);
     const line = el("span", "filterline filterviewline");
@@ -472,6 +497,10 @@ function mountProjectFilter(project, roster, pendingEdits, opts) {
     for (const row of projectFilterRows(roster, project)) {
       if (row.kind === "all") {
         mountViewRow(row.option);
+        continue;
+      }
+      if (row.kind === "session") {
+        mountSessionRow(row);
         continue;
       }
       // one member row: [eye -> show/hide] [name -> only this one] [trash]
@@ -627,8 +656,11 @@ export function mountRepoSelector(host, opts) {
     }
   }
 
+  // Assigned by the filter block below when there IS a roster to re-derive; a
+  // no-entries plane leaves it null and the poll simply has no views to refresh.
+  let rosterChanged = null;
   if (Array.isArray(index?.entries) && index.entries.length) {
-    const roster = buildRoster(index);
+    let roster = buildRoster(index);
     const projects = buildProjects(o.projects);
     const pendingProjects = buildPendingProjects(o.projects);
     const pendingEdits = buildPendingEdits(o.projects);
@@ -736,6 +768,14 @@ export function mountRepoSelector(host, opts) {
       wrap.appendChild(picker);
     }
     renderFilter();
+    // THE ROSTER CAN GROW WHILE THE PAGE IS OPEN (2026-08-10): a create opens a
+    // branch session, and the serving index advertises it as a new row. The
+    // filter is built from the roster, so without this the session the human
+    // just created is missing from the one control that can address it — for
+    // the page's whole life, since `poll` used to update only the newer-data
+    // hint. Re-derived and re-rendered, so it appears on the next poll and on
+    // the shell's own nudge after a session opens.
+    rosterChanged = () => { roster = buildRoster(index); renderFilter(); };
     if (gateCapable(caps) && o.projects) {
       openCreateForm = mountCreateProject(wrap, status, roster, projects, o,
                                           addPendingOption);
@@ -803,9 +843,10 @@ export function mountRepoSelector(host, opts) {
     const fresh = await load();
     if (!fresh) return;
     index = fresh;
-    const roster = buildRoster(index);
-    active = roster.find((r) => sameKey(r, active)) || active;
+    active = buildRoster(index).find((r) => sameKey(r, active)) || active;
     renderHint();
+    // …and the filter, so a session that opened since boot becomes addressable
+    if (rosterChanged) rosterChanged();
   }
   if (o.poll !== false && refreshCapable(caps)) {
     timer = schedule(poll, o.intervalMs || POLL_INTERVAL_MS);

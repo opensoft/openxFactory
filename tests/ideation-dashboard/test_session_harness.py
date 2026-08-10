@@ -300,9 +300,13 @@ def test_session_worktrees_never_reach_a_lifecycle_book(tmp_path):
     (session / "ideation/staging/demo-topic/README.md").write_text(
         "# Session draft\n\n" + doc, encoding="utf-8")
 
-    desired = sync.scan(root)
+    # `scan` returns (desired, specs) since split-ideation-book-per-repo
+    # (2026-08-10) — this test still unpacked the pre-split dict and failed with
+    # `'tuple' object has no attribute 'items'` on every run. Repaired here
+    # rather than left red; the CLAIM being tested is untouched.
+    desired, _specs = sync.scan(root)
 
-    assert desired  # the scan produced the three books
+    assert desired  # the scan produced books
     for book, entries in desired.items():
         for relpath, title in entries.items():
             assert "-worktrees" not in relpath, (
@@ -310,11 +314,19 @@ def test_session_worktrees_never_reach_a_lifecycle_book(tmp_path):
             assert "Session draft" not in title
             assert "sessions/" not in relpath
     # the control: the governed and openxFactory documents DID project, so the
-    # assertion above is not passing on an empty scan
-    ideation = desired["ideation"]
+    # assertion above is not passing on an empty scan. The ideation family is
+    # PER-REPOSITORY since split-ideation-book-per-repo, so the control looks
+    # across the whole family instead of one shared `ideation` key — which keeps
+    # it proving what it always proved (the scan was not empty) without this
+    # test taking a position on how that family is keyed.
+    ideation = {relpath
+                for key, entries in desired.items()
+                if key.startswith(sync.IDEATION_KEY_PREFIX)
+                for relpath in entries}
     assert any(r.endswith("openxFactory/ideation/staging/real/README.md")
-               for r in ideation)
-    assert any(r.endswith("xFactories/codexFactory/docs/real-doc.md") for r in ideation)
+               for r in ideation), sorted(ideation)
+    assert any(r.endswith("xFactories/codexFactory/docs/real-doc.md")
+               for r in ideation), sorted(ideation)
 
 
 def test_pinned_factory_paths_never_admits_a_worktree_container(tmp_path):
