@@ -79,7 +79,7 @@ AKS cluster behind the dashboard's ingress, per-user Basic Auth as identity
 rung 1; realization evidence rides a deployment-handoff request to
 OpsxFactory (managed-subject rule).
 
-- [ ] 4.1 Intent-inbox service (dispatch-only credential, ingress-actor
+- [x] 4.1 Intent-inbox service (dispatch-only credential, ingress-actor
       stamping, per-actor verb allowlist config, rate limit + idempotency
       key); deployment via omnigent-install (hosting shape decided at
       realization: sidecar vs own deployment).
@@ -88,7 +88,11 @@ OpsxFactory (managed-subject rule).
       body claims, allowlist fail-closed, one-workflow dispatch with the
       token named-not-carried, refusals and dispatch failures recorded and
       served. Ticks on merge; the k8s/ingress half rides 4.2 with the
-      OpsxFactory deployment handoff.)
+      OpsxFactory deployment handoff.
+      MERGED 2026-08-10: PR #67 (squashed 3a5b524) landed with a RED
+      validate job — the suite was pytest in a unittest-discovery CI — and
+      PR #68 repaired it same-day with the 13 scenarios as unittest
+      TestCases, checks green before merge.)
 - [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
 - [ ] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
