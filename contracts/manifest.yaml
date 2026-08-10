@@ -1565,7 +1565,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9b46f63d36d3710be73aff167d1db1b8a2846507fc6a03472f10076d2d235773
+    sha256: a3e9240970427b0ef50a4c4a37749ee348374b4f120aca276bdaf28447fed8c6
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

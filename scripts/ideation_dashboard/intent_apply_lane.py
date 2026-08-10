@@ -380,6 +380,30 @@ def _commit(root: Path, message: str, report: ApplyReport, *,
 #: registered but not yet in any project refuses as unknown.
 _ROSTER_VERBS = ("create-project", "edit-project")
 
+#: Session-bearing lane verbs (Codex round-6, PR #157): their routes guard
+#: against acting over an unresolved branch session, and that guard
+#: DISABLES when the registry is None — so the lane rehydrates the live
+#: sessions from the checkout exactly as the CLI does, through the one
+#: bootstrap every session-bearing verb goes through.
+_SESSION_VERBS = ("propose",)
+
+
+def _live_session_registry(root: Path, repository: str):
+    """The rehydrated session registry, mirroring `cli._session_registry`:
+    live sessions derive from the worktrees and branches beside the
+    checkout; half-signals are reported on stderr and never repaired."""
+    from ideation_dashboard import branch_session as branch_session_mod
+    from ideation_dashboard.snapshot_registry import SnapshotRegistry
+
+    registry = SnapshotRegistry()
+    report = branch_session_mod.bootstrap_sessions(
+        registry, repository=repository or "", checkout_root=root)
+    for note in report.stale:
+        print(f"  session note ({note.kind}): {note.reason}", file=sys.stderr)
+    for message in report.errors:
+        print(f"  session note: {message}", file=sys.stderr)
+    return registry
+
 
 def _project_roster(root: Path, project_register: Path | None = None):
     """A duck-typed registry (`entries()` rows carrying `.repository`) for
@@ -511,13 +535,18 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
     snapshot_path = None
     if intent["verb"] in SNAPSHOT_VERBS:
         snapshot_path = _fresh_snapshot(root, repository)
-    registry = (_project_roster(root, project_register)
-                if intent["verb"] in _ROSTER_VERBS else None)
+    registry = None
+    if intent["verb"] in _ROSTER_VERBS:
+        registry = _project_roster(root, project_register)
+    elif intent["verb"] in _SESSION_VERBS:
+        registry = _live_session_registry(root, repository)
     try:
         status, response = run_gate_action(
             intent["verb"], body, checkout_root=root, actor=intent["actor"],
             records_dir=records_dir, index_validator=index_validator,
             snapshot_path=snapshot_path, session_registry=registry,
+            repository=(repository
+                        if intent["verb"] in _SESSION_VERBS else None),
             project_register=(project_register
                               if intent["verb"] in _ROSTER_VERBS else None),
             provenance=gc.INTENT_INGRESS)

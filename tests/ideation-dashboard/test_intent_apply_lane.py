@@ -452,6 +452,43 @@ def test_dedupe_binds_to_identity_not_the_client_string(tmp_path):
     assert report.outcome == "skipped"
 
 
+def test_propose_dispatches_with_the_rehydrated_session_registry(tmp_path, monkeypatch):
+    """Codex round-6 P2 (PR #157): the live-session guard disables on a None
+    registry — propose must carry the rehydrated one plus the repository key."""
+    root, rev, allowlist = _corpus(tmp_path)
+    allowlist.write_text(json.dumps({
+        "actors": {"brett": ["dispose-possible", "propose"]},
+    }), encoding="utf-8")
+    seen = {}
+
+    def capture(verb, body, **kwargs):
+        seen[verb] = {"registry": kwargs.get("session_registry"),
+                      "repository": kwargs.get("repository")}
+        return 409, {"ok": False, "error": "gate_refused", "message": "x"}
+
+    monkeypatch.setattr(lane, "run_gate_action", capture)
+    monkeypatch.setattr(lane, "stale_reason", lambda _r, _i: None)
+    _apply(root, _intent(rev, verb="propose", target={"topic_id": "some-topic"},
+                         args={}, idempotency_key="k-p1"),
+           allowlist, tmp_path, repository="openxFactory")
+    assert seen["propose"]["registry"] is not None
+    assert callable(seen["propose"]["registry"].entries)
+    assert seen["propose"]["repository"] == "openxFactory"
+    _apply(root, _intent(rev, idempotency_key="k-p2"), allowlist, tmp_path)
+    assert seen["dispose-possible"]["registry"] is None
+    assert seen["dispose-possible"]["repository"] is None
+
+
+def test_manifest_digest_matches_the_grown_schema():
+    """Codex round-6 P1 (PR #157): the registered digest tracks the bytes."""
+    import hashlib
+    repo = Path(__file__).resolve().parents[2]
+    schema = repo / "contracts/schemas/gate-action-record.schema.yaml"
+    manifest = (repo / "contracts/manifest.yaml").read_text()
+    digest = hashlib.sha256(schema.read_bytes()).hexdigest()
+    assert f"sha256: {digest}" in manifest
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
