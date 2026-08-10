@@ -377,20 +377,18 @@ Active changes:
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
 
-- [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
-  — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
-  readiness, revocation, redacted evidence, and contract interface impacts;
-  F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
-  realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
-  archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
-2026-07-13 (below); **only F0 feasibility remains active** — its evidence is resolved
-by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it would break the
-fail-closed F0 gate or force a `contract-v1.7` re-tag. The F0 hold is a ruled
-posture (Brett, 2026-08-04): it archives only inside a contract re-cut that
-repoints `f0_change_path`. The avatar client lab itself realized and
+2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
+2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
+contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
+by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
+archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
+into the dated archive and reads the pinned schemas from the packaged
+`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
+and `source_commit` pins still verifying the bytes wherever they sit — so no
+contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
 **archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
 2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
 exception register accepted as v1; Windows/web deferred), and its successors are
@@ -400,6 +398,14 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
+  — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
+  readiness, revocation, redacted evidence, and contract interface impacts;
+  F0 does not qualify live use. Realized (F0 `PASS`) 2026-07-12; archived
+  2026-08-09 under the archive-aware F0 gate (issue #30 option C — the
+  `interface-lock.yaml` pin is unchanged and the gate resolves the packaged
+  archive, digest-checked, fail-closed).
 
 - [add-openxwallet](openspec/changes/archive/2026-08-08-add-openxwallet/proposal.md)
   Promoted the neutral `openxwallet` core (8 requirements) and
