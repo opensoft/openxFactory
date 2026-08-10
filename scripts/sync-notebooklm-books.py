@@ -835,7 +835,8 @@ def add_text_source(handle: str, text: str, title: str) -> None:
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
         time.sleep(2)
-        nlm("source", "rename", m.group(1), title, parse=False)
+        nlm("source", "rename", m.group(1), title, "--notebook", handle,
+            parse=False)
     finally:
         os.unlink(tmp)
 
