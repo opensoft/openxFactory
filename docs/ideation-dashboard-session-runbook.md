@@ -198,6 +198,32 @@ so the sixth column is whole instead of part-cut.
   across four switches: live document listeners flat at 4/1/1/1 against 27
   registrations, and zero navigations. The settings gear stays bound ONCE for
   the page's life — it owns no snapshot state.
+- **A page that outlived its serve repairs itself** (Brett, 2026-08-09) — every
+  serve start mints a new console token and the page reads `/capabilities`
+  ONCE, at load, so a tab left open across a restart presents the old token and
+  every guarded write refuses. That refusal fires exactly where it costs most:
+  the human has typed a title, a summary and a body, and pressed create. THE
+  REPAIR IS A RE-READ, NOT A RELOAD — `location.reload()` would fix the header
+  by discarding the textarea, the selection and the drafted seed, which is the
+  work the refusal interrupted. So the page re-probes `/capabilities` ONCE,
+  takes the new token, and sends the SAME request again, unchanged. It is safe
+  to re-send because the two console refusals (`agent_invocation` on the gate
+  and edit routes, `console_required` on the doxBench model routes) are raised
+  BEFORE the body is read and before any write — the server did nothing, so a
+  second attempt cannot double anything. A refusal that might have half-landed
+  is deliberately not in that set and stays with the human. Two attempts, never
+  a third: a second refusal (or a token that came back unchanged) says
+  `this page was loaded against an earlier serve — reload to continue`, and the
+  raw FR-019 sentence is never surfaced. This only became necessary once the
+  shell started re-rendering IN PLACE (the ruling directly above): before that
+  most actions navigated, and a navigation quietly re-read the token on the way
+  past. WHAT IS AND IS NOT COVERED: the create and the four session verbs
+  (`edit-document`, `open-pr`, `abandon-session`, and doxBench's governed Save)
+  retry themselves. Select-to-edit (`edit.js`, a standalone module by test
+  pin) and the doxBench chat/catalog do not retry — they carry no unsaved
+  text — but they read the token at call time from the same capability object
+  the repair writes into, so once anything has repaired it they work again
+  without a reload.
 - **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
   on a composed view a staged topic offers `read` and `open workbench` and NO
   `open in <repo>`. A staged topic is a packet whose material can span

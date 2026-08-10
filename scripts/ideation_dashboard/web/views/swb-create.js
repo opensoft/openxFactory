@@ -30,26 +30,34 @@ import { el } from "./helpers.js";
 import { panelEntry } from "./dispose.js";
 import {
   CONTINUATIONS, CREATE_ROUTE, consoleHeaders, createDocumentCommand,
-  createRequest,
+  createRequest, withConsoleRepair,
 } from "./staging-workbench-model.js";
 
 export function createGateLive(caps) {
   return !!(caps && caps.actions && caps.actions.gate);
 }
 
-async function submitCreate(body, fetcher, caps) {
+// `repair` is the shell's ONE console-token re-read (app.js `createConsoleRepair`).
+// The header is built INSIDE `send`, from the same `caps` object the repair
+// writes into, so the retry presents the live token rather than the one this
+// page loaded with. Nothing else about the request changes — the body is the
+// human's typed form, and it is sent again exactly as it was.
+async function submitCreate(body, fetcher, caps, repair) {
   const doFetch = fetcher || fetch;
-  const response = await doFetch(CREATE_ROUTE, {
-    method: "POST",
-    // the human-console header among them (FR-019's third clause)
-    headers: consoleHeaders(caps),
-    body: JSON.stringify(body),
-  });
-  try {
-    return await response.json();
-  } catch {
-    return { ok: false, message: "malformed response (HTTP " + response.status + ")" };
-  }
+  const send = async () => {
+    const response = await doFetch(CREATE_ROUTE, {
+      method: "POST",
+      // the human-console header among them (FR-019's third clause)
+      headers: consoleHeaders(caps),
+      body: JSON.stringify(body),
+    });
+    try {
+      return await response.json();
+    } catch {
+      return { ok: false, message: "malformed response (HTTP " + response.status + ")" };
+    }
+  };
+  return withConsoleRepair(send, repair);
 }
 
 function labelledInput(host, label, value, opts) {
@@ -252,7 +260,7 @@ function renderForm(host, seed, opts) {
       continuation: continuation.value,
     });
     submit.disabled = true;
-    const payload = await submitCreate(body, o.fetcher, o.caps);
+    const payload = await submitCreate(body, o.fetcher, o.caps, o.repair);
     await renderOutcome(result, payload, o.onOpenDoc, o.onSessionOpened);
     // a refused create is retriable in place; a landed one is done
     if (!(payload && payload.ok)) submit.disabled = false;

@@ -43,6 +43,7 @@ import { renderLens } from "./views/lens.js";
 import { isGateBearing, mountGateBar } from "./views/gate.js";
 import { mountStagingWorkbench } from "./views/staging-workbench.js";
 import { firstEditTransport } from "./views/swb-session.js";
+import { CONSOLE_TOKEN_FIELD } from "./views/staging-workbench-model.js";
 import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
@@ -311,6 +312,42 @@ export function createDoxBenchTurnSubmitter(consoleTokenOf, injectedFetch) {
     // invented shape -- the caller decides what an unreadable answer means.
     const payload = await response.json().catch(() => null);
     return { ok: response.ok, status: response.status, payload };
+  };
+}
+
+// ---- the console-token REPAIR (Brett, 2026-08-09) --------------------------
+//
+// A serve restart mints a new console token. The page read `/capabilities` once,
+// at load, so from that moment every guarded write is refused — and because the
+// shell now re-renders IN PLACE rather than navigating, nothing ever re-reads it.
+// This is the one thing that does.
+//
+// It re-probes through `probeCapabilities` — the SAME same-origin GET the boot
+// already performs, so no new route and no new fetch call site — and MUTATES the
+// capability objects the views hold. Mutation is the point: `swb-create.js`,
+// `swb-session.js` and `edit.js` were handed these objects by reference and read
+// `console_token` at call time, so writing into them repairs every guarded
+// surface at once. Handing back a fresh object would repair nothing they can see.
+//
+// Returns whether the re-read produced a USABLE token — the one question the
+// retry decision turns on. It is deliberately NOT "did the token change": two
+// writes refused at the same instant would both re-probe, and the second would
+// be told "unchanged" by its own sibling's repair and stranded for no reason. A
+// false here means the plane answered with no console at all (its session
+// capability is gone, or the probe failed and degraded), and retrying THAT would
+// refuse identically. The policy acting on this answer — and the two-attempt cap
+// that stops it becoming a loop — is `withConsoleRepair` in
+// staging-workbench-model.js.
+export function createConsoleRepair(capsObjects, probe) {
+  const readCapabilities = probe || probeCapabilities;
+  return async function repairConsoleToken() {
+    const fresh = await readCapabilities();
+    const token = fresh && fresh[CONSOLE_TOKEN_FIELD];
+    if (typeof token !== "string" || !token) return false;
+    for (const caps of capsObjects || []) {
+      if (caps) caps[CONSOLE_TOKEN_FIELD] = token;
+    }
+    return true;
   };
 }
 
@@ -727,6 +764,12 @@ async function render() {
     // D10: a composed render strips every acting capability in ONE place, so
     // every view's existing capability check is the whole gating.
     const caps = composed ? readOnlyCaps(probedCaps) : probedCaps;
+    // BOTH objects, because `readOnlyCaps` copies: `probedCaps` is what the
+    // workbench's `openDraft` creates through (the serve's own posture), `caps`
+    // is what every tile-bound surface reads. On a single-repository view they
+    // are the same object, so the list is one object named twice — harmless,
+    // and cheaper than deciding which of the two this render produced.
+    const consoleRepair = createConsoleRepair([probedCaps, caps]);
     const explorer = mountExplorer(explorerRoot, snapshot, {
       signal,
       onOpenFile: (entry, pane, tile) => {
@@ -834,7 +877,8 @@ async function render() {
       loadSource: createDoxBenchSourceLoader(() => workbenchSourceBase),
       hash: contentIdentity,
       save: (request) => runSave(
-        savePlanState(request), { transport: firstEditTransport({ caps }) }),
+        savePlanState(request),
+        { transport: firstEditTransport({ caps, repair: consoleRepair }) }),
       catalog: createDoxBenchCatalogLoader(() => caps?.console_token),
       chatTurn: createDoxBenchTurnSubmitter(() => caps?.console_token),
     };
@@ -845,6 +889,10 @@ async function render() {
         caps, active, index, signal,
         // the unstripped probe, read by the workbench's `openDraft` alone
         createCaps: probedCaps,
+        // the console-token re-read, forwarded to the two write transports so a
+        // page that outlived a serve restart repairs itself instead of
+        // discarding what the human typed
+        consoleRepair,
         doxbench: doxbenchSeams,
         sourceBase: workbenchSourceBase, edit: workbenchEdit,
         onScopeOpened: routeWorkbenchScope, onSessionRekey: rekeyToSession,
