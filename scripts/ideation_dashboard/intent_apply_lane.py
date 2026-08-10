@@ -360,12 +360,16 @@ def _terminal_intent(intent: dict, digest: str) -> dict:
     }
 
 
-def _already_applied(root: Path, intents_dir: str, digest: str) -> bool:
-    """True when a committed APPLIED intent has the same request identity.
-    The identity is RECOMPUTED from each stored intent's own fields — a
-    supplied or stored `idempotency_key` string is data, never an authority
-    to suppress execution (Codex round-5, PR #157: a compromised inbox
-    reusing an applied key on an unrelated intent must not be skipped)."""
+def _already_applied(root: Path, intents_dir: str, digest: str,
+                     args: dict) -> bool:
+    """True when a committed APPLIED intent has the same request identity
+    AND the same arguments. The identity is RECOMPUTED from each stored
+    intent's own fields — a supplied or stored `idempotency_key` string is
+    data, never an authority to suppress execution (Codex round-5,
+    PR #157). Argument equivalence is checked on top (Codex round-11 P1):
+    successive edit-project commissions from ONE view legitimately differ
+    only in args — the D18 queueing rule — so identity alone must not
+    swallow a distinct decision."""
     base = root / intents_dir
     if not base.is_dir():
         return False
@@ -375,7 +379,8 @@ def _already_applied(root: Path, intents_dir: str, digest: str) -> bool:
         except (OSError, yaml.YAMLError):
             continue
         if isinstance(doc, dict) and doc.get("status") == "applied" \
-                and request_digest(doc) == digest:
+                and request_digest(doc) == digest \
+                and (doc.get("args") or {}) == args:
             return True
     return False
 
@@ -567,14 +572,56 @@ def apply_intent(repo_root: Path | str, intent: dict, *,
             intent = {**intent, "snapshot_rev_seen": resolved}
 
     digest = request_digest(intent)
-    if _already_applied(root, intents_dir, digest):
+    canonical_args = dict(intent.get("args") or {})
+    if _already_applied(root, intents_dir, digest, canonical_args):
         report.outcome = "skipped"
         report.reason = ("an intent with this request identity (actor, verb, "
-                         "target, snapshot_rev_seen) is already applied")
+                         "target, snapshot_rev_seen) and the same arguments "
+                         "is already applied")
         return report
     # everything the lane persists derives from this validated rebuild —
     # the wire intent is never copied into the feed
     intent = _terminal_intent(intent, digest)
+
+    if git:
+        # ANY failure between here and the landed commit rolls the
+        # checkout back to this revision — a half-written pass (the intent
+        # write throwing after the engine already updated governed
+        # artifacts, Codex round-11 P2) must not strand a dirty tree that
+        # bricks every later run at the clean-tree gate.
+        pass_base = _git(root, "rev-parse", "HEAD").stdout.strip()
+        try:
+            return _decide_and_land(root, intent, report, allowlist_path=
+                                    Path(allowlist_path),
+                                    records_dir=records_dir,
+                                    intents_dir=intents_dir,
+                                    index_validator=index_validator,
+                                    repository=repository,
+                                    project_register=project_register,
+                                    git=git, push=push)
+        except Exception as exc:  # noqa: BLE001 — rolled back, then surfaced
+            _git(root, "reset", "--hard", pass_base)
+            _git(root, "clean", "-fd")
+            report.outcome = "error"
+            report.reason = f"rolled back after failure: {exc}"
+            return report
+    return _decide_and_land(root, intent, report,
+                            allowlist_path=Path(allowlist_path),
+                            records_dir=records_dir, intents_dir=intents_dir,
+                            index_validator=index_validator,
+                            repository=repository,
+                            project_register=project_register,
+                            git=git, push=push)
+
+
+def _decide_and_land(root: Path, intent: dict, report: ApplyReport, *,
+                     allowlist_path: Path, records_dir: str, intents_dir: str,
+                     index_validator: Path | None, repository: str,
+                     project_register: Path | None, git: bool,
+                     push: bool) -> ApplyReport:
+    """The decision half of the pass: allowlist, deferral, staleness,
+    dispatch, terminal write, commit. Extracted so `apply_intent` can wrap
+    it in one rollback scope."""
 
     def refuse(why: str) -> ApplyReport:
         refused = dict(intent)

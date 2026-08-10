@@ -642,6 +642,54 @@ def test_commit_failure_rolls_the_checkout_back(tmp_path):
     assert retry.outcome == "applied"  # the rolled-back run left no residue
 
 
+def test_distinct_args_from_one_view_both_execute(tmp_path, monkeypatch):
+    """Codex round-11 P1 (PR #157): edit-project add-A then add-B from ONE
+    view are two decisions (D18 queueing) — identity alone must not
+    swallow the second; a true duplicate still skips."""
+    root, rev, allowlist = _corpus(tmp_path)
+    allowlist.write_text(json.dumps({"actors": {"brett": ["edit-project"]}}),
+                         encoding="utf-8")
+    calls = []
+
+    def capture(verb, body, **kwargs):
+        calls.append(dict(body))
+        return 200, {"ok": True, "verb": verb,
+                     "record": "ideation/dashboard/gate-records/r.yaml"}
+
+    monkeypatch.setattr(lane, "run_gate_action", capture)
+    monkeypatch.setattr(lane, "stale_reason", lambda _r, _i: None)
+    add_a = _intent(rev, verb="edit-project", target={"project_id": "core"},
+                    args={"add": ["RepoA"]}, idempotency_key="k-a")
+    add_b = _intent(rev, verb="edit-project", target={"project_id": "core"},
+                    args={"add": ["RepoB"]}, idempotency_key="k-b")
+    assert _apply(root, add_a, allowlist, tmp_path).outcome == "applied"
+    assert _apply(root, add_b, allowlist, tmp_path).outcome == "applied"
+    assert len(calls) == 2 and calls[1]["add"] == ["RepoB"]
+    dup = _apply(root, dict(add_a, idempotency_key="k-c"), allowlist, tmp_path)
+    assert dup.outcome == "skipped"
+    assert len(calls) == 2
+
+
+def test_terminal_write_failure_rolls_the_whole_pass_back(tmp_path, monkeypatch):
+    """Codex round-11 P2 (PR #157): an intent write that throws AFTER the
+    engine updated governed artifacts must not strand a dirty tree."""
+    root, rev, allowlist = _corpus(tmp_path)
+
+    def boom(_root, _dir, _intent):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(lane, "_write_intent", boom)
+    report = _apply(root, _intent(rev), allowlist, tmp_path)
+    assert report.outcome == "error"
+    assert "rolled back" in report.reason and "disk full" in report.reason
+    assert _git(root, "rev-parse", "HEAD").stdout.strip() == rev
+    assert not _git(root, "status", "--porcelain").stdout.strip()
+    monkeypatch.undo()
+    retry = _apply(root, _intent(rev, idempotency_key="k-after"),
+                   allowlist, tmp_path)
+    assert retry.outcome == "applied"
+
+
 def test_intent_plane_provenance_pair_is_sanctioned():
     assert gc.SURFACE_INTENT in gc.SURFACES
     assert gc.PRESENCE_INGRESS in gc.CONSOLE_PRESENCES
