@@ -259,8 +259,29 @@ function renderForm(host, seed, opts) {
       kind: kind.value.trim(),
       continuation: continuation.value,
     });
+    // SAY THAT IT IS RUNNING (Brett, 2026-08-10: "i pressed create twice").
+    // A create OPENS A BRANCH SESSION — worktree, branch, commit, and the
+    // session's own regenerated snapshot — and on a large plane under two
+    // concurrent requests that measured 90 seconds. All this button did was
+    // grey out, so a human with a second create dialog open pressed again; the
+    // second press JOINED the session the first had just opened, found the
+    // document already there, and read the create-only refusal
+    // (`corpus documents are create-only`) as the outcome of their work —
+    // while the create that landed answered 77 seconds later.
+    //
+    // Disabling was never the whole affordance: `disabled` says "not now", and
+    // the human needed "working, and here is what that involves". The label is
+    // restored in `finally` so a refusal is retriable in place with its own
+    // words back on the button.
+    const label = submit.textContent;
     submit.disabled = true;
-    const payload = await submitCreate(body, o.fetcher, o.caps, o.repair);
+    submit.textContent = "creating… (opening the branch session)";
+    let payload;
+    try {
+      payload = await submitCreate(body, o.fetcher, o.caps, o.repair);
+    } finally {
+      submit.textContent = label;
+    }
     await renderOutcome(result, payload, o.onOpenDoc, o.onSessionOpened);
     // a refused create is retriable in place; a landed one is done
     if (!(payload && payload.ok)) submit.disabled = false;

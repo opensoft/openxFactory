@@ -224,6 +224,29 @@ so the sixth column is whole instead of part-cut.
   text — but they read the token at call time from the same capability object
   the repair writes into, so once anything has repaired it they work again
   without a reload.
+- **A session belongs to the SERVE's repository, and the page asks rather than
+  infers** (Brett, 2026-08-10) — a create from a PROJECT view landed (`200`, the
+  branch opened, the session snapshot generated) and the page then asked for
+  `snapshot.json?repository=<project id>&ref=draft/…` and got
+  `404 no such snapshot`, so the session opened and its document view never did.
+  A session ref can only exist in the repository the serve WRITES to — a create
+  naming any other is refused by the route — and `/capabilities` declares it.
+  The create already followed that ruling; the RE-KEY after the create did not,
+  because under a composed view the shell's own key resolves to the project id,
+  which names no repository. Both now read the same declaration.
+- **A running write says so on its own button** (Brett, 2026-08-10: "i pressed
+  create twice") — a create OPENS A BRANCH SESSION: worktree, branch, commit and
+  the session's own regenerated snapshot. On the multi-repository plane, under
+  two concurrent presses, that measured 90 seconds. The button only greyed out,
+  so the second press joined the session the first had just opened, found the
+  document already there, and returned the create-only refusal
+  (`corpus documents are create-only`) 77 seconds BEFORE the create that landed
+  answered — the human read the refusal of their own duplicate as the outcome of
+  their work. `disabled` says "not now" and nothing about "working", so the
+  create and the three session verbs now carry a running label for as long as
+  the request is in flight, restored afterwards so a refusal is retriable in
+  place. The duplicate itself is still refused, and correctly: the create is
+  create-only inside a session too (FR-018).
 - **A staged tile opens its packet, not its repository** (Brett, 2026-08-09) —
   on a composed view a staged topic offers `read` and `open workbench` and NO
   `open in <repo>`. A staged topic is a packet whose material can span
