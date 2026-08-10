@@ -5,7 +5,10 @@ workspaces:
   # RETIRED 2026-08-10 (split-ideation-book-per-repo): the shared Ideation
   # book hit the 300-source cap and was split per-repo. The notebook was
   # archive-renamed "xFactory — Ideation (RETIRED 2026-08-10 — split
-  # per-repo)" and the xf-ideation alias deleted — never repointed. The
+  # per-repo)" and the xf-ideation alias deleted — never repointed; the
+  # renamed notebook was then permanently deleted 2026-08-10 (its content
+  # is fully derived from the repo; the migration evidence record in the
+  # archived change is the audit trail). The
   # per-repo records follow below.
   # - kind: external_source_workspace
   #   schema_version: 1
