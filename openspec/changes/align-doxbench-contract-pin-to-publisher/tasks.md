@@ -168,13 +168,18 @@ starts succeeding.
 ## 6. Bookkeeping
 
 - [x] 6.1 Add the change to the README "OpenSpec Records" active block.
-- [ ] 6.2 ~~Mark `adopt-neutral-tooling-home` tasks.md 2.1's tranche-D open item
-      resolved~~ — **not done deliberately.** Editing an archived change's task
-      ledger rewrites the record of a landed change, and doc-health runs a
-      `record-immutability` family. The resolution is instead recorded where a
-      reader will actually meet it: this change's proposal, the README entry,
-      and the note block in `test_doxbench_contracts.py` that previously carried
-      the open item. Confirm this disposition is what Brett wants.
+- [x] 6.2 Mark `adopt-neutral-tooling-home` tasks.md 2.1's tranche-D open item
+      resolved, citing this change by name.
+      I first declined this — editing an archived change's ledger rewrites the
+      record of a landed change, and doc-health runs a `record-immutability`
+      family. Brett ruled to do it (2026-08-10), so it is done as an APPEND:
+      the original open-item sentence is left standing word for word and the
+      resolution follows it, so the record still says what was true when the
+      tranche closed. The annotation names this change, the ruled disposition,
+      and the week the routes were dead.
+      The resolution is also recorded where a reader is likelier to meet it:
+      this change's proposal, the README entry, runbook §2c, and the note block
+      in `test_doxbench_contracts.py` that previously carried the open item.
 - [x] 6.3 Record the ruling in `docs/ideation-dashboard-session-runbook.md`.
       Landed as a NEW **§2c, "doxBench's two model routes have a FOURTH
       prerequisite"** — not in §0 as this ledger originally said. §0 turns out to
