@@ -622,6 +622,62 @@ for — use it in a lane or a check, not when you just want the dashboard up.
 Either way, do not read the SKIPPED line as routine: the snapshot really was not
 checked.
 
+### 2c. doxBench's two model routes have a FOURTH prerequisite
+
+`GET /workbench/model-catalog` and `POST /actions/workbench/chat-turn` need the
+three session conditions above **and** one more: the released doxBench wire
+schemas must actually resolve. They are read per request — digests re-verified
+every time — so a checkout that drifts mid-run stops being trusted at the next
+request rather than at the next restart.
+
+How that resolves depends on which repository you are serving from, and the two
+postures are deliberately different:
+
+| Serving from | How the contract is verified |
+| --- | --- |
+| **openxFactory** (the publisher) | the released BYTES: sha256 against the module pin, plus parity with the checkout's own `contracts/manifest.yaml` |
+| **a consumer repo** | the same two byte checks, PLUS that repo's `stack.yaml` declaring `xfactory.contract_ref` |
+
+The publisher declares no consumption pin on itself and must not grow one, so
+asking it for a `stack.yaml` is a question with no honest answer — that is the
+`align-doxbench-contract-pin-to-publisher` ruling (2026-08-10). Nothing else was
+relaxed: a drifted digest or a manifest disagreeing with its own bytes still
+refuses, in both postures, on the request that sees it.
+
+**When it fails, it fails SILENTLY, and you need to know that.** A contract that
+cannot be read gives you `500 catalog_unavailable` / "the model catalog could not
+be assembled safely", and nothing else — no stderr line, no reason. The
+swallowing is correct on the wire (the real error names checkout paths and
+digests, which must never reach a response body), but it means the 500 tells you
+only *that* it failed. Do not go looking at providers or credentials; ask the
+seam directly:
+
+```bash
+# from the served repo root — prints the pin and the checkout it resolved,
+# and RAISES the real reason the route is hiding
+PYTHONPATH=scripts python3 -c "
+from ideation_dashboard import doxbench_contracts as c
+print(c.CONTRACT_TAG, '->', c.resolve_root())
+c.validators()"
+```
+
+Two things that are NOT this failure, and read differently:
+
+- **An empty catalog is a SUCCESS.** With no provider port configured you get
+  `200 {kind: workbench-model-catalog, models: []}` and a chat rail that says no
+  allowed model is configured, with both editors still usable. That is the
+  honest editor-only posture, not a fault.
+- **`console_required` (403)** is the console gate one step earlier, not the
+  contract — see §0's re-read repair.
+
+Historically this bit for a week: relocating the runtime into openxFactory
+(`adopt-neutral-tooling-home`, 2026-08-03) left the consumer-shaped `stack.yaml`
+check running inside the publisher, so both routes failed closed from every
+checkout of this repo until 2026-08-10. It stayed invisible because the
+released-contract test rung was opt-in behind `OPENXFACTORY_ROOT`; it now runs by
+default from a publisher checkout, so this class of break surfaces as a test
+failure instead of a runtime 500.
+
 ## 3. The session verbs, and their CLI parity
 
 Every session route has a `gate` subcommand, so the whole feature is usable with

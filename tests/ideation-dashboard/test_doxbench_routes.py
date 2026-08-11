@@ -2344,12 +2344,24 @@ def test_a_declared_created_path_does_not_survive_alongside_a_real_one(tmp_path)
 # cannot express stays the delegated openxFactory validator's.
 # ============================================================================
 
-_RELEASED_ROOT = os.environ.get(contracts_env := doxbench_contracts.OPENXFACTORY_ROOT_ENV)
+# Runs by DEFAULT from a publisher checkout: this suite is hosted inside
+# openxFactory, so the released bytes are present and the rung has no reason to
+# be opt-in. `OPENXFACTORY_ROOT` still selects a different checkout when one is
+# wanted. While this was env-gated ONLY, the publisher-mode refusal that killed
+# both model routes sat green here for a week — every one of these probes
+# skipped, and the break surfaced as a runtime 500 instead
+# (align-doxbench-contract-pin-to-publisher, 2026-08-10).
+contracts_env = doxbench_contracts.OPENXFACTORY_ROOT_ENV
+_RELEASED_ROOT = os.environ.get(contracts_env) or (
+    str(doxbench_contracts.REPO_ROOT)
+    if doxbench_contracts.is_publisher_checkout(doxbench_contracts.REPO_ROOT)
+    else None)
 
 released_only = pytest.mark.skipif(
     not _RELEASED_ROOT,
-    reason=(f"set {contracts_env}=<checkout at {doxbench_contracts.CONTRACT_TAG}> "
-            f"to run the released-contract integration rung"),
+    reason=(f"set {contracts_env}=<checkout at {doxbench_contracts.CONTRACT_TAG}>, "
+            f"or run from a publisher checkout, to run the released-contract "
+            f"integration rung"),
 )
 
 
@@ -2669,15 +2681,13 @@ def test_an_outline_only_turn_refuses_a_document_targeted_proposal(tmp_path):
     _assert_refusal(status, payload, "response_invalid")
 
 
-@pytest.mark.skip(reason=(
-    "DEFERRED until the pin advances: this feature pins openxFactory "
-    "contract-v1.27 (stack.yaml d09d5820), whose request schema requires a "
-    "NON-NULL active_document_path. The nullability amendment (G-1) is "
-    "committed upstream on change/chat-turn-request-nullability and lands as "
-    "contract-v1.28; this repo does not vendor or fork the amended schema. "
-    "SIGNAL TO RE-ENABLE: the stack.yaml contract pin advances to the bundle "
-    "carrying the amendment — then delete this skip and the released "
-    "validator must accept the outline-only request unchanged."))
+# RE-ENABLED 2026-08-10 (align-doxbench-contract-pin-to-publisher). This was
+# deferred behind "the pin advances to the bundle carrying the G-1 nullability
+# amendment" while the pin named contract-v1.27; the amendment landed AT
+# contract-v1.28 and the pin now names contract-v1.31, so the stated signal has
+# fired. It went unnoticed because the released rung it belongs to was itself
+# opt-in — a skip waiting on a signal nobody could observe. The assertion is
+# unchanged, exactly as the deferral required.
 @released_only
 def test_the_outline_only_request_conforms_to_the_released_schema(
         tmp_path, released_validators):
