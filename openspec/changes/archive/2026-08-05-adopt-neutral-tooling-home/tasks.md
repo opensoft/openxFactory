@@ -158,7 +158,18 @@
       openxFactory is the publisher and has none, so from a publisher
       checkout serve's two doxbench model routes fail CLOSED
       (fail-closed refusal, server otherwise unaffected) until a ruled
-      publisher-side declaration lands. Receiving-repo reconciliation:
+      publisher-side declaration lands.
+      **RESOLVED 2026-08-10 by `align-doxbench-contract-pin-to-publisher`**
+      (annotation added at Brett's instruction; the tranche-D item above is
+      left as written, this is an append). The ruled disposition is PUBLISHER
+      MODE: a hosting repo carrying all three release markers consumes
+      `CONTRACT_REF` by construction and reads no declaration, while the
+      digest and manifest-parity chain is untouched and still refuses per
+      request. Tranche D never ran, so the routes stayed dead from
+      2026-08-03 to 2026-08-10 — invisible because the released-contract test
+      rung was opt-in behind `OPENXFACTORY_ROOT`; it is now default-on from a
+      publisher checkout, which is what would have caught this in a day.
+      Receiving-repo reconciliation:
       the FR-043 guard was registered in `tests/avatar_runtime/conftest.py`
       and `tests/hermeticity.py` `CONFTEST_HOOKUPS` extended, with the two
       `tests/hermes_runtime_contracts/` conftests DECLARED exempt

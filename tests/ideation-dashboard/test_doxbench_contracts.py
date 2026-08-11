@@ -11,12 +11,18 @@ a pin the test controls. The released pin's own literal values are asserted
 separately, against the constants and against `stack.yaml`, so a repin cannot
 slip through unnoticed.
 
-THE INTEGRATION RUNG is env-gated on `OPENXFACTORY_ROOT` and skips loudly when no
-released checkout is provided. It is the only place the REAL contract-v1.28 bytes
-are read: real digests, the six packaged workbench positives, and the delegated
-openxFactory validator. Run it with
+THE INTEGRATION RUNG reads the REAL released bytes: real digests, the packaged
+workbench positives, and the delegated openxFactory validator. It runs by DEFAULT
+from a publisher checkout — this suite is hosted inside openxFactory, so the
+released bytes are simply present — and `OPENXFACTORY_ROOT` still selects a
+different checkout when one is wanted:
 
-    OPENXFACTORY_ROOT=/workspace/projects/xFactory/openxFactory-worktrees/contract-v1.28
+    OPENXFACTORY_ROOT=/workspace/projects/xFactory/openxFactory-worktrees/contract-v1.31
+
+It skips loudly only when neither is available. Making this rung default-on is
+what turns a pin the serve would refuse on back into a test failure instead of a
+runtime 500 (`align-doxbench-contract-pin-to-publisher`, 2026-08-10) — while it
+was env-gated, the publisher-mode break sat green in CI for a week.
 
 Every rule the shape cannot express belongs to the openxFactory validator, so
 this suite never restates one: it asserts DELEGATION happened (the pinned script
@@ -27,6 +33,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -37,8 +44,8 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-RELEASED_REF = "ff64e81a967b75f92b3f5af9204aeb54c59a15d3"
-RELEASED_TAG = "contract-v1.28"
+RELEASED_REF = "e5554028e521d57c7501ef9bac206b20415281ef"
+RELEASED_TAG = "contract-v1.31"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
@@ -196,10 +203,15 @@ def test_module_pins_the_immutable_released_contract():
 # openxFactory is the contract PUBLISHER — it has no stack.yaml and must not
 # grow one. The release identity is still fully anchored here by the module's
 # hard-pinned digests plus the checkout manifest (`_verified_document`, tested
-# below). OPEN ITEM (flagged in the change's task ledger): from a publisher
-# checkout `load_release`'s stack-pin step raises, so serve's two doxbench
-# model routes fail CLOSED until a ruled disposition for the publisher-side
-# declaration lands.
+# below).
+#
+# That tranche's OPEN ITEM — from a publisher checkout the stack-pin step raised,
+# so serve's two doxbench model routes failed CLOSED — is RESOLVED by
+# `align-doxbench-contract-pin-to-publisher` (2026-08-10). The ruled disposition
+# is publisher mode: a hosting repo that IS a release consumes `CONTRACT_REF` by
+# construction and reads no declaration. See the `publisher mode` section below,
+# which pins both halves — that it passes without a stack.yaml, and that it
+# exempts no byte.
 
 
 def test_declared_wire_kinds_are_the_four_doxbench_instance_kinds():
@@ -345,6 +357,156 @@ def test_absent_stack_fails_closed(fake_root, tmp_path):
 
     with pytest.raises(contracts.ContractPinError):
         contracts.load_released_schemas(fake_root, repo_root=empty)
+
+
+# ---------------------------------------------------------------------------
+# publisher mode
+#
+# The ruled disposition for adopt-neutral-tooling-home's tranche-D open item
+# (align-doxbench-contract-pin-to-publisher, 2026-08-10). Two halves, and the
+# second is the one that matters: publisher mode must drop the vacuous question
+# WITHOUT becoming a way past the byte chain.
+# ---------------------------------------------------------------------------
+
+def _make_publisher(root: Path) -> Path:
+    """Complete a fake checkout into a publisher release. `fake_root` already
+    carries the manifest and the schemas, so only the family validator is
+    missing."""
+    validator = root / contracts.VALIDATOR_IN_CHECKOUT
+    validator.parent.mkdir(parents=True, exist_ok=True)
+    validator.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    return root
+
+
+def test_a_publisher_checkout_needs_no_declared_pin(fake_root):
+    """The publisher declares no consumption pin on itself; refusing for want of
+    one is a question with no honest answer."""
+    publisher = _make_publisher(fake_root)
+    assert contracts.is_publisher_checkout(publisher)
+    assert not (publisher / contracts.STACK_FILE).exists()
+
+    assert contracts.verify_stack_pin(publisher) == contracts.CONTRACT_REF
+    schemas = contracts.load_released_schemas(publisher, repo_root=publisher)
+    assert set(schemas) == set(contracts.WIRE_KINDS)
+
+
+@pytest.mark.parametrize("missing", contracts.PUBLISHER_MARKERS,
+                         ids=lambda marker: str(marker))
+def test_an_incomplete_publisher_still_needs_its_declared_pin(fake_root, missing):
+    """All three markers TOGETHER: any one alone is satisfied by a tree that
+    merely contains a similarly named file, which is exactly the confusion
+    manifest parity exists to prevent for a single schema."""
+    publisher = _make_publisher(fake_root)
+    target = publisher / missing
+    shutil.rmtree(target) if target.is_dir() else target.unlink()
+
+    assert not contracts.is_publisher_checkout(publisher)
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.verify_stack_pin(publisher)
+    assert contracts.STACK_FILE in str(excinfo.value)
+
+
+def test_publisher_mode_does_not_exempt_a_drifted_digest(fake_root):
+    """The whole safety argument. Publisher mode drops ONE vacuous question and
+    keeps every substantive one — `_verified_bytes` is untouched by it."""
+    publisher = _make_publisher(fake_root)
+    target = publisher / "contracts" / "schemas" / CATALOG_SCHEMA_FILE
+    target.write_text(target.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(publisher, repo_root=publisher)
+    assert "sha256" in str(excinfo.value)
+
+
+def test_publisher_mode_does_not_exempt_a_disagreeing_manifest(fake_root):
+    publisher = _make_publisher(fake_root)
+    _write_manifest(publisher, {name: "0" * 64 for name in contracts.SCHEMA_DIGESTS})
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(publisher, repo_root=publisher)
+    assert "manifest.yaml" in str(excinfo.value)
+
+
+def test_a_consumer_repo_keeps_every_declared_pin_refusal(fake_root, tmp_path):
+    """Nothing about consumer pinning moved: a domain repo still declares the
+    release it consumes and still refuses on drift."""
+    drifted = _repo_with_ref(tmp_path / "drifted", "c782d6d" + "0" * 33)
+    assert not contracts.is_publisher_checkout(drifted)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=drifted)
+    assert contracts.CONTRACT_REF in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# checkout resolution
+# ---------------------------------------------------------------------------
+
+def _publisher_tree(root: Path) -> Path:
+    """A minimally publisher-shaped directory — markers only, no real bytes.
+    Resolution is a STRUCTURAL question and must not need a loadable release."""
+    (root / contracts.SCHEMAS_RELPATH).mkdir(parents=True, exist_ok=True)
+    (root / contracts.MANIFEST_RELPATH).write_text("", encoding="utf-8")
+    validator = root / contracts.VALIDATOR_IN_CHECKOUT
+    validator.parent.mkdir(parents=True, exist_ok=True)
+    validator.write_text("", encoding="utf-8")
+    return root
+
+
+def test_resolution_prefers_the_hosting_repo_over_a_reachable_sibling(
+        tmp_path, monkeypatch):
+    """THE DEFECT THIS REPLACES. `VALIDATOR_RELPATH` carries the `openxFactory/`
+    prefix, so from inside the publisher the walk searched one level BELOW where
+    it stood: it went past itself every time and landed on the aggregation's
+    submodule — a shared tree sessions move between branches. A serve in a
+    worktree was verifying its wire shapes against another session's checkout."""
+    monkeypatch.delenv(contracts.OPENXFACTORY_ROOT_ENV, raising=False)
+    aggregation = tmp_path / "aggregation"
+    sibling = _publisher_tree(aggregation / "openxFactory")
+    hosting = _publisher_tree(aggregation / "openxFactory-worktrees" / "feature")
+
+    # The walk-up genuinely WOULD find the sibling from here — this is the real
+    # layout, not a contrived one.
+    assert (aggregation / contracts.VALIDATOR_RELPATH).is_file()
+
+    assert contracts.resolve_root(start=hosting) == hosting.resolve()
+    assert contracts.resolve_root(start=hosting) != sibling.resolve()
+
+
+def test_a_consumer_hosting_repo_still_walks_up(tmp_path, monkeypatch):
+    """The rung above is additive: a tree that is not a publisher reaches the
+    existing aggregation-relative walk exactly as before."""
+    monkeypatch.delenv(contracts.OPENXFACTORY_ROOT_ENV, raising=False)
+    aggregation = tmp_path / "aggregation"
+    sibling = _publisher_tree(aggregation / "openxFactory")
+    consumer = aggregation / "xFactories" / "codexFactory"
+    consumer.mkdir(parents=True)
+
+    assert not contracts.is_publisher_checkout(consumer)
+    assert contracts.resolve_root(start=consumer) == sibling
+
+
+def test_explicit_root_and_env_outrank_the_publisher_rung(tmp_path, monkeypatch):
+    hosting = _publisher_tree(tmp_path / "hosting")
+    elsewhere = tmp_path / "elsewhere"
+
+    monkeypatch.setenv(contracts.OPENXFACTORY_ROOT_ENV, str(elsewhere))
+    assert contracts.resolve_root(start=hosting) == elsewhere
+    assert contracts.resolve_root(tmp_path / "explicit", start=hosting) == \
+        tmp_path / "explicit"
+
+
+def test_resolution_still_fails_closed_with_no_checkout_anywhere(tmp_path,
+                                                                 monkeypatch):
+    monkeypatch.delenv(contracts.OPENXFACTORY_ROOT_ENV, raising=False)
+    nowhere = tmp_path / "nowhere"
+    nowhere.mkdir()
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.resolve_root(start=nowhere)
+    message = str(excinfo.value)
+    assert contracts.OPENXFACTORY_ROOT_ENV in message
+    assert contracts.CONTRACT_TAG in message
 
 
 # ---------------------------------------------------------------------------
@@ -515,10 +677,21 @@ def test_delegation_without_the_pinned_validator_fails_closed(fake_root, tmp_pat
 
 @pytest.fixture
 def released_root() -> Path:
-    declared = os.environ.get("OPENXFACTORY_ROOT")
-    if not declared:
-        pytest.skip("released checkout not provided (set OPENXFACTORY_ROOT)")
-    root = Path(declared)
+    """The released checkout to read: `OPENXFACTORY_ROOT` when one is named,
+    otherwise the hosting repository when it IS a release.
+
+    The fallback is the point. This suite is hosted inside the publisher, so the
+    released bytes are simply present and this rung has no reason to be opt-in —
+    while it was, the publisher-mode refusal that killed both model routes sat
+    green in CI (align-doxbench-contract-pin-to-publisher, 2026-08-10)."""
+    declared = os.environ.get(contracts.OPENXFACTORY_ROOT_ENV)
+    if declared:
+        root = Path(declared)
+    elif contracts.is_publisher_checkout(contracts.REPO_ROOT):
+        root = contracts.REPO_ROOT
+    else:
+        pytest.skip("no released checkout: set OPENXFACTORY_ROOT, or run from a "
+                    "publisher checkout")
     if not (root / "contracts" / "schemas").is_dir():
         pytest.skip(f"released checkout not provided (no contracts/schemas under {root})")
     return root
