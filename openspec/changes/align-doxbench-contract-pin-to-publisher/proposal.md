@@ -1,7 +1,9 @@
 ---
 code_surface: openxFactory (scripts/ideation_dashboard/doxbench_contracts.py — the declared-pin check, the checkout resolution, and the pinned ref; the two doxBench model routes in serve.py recover behavior without changing shape; tests/ideation-dashboard/test_doxbench_contracts.py and the released rung in test_doxbench_routes.py)
-target_release: none
-Status: draft
+target_release: implemented
+Status: ratified
+Ratified: 2026-08-11 by Brett Heap — in-session, verbatim: "ratify the change". The ruling is publisher mode over adding a `stack.yaml` to openxFactory; the alternative was put and declined (design.md "Decision 1").
+Realized: merged to openxFactory main as 5d8e963 (PR #164, 2026-08-11) and green on the implemented target — `tests/ideation-dashboard` 2850 passed / 5 skipped / exit 0, `openspec validate --all --strict` 58/58, doc-health 0 new regressions, contract family validator 26 instances clean. Live-proven in a real browser on the restarted local plane: 127.0.0.1:8765 answers `200 {kind: workbench-model-catalog, models: []}`, having answered `500 catalog_unavailable` from the same request before the restart.
 ---
 
 # Proposal: align-doxbench-contract-pin-to-publisher
