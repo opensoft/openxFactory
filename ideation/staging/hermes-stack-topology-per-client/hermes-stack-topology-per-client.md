@@ -255,6 +255,41 @@ codexFactory the remaining work is a worker lane, not a deployment.
 the xFactory layer per the ratified layer model, so Hermes deciding *whether*
 and the xFactory layer deciding *where* works with or without an Opsx stack.
 
+## Worker-credential distribution — two-case principle (Brett, 2026-08-11)
+
+The 2026-08-10/11 incident (a CPC worker's model-provider OAuth expired;
+three lanes dark for two weeks; re-auth took multiple host-admin round
+trips) exposed a missing pattern: worker credentials distributed BY
+REFERENCE — a vault-held, long-lived headless token (`claude setup-token`
+class, non-rotating; NEVER the refreshable session file, which the CLI
+rewrites in place and which goes stale in the vault after the first
+ephemeral refresh), fetched per-job via the runner's own GitHub-OIDC
+federated identity into an ephemeral config dir. Zero host state, no
+service restarts, rotation = one vault write.
+
+BRETT'S RULING ON OWNERSHIP: two cases exist, so the pattern is NEUTRAL.
+Usually the vault is operated by OpsxFactory — but a client may license
+codexFactory WITHOUT OpsxFactory, and then the client's own IT channel
+operates the vault. The fork already exists in the ratified model
+(client-infrastructure-liaison operating models: opsxfactory_executed vs
+client-managed, "no Opensoft identity performs the privileged change").
+Therefore:
+
+- the CONTRACT (vault-reference shape, fetch-identity requirements,
+  ephemeral materialization, non-rotating-token class, audit-by-vault-log)
+  belongs in openxFactory — likely an ADDED requirement on
+  `credential-contracts` — never in OpsxFactory;
+- the OPERATOR is a per-install execution binding: OpsxFactory when
+  licensed, the client's sysadmin channel when not; the lane code is
+  identical either way (vault URI + identity ride as bindings/variables);
+- the bootstrap/runbook material must be reachable by a codexFactory-only
+  client (the domain repo's install docs pin the neutral contract), not
+  buried in OpsxFactory.
+
+This is also another instance of this topic's open hosting question: "who
+operates the client's estate" is one fork with many faces — stack hosting,
+deploy execution, credential custody.
+
 ## Open questions
 
 - Is the company/business Hermes in openxFactory's scope at all, or does it stay
