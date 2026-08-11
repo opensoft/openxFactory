@@ -1468,12 +1468,33 @@ def test_the_draft_view_has_one_action_called_save_reachable_from_both_tabs():
     assert ".swb-draftbody {" in css, "the body editor must carry a rule at all"
     body_rule = css.split(".swb-draftbody {")[1].split("}")[0]
     assert "flex: 1;" in body_rule
-    assert "min-height: 55vh;" in body_rule, (
-        "a viewport-proportional floor keeps it large where flex cannot "
-        "resolve a definite height")
+    # SUPERSEDED 2026-08-11: this asserted `min-height: 55vh`, a
+    # viewport-proportional floor added as belt-and-braces for "where flex
+    # cannot resolve a definite height". The chain DOES resolve, and the floor
+    # was measured against the VIEWPORT while the panel is only
+    # `min(940px, 100%)` — so it demanded 693px of a 940px panel and caused BOTH
+    # of Brett's 2026-08-11 annotations: it crushed the existing-documents notice
+    # to 16px, and it overflowed the panel so the whole frame grew a scroll bar.
+    # `flex: 1` alone keeps the original intent (the editor takes what is left).
+    # A vh floor here is the regression; assert it cannot come back.
+    assert "min-height: 0;" in body_rule, (
+        "the editor takes leftover space by flexing, never by demanding a "
+        "viewport fraction the panel does not have")
+    assert "vh" not in body_rule, (
+        "no viewport unit in the editor's own box: the panel is px-bounded, so a "
+        "vh floor overflows it and scrolls the frame")
     assert "resize: vertical;" in body_rule, "the human keeps the last word"
     pane_rule = css.split(".swb-draftpane { ")[1].split("}")[0]
     assert "flex: 1;" in pane_rule and "height: 100%;" in pane_rule
+
+    # The notice beside it must not be crushable — the other half of the same
+    # defect. `max-height` + `overflow-y` only work if it keeps its content
+    # height first, which default `flex-shrink: 1` gave away.
+    notice_rule = css.split(".swb-draftexisting {")[1].split("}")[0]
+    assert "flex-shrink: 0;" in notice_rule, (
+        "a notice that shrinks to its own padding has stopped being a notice")
+    assert "overflow-y: auto;" in notice_rule, (
+        "it scrolls internally at the cap rather than pushing the frame")
 
     # the tab-switch button is GONE, from the executable lines
     code = "\n".join(line for line in swb.splitlines()
