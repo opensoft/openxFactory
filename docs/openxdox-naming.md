@@ -1,16 +1,18 @@
 # openXdox — Capability Naming Record
 
-Status: draft
+Status: ratified
+Ratified by: add-dispatch-credential-contract
 Kind: reference
 Repository context: openxFactory
 Purpose: fix the name of the domain-neutral governed review-and-disposition
-workbench so contracts, docs, and the forthcoming credential work all build on
-one settled term.
+workbench so contracts, docs, and the credential work all build on one settled
+term.
 
-Ratification: the naming is LOCKED as a direct ruling (below); formal
-lifecycle ratification rides the forthcoming openXdox dispatch-credential
-OpenSpec change (this record flips to `ratified` with `Ratified by:` on that
-change landing).
+Ratified by `add-dispatch-credential-contract` (2026-08-13) — the change that
+contracts openXdox's dispatch and content credentials (see its
+`credential-contracts` spec delta). The name was locked as Brett's direct ruling
+(below) when this record was authored; landing that change is its lifecycle
+ratification.
 
 ## Decision (LOCKED — Brett, 2026-08-13)
 

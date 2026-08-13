@@ -6,11 +6,11 @@ are NOT done by authoring this change.
 
 ## 1. Contract (openxFactory)
 
-- [ ] 1.1 ADD the two requirements to `specs/credential-contracts` (this
+- [x] 1.1 ADD the two requirements to `specs/credential-contracts` (this
       change's spec delta): dispatch-only least-privilege + serving-tier
       separation, and reference-delivered credential with operator-as-binding.
       Validate `--strict` and `--all --strict` green before commit.
-- [ ] 1.2 Ratify the openXdox naming on approval: flip
+- [x] 1.2 Ratify the openXdox naming on approval: flip
       `docs/openxdox-naming.md` `Status: draft -> ratified` and add
       `Ratified by: add-dispatch-credential-contract`; drop the interim
       "Ratification rides ..." note.
@@ -20,13 +20,13 @@ are NOT done by authoring this change.
 
 ## 2. Neutral artifacts (openxFactory)
 
-- [ ] 2.1 Add example credential records validating against
+- [x] 2.1 Add example credential records validating against
       `contracts/schemas/xfactory-credential-contracts.schema.yaml`: a
       dispatch-only requirement + binding-template (Actions:write on one repo,
       reference-delivered, operator-bound) and the distinct content-write
       binding; negatives — dispatch with contents-write, dispatch reusing the
       content identity, a baked value, an operator fixed to one domain.
-- [ ] 2.2 Validator support where mechanizable (dispatch-scope ceiling and the
+- [x] 2.2 Validator support where mechanizable (dispatch-scope ceiling and the
       distinct-binding / no-shared-identity check) in the credential-contracts
       family validator, each negative example naming its violated rule.
 
