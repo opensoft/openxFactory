@@ -63,6 +63,15 @@
 - [x] 4.2 Runbook note: which mode cleans up after a hand teardown, and that the
       targeted route still refuses a dead branch by design — session runbook
       §4a, including the run-from-the-workspace-root rule task 4.1 earned.
-- [ ] 4.3 Archive on realization evidence per `release-realization`
+- [x] 4.3 Archive on realization evidence per `release-realization`
       (`target_release: none`, so archiving follows the merged + green
       realization).
+      Realization: merged as `1b964ba` (PR #163), green at
+      `tests/ideation-dashboard` 2850 passed / exit 0 on 2026-08-13. Evidence
+      recorded as the proposal's `Realized:` line — the gate requires it to
+      EXIST, not merely to be true — and archived on 2026-08-13.
+      NOTE for whoever repins the axis: `target_release: none` is not a legal
+      value. `release-realization`'s "Realization axis declaration" allows only
+      `implemented` or a named release; `none` belongs to `code_surface`. Five
+      sibling changes carry the same mis-spelling, so it is left as-declared here
+      rather than corrected under cover of an archive commit.
