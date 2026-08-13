@@ -93,7 +93,7 @@ OpsxFactory (managed-subject rule).
       validate job — the suite was pytest in a unittest-discovery CI — and
       PR #68 repaired it same-day with the 13 scenarios as unittest
       TestCases, checks green before merge.)
-- [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
+- [x] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
       (Deploy tree MERGED 2026-08-10 as Omnigent-Install PR #69, checks
       green before merge: deploy/kubernetes base + aks-qa overlay — dox
@@ -106,6 +106,16 @@ OpsxFactory (managed-subject rule).
       deployment handoff — CIR request + intake case + Brett's approval
       record + grant-held apply + read-back checks, the dispatch-junction
       precedent.)
+      DONE 2026-08-13: the live v7 apply landed on QA AKS (dashboard + inbox +
+      dox-auth Ready on the approved digests) and the readiness walk passed all
+      six mandatory checks — anon 401; brett 200 over the Let's Encrypt dox-tls
+      cert; auditor 403 with the refusal stamped actor=auditor; dispatch token
+      Actions:write on opensoft/xFactory only; three images digest-pinned;
+      dashboard pod credential-free. The CIR cir-opensoft-qa-dox-intent-plane
+      walked acknowledged -> completed (trusted_validator, hermes-install PR #21)
+      against the fresh passing readiness result dox-qa-intent-plane-ready. The
+      dispatch-credential ownership hardening (personal PAT -> org-owned App)
+      rides add-dispatch-credential-contract.)
 - [x] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
       pattern): replay via console engine, stale-view refusal, atomic
       intent+record+artifact commit, rolling intents PR with auto-merge,

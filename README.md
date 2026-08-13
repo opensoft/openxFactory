@@ -74,6 +74,7 @@ Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
+- [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
@@ -259,6 +260,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
+  — authored 2026-08-13: two neutral `credential-contracts` requirements for the
+  openXdox intent-plane dispatch credential — dispatch-only least privilege with
+  serving-tier separation (the trigger credential must be a distinct binding from
+  the content-write App; the credential-free serving pod must never hold
+  contents-write-capable key material), and reference-delivered credential with
+  operator-as-binding (generalizing the two-case worker-credential principle:
+  vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
+  `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
+  App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
 - [align-doxbench-contract-pin-to-publisher](openspec/changes/align-doxbench-contract-pin-to-publisher/proposal.md)
   — authored 2026-08-10 from a diagnosis of doxBench's `500 catalog_unavailable`:
   the two model routes have been dead since `adopt-neutral-tooling-home` moved

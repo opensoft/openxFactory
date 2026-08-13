@@ -10,6 +10,16 @@ baked, credential-free, Basic-Auth'd, with no write routes. The rolling-PR
 delivery pattern (doc-health nightly, derive-possibles commit-back) is the
 proven way unattended machinery lands governed commits under org rulesets.
 
+## Naming
+
+This capability is named **openXdox** (short handle `dox`, surface `doxBench`)
+— the domain-neutral review-and-disposition workbench, locked by Brett
+2026-08-13. See the [openXdox Capability Naming Record](../../../docs/openxdox-naming.md)
+for the rationale, the per-domain instance labels, and the rejected
+`openXnotes` alternative. "openDox" (taken) survives only as legacy branding
+in the QA deploy (dashboard `<title>`, admin runbook) pending the next deploy
+touch.
+
 ## Goals / Non-Goals
 
 **Goals**: hosted + mobile actions with zero write authority on serving
