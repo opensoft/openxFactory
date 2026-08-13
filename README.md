@@ -260,6 +260,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
+  — authored 2026-08-13: two neutral `credential-contracts` requirements for the
+  openXdox intent-plane dispatch credential — dispatch-only least privilege with
+  serving-tier separation (the trigger credential must be a distinct binding from
+  the content-write App; the credential-free serving pod must never hold
+  contents-write-capable key material), and reference-delivered credential with
+  operator-as-binding (generalizing the two-case worker-credential principle:
+  vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
+  `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
+  App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
 - [add-session-notebook-reconciliation](openspec/changes/add-session-notebook-reconciliation/proposal.md)
   — authored 2026-08-10 from the `session-notebook-reconciliation` staged topic:
   a session notebook must not outlive its session. Both governed endings retire
