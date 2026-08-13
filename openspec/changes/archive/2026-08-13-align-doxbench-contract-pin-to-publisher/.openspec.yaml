@@ -1,0 +1,25 @@
+schema: spec-driven
+created: 2026-08-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-10-align-doxbench-contract-pin-to-publisher
+  reason: >-
+    Incident-driven, authored in-session on 2026-08-10 from a diagnosis rather
+    than from a staged topic: doxBench's two model routes had been answering
+    500 catalog_unavailable from every checkout of this repository since
+    adopt-neutral-tooling-home moved the dashboard runtime in here on
+    2026-08-03. That change's own tasks.md had already recorded the cause and
+    deferred it to a tranche D that never ran ("OPEN ITEM for Brett/tranche D:
+    doxbench_contracts.verify_stack_pin requires the HOSTING repo's stack.yaml
+    consumption pin; openxFactory is the publisher and has none"), so the
+    direction was prescribed and the remaining question was the ruling. No
+    staged topic existed or was warranted: this is the disposition of an
+    already-recorded open item on a contract-consumption boundary, not a new
+    capability.
+
+    This declaration was added AT THE ARCHIVE GATE on 2026-08-13, not at
+    creation — the change was authored without an .openspec.yaml, and the
+    proposal-origin check caught the omission when the change archived. The
+    dates above are the true authoring dates; only this file is late.
+  approved_by: Brett
+  approved_on: 2026-08-11
