@@ -17,7 +17,18 @@ than warns (a schema copy that is not the released bytes is not the contract):
      same digest — manifest parity, so a coherent release is distinguished from a
      directory that merely contains a file with the right name; and
   3. `stack.yaml`'s `xfactory.contract_ref` still equals `CONTRACT_REF`, so a
-     consumer can never read one release while the repository declares another.
+     CONSUMER can never read one release while its repository declares another.
+
+The third check applies to consumers only. This module is hosted INSIDE the
+publisher (`adopt-neutral-tooling-home`, 2026-08-03), and a publisher declares no
+consumption pin on itself — openxFactory has no `stack.yaml` and under the
+family's working rules must not grow one. Asking the release which release it
+consumes is vacuous, so `verify_stack_pin` answers it structurally when the
+hosting repository IS a release (`is_publisher_checkout`) and runs the consumer
+refusals unchanged otherwise. Nothing else relaxes: checks 1 and 2 are the whole
+fail-closed chain, they run per request in both modes, and they are anchored to
+this module's own literals rather than to anything the checkout claims about
+itself — which is what makes publisher mode safe rather than merely convenient.
 
 The chat-turn FILE holds three closed envelopes under a `oneOf`, discriminated by
 `kind`. Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves
@@ -44,17 +55,28 @@ from referencing.jsonschema import DRAFT202012
 # --------------------------- the pin ---------------------------
 #
 # THE RELEASE IS IMMUTABLE (research R13): these literals name content that
-# already exists — contract-v1.27, annotated tag object
-# fb912b9a542da7aeec7fd35fb2aeeb551bd5a733 — never a future tag and never the
+# already exists — contract-v1.31, annotated tag object
+# fc66fa38b999ea15ce74bf00410afe189cc3a5d6 — never a future tag and never the
 # latest sibling checkout. The pin moves ONLY through the normal xFactory
-# workflow (T006: openxFactory releases additively, then `stack.yaml` is
-# updated), so editing a digest here without that release is a defect, not a
-# refresh. `stack.yaml` carries the same three values in comments beside the ref
-# it declares; the parity check below is what keeps the two from drifting apart
-# silently.
+# workflow (T006: openxFactory releases additively, then the consuming
+# declaration is updated), so editing a digest here without that release is a
+# defect, not a refresh.
+#
+# Moved v1.28 -> v1.31 by `align-doxbench-contract-pin-to-publisher`
+# (2026-08-10). The repin is DIGEST-NEUTRAL and deliberately so: both wire
+# schemas are byte-identical across v1.28, v1.29, v1.30 and v1.31, and v1.31's
+# own `contracts/manifest.yaml` records exactly the two digests already pinned
+# below. It re-declares which release is read and changes no verified byte, so
+# no conformance question reopens — which is why it was safe to settle the
+# currency question in the same change that fixed the publisher-mode refusal.
+#
+# codexFactory's `stack.yaml` declares contract-v1.30 and this pin does not.
+# That divergence is not drift: codexFactory hosted this runtime until
+# `adopt-neutral-tooling-home` and is now merely another consumer, so the two
+# pins move independently. A future reader comparing them should stop here.
 
-CONTRACT_REF = "ff64e81a967b75f92b3f5af9204aeb54c59a15d3"
-CONTRACT_TAG = "contract-v1.28"
+CONTRACT_REF = "e5554028e521d57c7501ef9bac206b20415281ef"
+CONTRACT_TAG = "contract-v1.31"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -89,12 +111,26 @@ WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
 # the aggregation checkout), plus an explicit `root` parameter and one env
 # override. No other discovery: a consumer that cannot say which checkout it
 # means should not be guessing at a contract pin.
+#
+# `VALIDATOR_RELPATH` carries the `openxFactory/` prefix, which is right for the
+# aggregation-relative walk it was written for and wrong for a runtime hosted
+# INSIDE openxFactory: it searches one level below where it stands, so from the
+# publisher it walks past itself every time and lands on the aggregation's
+# submodule — a shared tree sessions move between branches. Hence the publisher
+# rung in `resolve_root`. The walk-up keeps this shape because the consumer case
+# still needs exactly it.
 
 CHECKOUT_RELPATH = Path("openxFactory")
 VALIDATOR_IN_CHECKOUT = Path("scripts") / "validate-ideation-dashboard-contracts.py"
 VALIDATOR_RELPATH = CHECKOUT_RELPATH / VALIDATOR_IN_CHECKOUT
 SCHEMAS_RELPATH = Path("contracts") / "schemas"
 MANIFEST_RELPATH = Path("contracts") / "manifest.yaml"
+
+# What makes a directory a RELEASE rather than a consumer of one. All three are
+# required together: any single marker is satisfied by a tree that merely
+# contains a similarly named file, which is the same distinction manifest parity
+# draws for one schema, applied to the checkout as a whole.
+PUBLISHER_MARKERS = (MANIFEST_RELPATH, SCHEMAS_RELPATH, VALIDATOR_IN_CHECKOUT)
 
 OPENXFACTORY_ROOT_ENV = "OPENXFACTORY_ROOT"
 
@@ -116,27 +152,49 @@ class ContractPinError(Exception):
     """
 
 
+def is_publisher_checkout(root: Path | str) -> bool:
+    """True when `root` IS a release rather than a consumer of one.
+
+    Every marker in `PUBLISHER_MARKERS` must be present; see that constant for
+    why all three and not any one. This is a STRUCTURAL question about a
+    directory — it reads no digest and grants no trust, it only decides which of
+    the two verification postures applies."""
+    base = Path(root)
+    return all((base / marker).exists() for marker in PUBLISHER_MARKERS)
+
+
 def resolve_root(root: Path | str | None = None, *,
                  start: Path | None = None) -> Path:
     """Locate the pinned openxFactory checkout.
 
-    Precedence: an explicit `root`, then `OPENXFACTORY_ROOT`, then a walk up from
-    this repository to the aggregation checkout's `openxFactory/`. Fails closed
-    when none of the three yields a checkout — "I could not find the contract" is
-    never an implicit pass."""
+    Precedence, highest first: an explicit `root`; `OPENXFACTORY_ROOT`; the
+    hosting repository when it is ITSELF a publisher checkout; then a walk up
+    from this repository to the aggregation checkout's `openxFactory/`. Fails
+    closed when none of them yields a checkout — "I could not find the contract"
+    is never an implicit pass.
+
+    The third rung is what keeps a serve reading the tree it was launched from
+    rather than a sibling checkout on whatever branch another session left it
+    (`align-doxbench-contract-pin-to-publisher`, 2026-08-10). Only that rung was
+    added; nothing above or below it moved, so the consumer case still reaches
+    the walk exactly as before."""
     if root is not None:
         return Path(root)
     declared = os.environ.get(OPENXFACTORY_ROOT_ENV)
     if declared:
         return Path(declared)
     base = (start or REPO_ROOT).resolve()
+    if is_publisher_checkout(base):
+        return base
     for directory in [base, *base.parents]:
         if (directory / VALIDATOR_RELPATH).is_file():
             return directory / CHECKOUT_RELPATH
     raise ContractPinError(
-        f"no openxFactory checkout is reachable from {base} (looked for "
-        f"{VALIDATOR_RELPATH}); pass root= or set {OPENXFACTORY_ROOT_ENV} to a "
-        f"checkout at {CONTRACT_TAG} ({CONTRACT_REF})")
+        f"no openxFactory checkout is reachable from {base} (it carries no "
+        f"{', '.join(str(marker) for marker in PUBLISHER_MARKERS)} of its own, "
+        f"and no ancestor holds {VALIDATOR_RELPATH}); pass root= or set "
+        f"{OPENXFACTORY_ROOT_ENV} to a checkout at {CONTRACT_TAG} "
+        f"({CONTRACT_REF})")
 
 
 # --------------------------- declared-pin parity ---------------------------
@@ -164,11 +222,31 @@ def _parsed_yaml(path: Path, raw: bytes, *, what: str) -> Any:
 
 
 def verify_stack_pin(repo_root: Path | str | None = None) -> str:
-    """Return `stack.yaml`'s declared `xfactory.contract_ref`, refusing unless it
-    equals `CONTRACT_REF`. A drifted pin is an error, never a silent pass: the
-    schemas this module hard-pins are only meaningful at the ref the repository
-    declares it consumes."""
+    """Return the hosting repository's consumed `xfactory.contract_ref`, refusing
+    unless it equals `CONTRACT_REF`. A drifted pin is an error, never a silent
+    pass: the schemas this module hard-pins are only meaningful at the ref the
+    repository declares it consumes.
+
+    PUBLISHER MODE. When the hosting repository is itself a release
+    (`is_publisher_checkout`) the consumed ref is `CONTRACT_REF` by construction
+    and there is no declaration to read — the publisher pins no consumption of
+    itself. The declared-pin check exists so a CONSUMER cannot read one release
+    while its repository declares another; that gap needs two places a human
+    edits, and a publisher has only one. Refusing here would not be strictness,
+    it would be a question with no honest answer.
+
+    This drops nothing that was protecting anything. The digest and
+    manifest-parity checks are anchored to this module's own literals, never to
+    what a checkout says about itself, so WHICH release gets read is governed by
+    them in both modes — see `_verified_bytes`, which this branch does not touch.
+
+    A tighter same-tree rule (publisher mode only when the RESOLVED checkout is
+    the hosting repo) was considered and rejected while implementing: it adds no
+    safety for exactly the reason above, and it would break the documented
+    `OPENXFACTORY_ROOT=<some other released checkout>` integration rung."""
     root = Path(repo_root) if repo_root is not None else REPO_ROOT
+    if is_publisher_checkout(root):
+        return CONTRACT_REF
     stack = root / STACK_FILE
     if not stack.is_file():
         raise ContractPinError(f"{stack}: no {STACK_FILE} to verify the "

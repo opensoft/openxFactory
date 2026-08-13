@@ -2231,11 +2231,31 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
    lines tall. this should be the entire size of the window as large as we can
    make it"). This textarea carried NO rule at all, so it rendered at the HTML
    default of TWO ROWS — on the one screen whose entire purpose is writing
-   prose. The pane fills the overlay body and the editor takes what is left; the
-   viewport-proportional floor keeps it large even where the flex chain cannot
-   resolve a definite height, and `resize: vertical` leaves the last word with
-   the human. Monospace because this is Markdown source, like every other
-   editing surface here. */
+   prose. The pane fills the overlay body and the editor takes what is left, and
+   `resize: vertical` leaves the last word with the human. Monospace because
+   this is Markdown source, like every other editing surface here.
+
+   THE VIEWPORT-PROPORTIONAL FLOOR IS GONE (Brett, 2026-08-11, two annotations:
+   "we do not want a scroll bar on the main window. make the doc window a
+   viewport keep the our window frame steady" and, on the existing-documents
+   notice, "this widget is too small. make it taller"). Both were ONE defect,
+   and it was this floor. `min-height: 55vh` is measured against the VIEWPORT
+   while the panel is only `min(940px, 100%)` tall, so on a 1261px window the
+   editor demanded 693px of a 940px panel and:
+
+     1. crushed its flex sibling — the existing-documents notice has
+        `max-height: 30vh` but shrank to SIXTEEN PIXELS, its padding and nothing
+        else, because a column flex child with default `flex-shrink: 1` loses to
+        a sibling's honoured minimum; and
+     2. overflowed the panel, so `.swb-body`'s `overflow-y: auto` engaged and
+        the whole frame scrolled — the scroll bar Brett is pointing at.
+
+   `flex: 1` with `min-height: 0` keeps the original intent exactly — the editor
+   still takes everything left over — while letting the pane RESOLVE inside the
+   panel instead of demanding more than it has. The floor was belt-and-braces
+   for "where the flex chain cannot resolve a definite height"; the chain does
+   resolve (`.swb-panel` has a definite height, and every link between it and
+   here declares `flex: 1; min-height: 0`), so the braces were only cutting in. */
 /* The two panes and the chrome the ONE action lives in (Brett's ruling,
    2026-08-10: keep the tabs, put one `save` on both). Only the panes swap; the
    chrome never moves, so `save` and the answer it gives are always on screen. */
@@ -2256,6 +2276,13 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
   border: 1px solid var(--border); border-left: 3px solid var(--st-staged);
   border-radius: 5px; padding: 7px 10px; font-size: 12px;
   display: flex; flex-direction: column; gap: 3px;
+  /* NOT CRUSHABLE. A notice that shrinks to its own padding has stopped being a
+     notice — measured at 16px before this (Brett, 2026-08-11: "this widget is
+     too small. make it taller"). `flex-shrink: 0` makes it size to its content
+     and scroll INTERNALLY at the cap, which is what `max-height` + `overflow-y`
+     were always for; without it, default `flex-shrink: 1` handed the space to
+     the editor beside it. */
+  flex-shrink: 0;
   max-height: 30vh; overflow-y: auto; scrollbar-gutter: stable;
 }
 .swb-draftexistinghead { font-weight: 700; }
@@ -2268,7 +2295,7 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
 }
 .swb-dxnote { color: var(--muted); line-height: 1.5; margin-top: 3px; }
 .swb-draftbody {
-  flex: 1; min-height: 55vh; width: 100%; box-sizing: border-box;
+  flex: 1; min-height: 0; width: 100%; box-sizing: border-box;
   resize: vertical; padding: 10px 12px;
   background: var(--panel); color: var(--ink);
   border: 1px solid var(--border); border-radius: 6px;

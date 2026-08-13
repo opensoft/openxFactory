@@ -450,6 +450,51 @@ PYTHONPATH=scripts python3 -m ideation_dashboard.serve \
 Every register project then derives its merged view (D11), and the
 freshness header reads `<project> · N repos · composed <date>`.
 
+### One command instead of the two above: `reserve-dashboard.sh`
+
+The recipe above is what the dashboard NEEDS; it is not what you should type.
+Two power cuts in two days (2026-08-12, 2026-08-13) killed a hand-started
+fourteen-argument `nohup` serve, and both recoveries depended on an argv file
+that happened to survive in a dead session's `/tmp` scratchpad. Neither the argv
+nor the plane belonged there.
+
+```bash
+scripts/reserve-dashboard.sh              # ensure the plane, then serve
+scripts/reserve-dashboard.sh --status     # up or down, exit 0/1
+scripts/reserve-dashboard.sh --stop       # stop whatever holds the port
+scripts/reserve-dashboard.sh --rebuild    # republish every registered repo first
+scripts/reserve-dashboard.sh --supervise  # restart the serve if it CRASHES
+```
+
+Three things it does that the manual recipe cannot:
+
+- **The plane has a durable home** — `${XDG_STATE_HOME:-~/.local/state}/xfactory-dashboard/local-plane`,
+  not a per-session scratchpad. Override with `XF_DASHBOARD_PLANE`.
+- **The argument list is derived, never remembered.** The serving checkout is the
+  repo the script lives in, the aggregation root is the nearest ancestor carrying
+  `project-register.yaml`, and one `--source-root` is emitted per repository the
+  lane actually published — read back out of the `index.json` it just wrote, so
+  the serve cannot disagree with the plane about who is in it. `openxFactory`
+  resolves to the SERVING checkout, because that is the tree the gate acts on.
+- **It is safe to run when already up**, so it is the right thing to type after
+  any reboot without checking first.
+
+**What it does NOT do: survive a reboot.** `--supervise` is a restart loop in one
+process, so it covers a crash and nothing more. Boot-start needs a service
+manager, and this host has none: measured 2026-08-13, `/etc/wsl.conf` carries
+`[boot] systemd=false`, PID 1 is `init(Ubuntu-24.04)`, and `systemctl --user`
+refuses with "System has not been booted with systemd as init system."
+`scripts/systemd/xfactory-dashboard.service` is committed ready for the day
+systemd is enabled — its header carries the four enabling steps plus
+`loginctl enable-linger`, which is required rather than optional: without it a
+user unit waits for a login, so a power cut with nobody logged in still leaves
+the dashboard down. The two non-systemd routes (a `[boot] command=` in
+`/etc/wsl.conf`, or Windows Task Scheduler at logon) are named in that same
+header.
+
+Until one of those is chosen, treat `reserve-dashboard.sh` as the first thing you
+type after a power cut.
+
 Two things worth knowing:
 
 - The lane renders each repository from its **aggregation submodule
@@ -621,6 +666,62 @@ for — use it in a lane or a check, not when you just want the dashboard up.
 
 Either way, do not read the SKIPPED line as routine: the snapshot really was not
 checked.
+
+### 2c. doxBench's two model routes have a FOURTH prerequisite
+
+`GET /workbench/model-catalog` and `POST /actions/workbench/chat-turn` need the
+three session conditions above **and** one more: the released doxBench wire
+schemas must actually resolve. They are read per request — digests re-verified
+every time — so a checkout that drifts mid-run stops being trusted at the next
+request rather than at the next restart.
+
+How that resolves depends on which repository you are serving from, and the two
+postures are deliberately different:
+
+| Serving from | How the contract is verified |
+| --- | --- |
+| **openxFactory** (the publisher) | the released BYTES: sha256 against the module pin, plus parity with the checkout's own `contracts/manifest.yaml` |
+| **a consumer repo** | the same two byte checks, PLUS that repo's `stack.yaml` declaring `xfactory.contract_ref` |
+
+The publisher declares no consumption pin on itself and must not grow one, so
+asking it for a `stack.yaml` is a question with no honest answer — that is the
+`align-doxbench-contract-pin-to-publisher` ruling (2026-08-10). Nothing else was
+relaxed: a drifted digest or a manifest disagreeing with its own bytes still
+refuses, in both postures, on the request that sees it.
+
+**When it fails, it fails SILENTLY, and you need to know that.** A contract that
+cannot be read gives you `500 catalog_unavailable` / "the model catalog could not
+be assembled safely", and nothing else — no stderr line, no reason. The
+swallowing is correct on the wire (the real error names checkout paths and
+digests, which must never reach a response body), but it means the 500 tells you
+only *that* it failed. Do not go looking at providers or credentials; ask the
+seam directly:
+
+```bash
+# from the served repo root — prints the pin and the checkout it resolved,
+# and RAISES the real reason the route is hiding
+PYTHONPATH=scripts python3 -c "
+from ideation_dashboard import doxbench_contracts as c
+print(c.CONTRACT_TAG, '->', c.resolve_root())
+c.validators()"
+```
+
+Two things that are NOT this failure, and read differently:
+
+- **An empty catalog is a SUCCESS.** With no provider port configured you get
+  `200 {kind: workbench-model-catalog, models: []}` and a chat rail that says no
+  allowed model is configured, with both editors still usable. That is the
+  honest editor-only posture, not a fault.
+- **`console_required` (403)** is the console gate one step earlier, not the
+  contract — see §0's re-read repair.
+
+Historically this bit for a week: relocating the runtime into openxFactory
+(`adopt-neutral-tooling-home`, 2026-08-03) left the consumer-shaped `stack.yaml`
+check running inside the publisher, so both routes failed closed from every
+checkout of this repo until 2026-08-10. It stayed invisible because the
+released-contract test rung was opt-in behind `OPENXFACTORY_ROOT`; it now runs by
+default from a publisher checkout, so this class of break surfaces as a test
+failure instead of a runtime 500.
 
 ## 3. The session verbs, and their CLI parity
 

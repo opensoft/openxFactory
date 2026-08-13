@@ -270,6 +270,30 @@ Active changes:
   vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
   `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
   App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
+- [align-doxbench-contract-pin-to-publisher](openspec/changes/align-doxbench-contract-pin-to-publisher/proposal.md)
+  — authored 2026-08-10 from a diagnosis of doxBench's `500 catalog_unavailable`:
+  the two model routes have been dead since `adopt-neutral-tooling-home` moved
+  the dashboard runtime in here, for the reason that change's own tasks.md
+  recorded and deferred to a tranche D that never landed. `verify_stack_pin`
+  demands the HOSTING repo declare a consumption pin, and openxFactory is the
+  publisher — it has no `stack.yaml`, never has, and under working rule 1 never
+  should. The check is not failing; it is asking a question the publisher cannot
+  be asked, and it asks it FIRST, before any byte is read. The bytes were never
+  the problem: both wire schemas pass sha256 and manifest parity in every
+  candidate checkout and are byte-identical v1.28 → v1.31. So the ruling is
+  publisher mode — tooling shipping inside the release verifies the released
+  BYTES, never a declared pin, with the whole fail-closed digest chain untouched
+  and a checkout counted as a publisher only when all three markers are present
+  together. Two adjacent defects the refusal was hiding land with it: the pin was
+  three releases stale (v1.28 → v1.31, digest-neutral, so no conformance question
+  reopens), and `resolve_root` searched one level BELOW where it stood, so from
+  inside the publisher it walked past itself every time onto the aggregation's
+  shared submodule — a serve in one worktree verifying its wire shapes against
+  another session's branch, harmless only by coincidence. Also makes the
+  `@released_only` rung runnable without an env var, which is what turns this
+  class of break back into a test failure instead of a runtime 500.
+  `target_release: none`.
+
 - [add-session-notebook-reconciliation](openspec/changes/add-session-notebook-reconciliation/proposal.md)
   — authored 2026-08-10 from the `session-notebook-reconciliation` staged topic:
   a session notebook must not outlive its session. Both governed endings retire
