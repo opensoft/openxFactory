@@ -11,7 +11,7 @@
 
 ## 2. Realization (archives the change; xFactory + operator)
 
-- [ ] 2.1 Runbook §11 (xFactory registration runbook): the fetch identity —
+- [x] 2.1 (DONE — xFactory 0af326a, runbook §11: narrowest identity yet (KV read on one secret, no Hermes scopes, no GitHub write), worker-credentials environment created main-only, setup-token-class secret with the session-file secret named non-conforming, versionless-URI bindings, rotation as the verify scenario.) Runbook §11 (xFactory registration runbook): the fetch identity —
       one Entra workload identity per install, standard-subject FIC on a
       `worker-credentials` GitHub environment (main-only policy; the
       flexible-FIC outage interim and upgrade trigger apply), Key Vault
@@ -21,7 +21,7 @@
       (`xfactor-001-claude-credentials` successor, token class NOT the
       session file), provision the fetch identity, set the two repo
       bindings (secret URI variable + fetch client id variable).
-- [ ] 2.3 Wire ONE lane first (council-deliberation worker's deliberate
+- [x] 2.3 (DONE — xFactory 0af326a: fetch step ahead of the seats, OIDC → vault-scope exchange → versionless GET → masked into job env; the hermetic invocation consumes it unchanged; unset bindings = named degraded-mode notice (verified live: post-change smoke ran degraded and green, so the wiring is inert-safe); token source logged vault-vs-degraded for the verify and rotation reads.) Wire ONE lane first (council-deliberation worker's deliberate
       job): fetch step (OIDC → vault get via curl/python, value masked,
       exported only to the job env) ahead of the existing hermetic
       invocation; the service-scoped env var becomes the documented
