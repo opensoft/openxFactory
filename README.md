@@ -261,6 +261,15 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
+  — authored 2026-08-14 from the Business Central admission investigation:
+  the neutral identity layer beneath credential-contracts and
+  consent-instrument. Which identities stand in a paying client's tenant,
+  keyed on (domain, admission surface, authority class, blast-radius unit,
+  duty); verified admission with achieved scope; structural scoping
+  preferred; declared provider-forced breadth; report-only drift that
+  refuses grant issuance. MODIFIES consent-instrument (cascade reaches
+  identities) and doc-health (sixteenth family).
 - [add-worker-credential-by-reference](openspec/changes/add-worker-credential-by-reference/proposal.md)
   — worker credentials distributed BY REFERENCE (credential-contracts +2
   requirements): vault-held non-rotating headless tokens fetched per job by
