@@ -1,0 +1,30 @@
+schema: spec-driven
+created: 2026-08-14
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-14-add-client-identity-roster
+  reason: >-
+    Authored directly from a live investigation, not a staged topic. Across
+    2026-08-08..14 the OpsxFactory Business Central work established by
+    measurement that Entra app consent alone does not confer workload access:
+    the observer app held four admin-consented BC application permissions for
+    six days and still received 401 from the BC Admin Center API until a
+    SEPARATE, provider-side authorization was added inside the Business
+    Central admin center (evidence chain
+    xFactories/OpsxFactory/tenants/farheap-bc-sandbox1-verify-probe-evidence-v3
+    ..v7). The same investigation showed that admin-center authorization is
+    TENANT-WIDE with no scope selector, so a guarantee previously enforced by
+    the credential (sandbox-only) silently degraded to a guarantee that only
+    gate logic can enforce. Brett then raised the productisation question
+    directly (2026-08-14): when a paying client buys OpsxFactory governance
+    spanning Business Central, SharePoint, Teams, Exchange and the D365/CRM
+    family, does one broad app control everything or does the client tenant
+    hold a set of narrower apps? The credential layer
+    (`credential-contracts`) and the authority root (`consent-instrument`)
+    are already governed, but the IDENTITY layer those credentials belong to
+    is not governed anywhere in openxFactory — and two domain factories
+    (OpsxFactory and LedgerxFactory) are already independently creating
+    identities inside the same client tenant. This change closes that gap
+    neutrally, before client scale-out makes it expensive to change.
+  approved_by: Brett Heap (openxFactory operator authority)
+  approved_on: 2026-08-14
