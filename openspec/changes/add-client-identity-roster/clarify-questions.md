@@ -37,7 +37,7 @@ Reader/Poster to a **multi-tenant pair**, so (a) makes this contract's
 default differ from a sibling domain's shipping architecture — deliberate,
 but worth naming.
 
-**ANSWER:**
+**ANSWER: (a) class-independent.** Brett, 2026-08-14 clarify round. Client-resident single-tenant is the default for every authority class; vendor-tenant-multi only through the governed model with its full obligations. The divergence from LedgerxFactory's decided multi-tenant Reader/Poster pair is accepted and deliberate: that pair must either declare the vendor-tenant-multi model with its obligations (allow-list at token validation, per-client authorization state and revocation evidence, cross-client credential-span statement, consent amendment per affected client) or move client-resident. Recorded as a named cross-domain follow-up, not resolved here.
 
 ---
 
@@ -57,7 +57,7 @@ REFUSES grant issuance for that identity.
   disruption to existing gates; guts the traceability requirement (a
   `mutate` identity with no ratified capability becomes a nightly warning).
 
-**ANSWER:**
+**ANSWER: (a) all three as drafted.** Brett, 2026-08-14 clarify round. Intra-repo entry conformance blocks the owning domain's gate; cross-domain composition reports via doc-health; an open drift finding refuses grant issuance for that identity through the existing issuance_preconditions mechanism.
 
 ---
 
@@ -77,7 +77,7 @@ not total cost.
 - **(c) Defer domain fragment obligations** until a second paying client
   exists (a single-client estate does not exercise composition anyway).
 
-**ANSWER:**
+**ANSWER: (a) as drafted.** Brett, 2026-08-14 clarify round. The permissive axis stands; entries may sit `planned` indefinitely; no obligation to enroll a full set at once. Enrollment cost is accepted as the price of the safe topology, and the governed lever if it bites is the vendor-tenant-multi model with full obligations — never a quiet relaxation of the axis.
 
 ---
 
@@ -96,7 +96,7 @@ cascade reaches identities and their provider-side admission) and `doc-health`
   the withdrawal gap now; the cross-domain check waits, which costs little
   while there is one client.
 
-**ANSWER:**
+**ANSWER: (a) contract + both wirings.** Brett, 2026-08-14 clarify round. The change lands the schema/validator/examples AND the consent-instrument cascade AND the doc-health sixteenth family; it archives only on all three. The withdrawal gap is closed by this change rather than deferred.
 
 ---
 

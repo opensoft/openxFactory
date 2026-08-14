@@ -5,8 +5,19 @@
 - [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
-- [ ] 1.2 Brett ratification of the decisions in `design.md`, of which three
-      are genuinely contestable on cost or policy grounds:
+- [ ] 1.2 Brett ratification of the decisions in `design.md`. CLARIFY ROUND 1
+      SETTLED four of them 2026-08-14 (`clarify-questions.md`, answers
+      recorded inline): residency **class-independent** (client-resident for
+      every class; LedgerxFactory's multi-tenant Reader/Poster pair must
+      either declare the vendor-tenant-multi model with full obligations or
+      move client-resident — named cross-domain follow-up); blocking scope
+      **all three as drafted** (intra-repo blocks, cross-domain reports,
+      drift refuses grant issuance); enrollment **as drafted** (permissive
+      axis, `planned` entries, cost accepted); scope **contract + both
+      wirings** (archives only with the consent cascade AND the doc-health
+      family). STILL OPEN: Q5, the first-release `admission_surface`
+      vocabulary scope. Explicit ratification of the change itself remains
+      outstanding. The originally contestable points were:
       (a) **residency** — client-resident single-tenant as the default with a
       fully-obligated vendor-tenant-multi model as the governed alternative;
       this is the expensive decision and the review argued the multi-tenant
