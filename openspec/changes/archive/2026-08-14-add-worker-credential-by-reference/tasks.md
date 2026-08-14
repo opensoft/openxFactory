@@ -30,12 +30,20 @@
       token end to end; then rotate the vault secret and show the NEXT run
       consumes the new version with zero host access — the rotation
       scenario proven live.
-- [x] 2.5 (LANE HALF DONE — xFactory 6758046: identical fetch step + environment + id-token on both lanes, with their implicit actions:read made explicit (declaring a permissions block would have silently broken their cross-run bundle downloads). HOST HALF pending: operator deletes the service-scoped env var + restarts the runner services, then one smoke must show token source vault + SMOKE OK — closing the degraded-mode gap.) Migrate review-lane and doc-health-analysis to the same fetch
+- [x] 2.5 (DONE 2026-08-14 — lane half at xFactory 6758046; HOST HALF
+      operator-confirmed: the artifact runner's .env deleted (it held only
+      CLAUDE_CODE_OAUTH_TOKEN), machine/user/process token scopes verified
+      absent on both runners, both stale profile .credentials.json deleted
+      permanently, services restarted and online. Final smoke run
+      31833019258: token source VAULT, sk-ant-oat* recognized, SMOKE OK —
+      CPC-BRETT01 is fully host-credential-free; the degraded-mode gap on
+      this install is CLOSED and vault deletion is the single kill switch.)
+      Migrate review-lane and doc-health-analysis to the same fetch
       step; remove the service-scoped env var from the host (closing the
       degraded-mode gap on this install); record it.
 
 ## 3. Closeout
 
-- [ ] 3.1 Tick with evidence; archive (code surface green per the
+- [x] 3.1 (DONE 2026-08-14 — archived; code surface green: vault fetch live on all three lanes, rotation scenario proven, host credential-free end state reached.) Tick with evidence; archive (code surface green per the
       release-realization rule); note the pattern as the worked example the
       per-client stack topology topic's onboarding story consumes.
