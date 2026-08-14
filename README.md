@@ -261,6 +261,15 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-worker-credential-by-reference](openspec/changes/add-worker-credential-by-reference/proposal.md)
+  — worker credentials distributed BY REFERENCE (credential-contracts +2
+  requirements): vault-held non-rotating headless tokens fetched per job by
+  the runner's own federated identity into ephemeral job scope — rotation is
+  one vault write, audit is the vault log, the refreshable session-file
+  class is named non-conforming, and the vault OPERATOR is a per-install
+  execution binding (the 2026-08-11 two-case ruling: a client may license a
+  domain factory without OpsxFactory). Motivated by the 2026-07-25→08-13
+  three-lane credential outage; archives on one lane fetching live.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with

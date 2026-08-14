@@ -290,6 +290,15 @@ This is also another instance of this topic's open hosting question: "who
 operates the client's estate" is one fork with many faces — stack hosting,
 deploy execution, credential custody.
 
+## Credential follow-through (2026-08-14)
+
+The two-case worker-credential principle is now contract text:
+`add-worker-credential-by-reference` (credential-contracts +2 requirements —
+distribution-by-reference into ephemeral job scope with the session-file
+class named non-conforming; vault operator as a per-install execution
+binding). Archives on one lane fetching live; runbook §11 and the lane
+fetch step are its realization tasks.
+
 ## The (a)/(b) fork — RULED 2026-08-14 (Brett): (a)-first, incrementally
 
 Ratifying codexFactory `add-convening-autoclear-trigger` carried the fork
