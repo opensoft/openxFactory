@@ -5,75 +5,104 @@
 - [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
-- [ ] 1.2 Brett ratification of the four load-bearing decisions, each of
-      which is contestable on cost grounds: (a) the axis is
-      (workload × authority class) rather than one broad app; (b) governed
-      identities are single-tenant and client-resident, multi-tenant only by
-      ratified exception — this is the expensive one, it multiplies
-      enrollment work per client; (c) achieved scope must be declared and the
-      structural→logical degradation named; (d) drift detection is
-      report-only. Cross-model decision review recorded in
-      `review/decision-review-2026-08-14.md`. Everything below is parked
-      behind this gate.
+- [ ] 1.2 Brett ratification of the decisions in `design.md`, of which three
+      are genuinely contestable on cost or policy grounds:
+      (a) **residency** — client-resident single-tenant as the default with a
+      fully-obligated vendor-tenant-multi model as the governed alternative;
+      this is the expensive decision and the review argued the multi-tenant
+      shape is already the shipping architecture for at least two providers;
+      (b) **blocking vs reporting** — intra-repo conformance fails the domain
+      gate and an open drift finding refuses grant issuance, rather than
+      everything being advisory;
+      (c) **enrollment cost** — the axis is deliberately permissive about
+      per-unit and per-duty identities, which is safer and more expensive;
+      the lifecycle state softens the timing, not the total.
+      Cross-model review: `review/decision-review-2026-08-14.md` (first draft
+      reviewed; two blocking findings fixed by rewrite, verified against the
+      tree before adoption). Everything below is parked behind this gate.
 
-## 2. Neutral contract records
+## 2. Neutral contract records (full realization pattern)
 
-- [ ] 2.1 `contracts/schemas/client-identity-roster.schema.yaml`
-      (`schema_version` + `kind`): per-client roster record — `client_ref`,
-      `entries[]` each with `identity_ref` (no secrets), `workload`,
-      `authority_class` (closed enum `observe|mutate|destructive`),
-      `domain` (owning factory), `residency` (`client_tenant_single` or an
-      exception ref), `ratified_by` (capability id), `admission` (the
-      provider-side second key: surface, act, and `achieved_scope`),
-      `blast_radius_unit`, `declared_excess` (with `gate_obligation` when
-      achieved scope exceeds the unit).
-- [ ] 2.2 Closed `workload` vocabulary with a declared extension path (a new
-      workload arrives with the capability that governs it, never ad hoc).
-- [ ] 2.3 `.example.yaml` instantiation stub — a two-domain client showing
-      the composition rule and one declared-excess entry (the BC
-      admin-center tenant-wide case is the worked example).
-- [ ] 2.4 Cross-reference the record into `credential-contracts` and
-      `consent-instrument` by reference only (identity layer beneath them;
-      neither spec's requirements change).
+- [ ] 2.1 `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
+      (`schema_version` + `kind`; family `xfactory-` prefix): per-client
+      roster fragment — `client_ref`, `domain`, `entries[]` each with
+      `identity_ref`, `identity_kind`, `home_tenant`, `principal_locations[]`,
+      `residency_model`, `admission_surface`, `duty`, `blast_radius_unit`,
+      `authority_class_intended`, `authority_class_achieved`,
+      `granted_permissions[]` (provider-native ids), `admission[]` (surface,
+      act, `achieved_scope`, `enforcement_mode`, `evidence_ref`,
+      `verified_at`), `declared_excess` (with `provider_reason`,
+      `gate_obligation`, `enforcement_test_ref`), `per_unit_principal_available`,
+      `lifecycle_state`, `standing_credential_attestation`, `ratified_by`
+      (domain-qualified), `consent_ref`.
+- [ ] 2.2 Closed `admission_surface` vocabulary, Entra-homed at first
+      release, each entry naming its admission act and scoping mechanism;
+      extension only by the change that governs a new surface. Non-Entra
+      providers (client-org GitHub App installations) are named as a
+      successor so this and `client-infrastructure-liaison` cannot both claim
+      them.
+- [ ] 2.3 Packaged `examples/client-identity-roster.example.yaml`: a
+      two-domain client with (i) the BC pair as the worked case — TWO
+      admission acts, one provider-enforced per-environment and one
+      tenant-wide with no selector, declared excess + gate obligation +
+      enforcement test; (ii) a provider-forced multi-surface reader; (iii) a
+      duty-separated pair; (iv) one `planned` entry.
+- [ ] 2.4 `scripts/validate-client-identity-roster.py` (canonical, network-free,
+      deterministic) + fixtures: one positive roster, one negative per rule
+      (cross-domain shared identity, undeclared reach, unverified admission
+      counted as access, achieved>intended without excess, unresolvable gate
+      obligation, missing enforcement test, provider-enforced claim with no
+      per-unit principal, vendor-homed declared client-resident,
+      mutate-without-ratified-capability, false standing-credential
+      attestation).
+- [ ] 2.5 Declared placement for domain roster fragments (so an instance
+      cannot land where `validate-credential-contracts.py` skips it as out of
+      scope and nothing else covers it), plus `contracts/manifest.yaml` row
+      with sha256 + consumption rule, `contracts/CHANGELOG.md` entry, and the
+      contract-bundle version bump.
 
-## 3. Static conformance (doc-health family)
+## 3. Conformance wiring (blocking vs reporting)
 
-- [ ] 3.1 A `doc-health` family over roster records: entry without a
-      ratified capability, ratified capability without an entry,
-      cross-workload identity, combined authority classes, missing
-      `admission`/`achieved_scope`, achieved excess without a
-      `gate_obligation`, cross-domain overlap, non-client residency without
-      an exception ref.
-- [ ] 3.2 Severity and resolution classes assigned per finding in the
-      established auto-fixable/contested scheme (an entry contradicting a
-      ratified capability is contested — resolving it reverses a gate
-      decision).
-- [ ] 3.3 Deterministic fixtures: one positive two-domain roster, one
-      negative per rule above.
+- [ ] 3.1 Register the canonical validator in the `domain-conformance-checks`
+      pack so intra-repo entry conformance is BLOCKING (nonzero fails the
+      domain gate), per design Decision 7.
+- [ ] 3.2 doc-health sixteenth family, CROSS-DOMAIN only: assemble per-client
+      fragments from every pinned repo; report shared identity material and
+      undeclared cross-domain reach; explicitly do NOT duplicate intra-repo
+      rules. Severity/resolution classes assigned in the established
+      auto-fixable/contested scheme (an entry contradicting a ratified
+      capability is contested).
+- [ ] 3.3 Wire the grant-issuance refusal: an open drift finding against an
+      identity becomes an `issuance_preconditions` failure for grants naming
+      it, using the mechanism already ratified on `deployment_operator` /
+      `aks_workload_administration`.
+- [ ] 3.4 consent-instrument cascade realization: governed identities appear
+      in the dependent-reference list, and cascade evidence covers identity
+      removal/retirement AND withdrawal of provider-side admission.
 
-## 4. Domain conformance (named, executed in the domain repos)
+## 4. Domain conformance (named; executed in the domain repos)
 
-- [ ] 4.1 OpsxFactory declares its client-tenant entries against the neutral
-      shape, including the Business Central pair and the three identity
-      findings this investigation surfaced: the `opsx-farheap-bc-observer`
-      name/purpose mismatch now that it holds tenant-wide admin-center
-      authority, the inert Microsoft Graph delegated scope absent from its
-      identity record, and the tenant-wide admin-center excess with its gate
-      obligation.
-- [ ] 4.2 LedgerxFactory declares its `ledgerx-farheap-bc-*` entries; the
-      composition and overlap rules are exercised against a real two-domain
-      client tenant.
-- [ ] 4.3 Live drift detection remains a domain realization; record
-      OpsxFactory's `add-github-installation-policy` as the reference
-      implementation pattern and note that the client-tenant variant is its
-      own domain change.
+- [ ] 4.1 OpsxFactory publishes its fragment, including the three findings
+      this investigation surfaced: the `opsx-farheap-bc-observer`
+      name/purpose mismatch (achieves more than observation), the inert
+      Microsoft Graph delegated scope its identity record omits, and the
+      tenant-wide admin-center excess with its gate obligation and
+      enforcement test. Its BC entry exercises the two-admission-act case.
+- [ ] 4.2 LedgerxFactory publishes its `ledgerx-farheap-bc-*` fragment,
+      exercising duty separation and — with 4.1 — the cross-domain
+      composition rule against a real two-domain client tenant.
+- [ ] 4.3 Live client-tenant drift detection remains a domain realization;
+      record `add-github-installation-policy` as the reference pattern and
+      note the client-tenant variant is its own domain change.
 
 ## 5. Validation and exit
 
-- [ ] 5.1 `openspec validate --all --strict` green; the doc-health family
-      green over the fixtures and over any real roster records that exist.
-- [ ] 5.2 DTN candidate register updated if this contract warrants a
-      register row (identity topology is neutral by construction).
-- [ ] 5.3 Archive on realization evidence per `release-realization` (records
-      + family landed and green; domain declarations are follow-ups, not
-      archive blockers).
+- [ ] 5.1 `openspec validate --all --strict` green; canonical validator green
+      over fixtures; doc-health family green; the two MODIFIED capabilities'
+      own suites unaffected.
+- [ ] 5.2 DTN candidate register row if warranted (identity topology is
+      neutral by construction).
+- [ ] 5.3 Archive on realization evidence per `release-realization` (schema,
+      validator, examples, manifest/CHANGELOG/bundle, both wirings landed and
+      green). Domain fragments (section 4) are follow-ups, not archive
+      blockers.
