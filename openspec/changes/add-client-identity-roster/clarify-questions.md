@@ -113,4 +113,24 @@ cascade reaches identities and their provider-side admission) and `doc-health`
   installations) — reconciles with `client-infrastructure-liaison`
   immediately rather than as a named successor.
 
-**ANSWER:**
+**ANSWER: (a) only surfaces with a ratified capability today.** Brett, 2026-08-14 clarify round (verbatim: "a, ratified").
+
+Derived against the PROMOTED capability set rather than the question's
+parenthetical, because "ratified capability" means a promoted spec in
+`openspec/specs/`: OpsxFactory promotes seven, of which
+`business-central-administration` and `exchange-administration` are the
+client-tenant Entra-homed surfaces. First-release vocabulary is therefore
+**business_central** and **exchange**.
+
+Consequences stated plainly rather than hidden:
+- Endpoint/Intune, Windows 365 and Entra-directory surfaces are NOT in the
+  first vocabulary. Their changes are ratified but their capabilities are
+  not promoted, and their live targeting is not authorized, so there is no
+  live client identity to roster yet. They arrive with promotion. The
+  existing `microsoft_endpoint_*` and `microsoft_managed_node_inventory_reader`
+  requirement classes therefore sit outside roster scope until then — and
+  `managed_node_inventory_reader` is the worked case for provider-forced
+  breadth when it enters.
+- `github-administration-workflow` IS promoted but is non-Entra and routed
+  by `client-infrastructure-liaison`; per (a)'s exclusion of non-Entra
+  providers it is a named successor, not a first-release surface.

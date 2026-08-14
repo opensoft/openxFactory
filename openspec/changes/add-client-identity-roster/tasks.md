@@ -2,10 +2,11 @@
 
 ## 1. Ratification gate (BRETT)
 
-- [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
+- [x] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
-- [ ] 1.2 Brett ratification of the decisions in `design.md`. CLARIFY ROUND 1
+- [x] 1.2 RATIFIED 2026-08-14 by Brett Heap, verbatim "a, ratified" — the
+      change and all five clarify answers. CLARIFY ROUND 1
       SETTLED four of them 2026-08-14 (`clarify-questions.md`, answers
       recorded inline): residency **class-independent** (client-resident for
       every class; LedgerxFactory's multi-tenant Reader/Poster pair must
@@ -15,9 +16,9 @@
       drift refuses grant issuance); enrollment **as drafted** (permissive
       axis, `planned` entries, cost accepted); scope **contract + both
       wirings** (archives only with the consent cascade AND the doc-health
-      family). STILL OPEN: Q5, the first-release `admission_surface`
-      vocabulary scope. Explicit ratification of the change itself remains
-      outstanding. The originally contestable points were:
+      family); and Q5 **first-release vocabulary = surfaces with a PROMOTED
+      capability**, i.e. `business_central` and `exchange` only. Gate closed.
+      The originally contestable points were:
       (a) **residency** — client-resident single-tenant as the default with a
       fully-obligated vendor-tenant-multi model as the governed alternative;
       this is the expensive decision and the review argued the multi-tenant
@@ -46,12 +47,17 @@
       `gate_obligation`, `enforcement_test_ref`), `per_unit_principal_available`,
       `lifecycle_state`, `standing_credential_attestation`, `ratified_by`
       (domain-qualified), `consent_ref`.
-- [ ] 2.2 Closed `admission_surface` vocabulary, Entra-homed at first
-      release, each entry naming its admission act and scoping mechanism;
-      extension only by the change that governs a new surface. Non-Entra
-      providers (client-org GitHub App installations) are named as a
-      successor so this and `client-infrastructure-liaison` cannot both claim
-      them.
+- [ ] 2.2 Closed `admission_surface` vocabulary. FIRST RELEASE (ratified
+      2026-08-14): exactly `business_central` and `exchange` — the two
+      client-tenant Entra-homed surfaces whose capabilities are PROMOTED.
+      Each entry names its admission act and scoping mechanism (BC: the
+      per-environment application user AND the admin-center Entra-app
+      authorization, which is the two-act worked case). Extension only by the
+      change that governs a new surface: endpoint/Intune, Windows 365 and
+      Entra-directory arrive with their capabilities' promotion; `github` is
+      a named successor (non-Entra, routed by
+      `client-infrastructure-liaison`) so neither capability claims it
+      twice.
 - [ ] 2.3 Packaged `examples/client-identity-roster.example.yaml`: a
       two-domain client with (i) the BC pair as the worked case — TWO
       admission acts, one provider-enforced per-environment and one

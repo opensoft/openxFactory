@@ -4,8 +4,15 @@ target_release: implementation_pending
 ---
 # Proposal: add-client-identity-roster
 
-Status: draft — proposed 2026-08-14; parked at the ratify gate. Substantially
-revised the same day after a cross-model decision review
+Status: ratified
+Ratified: 2026-08-14 by Brett Heap — in-session, verbatim "a, ratified",
+answering clarify round 1 (`clarify-questions.md`): residency
+class-independent, blocking scope all three as drafted, enrollment as
+drafted, scope contract + both MODIFIED wirings, and first-release
+`admission_surface` vocabulary limited to surfaces with a promoted
+capability (`business_central`, `exchange`).
+Proposed 2026-08-14 and substantially revised the same day after a
+cross-model decision review
 (`review/decision-review-2026-08-14.md`) found the first draft's axis would
 have invalidated ratified, deliberately-narrow identities and admitted no
 conformant configuration for the one real client tenant in the estate.
