@@ -2,10 +2,10 @@
 
 ## 1. Ratification
 
-- [ ] 1.1 Present for review; record the ruling. (The ownership split was
+- [x] 1.1 (DONE 2026-08-14 — ratified verbatim; direct-from-tasks realization confirmed.) Present for review; record the ruling. (The ownership split was
       pre-ruled 2026-08-11 — neutral contract, operator as binding; this
       change realizes that ruling as contract text.)
-- [ ] 1.2 Strict-validate (single + `--all`); list in the README OpenSpec
+- [x] 1.2 (DONE — single + --all strict green 58/58; README listed; topic pointer added.) Strict-validate (single + `--all`); list in the README OpenSpec
       Records block; follow-through pointer in the
       `hermes-stack-topology-per-client` staging topic.
 

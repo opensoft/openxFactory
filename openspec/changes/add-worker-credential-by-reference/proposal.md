@@ -3,7 +3,8 @@
 code_surface: xFactory aggregation (worker-lane fetch steps + runbook §11) + operator-executed provisioning (one KV-reader workload identity per install); openxFactory contract-only otherwise
 target_release: implementation_pending — the contract lands now; the change archives on one worker lane fetching its model-provider credential from the vault per-job with green live evidence
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-14 by Brett Heap — in-session, verbatim: "I ratify the contract — implement the realization"; realization proceeds directly from this change's tasks per the established lane pattern (Speckit reserved for feature-sized surfaces)
 
 ## Why
 
