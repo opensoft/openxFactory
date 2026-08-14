@@ -69,6 +69,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
 | [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `openxwallet` (holder-agnostic core: key reference + declared custody, attenuated grants as the authority primitive, proof of possession, custody capping authority, key-attributed audit, revocation propagation, distinct-holder constraints, non-substrate rule) + ADDED `openxwallet-agent-profile` (composition + declared-change revocation + authority as grant scope); composes with `roles-authority-model` + `credential-contracts`; `openxVault` consumes the grants | 1 | **PROPOSED 2026-08-06 as `add-openxwallet`** (topic folder keeps the `agent-wallet-identity` name; the change was renamed on restructure). Restructured the same day after Brett asked whether the Medx/Ledgerx intersection lives in openxFactory — it did not, so the change now adds a HOLDER-AGNOSTIC core with GRANTS AS THE PRIMITIVE plus an agent profile, rather than a wallet shaped like an agent binding authority to a second vocabulary. **RATIFIED 2026-08-07** with all three decisions: grants as the primitive, the core holder-class agnostic, and key custody DECLARED and CAPPING authority. **REALIZED 2026-08-07** by Speckit feature `006-openxwallet-contracts`: two neutral contract families (`contracts/openxwallet/` core + `contracts/openxwallet-agent-profile/` as a sibling, so the profile seam is structural), `scripts/validate-openxwallet.py`, and a corpus of 16 positives and 33 negative confirmations covering 11/11 requirements, registered at `contract-v1.31`, and **ARCHIVED 2026-08-08** as `2026-08-08-add-openxwallet` with both capabilities promoted (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3). The topic row stays because the staged fragment remains on disk as provenance carrying the deferred material — batteries, measured drift, qualification tiers and delegation chains, each a named successor gated on a consumer of its own. The feature settled the two decisions the ratification left it: the closed custody set is three members with `evidences` DERIVED from two declared booleans and enforced — so a readable key cannot claim an isolated key's authority, and the collapse is structurally impossible rather than discouraged — and the composition component set covers a retrieval corpus BY REFERENCE (identity plus governing configuration) rather than by contents, which dissolves the include-or-exclude binary. The closed custody enumeration and what each member evidences are now contract content rather than an implementation detail. Organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
 | [manager-review-approval-scope-kind](#manager-review-approval-scope-kind) | MODIFIED `hermes-domain-overlay` (additive `approval_scope_kinds` vocabulary extension — a dedicated `manager_review` kind) | 1 | Registered 2026-08-10 — origin is `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`'s implementation plan (tension T2), ruled "register now" by Brett Heap the same day; the live gate proceeds on the `engineering_intent` fallback in the meantime; 2 open questions (envelope-vs-overlay home, naming/scope grain), neither blocking |
+| [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
 
 ## hermes-stack-topology-per-client
 
@@ -1057,3 +1058,34 @@ global on/off that would close the window for everyone.
   fallback) justifies the tightening; the engineering overlay's adoption of
   the new kind is a follow-on realization in the consuming domain repo, not
   part of this exit.
+
+## openxdox-install-app-provisioning
+
+How a DomainxFactory install (first case: a client running codexFactory)
+provisions the intent plane's two GitHub Apps with near-zero manual config,
+tenant-owned and sovereign. The plane needs two Apps kept separate by
+`add-dispatch-credential-contract` — the content App (`Contents: write` on the
+governed doc repos, in CI) and the dispatch App (`Actions: write` on the one
+apply-workflow repo, held as minted tokens by the exposed inbox) — and opensoft's
+QA install created both by hand. Resolution: GitHub has no app-creates-app API,
+so the install drives the **GitHub App Manifest flow** — a shipped manifest per
+App (permissions pre-filled) the tenant name-and-confirms, GitHub creating it in
+THEIR org and returning credentials the installer captures, so the Apps stay
+tenant-owned. App names are globally unique, so a naming convention
+(`openXdox — <tenant>` / `openxFactory — <tenant>`) replaces identical names. The
+apply workflow lives in a small dedicated repo the install creates (the dispatch
+App scopes to just it), and the tenant's one real decision is the content App's
+repo scope.
+
+- Files: 1 (`openxdox-install-app-provisioning.md`)
+- Target capabilities: `credential-contracts` (MODIFIED — or a new
+  `install-app-provisioning` capability); realization in Omnigent-Install
+  (installer) + codexFactory (manifest files + install docs)
+- Open questions: contract home (delta vs new capability); managed
+  (`opsxfactory_executed`) vs self-hosted manifest-flow driver; apply-repo home
+  (fresh vs template; opensoft's own workflow migrate or stay in `xFactory`);
+  credential capture + hand-off to the minter; naming-convention grain
+- Exit: an openxFactory proposal once the contract home + the managed-vs-self-
+  hosted flow are decided with Brett, plus a named Omnigent-Install installer
+  change; gated on the QA dispatch migration completing (it proves the two-App
+  runtime shape the installer provisions)
