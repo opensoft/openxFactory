@@ -11,6 +11,12 @@ class-independent, blocking scope all three as drafted, enrollment as
 drafted, scope contract + both MODIFIED wirings, and first-release
 `admission_surface` vocabulary limited to surfaces with a promoted
 capability (`business_central`, `exchange`).
+Amended: 2026-08-14 by Brett Heap — Decisions A and B, both "amend the
+change", after the cross-model adversarial review of the Speckit clarify
+rulings found two capabilities modified in substance but undeclared here
+(`review/amendment-record-2026-08-14.md`): the conformance pack grows to four
+checks, and the neutral credential-contracts schema gains an
+`issuance_preconditions` vocabulary. Both are declared below.
 Proposed 2026-08-14 and substantially revised the same day after a
 cross-model decision review
 (`review/decision-review-2026-08-14.md`) found the first draft's axis would
@@ -146,6 +152,21 @@ this cannot be a domain-local rule.
   CROSS-DOMAIN roster concerns; intra-repo entry conformance is a blocking
   domain gate, not an advisory nightly report.
 
+- **`domain-conformance-checks` (MODIFIED, Decision A)** — the neutral pack's
+  exhaustive enumeration of three scripts grows to four, admitting
+  `scripts/validate-client-identity-roster.py`, because pack membership is the
+  only promoted mechanism that confers blocking status on a canonical check.
+  In a target repo publishing no roster fragment the check passes with an
+  explicit notice: this release enforces no completeness rule, so absence is
+  never a finding.
+
+- **`credential-contracts` (MODIFIED, Decision B)** — the neutral schema gains
+  an `issuance_preconditions` vocabulary whose roster-drift member gives the
+  ratified refusal a neutral home. Without it the refusal exists only as a
+  domain-local extra key riding a neutral schema that neither declares nor
+  forbids it, and the ratified blocking clause has nothing neutral to stand
+  on.
+
 ## Capabilities
 
 ### New Capabilities
@@ -157,6 +178,10 @@ this cannot be a domain-local rule.
 - `consent-instrument`: dependent-reference cascade reaches governed
   identities.
 - `doc-health`: sixteenth deterministic family, cross-domain scope only.
+- `domain-conformance-checks`: the pack grows to four checks, admitting the
+  canonical roster check as blocking (Decision A, 2026-08-14).
+- `credential-contracts`: the neutral schema gains an `issuance_preconditions`
+  vocabulary carrying the roster-drift member (Decision B, 2026-08-14).
 
 ## Impact
 

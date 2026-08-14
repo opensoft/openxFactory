@@ -19,12 +19,29 @@ in `clarify-questions.md`. That change's `tasks.md` is the governed handoff
 sketch and the authority for SCOPE; this specification neither extends it nor
 restates its task list, which Speckit owns and regenerates. `design.md`'s
 rejected alternatives and `review/decision-review-2026-08-14.md` are binding
-history: nothing here may contradict them.
+history: nothing here may contradict them. The packet was AMENDED 2026-08-14
+(Decisions A and B, `review/amendment-record-2026-08-14.md`), adding two
+MODIFIED capability deltas the ratified proposal had not declared. ARCHIVE
+BLOCKERS are therefore the contract records, the consent-instrument cascade
+(task 3.2), the doc-health sixteenth family (task 3.4), pack enrollment
+(task 3.1, Decision A), and the neutral refusal fixture (task 3.3,
+Decision B); only section 4 — the domain fragments — is exempt.
 
 **Capabilities realized**: `client-identity-roster` (ADDED, thirteen
 requirements), `consent-instrument` (MODIFIED — termination cascade reaches
 governed identities and their provider-side admission), `doc-health` (MODIFIED
-— a sixteenth deterministic family, cross-domain scope only).
+— a sixteenth deterministic family, cross-domain scope only),
+`domain-conformance-checks` (MODIFIED, Decision A — the neutral pack grows to
+four checks so intra-repo conformance is blocking), `credential-contracts`
+(MODIFIED, Decision B — the neutral schema gains an `issuance_preconditions`
+vocabulary carrying the roster-drift member).
+
+**Governing rulings**: `clarify-rulings-2026-08-14.md` (this directory) — the
+architect's clarify round 1 rulings after cross-model adversarial review, plus
+Brett's two escalated decisions. Where that file and this specification
+disagree, the rulings win; every `[NEEDS CLARIFICATION]` marker this
+specification carried is ruled and removed. The packet's amendment record is
+`openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-14.md`.
 
 **Ratified constraints (binding; encoding them is the work, relitigating them
 is failure)**:
@@ -54,6 +71,90 @@ is failure)**:
    Central worked case describe itself at all.
 8. **This feature authorizes no client-tenant act, no credential minting, and
    no live provider call.**
+9. **Two ratified amendments, Brett 2026-08-14.** DECISION A: the
+   `domain-conformance-checks` pack grows to FOUR checks and the roster check
+   joins it, because pack membership is the only promoted mechanism conferring
+   blocking status — pack enrollment is an archive blocker, not a successor.
+   DECISION B: the refusal gets a neutral home — `credential-contracts` gains a
+   closed `issuance_preconditions` vocabulary with a roster-drift member,
+   proven at the neutral level by fixture. Reducing either to a successor was
+   offered and declined.
+10. **No roster completeness rule ships in this release.** Absence of a
+    fragment, or of an entry, is NEVER a finding (the permissive axis,
+    ratified answer 3). Scoped completeness is a named successor change, not
+    work here.
+
+## Clarifications
+
+### Session 2026-08-14 (architect seat; cross-model adversarial review applied)
+
+Full text and rationale: `clarify-rulings-2026-08-14.md`. Rulings marked
+(amended) or (superseded) reflect the review's verdicts on the architect's
+first pass; two were escalated to Brett as ratified-scope decisions.
+
+- Q: Where do domain roster fragments live, and what stops a stray instance
+  from passing unexamined? → A (R1): declared placement is
+  `credentials/client-identity-roster/<client_ref>.yaml` in the domain repo —
+  inside the tree `validate-credential-contracts.py` already scans recursively,
+  whose skip-with-notice for unknown kinds is expected and blessed by the
+  promoted credential-contracts spec. Placement is MECHANIZED: the canonical
+  roster validator sweeps the WHOLE target repo for the roster kind and reports
+  any instance outside the declared placement as a misplacement finding.
+- Q: Does the roster check join the `domain-conformance-checks` pack, when the
+  promoted pack spec enumerates three scripts exhaustively? → A (R2 →
+  DECISION A, Brett): yes — AMEND the ratified change, declare the capability
+  MODIFIED, pack grows to four, blocking stays an archive blocker.
+- Q: doc-health says fifteen families promoted and sixteen in the delta — does
+  this feature edit promoted text? → A (R3): no. Agreement is measured against
+  the RATIFIED DELTA wording; the promoted spec text is rewritten by the
+  OpenSpec archive step, which runs after this feature lands. The feature
+  updates only the prose sites it owns, at minimum
+  `scripts/doc_health/families.py:1` ("The fifteen contract check families.")
+  and that module's registration note.
+- Q: Where does the grant-issuance refusal live, given the feature is
+  openxFactory-only? → A (R4 → DECISION B, Brett): the neutral schema gains the
+  `issuance_preconditions` vocabulary with the roster-drift member. No live
+  producer of drift findings exists at archive time, so the neutral criterion
+  is a conformant requirement-record FIXTURE; live refuse-then-allow is proven
+  in the domain follow-up at the mint surface.
+- Q: Is a live client-tenant identity with no roster entry a finding? → A (R5,
+  superseded — the invented predicate fired permanently on 14 of OpsxFactory's
+  16 requirement classes and re-admitted a killed flaw): NO completeness
+  enforcement in this release. Absence is never a finding; scoped completeness
+  becomes a named successor.
+- Q: Does `verified_at` decay? → A (R6): no admission-freshness decay in v1.
+  The timestamp is recorded; verified versus unverified is the only distinction
+  the checks draw.
+- Q: Which enumerated fields are closed, and what stops a free token from
+  making the uniqueness key unfalsifiable? → A (R7): `admission_surface`,
+  `residency_model`, `enforcement_mode`, authority class, `lifecycle_state` and
+  `identity_kind` are CLOSED; `blast_radius_unit` and `duty` are
+  domain-declared pattern-bound tokens, each declared once in a fragment legend
+  binding the token to its provider-native identifier. The ALIAS RULE bounds
+  the free tokens without re-killing per-unit and duty-separated identities.
+- Q: Does this feature ship the drift-finding record shape? → A (R8,
+  superseded): yes — a governed record in the roster contract family with its
+  own `kind` and `schema_version`, carrying `roster_value` and
+  `observed_value`. It does NOT claim alignment with any doc-health findings
+  register, because none exists (doc-health is a stateless recompute).
+- Q: Where do packaged examples live? → A (C3): `examples/client-identity-roster/`
+  with a `negative/` subdirectory and a README, spanning at least two fragment
+  files because fragments are per (client, domain) and the mandated case is a
+  two-domain client.
+- Q: Does the consent-instrument status enum need `withdrawn`? → A (N1/N2):
+  yes — the delta requires behaviour on "terminated or withdrawn", and the
+  enum is closed. Grow it additively with a `contract_schema_version` bump and
+  manifest rows at `contract-v1.32`; no aliasing, because withdrawal and
+  termination are distinct events.
+- Q: What is the new doc-health family called? → A (N4): the ratified delta
+  names no family id, so the id is `client-identity-composition` (module
+  `client_identity_composition.py`) — it MUST NOT collide with
+  `scripts/doc_health/shared_identity.py`, an active separate lane. "Shared
+  identity material" is a finding CLASS inside the family, not its name.
+- Q: Does the canonical validator resolve `evidence_ref`? → A (N7): no. It is a
+  declared pointer (repo + path, optionally sha); the canonical validator is
+  network-free and single-repo. Resolution belongs to the cross-domain
+  doc-health family, which assembles from pinned repos.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -122,10 +223,15 @@ turn and confirm the validator refuses it, naming that rule and not another.
    validation, per-client authorization state, per-client revocation evidence,
    the cross-client credential-span statement, and the consent amendment per
    affected client.
-8. **Given** two entries differing only in blast-radius unit, and two differing
-   only in duty, **When** they are validated, **Then** both pairs pass with no
-   overlap finding; and **Given** two entries sharing the whole uniqueness
-   tuple, **Then** the duplicate is reported naming every element of the tuple.
+8. **Given** two entries differing only in blast-radius unit (with different
+   achieved scopes), and two differing only in duty (with different permissions
+   or a declared duty-separation rationale), **When** they are validated,
+   **Then** both pairs pass with no overlap finding; **Given** two entries
+   sharing the whole uniqueness tuple, **Then** the duplicate is reported naming
+   every element of the tuple; and **Given** two entries differing solely in a
+   free token while observationally identical and declaring no rationale,
+   **Then** the alias is reported — the only case in which a free-token
+   difference is a finding.
 9. **Given** an entry naming a ratified capability and no consent instrument,
    **When** it is validated, **Then** validation fails stating that consent —
    not our own ratification — authorizes standing in another party's tenant.
@@ -156,12 +262,15 @@ contract exists but is unreachable and unenforced — the failure mode the
 governing change's first draft was rewritten to fix. It is second because the
 schema and validator must exist before they can be registered.
 
-**Independent Test**: Place a conformant fragment at the declared location in a
-fixture domain repo and confirm exactly one canonical validator claims and
-checks it; place the same fragment outside that location and confirm it is
-reported as misplaced rather than silently skipped. Verify the manifest row's
-digest against the file on disk and confirm the contract-bundle release
-inventory validates.
+**Independent Test**: Place a conformant fragment at
+`credentials/client-identity-roster/<client_ref>.yaml` in a fixture domain repo
+and confirm exactly one canonical validator claims and checks it — while
+`validate-credential-contracts.py`, which scans that tree recursively, emits
+its blessed skip-with-notice for the unknown kind. Place the same fragment
+anywhere else in the repo and confirm the whole-repo kind sweep reports it as
+misplaced rather than leaving it unexamined. Verify the manifest row's digest
+against the file on disk and confirm the contract-bundle release inventory
+validates.
 
 **Acceptance Scenarios**:
 
@@ -181,19 +290,25 @@ inventory validates.
 
 ### User Story 3 - A nonconformant entry fails the owning domain's gate rather than warning nightly (Priority: P3)
 
-The canonical roster check runs from the pinned openxFactory checkout against a
+The canonical roster check joins the `domain-conformance-checks` pack as its
+fourth member (Decision A), runs from the pinned openxFactory checkout against a
 domain repository as an explicit target, and a nonzero exit fails that domain's
 conformance gate. A `mutate` entry whose capability is not ratified blocks; it
-does not become an advisory report.
+does not become an advisory report. In a repo publishing no roster fragment the
+check passes with an explicit notice — the added blocking surface cannot fire on
+absence.
 
 **Why this priority**: It is the ratified blocking half of Decision 7 and the
-difference between a governed axis and documentation. It depends on the
+difference between a governed axis and documentation. Pack membership is the
+only promoted mechanism that confers blocking status, which is why Decision A
+amended the ratified change rather than deferring enrollment. It depends on the
 validator existing (P1) but on nothing else.
 
 **Independent Test**: Run the check against a fixture domain repo containing a
 `mutate` entry with no ratified capability and confirm a nonzero exit with the
 finding named; run it against the conformant fixture repo and confirm exit 0
-with no findings.
+with no findings; run it against a fixture repo with no fragment at all and
+confirm exit 0 with an explicit notice, no finding.
 
 **Acceptance Scenarios**:
 
@@ -206,6 +321,9 @@ with no findings.
 3. **Given** a conformant domain repo, **When** the check runs, **Then** it
    exits 0, and a copy of the check inside the domain repo is itself a
    conformance defect (the pack's no-copy rule).
+4. **Given** a domain repo publishing no roster fragment, **When** the pack
+   runs, **Then** the roster check passes with an explicit notice and exits 0 —
+   neither a missing fragment nor a missing entry is a finding in this release.
 
 ---
 
@@ -226,8 +344,11 @@ against the consent-instrument family alone.
 **Independent Test**: Author a terminated instrument declaring a governed
 identity dependent whose cascade evidence covers only credential revocation and
 confirm a finding; extend the evidence to identity removal plus admission
-withdrawal and confirm it passes. Confirm the existing consent-instrument
-fixtures and instances validate unchanged.
+withdrawal and confirm it passes. Repeat with the instrument in `withdrawn` —
+the status member this feature adds — and confirm the cascade fires
+identically, since withdrawal and termination are distinct events with the same
+obligation. Confirm the existing consent-instrument fixtures and instances
+validate unchanged, which the additive growth guarantees.
 
 **Acceptance Scenarios**:
 
@@ -257,8 +378,10 @@ a finding — separate identities are what preserve provider-side attribution an
 independent revocation.
 
 **Why this priority**: It is the reporting half of the ratified split and the
-sixteenth doc-health family the change MODIFIES into existence. It is last of
-the checking work because it composes artifacts the earlier stories produce.
+sixteenth doc-health family the change MODIFIES into existence — family id
+`client-identity-composition`, which must not collide with the active
+`shared_identity` lane. It is last of the checking work because it composes
+artifacts the earlier stories produce.
 
 **Independent Test**: Give the pass two fragments for one client naming the same
 identity and confirm a shared-identity-material finding naming both domains;
@@ -288,61 +411,93 @@ client and confirm an explicit skip with a reason.
 ### User Story 6 - A drifted identity stops receiving fresh credentials (Priority: P6)
 
 Where an identity's observed permissions or admission diverge from its roster
-entry, the finding is recorded and nothing in the client's tenant is touched.
-Instead, grant issuance for that identity is refused as an issuance
-precondition — the one lever we own that is not a mutation of the client's
-estate.
+entry, the divergence is recorded as a governed drift-finding record — carrying
+the roster value and the observed value — and nothing in the client's tenant is
+touched. Instead, grant issuance for that identity is refused as an issuance
+precondition: the one lever we own that is not a mutation of the client's
+estate. Decision B gives that precondition a neutral home in
+`credential-contracts`, so the refusal is declarable against a pinned contract
+rather than as a domain-local extra key.
 
 **Why this priority**: It is the third ratified blocking behaviour and the
 answer to "report-only means a drifted identity keeps getting fresh JIT
-credentials". It rides an existing mechanism, so it is small, but it depends on
-the roster entry and the drift-finding representation.
+credentials". It depends on the roster entry and on the drift-finding record
+shape, which this feature ships.
 
-**Independent Test**: Record an open drift finding against a fixture identity,
-request issuance of a grant naming it, and confirm refusal that names the
-finding; clear the finding and confirm issuance proceeds. Confirm no code path
-in the feature can create, modify, widen, narrow, or remove an identity,
-permission, or admission.
+**Independent Test**: Validate a conformant credential requirement-record
+fixture declaring the roster-drift precondition, and a negative fixture
+declaring a precondition outside the closed vocabulary; confirm the drift
+record's own schema accepts a complete finding and refuses one missing
+`roster_value` or `observed_value`. No live refuse-then-allow can be measured
+here — no producer of live drift findings exists in the family at archive time,
+and issuance happens at a domain mint surface this feature does not touch.
+Confirm no code path in the feature can create, modify, widen, narrow, or
+remove an identity, permission, or admission.
 
 **Acceptance Scenarios**:
 
 1. **Given** a detected divergence between roster and observed state, **When**
-   it is recorded, **Then** it records the roster value and the observed value
-   and performs no mutation and no automated remediation.
+   it is recorded, **Then** the governed drift-finding record carries
+   `roster_value` and `observed_value` alongside the identity reference, and
+   the recording performs no mutation and no automated remediation.
 2. **Given** an open drift finding against an identity, **When** grant issuance
    is attempted for that identity, **Then** issuance is refused naming the
-   finding.
-3. **Given** the refusal, **When** it is expressed, **Then** it uses the
-   existing `issuance_preconditions` mechanism rather than a second parallel
-   mechanism.
+   finding — the behaviour the neutral declaration specifies and the domain
+   mint surface performs.
+3. **Given** the refusal, **When** it is expressed neutrally, **Then** it is the
+   roster-drift member of the closed `issuance_preconditions` vocabulary in
+   `credential-contracts` — one mechanism, declared on the credential
+   requirement record, never a second parallel one.
+4. **Given** a requirement record declaring a precondition token outside that
+   closed vocabulary, **When** it is validated, **Then** it is refused naming
+   the vocabulary, because a free-text precondition is unenforceable.
 
 ---
 
 ### Edge Cases
 
 - **A fragment placed where only a skip-with-notice validator looks.** The
-  governed hazard: `validate-credential-contracts.py` skips unknown kinds as
-  out of scope, so a misplaced roster instance would pass unexamined. Declared
-  placement plus a misplacement finding is the answer; a placement change is a
-  contract change.
+  governed hazard: `validate-credential-contracts.py` scans `credentials/`
+  recursively and skips unknown kinds as out of scope, so a misplaced roster
+  instance would pass unexamined. The answer is a declared placement
+  (`credentials/client-identity-roster/<client_ref>.yaml`) plus a WHOLE-REPO
+  kind sweep that reports any instance outside it. The skip-with-notice from
+  the credential-contracts validator over the declared placement is EXPECTED
+  and blessed by that promoted spec — it is not a gap, because the roster
+  validator covers exactly that path. A placement change is a contract change.
 - **An admission act verified once, long ago.** The record carries
-  `verified_at`; whether an old verification decays is an open question (see
-  FR-033). Until it is settled the only distinction the check draws is
-  verified vs unverified.
+  `verified_at` and this release adds no decay: verified versus unverified is
+  the only distinction the checks draw (ruling R6). An interval, and whether
+  staleness would report or refuse issuance, is deliberately not invented here.
 - **An identity on a surface outside the first-release vocabulary.** An
   existing `microsoft_endpoint_*` or managed-node-inventory class, a Windows
   365 or Entra-directory identity, or a client-org GitHub App installation is
   OUT of roster scope in this release. It is neither rosterable nor a
   completeness finding; it enters with its capability's promotion, or through
-  the named successor for non-Entra providers.
-- **A live client-tenant identity with no roster entry at all.** Whether
-  omission is itself a finding, and against what expected set, is the open
-  completeness question (FR-032). A permissive axis with `planned` entries
-  means silence and legitimate not-yet-enrolled look alike until it is settled.
+  the named successor for non-Entra providers. This case is retained precisely
+  because a completeness rule would have fired on it — demanding an entry for a
+  class whose ratified position is that the factory holds NO identity would
+  re-admit the killed destructive-class flaw.
+- **A live client-tenant identity with no roster entry at all.** Not a finding
+  in this release (ruling R5). The permissive axis makes silence and
+  legitimate not-yet-enrolled indistinguishable by construction, and any
+  predicate derived from the domain's credential requirement classes fires
+  permanently on the classes the ratified answers place outside roster scope.
+  Scoped completeness — factory-held identity classes, on first-release
+  surfaces, in client tenants, with issued grants — is recorded as a named
+  successor change.
 - **A retired entry.** Its record is retained rather than deleted, which must
   not collide with record-immutability expectations elsewhere in the corpus.
 - **A single-domain client.** The cross-domain family has nothing to compose
   and must skip with a reason; the intra-repo gate still applies fully.
+- **Two entries differing only in a free token.** `blast_radius_unit` and
+  `duty` are domain-declared, so a domain could split one identity into two by
+  inventing token spellings. The alias rule is the bound: a finding is raised
+  only when two entries differ solely in a free token AND are observationally
+  identical — same granted permissions and same admission acts — AND declare no
+  duty-separation rationale. A genuine per-unit pair differs in
+  `achieved_scope`; a genuine duty pair differs in permissions or declares the
+  rationale. Anything stricter re-kills the flaw the review already killed.
 - **A provider whose narrowest permission spans surfaces.** Conformant when the
   spanned surfaces, the provider reason, and the gate obligation are declared;
   the check must not invalidate a deliberately narrow identity because the
@@ -351,7 +506,13 @@ permission, or admission.
   obligation no longer resolves and is a finding: an unenforced obligation
   converts an undetected widening into a documented one.
 - **A domain that holds no client-tenant identities.** Publishes no fragment
-  and is refused by nothing.
+  and is refused by nothing: the pack's roster check passes with an explicit
+  notice, so admitting a fourth blocking check into every domain's gate cannot
+  break a repo that has nothing to declare.
+- **An `evidence_ref` pointing into another repository.** It is a declared
+  pointer, not a resolved link: the canonical validator is network-free and
+  single-repo, so it checks the pointer's SHAPE only. Resolution is the
+  cross-domain doc-health family's, which assembles from pinned repos.
 
 ## Requirements *(mandatory)*
 
@@ -369,7 +530,11 @@ permission, or admission.
   `granted_permissions[]`, `admission[]`, `declared_excess`,
   `per_unit_principal_available`, `lifecycle_state`,
   `standing_credential_attestation`, `ratified_by` (domain-qualified), and
-  `consent_ref`.
+  `consent_ref`. The fragment MUST additionally carry the free-token LEGEND
+  required by FR-034, binding each `blast_radius_unit` and `duty` token used in
+  that fragment to its provider-native identifier. The field list above is the
+  ratified one (OpenSpec task 2.1) and MUST NOT be reduced; the legend is the
+  only addition the 2026-08-14 rulings make to it.
 - **FR-002**: `admission` MUST be a LIST whose members each declare the
   surface, the act performed in that surface's own administrative console, the
   scope that act achieves, whether the resulting bound is provider-enforced or
@@ -464,33 +629,46 @@ permission, or admission.
   per-unit principal, a vendor-homed registration declared client-resident, a
   `mutate` entry with no ratified capability, a false standing-credential
   attestation, a proposed destructive class, an out-of-vocabulary admission
-  surface, an entry with no consent instrument, and a genuine full-tuple
-  duplicate. Each negative MUST fail for its own reason rather than
-  incidentally.
+  surface, an entry with no consent instrument, a genuine full-tuple
+  duplicate, a roster instance outside the declared placement, and an
+  ALIAS PAIR (two entries differing solely in a free token while
+  observationally identical, with no duty-separation rationale). Each negative
+  MUST fail for its own reason rather than incidentally.
 - **FR-017**: The corpus MUST carry POSITIVE regression fixtures that keep the
-  two killed flaws killed: two entries differing only in blast-radius unit, two
-  entries differing only in duty, a provider-forced multi-surface reader with
-  its declaration, and a `planned` entry — each validating clean with zero
-  findings.
+  two killed flaws killed: two entries differing only in blast-radius unit
+  (a GENUINE per-unit pair, differing in `achieved_scope`), two entries
+  differing only in duty (a GENUINE duty pair, differing in granted permissions
+  or declaring the duty-separation rationale), a provider-forced multi-surface
+  reader with its declaration, and a `planned` entry — each validating clean
+  with zero findings. These fixtures MUST stand alongside the alias-pair
+  negative of FR-016, so the alias rule is measured as a discrimination and not
+  merely as a refusal.
 - **FR-018**: The validator MUST refuse a negative fixture that validates
   cleanly, a negative fixture that fails for the wrong reason, and a corpus
   where a registered probe has no file or a file has no registration.
-- **FR-019**: The feature MUST package an instantiable example covering the
-  Business Central two-admission-act worked case — a provider-enforced
-  per-environment application user in Sandbox1 with no production application
-  user, PLUS the admin-center Entra-app authorization that has no scope
-  selector and therefore reaches every environment, with the resulting excess,
-  gate obligation, and enforcement test declared — together with a
-  provider-forced multi-surface reader, a duty-separated pair, and one
-  `planned` entry, for a client held by two domains.
-- **FR-020**: The contract MUST declare WHERE a domain publishes its roster
-  fragments, and an instance carrying the roster kind outside that declared
-  placement MUST be reported rather than silently skipped as out of scope by
-  the credential-contracts validator. [NEEDS CLARIFICATION: the governed packet
-  requires "a declared placement" but names no path — is it
-  `credentials/client-identity-roster/<client_ref>.yaml` inside the tree
-  `validate-credential-contracts.py` already scans, or the domain `tenants/`
-  tree where client-tenant evidence lives today?]
+- **FR-019**: The feature MUST package instantiable examples under
+  `examples/client-identity-roster/`, with a `negative/` subdirectory and a
+  README following the sibling families, covering the Business Central
+  two-admission-act worked case — a provider-enforced per-environment
+  application user in Sandbox1 with no production application user, PLUS the
+  admin-center Entra-app authorization that has no scope selector and therefore
+  reaches every environment, with the resulting excess, gate obligation, and
+  enforcement test declared — together with a provider-forced multi-surface
+  reader, a duty-separated pair, and one `planned` entry, for a client held by
+  two domains. Because a fragment is per (client, domain), the four mandated
+  cases MUST span at least TWO fragment files. The directory convention is
+  `examples/<family>/` because the schema lives in `contracts/schemas/`; the
+  rival `contracts/<family>/examples/` convention belongs to families owning a
+  `contracts/` subdirectory and MUST NOT be adopted here.
+- **FR-020**: The contract MUST declare the placement of a domain's roster
+  fragments as `credentials/client-identity-roster/<client_ref>.yaml` in the
+  domain repository — inside the tree `scripts/validate-credential-contracts.py`
+  already scans recursively — one file per (client, domain) pair. That
+  validator's skip-with-notice over these files is EXPECTED behaviour blessed
+  by the promoted `credential-contracts` spec, not a coverage gap, because the
+  canonical roster validator claims exactly that path. The consumption rule
+  registered with the schema MUST state the placement and note the expected
+  skip.
 
 **Release registration**
 
@@ -499,58 +677,90 @@ permission, or admission.
   `compatibility`, `adapter_owner`, and a `consumption_rule`, MUST carry a
   `contracts/CHANGELOG.md` entry, and MUST bump the contract bundle from its
   current `contract-v1.31` to `contract-v1.32` with the matching release digest
-  inventory, such that digest verification passes.
+  inventory, such that digest verification passes. Every OTHER schema this
+  feature edits — the consent-instrument family under FR-039, and the canonical
+  credential-contracts schema under FR-028 — MUST have its manifest row
+  refreshed in the same bundle: new `sha256`, the bumped
+  `schema_version`/`contract_schema_version`, and `compatibility` declared in
+  the shape the last bump's rows use, so no consumer resolves a stale digest.
 
 **The three wirings**
 
-- **FR-022**: Intra-repo entry conformance MUST be BLOCKING: the canonical
-  check MUST be registered so that a nonzero exit fails the owning domain's
-  conformance gate. [NEEDS CLARIFICATION: the promoted
-  `domain-conformance-checks` spec enumerates the pack as exactly three
-  `check-*.py` scripts, so adding a fourth blocking check appears to modify
-  that capability, which the governing change does not declare as MODIFIED — is
-  the roster check registered as a canonical validator invoked by the domain
-  gate (the `validate-*.py` shape the packet specifies), or does the pack
-  enumeration grow, requiring a `domain-conformance-checks` delta before
-  archive?]
+- **FR-022**: Intra-repo entry conformance MUST be BLOCKING through PACK
+  MEMBERSHIP: `scripts/validate-client-identity-roster.py` MUST join the
+  `domain-conformance-checks` pack as its fourth member, so that a nonzero exit
+  fails the owning domain's conformance gate under the pack's own rule.
+  Registration MUST be accompanied by the `domain-conformance-checks` MODIFIED
+  delta this packet now carries (Decision A) — the promoted pack requirement
+  enumerates its scripts exhaustively, so enrollment without the delta is an
+  undeclared modification of a promoted capability. The pack's existing rules
+  apply unchanged to the new member: it takes its target repo as an explicit
+  argument, runs from the pinned openxFactory checkout, and MUST NOT be copied
+  into a domain repo. In a target repo publishing no roster fragment the check
+  MUST exit 0 with an explicit notice.
 - **FR-023**: Cross-domain composition MUST land as a sixteenth deterministic
-  doc-health family, registered in the doc-health family registry with a
-  resolution class, that assembles per-client fragments published by pinned
-  domain repositories and reports ONLY shared identity material and undeclared
-  cross-domain reach. It MUST NOT duplicate any intra-repo rule, MUST skip
-  explicitly with a reason when there is nothing to compose, MUST make no model
-  call or network request, and MUST classify a finding that contradicts a
-  ratified capability as contested rather than auto-fixable.
+  doc-health family with family id `client-identity-composition`, implemented
+  in `scripts/doc_health/client_identity_composition.py` and registered in the
+  family registry with a resolution class, that assembles per-client fragments
+  published by pinned domain repositories and reports ONLY shared identity
+  material and undeclared cross-domain reach. The id and module name MUST NOT
+  collide with `scripts/doc_health/shared_identity.py`, which belongs to the
+  active `add-shared-identity-seeds` lane: "shared identity material" is a
+  finding CLASS inside this family, never the family's name. The family MUST
+  NOT duplicate any intra-repo rule, MUST skip explicitly with a reason when
+  there is nothing to compose, MUST make no model call or network request, and
+  MUST classify a finding that contradicts a ratified capability as contested
+  rather than auto-fixable.
 - **FR-024**: Two domains each holding their own separate identity on one
   admission surface and authority class in one client tenant MUST NOT be a
   finding at any level.
-- **FR-025**: The implementation's family set and every count-bearing statement
-  in the corpus MUST agree with the promoted `doc-health` wording, so
-  doc-health does not self-gate against the change. [NEEDS CLARIFICATION: the
-  promoted `openspec/specs/doc-health/spec.md` still says "fifteen check
-  families" and is normally rewritten by the OpenSpec archive step, which
-  happens AFTER this feature lands — does this feature edit the promoted spec
-  text and the docs that state the count, or must the window be tolerated?]
+- **FR-025**: The implementation's family set MUST agree with the RATIFIED
+  DELTA wording (`openspec/changes/add-client-identity-roster/specs/doc-health/spec.md`,
+  "sixteen check families"), NOT with the promoted spec text, which still says
+  fifteen and is rewritten by the OpenSpec archive step after this feature
+  lands. This feature MUST NOT edit
+  `openspec/specs/doc-health/spec.md`. It MUST update the count-bearing prose
+  sites it owns — at minimum the `scripts/doc_health/families.py` module
+  docstring ("The fifteen contract check families." on line 1, plus that
+  docstring's note naming which module owns which late family, which must name
+  the sixteenth) — and MUST leave ordinal statements about earlier families
+  (for example "the fifteenth deterministic family" in
+  `scripts/doc_health/proposal_origin.py` and the README) untouched, because an
+  ordinal is not a count. doc-health MUST report no new finding against the
+  feature, which is the operative measurement: no automated assertion compares
+  the implemented family count against promoted text.
 - **FR-026**: The `consent-instrument` family MUST admit a governed identity
   standing in the consenting party's tenant as a first-class dependent-artifact
-  reference kind — a named member of the closed dependent-kind enumeration, not
+  reference kind — a named member of the closed dependent-kind enumeration
+  (`consent_profile`, `credential_grant`, `adapter_activation`, `other`), not
   the `other` escape — and its cascade evidence obligation MUST cover the
   identity's removal or retirement AND the withdrawal of its provider-side
   admission, not merely credential revocation. The canonical consent validator
-  MUST learn the new kind and its evidence obligation.
+  MUST learn the new kind and its evidence obligation. The status-enumeration
+  growth this obligation requires is FR-039.
 - **FR-027**: Drift handling MUST NOT create, modify, widen, narrow, or remove
   any identity, permission, or admission, and MUST NOT trigger automated
   remediation; a drift finding MUST record the roster value and the observed
   value only.
 - **FR-028**: An open drift finding against an identity MUST refuse grant
-  issuance for that identity as an issuance precondition naming the finding,
-  expressed through the existing `issuance_preconditions` mechanism rather than
-  a second parallel mechanism. [NEEDS CLARIFICATION: the mechanism instance
-  lives in a domain repo's `credentials/requirements.yaml`
-  (`deployment_operator` / `aks_workload_administration`), while this feature is
-  openxFactory-only — is the neutral deliverable the precondition vocabulary
-  plus a fixture proving refusal, with the domain application a follow-up, or
-  something more?]
+  issuance for that identity as an issuance precondition naming the finding.
+  The NEUTRAL deliverable (Decision B) is a CLOSED `issuance_preconditions`
+  vocabulary added to `contracts/schemas/xfactory-credential-contracts.schema.yaml`
+  whose first member is the roster-drift precondition, declarable — optionally
+  and additively — on an `xfactory_credential_requirements` record, plus the
+  `credential-contracts` MODIFIED delta this packet now carries. A member
+  outside the closed vocabulary MUST be refused. Declaring nothing MUST leave
+  every existing requirement record valid. The vocabulary MUST be the only
+  neutral expression of the refusal — no second parallel mechanism — and this
+  feature MUST NOT edit the domain-local instance on OpsxFactory's
+  `deployment_operator` / `aks_workload_administration`, whose extra-key
+  precedent this vocabulary regularizes rather than replaces in place.
+  REALIZATION IS FIXTURE-PROVEN: no producer of live drift findings exists
+  anywhere in the family at archive time, so the neutral criterion is a
+  conformant requirement-record fixture declaring the precondition plus a
+  negative for an out-of-vocabulary token. Live refuse-then-allow behaviour is
+  proven in the domain follow-up at the domain mint surface and MUST NOT be
+  claimed as realized here.
 
 **Boundaries this feature must not cross**
 
@@ -558,40 +768,125 @@ permission, or admission.
   network access MUST be performed or enabled by any artifact, check, or test
   in this feature; enrollment automation and drift remediation MUST NOT be
   built.
-- **FR-030**: No credential record shape, grant neutrality rule, or JIT
-  discipline MUST change; both MODIFIED capabilities' existing suites and
-  fixtures MUST remain green and unmodified in behaviour; no domain repository
-  file MUST be edited by this feature — the OpsxFactory and LedgerxFactory
-  fragments, and live client-tenant drift detection, are named follow-ups, not
-  deliverables here.
+- **FR-030**: No EXISTING credential record shape, grant neutrality rule, or
+  JIT discipline MUST change; ALL FOUR MODIFIED capabilities' existing suites
+  and fixtures MUST remain green and unmodified in behaviour; no domain
+  repository file MUST be edited by this feature — the OpsxFactory and
+  LedgerxFactory fragments, and live client-tenant drift detection, are named
+  follow-ups, not deliverables here. The two amendments are reconciled with
+  this boundary by ADDITIVITY, which is the condition of their conformance: the
+  `issuance_preconditions` vocabulary (FR-028) adds an OPTIONAL property, so no
+  existing record becomes invalid and no existing record's meaning changes; the
+  consent status growth (FR-039) adds an enum member, so no existing instrument
+  changes state. A change to either that is not purely additive breaks this
+  requirement and must be escalated rather than absorbed.
 - **FR-031**: Surfaces outside the first-release vocabulary MUST NOT be added,
   and identities on them MUST NOT be treated as missing roster entries.
 
-**Open scope questions carried to the architect**
+**Scope questions ruled by the architect, 2026-08-14**
 
-- **FR-032**: Roster completeness. [NEEDS CLARIFICATION: is a live
-  client-tenant identity with no roster entry itself a finding, and if so does
-  the canonical check derive the expected entry set from the domain's credential
-  requirement classes that declare a provider identity on a first-release
-  surface? Without a completeness rule, omitting an identity entirely passes,
-  while the `planned` scenario in the governed delta ("is not reported as
-  missing") implies some missing-entry check exists.]
-- **FR-033**: Admission-evidence freshness. [NEEDS CLARIFICATION: does
-  `verified_at` decay — a maximum age or re-verification interval after which an
-  act is stale — and if so is staleness a finding, a report, or an
-  issuance-precondition failure? The governed packet requires the timestamp but
-  sets no interval.]
-- **FR-034**: Vocabulary closedness for the remaining enumerated fields.
-  [NEEDS CLARIFICATION: which of `identity_kind`, `residency_model`,
-  `blast_radius_unit`, `duty`, and `enforcement_mode` are CLOSED neutral
-  enumerations and which are domain-declared free tokens? `admission_surface`
-  and authority class are ratified closed; the others are unstated, and
-  closedness determines whether a domain can invent values that make the
-  uniqueness key unfalsifiable.]
-- **FR-035**: Drift-finding representation. [NEEDS CLARIFICATION: does this
-  feature ship the record shape of a drift finding (so the refusal in FR-028
-  has something to read), or is the shape a domain concern with only the
-  refusal rule expressed neutrally?]
+- **FR-032**: Roster completeness — NONE IN THIS RELEASE. The canonical check
+  MUST NOT enforce any completeness rule: neither the absence of a fragment nor
+  the absence of an entry MUST be a finding, and no expected entry set MUST be
+  derived from the domain's credential requirement classes or from any other
+  source. The `planned` scenario's "is not reported as missing" MUST be read as
+  the permissive guarantee it is, not as evidence that a missing-entry check
+  exists. FR-031 and the out-of-scope-surface edge case are RETAINED as the
+  guards that keep this from silently becoming a completeness rule later.
+  Scoped completeness — factory-held identity classes, on first-release
+  surfaces, in client tenants, with issued grants — MUST be recorded as a NAMED
+  SUCCESSOR change and MUST NOT be built here, because on the estate as it
+  stands an invented predicate fires permanently on 14 of 16 requirement
+  classes and would demand an entry for a class whose ratified position is that
+  the factory holds no identity at all.
+- **FR-033**: Admission-evidence freshness — NO DECAY IN THIS RELEASE.
+  `verified_at` MUST be recorded on every admission act, and verified versus
+  unverified MUST be the only distinction any check draws. No maximum age, no
+  re-verification interval, and no staleness finding, report, or
+  issuance-precondition failure MUST be introduced.
+- **FR-034**: Vocabulary closedness. The following MUST be CLOSED neutral
+  enumerations, each enumerated explicitly in the schema: `admission_surface`
+  (`business_central`, `exchange`), authority class (`observe`, `mutate`),
+  `residency_model` (client-tenant-single and vendor-tenant-multi, the two
+  models the ratified delta governs), `enforcement_mode` (its two members —
+  provider-enforced and logic-enforced — named explicitly rather than left to a
+  free string), `lifecycle_state` (`planned`, `enrolled`, `retired`), and
+  `identity_kind`. `identity_kind`'s members MUST be taken VERBATIM from the
+  ratified delta or OpenSpec task 2.1 where those enumerate them; they do NOT
+  (task 2.1 names the field only), so its members MUST be exactly the kinds the
+  four mandated example cases require, closed at that set for this release, and
+  the builder MUST NOT invent an unratified kind vocabulary. Extension of any
+  closed set MUST follow the `admission_surface` route: the change that governs
+  the new member adds it.
+  `blast_radius_unit` and `duty` MUST be domain-declared tokens rather than
+  neutral enumerations, constrained by pattern (`^[a-z0-9][a-z0-9_-]*$`), and
+  each token used in a fragment MUST be declared exactly once in that
+  fragment's LEGEND, which binds the token to its provider-native identifier
+  (for example `sandbox1` → `Sandbox1`). Provider fidelity lives in the legend;
+  `granted_permissions[]` and `achieved_scope` MUST stay provider-native. A
+  token used without a legend entry, or declared twice, MUST be a finding.
+- **FR-035**: Drift-finding representation — SHIPPED HERE, as a governed record
+  in the roster contract family with its own `kind` and `schema_version`. The
+  record MUST carry: `identity_ref` (the five-element uniqueness tuple that
+  identifies the entry), `fragment_ref`, the rule id that produced it,
+  `roster_value`, `observed_value`, `observed_at`, `opened_at`, a `status` of
+  `open`, `resolved`, or `disposed`, and a disposition citation. `roster_value`
+  and `observed_value` are mandatory because the ratified delta scenario says
+  the check "records the roster value and the observed value". Field NAMES MUST
+  borrow from doc-health where they apply, but the record MUST NOT claim
+  alignment with, or storage in, any doc-health findings register: none exists,
+  because doc-health is a stateless recompute and `health/dispositions.yaml`
+  holds advice text rather than on-disk finding records. The FR-028 refusal
+  MUST consume this record deterministically — an `open` status against the
+  covering entry is the whole predicate. Whether the record ships as a second
+  `kind` inside the roster schema or as its own schema file is an
+  implementation choice, but either way it MUST be registered under FR-021
+  (manifest row with sha256 and consumption rule, CHANGELOG entry, same
+  `contract-v1.32` bundle) and MUST carry at least one packaged example and one
+  negative fixture like every other record this feature ships.
+
+**Requirements added by the 2026-08-14 rulings**
+
+- **FR-036**: The canonical validator MUST sweep the ENTIRE target repository
+  for files carrying `kind: xfactory_client_identity_roster`, not only the
+  declared placement, and MUST report any instance outside
+  `credentials/client-identity-roster/` as a MISPLACEMENT finding naming the
+  offending path and the declared placement. Placement is mechanized, not
+  advisory: without the sweep a stray fragment is covered by no kind-aware
+  validator anywhere in the target repo, whatever tree it lands in.
+- **FR-037**: `evidence_ref` MUST be a DECLARED POINTER — repository, path, and
+  optionally a sha — whose SHAPE the canonical validator checks and whose
+  TARGET it MUST NOT resolve, because that validator is network-free and reads
+  one repository. Resolution of a cross-repository pointer MUST belong solely
+  to the cross-domain doc-health family, which assembles from pinned repos and
+  can therefore see the referenced tree. FR-011's requirement that a gate
+  obligation resolve within the owning domain's workflow records is unchanged
+  and unaffected: that target is intra-repo.
+- **FR-038**: The alias rule MUST be implemented as stated and MUST NOT be
+  broadened. A finding MUST be raised ONLY when two entries differ solely in a
+  free token (`blast_radius_unit` or `duty`) AND are observationally identical
+  — the same `granted_permissions[]` set and the same admission acts by
+  (surface, act, `achieved_scope`, `enforcement_mode`) — AND declare no
+  duty-separation rationale. Entries differing in `achieved_scope`, in granted
+  permissions, or declaring the rationale MUST validate clean. The fixture
+  obligation is threefold and inseparable: a genuine per-unit pair and a
+  genuine duty pair each passing with ZERO findings, alongside one alias-pair
+  negative that is refused. A rule that fires on either genuine pair has
+  regressed the flaw the cross-model review killed.
+- **FR-039**: The `consent-instrument` closed status enumeration MUST grow by
+  `withdrawn`, because the ratified delta requires cascade behaviour on
+  "terminated or withdrawn" while the enumeration admits only `terminated`
+  today. `withdrawn` MUST be a distinct member and MUST NOT be aliased onto
+  `terminated`: withdrawal by the consenting party and termination are distinct
+  events. The cascade obligation MUST fire on both. Every declaration of that
+  closed set MUST grow together, including the repetition in
+  `contracts/schemas/consent-instrument-class-registry.schema.yaml`. Growth
+  MUST follow the schema's own stated rule — a `contract_schema_version` bump —
+  with the affected rows re-registered at `contract-v1.32` and `compatibility`
+  declared in the shape the previous bump's rows use. Because the growth is
+  ADDITIVE, every existing conformant instrument and fixture MUST remain valid
+  unchanged, which is how FR-030's "existing suites unaffected" is honoured
+  alongside a modification this change declares.
 
 ### Key Entities
 
@@ -619,8 +914,20 @@ permission, or admission.
   target.
 - **Residency declaration**: identity kind, registration home tenant, principal
   locations, and the residency model with its per-model obligations.
-- **Drift finding**: a recorded divergence between roster value and observed
-  value, which mutates nothing and refuses grant issuance for its identity.
+- **Drift finding**: a governed record in the roster contract family with its
+  own `kind` and `schema_version` — identity reference, fragment reference,
+  rule id, `roster_value`, `observed_value`, `observed_at`, `opened_at`,
+  `status` (`open|resolved|disposed`), disposition citation — which mutates
+  nothing and, while `open`, refuses grant issuance for its identity. It is not
+  a doc-health register entry: no such register exists.
+- **Issuance precondition**: a member of the closed neutral
+  `issuance_preconditions` vocabulary a credential requirement record may
+  declare. Its first member is roster drift; declaring it is how the refusal
+  becomes a property of a pinned contract rather than of one domain's file.
+- **Free-token legend**: the per-fragment declaration binding each
+  `blast_radius_unit` and `duty` token to its provider-native identifier —
+  declared once per token, the place provider fidelity lives for values the
+  neutral layer deliberately leaves open.
 - **Governed-identity dependent reference**: the consent instrument's
   first-class reference to an identity standing in the consenting party's
   tenant, whose cascade evidence covers identity removal or retirement and
@@ -640,9 +947,13 @@ permission, or admission.
   validator, each naming its own rule — zero pass silently, and no negative
   fixture passes for a coincidental reason.
 - **SC-002**: The killed-flaw regression positives (FR-017) validate with ZERO
-  findings: a per-unit pair, a duty-separated pair, a declared provider-forced
-  multi-surface reader, and a `planned` entry. Any finding against these is a
-  regression of the two flaws the cross-model review killed.
+  findings: a genuine per-unit pair, a genuine duty-separated pair, a declared
+  provider-forced multi-surface reader, and a `planned` entry — while the
+  alias-pair negative in the same corpus is refused by the alias rule. The
+  measurement is the DISCRIMINATION between those cases; any finding against
+  the genuine pairs is a regression of the two flaws the cross-model review
+  killed, and a clean pass on the alias pair means the free tokens are
+  unbounded.
 - **SC-003**: The Business Central worked case is fully expressible in the
   neutral contract with no domain-local vocabulary: two admission acts with
   different achieved scopes and enforcement modes, a union effective reach, and
@@ -652,10 +963,12 @@ permission, or admission.
   the record and the surface vocabulary, what the identity actually reaches,
   who enforces each bound, when each admission was last verified, which consent
   authorizes it, and whether it holds any standing credential.
-- **SC-005**: A fragment at the declared placement is claimed and checked by
-  exactly one canonical validator, and a fragment outside it is reported —
-  measured by a misplacement fixture, with no path by which a roster instance
-  is skipped as out of scope and covered by nothing.
+- **SC-005**: A fragment at `credentials/client-identity-roster/<client_ref>.yaml`
+  is claimed and checked by exactly one canonical validator, and a fragment
+  carrying the roster kind ANYWHERE ELSE in the target repo is reported as
+  misplaced by the whole-repo sweep — measured by a misplacement fixture placed
+  outside `credentials/` entirely, with no path by which a roster instance is
+  skipped as out of scope and covered by nothing.
 - **SC-006**: The blocking/reporting split holds in measurement: an intra-repo
   nonconformance yields a nonzero exit from the domain gate, while a
   cross-domain shared-identity case yields a doc-health finding and leaves the
@@ -664,22 +977,48 @@ permission, or admission.
   credential-only cascade evidence is a finding; the same instrument with
   identity-removal and admission-withdrawal evidence passes; and every existing
   instrument and fixture in the corpus validates unchanged.
-- **SC-008**: An open drift finding refuses grant issuance for that identity
-  naming the finding, and the refusal path performs no client-tenant mutation.
-- **SC-009**: doc-health runs sixteen families with the implementation and the
-  promoted count in agreement, the new family reporting or skipping with an
+- **SC-008**: The neutral refusal is proven BY FIXTURE: a conformant
+  `xfactory_credential_requirements` fixture declaring the roster-drift member
+  of `issuance_preconditions` validates, a fixture declaring an
+  out-of-vocabulary token is refused naming the closed vocabulary, and a
+  fixture declaring no preconditions at all still validates. Live
+  refuse-then-allow is NOT measurable here and is not claimed: no producer of
+  live drift findings exists in the family at archive time, and issuance
+  happens at a domain mint surface this feature does not touch — that
+  measurement belongs to the domain follow-up. The refusal path defined here
+  performs no client-tenant mutation.
+- **SC-009**: doc-health runs sixteen families, in agreement with the RATIFIED
+  DELTA wording rather than with the promoted spec text (which still says
+  fifteen until the archive step rewrites it), with the count-bearing prose
+  sites this feature owns updated — at minimum the
+  `scripts/doc_health/families.py` module docstring — the promoted
+  `openspec/specs/doc-health/spec.md` left unedited, ordinal statements about
+  earlier families left untouched, the new family reporting or skipping with an
   explicit reason, producing identical findings on repeated identical runs, and
   containing no intra-repo rule.
 - **SC-010**: The green bar: repository validators pass,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` passes, contract
-  digests verify at `contract-v1.32`, both MODIFIED capabilities' existing test
-  suites pass, and doc-health reports no new finding against the change or its
-  documents.
+  digests verify at `contract-v1.32` for every row the feature touches, all
+  FOUR MODIFIED capabilities' existing test suites pass — `consent-instrument`
+  and `doc-health` as declared at ratification, plus `domain-conformance-checks`
+  and `credential-contracts` as amended by Decisions A and B — and doc-health
+  reports no new finding against the change or its documents.
 - **SC-011**: Every new check and test runs with no outbound network access and
   no model call, and produces byte-identical findings across runs.
 - **SC-012**: No file in any domain repository is modified by this feature, and
   no credential is minted and no provider call is made at any point in its
   execution or tests.
+- **SC-013**: Absence is never a finding, measured three ways: a fixture domain
+  repo with no roster fragment exits 0 with an explicit notice; a fragment that
+  omits an identity the domain demonstrably holds exits 0; and no code path in
+  the validator derives an expected entry set from credential requirement
+  classes or from any other inventory. A single finding produced by absence is
+  a scope breach, not a strictness improvement.
+- **SC-014**: Every closed vocabulary is enumerated in the schema and refuses a
+  value outside it, while `blast_radius_unit` and `duty` accept any
+  pattern-conformant token that carries a legend binding — measured by one
+  negative per closed set plus a legend-missing negative and a
+  legend-duplicated negative.
 
 ## Assumptions
 
@@ -688,24 +1027,34 @@ permission, or admission.
   `domain` at the top of the record; the cross-domain family assembles N such
   fragments rather than reading a single multi-domain file.
 - **Packaged examples follow the repository's per-family directory
-  convention** (`examples/<family>/*.example.yaml`, the shape the sibling
-  canonical validators glob), even though the governed sketch names a single
-  file path.
+  convention** (`examples/client-identity-roster/`, with `negative/` and a
+  README like its siblings), even though the governed sketch names a single
+  file path. The tree carries two conventions and this family takes the first:
+  `examples/<family>/` where the schema lives in `contracts/schemas/` (it
+  does), and `contracts/<family>/examples/` where the family owns a `contracts/`
+  subdirectory (openxWallet, feature 006) — the latter is not a target to
+  converge on.
 - **The validator follows the sibling `validate-*.py` contract** for arguments,
   output, and exit codes (0 clean, 1 findings, 2 harness error), and is
   invoked against a target repository from the pinned checkout — the same
   consumption shape as the existing canonical validators and the conformance
   pack.
 - **The current bundle is `contract-v1.31`**, verified in
-  `contracts/manifest.yaml`, so this feature registers at `contract-v1.32`.
+  `contracts/manifest.yaml`, so this feature registers at `contract-v1.32` —
+  re-confirmed 2026-08-14 against the manifest, with no intervening bump.
 - **`granted_permissions[]` is provider-native and opaque to the neutral
   contract**: the schema constrains shape, while the mapping from a permission
   identifier to an achieved authority class is declared in the record and
   checked for internal consistency, not resolved against any provider catalogue
   (which would require network access this feature forbids).
 - **Promoted-spec text is rewritten by the OpenSpec archive step, not by this
-  feature**, unless FR-025's clarification says otherwise; the feature's
-  obligation is that the implementation matches the ratified delta wording.
+  feature** (ruled, FR-025): the feature's obligation is that the
+  implementation matches the RATIFIED DELTA wording, and that it updates the
+  count-bearing prose it owns. The window in which the promoted doc-health spec
+  says fifteen while the code implements sixteen is tolerated and is already
+  the tree's state — the README's OpenSpec Records block says "sixteenth
+  family" today and doc-health is green, because no automated check asserts the
+  count against promoted text.
 - **Scope excludes the domain fragments.** OpsxFactory's fragment (with its
   three surfaced findings: the `opsx-farheap-bc-observer` name/purpose
   mismatch, the inert Microsoft Graph delegated scope absent from its identity
@@ -718,7 +1067,20 @@ permission, or admission.
   declares `vendor_tenant_multi` with full obligations (including a consent
   amendment per affected client) or moves client-resident is Brett's decision,
   because it touches live client consent instruments.
-- **The Business Central evidence chain motivating the contract lives on an
-  OpsxFactory branch** (`evidence/bc-general-verify-probe-20260810`, PR #19),
-  not on that repo's main, so the worked case is authored from the packet's
-  description of it rather than by reading those records from a pinned main.
+- **The Business Central evidence chain motivating the contract IS on
+  OpsxFactory `main`.** The seed handoff's claim that it lived only on
+  `evidence/bc-general-verify-probe-20260810` (PR #19, open) is STALE and was
+  corrected 2026-08-14: `c1a6270` is an ancestor of `origin/main`, the PR
+  having merged. Packaged-example `evidence_ref` pointers therefore aim at real
+  pinned content rather than at a branch that may never land — while remaining
+  unresolved pointers at the canonical validator, per FR-037.
+- **No producer of live drift findings exists anywhere in the family at
+  archive time.** The drift-finding record shape ships here (FR-035) and the
+  refusal's neutral declaration ships here (FR-028), but nothing yet observes a
+  client tenant to emit one — live client-tenant drift detection is a named
+  domain follow-up. Every drift-side criterion is therefore fixture-measured by
+  construction, not by choice.
+- **The ratified doc-health delta names no family id**, only the prose phrase
+  "client identity roster composition", so the id is chosen here as
+  `client-identity-composition` (FR-023) under the constraint that it must not
+  collide with the concurrent `shared_identity` lane.
