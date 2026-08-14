@@ -5,11 +5,100 @@
 Heap; AMENDED the same day, Decisions A and B)
 **Rulings**: [clarify-rulings-2026-08-14.md](clarify-rulings-2026-08-14.md) —
 authoritative over this file wherever they touch the same ground.
+**Plan-gate rulings**:
+[plan-gate-rulings-2026-08-14.md](plan-gate-rulings-2026-08-14.md) — the
+architect's rulings on the cross-model adversarial review of this file and
+plan.md at `913c3ca`, likewise authoritative. The decisions below carry their
+amendments inline, marked with the ruling id: Decision 3 (A-3a, A-3b),
+Decision 5 (A-5, A-6, A-7), Decision 6 (A-9), Decision 7 (A-11), Decision 8
+(A-16). Ruling R-N1 is recorded first, immediately below, because it settles
+an element of the uniqueness key that every other decision references.
 
 This file records the decisions the ratified packet and the clarify rulings
 left to the plan phase, the derivations behind them, and the convention and
 tree findings the implementation rests on. Decisions the rulings already fixed
 are NOT relitigated here; they are cited.
+
+---
+
+## Ruling R-N1 — the uniqueness key's third element is `authority_class_intended`
+
+### Why a choice existed at all
+
+The five-element key is ratified, but its third element is named
+"authority class" in every ratified statement of it, while the roster ENTRY
+carries two authority-class fields (`authority_class_intended` and
+`authority_class_achieved`, FR-001). The key's element 3 therefore had to be
+bound to one of them before `$defs.identity_key` could be written.
+
+### The verification sweep (performed before encoding, per the ruling)
+
+Every ratified mention of the key was read in full, hunting for any text
+implying the ACHIEVED class participates in uniqueness:
+
+| Source | Text |
+|---|---|
+| spec.md constraint 6 | "Uniqueness is keyed on (domain, admission surface, **authority class**, blast-radius unit, duty)" |
+| spec.md FR-006 | "keyed on the tuple (owning domain, admission surface, **authority class**, blast-radius unit, duty)" |
+| spec.md FR-035 | "`identity_ref` (the five-element uniqueness tuple that identifies the entry)" |
+| spec.md Key Entities, "Roster entry" | "identified by the uniqueness tuple (domain, admission surface, **authority class**, blast-radius unit, duty)" |
+| roster delta, requirement heading | "Identity uniqueness is keyed on surface, class, blast-radius unit and duty" |
+| roster delta, requirement body | "keyed on the tuple (owning domain, admission surface, **authority class**, blast-radius unit, duty). Authority class SHALL be one of `observe` or `mutate`." |
+| roster delta, "A genuine duplicate" scenario | "two entries share owning domain, admission surface, **authority class**, blast-radius unit and duty" |
+| design.md Decision 2 | "Adopted: uniqueness on (domain, admission surface, **authority class**, blast-radius unit, duty)" |
+| proposal.md item 2 | "**Uniqueness on (domain, surface, class, blast-radius unit, duty).** Classes are `observe` and `mutate`." |
+| seed handoff, killed-flaw block | "Uniqueness is now **(domain, admission surface, authority class, blast-radius unit, duty)**; classes are **`observe\|mutate`** only." |
+
+Two near-misses were read in context and are NOT counterexamples:
+
+- `review/decision-review-2026-08-14.md` — "`authority_class_intended` vs
+  `_achieved` derived from granted permissions" appears under *Non-blocking
+  findings adopted* and concerns the FIELD PAIR's existence, not the key; and
+  "Both are elements of the uniqueness tuple" appears under *Not adopted*,
+  where "both" refers to the per-surface and per-blast-radius-unit AXES the
+  reviewer had framed as exclusive — not to the two class fields.
+- roster delta line 67 — "spanned admission surfaces or the achieved authority
+  class" is the DECLARED-EXCESS rule (FR-009/FR-010), a rule about a stable
+  identity, not about how it is keyed.
+
+**Sweep result: CLEAN.** No ratified text implies the achieved class
+participates in uniqueness. The choice is the plan's to make.
+
+### The choice, and why
+
+**Element 3 is `authority_class_intended`.**
+
+A key must be DECLARATIVE and STABLE. `authority_class_intended` is a
+declaration the owning domain makes, and only a deliberate record change moves
+it. `authority_class_achieved` is OBSERVATIONAL: it is derived from
+`granted_permissions[]` and therefore moves whenever provider state moves.
+
+Keying on the observational field would mean an identity's IDENTITY changes at
+the moment its permissions drift — which is incoherent, because drift is
+exactly what FR-009 and FR-010 report ABOUT a stable identity, not what
+re-keys it. It would also break the drift record's whole purpose: a drift
+finding is raised precisely when observed authority departs from the recorded
+authority, so an achieved-keyed `identity_ref` would name a tuple that no
+longer matches the entry the finding is about — the join would fail exactly
+when it was needed.
+
+The intended-keyed reading also keeps FR-006 and FR-004 as the two distinct
+rules they are. Two entries sharing all five elements are an FR-006 duplicate
+even where their achieved classes differ; that achieved difference is its own
+finding (FR-004: an achieved class the permissions contradict; FR-010:
+achieved above intended, undeclared), never a licence to declare two entries
+distinct.
+
+### Consequence for the drift record
+
+The drift finding's `identity_ref` OBJECT carries the same
+`authority_class_intended` value as the entry it cites — the stable join key.
+Observed values, including an observed authority class, ride `roster_value` /
+`observed_value` like every other drifted field. A drift finding about an
+authority-class change is therefore fully expressible without the key moving
+underneath it. This is stated in the schema description of kind 2 so a reader
+of the contract alone can see why the two `identity_ref` shapes differ and why
+element 3 is the intended field.
 
 ---
 
@@ -170,6 +259,13 @@ as a top-level `oneOf` over `xfactory_client_identity_roster` and
    The reconciliation the progress handoff asked for is therefore not a
    strained reading — the singular is preserved by construction, and no
    sentence of FR-021 needs to be read distributively.
+   **Consequence, ruling A-2: BOTH kinds declare `schema_version: const: 1`.**
+   The manifest row's `schema_version` mirrors the RECORD envelope's const
+   (see "A registration gap FR-021 assumes away" below for that distinction),
+   and a single row can mirror only one value. Two kinds sharing a file, a
+   digest and a consumption rule must therefore share an envelope version; a
+   later divergence between them is a signal the two kinds have outgrown one
+   file, not a thing to paper over in the row.
 3. **The tuple cannot drift from its definition.** The drift record's
    `identity_ref` IS the five-element uniqueness tuple of FR-006. In one file
    the tuple is defined once and referenced by both kinds through `$defs`; in
@@ -267,12 +363,50 @@ and whose values are booleans:
 issuance_preconditions:
   type: object
   minProperties: 1
-  propertyNames:
-    enum: [roster_drift_clear_required,
-           accepted_request_required,
-           registered_active_subject]
-  additionalProperties: {type: boolean}
+  additionalProperties: false
+  properties:
+    roster_drift_clear_required:
+      const: true
+      description: >-
+        Grant issuance is refused while an open
+        xfactory_client_identity_drift_finding covers the roster entry for the
+        identity this requirement names (add-client-identity-roster).
+    accepted_request_required:
+      const: true
+      description: >-
+        Grant issuance requires an accepted deployment request
+        (adopt-deployment-handoff-boundary).
+    registered_active_subject:
+      const: true
+      description: >-
+        Grant issuance requires a registered, active subject
+        (adopt-deployment-handoff-boundary).
 ```
+
+Two amendments the plan gate made to this shape:
+
+**Values are `const: true`, not `type: boolean` (ruling A-3a).** A precondition
+is a REQUIREMENT that is either declared or not declared. `false` is not a
+second meaning — it is a declaration that reads as governance while asserting
+nothing, precisely the false-comfort shape a closed vocabulary exists to
+refuse. Both live OpsxFactory records declare `true`, so the narrowing breaks
+no existing record and the additive-minor claim of the section above is
+untouched.
+
+**Each member carries a one-line schema `description` naming its governed
+condition, and the two precedent members cite `adopt-deployment-handoff-boundary`
+(ruling A-3b).** This is what makes "regularizes rather than replaces in place"
+legible in the artifact itself rather than only in this file: a reader of the
+schema can see that two of the three members are admitted because they are
+already governed elsewhere, and that only the roster-drift member is minted
+here.
+
+(The enumeration is written as explicit `properties` with
+`additionalProperties: false` rather than `propertyNames.enum`, because
+per-member `description` and `const` have nowhere to live under
+`propertyNames`. The refusal semantics are identical; the naming of the
+vocabulary in the refusal message is Decision 4's `_semantic_findings` branch
+either way.)
 
 The closed set has three members, and each is derived rather than invented:
 
@@ -336,6 +470,28 @@ emits `issuance-precondition-unknown: requirement <id> declares
 vocabulary (allowed: [...])`. Both fire on the negative; the semantic one is
 what names the vocabulary.
 
+**The branch fires on BOTH failure shapes — an out-of-vocabulary member AND a
+false-valued member — and the semantic mirror is STRUCTURALLY REQUIRED, not a
+presentation nicety (ruling A-3a).** The reason is a measured fact about this
+validator's self-test: it adjudicates its registered negatives against
+`_semantic_findings` ONLY —
+
+```python
+# scripts/validate-credential-contracts.py:108
+findings = _semantic_findings(yaml.safe_load(path.read_text()))
+```
+
+— so a negative fixture whose only defect is a SCHEMA violation raises no
+semantic finding at all and is reported as `negative-should-fail`. A
+schema-only implementation of this vocabulary would therefore make its own
+negatives unregisterable, and SC-008's "refused naming the closed vocabulary"
+would have no probe. Every closed-vocabulary refusal this cluster ships must
+exist in both layers: the schema constrains, the semantic branch names, and
+the semantic branch is the one the harness reads. This is why the fixture set
+includes a false-valued negative alongside the out-of-vocabulary one — the
+`const: true` narrowing of Decision 3 is only measurable through the semantic
+mirror.
+
 ---
 
 ## Decision 5 — consent-instrument growth (FR-026, FR-039)
@@ -361,6 +517,21 @@ open a lifecycle-skip hole through the new member. The addition is additive
 by construction — it can only bind records in a state that could not exist
 before this change.
 
+**Verified precondition on the `NEUTRAL_STATUSES` growth (ruling A-7): no
+consent class registry anywhere in the estate aliases a key spelled
+`withdrawn`** (swept 2026-08-14). This matters because growing
+`NEUTRAL_STATUSES` NARROWS a check rather than widening one: the alias-target
+check (`check_registry`, lines 344-357) raises
+`alias-remaps-neutral-status` (line 348) when a domain's `status_aliases` KEY
+is itself a neutral status — remapping a status the neutral layer already
+owns. Adding `withdrawn` to the tuple makes that spelling newly capable of
+tripping the check. The sweep establishes that no registry uses it, so the
+narrowing fires nowhere and no existing registry or instrument changes verdict
+— which is what keeps FR-030's "existing suites unaffected" true through this
+edit. Recorded as a precondition, not an assumption: if this cluster is
+rebased onto a materially later estate, re-run the sweep before growing the
+tuple.
+
 The promoted requirement text at `openspec/specs/consent-instrument/spec.md:69-74`
 ("the closed five-state lifecycle") is PROMOTED text and is **not** edited by
 this feature, by the same rule FR-025 states for doc-health: the OpenSpec
@@ -376,6 +547,26 @@ FR-026 requires ("not the `other` escape"). No token is settled anywhere in
 the packet; it is minted here as **`governed_identity`**, matching the
 siblings' `noun_noun` snake_case and the spec's own Key Entity name
 ("Governed-identity dependent reference").
+
+**What the dependent-ref's `ref` names, and what nothing resolves (ruling
+A-5).** For a `governed_identity` dependent, `ref` names the roster FRAGMENT
+PATH plus the entry's `identity_ref` — the fragment at
+`credentials/client-identity-roster/<client_ref>.yaml` and the identity
+within it. The field itself stays a bare `{type: string, minLength: 1}`
+(line 248); what this change adds is a schema `description` stating the
+convention AND the posture: **the consent validator does NOT resolve it.** It
+checks that a `governed_identity` dependent carries a non-empty `ref` and
+nothing further — it does not open the fragment, does not confirm the entry
+exists, and does not cross a repository boundary.
+
+That is the same posture FR-037 fixes for the roster validator's
+`evidence_ref`, adopted here for the same reason: both validators are
+network-free and read one repository (ruling D8 makes the consent validator
+standalone), so a pointer they cannot follow must be declared as a pointer
+rather than implied to be a link. Stating it in the schema is what stops a
+later reader from filing the non-resolution as a coverage gap and "fixing" it
+with a cross-repo read that would break hermeticity. Resolution, here as with
+`evidence_ref`, belongs to a pass that assembles pinned repositories.
 
 ### The cascade-evidence obligation
 
@@ -395,11 +586,18 @@ Python obligation, not a schema one:
 - schema: enum member + two optional properties. Nothing becomes required;
   every existing instrument and fixture stays valid unchanged (SC-007, FR-030).
 - `check_termination_cascade`: gate widens from `status != "terminated"` to
-  `status not in ("terminated", "withdrawn")`; the existing
-  `termination-without-cascade-evidence` code keeps firing for every
-  dependent kind; a NEW code `identity-cascade-incomplete` fires when a
-  `governed_identity` dependent on a terminated or withdrawn instrument
-  lacks either new field.
+  `status not in ("terminated", "withdrawn")`. **The REACH of the existing
+  `termination-without-cascade-evidence` code widens to `withdrawn`
+  instruments — that is a behaviour change, and it is declared as one; what
+  is retained is the code's SPELLING, for continuity with the corpus and the
+  registered negatives** (ruling A-6; the pre-gate draft's claim that the
+  code was "unchanged in meaning" was false and is deleted). The widening is
+  additive in the sense FR-030 requires — it can only bind instruments in a
+  state that could not exist before this change, so no existing instrument
+  acquires a finding — but it is not a no-op, and calling it one would have
+  hidden the one place this cluster changes an existing check's behaviour. A
+  NEW code `identity-cascade-incomplete` fires when a `governed_identity`
+  dependent on a terminated or withdrawn instrument lacks either new field.
 
 Putting the obligation in Python rather than in a root-level
 `if status … then dependent_refs.items.if kind …` follows the family's own
@@ -447,6 +645,19 @@ finding naming the instrument path.
 - Fixtures live at `tests/doc-health/fixtures/<family-id>/<repo-name>/…`;
   `tests/doc-health/conftest.py` supplies `make_ctx(family, …)` and a
   `FakeGit` with canned facts.
+- **The trap in that helper (ruling A-9): `make_ctx(family, git=None,
+  agg_root=None, …)` defaults `agg_root=None`** (`conftest.py:66`, feeding
+  `agg_root=agg_root` at line 80). This family's FIRST branch is
+  `ctx.agg_root is None → Skip("single-repo run")`. So a fixture test that
+  calls `make_ctx` without passing `agg_root` explicitly never reaches the
+  family's logic — it short-circuits into the skip and passes vacuously,
+  green while measuring nothing. **Every fixture test for this family MUST
+  pass `agg_root` explicitly**, and the one test that exercises the
+  single-repo skip must pass `agg_root=None` in the call rather than relying
+  on the default, so the omission can never be mistaken for intent. The
+  determinism assertion (SC-011) and both finding-class tests are the most
+  exposed, because a vacuous skip satisfies "identical findings across runs"
+  trivially and would let SC-011 be claimed on a family that never ran.
 
 ### Cross-repo assembly
 
@@ -583,15 +794,49 @@ openxFactory checkout itself, exactly as
 `repo_scan`. Otherwise pointing the validator at its own repo reports its own
 packaged corpus as misplaced.
 
-Two negatives from FR-016 belong to OTHER corpora and are routed there rather
-than duplicated:
+**The same forcing argument applies to FR-011's gate-obligation negative, and
+the pre-gate draft missed it (ruling A-11, the plan gate's one BROKEN
+verdict).** Obligation RESOLUTION reads the TARGET repo's `workflows/`
+records, so it is a repo-context rule by this section's own classification — a
+packaged fixture has no `workflows/` tree to resolve against and cannot
+express the rule any more than it can express misplacement. The pre-gate
+fixture plan carried `missing-enforcement-test.yaml` (FR-011's OTHER half,
+which is record-internal and correctly packaged) and routed nothing for
+"unresolvable gate obligation", leaving that named FR-016 rule with no
+negative home in ANY corpus. The fix is a repo-shaped fixture whose entry's
+`declared_excess.gate_obligation` names a gate ABSENT from that fixture's
+`workflows/`, while the repo carries at least one real gate so the finding
+proves non-resolution rather than an empty tree. Its discrimination partner is
+the conformant repo fixture, whose obligation DOES resolve.
+
+**A second addition from the same ruling: FR-004 gains
+`negative/achieved-class-contradicted-by-permissions.yaml`** — an entry
+declaring `authority_class_achieved: observe` while its
+`granted_permissions[]` carry a write- or delete-capable permission. FR-016's
+named list is a MINIMUM ("one NEGATIVE CONFIRMATION per rule — at minimum"),
+and FR-004 is a rule of its own: it forbids ASSERTING an achieved class the
+permissions contradict, which is distinct from
+`achieved-exceeds-intended-undeclared.yaml`'s rule that achieved-above-intended
+must be DECLARED. Neither fixture substitutes for the other, and before this
+addition the first rule had no probe.
+
+The re-counted per-rule coverage table lives in plan.md, Cluster C: 16 named
+FR-016 rules, 16 homed, 0 unhomed (13 packaged, 2 repo-shaped, 1 doc-health).
+
+THREE negatives from FR-016 belong to OTHER corpora and are routed there
+rather than duplicated:
 
 - "cross-domain shared identity" is a CROSS-DOMAIN rule; it is proven in
   `tests/doc-health/fixtures/client-identity-composition/`, because the
   intra-repo validator must not carry it (FR-023, US5 acceptance scenario 2).
-- the `issuance_preconditions` negative belongs to
-  `examples/credential-contracts/negative/` and its
-  `NEGATIVE_EXPECTATIONS` table.
+- "a roster instance outside the declared placement" is the misplacement rule
+  argued above — a repo-shaped fixture.
+- "an unresolvable gate obligation" is the FR-011 rule argued above — a
+  repo-shaped fixture (ruling A-11).
+
+And separately from FR-016's list, the `issuance_preconditions` negatives
+belong to `examples/credential-contracts/negative/` and its
+`NEGATIVE_EXPECTATIONS` table.
 
 ---
 
@@ -625,6 +870,26 @@ the OpsxFactory evidence chain. A packaged example may not assert a provider
 fact the builder cannot cite. If no citable spanning permission is found, the
 case is ESCALATED (the example cannot be softened into a single-surface
 reader without under-delivering FR-019), not invented.
+
+**That constraint is mechanized as a PRECONDITION, not left as a discovery
+(ruling A-16).** The provider fact is verified BEFORE the packaged-examples
+cluster begins — before any example file is authored — because the difference
+between the two orderings is the difference between escalating cheaply and
+escalating after a corpus has been built around an assumption. The fact to
+establish: that one provider-native permission or directory role, in its
+narrowest available form, reaches BOTH the `business_central` and the
+`exchange` read surfaces, and that no read-only role scoped to just one of the
+two exists.
+
+- Citable fact found → the cluster proceeds; the citation is transcribed into
+  `declared_excess.provider_reason`.
+- No in-vocabulary citation → **STOP and escalate to the architect**, listing
+  the candidates examined and why each failed. The builder does not synthesize
+  a provider fact and does not soften the case into a single-surface reader;
+  either would under-deliver FR-019 and silently drop SC-002's fourth
+  positive.
+
+The escalation path existed and had not triggered as of the plan gate.
 
 ---
 
