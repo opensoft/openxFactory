@@ -23,9 +23,13 @@ is named **openXdox**.
 - **Capability name:** `openXdox` — house `openX<type>` capital-X form (the
   lowercase `openxFactory` / `openxWallet` spellings are the family
   exceptions, not the rule).
-- **Short handle:** `dox` — already the Kubernetes namespace, the
-  `dox-opensoft-qa.xforge.us` host, and the `doxbench_*` code-module prefix;
-  all conform unchanged.
+- **Short handle:** `dox` — already the Kubernetes namespace and the
+  `doxbench_*` code-module prefix; both conform unchanged.
+- **Public host:** `openxdox.opensoft.dev` (Amendment 1, below). LOWERCASE on
+  the wire even though the capability is branded with a capital X: Gateway API
+  hostnames, TLS SNI and certificate subjects are all lowercase, so `openXdox`
+  cannot appear in a manifest or a certificate. The brand and the label differ
+  by design; this is not a spelling to reconcile.
 - **Surface / bench:** `doxBench` — the review workspace (and the existing
   acceptance rig), promoted from informal name to the capability's named
   surface.
@@ -76,3 +80,30 @@ operator-as-binding principle
 both to be contracted in `credential-contracts` as separate least-privilege
 bindings (the dispatch credential MUST NOT reuse the content App's key: that
 would give the credential-free serving tier a contents-write-capable key).
+
+## Amendment 1 — the public host (2026-08-14)
+
+**`openxdox.opensoft.dev` replaces `dox-opensoft-qa.xforge.us`.** Brett's direct
+ruling, in session: one domain, and the legacy names are **cut dead at
+switchover** — no dual-host period and no redirect, a deliberate departure from
+the openemr precedent, which ran dual-host.
+
+`opensoft.dev` was already the house domain on the same QA edge (`20.245.1.91`),
+carrying `openchart-qa`, `openemr-qa` and `gatekeeper.dartwing`; openXdox was
+the last service still published on `xforge.us`. TWO names retire, because there
+were two routes: the openXdox route above, and `ideation-dashboard.xforge.us` —
+the original 2026-07-14 read-only deployment in namespace `xfactory-control`,
+superseded by the credential-free dashboard pod inside the `dox` namespace.
+
+The record above is amended rather than rewritten: `dox-opensoft-qa.xforge.us`
+was true when the name was locked on 2026-08-13, and the short-handle argument
+that cited it still holds — `dox` remains the namespace and the code-module
+prefix. Only the host moved.
+
+Realization: Omnigent-Install PR #98 (the two route declarations, the retired
+route, the host lists in the live validators). DNS `A 20.245.1.91 TTL 300` was
+added and verified 2026-08-14; the zone carries no CAA record, so Let's Encrypt
+issuance is unblocked. **Not yet done at the time of writing:** the shared
+`opensoft-edge-public` Certificate in namespace `opsx-edge` must gain the new
+subject — it lives outside every repository in this workspace, so the live-mode
+edge validators fail until that reissue lands, by design.
