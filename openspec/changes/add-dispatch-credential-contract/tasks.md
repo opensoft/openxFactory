@@ -41,10 +41,14 @@ are NOT done by authoring this change.
       sidecar) here.
 - [ ] 3.3 Repoint the QA openXdox dispatch secret from the personal PAT to the
       minted App token; retire `dox-intent-inbox-qa-20260810`.
-- [ ] 3.4 Self-hosted binding runbook: the domain repo's install docs pin the
+- [x] 3.4 Self-hosted binding runbook: the domain repo's install docs pin the
       neutral contract and the tenant-installs-the-App / tenant-IT-provides-a-
       scoped-credential path (reachable by a domain licensed without the
       operator).
+      Done 2026-08-14: docs/openxdox-dispatch-credential-binding.md — the
+      operator-neutral binding runbook (Case A operator-hosted, Case B
+      self-hosted App-in-tenant-org + the IT-provided-credential fallback),
+      linked in the README doc index.
 
 ## 4. Records
 
