@@ -290,6 +290,28 @@ This is also another instance of this topic's open hosting question: "who
 operates the client's estate" is one fork with many faces — stack hosting,
 deploy execution, credential custody.
 
+## Credential follow-through (2026-08-14)
+
+The two-case worker-credential principle is now contract text:
+`add-worker-credential-by-reference` (credential-contracts +2 requirements —
+distribution-by-reference into ephemeral job scope with the session-file
+class named non-conforming; vault operator as a per-install execution
+binding). Archives on one lane fetching live; runbook §11 and the lane
+fetch step are its realization tasks.
+
+## The (a)/(b) fork — RULED 2026-08-14 (Brett): (a)-first, incrementally
+
+Ratifying codexFactory `add-convening-autoclear-trigger` carried the fork
+ruling per its task 1.1: intake/admission realizes INCREMENTALLY at the
+existing Tenant-Hermes machinery — increment one being the governance-plane
+auto-clear trigger that authorizes the ratified convening class by declaring
+its class-invariant facts (the envelope remains the decider; unrecognized
+requests stay parked for humans). The neutral `request-intake-and-admission`
+capability in openxFactory remains the named successor and inherits that
+lane as its first worked example; the successor also owns the still-open
+pending-approvals discovery/notification surface. (b) — an OpsxFactory
+domain stack — remains available later and is NOT precluded.
+
 ## Open questions
 
 - Is the company/business Hermes in openxFactory's scope at all, or does it stay
