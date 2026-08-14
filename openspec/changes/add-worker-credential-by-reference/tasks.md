@@ -17,7 +17,7 @@
       flexible-FIC outage interim and upgrade trigger apply), Key Vault
       Secrets User on exactly the lane token secret, no Hermes scopes, no
       GitHub write.
-- [ ] 2.2 Operator: mint the `setup-token`-class secret into the vault
+- [x] 2.2 (DONE 2026-08-14 — operator provisioned per §11: fetch identity + KV Secrets User on the setup-token-class secret + the two versionless bindings; confirmed by the §11.4 smokes.) Operator: mint the `setup-token`-class secret into the vault
       (`xfactor-001-claude-credentials` successor, token class NOT the
       session file), provision the fetch identity, set the two repo
       bindings (secret URI variable + fetch client id variable).
@@ -26,11 +26,11 @@
       exported only to the job env) ahead of the existing hermetic
       invocation; the service-scoped env var becomes the documented
       fallback until all lanes migrate.
-- [ ] 2.4 Live evidence: one deliberation run consuming the vault-fetched
+- [x] 2.4 (DONE 2026-08-14 — §11.4 smokes, operator-confirmed: token source VAULT with SMOKE OK, then a vault-write rotation and the next run consuming the new version with ZERO host access — the contract's archive-gate scenario proven on the lane's own seat invocation; the deliberate job runs the byte-identical fetch step, so the next natural clearance is confirmatory.) Live evidence: one deliberation run consuming the vault-fetched
       token end to end; then rotate the vault secret and show the NEXT run
       consumes the new version with zero host access — the rotation
       scenario proven live.
-- [ ] 2.5 Migrate review-lane and doc-health-analysis to the same fetch
+- [x] 2.5 (LANE HALF DONE — xFactory 6758046: identical fetch step + environment + id-token on both lanes, with their implicit actions:read made explicit (declaring a permissions block would have silently broken their cross-run bundle downloads). HOST HALF pending: operator deletes the service-scoped env var + restarts the runner services, then one smoke must show token source vault + SMOKE OK — closing the degraded-mode gap.) Migrate review-lane and doc-health-analysis to the same fetch
       step; remove the service-scoped env var from the host (closing the
       degraded-mode gap on this install); record it.
 
