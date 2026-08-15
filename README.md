@@ -280,7 +280,13 @@ Active changes:
   asserted to survive the consolidation. Phase B — numbered multi-document
   tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
   generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
-  — is explicitly out of scope. No contract release.
+  — is explicitly out of scope. No contract release. **Realized 2026-08-15**
+  on `change/realize-doxbench-editing-phase-a`: `doxbench-editor.js` carries
+  the Editor/Preview view tablist and the panel's one Save / one Cancel,
+  `staging-workbench.js` drives the active buffer from the context region's
+  selection, `doxbench_turns.py` records each turn's bound buffer, and
+  `viewer.js`'s external-editor escape hatch is relabelled. The archive gate
+  still needs the merged-commit evidence (tasks 9.1).
 - [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
   — authored 2026-08-14 from the Business Central admission investigation:
   the neutral identity layer beneath credential-contracts and

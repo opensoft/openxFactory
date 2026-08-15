@@ -432,13 +432,13 @@ import {
   divergenceBannerText, isFileProtocol, NO_SHIM_MESSAGE, runEditAction,
 } from './viewer.mjs';
 const editCalls = [];
-const successButton = { textContent: '✎ edit', disabled: false };
+const successButton = { textContent: '✎ open in editor', disabled: false };
 const successStatus = { textContent: '', hidden: true };
 await runEditAction(successButton, successStatus, 'ideation/example.md', {
   enabled: true,
   async open(path) { editCalls.push(path); return { ok: true, path }; },
 });
-const failureButton = { textContent: '✎ edit', disabled: false };
+const failureButton = { textContent: '✎ open in editor', disabled: false };
 const failureStatus = { textContent: '', hidden: true };
 await runEditAction(failureButton, failureStatus, 'ideation/missing.md', {
   enabled: true,
@@ -510,12 +510,12 @@ def test_no_shim_message_text(tmp_path):
 def test_select_to_edit_reports_success_and_failure_in_place(tmp_path):
     edit = _run_node_viewer_pure(tmp_path)["edit"]
     assert edit["calls"] == ["ideation/example.md"]
-    assert edit["successButton"] == {"textContent": "✎ edit", "disabled": False}
+    assert edit["successButton"] == {"textContent": "✎ open in editor", "disabled": False}
     assert edit["successStatus"] == {
         "textContent": "opened in your editor — ideation/example.md",
         "hidden": False,
     }
-    assert edit["failureButton"] == {"textContent": "✎ edit", "disabled": False}
+    assert edit["failureButton"] == {"textContent": "✎ open in editor", "disabled": False}
     assert edit["failureStatus"] == {
         "textContent": "could not open editor: document unavailable",
         "hidden": False,

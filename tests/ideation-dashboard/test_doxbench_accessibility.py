@@ -138,17 +138,25 @@ def test_long_text_wraps_instead_of_overflowing():
 
 # ---------------------------------------------------------------------------
 # CHK007 (T100 AT measurement 2026-08-02 FAILED it): the WAI-ARIA APG tablist
-# pattern on the buffer tab strip — roving tabindex plus Arrow/Home/End
-# selection, with the arrows consumed so they no longer scroll the page.
-# The live-DOM proof is the T098 smoke's step 10c; these are the source and
-# structure pins that keep the wiring from silently regressing.
+# pattern — roving tabindex plus Arrow/Home/End selection, with the arrows
+# consumed so they no longer scroll the page. The live-DOM proof is the T098
+# smoke's step 10c; these are the source and structure pins that keep the
+# wiring from silently regressing.
+#
+# PIN EVOLUTION (add-doxbench-editing-phase-a): the strip these pins measure
+# is now the canvas's VIEW tablist (`Editor` / `Preview`). The BUFFER tablist
+# they were written for is retired as a control — the context region selects
+# the buffer — and the pattern was carried across UNCHANGED precisely because
+# it was measured and fixed once already and must not be re-lost in the move.
+# The behavioural half (one tabbable tab, and it is the selected one) is
+# measured on the live DOM in test_doxbench_view.py.
 # ---------------------------------------------------------------------------
 
-def test_the_buffer_tablist_implements_the_apg_roving_pattern():
+def test_the_view_tablist_implements_the_apg_roving_pattern():
     source = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
               / "doxbench-editor.js").read_text(encoding="utf-8")
-    # roving tabindex maintained by the one function that owns tab state
-    assert "tabIndex = isActive ? 0 : -1" in source
+    # roving tabindex maintained by the one function that owns what is on screen
+    assert "tabIndex = selected ? 0 : -1" in source
     # every APG key, including the Up/Down the operator reached for first
     for key in ("ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
                 "Home", "End"):
@@ -157,3 +165,17 @@ def test_the_buffer_tablist_implements_the_apg_roving_pattern():
     # T100 failure mode)
     assert "ev.preventDefault()" in source
     assert 'tabBtn.addEventListener("keydown"' in source
+
+
+def test_the_retired_buffer_tablist_is_not_rendered_as_a_control():
+    """add-doxbench-editing-phase-a task 2.2: two tablists answering "which
+    buffer" and "which view" in one panel is how a design conversation stops
+    being able to say which one it means. The buffer strip is gone as a
+    RENDERED control; its labels survive only as accessible names."""
+    source = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+              / "doxbench-editor.js").read_text(encoding="utf-8")
+    assert "DOXBENCH_BUFFER_TABS" not in source
+    assert "DOXBENCH_VIEW_TABS" in source
+    assert "DOXBENCH_BUFFER_LABELS" in source
+    # exactly one tablist is constructed on this canvas
+    assert source.count('setAttribute("role", "tablist")') == 1

@@ -2447,6 +2447,45 @@ def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
 
 
 # ---------------------------------------------------------------------------
+# add-doxbench-editing-phase-a: LEFT SELECTS. The context region chooses which
+# buffer the canvas presents, and therefore which buffer the chat works on.
+# Source-level doctrine pins — the shell adds no state authority, no second
+# guard, and no transport for any of it; the canvas primitives it calls are
+# driven live in test_doxbench_view.py.
+# ---------------------------------------------------------------------------
+
+def test_the_context_selection_drives_the_canvas_active_buffer():
+    source = SWB_JS.read_text(encoding="utf-8")
+    # the outline SELECTION tab makes the outline buffer active, through the
+    # canvas's own primitive — this file keeps no notion of "active buffer"
+    assert "function bindCanvasToSelectionTab(" in source
+    assert 'canvasController.setActiveBuffer("outline")' in source
+    # a scoped docs row routes through the canvas's existing selectDocument, so
+    # the dirty-Document guard and the scope refusal fire on this route exactly
+    # as they do on the canvas picker's
+    assert "function bindCanvasToDocument(" in source
+    assert "canvasController.selectDocument(path)" in source
+    assert "bindCanvasToDocument" in source.split("function drawTab()", 1)[1]
+    # both selection tab handlers bind, so keyboard and pointer agree
+    assert source.count("bindCanvasToSelectionTab(") == 3   # 1 definition, 2 callers
+    # …and none of it grew a route
+    assert "fetch(" not in source
+    assert "/actions/" not in source
+
+
+def test_the_docs_wheels_own_mount_seed_does_not_bind_the_canvas():
+    """The wheel fires `onSelect` once as it lays out. A render is not a human
+    choosing a document, and forwarding it would pop the unsaved-edit guard on
+    a switch nobody asked for — every draw of the docs tab would do it."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    docs_panel = source.split("function renderDocsPanel(", 1)[1].split(
+        "\n}\n", 1)[0]
+    assert "let seeded = false;" in docs_panel
+    assert "if (!seeded) { seeded = true; return; }" in docs_panel
+    assert "onBind(entry.path)" in docs_panel
+
+
+# ---------------------------------------------------------------------------
 # T104 F10-1, the POSTURE LADDER's missing rung. Every model-catalog failure
 # used to fall through to `approvedModelCount === 0`'s editor-only sentence,
 # "no approved model is configured" — a misdiagnosis for a 403 stale console

@@ -13,7 +13,9 @@
 // resolution is always "regenerate", never a hand-edit. The ✎ escape hatch
 // does not edit anything itself (per the interactivity boundary): on a capable
 // local human console it asks the guarded action route to launch the selected
-// source file in the user's own editor.
+// source file in the user's own editor — which is why it is labelled "open in
+// editor" and not "edit" (add-doxbench-editing-phase-a: on a doxBench surface
+// the bare word "edit" is reserved for editing that happens INSIDE the app).
 //
 // Degrades gracefully with NO_SHIM_MESSAGE when there is no serve.py to talk
 // to (`file://` mode, or any fetch failure) — never a raw browser error.
@@ -259,7 +261,12 @@ function buildViewerChrome(root, path, doc, edit, mountGateHost) {
   head.appendChild(el("span", "viewer-path", path));
   if (doc?.stage) head.appendChild(el("span", "pill stage", doc.stage));
   if (doc?.kind) head.appendChild(el("span", "pill neutral", doc.kind));
-  const editBtn = el("button", "editbtn", "✎ edit");
+  // add-doxbench-editing-phase-a task 7.2: this button NAMES THE EXTERNAL
+  // EDITOR. It used to read "✎ edit" and edit nothing in the app — while
+  // `edit-document` / `edit-apply` are gate verbs and the doxBench canvas
+  // beside it does in-app editing for real, so one bare word named three
+  // structurally different acts. Behaviour is unchanged; only the claim is.
+  const editBtn = el("button", "editbtn", "✎ open in editor");
   editBtn.type = "button";
   editBtn.disabled = !edit?.enabled;
   editBtn.title = edit?.enabled

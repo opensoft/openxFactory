@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 
@@ -266,7 +267,7 @@ def test_state_module_never_uses_persistent_local_storage():
 # editing canvas -- FR-003..FR-010, acceptance scenarios 1-5.
 #
 # `doxbench-editor.js` does not exist yet; Phase B builds it against exactly
-# the API driven below (`mountDoxBenchCanvas`, `DOXBENCH_BUFFER_TABS`,
+# the API driven below (`mountDoxBenchCanvas`, `DOXBENCH_VIEW_TABS`,
 # `SAVE_UNAVAILABLE_REASON` -- see specs/010-doxbench-editor-chat/plan
 # artifacts). Every test below is expected to fail RED until then: either
 # Node's own "Cannot find module" (the harness imports the module under its
@@ -498,7 +499,8 @@ globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.mi
 
 const {
   mountDoxBenchCanvas,
-  DOXBENCH_BUFFER_TABS,
+  DOXBENCH_VIEW_TABS,
+  DOXBENCH_BUFFER_LABELS,
   SAVE_UNAVAILABLE_REASON,
 } = await import('./doxbench-editor.js');
 const { renderSafeMarkdownHtml } = await import('./viewer.js');
@@ -600,19 +602,25 @@ async function focusPersistenceScenario() {
   });
   await controller.ready;
 
-  controller.setActiveTab('outline');
+  // PIN EVOLUTION (add-doxbench-editing-phase-a): the canvas opens on the
+  // `Preview` view tab, so a scenario about a TEXTAREA's focus, selection and
+  // scroll has to stand where the textareas are. The buffer switch it exercises
+  // is `setActiveBuffer` — the buffer tablist that used to drive it is retired
+  // and the context region owns that choice now.
+  controller.setActiveView('editor');
+  controller.setActiveBuffer('outline');
   const outlineArea = controller.elements().textarea('outline');
   outlineArea.selectionStart = 2; outlineArea.selectionEnd = 5; outlineArea.scrollTop = 10;
   outlineArea.focus();
   const outlineViewAfterFocus = controller.viewState('outline');
 
-  controller.setActiveTab('document');
+  controller.setActiveBuffer('document');
   const documentArea = controller.elements().textarea('document');
   documentArea.selectionStart = 1; documentArea.selectionEnd = 3; documentArea.scrollTop = 20;
   const documentViewNoFocus = controller.viewState('document');
   const activeElementAfterSwitchNoFocus = describeEl(globalThis.document.activeElement);
 
-  controller.setActiveTab('outline');
+  controller.setActiveBuffer('outline');
   const outlineViewAfterReturn = controller.viewState('outline');
   const activeElementAfterReturn = describeEl(globalThis.document.activeElement);
 
@@ -638,10 +646,13 @@ async function noAutoFocusScenario() {
     loadSource: makeLoadSource(CONTENT, calls), storage: new FakeStorage(), previewDelayMs: 5,
   });
   await controller.ready;
+  // the Editor view is selected so the textareas are genuinely on screen --
+  // "never steals focus" has to be measured where focus was possible
+  controller.setActiveView('editor');
   globalThis.document.activeElement = null;
-  controller.setActiveTab('document');
+  controller.setActiveBuffer('document');
   const afterDoc = describeEl(globalThis.document.activeElement);
-  controller.setActiveTab('outline');
+  controller.setActiveBuffer('outline');
   const afterOutline = describeEl(globalThis.document.activeElement);
   return { afterDoc, afterOutline };
 }
@@ -659,7 +670,7 @@ async function sessionRestoreScenario() {
   });
   await controller1.ready;
   await controller1.edit('document', '# Restore me\n');
-  controller1.setActiveTab('document');
+  controller1.setActiveBuffer('document');
   controller1.destroy();
 
   const calls2 = [];
@@ -668,7 +679,7 @@ async function sessionRestoreScenario() {
   });
   await controller2.ready;
   const restoredState = controller2.state();
-  const restoredTab = controller2.activeTab();
+  const restoredTab = controller2.activeBuffer();
   controller2.destroy();
 
   const differentKeyProjection = makeProjection({ key: { tile_id: 'topic-y' } });
@@ -678,7 +689,7 @@ async function sessionRestoreScenario() {
   });
   await controller3.ready;
   const freshState = controller3.state();
-  const freshTab = controller3.activeTab();
+  const freshTab = controller3.activeBuffer();
 
   return { restoredState, restoredTab, freshState, freshTab };
 }
@@ -1160,9 +1171,9 @@ async function postDestroyInertScenario() {
   const discardResult = await controller.discard('document');
   const selectResult = await controller.selectDocument(DOC_B);
   const guardResult = await controller.resolveGuard('cancel');
-  const tabBefore = controller.activeTab();
-  controller.setActiveTab('document');
-  const tabAfter = controller.activeTab();
+  const tabBefore = controller.activeBuffer();
+  controller.setActiveBuffer('document');
+  const tabAfter = controller.activeBuffer();
   const stateAfter = controller.state().buffers.document;
   const storageAfter = JSON.stringify([...storage.values.entries()]);
 
@@ -1232,8 +1243,11 @@ async function inputDuringLoadScenario() {
   // physically refused too, exactly like the textareas -- a clickable Discard
   // whose click silently does nothing is the dishonest half of this posture.
   const duringControls = {
-    discardDisabled: controller.elements().discard('document').disabled === true,
-    saveDisabled: controller.elements().save('document').disabled === true,
+    // PIN EVOLUTION (add-doxbench-editing-phase-a): the panel carries ONE
+    // Cancel where each buffer used to carry its own Discard, so the controls
+    // are looked up without a buffer kind. The posture itself is unchanged.
+    discardDisabled: controller.elements().cancel().disabled === true,
+    saveDisabled: controller.elements().save().disabled === true,
     pickerDisabled: controller.elements().documentPicker().disabled === true,
   };
   const duringStatus = String(status.textContent);
@@ -1260,8 +1274,8 @@ async function inputDuringLoadScenario() {
     afterContent: controller.state().buffers.document.content,
     // P3-2: the first syncBufferDom ends the mount-time posture
     afterControls: {
-      discardDisabled: controller.elements().discard('document').disabled === true,
-      saveDisabled: controller.elements().save('document').disabled === true,
+      discardDisabled: controller.elements().cancel().disabled === true,
+      saveDisabled: controller.elements().save().disabled === true,
       pickerDisabled: controller.elements().documentPicker().disabled === true,
     },
   };
@@ -1299,8 +1313,8 @@ async function oversizedInitialLoadScenario() {
     // P3-2: after a FAILED load syncBufferDom never runs, so the mount-time
     // disabled posture is what keeps these controls honest permanently.
     failedControls: {
-      discardDisabled: controller.elements().discard('document').disabled === true,
-      saveDisabled: controller.elements().save('document').disabled === true,
+      discardDisabled: controller.elements().cancel().disabled === true,
+      saveDisabled: controller.elements().save().disabled === true,
       pickerDisabled: controller.elements().documentPicker().disabled === true,
     },
   };
@@ -1477,10 +1491,156 @@ async function destroyDuringEditSettleScenario() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// add-doxbench-editing-phase-a. The canvas presents ONE buffer -- the active
+// one, chosen by the context region -- as two VIEW tabs, and carries one Save
+// and one Cancel outside both of them.
+// ---------------------------------------------------------------------------
+
+function surveyCanvas(root) {
+  const nodes = root.walk();
+  const hasClass = (n, c) => String(n.className).split(' ').includes(c);
+  return {
+    tablists: nodes.filter((n) => n.getAttribute('role') === 'tablist')
+      .map((n) => ({ cls: n.className, label: n.getAttribute('aria-label') })),
+    tabs: nodes.filter((n) => n.getAttribute('role') === 'tab')
+      .map((n) => ({ cls: n.className, text: n.textContent,
+                     selected: n.getAttribute('aria-selected'),
+                     tabIndex: n.tabIndex,
+                     controls: n.getAttribute('aria-controls') })),
+    saveButtons: nodes.filter((n) => hasClass(n, 'doxbench-save')).length,
+    cancelButtons: nodes.filter((n) => hasClass(n, 'doxbench-cancel')).length,
+    textareas: nodes.filter((n) => n.tagName === 'TEXTAREA').length,
+  };
+}
+
+// The mount posture: two view tabs, Preview selected, no second tablist, and
+// exactly one of each panel control.
+async function viewTabsScenario() {
+  const root = new Node('div');
+  const controller = mountDoxBenchCanvas(root, makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const atMount = surveyCanvas(root);
+  const activeView = controller.activeView();
+  // the Editor pane is not on screen beside the rendering -- it is the OTHER
+  // view of the same buffer
+  const editorPaneHidden = controller.elements().textarea('outline')
+    .closest('.doxbench-viewpane').hidden === true;
+  const previewPaneHidden = controller.elements().preview('outline')
+    .closest('.doxbench-viewpane').hidden === true;
+  // only the ACTIVE buffer is mounted on the canvas
+  const activeBufferBoxHidden = {
+    outline: controller.elements().preview('outline')
+      .closest('.doxbench-bufferbox').hidden === true,
+    document: controller.elements().preview('document')
+      .closest('.doxbench-bufferbox').hidden === true,
+  };
+  controller.setActiveView('editor');
+  const afterEditor = surveyCanvas(root);
+  const afterEditorPanes = {
+    editorHidden: controller.elements().textarea('outline')
+      .closest('.doxbench-viewpane').hidden === true,
+    previewHidden: controller.elements().preview('outline')
+      .closest('.doxbench-viewpane').hidden === true,
+  };
+  return {
+    atMount, activeView, editorPaneHidden, previewPaneHidden,
+    activeBufferBoxHidden, afterEditor, afterEditorPanes,
+    activeBuffer: controller.activeBuffer(),
+  };
+}
+
+// D2: switching INTO Preview brings the rendering up to the buffer's current
+// content BEFORE the pane is shown; switching into Editor needs no flush and
+// transforms nothing.
+async function viewSwitchFlushScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(),
+    previewDelayMs: 10_000,   // long enough that only an explicit flush can win
+  });
+  await controller.ready;
+  controller.setActiveView('editor');
+  const preview = controller.elements().preview('outline');
+  await controller.edit('outline', '# typed while Preview was hidden\n');
+  const renderedBeforeSwitch = String(preview.innerHTML);
+  controller.setActiveView('preview');
+  const renderedAfterSwitch = String(preview.innerHTML);
+  // and back: the raw text is shown as it stands, untransformed
+  controller.setActiveView('editor');
+  const textareaAfterReturn = controller.elements().textarea('outline').value;
+  return { renderedBeforeSwitch, renderedAfterSwitch, textareaAfterReturn };
+}
+
+// The context region's two selection routes, driven through the controller
+// primitives the shell calls: the outline selection tab, and a scoped docs row.
+async function selectionDrivesTheActiveBufferScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  controller.setActiveBuffer('outline');
+  const afterOutlineTab = {
+    active: controller.activeBuffer(),
+    stateActive: controller.state().active_buffer,
+  };
+  const switched = await controller.selectDocument(DOC_B);
+  const afterDocsRow = {
+    active: controller.activeBuffer(),
+    stateActive: controller.state().active_buffer,
+    path: controller.state().buffers.document.path,
+  };
+  // choosing the row that is ALREADY loaded still binds to it
+  controller.setActiveBuffer('outline');
+  const unchanged = await controller.selectDocument(DOC_B);
+  const afterReselect = controller.activeBuffer();
+  // and a view tab may never be asked to choose a buffer
+  let viewTabRefusal = null;
+  try { controller.setActiveView('document'); }
+  catch (err) { viewTabRefusal = String(err && err.message); }
+  return {
+    afterOutlineTab, switched, afterDocsRow, unchanged, afterReselect,
+    viewTabRefusal, activeAfterRefusal: controller.activeBuffer(),
+  };
+}
+
+// Cancel: the ACTIVE buffer returns to its base, no other buffer moves, the
+// buffer it reverted is NAMED, and the settled-identity notification fires
+// exactly as the guard's Discard fires it.
+async function panelCancelScenario() {
+  const settled = [];
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+    onIdentitySettled: (kind, hash) => settled.push({ kind, hex: hash && hash.hex }),
+  });
+  await controller.ready;
+  await controller.edit('outline', '# outline edited\n');
+  await controller.edit('document', '# document edited\n');
+  controller.setActiveBuffer('document');
+  const settledBefore = settled.length;
+  const cancelBtn = controller.elements().cancel();
+  await fireEvent(cancelBtn, 'click');
+  const after = controller.state().buffers;
+  return {
+    cancelledKindStated: String(controller.elements().status('document').textContent),
+    document: { content: after.document.content, dirty: after.document.dirty },
+    outline: { content: after.outline.content, dirty: after.outline.dirty },
+    identityAfterCancel: settled.slice(settledBefore),
+    documentBaseHex: after.document.base_hash.hex,
+    // no force path: Cancel persists nothing and reaches no seam
+    controls: {
+      save: controller.elements().save().className,
+      cancel: cancelBtn.className,
+    },
+  };
+}
+
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 
 const results = {
-  bufferTabs: DOXBENCH_BUFFER_TABS,
+  viewTabs: DOXBENCH_VIEW_TABS,
+  bufferLabels: DOXBENCH_BUFFER_LABELS,
   saveUnavailableReason: SAVE_UNAVAILABLE_REASON,
   guardSave: await guardScenario('save'),
   guardCancel: await guardScenario('cancel'),
@@ -1513,6 +1673,10 @@ const results = {
   eolPreservation: await eolPreservationScenario(),
   eolOnlyDirty: await eolOnlyDirtyScenario(),
   destroyDuringEditSettle: await destroyDuringEditSettleScenario(),
+  viewTabSurvey: await viewTabsScenario(),
+  viewSwitchFlush: await viewSwitchFlushScenario(),
+  selectionDrivesTheActiveBuffer: await selectionDrivesTheActiveBufferScenario(),
+  panelCancel: await panelCancelScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -1546,11 +1710,145 @@ def editor_results(tmp_path_factory):
     return json.loads(proc.stdout)
 
 
-def test_doxbench_buffer_tabs_are_exactly_outline_and_document(editor_results):
-    """FR-004: the authoring canvas has exactly two primary buffers."""
-    assert editor_results["bufferTabs"] == [
-        {"key": "outline", "label": "Outline"},
-        {"key": "document", "label": "Document"},
+def test_the_canvas_view_tabs_are_exactly_editor_and_preview(editor_results):
+    """add-doxbench-editing-phase-a, first ADDED requirement. PIN EVOLUTION:
+    this test used to read `DOXBENCH_BUFFER_TABS` and assert the canvas's own
+    two BUFFER tabs. That tablist is retired as a control — the context region
+    selects the buffer now, and two surfaces answering one question is how the
+    two come to disagree. What the canvas tabs is the VIEW of the one active
+    buffer, and it is exactly `Editor` and `Preview`, in that rendered order."""
+    assert editor_results["viewTabs"] == [
+        {"key": "editor", "label": "Editor"},
+        {"key": "preview", "label": "Preview"},
+    ]
+
+
+def test_the_buffer_labels_survive_the_retired_tablist_without_being_a_control(
+    editor_results,
+):
+    """FR-004 + Phase A task 2.2: the two buffers are unchanged, and their
+    labels survive under a name that does not claim to be a control — they
+    feed accessible names (each buffer's status region and its textarea), and
+    nothing renders them as a tab strip any more. The exactly-two invariant
+    itself is asserted against `BUFFER_KINDS` in test_doxbench_state.py, which
+    is where the enumeration authority actually lives."""
+    assert editor_results["bufferLabels"] == {
+        "outline": "Outline",
+        "document": "Document",
+    }
+
+
+def test_the_canvas_mounts_on_preview_with_one_tablist_and_one_of_each_control(
+    editor_results,
+):
+    """add-doxbench-editing-phase-a, "The canvas mounts" + "The canvas offers
+    its controls": exactly two view tabs with `Preview` selected, the raw text
+    and its rendering never both visible in one pane, exactly ONE tablist on
+    the canvas (the retired buffer tablist is not rendered at all), and exactly
+    one Save and one Cancel — outside both view tabs, so neither is drawn per
+    view or per buffer."""
+    survey = editor_results["viewTabSurvey"]
+    at_mount = survey["atMount"]
+    assert len(at_mount["tablists"]) == 1
+    assert at_mount["tablists"][0]["cls"] == "doxbench-viewtabs"
+    # the label names the VIEW CHOICE over the active buffer, never the old
+    # generic "doxBench buffers" the retired tablist carried
+    assert at_mount["tablists"][0]["label"] != "doxBench buffers"
+    assert at_mount["tablists"][0]["label"].startswith("view of the active")
+    assert [t["text"] for t in at_mount["tabs"]] == ["Editor", "Preview"]
+    assert [t["selected"] for t in at_mount["tabs"]] == ["false", "true"]
+    assert survey["activeView"] == "preview"
+    # both buffers' textareas still exist (built once at mount); what changed
+    # is that raw text and rendering are two VIEWS, never one split pane
+    assert at_mount["textareas"] == 2
+    assert survey["editorPaneHidden"] is True
+    assert survey["previewPaneHidden"] is False
+    # ONE buffer on the canvas: the active one
+    assert survey["activeBuffer"] == "outline"
+    assert survey["activeBufferBoxHidden"] == {"outline": False, "document": True}
+    # ONE Save, ONE Cancel, and they do not multiply with the view
+    assert at_mount["saveButtons"] == 1
+    assert at_mount["cancelButtons"] == 1
+    assert survey["afterEditor"]["saveButtons"] == 1
+    assert survey["afterEditor"]["cancelButtons"] == 1
+
+
+def test_the_view_tablist_keeps_the_apg_roving_pattern_it_inherited(editor_results):
+    """CHK007 was measured and fixed once on the buffer tablist; moving the
+    strip must not re-lose it. Exactly one tab is tabbable, and it is the
+    selected one — the source-level Arrow/Home/End half is pinned in
+    test_doxbench_accessibility.py."""
+    for survey_key, selected_view in (("atMount", "Preview"), ("afterEditor", "Editor")):
+        tabs = editor_results["viewTabSurvey"][survey_key]["tabs"]
+        tabbable = [t for t in tabs if t["tabIndex"] == 0]
+        assert len(tabbable) == 1, survey_key
+        assert tabbable[0]["text"] == selected_view, survey_key
+        assert tabbable[0]["selected"] == "true", survey_key
+        # every tab controls the pane it labels
+        assert all(t["controls"] for t in tabs), survey_key
+
+
+def test_switching_into_preview_flushes_the_pending_render(editor_results):
+    """add-doxbench-editing-phase-a, "A human types and then switches to
+    Preview": the debounce is allowed to leave a pane nobody can see stale, so
+    the moment it becomes visible is exactly when it must not be. The scenario
+    uses a 10-second debounce, so only the switch's own flush can have
+    rendered the new text."""
+    result = editor_results["viewSwitchFlush"]
+    assert "typed while Preview was hidden" not in result["renderedBeforeSwitch"]
+    assert "typed while Preview was hidden" in result["renderedAfterSwitch"]
+
+
+def test_switching_back_to_editor_shows_the_raw_markdown_untransformed(editor_results):
+    """The other half: `Editor` needs no flush, because raw text is never
+    debounced, and the switch transforms no content."""
+    result = editor_results["viewSwitchFlush"]
+    assert result["textareaAfterReturn"] == "# typed while Preview was hidden\n"
+
+
+def test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs(
+    editor_results,
+):
+    """add-doxbench-editing-phase-a: the outline selection tab makes the
+    `outline` buffer active; selecting a scoped document makes the `document`
+    buffer active and loads that exact document; re-selecting the document
+    already loaded still BINDS to it; and a view tab asked to choose a buffer
+    is refused outright."""
+    result = editor_results["selectionDrivesTheActiveBuffer"]
+    assert result["afterOutlineTab"] == {"active": "outline", "stateActive": "outline"}
+    assert result["switched"]["status"] == "switched"
+    assert result["afterDocsRow"]["active"] == "document"
+    assert result["afterDocsRow"]["stateActive"] == "document"
+    assert result["afterDocsRow"]["path"] == "ideation/staging/topic-x/second.md"
+    assert result["unchanged"]["status"] == "unchanged"
+    assert result["afterReselect"] == "document"
+    assert result["viewTabRefusal"] is not None
+    assert "view tab" in result["viewTabRefusal"]
+    assert result["activeAfterRefusal"] == "document"
+
+
+def test_cancel_reverts_only_the_active_buffer_and_says_which(editor_results):
+    """add-doxbench-editing-phase-a, "Cancel is invoked": the ACTIVE buffer
+    returns to its last loaded or saved base, no other buffer changes, and the
+    control names the buffer it reverted — one control that could have been
+    aimed at either owes the human that sentence. Driven through the rendered
+    button, not the method."""
+    result = editor_results["panelCancel"]
+    assert result["document"] == {"content": "# Document A\n", "dirty": False}
+    # the buffer the human was NOT looking at is untouched: no silent reversal
+    assert result["outline"] == {"content": "# outline edited\n", "dirty": True}
+    assert "Cancel reverted the Document buffer" in result["cancelledKindStated"]
+
+
+def test_cancel_moves_an_identity_and_says_so_like_a_discard(editor_results):
+    """add-doxbench-editing-phase-a, "Cancel moves an identity": a discard
+    moves the buffer's content identity back to its base, so the settled-identity
+    notification MUST fire — otherwise the rail's proposal cards keep offering
+    Apply against text the buffer no longer holds. Exactly ONE notification,
+    for exactly the buffer that moved."""
+    result = editor_results["panelCancel"]
+    assert result["identityAfterCancel"] == [
+        {"kind": "document", "hex": result["documentBaseHex"]},
     ]
 
 
@@ -1613,8 +1911,9 @@ def test_focus_selection_and_scroll_are_independent_per_buffer_across_tab_switch
     editor_results,
 ):
     """FR-010 / AS3: each buffer's focus/selection/scroll survive
-    `setActiveTab` round trips, and one buffer's values never bleed into the
-    other's."""
+    `setActiveBuffer` round trips (the buffer tablist that used to drive them
+    is retired -- the context region owns that choice now), and one buffer's
+    values never bleed into the other's."""
     result = editor_results["focusPersistence"]
     assert result["outlineViewAfterFocus"] == {
         "selectionStart": 2, "selectionEnd": 5, "scrollTop": 10, "focused": True,
@@ -1735,16 +2034,20 @@ def test_authoring_surfaces_disable_autofill_and_derive_text_direction():
 
 def test_selected_tab_styling_rides_aria_selected_not_a_shadow_class():
     """T104 F9-6: the selected-tab look is owned by the
-    `.doxbench-tab[aria-selected="true"]` rule (the T100 operator patch
-    overrides every property the old `.doxbench-tab-active` rule set), so the
+    `.doxbench-viewtab[aria-selected="true"]` rule (the T100 operator patch
+    overrides every property the old `-active` shadow-class rule set), so the
     class and the lockstep classList.toggle that maintained it were dead
     weight — a second spelling of the same state that could silently drift
     from the ARIA truth. Both are gone; selection state has exactly one
     spelling: `aria-selected`."""
     source = EDITOR_JS.read_text(encoding="utf-8")
     styles = (EDITOR_JS.parent.parent / "styles.css").read_text(encoding="utf-8")
-    assert "doxbench-tab-active" not in source
-    assert "doxbench-tab-active" not in styles
+    for shadow in ("doxbench-tab-active", "doxbench-viewtab-active"):
+        assert shadow not in source, shadow
+        assert shadow not in styles, shadow
+    # and the class the rule keys on is the VIEW tab's, since that is the strip
+    # the canvas now renders (add-doxbench-editing-phase-a)
+    assert '.doxbench-viewtab[aria-selected="true"]' in styles
 
 
 def test_hostile_markdown_preview_renders_through_the_one_safe_sink(editor_results):
@@ -2014,7 +2317,8 @@ def test_the_document_picker_reaches_select_document_and_reverts_when_blocked(
 
 def test_the_controller_is_fully_inert_after_destroy(editor_results):
     """S4: after destroy(), edit/discard/selectDocument/resolveGuard become
-    stated refusals and setActiveTab is a no-op; nothing further persists."""
+    stated refusals and setActiveBuffer is a no-op; nothing further
+    persists."""
     result = editor_results["postDestroyInert"]
     assert result["editResult"]["ok"] is False
     assert result["discardResult"]["ok"] is False
@@ -2061,7 +2365,13 @@ def test_staging_workbench_composes_the_doxbench_canvas_without_new_transport():
     assert 'mountDoxBenchCanvas(canvas, projection, {' in view
     for forwarded in ('title: scope.title', 'loadSource: doxbench?.loadSource',
                       'hash: doxbench?.hash', 'save: doxbench?.save',
-                      'onIdentitySettled: () =>'):
+                      # PIN EVOLUTION (add-doxbench-editing-phase-a): the same
+                      # pure callback, now a NAMED function because a second
+                      # caller needs it -- a context-region selection change
+                      # moves no content identity, so nothing else would have
+                      # refreshed the rail (whose header states the bound
+                      # buffer).
+                      'onIdentitySettled: refreshRailFromCanvas'):
         assert forwarded in view
     assert 'railController.refreshCurrency(' in view
     # T104 F2: the rail is handed the tile's USABLE documents (the scope
@@ -2263,8 +2573,11 @@ async function bothCommitted() {
     afterKey: after.key,
     status: { outline: describe(controller.elements().status('outline')),
               document: describe(controller.elements().status('document')) },
-    saveBtn: { outline: describe(controller.elements().save('outline')),
-               document: describe(controller.elements().save('document')) },
+    // PIN EVOLUTION (add-doxbench-editing-phase-a): ONE Save on the panel, so
+    // this is one description, not one per buffer. What it asserts -- the
+    // wired posture is enabled and the fixed unavailable reason is GONE
+    // rather than restyled -- is unchanged.
+    saveBtn: describe(controller.elements().save()),
     hostText: host.textContent,
     storedKeys: [...storage.values.keys()],
     removedKeys: storage.removed,
@@ -2307,8 +2620,8 @@ async function busy() {
   const focusedBefore = describe(globalThis.document.activeElement);
   const pending = controller.save();
   const during = {
-    save: describe(controller.elements().save('outline')),
-    discard: describe(controller.elements().discard('outline')),
+    save: describe(controller.elements().save()),
+    discard: describe(controller.elements().cancel()),
     status: describe(controller.elements().status('outline')),
     focused: describe(globalThis.document.activeElement),
   };
@@ -2319,8 +2632,8 @@ async function busy() {
   const outcome = await pending;
   return {
     focusedBefore, during, reentrant, editDuring, outcome,
-    after: { save: describe(controller.elements().save('outline')),
-             discard: describe(controller.elements().discard('outline')),
+    after: { save: describe(controller.elements().save()),
+             discard: describe(controller.elements().cancel()),
              status: describe(controller.elements().status('outline')) },
   };
 }
@@ -2395,6 +2708,64 @@ async function guardSaveIntoRemount() {
   };
 }
 
+// ---- add-doxbench-editing-phase-a: the panel Save, inside the guard -------
+//
+// The consolidation must not have opened a path AROUND the per-buffer
+// staleness guard, so this drives the RENDERED panel button (not `save()`)
+// against a seam that refuses one buffer for a moved base.
+async function panelSaveMeetsMovedIdentity() {
+  const { controller } = await mount({
+    save: seamFor({ document: {
+      status: 'refused', action: 'edit-document', ref: null, revision: null,
+      content_hash: null, message: 'the document base moved under this buffer' } }),
+  });
+  await controller.edit('outline', '# Outline edited\n');
+  await controller.edit('document', '# Document A edited\n');
+  const before = controller.state().buffers.document;
+  const saveBtn = controller.elements().save();
+  for (const fn of (saveBtn.listeners.click || [])) await fn({ target: saveBtn });
+  // the click handler drops save()'s promise, so settle the microtask queue
+  await new Promise((r) => setTimeout(r, 0));
+  const after = controller.state().buffers;
+  return {
+    // the refused buffer keeps its text, its base, and its dirty flag EXACTLY
+    preserved: {
+      content: after.document.content === before.content,
+      baseHex: after.document.base_hash.hex === before.base_hash.hex,
+      baseContent: after.document.base_content === before.base_content,
+      dirty: after.document.dirty,
+    },
+    // …and the buffer that DID land still landed: one button, two answers
+    outlineDirty: after.outline.dirty,
+    statuses: {
+      outline: String(controller.elements().status('outline').textContent),
+      document: String(controller.elements().status('document').textContent),
+    },
+  };
+}
+
+// Neither panel control gains authority by being consolidated: no force
+// path, no bypass, no second write route.
+async function panelControlsGrantNoNewAuthority() {
+  const gate = deferred();
+  const { controller } = await mount({ save: seamFor({}, { gate }) });
+  await controller.edit('outline', '# Outline edited\n');
+  const pending = controller.save();
+  const during = {
+    saveDisabled: controller.elements().save().disabled === true,
+    cancelDisabled: controller.elements().cancel().disabled === true,
+    secondSave: await controller.save(),
+    cancelMidSave: await controller.cancel(),
+    editMidSave: await controller.edit('outline', '# raced\n'),
+  };
+  gate.release();
+  await pending;
+  // the mid-save Cancel changed nothing: the buffer still holds the bytes the
+  // verdict described, and the base advanced only through the answer
+  const after = controller.state().buffers.outline;
+  return { during, afterDirty: after.dirty, afterContent: after.content };
+}
+
 // ---- the unwired posture, in this same harness ---------------------------
 async function noSeam() {
   const { controller, host } = await mount({});
@@ -2402,7 +2773,7 @@ async function noSeam() {
   const attempted = await controller.save();
   return {
     attempted,
-    saveBtn: describe(controller.elements().save('outline')),
+    saveBtn: describe(controller.elements().save()),
     hostNamesReason: host.textContent.includes(SAVE_UNAVAILABLE_REASON),
     stillDirty: controller.state().buffers.outline.dirty,
   };
@@ -2417,6 +2788,8 @@ console.log(JSON.stringify({
   nothingDirty: await nothingDirty(),
   guardSave: await guardSave(),
   guardSaveIntoRemount: await guardSaveIntoRemount(),
+  panelSaveMovedIdentity: await panelSaveMeetsMovedIdentity(),
+  panelAuthority: await panelControlsGrantNoNewAuthority(),
   noSeam: await noSeam(),
 }));
 """
@@ -2468,10 +2841,12 @@ def test_without_a_save_seam_the_control_stays_disabled_and_states_why(
 def test_with_a_save_seam_the_control_becomes_enabled(save_seam_results):
     """The other half: an injected seam makes Save reachable, and the disabled
     posture and its note are gone rather than merely restyled."""
-    buttons = save_seam_results["bothCommitted"]["saveBtn"]
-    for kind in ("outline", "document"):
-        assert buttons[kind]["disabled"] is False, kind
-        assert buttons[kind]["ariaDisabled"] in (None, "false"), kind
+    # PIN EVOLUTION (add-doxbench-editing-phase-a): ONE Save on the panel, so
+    # this reads one control rather than one per buffer. The posture asserted
+    # is unchanged.
+    button = save_seam_results["bothCommitted"]["saveBtn"]
+    assert button["disabled"] is False
+    assert button["ariaDisabled"] in (None, "false")
     assert save_seam_results["saveUnavailableReason"] not in \
         save_seam_results["bothCommitted"]["hostText"]
 
@@ -2629,6 +3004,102 @@ def test_a_save_that_lands_on_a_session_ref_rekeys_the_browser_state(
     assert stale == [], f"the pre-session key survived the rekey: {stale}"
 
 
+# ---- add-doxbench-editing-phase-a: the panel controls, inside the guard ---
+
+def test_the_panel_save_still_refuses_a_buffer_whose_identity_moved(
+        save_seam_results):
+    """add-doxbench-editing-phase-a, "Save meets a moved identity" (task 6.2):
+    driven through the RENDERED panel button, so the consolidation is SHOWN not
+    to have opened a path around the per-buffer content-identity guard. The
+    refused buffer keeps its text, its base and its dirty flag exactly, and the
+    buffer that did land still landed — one button, two answers."""
+    result = save_seam_results["panelSaveMovedIdentity"]
+    assert result["preserved"] == {
+        "content": True, "baseHex": True, "baseContent": True, "dirty": True,
+    }
+    assert result["outlineDirty"] is False
+    # the partial outcome stays SEPARATELY readable with one button on screen
+    assert "saved as" in result["statuses"]["outline"]
+    assert "Save refused" in result["statuses"]["document"]
+    assert "base moved" in result["statuses"]["document"]
+
+
+def test_neither_panel_control_grants_authority_it_did_not_already_have(
+        save_seam_results):
+    """add-doxbench-editing-phase-a, "A control is asked for authority it does
+    not have" (task 6.3): moving a control MUST NOT widen what it may do. While
+    a Save is in flight both controls are withdrawn, a second Save is REFUSED
+    rather than queued, a concurrent edit is refused rather than landing under
+    the verdict, and Cancel gets no force path of its own — the bytes handed
+    over stay the bytes the verdict describes."""
+    result = save_seam_results["panelAuthority"]
+    during = result["during"]
+    assert during["saveDisabled"] is True
+    assert during["cancelDisabled"] is True
+    assert during["secondSave"]["status"] == "refused"
+    assert "already in flight" in during["secondSave"]["reason"]
+    assert during["cancelMidSave"]["ok"] is False
+    assert "already in flight" in during["cancelMidSave"]["error"]
+    assert during["editMidSave"]["ok"] is False
+    assert "cannot change" in during["editMidSave"]["error"]
+    # the in-flight Cancel changed nothing: the save's own answer is what moved
+    # the base, and the buffer is clean because it COMMITTED
+    assert result["afterDirty"] is False
+    assert result["afterContent"] == "# Outline edited\n"
+
+
+def test_the_view_surface_is_expressed_over_the_buffer_set_not_two_names():
+    """add-doxbench-editing-phase-a, "A view surface names a buffer literally"
+    (the fifth ADDED requirement): the view tabs, the one Save, the one Cancel
+    and the chat binding read the declared buffer enumeration and the
+    active-buffer key. Widening the buffer set must be a change to the buffer
+    contract and to NOTHING on this surface, so a realization that hard-coded
+    `outline` and `document` into any of them is refused here rather than
+    discovered in Phase B.
+
+    Note what this does NOT claim: the module still names the `document`
+    buffer where the DOCUMENT-specific machinery lives (the picker, the
+    document-switch guard, `switchDocument`). That machinery is not part of
+    the view surface and Phase A does not generalize it."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    # every per-buffer structure is seeded FROM the enumeration
+    assert "const perBuffer = (seed) => Object.fromEntries(" in source
+    assert "BUFFER_KINDS.map((kind) => [kind, seed])" in source
+    # …and every per-buffer surface is built by looping it
+    assert source.count("for (const kind of BUFFER_KINDS)") >= 4
+    # the view tabs render the ACTIVE buffer; they never enumerate buffers
+    view_tab_block = source.split("for (const view of DOXBENCH_VIEW_TABS) {", 1)[1] \
+        .split("\n  }\n", 1)[0]
+    for literal in ('"outline"', '"document"'):
+        assert literal not in view_tab_block, literal
+    # Save operates over the declared set; Cancel over the active key
+    assert "BUFFER_KINDS.filter((kind) => state.buffers[kind].dirty)" in source
+    assert "const kind = activeBuffer;" in source
+    # and the active-buffer refusal reads the enumeration rather than a pair
+    assert "if (!BUFFER_KINDS.includes(kind)) {" in source
+    assert "must be outline or document" not in source
+    # labels are a lookup with a fallback, so a new kind can never be unnamed
+    assert "return DOXBENCH_BUFFER_LABELS[kind] || String(kind);" in source
+
+
+def test_the_editor_module_exposes_no_force_or_bypass_verb():
+    """The source half of the same rule (task 6.3): there is no force-save,
+    force-discard, refusal bypass, or second write route anywhere in the
+    module — Save reaches exactly one seam, and Cancel reaches none."""
+    source = EDITOR_JS.read_text(encoding="utf-8")
+    # a word-boundary match, so the prose that EXPLAINS the rule ("enforced
+    # structurally", "no force-save") does not stand in for the rule itself
+    for verb in (r"forceSave", r"forceDiscard", r"\bforce\s*[:=(]",
+                 r"\bbypass\s*[:=(]", r"\boverride\s*[:=(]"):
+        assert not re.search(verb, source), verb
+    # exactly one call site for the injected Save seam
+    assert source.count("saveSeam({") == 1
+    # Cancel is the existing per-buffer discard, aimed at the active buffer —
+    # not a new primitive and not a whole-canvas reversal
+    assert "const result = await discard(kind);" in source
+    assert "const kind = activeBuffer;" in source
+
+
 # ---- the guard's Save arm ----------------------------------------------
 
 def test_the_guard_save_choice_becomes_reachable_and_resolves_the_switch(
@@ -2704,7 +3175,13 @@ function survey(root) {
     textareas: nodes.filter((n) => n.tagName === 'TEXTAREA').length,
     textareasDisabled: nodes.filter((n) => n.tagName === 'TEXTAREA' && n.disabled === true).length,
     selects: nodes.filter((n) => n.tagName === 'SELECT').length,
-    discardButtons: byText(/discard/i).length,
+    // PIN EVOLUTION (add-doxbench-editing-phase-a): the panel's own reversal
+    // control is Cancel, aimed at the ACTIVE buffer. `Discard` survives only
+    // as the document-switch guard's choice, so it is counted separately --
+    // conflating the two would let a lost panel control hide behind the guard.
+    cancelButtons: buttons.filter((b) =>
+      String(b.className).split(' ').includes('doxbench-cancel')).length,
+    guardChoices: byText(/discard/i).length,
     saveButtons: byText(/save/i).length,
     saveDisabled: byText(/save/i).every((b) => b.disabled === true),
     chatControls: nodes.filter((n) =>
@@ -2810,7 +3287,7 @@ def posture_results(tmp_path_factory):
 def test_a_capable_local_console_offers_both_editors_and_discard(posture_results):
     view = posture_results["capable"]
     assert view["textareas"] >= 1 and view["textareasDisabled"] == 0
-    assert view["discardButtons"] >= 1
+    assert view["cancelButtons"] == 1
     # Save is PRESENT but honestly inert without a seam (the pinned posture);
     # presence-with-truthful-reason is the local console's shape, absence is
     # the hosted/gate-off shells' shape (pinned below at the shell source).
@@ -2837,7 +3314,7 @@ def test_an_unavailable_source_is_reported_inline_with_context_retained(
     # survives the unavailable document rather than vanishing with it
     assert view["textareas"] >= 1 and view["textareasDisabled"] == 0
     assert view["selects"] >= 1
-    assert view["discardButtons"] >= 1
+    assert view["cancelButtons"] == 1
 
 
 def test_an_outline_only_tile_states_that_posture_instead_of_an_empty_picker(
@@ -2859,7 +3336,7 @@ def test_an_outline_only_tile_states_that_posture_instead_of_an_empty_picker(
     assert view["documentPath"] is None
     # nothing is withheld: both buffers, Save/Discard and the preview remain
     assert view["textareas"] == 2 and view["textareasDisabled"] == 0
-    assert view["discardButtons"] >= 1 and view["saveButtons"] >= 1
+    assert view["cancelButtons"] == 1 and view["saveButtons"] >= 1
 
 
 def test_gate_off_and_hidden_surfaces_withhold_the_canvas_at_the_shell():

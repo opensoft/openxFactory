@@ -74,6 +74,7 @@ from ideation_dashboard.doxbench_turns import (
     WORKING_STATE_CLEAN_LABEL,
     WORKING_STATE_DIRTY_LABEL,
     ObservedHashes,
+    BufferBinding,
     PromptEnvelope,
     PromptSection,
     TranscriptTurn,
@@ -874,6 +875,55 @@ def test_an_outline_only_turn_assembles_a_full_prompt_envelope():
     text = "\n".join(section.text for section in envelope.sections)
     assert "drafting here" in text
     assert OUTLINE_CONTENT in text
+
+
+def test_the_turn_record_names_the_buffer_the_turn_was_bound_to():
+    """add-doxbench-editing-phase-a, "A turn record is read later": a completed
+    turn STATES which material it was working on, by repository-relative path,
+    rather than leaving that inferable from which proposal came back. Additive
+    -- every existing field of the envelope is untouched."""
+    envelope = _build_envelope()
+    assert envelope.bound_buffer == BufferBinding(kind="document",
+                                                  path=DOCUMENT_PATH)
+    assert envelope.bound_buffer.named() == DOCUMENT_PATH
+
+
+def test_a_turn_that_names_no_document_records_the_outline_as_its_binding():
+    """The other half, and the reason `named()` has a fallback: an outline-only
+    turn (G-1) can only be working on the outline, and a buffer with no path
+    yet is named by its KIND rather than by a fabricated path."""
+    buffers = _valid_buffers()
+    buffers[1] = _buffer("document", path=None, content="drafting here\n")
+    envelope = _build_envelope(active_document_path=None, buffers=buffers)
+    assert envelope.bound_buffer.kind == "outline"
+    assert envelope.bound_buffer.named() == OUTLINE_PATH
+
+    pathless = doxbench_turns.resolve_turn_binding(
+        active_document_path=None, outline_path=None)
+    assert pathless == BufferBinding(kind="outline", path=None)
+    assert pathless.named() == "outline"
+
+
+def test_binding_never_narrows_what_the_turn_is_grounded_on():
+    """add-doxbench-editing-phase-a, "Binding is mistaken for grounding":
+    binding says what the chat works ON, not what it may see. The turn still
+    carries BOTH buffers, `require_outline_and_document` still refuses anything
+    else, and `PROPOSAL_TARGETS` is unchanged."""
+    envelope = _build_envelope()
+    keys = [section.key for section in envelope.sections]
+    assert "outline_buffer" in keys and "document_buffer" in keys
+    text = "\n".join(section.text for section in envelope.sections)
+    assert OUTLINE_CONTENT in text and DOCUMENT_CONTENT in text
+    assert doxbench_turns.PROPOSAL_TARGETS == ("outline", "document")
+
+
+def test_a_declared_binding_that_does_not_match_its_buffer_still_refuses_first():
+    """add-doxbench-editing-phase-a, "A turn's declared binding does not match
+    its buffers": the active-path revalidation is PRESERVED, not replaced --
+    it still refuses before any provider call and before any section is
+    assembled, and the binding record is never reached."""
+    with pytest.raises(doxbench_turns.TurnScopeError):
+        _build_envelope(active_document_path=OUTLINE_PATH)
 
 
 def test_a_document_proposal_is_refused_on_a_turn_that_names_no_document():

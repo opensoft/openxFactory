@@ -1547,31 +1547,40 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink);
   margin: 0 0 4px; flex: none;
 }
-.doxbench-tabs { display: flex; gap: 6px; flex: none; }
-.doxbench-tab {
+/* add-doxbench-editing-phase-a: the VIEW tabs (Editor/Preview) took over the
+   strip the retired BUFFER tablist used to occupy, so they inherit its look
+   verbatim — the selected-tab rule below still keys on aria-selected, which
+   stays selection's one and only spelling. */
+.doxbench-viewtabs { display: flex; gap: 6px; flex: none; }
+.doxbench-viewtab {
   font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
   background: none; border: 1px solid var(--border); border-bottom: none;
   border-radius: 5px 5px 0 0; padding: 4px 12px;
 }
-.doxbench-tab:hover { color: var(--ink); }
+.doxbench-viewtab:hover { color: var(--ink); }
 .doxbench-panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.doxbench-pane {
+.doxbench-viewpane {
   flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
   border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px;
   padding: 10px 12px; background: var(--panel);
 }
-.doxbench-pane[hidden] { display: none; }
-.doxbench-toolbar { display: flex; align-items: center; gap: 8px; flex: none; }
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-bufferbox[hidden] { display: none; }
+/* the panel chrome: the document picker, one status region per buffer, and the
+   one Save / one Cancel — all OUTSIDE both view tabs, so each control and its
+   answer are on screen from either view. */
+.doxbench-chrome { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: none; }
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
-.doxbench-discard, .doxbench-save {
+.doxbench-cancel, .doxbench-save {
   font-family: var(--mono); font-size: 10.5px; cursor: pointer; color: var(--muted);
   background: var(--faint); border: 1px solid var(--border); border-radius: 4px;
   padding: 2px 9px;
 }
-.doxbench-discard:hover { border-color: var(--st-staged); color: var(--st-staged); }
-.doxbench-discard:disabled, .doxbench-save:disabled { opacity: 0.5; cursor: not-allowed; }
-.doxbench-textarea, .doxbench-editarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-cancel:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.doxbench-cancel:disabled, .doxbench-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.doxbench-textarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .doxbench-textarea {
   font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--panel);
   border: 1px solid var(--border); border-radius: 5px; padding: 8px 10px;
@@ -1655,7 +1664,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   .pill,
   .swb-posture-note,
   .swb-tab,
-  .doxbench-tab,
+  .doxbench-viewtab,
   .doxbench-save-note {
     border: 1px solid ButtonText;
   }
@@ -1663,7 +1672,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
     background: Highlight;
   }
   .swb-tab[aria-selected="true"],
-  .doxbench-tab[aria-selected="true"] {
+  .doxbench-viewtab[aria-selected="true"] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }
@@ -1759,18 +1768,22 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   position: absolute; width: 1px; height: 1px; margin: -1px;
   clip-path: inset(50%); overflow: hidden; white-space: nowrap;
 }
-/* ---- canvas editor internals (same operator patch, part 3) ---- */
-.doxbench-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
-.doxbench-tab {
+/* ---- canvas editor internals (same operator patch, part 3) ----
+   add-doxbench-editing-phase-a re-pointed this block from the retired BUFFER
+   tablist onto the VIEW tablist that replaced it, and from the per-buffer
+   toolbar onto the panel chrome. Nothing about the LOOK changed: the same
+   strip, in the same place, answering a different question. */
+.doxbench-viewtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.doxbench-viewtab {
   font: inherit; padding: 6px 14px; cursor: pointer; color: var(--muted);
   background: transparent; border: 1px solid transparent;
   border-bottom: none; border-radius: 6px 6px 0 0;
 }
-.doxbench-tab[aria-selected="true"] {
+.doxbench-viewtab[aria-selected="true"] {
   color: var(--ink); background: var(--panel);
   border-color: var(--border); font-weight: 600;
 }
-.doxbench-toolbar {
+.doxbench-chrome {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 6px 0;
 }
@@ -1790,26 +1803,30 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px solid var(--border); border-radius: 6px;
 }
 .doxbench-panes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-.doxbench-pane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
-.doxbench-pane[hidden] { display: none; }
-.doxbench-textarea, .doxbench-editarea {
+.doxbench-viewpane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-bufferbox[hidden] { display: none; }
+.doxbench-textarea {
   flex: 1 1 auto; min-height: 120px; width: 100%; box-sizing: border-box;
   resize: none; padding: 10px; font: 13px/1.5 ui-monospace, monospace;
   background: var(--panel); color: var(--ink);
   border: 1px solid var(--border); border-radius: 6px;
 }
+/* the Preview view tab is the LARGE rendered pane it names, not the sliver a
+   split pane could spare it. */
 .doxbench-preview {
-  flex: 0 1 40%; min-height: 0; overflow-y: auto; padding: 8px 10px;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 8px 10px;
   border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;
 }
 .doxbench-status { font-size: 12px; color: var(--muted); }
-.doxbench-save, .doxbench-discard, .doxbench-guard-save,
+.doxbench-save, .doxbench-cancel, .doxbench-guard-save,
 .doxbench-guard-discard, .doxbench-guard-cancel {
   font: inherit; padding: 5px 12px; cursor: pointer;
   border: 1px solid var(--border); border-radius: 6px;
   background: var(--faint); color: var(--ink);
 }
-.doxbench-save:disabled, .doxbench-discard:disabled { opacity: .5; cursor: not-allowed; }
+.doxbench-save:disabled, .doxbench-cancel:disabled { opacity: .5; cursor: not-allowed; }
 .doxbench-save-note, .doxbench-guard-save-note { font-size: 12px; color: var(--muted); }
 .doxbench-guard {
   display: flex; flex-direction: column; gap: 8px; padding: 10px;
