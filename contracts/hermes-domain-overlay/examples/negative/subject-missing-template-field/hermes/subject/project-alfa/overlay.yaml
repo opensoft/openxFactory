@@ -1,0 +1,19 @@
+# expected_failure: template-required field missing or empty on subject
+# Repo-SHAPED negative: `repositories` is required of a `project` by the
+# DOMAIN's template (required_subject_fields.project), never by the neutral
+# schema — which is exactly how a domain's identity requirements are enforced
+# without an engineering field name entering a domain-neutral contract.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  relation_to_baseline: additive_constraints_only
+  owner: engineering-directorate
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa

@@ -1,0 +1,9 @@
+schema_version: 1
+kind: hermes_overlay_descriptor
+
+# `customer` is the FROZEN runtime role key; contracts/policies/layer-vocabulary.yaml
+# legacy_mapping resolves it to the canonical `subject` layer. The role key and
+# the directory deliberately differ.
+overlay_paths:
+  domain: hermes/domain/overlay.yaml
+  customer: hermes/subject/project-alfa/overlay.yaml
