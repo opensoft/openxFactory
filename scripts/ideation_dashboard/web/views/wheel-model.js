@@ -791,6 +791,23 @@ export function landedFromDeltas(files) {
 //   2. else the SHALLOWEST markdown file (a topic-root fragment beats an
 //      `openspec/` draft, which is a proposal in progress, not the topic)
 //   3. else nothing — the caller then offers no summary and a disabled verb
+//
+// THIS SELECTOR IS DELIBERATELY NOT EXTENDED (Q1 of
+// `add-staged-topic-outline-template`, ruled 2026-08-15). That change makes the
+// primary fragment carry a required outline template, and the obvious-looking
+// alternative — give the outline its own `outline.md` and teach this function a
+// second, higher-priority filename — was PUT AND DECLINED. One deterministic
+// path-only file per topic is a load-bearing simplicity property; a second
+// candidate re-opens exactly the ambiguity the rule exists to prevent, in
+// exchange for a separation the template already delivers by leaving every
+// other file in the folder free-form.
+//
+// So: the primary fragment IS the outline. If a future change proposes a
+// second candidate file here, that is a reversal of a ratified decision and
+// needs its own ruling — not a patch to this list.
+// doc-health's `staged-topic-template` family mirrors this selection in
+// `_primary_fragment` so the checker and the wheel cannot disagree about which
+// file a topic's outline is; change both together or neither.
 export function primaryFragmentPath(stagingId, files) {
   const mds = (files || []).filter((p) => /\.md$/i.test(String(p)));
   if (!mds.length) return "";
