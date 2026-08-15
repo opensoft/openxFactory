@@ -343,26 +343,6 @@ Active changes:
   tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
   generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
   — is explicitly out of scope. No contract release.
-- [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
-  — authored 2026-08-14 from the Business Central admission investigation:
-  the neutral identity layer beneath credential-contracts and
-  consent-instrument. Which identities stand in a paying client's tenant,
-  keyed on (domain, admission surface, authority class, blast-radius unit,
-  duty); verified admission with achieved scope; structural scoping
-  preferred; declared provider-forced breadth; report-only drift that
-  refuses grant issuance. MODIFIES FOUR capabilities: consent-instrument
-  (the cascade reaches identities — `withdrawn` joins the lifecycle as a
-  second terminal state and `dependent_refs` gains the named
-  `governed_identity` kind), doc-health (the sixteenth check family,
-  `client-identity-composition`), `domain-conformance-checks` (the neutral
-  utility pack grows to FOUR checks — Decision A, 2026-08-14) and
-  `credential-contracts` (the optional `issuance_preconditions` vocabulary,
-  every value `const: true` — Decision B, 2026-08-14). Decisions A and B are
-  the 2026-08-14 amendments that added the third and fourth modified
-  capabilities; Decision C (Brett, 2026-08-15) relocated the uncitable
-  multi-surface-reader packaged example to a synthetic representability
-  fixture after its provider precondition was falsified. Registered at
-  `contract-v1.33`.
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault
@@ -519,6 +499,38 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-client-identity-roster](openspec/changes/archive/2026-08-15-add-client-identity-roster/proposal.md)
+  Promoted the neutral `client-identity-roster` capability (13 requirements)
+  from the Business Central admission investigation: the identity layer
+  beneath `credential-contracts` and `consent-instrument`. Which identities
+  stand inside a paying client's provider tenant, keyed on (domain, admission
+  surface, authority class, blast-radius unit, duty); admission is a VERIFIED
+  list and consent is never recorded as access; achieved authority is derived
+  from granted permissions and its excess over intent declared; structural
+  scoping is preferred and its absence must be declared; provider-forced
+  breadth is declared, never silently absorbed; destructive authority holds no
+  provider identity by default; and drift REPORTS rather than remediates,
+  withholding our own credential and refusing grant issuance. MODIFIED FOUR
+  capabilities: consent-instrument (the cascade reaches governed identities,
+  and `withdrawn` becomes the sixth lifecycle member as a DISTINCT terminal
+  state that MUST NOT be declared an alias of `terminated`), doc-health (the
+  sixteenth deterministic check family, client identity roster composition,
+  scoped to the CROSS-DOMAIN concerns only), domain-conformance-checks (the
+  neutral utility pack grows to FOUR checks — pack membership is what makes
+  `scripts/validate-client-identity-roster.py` BLOCKING, Decision A
+  2026-08-14) and credential-contracts (the optional, CLOSED
+  `issuance_preconditions` vocabulary whose first member is the roster-drift
+  precondition, Decision B 2026-08-14). Decision C (Brett, 2026-08-15)
+  relocated the uncitable multi-surface-reader packaged example to a synthetic
+  representability fixture after its provider precondition was falsified.
+  Realized 2026-08-15 by Speckit feature `007-client-identity-roster` (PR
+  #190) at `contract-v1.33` and archived 2026-08-15. Intra-repo entry
+  conformance fails the domain gate; cross-domain composition is advisory.
+  This release enforces NO roster completeness rule — neither a missing
+  fragment nor a missing entry is a finding — and scoped completeness, plus
+  the live refuse-then-allow proof at a domain mint surface, are named
+  successors.
 
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
