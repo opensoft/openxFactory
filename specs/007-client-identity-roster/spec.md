@@ -537,15 +537,29 @@ remove an identity, permission, or admission.
   `granted_permissions[]`, `admission[]`, `declared_excess`,
   `per_unit_principal_available`, `lifecycle_state`,
   `standing_credential_attestation`, `ratified_by` (domain-qualified), and
-  `consent_ref`. The fragment MUST additionally carry the free-token LEGEND
+  `consent_ref`. Each entry MUST ADDITIONALLY carry
+  `vendor_tenant_multi_obligations`, REQUIRED only under `residency_model:
+  vendor_tenant_multi` — FR-012's five obligations are a ratified rule with no
+  declaration site otherwise, and a rule whose terms cannot be written down
+  cannot be evaluated. `standing_credential_attestation` MUST ADDITIONALLY
+  carry `attested_at`, the approved grant window's `grant_window_expires_at`,
+  and any `held_credential_ref` — FR-013's falsification must be a
+  RECORD-INTERNAL contradiction, because the canonical validator observes no
+  credential store, grant record or provider (FR-029), and window expiry must
+  be read against `attested_at` rather than against the clock, or identical
+  inputs would yield different findings between runs (SC-011). The fragment
+  MUST additionally carry the free-token LEGEND
   required by FR-034, binding each `blast_radius_unit` and `duty` token used in
   that fragment to its provider-native identifier, and each entry MAY carry the
   OPTIONAL `duty_separation_rationale` required by FR-038's alias rule. The
   field list above is the ratified one (OpenSpec task 2.1) and MUST NOT be
   reduced; every addition to it is enumerated here, and each exists because a
   ratified rule cannot be evaluated without it — the legend and the
-  duty-separation rationale (ruling R7), and `provider_object_ref` (gate
-  ruling G4, the shared-material disjunct). The FRAGMENT gains exactly one
+  duty-separation rationale (ruling R7), `provider_object_ref` (gate
+  ruling G4, the shared-material disjunct), `vendor_tenant_multi_obligations`
+  (FR-012's obligations need a declaration site), and the
+  `standing_credential_attestation` subfields (FR-013's falsification must be
+  record-internal and clock-free). The FRAGMENT gains exactly one
   addition on the same footing: `client_tenant`, a REQUIRED string carrying
   the provider tenant identifier of the client the fragment covers, in the
   same dialect as `home_tenant` and `principal_locations[]`. It is the

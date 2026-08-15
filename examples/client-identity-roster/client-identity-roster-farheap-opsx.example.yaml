@@ -1,0 +1,258 @@
+# CLIENT IDENTITY ROSTER FRAGMENT — client `farheap`, owning domain
+# `opsxfactory`. A TRUTHFUL WORKED CASE: every provider fact below is
+# transcribed from a record in the OpsxFactory evidence chain, cited inline by
+# repo + path + commit. Nothing here is illustrative filler, because a packaged
+# example is an instantiation template a domain copies (research.md Decision 8).
+#
+# It carries the two mandated cases the roster delta names for this domain:
+#
+#   1. THE BUSINESS CENTRAL WORKED CASE (entry 1) — ONE identity admitted by
+#      TWO acts on ONE surface, whose EFFECTIVE REACH is their UNION and whose
+#      forced breadth is DECLARED. This is the case the change exists for: four
+#      admin-consented permissions held for six days still returned `401` until
+#      the admin-center authorization landed, so neither act admits alone, and
+#      the second act has NO SCOPE SELECTOR — it converts a bound the provider
+#      enforced (the environment) into one only gate logic enforces.
+#   2. THE `planned` ENTRY (entry 2) — the Production environment, whose
+#      application user does not exist ("Production has no application user for
+#      this client id", observer identity evidence). It validates clean, is
+#      never reported as missing or incomplete, and its single admission act is
+#      UNVERIFIED by derivation: no `evidence_ref`, therefore no `verified_at`.
+#
+# TWO ACTS, ONE SURFACE — and that is ratified, not a judgement call. The
+# ratified vocabulary carries `business_central` as ONE member whose description
+# names BOTH acts; the delta's "each act is its own admission surface" scenario
+# governs acts that admit INDEPENDENTLY, and these two do not.
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: farheap
+# The provider tenant identifier of the client this fragment covers. Declared,
+# never derived: `client_ref` above is a governance slug, and the
+# `client_tenant_single` rule has nothing to compare `home_tenant` against
+# without it. Verified tid, OpsxFactory tenants/farheap.yaml and every evidence
+# record below.
+client_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+domain: opsxfactory
+legend:
+  # Provider fidelity for the two DOMAIN-DECLARED tokens lives here, bound per
+  # fragment. `business_central_administration` registers the ENVIRONMENT as the
+  # blast-radius unit (workflow `registration_unit: environment`), because an
+  # extension install, a schema sync and an update schedule reach every company
+  # in an environment and none can be pinned to one.
+  blast_radius_units:
+    sandbox1: "Sandbox1 (FarHeap Business Central environment, US)"
+    production: "Production (FarHeap Business Central environment, friendly name FARHEAP, US)"
+  duties:
+    environment_observation: >-
+      Business Central ENVIRONMENT observation — extension deployment status,
+      Access Control enumeration and environment inventory, producing
+      infrastructure_readiness_result artifacts. The books are never touched.
+entries:
+
+  # ------------------------------------------------------------------
+  # ENTRY 1 — the Business Central worked case (SC-003, SC-004).
+  # ------------------------------------------------------------------
+  - identity_ref: opsx-farheap-bc-observer
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    # The Entra `app_id` — a provider-native OBJECT identifier, not a tenant
+    # identifier. Two domains that really do share one application share THIS
+    # value; tenant collocation never produces it.
+    provider_object_ref: 8ab93407-88ce-4fa3-97cb-6232acab65c5
+    admission_surface: business_central
+    duty: environment_observation
+    blast_radius_unit: sandbox1
+    # INTENDED observation; ACHIEVED mutation. The gap is real and DECLARED
+    # below rather than renamed away: Business Central exposes exactly four
+    # app-only roles and NO read-only admin-center role, so the credential able
+    # to read a deployment status is also able to delete an environment.
+    authority_class_intended: observe
+    authority_class_achieved: mutate
+    granted_permissions:
+      # The four app role assignments held by this service principal, VERBATIM
+      # from the identity evidence record's `app_role_assignments`. All four are
+      # declared `mutate` because the ratified workflow declares its credential
+      # excess against the SET (`declared_credential_excess.credential_roles`,
+      # all four listed, `no_narrower_role_reason: no read-only admin-center
+      # role exists`) and the estate has never measured a per-role split;
+      # declaring any of them `observe` would be an UNCITED narrowing, and the
+      # safe direction for a governance record is the conservative one.
+      - id: API.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: Automation.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: AdminCenter.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: app_access
+        achieves: mutate
+        reaches: [business_central]
+    admission:
+      # ACT 1 — the PER-ENVIRONMENT APPLICATION USER. Its scoping mechanism is
+      # the ENVIRONMENT, and the provider itself enforces it: an application
+      # user in Sandbox1 admits to Sandbox1, and Production, having none, is
+      # not reachable. Does NOT exceed the governed unit.
+      - surface: business_central
+        act: >-
+          per-environment application user created and Enabled in Sandbox1
+          (userName OPSX-FARHEAP-BC-OBSERVER, userSecurityId
+          e6c272ab-e445-4de8-9df5-65b0d76937af, permission set D365 READ with
+          Company blank so the sanctioned-companies enumeration can see every
+          company)
+        achieved_scope: "Sandbox1 environment, all companies (permission-set Company blank)"
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/OpsxFactory
+          path: tenants/farheap-bc-sandbox1-verification-evidence-v2.yaml
+          sha: 39f46de
+        verified_at: "2026-08-08T08:23:05Z"
+        exceeds_governed_unit: false
+      # ACT 2 — the ADMIN-CENTER ENTRA-APP AUTHORIZATION. It has NO SCOPE
+      # SELECTOR at all, so it is tenant-wide across every environment. This is
+      # the structural-to-logical degradation this contract exists to make
+      # checkable: `exceeds_governed_unit: true`, and therefore a
+      # `declared_excess` is REQUIRED below. The same probe that returned 401
+      # for six days under act 1 alone returned 200 once this act landed —
+      # which is also why neither act admits on its own.
+      - surface: business_central
+        act: >-
+          admin-center Entra-app authorization registered (Business Central
+          admin center > Microsoft Entra Apps > Authorized Microsoft Entra Apps;
+          admin consent granted, verified 2026-08-14T10:11:12Z)
+        achieved_scope: "tenant-wide across every Business Central environment (no scope selector exists on this act)"
+        enforcement_mode: logic_enforced
+        evidence_ref:
+          repo: opensoft/OpsxFactory
+          path: tenants/farheap-bc-sandbox1-verify-probe-evidence-v7.yaml
+          sha: 24c56cb
+        verified_at: "2026-08-14T13:02:32Z"
+        exceeds_governed_unit: true
+    declared_excess:
+      # Forced breadth, DECLARED — which is what makes it conformant. Two
+      # excesses ride this one declaration: the ACHIEVED CLASS above the
+      # intended one, and the ACHIEVED SCOPE of act 2 beyond the governed
+      # environment. No surface is spanned, so `spanned_surfaces` is absent.
+      provider_reason: >-
+        No read-only admin-center role exists. Business Central exposes exactly
+        four app-only roles, so the credential able to read a deployment status
+        is also able to delete an environment; and the admin-center Entra-app
+        authorization offers no scope selector, so it cannot be bound to one
+        environment. Recorded in the ratified workflow as
+        `declared_credential_excess.no_narrower_role_reason` (OpsxFactory
+        workflows/business-central-administration.yaml, commit 789a962).
+      bound_mechanism: >-
+        The deterministic read-only surface containing no destructive call — the
+        absence is structural, no plan builder for a mutation exists anywhere in
+        the module — plus an explicit prohibited-action-class list, just-in-time
+        short-lived grants that do not exist between uses, and per-call evidence.
+        Mutation is refused by CLASS before any call is made.
+      gate_obligation: business_central_administration_mutation_refused_by_class
+      enforcement_test_ref: >-
+        OpsxFactory tests for the business_central_administration deterministic
+        surface: the prohibited-action-class refusal fixtures, which assert that
+        a mutation request against a registered environment is refused by class
+        and that an unregistered environment is refused outright.
+    # One answer per surface this entry touches. `true`: the per-environment
+    # application user IS the principal scoped to the governed unit, and act 1
+    # uses it. Act 2 CANNOT use it — it has no scope selector at all — and an
+    # act that cannot use the principal is conformant beside a sibling act that
+    # does. That is why the structural-before-logical rule is read PER SURFACE.
+    per_unit_principal_available:
+      business_central: true
+    lifecycle_state: enrolled
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-08T07:32:53Z"
+      evidence_ref:
+        repo: opensoft/OpsxFactory
+        path: tenants/farheap-bc-observer-identity-evidence-v1.yaml
+        sha: 1ce8cae
+    ratified_by: opsxfactory:business-central-administration
+    consent_ref: farheap-bc-administration-consent-v1
+
+  # ------------------------------------------------------------------
+  # ENTRY 2 — the `planned` entry (FR-013, SC-002, SC-013).
+  # ------------------------------------------------------------------
+  # The SAME Entra registration (`provider_object_ref` is identical) at a
+  # DIFFERENT governed blast-radius unit, which is a different governed identity
+  # in roster terms because the ENVIRONMENT is the registered unit. Production
+  # has no application user for this client id — a post-condition CONFIRMED in
+  # the identity evidence record — so this entry is declared INTENT. It
+  # validates clean and is NEVER reported as missing, incomplete or stale.
+  - identity_ref: opsx-farheap-bc-observer
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    provider_object_ref: 8ab93407-88ce-4fa3-97cb-6232acab65c5
+    admission_surface: business_central
+    duty: environment_observation
+    blast_radius_unit: production
+    authority_class_intended: observe
+    authority_class_achieved: mutate
+    granted_permissions:
+      # Consent is TENANT-level and already granted, so the same four roles
+      # apply the moment the application user exists.
+      - id: API.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: Automation.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: AdminCenter.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: app_access
+        achieves: mutate
+        reaches: [business_central]
+    admission:
+      # THE UNVERIFIED STATE, expressed the only way this contract allows it:
+      # by the ABSENCE of BOTH `evidence_ref` and `verified_at`, never by an
+      # asserted flag an author could set against the evidence. An unverified
+      # act contributes NOTHING to effective reach.
+      - surface: business_central
+        act: >-
+          per-environment application user to be created in the Production
+          environment — not yet performed; Production is human-gated and enters
+          by separate instruction after the sandbox rehearsal is green
+        achieved_scope: "Production environment (intended; no application user exists for this client id)"
+        enforcement_mode: provider_enforced
+        exceeds_governed_unit: false
+    declared_excess:
+      # The CLASS overshoot alone: the same four roles, the same absent
+      # read-only path. No act here exceeds the governed unit.
+      provider_reason: >-
+        No read-only admin-center role exists (OpsxFactory
+        workflows/business-central-administration.yaml
+        `declared_credential_excess.no_narrower_role_reason`, commit 789a962),
+        so an observation-intended identity in this environment will achieve
+        mutation the moment its application user exists.
+      bound_mechanism: >-
+        The same deterministic read-only surface and prohibited-action-class
+        list that bounds the Sandbox1 entry, plus the ratified rule that
+        gated mutations are sandbox-registered-environments-only — Production
+        stays human until a separate widening change says otherwise.
+      gate_obligation: business_central_administration_mutation_refused_by_class
+      enforcement_test_ref: >-
+        OpsxFactory tests for the business_central_administration deterministic
+        surface: the prohibited-action-class refusal fixtures, plus the
+        unregistered-environment refusal, which is what an act against
+        Production meets today.
+    per_unit_principal_available:
+      business_central: true
+    lifecycle_state: planned
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-08T07:32:53Z"
+      evidence_ref:
+        repo: opensoft/OpsxFactory
+        path: tenants/farheap-bc-observer-identity-evidence-v1.yaml
+        sha: 1ce8cae
+    ratified_by: opsxfactory:business-central-administration
+    consent_ref: farheap-bc-administration-consent-v1

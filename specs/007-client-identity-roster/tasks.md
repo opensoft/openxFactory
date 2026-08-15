@@ -708,14 +708,14 @@ MODIFIED capability's surface, and the measurement confirms it.
 > fixture now homed at task 4.9. Phase 3 proceeds on that basis, and no task
 > here may reintroduce a packaged multi-surface reader.
 
-- [ ] 3.1 [US2] `examples/client-identity-roster/README.md` carrying
+- [x] 3.1 [US2] `examples/client-identity-roster/README.md` carrying
       `Status: ratified` plus a `Ratified by:` line naming
       `add-client-identity-roster` and the bundle it registers at — the
       `contracts/openxwallet/README.md` (006) header precedent, not the older
       siblings' `Status: draft` — with the sibling READMEs' layout block.
       *Depends on*: 0.1. *Verification*: doc-health's status-validity and
       tag-hygiene families report no finding (10.3).
-- [ ] 3.2 [US1] `client-identity-roster-farheap-opsx.example.yaml` — the
+- [x] 3.2 [US1] `client-identity-roster-farheap-opsx.example.yaml` — the
       Business Central worked case, transcribed from
       `OpsxFactory:tenants/farheap-bc-observer-identity-evidence-v1.yaml`: ONE
       entry with TWO admission acts (the provider-enforced Sandbox1 application
@@ -758,11 +758,11 @@ MODIFIED capability's surface, and the measurement confirms it.
       Nothing is authored under this id; it is retained rather than deleted so
       the relocation is legible and the SC-002 positive can be traced from the
       case list to its new home.
-- [ ] 3.4 [US1] The `planned` entry, in the same fragment: `lifecycle_state:
+- [x] 3.4 [US1] The `planned` entry, in the same fragment: `lifecycle_state:
       planned`, an identity not yet created, its kind declared as intent.
       *Depends on*: 0.1, 1.7. *Verification*: ZERO findings (FR-013, SC-002);
       and it is not reported as missing or incomplete (2.10, SC-013).
-- [ ] 3.5 [P] [US1] `client-identity-roster-farheap-ledgerx.example.yaml` — the
+- [x] 3.5 [P] [US1] `client-identity-roster-farheap-ledgerx.example.yaml` — the
       SECOND fragment for the SAME client held by a SECOND domain (fragments
       are per (client, domain), which is why the three mandated PACKAGED cases
       span two
@@ -780,12 +780,23 @@ MODIFIED capability's surface, and the measurement confirms it.
       authored here so the packaged corpus STATES the case; the RESOLUTION that
       makes it load-bearing is repo-context, and 4.5's fixtures 1 and 8 are
       where it is measured.
+      **RETIRED ENTRY RELOCATED to its own fragment,
+      `client-identity-roster-lxtest-ledgerx.example.yaml` (2026-08-15).** No
+      retired identity exists for the (farheap, ledgerxfactory) pair — nor for
+      (farheap, opsxfactory) — anywhere in the estate, and a fragment is per
+      (client, domain), so packaging one here would synthesize a governed fact
+      into an instantiation template, the exact move ruling A-16 and
+      research.md Decision 8 forbid. The real one
+      (`ledgerx-lxtest-ap-monitor`, torn down 2026-07-26 with per-step
+      before/after evidence) belongs to (lxtest_opensoft, ledgerxfactory) and is
+      packaged there. Full account in the Phase 3 checkpoint below. Everything
+      else this task mandates — both genuine pairs — is in THIS fragment.
       *Depends on*: 0.1, 1.4–1.7. *Verification*: both pairs at ZERO findings in
       the same run that refuses 4.1's alias pair — the SC-002 discrimination
       asserted at 4.6; the `retired` entry likewise clean, and not reported as
       missing, incomplete or stale (FR-013, FR-033), nor reported for citing an
       ended instrument (FR-014).
-- [ ] 3.6 [P] [US6] `client-identity-drift-finding.example.yaml` — a complete
+- [x] 3.6 [P] [US6] `client-identity-drift-finding.example.yaml` — a complete
       finding: the `identity_key` OBJECT (element 3 = the entry's
       `authority_class_intended`), `fragment_ref` naming 3.2's fragment,
       `rule_id`, `roster_value`, `observed_value`, `observed_at`, `opened_at`,
@@ -799,6 +810,54 @@ MODIFIED capability's surface, and the measurement confirms it.
 **Checkpoint**: THREE mandated cases packaged across two fragments (Decision C
 — the fourth is 4.9's fixture), drift example packaged → Phase 4 may assert
 against them.
+
+**REACHED 2026-08-15.** `examples/client-identity-roster/` carries FOUR
+positives, all confirmed CLEAN by the validator's layer-1 self-test, which went
+strict the moment the directory landed (`negative/` created in the same commit,
+empty until 4.1). A self-scan of this checkout exits 0 and reports NO
+misplacement of its own corpus. The three MANDATED packaged cases are where
+3.2/3.4/3.5 put them; the drift example is 3.6's.
+
+**THE ONE STRUCTURAL DEPARTURE — a THIRD positive fragment,
+`client-identity-roster-lxtest-ledgerx.example.yaml`, and it is forced by the
+same rule that forced Decision C.** 3.5 mandates the `retired` entry INSIDE the
+farheap-ledgerx fragment. A fragment is per (client, domain), and an exhaustive
+sweep of the estate establishes that NO retired identity exists for the
+(farheap, ledgerxfactory) pair, nor for (farheap, opsxfactory): LedgerxFactory's
+three FarHeap identities are all live and explicitly "retained", and
+OpsxFactory's FarHeap observer is enrolled with Production pending. Authoring a
+retired FarHeap identity would be synthesizing a governed fact into an
+INSTANTIATION TEMPLATE — precisely what ruling A-16 and research.md Decision 8
+forbid, and what Decision C chose relocation over. What DOES exist, with a full
+evidence chain, is a retired identity for a DIFFERENT (client, domain) pair:
+`ledgerx-lxtest-ap-monitor`, scoped `Mail.Read` bounded to one mailbox by an
+Exchange application access policy, torn down 2026-07-26 in the recorded order
+with before/after reads per step. It is therefore packaged as its own fragment,
+which is what the per-(client, domain) rule requires. Two consequences worth
+naming: the `exchange` member of the closed admission-surface vocabulary now has
+a packaged POSITIVE instance, which it otherwise would not have anywhere in the
+corpus; and G1's ENDED-INSTRUMENT arm stays where 3.5 already put its
+measurement — repo fixtures 1 and 8 — because `consent_ref` resolution is
+repo-context and this neutral repository publishes no consent-instrument record
+for that engagement. The packaged entry cites the engagement's real consent
+record and declares no status for it; the instrument record is the only
+authority on that.
+
+**No Phase 1–2 `[~]` task flips here.** Each of 1.2–1.10 and 2.2–2.10 names at
+least one Phase-4 artifact in its verification line (a registered negative, a
+repo fixture, or 4.5's assertion module), so none is closed out by this phase
+even where its packaged half now passes — 1.4's fragments validate and 1.9's
+drift example validates, but both also require Phase 4's negatives.
+
+**Also landed in this commit, per the architect's Phase 0–2 review**: spec.md
+FR-001's field enumeration now names the two Phase-1 additions it omitted —
+`vendor_tenant_multi_obligations` (required only under `vendor_tenant_multi`;
+FR-012's five obligations have no declaration site otherwise) and the
+`standing_credential_attestation` subfields `attested_at`,
+`grant_window_expires_at` and `held_credential_ref` (FR-013's falsification must
+be record-internal, since FR-029 forbids observing a credential store, and
+expiry must be read against `attested_at` rather than the clock or identical
+inputs would yield different findings between runs, SC-011).
 
 ---
 

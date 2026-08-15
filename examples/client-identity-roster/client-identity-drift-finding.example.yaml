@@ -1,0 +1,64 @@
+# CLIENT IDENTITY DRIFT FINDING — the second kind in this contract family, and
+# a TRUTHFUL worked case: a divergence that really happened, in the identity the
+# sibling fragment `client-identity-roster-farheap-opsx.example.yaml` declares.
+#
+# RECORDING ONE MUTATES NOTHING. Drift handling creates, modifies, widens,
+# narrows and removes NOTHING — no identity, no permission, no admission — and
+# triggers no automated remediation. The record carries what the roster declares
+# and what was observed, and nothing in the client's tenant is touched. The one
+# lever it pulls is ours, not the client's: while this finding is `open`, GRANT
+# ISSUANCE for its identity is refused, as the roster-drift member of the closed
+# `issuance_preconditions` vocabulary in the credential-contracts family.
+#
+# ITS `identity_ref` IS THE TUPLE OBJECT, deliberately a different shape from
+# the roster entry's STRING `identity_ref`. Both names are ratified; the
+# divergence is documented rather than renamed away.
+#
+# THE TUPLE'S THIRD ELEMENT IS THE INTENDED CLASS. That is what lets the join
+# survive the very drift the record reports: keyed on the ACHIEVED class, a
+# finding about an authority-class change would name a tuple that no longer
+# matches the entry it is about, and the join would fail exactly when it is
+# needed. An observed class rides `observed_value` like any other drifted field.
+#
+# IT CLAIMS NO ALIGNMENT WITH, AND NO STORAGE IN, ANY DOC-HEALTH FINDINGS
+# REGISTER, because none exists — doc-health is a stateless recompute. Field
+# names borrow doc-health's where they apply, and that is the whole of the
+# relationship.
+#
+# THE CASE, from the OpsxFactory evidence chain. The roster entry declares the
+# Sandbox1 per-environment application user's achieved scope as the Sandbox1
+# environment across all companies, its permission set being D365 READ with
+# Company deliberately blank. The first verification run of 2026-08-08 observed
+# something else: HTTP 200 with ZERO rows — a permission-filtered empty set
+# behind a success code. Root cause, confirmed by the fix that cured it: the
+# application user's permission row carried a BLANK permission-set value, so
+# D365 READ was never effective (OpsxFactory
+# tenants/farheap-bc-sandbox1-verification-evidence-v1.yaml, commit c4a8431;
+# `fix_between_runs` in -v2.yaml, commit 39f46de).
+schema_version: 1
+kind: xfactory_client_identity_drift_finding
+identity_ref:
+  domain: opsxfactory
+  admission_surface: business_central
+  # INTENDED, not achieved. The entry this finding is about declares
+  # `authority_class_intended: observe` and `authority_class_achieved: mutate`;
+  # the key takes the declaration, which is stable.
+  authority_class_intended: observe
+  blast_radius_unit: sandbox1
+  duty: environment_observation
+# The fragment whose entry this finding is about — it supplies the CLIENT SCOPE
+# the uniqueness tuple deliberately omits.
+fragment_ref: openxFactory:examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml
+rule_id: admission-achieved-scope-drift
+roster_value: "Sandbox1 environment, all companies (permission-set Company blank)"
+observed_value:
+  - "GET /v2.0/{tenant}/Sandbox1/api/v2.0/companies -> HTTP 200, rows 0"
+  - "GET /automation/v2.0/{tenant}/Sandbox1/… companies -> HTTP 200, rows 0"
+  - "application user permission row: permission-set value BLANK (D365 READ never effective)"
+observed_at: "2026-08-08T08:08:20Z"
+opened_at: "2026-08-08T08:10:00Z"
+# OPEN, and therefore carrying NO `disposition_ref`. An open finding has by
+# construction not been dispositioned; the citation is required only under
+# `status: disposed`, where a disposal with no citation would be exactly the
+# unfalsifiable disposal this record exists to prevent.
+status: open
