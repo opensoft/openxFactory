@@ -1285,7 +1285,7 @@ fixed at 1.9, so if this phase runs first the spelling comes from 1.9's task
 text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
 **Blocks**: Phase 9 (its file content must be final before digests).
 
-- [ ] 7.1 [US6] `contracts/schemas/xfactory-credential-contracts.schema.yaml` —
+- [x] 7.1 [US6] `contracts/schemas/xfactory-credential-contracts.schema.yaml` —
       `issuance_preconditions` on the `xfactory_credential_requirements`
       requirement item as an OBJECT with `minProperties: 1`,
       `additionalProperties: false`, and THREE explicitly declared members
@@ -1298,7 +1298,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       in the artifact. Declaring nothing must leave every existing requirement
       record valid.
       *Verification*: 7.4's live-record regression is the decisive one.
-- [ ] 7.2 [US6] `scripts/validate-credential-contracts.py` — one new
+- [x] 7.2 [US6] `scripts/validate-credential-contracts.py` — one new
       `_semantic_findings` branch emitting `issuance-precondition-unknown`
       NAMING the closed vocabulary, firing on BOTH failure shapes: an
       out-of-vocabulary member and a false-valued member (ruling A-3a). The
@@ -1308,7 +1308,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       its own negatives unregisterable and leaves SC-008 with no probe.
       *Verification*: 7.3's negatives are reported as expected, not as
       `negative-should-fail`.
-- [ ] 7.3 [US6] Fixtures in `examples/credential-contracts/`: ONE positive
+- [x] 7.3 [US6] Fixtures in `examples/credential-contracts/`: ONE positive
       requirement record declaring `roster_drift_clear_required: true`; TWO
       negatives under `negative/` (an out-of-vocabulary token; a member valued
       `false`), both registered in `NEGATIVE_EXPECTATIONS`, both keeping THAT
@@ -1318,7 +1318,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       that trio plus the untouched positives IS SC-008's whole neutral
       criterion, fixture-proven because no producer of live drift findings
       exists at archive time. Live refuse-then-allow is NOT claimed here.
-- [ ] 7.4 [US6] **The load-bearing regression**: run
+- [x] 7.4 [US6] **The load-bearing regression**: run
       `python3 scripts/validate-credential-contracts.py <OpsxFactory checkout>`
       and confirm the LIVE records carrying `issuance_preconditions`
       (`credentials/requirements.yaml`, `aks_workload_administration` and
