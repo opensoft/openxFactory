@@ -149,11 +149,19 @@ section carries an `Added-by:` line naming the person or agent and the date,
 because the document accumulates content nobody commissioned in advance and has
 to stay attributable as it does.
 
-An AI adding or patching a section does so through the ordinary `edit-apply`
-intent verb on the topic's branch session, scoped by the section it targets —
-its heading, or its `xspec:candidate` fence where the section is a
-proposal-element block. Section-scoped patching is a patch-TARGETING detail,
-not a different kind of action, so it introduces no second write verb.
+An AI adding or patching a section does so through the ordinary `edit-document`
+verb on the topic's branch session, scoped by the section it targets — its
+heading, or its `xspec:candidate` fence where the section is a proposal-element
+block. Section-scoped patching is a patch-TARGETING detail, not a different kind
+of action, so it introduces no second write verb.
+
+> Amended 2026-08-15. This first said `edit-apply`, following the topic's Q4.
+> That verb is the gate console's main-resident redline path: it requires a
+> change id and applies to change documents, so it cannot write a staged
+> fragment on a session branch — and a topic that HAS an owning change has
+> already moved its material out of staging, so the two states never coexist.
+> `edit-document` is the session content verb the buffer contract already uses.
+> The rule is unchanged; only the verb name was wrong.
 
 ### Round-trip on demote — the load-bearing rule
 

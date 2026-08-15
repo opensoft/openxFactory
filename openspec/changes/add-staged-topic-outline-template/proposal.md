@@ -58,7 +58,7 @@ comment forms rather than a second mechanism invented beside them. That prose is
 literally the candidate text an eventual change would carry.
 
 **The outline tab renders it** (`ideation-dashboard`), with an add-section
-affordance that writes through the existing `edit-apply` path.
+affordance that writes through the existing `edit-document` path.
 
 ### The five dispositions, as ruled
 
@@ -67,7 +67,7 @@ affordance that writes through the existing `edit-apply` path.
 | Q1 | Fragment or separate `outline.md`? | The primary fragment IS the outline — no new file, no selector change |
 | Q2 | Migration of 30+ existing topics | Opt-in when next touched; required for new topics; doc-health nudges, never blocks |
 | Q3 | Spec delta or convention? | Spec delta — the round-trip guarantee needs contract force |
-| Q4 | Verb for AI section-patching | `edit-apply`, scoped by the targeted section |
+| Q4 | Verb for AI section-patching | `edit-document`, scoped by the targeted section (amended 2026-08-15 — ratified as `edit-apply`, see Amendment 1) |
 | Q5 | Wheel summary extraction | Read the guaranteed `Summary:` for conformers; keep the fallback for the rest |
 
 ## Impact
@@ -86,10 +86,42 @@ affordance that writes through the existing `edit-apply` path.
 - **Q2 means the corpus is deliberately non-uniform for a while.** 30+ existing
   topics stay non-conforming until touched, so every consumer must tolerate both
   shapes. That is why Q5 is additive.
-- **Two rulings carry forward rather than landing here.** Q4 makes `edit-apply`
-  the verb for section-patching, which upgrades `doxbench-editing-model` Phase
-  A's freeform chat rewrites into marker-scoped patches — that upgrade is Phase
-  A's to build. Q5 rides Phase B, because Q2's opt-in migration means the
-  fallback must stay.
+- **Two rulings carry forward rather than landing here.** Q4 makes
+  `edit-document` the verb for section-patching (Amendment 1), which upgrades
+  `doxbench-editing-model` Phase A's freeform chat rewrites into marker-scoped
+  patches — that upgrade is Phase A's to build. Q5 rides Phase B, because Q2's
+  opt-in migration means the fallback must stay.
 - **Not in scope:** the wheel's 3-line summary extraction change itself (Phase
   B), and any mechanical rewrite of existing topics (Q2 ruled it out).
+
+## Amendment 1 — the section-patching verb (2026-08-15)
+
+**`edit-document`, not `edit-apply`.** Brett's ruling, in session, verbatim:
+"amend to edit-document".
+
+Q4 was accepted as recommended on the strength of a stated context —
+"the workbench/doxBench branch-session model already exposes an `edit-apply`
+intent verb for content changes on a session branch" — that does not hold.
+`edit_apply(gate, change_id, document, redline)` is the gate console's
+MAIN-RESIDENT redline verb: it requires `--change-id` ("the change owning the
+document") and applies to change documents. A staged topic's fragment is not
+one. The intent-plane change references the same gate-console verb; there is no
+second, session-scoped `edit-apply`.
+
+The two states are mutually exclusive besides. `edit-apply` needs a change id,
+but doc-health's `location-conformance` fires the moment a staged fragment cites
+a live change and its remedy is to move the material OUT of staging — performed
+on this very topic the same day. A fragment whose topic has an owning change is
+no longer in staging to patch.
+
+**Q4's intent is unchanged and is what the amendment preserves:** no second
+write verb, reuse of the existing session path, and section scoping as a
+patch-TARGETING detail rather than a different kind of action. `edit-document`
+— the verb the ratified buffer contract already uses for session content —
+satisfies all three. Only the verb name was wrong.
+
+Amended here, in the spec delta, and in `docs/document-lifecycle.md`. The
+supporting-docs copies are NOT amended: they record the question as it was
+asked and ruled, and the `source-snapshots/` copy is checksum-protected by the
+bundle manifest — rewriting either would falsify a record to make it agree with
+a later correction.
