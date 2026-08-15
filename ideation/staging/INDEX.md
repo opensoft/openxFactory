@@ -72,6 +72,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | Registered 2026-08-15 — origin is Brett's direction to make the doxBench outline tab render a distilled TRUE outline (human + AI consumption) instead of a merely conventionally feat-spec-shaped fragment; 7 claims settled (primary fragment recommended as the outline, three required sections, structured open questions, provenance on added sections, round-trip refresh on demote, ratified `xspec:` markers for machine-addressability); carries the full draft template skeleton; 5 open questions (primary-fragment-vs-separate-file, migration of the 30+ existing topics, spec-delta-vs-convention, and the wheel-summary-extraction question hardest), none blocking |
+| [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking |
 
 ## hermes-stack-topology-per-client
 
@@ -1203,3 +1204,67 @@ repo scope.
   carrying a `document-lifecycle` delta (the template contract) and an
   `ideation-dashboard` delta (the outline tab rendering + add-section
   affordance).
+
+## notebook-projection-identity
+
+- Staging ID: `openxFactory:staging:notebook-projection-identity`
+- Repository context: openxFactory owns both candidate target
+  capabilities — `lifecycle-notebook-projection` (the projection
+  mechanism: books, sync, aliases, operator runbook) and
+  `credential-contracts` (the account-custody rule this topic's two-case
+  model would extend) — and hosts `scripts/sync-notebooklm-books.py`
+  itself. Whichever repo/install stands up its own xFactory instance is
+  the party that would declare its hosting account at intake time; today
+  that is Opensoft's own tenant (`opensoft-company-policy`), the only live
+  install.
+- Source: Brett Heap's live-session ruling 2026-08-15, made immediately
+  after he (browsing as his Workspace identity `brett.heap@farheap.com`,
+  managed by tech-corps.com) hit "request access" on a dashboard "open
+  notebook" link — the request landed in the personal Gmail
+  (`brettheap@gmail.com`) that the sync script has always run under by
+  default CLI profile, with no declared account of its own. Same disease
+  as the personal PAT just retired from openXdox dispatch: dies with the
+  account, misattributes, gates access manually, concentrates quota on one
+  person.
+- Claim: six settled claims, not reopened by the open questions below —
+  company service account is the normal hosting case; the hosting account
+  is a declared install-time intake decision; personal hosting stays
+  legitimate as the other declared case (not a corporate-only rule); the
+  normal process stands up a company xFactory user account and shares out
+  to users from there; company-policy Hermes gains a governance job to
+  monitor that account and approve proper share requests; and this whole
+  fork is the exact operator-hosted-vs-self-hosted shape already ratified
+  for the openXdox dispatch credential
+  (`docs/openxdox-dispatch-credential-binding.md`), asked here as a
+  general identity-hosting principle rather than a credential-specific
+  one-off.
+- Files:
+  - [notebook-projection-identity.md](notebook-projection-identity/notebook-projection-identity.md)
+    — primary: 6 claims, live `xspec:candidate` Why/What changes/Impact
+    sections (first fresh conformer of `staged-topic-outline-template`),
+    4 idea notes, 3 conflicts, 5 open questions each with
+    Context/Recommended answer/Explanation/Disposition status, exit.
+- Open questions (none blocking): (1) which capability owns the
+  declared-hosting-location delta — `lifecycle-notebook-projection` for
+  the mechanism, `credential-contracts` for the two-case custody rule;
+  neither `client-infrastructure-request` nor `client-infrastructure-liaison`
+  fits, since both govern a paying client's own tenant, not the operator's
+  internal tooling account; (2) company account type — recommended a
+  Google Workspace user account in the operator's own domain, never a
+  consumer Gmail merely labeled "company"; (3) whether the share-out
+  roster should consume the in-flight `add-client-identity-roster`
+  proposal — leaning yes but unproven, since that roster's key is
+  provider-admission-surface-shaped (service principals), not
+  human-invite-shaped; (4) monitor/approve lane mechanics given NotebookLM
+  has no documented share/admin API — recommended a governed manual lane
+  first, automated only if a real API surface ever exists; (5) migration
+  sequencing for opensoft's own personally-hosted books — recreate under
+  the company account at the next sync touch (books are derived, not
+  migrated, data), verify parity, then explicitly retire the
+  personal-hosted originals.
+- Exit: iterate in doxBench until all five open questions carry a
+  disposition other than `open`; likely lands as one or two OpenSpec
+  changes (a `lifecycle-notebook-projection` delta and a
+  `credential-contracts` delta, combined or sequenced per question 1's
+  resolution), raised only once a real company account exists to prove
+  the mechanism against.
