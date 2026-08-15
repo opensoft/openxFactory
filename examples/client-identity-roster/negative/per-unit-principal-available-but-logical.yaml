@@ -1,0 +1,54 @@
+# INVALID roster fragment — violates FR-008's structural-before-logical rule:
+# a per-unit principal IS available at this surface and EVERY admission act
+# there declares `logic_enforced`, leaving the available principal unused. The
+# rule is PER SURFACE and not per act, deliberately: an act that CANNOT use
+# the principal — one with no scope selector at all — is conformant beside a
+# sibling act that does, which is why the packaged Business Central case
+# validates clean. So this file declares logical enforcement on EVERY act at
+# the surface, or it would not fire (finding
+# per-unit-principal-available-but-logical).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_a
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: logic_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

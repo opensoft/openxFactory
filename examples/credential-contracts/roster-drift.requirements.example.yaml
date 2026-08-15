@@ -1,0 +1,33 @@
+# Example (add-client-identity-roster, Decision B): a credential requirement
+# declaring the ROSTER-DRIFT issuance precondition. Where an identity's observed
+# permissions or admission diverge from its roster entry, the divergence is
+# recorded as a governed drift-finding record and NOTHING in the client's tenant
+# is touched; instead the mint surface refuses to issue against this requirement
+# while an open finding stands. That refusal is the one lever we own that is not
+# a mutation of the client's estate, and this record is where it becomes
+# declarable against a pinned neutral contract rather than a domain-local key.
+#
+# No live producer of drift findings exists at archive time, so the neutral
+# criterion is fixture-proven here; live refuse-then-allow is proven at the
+# domain mint surface in the named follow-up, not claimed by this record.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: examplexfactory
+  product_name: ExamplexFactory
+requirements:
+  - id: client_tenant_observation
+    purpose: >-
+      Read-only observation of a governed unit in a client tenant, served by a
+      client-resident registration carried on the client identity roster.
+    access_mode: workload_identity
+    allowed_workflows:
+      - observation
+    minimum_scopes:
+      - read_environment
+    requires_domain_approval: true
+    requires_human_approval: true
+    max_grant_minutes: 30
+    audit_required: true
+    issuance_preconditions:
+      roster_drift_clear_required: true

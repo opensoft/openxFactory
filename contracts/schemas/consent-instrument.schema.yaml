@@ -6,7 +6,12 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "consent-instrument.schema.yaml"
 title: "xFactory consent instrument: the neutral rung-1<->rung-2 authority-chain root"
-contract_schema_version: 1
+# 1 -> 2 (add-client-identity-roster): the lifecycle enum grows by `withdrawn`
+# and dependent_refs gains the `governed_identity` kind with its two evidence
+# siblings. Both are ADDITIVE — the RECORD envelope's `schema_version` stays
+# `const: 1`, because changing it would invalidate every instrument in the
+# estate, which is the opposite of additive.
+contract_schema_version: 2
 type: object
 description: >-
   Every domain's rung-1<->rung-2 consent instrument — the engagement letter,
@@ -191,12 +196,17 @@ properties:
         pattern: "^[0-9a-f]{64}$"
   status:
     type: string
-    enum: [draft, pending_signatures, executed, amended, terminated]
-    # CLOSED five-state lifecycle (spec "The Lifecycle Enum Is Closed With
+    enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
+    # CLOSED six-state lifecycle (spec "The Lifecycle Enum Is Closed With
     # Declared Aliases", D3). Domain spellings never widen this enum — they
     # map via status_aliases DECLARED on the class registry entry (Ledgerx
     # `active` -> `executed`), with the underlying domain record keeping its
     # own spelling.
+    # `withdrawn` (add-client-identity-roster) is a SECOND TERMINAL state,
+    # reachable once the instrument is past execution, and a DISTINCT member —
+    # never an alias of `terminated`. Withdrawal by the consenting party and
+    # termination are distinct EVENTS, and both raise the cascade obligation
+    # below, so collapsing them would lose the event while keeping the duty.
   status_history:
     type: array
     items:
@@ -206,7 +216,7 @@ properties:
       properties:
         status:
           type: string
-          enum: [draft, pending_signatures, executed, amended, terminated]
+          enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
         at:
           type: string
           format: date-time
@@ -241,12 +251,27 @@ properties:
       properties:
         kind:
           type: string
-          enum: [consent_profile, credential_grant, adapter_activation, other]
+          enum: [consent_profile, credential_grant, adapter_activation,
+                 governed_identity, other]
           # CLOSED plus `other` (spec R8): an unforeseen dependent kind rides
           # `other` WITH a note (conditional below) — never a bare string.
+          # `governed_identity` (add-client-identity-roster) is a NAMED member
+          # rather than an `other` rider: a standing identity in another
+          # party's tenant is exactly what the cascade must reach, and a kind
+          # that rides the escape hatch cannot carry an obligation of its own.
         ref:
           type: string
           minLength: 1
+          description: >-
+            A DECLARED POINTER, never resolved by this validator. For a
+            `governed_identity` the convention is the roster FRAGMENT PATH plus
+            the entry's `identity_ref` (for example
+            `credentials/client-identity-roster/acme.yaml#farheap-bc-observer`).
+            The validator opens no fragment, confirms no entry's existence and
+            crosses no repository boundary — the same posture as `evidence_ref`
+            in the roster contract, and for the same reason: these validators
+            are network-free and read ONE repository. Resolution belongs to the
+            cross-domain pass that assembles from pinned repos.
         note:
           type: string
           minLength: 1
@@ -254,9 +279,25 @@ properties:
           type: string
           minLength: 1
           # Optional while the instrument lives; the VALIDATOR requires it on
-          # every reference once status is terminated (spec R8) — the
-          # evidence obligation under the record's revocation SLA. Cascade
-          # MECHANICS stay in the owning contract families (D5).
+          # every reference once status is terminated OR WITHDRAWN (spec R8)
+          # — the evidence obligation under the record's revocation SLA.
+          # Cascade MECHANICS stay in the owning contract families (D5).
+        identity_removal_evidence:
+          type: string
+          minLength: 1
+          # For a `governed_identity`: evidence that the identity itself was
+          # removed. Required by the VALIDATOR (not by a root-level if/then,
+          # following this family's own precedent above) once the instrument is
+          # terminated or withdrawn — a credential revocation alone leaves the
+          # standing identity in the client's tenant with its admission intact.
+        admission_withdrawal_evidence:
+          type: string
+          minLength: 1
+          # For a `governed_identity`: evidence that the ADMISSION ACT was
+          # withdrawn. Admission and identity are two separate keys — the
+          # measured finding this contract family exists for is that consented
+          # permissions returned 401 until the admission act landed — so
+          # removing one and leaving the other is a half-cascade.
       allOf:
         - if:
             properties:

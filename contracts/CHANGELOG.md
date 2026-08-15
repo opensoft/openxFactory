@@ -9,6 +9,82 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
+
+Realizes `add-client-identity-roster` through Speckit feature
+`007-client-identity-roster`: one new neutral contract family, one first-ever
+registration of an already-promoted schema, and additive growth in two
+existing capabilities. **Every change in this cut is ADDITIVE under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 130-132** — the class is "new optional fields, new contracts, new
+validator warnings", and its test is that a domain repo on the same major
+version remains conformant WITHOUT CHANGES. Each item below is stated against
+that test explicitly, because the cut touches capabilities domains already
+consume.
+
+`schemas/xfactory-client-identity-roster.schema.yaml` is the NEW family: the
+record in which a domain factory declares every governed identity it holds
+standing inside a paying client's provider tenant, and the report-only drift
+finding that reports when observed state departs from that declaration. Two
+kinds behind one top-level `oneOf`, because the fragment and the drift record
+that cites it are produced and consumed by one lane and the five-element
+uniqueness tuple — (domain, admission surface, authority class, blast-radius
+unit, duty) — must be defined once and referenced by both. Entries carry
+verified admission with achieved scope (a claimed-but-unevidenced verification
+is unrepresentable, not merely discouraged), structural scoping preferred over
+name-based scoping, declared provider-forced breadth where the provider offers
+no narrower grant, and a fragment-scoped free-token legend. **Additive by the
+policy test: it is a NEW contract, so no existing record is reinterpreted and
+no domain repo needs an edit to stay conformant.** A domain that publishes no
+fragment stays conformant and its checks report a notice, never a finding.
+
+`schemas/xfactory-credential-contracts.schema.yaml` receives its **FIRST
+manifest registration** in this cut. The schema was promoted at DTN-004
+(`promote-credential-contracts`) without a manifest row, so the digest
+cross-repo consumers are told to verify did not exist for the file they pin;
+this cut closes that gap rather than refreshing anything. Registered together
+with its one growth: the OPTIONAL `issuance_preconditions` object on a
+credential requirement, a CLOSED vocabulary (`accepted_request_required`,
+`registered_active_subject`, `roster_drift_clear_required`) in which every
+value is `const: true`, because a precondition is DECLARED or NOT DECLARED —
+`false` is not a second meaning, it is a declaration that reads as governance
+while asserting nothing. **Additive by the policy test: the property is
+OPTIONAL, so a requirement record that declares nothing at all remains valid,
+and both live OpsxFactory records already carry `true`.**
+
+`schemas/consent-instrument.schema.yaml` (`contract_schema_version` 1 → 2) and
+`schemas/consent-instrument-class-registry.schema.yaml`
+(`contract_schema_version` 1 → 2) grow so the termination cascade reaches a
+standing identity in another party's tenant. The lifecycle enum gains
+`withdrawn` as a SECOND TERMINAL state, reachable once the instrument is past
+execution and a DISTINCT member — never an alias of `terminated`, because
+withdrawal by the consenting party and termination are distinct events that
+both raise the cascade obligation; the class registry's `status_aliases`
+target enum tracks that six-state lifecycle. `dependent_refs` gains the NAMED
+`governed_identity` kind with two evidence siblings
+(`identity_removal_evidence`, `admission_withdrawal_evidence`), because a
+credential revocation alone leaves the identity standing in the client's
+tenant with its admission intact, and removing one of the two keys is a
+half-cascade. **Additive by the policy test on both counts: an ADDED ENUM
+MEMBER and OPTIONAL properties. No existing instrument becomes invalid, no
+existing alias declaration becomes invalid, and no domain repo on the same
+major version needs a change** — which is why the RECORD envelope's
+`schema_version` stays `const: 1` in both schemas while the schema files'
+`contract_schema_version` bumps: bumping the record envelope would invalidate
+every instrument in the estate, the opposite of additive. The two manifest
+digests are refreshed with the bump recorded in their `consumption_rule`.
+
+Consumers pin this release and run
+`scripts/validate-client-identity-roster.py <domain-repo>` from the pinned
+checkout, never a copy inside a domain repository; the packaged corpus is
+`examples/client-identity-roster/` — 4 example YAMLs and a README, plus 31
+registered negatives under `negative/`, each failing for its own registered
+reason. The roster paths are content-addressed by commit and deliberately do
+NOT enter the release digest inventory, whose membership is unchanged from
+v1.30, v1.31 and v1.32. `scripts/validate-credential-contracts.py`'s
+skip-with-notice over `credentials/client-identity-roster/` is EXPECTED and
+BLESSED: the canonical roster validator claims exactly that path.
+
 ## contract-v1.32 — 2026-08-15 (additive; the Subject Hermes overlay kind)
 
 Cuts the standing Unreleased items: the `hermes_subject_overlay` kind and

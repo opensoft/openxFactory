@@ -127,10 +127,16 @@ if not {"date", "date-time"} <= set(FORMAT_CHECKER.checkers):  # pragma: no cove
     sys.exit(2)
 
 NEUTRAL_STATUSES = ("draft", "pending_signatures", "executed", "amended",
-                    "terminated")
+                    "terminated", "withdrawn")
 # States that lie past the signature phase: an instrument here under a
 # signature_phase-true class must show pending_signatures in its trace.
-PAST_SIGNATURE_STATUSES = {"executed", "amended", "terminated"}
+# `withdrawn` belongs here because an instrument can only be withdrawn AFTER
+# execution, so the lifecycle-skip discipline must reach it.
+PAST_SIGNATURE_STATUSES = {"executed", "amended", "terminated", "withdrawn"}
+# The two TERMINAL states. Both raise the cascade obligation, because
+# withdrawal by the consenting party and termination are distinct events with
+# the same consequence for everything the instrument authorized.
+ENDED_STATUSES = ("terminated", "withdrawn")
 EVIDENCE_KIND_FIELDS = ("custody_anchor_kind", "execution_evidence_kind")
 
 ALLOWED_CUSTODY_KEYS = {"locator", "sha256"}
@@ -152,6 +158,14 @@ EXPECTED_NEGATIVE_FINDINGS: dict[str, tuple[str, str | None]] = {
     "class-without-evidence-kind.yaml": ("class-without-evidence-kind", None),
     "amendment-as-child-instrument.yaml": ("schema", "parent_ref"),
     "purpose-unresolvable.yaml": ("purpose-unresolvable", "crypto-custody"),
+    # add-client-identity-roster: the same half-cascade on BOTH terminal
+    # events. The detail pins the EVENT, because the code alone cannot tell
+    # the pair apart and the pair is the whole point — an obligation that
+    # fired only on termination would leave withdrawal unguarded.
+    "identity-cascade-incomplete-on-terminated.yaml":
+        ("identity-cascade-incomplete", "a terminated instrument"),
+    "identity-cascade-incomplete-on-withdrawn.yaml":
+        ("identity-cascade-incomplete", "a withdrawn instrument"),
 }
 
 # Self-test purpose probes (spec R7 scenario "Purpose resolution passes and
@@ -353,7 +367,7 @@ def check_registry(f: Findings, label: str, doc: dict) -> None:
                 if value not in NEUTRAL_STATUSES:
                     f.error("alias-target-not-neutral",
                             f"{label}: class {name!r} alias {key!r} -> "
-                            f"{value!r} does not target the closed five-state "
+                            f"{value!r} does not target the closed six-state "
                             f"enum (spec R4, D3)")
 
 
@@ -491,18 +505,52 @@ def check_purpose_model(f: Findings, label: str, doc: dict) -> None:
 
 # --------------------------- rule (f): termination cascade ---------------------------
 
+IDENTITY_CASCADE_EVIDENCE = ("identity_removal_evidence",
+                             "admission_withdrawal_evidence")
+
+
 def check_termination_cascade(f: Findings, label: str, doc: dict) -> None:
-    if doc.get("status") != "terminated":
+    """The cascade obligation, on BOTH terminal events.
+
+    `termination-without-cascade-evidence` keeps its CODE SPELLING for
+    continuity, but its REACH is wider than it was: it now fires on a withdrawn
+    instrument as well as a terminated one. That is a change in meaning, stated
+    rather than glossed — withdrawal by the consenting party and termination
+    are distinct events, and the ratified cascade runs from either.
+    """
+    status = doc.get("status")
+    if status not in ENDED_STATUSES:
         return
     for i, ref in enumerate(doc.get("dependent_refs") or []):
-        if isinstance(ref, dict) and not ref.get("cascade_evidence"):
+        if not isinstance(ref, dict):
+            continue
+        if not ref.get("cascade_evidence"):
             f.error("termination-without-cascade-evidence",
                     f"{label}: dependent_refs[{i}] ({ref.get('kind')} "
                     f"{ref.get('ref')!r}) carries no cascade_evidence on a "
-                    f"terminated instrument — every declared dependent "
+                    f"{status} instrument — every declared dependent "
                     f"reference falls due under the record's revocation SLA "
                     f"with an evidence obligation; the mechanics stay in the "
                     f"owning families (spec R8, D5)")
+        if ref.get("kind") != "governed_identity":
+            continue
+        # A STANDING IDENTITY in another party's tenant is held by two keys,
+        # so its cascade needs two pieces of evidence. Revoking the credential
+        # and stopping there leaves the identity in place with its admission
+        # intact — the half-cascade this obligation exists to refuse. The
+        # finding lands against the INSTRUMENT, which is the record that
+        # carries the obligation; the identity is named, never blamed.
+        absent = [k for k in IDENTITY_CASCADE_EVIDENCE if not ref.get(k)]
+        if absent:
+            f.error("identity-cascade-incomplete",
+                    f"{label}: dependent_refs[{i}] is a governed_identity "
+                    f"({ref.get('ref')!r}) on a {status} instrument and "
+                    f"declares no {' or '.join(absent)}. A governed identity "
+                    f"falls due on withdrawal exactly as on termination, and "
+                    f"its cascade is complete only when BOTH the identity's "
+                    f"removal and the withdrawal of its admission act are "
+                    f"evidenced — credential revocation alone leaves standing "
+                    f"access in the client's tenant (spec R8, D5)")
 
 
 # --------------------------- rule (g): data-consent coherence ---------------------------

@@ -29,7 +29,10 @@ def _run() -> subprocess.CompletedProcess[str]:
 def test_selftest_passes_on_the_packaged_examples() -> None:
     result = _run()
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "self-test: 2 positive + 3 negative example(s) confirmed" in result.stdout
+    # The counts grew by add-client-identity-roster (Decision B): one positive
+    # declaring the roster-drift issuance precondition, and two negatives for
+    # the closed vocabulary's two failure shapes.
+    assert "self-test: 3 positive + 5 negative example(s) confirmed" in result.stdout
 
 
 def test_the_example_files_are_present() -> None:
@@ -37,9 +40,12 @@ def test_the_example_files_are_present() -> None:
     # the fixtures out of the glob.
     assert (EXAMPLES / "openxdox-dispatch.requirements.example.yaml").is_file()
     assert (EXAMPLES / "openxdox-dispatch.binding-template.example.yaml").is_file()
+    assert (EXAMPLES / "roster-drift.requirements.example.yaml").is_file()
     for neg in (
         "dispatch-reuses-content-secret.yaml",
         "dispatch-grants-contents.yaml",
         "baked-secret-in-binding.yaml",
+        "issuance-precondition-out-of-vocabulary.yaml",
+        "issuance-precondition-valued-false.yaml",
     ):
         assert (EXAMPLES / "negative" / neg).is_file(), neg

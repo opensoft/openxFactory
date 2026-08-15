@@ -1,0 +1,286 @@
+# CLIENT IDENTITY ROSTER FRAGMENT — client `farheap`, owning domain
+# `ledgerxfactory`. The SECOND fragment for the SAME client held by a SECOND
+# domain: a fragment is per (client, domain), which is why the mandated cases
+# span two files rather than one, and why the uniqueness tuple and the
+# free-token legend are read WITHIN a fragment and never across fragments.
+#
+# A TRUTHFUL WORKED CASE throughout — every provider fact is transcribed from a
+# record in the LedgerxFactory evidence chain, cited inline by repo + path +
+# commit.
+#
+# It carries the two KILLED-FLAW POSITIVES this domain supplies, both of which
+# must validate with ZERO findings in the same run that REFUSES the alias-pair
+# negative (`negative/alias-pair-observationally-identical.yaml`). A rule broad
+# enough to catch all three fails that discrimination:
+#
+#   * THE GENUINE DUTY PAIR — the poster (entry 1) and the provisioner
+#     (entry 3) at the SAME governed company, differing in duty. They are NEVER
+#     an alias: they differ in granted permissions AND each declares a
+#     `duty_separation_rationale`. The never-merge split is the estate's own
+#     ratified rule, and it is enforced by Business Central application-user
+#     permission sets rather than by Entra grain, which is exactly why the
+#     Entra-level view alone would make them look identical.
+#   * THE GENUINE PER-UNIT PAIR — the provisioner at TWO governed companies
+#     (entries 2 and 3), differing in `achieved_scope`. A per-blast-radius-unit
+#     identity is PERMITTED and must never be reported as an overlap or a
+#     duplicate; the company is this domain's governed unit, because every call
+#     carries the grant's declared environment AND company and the surface
+#     refuses others.
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: farheap
+client_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+domain: ledgerxfactory
+legend:
+  # The SAME token spelling in another client's fragment names a different
+  # provider object — which is why uniqueness is scoped per fragment and why
+  # this binding lives here rather than in a neutral enumeration.
+  blast_radius_units:
+    lx_rehearsal_01: "LX-REHEARSAL-01 (Sandbox1 company, id 88c7e941-1a90-f111-8072-002248abd771)"
+    test_cronus: "TEST CRONUS (Sandbox1 disposable rehearsal company, id d7f5772b-1b58-ea11-a813-000d3a8f8188)"
+  duties:
+    posting: "Purchase-document creation and posting (LedgerxFactory poster identity)"
+    provisioning: "Company setup and configuration-package provisioning (LedgerxFactory provisioner identity)"
+entries:
+
+  # ------------------------------------------------------------------
+  # ENTRY 1 — the POSTER. Duty half of the genuine duty pair.
+  # ------------------------------------------------------------------
+  - identity_ref: ledgerx-farheap-bc-poster
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    provider_object_ref: 5b07f056-4623-4b6d-940e-268766451441
+    admission_surface: business_central
+    duty: posting
+    blast_radius_unit: lx_rehearsal_01
+    # The rationale the alias rule's THIRD predicate reads — and it reads this
+    # field and nothing else. Transcribed from the ledger estate record's
+    # identities block: "NEVER merged (ledgerx-ledger-estate). Entra grants
+    # both the same BC API app role (API.ReadWrite.All — the finest
+    # Entra-level grain); the read/post split is enforced by BC application
+    # users with minimal permission sets + the deterministic surface."
+    duty_separation_rationale: >-
+      Never merged by ratification (ledgerx-ledger-estate). The poster creates
+      and posts purchase documents; the provisioner performs company setup.
+      Entra grants both the same coarse Business Central API app role, so the
+      split is held by per-identity Business Central permission sets and the
+      deterministic surface — a merged identity would silently reunite two
+      duties the platform cannot separate for us.
+    authority_class_intended: mutate
+    authority_class_achieved: mutate
+    granted_permissions:
+      - id: API.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      # `D365 BASIC` is declared `observe` on the estate's own MEASUREMENT, not
+      # on how the name reads: in one grant window the poster's in-class create
+      # SUCCEEDED under `D365 PURCH DOC, EDIT` while an out-of-class insert was
+      # REFUSED ("403 ... TableData 23 Vendor Insert: _Exclude_APIV2_"), which
+      # attributes the mutation to the document set and not to the baseline one.
+      - id: D365 BASIC
+        achieves: observe
+        reaches: [business_central]
+      - id: D365 PURCH DOC, EDIT
+        achieves: mutate
+        reaches: [business_central]
+      # The LedgerLinc BC extension 1.1.0.3 set that closed the posting gap:
+      # with it the poster created LXRP0002 and POSTED it (HTTP 204); without
+      # it the post was refused at the permission engine, "TableData 122 Purch.
+      # Inv. Header IndirectInsert".
+      - id: LL Poster Perm
+        achieves: mutate
+        reaches: [business_central]
+    admission:
+      - surface: business_central
+        act: >-
+          per-environment application user created in Sandbox1 with
+          company-scoped Business Central permission-set assignments
+          (userSecurityId b3c23506-c9bb-4be0-ae66-001e2f03889a; D365 BASIC +
+          D365 PURCH DOC, EDIT scoped to LX-REHEARSAL-01, plus LL Poster Perm
+          from LedgerLinc BC extension 1.1.0.3)
+        # Read under the identity's OWN credential, which the estate record
+        # calls stronger evidence of scope than an assignment row — and it is
+        # what makes the excess below a measured fact rather than a worry.
+        achieved_scope: >-
+          Sandbox1; companies addressable under this identity's own credential:
+          LX-REHEARSAL-01 and Meds Rx - CO (measured 2026-08-05)
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/LedgerxFactory
+          path: tenants/ledgerxcorp/ledger-estates/farheap-poster-capability-evidence-v1.yaml
+          sha: b6380f1
+        verified_at: "2026-08-06T02:02:11Z"
+        # Beyond the governed company. DECLARED, therefore conformant.
+        exceeds_governed_unit: true
+    declared_excess:
+      provider_reason: >-
+        Business Central scopes an application user by PERMISSION-SET
+        ASSIGNMENT PER COMPANY, and this identity retains the served-subject
+        company's assignment made at first use (2026-07-26/28), so its measured
+        company visibility — LX-REHEARSAL-01 and Meds Rx - CO, read under its
+        own credential 2026-08-05 — is broader than the rehearsal company this
+        entry governs. No selector on an assignment narrows visibility below
+        the set of companies assigned.
+      bound_mechanism: >-
+        The deterministic company-pinned surface: every call carries the
+        grant's declared environment AND company and the surface refuses
+        others, under job-scoped just-in-time grants that leave no standing
+        credential between uses.
+      gate_obligation: ledgerx_protected_surface_company_pin
+      enforcement_test_ref: >-
+        LedgerxFactory tests/validate_document_estate_surface.py refusal
+        fixtures (an out-of-pin company is refused), corroborated live by
+        tenants/ledgerxcorp/ledger-estates/farheap-provisioner-overreach-evidence-v1.yaml,
+        where the out-of-pin company was DENIED BY NAME ("Access is denied to
+        company 'Meds Rx - CO'").
+    per_unit_principal_available:
+      # TRUE: the company-scoped Business Central permission-set assignment IS
+      # a principal scoped to the governed unit, and this act uses it — which
+      # is why the enforcement mode may be claimed as provider-enforced.
+      business_central: true
+    lifecycle_state: enrolled
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-06T02:02:11Z"
+      grant_window_ref: poster-representative-test-001
+      grant_window_expires_at: "2026-08-06T02:21:52Z"
+      evidence_ref:
+        repo: opensoft/LedgerxFactory
+        path: tenants/ledgerxcorp/ledger-estates/farheap-poster-capability-evidence-v1.yaml
+        sha: b6380f1
+    ratified_by: ledgerxfactory:ledgerx-ledger-estate
+    consent_ref: medsrx-2026-001-consent
+
+  # ------------------------------------------------------------------
+  # ENTRY 2 — the PROVISIONER at TEST CRONUS. Per-unit pair, half one.
+  # ------------------------------------------------------------------
+  - identity_ref: ledgerx-farheap-bc-provisioner
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    provider_object_ref: 21a0cd6f-cf1c-4abd-8377-40dce405233b
+    admission_surface: business_central
+    duty: provisioning
+    blast_radius_unit: test_cronus
+    duty_separation_rationale: >-
+      The third never-merged identity: setup authority that neither the reader
+      nor the poster may hold. Its overreach pair is proven — in one grant
+      window an in-class configuration-package read SUCCEEDED in the pinned
+      company while an out-of-pin company was denied BY NAME and out-of-class
+      document reads and writes were refused with Business Central naming the
+      exact pages.
+    authority_class_intended: mutate
+    authority_class_achieved: mutate
+    granted_permissions:
+      - id: API.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      # The recorded fallback: the tighter LEDGERX PROVISIONER set was
+      # unavailable in Sandbox1, so the automation-class minimal set was taken
+      # and the reason recorded rather than the gap being papered over.
+      - id: D365 AUTOMATION
+        achieves: mutate
+        reaches: [business_central]
+    admission:
+      - surface: business_central
+        act: >-
+          per-environment application user created and Enabled in Sandbox1 with
+          exactly one company-scoped permission-set assignment (userName
+          LEDGERX-FARHEAP-BC-PROVISIONER, userSecurityId
+          95b4f130-408c-4e5b-a3e5-836479db4e95; D365 AUTOMATION, company TEST
+          CRONUS)
+        achieved_scope: "Sandbox1 / TEST CRONUS (company id d7f5772b-1b58-ea11-a813-000d3a8f8188)"
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/LedgerxFactory
+          path: tenants/ledgerxcorp/ledger-estates/farheap-provisioner-overreach-evidence-v1.yaml
+          sha: f3b4983
+        verified_at: "2026-08-04T15:23:57Z"
+        exceeds_governed_unit: false
+    per_unit_principal_available:
+      business_central: true
+    lifecycle_state: enrolled
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-04T15:24:18Z"
+      grant_window_ref: farheap-estate-grant-001
+      grant_window_expires_at: "2026-08-04T15:53:56Z"
+      evidence_ref:
+        repo: opensoft/LedgerxFactory
+        path: tenants/ledgerxcorp/ledger-estates/farheap-provisioner-overreach-evidence-v1.yaml
+        sha: f3b4983
+    ratified_by: ledgerxfactory:ledgerx-company-provisioning
+    consent_ref: medsrx-2026-001-consent
+
+  # ------------------------------------------------------------------
+  # ENTRY 3 — the PROVISIONER at LX-REHEARSAL-01. Per-unit pair, half two;
+  # duty pair, half two.
+  # ------------------------------------------------------------------
+  # The SAME Entra registration at a SECOND governed company. It differs from
+  # entry 2 in `blast_radius_unit` and in `achieved_scope`, which is precisely
+  # what makes it a genuine per-unit identity rather than an alias: the alias
+  # rule fires only on entries that are OBSERVATIONALLY IDENTICAL apart from
+  # their free tokens.
+  - identity_ref: ledgerx-farheap-bc-provisioner
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    provider_object_ref: 21a0cd6f-cf1c-4abd-8377-40dce405233b
+    admission_surface: business_central
+    duty: provisioning
+    blast_radius_unit: lx_rehearsal_01
+    duty_separation_rationale: >-
+      The third never-merged identity: setup authority that neither the reader
+      nor the poster may hold. Held per governed company, so that a
+      provisioning job in one company can never reach another.
+    authority_class_intended: mutate
+    authority_class_achieved: mutate
+    granted_permissions:
+      - id: API.ReadWrite.All
+        achieves: mutate
+        reaches: [business_central]
+      - id: D365 AUTOMATION
+        achieves: mutate
+        reaches: [business_central]
+      # Extension-owned, assigned to THIS identity for THIS company: with it
+      # the provisioner placed configuration-package content under its own
+      # credential (POST configPackageUploads -> HTTP 201; 9 tables, 24
+      # records, 0 errors, matching the administrator's manual import of the
+      # same 1225 bytes).
+      - id: LL Provisioner Perm
+        achieves: mutate
+        reaches: [business_central]
+    admission:
+      - surface: business_central
+        act: >-
+          the same application user's SECOND company-scoped permission-set
+          assignment, added 2026-08-04 for the step-4 rehearsal (D365
+          AUTOMATION, company LX-REHEARSAL-01), joined 2026-08-06 by the
+          extension-owned LL Provisioner Perm for the same company
+        achieved_scope: "Sandbox1 / LX-REHEARSAL-01 (company id 88c7e941-1a90-f111-8072-002248abd771)"
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/LedgerxFactory
+          path: tenants/ledgerxcorp/ledger-estates/farheap-extension-activation-evidence-v1.yaml
+          sha: 761e014
+        verified_at: "2026-08-06T23:00:56Z"
+        exceeds_governed_unit: false
+    per_unit_principal_available:
+      business_central: true
+    lifecycle_state: enrolled
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-06T23:00:56Z"
+      evidence_ref:
+        repo: opensoft/LedgerxFactory
+        path: tenants/ledgerxcorp/ledger-estates/farheap-extension-activation-evidence-v1.yaml
+        sha: 761e014
+    ratified_by: ledgerxfactory:ledgerx-company-provisioning
+    consent_ref: medsrx-2026-001-consent

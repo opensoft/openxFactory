@@ -1,0 +1,54 @@
+# INVALID roster fragment — violates FR-005 (rule "a proposed destructive
+# class"): the entry proposes `destroy` as an authority class. The enumeration
+# is CLOSED to `observe` and `mutate` and a destructive class is deliberately
+# UNREPRESENTABLE. The refusal names the closed set AND its extension route:
+# destructive capability rides the `mutate` entry's declared achieved class
+# with its declared excess and gate obligation, and earns its own member only
+# where a provider demonstrably offers a delete-scoped permission distinct
+# from write, declared with that demonstration (finding
+# destructive-authority-class).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_a
+  authority_class_intended: destroy
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

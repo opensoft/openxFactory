@@ -1,0 +1,1011 @@
+# Grown by `add-client-identity-roster`: the neutral CLIENT IDENTITY ROSTER —
+# the record in which a domain factory declares every governed identity it
+# holds standing inside a paying client's provider tenant, and the drift
+# finding that reports when observed state departs from that declaration.
+# Canonical validator: scripts/validate-client-identity-roster.py (FR-015).
+#
+# TWO KINDS, ONE FILE (research.md Decision 2): the roster fragment and the
+# drift record that cites it are produced and consumed by one lane, and the
+# five-element uniqueness tuple must be defined ONCE and referenced by both.
+# The sibling precedent is xfactory-credential-contracts.schema.yaml, which
+# owns five record kinds behind a top-level oneOf.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "xfactory-client-identity-roster.schema.yaml"
+title: "xFactory client identity roster: governed identities standing in a client's tenant"
+contract_schema_version: 1
+type: object
+description: >-
+  A roster FRAGMENT is one client (`client_ref`) as seen by one owning
+  `domain`: the unit a domain publishes and a cross-domain pass assembles, and
+  the scope within which uniqueness and the free-token legend are read.
+
+  DECLARED PLACEMENT (FR-020, FR-036). A domain's fragments live at
+  `credentials/client-identity-roster/<client_ref>.yaml` in the domain
+  repository — ONE FILE PER (client, domain) PAIR, and a DIRECT CHILD of that
+  directory, never nested beneath it. That tree is inside the tree
+  `scripts/validate-credential-contracts.py` already scans recursively, and
+  THAT VALIDATOR'S SKIP-WITH-NOTICE OVER THESE FILES IS EXPECTED AND BLESSED
+  by the promoted credential-contracts spec: it is not a coverage gap, because
+  the canonical roster validator claims exactly that path. The roster
+  validator additionally sweeps the WHOLE target repository for this kind and
+  reports any instance that is not a direct child of the declared directory as
+  a misplacement, so a stray fragment cannot land where nothing kind-aware
+  looks. A placement change is a contract change. The DRIFT kind carries no
+  placement rule in this release, because no producer of drift findings exists
+  yet; its conformance is proven by the packaged example and its negatives.
+
+  CLOSED ON PURPOSE. Every object below sets `additionalProperties: false`,
+  and the ROOT closes with `unevaluatedProperties: false` — the Draft 2020-12
+  form that accounts for whichever `oneOf` branch matched, since a root
+  `additionalProperties: false` beside a branching `oneOf` would refuse every
+  instance. The two MAP-shaped properties (`legend.*` and
+  `per_unit_principal_available`) close their KEY SPACE with `propertyNames`
+  instead of `additionalProperties: false`, which is the same closure
+  expressed the only way a map admits it. Growth takes a
+  `contract_schema_version` bump.
+
+  BOTH KINDS DECLARE `schema_version: 1` (ruling A-2). The manifest row's
+  `schema_version` mirrors the RECORD envelope's const, and this family
+  registers as ONE row for ONE file with one digest and one consumption rule;
+  a single row can mirror only one value. A later divergence between the two
+  kinds is the signal that they have outgrown one file, not something to paper
+  over in the row.
+
+  THE NEUTRAL LAYER NEVER INFERS A PROVIDER FACT. `granted_permissions[].id`
+  and `admission[].achieved_scope` ride provider-native and VERBATIM, and
+  every fact a check needs about them is DECLARED beside them: the class a
+  permission confers (`achieves`), the surfaces it reaches (`reaches[]`), and
+  whether an act's achieved scope exceeds the entry's governed blast-radius
+  unit (`exceeds_governed_unit`). The canonical validator is network-free and
+  single-repo, so it may compare two provider tokens for equality but MUST NOT
+  read breadth, class, or meaning out of one, and MUST NOT resolve an
+  identifier against any provider catalogue.
+
+required:
+  - schema_version
+  - kind
+oneOf:
+  - $ref: "#/$defs/roster_fragment"
+  - $ref: "#/$defs/drift_finding"
+unevaluatedProperties: false
+
+$defs:
+
+  # ------------------------------------------------------------------
+  # The six CLOSED vocabularies (FR-007, FR-031, FR-034, SC-014).
+  # Each is enumerated explicitly and each names its EXTENSION ROUTE, so a
+  # refusal can cite the route and not only the closed set. Extension of any
+  # of them follows the admission_surface route: the change that governs the
+  # new member adds it.
+  # ------------------------------------------------------------------
+
+  admission_surface:
+    title: Admission surface
+    description: >-
+      CLOSED first-release vocabulary (ratified answer 5, FR-007): exactly
+      `business_central` and `exchange`, the two client-tenant Entra-homed
+      surfaces whose capabilities are PROMOTED. A member is a surface because
+      an ADMISSION ACT exists for it separately — not because a product is
+      named — so each member below declares that act and the scoping mechanism
+      that bounds it. EXTENSION ROUTE: a surface enters with the promotion of
+      the capability that governs it (endpoint/Intune, Windows 365 and
+      Entra-directory arrive with theirs); non-Entra providers, including a
+      client-org GitHub App installation, are a NAMED SUCCESSOR routed by
+      `client-infrastructure-liaison`. An identity on a surface outside this
+      vocabulary is OUT of roster scope and is never a completeness finding.
+    oneOf:
+      - const: business_central
+        description: >-
+          Microsoft Dynamics 365 Business Central. TWO admission acts, both
+          required and neither sufficient alone — which is why they are two
+          acts on ONE surface rather than two surfaces. (1) The PER-ENVIRONMENT
+          APPLICATION USER, created in the Business Central environment
+          itself: its scoping mechanism is the ENVIRONMENT, so an application
+          user in Sandbox1 admits to Sandbox1 and a Production environment
+          with no application user is not reachable. (2) The ADMIN-CENTER
+          ENTRA-APP AUTHORIZATION, registered in the Business Central
+          administration centre: it has NO SCOPE SELECTOR, so it is
+          tenant-wide across every environment. Measured: four admin-consented
+          permissions held for six days still returned `401` until act (2)
+          landed, so neither act admits on its own.
+      - const: exchange
+        description: >-
+          Microsoft Exchange Online. Its admission act is the EXCHANGE
+          APPLICATION ACCESS POLICY, created in Exchange Online PowerShell
+          (`New-ApplicationAccessPolicy -AccessRight RestrictAccess`) and
+          verifiable with `Test-ApplicationAccessPolicy`. Its scoping
+          mechanism is a MAIL-ENABLED SECURITY GROUP naming exactly the
+          mailboxes the application may reach: membership of that group is the
+          bound, and the provider enforces it — a read against a covered
+          mailbox is granted and a read against any other mailbox in the
+          tenant is refused.
+
+  authority_class:
+    title: Authority class
+    description: >-
+      CLOSED to `observe` and `mutate` (ratified answer 6, FR-005). A
+      DESTRUCTIVE class is deliberately UNREPRESENTABLE. EXTENSION ROUTE — and
+      it is a conformant expression rather than a new member: destructive
+      capability rides the `mutate` entry's declared
+      `authority_class_achieved` together with its `declared_excess` and gate
+      obligation. A destructive-capable identity earns its own class only
+      where a provider DEMONSTRABLY offers a delete-scoped permission distinct
+      from write, declared with that demonstration, and that is the change
+      that would add the member.
+    oneOf:
+      - const: observe
+        description: >-
+          The identity reads. No granted permission confers creation,
+          modification, or deletion of provider state.
+      - const: mutate
+        description: >-
+          The identity can change provider state. This is also the conformant
+          home of DESTRUCTIVE capability: where a provider offers no
+          delete-scoped permission distinct from write, the destructive reach
+          is declared as this entry's achieved class and bounded by its gate
+          obligation, never by inventing a third class.
+
+  residency_model:
+    title: Residency model
+    description: >-
+      CLOSED to the two models the ratified delta governs (FR-012, FR-034).
+      Client-resident single-tenant is the DEFAULT FOR EVERY AUTHORITY CLASS —
+      there is no class-dependent relaxation anywhere in this schema, in the
+      validator, in the examples, or in the documentation (ratified constraint
+      1). EXTENSION ROUTE: a third model arrives with the change that governs
+      it, carrying its own obligations.
+    oneOf:
+      - const: client_tenant_single
+        description: >-
+          The registration is homed in the client's own tenant and its
+          principals land there. The validator asserts `home_tenant` equals
+          the fragment's declared `client_tenant` AND every
+          `principal_locations[]` member equals it — never a containment
+          reading, which would pass an identity homed in the WRONG client's
+          tenant.
+      - const: vendor_tenant_multi
+        description: >-
+          The registration is homed in the vendor tenant and consented by many
+          clients. Admissible ONLY through the governed model carrying its
+          full obligations, which this schema requires conditionally in
+          `vendor_tenant_multi_obligations`.
+
+  enforcement_mode:
+    title: Enforcement mode
+    description: >-
+      CLOSED to `provider_enforced` and `logic_enforced` (FR-034 names both
+      members explicitly rather than leaving them to a free string). Which one
+      an act may claim is governed by FR-008's structural-before-logical rule,
+      read against `per_unit_principal_available`. EXTENSION ROUTE: a third
+      mode arrives with the change that governs it.
+    oneOf:
+      - const: provider_enforced
+        description: >-
+          The provider itself refuses reach beyond the achieved scope. Claiming
+          this where no principal scoped to the governed blast-radius unit
+          exists at that surface is a finding.
+      - const: logic_enforced
+        description: >-
+          Only our own gate logic holds the bound; the provider would permit
+          more. Admissible only where no per-unit principal exists, with the
+          provider reason recorded. Leaving an AVAILABLE per-unit principal
+          unused while declaring this is a finding naming that principal.
+
+  lifecycle_state:
+    title: Lifecycle state
+    description: >-
+      CLOSED to `planned`, `enrolled`, `retired` (FR-013, FR-034). The axis is
+      PERMISSIVE by ratification: a `planned` entry is legal and indefinite and
+      is NEVER reported as missing or incomplete, and a `retired` entry RETAINS
+      its record rather than being deleted. EXTENSION ROUTE: a fourth state
+      arrives with the change that governs it.
+    oneOf:
+      - const: planned
+        description: >-
+          Declared intent. The identity does not yet exist in the provider.
+          Validates clean; never a completeness finding.
+      - const: enrolled
+        description: The identity exists and is in service.
+      - const: retired
+        description: >-
+          The identity is out of service and its record is KEPT. Because the
+          ratified consent cascade runs withdrawal or termination through to
+          retirement, a `retired` entry may cite an ENDED consent instrument —
+          the one lifecycle-scoped exemption to the in-force rule (FR-014).
+
+  identity_kind:
+    title: Identity kind
+    description: >-
+      CLOSED, ONE MEMBER for this release (research.md Decision 1, FR-034).
+      The members are exactly the kinds the mandated example cases require and
+      no more: an unratified kind vocabulary MUST NOT be invented here. A
+      one-member closed set is falsifiable — any other value is refused naming
+      this route — and it forces the successor path rather than a free string.
+      EXTENSION ROUTE: a new kind arrives with the change that governs the
+      surface or provider needing it.
+    oneOf:
+      - const: entra_app_registration
+        description: >-
+          A Microsoft Entra application registration together with the service
+          principal(s) it instantiates. `home_tenant` says where the
+          REGISTRATION lives, `principal_locations[]` says where the
+          PRINCIPALS land, and `residency_model` says which governed model
+          that combination is — which is why vendor-homedness is NOT a second
+          kind: encoding it here would create two fields able to disagree
+          about one fact.
+
+  free_token:
+    title: Domain-declared free token
+    type: string
+    pattern: "^[a-z0-9][a-z0-9_-]*$"
+    description: >-
+      `blast_radius_unit` and `duty` are DOMAIN-DECLARED tokens rather than
+      neutral enumerations (FR-034, ruling R7), constrained by pattern only.
+      Provider fidelity for them lives in the fragment's `legend`, which binds
+      each token used to its provider-native identifier (`sandbox1` ->
+      `Sandbox1`). A token used with no legend entry, or declared in BOTH
+      legend maps, is a finding. The tokens are bounded against becoming an
+      unfalsifiable key by the ALIAS RULE (FR-038) and by nothing stricter:
+      per-blast-radius-unit and duty-separated identities are PERMITTED and
+      MUST NEVER be reported as an overlap or a duplicate.
+
+  # ------------------------------------------------------------------
+  # The uniqueness key (FR-006, ruling R-N1)
+  # ------------------------------------------------------------------
+
+  identity_key:
+    title: Identity uniqueness key
+    type: object
+    additionalProperties: false
+    required:
+      - domain
+      - admission_surface
+      - authority_class_intended
+      - blast_radius_unit
+      - duty
+    description: >-
+      The five-element tuple on which uniqueness is keyed, defined ONCE here
+      and referenced by both the uniqueness rule and the drift record — the
+      whole payoff of keeping the two kinds in one file.
+
+      ELEMENT 3 IS `authority_class_intended`, NOT `_achieved` (ruling R-N1).
+      A key must be DECLARATIVE and STABLE. `authority_class_intended` is a
+      declaration the owning domain makes, moved only by a deliberate record
+      change. `authority_class_achieved` is OBSERVATIONAL: it is derived from
+      `granted_permissions[]` and therefore moves whenever provider state
+      moves. Keying on the observational field would change an identity's
+      IDENTITY at the moment its permissions drifted — incoherent, because
+      drift is what the checks REPORT ABOUT a stable identity, not what
+      re-keys it — and it would break the drift record's whole purpose, since
+      an achieved-keyed reference would name a tuple that no longer matches
+      the entry the finding is about, failing the join exactly when it is
+      needed.
+
+      SCOPE: entries are compared WITHIN ONE FRAGMENT, never across fragments.
+      The tuple carries no `client_ref` and the legend binds free tokens PER
+      FRAGMENT, so `sandbox1` in two clients' fragments names two different
+      provider objects. Two entries in DIFFERENT fragments sharing the whole
+      tuple are NOT a duplicate — reporting them as one would re-kill the
+      per-unit flaw from the other direction. The drift record's
+      `fragment_ref` supplies the client scope this tuple deliberately omits.
+    properties:
+      domain:
+        type: string
+        minLength: 1
+        description: The owning domain factory.
+      admission_surface:
+        $ref: "#/$defs/admission_surface"
+      authority_class_intended:
+        $ref: "#/$defs/authority_class"
+      blast_radius_unit:
+        $ref: "#/$defs/free_token"
+      duty:
+        $ref: "#/$defs/free_token"
+
+  # ------------------------------------------------------------------
+  # Shared sub-shapes
+  # ------------------------------------------------------------------
+
+  evidence_ref:
+    title: Declared evidence pointer
+    type: object
+    additionalProperties: false
+    required: [repo, path]
+    description: >-
+      A DECLARED POINTER, not a resolved link (FR-037). The canonical
+      validator checks its SHAPE and MUST NOT resolve its target, because that
+      validator is network-free and reads ONE repository. Nothing in this
+      family opens the referenced tree. Resolution of a cross-repository
+      pointer belongs solely to the cross-domain doc-health family, which
+      assembles from pinned repos and can therefore see it. This is stated in
+      the contract so a later reader does not file the non-resolution as a
+      coverage gap and "fix" it with a cross-repo read that would break
+      hermeticity.
+    properties:
+      repo:
+        type: string
+        minLength: 1
+        description: The repository the evidence lives in, e.g. `opensoft/OpsxFactory`.
+      path:
+        type: string
+        minLength: 1
+        description: The path within that repository.
+      sha:
+        type: string
+        pattern: "^[0-9a-f]{7,40}$"
+        description: Optional commit pinning the evidence.
+
+  granted_permission:
+    title: Granted permission
+    type: object
+    additionalProperties: false
+    required: [id, achieves, reaches]
+    description: >-
+      A permission the identity was ACTUALLY granted, as an OBJECT rather than
+      a bare string, because two ratified rules read it and neither is
+      decidable from an opaque provider token (FR-004, FR-009). A network-free
+      validator cannot resolve an identifier against a provider catalogue and
+      MUST NOT infer provider semantics from how an identifier is spelled, so
+      the mapping the checks need is DECLARED here beside the identifier and
+      checked for internal consistency.
+    properties:
+      id:
+        type: string
+        minLength: 1
+        description: >-
+          The provider-native identifier, VERBATIM (`API.ReadWrite.All`). This
+          is the fidelity ruling R7 protects; it is never normalized, parsed,
+          or read for meaning.
+      achieves:
+        $ref: "#/$defs/authority_class"
+        description: >-
+          The authority class this permission confers. `authority_class_achieved`
+          on the entry MUST equal the MAXIMUM `achieves` declared across this
+          array (`mutate` dominates `observe`); asserting any other value is a
+          contradiction between two declarations in the same record.
+      reaches:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/admission_surface"
+        description: >-
+          The admission surfaces this permission reaches. Every member must be
+          the entry's own `admission_surface` or a declared
+          `declared_excess.spanned_surfaces[]` member; anything else is
+          UNDECLARED REACH, reported naming both the surface and the
+          permission `id` that reaches it.
+
+  admission_act:
+    title: Admission act
+    type: object
+    additionalProperties: false
+    required: [surface, act, achieved_scope, enforcement_mode, exceeds_governed_unit]
+    description: >-
+      ONE act performed in a provider's own administrative console. Admission
+      is a LIST because a single identity is routinely admitted by several
+      acts with different scopes and different enforcers, and a record MUST
+      NOT be able to express admission as a single act — the first draft's
+      singular field could not represent its own worked case. A ONE-member
+      array is a legal single-act expression; only the scalar form is
+      unrepresentable.
+
+      CONSENT IS NOT ADMISSION. Provider consent alone is not recordable as
+      access: an entry declaring consent and no admission act is refused.
+
+      VERIFIED VS UNVERIFIED IS A DERIVATION, NEVER AN ASSERTED FLAG.
+      `evidence_ref` and `verified_at` are a PAIR, expressed as
+      `dependentRequired` in BOTH directions. Both present is a VERIFIED act;
+      both absent is the UNVERIFIED state, which must stay representable and
+      which is EXCLUDED from the identity's effective reach. A `verified_at`
+      with NO `evidence_ref` — the record claiming a verification it cannot
+      evidence — is refused. There is deliberately no independent
+      `verified: false` property an author could set in contradiction of the
+      evidence. `verified_at` carries NO maximum age: this release adds no
+      freshness decay, and verified versus unverified is the only distinction
+      any check draws.
+    dependentRequired:
+      evidence_ref: [verified_at]
+      verified_at: [evidence_ref]
+    properties:
+      surface:
+        $ref: "#/$defs/admission_surface"
+        description: >-
+          The surface this act admits to. It MUST be the entry's own
+          `admission_surface` or a declared `spanned_surfaces[]` member: an
+          admission act is the second key that makes a surface reachable, so
+          an act on an undeclared surface is reach the record hides even where
+          no permission declares it.
+      act:
+        type: string
+        minLength: 1
+        description: >-
+          The act performed, in the surface's own terms (`per-environment
+          application user created`, `admin-center Entra-app authorization
+          registered`, `application access policy created`).
+      achieved_scope:
+        type: string
+        minLength: 1
+        description: >-
+          The scope that act achieves, PROVIDER-NATIVE and opaque to the
+          neutral layer. Checks may compare two of these for EQUALITY and MUST
+          NOT read breadth out of one — which is exactly why
+          `exceeds_governed_unit` is declared rather than inferred.
+      enforcement_mode:
+        $ref: "#/$defs/enforcement_mode"
+      evidence_ref:
+        $ref: "#/$defs/evidence_ref"
+        description: >-
+          Evidence that a call actually SUCCEEDED under this act. Its absence
+          — together with the absence of `verified_at` — is what makes the act
+          unverified, by derivation.
+      verified_at:
+        type: string
+        format: date-time
+        description: >-
+          When the act was verified. Required on every VERIFIED act and absent
+          on every unverified one, per the pair rule above.
+      exceeds_governed_unit:
+        type: boolean
+        description: >-
+          Whether the scope this act achieves reaches BEYOND the entry's
+          governed `blast_radius_unit`. A DECLARED fact, not an inferred one,
+          because `achieved_scope` is provider-native and opaque: comparing
+          its token to the legend's binding would detect DIFFERENCE, not
+          excess, and would fire on a legitimately narrower act. This
+          declaration is what makes the change's own motivating measurement
+          CHECKABLE rather than merely expressible — a verified act declaring
+          `true` REQUIRES a `declared_excess`, and without this field an entry
+          could declare a tenant-wide no-selector act, omit `declared_excess`
+          entirely, and pass every other rule in the corpus. It is also the
+          term that makes effective reach computable: the entry's reach
+          exceeds its governed unit if ANY VERIFIED act declares `true`.
+          It is deliberately NOT part of the alias rule's observational tuple,
+          which keeps exactly its four ratified elements.
+
+  declared_excess:
+    title: Declared excess
+    type: object
+    additionalProperties: false
+    required: [provider_reason, bound_mechanism, gate_obligation, enforcement_test_ref]
+    description: >-
+      The record of breadth the PROVIDER FORCES — spanned admission surfaces,
+      an achieved class above the intended one, or a scope reaching beyond the
+      governed blast-radius unit. Declared forced breadth is CONFORMANT;
+      undeclared breadth is a finding. This is what converts an undetected
+      widening into a declared, bounded and TESTED one. The third case is the
+      one this change exists for: an admission act with no scope selector,
+      converting a bound the provider enforced into one only gate logic
+      enforces.
+
+      Checks MUST NOT invalidate a deliberately narrow identity merely because
+      the provider's permission granularity is coarser than the roster axis.
+    properties:
+      spanned_surfaces:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/admission_surface"
+        description: >-
+          Surfaces this identity reaches beyond its own `admission_surface`.
+          Optional, because a class-only overshoot spans no extra surface.
+          Declaring a surface here is what makes a permission's `reaches[]`
+          member and an admission act's `surface` legitimate.
+      provider_reason:
+        type: string
+        minLength: 1
+        description: >-
+          Why no narrower permission exists. A packaged example may not assert
+          a provider fact its author cannot cite; an uncitable claim escalates
+          rather than being invented.
+      bound_mechanism:
+        type: string
+        minLength: 1
+        description: What actually holds the bound the provider does not.
+      gate_obligation:
+        type: string
+        minLength: 1
+        description: >-
+          The gate in the owning domain's governed workflow records that
+          bounds this excess. It MUST RESOLVE to an existing gate in the
+          target repository's `workflows/`; an unresolvable obligation is a
+          finding, because an unenforced obligation converts an undetected
+          widening into a merely documented one.
+      enforcement_test_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The test proving that gate REFUSES a target outside the governed
+          blast-radius unit. A missing enforcement test is a finding.
+
+  standing_credential_attestation:
+    title: Standing-credential attestation
+    type: object
+    additionalProperties: false
+    required: [no_standing_credential, attested_at]
+    description: >-
+      Whether the identity holds any STANDING credential, and the record
+      against which that claim is made. This is checkable ONLY as a
+      RECORD-INTERNAL CONTRADICTION: the canonical validator is network-free
+      and single-repo and observes no credential store, no grant record and no
+      provider (FR-029). So the claim, the approved grant window it is made
+      against, and any credential actually held are all DECLARED here, and
+      FR-013's "a credential held outside an approved grant window makes the
+      attestation false" is raised when the record contradicts ITSELF.
+
+      EXPIRY IS READ AGAINST `attested_at`, NEVER AGAINST THE CLOCK. Comparing
+      a window's expiry to the current time would make findings vary between
+      runs of identical inputs, which SC-011 forbids; comparing it to the
+      moment the attestation was made is deterministic and is the honest
+      question anyway — was the window still open when the claim was made?
+    dependentRequired:
+      held_credential_ref: [grant_window_ref]
+      grant_window_expires_at: [grant_window_ref]
+    properties:
+      no_standing_credential:
+        type: boolean
+        description: >-
+          The claim. `true` asserts the identity holds no credential between
+          uses — the JIT discipline in which a credential exists only inside a
+          human-approved, time-boxed grant.
+      attested_at:
+        type: string
+        format: date-time
+        description: When the claim was made; the comparand for window expiry.
+      grant_window_ref:
+        type: string
+        minLength: 1
+        description: The approved grant window the claim is made against.
+      grant_window_expires_at:
+        type: string
+        format: date-time
+        description: >-
+          When that window closes. A window that closed BEFORE `attested_at`
+          is an expired window, and a credential held against it makes the
+          attestation false.
+      held_credential_ref:
+        type: string
+        minLength: 1
+        description: >-
+          A credential the identity actually holds. Declaring one alongside
+          `no_standing_credential: true` is the record contradicting itself,
+          and is the finding FR-013 requires.
+      evidence_ref:
+        $ref: "#/$defs/evidence_ref"
+
+  vendor_tenant_multi_obligations:
+    title: Vendor-tenant-multi obligations
+    type: object
+    additionalProperties: false
+    required:
+      - tenant_allow_list_enforced_at_token_validation
+      - per_client_authorization_state
+      - per_client_revocation_evidence
+      - cross_client_credential_span_statement
+      - per_client_consent_amendment
+    description: >-
+      The five obligations FR-012 requires of a `vendor_tenant_multi`
+      registration, required by an `if/then` on `residency_model` IN THIS
+      SCHEMA rather than only in the validator, so that a validator refactor
+      cannot lose them. Residency branches on NOTHING ELSE — in particular on
+      no authority class (ratified constraint 1: client-resident single-tenant
+      is the default for EVERY class, and if cost bites, the lever is this
+      model with its obligations, never a quiet relaxation of the axis).
+
+      This object is the ENCODING of a ratified rule, on the same footing as
+      the admission act's `exceeds_governed_unit`: the rule cannot be
+      evaluated without somewhere to declare its terms.
+    properties:
+      tenant_allow_list_enforced_at_token_validation:
+        type: string
+        minLength: 1
+        description: The allow-list, and where token validation enforces it.
+      per_client_authorization_state:
+        type: string
+        minLength: 1
+        description: Where each consenting client's authorization state is held.
+      per_client_revocation_evidence:
+        type: string
+        minLength: 1
+        description: Evidence that revocation is per client, not all-or-nothing.
+      cross_client_credential_span_statement:
+        type: string
+        minLength: 1
+        description: >-
+          The statement that ONE credential set spans every consenting client
+          — the fact this model obliges a domain to say out loud.
+      per_client_consent_amendment:
+        type: string
+        minLength: 1
+        description: The consent amendment obtained from each affected client.
+
+  legend:
+    title: Free-token legend
+    type: object
+    additionalProperties: false
+    required: [blast_radius_units, duties]
+    description: >-
+      The per-fragment declaration binding each free token used in this
+      fragment to its provider-native identifier — the place provider fidelity
+      lives for the two values the neutral layer deliberately leaves open
+      (FR-034). A MAPPING, so "declared twice for the same key" is
+      unrepresentable at the schema level; the checkable DUPLICATE case is a
+      token appearing in BOTH maps. A token used with no legend entry is the
+      other finding, and those two are the WHOLE legend rule set. A legend
+      entry that no entry uses is NOT a finding in this release: no
+      requirement makes it one, and such a rule would fire on a conformant
+      fragment whose entry is `retired` or `planned`.
+    properties:
+      blast_radius_units:
+        type: object
+        propertyNames:
+          $ref: "#/$defs/free_token"
+        additionalProperties:
+          type: string
+          minLength: 1
+        description: "Token -> provider-native identifier, e.g. `sandbox1: Sandbox1`."
+      duties:
+        type: object
+        propertyNames:
+          $ref: "#/$defs/free_token"
+        additionalProperties:
+          type: string
+          minLength: 1
+        description: Token -> provider-native identifier for the duty axis.
+
+  roster_entry:
+    title: Roster entry
+    type: object
+    additionalProperties: false
+    required:
+      - identity_ref
+      - identity_kind
+      - home_tenant
+      - principal_locations
+      - residency_model
+      - admission_surface
+      - duty
+      - blast_radius_unit
+      - authority_class_intended
+      - authority_class_achieved
+      - granted_permissions
+      - admission
+      - per_unit_principal_available
+      - lifecycle_state
+      - standing_credential_attestation
+      - ratified_by
+      - consent_ref
+    description: >-
+      ONE governed identity, identified within its fragment by the five-element
+      tuple of `#/$defs/identity_key`. The field list is the RATIFIED one and
+      MUST NOT be reduced. The optional additions each exist because a
+      ratified rule cannot be evaluated without them:
+      `duty_separation_rationale` (the alias rule's third predicate),
+      `provider_object_ref` (the cross-domain shared-material disjunct), and
+      `declared_excess` (forced breadth).
+    if:
+      properties:
+        residency_model:
+          const: vendor_tenant_multi
+      required: [residency_model]
+    then:
+      required: [vendor_tenant_multi_obligations]
+    properties:
+      identity_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The identity's own provider-facing name. Deliberately a STRING here,
+          while the drift record's `identity_ref` is the tuple OBJECT — the
+          two shapes differ on purpose and the divergence is documented rather
+          than renamed away. An entry's NAME MUST NOT describe narrower
+          authority than it achieves.
+      identity_kind:
+        $ref: "#/$defs/identity_kind"
+      home_tenant:
+        type: string
+        minLength: 1
+        description: >-
+          The provider tenant the REGISTRATION is homed in. Under
+          `client_tenant_single` it must EQUAL the fragment's `client_tenant`;
+          a registration homed outside the client tenant MUST NOT be
+          declarable as client-resident on the grounds that its principal
+          appears in the client tenant.
+      principal_locations:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+        description: >-
+          The tenants the identity's PRINCIPALS land in. These are TENANT
+          identifiers and never object identifiers — the distinction the
+          cross-domain shared-material disjunct turns on, since read as object
+          identifiers the rule would intersect on the shared client tenant and
+          refuse a ratified non-finding.
+      residency_model:
+        $ref: "#/$defs/residency_model"
+      vendor_tenant_multi_obligations:
+        $ref: "#/$defs/vendor_tenant_multi_obligations"
+      provider_object_ref:
+        type: string
+        minLength: 1
+        description: >-
+          OPTIONAL. The provider-native OBJECT identifier of this identity — an
+          Entra `app_id`. It is an OBJECT identifier and NOT a tenant
+          identifier, and the whole cross-domain `shared-identity-material`
+          rule turns on that distinction: two domains that really do share one
+          Entra application share this value, and no amount of tenant
+          collocation produces it. The rule's second disjunct fires only when
+          BOTH entries declare it and the values are equal, because an absent
+          declaration is not evidence of sharing.
+      admission_surface:
+        $ref: "#/$defs/admission_surface"
+      duty:
+        $ref: "#/$defs/free_token"
+      blast_radius_unit:
+        $ref: "#/$defs/free_token"
+      duty_separation_rationale:
+        type: string
+        minLength: 1
+        description: >-
+          OPTIONAL. Why this identity is separated by duty from its sibling.
+          The alias rule's third predicate reads THIS FIELD AND NOTHING ELSE:
+          two entries differing solely in free tokens and observationally
+          identical are an alias ONLY if neither declares this. A genuine duty
+          pair qualifies either by differing in granted permissions or by
+          declaring this.
+      authority_class_intended:
+        $ref: "#/$defs/authority_class"
+        description: >-
+          The class the domain INTENDS. Element 3 of the uniqueness key,
+          because a key must be declarative and stable.
+      authority_class_achieved:
+        $ref: "#/$defs/authority_class"
+        description: >-
+          The class the granted permissions actually produce. MUST equal the
+          maximum `achieves` declared across `granted_permissions[]`. Where it
+          exceeds the intended class, the entry MUST carry a `declared_excess`.
+      granted_permissions:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/granted_permission"
+      admission:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/admission_act"
+        description: >-
+          The admission acts, as a LIST. Effective reach is the UNION of the
+          VERIFIED acts — the set of their `(surface, achieved_scope)` pairs
+          plus the OR of their `exceeds_governed_unit` declarations — NOT the
+          narrower act. Unverified acts contribute nothing.
+      declared_excess:
+        $ref: "#/$defs/declared_excess"
+      per_unit_principal_available:
+        type: object
+        minProperties: 1
+        propertyNames:
+          $ref: "#/$defs/admission_surface"
+        additionalProperties:
+          type: boolean
+        description: >-
+          Per admission surface, whether a principal scoped to the governed
+          blast-radius unit is AVAILABLE. A MAPPING and not a single boolean,
+          because a provider-forced multi-surface identity needs one answer per
+          surface. The schema closes the KEY SPACE to the surface vocabulary;
+          the COVERAGE rule — an answer for the entry's own surface and for
+          every `declared_excess.spanned_surfaces[]` member — belongs to the
+          validator, because a key set that depends on another field's VALUE is
+          not expressible here. A surface the entry touches with NO key is a
+          finding naming that surface, since an absent key and a `false` answer
+          are otherwise indistinguishable. A key for a surface the entry does
+          NOT touch is not a finding: the key space is already closed.
+      lifecycle_state:
+        $ref: "#/$defs/lifecycle_state"
+      standing_credential_attestation:
+        $ref: "#/$defs/standing_credential_attestation"
+      ratified_by:
+        type: string
+        minLength: 1
+        description: >-
+          The DOMAIN-QUALIFIED ratified capability that justifies this
+          identity's existence. A `mutate` entry naming no ratified capability
+          is an ERROR that fails the owning domain's gate, not a report-only
+          finding. This release checks presence and domain-qualification and
+          does NOT resolve the citation against the target repository's
+          promoted capability set — the ratified resolution clause attaches to
+          the consent instrument alone, and the ratified scenario here is an
+          absence test. That omission is a recorded reading, not an oversight.
+      consent_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The consent instrument authorizing this identity's standing in
+          another party's tenant. CONSENT — not our own ratification —
+          is what authorizes standing there, so an entry naming a capability
+          and no instrument is invalid. The citation MUST RESOLVE, INTRA-REPO,
+          against the target domain repository's own consent-instrument
+          records (matched on `instrument_id`): presence of a citation is not
+          resolution, and a citation resolving to nothing is the failure the
+          change's central claim depends on catching. The additional IN-FORCE
+          condition (`executed` or `amended`) binds `planned` and `enrolled`
+          entries; a `retired` entry is EXEMPT, because an ended instrument is
+          the expected state beside it once the cascade has run.
+
+  # ------------------------------------------------------------------
+  # Kind 1 — the roster fragment
+  # ------------------------------------------------------------------
+
+  roster_fragment:
+    title: Client identity roster fragment
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, client_ref, client_tenant, domain, legend, entries]
+    description: >-
+      One client as seen by one owning domain — the unit a domain publishes,
+      the unit a cross-domain pass assembles, and the scope within which
+      uniqueness and the legend are read.
+    properties:
+      schema_version:
+        const: 1
+      kind:
+        const: xfactory_client_identity_roster
+      client_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The client this fragment covers, as a GOVERNANCE SLUG. It is not a
+          provider tenant identifier, which is precisely why `client_tenant`
+          exists beside it.
+      client_tenant:
+        type: string
+        minLength: 1
+        description: >-
+          REQUIRED. The PROVIDER TENANT IDENTIFIER of the client this fragment
+          covers, in the same dialect as `home_tenant` and the members of
+          `principal_locations[]`. It is DECLARED rather than derived because
+          `client_ref` is a governance slug: without this field the
+          `client_tenant_single` rule has nothing to compare `home_tenant`
+          against, and the ratified refusal of a vendor-homed registration
+          declared client-resident is unevaluable. The rejected alternative was
+          inference (`home_tenant` merely appearing in `principal_locations[]`),
+          and it is rejected on a measurement rather than on taste: containment
+          cannot catch an identity homed in the WRONG client's tenant, which is
+          the exact case the refusal exists for. It sits on the FRAGMENT
+          because a fragment is per (client, domain) and every entry in it is
+          about one client's tenant.
+      domain:
+        type: string
+        minLength: 1
+        description: The owning domain factory — element 1 of the uniqueness key.
+      legend:
+        $ref: "#/$defs/legend"
+      entries:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/roster_entry"
+
+  # ------------------------------------------------------------------
+  # Kind 2 — the drift finding
+  # ------------------------------------------------------------------
+
+  drift_value:
+    description: >-
+      A value as recorded or as observed. A single token, or the several a
+      permission set or admission list renders to.
+    oneOf:
+      - type: string
+        minLength: 1
+      - type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+
+  drift_finding:
+    title: Client identity drift finding
+    type: object
+    additionalProperties: false
+    required:
+      - schema_version
+      - kind
+      - identity_ref
+      - fragment_ref
+      - rule_id
+      - roster_value
+      - observed_value
+      - observed_at
+      - opened_at
+      - status
+    description: >-
+      A divergence between an identity's roster entry and its observed state.
+
+      RECORDING ONE MUTATES NOTHING. Drift handling MUST NOT create, modify,
+      widen, narrow or remove any identity, permission or admission, and MUST
+      NOT trigger automated remediation. The record carries the roster value
+      and the observed value, and nothing in the client's tenant is touched.
+      The one lever it pulls is ours, not the client's: while `open`, it
+      refuses GRANT ISSUANCE for its identity, as the roster-drift member of
+      the closed `issuance_preconditions` vocabulary in `credential-contracts`.
+
+      ITS `identity_ref` IS THE TUPLE OBJECT, deliberately a different shape
+      from the roster entry's STRING `identity_ref`. The two names are both
+      ratified and the divergence is documented here rather than renamed away.
+      The tuple's THIRD ELEMENT IS THE INTENDED CLASS, which is what lets the
+      join survive the very drift the record reports: were it the achieved
+      class, a finding about an authority-class change would name a tuple no
+      longer matching the entry it is about. An observed class rides
+      `observed_value` like any other drifted field.
+
+      IT CLAIMS NO ALIGNMENT WITH, AND NO STORAGE IN, ANY DOC-HEALTH FINDINGS
+      REGISTER, because none exists: doc-health is a stateless recompute and
+      `health/dispositions.yaml` holds advice text rather than on-disk finding
+      records. Field names borrow doc-health's where they apply, and that is
+      the whole of the relationship.
+
+      This kind carries NO declared placement in this release (research.md
+      Decision 2): no producer exists yet, so placement enters with the change
+      that lands one. It is therefore not swept for misplacement.
+    if:
+      properties:
+        status:
+          const: disposed
+      required: [status]
+    then:
+      required: [disposition_ref]
+    properties:
+      schema_version:
+        const: 1
+      kind:
+        const: xfactory_client_identity_drift_finding
+      identity_ref:
+        $ref: "#/$defs/identity_key"
+      fragment_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The fragment whose entry this finding is about. It supplies the
+          CLIENT SCOPE the uniqueness tuple deliberately omits.
+      rule_id:
+        type: string
+        minLength: 1
+        description: The rule that produced this finding.
+      roster_value:
+        $ref: "#/$defs/drift_value"
+        description: What the roster entry declares. REQUIRED.
+      observed_value:
+        $ref: "#/$defs/drift_value"
+        description: What was observed. REQUIRED.
+      observed_at:
+        type: string
+        format: date-time
+      opened_at:
+        type: string
+        format: date-time
+      status:
+        title: Drift finding status
+        description: >-
+          CLOSED to `open`, `resolved`, `disposed`, and refused outside it like
+          every other closed set in this family. EXTENSION ROUTE: a fourth
+          state arrives with the change that governs it.
+        oneOf:
+          - const: open
+            description: >-
+              Live. While a finding is open against an identity, grant issuance
+              for that identity is refused, naming the finding.
+          - const: resolved
+            description: The divergence no longer exists.
+          - const: disposed
+            description: >-
+              Judged not to require resolution. REQUIRES `disposition_ref`: a
+              disposal with no citation is exactly the unfalsifiable disposal
+              this record exists to prevent.
+      disposition_ref:
+        type: string
+        minLength: 1
+        description: >-
+          The citation justifying a disposal. OPTIONAL in shape and REQUIRED
+          under `status: disposed`; an `open` finding has by construction not
+          been dispositioned and carries none.
