@@ -187,7 +187,14 @@ function renderAbstract(host, doc) {
   }
 }
 
-function renderDocsPanel(pane, scope, onOpen, create) {
+// `onBind` (add-doxbench-editing-phase-a) is the SELECTION half of Brett's
+// model: left selects, centre chat works, right shows the result. Choosing a
+// document here binds the canvas's document buffer — and therefore the chat —
+// to that path, through the canvas's own `selectDocument`. The wheel's own
+// mount-time seed is deliberately NOT forwarded: a render is not a human
+// choosing a document, and letting it through would pop the unsaved-edit guard
+// on a switch nobody asked for.
+function renderDocsPanel(pane, scope, onOpen, create, onBind) {
   // The wheel owns a RAF loop and a ResizeObserver, so the OUTGOING one has to
   // be torn down before its host DOM is discarded — a re-render on every scope
   // change would otherwise leak one animation loop per render, each observing
@@ -224,8 +231,21 @@ function renderDocsPanel(pane, scope, onOpen, create) {
   // A drum is one reel, so the sections flatten — carrying their labels onto
   // the tiles rather than losing them (see `docWheelEntries`).
   const entries = docWheelEntries(scope);
+  let seeded = false;
+  // PR #196 review F4: while the wheel is being RECONCILED to the document the
+  // canvas actually holds, its own onSelect must not turn round and ask for
+  // that document again — the reconcile is the canvas answering, not a human
+  // choosing.
+  let reconciling = false;
   const wheel = renderDocWheel(selector, entries, {
-    onSelect: (entry) => renderAbstract(abstract, entry ? entry.row.doc : null),
+    onSelect: (entry) => {
+      renderAbstract(abstract, entry ? entry.row.doc : null);
+      // the wheel seeds its own first selection as it lays out; only the
+      // selections a human makes after that bind the canvas
+      if (!seeded) { seeded = true; return; }
+      if (reconciling) return;
+      if (onBind && entry && entry.path) onBind(entry.path);
+    },
     // SELECT and OPEN stay distinct verbs, as they were in the flat list:
     // selecting must not steal the read-only viewer, and opening (from the
     // expanded tile) must not be the only way to look at a document.
@@ -236,6 +256,21 @@ function renderDocsPanel(pane, scope, onOpen, create) {
   // An empty scope has no tile to select, so nothing seeded the abstract: say
   // so explicitly rather than leaving the upper half blank.
   if (!entries.length) renderAbstract(abstract, null);
+
+  // PR #196 review F4: the wheel is a SELECTION control over the same choice
+  // the canvas's own picker makes, and the picker already reverts to the
+  // document really loaded whenever a selection does not land (blocked by the
+  // unsaved-edit guard, refused as out of scope, refused because the load
+  // failed). The wheel had no such reconciliation and `selectPath` — written
+  // for exactly this — had no caller at all, so the two controls and the
+  // canvas could sit on three different documents at once. Returned to the
+  // shell rather than reached for: this panel still knows nothing about the
+  // canvas.
+  return (path) => {
+    if (path == null) return;
+    reconciling = true;
+    try { wheel.selectPath(path); } finally { reconciling = false; }
+  };
 }
 
 // WHICH lens section is showing. Module-scope like the lens session itself:
@@ -485,6 +520,12 @@ function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
   // read-only, through the viewer's own /source pass-through: renderViewer owns
   // the fetch, the divergence banner, and the degraded no-shim / 404 message —
   // exactly the document viewer's posture, because it IS the document viewer.
+  //
+  // TWO RENDERINGS OF "THE OUTLINE" SURVIVE ON PURPOSE (Phase A): this one says
+  // what is STORED in the source, and the canvas on the right says what the
+  // human HAS unsaved. Collapsing them would answer one question and lose the
+  // other, so focusing this selection tab makes the outline the active buffer
+  // over there without changing what is rendered here.
   const doc = (snapshot.documents || []).find((d) => d.path === path) || null;
   renderViewer(host, { path, doc, sourceBase, edit });
 }
@@ -734,7 +775,11 @@ export function mountStagingWorkbench(container, snapshot,
     const btn = el("button", "swb-tab", def.label);
     btn.type = "button";
     btn.setAttribute("role", "tab");
-    btn.addEventListener("click", () => { activeTab = def.key; drawTab(); });
+    btn.addEventListener("click", () => {
+      activeTab = def.key;
+      drawTab();
+      bindCanvasToSelectionTab(def.key);
+    });
     // CHK007 (T100 AT, re-reported 2026-08-02): this CONTEXT strip is the
     // second `role=tablist` on the surface and had no roving tabindex
     // either — the operator's re-report lands here. Same WAI-ARIA APG
@@ -757,6 +802,7 @@ export function mountStagingWorkbench(container, snapshot,
       ev.preventDefault();
       activeTab = next;
       drawTab();
+      bindCanvasToSelectionTab(next);
       tabButtons.get(next).focus();
     });
     tabbar.appendChild(btn);
@@ -964,9 +1010,16 @@ export function mountStagingWorkbench(container, snapshot,
     }
     const pane = el("div", "swb-pane swb-pane-" + activeTab);
     body.appendChild(pane);
+    // PR #196 review F4: the docs pane hands back the reconcile the shell needs
+    // to put the wheel back on the document the canvas really holds. A redraw
+    // rebuilds the wheel, so the previous pane's reconcile is dropped with it
+    // and the new one is adopted here.
+    reconcileDocsSelection = null;
     if (activeTab === "docs") {
-      renderDocsPanel(pane, scope, onOpenDoc
-        ? (row) => onOpenDoc(row.path, row.doc) : null, create);
+      reconcileDocsSelection = renderDocsPanel(pane, scope, onOpenDoc
+        ? (row) => onOpenDoc(row.path, row.doc) : null, create,
+        bindCanvasToDocument);
+      syncContextSelection();   // a fresh wheel starts where the canvas is
     } else if (activeTab === "lens") {
       // the session survives the tab switch and reseeds on a scope change —
       // the panel itself never builds a selection (design D4)
@@ -1070,6 +1123,87 @@ export function mountStagingWorkbench(container, snapshot,
     return { repository: active.repository, ref: active.ref,
              tile_kind: scope.kind, tile_id: scope.id };
   }
+  // ---- THE SELECTION HALF (add-doxbench-editing-phase-a) ------------------
+  //
+  // The context region chooses which buffer the canvas presents, and therefore
+  // which buffer the chat works on. Both routes below go through the CANVAS's
+  // own primitives — `setActiveBuffer` and `selectDocument`, which own the
+  // state authority, the scope refusal, and the unsaved-Document guard. This
+  // file adds no second context-tracking mechanism and no second guard: it
+  // says which selection happened and lets the canvas answer.
+  //
+  // The switch is IMMEDIATE and has no confirm step, because changing which
+  // buffer is ACTIVE replaces no content. The guard that DOES interrupt is
+  // unchanged and unrelated: switching to a different DOCUMENT with unsaved
+  // edits replaces buffer content, so `selectDocument` still blocks on it —
+  // on this route exactly as on the canvas picker's.
+  function bindCanvasToSelectionTab(tabKey) {
+    if (tabKey !== "outline") return;   // `docs` binds per ROW, below; `lens` binds nothing
+    if (!canvasController || typeof canvasController.setActiveBuffer !== "function") return;
+    canvasController.setActiveBuffer("outline");
+    // The rail states which buffer it is working on, read live off the canvas
+    // state. A pure selection change moves no content identity, so nothing
+    // else would have told it.
+    refreshRailFromCanvas();
+  }
+  async function bindCanvasToDocument(path) {
+    if (!canvasController || typeof canvasController.selectDocument !== "function") return;
+    // PR #196 review F6: the canvas contains its own load failures now, so this
+    // resolves with a stated refusal rather than rejecting — but the await is
+    // what makes the two lines below run AFTER the answer instead of before it,
+    // and the catch is defence in depth for a seam that ever regressed (an
+    // unhandled rejection here would leave the wheel showing a document that
+    // never loaded, with nothing said).
+    let outcome = null;
+    try {
+      outcome = await canvasController.selectDocument(path);
+    } catch (unused) {
+      outcome = { status: "refused", reason: null };
+    }
+    // F3: the rail states which buffer it is WORKING ON, and choosing the
+    // document already loaded (`unchanged`) still moves that binding — so the
+    // refresh runs on every outcome, not only the ones that switch. Without it
+    // the rail kept saying "Working on — outline" beside a chat now bound to
+    // the document.
+    refreshRailFromCanvas();
+    // F4: unless the switch actually landed, the wheel must go back to the
+    // document the canvas really holds — the same reconciliation the canvas's
+    // own picker has always done for itself. A `blocked` outcome leaves the
+    // guard open; if the human then resolves it with Discard, the switch fires
+    // `onIdentitySettled` and the reconcile below runs again through
+    // `syncContextSelection`, landing the wheel on the document that won.
+    if (!outcome || (outcome.status !== "switched" && outcome.status !== "unchanged")) {
+      syncContextSelection();
+    }
+  }
+  // The wheel's reconcile, as adopted by the last docs draw (null on the other
+  // selection tabs, where there is no wheel to reconcile).
+  let reconcileDocsSelection = null;
+  function syncContextSelection() {
+    if (typeof reconcileDocsSelection !== "function") return;
+    const current = canvasController && canvasController.state();
+    if (!current) return;
+    reconcileDocsSelection(current.buffers.document.path);
+  }
+  // T100 P1-A, factored out (Phase A): every settled identity refreshes the
+  // rail's proposal currency so stale reaches the RENDERED cards — and the same
+  // pass re-renders the rail's header, which is where the bound buffer is
+  // stated. A pure selection change calls it directly for that second reason.
+  // Still a PURE callback: it reads the live controller and opens no route.
+  function syncContextFromCanvas() {
+    refreshRailFromCanvas();
+    syncContextSelection();
+  }
+  function refreshRailFromCanvas() {
+    if (!railController || !canvasController) return;
+    const current = canvasController.state();
+    if (!current) return;
+    const hexOf = (b) => (b && b.current_hash && b.current_hash.hex) || null;
+    railController.refreshCurrency({
+      outline: hexOf(current.buffers.outline),
+      document: hexOf(current.buffers.document),
+    });
+  }
   function canvasHoldsUnsavedWork() {
     const live = canvasController && canvasController.state();
     if (!live || !live.buffers) return false;
@@ -1160,17 +1294,11 @@ export function mountStagingWorkbench(container, snapshot,
       // active/source base, the session bar, and the rail's scope key.
       onSaveLanded: (ref) => adoptSessionRef(ref, { canvasAlreadyRekeyed: true }),
       // T100 P1-A: every settled identity refreshes the rail's proposal
-      // currency so stale reaches the RENDERED cards.
-      onIdentitySettled: () => {
-        if (!railController || !canvasController) return;
-        const current = canvasController.state();
-        if (!current) return;
-        const hexOf = (b) => (b && b.current_hash && b.current_hash.hex) || null;
-        railController.refreshCurrency({
-          outline: hexOf(current.buffers.outline),
-          document: hexOf(current.buffers.document),
-        });
-      },
+      // currency so stale reaches the RENDERED cards — and (PR #196 review F4)
+      // puts the context region's own selection back on whichever document the
+      // canvas ended up holding, which is how a guard resolved with Discard
+      // reaches the wheel.
+      onIdentitySettled: syncContextFromCanvas,
     });
     // T055: the chat rail mounts ONLY when the seam bundle carries BOTH
     // injected transports — the shell forwards them verbatim and opens no
@@ -1233,6 +1361,18 @@ export function mountStagingWorkbench(container, snapshot,
         // refusal. Read from the projection this canvas was mounted on; the
         // shell derives nothing of its own here.
         documentCandidates: () => projection.active_document_candidates || [],
+      });
+    }
+    // PR #196 review F3, the mount-time half: the rail's header names the
+    // canvas's buffers, and the canvas HAS none until its initial load settles
+    // -- so the header rendered "(absent)" and stayed that way until some
+    // unrelated event happened to re-render the rail. One refresh when the load
+    // resolves, guarded because the controller may already have been torn down
+    // and replaced by then.
+    const mounted = canvasController;
+    if (mounted && mounted.ready && typeof mounted.ready.then === "function") {
+      mounted.ready.then(() => {
+        if (canvasController === mounted) syncContextFromCanvas();
       });
     }
     // LAST, after every mount: each pane's controller clears its own host, so

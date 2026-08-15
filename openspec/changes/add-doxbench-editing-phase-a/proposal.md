@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-editor.js` — the side-by-side textarea+preview pane replaced by an Editor/Preview view-tab pair over one active buffer, and the per-buffer Save/Discard toolbar replaced by one panel-level Save and one panel-level Cancel; `staging-workbench.js` — the context region's `outline` tab and scoped `docs` selection become the buffer selector, and the canvas mounts the active buffer; `doxbench-state.js` — `setActiveBuffer`/`discardBuffer` reused unchanged as the selection and Cancel primitives; `doxbench_turns.py` — the turn record names the buffer path it acted on, generalizing the existing `active_document_path` revalidation; `viewer.js` — the external-editor escape hatch relabelled so the bare word "edit" stops naming two different acts on one surface; and the pinned tests `tests/ideation-dashboard/test_doxbench_view.py`, `test_doxbench_accessibility.py`, `test_doxbench_mutation_boundary.py`, `test_doxbench_turns.py`, `test_staging_workbench.py`, whose DOM, tablist, and buffer-shape assertions this change re-pins honestly rather than deletes)
+code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-editor.js` — the side-by-side textarea+preview pane replaced by an Editor/Preview view-tab pair over one active buffer, and the per-buffer Save/Discard toolbar replaced by one panel-level Save and one panel-level Cancel; `staging-workbench.js` — the context region's `outline` tab and scoped `docs` selection become the buffer selector, and the canvas mounts the active buffer; `doxbench-state.js` — `setActiveBuffer`/`discardBuffer` reused unchanged as the selection and Cancel primitives; `doxbench-chat.js` — the rail states the buffer the chat is working on, read live off the canvas's active-buffer key (naming the bound buffer in the durable TURN RECORD is deferred: F2 carve-out, Brett 2026-08-15 — see design.md, and `doxbench_turns.py` is left untouched); `viewer.js` — the external-editor escape hatch relabelled so the bare word "edit" stops naming two different acts on one surface; and the pinned tests `tests/ideation-dashboard/test_doxbench_view.py`, `test_doxbench_accessibility.py`, `test_doxbench_mutation_boundary.py`, `test_doxbench_turns.py`, `test_staging_workbench.py`, whose DOM, tablist, and buffer-shape assertions this change re-pins honestly rather than deletes)
 target_release: none
 Status: draft
 ---
@@ -89,13 +89,18 @@ intact and asserted.
    button, not the behavior.
 
 4. **The chat binds to the active left-panel selection, immediately, with no
-   confirm step, and every turn record names the buffer path it acted on** (Q4,
+   confirm step, and STATES that binding where the conversation happens** (Q4,
    accepted as recommended). Focusing the context region's `outline` tab puts
    the chat in outline-editing context and shows the working unsaved outline on
    the right; selecting a document from the scoped `docs` set binds the chat to
-   that document. This generalizes the turn module's existing
-   `active_document_path` revalidation rather than adding a second
-   context-tracking mechanism beside it.
+   that document. The rail names the bound buffer above the transcript, so the
+   answer is read rather than inferred. It adds no second context-tracking
+   mechanism: `state.active_buffer` is the one answer, and the turn module's
+   existing `active_document_path` revalidation is untouched. Naming the bound
+   buffer in the durable turn RECORD is DEFERRED — the released chat-turn
+   envelope is closed in both directions, so it needs a contract release this
+   change forbids (F2 carve-out, Brett's 2026-08-15 ruling; design.md states
+   the reasoning and the delta states the deferral).
 
 5. **Staleness refusal is preserved per buffer, and the new panel-level controls
    introduce no way around it** (Q6, accepted as recommended). A turn, an Apply,
@@ -130,8 +135,14 @@ intact and asserted.
   `BUFFER_KINDS` and the exactly-two-keys validator are deliberately untouched.
 - `scripts/ideation_dashboard/web/views/doxbench-save.js` — reused unchanged;
   `SAVE_BUFFER_ORDER` stays the ordered pair it is.
-- `scripts/ideation_dashboard/doxbench_turns.py` — the turn record names the
-  acted-on buffer; `require_outline_and_document` and `PROPOSAL_TARGETS` stay.
+- `scripts/ideation_dashboard/doxbench_turns.py` — UNTOUCHED (F2 carve-out,
+  Brett 2026-08-15): the turn-record naming this change originally asked for
+  needs a chat-turn contract release, so the obligation rides Phase B and no
+  unreadable placeholder is left behind. `revalidate_scope`,
+  `require_outline_and_document` and `PROPOSAL_TARGETS` are exactly as they
+  were.
+- `scripts/ideation_dashboard/web/views/doxbench-chat.js` — the rail's header
+  states the buffer the chat is working on, read live off the canvas state.
 - `scripts/ideation_dashboard/web/views/viewer.js` — one relabel.
 - `tests/ideation-dashboard/` — the pinned DOM, tablist, accessibility, and
   mutation-boundary assertions are re-pinned to the new structure with the

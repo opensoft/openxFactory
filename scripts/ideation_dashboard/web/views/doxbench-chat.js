@@ -606,7 +606,15 @@ export function mountDoxBenchChatRail(host, options = {}) {
     };
     const outline = es && es.buffers ? es.buffers.outline : null;
     const documentBuffer = es && es.buffers ? es.buffers.document : null;
-    header.textContent = "Chatting about — Outline: " + nameOf(outline)
+    // add-doxbench-editing-phase-a: the chat's WORKING CONTEXT is the canvas's
+    // ACTIVE BUFFER — the one the context region selected — and it is read
+    // straight off the live editor state rather than tracked a second time
+    // here. Grounding is unchanged and still names BOTH buffers: binding says
+    // what the chat is working ON, never what it may see.
+    const bound = es && es.buffers ? es.buffers[es.active_buffer] : null;
+    const boundName = bound ? nameOf(bound) : "(absent)";
+    header.textContent = "Working on — " + boundName
+      + " · Chatting about — Outline: " + nameOf(outline)
       + " · Document: " + nameOf(documentBuffer);
   }
 

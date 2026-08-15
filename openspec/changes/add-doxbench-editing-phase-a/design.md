@@ -198,14 +198,52 @@ Q4, applied to two buffers:
    existing dirty-Document guard, which fires when switching to a DIFFERENT
    DOCUMENT with unsaved edits, because that switch would replace buffer
    contents. Changing which buffer is ACTIVE replaces nothing and asks nothing.
-5. **Every turn record names the buffer path it acted on.** Today's turn carries
-   `active_document_path` and `revalidate_scope` refuses unless it equals the
-   supplied document buffer's path. Phase A keeps that check exactly and adds
-   the record fact: the response names WHICH buffer the turn was bound to, so a
-   transcript read later says "this turn was working on the outline" rather than
-   leaving it inferable from which proposal came back. The turn still carries
-   BOTH buffers as grounding — binding says what the chat is working ON, not
-   what it may see.
+5. **The binding is STATED where the human is working.** The chat rail names the
+   active buffer above the transcript, live, so "what is this conversation
+   working on" is answered on the surface the conversation happens on rather
+   than inferred from which proposal comes back. The turn still carries BOTH
+   buffers as grounding — binding says what the chat is working ON, not what it
+   may see. Naming the bound buffer in the durable TURN RECORD as well was the
+   original Phase A intent; it is deferred, and the next subsection says why.
+
+## Turn-record naming — deferred (F2 carve-out, Brett 2026-08-15)
+
+This design originally asked for one more thing: that every turn RECORD name
+the buffer the turn was bound to, so a transcript read later says "this turn
+was working on the outline". Realizing it revealed that Phase A cannot, and the
+attempt was withdrawn on Brett's F2 ruling.
+
+**The wire is closed in both directions.** `contracts/schemas/`
+`xfactory-workbench-chat-turn.schema.yaml` declares `additionalProperties:
+false` on the request AND on the success envelope, with fixed `required` lists.
+A turn record a reader can actually consult is a record that crossed that wire,
+so naming the bound buffer in one means releasing that contract — and this
+change declares `target_release: none` and forbids exactly that (see the
+proposal's Impact section, and task 9.3, which re-verifies it at landing).
+
+**A server-side-only field does not substitute for it, on two counts.** The
+realization added `PromptEnvelope.bound_buffer`, derived from the request's
+`active_document_path`. Review found it (a) unreadable — nothing serializes,
+persists or renders it, so no human ever reads the record it was supposed to
+improve — and (b) mis-derivable: the wire carries the document path and nothing
+about which buffer the human had SELECTED, so a human working on the outline
+with a document loaded for grounding was recorded as bound to the document.
+Dead code that is also wrong is worse than an honest gap, so it is removed
+rather than kept as a placeholder.
+
+**Where the obligation goes.** Phase B reworks the turn machinery already —
+`require_outline_and_document`, `PROPOSAL_TARGETS` and the request's buffer
+shape all re-cut for N path-keyed buffers, which is itself a chat-turn contract
+release. The turn-record naming obligation rides that release rather than
+forcing a release of its own for one field. It is recorded on the staged topic
+`doxbench-editing-model` so Phase B inherits it as a stated obligation, not as
+something a later reader has to rediscover.
+
+What Phase A keeps of Q4 is everything that does not need the wire: the chat's
+working context IS `state.active_buffer`, the switch is immediate with no
+confirm step, the binding is stated live on the rail, and the existing
+active-path revalidation still refuses a declared binding that does not match
+the supplied buffer, before any provider call.
 
 ## Staleness, unchanged and re-asserted
 

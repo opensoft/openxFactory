@@ -176,6 +176,13 @@ def state_results(tmp_path_factory):
 
 
 def test_state_contains_exactly_outline_and_document_buffers(state_results):
+    """The buffer contract's exactly-two rule, and the ONE place it lives.
+
+    add-doxbench-editing-phase-a task 8.4 pins its Phase A invariant HERE
+    rather than restating it on the view: the canvas, the view tabs, the one
+    Save and the one Cancel are all expressed over `BUFFER_KINDS`, so widening
+    the buffer set is a change to THIS contract and to nothing on that
+    surface. Phase B is what re-cuts it; Phase A asserts it stood."""
     assert state_results["bufferKinds"] == ["outline", "document"]
     state = state_results["initial"]
     assert list(state["buffers"]) == ["outline", "document"]
@@ -247,7 +254,7 @@ def test_editing_back_to_exact_base_derives_clean_state(state_results):
     assert unchanged["buffer"]["current_hash"] == unchanged["buffer"]["base_hash"]
 
 
-def test_buffer_replacement_is_targeted_and_active_tab_is_independent(state_results):
+def test_buffer_replacement_is_targeted_and_the_active_buffer_is_independent(state_results):
     replacement = state_results["replacement"]
     with_outline = replacement["withOutline"]
     assert with_outline["buffers"]["outline"]["content"] == "# Revised outline\n"

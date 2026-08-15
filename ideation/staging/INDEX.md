@@ -1392,8 +1392,8 @@ repo scope.
   (active change; one `ideation-dashboard` delta — the canvas presents the
   ACTIVE buffer chosen by the context region, the Editor/Preview view-tab
   pair replaces the split pane, one Save and one Cancel replace the
-  per-buffer toolbar pair, the chat binds to the active buffer and each turn
-  record names it, and the panel controls stay inside the per-buffer
+  per-buffer toolbar pair, the chat binds to the active buffer and STATES that
+  binding on the rail, and the panel controls stay inside the per-buffer
   staleness guard). The topic stays STAGED with (1) and (3) open: Phase B —
   numbered multi-document tabs, the docs-wheel edit verb, the dirty-tile
   marker, and the N-buffer generalization — is explicitly out of that
@@ -1403,3 +1403,12 @@ repo scope.
   twice, so Claim 6 changes the button count and no Save semantics; Discard
   is the genuinely per-buffer control, and Q2 names the ACTIVE buffer as
   Cancel's target.
+- **PHASE B INHERITS THE TURN-RECORD BUFFER-NAMING OBLIGATION** (F2 carve-out,
+  Brett's 2026-08-15 ruling on the PR #196 review): naming the bound buffer in
+  a turn record a reader can consult requires releasing the chat-turn contract
+  (`xfactory-workbench-chat-turn.schema.yaml` closes the request AND the
+  success envelope), which Phase A forbids — and a server-side-only field was
+  proven unreadable and mis-derivable, so it was removed rather than left as a
+  placeholder. Phase B re-cuts the turn machinery and releases that contract
+  anyway, so the naming rides that release; Phase A ships the LIVE binding
+  statement on the chat rail instead.

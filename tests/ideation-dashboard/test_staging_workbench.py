@@ -2447,6 +2447,87 @@ def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
 
 
 # ---------------------------------------------------------------------------
+# add-doxbench-editing-phase-a: LEFT SELECTS. The context region chooses which
+# buffer the canvas presents, and therefore which buffer the chat works on.
+# Source-level doctrine pins — the shell adds no state authority, no second
+# guard, and no transport for any of it; the canvas primitives it calls are
+# driven live in test_doxbench_view.py.
+# ---------------------------------------------------------------------------
+
+def test_the_context_selection_drives_the_canvas_active_buffer():
+    source = SWB_JS.read_text(encoding="utf-8")
+    # the outline SELECTION tab makes the outline buffer active, through the
+    # canvas's own primitive — this file keeps no notion of "active buffer"
+    assert "function bindCanvasToSelectionTab(" in source
+    assert 'canvasController.setActiveBuffer("outline")' in source
+    # a scoped docs row routes through the canvas's existing selectDocument, so
+    # the dirty-Document guard and the scope refusal fire on this route exactly
+    # as they do on the canvas picker's
+    assert "function bindCanvasToDocument(" in source
+    assert "canvasController.selectDocument(path)" in source
+    assert "bindCanvasToDocument" in source.split("function drawTab()", 1)[1]
+    # both selection tab handlers bind, so keyboard and pointer agree
+    assert source.count("bindCanvasToSelectionTab(") == 3   # 1 definition, 2 callers
+    # …and none of it grew a route
+    assert "fetch(" not in source
+    assert "/actions/" not in source
+
+
+def test_every_selection_route_refreshes_the_stated_binding():
+    """PR #196 review F3: the rail's header states the buffer the chat is
+    working on. `bindCanvasToSelectionTab` refreshed it; `bindCanvasToDocument`
+    did not — so selecting the document the canvas ALREADY holds (the
+    `unchanged` route: a binding change with no switch and no identity move)
+    left the rail naming the outline beside a chat now bound to the document.
+    The refresh is unconditional now, before the outcome is even examined."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    binder = source.split("async function bindCanvasToDocument(", 1)[1].split(
+        "\n  }\n", 1)[0]
+    assert "refreshRailFromCanvas();" in binder
+    # …and it is NOT inside the outcome test below it: every route, every
+    # outcome
+    assert binder.index("refreshRailFromCanvas();") < binder.index("outcome.status")
+    # the mount-time half: the canvas has no buffers until its load settles, so
+    # the header rendered "(absent)" until something unrelated re-rendered it
+    assert "if (canvasController === mounted) syncContextFromCanvas();" in source
+
+
+def test_a_selection_that_does_not_land_reconciles_the_docs_wheel():
+    """PR #196 review F4: the canvas picker has always reverted itself when a
+    selection did not land (blocked by the unsaved-edit guard, refused as out
+    of scope, refused because the load failed). The docs wheel had no such
+    reconciliation, so the two controls and the canvas could sit on three
+    different documents — and `doc-wheel.js`'s `selectPath`, written for exactly
+    this, had zero callers."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    wheel = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+             / "doc-wheel.js").read_text(encoding="utf-8")
+    assert "selectPath(path)" in wheel
+    assert "wheel.selectPath(path)" in source          # the caller it lacked
+    assert "function syncContextSelection()" in source
+    binder = source.split("async function bindCanvasToDocument(", 1)[1].split(
+        "\n  }\n", 1)[0]
+    assert 'outcome.status !== "switched" && outcome.status !== "unchanged"' in binder
+    assert "syncContextSelection();" in binder
+    # a redraw adopts the new wheel's reconcile and starts it where the canvas is
+    assert "reconcileDocsSelection = renderDocsPanel(" in source
+    # …and the reconcile must not be mistaken for a human choosing
+    assert "if (reconciling) return;" in source
+
+
+def test_the_docs_wheels_own_mount_seed_does_not_bind_the_canvas():
+    """The wheel fires `onSelect` once as it lays out. A render is not a human
+    choosing a document, and forwarding it would pop the unsaved-edit guard on
+    a switch nobody asked for — every draw of the docs tab would do it."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    docs_panel = source.split("function renderDocsPanel(", 1)[1].split(
+        "\n}\n", 1)[0]
+    assert "let seeded = false;" in docs_panel
+    assert "if (!seeded) { seeded = true; return; }" in docs_panel
+    assert "onBind(entry.path)" in docs_panel
+
+
+# ---------------------------------------------------------------------------
 # T104 F10-1, the POSTURE LADDER's missing rung. Every model-catalog failure
 # used to fall through to `approvedModelCount === 0`'s editor-only sentence,
 # "no approved model is configured" — a misdiagnosis for a 403 stale console

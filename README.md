@@ -324,12 +324,22 @@ Active changes:
   pair (Save keeps its ratified branch-session semantics unchanged — reading
   the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
   while Cancel discards the ACTIVE buffer to its `base_content`); the chat
-  binds to the active buffer immediately with no confirm step and every turn
-  record names the buffer it acted on; and the per-buffer staleness guard is
+  binds to the active buffer immediately with no confirm step and STATES that
+  binding on the rail; and the per-buffer staleness guard is
   asserted to survive the consolidation. Phase B — numbered multi-document
   tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
   generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
-  — is explicitly out of scope. No contract release.
+  — is explicitly out of scope. No contract release. **Realized 2026-08-15**
+  on `change/realize-doxbench-editing-phase-a`: `doxbench-editor.js` carries
+  the Editor/Preview view tablist and the panel's one Save / one Cancel,
+  `staging-workbench.js` drives the active buffer from the context region's
+  selection, `doxbench-chat.js` states the bound buffer above the transcript,
+  and `viewer.js`'s external-editor escape hatch is relabelled. Naming the
+  bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
+  Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
+  so `doxbench_turns.py` is untouched and the obligation is recorded on the
+  staged topic). The archive gate still needs the merged-commit evidence
+  (tasks 9.1).
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault
