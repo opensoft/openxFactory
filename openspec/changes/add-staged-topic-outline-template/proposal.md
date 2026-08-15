@@ -1,8 +1,17 @@
 ---
 code_surface: openxFactory (the doxBench outline tab renders the template and gains an add-section affordance; `fragmentSummary()` gains a conforming-topic path; doc-health gains a warning-tier conformance nudge)
 target_release: implemented
-Status: draft
+Status: ratified
+Ratified: 2026-08-15 by Brett Heap — in-session, verbatim: "ratify add-staged-topic-outline-template". Follows his acceptance of all five open questions as recommended earlier the same day, which closed the parallel decision track this change was sequenced for.
 ---
+
+> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
+> none of it is built: the outline tab does not render the template, there is no
+> add-section affordance, `fragmentSummary()` has no conforming-topic path, and
+> doc-health has no conformance nudge. Under `release-realization`'s archive
+> gate it therefore stays ACTIVE as approved intent until its code merges on the
+> implemented target with a green run — the invariant being that promoted specs
+> describe what the code does. Nothing here should be read as shipped.
 
 # Proposal: add-staged-topic-outline-template
 
