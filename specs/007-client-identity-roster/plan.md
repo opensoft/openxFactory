@@ -73,7 +73,7 @@ against the design below; encoding them is the work.
 | 1 | Residency is class-independent | `residency_model` is a top-level entry field with no branch on `authority_class_*` anywhere in schema, validator, examples or docs. Cluster A/B. |
 | 2 | Blocking scope is all three | Pack membership (Cluster F), doc-health family (Cluster G), `issuance_preconditions` (Cluster H). |
 | 3 | The enrollment axis stays permissive | No completeness predicate exists in any code path; `planned` is a first-class positive fixture; absence exits 0 with a notice (FR-032, SC-013). |
-| 4 | Done means records AND consent cascade AND doc-health family | All three are archive-blocking clusters, plus 3.1/3.3 per the amendments. Only domain fragments are exempt. |
+| 4 | Done means records AND consent cascade AND doc-health family | All three are archive-blocking clusters, plus OpenSpec tasks 3.1/3.3 per the amendments (governing-change numbering, not this feature's Speckit ids). Only domain fragments are exempt. |
 | 5 | `admission_surface` CLOSED to two members | Cluster A enum + one negative (SC-014). |
 | 6 | Five-element tuple; classes `observe\|mutate` only | Cluster A `$defs.identity_key`, whose third element is `authority_class_intended` by ruling R-N1 (see "The uniqueness key's third element" below); Cluster C carries a GENUINE per-unit pair and a GENUINE duty pair as ZERO-finding positives alongside the alias-pair negative — the discrimination is the measurement (SC-002). |
 | 7 | `granted_permissions[]` and `admission[]` (a LIST) survive | Both required on every entry; `admission` is `type: array, minItems: 1`. A one-member `admission[]` array IS a legal single-act expression — an identity admitted through exactly one act is conformant and common. What FR-002 makes unrepresentable is the SCALAR form: an `admission` that is not a list at all. An implementer reading this row as "two acts required" and writing `minItems: 2` would break legitimate entries; `minItems: 1` is the correct and intended bound (ruling A-N3). |
@@ -113,10 +113,15 @@ specs/007-client-identity-roster/
 ├── clarify-rulings-2026-08-14.md        # the ruling record (exists)
 ├── plan.md                              # this file
 ├── research.md                          # decisions and derivations
-├── traceability.yaml                    # authored at implementation:
-│                                        #   one row per ratified requirement →
-│                                        #   artifact, enforcing check, negative
-│                                        #   confirmation (the 006 shape)
+├── traceability.yaml                    # authored at implementation, in the
+│                                        #   006 file's ACTUAL shape: envelope
+│                                        #   (schema_version, kind:
+│                                        #   openxfactory_realization_traceability,
+│                                        #   feature, ratified_change,
+│                                        #   capabilities) + `requirements:`
+│                                        #   rows carrying statement, artifact,
+│                                        #   enforced_by, negative_confirmation,
+│                                        #   red_proven
 └── tasks.md                             # /speckit.tasks output, not this phase
 ```
 
@@ -169,7 +174,7 @@ examples/client-identity-roster/
     └── drift-finding-without-observed-value.yaml
 
 tests/client-identity-roster/test_client_identity_roster.py  # repo-context rules,
-                                                             #   FIVE tmp_path repos
+                                                             #   SIX tmp_path repos
                                                              #   (see Cluster C)
 tests/doc-health/test_client_identity_composition.py
 tests/doc-health/fixtures/client-identity-composition/       # 2+ fixture repos
@@ -187,7 +192,6 @@ scripts/validate-consent-instruments.py                      # + withdrawn, + ca
 scripts/doc_health/families.py                               # import, FAMILIES, docstring
 scripts/doc_health/__init__.py                               # FAMILY_IDS
 tests/conformance-gate/test_conformance_checks.py            # pack grows to four
-tests/doc-health/test_suite.py                               # determinism assertion
 examples/credential-contracts/                               # + 1 positive, + 2 negatives
                                                              #   (unknown token; false value)
 examples/consent-instrument/                                 # + 1 positive, + 2 negatives
@@ -202,6 +206,14 @@ openspec/specs/doc-health/spec.md                    # FR-025; archive rewrites 
 openspec/specs/domain-conformance-checks/spec.md     # same rule, same reason
 openspec/specs/consent-instrument/spec.md            # same rule, same reason
 openspec/changes/add-client-identity-roster/review/* # Status: record, immutable
+tests/doc-health/test_suite.py                       # measured: its determinism
+                                                     #   test is tag-hygiene-specific
+                                                     #   (:15-19) and it carries no
+                                                     #   all-families iteration, so a
+                                                     #   sixteenth family needs no edit
+                                                     #   here — the new family's own
+                                                     #   determinism assertion lives in
+                                                     #   test_client_identity_composition.py
 xFactories/**                                        # FR-030, SC-012
 ```
 
@@ -236,12 +248,18 @@ gap FR-021 assumes away".)
 identifier: `{blast_radius_units: {<token>: <provider identifier>}, duties:
 {<token>: <provider identifier>}}`. A YAML mapping makes "declared twice"
 unrepresentable at the schema level for the same key; the DUPLICATE case
-FR-034 requires as a finding is a token appearing in BOTH maps, or a legend
-entry whose key is never used — both checked in the validator, both with
-their own negatives.
+FR-034 requires as a finding is therefore a token appearing in BOTH maps.
+FR-034's two legend findings — a token used with no legend entry, and a token
+declared twice — are the WHOLE legend rule set, each with its own negative
+(`legend-token-missing.yaml`, `legend-token-declared-twice.yaml`). **A legend
+entry that no entry uses is NOT a finding in this release**: no requirement
+makes it one, it fires on a conformant fragment whose entry is `retired` or
+`planned`, and inventing it would add a rule with no negative confirmation
+(FR-016) on the permissive axis ratified answer 3 protects.
 
 Each entry carries the ratified field list of FR-001, unreduced, plus nothing
-except the legend's consequences:
+except the two consequences of ruling R7 that FR-001 records — the fragment's
+legend, and the entry's optional `duty_separation_rationale`:
 
 | Field | Shape |
 |---|---|
@@ -249,26 +267,34 @@ except the legend's consequences:
 | `identity_kind` | closed enum, ONE member (research.md Decision 1) |
 | `home_tenant` | string — the tenant the REGISTRATION is homed in |
 | `principal_locations[]` | array of tenant identifiers |
-| `residency_model` | closed enum: client-tenant-single, vendor-tenant-multi |
-| `admission_surface` | closed enum: `business_central`, `exchange` |
+| `residency_model` | closed enum: `client_tenant_single`, `vendor_tenant_multi` |
+| `admission_surface` | closed enum: `business_central`, `exchange`; each MEMBER's `description` names the admission act and the scoping mechanism that make it a surface (below) |
 | `duty`, `blast_radius_unit` | pattern `^[a-z0-9][a-z0-9_-]*$`, legend-bound |
+| `duty_separation_rationale` | OPTIONAL string — the declaration FR-038's alias rule reads (below) |
 | `authority_class_intended` / `_achieved` | closed enum `observe\|mutate` |
-| `granted_permissions[]` | provider-native strings, `minItems: 1` |
+| `granted_permissions[]` | `minItems: 1`; each member an OBJECT — `id` (the provider-native identifier, verbatim), `achieves` (`observe\|mutate`), `reaches[]` (admission-surface members) — see below |
 | `admission[]` | LIST, `minItems: 1` — see below |
 | `declared_excess` | optional object: `spanned_surfaces[]`, `provider_reason`, `bound_mechanism`, `gate_obligation`, `enforcement_test_ref` |
-| `per_unit_principal_available` | boolean, per surface |
+| `per_unit_principal_available` | MAPPING `admission_surface` member → boolean, covering the entry's surface and every `spanned_surfaces[]` member (FR-008 is per-surface) |
 | `lifecycle_state` | closed enum `planned\|enrolled\|retired` |
-| `standing_credential_attestation` | object: the claim plus its evidence pointer |
+| `standing_credential_attestation` | object: `no_standing_credential` (boolean claim), the approved grant-window reference, and the evidence pointer — see below |
 | `ratified_by` | domain-qualified capability id |
 | `consent_ref` | instrument citation |
 
 `admission[]` members: `surface`, `act`, `achieved_scope` (provider-native),
-`enforcement_mode` (closed: provider-enforced, logic-enforced), `evidence_ref`,
-`verified_at`. `evidence_ref` is a DECLARED POINTER — `{repo, path, sha?}`
-(FR-037) — and an act with no `evidence_ref` is `verified: false` by
-derivation, never by independent assertion, so an unverified act cannot claim
-verification. Effective reach is the union of verified acts, computed, never
-declared.
+`enforcement_mode` (closed: `provider_enforced`, `logic_enforced`),
+`evidence_ref`, `verified_at`. `evidence_ref` is a DECLARED POINTER —
+`{repo, path, sha?}` (FR-037) — and an act with no `evidence_ref` is
+`verified: false` by derivation, never by independent assertion, so an
+unverified act cannot claim verification. Effective reach is the union of
+verified acts, computed, never declared.
+
+**Member spellings are snake_case everywhere** — `client_tenant_single`,
+`vendor_tenant_multi`, `provider_enforced`, `logic_enforced`, alongside
+`business_central`, `entra_app_registration`, `planned|enrolled|retired`. The
+hyphenated English forms used in prose here, in spec.md and in the ratified
+delta ("a client-tenant-single model", "provider-enforced") name the same
+members and are prose, never a second token spelling.
 
 `vendor_tenant_multi` obligations (tenant allow-list enforced at token
 validation, per-client authorization state, per-client revocation evidence,
@@ -276,6 +302,66 @@ the cross-client credential-span statement, the per-client consent amendment)
 are required by an `if/then` on `residency_model` — expressible in schema and
 therefore expressed there, so the obligation cannot be lost in a validator
 refactor.
+
+**Each `admission_surface` member DEFINES itself by its act** (FR-007's second
+clause, and packet task 2.2 verbatim: "Each entry names its admission act and
+scoping mechanism"). The member `description` carries both — for
+`business_central`, BOTH acts of the worked case (the per-environment
+application user, scoped by environment; the admin-center Entra-app
+authorization, which has no scope selector); for `exchange`, its own act and
+scoping mechanism. This is what makes the axis falsifiable: a member is a
+surface because an act exists separately, not because a product is named.
+research.md Decision 8's standing rule applies to these descriptions as it does
+to packaged examples — a surface description may not assert a provider fact the
+builder cannot cite, and an uncitable `exchange` act or mechanism ESCALATES by
+the route ruling A-16 defines rather than being invented. The
+`authority_class` member descriptions likewise name FR-005's conformant
+expression (destructive capability rides the `mutate` entry's achieved class
+and gate obligation), so the Cluster B refusal can cite the route and not only
+the closed set.
+
+**`granted_permissions[]` members are OBJECTS, because two ratified rules read
+them.** FR-004 requires `authority_class_achieved` to be CHECKABLE against the
+granted permissions and FR-009 requires undeclared reach to name "the surface
+and the permission that reaches it" — neither is decidable from an opaque
+provider string without a provider catalogue (forbidden: network-free) or an
+invented inference about provider naming. spec.md's Assumptions block already
+fixes the answer: "the mapping from a permission identifier to an achieved
+authority class is DECLARED IN THE RECORD and checked for internal consistency,
+not resolved against any provider catalogue." So each member carries:
+
+- `id` — the provider-native identifier VERBATIM (`API.ReadWrite.All`), which is
+  the fidelity ruling R7 protects;
+- `achieves` — `observe` or `mutate`, the class that permission confers;
+- `reaches[]` — the admission-surface members that permission reaches.
+
+FR-004 then reads: `authority_class_achieved` equals the MAXIMUM declared
+`achieves` (`mutate` dominates `observe`), and any other value is the
+contradiction 4.4's negative encodes. FR-009 reads: every `reaches[]` member is
+either the entry's own `admission_surface` or a declared
+`declared_excess.spanned_surfaces[]` member, and anything else is undeclared
+reach — reported naming both the surface and the `id` that reaches it, which is
+the delta's own wording. Both are record-internal and deterministic. The alias
+rule's "same `granted_permissions[]` SET" (FR-038) compares normalized member
+tuples `(id, achieves, sorted(reaches))`.
+
+**`duty_separation_rationale`** is an OPTIONAL entry string, and it exists
+because FR-038's alias rule reads it: the third predicate is "declares no
+duty-separation rationale", and a genuine duty pair may qualify EITHER by
+differing in granted permissions OR by declaring the rationale (FR-017,
+SC-002). It is the second addition ruling R7 makes to the ratified field list,
+for the same reason as the legend — the ruling's rule cannot be evaluated
+without it.
+
+**`standing_credential_attestation` is checkable only as a record-internal
+contradiction.** The validator is network-free and single-repo and observes no
+credential store, so the object carries the claim (`no_standing_credential`),
+the approved grant-window reference the claim is made against, and the evidence
+pointer; FR-013's "a credential held outside an approved grant window makes the
+attestation false" is raised when the record contradicts itself — a claim of
+none against a declared held credential, or against an expired or absent window
+reference. No grant record, credential store or provider is consulted, which is
+FR-029's boundary and is what 4.1's negative encodes.
 
 **Kind 2 — `xfactory_client_identity_drift_finding`**: `schema_version`,
 `kind`, `identity_ref` (the five-element tuple OBJECT from `$defs.identity_key`
@@ -357,10 +443,25 @@ code, and a negative whose code fires without the pinned detail (FR-018).
 
 1. **Whole-repo kind sweep** (FR-036): `rglob` every `*.y*ml`, skipping
    `.git`, `node_modules`, `__pycache__`, `.venv`, and — when the target IS
-   this checkout — `examples/client-identity-roster/`. Any file carrying
+   this checkout — THIS FEATURE'S OWN FIXTURE CORPORA:
+   `examples/client-identity-roster/` AND `tests/`. Any file carrying
    `kind: xfactory_client_identity_roster` outside
    `credentials/client-identity-roster/` is `misplaced-roster-instance`,
    naming the offending path AND the declared placement.
+
+   **Both exclusions are self-scan accommodations, and `tests/` is not
+   optional.** Cluster G's fixture repos put REAL roster fragments at
+   `tests/doc-health/fixtures/client-identity-composition/<repo>/credentials/client-identity-roster/*.yaml`
+   — a legal placement inside each FIXTURE repo, and not the openxFactory
+   checkout's own `credentials/client-identity-roster/`. Without the `tests/`
+   exclusion, pointing the validator at this checkout reports every one of
+   them as misplaced, which would break this cluster's own verification and
+   task 6.7's. The tree already holds the rule and enforces it for the sibling
+   scanner: `tests/doc-health/test_suite.py:23-27` asserts "fixture corpora
+   must never enter a real scan". Neither exclusion narrows FR-036 or ruling
+   R1 over a TARGET DOMAIN repo, which carries no such trees; when a fixture
+   repo is itself the target (6.7), its fragments sit at ITS declared
+   placement and are validated normally.
 2. **Declared-placement validation**: every fragment at
    `credentials/client-identity-roster/*.y*ml` is schema-validated and
    rule-checked; the run prints a count of records checked.
@@ -368,8 +469,34 @@ code, and a negative whose code fires without the pinned detail (FR-018).
 Rules split by what they can see (research.md Decision 7). Record-internal
 rules run in both layers. Repo-context rules run only in layer 2:
 gate-obligation RESOLUTION against the target's `workflows/<name>.yaml`
-gates (FR-011 — the intra-repo target FR-037 leaves unchanged), and the
-absence notice.
+gates (FR-011 — the intra-repo target FR-037 leaves unchanged); **`consent_ref`
+RESOLUTION** against the target repo's own consent-instrument records (FR-014's
+second clause, which presence-checking alone does not satisfy — a citation that
+resolves to nothing is the failure mode the change's central claim depends on
+catching); and the absence notice.
+
+`consent_ref` resolution is intra-repo BY THE SAME ARGUMENT as the gate
+obligation: a domain's consent instruments live in the domain repo (the BC
+chain's own `tenants/farheap-bc-administration-consent.yaml`), so nothing
+crosses a repository boundary and hermeticity is untouched — the opposite
+posture from `evidence_ref` (FR-037), which points into ANOTHER repo and is
+therefore shape-checked only.
+
+**The mechanism, named** (the consent family declares no placement, so the
+rule cannot cite a path the way FR-011 cites `workflows/`): sweep the target
+repo for `kind: xfactory_consent_instrument`
+(`contracts/schemas/consent-instrument.schema.yaml:62`) under the same
+`SKIP_DIR_NAMES` the sweep already uses — the mechanism
+`validate-consent-instruments.py`'s own `repo_scan` uses — and match
+`consent_ref` against each record's `instrument_id` (`:63`). "In force" is
+read from that record's `status`: `executed` or `amended`, never `draft`,
+`pending_signatures`, `terminated` or `withdrawn` (a plan-phase reading,
+listed for architect review below).
+
+`ratified_by` is NOT resolved in this release: the ratified resolution clause
+attaches to the instrument citation alone, and the delta's capability scenario
+is an absence test ("names no ratified capability"). The check is presence plus
+domain-qualification, and repo fixture 2 proves the GATE EXIT on absence.
 
 **Absence** (FR-022, FR-032, SC-013): a target with no
 `credentials/client-identity-roster/` directory, or with the directory and no
@@ -413,10 +540,13 @@ any broader form.
     defect A-11 fixes.
 - **Repo-shaped fixtures** (`tests/client-identity-roster/`): built in
   `tmp_path` from inline templates, the idiom
-  `tests/conformance-gate/test_conformance_checks.py` already uses. FIVE
-  repos:
+  `tests/conformance-gate/test_conformance_checks.py` already uses (`make_repo`,
+  `STACK`/`FLOW_MD`/`FLOW_YAML`). SIX repos:
   1. conformant (exit 0);
-  2. nonconformant `mutate`-without-ratified-capability (nonzero);
+  2. nonconformant `mutate`-without-ratified-capability (nonzero) — the
+     delta's own gate-exit scenario. Its packaged sibling
+     `negative/mutate-without-ratified-capability.yaml` proves the FINDING
+     record-internally; this repo proves the EXIT, which a packaged file cannot;
   3. no-fragment (exit 0 + explicit notice);
   4. **unresolvable gate obligation** (ruling A-11): a fragment at the
      declared placement whose entry's `declared_excess.gate_obligation` names
@@ -427,12 +557,19 @@ any broader form.
      obligation that DOES resolve — is fixture 1, so the pair is a
      discrimination and not a bare refusal;
   5. misplacement: the roster kind at `tenants/stray.yaml`, the measurement
-     SC-005 demands ("placed outside `credentials/` entirely").
+     SC-005 demands ("placed outside `credentials/` entirely");
+  6. **unresolvable consent citation**: an entry whose `consent_ref` names an
+     instrument absent from that repo's consent records — while the repo
+     carries at least one real instrument, so the finding proves
+     non-resolution and not an empty tree. Exits nonzero with FR-014's own
+     code; its discrimination partner is fixture 1, whose citation resolves to
+     an instrument in force.
 
   (Ruling A-11 calls the gate-obligation repo "a FOURTH repo-shaped fixture",
   counting the three behavioural repos the first plan enumerated; the stray
-  repo, which that plan carried as a separate clause, makes five in total. No
-  fixture is dropped.)
+  repo, which that plan carried as a separate clause, made five. The analyze
+  pass adds the sixth, because FR-014's resolution clause had no probe in any
+  corpus. No fixture is dropped.)
 
 **FR-016 per-rule negative coverage, re-counted after both A-11 additions.**
 FR-016 names SIXTEEN rules as its minimum. All sixteen have a home:
@@ -447,7 +584,7 @@ FR-016 names SIXTEEN rules as its minimum. All sixteen have a home:
 | 6 | a missing enforcement test | `negative/missing-enforcement-test.yaml` |
 | 7 | provider-enforced claim with no per-unit principal | `negative/provider-enforced-without-per-unit-principal.yaml` |
 | 8 | vendor-homed registration declared client-resident | `negative/vendor-homed-declared-client-resident.yaml` |
-| 9 | `mutate` entry with no ratified capability | `negative/mutate-without-ratified-capability.yaml` (packaged) + repo fixture 2 (gate exit) |
+| 9 | `mutate` entry with no ratified capability | `negative/mutate-without-ratified-capability.yaml` (packaged — the finding) + repo fixture 2 (the gate exit) |
 | 10 | false standing-credential attestation | `negative/false-standing-credential-attestation.yaml` |
 | 11 | a proposed destructive class | `negative/destructive-authority-class.yaml` |
 | 12 | out-of-vocabulary admission surface | `negative/admission-surface-out-of-vocabulary.yaml` |
@@ -467,9 +604,15 @@ not enumerate: FR-004 (`achieved-class-contradicted-by-permissions.yaml`,
 name-understates-achieved-authority, FR-008's available-but-unused per-unit
 principal, FR-012's vendor-tenant-multi missing obligations, SC-014's four
 remaining closed-vocabulary refusals and its two legend negatives, FR-037's
-`evidence_ref` shape, and FR-035's two drift-record negatives. Total negative
-confirmations across all corpora: 27 packaged + 2 repo-shaped + 1 doc-health
-= **30**.
+`evidence_ref` shape, and FR-035's two drift-record negatives.
+
+Two counts, because they measure different things: **30 rule-homes** (27
+packaged + the 2 FR-016 rules with no packaged home + 1 in the doc-health
+corpus) and **32 refusing probes** — the repo corpus carries FOUR refusing
+fixtures (2, 4, 5, 6) where only two of them are the rule-homes counted above:
+fixture 2 additionally proves named rule 9's GATE EXIT, which its packaged
+sibling cannot, and fixture 6 homes FR-014's resolution clause, which is not in
+FR-016's named list and which no packaged file can express.
 
 ### Cluster D — packaged examples
 
@@ -484,10 +627,25 @@ The BC worked case is transcribed from
 admission acts (the provider-enforced Sandbox1 application user; the
 tenant-wide admin-center Entra-app authorization with no scope selector), the
 union effective reach, the declared excess with its provider reason, gate
-obligation and enforcement test. `evidence_ref` pointers name
-`opensoft/OpsxFactory` and the real `tenants/farheap-bc-sandbox1-verify-probe-evidence-v*.yaml`
-paths, which are on `origin/main` (verified) — and remain unresolved by the
-validator (FR-037).
+obligation and enforcement test.
+
+**Two acts, ONE surface — and that is ratified, not a judgement call.** The
+roster delta's scenario "One product name has two admission acts → each act is
+its own admission surface" does NOT split Business Central here: packet task
+2.2 binds both acts to the single `business_central` member verbatim ("BC: the
+per-environment application user AND the admin-center Entra-app authorization,
+which is the two-act worked case"), and answer 5 closes the vocabulary at two
+members. The measured reason the acts are not INDEPENDENT admission acts in the
+delta's sense is the investigation itself: four admin-consented permissions
+held for six days still returned `401` until the admin-center act, so neither
+act admits on its own — they are jointly required keys to one surface. The
+delta's scenario governs acts that admit independently, in separate
+administrative surfaces. Authoring the worked case as two entries on two
+surfaces would be unrepresentable (FR-007) and would break SC-003.
+
+`evidence_ref` pointers name `opensoft/OpsxFactory` and the real
+`tenants/farheap-bc-sandbox1-verify-probe-evidence-v*.yaml` paths, which are on
+`origin/main` (verified) — and remain unresolved by the validator (FR-037).
 
 **PRECONDITION on this cluster (ruling A-16).** The multi-surface reader's
 provider fact is verified BEFORE any Cluster D work begins, not discovered
@@ -780,7 +938,8 @@ resolves to a specific, runnable list — and to one honest gap.
 1. `python3 scripts/validate-client-identity-roster.py <fixture repo>` — clean
    on the conformant fixture, nonzero on each negative repo.
 2. Every repo-local validator the change touches, per the four rows above.
-3. `pytest tests/conformance-gate tests/doc-health tests/credential_contracts`.
+3. `pytest tests/conformance-gate tests/doc-health tests/credential_contracts
+   tests/client-identity-roster`.
 4. `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster --strict`
    and `--all --strict` (58/58 at `4de5bb2`; must not regress).
 5. `python3 scripts/validate-manifest-digests.py` — every row's `sha256`
@@ -813,9 +972,11 @@ resolves to a specific, runnable list — and to one honest gap.
   cross-domain fixtures would only ever have been read by the doc-health
   family. Running the intra-repo validator over them is what proves the shared
   identity is intra-repo CONFORMANT and that the finding is genuinely
-  composition-only, not a nonconformance visible from either side. This is a
-  test in `tests/doc-health/test_client_identity_composition.py` or its roster
-  sibling, not a manual step.
+  composition-only, not a nonconformance visible from either side. It is a
+  test in `tests/doc-health/test_client_identity_composition.py` — named, not
+  left as a choice, so the assertion cannot land in two modules or in neither;
+  the roster-side module was the rejected alternative, because the fixture
+  repos this test reads live beside the doc-health module.
 - **SC-011 (determinism)** — the family run twice over one fixture context
   with `__dict__`-equal sorted findings, the pattern of
   `tests/doc-health/test_suite.py:15-19`; plus the suite-wide hermeticity
@@ -889,9 +1050,13 @@ is a ruling rather than an open choice and is encoded in Cluster A above.
     with no home in any corpus, the single BROKEN verdict of the plan gate.
     The FR-016 coverage table in Cluster C is the re-count that closes it —
     16 named rules, 16 homed.
-12. **The repo scan excludes this checkout's own
-    `examples/client-identity-roster/`**, or pointing the validator at
-    openxFactory reports its own corpus as misplaced.
+12. **The repo scan excludes this checkout's own fixture corpora —
+    `examples/client-identity-roster/` AND `tests/` —** or pointing the
+    validator at openxFactory reports its own packaged corpus and Cluster G's
+    fixture repos as misplaced. The `tests/` half was missed by the pre-analyze
+    plan and is the analyze pass's one HIGH finding; `test_suite.py:23-27`
+    ("fixture corpora must never enter a real scan") is the tree's own
+    statement of the rule.
 13. **`credential-contracts` gets a FIRST manifest row**, not a refresh — it
     has none today, which FR-021's wording assumes it does.
 14. **The `Unreleased` CHANGELOG block folds into the v1.32 entry** rather
@@ -906,6 +1071,49 @@ is a ruling rather than an open choice and is encoded in Cluster A above.
 17. **The drift record's `identity_ref` is an OBJECT** while the entry's
     `identity_ref` is a STRING — both names are ratified (FR-001, FR-035); the
     divergence is documented in the schema rather than renamed away.
+
+Three further choices are added by the analyze pass, in the same reviewable
+class — each closes a ratified clause that had no encoding, and none extends
+scope:
+
+18. **"In force" (FR-014) = `executed` or `amended`** — the consent family's own
+    lifecycle states past signature and short of ending, never `draft`,
+    `pending_signatures`, `terminated` or `withdrawn`. The alternative (accept
+    any instrument that exists) would satisfy the word "resolve" while dropping
+    "in force" entirely.
+19. **`consent_ref` resolves INTRA-REPO**, against the target domain
+    repository, which is what makes FR-014's resolution clause implementable at
+    all inside a network-free single-repo validator — and the opposite posture
+    from `evidence_ref` (FR-037), deliberately, because that pointer names
+    another repo. **`ratified_by` is NOT resolved**: the ratified clause
+    attaches resolution to the instrument citation alone and the capability
+    scenario is an absence test, so extending resolution to it would invent a
+    requirement (the analyze pass proposed it in round 2 and reverted it in
+    round 3).
+20. **`duty_separation_rationale` is an optional entry field** (ruling R7's
+    alias predicate needs a declaration to read), and
+    **`standing_credential_attestation` is falsified record-internally**
+    (`no_standing_credential` against a declared held credential or an
+    expired/absent window reference), never by consulting a credential store.
+21. **`granted_permissions[]` members are objects** — `id` (provider-native,
+    verbatim), `achieves`, `reaches[]` — because FR-004's "checkable against"
+    and FR-009's "naming the surface and the permission that reaches it" are
+    otherwise decidable only by a provider catalogue (forbidden) or an invented
+    inference from identifier spelling. spec.md's Assumptions block already
+    says the mapping is declared in the record; this is that declaration's
+    shape.
+22. **`per_unit_principal_available` is a mapping keyed by admission surface**,
+    not a bare boolean — FR-008 is per-surface, and the mandated multi-surface
+    reader is exactly the entry one boolean cannot describe.
+23. **FR-010's name check reads `identity_ref`** (the ratified record has no
+    `purpose` field), fires in ONE direction only — an observation-suggesting
+    token in the name while `authority_class_achieved` is `mutate` — against a
+    small CLOSED token list declared in the validator module
+    (`observer`, `observe`, `reader`, `read`, `readonly`, `viewer`, `audit`),
+    matched case-insensitively on word boundaries and NAMING the token it
+    matched. And **`consent_ref` resolves by kind sweep** for
+    `xfactory_consent_instrument`, matching `instrument_id`, reading `status`
+    for "in force".
 
 ## Contradictions found between spec.md, the rulings, and the amended packet
 

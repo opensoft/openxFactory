@@ -140,6 +140,23 @@ tenant — and TWO admission acts over it:
 2. the admin-center Entra-app authorization with no scope selector
    (tenant-wide).
 
+**Both acts belong to ONE admission surface, and the packet says so.** The
+roster delta's scenario "One product name has two admission acts → each act is
+its own admission surface" is not a licence to split Business Central into two
+surfaces: packet task 2.2 binds both acts to the single `business_central`
+member verbatim ("BC: the per-environment application user AND the admin-center
+Entra-app authorization, which is the two-act worked case"), and ratified
+answer 5 closes the first-release vocabulary at two members, so a split is
+unrepresentable. The measured reason the two are not INDEPENDENT admission acts
+in the delta's sense is the investigation that motivated this change: four
+admin-consented permissions held for six days still returned `401` until the
+admin-center act landed, so neither act admits alone — they are jointly
+required keys to one surface. The delta's scenario governs acts that admit
+independently, through separate administrative surfaces. Recorded here because
+an implementer authoring the packaged case would otherwise have to resolve the
+apparent conflict alone, and either split (unrepresentable, breaking SC-003) or
+quietly drop the second act (the exact fiction FR-003 exists to refuse).
+
 The BC application user is **admission, not identity**. This is settled by the
 spec itself, which places both acts inside one entry's `admission[]` list
 (FR-019 "a provider-enforced per-environment application user in Sandbox1 …
@@ -357,7 +374,9 @@ That outcome is forbidden three times over:
 
 Declare `issuance_preconditions` on the `xfactory_credential_requirements`
 requirement item as an OBJECT whose PROPERTY NAMES are the closed vocabulary
-and whose values are booleans:
+and whose values are `const: true` (ruling A-3a, argued below — the pre-gate
+draft said `type: boolean` here and the narrowing is the ruling's, not a
+restatement):
 
 ```yaml
 issuance_preconditions:
@@ -773,8 +792,25 @@ roster's rules split into two classes:
   `negative/`) in the self-test layer, in the dialect the tree already uses.
 - **Repo-context rules** — decidable only against a target tree: the
   whole-repo misplacement sweep (FR-036), gate-obligation RESOLUTION against
-  the target's `workflows/` records (FR-011), and the absence notice
-  (FR-022). Proven by repo-shaped fixtures built in `tmp_path`, which is the
+  the target's `workflows/` records (FR-011), **`consent_ref` RESOLUTION
+  against the target repo's own consent-instrument records (FR-014's second
+  clause) — by kind sweep for `xfactory_consent_instrument`
+  (`consent-instrument.schema.yaml:62`) matched on `instrument_id` (`:63`),
+  the mechanism `validate-consent-instruments.py`'s `repo_scan` already uses,
+  because that family declares no domain placement to cite the way FR-011
+  cites `workflows/`** — and the absence notice (FR-022). The consent citation resolves
+  intra-repo by the same argument as the gate obligation — a domain's consent
+  instruments live in the domain repo
+  (`OpsxFactory:tenants/farheap-bc-administration-consent.yaml` is the worked
+  example) — which is the opposite posture from `evidence_ref` (FR-037), a
+  pointer into ANOTHER repo that this validator may only shape-check. Presence
+  alone does not satisfy FR-014: a citation resolving to nothing is the failure
+  the change's central claim (consent, not our own ratification, authorizes
+  standing) depends on catching. `ratified_by` is NOT resolved — the ratified
+  clause attaches resolution to the instrument citation alone and the delta's
+  capability scenario is an absence test, so the capability check stays
+  presence plus domain-qualification.
+  Proven by repo-shaped fixtures built in `tmp_path`, which is the
   idiom the conformance pack already uses
   (`tests/conformance-gate/test_conformance_checks.py` builds fixture domain
   repos from inline templates).
@@ -787,12 +823,21 @@ among the corpus's negatives; the plan satisfies it as a repo-shaped fixture
 and says so, rather than fabricating a packaged file that cannot mean what it
 claims.
 
-Corollary the sweep needs: the repo-scan layer must EXCLUDE
-`<openxFactory>/examples/client-identity-roster/` when the target repo is the
-openxFactory checkout itself, exactly as
-`validate-consent-instruments.py:699` excludes `EXAMPLES_DIR` from its
-`repo_scan`. Otherwise pointing the validator at its own repo reports its own
-packaged corpus as misplaced.
+Corollary the sweep needs: the repo-scan layer must EXCLUDE this feature's own
+fixture corpora when the target repo is the openxFactory checkout itself —
+`<openxFactory>/examples/client-identity-roster/` AND `<openxFactory>/tests/`
+— the first exactly as `validate-consent-instruments.py:699` excludes
+`EXAMPLES_DIR` from its `repo_scan`, the second because Decision 6's family
+fixtures put REAL roster fragments at
+`tests/doc-health/fixtures/client-identity-composition/<repo>/credentials/client-identity-roster/*.yaml`.
+Those are at each FIXTURE repo's declared placement and are validated normally
+when a fixture repo is the target (the A-N4 run), but they are NOT at the
+openxFactory checkout's own `credentials/client-identity-roster/`, so without
+the `tests/` exclusion a self-scan reports every one as misplaced. The tree
+states the rule for its sibling scanner and tests it:
+`tests/doc-health/test_suite.py:23-27`, "fixture corpora must never enter a
+real scan". Neither exclusion narrows FR-036 or ruling R1 over a TARGET DOMAIN
+repo, which carries no such trees.
 
 **The same forcing argument applies to FR-011's gate-obligation negative, and
 the pre-gate draft missed it (ruling A-11, the plan gate's one BROKEN
@@ -927,8 +972,12 @@ finding.
 ### Examples layout
 
 `examples/<family>/` with `negative/` and a `README.md` carrying a `Status:`
-header — the shape of `examples/consent-instrument/` and
-`examples/credential-contracts/`. Positives are
+header — the shape of `examples/consent-instrument/` (measured: README with
+`Status: draft`, five positives, a `negative/` directory). The sibling
+`examples/credential-contracts/` carries the positives and the `negative/`
+directory but NO README at all, so the README half of the convention rests on
+the consent family and on the 006 header precedent cited below, not on both
+siblings. Positives are
 `<family>-<tag>.example.yaml` directly in the family directory; negatives are
 `<violation-description>.yaml` under `negative/`, with no `.example` infix,
 one violation per file, each opening with the tree's comment dialect:
@@ -1025,7 +1074,10 @@ checks their shape only (FR-037).
 
 `granted_permissions[]` for the worked case, verbatim from that record:
 `API.ReadWrite.All`, `Automation.ReadWrite.All`, `AdminCenter.ReadWrite.All`,
-`app_access` — permissions that achieve MUTATION on an identity named
+`app_access` — each transcribed as the `id` of a `granted_permissions[]` member
+whose `achieves` and `reaches[]` the record declares (plan.md Cluster A: the
+neutral layer never infers a class from an identifier's spelling), permissions
+that achieve MUTATION on an identity named
 `opsx-farheap-bc-observer`, which is the name/purpose mismatch acceptance
 scenario 4 exists for, and which the packaged example expresses through
 `declared_excess` rather than by renaming anything in a domain repo.

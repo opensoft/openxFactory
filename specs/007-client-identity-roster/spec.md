@@ -23,9 +23,13 @@ history: nothing here may contradict them. The packet was AMENDED 2026-08-14
 (Decisions A and B, `review/amendment-record-2026-08-14.md`), adding two
 MODIFIED capability deltas the ratified proposal had not declared. ARCHIVE
 BLOCKERS are therefore the contract records, the consent-instrument cascade
-(task 3.2), the doc-health sixteenth family (task 3.4), pack enrollment
-(task 3.1, Decision A), and the neutral refusal fixture (task 3.3,
-Decision B); only section 4 — the domain fragments — is exempt.
+(OpenSpec task 3.2), the doc-health sixteenth family (OpenSpec task 3.4), pack
+enrollment (OpenSpec task 3.1, Decision A), and the neutral refusal fixture
+(OpenSpec task 3.3, Decision B); only section 4 — the domain fragments — is
+exempt. Every "OpenSpec task N" citation in this specification is a task number
+in the GOVERNING CHANGE's `tasks.md` (the governed sketch, and the numbering
+ruling C2 uses); it has no relation to this feature's Speckit task ids, where
+3.1–3.6 are the packaged-example tasks.
 
 **Capabilities realized**: `client-identity-roster` (ADDED, thirteen
 requirements), `consent-instrument` (MODIFIED — termination cascade reaches
@@ -532,9 +536,12 @@ remove an identity, permission, or admission.
   `standing_credential_attestation`, `ratified_by` (domain-qualified), and
   `consent_ref`. The fragment MUST additionally carry the free-token LEGEND
   required by FR-034, binding each `blast_radius_unit` and `duty` token used in
-  that fragment to its provider-native identifier. The field list above is the
-  ratified one (OpenSpec task 2.1) and MUST NOT be reduced; the legend is the
-  only addition the 2026-08-14 rulings make to it.
+  that fragment to its provider-native identifier, and each entry MAY carry the
+  OPTIONAL `duty_separation_rationale` required by FR-038's alias rule. The
+  field list above is the ratified one (OpenSpec task 2.1) and MUST NOT be
+  reduced; the legend and the duty-separation rationale are the only additions
+  the 2026-08-14 rulings make to it, and each exists because a ruling's rule
+  cannot be evaluated without it (R7 for both).
 - **FR-002**: `admission` MUST be a LIST whose members each declare the
   surface, the act performed in that surface's own administrative console, the
   scope that act achieves, whether the resulting bound is provider-enforced or
@@ -547,7 +554,12 @@ remove an identity, permission, or admission.
 - **FR-004**: `granted_permissions[]` in provider-native identifiers MUST be
   required on every entry, and `authority_class_achieved` MUST be checkable
   against it — the record MUST NOT be able to assert an achieved class its
-  permissions contradict.
+  permissions contradict. Checkability MUST be RECORD-INTERNAL: each member
+  carries the provider-native identifier verbatim PLUS the class it confers and
+  the admission surfaces it reaches, because a network-free validator cannot
+  resolve an opaque identifier against a provider catalogue and MUST NOT infer
+  provider semantics from an identifier's spelling. This is the Assumptions
+  block's "the mapping … is declared in the record", given a shape.
 - **FR-005**: The authority-class enumeration MUST be CLOSED to `observe` and
   `mutate`. A destructive class MUST be unrepresentable. A destructive-capable
   identity is admissible only where the provider demonstrably offers a
@@ -566,8 +578,10 @@ remove an identity, permission, or admission.
   value MUST be refused, naming the extension route: a surface enters with the
   promotion of the capability that governs it, and non-Entra providers are a
   named successor routed by `client-infrastructure-liaison`.
-- **FR-008**: Each entry MUST declare, per admission surface, whether a
-  principal scoped to the governed blast-radius unit is available. A bound MAY
+- **FR-008**: Each entry MUST declare, per admission surface — as a MAPPING
+  keyed by admission-surface member, not a single boolean, because a
+  provider-forced multi-surface identity needs one answer per surface —
+  whether a principal scoped to the governed blast-radius unit is available. A bound MAY
   be recorded as logic-enforced only where no such principal exists, with the
   provider reason recorded. A bound recorded as provider-enforced where no such
   principal exists MUST be a finding, and an available per-unit principal left
@@ -583,8 +597,13 @@ remove an identity, permission, or admission.
 - **FR-010**: Where achieved authority exceeds intended authority, the entry
   MUST declare the excess with the reason no narrower permission exists, the
   bounding mechanism, the gate obligation, and the enforcement-test reference;
-  and an entry's name or stated purpose MUST NOT describe a narrower authority
-  than it achieves.
+  and an entry's name MUST NOT describe a narrower authority than it achieves.
+  The ratified field list carries no `purpose` field, so the name check reads
+  `identity_ref` and fires in ONE direction only — an observation-suggesting
+  token in the name while `authority_class_achieved` is `mutate` — against a
+  small closed token list declared in the validator and naming the token it
+  matched, so the rule stays deterministic and inspectable rather than
+  becoming an open-ended reading of prose.
 - **FR-011**: Every gate obligation MUST resolve to an existing gate in the
   owning domain's governed workflow records and MUST name a test proving
   refusal of a target outside the governed blast-radius unit. An unresolvable
@@ -611,6 +630,23 @@ remove an identity, permission, or admission.
   resolving to an instrument in force. An entry citing a capability and no
   instrument MUST be invalid. A `mutate` entry naming no ratified capability
   MUST fail the owning domain's gate rather than emit a report-only finding.
+  The INSTRUMENT citation MUST actually resolve — presence of a citation is not
+  resolution — and that resolution MUST be INTRA-REPO, against the TARGET domain
+  repository's own consent-instrument records, which makes it a repo-context
+  rule of the same class as FR-011's gate obligation and explicitly NOT a
+  cross-repository read of the kind FR-037 forbids. "In force" MUST be read
+  against the consent family's own closed lifecycle: an instrument that is
+  `executed` or `amended`, never one that is `draft`, `pending_signatures`,
+  `terminated`, or `withdrawn`. Because the consent family declares no domain
+  placement, resolution MUST use the mechanism its own validator uses — a kind
+  sweep for `xfactory_consent_instrument` over the target repo, matching the
+  citation against each record's `instrument_id`. The CAPABILITY citation MUST
+  be present and
+  domain-qualified; this release does NOT additionally resolve it against the
+  target repository's promoted capability set, because the ratified resolution
+  clause attaches to the instrument citation alone and the ratified scenario for
+  the capability is an absence test ("names no ratified capability"). That
+  omission is a recorded reading, not an oversight.
 
 **The canonical validator and its corpus**
 
@@ -701,7 +737,12 @@ remove an identity, permission, or admission.
 - **FR-023**: Cross-domain composition MUST land as a sixteenth deterministic
   doc-health family with family id `client-identity-composition`, implemented
   in `scripts/doc_health/client_identity_composition.py` and registered in the
-  family registry with a resolution class, that assembles per-client fragments
+  family registry (`FAMILIES`, and `FAMILY_IDS` so it renders a report section)
+  with EACH FINDING carrying its own resolution class — the family MUST NOT
+  take a blanket `FAMILY_RESOLUTION` entry, because that registry assigns one
+  class per family and this requirement's contested rule below needs mixed
+  classes; per-finding classification is the precedent of the three other late
+  families. It assembles per-client fragments
   published by pinned domain repositories and reports ONLY shared identity
   material and undeclared cross-domain reach. The id and module name MUST NOT
   collide with `scripts/doc_health/shared_identity.py`, which belongs to the
@@ -807,11 +848,17 @@ remove an identity, permission, or admission.
 - **FR-034**: Vocabulary closedness. The following MUST be CLOSED neutral
   enumerations, each enumerated explicitly in the schema: `admission_surface`
   (`business_central`, `exchange`), authority class (`observe`, `mutate`),
-  `residency_model` (client-tenant-single and vendor-tenant-multi, the two
-  models the ratified delta governs), `enforcement_mode` (its two members —
-  provider-enforced and logic-enforced — named explicitly rather than left to a
-  free string), `lifecycle_state` (`planned`, `enrolled`, `retired`), and
-  `identity_kind`. `identity_kind`'s members MUST be taken VERBATIM from the
+  `residency_model` (`client_tenant_single`, `vendor_tenant_multi` — the two
+  models the ratified delta governs, whose prose names there are
+  client-tenant-single and vendor-tenant-multi), `enforcement_mode`
+  (`provider_enforced`, `logic_enforced` — its two members named explicitly
+  rather than left to a free string), `lifecycle_state` (`planned`, `enrolled`,
+  `retired`), and `identity_kind`. Members are spelled snake_case, the dialect
+  every other member in this feature uses (`business_central`,
+  `entra_app_registration`); the hyphenated English forms that appear in prose
+  here and in the ratified delta name the same members and are deliberate
+  prose, never a second token spelling. `identity_kind`'s members MUST be taken
+  VERBATIM from the
   ratified delta or OpenSpec task 2.1 where those enumerate them; they do NOT
   (task 2.1 names the field only), so its members MUST be exactly the kinds the
   four mandated example cases require, closed at that set for this release, and
@@ -867,8 +914,11 @@ remove an identity, permission, or admission.
   free token (`blast_radius_unit` or `duty`) AND are observationally identical
   — the same `granted_permissions[]` set and the same admission acts by
   (surface, act, `achieved_scope`, `enforcement_mode`) — AND declare no
-  duty-separation rationale. Entries differing in `achieved_scope`, in granted
-  permissions, or declaring the rationale MUST validate clean. The fixture
+  duty-separation rationale. The rationale MUST be a declarable field:
+  `duty_separation_rationale`, an OPTIONAL entry property (FR-001), because a
+  predicate over a declaration nothing can declare is unevaluable. Entries
+  differing in `achieved_scope`, in granted permissions, or declaring the
+  rationale MUST validate clean. The fixture
   obligation is threefold and inseparable: a genuine per-unit pair and a
   genuine duty pair each passing with ZERO findings, alongside one alias-pair
   negative that is refused. A rule that fires on either genuine pair has
