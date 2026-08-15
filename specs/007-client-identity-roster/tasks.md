@@ -22,6 +22,15 @@ files no concurrent task touches and whose dependencies have landed. `[Story]`
 maps the task to spec.md's user stories (US1–US6); tasks serving the whole
 feature carry no story label.
 
+**Status markers.** `[ ]` not started; `[x]` done AND its verification has
+actually run; `[~]` **the work is AUTHORED and its own inline checks pass, but
+the verification this task names lives in a later phase** (see "Verification
+timing" below) — so it is not yet `[x]`, and it is not `[ ]` either, because
+claiming it unstarted would send a later reader to rewrite finished work. A
+`[~]` task is closed out by the phase that supplies its verification. `[~]` is
+also used for a task RELOCATED elsewhere, which says so in its body and names
+the task that now owns the work.
+
 Every task below names its TARGET FILES and its VERIFICATION — the validator,
 suite, or command whose result proves the task done. A task with no runnable
 verification is not done, it is asserted.
@@ -173,7 +182,7 @@ Phases 5–8; see the Phase 0 checkpoint).
 *Target file (all of Phase 1)*:
 `contracts/schemas/xfactory-client-identity-roster.schema.yaml`.
 
-- [ ] 1.1 [US1] Schema skeleton: Draft 2020-12 with `$schema` and `$id`,
+- [x] 1.1 [US1] Schema skeleton: Draft 2020-12 with `$schema` and `$id`,
       `contract_schema_version: 1`, a top-level `oneOf` over the two kinds,
       `additionalProperties: false` on EVERY object at every depth. **Both
       kinds declare `schema_version: const: 1`** (ruling A-2) so the single
@@ -181,7 +190,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: `python3 -c "import yaml,jsonschema;
       jsonschema.Draft202012Validator.check_schema(yaml.safe_load(open(...)))"`
       passes; a grep confirms no object lacks `additionalProperties: false`.
-- [ ] 1.2 [US1] The six CLOSED vocabularies as `$defs`, each enumerated
+- [~] 1.2 [US1] The six CLOSED vocabularies as `$defs`, each enumerated
       explicitly and each carrying a `description` naming its extension route
       (FR-007, FR-031, FR-034). **Each `admission_surface` MEMBER's description
       additionally names the admission act and the scoping mechanism that make
@@ -207,7 +216,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       negatives of 4.2 plus `destructive-authority-class.yaml` in 4.1 (the
       authority-class set's refusal, which sits in 4.1 because FR-016 names
       it), six in total — each refused (SC-014).
-- [ ] 1.3 [US1] `$defs.identity_key` — the five-element uniqueness tuple,
+- [~] 1.3 [US1] `$defs.identity_key` — the five-element uniqueness tuple,
       **element 3 = `authority_class_intended`** (ruling R-N1), defined ONCE
       and referenced by both the uniqueness rule and the drift record. The
       `description` states the choice and its reason: a key must be declarative
@@ -217,7 +226,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 2.4's uniqueness rule reads element 3 from
       `authority_class_intended`; 4.1's `full-tuple-duplicate.yaml` is refused
       naming all five elements (FR-006).
-- [ ] 1.4 [US1] Kind 1 `xfactory_client_identity_roster` top level:
+- [~] 1.4 [US1] Kind 1 `xfactory_client_identity_roster` top level:
       `schema_version`, `kind`, `client_ref`, **`client_tenant`**, `domain`,
       `legend`, `entries[]`
       (`minItems: 1`). **`client_tenant` (gate ruling G2)** is a REQUIRED
@@ -237,7 +246,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       no requirement makes it one and it would fire on a conformant `retired`
       or `planned` entry's fragment.
       *Verification*: 3.2/3.5 fragments validate; 4.2's legend negatives refused.
-- [ ] 1.5 [US1] The entry object — the FR-001 field list UNREDUCED:
+- [~] 1.5 [US1] The entry object — the FR-001 field list UNREDUCED:
       `identity_ref` (string), `identity_kind`, `home_tenant`,
       `principal_locations[]`, `residency_model`, `admission_surface`, `duty`,
       `blast_radius_unit`, `authority_class_intended`,
@@ -271,7 +280,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       `tests/client-identity-roster/test_client_identity_roster.py` compares the
       entry's declared properties against FR-001's list — so a later refactor
       cannot quietly drop `granted_permissions[]` or `admission[]` (SC-004).
-- [ ] 1.6 [US1] `admission[]` — `type: array, minItems: 1` (**not 2**; a
+- [~] 1.6 [US1] `admission[]` — `type: array, minItems: 1` (**not 2**; a
       one-member array is a legal single-act expression, ruling A-N3), whose
       members carry `surface`, `act`, `achieved_scope` (provider-native),
       `enforcement_mode`, `evidence_ref`, `verified_at`, and
@@ -298,7 +307,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 4.1's `unverified-act-counted-as-access.yaml`,
       `scope-exceeds-unit-undeclared.yaml` and `evidence-ref-malformed.yaml`
       refused; 3.2's two-act case validates with the excess declared.
-- [ ] 1.7 [US1] `declared_excess` (optional object: `spanned_surfaces[]`,
+- [~] 1.7 [US1] `declared_excess` (optional object: `spanned_surfaces[]`,
       `provider_reason`, `bound_mechanism`, `gate_obligation`,
       `enforcement_test_ref`), `per_unit_principal_available` (the per-surface
       MAPPING declared at 1.5 — admission-surface member → boolean, never a
@@ -316,7 +325,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       `provider-enforced-without-per-unit-principal.yaml`,
       `per-unit-principal-available-but-logical.yaml`,
       `false-standing-credential-attestation.yaml` each refused for its own code.
-- [ ] 1.8 [US1] The `vendor_tenant_multi` obligations as an `if/then` on
+- [~] 1.8 [US1] The `vendor_tenant_multi` obligations as an `if/then` on
       `residency_model` IN THE SCHEMA (not only in the validator), so a
       validator refactor cannot lose them: tenant allow-list enforced at token
       validation, per-client authorization state, per-client revocation
@@ -326,7 +335,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 4.1's `vendor-tenant-multi-missing-obligations.yaml`
       refused; a grep asserting no `authority_class` appears inside any
       residency branch (constraint 1's mechanized form).
-- [ ] 1.9 [US6] Kind 2 `xfactory_client_identity_drift_finding`:
+- [~] 1.9 [US6] Kind 2 `xfactory_client_identity_drift_finding`:
       `schema_version`, `kind`, `identity_ref` (the `$defs.identity_key`
       OBJECT — deliberately a different shape from the entry's STRING
       `identity_ref`, FR-035, documented in the description), `fragment_ref`,
@@ -344,7 +353,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       findings register, because none exists; (d) that recording a finding
       mutates nothing (FR-027).
       *Verification*: 3.6's example validates; 4.3's two negatives refused.
-- [ ] 1.10 [US2] Declare the PLACEMENT in the schema description:
+- [~] 1.10 [US2] Declare the PLACEMENT in the schema description:
       `credentials/client-identity-roster/<client_ref>.yaml`, one file per
       (client, domain), and note that
       `scripts/validate-credential-contracts.py`'s skip-with-notice over that
@@ -355,6 +364,26 @@ Phases 5–8; see the Phase 0 checkpoint).
 
 **Checkpoint**: the schema validates as a schema and both kinds are
 expressible → Phases 2, 3, 6 may begin.
+
+**REACHED 2026-08-15.** `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
+passes `Draft202012Validator.check_schema`; 19 `$defs`; 11 objects closed with
+`additionalProperties: false`, the 3 MAP-shaped properties closed via
+`propertyNames` (the only closure a map admits), 0 objects left open, and the
+ROOT closed with `unevaluatedProperties: false` — the Draft 2020-12 form that
+accounts for the matched `oneOf` branch, since a root `additionalProperties:
+false` beside a branching `oneOf` refuses every instance. **30/30 expressibility
+probes behaved as expected**: both kinds validate; all SEVEN closed sets refuse
+an out-of-vocabulary value; the `evidence_ref`/`verified_at` pair refuses a
+claimed-but-unevidenced verification while leaving the unverified state
+representable; a one-member `admission[]` validates (A-N3); `vendor_tenant_multi`
+refuses without its five obligations and passes with them; a `disposed` drift
+finding refuses without `disposition_ref` and an `open` one passes without it;
+and the multi-surface spanned-surfaces shape 4.9 needs validates.
+Constraint 1 is mechanized and green: no `authority_class` appears anywhere
+inside the residency `if/then` branch. Tasks 1.2–1.10 are `[~]` rather than
+`[x]` because each names a verification that lives in Phase 3 or 4 (a
+registered negative, a packaged fragment, or 4.5's assertion module); the WORK
+is authored and its inline checks pass.
 
 ---
 
