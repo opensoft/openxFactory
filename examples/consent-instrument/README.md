@@ -27,6 +27,10 @@ consent-instrument/
 │                                                      #   derivation basis (the Medx pattern, R10)
 ├── consent-instrument-terminated.example.yaml         # terminated: amendment-as-transition history (D7)
 │                                                      #   + cascade_evidence on every dependent ref (R8)
+├── consent-instrument-withdrawn.example.yaml          # WITHDRAWN: the second terminal state, with a
+│                                                      #   governed_identity dependent carrying complete
+│                                                      #   cascade evidence — credential, identity removal
+│                                                      #   AND admission withdrawal (R8)
 ├── consent-instrument-class-registry.example.yaml     # domain-owned CLOSED class registry (D2): evidence
 │                                                      #   kinds, signature_phase declarations, the
 │                                                      #   active -> executed status alias
@@ -38,14 +42,18 @@ consent-instrument/
     │                                                  #     signature_phase-true class (R4/D3)
     ├── class-without-evidence-kind.yaml               #   registry class omits execution_evidence_kind (R3)
     ├── amendment-as-child-instrument.yaml             #   parent_ref record → schema-rejected (R6/D7)
-    └── purpose-unresolvable.yaml                      #   scope purpose absent from the purpose model (R7)
+    ├── purpose-unresolvable.yaml                      #   scope purpose absent from the purpose model (R7)
+    ├── identity-cascade-incomplete-on-terminated.yaml #   governed_identity with CREDENTIAL-ONLY evidence
+    │                                                  #     on a terminated instrument (R8)
+    └── identity-cascade-incomplete-on-withdrawn.yaml  #   the same half-cascade on withdrawn — the pair is
+                                                       #     what proves both events raise the obligation
 ```
 
 ## Schema → example map
 
 | Schema | Valid example(s) | Negative example(s) |
 | --- | --- | --- |
-| `consent-instrument.schema.yaml` | `consent-instrument-engagement-letter`, `consent-instrument-portal-acceptance`, `consent-instrument-terminated` | `embedded-original-content`, `undeclared-lifecycle-skip`, `amendment-as-child-instrument`, `purpose-unresolvable` |
+| `consent-instrument.schema.yaml` | `consent-instrument-engagement-letter`, `consent-instrument-portal-acceptance`, `consent-instrument-terminated`, `consent-instrument-withdrawn` | `embedded-original-content`, `undeclared-lifecycle-skip`, `amendment-as-child-instrument`, `purpose-unresolvable`, `identity-cascade-incomplete-on-terminated`, `identity-cascade-incomplete-on-withdrawn` |
 | `consent-instrument-class-registry.schema.yaml` | `consent-instrument-class-registry.example` | `class-without-evidence-kind` |
 | `consent-purpose-model.schema.yaml` | `consent-purpose-model.example` | (model rules — dangling `resolves_to`, duplicate purposes — are validator findings; no packaged negative) |
 
@@ -64,6 +72,16 @@ consent-instrument/
   child and is schema-rejected (spec R6, D7).
 - **Termination raises the whole chain** — every dependent reference on the
   terminated example carries `cascade_evidence` (spec R8, D5).
+- **Withdrawal is its own terminal state, never an alias** — the withdrawn
+  example carries `status: withdrawn`, not `terminated`; the two are distinct
+  events that both raise the cascade obligation, which is why the enum grew by
+  a member rather than by an alias (add-client-identity-roster).
+- **A governed identity's cascade needs both keys** — a standing identity in
+  the consenting party's tenant is held by the identity AND its admission act,
+  so its cascade is complete only when both are evidenced; the two
+  `identity-cascade-incomplete` negatives are the same credential-only
+  half-cascade on each terminal event, and the finding lands against the
+  INSTRUMENT rather than the identity.
 - **The Medx derivation is the reference** — the portal-acceptance example
   maps `data_consent` to a consent profile AND declares that profile as a
   dependent reference with its derivation basis; the engagement letter

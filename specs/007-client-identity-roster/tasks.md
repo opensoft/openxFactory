@@ -1335,7 +1335,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
 
 **Depends on**: 0.2. **Parallel with**: Phases 5, 6, 7. **Blocks**: Phase 9.
 
-- [ ] 8.1 [US4] Grow the closed status enum by `withdrawn` at EVERY normative
+- [x] 8.1 [US4] Grow the closed status enum by `withdrawn` at EVERY normative
       declaration together (FR-039): `consent-instrument.schema.yaml:194` (the
       record's `status`) AND `:209` (the `status_history[].status`, a second
       declaration in the same file), and
@@ -1357,7 +1357,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       *Verification*: 8.6's regression; `withdrawn` is a DISTINCT member, never
       aliased onto `terminated`; a grep for "five-state" across the schemas and
       `scripts/` returns nothing.
-- [ ] 8.2 [US4] `scripts/validate-consent-instruments.py`: `NEUTRAL_STATUSES`
+- [x] 8.2 [US4] `scripts/validate-consent-instruments.py`: `NEUTRAL_STATUSES`
       (`:129-130`) + `withdrawn` — the alias-target check adjudicates against
       this tuple, so omitting it would let a domain alias onto a status the
       schema accepts and the validator rejects; and `PAST_SIGNATURE_STATUSES`
@@ -1370,7 +1370,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       `alias-remaps-neutral-status` (`:348`), and 0.2 is what proves the
       narrowing fires nowhere.
       *Verification*: 8.6; the existing registries keep their verdicts.
-- [ ] 8.3 [US4] `consent-instrument.schema.yaml` dependent-ref growth:
+- [x] 8.3 [US4] `consent-instrument.schema.yaml` dependent-ref growth:
       `dependent_refs[].kind` enum (`:244`) + **`governed_identity`** as a
       NAMED member, never the `other` escape (FR-026); TWO new OPTIONAL sibling
       properties `identity_removal_evidence` and `admission_withdrawal_evidence`
@@ -1383,7 +1383,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       reason — these validators are network-free and read one repository.
       *Verification*: 8.5's positive declares a complete `ref`; a source-level
       check confirms no read of the fragment path.
-- [ ] 8.4 [US4] `check_termination_cascade` (`:494-505`): the gate widens from
+- [x] 8.4 [US4] `check_termination_cascade` (`:494-505`): the gate widens from
       `status != "terminated"` to `status not in ("terminated", "withdrawn")`.
       **State this as what it is — the REACH of
       `termination-without-cascade-evidence` widens to `withdrawn`
@@ -1397,7 +1397,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       terminated).
       *Verification*: 8.5's two negatives prove the obligation fires
       IDENTICALLY on both events.
-- [ ] 8.5 [US4] Fixtures in `examples/consent-instrument/`: ONE positive (a
+- [x] 8.5 [US4] Fixtures in `examples/consent-instrument/`: ONE positive (a
       `withdrawn` instrument with a `governed_identity` dependent carrying
       complete cascade evidence) and TWO negatives registered in
       `EXPECTED_NEGATIVE_FINDINGS` — credential-only evidence on `terminated`,
@@ -1408,7 +1408,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       this validator is standalone and reads one repo.
       *Verification*: `python3 scripts/validate-consent-instruments.py`
       self-test; SC-007.
-- [ ] 8.6 [US4] The FR-030 regression for this family: the FIVE pre-existing
+- [x] 8.6 [US4] The FR-030 regression for this family: the FIVE pre-existing
       positives and FIVE pre-existing negatives keep their VERDICTS and their
       FINDING CODES with the corpus grown — not merely that the run exits 0.
       This validator's self-test IS the suite; there is no `tests/` directory
