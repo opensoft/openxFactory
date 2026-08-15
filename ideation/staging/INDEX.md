@@ -1190,8 +1190,13 @@ repo scope.
   demote, never re-blanking them; and the template reuses the ratified
   `xspec:candidate`/`xspec:supersedes` marker grammar for
   machine-addressability rather than inventing a second mechanism.
-- Files:
-  - [staged-topic-outline-template.md](staged-topic-outline-template/staged-topic-outline-template.md)
+- Files: **MOVED OUT OF STAGING 2026-08-15.** The topic exited via
+  `add-staged-topic-outline-template`, so `scripts/proposal-support.py`
+  transitioned its material into that change's `supporting-docs/` — status
+  `staged` → `draft`, with a per-file sha256 manifest and a byte-exact
+  `source-snapshots/` copy. The staging folder is now empty by design; this row
+  stays as the topic's index entry and its exit record.
+  - [staged-topic-outline-template.md](../../openspec/changes/add-staged-topic-outline-template/supporting-docs/staged-topic-outline-template.md)
     — primary: 7 claims, the full draft template skeleton (fenced,
     copy-pasteable, marker comments included), 3 idea notes, 3 conflicts,
     5 open questions each with Context/Recommended answer/Explanation/

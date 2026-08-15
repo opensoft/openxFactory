@@ -484,9 +484,33 @@ def verify_active_support(directory: Path) -> list[str]:
                     f"{entry.get('source_path', '')}")
         if path.suffix.lower() == ".md":
             text = path.read_text(encoding="utf-8")
-            if re.search(r"^Status:\s*staged\s*$", text, re.M):
+            if _declares_staged_status(text):
                 errors.append(f"staged status under active proposal: {path}")
     return errors
+
+
+def _declares_staged_status(text: str) -> bool:
+    """Whether the document's OWN header still says `staged`.
+
+    Fence-aware, because a `Status: staged` line inside a ``` block is an
+    EXAMPLE, not this document's status — the first fragment moved by this
+    mover carried a copy-pasteable template skeleton whose example header said
+    exactly that, and a naive multiline regex read the example as the real
+    thing and failed a bundle whose real header the mover had already
+    transitioned to `draft`. `doc_health.families._scan_lines` already tracks
+    fences for the same reason; this mirrors it rather than inventing a second
+    convention.
+    """
+    fenced = False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        if re.fullmatch(r"Status:\s*staged\s*", line):
+            return True
+    return False
 
 
 def deterministic_bundle(support: Path) -> tuple[bytes, list[dict]]:

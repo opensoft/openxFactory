@@ -140,6 +140,15 @@ def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                 "active proposal support lacks a valid manifest.yaml",
                 "create the proposal supporting-document manifest"))
         for path in sorted(support.rglob("*.md")):
+            # `source-snapshots/` holds BYTE-EXACT copies of the staged files as
+            # they were at the move, and the manifest proves that with a
+            # per-file sha256. Their `Status: staged` is therefore CORRECT — it
+            # is what the source said — and the usual remedy ("change proposed
+            # prose to draft") would falsify the snapshot and break the very
+            # checksum it exists to support. Proposal prose beside them is still
+            # checked; only the immutable record is exempt.
+            if "source-snapshots" in path.relative_to(support).parts:
+                continue
             if corpus.parse_status(path.read_text(errors="replace")) == "staged":
                 findings.append(Finding(
                     ERROR, "location-conformance", repo,
