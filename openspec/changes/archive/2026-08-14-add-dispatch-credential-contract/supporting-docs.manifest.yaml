@@ -1,0 +1,21 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "e11bdd312fc6384b4b912f576ec36b2524c54fef13271431d3b004e0bebcf5e5"
+  },
+  "change_id": "add-dispatch-credential-contract",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "3be08608b8f4048fec02fcb78cc807f354ae3b9c6922c569e389ecdc8d5b1c80"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": null,
+  "origin_path": null,
+  "packaged_at": "2026-08-14",
+  "source_revision": "e4394a067860661269200681381d2c74af665c67",
+  "transitioned_at": "2026-08-14"
+}

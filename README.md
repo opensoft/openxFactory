@@ -276,17 +276,6 @@ Active changes:
   source + rotation proven (§11.4 smokes), and the host is fully
   credential-free (final smoke run 31833019258). Vault deletion is the
   single kill switch; rotation is one vault write.
-- [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
-  — authored 2026-08-13: two neutral `credential-contracts` requirements for the
-  openXdox intent-plane dispatch credential — dispatch-only least privilege with
-  serving-tier separation (the trigger credential must be a distinct binding from
-  the content-write App; the credential-free serving pod must never hold
-  contents-write-capable key material), and reference-delivered credential with
-  operator-as-binding (generalizing the two-case worker-credential principle:
-  vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
-  `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
-  App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
-
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -427,6 +416,29 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-dispatch-credential-contract](openspec/changes/archive/2026-08-14-add-dispatch-credential-contract/proposal.md)
+  Promoted two neutral `credential-contracts` requirements: dispatch-only
+  least privilege with serving-tier separation (a trigger credential must be
+  scoped to exactly its one named target, carry no contents authority, be a
+  DISTINCT binding from any content-write credential, and a zero-write-
+  authority serving surface must never hold — nor hold key material able to
+  mint — a content-write credential), and reference-delivered credential with
+  operator-as-binding (vault reference plus fetch identity, ephemeral
+  materialization, the vault operator a per-install binding rather than a
+  fixed party — generalizing the two-case worker-credential principle to any
+  runtime credential). Ratified `docs/openxdox-naming.md` (`draft ->
+  ratified`). Realized 2026-08-13/14 at `contract-v1.32`: the org-owned
+  **openXdox Intent Dispatch** GitHub App (ID 4582547, installation
+  153530982, `actions:write` + `metadata:read` only, installed on
+  `opensoft/xFactory`) plus a token-minter delivering short-lived
+  installation tokens by reference into the inbox's dispatch secret
+  (Omnigent-Install CronJob, pinned Omnigent-Install@66ca33f); the QA
+  dispatch secret repointed off the personal-PAT stopgap
+  (`dox-intent-inbox-qa-20260810`, retired). Proven end-to-end: an authorized
+  intent dispatched `intent-apply` run #31856312594 (completed/success) on
+  `opensoft/xFactory`, the minted token scoped to `actions:write` on that one
+  repo only (contents 403), with the content App (`XFACTORY_APP`,
+  Contents:write) confirmed a separate binding. Archived 2026-08-14.
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
   readiness, revocation, redacted evidence, and contract interface impacts;

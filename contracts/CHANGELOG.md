@@ -9,22 +9,61 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## Unreleased — pending bundle registration (fold into the next cut)
+## contract-v1.32 — 2026-08-14 (additive; dispatch-credential contract + wallet signature-algorithm widening)
 
-- **Additive**: `openxwallet-record.schema.yaml` `signature_algorithm`
-  enum widened with `rsa-2048-sha256` and `rsa-3072-sha256`
-  (RSASSA-PKCS1-v1_5 over the named SHA-2 digest). Found by the first
-  consumer, the LedgerxFactory posting segregation-of-duties control:
-  its enforcement surface verifies proofs with Business Central's own
-  crypto, and BC 28.3 AL exposes exactly RSA/DSA/RSASSA-PSS — no
-  ed25519, no ECDSA (measured against the 28.3 System Application
-  symbols, enum 1446 SignatureAlgorithm). The curve-only enum therefore
-  admitted no algorithm the platform could verify locally, forcing
-  verification off-platform against the consumer's local-decision rule.
-  Existing records remain conformant; one positive example added
-  (`wallet-agent-rsa-platform-verifiable.example.yaml`, corpus now 17
-  positives); manifest digest for the schema refreshed with the
-  amendment noted in its `consumption_rule`.
+Two independent additive deltas land together at this bundle cut.
+
+**Dispatch-only credential contract** (`add-dispatch-credential-contract`,
+authored 2026-08-13, realized 2026-08-13/14): two ADDED requirements to
+`credential-contracts` — dispatch-only least-privilege and serving-tier
+separation (a trigger-only credential scoped to exactly its one named target,
+carrying no contents authority, a DISTINCT binding from any content-write
+credential, and a zero-write-authority serving surface that MUST NOT hold —
+nor hold key material able to mint — a content-write credential), and
+reference-delivered credential with operator-as-binding (vault reference plus
+fetch identity, ephemeral materialization, the vault operator a per-install
+binding rather than a fixed party, generalizing the two-case
+worker-credential principle to any runtime credential). Ratifies
+`docs/openxdox-naming.md` (`draft -> ratified`). Ships packaged
+dispatch/content example records (`examples/credential-contracts/`) and
+mechanized validator support in `scripts/validate-credential-contracts.py`
+(dispatch-scope ceiling, shared-identity rejection, baked-secret rejection).
+
+Realized downstream: the org-owned **openXdox Intent Dispatch** GitHub App
+(ID 4582547, installation 153530982, `{actions: write, metadata: read}`,
+installed on `opensoft/xFactory`), a token-minter delivering short-lived
+installation tokens by reference into the inbox's env-named dispatch secret
+(Omnigent-Install CronJob, pinned Omnigent-Install@66ca33f; the inbox stays
+stdlib-only), and the QA dispatch secret repointed off the personal-PAT
+stopgap (`dox-intent-inbox-qa-20260810`, retired). Proven end-to-end: an
+authorized intent dispatched `intent-apply` run #31856312594
+(completed/success) on `opensoft/xFactory`, with the minted token scoped to
+`actions:write` on that one repo only (contents 403) and the content App
+(`openxfactory[bot]` / `XFACTORY_APP`, Contents:write) confirmed a separate
+binding.
+
+**openxWallet signature-algorithm widening** (folded in from the prior
+"Unreleased — pending bundle registration" note, this being the next cut):
+`openxwallet-record.schema.yaml` `signature_algorithm` enum widened with
+`rsa-2048-sha256` and `rsa-3072-sha256` (RSASSA-PKCS1-v1_5 over the named
+SHA-2 digest). Found by the first consumer, the LedgerxFactory posting
+segregation-of-duties control: its enforcement surface verifies proofs with
+Business Central's own crypto, and BC 28.3 AL exposes exactly
+RSA/DSA/RSASSA-PSS — no ed25519, no ECDSA (measured against the 28.3 System
+Application symbols, enum 1446 SignatureAlgorithm). The curve-only enum
+therefore admitted no algorithm the platform could verify locally, forcing
+verification off-platform against the consumer's local-decision rule.
+Existing records remain conformant; one positive example added
+(`wallet-agent-rsa-platform-verifiable.example.yaml`, corpus now 17
+positives); the manifest digest for the schema already reflected the
+amendment (noted in its `consumption_rule`, now pointed at this version).
+
+Consumers pin this release. The release digest inventory
+(`contracts/releases/contract-v1.32.digests.yaml`) and the annotated
+`contract-v1.32` tag are cut in a follow-up step once this lands on
+published `origin/main`, per the Bundle Realization Order — the same
+two-step precedent as `contract-v1.31` (content-registration commit here,
+then a later separate "Cut contract-v1.32" commit + tag).
 
 ## contract-v1.31 — 2026-08-07 (additive; the openxWallet core and its first profile)
 

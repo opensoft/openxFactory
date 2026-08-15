@@ -1,0 +1,9 @@
+schema: spec-driven
+created: 2026-08-13
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-13-dispatch-credential-contract
+  reason: >-
+    Authored directly from the fragility of the 2026-08-10 QA openXdox dispatch stopgap (a fine-grained personal access token under an individual's GitHub account, dox-intent-inbox-qa-20260810, never used) once nothing in the contracts said how a dispatch credential must be held; no staging topic preceded it.
+  approved_by: Brett Heap
+  approved_on: 2026-08-13

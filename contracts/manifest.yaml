@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.31
+contract_bundle_version: contract-v1.32
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1792,12 +1792,12 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The wallet record: holder, a key REFERENCE, and a declared custody model. Every object closes additionalProperties so no key-shaped property can be added at any depth.
-      Registered at contract-v1.31; digest refreshed by the unreleased
-      additive signature-algorithm widening (rsa-2048-sha256,
-      rsa-3072-sha256 — measured against BC 28.3 AL by the first
-      consumer; folds into the next bundle cut). Consumed through the
-      pinned openxFactory checkout with per-file sha256 verified before
-      any copy is treated as current.
+      Registered at contract-v1.31; the signature_algorithm enum widened
+      additively at contract-v1.32 (rsa-2048-sha256, rsa-3072-sha256 —
+      measured against BC 28.3 AL by the first consumer, the
+      LedgerxFactory posting segregation-of-duties control). Consumed
+      through the pinned openxFactory checkout with per-file sha256
+      verified before any copy is treated as current.
   - id: openxwallet-custody-registry-schema
     path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
