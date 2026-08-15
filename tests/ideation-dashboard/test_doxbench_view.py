@@ -1100,23 +1100,33 @@ async function guardFocusScenario() {
     loadSource: makeLoadSource(CONTENT, calls), storage: new FakeStorage(), previewDelayMs: 5,
   });
   await controller.ready;
+  // PIN EVOLUTION (PR #196 review F1): the human SELECTS the document before
+  // typing in it, which is what makes it the active buffer -- and it is the
+  // active buffer's editor that focus can legitimately return to, because a
+  // hidden pane holds no real focus. Resolving the guard no longer re-binds,
+  // so the scenario has to establish the binding the way a human does.
+  await controller.selectDocument(DOC_A);
   await controller.edit('document', '# dirty for guard focus\n');
   await controller.selectDocument(DOC_B);
   const focusedOnShow = describeEl(globalThis.document.activeElement);
+  const activeBufferOnShow = controller.activeBuffer();
   await controller.resolveGuard('cancel');
   const focusedAfterCancel = globalThis.document.activeElement === controller.elements().textarea('document');
+  const activeBufferAfterCancel = controller.activeBuffer();
 
   const calls2 = [];
   const controller2 = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
     loadSource: makeLoadSource(CONTENT, calls2), storage: new FakeStorage(), previewDelayMs: 5,
   });
   await controller2.ready;
+  await controller2.selectDocument(DOC_A);
   await controller2.edit('document', '# dirty for guard focus 2\n');
   await controller2.selectDocument(DOC_B);
   await controller2.resolveGuard('discard');
   const focusedAfterDiscard = globalThis.document.activeElement === controller2.elements().textarea('document');
 
-  return { focusedOnShow, focusedAfterCancel, focusedAfterDiscard };
+  return { focusedOnShow, activeBufferOnShow, focusedAfterCancel,
+           activeBufferAfterCancel, focusedAfterDiscard };
 }
 
 // S3: the document picker is the one way a human reaches selectDocument.
@@ -1508,6 +1518,10 @@ function surveyCanvas(root) {
                      selected: n.getAttribute('aria-selected'),
                      tabIndex: n.tabIndex,
                      controls: n.getAttribute('aria-controls') })),
+    tabpanels: nodes.filter((n) => n.getAttribute('role') === 'tabpanel')
+      .map((n) => ({ cls: n.className, id: n.id, tabIndex: n.tabIndex,
+                     labelledBy: n.getAttribute('aria-labelledby'),
+                     hidden: n.hidden === true })),
     saveButtons: nodes.filter((n) => hasClass(n, 'doxbench-save')).length,
     cancelButtons: nodes.filter((n) => hasClass(n, 'doxbench-cancel')).length,
     textareas: nodes.filter((n) => n.tagName === 'TEXTAREA').length,
@@ -1636,6 +1650,118 @@ async function panelCancelScenario() {
   };
 }
 
+// PR #196 review F1: DECLINING a document switch must not move the chat's
+// working context. The human is on the OUTLINE, the document buffer happens to
+// be dirty, they pick a different docs row, the guard opens -- and they say
+// Cancel. Nothing about that sequence is a decision to work on the document,
+// and the binding is PERSISTED, so a wrong one survives the reload too.
+async function guardCancelDoesNotRebindScenario() {
+  const storage = new FakeStorage();
+  const projection = makeProjection();
+  const controller = mountDoxBenchCanvas(new Node('div'), projection, {
+    loadSource: makeLoadSource(CONTENT, []), storage, previewDelayMs: 5,
+  });
+  await controller.ready;
+  controller.setActiveBuffer('outline');           // the human is on the outline
+  await controller.edit('document', '# unsaved document work\n');
+  const before = {
+    active: controller.activeBuffer(),
+    stateActive: controller.state().active_buffer,
+  };
+  const blocked = await controller.selectDocument(DOC_B);   // guard opens
+  const activeWhileGuarded = controller.activeBuffer();
+  const cancelled = await controller.resolveGuard('cancel');
+  const after = {
+    active: controller.activeBuffer(),
+    stateActive: controller.state().active_buffer,
+    documentPath: controller.state().buffers.document.path,
+    documentDirty: controller.state().buffers.document.dirty,
+  };
+  // the PERSISTED record is the half a reload would resurrect
+  const persistedActive = JSON.parse(
+    storage.values.get([...storage.values.keys()].pop())).active_buffer;
+  // …and the DISCARD arm, by contrast, really does switch, so it really does
+  // bind: a switch that happened is a binding that happened.
+  const controller2 = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller2.ready;
+  controller2.setActiveBuffer('outline');
+  await controller2.edit('document', '# unsaved document work\n');
+  await controller2.selectDocument(DOC_B);
+  await controller2.resolveGuard('discard');
+  return {
+    before, blocked, activeWhileGuarded, cancelled, after, persistedActive,
+    afterDiscardArm: {
+      active: controller2.activeBuffer(),
+      path: controller2.state().buffers.document.path,
+    },
+  };
+}
+
+// PR #196 review F6: a document past the hashing bound rejects INSIDE the
+// switch. Every route into selectDocument reaches it through a handler that
+// drops the returned promise, so an uncontained rejection said nothing at all
+// and left the asking control showing a document that never loaded.
+async function oversizedSwitchScenario() {
+  const map = { ...CONTENT, [DOC_B]: 'a'.repeat(400001) };
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(map, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const before = controller.state().buffers.document;
+  let threw = null;
+  let result = null;
+  try {
+    result = await controller.selectDocument(DOC_B);
+  } catch (err) {
+    threw = String(err && err.message);
+  }
+  const after = controller.state().buffers.document;
+  // …and the same failure through the PICKER, whose change handler is exactly
+  // the promise-dropping caller the containment exists for
+  const picker = controller.elements().documentPicker();
+  picker.value = DOC_B;
+  let pickerThrew = null;
+  try { await fireEvent(picker, 'change'); }
+  catch (err) { pickerThrew = String(err && err.message); }
+  return {
+    threw, result, pickerThrew,
+    status: String(controller.elements().status('document').textContent),
+    pickerValue: picker.value,
+    before: { path: before.path, content: before.content },
+    after: { path: after.path, content: after.content, dirty: after.dirty },
+  };
+}
+
+// PR #196 review F7: the remembered caret and scroll belong to the document
+// that LEFT. Carried across a switch they are re-applied to a document that
+// never had them -- an offset with no relationship to the text under it.
+async function switchDropsTheStaleViewScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  controller.setActiveView('editor');
+  controller.setActiveBuffer('document');
+  const area = controller.elements().textarea('document');
+  area.selectionStart = 5; area.selectionEnd = 7; area.scrollTop = 40;
+  area.focus();
+  // leaving CAPTURES the view; this is the entry that must not survive a
+  // whole-buffer replacement
+  controller.setActiveBuffer('outline');
+  const capturedWhileAway = controller.viewState('document');
+  await controller.selectDocument(DOC_B);   // replaces the buffer, and re-binds
+  const after = controller.viewState('document');
+  return {
+    capturedWhileAway,
+    activeAfter: controller.activeBuffer(),
+    after: { selectionStart: after.selectionStart, selectionEnd: after.selectionEnd,
+             scrollTop: after.scrollTop },
+    content: controller.state().buffers.document.content,
+  };
+}
+
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 
 const results = {
@@ -1677,6 +1803,9 @@ const results = {
   viewSwitchFlush: await viewSwitchFlushScenario(),
   selectionDrivesTheActiveBuffer: await selectionDrivesTheActiveBufferScenario(),
   panelCancel: await panelCancelScenario(),
+  guardCancelDoesNotRebind: await guardCancelDoesNotRebindScenario(),
+  oversizedSwitch: await oversizedSwitchScenario(),
+  switchDropsStaleView: await switchDropsTheStaleViewScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -1788,6 +1917,23 @@ def test_the_view_tablist_keeps_the_apg_roving_pattern_it_inherited(editor_resul
         assert all(t["controls"] for t in tabs), survey_key
 
 
+def test_the_view_tabpanels_are_reachable_by_keyboard(editor_results):
+    """PR #196 review F5 (WCAG 2.1.1): `Preview` is where a mount LANDS, and it
+    is a scrollable region whose content — rendered Markdown — contains nothing
+    focusable, so a keyboard-only human could tab to the panel and then be
+    unable to scroll it. The APG's remedy for a tabpanel with no focusable
+    content is a tabbable panel, applied to both panes so the rule survives a
+    change of content."""
+    panels = editor_results["viewTabSurvey"]["atMount"]["tabpanels"]
+    assert len(panels) == 2
+    for panel in panels:
+        assert panel["tabIndex"] == 0, panel["cls"]
+        assert panel["labelledBy"], panel["cls"]
+    # …and exactly one of them is on screen: the panel pair is a view switch,
+    # never a split
+    assert [p["hidden"] for p in panels] == [True, False]
+
+
 def test_switching_into_preview_flushes_the_pending_render(editor_results):
     """add-doxbench-editing-phase-a, "A human types and then switches to
     Preview": the debounce is allowed to leave a pane nobody can see stale, so
@@ -1825,6 +1971,88 @@ def test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs(
     assert result["viewTabRefusal"] is not None
     assert "view tab" in result["viewTabRefusal"]
     assert result["activeAfterRefusal"] == "document"
+
+
+def test_declining_a_document_switch_does_not_move_the_chat_binding(editor_results):
+    """PR #196 review F1 (BLOCKING, regression): the guard's Cancel is the "no,
+    leave it alone" choice. It used to re-bind — the guard's focus return called
+    `setActiveBuffer("document")` — so a human working on the OUTLINE who
+    declined a document switch came back bound to the document, persisted, and
+    every chat turn after that worked on material they never chose. Resolving
+    the guard is a decision about a SWITCH; the binding follows a switch that
+    actually happened, and nothing else."""
+    result = editor_results["guardCancelDoesNotRebind"]
+    assert result["before"] == {"active": "outline", "stateActive": "outline"}
+    assert result["blocked"] == {"status": "blocked", "reason": "dirty_document"}
+    # opening the guard is not a decision either
+    assert result["activeWhileGuarded"] == "outline"
+    assert result["cancelled"]["status"] == "cancelled"
+    assert result["after"]["active"] == "outline"
+    assert result["after"]["stateActive"] == "outline"
+    # the persisted record is what a reload would resurrect
+    assert result["persistedActive"] == "outline"
+    # …and declining changed nothing else either: the document keeps its path
+    # and its unsaved text
+    assert result["after"]["documentPath"] == "ideation/staging/topic-x/detail.md"
+    assert result["after"]["documentDirty"] is True
+    # the contrapositive: the DISCARD arm really switches, so it really binds
+    assert result["afterDiscardArm"] == {
+        "active": "document", "path": "ideation/staging/topic-x/second.md",
+    }
+
+
+def test_a_document_that_cannot_be_loaded_refuses_visibly_instead_of_rejecting(
+    editor_results,
+):
+    """PR #196 review F6: a document past the hashing bound rejects inside
+    `createBufferState`, and every route into `selectDocument` reaches it
+    through a click/change handler that drops the returned promise — so the
+    rejection dead-lettered: nothing stated, and the asking control left
+    showing a document that never loaded. Contained into the same stated
+    refusal every other selection failure speaks, with the buffer untouched
+    (the replacement never ran) and the picker reverted to what is really
+    loaded."""
+    result = editor_results["oversizedSwitch"]
+    assert result["threw"] is None
+    assert result["pickerThrew"] is None
+    assert result["result"]["status"] == "refused"
+    # the message names the byte class, never the document's text
+    assert "400" in result["result"]["reason"] or "bytes" in result["result"]["reason"]
+    assert "refused -- " in result["status"]
+    # the buffer is exactly what it was
+    assert result["after"]["path"] == result["before"]["path"]
+    assert result["after"]["content"] == result["before"]["content"]
+    assert result["after"]["dirty"] is False
+    # …and the picker does not lie about which document is active
+    assert result["pickerValue"] == result["before"]["path"]
+
+
+def test_a_document_switch_drops_the_previous_documents_caret_and_scroll(
+    editor_results,
+):
+    """PR #196 review F7: FR-010 remembers a buffer's caret and scroll so a
+    switch of VIEW or of BUFFER can put the human back where they were. A
+    whole-document replacement is neither: the remembered offsets belong to a
+    document that is no longer there, and re-applying them lands the human at a
+    position with no relationship to the text under it (and, past the new
+    document's end, at a caret the browser silently clamps). The entry is
+    dropped with the buffer it described."""
+    result = editor_results["switchDropsStaleView"]
+    # the view really was captured on the way out — otherwise this proves nothing
+    assert result["capturedWhileAway"]["selectionStart"] == 5
+    assert result["capturedWhileAway"]["selectionEnd"] == 7
+    # …and the new document starts clean
+    assert result["content"] == "# Document B\n"
+    assert result["activeAfter"] == "document"
+    # SCROLL is the half this harness can speak to: hiding a pane drops the
+    # layout box the browser keeps the offset in (the shim models exactly
+    # that), so a non-zero scroll here could only have come from the restore
+    # re-applying an offset that belonged to the document that left.
+    assert result["after"]["scrollTop"] == 0
+    # Selection is DOM state and survives hiding in both the shim and a real
+    # document; a real browser additionally resets it when `.value` is
+    # reassigned, which the shim does not model — so it is deliberately NOT
+    # asserted here rather than asserted against the shim's own behaviour.
 
 
 def test_cancel_reverts_only_the_active_buffer_and_says_which(editor_results):
@@ -2365,13 +2593,14 @@ def test_staging_workbench_composes_the_doxbench_canvas_without_new_transport():
     assert 'mountDoxBenchCanvas(canvas, projection, {' in view
     for forwarded in ('title: scope.title', 'loadSource: doxbench?.loadSource',
                       'hash: doxbench?.hash', 'save: doxbench?.save',
-                      # PIN EVOLUTION (add-doxbench-editing-phase-a): the same
-                      # pure callback, now a NAMED function because a second
-                      # caller needs it -- a context-region selection change
-                      # moves no content identity, so nothing else would have
-                      # refreshed the rail (whose header states the bound
-                      # buffer).
-                      'onIdentitySettled: refreshRailFromCanvas'):
+                      # PIN EVOLUTION (add-doxbench-editing-phase-a, then
+                      # PR #196 review F4): the same pure callback, now a NAMED
+                      # function because more than one caller needs it -- a
+                      # context-region selection change moves no content
+                      # identity, so nothing else would have refreshed the rail
+                      # (whose header states the bound buffer) or put the docs
+                      # wheel back on the document the canvas ended up holding.
+                      'onIdentitySettled: syncContextFromCanvas'):
         assert forwarded in view
     assert 'railController.refreshCurrency(' in view
     # T104 F2: the rail is handed the tile's USABLE documents (the scope
@@ -3288,6 +3517,11 @@ def test_a_capable_local_console_offers_both_editors_and_discard(posture_results
     view = posture_results["capable"]
     assert view["textareas"] >= 1 and view["textareasDisabled"] == 0
     assert view["cancelButtons"] == 1
+    # the guard's own Discard choice is the ONLY surviving "discard" control:
+    # counted separately (PR #196 review test nit — it used to be measured and
+    # never asserted) so a panel control lost to a refactor cannot hide behind
+    # the guard's vocabulary
+    assert view["guardChoices"] == 1
     # Save is PRESENT but honestly inert without a seam (the pinned posture);
     # presence-with-truthful-reason is the local console's shape, absence is
     # the hosted/gate-off shells' shape (pinned below at the shell source).
@@ -4130,3 +4364,255 @@ def test_the_editors_apply_refusals_carry_their_fixed_codes(editor_results):
     assert codes["stale"]["code"] == "stale"
     assert codes["unavailable"]["ok"] is False
     assert codes["unavailable"]["code"] == "unavailable"
+
+
+# ==========================================================================
+# PR #196 review F3 + F4: THE CONTEXT REGION AND THE CANVAS, LIVE.
+#
+# Both findings are about three controls that answer ONE question -- the docs
+# wheel, the canvas's own picker, and the buffer the canvas actually holds --
+# and neither is visible to a source pin:
+#
+#   F3: selecting the document already loaded takes the `unchanged` route, which
+#       still moves the chat's binding. The rail's header states that binding,
+#       and nothing refreshed it, so the rail kept saying "Working on --
+#       outline" beside a chat now working on the document. (The reviewer also
+#       found the header had NO test at all; it does now.)
+#   F4: a selection the guard BLOCKS leaves the wheel showing a document the
+#       canvas never loaded. The picker has always reverted itself; the wheel
+#       had no reconciliation and `doc-wheel.js`'s `selectPath` -- written for
+#       exactly this -- had zero callers.
+#
+# So this mounts the REAL shell and drives it the way an operator does. The
+# wheel's own selection is read through `pane.__docWheel.focused()`, the handle
+# the pane already keeps for teardown -- no test-only DOM was added to observe
+# it. Its LAYOUT is inert here (no measurable box in the shim, so `layout()`
+# returns before it paints), which is exactly why selection is read from the
+# controller rather than from `aria-selected`.
+# ==========================================================================
+
+_SELECTION_HARNESS = _EDITOR_DOM_SHIM + r"""
+import { createRequire } from 'node:module';
+
+globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.min.js');
+globalThis.window = { location: { href: 'http://localhost/' } };
+
+const { mountStagingWorkbench } = await import('./staging-workbench.js');
+
+const OUTLINE_PATH = 'ideation/staging/topic-x/topic-x.md';
+const DOC_A = 'ideation/staging/topic-x/detail.md';
+const DOC_B = 'ideation/staging/topic-x/second.md';
+
+const snapshot = {
+  repository: 'fixture-repo',
+  generation: { source_revision: '1'.repeat(40) },
+  documents: [OUTLINE_PATH, DOC_A, DOC_B].map((p) => ({
+    id: p, path: p, topics: ['alpha'],
+    destinations: { staged_topics: ['topic-x'] } })),
+  clusters: [], possibles: [],
+  staged_topics: [{ staging_id: 'topic-x', files: [OUTLINE_PATH, DOC_A, DOC_B] }],
+};
+
+const caps = { actions: { gate: true, session: true }, actor: 'brett' };
+
+function fire(node, type) {
+  const listeners = (node.listeners && node.listeners[type]) || [];
+  return Promise.all(listeners.map((fn) => fn({ target: node })));
+}
+// A real keydown: the wheel reads `ev.key` and consumes the event, so a bare
+// {target} would sail straight past its handler.
+function fireKey(node, key) {
+  const listeners = (node.listeners && node.listeners.keydown) || [];
+  return Promise.all(listeners.map(
+    (fn) => fn({ target: node, key, preventDefault() {} })));
+}
+const settle = () => new Promise((r) => setTimeout(r, 0));
+async function until(predicate, label) {
+  for (let i = 0; i < 400; i += 1) {
+    if (predicate()) return;
+    await settle();
+  }
+  throw new Error('timed out waiting for ' + label);
+}
+class FakeStorage {
+  constructor() { this.values = new Map(); }
+  getItem(k) { return this.values.has(k) ? this.values.get(k) : null; }
+  setItem(k, v) { this.values.set(k, String(v)); }
+  removeItem(k) { this.values.delete(k); }
+}
+
+const container = document.createElement('div');
+const doxbench = {
+  loadSource: async (path) => ({ content: '# ' + path + '\n', ref: 'main' }),
+  storage: new FakeStorage(),
+  catalog: async () => ({
+    schema_version: 1, kind: 'workbench-model-catalog',
+    models: [{ model_id: 'model-a', label: 'Approved model', available: true,
+               provider_class: 'on-tenant', input_limit_bytes: 800000,
+               output_limit_bytes: 900000, data_handling: 'tenant boundary' }],
+  }),
+  chatTurn: async () => ({ ok: false, status: 502, payload: {} }),
+};
+
+const workbench = mountStagingWorkbench(container, snapshot, {
+  caps,
+  fetcher: async () => ({ ok: false }),
+  active: { repository: 'fixture-repo', ref: 'main' },
+  index: { entries: [] },
+  doxbench,
+  sourceBase: '/source/',
+  edit: null,
+  onSessionRekey: async () => null,
+  onSessionEnded: async () => null,
+  onScopeOpened: () => null,
+});
+
+workbench.open('staged', 'topic-x');
+
+const byClass = (cls) => container.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const one = (cls) => byClass(cls)[0] || null;
+
+await until(() => byClass('doxbench-textarea').length === 2, 'the canvas');
+await until(() => one('doxchat-header') !== null, 'the chat rail');
+const documentArea = byClass('doxbench-textarea')[1];
+await until(() => documentArea.value.includes(DOC_A), 'the loaded document');
+
+// the wheel's OWN selection, through the handle the pane already keeps
+const wheelPane = container.walk().find((n) => n.__docWheel);
+const wheelPath = () => {
+  const focused = wheelPane.__docWheel.focused();
+  return focused ? focused.path : null;
+};
+const pickerValue = () => (one('doxbench-document-picker') || {}).value || null;
+const headerText = () => String((one('doxchat-header') || {}).textContent || '');
+// the canvas's own answer: the fake source names the path it loaded
+const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || '';
+// The canvas's OWN answer to "which document am I holding", independent of
+// the two controls under test: a switch to DOC_B would have replaced the
+// buffer's text with DOC_B's, taking the human's unsaved bytes with it.
+const agree = () => ({
+  wheel: wheelPath(), picker: pickerValue(),
+  // the canvas's OWN answer, independent of the two controls under test: a
+  // switch that landed would have replaced the buffer's text with DOC_A's,
+  // taking the human's unsaved bytes with it
+  canvasSwitchedToA: canvasDocument().includes(DOC_A),
+});
+
+const out = {};
+// the rail renders once before the canvas's initial load settles, so wait for
+// the header to be reading real buffers rather than pinning the empty frame
+await until(() => headerText().includes(OUTLINE_PATH.split('/').pop()),
+            'the rail header to read the loaded buffers');
+out.headerAtMount = headerText();
+
+// ---- F3: a docs-row selection moves the STATED binding --------------------
+// The mount leaves the OUTLINE active (the canvas opens on it) while the wheel
+// and the canvas both sit on DOC_A, so the header names the outline above. One
+// arrow selects DOC_B: the chat's working context follows the selection, and
+// the header is where that is said.
+const selector = one('swb-docselector');
+await fireKey(selector, 'ArrowDown');
+await until(() => canvasDocument().includes(DOC_B), 'the switched document');
+for (let i = 0; i < 20; i += 1) await settle();
+out.wheelAfterArrow = wheelPath();
+out.headerAfterArrow = headerText();
+
+// ---- F4: a blocked selection must leave all three agreeing ----------------
+// Type into the document so the unsaved-edit guard has something to guard.
+const editorTab = byClass('doxbench-viewtab')[0];
+await fire(editorTab, 'click');
+const liveDocumentArea = byClass('doxbench-textarea')[1];
+liveDocumentArea.value = '# unsaved work in the document\n';
+await fire(liveDocumentArea, 'input');
+await until(() => byClass('doxbench-status').some(
+  (n) => String(n.textContent || '').includes('unsaved')), 'the dirty document');
+
+// now arrow BACK toward DOC_A: the guard blocks the switch
+await fireKey(selector, 'ArrowUp');
+for (let i = 0; i < 30; i += 1) await settle();
+out.guardShown = !(one('doxbench-guard') || { hidden: true }).hidden;
+out.whileBlocked = agree();
+
+// Cancel: declining keeps everything exactly where it was
+const guardCancel = one('doxbench-guard-cancel');
+await fire(guardCancel, 'click');
+for (let i = 0; i < 30; i += 1) await settle();
+out.afterCancel = agree();
+out.guardHiddenAfterCancel = (one('doxbench-guard') || {}).hidden === true;
+out.documentStillDirty = byClass('doxbench-textarea')[1].value.includes('unsaved work');
+
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def selection_results(tmp_path_factory):
+    """A live shell mount for the context-region selection routes (PR #196
+    review F3/F4). Its own process, like every other harness in this file."""
+    if NODE is None:
+        pytest.skip("node not available for the doxBench selection probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-selection")
+    views = tmp_path / "views"
+    shutil.copytree(EDITOR_JS.parent, views)
+    shutil.copytree(EDITOR_JS.parent.parent / "vendor", tmp_path / "vendor")
+    (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    (tmp_path / "vendor" / "package.json").write_text(
+        '{"type": "commonjs"}', encoding="utf-8")
+    harness = views / "selection-harness.mjs"
+    harness.write_text(_SELECTION_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=90)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_rail_states_the_buffer_the_chat_is_working_on(selection_results):
+    """PR #196 review F3, first half: the rail's header states the ACTIVE
+    buffer -- the chat's working context -- and it had no test at all. At mount
+    the outline is active, so that is what it must say."""
+    header = selection_results["headerAtMount"]
+    assert header.startswith("Working on — ")
+    assert "topic-x.md" in header.split("·")[0]
+    # grounding is unchanged and still names BOTH buffers: binding says what
+    # the chat works ON, never what it may see
+    assert "Chatting about — Outline:" in header
+    assert "Document:" in header
+
+
+def test_a_docs_row_selection_moves_the_stated_binding(selection_results):
+    """PR #196 review F3, second half: the mount leaves the OUTLINE active
+    while the wheel and the canvas both sit on the first document, so a docs-row
+    selection is a BINDING change — and the rail's header is where that is
+    said. It went unrefreshed on the routes that move the binding without
+    moving a content identity, so the rail kept naming the outline beside a
+    chat now working on the document.
+
+    (The `unchanged` route — selecting the document the canvas already holds —
+    is the same binding change with no switch at all; it is refreshed by the
+    same call, is pinned as a shell doctrine in test_staging_workbench.py, and
+    its binding half is driven at the controller in
+    `test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs`.)"""
+    assert selection_results["wheelAfterArrow"].endswith("second.md")
+    header = selection_results["headerAfterArrow"]
+    assert header.startswith("Working on — second.md")
+
+
+def test_a_blocked_selection_leaves_wheel_picker_and_canvas_agreeing(
+    selection_results,
+):
+    """PR #196 review F4: three controls answer one question. The canvas picker
+    has always reverted itself when a selection did not land; the docs wheel had
+    no reconciliation at all, so a guard-blocked selection left it showing a
+    document the canvas never loaded -- and `doc-wheel.js`'s `selectPath`, which
+    exists for precisely this, had zero callers. Blocked, and then declined,
+    all three must still name the document that is actually open."""
+    assert selection_results["guardShown"] is True
+    for phase in ("whileBlocked", "afterCancel"):
+        state = selection_results[phase]
+        assert state["wheel"].endswith("second.md"), phase
+        assert state["picker"].endswith("second.md"), phase
+        assert state["canvasSwitchedToA"] is False, phase
+    assert selection_results["guardHiddenAfterCancel"] is True
+    # …and declining threw nothing away
+    assert selection_results["documentStillDirty"] is True

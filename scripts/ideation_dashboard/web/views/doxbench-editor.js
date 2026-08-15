@@ -220,14 +220,18 @@ export const SAVE_UNAVAILABLE_REASON =
 // never contain SAVE_UNAVAILABLE_REASON -- a wired canvas that still carried
 // that sentence would be lying in the opposite direction.
 //
-// The order clause READS THE ENUMERATION rather than naming the two buffers:
-// the note is a NEW panel-level surface, and Phase A's rule is that no new
-// surface bakes "two" or "outline, document" into itself. Today it renders
-// exactly the sentence it always did.
+// The ORDER clause names its authority instead of restating it (PR #196
+// review F8). It used to spell "Outline before Document", first as a literal
+// and then derived from BUFFER_KINDS -- but BUFFER_KINDS is the buffer SET,
+// and the save ORDER is `SAVE_BUFFER_ORDER` in ./doxbench-save.js, which this
+// module deliberately does not import: choosing the order (like choosing the
+// action) is the orchestrator's job, not the canvas's. A sentence that read
+// one authority while claiming the other's fact is exactly the drift Phase A
+// is trying to prevent, so the note stops asserting the order and names who
+// fixes it.
 export const SAVE_WIRED_NOTE =
-  "Save persists only the changed buffers, "
-  + BUFFER_KINDS.map(bufferLabel).join(" before ")
-  + ", through the existing governance actions";
+  "Save persists only the changed buffers, in the deterministic order the save "
+  + "orchestrator fixes, through the existing governance actions";
 
 // Cancel's own fixed sentence. It names the ACT and the SCOPE of the act,
 // because one control that could have reverted any buffer must say which one
@@ -520,6 +524,14 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     viewPane.id = viewPaneId;
     viewPane.setAttribute("role", "tabpanel");
     viewPane.setAttribute("aria-labelledby", viewTabId);
+    // PR #196 review F5 (WCAG 2.1.1): `Preview` is the tab a mount LANDS on,
+    // and it is a scrollable region whose only content is rendered Markdown --
+    // no focusable node inside it at all, so a keyboard-only human could reach
+    // the panel with Tab and then not scroll it. The APG's own remedy for a
+    // tabpanel with no focusable content is to make the panel itself tabbable.
+    // Applied to BOTH panes: `Editor` gains a harmless extra stop before its
+    // textarea, and the rule stays true if a pane's content ever changes.
+    viewPane.tabIndex = 0;
     panes.appendChild(viewPane);
     viewPaneEls[view.key] = viewPane;
   }
@@ -1102,14 +1114,23 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     return activeView;
   }
 
-  // Putting the human back on a buffer's own TEXT: the `Editor` view is
-  // selected first, because focus on a hidden pane is not focus at all in a
-  // real document. Used by the document-switch guard, whose whole argument is
-  // about unsaved bytes -- the answer belongs where those bytes are.
+  // Putting the human back on a buffer's own TEXT after the document-switch
+  // guard closes: the `Editor` view is selected first, because focus on a
+  // hidden pane is not focus at all in a real document -- and for the same
+  // reason the requested buffer is only focused when it IS the buffer on
+  // screen, the active one standing in otherwise.
+  //
+  // WHAT THIS MUST NOT DO IS RE-BIND (PR #196 review F1). It used to call
+  // setActiveBuffer, which made CANCEL -- the "no, leave it alone" choice --
+  // silently move the chat's working context onto the document and PERSIST it:
+  // a human on the outline who declined a document switch came back bound to
+  // the document. Resolving the guard is a decision about a SWITCH, never
+  // about which buffer the chat works on. Where a switch really did happen,
+  // `switchDocument` has already bound to it, so nothing is lost here.
   function focusBufferEditor(kind) {
-    setActiveBuffer(kind);
     setActiveView("editor");
-    textareas[kind].focus();
+    const target = editorVisible(kind) ? kind : activeBuffer;
+    textareas[target].focus();
   }
 
   function showGuard(path) {
@@ -1418,15 +1439,44 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // because the destroy can land during either window.
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     forgetStatedOutcome("document");
-    const descriptor = await loadDescriptor("document", path);
-    const buffer = await createBufferState(
-      { kind: "document", repository: scopeKey().repository, ...descriptor },
-      hashOptions,
-    );
+    // PR #196 review F6: the load is CONTAINED. `createBufferState` genuinely
+    // rejects -- a document past the byte bound raises ContentSizeError, an
+    // undecodable one ContentEncodingError -- and every caller here reaches
+    // this through a click handler that drops the returned promise, so a
+    // rejection dead-lettered as an unhandled rejection: nothing said, and the
+    // control that asked for the switch left showing a document that never
+    // loaded. Contained into the SAME stated refusal every other selection
+    // failure speaks, which is also what lets the context region resync.
+    // Nothing has been replaced at this point, so the buffer is untouched.
+    let buffer;
+    try {
+      const descriptor = await loadDescriptor("document", path);
+      buffer = await createBufferState(
+        { kind: "document", repository: scopeKey().repository, ...descriptor },
+        hashOptions,
+      );
+    } catch (error) {
+      if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
+      // Size and encoding failures speak the state module's own message --
+      // byte counts and classes only, NEVER document text (the non-echoing
+      // rule); anything else gets the fixed generic sentence.
+      return refuseSelection(
+        error instanceof ContentEncodingError || error instanceof ContentSizeError
+          ? error.message
+          : "this document could not be loaded",
+      );
+    }
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     state = replaceBuffer(state, buffer);
     activeDocumentPath = path;
     if (documentPicker) documentPicker.value = path == null ? "" : path;
+    // PR #196 review F7: the remembered caret and scroll belong to the
+    // document that just LEFT. Re-applying them to whatever the next document
+    // happens to be puts the human at an offset with no relationship to the
+    // text under it (and, past the new document's end, at a caret the browser
+    // silently clamps). A whole-buffer replacement has no view to remember, so
+    // the entry is dropped rather than carried across.
+    rememberedView.document = null;
     // Phase A: loading a document IS binding to it. The canvas presents the
     // active buffer and the chat works on it, so a switch that left the outline
     // active would show one thing and edit another.
