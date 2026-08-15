@@ -11,6 +11,33 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
+- **Additive**: `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml`
+  — the neutral `hermes_subject_overlay` kind for a Subject Hermes layer's
+  seedable document (add-subject-overlay-contract, ratified 2026-08-15).
+  Subject identity (`id`, not `ref` — a subject overlay DECLARES an identity
+  that exists in no prior registry), a `policy_namespace`, a declared
+  `relation_to_baseline` (single-value enum `additive_constraints_only`), and
+  a non-empty `policies` mapping keyed by policy id whose entries restate
+  their own `policy_id` and `policy_namespace` and keep an OPEN body — so a
+  named policy is addressable as `<policy_namespace>/<policy_id>` without the
+  neutral contract enumerating policy names, which is exactly what stopped the
+  tenant-layer override contract from carrying one. The kind name is canonical
+  (`subject`) while the runtime layer role key stays the frozen `customer`;
+  the mapping is recorded in the schema header, and neither side is renamed.
+  `scripts/validate-hermes-domain-overlay.py` gains the kind and now dispatches
+  descriptor-declared paths BY KIND instead of skipping everything that was not
+  a domain overlay, retaining the skip-with-notice for kinds owned by another
+  canonical validator (`hermes_client_overlay` →
+  `scripts/validate-client-content.py`); it adds address self-consistency and
+  uniqueness, the prohibited-block list, and cross-document identity
+  conformance against the domain's own `subject_hermes_template` (absent
+  template = skip with notice, no new refusal class). One positive example and
+  eleven negatives ship with it (eight document-shaped, three repo-shaped).
+  Additive only: no released file's bytes change, so existing pins — including
+  hermes-install's `contract-v1.18` pinned copies — resolve byte-identically
+  until they choose to re-pin. Manifest entry added; the bundle minor number
+  and annotated tag are allocated LATE at realization per the versioning
+  policy.
 - **Additive**: `openxwallet-record.schema.yaml` `signature_algorithm`
   enum widened with `rsa-2048-sha256` and `rsa-3072-sha256`
   (RSASSA-PKCS1-v1_5 over the named SHA-2 digest). Found by the first

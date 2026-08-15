@@ -840,6 +840,42 @@ contracts:
       declared-location existence is enforced by the canonical validator
       (scripts/validate-hermes-domain-overlay.py) when a repo path is
       supplied, and a consumer never loads an undeclared kind silently.
+  # ---- subject overlay — add-subject-overlay-contract realization ----
+  # The Subject layer's seedable document: the INSTANCE of a subject kind the
+  # domain's own subject_hermes_template declares, carrying policies addressed
+  # as <policy_namespace>/<policy_id>. Neither existing overlay kind could
+  # carry that address — hermes_domain_overlay hard-enums its kind and requires
+  # the domain authority block, and client-policy-overrides enumerates a CLOSED
+  # set of seven policies with no namespace and no named-policy identity.
+  # Instances live ONLY in domain repositories; openxFactory describes the kind
+  # and never hosts one. The bundle tag is allocated LATE at release per
+  # docs/contract-versioning-policy.md and recorded in contracts/CHANGELOG.md.
+  - id: hermes-subject-overlay
+    path: contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 5cd792fba0b39a83bae2937ead705397eef324704bca872dc197a80aa786ca72
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A domain repo ships its subject overlay at the path its
+      hermes/overlay-descriptor.yaml declares under the frozen `customer` role
+      key (canonical layer: `subject`, per
+      contracts/policies/layer-vocabulary.yaml legacy_mapping). Consumers
+      (the hermes-install seeder, DomainxFactory validate chains) verify this
+      per-file sha256 before treating a copy as current. Address
+      self-consistency and uniqueness (every policies key equals its policy_id;
+      every policy namespace equals the subject's), the prohibited-block list
+      (authority_boundaries / approval_scope_kinds / required_approval_fields
+      and any credential value — a subject adds constraints and never grants,
+      widens, or waives), and cross-document identity conformance against the
+      domain's own hermes/subject/template.yaml are enforced by
+      scripts/validate-hermes-domain-overlay.py (canonical), never
+      re-implemented by consumers. Two invariants openxFactory cannot check
+      without a live stack are the consumer's to enforce at seed time:
+      subject.id == the seeded layer_id, and subject.policy_namespace == that
+      layer's policy_namespace.
   # ---- omnigent contract family + layer vocabulary — contract-v1.16 realization (add-omnigent-domain-overlay; adopt-subject-tenant-domain-vocabulary) ----
   # The Omnigent execution layer's domain tier: per-domain overlay payload
   # (five neutral worker archetypes, generalized permission matrix with
