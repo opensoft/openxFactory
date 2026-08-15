@@ -143,6 +143,22 @@ class RealGit:
         out = self._run(repo, "log", "-1", "--format=%cs", "--", relpath)
         return date.fromisoformat(out.strip()) if out and out.strip() else None
 
+    def first_commit_date(self, repo: Path, relpath: str) -> date | None:
+        """When `relpath` first appeared — its staging date, not its last touch.
+
+        The template-conformance family needs this and NOT `last_commit_date`:
+        a topic staged before the template ratified is opt-in, and editing it
+        for an unrelated reason must not silently make it required. Age uses
+        the last touch; obligation uses the first.
+        """
+        out = self._run(repo, "log", "--reverse", "--format=%cs", "--", relpath)
+        if not out:
+            return None
+        for line in out.splitlines():
+            if line.strip():
+                return date.fromisoformat(line.strip())
+        return None
+
     def line_commit_date(self, repo: Path, relpath: str, line: int) -> date | None:
         out = self._run(repo, "blame", "--porcelain",
                         f"-L{line},{line}", "--", relpath)

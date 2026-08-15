@@ -21,14 +21,30 @@ remains is the contract and the surface.
 
 ## 2. Doc-health conformance nudge
 
-- [ ] 2.1 A warning-tier check: a staged topic's primary fragment carries the
+- [x] 2.1 A warning-tier check: a staged topic's primary fragment carries the
       three required sections and every open question carries four sub-fields.
-- [ ] 2.2 REQUIRED for topics staged after ratification, OPT-IN before it. The
+      Landed as doc-health family `staged-topic-template`. `_primary_fragment`
+      mirrors `primaryFragmentPath` in wheel-model.js exactly — exact
+      `<topic>.md` first, else shallowest markdown, path-only and never
+      content-sniffed — so the checker and the wheel can never disagree about
+      which file a topic's outline IS.
+- [x] 2.2 REQUIRED for topics staged after ratification, OPT-IN before it. The
       discriminator is the topic's own staging date, not the file's mtime — an
       opt-in topic that gets touched for an unrelated reason must not silently
       become required.
-- [ ] 2.3 Never gate-blocking (Q2). A finding here is a nudge; assert that in a
+      Needed a new git primitive: `first_commit_date`. The existing
+      `last_commit_date` is the wrong signal by exactly the failure this task
+      names — age uses the last touch, obligation uses the first. An unknown
+      date is treated as opt-in, never required.
+- [x] 2.3 Never gate-blocking (Q2). A finding here is a nudge; assert that in a
       test, because the default instinct on a new family is to fail the gate.
+      Every finding is WARNING even where conformance is REQUIRED — the
+      required/opt-in distinction lives in the rule TEXT, which is what a reader
+      acts on, rather than in a severity that would fail a run under
+      `--fail-on error`. Asserted by
+      `test_non_conformance_is_never_gate_blocking`, and proven on the real
+      corpus: the full doc-health run exits 0 with 29 new warnings and no new
+      errors. Escalating this family needs a new ruling, which the code says.
 
 ## 3. The outline tab
 
