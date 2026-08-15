@@ -1372,3 +1372,7 @@ repo scope.
   carrying one `ideation-dashboard` delta, sequenced so the buffer/turn/save
   N-buffer generalization lands first since every UI-facing claim depends
   on it.
+- Phase A questions (2 Save/Cancel semantics, 4 chat-context binding, 5
+  Editor/Preview default, 6 concurrent-edit/stale-hash safety) dispositioned
+  2026-08-15 (accepted as recommended; (1) and (3) stay open as Phase B) —
+  Phase A proposal drafting next.
