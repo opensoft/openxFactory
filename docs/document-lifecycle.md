@@ -105,8 +105,185 @@ change):
   tooling reports malformed markers, unresolved targets, and structural
   violations as findings.
 - Staged fragments (`ideation/staging/<topic>/`) are queued structurally by
-  their headers (target capability + delta type) and need no inline
-  markers.
+  their headers (target capability + delta type). They need no inline markers
+  to be QUEUED — but a fragment conforming to the outline template below wraps
+  its proposal-element sections in the same ratified `xspec:` grammar, because
+  that prose IS the candidate text an eventual change would carry and the
+  grammar already exists for exactly that content.
+
+## The Staged-Topic Outline Template
+
+Ratified by `add-staged-topic-outline-template` (2026-08-15). A staged topic's
+primary fragment — the file `primaryFragmentPath` selects, path-only and never
+content-sniffed — IS the topic's outline. There is no second "true" document
+and no new selector: every other file in a topic folder stays free-form.
+
+The outline is for BOTH human and AI consumption. Every section exists so a
+reader, or a parsing tool, can extract the topic's live state without opening
+the whole folder.
+
+### Three required sections
+
+A conforming fragment carries, in addition to its proposal-element sections:
+
+1. **pre-document, non-documented idea notes** — the thinking that has not
+   become a claim yet;
+2. **conflicts** — what this topic contradicts, and what contradicts it;
+3. **open questions** — where the most attention is spent, so it carries the
+   most structure.
+
+### Every open question carries four sub-fields, in this order
+
+`Context`, `Recommended answer`, `Explanation`, `Disposition status`.
+
+A question is never recorded bare. The template forces a recommendation and the
+reasoning for it even while the disposition itself stays `open`, so an
+undecided question still gives a reader something to disagree with rather than
+a prompt to re-derive. A question missing any sub-field is reported by
+doc-health's `staged-topic-template` family.
+
+### Sections are extensible, with provenance
+
+Either a human or an AI may add a section beyond the required set. Each added
+section carries an `Added-by:` line naming the person or agent and the date,
+because the document accumulates content nobody commissioned in advance and has
+to stay attributable as it does.
+
+An AI adding or patching a section does so through the ordinary `edit-apply`
+intent verb on the topic's branch session, scoped by the section it targets —
+its heading, or its `xspec:candidate` fence where the section is a
+proposal-element block. Section-scoped patching is a patch-TARGETING detail,
+not a different kind of action, so it introduces no second write verb.
+
+### Round-trip on demote — the load-bearing rule
+
+**A demoted topic does not reset to its aspirational text.** When a topic that
+reached proposal is demoted back to staging — by the demote verb, or by a
+failed or reverted push — its proposal-element sections are refreshed to the
+ACTUAL text of the last attempted `proposal.md`, tagged with the change id, the
+dates raised and demoted, and the demote reason.
+
+This is testable, and that is the point of stating it here rather than leaving
+it a convention: does a demoted fragment's `Last proposal attempt` slot carry
+the prior change's real text. Nothing learned while a change was in flight may
+be lost by falling back to staging.
+
+### Conformance is opt-in for what already exists
+
+REQUIRED for any topic staged after this ratified; OPT-IN for topics staged
+before it, rewritten when the topic is next actively worked. doc-health reports
+non-conformance at WARNING and never blocks a gate on it — a mechanical rewrite
+of dormant, complete, or externally blocked topics produces busywork without
+advancing a live decision. Obligation follows a topic's staging date, never its
+last touch, so editing an opt-in topic for an unrelated reason does not
+silently make it required.
+
+### The skeleton
+
+Copy-pasteable. Every bracketed `<…>` is a fill-in slot, and the marker
+comments are the real ratified `xspec:` grammar rather than illustrative syntax
+of their own — filling the slots produces a document the tag-hygiene family
+accepts unchanged.
+
+```markdown
+# Staged: <short topic title>
+
+Status: staged
+Kind: <capability-proposal | architecture | staging-packet | ...>
+Summary: <2-4 sentences, plain prose, no heading directly above it — this is
+what the wheel's expanded tile shows verbatim, so write the topic's own
+substance here, not a restatement of the title>
+Topics: <comma-separated keyword tags>
+Repository context: <which repo(s) own the target capability/capabilities;
+who realizes the change>
+Staging ID: openxFactory:staging:<topic-slug>
+Captured: <YYYY-MM-DD>
+Source: <who named this topic, when, and from what — a brainstorm doc, a
+live session ruling, a cross-repo pointer>
+Target capabilities: <ADDED|MODIFIED> `<capability>` (<one-line delta
+summary>)[ and <ADDED|MODIFIED> `<capability-2>` (<one-line delta summary>)]
+
+## Last proposal attempt (round-trip provenance)
+
+<!-- Stays "none yet" until this topic first reaches proposal. On DEMOTE,
+     replace every field below with the ACTUAL values from the demoted
+     change — never re-blank them; that is the whole point of this slot. -->
+
+Change ID: none yet
+Raised: n/a
+Status at demote: n/a
+Demoted: n/a
+Demote reason: n/a
+
+## Claims
+
+<!-- Settled context the open questions below should NOT reopen. -->
+
+- <a decided fact or ruling this topic treats as fixed>
+
+## Why
+
+<!-- xspec:candidate target=<target-capability-1> -->
+<one paragraph: the problem, in the shape a proposal.md "## Why" section
+would state it — the CURRENT possible-draft answer, not a placeholder>
+<!-- /xspec:candidate -->
+
+## What changes
+
+<!-- xspec:candidate target=<target-capability-1> -->
+<one or more paragraphs: the CURRENT possible-draft shape of the change,
+written the way a proposal.md "## What changes" section would read>
+<!-- /xspec:candidate -->
+
+## Impact
+
+<!-- xspec:candidate target=<target-capability-1> -->
+- Affected specs: `<capability>` (ADDED|MODIFIED — <requirement area>)
+- Affected code: <repo(s) / path(s)>
+- <other blast-radius notes>
+<!-- /xspec:candidate -->
+
+## Idea notes (pre-document, non-documented)
+
+<!-- Free-form thoughts that have not earned a claim, a question, or a
+     proposal line yet. Anyone — human or agent — may append. -->
+
+- <idea note text> — Added-by: <name or agent/model id> · <YYYY-MM-DD>
+
+## Conflicts
+
+<!-- Honest tensions this topic has NOT resolved: with another staged
+     topic, with a promoted spec, with itself. A conflict names something
+     currently INCONSISTENT, even when the reconciliation is "defer,
+     noted" — it is not the same thing as an open question. -->
+
+- <conflict text> — Added-by: <name or agent/model id> · <YYYY-MM-DD>
+
+## Open questions
+
+<!-- The section read most closely. Every question gets all four
+     sub-fields below, in this order, even when the answer feels
+     obvious — "obvious" is exactly when a wrong disposition ships
+     silently. -->
+
+### Q1. <question, as a single sentence>
+
+Context: <what makes this undecided; what facts bear on it>
+Recommended answer: <a position, stated plainly — not a survey of options>
+Explanation: <why this is the recommended answer — the reasoning, not a
+restatement of the recommendation>
+Disposition status: open
+Added-by: <name or agent/model id> · <YYYY-MM-DD>
+
+## Exit
+
+<one or two sentences: what crossing the proposal gate looks like for this
+topic, and what must be true first (e.g. "every open question above carries
+a disposition other than `open`"). Do not cite an existing change-id here —
+doc-health's location-conformance family scans Exit-labeled lines for
+exactly that, to catch a topic mistakenly claiming another change's exit as
+its own.>
+```
 
 ## Gates In Practice
 

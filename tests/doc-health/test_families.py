@@ -15,6 +15,7 @@ from conftest import AS_OF, FakeGit, make_ctx
 
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
+from doc_health import families
 from doc_health.families import FAMILIES
 
 
@@ -385,3 +386,27 @@ def test_a_fenced_skeleton_does_not_count_as_real_sections(tmp_path):
     assert len(got) == 1
     for label in ("idea notes", "conflicts", "open questions"):
         assert label in got[0].rule
+
+
+def test_the_checker_and_the_contract_text_agree():
+    """The template contract lives in `docs/document-lifecycle.md`; the family
+    that enforces it reads section names from code constants. Nothing makes
+    those two follow each other, so this pins them: every section and sub-field
+    the checker requires must actually be named in the ratified prose.
+
+    Without this, editing the doc silently leaves the validator enforcing the
+    old contract — the exact drift shape doc-health exists to catch elsewhere.
+    """
+    repo_root = Path(__file__).resolve().parents[2]
+    doc = (repo_root / "docs" / "document-lifecycle.md").read_text()
+    section = doc.split("## The Staged-Topic Outline Template", 1)[1]
+    section = section.split("\n## Gates In Practice", 1)[0]
+
+    for _needle, label in families._TEMPLATE_SECTIONS:
+        assert label.split()[-1] in section.lower(), (
+            f"the checker requires a '{label}' section the contract text "
+            f"does not name")
+    for field in families._QUESTION_SUBFIELDS:
+        assert field in section, (
+            f"the checker requires the '{field}' sub-field the contract text "
+            f"does not name")

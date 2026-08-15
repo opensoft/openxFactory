@@ -6,18 +6,32 @@ remains is the contract and the surface.
 
 ## 1. The template contract
 
-- [ ] 1.1 Write the canonical template into `docs/document-lifecycle.md`: the
+- [x] 1.1 Write the canonical template into `docs/document-lifecycle.md`: the
       three required sections, the four-sub-field open-question shape, the
       `Added-by:` provenance rule, and the `xspec:` marker wrapping. The fenced
       skeleton already exists in the staging fragment — carry it verbatim rather
       than re-deriving it, so the ratified text and the drafted text cannot drift.
-- [ ] 1.2 State the round-trip-on-demote rule as a testable property, not a
+      Landed as `## The Staged-Topic Outline Template`. The 99-line skeleton was
+      EXTRACTED programmatically rather than retyped, and the carry is proven
+      byte-identical by sha256 rather than asserted. Also superseded the marker
+      bullet that said staged fragments "need no inline markers" — true for
+      QUEUING, no longer the whole story now that conforming fragments wrap
+      proposal-element sections in the same ratified `xspec:` grammar.
+- [x] 1.2 State the round-trip-on-demote rule as a testable property, not a
       description: a demoted fragment's proposal-element sections carry the last
       attempted `proposal.md` text, the change id, both dates, and the reason.
-- [ ] 1.3 Record Q1's ruling where the next reader will meet it — `primaryFragmentPath`
+      Written as "the load-bearing rule", stating the testable question in the
+      prose itself — does a demoted fragment's slot carry the prior change's
+      real text — so the reason it is a requirement and not a convention is on
+      the page rather than only in the proposal.
+- [x] 1.3 Record Q1's ruling where the next reader will meet it — `primaryFragmentPath`
       is unchanged and the one-path rule is preserved, not extended. The function's
       own docstring is the right place; anyone proposing a second candidate file
       will read it there first.
+      States that the `outline.md` alternative was PUT AND DECLINED, that a
+      future second candidate is a reversal needing its own ruling rather than a
+      patch to the list, and that doc-health's `_primary_fragment` mirrors this
+      selection — change both together or neither.
 
 ## 2. Doc-health conformance nudge
 
