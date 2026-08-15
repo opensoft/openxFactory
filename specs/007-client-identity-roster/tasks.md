@@ -210,14 +210,24 @@ Phases 5–8; see the Phase 0 checkpoint).
 - [ ] 1.6 [US1] `admission[]` — `type: array, minItems: 1` (**not 2**; a
       one-member array is a legal single-act expression, ruling A-N3), whose
       members carry `surface`, `act`, `achieved_scope` (provider-native),
-      `enforcement_mode`, `evidence_ref`, `verified_at`. `evidence_ref` is a
+      `enforcement_mode`, `evidence_ref`, `verified_at`, and
+      **`exceeds_governed_unit`** (boolean, REQUIRED). `evidence_ref` is a
       DECLARED POINTER object `{repo, path, sha?}` (FR-037) with a description
       stating that no validator resolves it. `verified_at` is required and
       carries NO maximum age (FR-033 — no decay in this release); an act with
       no `evidence_ref` is unverified BY DERIVATION, never by an independent
       `verified: false` field an author could contradict (FR-003).
-      *Verification*: 4.1's `unverified-act-counted-as-access.yaml` and
-      `evidence-ref-malformed.yaml` refused; 3.2's two-act case validates.
+      `exceeds_governed_unit` declares whether the scope that act achieves
+      reaches BEYOND the entry's `blast_radius_unit` — a DECLARED fact, not an
+      inferred one, because `achieved_scope` is provider-native and opaque
+      (ruling R7) so the neutral layer may compare scope tokens for equality
+      but must never read breadth out of one. It is what makes the change's own
+      motivating measurement checkable (2.5) instead of merely expressible;
+      without it a tenant-wide no-selector act with no `declared_excess` passes
+      every rule in the corpus. Its description says exactly that.
+      *Verification*: 4.1's `unverified-act-counted-as-access.yaml`,
+      `scope-exceeds-unit-undeclared.yaml` and `evidence-ref-malformed.yaml`
+      refused; 3.2's two-act case validates with the excess declared.
 - [ ] 1.7 [US1] `declared_excess` (optional object: `spanned_surfaces[]`,
       `provider_reason`, `bound_mechanism`, `gate_obligation`,
       `enforcement_test_ref`), `per_unit_principal_available` (the per-surface
@@ -311,8 +321,12 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       finding NAMING EVERY ELEMENT; entries differing in ANY element validate
       clean (FR-006). The alias rule (FR-038) is a THREE-predicate conjunction
       and no broader: two entries differ SOLELY in a free token, AND are
-      observationally identical (same `granted_permissions[]` SET and same
-      admission acts by `(surface, act, achieved_scope, enforcement_mode)`),
+      observationally identical (the same `granted_permissions[]` set, compared
+      as normalized member tuples `(id, achieves, sorted(reaches))` now that
+      members are objects, and the same admission acts by
+      `(surface, act, achieved_scope, enforcement_mode)` — exactly the four
+      ratified elements, with `exceeds_governed_unit` deliberately NOT among
+      them),
       AND declare no `duty_separation_rationale` (the optional entry field
       declared at 1.5 — the predicate reads that field and nothing else). A
       pair differing in `achieved_scope`, in permissions, or carrying the
@@ -320,13 +334,29 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       *Verification*: 4.6's single-run discrimination — the genuine per-unit
       pair and genuine duty pair at ZERO findings while the alias pair is
       refused (SC-002). A rule broad enough to catch all three fails.
-- [ ] 2.5 [US1] Admission verification and effective reach (FR-002, FR-003):
-      an act with no `evidence_ref` is unverified and EXCLUDED from effective
-      reach; effective reach is COMPUTED as the union of verified acts, never
-      declared; provider consent with no admission act is refused stating that
-      consent is not admission.
-      *Verification*: 4.1's `consent-recorded-as-access.yaml` and
-      `unverified-act-counted-as-access.yaml`; 3.2's union reach.
+- [ ] 2.5 [US1] Admission verification, effective reach, and the scope-excess
+      rule (FR-002, FR-003, FR-010): an act with no `evidence_ref` is unverified
+      and EXCLUDED from effective reach; provider consent with no admission act
+      is refused stating that consent is not admission. Effective reach is
+      COMPUTED, never declared, and CONCRETELY: the set of
+      `(surface, achieved_scope)` pairs over VERIFIED acts only, plus the
+      derived flag `exceeds_governed_unit = OR` over those acts — emitted as a
+      per-entry NOTE, because FR-003 and US1 scenario 2 require the union to be
+      REPORTED and a union of opaque tokens is otherwise an unimplemented word.
+      That OR is the ratified "the union, NOT the narrower act". **The rule
+      that fires**: a VERIFIED act declaring `exceeds_governed_unit: true`
+      REQUIRES a `declared_excess` with its four fields; absent one,
+      `undeclared-scope-excess` names the act, its `achieved_scope`, and the
+      governed `blast_radius_unit`. This is the change's motivating measurement
+      — a no-selector act silently converting a provider-enforced bound into a
+      gate-logic one — and before this rule nothing in the corpus caught it
+      (FR-009 checks surfaces, FR-010 checked class only, and FR-008's
+      per-surface rule is satisfied by the OTHER act's use of the per-unit
+      principal).
+      *Verification*: 4.1's `consent-recorded-as-access.yaml`,
+      `unverified-act-counted-as-access.yaml` and
+      `scope-exceeds-unit-undeclared.yaml`; 3.2's union reach and its DECLARED
+      excess are the discrimination partner of the last of those.
 - [ ] 2.6 [US1] Authority, all of it RECORD-INTERNAL against the declarations
       1.5 puts in `granted_permissions[]` — no provider catalogue, no inference
       from an identifier's spelling: `authority_class_achieved` must equal the
@@ -342,7 +372,8 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       observation-suggesting token appears while `authority_class_achieved` is
       `mutate`, matches a SMALL CLOSED token list declared in the module
       (`observer`, `observe`, `reader`, `read`, `readonly`, `viewer`, `audit`,
-      case-insensitive, word-boundary) and NAMES the token it matched (FR-010). Structural scoping:
+      case-insensitive, word-boundary) and NAMES the token it matched (FR-010).
+      Structural scoping:
       provider-enforced claimed where no per-unit principal exists is a
       finding, and an available per-unit principal left unused while logical
       enforcement is declared is a finding NAMING the available principal
@@ -452,7 +483,11 @@ begin.
       user with no production application user; the admin-center Entra-app
       authorization with no scope selector, therefore tenant-wide), the UNION
       effective reach, and the declared excess with its provider reason, gate
-      obligation and enforcement-test reference. **Two acts, ONE surface**: both
+      obligation and enforcement-test reference. The second act declares
+      `exceeds_governed_unit: true` (it has no scope selector and the entry
+      governs `sandbox1`) and is therefore covered by that `declared_excess` —
+      which is exactly what 4.1's `scope-exceeds-unit-undeclared.yaml` omits,
+      making this file its discrimination partner. **Two acts, ONE surface**: both
       acts sit under `admission_surface: business_central`, which packet task
       2.2 binds verbatim and answer 5's two-member vocabulary makes the only
       representable form — the delta's "each act is its own admission surface"
@@ -521,12 +556,13 @@ Negatives take the CONSENT family's header dialect
 `# … (finding <finding-code>)`), one violation per file, each registered by
 filename in the validator's expectations table.
 
-- [ ] 4.1 Author the SIXTEEN record-internal packaged negatives — twelve of
+- [ ] 4.1 Author the SEVENTEEN record-internal packaged negatives — twelve of
       FR-016's named rules (the thirteenth packaged named rule,
       out-of-vocabulary admission surface, sits with its vocabulary siblings in
-      4.2) plus four per-rule confirmations FR-016's "at minimum" list does not
+      4.2) plus FIVE per-rule confirmations FR-016's "at minimum" list does not
       enumerate (FR-003, FR-008's second half, FR-010's name/purpose clause,
-      FR-012): `consent-recorded-as-access.yaml`,
+      FR-012, and FR-002/FR-010's scope excess):
+      `consent-recorded-as-access.yaml`,
       `unverified-act-counted-as-access.yaml`, `undeclared-reach.yaml`,
       `achieved-exceeds-intended-undeclared.yaml`,
       `name-understates-achieved-authority.yaml`,
@@ -541,7 +577,11 @@ filename in the validator's expectations table.
       citation is repo fixture 6),
       `false-standing-credential-attestation.yaml`,
       `destructive-authority-class.yaml`, `full-tuple-duplicate.yaml`,
-      `alias-pair-observationally-identical.yaml`.
+      `alias-pair-observationally-identical.yaml`, and
+      **`scope-exceeds-unit-undeclared.yaml`** — a VERIFIED act declaring
+      `exceeds_governed_unit: true` with NO `declared_excess`, whose
+      discrimination partner is 3.2's worked case (the same shape with the
+      excess declared, zero findings).
       *Verification*: each refused by its OWN registered code (2.2); SC-001.
 - [ ] 4.2 [P] The closed-vocabulary and legend negatives (SC-014):
       `admission-surface-out-of-vocabulary.yaml`,
@@ -561,8 +601,11 @@ filename in the validator's expectations table.
       `drift-finding-without-observed-value.yaml` (FR-035).
       *Verification*: refused by their own codes in the 2.2 self-test.
 - [ ] 4.4 [P] `achieved-class-contradicted-by-permissions.yaml` (**ruling
-      A-11**) — an entry declaring `authority_class_achieved: observe` while
-      its `granted_permissions[]` carry a write- or delete-capable permission.
+      A-11**) — an entry declaring `authority_class_achieved: observe` while a
+      `granted_permissions[]` member DECLARES `achieves: mutate` (the
+      contradiction is between two declarations in the record; the fixture must
+      NOT be authored around a permission's name, because 2.6 reads the
+      declared `achieves` and never the identifier's spelling).
       This homes FR-004's rule, which is distinct from
       `achieved-exceeds-intended-undeclared.yaml`'s (that one proves
       achieved-above-intended must be DECLARED; this one proves an achieved
@@ -1027,7 +1070,7 @@ nothing was orphaned.
 | Requirement | Tasks |
 |---|---|
 | FR-001 | 1.4, 1.5 |
-| FR-002 | 1.6, 2.5 |
+| FR-002 | 1.6, 2.5, 4.1 (`scope-exceeds-unit-undeclared.yaml`) |
 | FR-003 | 1.6, 2.5, 4.1 |
 | FR-004 | 2.6, 4.4 |
 | FR-005 | 1.2, 4.1 |
@@ -1035,7 +1078,7 @@ nothing was orphaned.
 | FR-007 | 1.2, 2.3, 4.2 |
 | FR-008 | 1.7, 2.6, 4.1 |
 | FR-009 | 1.7, 2.6, 3.3, 4.1 |
-| FR-010 | 1.7, 2.6, 4.1 |
+| FR-010 | 1.7, 2.5 (scope excess), 2.6, 3.2, 4.1 |
 | FR-011 | 1.7, 2.9, 4.1 (missing enforcement test), 4.5 (fixture 4: unresolvable obligation) |
 | FR-012 | 1.8, 2.7, 4.1 |
 | FR-013 | 1.7, 2.7, 3.4, 4.1 |

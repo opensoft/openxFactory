@@ -540,17 +540,37 @@ remove an identity, permission, or admission.
   OPTIONAL `duty_separation_rationale` required by FR-038's alias rule. The
   field list above is the ratified one (OpenSpec task 2.1) and MUST NOT be
   reduced; the legend and the duty-separation rationale are the only additions
-  the 2026-08-14 rulings make to it, and each exists because a ruling's rule
-  cannot be evaluated without it (R7 for both).
+  to THIS ENTRY LIST, and each exists because ruling R7's own rule cannot be
+  evaluated without it. The one addition to the ADMISSION ACT's list —
+  `exceeds_governed_unit`, FR-002 — is a different list and is justified on the
+  same footing: the ratified requirement that a structural-to-logical
+  degradation be a "declared, CHECKABLE, tested fact" cannot be evaluated
+  without it.
 - **FR-002**: `admission` MUST be a LIST whose members each declare the
   surface, the act performed in that surface's own administrative console, the
   scope that act achieves, whether the resulting bound is provider-enforced or
   logic-enforced, an evidence reference for a successful call, and the time it
   was verified. A record MUST NOT express admission as a single act.
+  Each member MUST ADDITIONALLY declare whether the scope that act achieves
+  reaches BEYOND the entry's governed blast-radius unit
+  (`exceeds_governed_unit`). That declaration is required because
+  `achieved_scope` is provider-native and opaque to the neutral layer, so a
+  check may compare scope tokens for equality but MUST NOT read breadth out of
+  one — and without it the ratified obligation that a structural-to-logical
+  degradation be a "declared, CHECKABLE, tested fact" has nothing to check. It
+  is an addition to the act's field list on the same footing as the free-token
+  legend: the ratified rule cannot be evaluated without it.
 - **FR-003**: Provider consent alone MUST NOT be recordable as access; an
   admission act without verification evidence MUST be represented in a distinct
   unverified state and MUST be excluded from the identity's effective reach;
-  effective reach MUST be the union of verified acts.
+  effective reach MUST be the union of verified acts. That union MUST be
+  computed and REPORTED, and — because its members are opaque tokens — it is
+  defined concretely as the set of `(surface, achieved_scope)` pairs over
+  VERIFIED acts only, together with the derived exceedance flag: the entry's
+  reach exceeds the governed blast-radius unit if ANY verified act declares
+  `exceeds_governed_unit`. That derivation is what makes the ratified "the
+  effective reach is their union, NOT the narrower act" a computation rather
+  than an assertion.
 - **FR-004**: `granted_permissions[]` in provider-native identifiers MUST be
   required on every entry, and `authority_class_achieved` MUST be checkable
   against it — the record MUST NOT be able to assert an achieved class its
@@ -581,12 +601,12 @@ remove an identity, permission, or admission.
 - **FR-008**: Each entry MUST declare, per admission surface — as a MAPPING
   keyed by admission-surface member, not a single boolean, because a
   provider-forced multi-surface identity needs one answer per surface —
-  whether a principal scoped to the governed blast-radius unit is available. A bound MAY
-  be recorded as logic-enforced only where no such principal exists, with the
-  provider reason recorded. A bound recorded as provider-enforced where no such
-  principal exists MUST be a finding, and an available per-unit principal left
-  unused while logical enforcement is declared MUST be a finding naming the
-  available principal.
+  whether a principal scoped to the governed blast-radius unit is available.
+  A bound MAY be recorded as logic-enforced only where no such principal
+  exists, with the provider reason recorded. A bound recorded as
+  provider-enforced where no such principal exists MUST be a finding, and an
+  available per-unit principal left unused while logical enforcement is
+  declared MUST be a finding naming the available principal.
 - **FR-009**: Provider-forced breadth — spanned admission surfaces or an
   achieved class above the intended one — MUST be declarable with the provider
   reason and a gate obligation, and MUST be conformant when so declared.
@@ -596,8 +616,16 @@ remove an identity, permission, or admission.
   axis.
 - **FR-010**: Where achieved authority exceeds intended authority, the entry
   MUST declare the excess with the reason no narrower permission exists, the
-  bounding mechanism, the gate obligation, and the enforcement-test reference;
-  and an entry's name MUST NOT describe a narrower authority than it achieves.
+  bounding mechanism, the gate obligation, and the enforcement-test reference.
+  The SAME obligation MUST bind a scope excess: a VERIFIED admission act
+  declaring `exceeds_governed_unit` (FR-002) MUST be covered by a
+  `declared_excess`, and an act that exceeds the governed unit with no such
+  declaration MUST be a finding naming the act, its achieved scope, and the
+  unit it exceeds. This is the rule that makes the change's own motivating
+  measurement enforceable — a no-scope-selector admission act that silently
+  converts a provider-enforced bound into a gate-logic one — rather than merely
+  expressible. An entry's name MUST NOT describe a narrower authority than it
+  achieves.
   The ratified field list carries no `purpose` field, so the name check reads
   `identity_ref` and fires in ONE direction only — an observation-suggesting
   token in the name while `authority_class_achieved` is `mutate` — against a
@@ -953,12 +981,20 @@ remove an identity, permission, or admission.
   closed vocabulary, defined by the act rather than by a product name, and
   named together with that act and mechanism.
 - **Admission act**: one entry in the admission list — surface, act, achieved
-  scope, enforcement mode, evidence of a successful call, and verification
-  time. Verified acts union into effective reach; unverified acts are a
-  distinct state that contributes nothing.
-- **Declared excess**: the record of provider-forced breadth or achieved-class
-  overshoot — provider reason, bounding mechanism, gate obligation, enforcement
-  test — which converts an undeclared widening into a declared, tested one.
+  scope, enforcement mode, evidence of a successful call, verification time,
+  and whether that achieved scope exceeds the entry's governed blast-radius
+  unit. Verified acts union into effective reach — the set of their
+  (surface, achieved scope) pairs plus the OR of their exceedance
+  declarations, which is how "the union, not the narrower act" is computed
+  rather than asserted; unverified acts are a distinct state that contributes
+  nothing.
+- **Declared excess**: the record of provider-forced breadth, achieved-class
+  overshoot, or a scope that reaches beyond the governed blast-radius unit —
+  provider reason, bounding mechanism, gate obligation, enforcement test —
+  which converts an undeclared widening into a declared, tested one. The third
+  case is the one this change exists for: an admission act with no scope
+  selector, converting a bound the provider enforced into one only gate logic
+  enforces.
 - **Gate obligation**: a reference to an existing gate in the owning domain's
   workflow records plus the test proving that gate refuses an out-of-unit
   target.
@@ -1094,9 +1130,14 @@ remove an identity, permission, or admission.
   re-confirmed 2026-08-14 against the manifest, with no intervening bump.
 - **`granted_permissions[]` is provider-native and opaque to the neutral
   contract**: the schema constrains shape, while the mapping from a permission
-  identifier to an achieved authority class is declared in the record and
-  checked for internal consistency, not resolved against any provider catalogue
-  (which would require network access this feature forbids).
+  identifier to the facts the checks need — the achieved authority class it
+  confers (FR-004) and the admission surfaces it reaches (FR-009) — is declared
+  in the record beside the identifier and checked for internal consistency, not
+  resolved against any provider catalogue (which would require network access
+  this feature forbids) and never inferred from how the identifier is spelled.
+  The same principle governs `achieved_scope`: the token rides verbatim, and
+  the one fact a check needs about it — whether it exceeds the governed
+  blast-radius unit — is declared on the act (FR-002).
 - **Promoted-spec text is rewritten by the OpenSpec archive step, not by this
   feature** (ruled, FR-025): the feature's obligation is that the
   implementation matches the RATIFIED DELTA wording, and that it updates the

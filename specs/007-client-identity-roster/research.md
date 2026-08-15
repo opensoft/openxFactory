@@ -786,8 +786,12 @@ roster's rules split into two classes:
 
 - **Record-internal rules** — everything decidable from one fragment: closed
   vocabularies, the uniqueness tuple, the legend, verified-vs-unverified
-  admission, achieved-vs-intended authority, residency obligations,
-  lifecycle, attestation, both roots, the alias rule, `evidence_ref` SHAPE.
+  admission, achieved-vs-intended authority, **the scope-excess rule** (a
+  verified act declaring `exceeds_governed_unit` requires a `declared_excess`,
+  and the entry's effective reach is the union of verified acts'
+  `(surface, achieved_scope)` pairs plus the OR of their exceedance flags),
+  residency obligations, lifecycle, attestation, both roots, the alias rule,
+  `evidence_ref` SHAPE.
   Proven by the PACKAGED corpus (`examples/client-identity-roster/` plus
   `negative/`) in the self-test layer, in the dialect the tree already uses.
 - **Repo-context rules** — decidable only against a target tree: the
@@ -798,9 +802,9 @@ roster's rules split into two classes:
   (`consent-instrument.schema.yaml:62`) matched on `instrument_id` (`:63`),
   the mechanism `validate-consent-instruments.py`'s `repo_scan` already uses,
   because that family declares no domain placement to cite the way FR-011
-  cites `workflows/`** — and the absence notice (FR-022). The consent citation resolves
-  intra-repo by the same argument as the gate obligation — a domain's consent
-  instruments live in the domain repo
+  cites `workflows/`** — and the absence notice (FR-022). The consent citation
+  resolves intra-repo by the same argument as the gate obligation — a domain's
+  consent instruments live in the domain repo
   (`OpsxFactory:tenants/farheap-bc-administration-consent.yaml` is the worked
   example) — which is the opposite posture from `evidence_ref` (FR-037), a
   pointer into ANOTHER repo that this validator may only shape-check. Presence
@@ -856,8 +860,12 @@ the conformant repo fixture, whose obligation DOES resolve.
 
 **A second addition from the same ruling: FR-004 gains
 `negative/achieved-class-contradicted-by-permissions.yaml`** — an entry
-declaring `authority_class_achieved: observe` while its
-`granted_permissions[]` carry a write- or delete-capable permission. FR-016's
+declaring `authority_class_achieved: observe` while a `granted_permissions[]`
+member DECLARES `achieves: mutate`. (The pre-analyze wording said "while its
+permissions carry a write- or delete-capable permission", which an implementer
+could only evaluate by reading the identifier's spelling — the inference the
+object member form exists to forbid; the contradiction is between two
+declarations in the record.) FR-016's
 named list is a MINIMUM ("one NEGATIVE CONFIRMATION per rule — at minimum"),
 and FR-004 is a rule of its own: it forbids ASSERTING an achieved class the
 permissions contradict, which is distinct from

@@ -52,7 +52,7 @@ access, no domain-repository edit.
 
 | Principle | Disposition |
 |---|---|
-| I. Contract-first, domain-neutral core | PASS. The schema constrains shape; `blast_radius_unit` and `duty` are domain-declared tokens bound to provider-native identifiers in a per-fragment legend, and `granted_permissions[]` / `achieved_scope` stay provider-native and opaque to the neutral layer. `admission_surface` and `identity_kind` are provider-named but closed BY RATIFICATION (FR-007) and extended only by the change that governs a new member. Domain fragments are explicitly not deliverables (FR-030). |
+| I. Contract-first, domain-neutral core | PASS, and on the exact posture rather than a rounded one. The schema constrains shape; `blast_radius_unit` and `duty` are domain-declared tokens bound to provider-native identifiers in a per-fragment legend. Provider-native values ride VERBATIM and are never INTERPRETED by the neutral layer: a permission's identifier stays in `granted_permissions[].id` and a scope token stays in `achieved_scope`. Where a check needs a fact ABOUT one of those values, the fact is DECLARED by the domain that owns it — `achieves` and `reaches[]` beside the permission id (FR-004, FR-009), `exceeds_governed_unit` beside the scope token (FR-002) — never inferred from spelling and never resolved against a provider catalogue. That is what keeps the core neutral while leaving the rules checkable; the rounded claim "these fields are opaque" would hide the three declarations an architect reviewing this principle should look at. `admission_surface` and `identity_kind` are provider-named but closed BY RATIFICATION (FR-007) and extended only by the change that governs a new member. Domain fragments are explicitly not deliverables (FR-030). |
 | II. OpenSpec before implementation | PASS. `add-client-identity-roster` is ratified and amended; this is its Speckit realization. Nothing here extends the packet's scope — the two amendments were ratified BEFORE planning, and the plan adds no fifth modified capability. |
 | III. Document lifecycle | PASS. New docs (`examples/client-identity-roster/README.md`) carry `Status: ratified` naming the change. `Status: record` review files are never edited or appended; any amendment lands as a sibling record file (research.md, last section). |
 | IV. Schema and artifact discipline | PASS. Every new YAML carries `schema_version` + `kind`; `.example.yaml` files are instantiation stubs, never live configuration; validator root is `Path(__file__).resolve().parents[1]` so no host-absolute path is committed; no credential, provider payload, or tenant secret enters the tree — the packaged BC case records app/object/sp identifiers and permission names only, and its source record already states `credentials: none`. New docs are linked into `README.md`'s index and `contracts/README.md`'s registration table. |
@@ -100,7 +100,8 @@ against the design below; encoding them is the work.
   never copied into a domain repo. Exit codes 0 clean / 1 findings / 2 harness
   error.
 - **Scale**: one new schema file (2 kinds), one new validator, one new
-  doc-health family module, ~30 packaged fixture files, four modified
+  doc-health family module, ~32 packaged fixture files (28 negatives, two
+  positive fragments, the drift example, a README), four modified
   capabilities' surfaces, one bundle cut.
 
 ## Project structure
@@ -150,6 +151,7 @@ examples/client-identity-roster/
     ├── undeclared-reach.yaml
     ├── achieved-exceeds-intended-undeclared.yaml
     ├── achieved-class-contradicted-by-permissions.yaml       # FR-004 (ruling A-11)
+    ├── scope-exceeds-unit-undeclared.yaml                    # FR-002/FR-010 (analyze R6)
     ├── name-understates-achieved-authority.yaml
     ├── missing-enforcement-test.yaml
     ├── provider-enforced-without-per-unit-principal.yaml
@@ -283,11 +285,48 @@ legend, and the entry's optional `duty_separation_rationale`:
 
 `admission[]` members: `surface`, `act`, `achieved_scope` (provider-native),
 `enforcement_mode` (closed: `provider_enforced`, `logic_enforced`),
-`evidence_ref`, `verified_at`. `evidence_ref` is a DECLARED POINTER —
-`{repo, path, sha?}` (FR-037) — and an act with no `evidence_ref` is
-`verified: false` by derivation, never by independent assertion, so an
-unverified act cannot claim verification. Effective reach is the union of
-verified acts, computed, never declared.
+`evidence_ref`, `verified_at`, `exceeds_governed_unit` (boolean, required —
+below). `evidence_ref` is a DECLARED POINTER — `{repo, path, sha?}` (FR-037) —
+and an act with no `evidence_ref` is `verified: false` by derivation, never by
+independent assertion, so an unverified act cannot claim verification.
+
+**`exceeds_governed_unit` exists because `achieved_scope` is an OPAQUE TOKEN
+and the change's own motivating measurement must be checkable.** Ruling R7
+keeps `achieved_scope` provider-native, so the neutral layer may compare two
+scope tokens for equality and MUST NOT read breadth out of one. Every rule that
+touches `achieved_scope` is satisfied by that limit — the alias rule needs
+equality, the genuine per-unit pair needs inequality, the drift record carries
+the tokens verbatim — with ONE exception: the worked case's second act, the
+admin-center authorization with NO SCOPE SELECTOR that reaches every environment
+while the entry governs `sandbox1`. Knowing that act EXCEEDS the unit is
+breadth, not equality; comparing its token to the legend's binding for the unit
+would detect DIFFERENCE, not excess, and would fire on a legitimately narrower
+act. So the fact is DECLARED, exactly as `granted_permissions[]` declares
+`achieves` and `reaches[]` rather than having them inferred:
+`exceeds_governed_unit: true` on an act whose achieved scope reaches beyond the
+entry's `blast_radius_unit`.
+
+Two things follow, and they are the whole reason for the field:
+
+1. **The degradation rule fires** (Cluster B): a VERIFIED act declaring
+   `exceeds_governed_unit: true` REQUIRES a `declared_excess` carrying its four
+   fields; without one, `undeclared-scope-excess` names the act, its achieved
+   scope and the governed unit. Before this, an entry could declare a
+   tenant-wide no-selector act, omit `declared_excess` entirely, and pass every
+   rule in the corpus — FR-009 checks SURFACES, FR-010 checks CLASS, and
+   FR-008's per-surface rule is satisfied by act 1's use of the per-unit
+   principal.
+2. **Effective reach becomes computable**: the union of verified acts is the
+   set of `(surface, achieved_scope)` pairs over VERIFIED acts only, plus the
+   derived flag `exceeds_governed_unit = OR over those acts`, emitted as a
+   per-entry note. That OR is the ratified "the effective reach is their union,
+   NOT the narrower act": one verified no-selector act carries the whole
+   entry's reach past the governed unit regardless of the narrower act.
+
+The field changes no ratified spelling — `achieved_scope` stays provider-native
+and verbatim — and the FR-038 alias tuple keeps EXACTLY its four ratified
+elements `(surface, act, achieved_scope, enforcement_mode)`; the flag is a
+statement about a scope, not part of observational identity.
 
 **Member spellings are snake_case everywhere** — `client_tenant_single`,
 `vendor_tenant_multi`, `provider_enforced`, `logic_enforced`, alongside
@@ -504,11 +543,23 @@ files, prints an explicit notice naming the absence and exits 0. There is no
 expected-entry-set derivation anywhere in the module — the checklist item and
 the analyze pass should both look for one and find nothing.
 
+**The scope-excess rule** (FR-002, FR-010): a VERIFIED act declaring
+`exceeds_governed_unit: true` requires a `declared_excess` with its four
+fields; absent one, `undeclared-scope-excess` names the act, its
+`achieved_scope` and the governed `blast_radius_unit`. The entry's effective
+reach is emitted as a note — the `(surface, achieved_scope)` set over verified
+acts plus the OR of their `exceeds_governed_unit` flags (Cluster A) — so
+FR-003's union is reported, not merely asserted, and US1 scenario 2 has
+something to read.
+
 **The alias rule** (FR-038) is implemented exactly as stated, as a
 three-predicate conjunction, and no more: two entries differ SOLELY in a free
-token, AND are observationally identical (same `granted_permissions[]` SET and
+token, AND are observationally identical (the same `granted_permissions[]` set,
+compared as normalized member tuples `(id, achieves, sorted(reaches))`, and the
 same admission acts by the tuple `(surface, act, achieved_scope,
-enforcement_mode)`), AND declare no duty-separation rationale. A pair
+enforcement_mode)` — exactly the four ratified elements, with
+`exceeds_governed_unit` deliberately NOT among them), AND declare no
+duty-separation rationale. A pair
 differing in `achieved_scope`, in permissions, or carrying the rationale
 validates clean. This is the one place the plan asks the implementer to write
 the condition and then write the two positive fixtures that would fail under
@@ -521,11 +572,16 @@ any broader form.
   declaring the rationale), a provider-forced multi-surface reader with its
   declaration, and a `planned` entry — each with ZERO findings, living inside
   the two packaged fragments.
-- **Negatives**: the 27 packaged files listed in the structure above (26 as
-  first planned, plus `achieved-class-contradicted-by-permissions.yaml` added
+- **Negatives**: the 28 packaged files listed in the structure above (26 as
+  first planned; plus `achieved-class-contradicted-by-permissions.yaml` added
   by ruling A-11 to home FR-004's rule — an entry declaring
-  `authority_class_achieved: observe` while its `granted_permissions[]` carry
-  a write/delete permission; the earlier
+  `authority_class_achieved: observe` while a `granted_permissions[]` member
+  declares `achieves: mutate`, a contradiction between two DECLARATIONS rather
+  than a reading of a permission's name; plus
+  `scope-exceeds-unit-undeclared.yaml` added by the analyze pass to home the
+  scope-excess rule — a verified act declaring `exceeds_governed_unit: true`
+  with no `declared_excess`, which is the change's own motivating measurement
+  made enforceable; and the earlier
   `achieved-exceeds-intended-undeclared.yaml` proves the DIFFERENT rule that
   achieved-above-intended must be declared, and neither substitutes for the
   other). THREE of FR-016's named rules are routed out of the packaged corpus
@@ -600,15 +656,17 @@ had no home in any corpus), which is the BROKEN verdict A-11 records.
 FR-016's floor is "at minimum", and the phrase it opens with is "one NEGATIVE
 CONFIRMATION per RULE", so the corpus also homes the rules the named list does
 not enumerate: FR-004 (`achieved-class-contradicted-by-permissions.yaml`,
-**A-11**), FR-003's consent-recorded-as-access, FR-010's
+**A-11**), FR-002/FR-010's scope excess
+(`scope-exceeds-unit-undeclared.yaml`, analyze R6), FR-003's
+consent-recorded-as-access, FR-010's
 name-understates-achieved-authority, FR-008's available-but-unused per-unit
 principal, FR-012's vendor-tenant-multi missing obligations, SC-014's four
 remaining closed-vocabulary refusals and its two legend negatives, FR-037's
 `evidence_ref` shape, and FR-035's two drift-record negatives.
 
-Two counts, because they measure different things: **30 rule-homes** (27
+Two counts, because they measure different things: **31 rule-homes** (28
 packaged + the 2 FR-016 rules with no packaged home + 1 in the doc-health
-corpus) and **32 refusing probes** — the repo corpus carries FOUR refusing
+corpus) and **33 refusing probes** — the repo corpus carries FOUR refusing
 fixtures (2, 4, 5, 6) where only two of them are the rule-homes counted above:
 fixture 2 additionally proves named rule 9's GATE EXIT, which its packaged
 sibling cannot, and fixture 6 homes FR-014's resolution clause, which is not in
@@ -624,10 +682,13 @@ the drift-finding example.
 
 The BC worked case is transcribed from
 `OpsxFactory:tenants/farheap-bc-observer-identity-evidence-v1.yaml` — two
-admission acts (the provider-enforced Sandbox1 application user; the
-tenant-wide admin-center Entra-app authorization with no scope selector), the
+admission acts (the provider-enforced Sandbox1 application user, which does NOT
+exceed the governed unit; the tenant-wide admin-center Entra-app authorization
+with no scope selector, which declares `exceeds_governed_unit: true`), the
 union effective reach, the declared excess with its provider reason, gate
-obligation and enforcement test.
+obligation and enforcement test. That declaration is what satisfies Cluster B's
+scope-excess rule, and it makes this file the discrimination partner of
+`negative/scope-exceeds-unit-undeclared.yaml`: same shape, excess omitted.
 
 **Two acts, ONE surface — and that is ratified, not a judgement call.** The
 roster delta's scenario "One product name has two admission acts → each act is
@@ -1114,6 +1175,14 @@ scope:
     matched. And **`consent_ref` resolves by kind sweep** for
     `xfactory_consent_instrument`, matching `instrument_id`, reading `status`
     for "in force".
+24. **Each admission act declares `exceeds_governed_unit`** (boolean), because
+    `achieved_scope` is an opaque provider token and the ratified "declared,
+    CHECKABLE, tested" degradation cannot otherwise be checked: comparing the
+    token to the legend's binding would detect DIFFERENCE, not excess, and
+    would fire on a legitimately narrower act. It carries the scope-excess rule
+    and makes FR-003's union computable. The alternative — inferring breadth
+    from a provider string — is the inference the neutral layer has no standing
+    to make.
 
 ## Contradictions found between spec.md, the rulings, and the amended packet
 
