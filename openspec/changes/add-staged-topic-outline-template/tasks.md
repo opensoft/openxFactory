@@ -73,26 +73,16 @@ remains is the contract and the surface.
       skeleton is not adopting it. Wiring waits on 3.2's ruling: the index and
       the add-section affordance share one pane, and building that layout twice
       is the avoidable cost.
-- [!] 3.2 Add-section affordance writing through `edit-apply`, scoped by the
+- [ ] 3.2 Add-section affordance writing through `edit-document`, scoped by the
       target section; `Added-by:` provenance stamped on the added section.
-      **BLOCKED — Q4 NAMES A VERB THAT CANNOT DO THIS.** Read before building:
-      `edit_apply(gate, change_id, document, redline)` is the gate console's
-      MAIN-RESIDENT redline verb, requires `--change-id` ("the change owning the
-      document"), and applies to CHANGE DOCUMENTS. A staged topic's fragment is
-      not one, has no owning change, and is edited on a session branch — which
-      is `edit-document`'s job, the verb the ratified buffer contract already
-      uses. The intent-plane change references the same gate-console verb; there
-      is no second session-scoped `edit-apply`.
-      The two states are also MUTUALLY EXCLUSIVE by rule: `edit-apply` needs a
-      change id, but `location-conformance` fires as soon as a staged fragment
-      cites a live change and its remedy is to move the material OUT of staging
-      — so a fragment with an owning change is no longer in staging to patch.
-      Q4's stated context ("the branch-session model already exposes an
-      `edit-apply` intent verb for content changes on a session branch") is
-      wrong about this verb, and I carried it into the spec delta unchecked.
-      Q4's INTENT — no second write verb, reuse the existing session path,
-      section scoping is a targeting detail — is satisfied by `edit-document`
-      unchanged. Amending the ratified delta is Brett's call.
+      UNBLOCKED 2026-08-15 by Amendment 1 (Brett: "amend to edit-document").
+      As ratified this said `edit-apply`, which is the gate console's
+      main-resident redline verb — it requires a change id and applies to change
+      documents, so it cannot write a staged fragment on a session branch, and a
+      topic that HAS an owning change has already moved its material out of
+      staging. `edit-document` is the session content verb the buffer contract
+      already uses; Q4's intent (no second write verb, existing session path,
+      section scoping as a targeting detail) is unchanged.
 - [ ] 3.3 Degrade on non-conforming fragments: render what is present, report
       nothing as broken, rewrite nothing on open.
 - [ ] 3.4 Gate-off posture: the affordance is not a live control and no write
@@ -113,7 +103,7 @@ remains is the contract and the surface.
 - [ ] 4.3 Opt-in boundary: a pre-ratification topic warns and does not block; a
       post-ratification topic is required.
 - [ ] 4.4 Outline tab: sections identified from headings/fences; add-section
-      goes through `edit-apply` with provenance; non-conforming fragment renders
+      goes through `edit-document` with provenance; non-conforming fragment renders
       without rewrite; gate-off offers no live control.
 
 ## 5. Gates
@@ -126,13 +116,15 @@ remains is the contract and the surface.
       own intended findings, which should be enumerated rather than counted.
 - [ ] 5.4 Live proof in a browser: open a conforming topic and a pre-template
       topic in the outline tab, add a section to the conforming one, confirm the
-      commit lands through `edit-apply` on the session branch.
+      commit lands through `edit-document` on the session branch.
 
 ## 6. Bookkeeping
 
 - [ ] 6.1 README "OpenSpec Records" active block.
 - [ ] 6.2 Tick the staging topic's exit and mark the INDEX row proposed.
-- [ ] 6.3 Hand Q4's ruling to `doxbench-editing-model` Phase A — `edit-apply` is
-      the verb, so Phase A's chat edits become marker-scoped section patches.
+- [ ] 6.3 Hand Q4's ruling to `doxbench-editing-model` Phase A — `edit-document`
+      is the verb (Amendment 1; ratified as `edit-apply`, which cannot reach a
+      session branch), so Phase A's chat edits become marker-scoped section
+      patches.
       That upgrade belongs to Phase A, not here; this task is the handoff, not
       the build.
