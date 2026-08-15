@@ -70,6 +70,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `openxwallet` (holder-agnostic core: key reference + declared custody, attenuated grants as the authority primitive, proof of possession, custody capping authority, key-attributed audit, revocation propagation, distinct-holder constraints, non-substrate rule) + ADDED `openxwallet-agent-profile` (composition + declared-change revocation + authority as grant scope); composes with `roles-authority-model` + `credential-contracts`; `openxVault` consumes the grants | 1 | **PROPOSED 2026-08-06 as `add-openxwallet`** (topic folder keeps the `agent-wallet-identity` name; the change was renamed on restructure). Restructured the same day after Brett asked whether the Medx/Ledgerx intersection lives in openxFactory — it did not, so the change now adds a HOLDER-AGNOSTIC core with GRANTS AS THE PRIMITIVE plus an agent profile, rather than a wallet shaped like an agent binding authority to a second vocabulary. **RATIFIED 2026-08-07** with all three decisions: grants as the primitive, the core holder-class agnostic, and key custody DECLARED and CAPPING authority. **REALIZED 2026-08-07** by Speckit feature `006-openxwallet-contracts`: two neutral contract families (`contracts/openxwallet/` core + `contracts/openxwallet-agent-profile/` as a sibling, so the profile seam is structural), `scripts/validate-openxwallet.py`, and a corpus of 16 positives and 33 negative confirmations covering 11/11 requirements, registered at `contract-v1.31`, and **ARCHIVED 2026-08-08** as `2026-08-08-add-openxwallet` with both capabilities promoted (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3). The topic row stays because the staged fragment remains on disk as provenance carrying the deferred material — batteries, measured drift, qualification tiers and delegation chains, each a named successor gated on a consumer of its own. The feature settled the two decisions the ratification left it: the closed custody set is three members with `evidences` DERIVED from two declared booleans and enforced — so a readable key cannot claim an isolated key's authority, and the collapse is structurally impossible rather than discouraged — and the composition component set covers a retrieval corpus BY REFERENCE (identity plus governing configuration) rather than by contents, which dissolves the include-or-exclude binary. The closed custody enumeration and what each member evidences are now contract content rather than an implementation detail. Organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
 | [manager-review-approval-scope-kind](#manager-review-approval-scope-kind) | MODIFIED `hermes-domain-overlay` (additive `approval_scope_kinds` vocabulary extension — a dedicated `manager_review` kind) | 1 | Registered 2026-08-10 — origin is `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`'s implementation plan (tension T2), ruled "register now" by Brett Heap the same day; the live gate proceeds on the `engineering_intent` fallback in the meantime; 2 open questions (envelope-vs-overlay home, naming/scope grain), neither blocking |
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
+| [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot |
 
 ## hermes-stack-topology-per-client
 
@@ -1089,3 +1090,61 @@ repo scope.
   hosted flow are decided with Brett, plus a named Omnigent-Install installer
   change; gated on the QA dispatch migration completing (it proves the two-App
   runtime shape the installer provisions)
+
+## substantive-review-lane-questions
+
+- Staging ID: `openxFactory:staging:substantive-review-lane-questions`
+- Repository context: openxFactory owns the neutral `roles-authority-model`
+  capability the tracked proposal's spec delta targets; codexFactory owns
+  the `gate_rules_council` / `merge_readiness_council` persona and council
+  machinery being generalized; the xFactory aggregation repo owns
+  `merge-master-approval.yml` / `merge-approval-envelope.yml`, the
+  mechanical GitHub-App enforcer whose candidate-class list the lane
+  extends.
+- Source: Brett Heap's direction 2026-08-15 to track, as an iterating
+  staging topic, the declared-open-not-decided questions of the
+  ad-hoc-authored proposal `add-substantive-review-lane` (openxFactory PR
+  #178, branch `change/add-substantive-review-lane`, Status: draft —
+  awaiting ratification). Same pattern as the
+  `manager-review-approval-scope-kind` topic: tracks a sibling in-flight
+  artifact's parked question rather than originating it.
+- **Not the origin** (honesty note): the proposal's own `.openspec.yaml`
+  origin block declares `kind: ad_hoc`, created 2026-08-15 directly from
+  verified current-state facts — proven live 2026-08-14 autonomous
+  `gate_rules_council` + `merge_readiness_council` deliberation on xFactory
+  PRs #85/#100 — and the proposal existed BEFORE this topic was staged.
+  This topic is post-proposal tracking of its parked questions only; it
+  makes no claim to be a staged origin and edits nothing in the proposal's
+  immutable origin declaration.
+- Claim: six decided principles are settled in the proposal and are NOT
+  reopened here (recorded only as the stable baseline the open questions
+  below are read against): councils judge and Merge Master stays the
+  mechanical enforcer; accountability is the product (written rationale +
+  signed check-run + audit artifact + dedicated App identity); identity
+  separation between the reviewing/enforcing identity and the PR author;
+  fail-closed with always-available `needs_human_review` escalation;
+  council-defined candidate classes carrying a risk tier and a clearance
+  rule, reviewing for policy compliance AND best practices; and the
+  `opensoft/openxFactory` pilot reviewed by codexFactory's councils.
+- Files:
+  - [substantive-review-lane-questions.md](substantive-review-lane-questions/substantive-review-lane-questions.md)
+    — primary: context, 6 settled claims (not reopened), 5 open questions,
+    exit.
+- Open questions (none blocking the pilot): (1) rollout order beyond the
+  pilot — which governed repo adopts the lane next and what gates each
+  adoption; (2) persona home for non-engineering domain repos — do
+  Medx/Ledgerx/Ops/Adx instantiate their own review personas/councils, or
+  does codexFactory review all software changes regardless of which repo
+  carries them; (3) whether the tenant `company-policy-lead` seat joins
+  per-PR `merge_readiness_council` deliberation, or stays rules-council-only
+  as today; (4) ruleset interaction shape per repo — App `APPROVE` review
+  vs. a required check-run, and whether human review remains an always-
+  available alternate path; (5) risk-tier taxonomy for candidate classes
+  (e.g. docs-only / config / contract / runtime-code) and which tiers, if
+  any, are ever autonomously clearable.
+- Exit: each question resolves independently into a pre-ratification edit
+  of the governing proposal, a named follow-up OpenSpec change (likeliest
+  for rollout order and the risk-tier taxonomy, once pilot evidence exists),
+  or a recorded decision Brett rules directly and notes back into the
+  fragment. This topic carries no exit change of its own; it closes once
+  all five questions carry a disposition.
