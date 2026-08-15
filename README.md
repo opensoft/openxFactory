@@ -275,30 +275,17 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-subject-overlay-contract](openspec/changes/add-subject-overlay-contract/proposal.md)
-  — authored 2026-08-15, commissioned as prerequisite task 2.1 of codexFactory's
-  ratified `add-project-alfa-subject-overlay`: the NEUTRAL contract kind for
-  Subject-layer Hermes overlays, whose instances live only in domain repos
-  (ruling D1 — openxFactory DESCRIBES subject overlays, never HOSTS one). The
-  gap is measured: `hermes-domain-overlay.schema.yaml` hard-enums `kind` and
-  requires the domain authority block, and `client-policy-overrides.schema.yaml`
-  enumerates a CLOSED set of seven override policies with no policy namespace
-  and no named-policy identity — so neither can carry an addressable
-  `<namespace>/<policy-id>` seat policy, while
-  `validate-hermes-domain-overlay.py` checks that the descriptor's declared
-  customer path EXISTS and then skips its content. Adds
-  `hermes_subject_overlay` (subject identity + `policy_namespace` + named
-  policies with an OPEN body — enumerating policy names is the flaw being
-  fixed), enforces identity against the DOMAIN's own `subject_hermes_template`
-  rather than a neutral field list, replaces the validator's blanket skip with
-  kind dispatch, and specifies the enforceable slice while leaving
-  materialization to hermes-install. OQ-1 positions taken for ratification:
-  kind `hermes_subject_overlay` (canonical vocabulary; the frozen `customer`
-  role key is mapped, not renamed), identity by `id` (not `ref`), and
-  `stricter_only` REFUSED in favour of a structurally enforced
-  `relation_to_baseline: additive_constraints_only`. MODIFIES
-  hermes-domain-overlay (six requirements). Related, not blocking: staged
-  topic `subject-establishment` (DTN-017), which gains a landing surface.
+- `add-subject-overlay-contract` — ARCHIVED 2026-08-15
+  (`openspec/changes/archive/2026-08-15-add-subject-overlay-contract/`):
+  the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
+  (annotated tag verified; 190-entry digest inventory) and CONSUMED —
+  hermes-install pins the family at the tag with parity floors covering the
+  kind (1 positive + 8 negatives), and the first instance
+  (codexFactory `hermes/subject/project-alfa/overlay.yaml`) is LIVE-SEEDED on
+  the QA stack (repin+seed window 2026-08-15). OQ-1 ruled: kind name
+  canonical, identity `subject.id`, `stricter_only` refused for
+  `relation_to_baseline: additive_constraints_only`. Related landing surface
+  for staged topic `subject-establishment` (DTN-017).
 
 - [add-staged-topic-outline-template](openspec/changes/add-staged-topic-outline-template/proposal.md)
   — authored 2026-08-15 from the `staged-topic-outline-template` staged topic,
