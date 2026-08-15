@@ -1,0 +1,34 @@
+schema: spec-driven
+created: 2026-08-15
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-15-add-substantive-review-lane
+  reason: >-
+    Authored directly from verified current-state facts, not a staged
+    ideation topic. codexFactory's gate_rules_council and merge_readiness_council
+    are proven live (autonomous deliberation 2026-08-14, xFactory PRs #85 and
+    #100: three seats, written rationales, unanimous READY, a signed
+    council-verdict check-run consumed by the aggregation repo's
+    merge-master-approval.yml, which then casts a real GitHub APPROVE review
+    as a dedicated App identity, never GITHUB_TOKEN). But the enforcer's only
+    rules-as-code candidate class today (`doc-health-nightly` in
+    `.github/merge-approval-envelope.yml`) is scoped to one bot author, one
+    head ref, one path allowlist, and one repo (`opensoft/xFactory`); the one
+    council-clearable condition is `docs_only_path_overflow`. Every other
+    governed pull request — human- or agent-authored, in any other repo,
+    including openxFactory itself — has exactly two paths past a
+    review-required ruleset: a human review, or an `--admin` bypass. This
+    change generalizes the proven council + Merge Master machinery so
+    substantive PRs across governed xFactory repos can receive a
+    team-member-equivalent, accountable review from Hermes-stack personas,
+    without ever moving judgment into the mechanical enforcer.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — authorized authoring this
+    ad-hoc proposal directly, per his decided generalization principles and
+    pilot direction for the council + Merge Master machinery (same
+    operator-authority pattern as add-client-identity-roster). This records
+    authorization to AUTHOR the proposal, not ratification of its content:
+    the proposal's open questions are declared, not decided, and its
+    Status below remains unratified pending review.
+  approved_on: 2026-08-15
+

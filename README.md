@@ -261,6 +261,21 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-substantive-review-lane](openspec/changes/add-substantive-review-lane/proposal.md)
+  — proposed 2026-08-15, not yet ratified: generalizes codexFactory's proven
+  `gate_rules_council` + `merge_readiness_council` + Merge Master machinery
+  (live autonomous deliberation 2026-08-14, xFactory PRs #85/#100) beyond its
+  one rules-as-code candidate class (`doc-health-nightly`,
+  `docs_only_path_overflow`) into a named substantive review lane: councils
+  judge, Merge Master stays the mechanical enforcer; every seat's rationale,
+  a signed identity-bound check-run, and an audit artifact make review
+  accountable; reviewer/enforcer identity stays separate from the PR
+  author's; the envelope fails closed outside a defined candidate class or a
+  non-unanimous verdict. MODIFIES `roles-authority-model` (six ADDED
+  requirements). Pilot: `opensoft/openxFactory` reviewed by codexFactory's
+  councils. Rollout order, non-engineering persona homes, company-policy-lead
+  per-PR seating, per-repo ruleset shape, and risk-tiering taxonomy are
+  declared open questions, not decided.
 - [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
   — authored 2026-08-14 from the Business Central admission investigation:
   the neutral identity layer beneath credential-contracts and
