@@ -62,10 +62,37 @@ remains is the contract and the surface.
 
 ## 3. The outline tab
 
-- [ ] 3.1 Render identified sections from headings and `xspec:` fences. No
+- [~] 3.1 Render identified sections from headings and `xspec:` fences. No
       content-sniffing, no fabricated headings.
-- [ ] 3.2 Add-section affordance writing through `edit-apply`, scoped by the
+      MODEL BUILT, RENDERING NOT WIRED. `web/views/outline-model.js` is a pure,
+      fence-aware section model — identifies sections from real `## ` headings
+      and `xspec:` fences, classifies required / added / proposal-element,
+      extracts `Added-by:` provenance, reports gaps. 9 tests under node,
+      including that nothing is fabricated (every reported section is asserted
+      to be a real line in the source) and that QUOTING the canonical fenced
+      skeleton is not adopting it. Wiring waits on 3.2's ruling: the index and
+      the add-section affordance share one pane, and building that layout twice
+      is the avoidable cost.
+- [!] 3.2 Add-section affordance writing through `edit-apply`, scoped by the
       target section; `Added-by:` provenance stamped on the added section.
+      **BLOCKED — Q4 NAMES A VERB THAT CANNOT DO THIS.** Read before building:
+      `edit_apply(gate, change_id, document, redline)` is the gate console's
+      MAIN-RESIDENT redline verb, requires `--change-id` ("the change owning the
+      document"), and applies to CHANGE DOCUMENTS. A staged topic's fragment is
+      not one, has no owning change, and is edited on a session branch — which
+      is `edit-document`'s job, the verb the ratified buffer contract already
+      uses. The intent-plane change references the same gate-console verb; there
+      is no second session-scoped `edit-apply`.
+      The two states are also MUTUALLY EXCLUSIVE by rule: `edit-apply` needs a
+      change id, but `location-conformance` fires as soon as a staged fragment
+      cites a live change and its remedy is to move the material OUT of staging
+      — so a fragment with an owning change is no longer in staging to patch.
+      Q4's stated context ("the branch-session model already exposes an
+      `edit-apply` intent verb for content changes on a session branch") is
+      wrong about this verb, and I carried it into the spec delta unchecked.
+      Q4's INTENT — no second write verb, reuse the existing session path,
+      section scoping is a targeting detail — is satisfied by `edit-document`
+      unchanged. Amending the ratified delta is Brett's call.
 - [ ] 3.3 Degrade on non-conforming fragments: render what is present, report
       nothing as broken, rewrite nothing on open.
 - [ ] 3.4 Gate-off posture: the affordance is not a live control and no write
