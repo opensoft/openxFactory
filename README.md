@@ -261,6 +261,29 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-staged-topic-outline-template](openspec/changes/add-staged-topic-outline-template/proposal.md)
+  — authored 2026-08-15 from the `staged-topic-outline-template` staged topic,
+  the track Brett's 2026-08-15 sequencing ruling put in PARALLEL with
+  `doxbench-editing-model` Phase A because its five questions were decisions
+  rather than builds. All five accepted as recommended, so the parallel track is
+  closed. A staged topic's primary fragment gets a required template — three
+  required sections, and every open question carrying Context / Recommended
+  answer / Explanation / Disposition status in fixed order, so a question is
+  never recorded bare. The load-bearing clause is ROUND-TRIP ON DEMOTE: a topic
+  that reached proposal and came back does not reset to its aspirational text,
+  it carries the ACTUAL last-attempted `proposal.md` with the change id, both
+  dates and the reason — nothing learned in flight is lost by falling back.
+  Sections added by a human or an AI carry `Added-by:` provenance;
+  proposal-element sections reuse the ratified `xspec:` marker grammar rather
+  than inventing a second addressing mechanism. Q1 keeps `primaryFragmentPath`
+  untouched (the wheel's one-path rule is preserved, not extended); Q2 makes
+  existing topics opt-in with doc-health nudging rather than blocking; Q4 rules
+  `edit-apply` the verb for AI section-patching, which is the hinge that
+  upgrades Phase A's freeform chat rewrites into marker-scoped patches. Both
+  deltas are ADDED, not MODIFIED as the staging INDEX predicted — the existing
+  requirements govern placement and buffer mechanics, neither fragment shape.
+  `target_release: implemented`.
+
 - [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
   — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
   (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
