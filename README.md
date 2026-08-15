@@ -226,7 +226,7 @@ Every DomainxFactory must validate against the canonical contract:
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
   credential record kinds under `credentials/` (DTN-004). Registered in
-  `contracts/manifest.yaml` for the first time at `contract-v1.32`, which also
+  `contracts/manifest.yaml` for the first time at `contract-v1.33`, which also
   adds the optional `issuance_preconditions` vocabulary
   (`add-client-identity-roster`).
 - Client identity roster: [xfactory-client-identity-roster schema](contracts/schemas/xfactory-client-identity-roster.schema.yaml),
@@ -238,7 +238,7 @@ Every DomainxFactory must validate against the canonical contract:
   drift finding that mutates nothing. A domain publishes its fragments at
   `credentials/client-identity-roster/<client_ref>.yaml`, one file per
   (client, domain) pair; a domain that publishes none stays conformant and the
-  check reports a notice. Registered at `contract-v1.32`
+  check reports a notice. Registered at `contract-v1.33`
   (`add-client-identity-roster`).
 - openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
   holder-agnostic core) and
@@ -275,6 +275,74 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-subject-overlay-contract](openspec/changes/add-subject-overlay-contract/proposal.md)
+  — authored 2026-08-15, commissioned as prerequisite task 2.1 of codexFactory's
+  ratified `add-project-alfa-subject-overlay`: the NEUTRAL contract kind for
+  Subject-layer Hermes overlays, whose instances live only in domain repos
+  (ruling D1 — openxFactory DESCRIBES subject overlays, never HOSTS one). The
+  gap is measured: `hermes-domain-overlay.schema.yaml` hard-enums `kind` and
+  requires the domain authority block, and `client-policy-overrides.schema.yaml`
+  enumerates a CLOSED set of seven override policies with no policy namespace
+  and no named-policy identity — so neither can carry an addressable
+  `<namespace>/<policy-id>` seat policy, while
+  `validate-hermes-domain-overlay.py` checks that the descriptor's declared
+  customer path EXISTS and then skips its content. Adds
+  `hermes_subject_overlay` (subject identity + `policy_namespace` + named
+  policies with an OPEN body — enumerating policy names is the flaw being
+  fixed), enforces identity against the DOMAIN's own `subject_hermes_template`
+  rather than a neutral field list, replaces the validator's blanket skip with
+  kind dispatch, and specifies the enforceable slice while leaving
+  materialization to hermes-install. OQ-1 positions taken for ratification:
+  kind `hermes_subject_overlay` (canonical vocabulary; the frozen `customer`
+  role key is mapped, not renamed), identity by `id` (not `ref`), and
+  `stricter_only` REFUSED in favour of a structurally enforced
+  `relation_to_baseline: additive_constraints_only`. MODIFIES
+  hermes-domain-overlay (six requirements). Related, not blocking: staged
+  topic `subject-establishment` (DTN-017), which gains a landing surface.
+
+- [add-staged-topic-outline-template](openspec/changes/add-staged-topic-outline-template/proposal.md)
+  — authored 2026-08-15 from the `staged-topic-outline-template` staged topic,
+  the track Brett's 2026-08-15 sequencing ruling put in PARALLEL with
+  `doxbench-editing-model` Phase A because its five questions were decisions
+  rather than builds. All five accepted as recommended, so the parallel track is
+  closed. A staged topic's primary fragment gets a required template — three
+  required sections, and every open question carrying Context / Recommended
+  answer / Explanation / Disposition status in fixed order, so a question is
+  never recorded bare. The load-bearing clause is ROUND-TRIP ON DEMOTE: a topic
+  that reached proposal and came back does not reset to its aspirational text,
+  it carries the ACTUAL last-attempted `proposal.md` with the change id, both
+  dates and the reason — nothing learned in flight is lost by falling back.
+  Sections added by a human or an AI carry `Added-by:` provenance;
+  proposal-element sections reuse the ratified `xspec:` marker grammar rather
+  than inventing a second addressing mechanism. Q1 keeps `primaryFragmentPath`
+  untouched (the wheel's one-path rule is preserved, not extended); Q2 makes
+  existing topics opt-in with doc-health nudging rather than blocking; Q4 rules
+  `edit-apply` the verb for AI section-patching, which is the hinge that
+  upgrades Phase A's freeform chat rewrites into marker-scoped patches. Both
+  deltas are ADDED, not MODIFIED as the staging INDEX predicted — the existing
+  requirements govern placement and buffer mechanics, neither fragment shape.
+  `target_release: implemented`.
+
+- [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
+  — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
+  (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
+  questions were dispositioned accepted-as-recommended the same day). Brett's
+  model is one sentence — left selects, center chat works, right shows the
+  result — and Phase A is the half of it that fits the EXISTING two-buffer
+  machinery with no invariant break: the authoring canvas presents the ACTIVE
+  buffer, chosen by the context region rather than by a second tablist of its
+  own; an Editor/Preview VIEW-TAB pair replaces the side-by-side
+  textarea+preview split, with Preview the default and a flush on every switch
+  into it; one Save and one Cancel replace the duplicated per-buffer toolbar
+  pair (Save keeps its ratified branch-session semantics unchanged — reading
+  the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
+  while Cancel discards the ACTIVE buffer to its `base_content`); the chat
+  binds to the active buffer immediately with no confirm step and every turn
+  record names the buffer it acted on; and the per-buffer staleness guard is
+  asserted to survive the consolidation. Phase B — numbered multi-document
+  tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
+  generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
+  — is explicitly out of scope. No contract release.
 - [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
   — authored 2026-08-14 from the Business Central admission investigation:
   the neutral identity layer beneath credential-contracts and
@@ -294,7 +362,7 @@ Active changes:
   capabilities; Decision C (Brett, 2026-08-15) relocated the uncitable
   multi-surface-reader packaged example to a synthetic representability
   fixture after its provider precondition was falsified. Registered at
-  `contract-v1.32`.
+  `contract-v1.33`.
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault

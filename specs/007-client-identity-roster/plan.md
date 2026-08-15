@@ -35,7 +35,7 @@ ways. One new schema file owning two record kinds (the per-(client, domain)
 roster fragment and its drift finding); one canonical validator with a
 two-layer corpus that carries a negative confirmation per rule AND the
 killed-flaw regression positives; packaged examples spanning two fragments for
-a two-domain client; registration at `contract-v1.32`. Then the four MODIFIED
+a two-domain client; registration at `contract-v1.33`. Then the four MODIFIED
 capabilities: the conformance pack grows to four checks so intra-repo
 conformance BLOCKS, doc-health grows a sixteenth family so cross-domain
 composition REPORTS, `credential-contracts` gains a closed
@@ -57,7 +57,7 @@ access, no domain-repository edit.
 | III. Document lifecycle | PASS. New docs (`examples/client-identity-roster/README.md`) carry `Status: ratified` naming the change. `Status: record` review files are never edited or appended; any amendment lands as a sibling record file (research.md, last section). |
 | IV. Schema and artifact discipline | PASS. Every new YAML carries `schema_version` + `kind`; `.example.yaml` files are instantiation stubs, never live configuration; validator root is `Path(__file__).resolve().parents[1]` so no host-absolute path is committed; no credential, provider payload, or tenant secret enters the tree — the packaged BC case records app/object/sp identifiers and permission names only, and its source record already states `credentials: none`. New docs are linked into `README.md`'s index and `contracts/README.md`'s registration table. |
 | V. Validation gates | PASS. The green bar is enumerated below and is the SC-010 list verbatim. Behaviour is proven by fixtures and a discrimination measurement (genuine pairs pass, alias pair refused), not by assertion. |
-| VI. Versioned, content-addressed releases | PASS. `contract-v1.32` allocated at realization: manifest bundle version, per-file `sha256`, CHANGELOG entry, regenerated release digest inventory, atomic commit. `contract_schema_version` bumps on the two consent schemas; the record envelope's `schema_version` const does NOT change (research.md, "A registration gap FR-021 assumes away"). Additive-minor is the claim, and `docs/contract-versioning-policy.md:130-132` is the test it is held to. |
+| VI. Versioned, content-addressed releases | PASS. `contract-v1.33` allocated at realization: manifest bundle version, per-file `sha256`, CHANGELOG entry, regenerated release digest inventory, atomic commit. `contract_schema_version` bumps on the two consent schemas; the record envelope's `schema_version` const does NOT change (research.md, "A registration gap FR-021 assumes away"). Additive-minor is the claim, and `docs/contract-versioning-policy.md:130-132` is the test it is held to. |
 | VII. Fail-closed authority boundaries | PASS. SEVEN closed vocabularies refuse unrecognized values — FR-034's six entry-side sets plus the drift record's `status` (SC-014, as re-scoped by the checklist pass) — and each has its own refusal probe; the two open tokens are pattern-bound and legend-bound. The drift record refuses grant issuance while `open` — a fail-closed lever that mutates nothing. No model call anywhere; the cross-domain family is a deterministic recompute. |
 
 **Complexity Tracking**: no entries. Nothing here requires a constitutional
@@ -214,10 +214,10 @@ tests/conformance-gate/test_conformance_checks.py            # pack grows to fou
 examples/credential-contracts/                               # + 1 positive, + 2 negatives
                                                              #   (unknown token; false value)
 examples/consent-instrument/                                 # + 1 positive, + 2 negatives
-contracts/manifest.yaml                                      # bundle v1.32 + 4 rows
-contracts/CHANGELOG.md                                       # v1.32 entry
+contracts/manifest.yaml                                      # bundle v1.33 + 4 rows
+contracts/CHANGELOG.md                                       # v1.33 entry
 contracts/README.md                                          # registration rows
-contracts/releases/contract-v1.32.digests.yaml               # generated
+contracts/releases/contract-v1.33.digests.yaml               # generated
 README.md                                                    # doc index + OpenSpec Records
 
 NOT EDITED (deliberately)
@@ -953,11 +953,11 @@ The constraint of research.md Decision 8 is the standing rule this precondition
 mechanizes: a packaged example may not assert a provider fact the builder
 cannot cite.
 
-### Cluster E — registration at `contract-v1.32`
+### Cluster E — registration at `contract-v1.33`
 
 Atomic, in one commit (constitution VI):
 
-1. `contracts/manifest.yaml`: `contract_bundle_version: contract-v1.32`; a NEW
+1. `contracts/manifest.yaml`: `contract_bundle_version: contract-v1.33`; a NEW
    row for the roster schema (one row, one `sha256`, one `consumption_rule`
    stating BOTH the declared placement and that
    `validate-credential-contracts.py`'s skip-with-notice over that path is
@@ -965,16 +965,16 @@ Atomic, in one commit (constitution VI):
    `consent-instrument-class-registry`; and a FIRST row for
    `xfactory-credential-contracts`, which has none today (research.md, "A
    registration gap FR-021 assumes away").
-2. `contracts/CHANGELOG.md`: a `## contract-v1.32` entry classed **additive**,
+2. `contracts/CHANGELOG.md`: a `## contract-v1.33` entry classed **additive**,
    folding in the pending `## Unreleased` openxwallet item, and stating the
    additivity argument explicitly: an OPTIONAL property and an ADDED enum
    member, so a domain repo on the same major version remains conformant
    without changes.
 3. `contracts/README.md`: registration rows for the roster schema + validator
    + examples, and amended rows for the two consent schemas.
-4. `contracts/releases/contract-v1.32.digests.yaml`: GENERATED by
-   `python3 scripts/validate-contract-release.py build --tag contract-v1.32
-   --output contracts/releases/contract-v1.32.digests.yaml`. Its membership is
+4. `contracts/releases/contract-v1.33.digests.yaml`: GENERATED by
+   `python3 scripts/validate-contract-release.py build --tag contract-v1.33
+   --output contracts/releases/contract-v1.33.digests.yaml`. Its membership is
    the Hermes-runtime release surface plus the manifest/CHANGELOG/README and
    versioning policy — roster paths do NOT enter it and must not be hand-added
    (research.md, "Registration mechanics"). **Generation is therefore LAST
@@ -1258,9 +1258,9 @@ resolves to a specific, runnable list — and to one honest gap.
 4. `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster --strict`
    and `--all --strict` (58/58 at `4de5bb2`; must not regress).
 5. `python3 scripts/validate-manifest-digests.py` — every row's `sha256`
-   verifies at `contract-v1.32`.
-6. `python3 scripts/validate-contract-release.py build --tag contract-v1.32
-   --output contracts/releases/contract-v1.32.digests.yaml`, then the
+   verifies at `contract-v1.33`.
+6. `python3 scripts/validate-contract-release.py build --tag contract-v1.33
+   --output contracts/releases/contract-v1.33.digests.yaml`, then the
    release verifier over the realized commit.
 7. `python3 openxFactory/scripts/doc-health.py --repo-root <aggregation
    checkout>` from the aggregation root — sixteen families run, the new one
@@ -1393,7 +1393,9 @@ is a ruling rather than an open choice and is encoded in Cluster A above.
 13. **`credential-contracts` gets a FIRST manifest row**, not a refresh — it
     has none today, which FR-021's wording assumes it does.
 14. **The `Unreleased` CHANGELOG block folds into the v1.32 entry** rather
-    than surviving beside it.
+    than surviving beside it. (Realized differently: `add-subject-overlay-contract`
+    landed `contract-v1.32` on main on 2026-08-15 and discharged the block
+    there, so this feature re-cut as `contract-v1.33` and does not re-fold it.)
 15. **`openspec/specs/domain-conformance-checks/spec.md` and
     `openspec/specs/consent-instrument/spec.md` are left unedited**, extending
     FR-025's doc-health rule to the other promoted specs this change modifies.

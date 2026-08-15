@@ -426,11 +426,11 @@ requirements:
     statement: >-
       The schema is registered in `contracts/manifest.yaml` with the full row
       shape, carries a `contracts/CHANGELOG.md` entry, and bumps the bundle to
-      `contract-v1.32` with the matching release digest inventory, such that
+      `contract-v1.33` with the matching release digest inventory, such that
       digest verification passes.
     artifact: >-
       contracts/manifest.yaml, contracts/CHANGELOG.md, contracts/README.md,
-      contracts/releases/contract-v1.32.digests.yaml
+      contracts/releases/contract-v1.33.digests.yaml
     enforced_by: >-
       `python3 scripts/validate-manifest-digests.py` and
       `python3 scripts/validate-contract-release.py verify-commit --commit HEAD`
@@ -439,15 +439,22 @@ requirements:
       is an error, which is the defect (a manifest row stale since 403c2b5)
       that caused validate-manifest-digests.py to be written at all
     red_proven: >-
-      MEASURED, and the honest measure is stated rather than rounded up:
-      validate-manifest-digests.py goes from 132 digests checked at `ae3f5c8`
-      to 134 at `contract-v1.32`, with the failure set BYTE-IDENTICAL before and
-      after — one PRE-EXISTING unrelated mismatch on
+      MEASURED, and the honest measure is stated rather than rounded up.
+      As first cut at `contract-v1.32` (2026-08-15, before main's merge):
+      validate-manifest-digests.py went from 132 digests checked at `ae3f5c8`
+      to 134, with the failure set BYTE-IDENTICAL before and after — one
+      PRE-EXISTING unrelated mismatch on
       contracts/omnigent/omnigent-domain-overlay.schema.yaml, proven
       pre-existing by recomputing the same manifest against the same blobs at
-      `ae3f5c8`. Every row this change touches verifies; the release verifier
-      passes over the realized commit. "FR-021 exit 0" therefore reads as ZERO
-      NEW, ZERO CHANGED findings over this checkout.
+      `ae3f5c8`, and deliberately NOT repaired inside a cut that does not own
+      that schema. RE-MEASURED at `contract-v1.33` (2026-08-15, after merging
+      origin/main): 135 digests checked, ZERO failures, exit 0 — main's own
+      `contract-v1.32` cut (add-subject-overlay-contract, PR #187) both added
+      the hermes-subject-overlay row and cured that pre-existing omnigent
+      mismatch in its owning lane, which is where it belonged. Every row this
+      change touches verifies; the release verifier passes over the realized
+      commit. "FR-021 exit 0" reads literally now, and read as ZERO NEW, ZERO
+      CHANGED findings before.
 
   FR-022:
     statement: >-
@@ -1037,7 +1044,7 @@ requirements:
   SC-010:
     statement: >-
       The green bar — repository validators pass, `openspec validate --all
-      --strict` passes, contract digests verify at `contract-v1.32` for every
+      --strict` passes, contract digests verify at `contract-v1.33` for every
       row the feature touches, all FOUR modified capabilities' suites pass, and
       doc-health reports no new finding against the change or its documents,
       read with FR-025's qualification.

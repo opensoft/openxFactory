@@ -1,0 +1,20 @@
+schema: spec-driven
+created: 2026-08-15
+origin:
+  kind: staged
+  id: openxFactory:staging:doxbench-editing-model
+  path: ideation/staging/doxbench-editing-model
+  reason: >-
+    Phase A of the staged topic, sequenced first of Brett's four 2026-08-15
+    staging topics and split into two phases by that same ruling. The topic's
+    six open questions divide on exactly one line: four (Q2 Save/Cancel
+    semantics, Q4 chat-context binding, Q5 Editor/Preview default and sync,
+    Q6 concurrent-edit safety) were dispositioned accepted-as-recommended on
+    2026-08-15 and fit the EXISTING two-buffer machinery with no invariant
+    break; two (Q1 numbered tabs and their overflow policy, Q3 dirty-tile
+    signalling) remain open and require the N-buffer generalization of
+    `BUFFER_KINDS`, `require_outline_and_document`, and `SAVE_BUFFER_ORDER`.
+    This change exits only the first four. The topic stays staged, carrying
+    Q1 and Q3 for Phase B.
+  approved_by: Brett Heap (dispositions and phase sequencing relayed in-session)
+  approved_on: 2026-08-15

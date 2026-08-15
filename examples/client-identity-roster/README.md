@@ -2,7 +2,7 @@
 
 Status: ratified
 Ratified by: add-client-identity-roster (registered in
-`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.32`,
+`contracts/manifest.yaml` + `contracts/CHANGELOG.md` at `contract-v1.33`,
 per [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns the neutral contract; the first

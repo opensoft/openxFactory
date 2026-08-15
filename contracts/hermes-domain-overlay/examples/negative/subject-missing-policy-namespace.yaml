@@ -1,0 +1,15 @@
+# expected_failure: subject.policy_namespace
+# A subject whose policies cannot be addressed: without a namespace there is
+# no <namespace>/<policy-id> address for a consumer to resolve.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  relation_to_baseline: additive_constraints_only
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa

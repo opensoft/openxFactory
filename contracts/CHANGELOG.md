@@ -9,7 +9,7 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v1.32 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
+## contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
 
 Realizes `add-client-identity-roster` through Speckit feature
 `007-client-identity-roster`: one new neutral contract family, one first-ever
@@ -74,21 +74,6 @@ major version needs a change** — which is why the RECORD envelope's
 every instrument in the estate, the opposite of additive. The two manifest
 digests are refreshed with the bump recorded in their `consumption_rule`.
 
-- **Additive** (folded in from the `## Unreleased` block this cut discharges):
-  `openxwallet-record.schema.yaml` `signature_algorithm` enum widened with
-  `rsa-2048-sha256` and `rsa-3072-sha256` (RSASSA-PKCS1-v1_5 over the named
-  SHA-2 digest). Found by the first consumer, the LedgerxFactory posting
-  segregation-of-duties control: its enforcement surface verifies proofs with
-  Business Central's own crypto, and BC 28.3 AL exposes exactly
-  RSA/DSA/RSASSA-PSS — no ed25519, no ECDSA (measured against the 28.3 System
-  Application symbols, enum 1446 SignatureAlgorithm). The curve-only enum
-  therefore admitted no algorithm the platform could verify locally, forcing
-  verification off-platform against the consumer's local-decision rule.
-  Existing records remain conformant; one positive example added
-  (`wallet-agent-rsa-platform-verifiable.example.yaml`, corpus now 17
-  positives); manifest digest for the schema refreshed with the amendment
-  noted in its `consumption_rule`.
-
 Consumers pin this release and run
 `scripts/validate-client-identity-roster.py <domain-repo>` from the pinned
 checkout, never a copy inside a domain repository; the packaged corpus is
@@ -96,9 +81,60 @@ checkout, never a copy inside a domain repository; the packaged corpus is
 registered negatives under `negative/`, each failing for its own registered
 reason. The roster paths are content-addressed by commit and deliberately do
 NOT enter the release digest inventory, whose membership is unchanged from
-v1.30 and v1.31. `scripts/validate-credential-contracts.py`'s
+v1.30, v1.31 and v1.32. `scripts/validate-credential-contracts.py`'s
 skip-with-notice over `credentials/client-identity-roster/` is EXPECTED and
 BLESSED: the canonical roster validator claims exactly that path.
+
+## contract-v1.32 — 2026-08-15 (additive; the Subject Hermes overlay kind)
+
+Cuts the standing Unreleased items: the `hermes_subject_overlay` kind and
+validator dispatch (add-subject-overlay-contract, ratified 2026-08-15,
+PR #183 merged cb738ba5) and the openxwallet RSA signature-algorithm
+widening. Also corrects the `omnigent-domain-overlay` manifest digest,
+which drifted when df16f21 edited the schema without refreshing the
+recorded digest.
+
+- **Additive**: `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml`
+  — the neutral `hermes_subject_overlay` kind for a Subject Hermes layer's
+  seedable document (add-subject-overlay-contract, ratified 2026-08-15).
+  Subject identity (`id`, not `ref` — a subject overlay DECLARES an identity
+  that exists in no prior registry), a `policy_namespace`, a declared
+  `relation_to_baseline` (single-value enum `additive_constraints_only`), and
+  a non-empty `policies` mapping keyed by policy id whose entries restate
+  their own `policy_id` and `policy_namespace` and keep an OPEN body — so a
+  named policy is addressable as `<policy_namespace>/<policy_id>` without the
+  neutral contract enumerating policy names, which is exactly what stopped the
+  tenant-layer override contract from carrying one. The kind name is canonical
+  (`subject`) while the runtime layer role key stays the frozen `customer`;
+  the mapping is recorded in the schema header, and neither side is renamed.
+  `scripts/validate-hermes-domain-overlay.py` gains the kind and now dispatches
+  descriptor-declared paths BY KIND instead of skipping everything that was not
+  a domain overlay, retaining the skip-with-notice for kinds owned by another
+  canonical validator (`hermes_client_overlay` →
+  `scripts/validate-client-content.py`); it adds address self-consistency and
+  uniqueness, the prohibited-block list, and cross-document identity
+  conformance against the domain's own `subject_hermes_template` (absent
+  template = skip with notice, no new refusal class). One positive example and
+  eleven negatives ship with it (eight document-shaped, three repo-shaped).
+  Additive only: no released file's bytes change, so existing pins — including
+  hermes-install's `contract-v1.18` pinned copies — resolve byte-identically
+  until they choose to re-pin. Manifest entry added; the bundle minor number
+  and annotated tag are allocated LATE at realization per the versioning
+  policy.
+- **Additive**: `openxwallet-record.schema.yaml` `signature_algorithm`
+  enum widened with `rsa-2048-sha256` and `rsa-3072-sha256`
+  (RSASSA-PKCS1-v1_5 over the named SHA-2 digest). Found by the first
+  consumer, the LedgerxFactory posting segregation-of-duties control:
+  its enforcement surface verifies proofs with Business Central's own
+  crypto, and BC 28.3 AL exposes exactly RSA/DSA/RSASSA-PSS — no
+  ed25519, no ECDSA (measured against the 28.3 System Application
+  symbols, enum 1446 SignatureAlgorithm). The curve-only enum therefore
+  admitted no algorithm the platform could verify locally, forcing
+  verification off-platform against the consumer's local-decision rule.
+  Existing records remain conformant; one positive example added
+  (`wallet-agent-rsa-platform-verifiable.example.yaml`, corpus now 17
+  positives); manifest digest for the schema refreshed with the
+  amendment noted in its `consumption_rule`.
 
 ## contract-v1.31 — 2026-08-07 (additive; the openxWallet core and its first profile)
 

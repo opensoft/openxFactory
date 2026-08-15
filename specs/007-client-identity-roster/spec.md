@@ -148,7 +148,7 @@ first pass; two were escalated to Brett as ratified-scope decisions.
 - Q: Does the consent-instrument status enum need `withdrawn`? → A (N1/N2):
   yes — the delta requires behaviour on "terminated or withdrawn", and the
   enum is closed. Grow it additively with a `contract_schema_version` bump and
-  manifest rows at `contract-v1.32`; no aliasing, because withdrawal and
+  manifest rows at `contract-v1.33`; no aliasing, because withdrawal and
   termination are distinct events.
 - Q: What is the new doc-health family called? → A (N4): the ratified delta
   names no family id, so the id is `client-identity-composition` (module
@@ -880,7 +880,7 @@ remove an identity, permission, or admission.
   with `path`, `source_path`, `type`, `schema_version`, `sha256`,
   `compatibility`, `adapter_owner`, and a `consumption_rule`, MUST carry a
   `contracts/CHANGELOG.md` entry, and MUST bump the contract bundle from its
-  current `contract-v1.31` to `contract-v1.32` with the matching release digest
+  current `contract-v1.32` to `contract-v1.33` with the matching release digest
   inventory, such that digest verification passes. Every OTHER schema this
   feature edits — the consent-instrument family under FR-039, and the canonical
   credential-contracts schema under FR-028 — MUST have its manifest row
@@ -1108,7 +1108,7 @@ remove an identity, permission, or admission.
   `kind` inside the roster schema or as its own schema file is an
   implementation choice, but either way it MUST be registered under FR-021
   (manifest row with sha256 and consumption rule, CHANGELOG entry, same
-  `contract-v1.32` bundle) and MUST carry at least one packaged example and one
+  `contract-v1.33` bundle) and MUST carry at least one packaged example and one
   negative fixture like every other record this feature ships.
 
 **Requirements added by the 2026-08-14 rulings**
@@ -1164,7 +1164,7 @@ remove an identity, permission, or admission.
   closed set MUST grow together, including the repetition in
   `contracts/schemas/consent-instrument-class-registry.schema.yaml`. Growth
   MUST follow the schema's own stated rule — a `contract_schema_version` bump —
-  with the affected rows re-registered at `contract-v1.32` and `compatibility`
+  with the affected rows re-registered at `contract-v1.33` and `compatibility`
   declared in the shape the previous bump's rows use. Because the growth is
   ADDITIVE, every existing conformant instrument and fixture MUST remain valid
   unchanged, which is how FR-030's "existing suites unaffected" is honoured
@@ -1305,7 +1305,7 @@ remove an identity, permission, or admission.
   containing no intra-repo rule.
 - **SC-010**: The green bar: repository validators pass,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` passes, contract
-  digests verify at `contract-v1.32` for every row the feature touches, all
+  digests verify at `contract-v1.33` for every row the feature touches, all
   FOUR MODIFIED capabilities' existing test suites pass — `consent-instrument`
   and `doc-health` as declared at ratification, plus `domain-conformance-checks`
   and `credential-contracts` as amended by Decisions A and B — and doc-health
@@ -1355,9 +1355,14 @@ remove an identity, permission, or admission.
   invoked against a target repository from the pinned checkout — the same
   consumption shape as the existing canonical validators and the conformance
   pack.
-- **The current bundle is `contract-v1.31`**, verified in
-  `contracts/manifest.yaml`, so this feature registers at `contract-v1.32` —
-  re-confirmed 2026-08-14 against the manifest, with no intervening bump.
+- **The current bundle is `contract-v1.32`**, verified in
+  `contracts/manifest.yaml`, so this feature registers at `contract-v1.33` —
+  first taken as `contract-v1.32` on 2026-08-14 against the then-current
+  `contract-v1.31` with no intervening bump, then RE-CUT to `contract-v1.33`
+  on 2026-08-15 when `add-subject-overlay-contract` landed `contract-v1.32`
+  on main (PR #187) while this branch was in flight. The assumption is that
+  the bundle number is allocated LATE at realization, which is what made the
+  re-cut a renumber rather than a redesign.
 - **`granted_permissions[]` is provider-native and opaque to the neutral
   contract**: the schema constrains shape, while the mapping from a permission
   identifier to the facts the checks need — the achieved authority class it

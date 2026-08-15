@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.32
+contract_bundle_version: contract-v1.33
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -840,6 +840,42 @@ contracts:
       declared-location existence is enforced by the canonical validator
       (scripts/validate-hermes-domain-overlay.py) when a repo path is
       supplied, and a consumer never loads an undeclared kind silently.
+  # ---- subject overlay — add-subject-overlay-contract realization ----
+  # The Subject layer's seedable document: the INSTANCE of a subject kind the
+  # domain's own subject_hermes_template declares, carrying policies addressed
+  # as <policy_namespace>/<policy_id>. Neither existing overlay kind could
+  # carry that address — hermes_domain_overlay hard-enums its kind and requires
+  # the domain authority block, and client-policy-overrides enumerates a CLOSED
+  # set of seven policies with no namespace and no named-policy identity.
+  # Instances live ONLY in domain repositories; openxFactory describes the kind
+  # and never hosts one. The bundle tag is allocated LATE at release per
+  # docs/contract-versioning-policy.md and recorded in contracts/CHANGELOG.md.
+  - id: hermes-subject-overlay
+    path: contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 5cd792fba0b39a83bae2937ead705397eef324704bca872dc197a80aa786ca72
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A domain repo ships its subject overlay at the path its
+      hermes/overlay-descriptor.yaml declares under the frozen `customer` role
+      key (canonical layer: `subject`, per
+      contracts/policies/layer-vocabulary.yaml legacy_mapping). Consumers
+      (the hermes-install seeder, DomainxFactory validate chains) verify this
+      per-file sha256 before treating a copy as current. Address
+      self-consistency and uniqueness (every policies key equals its policy_id;
+      every policy namespace equals the subject's), the prohibited-block list
+      (authority_boundaries / approval_scope_kinds / required_approval_fields
+      and any credential value — a subject adds constraints and never grants,
+      widens, or waives), and cross-document identity conformance against the
+      domain's own hermes/subject/template.yaml are enforced by
+      scripts/validate-hermes-domain-overlay.py (canonical), never
+      re-implemented by consumers. Two invariants openxFactory cannot check
+      without a live stack are the consumer's to enforce at seed time:
+      subject.id == the seeded layer_id, and subject.policy_namespace == that
+      layer's policy_namespace.
   # ---- omnigent contract family + layer vocabulary — contract-v1.16 realization (add-omnigent-domain-overlay; adopt-subject-tenant-domain-vocabulary) ----
   # The Omnigent execution layer's domain tier: per-domain overlay payload
   # (five neutral worker archetypes, generalized permission matrix with
@@ -860,7 +896,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-domain-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: bb1cc4dd32f49e2c4ec63bc8163d7364b05849b6ccaab10f6a13764c05cd5b45  # contract-v1.23 (additive: worker semantic_context declaration; add-omnigent-semantic-wiring)
+    sha256: 54aa4308909841f08a50b9f3c191b320728a02a331a318718535ab2af00b378e  # contract-v1.23 (additive: worker semantic_context declaration; add-omnigent-semantic-wiring)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1746,7 +1782,7 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The xfactory_consent_instrument record kind — the authority-chain root: parties by rung (incl. estate hosts), scope with stated out-of-scope, delegation clauses, autonomy position, authority_basis, revocation right + SLA, opaque signed-original custody, the closed six-state lifecycle with declared aliases, amendment deltas, dependent-artifact references, and the declared consent-profile mapping (or explicit data_consent: none).
-      Registered at contract-v1.30; digest refreshed at contract-v1.32 by
+      Registered at contract-v1.30; digest refreshed at contract-v1.33 by
       add-client-identity-roster, which bumps this schema's
       contract_schema_version 1 -> 2 for two ADDITIVE growths: the
       lifecycle enum gains `withdrawn` as a SECOND TERMINAL state (a
@@ -1773,7 +1809,7 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The domain-owned CLOSED instrument-class registry: every class declares its custody-anchor and execution-evidence kinds, its signature_phase posture (false is the declared direct-to-executed skip), and any per-domain status aliases.
-      Registered at contract-v1.30; digest refreshed at contract-v1.32 by
+      Registered at contract-v1.30; digest refreshed at contract-v1.33 by
       add-client-identity-roster, which bumps this schema's
       contract_schema_version 1 -> 2: the status_aliases target enum
       tracks the instrument schema's six-state lifecycle, so a domain
@@ -1914,7 +1950,7 @@ contracts:
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- client-identity-roster + the credential-contracts first registration —
-  # contract-v1.32 registration (add-client-identity-roster, feature
+  # contract-v1.33 registration (add-client-identity-roster, feature
   # 007-client-identity-roster) ----
   # The packaged corpus (examples/client-identity-roster/, 4 example YAMLs + a
   # README + 31 registered negatives) and the canonical validator
@@ -1945,7 +1981,7 @@ contracts:
       this release. Both kinds declare schema_version const 1, which is
       what the per-row schema_version above mirrors — not the schema
       file's contract_schema_version. A placement change is a contract
-      change. Registered at contract-v1.32; consumed through the pinned
+      change. Registered at contract-v1.33; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   - id: credential-contracts
@@ -1958,7 +1994,7 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The five credential-contract record kinds promoted from OpsxFactory evidence (promote-credential-contracts, DTN-004): credential requirements, runtime capability grant, credential binding, credential broker contract, and credential audit policy. Domain content — families, scopes, workflow and action names, providers — is domain-local; this schema constrains SHAPE only, and the semantic invariants stay in docs/credential-access-model.md.
-      FIRST registration at contract-v1.32. The schema was promoted at
+      FIRST registration at contract-v1.33. The schema was promoted at
       DTN-004 without a manifest row; add-client-identity-roster
       registers it here, so the digest cross-repo consumers verify now
       exists for the file they pin. Registered in the same cut as its
