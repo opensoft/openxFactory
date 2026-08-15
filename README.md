@@ -261,6 +261,30 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-subject-overlay-contract](openspec/changes/add-subject-overlay-contract/proposal.md)
+  — authored 2026-08-15, commissioned as prerequisite task 2.1 of codexFactory's
+  ratified `add-project-alfa-subject-overlay`: the NEUTRAL contract kind for
+  Subject-layer Hermes overlays, whose instances live only in domain repos
+  (ruling D1 — openxFactory DESCRIBES subject overlays, never HOSTS one). The
+  gap is measured: `hermes-domain-overlay.schema.yaml` hard-enums `kind` and
+  requires the domain authority block, and `client-policy-overrides.schema.yaml`
+  enumerates a CLOSED set of seven override policies with no policy namespace
+  and no named-policy identity — so neither can carry an addressable
+  `<namespace>/<policy-id>` seat policy, while
+  `validate-hermes-domain-overlay.py` checks that the descriptor's declared
+  customer path EXISTS and then skips its content. Adds
+  `hermes_subject_overlay` (subject identity + `policy_namespace` + named
+  policies with an OPEN body — enumerating policy names is the flaw being
+  fixed), enforces identity against the DOMAIN's own `subject_hermes_template`
+  rather than a neutral field list, replaces the validator's blanket skip with
+  kind dispatch, and specifies the enforceable slice while leaving
+  materialization to hermes-install. OQ-1 positions taken for ratification:
+  kind `hermes_subject_overlay` (canonical vocabulary; the frozen `customer`
+  role key is mapped, not renamed), identity by `id` (not `ref`), and
+  `stricter_only` REFUSED in favour of a structurally enforced
+  `relation_to_baseline: additive_constraints_only`. MODIFIES
+  hermes-domain-overlay (six requirements). Related, not blocking: staged
+  topic `subject-establishment` (DTN-017), which gains a landing surface.
 - [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
   — authored 2026-08-14 from the Business Central admission investigation:
   the neutral identity layer beneath credential-contracts and

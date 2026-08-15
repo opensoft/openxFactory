@@ -1,0 +1,36 @@
+schema: spec-driven
+created: 2026-08-15
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-15-add-subject-overlay-contract
+  commissioned_by: codexFactory:change:add-project-alfa-subject-overlay#task-2.1
+  reason: >-
+    Not from an openxFactory staged topic: commissioned as a named
+    prerequisite by another repository's ratified change — codexFactory
+    `add-project-alfa-subject-overlay`, ratified 2026-08-15 by Brett Heap,
+    which named this contract as prerequisite task 2.1 rather than routing
+    around it.
+    That change's ruling D1 is that openxFactory is the neutral portion and
+    any customer/subject overlay INSTANCE belongs in a domain xFactory; its
+    ruling D2 is that the document kind is a NEW neutral kind defined here
+    and instantiated there. openxFactory DESCRIBES subject overlays; it never
+    HOSTS one. The gap is measured, not preferred: `kind` in
+    `hermes-domain-overlay.schema.yaml` is a single-value enum
+    `[hermes_domain_overlay]` that also requires the domain authority block;
+    `client-content/client-policy-overrides.schema.yaml` enumerates a CLOSED
+    set of seven override policies and carries no policy namespace and no
+    named-policy identity anywhere; and
+    `scripts/validate-hermes-domain-overlay.py::validate_repo` prints
+    `skip role customer: … (not a domain overlay)` for any
+    descriptor-declared path whose kind is not `hermes_domain_overlay`, so
+    the declared customer path's EXISTENCE is checked while its CONTENT is
+    governed by nothing. Meanwhile
+    `contracts/hermes-domain-overlay/overlay-descriptor.schema.yaml` already
+    accepts the `customer` role and its own comment anticipates
+    `hermes/subject/`. The family expected a subject overlay; it never got
+    one.
+  approved_by: Brett Heap (openxFactory operator authority)
+  approved_on: 2026-08-15
+related:
+  - openxFactory:staging:subject-establishment   # DTN-017 — related, NOT blocking
+  - hermes-install:change:add-subject-overlay-seeding   # the consumer, proposed in parallel
