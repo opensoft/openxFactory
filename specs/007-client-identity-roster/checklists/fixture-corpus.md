@@ -23,7 +23,7 @@ for the wrong reason is worse than none.
 
 ## The killed-flaw positives and the discriminations
 
-- [x] CHK409 Are the four mandated positive cases each required, and each required to validate with ZERO findings? [Completeness, Spec §FR-017, §SC-002]
+- [x] CHK409 Are the four mandated positive cases each required, and each required to validate with ZERO findings? [Completeness, Spec §FR-017, §SC-002] — RE-CHECKED after Decision C (Brett, 2026-08-15): still FOUR positives, each still required at ZERO findings. Only the HOME of one moved — the provider-forced multi-surface reader is now the synthetic representability fixture at tasks §4.9 (`tests/client-identity-roster/fixtures/`) rather than a packaged entry, because no in-vocabulary spanning permission exists to package truthfully. The PACKAGED positive count is three; the SC-002 positive count is unchanged at four, and tasks §10.5 is amended to reach the fixture so the fourth cannot be silently dropped.
 - [x] CHK410 Is the genuine per-unit pair specified concretely enough to be authored (differing in `achieved_scope`), rather than as "a per-unit pair"? [Clarity, Spec §FR-017]
 - [x] CHK411 Is the genuine duty pair specified with BOTH admissible qualifications (differing permissions OR a declared rationale)? [Clarity, Spec §FR-017, §FR-038]
 - [x] CHK412 Is the alias-pair negative required to sit in the SAME corpus as the genuine pairs, so the measurement is a discrimination rather than a refusal? [Measurability, Spec §SC-002, tasks §4.6]

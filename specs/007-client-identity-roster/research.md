@@ -112,12 +112,18 @@ FR-034 is a derivation rule, not a vocabulary:
 > `identity_kind`'s members MUST be taken VERBATIM from the ratified delta or
 > OpenSpec task 2.1 where those enumerate them; they do NOT (task 2.1 names
 > the field only), so its members MUST be exactly the kinds the four mandated
-> example cases require, closed at that set for this release, and the builder
+> cases require […], closed at that set for this release, and the builder
 > MUST NOT invent an unratified kind vocabulary.
 
-So the input set is: the four mandated example cases of FR-019, plus (per the
+So the input set is: the four mandated cases of FR-019, plus (per the
 progress handoff) the vendor-homed negative of FR-016 if it forces a second
 kind. Nothing else may contribute a member.
+
+**Decision C (2026-08-15) does not disturb this derivation.** It relocates the
+multi-surface case from the packaged set to a representability fixture — three
+packaged examples plus the fixture — but all four cases are still AUTHORED, and
+the derivation below reads what each case REQUIRES, not where it is filed.
+Case 2 contributes no kind either way, so the derived set is unchanged.
 
 ### The derivation, case by case
 
@@ -171,7 +177,10 @@ principal.
 **Case 2 — the provider-forced multi-surface reader.** The reach is carried
 by `granted_permissions[]` (application permissions and/or a directory role
 assigned to a service principal). The object holding them is again an Entra
-application registration. Contributes no new kind.
+application registration. Contributes no new kind. (Relocated to a synthetic
+representability fixture by Decision C, 2026-08-15 — see Decision 8's dated
+sub-section. Its kind contribution is unchanged: still an Entra application
+registration, still no new member.)
 
 **Case 3 — the duty-separated pair.** The estate precedent is
 LedgerxFactory's `ledgerx-farheap-bc-poster` / `-provisioner`. Both are Entra
@@ -550,6 +559,29 @@ narrowing fires nowhere and no existing registry or instrument changes verdict
 edit. Recorded as a precondition, not an assumption: if this cluster is
 rebased onto a materially later estate, re-run the sweep before growing the
 tuple.
+
+**RE-CONFIRMED 2026-08-15 (task 0.2), and this is a FULL-ESTATE sweep, not a
+narrowed one.** The reach is recorded because it is the thing that makes the
+result meaningful: the aggregation checkout `/home/brett/projects/xFactory`
+resolved (task 0.3's second half), so the DOMAIN registries were visible —
+without it this would have been a NARROWED sweep over the neutral repo alone
+and could not have been reported as a clean estate sweep. Swept:
+`openxFactory/` plus every `xFactories/*` and `installs/*`, worktrees
+included. Exactly four files declare `status_aliases` anywhere in the estate:
+
+| Path | What it is | Alias KEYS declared |
+|---|---|---|
+| `openxFactory/contracts/schemas/consent-instrument-class-registry.schema.yaml:70-76` | the constraint itself | none (no instance keys) |
+| `openxFactory/contracts/schemas/consent-instrument.schema.yaml:197` | prose reference to the mechanism | none |
+| `openxFactory/examples/consent-instrument/consent-instrument-class-registry.example.yaml:18-19` | the packaged example registry | `active` |
+| `xFactories/LedgerxFactory/conformance/consent-instrument-classes.yaml:61-62,71-72` | the only real domain registry in the estate | `active` (twice) |
+
+**The only alias KEY declared anywhere in the estate is `active` (→
+`executed`). No key spelled `withdrawn` exists.** Growing `NEUTRAL_STATUSES`
+by `withdrawn` therefore narrows `alias-remaps-neutral-status` onto a spelling
+no registry uses: the check fires nowhere, no existing registry or instrument
+changes verdict, and FR-030 is honoured through the edit. Task 8.2 is clear to
+proceed.
 
 The promoted requirement text at `openspec/specs/consent-instrument/spec.md:69-74`
 ("the closed five-state lifecycle") is PROMOTED text and is **not** edited by
@@ -976,6 +1008,75 @@ two exists.
 
 The escalation path existed and had not triggered as of the plan gate.
 
+### 2026-08-15 — the precondition was executed, FAILED, and is RULED (task 0.1)
+
+**Outcome: the packaged multi-surface reader is RELOCATED to a synthetic
+representability fixture. There is no citation, because there is no fact.**
+
+Authority chain, in order: the A-16 precondition executed as task 0.1 →
+`a16-escalation-ruling-2026-08-15.md` (architect) → that ruling's own item-5
+verification obligation FIRED, establishing the authority was Brett's →
+**Decision C (Brett, 2026-08-15): RELOCATE TO FIXTURE**, recorded at
+`openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15b.md`,
+which amends ratified packet task 2.3.
+
+**The search.** Offline (FR-029 forbids a live provider call), across the
+pinned feature checkout and the whole aggregation checkout including the
+OpsxFactory evidence chain and its archived changes. Run twice, independently,
+same verdict. `Global Reader`, `Dynamics 365 Administrator`, `Business Central
+Administrator`, `Exchange Administrator`, `View-Only Organization Management`:
+zero hits estate-wide.
+
+**Both clauses of the required fact fail, and the second fails
+affirmatively — evidence of absence, not absence of evidence:**
+
+| Clause | Verdict | Evidence |
+|---|---|---|
+| One permission or role reaches BOTH `business_central` and `exchange` read surfaces | NO CITATION ANYWHERE | seven candidates examined, each refuted on the record (table below) |
+| No read-only role scoped to just one of the two exists | **FALSIFIED** for Exchange | Graph application `Mail.Read` bounded to ONE mailbox by a provider-enforced application access policy — OpsxFactory `openspec/specs/exchange-administration/spec.md:46-56`, live-verified with an attempted-overreach proof at `openspec/changes/archive/2026-07-24-add-exchange-execution-surface/exchange-bringup-rung2-4-evidence.md:234-480` |
+| (the same clause, other surface) | fails the OTHER way | Business Central offers NO read-only path at all — `openspec/specs/business-central-administration/spec.md:93-101`: "its service principal exposes exactly `Automation.ReadWrite.All`, `app_access`, `API.ReadWrite.All` and `AdminCenter.ReadWrite.All`" |
+
+**Candidates examined and why each failed.** (1) Entra **Global Reader** — zero
+hits; asserting it would be the synthesized provider fact A-16 forbids; and it
+is a user/directory role, the wrong shape for the app-only
+`entra_app_registration` kind Decision 1 derives. (2) **`Exchange.ManageAsApp`**
+(this decision's own named companion) — Exchange-only, and not a read
+permission: it is the app-only EXO-PowerShell gate. (3) The **four BC app
+roles** — BC-only and all `ReadWrite`. (4) **`Mail.Read` + application access
+policy** — the clause-2 counterexample above. (5) **`exchange.manage`**
+(`OpsxFactory:credentials/requirements.yaml:107-119`) — delegated,
+Exchange-only, administrative. (6) **`entra_directory_admin` scopes** — the
+Entra directory surface, which ratified answer 5 excludes. (7)
+**`microsoft_managed_node_inventory_reader`** — refuted in this decision
+already: every surface it spans is out of the v1 vocabulary.
+
+**Why relocation rather than a softened or synthesized example.** A packaged
+example is an INSTANTIATION TEMPLATE a domain copies, so a synthesized
+`provider_reason` would put a fabricated provider fact into the very family
+this change builds to make provider claims falsifiable. Softening the case into
+a single-surface reader was forbidden by A-16 for the separate reason that it
+under-delivers FR-019. Keeping it packaged but marked hypothetical was offered
+to Brett and declined (the marker is the first thing a copying domain deletes);
+so was widening the vocabulary (a real scope change against ratified answer 5).
+
+**What stays, and it is nearly everything.** `spanned_surfaces[]`,
+`declared_excess` and its four fields, the permission-side and act-side reach
+rules, the per-surface `per_unit_principal_available` mapping and its coverage
+rule, and every named negative — unchanged. The ratified roster delta's
+forced-breadth requirement is CONDITIONAL ("**WHEN** the narrowest available
+permission reaches more than one admission surface…"), so the contract must
+carry the capability even while no in-vocabulary instance exists. That is
+exactly what the relocated fixture proves, and why the fixture is a
+representability probe rather than a worked case.
+
+**Consequence for task 1.2 — its own escalation clause does NOT trigger.** The
+`exchange` member's admission act and scoping mechanism are ratified and
+live-verified and may be written: the act is the Exchange application access
+policy (`New-ApplicationAccessPolicy -AccessRight RestrictAccess`, verified
+with `Test-ApplicationAccessPolicy`); the scoping mechanism is a mail-enabled
+security group naming the mailboxes the app may reach. Citations as in the
+table above.
+
 ---
 
 ## Convention and tree findings the implementation rests on
@@ -1177,7 +1278,9 @@ act landed — so an act on a surface the entry neither owns nor declares as
 spanned is reach, whatever the permission list says. The rule is FR-009's own,
 extended to the act side, with `undeclared-act-surface.yaml` as its negative and
 the multi-surface reader (whose acts sit on declared surfaces) as its
-discrimination partner.
+discrimination partner — now the representability FIXTURE rather than a
+packaged example (Decision C, 2026-08-15), which changes where the partner
+lives and nothing about what it discriminates.
 
 ### 9c — `per_unit_principal_available` coverage
 

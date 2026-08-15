@@ -62,8 +62,27 @@
       two-domain client with (i) the BC pair as the worked case — TWO
       admission acts, one provider-enforced per-environment and one
       tenant-wide with no selector, declared excess + gate obligation +
-      enforcement test; (ii) a provider-forced multi-surface reader; (iii) a
-      duty-separated pair; (iv) one `planned` entry.
+      enforcement test; (ii) a duty-separated pair; (iii) one `planned`
+      entry.
+      **AMENDED 2026-08-15 — Decision C (Brett); record:
+      `review/amendment-record-2026-08-15b.md`.** The packaged set is THREE
+      cases. The `provider-forced multi-surface reader` this task originally
+      listed as case (ii) is RELOCATED to a SYNTHETIC REPRESENTABILITY
+      FIXTURE in the test corpus, because no in-vocabulary provider-forced
+      multi-surface permission exists to describe truthfully — verified
+      2026-08-15: no permission or directory role reaching BOTH the
+      `business_central` and `exchange` read surfaces is citable anywhere in
+      the estate, and Business Central offers NO read-only path at all
+      (OpsxFactory `openspec/specs/business-central-administration/spec.md:93-101`),
+      while Exchange DOES offer a surface-scoped read-only path
+      (`openspec/specs/exchange-administration/spec.md:46-56`). A packaged
+      governed example is a truthful worked case and may not assert a
+      provider fact nobody can cite. Every forced-breadth MECHANISM stays
+      exactly as ratified: `spanned_surfaces[]`, `declared_excess`, the
+      reach rules and every named negative are unchanged, and the ratified
+      conditional requirement "A single provider permission spans surfaces"
+      is untouched — the capability must exist even while no in-vocabulary
+      instance does.
 - [ ] 2.4 `scripts/validate-client-identity-roster.py` (canonical, network-free,
       deterministic) + fixtures: one positive roster, one negative per rule
       (cross-domain shared identity, undeclared reach, unverified admission

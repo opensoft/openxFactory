@@ -802,6 +802,19 @@ remove an identity, permission, or admission.
   with zero findings. These fixtures MUST stand alongside the alias-pair
   negative of FR-016, so the alias rule is measured as a discrimination and not
   merely as a refusal.
+  The multi-surface reader is a SYNTHETIC REPRESENTABILITY FIXTURE and MUST NOT
+  be a packaged example (Decision C, Brett 2026-08-15;
+  `openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15b.md`).
+  No in-vocabulary provider-forced multi-surface permission exists — verified
+  2026-08-15 under ruling A-16 — so a packaged example, which is an
+  instantiation template a domain copies, could only assert a provider fact
+  nobody can cite. This requirement is unimpaired by the relocation: it has
+  always said CORPUS, never PACKAGED, and it requires the case to validate
+  clean, which the fixture measures. The fixture MUST carry a dated header
+  declaring itself synthetic, citing both halves of the 2026-08-15
+  falsification (Exchange offers a surface-scoped read-only path; Business
+  Central offers no read-only path at all), and stating that it exists to prove
+  killed-flaw (a) REPRESENTABILITY and to stand ready for vocabulary growth.
 - **FR-018**: The validator MUST refuse a negative fixture that validates
   cleanly, a negative fixture that fails for the wrong reason, and a corpus
   where a registered probe has no file or a file has no registration.
@@ -812,10 +825,28 @@ remove an identity, permission, or admission.
   application user in Sandbox1 with no production application user, PLUS the
   admin-center Entra-app authorization that has no scope selector and therefore
   reaches every environment, with the resulting excess, gate obligation, and
-  enforcement test declared — together with a provider-forced multi-surface
-  reader, a duty-separated pair, and one `planned` entry, for a client held by
-  two domains. Because a fragment is per (client, domain), the four mandated
-  cases MUST span at least TWO fragment files. The directory convention is
+  enforcement test declared — together with a duty-separated pair and one
+  `planned` entry, for a client held by
+  two domains. Because a fragment is per (client, domain), the THREE mandated
+  PACKAGED cases MUST span at least TWO fragment files.
+  **The packaged set is THREE, not four, by Decision C (Brett, 2026-08-15;
+  packet `review/amendment-record-2026-08-15b.md`, which amends ratified packet
+  task 2.3).** The fourth case this requirement previously mandated — a
+  provider-forced multi-surface reader — is RELOCATED to the synthetic
+  representability fixture of FR-017, because ruling A-16's precondition
+  established on 2026-08-15 that no permission or directory role reaching BOTH
+  the `business_central` and `exchange` read surfaces is citable anywhere in
+  the estate, while Business Central offers no read-only path at all
+  (OpsxFactory `openspec/specs/business-central-administration/spec.md:93-101`)
+  and Exchange offers a surface-scoped one
+  (`openspec/specs/exchange-administration/spec.md:46-56`). A packaged example
+  is a truthful worked case and a template a domain copies; it MUST NOT assert
+  a provider fact nobody can cite. Every forced-breadth mechanism
+  (`spanned_surfaces[]`, `declared_excess`, the permission-side and act-side
+  reach rules) and every named negative remain exactly as specified, because
+  the ratified conditional requirement obliges the contract to carry the
+  capability even while no in-vocabulary instance exists.
+  The directory convention is
   `examples/<family>/` because the schema lives in `contracts/schemas/`; the
   rival `contracts/<family>/examples/` convention belongs to families owning a
   `contracts/` subdirectory and MUST NOT be adopted here.
@@ -1025,7 +1056,11 @@ remove an identity, permission, or admission.
   VERBATIM from the
   ratified delta or OpenSpec task 2.1 where those enumerate them; they do NOT
   (task 2.1 names the field only), so its members MUST be exactly the kinds the
-  four mandated example cases require, closed at that set for this release, and
+  four mandated cases require (three packaged examples plus the relocated
+  representability fixture, Decision C — the derivation input set is unchanged
+  by the relocation, since all four cases are still authored and research.md
+  Decision 1 shows every one of them converging on the same object class),
+  closed at that set for this release, and
   the builder MUST NOT invent an unratified kind vocabulary. Extension of any
   closed set MUST follow the `admission_surface` route: the change that governs
   the new member adds it.
@@ -1200,6 +1235,14 @@ remove an identity, permission, or admission.
   the genuine pairs is a regression of the two flaws the cross-model review
   killed, and a clean pass on the alias pair means the free tokens are
   unbounded.
+  THREE of the four positives are PACKAGED examples; the fourth — the
+  provider-forced multi-surface reader — is the SYNTHETIC representability
+  fixture of FR-017, relocated out of the packaged set by Decision C (Brett,
+  2026-08-15). The criterion is unchanged in substance: all four still validate
+  with ZERO findings and the alias pair is still refused in the same
+  measurement. Only the multi-surface positive's HOME moves, because no
+  in-vocabulary provider-forced multi-surface permission exists to package
+  truthfully.
 - **SC-003**: The Business Central worked case is fully expressible in the
   neutral contract with no domain-local vocabulary: two admission acts with
   different achieved scopes and enforcement modes, a union effective reach, and

@@ -12,7 +12,7 @@ preconditions without which a later measurement cannot be made at all.
 
 - [x] CHK1501 Are the preconditions that must hold before work begins separated from the work itself? [Clarity, tasks §Phase 0]
 - [x] CHK1502 Does each precondition state exactly what it gates, rather than being "advisory"? [Clarity, tasks §Phase 0 checkpoint]
-- [x] CHK1503 Is the hard gate on the packaged-examples phase stated on every task in that phase, so it cannot be entered sideways? [Fail-closed, tasks §Phase 3 preamble]
+- [x] CHK1503 Is the hard gate on the packaged-examples phase stated on every task in that phase, so it cannot be entered sideways? [Fail-closed, tasks §Phase 3 preamble] — the gate FIRED and is RULED (2026-08-15): 0.1 failed, the escalation ran, and Decision C (Brett) satisfies the gate by relocating the case rather than by supplying a citation. The Phase 3 preamble now states the ruled basis and forbids reintroducing a packaged multi-surface reader, so the phase still cannot be entered sideways.
 - [x] CHK1504 Is the baseline precondition required BEFORE the first edit to any modified capability, with the reason it cannot be captured later? [Dependency, tasks §0.3]
 - [x] CHK1505 Is the estate sweep required before the edit whose safety it establishes? [Dependency, tasks §0.2, §8.2]
 - [x] CHK1506 Are the external checkouts the later measurements need established as a precondition rather than discovered at measurement time? [Dependency, tasks §0.3]
@@ -21,7 +21,7 @@ preconditions without which a later measurement cannot be made at all.
 ## Phase dependencies
 
 - [x] CHK1508 Does every phase state what it depends on and what it blocks? [Completeness, tasks §Phase headers]
-- [x] CHK1509 Is the one deliberate departure from cluster order explained by a real dependency (positives live inside packaged fragments)? [Clarity, tasks §Phase order]
+- [x] CHK1509 Is the one deliberate departure from cluster order explained by a real dependency (positives live inside packaged fragments)? [Clarity, tasks §Phase order] — RE-CHECKED after Decision C: the departure still holds for THREE of the four positives, which do live inside packaged fragments. The fourth no longer does — 4.9's synthetic fixture lives in Cluster C's own `tests/` tree and therefore depends on Phases 1-2 only, not on Phase 3. That is recorded on the Phase 4 header as an explicit exception, so the departure's rationale is not overstated.
 - [x] CHK1510 Is the distinction between a task's WORK and its VERIFICATION landing in different phases stated, so an apparent cycle is not re-raised? [Clarity, tasks §Format]
 - [x] CHK1511 Is the phase that has no build dependency but names an artifact fixed elsewhere explained rather than left ambiguous? [Clarity, tasks §Phase 7 header]
 - [x] CHK1512 Does the registration phase depend on every phase whose CONTENT it digests? [Dependency, tasks §Phase 9 header]

@@ -67,7 +67,7 @@ defect was fixed in this pass carry a FIXED note naming the edit.
 - [x] CHK036 Is every assumption stated as an assumption, with the fact it rests on and how it was verified? [Assumption, Spec §Assumptions]
 - [x] CHK037 Are the assumptions that later proved stale corrected in place rather than left standing (the BC evidence chain's branch)? [Assumption, Spec §Assumptions, research §BC evidence chain]
 - [x] CHK038 Are the external artifacts the work depends on (aggregation checkout, OpsxFactory checkout) named, with an escalation path when absent? [Dependency, tasks §0.3]
-- [x] CHK039 Is the one provider fact the packaged corpus needs treated as a precondition with a stop-and-escalate branch rather than as a discovery? [Dependency, tasks §0.1, research §Decision 8]
+- [x] CHK039 Is the one provider fact the packaged corpus needs treated as a precondition with a stop-and-escalate branch rather than as a discovery? [Dependency, tasks §0.1, research §Decision 8] — VINDICATED 2026-08-15: the branch FIRED. The precondition ran before any example was authored, both clauses proved false, the builder stopped and escalated with a candidate table instead of synthesizing a fact, and Decision C (Brett) relocated the case. The design of this item is what made the escalation cost one task rather than a built corpus, which is precisely what ruling A-16 mechanized it for.
 - [x] CHK040 Are dependencies on ACTIVE concurrent lanes (the `shared_identity` module, `add-dispatch-credential-contract`) identified and dispositioned? [Dependency, Spec §FR-023, research §Decision 6]
 - [x] CHK041 Is the assumption that promoted text may lag the implementation stated with the reason it is safe (no automated count assertion)? [Assumption, Spec §FR-025, §Assumptions]
 

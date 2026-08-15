@@ -52,7 +52,7 @@ that do not exist. No task is dropped or moved between clusters.
 spend work on them. Two of these are ruling-mandated gates; one is the
 before-state FR-030 is measured against.
 
-- [ ] 0.1 **[HARD GATE on Phase 3]** Verify the multi-surface reader's citable
+- [x] 0.1 **[HARD GATE on Phase 3]** Verify the multi-surface reader's citable
       provider fact (ruling A-16). Establish that ONE provider-native
       permission or directory role, in its narrowest available form, reaches
       BOTH the `business_central` and the `exchange` read surfaces, and that no
@@ -69,7 +69,25 @@ before-state FR-030 is measured against.
       *Verification*: the citation exists in `research.md` and names a
       resolvable source; Phase 3 does not begin until this task is `[x]` or the
       escalation is ruled.
-- [ ] 0.2 [P] Re-confirm the ruling A-7 precondition: no consent class registry
+      **EXECUTED 2026-08-15 — the precondition FAILED and the escalation is
+      RULED. Phase 3 is unblocked by the ruling, not by a citation.** Both
+      clauses were falsified: no permission or directory role reaching BOTH
+      surfaces is citable anywhere in the estate (seven candidates refuted),
+      Business Central offers NO read-only path at all
+      (`OpsxFactory:openspec/specs/business-central-administration/spec.md:93-101`),
+      and Exchange offers a surface-scoped read-only path that falsifies the
+      second clause outright
+      (`openspec/specs/exchange-administration/spec.md:46-56`, live-verified
+      with an attempted-overreach proof). Disposition chain:
+      `a16-escalation-ruling-2026-08-15.md` (architect) → its item-5 obligation
+      fired on ratified packet task 2.3 → **Decision C (Brett, 2026-08-15):
+      RELOCATE TO FIXTURE**, packet amended in place at task 2.3 with the
+      sibling record
+      `openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15b.md`.
+      Full account: research.md Decision 8's dated sub-section. Consequence for
+      this list: 3.3 is RELOCATED to Phase 4 as task 4.9, Phase 3 packages
+      THREE cases, and no packaged example asserts an uncitable provider fact.
+- [x] 0.2 [P] Re-confirm the ruling A-7 precondition: no consent class registry
       anywhere in the reachable estate aliases a key spelled `withdrawn`.
       *Files*: read-only sweep of every `status_aliases` block
       (`examples/consent-instrument/`, `contracts/schemas/`, and any
@@ -81,7 +99,14 @@ before-state FR-030 is measured against.
       recorded as a NARROWED sweep, never reported as a clean estate sweep.
       On a hit, STOP — growing `NEUTRAL_STATUSES` would change an existing
       registry's verdict and breach FR-030.
-- [ ] 0.3 [P] Capture the green-before baseline for the four MODIFIED
+      **SWEPT 2026-08-15 — CLEAN, and FULL-ESTATE in reach, not narrowed.** The
+      aggregation checkout resolved (0.3), so the domain registries were
+      visible. Exactly four files in the whole estate declare `status_aliases`;
+      the ONLY alias KEY declared anywhere is `active` (→ `executed`), in
+      `xFactories/LedgerxFactory/conformance/consent-instrument-classes.yaml`
+      and openxFactory's packaged example. No `withdrawn` key exists. Recorded
+      with the per-file table in `research.md` Decision 5. 8.2 is clear.
+- [x] 0.3 [P] Capture the green-before baseline for the four MODIFIED
       capabilities, so "unmodified in behaviour" (FR-030) is measured and not
       assumed. Record verdicts AND finding codes, not just exit codes.
       *Commands*: `python3 scripts/validate-consent-instruments.py` (5
@@ -104,6 +129,28 @@ before-state FR-030 is measured against.
       *Verification*: the baseline file exists at the recorded scratch path and
       is re-compared at 10.4; both external checkouts resolve, or the
       escalation is ruled.
+      **CAPTURED 2026-08-15, before any edit to any MODIFIED capability's
+      surface. THE RECORDED PATH — 8.6 and 10.4 diff against this:**
+      `/tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/af342a91-d20e-4518-ae91-43c3ec1e3ccd/scratchpad/007-baseline/BASELINE.md`
+      (raw run transcripts are its siblings in that directory). All five
+      commands exit 0 and EVERY finding-code register is empty — no validator
+      emits any `ERROR [code]` or `WARN [code]` line at baseline. Composition:
+      consent self-test 5 positives / 5 negatives / 2 purpose probes;
+      credential-contracts self-test 2 positives + 3 negatives, `0 contract(s)
+      checked, 0 skipped, 0 error(s) -> PASS`; `tests/credential_contracts/` 2
+      passed; `tests/doc-health/` 621 passed + 7 skipped (628); and
+      `tests/conformance-gate/` 13 passed + 2 skipped — **15 tests, the number
+      5.1 must preserve unmodified**. BOTH external checkouts resolve: the
+      aggregation checkout at `/home/brett/projects/xFactory` (HEAD `dac0a55`,
+      every submodule populated) and the OpsxFactory checkout at
+      `/home/brett/projects/xFactory/xFactories/OpsxFactory` (the two live
+      `issuance_preconditions` records confirmed at
+      `credentials/requirements.yaml:232-234,263-265`, both values `true`, so
+      Decision 3's `const: true` narrowing breaks no live record). No
+      escalation on this half. CAUTION for 10.3/10.6: the aggregation checkout
+      is SHARED with other sessions, so its porcelain reading must account for
+      foreign uncommitted work, and per gate ruling G8's rider the doc-health
+      merge phase must never be run there.
 
 **Checkpoint**, stated as what each precondition actually gates: 0.1 ruled
 before **Phase 3** begins; 0.2 clean before **8.2**; 0.3 captured before the
@@ -462,10 +509,12 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       because the provider's granularity is coarser than the axis (FR-009).
       *Verification*: 4.1 and 4.4's negatives — including
       `undeclared-act-surface.yaml` and `per-unit-principal-undeclared.yaml`;
-      3.3's multi-surface reader
+      4.9's multi-surface representability fixture
       validates clean, which is the "must not invalidate" half and the
       discrimination partner of both new negatives (its acts sit on declared
-      surfaces and its mapping answers both).
+      surfaces and its mapping answers both). It is a FIXTURE rather than
+      3.3's packaged entry by Decision C (2026-08-15); the discrimination it
+      performs is unchanged.
 - [ ] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
       registration homed outside the client tenant may not declare
       client-resident — **the predicate, against 1.4's DECLARED comparand
@@ -580,6 +629,12 @@ begin.
 
 > Every task in this phase lists **0.1 as a hard dependency**. If 0.1 escalated
 > and has not been ruled, this phase does not start.
+>
+> **0.1 escalated and IS ruled (2026-08-15).** The gate is satisfied by the
+> ruling: **Decision C (Brett) — the packaged set is THREE cases**, the
+> multi-surface reader having been relocated to the synthetic representability
+> fixture now homed at task 4.9. Phase 3 proceeds on that basis, and no task
+> here may reintroduce a packaged multi-surface reader.
 
 - [ ] 3.1 [US2] `examples/client-identity-roster/README.md` carrying
       `Status: ratified` plus a `Ratified by:` line naming
@@ -620,21 +675,25 @@ begin.
       every free token used.
       *Depends on*: 0.1, 1.4–1.7. *Verification*: 2.2 self-test clean; SC-003
       and SC-004 are read off this file.
-- [ ] 3.3 [US1] The provider-forced multi-surface reader entry, in the same
-      fragment: `granted_permissions[]` in provider-native identifiers,
-      `declared_excess.provider_reason` carrying **0.1's citation verbatim**,
-      plus the gate obligation and enforcement-test reference FR-010 requires.
-      *Depends on*: **0.1 (this task is the reason 0.1 is a gate)**.
-      *Verification*: validates with ZERO findings (SC-002's fourth positive)
-      while 2.6's undeclared-reach rule refuses the same entry with the
-      declaration removed.
+- [~] 3.3 **RELOCATED to task 4.9 by Decision C (Brett, 2026-08-15).** This
+      task authored the provider-forced multi-surface reader as a PACKAGED
+      entry carrying 0.1's citation verbatim. 0.1 established that no such
+      citation exists, so the entry cannot be packaged without asserting an
+      uncitable provider fact — and a packaged example is an instantiation
+      template a domain copies. The case is NOT dropped: it becomes the
+      SYNTHETIC representability fixture at **4.9**, with the same ZERO-findings
+      obligation and the same discrimination role against 2.6's reach rules.
+      Nothing is authored under this id; it is retained rather than deleted so
+      the relocation is legible and the SC-002 positive can be traced from the
+      case list to its new home.
 - [ ] 3.4 [US1] The `planned` entry, in the same fragment: `lifecycle_state:
       planned`, an identity not yet created, its kind declared as intent.
       *Depends on*: 0.1, 1.7. *Verification*: ZERO findings (FR-013, SC-002);
       and it is not reported as missing or incomplete (2.10, SC-013).
 - [ ] 3.5 [P] [US1] `client-identity-roster-farheap-ledgerx.example.yaml` — the
       SECOND fragment for the SAME client held by a SECOND domain (fragments
-      are per (client, domain), which is why the four mandated cases span two
+      are per (client, domain), which is why the three mandated PACKAGED cases
+      span two
       files, ruling C3). Carries the GENUINE duty-separated pair (the
       `ledgerx-farheap-bc-poster` / `-provisioner` precedent, differing in
       granted permissions or declaring `duty_separation_rationale`, the
@@ -665,17 +724,23 @@ begin.
       *Depends on*: 0.1, 1.9. *Verification*: 2.2 self-test clean; 4.3's three
       negatives are its refusals.
 
-**Checkpoint**: four mandated cases packaged across two fragments, drift
-example packaged → Phase 4 may assert against them.
+**Checkpoint**: THREE mandated cases packaged across two fragments (Decision C
+— the fourth is 4.9's fixture), drift example packaged → Phase 4 may assert
+against them.
 
 ---
 
 ## Phase 4 — Cluster C: the fixture corpus
 
-**Depends on**: Phases 1, 2, 3. **Blocks**: Phase 5.
+**Depends on**: Phases 1, 2, 3 — except **4.9, which depends on Phases 1 and 2
+ONLY** (Decision C relocated it here from Phase 3, and it is authored in this
+phase's own `tests/` tree rather than against a packaged fragment).
+**Blocks**: Phase 5.
 
 *Target directories*: `examples/client-identity-roster/negative/`,
-`tests/client-identity-roster/`.
+`tests/client-identity-roster/` (including
+`tests/client-identity-roster/fixtures/` for 4.9's synthetic fixture — a tree
+2.9's `tests/` exclusion already keeps out of a self-scan).
 
 Negatives take the CONSENT family's header dialect
 (`# INVALID <record noun> — violates <requirement> (<rule>): <what is wrong>` /
@@ -825,10 +890,45 @@ filename in the validator's expectations table.
       the doc-health corpus at 6.5) — plan.md's Cluster C table.
       *Verification*: walk the table against the files on disk; the 2.2
       registration check independently proves no file lacks a probe and no probe
-      lacks a file.
+      lacks a file. The count is unaffected by Decision C: it counts NEGATIVES,
+      and 4.9 relocates a POSITIVE.
+- [ ] 4.9 [US1] **The SYNTHETIC representability fixture — SC-002's fourth
+      positive, relocated here from 3.3 by Decision C (Brett, 2026-08-15).**
+      Author `tests/client-identity-roster/fixtures/multi-surface-reader-representability.yaml`:
+      a fragment whose entry declares an `admission_surface` of
+      `business_central`, a `declared_excess.spanned_surfaces[]` naming
+      `exchange`, `granted_permissions[]` whose `reaches[]` cover both, an
+      admission act on each surface, a `per_unit_principal_available` mapping
+      answering BOTH surfaces, and the provider reason, bound mechanism, gate
+      obligation and enforcement-test reference FR-010 requires.
+      **The file MUST open with a DATED SYNTHETIC HEADER** — the ruling's item 1
+      and FR-017's amended text — declaring in this order: that the record is
+      SYNTHETIC and is NOT a packaged example and MUST NOT be instantiated from;
+      that as of 2026-08-15 no in-vocabulary provider-forced multi-surface
+      permission exists, citing BOTH halves of the falsification
+      (`OpsxFactory:openspec/specs/business-central-administration/spec.md:93-101`
+      — Business Central offers no read-only path at all; and
+      `openspec/specs/exchange-administration/spec.md:46-56` — Exchange offers a
+      surface-scoped read-only path, which is what falsifies "no single-surface
+      read-only role exists"); that it exists to prove killed-flaw (a)
+      REPRESENTABILITY — a spanned-surfaces entry with its forced breadth
+      declared validates with ZERO findings — and to stand ready for vocabulary
+      growth; and that it is authorized by Decision C, citing
+      `openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15b.md`.
+      The `provider_reason` field itself must be written as a REPRESENTABILITY
+      PLACEHOLDER naming the header, never as an asserted provider fact — that
+      distinction is the whole point of the relocation.
+      *Depends on*: Phases 1 and 2 (it is validated by the Phase 2 validator);
+      NOT on Phase 3. *Verification*: the fixture validates with ZERO findings,
+      asserted in `tests/client-identity-roster/test_client_identity_roster.py`;
+      and 2.6's undeclared-reach rule refuses the same record with
+      `spanned_surfaces[]` removed — the discrimination that proves the fixture
+      measures the rule rather than passing vacuously. This is SC-002's fourth
+      positive and FR-017's multi-surface obligation, in full.
 
 **Checkpoint**: every named rule has a refused negative and every killed-flaw
-positive passes clean.
+positive passes clean — three of the four SC-002 positives in the packaged
+corpus, the fourth as 4.9's synthetic fixture.
 
 ---
 
@@ -1266,9 +1366,15 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       reader, and the `planned` entry, all clean, in the SAME run in which the
       alias-pair negative is refused (4.6, FR-017, FR-038, SC-002). If any
       finding lands against a genuine pair, the two flaws the cross-model
-      review killed have regressed and the work stops.
+      review killed have regressed and the work stops. The multi-surface reader
+      is 4.9's SYNTHETIC fixture rather than a packaged entry (Decision C,
+      2026-08-15); its ZERO-findings obligation in this measurement is
+      unchanged, and the measurement must reach it — a run that covers only the
+      packaged fragments would silently drop SC-002's fourth positive, which is
+      the outcome the relocation was ruled to avoid, not to cause.
       *Verification*: `pytest tests/client-identity-roster/ -k discrimination`
-      plus the self-test's zero-finding verdict on both packaged fragments.
+      plus the self-test's zero-finding verdict on both packaged fragments AND
+      on 4.9's fixture.
 - [ ] 10.6 The boundary measurements: `git status --porcelain` over the
       AGGREGATION checkout shows no change under `xFactories/` (SC-012, FR-030);
       a confirmation that no credential was minted and no provider call made

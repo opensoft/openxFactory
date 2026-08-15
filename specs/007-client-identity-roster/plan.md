@@ -140,8 +140,10 @@ scripts/doc_health/client_identity_composition.py
 examples/client-identity-roster/
 ├── README.md                                                # Status: ratified
 ├── client-identity-roster-farheap-opsx.example.yaml         # BC worked case (2 acts),
-│                                                            #   multi-surface reader,
 │                                                            #   planned entry
+│                                                            #   (multi-surface reader
+│                                                            #    RELOCATED to tests/,
+│                                                            #    Decision C 2026-08-15)
 ├── client-identity-roster-farheap-ledgerx.example.yaml      # duty-separated pair,
 │                                                            #   per-unit pair,
 │                                                            #   retired entry
@@ -712,8 +714,15 @@ any broader form.
 - **Positives** (FR-017, SC-002): a genuine per-unit pair (differing in
   `achieved_scope`), a genuine duty pair (differing in permissions OR
   declaring the rationale), a provider-forced multi-surface reader with its
-  declaration, and a `planned` entry — each with ZERO findings, living inside
-  the two packaged fragments. The checklist pass adds a fifth positive for
+  declaration, and a `planned` entry — each with ZERO findings. THREE of them
+  live inside the two packaged fragments; the multi-surface reader lives in
+  THIS cluster's own `tests/client-identity-roster/` tree as a SYNTHETIC
+  representability fixture with a dated header (Decision C, Brett 2026-08-15 —
+  research.md Decision 8's dated sub-section; packet
+  `review/amendment-record-2026-08-15b.md`), because no in-vocabulary
+  provider-forced multi-surface permission exists to package truthfully. The
+  fixture's obligation is unchanged: ZERO findings, standing beside the
+  alias-pair negative in the same discrimination. The checklist pass adds a fifth positive for
   coverage rather than for a killed flaw: a `retired` entry, so the third
   member of the `lifecycle_state` set has an instance somewhere in the corpus
   and FR-013's "a retired entry MUST retain its record" is exercised instead
@@ -860,8 +869,10 @@ grows it by a fixture, for the same reason.
 `examples/client-identity-roster/` with `README.md` (`Status: ratified`,
 naming the change, following the sibling READMEs' layout block), two positive
 fragments for ONE client held by TWO domains (fragments are per (client,
-domain), which is why the four mandated cases span two files, ruling C3), and
-the drift-finding example.
+domain), which is why the THREE mandated PACKAGED cases span two files, ruling
+C3), and the drift-finding example. The packaged set is three by Decision C
+(Brett, 2026-08-15) — see the precondition section below for what happened and
+where the fourth case went.
 
 The BC worked case is transcribed from
 `OpsxFactory:tenants/farheap-bc-observer-identity-evidence-v1.yaml` — two
@@ -910,6 +921,33 @@ provider's own documentation or to a record in the OpsxFactory evidence chain.
 Cluster D is therefore blocked on this precondition, and the fixture corpus of
 Cluster C is blocked on Cluster D for the multi-surface positive specifically.
 The escalation path exists and had not triggered as of the plan-gate ruling.
+
+**EXECUTED AND RULED, 2026-08-15. The precondition FAILED and the escalation
+path fired.** Both clauses of the fact were falsified — no permission or role
+reaching both surfaces is citable anywhere in the estate, Business Central
+offers NO read-only path at all
+(`OpsxFactory:openspec/specs/business-central-administration/spec.md:93-101`),
+and Exchange offers a surface-scoped read-only path that falsifies the second
+clause outright (`openspec/specs/exchange-administration/spec.md:46-56`, with a
+live attempted-overreach proof). Seven candidates were examined; the full
+account is research.md Decision 8's dated sub-section.
+
+**Outcome — Decision C (Brett, 2026-08-15): RELOCATE TO FIXTURE.** The
+architect ruled first (`a16-escalation-ruling-2026-08-15.md`); that ruling's
+own item-5 obligation then established that ratified packet task 2.3 mandates
+the case as PACKAGED, making the authority Brett's, and Brett ruled relocation.
+The ratified packet is amended in place at task 2.3 with the sibling record
+`review/amendment-record-2026-08-15b.md`.
+
+Consequences for this cluster, precisely: Cluster D packages THREE cases, not
+four; the multi-surface reader becomes Cluster C's synthetic representability
+fixture; and **Cluster C is no longer blocked on Cluster D for the
+multi-surface positive** — it owns that positive outright. Every forced-breadth
+mechanism this cluster's design carries (`spanned_surfaces[]`,
+`declared_excess`, the reach rules, every named negative) is untouched: the
+ratified requirement is CONDITIONAL, so the contract must carry the capability
+even while no in-vocabulary instance exists, and proving exactly that is what
+the fixture is for.
 
 The constraint of research.md Decision 8 is the standing rule this precondition
 mechanizes: a packaged example may not assert a provider fact the builder
@@ -1372,7 +1410,10 @@ is a ruling rather than an open choice and is encoded in Cluster A above.
     (`review/amendment-record-2026-08-15.md`).
 16. **The multi-surface reader example must CITE its provider fact**, and an
     uncitable claim escalates rather than being invented (research.md
-    Decision 8).
+    Decision 8). RESOLVED 2026-08-15: the claim proved uncitable, the
+    escalation fired, and Decision C (Brett) relocated the case to a synthetic
+    representability fixture — so the rule held and produced its intended
+    outcome rather than an invented fact.
 17. **The drift record's `identity_ref` is an OBJECT** while the entry's
     `identity_ref` is a STRING — both names are ratified (FR-001, FR-035); the
     divergence is documented in the schema rather than renamed away.
@@ -1412,7 +1453,9 @@ scope:
     shape.
 22. **`per_unit_principal_available` is a mapping keyed by admission surface**,
     not a bare boolean — FR-008 is per-surface, and the mandated multi-surface
-    reader is exactly the entry one boolean cannot describe.
+    reader is exactly the entry one boolean cannot describe. The mapping shape
+    is unaffected by Decision C's relocation of that case to a fixture: the
+    fixture still exercises it, and FR-008's coverage rule binds every entry.
 23. **FR-010's name check reads `identity_ref`** (the ratified record has no
     `purpose` field), fires in ONE direction only — an observation-suggesting
     token in the name while `authority_class_achieved` is `mutate` — against a
